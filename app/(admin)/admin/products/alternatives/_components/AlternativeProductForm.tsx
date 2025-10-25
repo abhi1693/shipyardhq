@@ -36,6 +36,9 @@ import PageContainer from "@/components/layout/page-container"
 import { adminPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import ImageUploadField from "@/components/molecules/ImageUploadField"
+import { Sparkles } from "lucide-react"
+import { cleanWebsiteUrlInput } from "@/lib/productWizard/transform"
+import type { ProductAutofillSuggestion } from "@/lib/productWizard/autofill"
 
 const schema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -70,6 +73,7 @@ export function AlternativeProductForm({
   const router = useRouter()
   const [categoryQuery, setCategoryQuery] = useState("")
   const [productQuery, setProductQuery] = useState("")
+  const [autofilling, setAutofilling] = useState(false)
 
   const form = useForm<AlternativeProductFormInput>({
     resolver: zodResolver(schema),
@@ -100,6 +104,115 @@ export function AlternativeProductForm({
       return label.includes(query)
     })
   }, [products, productQuery])
+
+  async function handleAutofill() {
+    const rawUrl = form.getValues("websiteUrl") as string
+    const cleanedUrl = cleanWebsiteUrlInput(rawUrl)
+
+    if (!cleanedUrl) {
+      toast.error("Enter a website URL before running autofill")
+      return
+    }
+
+    form.setValue("websiteUrl", cleanedUrl, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+
+    setAutofilling(true)
+    try {
+      const response = await fetch("/api/products/autofill", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url: cleanedUrl,
+          categories: categories.map((category) => category.name),
+        }),
+      })
+
+      const payload = await response.json()
+      if (!response.ok) {
+        throw new Error(payload?.error || "Unable to fetch details from this URL")
+      }
+
+      const suggestion = payload?.suggestion as
+        | ProductAutofillSuggestion
+        | undefined
+      const warnings: string[] = Array.isArray(payload?.warnings)
+        ? payload.warnings
+        : []
+
+      if (!suggestion || Object.keys(suggestion).length === 0) {
+        toast.info("No details were detected for this site yet")
+        return
+      }
+
+      applySuggestion(suggestion)
+      toast.success("Alternative details auto-filled")
+
+      if (warnings.length) {
+        toast.warning(warnings.join("\n"))
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : "Failed to auto-fill details"
+      toast.error(message)
+    } finally {
+      setAutofilling(false)
+    }
+  }
+
+  function applySuggestion(suggestion: ProductAutofillSuggestion) {
+    if (suggestion.name) {
+      form.setValue("name", suggestion.name, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.description) {
+      form.setValue("description", suggestion.description, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.logo) {
+      form.setValue("logoUrl", suggestion.logo, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.categoryName) {
+      const lower = suggestion.categoryName.toLowerCase()
+      const exact = categories.find(
+        (category) => category.name.toLowerCase() === lower,
+      )
+      const contains =
+        exact ||
+        categories.find((category) =>
+          lower.includes(category.name.toLowerCase()),
+        ) ||
+        categories.find((category) =>
+          category.name.toLowerCase().includes(lower),
+        )
+
+      const match = exact ?? contains
+      if (match) {
+        const current = new Set<string>(
+          (form.getValues("categoryIds") as string[]) ?? [],
+        )
+        current.add(match.id)
+        form.setValue("categoryIds", Array.from(current), {
+          shouldDirty: true,
+          shouldValidate: true,
+        })
+      }
+    }
+  }
 
   async function onSubmit(values: AlternativeProductFormInput) {
     if (mode === "create") {
@@ -230,8 +343,36 @@ export function AlternativeProductForm({
                     <FormItem>
                       <FormLabel>Website URL</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://example.com" {...field} />
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="https://example.com"
+                            {...field}
+                          />
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={handleAutofill}
+                            disabled={autofilling}
+                          >
+                            {autofilling ? (
+                              <span className="flex items-center gap-2">
+                                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                                Filling…
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-2">
+                                <Sparkles className="h-4 w-4" />
+                                AI autofill
+                              </span>
+                            )}
+                          </Button>
+                        </div>
                       </FormControl>
+                      <FormDescription>
+                        Paste the vendor homepage to pull a name, description, and
+                        logo automatically.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
