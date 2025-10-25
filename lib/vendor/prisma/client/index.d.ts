@@ -7171,6 +7171,7 @@ export namespace Prisma {
   export type AlternativeProductMinAggregateOutputType = {
     id: string | null
     name: string | null
+    slug: string | null
     description: string | null
     websiteUrl: string | null
     logoUrl: string | null
@@ -7181,6 +7182,7 @@ export namespace Prisma {
   export type AlternativeProductMaxAggregateOutputType = {
     id: string | null
     name: string | null
+    slug: string | null
     description: string | null
     websiteUrl: string | null
     logoUrl: string | null
@@ -7191,6 +7193,7 @@ export namespace Prisma {
   export type AlternativeProductCountAggregateOutputType = {
     id: number
     name: number
+    slug: number
     description: number
     websiteUrl: number
     logoUrl: number
@@ -7203,6 +7206,7 @@ export namespace Prisma {
   export type AlternativeProductMinAggregateInputType = {
     id?: true
     name?: true
+    slug?: true
     description?: true
     websiteUrl?: true
     logoUrl?: true
@@ -7213,6 +7217,7 @@ export namespace Prisma {
   export type AlternativeProductMaxAggregateInputType = {
     id?: true
     name?: true
+    slug?: true
     description?: true
     websiteUrl?: true
     logoUrl?: true
@@ -7223,6 +7228,7 @@ export namespace Prisma {
   export type AlternativeProductCountAggregateInputType = {
     id?: true
     name?: true
+    slug?: true
     description?: true
     websiteUrl?: true
     logoUrl?: true
@@ -7306,6 +7312,7 @@ export namespace Prisma {
   export type AlternativeProductGroupByOutputType = {
     id: string
     name: string
+    slug: string
     description: string
     websiteUrl: string
     logoUrl: string
@@ -7333,6 +7340,7 @@ export namespace Prisma {
   export type AlternativeProductSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
+    slug?: boolean
     description?: boolean
     websiteUrl?: boolean
     logoUrl?: boolean
@@ -7346,6 +7354,7 @@ export namespace Prisma {
   export type AlternativeProductSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
+    slug?: boolean
     description?: boolean
     websiteUrl?: boolean
     logoUrl?: boolean
@@ -7356,6 +7365,7 @@ export namespace Prisma {
   export type AlternativeProductSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
+    slug?: boolean
     description?: boolean
     websiteUrl?: boolean
     logoUrl?: boolean
@@ -7366,6 +7376,7 @@ export namespace Prisma {
   export type AlternativeProductSelectScalar = {
     id?: boolean
     name?: boolean
+    slug?: boolean
     description?: boolean
     websiteUrl?: boolean
     logoUrl?: boolean
@@ -7373,7 +7384,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type AlternativeProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "websiteUrl" | "logoUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["alternativeProduct"]>
+  export type AlternativeProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "description" | "websiteUrl" | "logoUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["alternativeProduct"]>
   export type AlternativeProductInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     products?: boolean | AlternativeProduct$productsArgs<ExtArgs>
     categories?: boolean | AlternativeProduct$categoriesArgs<ExtArgs>
@@ -7391,6 +7402,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
+      slug: string
       description: string
       websiteUrl: string
       logoUrl: string
@@ -7823,6 +7835,7 @@ export namespace Prisma {
   interface AlternativeProductFieldRefs {
     readonly id: FieldRef<"AlternativeProduct", 'String'>
     readonly name: FieldRef<"AlternativeProduct", 'String'>
+    readonly slug: FieldRef<"AlternativeProduct", 'String'>
     readonly description: FieldRef<"AlternativeProduct", 'String'>
     readonly websiteUrl: FieldRef<"AlternativeProduct", 'String'>
     readonly logoUrl: FieldRef<"AlternativeProduct", 'String'>
@@ -50338,6 +50351,7 @@ export namespace Prisma {
   export const AlternativeProductScalarFieldEnum: {
     id: 'id',
     name: 'name',
+    slug: 'slug',
     description: 'description',
     websiteUrl: 'websiteUrl',
     logoUrl: 'logoUrl',
@@ -51569,6 +51583,7 @@ export namespace Prisma {
     NOT?: AlternativeProductWhereInput | AlternativeProductWhereInput[]
     id?: StringFilter<"AlternativeProduct"> | string
     name?: StringFilter<"AlternativeProduct"> | string
+    slug?: StringFilter<"AlternativeProduct"> | string
     description?: StringFilter<"AlternativeProduct"> | string
     websiteUrl?: StringFilter<"AlternativeProduct"> | string
     logoUrl?: StringFilter<"AlternativeProduct"> | string
@@ -51581,6 +51596,7 @@ export namespace Prisma {
   export type AlternativeProductOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
+    slug?: SortOrder
     description?: SortOrder
     websiteUrl?: SortOrder
     logoUrl?: SortOrder
@@ -51592,6 +51608,7 @@ export namespace Prisma {
 
   export type AlternativeProductWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    slug?: string
     websiteUrl?: string
     AND?: AlternativeProductWhereInput | AlternativeProductWhereInput[]
     OR?: AlternativeProductWhereInput[]
@@ -51603,11 +51620,12 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"AlternativeProduct"> | Date | string
     products?: ProductListRelationFilter
     categories?: CategoryListRelationFilter
-  }, "id" | "websiteUrl">
+  }, "id" | "slug" | "websiteUrl">
 
   export type AlternativeProductOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
+    slug?: SortOrder
     description?: SortOrder
     websiteUrl?: SortOrder
     logoUrl?: SortOrder
@@ -51624,6 +51642,7 @@ export namespace Prisma {
     NOT?: AlternativeProductScalarWhereWithAggregatesInput | AlternativeProductScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"AlternativeProduct"> | string
     name?: StringWithAggregatesFilter<"AlternativeProduct"> | string
+    slug?: StringWithAggregatesFilter<"AlternativeProduct"> | string
     description?: StringWithAggregatesFilter<"AlternativeProduct"> | string
     websiteUrl?: StringWithAggregatesFilter<"AlternativeProduct"> | string
     logoUrl?: StringWithAggregatesFilter<"AlternativeProduct"> | string
@@ -54925,6 +54944,7 @@ export namespace Prisma {
   export type AlternativeProductCreateInput = {
     id?: string
     name: string
+    slug: string
     description: string
     websiteUrl: string
     logoUrl: string
@@ -54937,6 +54957,7 @@ export namespace Prisma {
   export type AlternativeProductUncheckedCreateInput = {
     id?: string
     name: string
+    slug: string
     description: string
     websiteUrl: string
     logoUrl: string
@@ -54949,6 +54970,7 @@ export namespace Prisma {
   export type AlternativeProductUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string
@@ -54961,6 +54983,7 @@ export namespace Prisma {
   export type AlternativeProductUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string
@@ -54973,6 +54996,7 @@ export namespace Prisma {
   export type AlternativeProductCreateManyInput = {
     id?: string
     name: string
+    slug: string
     description: string
     websiteUrl: string
     logoUrl: string
@@ -54983,6 +55007,7 @@ export namespace Prisma {
   export type AlternativeProductUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string
@@ -54993,6 +55018,7 @@ export namespace Prisma {
   export type AlternativeProductUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string
@@ -58835,6 +58861,7 @@ export namespace Prisma {
   export type AlternativeProductCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    slug?: SortOrder
     description?: SortOrder
     websiteUrl?: SortOrder
     logoUrl?: SortOrder
@@ -58845,6 +58872,7 @@ export namespace Prisma {
   export type AlternativeProductMaxOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    slug?: SortOrder
     description?: SortOrder
     websiteUrl?: SortOrder
     logoUrl?: SortOrder
@@ -58855,6 +58883,7 @@ export namespace Prisma {
   export type AlternativeProductMinOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    slug?: SortOrder
     description?: SortOrder
     websiteUrl?: SortOrder
     logoUrl?: SortOrder
@@ -65527,6 +65556,7 @@ export namespace Prisma {
   export type AlternativeProductCreateWithoutProductsInput = {
     id?: string
     name: string
+    slug: string
     description: string
     websiteUrl: string
     logoUrl: string
@@ -65538,6 +65568,7 @@ export namespace Prisma {
   export type AlternativeProductUncheckedCreateWithoutProductsInput = {
     id?: string
     name: string
+    slug: string
     description: string
     websiteUrl: string
     logoUrl: string
@@ -66294,6 +66325,7 @@ export namespace Prisma {
     NOT?: AlternativeProductScalarWhereInput | AlternativeProductScalarWhereInput[]
     id?: StringFilter<"AlternativeProduct"> | string
     name?: StringFilter<"AlternativeProduct"> | string
+    slug?: StringFilter<"AlternativeProduct"> | string
     description?: StringFilter<"AlternativeProduct"> | string
     websiteUrl?: StringFilter<"AlternativeProduct"> | string
     logoUrl?: StringFilter<"AlternativeProduct"> | string
@@ -70931,6 +70963,7 @@ export namespace Prisma {
   export type AlternativeProductCreateWithoutCategoriesInput = {
     id?: string
     name: string
+    slug: string
     description: string
     websiteUrl: string
     logoUrl: string
@@ -70942,6 +70975,7 @@ export namespace Prisma {
   export type AlternativeProductUncheckedCreateWithoutCategoriesInput = {
     id?: string
     name: string
+    slug: string
     description: string
     websiteUrl: string
     logoUrl: string
@@ -75873,6 +75907,7 @@ export namespace Prisma {
   export type AlternativeProductUpdateWithoutProductsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string
@@ -75884,6 +75919,7 @@ export namespace Prisma {
   export type AlternativeProductUncheckedUpdateWithoutProductsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string
@@ -75895,6 +75931,7 @@ export namespace Prisma {
   export type AlternativeProductUncheckedUpdateManyWithoutProductsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string
@@ -77221,6 +77258,7 @@ export namespace Prisma {
   export type AlternativeProductUpdateWithoutCategoriesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string
@@ -77232,6 +77270,7 @@ export namespace Prisma {
   export type AlternativeProductUncheckedUpdateWithoutCategoriesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string
@@ -77243,6 +77282,7 @@ export namespace Prisma {
   export type AlternativeProductUncheckedUpdateManyWithoutCategoriesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string

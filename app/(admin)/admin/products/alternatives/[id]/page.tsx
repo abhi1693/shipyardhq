@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation"
+import Link from "next/link"
+import { ExternalLink } from "lucide-react"
 
 import { getAlternativeProductById } from "@/actions/admin/alternative-products/actions"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { adminPath } from "@/lib/routes"
 import { formatDate } from "@/lib/ui/formatters"
-import Link from "next/link"
-import { ExternalLink } from "lucide-react"
 import { AlternativeProductProductRelationship } from "./relationships/products"
 import { AlternativeProductCategoryRelationship } from "./relationships/categories"
 import { Badge } from "@/components/atoms/badge"
@@ -118,7 +118,7 @@ export default async function AlternativeProductDetailPage({
         title: alternativeWithRelations.name,
         createdAt: alternativeWithRelations.createdAt,
         updatedAt: alternativeWithRelations.updatedAt,
-        slug: null,
+        slug: alternativeWithRelations.slug,
       }}
       overview={overview}
       basePath="admin/products/alternatives"

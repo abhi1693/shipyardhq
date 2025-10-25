@@ -279,7 +279,11 @@ export function AlternativeProductForm({
     }
 
     toast.success("Alternative updated")
-    router.push(adminPath("products", "alternatives", alternativeId))
+    router.push(
+      alternativeId
+        ? adminPath("products", "alternatives", alternativeId)
+        : adminPath("products", "alternatives"),
+    )
   }
 
   const selectedCategoryIds =

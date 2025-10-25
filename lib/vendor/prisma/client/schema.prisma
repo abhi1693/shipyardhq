@@ -73,6 +73,7 @@ model Product {
 model AlternativeProduct {
   id          String   @id @default(cuid())
   name        String
+  slug        String   @unique
   description String
   websiteUrl  String   @unique
   logoUrl     String

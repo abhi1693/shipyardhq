@@ -42,6 +42,7 @@ export const columns: ColumnDef<AlternativeProductRow>[] = [
           {linkify({
             label: row.original.name,
             href: adminPath("products", "alternatives", row.original.id),
+            subtext: row.original.slug,
           })}
           <Link
             href={row.original.websiteUrl}
