@@ -81,7 +81,6 @@ function HeroSkeleton() {
         <div className="flex flex-wrap items-center gap-2">
           {Array.from({ length: 4 }).map((_, index) => (
             <BadgeSkeleton
-              // eslint-disable-next-line react/no-array-index-key -- decorative
               key={index}
               variant="outline"
               labelWidth={index === 3 ? "4rem" : "6rem"}
@@ -93,7 +92,6 @@ function HeroSkeleton() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
             <div
-              // eslint-disable-next-line react/no-array-index-key -- decorative
               key={index}
               className="rounded-2xl border border-border bg-white px-5 py-6 shadow-sm"
             >
@@ -113,11 +111,7 @@ function SidebarCardSkeleton({ lines }: { lines: number }) {
       <Skeleton className="h-2.5 w-36 rounded-full" tone="muted" />
       <div className="mt-4 space-y-2">
         {Array.from({ length: lines }).map((_, index) => (
-          <div
-            // eslint-disable-next-line react/no-array-index-key -- decorative
-            key={index}
-            className="flex justify-between gap-3"
-          >
+          <div key={index} className="flex justify-between gap-3">
             <Skeleton className="h-2.5 w-32 rounded-full" tone="muted" />
             <Skeleton className="h-2 w-16 rounded-full" tone="soft" />
           </div>
@@ -143,11 +137,7 @@ function SidebarListSkeleton({
       />
       <div className="mt-4 space-y-2">
         {Array.from({ length: rowCount }).map((_, index) => (
-          <div
-            // eslint-disable-next-line react/no-array-index-key -- decorative
-            key={index}
-            className="flex justify-between gap-3"
-          >
+          <div key={index} className="flex justify-between gap-3">
             <Skeleton className="h-2.5 w-32 rounded-full" tone="muted" />
             <Skeleton className="h-2 w-10 rounded-full" tone="soft" />
           </div>
@@ -164,7 +154,6 @@ function BadgeShowcaseSkeleton() {
       <div className="mt-4 flex flex-wrap gap-2">
         {Array.from({ length: 6 }).map((_, index) => (
           <BadgeSkeleton
-            // eslint-disable-next-line react/no-array-index-key -- decorative
             key={index}
             variant="outline"
             labelWidth={index % 2 === 0 ? "4.5rem" : "5.5rem"}

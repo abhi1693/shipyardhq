@@ -21,12 +21,7 @@ export function MemberAccountProfileSkeleton() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             {Array.from({ length: 6 }).map((_, index) => (
-              <Skeleton
-                // eslint-disable-next-line react/no-array-index-key -- decorative
-                key={index}
-                className="h-16 rounded-md"
-                tone="soft"
-              />
+              <Skeleton key={index} className="h-16 rounded-md" tone="soft" />
             ))}
           </div>
           <div className="flex justify-end gap-2">

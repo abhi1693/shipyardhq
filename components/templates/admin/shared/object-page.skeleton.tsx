@@ -54,7 +54,6 @@ export function AdminObjectPageSkeleton({
           <div className="flex items-center gap-2">
             {Array.from({ length: actions }).map((_, index) => (
               <ButtonSkeleton
-                // eslint-disable-next-line react/no-array-index-key -- decorative
                 key={index}
                 size="sm"
                 variant={index === 0 ? "outline" : "default"}
@@ -91,7 +90,6 @@ export function AdminObjectPageSkeleton({
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: extras }).map((_, index) => (
               <CardSkeleton
-                // eslint-disable-next-line react/no-array-index-key -- decorative
                 key={index}
                 lines={sidebarCardLines}
                 showHeader
@@ -106,7 +104,6 @@ export function AdminObjectPageSkeleton({
         <div className="space-y-8">
           {Array.from({ length: relationships }).map((_, index) => (
             <section
-              // eslint-disable-next-line react/no-array-index-key -- decorative
               key={index}
               className="space-y-4 rounded-2xl border border-border/60 bg-white/85 p-4 shadow-sm"
             >

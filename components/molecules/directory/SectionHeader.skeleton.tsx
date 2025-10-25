@@ -64,7 +64,6 @@ export function DirectorySectionHeaderSkeleton({
           >
             {Array.from({ length: descriptionCount }).map((_, index) => (
               <Skeleton
-                // eslint-disable-next-line react/no-array-index-key -- order decorative
                 key={index}
                 className={cn(
                   "h-2.5 rounded-full",

@@ -73,7 +73,7 @@ export function DialogContentSkeleton({
   )
 }
 
-interface DialogHeaderSkeletonProps extends React.ComponentProps<"div"> {}
+type DialogHeaderSkeletonProps = React.ComponentProps<"div">
 
 export function DialogHeaderSkeleton({
   className,

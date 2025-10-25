@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useFormState, useFormStatus } from "react-dom"
 import { toast } from "sonner"
 
@@ -52,12 +52,28 @@ type AdjustRewardsFormProps = {
 
 export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
   const formRef = useRef<HTMLFormElement>(null)
-  const [state, formAction] = useFormState<AdjustRewardsFormState, FormData>(
-    adjustUserRewardsAction,
-    initialAdjustRewardsState,
-  )
   const [selectedUserId, setSelectedUserId] = useState<string>("")
   const [searchQuery, setSearchQuery] = useState<string>("")
+  const [state, formAction] = useFormState<AdjustRewardsFormState, FormData>(
+    async (previousState, formData) => {
+      try {
+        const result = await adjustUserRewardsAction(previousState, formData)
+        if (result.status === "success") {
+          toast.success(result.message ?? "Rewards adjusted")
+          formRef.current?.reset()
+          setSelectedUserId("")
+          setSearchQuery("")
+        } else if (result.status === "error" && result.message) {
+          toast.error(result.message)
+        }
+        return result
+      } catch (error) {
+        toast.error("Unable to adjust rewards")
+        throw error
+      }
+    },
+    initialAdjustRewardsState,
+  )
 
   const filteredUsers = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
@@ -75,21 +91,6 @@ export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
       return haystack.includes(query)
     })
   }, [searchQuery, users])
-
-  useEffect(() => {
-    if (state.status === "success") {
-      if (state.message) {
-        toast.success(state.message)
-      } else {
-        toast.success("Rewards adjusted")
-      }
-      formRef.current?.reset()
-      setSelectedUserId("")
-      setSearchQuery("")
-    } else if (state.status === "error" && state.message) {
-      toast.error(state.message)
-    }
-  }, [state])
 
   const disabledSubmit = users.length === 0 || !selectedUserId
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useMemo, useState, useTransition } from "react"
-import { useForm, FormProvider } from "react-hook-form"
+import { useForm, FormProvider, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { format, formatDistanceToNow } from "date-fns"
@@ -220,7 +220,11 @@ export function ProductUpdatesManager({
   )
 
   const isEditing = editingId !== null
-  const currentStatus = form.watch("status")
+  const currentStatus: ProductUpdateFormValues["status"] =
+    useWatch<ProductUpdateFormValues, "status">({
+      control: form.control,
+      name: "status",
+    }) ?? DEFAULT_VALUES.status
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-0">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useTransition, useState, useEffect, useRef } from "react"
+import { useEffect, useOptimistic, useRef, useTransition } from "react"
 import {
   Select,
   SelectContent,
@@ -31,18 +31,19 @@ export default function AdminFeedbackStatusSelect({
   feedbackId: string
   status: FeedbackStatus
 }) {
-  const [currentStatus, setCurrentStatus] = useState(status)
-  const previousStatus = useRef(status)
-  const [isPending, startTransition] = useTransition()
-
+  const [currentStatus, setCurrentStatus] = useOptimistic(
+    status,
+    (_prev, next: FeedbackStatus) => next,
+  )
+  const latestStatus = useRef(status)
   useEffect(() => {
-    setCurrentStatus(status)
-    previousStatus.current = status
+    latestStatus.current = status
   }, [status])
+  const [isPending, startTransition] = useTransition()
 
   function handleChange(nextValue: string) {
     const nextStatus = nextValue as FeedbackStatus
-    const lastStatus = previousStatus.current
+    const lastStatus = latestStatus.current
 
     if (nextStatus === lastStatus) return
 
@@ -60,7 +61,7 @@ export default function AdminFeedbackStatusSelect({
         return
       }
 
-      previousStatus.current = nextStatus
+      latestStatus.current = nextStatus
       toast.success(STATUS_MESSAGES[nextStatus] ?? "Status updated.")
     })
   }

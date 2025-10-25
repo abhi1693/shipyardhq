@@ -1,6 +1,13 @@
 "use client"
 
-import { useActionState, useEffect, useMemo, useState } from "react"
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import { useRouter } from "next/navigation"
 import { useFormStatus } from "react-dom"
 import { Star, XCircle } from "lucide-react"
@@ -31,23 +38,39 @@ export default function ProductReviewForm({
   initialMessage,
 }: ProductReviewFormProps) {
   const router = useRouter()
-  const [state, formAction] = useActionState(action, initialState)
-  const [rating, setRating] = useState<number>(
-    typeof initialRating === "number" && initialRating >= 0 ? initialRating : 0,
-  )
+  const timeoutRef = useRef<number | null>(null)
+  const normalizedInitialRating =
+    typeof initialRating === "number" && initialRating >= 0 ? initialRating : 0
+  const [rating, setRating] = useState<number>(normalizedInitialRating)
   const [message, setMessage] = useState(initialMessage ?? "")
   const [hoverRating, setHoverRating] = useState<number | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [state, formAction] = useActionState(
+    async (previousState: SubmitReviewState, formData: FormData) => {
+      const result = await action(previousState, formData)
 
-  useEffect(() => {
-    if (state.status === "success") {
-      setShowSuccess(true)
-      const timeout = setTimeout(() => setShowSuccess(false), 4000)
-      router.refresh()
-      return () => clearTimeout(timeout)
-    }
-    return undefined
-  }, [state.status, router])
+      if (result.status === "success") {
+        setShowSuccess(true)
+        if (timeoutRef.current) {
+          window.clearTimeout(timeoutRef.current)
+        }
+        timeoutRef.current = window.setTimeout(() => {
+          setShowSuccess(false)
+          timeoutRef.current = null
+        }, 4000)
+        router.refresh()
+      } else if (result.status === "error") {
+        if (timeoutRef.current) {
+          window.clearTimeout(timeoutRef.current)
+          timeoutRef.current = null
+        }
+        setShowSuccess(false)
+      }
+
+      return result
+    },
+    initialState,
+  )
 
   useEffect(() => {
     if (
@@ -55,12 +78,38 @@ export default function ProductReviewForm({
       initialRating >= 0 &&
       initialRating <= 5
     ) {
-      setRating(initialRating)
+      startTransition(() => {
+        setRating(initialRating)
+      })
+      return
     }
-    if (initialMessage !== undefined && initialMessage !== null) {
-      setMessage(initialMessage)
+
+    if (initialRating == null) {
+      startTransition(() => {
+        setRating(0)
+      })
     }
-  }, [initialRating, initialMessage])
+  }, [initialRating])
+
+  useEffect(() => {
+    if (typeof initialMessage === "string") {
+      startTransition(() => {
+        setMessage(initialMessage)
+      })
+    } else if (initialMessage == null) {
+      startTransition(() => {
+        setMessage("")
+      })
+    }
+  }, [initialMessage])
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [])
 
   const displayRating = hoverRating ?? rating
 

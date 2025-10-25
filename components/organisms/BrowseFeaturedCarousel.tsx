@@ -29,11 +29,8 @@ export function BrowseFeaturedCarousel({
 
   const total = items.length
   const [index, setIndex] = useState(0)
+  const activeIndex = total > 0 ? ((index % total) + total) % total : 0
   const [isPaused, setIsPaused] = useState(false)
-
-  useEffect(() => {
-    setIndex(0)
-  }, [total])
 
   useEffect(() => {
     if (total <= 1 || isPaused) return
@@ -90,11 +87,11 @@ export function BrowseFeaturedCarousel({
             className={cn(
               "absolute inset-0 transition-opacity duration-500",
               "rounded-2xl",
-              itemIndex === index
+              itemIndex === activeIndex
                 ? "pointer-events-auto opacity-100"
                 : "pointer-events-none opacity-0",
             )}
-            aria-hidden={itemIndex !== index}
+            aria-hidden={itemIndex !== activeIndex}
           >
             <ProductCompactCard
               product={{
@@ -106,7 +103,7 @@ export function BrowseFeaturedCarousel({
               }}
               category={item.category?.name ?? null}
               upvotes={item.analytics?.upvotes ?? 0}
-              imagePriority={itemIndex === index}
+              imagePriority={itemIndex === activeIndex}
               className="h-full"
               disableHoverEffects
             />
@@ -123,7 +120,7 @@ export function BrowseFeaturedCarousel({
                 type="button"
                 className={cn(
                   "h-1 w-4 rounded-full bg-border transition-colors",
-                  dotIndex === index && "bg-[color:var(--brand-1)]",
+                  dotIndex === activeIndex && "bg-[color:var(--brand-1)]",
                 )}
                 onClick={() => setIndex(dotIndex)}
                 aria-label={`Show featured product ${dotIndex + 1} of ${total}`}

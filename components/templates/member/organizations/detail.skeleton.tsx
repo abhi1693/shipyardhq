@@ -37,7 +37,6 @@ export function MemberOrganizationDetailSkeleton() {
           <div className="flex flex-wrap items-center gap-2">
             {Array.from({ length: 3 }).map((_, index) => (
               <Skeleton
-                // eslint-disable-next-line react/no-array-index-key -- decorative
                 key={index}
                 className="h-7 w-28 rounded-full"
                 tone="soft"
@@ -86,7 +85,6 @@ export function MemberOrganizationDetailSkeleton() {
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, index) => (
             <Skeleton
-              // eslint-disable-next-line react/no-array-index-key -- decorative
               key={index}
               className="h-14 rounded-xl border border-white/30"
               tone="soft"

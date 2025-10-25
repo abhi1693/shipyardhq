@@ -34,7 +34,6 @@ export function PricingPageSkeleton() {
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 3 }).map((_, index) => (
                 <CardSkeleton
-                  // eslint-disable-next-line react/no-array-index-key -- decorative only
                   key={index}
                   tone="soft"
                   radius="lg"
@@ -59,7 +58,6 @@ export function PricingPageSkeleton() {
             <div className="space-y-3 rounded-2xl border border-border bg-white p-6">
               {Array.from({ length: 4 }).map((_, index) => (
                 <div
-                  // eslint-disable-next-line react/no-array-index-key -- decorative only
                   key={index}
                   className="grid gap-4 border-b border-border/60 pb-4 last:border-b-0 md:grid-cols-[1.2fr_1fr]
                   "

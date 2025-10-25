@@ -583,7 +583,7 @@ async function buildTrafficSummary(
   const totalViews = includedViewCount
   const uniqueVisitors = uniqueHashes.size + anonymousUnique
 
-  let previousViews = previousIncludedViews
+  const previousViews = previousIncludedViews
   let previousUnique = 0
 
   if (previousComparison && previousEvents.length) {

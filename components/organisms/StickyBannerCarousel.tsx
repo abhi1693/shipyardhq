@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useId } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -40,15 +40,11 @@ export function StickyBannerCarousel({
   const total = items.length
   const [index, setIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
-  const animationId = useMemo(
-    () => `stickyBannerSlide-${Math.random().toString(36).slice(2)}`,
-    [],
-  )
-
-  useEffect(() => {
-    setIndex(0)
-    setIsPaused(false)
-  }, [total])
+  const carouselId = useId()
+  const animationId = useMemo(() => {
+    const sanitized = carouselId.replace(/[:]/g, "-")
+    return `stickyBannerSlide-${sanitized}`
+  }, [carouselId])
 
   useEffect(() => {
     if (total <= 1 || isPaused) return
@@ -64,7 +60,8 @@ export function StickyBannerCarousel({
     return null
   }
 
-  const current = items[index]
+  const safeIndex = total > 0 ? Math.min(index, total - 1) : 0
+  const current = items[safeIndex] ?? items[0]
   const tagline = current.tagline?.trim()
   const categoryName = current.category?.name?.trim() || null
   const makerName = (() => {

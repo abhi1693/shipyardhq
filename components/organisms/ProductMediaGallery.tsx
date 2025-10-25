@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { productPageCopy } from "@/lib/copy/productPage"
@@ -45,14 +45,10 @@ export function ProductMediaGallery({
     return items
   }, [bannerImage, media, productName])
 
-  const [currentIndex, setCurrentIndex] = useState(0)
-
-  useEffect(() => {
-    if (mediaItems.length === 0) return
-    if (currentIndex >= mediaItems.length) {
-      setCurrentIndex(0)
-    }
-  }, [currentIndex, mediaItems.length])
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const mediaCount = mediaItems.length
+  const currentIndex =
+    mediaCount === 0 ? 0 : selectedIndex >= mediaCount ? 0 : selectedIndex
 
   const hasMedia = mediaItems.length > 0
 
@@ -65,11 +61,15 @@ export function ProductMediaGallery({
   const totalAssets = mediaItems.length
 
   const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1))
+    setSelectedIndex((prev) =>
+      mediaCount === 0 ? 0 : prev === 0 ? mediaCount - 1 : prev - 1,
+    )
   }
 
   const goToNext = () => {
-    setCurrentIndex((prev) => (prev === mediaItems.length - 1 ? 0 : prev + 1))
+    setSelectedIndex((prev) =>
+      mediaCount === 0 ? 0 : prev === mediaCount - 1 ? 0 : prev + 1,
+    )
   }
 
   return (
@@ -139,7 +139,7 @@ export function ProductMediaGallery({
               <button
                 key={item.id}
                 type="button"
-                onClick={() => setCurrentIndex(index)}
+                onClick={() => setSelectedIndex(index)}
                 className={cn(
                   "relative h-20 w-32 shrink-0 overflow-hidden rounded-2xl border bg-muted transition hover:border-border/80",
                   index === currentIndex

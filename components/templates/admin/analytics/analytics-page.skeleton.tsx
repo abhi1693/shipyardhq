@@ -71,7 +71,6 @@ export function AdminAnalyticsPageSkeleton({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: metrics }).map((_, index) => (
             <CardSkeleton
-              // eslint-disable-next-line react/no-array-index-key -- decorative
               key={index}
               lines={3}
               showFooter={false}
@@ -85,7 +84,6 @@ export function AdminAnalyticsPageSkeleton({
         <div className="grid gap-6 lg:grid-cols-2">
           {charts.map((section, index) => (
             <ChartSkeleton
-              // eslint-disable-next-line react/no-array-index-key -- decorative
               key={index}
               variant={section.variant ?? "line"}
               showLegend={section.legend ?? false}
@@ -102,7 +100,6 @@ export function AdminAnalyticsPageSkeleton({
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {secondary.map((section, index) => (
             <ChartSkeleton
-              // eslint-disable-next-line react/no-array-index-key -- decorative
               key={index}
               variant={section.variant ?? "bar"}
               showLegend={section.legend ?? false}
@@ -119,7 +116,6 @@ export function AdminAnalyticsPageSkeleton({
         <div className="space-y-6">
           {tables.map((section, index) => (
             <section
-              // eslint-disable-next-line react/no-array-index-key -- decorative
               key={index}
               className="space-y-4 rounded-2xl border border-border/60 bg-white/90 p-5 shadow-sm"
             >
@@ -136,13 +132,7 @@ export function AdminAnalyticsPageSkeleton({
       {insights > 0 ? (
         <div className="grid gap-4 lg:grid-cols-2">
           {Array.from({ length: insights }).map((_, index) => (
-            <CardSkeleton
-              // eslint-disable-next-line react/no-array-index-key -- decorative
-              key={index}
-              lines={5}
-              showHeader
-              actionWidth="5rem"
-            />
+            <CardSkeleton key={index} lines={5} showHeader actionWidth="5rem" />
           ))}
         </div>
       ) : null}

@@ -32,15 +32,18 @@ export function TrendRadarEmbedChart({
 }: {
   data: TrendRadarChartPoint[]
 }) {
-  let runningTotal = 0
-  const series = data.map((point) => {
-    runningTotal += point.embeds
-    return {
+  const series = data.reduce<
+    Array<TrendRadarChartPoint & { cumulative: number; daily: number }>
+  >((accumulator, point) => {
+    const previousTotal = accumulator.at(-1)?.cumulative ?? 0
+    const cumulative = previousTotal + point.embeds
+    accumulator.push({
       ...point,
       daily: point.embeds,
-      cumulative: runningTotal,
-    }
-  })
+      cumulative,
+    })
+    return accumulator
+  }, [])
 
   const formatNumber = (value: number) =>
     numberFormatter.format(Math.round(value))

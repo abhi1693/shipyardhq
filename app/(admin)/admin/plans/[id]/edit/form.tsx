@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useForm, UseFormProps } from "react-hook-form"
+import { useForm, UseFormProps, useWatch } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
@@ -104,6 +104,12 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
         (plan as any).subscriptionPeriodInterval ?? undefined,
     },
   })
+
+  const planType =
+    useWatch({
+      control: form.control,
+      name: "type",
+    }) ?? "one_time_price"
 
   async function onSubmit(values: PlanFormInput) {
     const result = await updatePlanAction(plan.id, values as any)
@@ -221,7 +227,7 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
                 />
               </div>
 
-              {form.watch("type") === "recurring_price" && (
+              {planType === "recurring_price" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     name="paymentFrequencyCount"

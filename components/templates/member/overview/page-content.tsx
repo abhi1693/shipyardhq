@@ -193,8 +193,6 @@ async function OverviewPageWithStats({
           <Suspense fallback={<HighlightCardSkeleton />}>
             <HighlightCard
               stats={stats}
-              unverifiedPromise={unverifiedPromise}
-              draftsPromise={draftsPromise}
               needsMediaPromise={needsMediaPromise}
               expiringBadgesPromise={expiringBadgesPromise}
               topByClicksPromise={topByClicksPromise}
@@ -430,6 +428,7 @@ async function MomentumSection({
     topByClicksPromise,
     topByUpvotesPromise,
   ])
+  const momentumWindow = rangeDescriptorForDays(days)
 
   return (
     <section className="space-y-4">
@@ -446,7 +445,7 @@ async function MomentumSection({
           <CardHeader>
             <CardTitle className="text-base">Most clicked</CardTitle>
             <CardDescription>
-              Products winning attention this period.
+              Products winning attention {momentumWindow}.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -481,7 +480,7 @@ async function MomentumSection({
           <CardHeader>
             <CardTitle className="text-base">Most upvoted</CardTitle>
             <CardDescription>
-              Community favorites from the range.
+              Community favorites {momentumWindow}.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -623,34 +622,25 @@ async function SignalsSection({
 
 async function HighlightCard({
   stats,
-  unverifiedPromise,
-  draftsPromise,
   needsMediaPromise,
   expiringBadgesPromise,
   topByClicksPromise,
   days,
 }: {
   stats: DashboardStats
-  unverifiedPromise: ReturnType<typeof getUnverifiedProducts>
-  draftsPromise: ReturnType<typeof getUserDrafts>
   needsMediaPromise: ReturnType<typeof getProductsNeedingMedia>
   expiringBadgesPromise: ReturnType<typeof getExpiringBadges>
   topByClicksPromise: ReturnType<typeof getTopProductsByMetric>
   days: number
 }) {
-  const [unverified, drafts, needsMedia, expiringBadges, topByClicks] =
-    await Promise.all([
-      unverifiedPromise,
-      draftsPromise,
-      needsMediaPromise,
-      expiringBadgesPromise,
-      topByClicksPromise,
-    ])
+  const [needsMedia, expiringBadges, topByClicks] = await Promise.all([
+    needsMediaPromise,
+    expiringBadgesPromise,
+    topByClicksPromise,
+  ])
 
   const highlight = buildHighlight({
     stats,
-    unverified: unverified as UnverifiedProduct[],
-    drafts: drafts as DraftProduct[],
     needsMedia: needsMedia as NeedsMediaProduct[],
     expiringBadges: expiringBadges as ExpiringBadge[],
     topByClicks,
@@ -977,16 +967,12 @@ function TaskCollection({
 
 function buildHighlight({
   stats,
-  unverified,
-  drafts,
   needsMedia,
   expiringBadges,
   topByClicks,
   days,
 }: {
   stats: DashboardStats
-  unverified: UnverifiedProduct[]
-  drafts: DraftProduct[]
   needsMedia: NeedsMediaProduct[]
   expiringBadges: ExpiringBadge[]
   topByClicks: Awaited<ReturnType<typeof getTopProductsByMetric>>
@@ -1078,7 +1064,6 @@ function HeroSectionSkeleton() {
               { width: "6rem" },
             ].map((badge, index) => (
               <BadgeSkeleton
-                // eslint-disable-next-line react/no-array-index-key -- decorative
                 key={index}
                 variant="outline"
                 labelWidth={badge.width}
@@ -1113,7 +1098,6 @@ function HeroSectionSkeleton() {
           <div className="grid w-full gap-3 sm:min-w-[240px] sm:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
               <CardSkeleton
-                // eslint-disable-next-line react/no-array-index-key -- decorative
                 key={index}
                 tone="soft"
                 radius="md"
@@ -1134,7 +1118,6 @@ function QuickTasksSkeleton() {
     <section className="grid gap-4 lg:grid-cols-2">
       {Array.from({ length: 4 }).map((_, index) => (
         <CardSkeleton
-          // eslint-disable-next-line react/no-array-index-key -- decorative
           key={index}
           tone="soft"
           radius="lg"
@@ -1155,7 +1138,6 @@ function MomentumSectionSkeleton() {
       <div className="grid gap-4 lg:grid-cols-2">
         {Array.from({ length: 2 }).map((_, index) => (
           <CardSkeleton
-            // eslint-disable-next-line react/no-array-index-key -- decorative
             key={index}
             tone="soft"
             radius="lg"
@@ -1175,7 +1157,6 @@ function SignalsSectionSkeleton() {
       <div className="grid gap-4 lg:grid-cols-2">
         {Array.from({ length: 2 }).map((_, index) => (
           <CardSkeleton
-            // eslint-disable-next-line react/no-array-index-key -- decorative
             key={index}
             tone="soft"
             radius="lg"

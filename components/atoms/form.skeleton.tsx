@@ -66,7 +66,6 @@ export function FormSkeleton({
           ) as FormSkeletonFieldConfig
           return (
             <FormFieldSkeleton
-              // eslint-disable-next-line react/no-array-index-key -- skeleton order is not important
               key={index}
               type={config.type ?? "input"}
               helper={config.helper ?? false}
@@ -143,7 +142,6 @@ export function FormActionsSkeleton({
     >
       {Array.from({ length: count }).map((_, index) => (
         <ButtonSkeleton
-          // eslint-disable-next-line react/no-array-index-key -- order is decorative
           key={index}
           variant={index === count - 1 ? "default" : "outline"}
           size="sm"

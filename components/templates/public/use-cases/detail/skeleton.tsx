@@ -27,7 +27,6 @@ export function UseCaseDetailSkeleton() {
             <div className="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.28em] text-white/80">
               {Array.from({ length: 3 }).map((_, index) => (
                 <BadgeSkeleton
-                  // eslint-disable-next-line react/no-array-index-key -- decorative
                   key={index}
                   variant="outline"
                   labelWidth={index === 0 ? "9rem" : "8rem"}
@@ -52,7 +51,6 @@ export function UseCaseDetailSkeleton() {
           <div className="flex flex-wrap justify-center gap-4">
             {Array.from({ length: 6 }).map((_, index) => (
               <CardSkeleton
-                // eslint-disable-next-line react/no-array-index-key -- decorative
                 key={index}
                 lines={2}
                 tone="soft"

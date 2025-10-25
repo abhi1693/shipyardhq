@@ -33,7 +33,6 @@ export function RangeSelectorSkeleton({
     >
       {Array.from({ length: optionCount }).map((_, index) => (
         <ButtonSkeleton
-          // eslint-disable-next-line react/no-array-index-key -- purely decorative
           key={index}
           size="sm"
           variant={index === 0 ? "default" : "ghost"}

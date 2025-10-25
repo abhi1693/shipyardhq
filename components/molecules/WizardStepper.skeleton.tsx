@@ -21,11 +21,7 @@ export function WizardStepperSkeleton({
       <Skeleton className="h-1 w-full rounded-full" tone="muted" shimmer />
       <div className="flex items-center justify-between gap-2">
         {Array.from({ length: safeSteps }).map((_, index) => (
-          <div
-            // eslint-disable-next-line react/no-array-index-key -- purely decorative skeletons
-            key={index}
-            className="flex flex-1 flex-col items-center gap-2"
-          >
+          <div key={index} className="flex flex-1 flex-col items-center gap-2">
             <Skeleton className="size-8 rounded-full" tone="soft" shimmer />
             <Skeleton
               className="h-2 w-16 rounded-full"

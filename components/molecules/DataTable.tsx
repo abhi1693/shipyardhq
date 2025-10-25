@@ -72,6 +72,7 @@ export default function DataTable<TData, TValue>({
     })
   }, [pageIndex, pageSize, pathname, router, searchParams])
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack's hook provides imperative APIs that currently require skipping React compiler memoization.
   const table = useReactTable({
     data,
     columns,

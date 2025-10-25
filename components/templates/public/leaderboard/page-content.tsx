@@ -23,7 +23,6 @@ import {
   getLeaderboardPagePayload,
   type LeaderboardPagePayload,
 } from "@/lib/leaderboard/cache"
-import { Skeleton } from "@/components/atoms/skeleton"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import { DirectorySectionHeaderSkeleton } from "@/components/molecules/directory/SectionHeader.skeleton"
 import { ProductUpdatesFeedSkeleton } from "@/components/molecules/ProductUpdatesFeed.skeleton"
@@ -338,7 +337,6 @@ export function LeaderboardPageSkeleton() {
                   <div className="grid gap-6 md:grid-cols-2">
                     {Array.from({ length: 2 }).map((_, index) => (
                       <CardSkeleton
-                        // eslint-disable-next-line react/no-array-index-key -- decorative only
                         key={index}
                         tone="soft"
                         radius="lg"

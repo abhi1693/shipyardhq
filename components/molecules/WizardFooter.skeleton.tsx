@@ -27,7 +27,6 @@ export function WizardFooterSkeleton({
       <div className="flex flex-wrap items-center gap-2">
         {Array.from({ length: safeActions }).map((_, index) => (
           <ButtonSkeleton
-            // eslint-disable-next-line react/no-array-index-key -- decorative skeleton order
             key={index}
             variant={index === safeActions - 1 ? "default" : "outline"}
             size="sm"

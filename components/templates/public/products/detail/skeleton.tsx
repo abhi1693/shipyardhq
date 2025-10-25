@@ -68,7 +68,6 @@ function ProductHeroSkeleton() {
             <div className="flex flex-wrap items-center gap-2">
               {Array.from({ length: 3 }).map((_, index) => (
                 <BadgeSkeleton
-                  // eslint-disable-next-line react/no-array-index-key -- decorative
                   key={index}
                   variant="outline"
                   labelWidth={index === 0 ? "6rem" : "5rem"}
@@ -93,7 +92,6 @@ function ProductHeroSkeleton() {
           <div className="mt-3 flex flex-wrap gap-2">
             {Array.from({ length: 4 }).map((_, index) => (
               <BadgeSkeleton
-                // eslint-disable-next-line react/no-array-index-key -- decorative
                 key={index}
                 variant="outline"
                 labelWidth={index % 2 === 0 ? "5rem" : "4rem"}
@@ -107,7 +105,6 @@ function ProductHeroSkeleton() {
           <div className="mt-3 flex flex-wrap gap-2">
             {Array.from({ length: 5 }).map((_, index) => (
               <BadgeSkeleton
-                // eslint-disable-next-line react/no-array-index-key -- decorative
                 key={index}
                 variant="outline"
                 labelWidth={index % 2 === 0 ? "6rem" : "5rem"}
@@ -140,7 +137,6 @@ function MediaGallerySkeleton() {
         <div className="grid gap-4 sm:grid-cols-2">
           {Array.from({ length: 4 }).map((_, index) => (
             <Skeleton
-              // eslint-disable-next-line react/no-array-index-key -- decorative
               key={index}
               className="h-36 rounded-xl"
               tone="soft"
@@ -160,7 +156,6 @@ function NarrativeSkeleton() {
       <div className="mt-4 space-y-3">
         {Array.from({ length: 5 }).map((_, index) => (
           <Skeleton
-            // eslint-disable-next-line react/no-array-index-key -- decorative
             key={index}
             className="h-3 rounded-full"
             tone="muted"
@@ -182,7 +177,6 @@ function ChangelogSkeleton() {
       <div className="mt-6 space-y-4">
         {Array.from({ length: 3 }).map((_, index) => (
           <CardSkeleton
-            // eslint-disable-next-line react/no-array-index-key -- decorative
             key={index}
             lines={3}
             tone="soft"
@@ -208,7 +202,6 @@ function ReviewsSkeleton() {
       <div className="mt-6 space-y-4">
         {Array.from({ length: 3 }).map((_, index) => (
           <CardSkeleton
-            // eslint-disable-next-line react/no-array-index-key -- decorative
             key={index}
             lines={4}
             tone="soft"
@@ -238,7 +231,6 @@ function StatsCardSkeleton() {
       <div className="mt-4 grid gap-3">
         {Array.from({ length: 4 }).map((_, index) => (
           <div
-            // eslint-disable-next-line react/no-array-index-key -- decorative
             key={index}
             className="rounded-xl border border-border/70 bg-white px-4 py-3 shadow-sm"
           >
@@ -257,12 +249,7 @@ function SignalLinksSkeleton() {
       <Skeleton className="h-3 w-28 rounded-full" tone="muted" />
       <div className="mt-3 flex flex-wrap gap-2">
         {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton
-            // eslint-disable-next-line react/no-array-index-key -- decorative
-            key={index}
-            className="h-8 rounded-full px-4"
-            tone="soft"
-          >
+          <Skeleton key={index} className="h-8 rounded-full px-4" tone="soft">
             <Skeleton className="h-3 w-16 rounded-full" tone="muted" />
           </Skeleton>
         ))}
@@ -278,7 +265,6 @@ function CrewRosterSkeleton() {
       <div className="mt-4 space-y-3">
         {Array.from({ length: 4 }).map((_, index) => (
           <div
-            // eslint-disable-next-line react/no-array-index-key -- decorative
             key={index}
             className="flex items-center gap-3 rounded-xl border border-border/70 bg-white/95 p-3"
           >

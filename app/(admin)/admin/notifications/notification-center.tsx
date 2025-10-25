@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
@@ -185,11 +185,27 @@ export default function NotificationCenter({
     [segmentCounts],
   )
 
-  const selectedSegment = form.watch("segment")
-  const selectedUserIds = form.watch("selectedUserIds") ?? []
+  const selectedSegment =
+    useWatch<NotificationFormValues, "segment">({
+      control: form.control,
+      name: "segment",
+    }) ?? "registered"
+  const selectedUserIds =
+    useWatch<NotificationFormValues, "selectedUserIds">({
+      control: form.control,
+      name: "selectedUserIds",
+    }) ?? []
   const selectedUserKey = selectedUserIds.join(",")
-  const subjectValue = form.watch("subject")
-  const messageValue = form.watch("message")
+  const subjectValue =
+    useWatch<NotificationFormValues, "subject">({
+      control: form.control,
+      name: "subject",
+    }) ?? ""
+  const messageValue =
+    useWatch<NotificationFormValues, "message">({
+      control: form.control,
+      name: "message",
+    }) ?? ""
 
   useEffect(() => {
     if (!selectedSegment) {

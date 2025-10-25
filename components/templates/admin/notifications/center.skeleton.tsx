@@ -5,8 +5,7 @@ import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { cn } from "@/lib/utils"
 
-interface AdminNotificationCenterSkeletonProps
-  extends React.ComponentProps<"div"> {}
+type AdminNotificationCenterSkeletonProps = React.ComponentProps<"div">
 
 export function AdminNotificationCenterSkeleton({
   className,
@@ -40,7 +39,6 @@ export function AdminNotificationCenterSkeleton({
           <div className="space-y-3">
             {Array.from({ length: 8 }).map((_, index) => (
               <Skeleton
-                // eslint-disable-next-line react/no-array-index-key -- decorative
                 key={index}
                 className="space-y-2 rounded-xl border border-white/25 px-4 py-3"
                 tone="soft"

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useId, useRef, useState, useTransition } from "react"
+import { useEffect, useId, useOptimistic, useRef, useTransition } from "react"
 import { formatDistanceToNow } from "date-fns"
 import { toast } from "sonner"
 
@@ -19,14 +19,15 @@ export default function AdminFeedbackRewardToggle({
   rewardGrantedAt,
 }: AdminFeedbackRewardToggleProps) {
   const controlId = useId()
-  const [current, setCurrent] = useState(rewardEligible)
-  const previous = useRef(rewardEligible)
-  const [isPending, startTransition] = useTransition()
-
+  const [current, setCurrent] = useOptimistic(
+    rewardEligible,
+    (_prev, next: boolean) => next,
+  )
+  const latestServerValue = useRef(rewardEligible)
   useEffect(() => {
-    setCurrent(rewardEligible)
-    previous.current = rewardEligible
+    latestServerValue.current = rewardEligible
   }, [rewardEligible])
+  const [isPending, startTransition] = useTransition()
 
   const rewardTimestamp =
     typeof rewardGrantedAt === "string"
@@ -50,7 +51,8 @@ export default function AdminFeedbackRewardToggle({
       : "Rewards disabled."
 
   const handleChange = (nextValue: boolean) => {
-    if (rewardLocked || previous.current === nextValue) {
+    const lastKnown = latestServerValue.current
+    if (rewardLocked || lastKnown === nextValue) {
       return
     }
 
@@ -64,11 +66,11 @@ export default function AdminFeedbackRewardToggle({
 
       if (result?.error) {
         toast.error(result.error)
-        setCurrent(previous.current)
+        setCurrent(lastKnown)
         return
       }
 
-      previous.current = nextValue
+      latestServerValue.current = nextValue
       toast.success(
         nextValue
           ? "Feedback marked as reward eligible."

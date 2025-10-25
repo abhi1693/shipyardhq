@@ -35,7 +35,6 @@ export function ProductUpdatesArchiveSkeleton() {
           <section className="space-y-6 rounded-3xl border border-border/70 bg-white p-6 shadow-sm">
             {Array.from({ length: 4 }).map((_, index) => (
               <CardSkeleton
-                // eslint-disable-next-line react/no-array-index-key -- decorative only
                 key={index}
                 lines={4}
                 tone="soft"

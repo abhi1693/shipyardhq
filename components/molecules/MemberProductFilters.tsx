@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useState, useEffect } from "react"
+import { useCallback, useEffect, useOptimistic } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Input } from "@/components/atoms/input"
 import InlineSelect from "@/components/molecules/InlineSelect"
@@ -47,11 +47,13 @@ export default function MemberProductFilters() {
     sort: normalizedSort,
   }
 
-  const [q, setQ] = useState(current.q)
-
-  useEffect(() => {
-    setQ(current.q)
-  }, [current.q])
+  const [q, setQ] = useOptimistic(
+    current.q,
+    (prev, next: string | ((value: string) => string)) =>
+      typeof next === "function"
+        ? (next as (value: string) => string)(prev)
+        : next,
+  )
 
   // Debounced search push
   useEffect(() => {

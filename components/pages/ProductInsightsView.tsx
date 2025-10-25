@@ -2,9 +2,9 @@
 
 import {
   useCallback,
-  useEffect,
   useId,
   useMemo,
+  useOptimistic,
   useRef,
   useState,
   useTransition,
@@ -326,21 +326,14 @@ function StageCard({
   defaultOpen = true,
   children,
 }: StageCardProps) {
-  const [isOpen, setIsOpen] = useState(defaultOpen)
-  const previousDefaultOpen = useRef(defaultOpen)
-
-  useEffect(() => {
-    if (!collapsible) {
-      previousDefaultOpen.current = defaultOpen
-      return
-    }
-
-    if (defaultOpen && !previousDefaultOpen.current) {
-      setIsOpen(true)
-    }
-
-    previousDefaultOpen.current = defaultOpen
-  }, [collapsible, defaultOpen])
+  const baseOpen = collapsible ? defaultOpen : true
+  const [isOpen, setIsOpen] = useOptimistic(
+    baseOpen,
+    (prev, action: boolean | ((previousValue: boolean) => boolean)) =>
+      typeof action === "function"
+        ? (action as (previousValue: boolean) => boolean)(prev)
+        : action,
+  )
 
   const header = (withTrigger: boolean) => (
     <CardHeader className="space-y-6">

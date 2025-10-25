@@ -5,15 +5,6 @@ import { listNotificationsForUserCached } from "@/lib/server/notifications/servi
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/atoms/card"
-import { Bell } from "lucide-react"
-
 export async function MemberNotificationsPageContent() {
   const { userId: clerkUserId } = await auth()
   const activeUser = await requireActiveUserOrRedirect(clerkUserId)
@@ -37,7 +28,6 @@ export function MemberNotificationsPageSkeleton() {
       <div className="space-y-3">
         {Array.from({ length: 5 }).map((_, index) => (
           <CardSkeleton
-            // eslint-disable-next-line react/no-array-index-key -- decorative only
             key={index}
             tone="soft"
             radius="lg"

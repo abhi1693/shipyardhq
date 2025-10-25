@@ -1,6 +1,6 @@
 "use client"
 
-import { Controller, useForm } from "react-hook-form"
+import { Controller, useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useRouter } from "next/navigation"
@@ -94,11 +94,18 @@ export function OnboardingForm({
     setValue,
     control,
     formState: { errors, isSubmitting },
-    watch,
   } = form
 
-  const roleIntent = watch("roleIntent")
-  const heardFrom = watch("heardFrom")
+  const roleIntent =
+    useWatch({
+      control,
+      name: "roleIntent",
+    }) ?? ""
+  const heardFrom =
+    useWatch({
+      control,
+      name: "heardFrom",
+    }) ?? ""
 
   const sanitizedRedirectTarget =
     redirectTo &&
