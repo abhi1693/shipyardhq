@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useMemo, useOptimistic } from "react"
+import { useMemo, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { productPageCopy } from "@/lib/copy/productPage"
@@ -45,18 +45,14 @@ export function ProductMediaGallery({
     return items
   }, [bannerImage, media, productName])
 
-  const firstId = mediaItems[0]?.id ?? null
-  const [activeId, setActiveId] = useOptimistic(
-    firstId,
-    (_prev, next: string) => next,
-  )
-  const currentIndex = useMemo(() => {
-    if (!activeId) {
-      return 0
-    }
-    const idx = mediaItems.findIndex((item) => item.id === activeId)
-    return idx === -1 ? 0 : idx
-  }, [activeId, mediaItems])
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const mediaCount = mediaItems.length
+  const currentIndex =
+    mediaCount === 0
+      ? 0
+      : selectedIndex >= mediaCount
+        ? 0
+        : selectedIndex
 
   const hasMedia = mediaItems.length > 0
 
@@ -69,18 +65,14 @@ export function ProductMediaGallery({
   const totalAssets = mediaItems.length
 
   const goToPrevious = () => {
-    setActiveId(
-      mediaItems[
-        currentIndex === 0 ? mediaItems.length - 1 : currentIndex - 1
-      ]?.id ?? mediaItems[0]?.id ?? null,
+    setSelectedIndex((prev) =>
+      mediaCount === 0 ? 0 : prev === 0 ? mediaCount - 1 : prev - 1,
     )
   }
 
   const goToNext = () => {
-    setActiveId(
-      mediaItems[
-        currentIndex === mediaItems.length - 1 ? 0 : currentIndex + 1
-      ]?.id ?? mediaItems[0]?.id ?? null,
+    setSelectedIndex((prev) =>
+      mediaCount === 0 ? 0 : prev === mediaCount - 1 ? 0 : prev + 1,
     )
   }
 
@@ -151,7 +143,7 @@ export function ProductMediaGallery({
               <button
                 key={item.id}
                 type="button"
-                onClick={() => setActiveId(item.id)}
+                onClick={() => setSelectedIndex(index)}
                 className={cn(
                   "relative h-20 w-32 shrink-0 overflow-hidden rounded-2xl border bg-muted transition hover:border-border/80",
                   index === currentIndex
