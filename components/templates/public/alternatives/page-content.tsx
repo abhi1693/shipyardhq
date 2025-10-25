@@ -17,21 +17,14 @@ import {
 
 type SearchParamsRecord = Record<string, string | string[] | undefined>
 
-const resolveSingle = (value: string | string[] | undefined) =>
-  Array.isArray(value) ? value[0] : value
-
 export async function AlternativesPageContent({
   searchParams,
 }: {
   searchParams: Promise<SearchParamsRecord>
 }) {
-  const params = await searchParams
-  const query = resolveSingle(params.q)?.trim() || undefined
-
   const { items, hasMore } = await getAlternativeCatalogPage({
     page: 1,
     pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
-    query,
   })
 
   return (
@@ -69,50 +62,16 @@ export async function AlternativesPageContent({
             </div>
           </section>
 
-          <section className="rounded-3xl border border-border bg-white/95 shadow-sm">
-            <div className="border-b border-border/60 px-6 py-6 sm:px-8">
-              <div className="mx-auto w-full max-w-3xl">
-                <SearchForm defaultValue={query ?? ""} />
-              </div>
-            </div>
-            <div className="px-4 py-8 sm:px-6 lg:px-8">
-              <AlternativeCatalogGridClient
-                key={query ?? "__all__"}
-                initialItems={items}
-                initialHasMore={hasMore}
-                initialPage={2}
-                query={query}
-                pageSize={ALTERNATIVE_CATALOG_PAGE_SIZE}
-              />
-            </div>
+          <section className="rounded-3xl border border-border bg-white/95 px-4 py-8 shadow-sm sm:px-6 lg:px-8">
+            <AlternativeCatalogGridClient
+              initialItems={items}
+              initialHasMore={hasMore}
+              initialPage={2}
+              pageSize={ALTERNATIVE_CATALOG_PAGE_SIZE}
+            />
           </section>
         </div>
       </div>
     </main>
-  )
-}
-
-function SearchForm({ defaultValue }: { defaultValue: string }) {
-  const inputId = "alternatives-search"
-  return (
-    <form
-      action="/alternatives"
-      method="get"
-      className="relative w-full max-w-xl"
-    >
-      <label htmlFor={inputId} className="sr-only">
-        Search alternatives
-      </label>
-      <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-      <Input
-        id={inputId}
-        name="q"
-        type="search"
-        placeholder="Search by tool, category, or keyword"
-        defaultValue={defaultValue}
-        className="h-12 w-full rounded-full border border-border/70 bg-white pl-12 pr-4 text-base shadow-sm transition focus-visible:border-primary focus-visible:ring-primary/40"
-        autoComplete="off"
-      />
-    </form>
   )
 }
