@@ -13,9 +13,9 @@ import { buildPageMetadata } from "@/lib/metadata"
 import { adminPath } from "@/lib/routes"
 
 export const metadata = buildPageMetadata({
-  title: "Alternative Products",
+  title: "Alternatives",
   section: "Admin",
-  description: "Manage the catalog of third-party alternatives.",
+  description: "Manage the catalog of external products customers compare.",
 })
 
 export const dynamic = "force-dynamic"
@@ -39,8 +39,8 @@ export default async function AlternativeProductsPage({
 
   return (
     <ListPageWrapper
-      title="Alternative Products"
-      description="Curate external tools customers consider before choosing our listed products."
+      title="Alternatives"
+      description="Curate the third-party products buyers evaluate alongside Shipyard listings."
       addLink={adminPath("products", "alternatives", "add")}
     >
       <EntityList columns={columns} data={data} pageCount={pageCount} />

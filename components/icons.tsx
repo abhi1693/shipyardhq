@@ -20,6 +20,7 @@ import {
   IconNotebook,
   IconServer,
   IconListDetails,
+  IconCompass,
 } from "@tabler/icons-react"
 
 export const Icons = {
@@ -45,4 +46,5 @@ export const Icons = {
   operations: IconServer,
   queue: IconListDetails,
   list: IconListDetails,
+  compass: IconCompass,
 }

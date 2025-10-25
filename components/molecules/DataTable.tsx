@@ -20,6 +20,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import React, { useEffect } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { ScrollArea, ScrollBar } from "@/components/atoms/scroll-area"
+import { cn } from "@/lib/utils"
 import {
   Select,
   SelectContent,
@@ -29,6 +30,11 @@ import {
 } from "@/components/atoms/select"
 import { Button } from "@/components/atoms/button"
 import { buildQuery } from "@/lib/urlParams"
+
+type DataTableColumnMeta = {
+  headerClassName?: string
+  cellClassName?: string
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -102,10 +108,16 @@ export default function DataTable<TData, TValue>({
                 className="bg-background/95 text-muted-foreground border-b border-slate-200/50"
               >
                 {headerGroup.headers.map((header) => {
+                  const meta = header.column.columnDef.meta as
+                    | DataTableColumnMeta
+                    | undefined
                   return (
                     <TableHead
                       key={header.id}
-                      className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground"
+                      className={cn(
+                        "px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground",
+                        meta?.headerClassName,
+                      )}
                     >
                       {header.isPlaceholder
                         ? null
@@ -127,17 +139,25 @@ export default function DataTable<TData, TValue>({
                   className="transition-colors hover:bg-slate-50 data-[state=selected]:bg-slate-100"
                   data-state={row.getIsSelected() && "selected"}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className="px-4 py-3 text-sm text-slate-700"
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const meta = cell.column.columnDef.meta as
+                      | DataTableColumnMeta
+                      | undefined
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        className={cn(
+                          "px-4 py-3 text-sm text-slate-700",
+                          meta?.cellClassName,
+                        )}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    )
+                  })}
                 </TableRow>
               ))
             ) : (

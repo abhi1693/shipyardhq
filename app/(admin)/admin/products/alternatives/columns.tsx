@@ -49,8 +49,11 @@ export const columns: ColumnDef<AlternativeProductRow>[] = [
   {
     accessorKey: "description",
     header: "Description",
+    meta: {
+      cellClassName: "align-top whitespace-normal break-words",
+    },
     cell: ({ row }) => (
-      <p className="line-clamp-2 text-sm text-muted-foreground">
+      <p className="text-sm text-muted-foreground leading-relaxed">
         {row.original.description}
       </p>
     ),

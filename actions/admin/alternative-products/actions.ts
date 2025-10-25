@@ -103,7 +103,7 @@ export async function createAlternativeProductAction(formData: FormData) {
     .filter(Boolean)
 
   try {
-    const existing = await prisma.alternativeProduct.findUnique({
+    const existing = await prisma.alternativeProduct.findFirst({
       where: { websiteUrl },
       select: { id: true },
     })

@@ -29,8 +29,8 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
-import { Textarea } from "@/components/atoms/textarea"
 import { Checkbox } from "@/components/atoms/checkbox"
+import { Textarea } from "@/components/atoms/textarea"
 import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
 import { adminPath } from "@/lib/routes"
@@ -119,6 +119,9 @@ export function AlternativeProductForm({
       shouldValidate: true,
     })
 
+    const descriptionGuidance =
+      "- Write the 'description' field as concise plain text (no Markdown) using two short sentences that highlight what the product does, who it helps, and why buyers compare it to Shipyard listings. For style guidance, follow: Notion is an all-in-one workspace for notes, tasks, wikis, and databases. It's popular among teams and individuals for organizing projects and knowledge."
+
     setAutofilling(true)
     try {
       const response = await fetch("/api/products/autofill", {
@@ -127,6 +130,7 @@ export function AlternativeProductForm({
         body: JSON.stringify({
           url: cleanedUrl,
           categories: categories.map((category) => category.name),
+          descriptionGuidance,
         }),
       })
 
@@ -246,7 +250,7 @@ export function AlternativeProductForm({
         return
       }
 
-      toast.success("Alternative product created")
+    toast.success("Alternative created")
       router.push(adminPath("products", "alternatives"))
       return
     }
@@ -274,7 +278,7 @@ export function AlternativeProductForm({
       return
     }
 
-    toast.success("Alternative product updated")
+    toast.success("Alternative updated")
     router.push(adminPath("products", "alternatives", alternativeId))
   }
 
@@ -293,16 +297,78 @@ export function AlternativeProductForm({
           <Card>
             <CardHeader>
               <CardTitle className="text-left text-2xl font-bold">
-                {mode === "create"
-                  ? "Add Alternative Product"
-                  : "Edit Alternative"}
+                {mode === "create" ? "Add Alternative" : "Edit Alternative"}
               </CardTitle>
               <CardDescription className="text-muted-foreground">
                 Maintain a curated list of third-party tools customers compare
                 against our featured products.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-8">
+              <div className="rounded-xl border border-dashed border-[color:var(--brand-1)/0.35] bg-[color:var(--brand-1)/0.05] p-4 sm:p-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-start gap-3 text-left">
+                    <span className="rounded-full bg-[color:var(--brand-1)/0.12] p-2 text-[color:var(--brand-1)]">
+                      <Sparkles className="h-4 w-4" />
+                    </span>
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-slate-900">
+                        Let AI profile this alternative
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Paste the competitor site below and Shipyard AI will draft the
+                        name, description, categories, and pull a logo. Adjust anything
+                        after it runs.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="w-full sm:w-auto"
+                    onClick={handleAutofill}
+                    disabled={autofilling}
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    {autofilling ? "AI autofilling…" : "Run AI Autofill"}
+                  </Button>
+                </div>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="websiteUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Website URL</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://example.com"
+                        value={(field.value as string) ?? ""}
+                        onChange={(event) => {
+                          field.onChange(event)
+                        }}
+                        onBlur={(event) => {
+                          const sanitized = cleanWebsiteUrlInput(event.target.value)
+                          if (sanitized !== field.value) {
+                            form.setValue("websiteUrl", sanitized, {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            })
+                          }
+                          field.onBlur()
+                        }}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Start with the canonical marketing site. Autofill relies on it to
+                      gather details.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="name"
@@ -312,6 +378,10 @@ export function AlternativeProductForm({
                     <FormControl>
                       <Input placeholder="e.g. Notion" {...field} />
                     </FormControl>
+                    <FormDescription>
+                      Autofill usually finds this, but feel free to tweak the casing
+                      or spelling the team prefers.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -322,11 +392,16 @@ export function AlternativeProductForm({
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>Positioning Summary</FormLabel>
+                    <FormDescription>
+                      Keep it concise—two or three plain-text sentences that explain
+                      what the product does, who it serves, and why people consider it
+                      alongside Shipyard listings.
+                    </FormDescription>
                     <FormControl>
                       <Textarea
-                        placeholder="Short summary that helps the team understand positioning"
-                        rows={4}
+                        placeholder="Summarize the offer, target audience, and the differentiator in two or three sentences."
+                        rows={6}
                         {...field}
                       />
                     </FormControl>
@@ -335,67 +410,25 @@ export function AlternativeProductForm({
                 )}
               />
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="websiteUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Website URL</FormLabel>
-                      <FormControl>
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="https://example.com"
-                            {...field}
-                          />
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                            onClick={handleAutofill}
-                            disabled={autofilling}
-                          >
-                            {autofilling ? (
-                              <span className="flex items-center gap-2">
-                                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                                Filling…
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-2">
-                                <Sparkles className="h-4 w-4" />
-                                AI autofill
-                              </span>
-                            )}
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormDescription>
-                        Paste the vendor homepage to pull a name, description, and
-                        logo automatically.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="logoUrl"
-                  render={() => (
-                    <FormItem>
-                      <ImageUploadField
-                        name="logoUrl"
-                        label="Logo"
-                        folder="alternative-logos"
-                      />
-                      <FormDescription>
-                        Upload a square PNG or SVG so the catalogue stays visually
-                        consistent.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="logoUrl"
+                render={() => (
+                  <FormItem>
+                    <ImageUploadField
+                      name="logoUrl"
+                      label="Logo"
+                      folder="alternative-logos"
+                    />
+                    <FormDescription>
+                      Prefer transparent PNG or SVG, at least 256×256px. Autofill
+                      will attach whatever it finds, so swap it out if the sizing is
+                      off.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -418,25 +451,25 @@ export function AlternativeProductForm({
                       placeholder="Filter categories"
                       className="mt-2"
                     />
-                    <div className="mt-3 max-h-60 space-y-2 overflow-y-auto rounded-md border border-dashed border-border/60 p-3">
+                    <div className="mt-3 max-h-60 overflow-y-auto rounded-md border border-dashed border-border/60 p-3">
                       {filteredCategories.length === 0 ? (
                         <p className="text-sm text-muted-foreground">
                           No categories match your search.
                         </p>
                       ) : (
-                        filteredCategories.map((category) => {
-                          const isSelected = field.value?.includes(category.id)
-                          return (
-                            <label
-                              key={category.id}
-                              className={cn(
-                                "flex cursor-pointer items-center justify-between rounded-md border border-transparent px-2 py-1 text-sm transition",
-                                isSelected
-                                  ? "bg-primary/10 text-primary"
-                                  : "hover:border-border hover:bg-muted/50",
-                              )}
-                            >
-                              <div className="flex items-center gap-3">
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          {filteredCategories.map((category) => {
+                            const isSelected = field.value?.includes(category.id)
+                            return (
+                              <label
+                                key={category.id}
+                                className={cn(
+                                  "flex cursor-pointer items-center justify-start gap-3 rounded-md border border-transparent px-3 py-2 text-sm transition",
+                                  isSelected
+                                    ? "bg-primary/10 text-primary"
+                                    : "hover:border-border hover:bg-muted/50",
+                                )}
+                              >
                                 <Checkbox
                                   checked={isSelected}
                                   onCheckedChange={(checked) => {
@@ -456,11 +489,11 @@ export function AlternativeProductForm({
                                     field.onChange(next)
                                   }}
                                 />
-                                <span>{category.name}</span>
-                              </div>
-                            </label>
-                          )
-                        })
+                                <span className="truncate">{category.name}</span>
+                              </label>
+                            )
+                          })}
+                        </div>
                       )}
                     </div>
                     <FormMessage />
