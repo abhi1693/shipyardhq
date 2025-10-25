@@ -34,11 +34,13 @@ export default function EditProductForm({
   categories,
   organizations,
   canEditCTA,
+  alternatives,
 }: {
   product: any
   categories: { id: string; name: string }[]
   organizations: { id: string; name: string }[]
   canEditCTA: boolean
+  alternatives: { id: string; name: string; websiteUrl?: string | null }[]
 }) {
   const router = useRouter()
 
@@ -86,8 +88,16 @@ export default function EditProductForm({
       enableAutofill: true,
       autofillNotice:
         "AI Autofill replaces the fields on this step with new suggestions. Your current content will be overwritten.",
+      alternatives,
     })
-  }, [wizard.step, categories, organizations, product.id, canEditCTA])
+  }, [
+    wizard.step,
+    categories,
+    organizations,
+    product.id,
+    canEditCTA,
+    alternatives,
+  ])
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6">

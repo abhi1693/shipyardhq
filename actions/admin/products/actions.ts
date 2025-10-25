@@ -24,6 +24,8 @@ import {
   revalidateLeaderboard,
   revalidateProduct,
   revalidateProducts,
+  revalidateAlternativeProduct,
+  revalidateAlternativeProducts,
 } from "@/lib/cache/revalidate"
 import {
   getActiveUserByClerkId,
@@ -92,6 +94,11 @@ export async function getProductById(id: string) {
             },
           },
         },
+        alternatives: {
+          include: {
+            categories: true,
+          },
+        },
       },
     })
   } catch (error) {
@@ -158,6 +165,19 @@ export async function createProductAction(formData: FormData) {
     if (pf) platforms = JSON.parse(pf)
   } catch {}
 
+  let alternativeIds: string[] = []
+  try {
+    const rawAlternatives = formData.get("alternativeIds")?.toString()
+    if (rawAlternatives) {
+      const parsed = JSON.parse(rawAlternatives)
+      if (Array.isArray(parsed)) {
+        alternativeIds = parsed
+          .filter((value) => typeof value === "string" && value.length > 0)
+          .map((value) => value as string)
+      }
+    }
+  } catch {}
+
   try {
     // Uniqueness: websiteUrl must be unique
     const existingWebsite = await prisma.product.findFirst({
@@ -194,6 +214,8 @@ export async function createProductAction(formData: FormData) {
       ctaLabel = undefined
       ctaUrl = undefined
     }
+
+    const uniqueAlternativeIds = Array.from(new Set(alternativeIds))
 
     const created = await prisma.product.create({
       data: {
@@ -239,6 +261,11 @@ export async function createProductAction(formData: FormData) {
             verifiedAt: initialVerified ? new Date() : null,
           },
         },
+        alternatives: uniqueAlternativeIds.length
+          ? {
+              connect: uniqueAlternativeIds.map((altId) => ({ id: altId })),
+            }
+          : undefined,
       },
     })
     // Fire domain event for listeners (e.g., auto badges) without blocking the response
@@ -254,6 +281,17 @@ export async function createProductAction(formData: FormData) {
       Promise.resolve().then(() => revalidateCategory(categoryId)),
       Promise.resolve().then(() => revalidateLeaderboard()),
     ]
+
+    if (uniqueAlternativeIds.length) {
+      sideEffects.push(
+        Promise.resolve().then(() => revalidateAlternativeProducts()),
+      )
+      uniqueAlternativeIds.forEach((altId) => {
+        sideEffects.push(
+          Promise.resolve().then(() => revalidateAlternativeProduct(altId)),
+        )
+      })
+    }
 
     if (created.status === "published") {
       dispatchEventAsync(
@@ -327,6 +365,7 @@ export async function updateProductAction(
     contactEmail?: string | null
     utmCampaign?: string | null
     planId?: string | null
+    alternativeIds?: string[]
   },
 ) {
   // Determine role for permission-sensitive updates
@@ -362,6 +401,7 @@ export async function updateProductAction(
     include: {
       verification: true,
       plan: { select: { boostForDays: true, isDefault: true } },
+      alternatives: { select: { id: true } },
     },
   })
 
@@ -449,6 +489,20 @@ export async function updateProductAction(
       }
     }
 
+    const previousAlternativeIds = current.alternatives
+      ? current.alternatives.map((alt) => alt.id)
+      : []
+    const nextAlternativeIds = Array.isArray(data.alternativeIds)
+      ? Array.from(
+          new Set(
+            data.alternativeIds.filter(
+              (value): value is string =>
+                typeof value === "string" && value.length > 0,
+            ),
+          ),
+        )
+      : undefined
+
     const updated = await prisma.product.update({
       where: { id },
       data: {
@@ -483,6 +537,12 @@ export async function updateProductAction(
         bannerImage: data.bannerImage ?? undefined,
         keywords: data.keywords as any,
         platforms: data.platforms as any,
+        alternatives:
+          nextAlternativeIds !== undefined
+            ? {
+                set: nextAlternativeIds.map((altId) => ({ id: altId })),
+              }
+            : undefined,
         ...planUpdate,
       },
     })
@@ -526,6 +586,16 @@ export async function updateProductAction(
     if (typeof id === "string" && id) revalidateProduct(id)
     revalidateCategory(categoryId)
     revalidateLeaderboard()
+    if (nextAlternativeIds !== undefined || previousAlternativeIds.length) {
+      const idsToRevalidate = new Set<string>(previousAlternativeIds)
+      if (nextAlternativeIds) {
+        nextAlternativeIds.forEach((altId) => idsToRevalidate.add(altId))
+      }
+      idsToRevalidate.forEach((altId) => revalidateAlternativeProduct(altId))
+      if (nextAlternativeIds !== undefined) {
+        revalidateAlternativeProducts()
+      }
+    }
 
     if (updated.status === "published" && current.status !== "published") {
       dispatchEventAsync(

@@ -253,6 +253,9 @@ export default async function ViewUserProductPage({
     platform.replace(/_/g, " "),
   )
   const tags = product.keywords || []
+  const alternativesList = Array.isArray(product.alternatives)
+    ? product.alternatives
+    : []
   const organizationName = product.organization?.name ?? ""
   const organizationUrl = product.organization?.url ?? ""
   const organizationHost = organizationUrl ? formatHost(organizationUrl) : null
@@ -824,6 +827,53 @@ export default async function ViewUserProductPage({
                           {tagValue}
                         </span>
                       ))}
+                    </div>
+                  ) : (
+                    <span className={placeholderTextClass}>
+                      {placeholder()}
+                    </span>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <span className={sectionLabelClass}>
+                    Competitive Alternatives
+                  </span>
+                  {alternativesList.length ? (
+                    <div className="flex flex-col gap-2">
+                      {alternativesList.map((alternative: any) => {
+                        const href = alternative.websiteUrl
+                        const content = (
+                          <span className="flex items-center gap-2">
+                            <Sparkles className={chipIconClass} />
+                            <span className="font-medium">
+                              {alternative.name}
+                            </span>
+                            {href ? (
+                              <span className="text-xs text-muted-foreground">
+                                {formatHost(href) ?? href}
+                              </span>
+                            ) : null}
+                          </span>
+                        )
+                        return href ? (
+                          <Link
+                            key={alternative.id}
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 shadow-sm transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
+                          >
+                            {content}
+                          </Link>
+                        ) : (
+                          <span
+                            key={alternative.id}
+                            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-700"
+                          >
+                            {content}
+                          </span>
+                        )
+                      })}
                     </div>
                   ) : (
                     <span className={placeholderTextClass}>

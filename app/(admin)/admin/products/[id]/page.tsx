@@ -134,6 +134,20 @@ export default async function ViewProductPage({
             : placeholder(),
         },
         {
+          label: "Alternatives",
+          value: product.alternatives?.length
+            ? commaSeparated(
+                product.alternatives.map((alt) =>
+                  linkify({
+                    href: adminPath("products", "alternatives", alt.id),
+                    label: alt.name,
+                    subtext: alt.websiteUrl ?? undefined,
+                  }),
+                ),
+              )
+            : placeholder(),
+        },
+        {
           label: "Type",
           value: product.type?.replaceAll("_", " ") ?? placeholder(),
         },

@@ -663,3 +663,17 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ suggestion, warnings })
 }
+function tryParseJsonLoose(input: string): unknown | undefined {
+  if (!input) return undefined
+  const start = input.indexOf("{")
+  const end = input.lastIndexOf("}")
+  if (start === -1 || end === -1 || end <= start) {
+    return undefined
+  }
+  const candidate = input.slice(start, end + 1)
+  try {
+    return JSON.parse(candidate)
+  } catch {
+    return undefined
+  }
+}

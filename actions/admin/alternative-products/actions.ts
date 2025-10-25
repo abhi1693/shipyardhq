@@ -13,7 +13,7 @@ export async function getAlternativeProducts(
   try {
     const query: Prisma.AlternativeProductFindManyArgs = {
       orderBy: { createdAt: "desc" },
-      ...(args.include
+      ...(args.include || args.select
         ? {}
         : {
             include: {
