@@ -62,9 +62,26 @@ model Product {
   rewardTransactions    RewardTransaction[]
   redemptions           Redemption[]
   featureEntitlements   FeatureEntitlement[]
+  alternatives          AlternativeProduct[] @relation("ProductAlternativeProducts")
 
   @@index([categoryId, createdAt])
   @@index([status, publishedAt])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model AlternativeProduct {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  websiteUrl  String      @unique
+  logoUrl     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products   Product[] @relation("ProductAlternativeProducts")
+  categories Category[] @relation("AlternativeProductCategories")
+
   @@index([createdAt])
   @@index([updatedAt])
 }
@@ -100,14 +117,14 @@ model MonthlyLeaderboardNotification {
 }
 
 model Notification {
-  id           String           @id @default(cuid())
-  userId       String
-  type         NotificationType
-  message      String
-  metadata     Json?
-  readAt       DateTime?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  message   String
+  metadata  Json?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -562,8 +579,9 @@ model Category {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  products Product[] // reverse relation
-  useCases UseCaseCategory[]
+  products            Product[] // reverse relation
+  useCases            UseCaseCategory[]
+  alternativeProducts AlternativeProduct[] @relation("AlternativeProductCategories")
 
   @@index([createdAt])
   @@index([updatedAt])
@@ -904,21 +922,21 @@ model PlacementSchedule {
 }
 
 model EventEnvelope {
-  id                String                @id @default(cuid())
+  id                String              @id @default(cuid())
   event             String
   payload           Json
   asyncHandlers     String[]
   pendingHandlers   String[]
-  status            EventEnvelopeStatus   @default(pending)
-  attempts          Int                   @default(0)
+  status            EventEnvelopeStatus @default(pending)
+  attempts          Int                 @default(0)
   lastError         String?
-  enqueuedAt        DateTime              @default(now())
+  enqueuedAt        DateTime            @default(now())
   processingStarted DateTime?
   processedAt       DateTime?
-  queue             String                @default("default")
+  queue             String              @default("default")
   nextRunAt         DateTime?
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
 
   attemptsLog EventAttempt[]
 
@@ -929,14 +947,14 @@ model EventEnvelope {
 }
 
 model EventAttempt {
-  id          String             @id @default(cuid())
-  envelopeId  String
-  handler     String
-  status      EventAttemptStatus
-  durationMs  Int?
-  error       String?
-  attempt     Int
-  createdAt   DateTime           @default(now())
+  id         String             @id @default(cuid())
+  envelopeId String
+  handler    String
+  status     EventAttemptStatus
+  durationMs Int?
+  error      String?
+  attempt    Int
+  createdAt  DateTime           @default(now())
 
   envelope EventEnvelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
 

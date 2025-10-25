@@ -34,6 +34,21 @@ export function revalidateProducts(mode: CacheInvalidationMode = "update") {
   revalidateLeaderboardPage(mode)
 }
 
+export function revalidateAlternativeProducts(
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.alternativeProducts, mode)
+}
+
+export function revalidateAlternativeProduct(
+  id: string,
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.alternativeProduct(id), mode)
+  revalidateAlternativeProducts(mode)
+  revalidateProducts(mode)
+}
+
 export function revalidateProduct(
   idOrSlug: string,
   mode: CacheInvalidationMode = "update",
