@@ -11,6 +11,7 @@ export type CompactProductItem = {
   analytics?: { upvotes?: number | null } | null
   category?: { name?: string | null } | null
   badges?: string[]
+  sponsored?: boolean
 }
 
 interface ProductCompactGridProps<T extends CompactProductItem> {
@@ -54,6 +55,7 @@ export function ProductCompactGrid<T extends CompactProductItem>({
           meta={renderMeta?.(item, index)}
           showCategory={showCategory}
           showBadges={showBadges}
+          sponsored={item.sponsored ?? false}
         />
       ))}
     </div>

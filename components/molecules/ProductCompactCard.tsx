@@ -28,6 +28,7 @@ interface ProductCompactCardProps {
   showBadges?: boolean
   className?: string
   disableHoverEffects?: boolean
+  sponsored?: boolean
 }
 
 export function ProductCompactCard({
@@ -41,6 +42,7 @@ export function ProductCompactCard({
   showBadges = false,
   className,
   disableHoverEffects = false,
+  sponsored = false,
 }: ProductCompactCardProps) {
   const resolvedBadges = badges
     .map(
@@ -97,9 +99,19 @@ export function ProductCompactCard({
                 </div>
                 {meta ? <div className="shrink-0">{meta}</div> : null}
               </div>
-              <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                {product.tagline}
-              </p>
+              <div className="mt-1 space-y-2">
+                <p className="line-clamp-2 text-xs text-muted-foreground">
+                  {product.tagline}
+                </p>
+                {sponsored ? (
+                  <Badge
+                    variant="secondary"
+                    className="inline-flex rounded-full border border-[color:var(--brand-1)/0.28] bg-[color:var(--brand-1)/0.12] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[color:var(--brand-1)] shadow-[0_12px_28px_-24px_rgba(7,78,134,0.5)]"
+                  >
+                    Sponsored
+                  </Badge>
+                ) : null}
+              </div>
             </div>
           </div>
 

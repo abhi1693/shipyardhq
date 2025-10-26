@@ -58,6 +58,7 @@ function homepagePlacement(
       slotKey: "hero_slot",
       startsAt: new Date(Date.now() - 60_000),
       endsAt: new Date(Date.now() + 60_000),
+      redemptionId: null,
     }
   }
 
@@ -78,6 +79,13 @@ describe("Organisms", () => {
     const now = new Date()
     const placements: HomepageFeaturePlacement[] = [
       homepagePlacement("1", "schedule", {
+        schedule: {
+          id: "schedule-1",
+          slotKey: "hero_slot",
+          startsAt: new Date(now.getTime() - 30_000),
+          endsAt: new Date(now.getTime() + 30_000),
+          redemptionId: "redemption-1",
+        },
         product: {
           ProductBadge: [
             {
@@ -91,7 +99,11 @@ describe("Organisms", () => {
           ],
         } as any,
       }),
-      homepagePlacement("2", "plan"),
+      homepagePlacement("2", "plan", {
+        product: {
+          plan: { id: "plan-paid", price: 2000 },
+        } as any,
+      }),
     ]
 
     rerender(<HomepageSpotlight placements={placements} />)
@@ -99,6 +111,8 @@ describe("Organisms", () => {
     expect(screen.getByText("Homepage 1")).toBeInTheDocument()
     expect(screen.getByText("Homepage 2")).toBeInTheDocument()
     expect(screen.getAllByTestId("product-compact-card")).toHaveLength(2)
+    const sponsoredPills = screen.getAllByText("Sponsored")
+    expect(sponsoredPills).toHaveLength(2)
     expect(
       screen.queryByText("Plan upgrades in queue"),
     ).not.toBeInTheDocument()

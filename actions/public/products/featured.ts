@@ -10,6 +10,12 @@ type HomepageProduct = Prisma.ProductGetPayload<{
     user: true
     analytics: true
     ProductBadge: true
+    plan: {
+      select: {
+        id: true
+        price: true
+      }
+    }
   }
 }>
 
@@ -22,6 +28,7 @@ export type HomepageFeaturePlacement = {
     slotKey: string
     startsAt: Date
     endsAt: Date
+    redemptionId: string | null
   }
 }
 
@@ -328,6 +335,12 @@ export const getHomepageFeatureProducts = cached(
               user: true,
               analytics: true,
               ProductBadge: true,
+              plan: {
+                select: {
+                  id: true,
+                  price: true,
+                },
+              },
             },
           },
         },
@@ -353,6 +366,12 @@ export const getHomepageFeatureProducts = cached(
           user: true,
           analytics: true,
           ProductBadge: true,
+          plan: {
+            select: {
+              id: true,
+              price: true,
+            },
+          },
         },
         orderBy: { updatedAt: "desc" },
         take: limit,
@@ -375,6 +394,7 @@ export const getHomepageFeatureProducts = cached(
           slotKey: entry.slotKey,
           startsAt: entry.startsAt,
           endsAt: entry.endsAt,
+          redemptionId: entry.redemptionId ?? null,
         },
       })
       if (placements.length >= limit) return placements

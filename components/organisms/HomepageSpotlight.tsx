@@ -11,10 +11,14 @@ interface SpotlightListItem {
   analytics?: { upvotes?: number | null } | null
   category?: { name?: string | null } | null
   badges: string[]
+  sponsored: boolean
 }
 
 function toSpotlightItem(placement: HomepageFeaturePlacement): SpotlightListItem {
-  const { product } = placement
+  const { product, schedule, origin } = placement
+  const planPrice = product.plan?.price ?? 0
+  const hasPaidPlan = planPrice > 0
+  const redeemedReward = origin === "schedule" && Boolean(schedule?.redemptionId)
   return {
     id: product.id,
     slug: product.slug,
@@ -24,6 +28,7 @@ function toSpotlightItem(placement: HomepageFeaturePlacement): SpotlightListItem
     analytics: product.analytics ?? null,
     category: product.category ?? undefined,
     badges: [],
+    sponsored: hasPaidPlan || redeemedReward,
   }
 }
 
