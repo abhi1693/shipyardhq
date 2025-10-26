@@ -1,7 +1,8 @@
 "use server"
 
-import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
+import prisma from "@/lib/prisma"
+import { checkRole } from "@/lib/roles"
 import {
   revalidateAlternativeProduct,
   revalidateProduct,
@@ -114,6 +115,11 @@ export async function getAlternativeProductBySlug(
 }
 
 export async function createAlternativeProductAction(formData: FormData) {
+  const isAdmin = await checkRole("admin")
+  if (!isAdmin) {
+    return { error: "Unauthorized" }
+  }
+
   const name = formData.get("name")?.toString().trim() ?? ""
   const description = formData.get("description")?.toString().trim() ?? ""
   const websiteUrl = formData.get("websiteUrl")?.toString().trim() ?? ""
@@ -203,6 +209,11 @@ export async function updateAlternativeProductAction(
     productIds: string[]
   },
 ) {
+  const isAdmin = await checkRole("admin")
+  if (!isAdmin) {
+    return { error: "Unauthorized" }
+  }
+
   const name = data.name.trim()
   const description = data.description.trim()
   const websiteUrl = data.websiteUrl.trim()
@@ -242,6 +253,9 @@ export async function updateAlternativeProductAction(
           id: true,
           name: true,
           slug: true,
+          products: {
+            select: { id: true },
+          },
         },
       }),
     ])
@@ -258,6 +272,11 @@ export async function updateAlternativeProductAction(
     const slug = nameChanged
       ? await generateUniqueAlternativeSlug(name, id)
       : existing.slug
+
+    const previousProductIds = new Set(
+      (existing.products ?? []).map((product) => product.id),
+    )
+    const nextProductIds = new Set(data.productIds)
 
     await prisma.alternativeProduct.update({
       where: { id },
@@ -278,7 +297,11 @@ export async function updateAlternativeProductAction(
 
     revalidateAlternativeProduct(id)
     revalidateAlternativeProduct(slug)
-    data.productIds.forEach((productId) => {
+    const affectedProductIds = new Set<string>([
+      ...previousProductIds,
+      ...nextProductIds,
+    ])
+    affectedProductIds.forEach((productId) => {
       revalidateProduct(productId)
     })
 
@@ -296,6 +319,11 @@ type AlternativeProductWithLinkedProducts = {
 }
 
 export async function deleteAlternativeProductAction(identifier: string) {
+  const isAdmin = await checkRole("admin")
+  if (!isAdmin) {
+    return { error: "Unauthorized" }
+  }
+
   try {
     const existing = (await prisma.alternativeProduct.findFirst({
       where: {
