@@ -1,10 +1,6 @@
 import Link from "next/link"
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/atoms/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { cn } from "@/lib/utils"
 import { alternativePath } from "@/lib/routes"
 
@@ -102,11 +98,13 @@ function AlternativeAvatar({ alternative }: { alternative: Alternative }) {
 }
 
 function initialsFor(label: string) {
-  return label
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((segment) => segment.slice(0, 1))
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) || "ALT"
+  return (
+    label
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((segment) => segment.slice(0, 1))
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "ALT"
+  )
 }

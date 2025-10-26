@@ -61,11 +61,14 @@ export default async function DeleteAlternativeProductPage({
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            This will permanently remove <span className="font-medium">{alternativeName}</span>
+            This will permanently remove{" "}
+            <span className="font-medium">{alternativeName}</span>
             {linkedProducts > 0 ? (
               <>
-                {" "}and detach it from <span className="font-medium">{linkedProducts}</span>{" "}
-                linked product{linkedProducts === 1 ? "" : "s"}.
+                {" "}
+                and detach it from{" "}
+                <span className="font-medium">{linkedProducts}</span> linked
+                product{linkedProducts === 1 ? "" : "s"}.
               </>
             ) : (
               "."

@@ -20,13 +20,12 @@ export function AlternativeProductProductRelationship({ rows }: Props) {
     {
       accessorKey: "name",
       header: "Product",
-      cell: ({ row }) => (
+      cell: ({ row }) =>
         linkify({
           label: row.original.name,
           href: adminPath("products", row.original.id),
           subtext: row.original.slug,
-        })
-      ),
+        }),
     },
     {
       id: "category",

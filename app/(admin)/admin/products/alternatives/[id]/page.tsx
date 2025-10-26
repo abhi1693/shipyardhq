@@ -61,7 +61,11 @@ export default async function AlternativeProductDetailPage({
     },
     {
       label: "Description",
-      value: <p className="whitespace-pre-wrap text-sm">{alternativeWithRelations.description}</p>,
+      value: (
+        <p className="whitespace-pre-wrap text-sm">
+          {alternativeWithRelations.description}
+        </p>
+      ),
     },
     {
       label: "Categories",

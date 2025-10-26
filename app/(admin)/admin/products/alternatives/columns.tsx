@@ -11,13 +11,12 @@ import { formatDate, linkify } from "@/lib/ui/formatters"
 import { adminPath } from "@/lib/routes"
 import { Prisma } from "@/lib/vendor/prisma/client"
 
-export type AlternativeProductRow =
-  Prisma.AlternativeProductGetPayload<{
-    include: {
-      categories: true
-      _count: { select: { products: true } }
-    }
-  }>
+export type AlternativeProductRow = Prisma.AlternativeProductGetPayload<{
+  include: {
+    categories: true
+    _count: { select: { products: true } }
+  }
+}>
 
 const getInitials = (name: string) => {
   const parts = name.trim().split(/\s+/).slice(0, 2)
@@ -73,9 +72,7 @@ export const columns: ColumnDef<AlternativeProductRow>[] = [
     header: "Categories",
     cell: ({ row }) => {
       const labels = row.original.categories.map((category) => category.name)
-      return labels.length
-        ? labels.join(", ")
-        : "—"
+      return labels.length ? labels.join(", ") : "—"
     },
   },
   {
@@ -105,7 +102,12 @@ export const columns: ColumnDef<AlternativeProductRow>[] = [
           </Button>
         </Link>
         <Link
-          href={adminPath("products", "alternatives", row.original.id, "delete")}
+          href={adminPath(
+            "products",
+            "alternatives",
+            row.original.id,
+            "delete",
+          )}
         >
           <DeleteButton size="sm" />
         </Link>

@@ -47,8 +47,12 @@ export default async function EditAlternativeProductPage({
         description: alternativeWithRelations.description,
         websiteUrl: alternativeWithRelations.websiteUrl,
         logoUrl: alternativeWithRelations.logoUrl,
-        categoryIds: alternativeWithRelations.categories.map((category) => category.id),
-        productIds: alternativeWithRelations.products.map((product) => product.id),
+        categoryIds: alternativeWithRelations.categories.map(
+          (category) => category.id,
+        ),
+        productIds: alternativeWithRelations.products.map(
+          (product) => product.id,
+        ),
       }}
       categories={categories}
       products={products}

@@ -7,10 +7,7 @@ import Link from "next/link"
 import { AlternativeCatalogGridClient } from "@/components/molecules/AlternativeCatalogGridClient"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 import { brandGradient } from "@/lib/ui/tints"
-import {
-  launchPrimaryButton,
-  launchSecondaryButton,
-} from "@/lib/ui/buttons"
+import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 
 export async function AlternativesPageContent() {
   const { items, hasMore } = await getAlternativeCatalogPage({
@@ -33,7 +30,9 @@ export async function AlternativesPageContent() {
                   Browse SaaS Alternatives
                 </h1>
                 <p className="text-base text-white/85 sm:text-lg">
-                  Explore vetted third-party tools founders benchmark against Shipyard launches. Find adjacent options, compare positioning, and map category coverage in one curated place.
+                  Explore vetted third-party tools founders benchmark against
+                  Shipyard launches. Find adjacent options, compare positioning,
+                  and map category coverage in one curated place.
                 </p>
               </div>
               <div className="flex flex-wrap items-center justify-center gap-3">

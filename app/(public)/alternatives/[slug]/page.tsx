@@ -25,9 +25,10 @@ export async function generateMetadata(
 
   const linkedCount = productsSummary.total
   const currentYear = new Date().getFullYear()
-  const title = linkedCount > 0
-    ? `Top ${linkedCount} ${alternative.name} Alternatives & Competitors in ${currentYear}`
-    : `Best ${alternative.name} Alternatives & Competitors in ${currentYear}`
+  const title =
+    linkedCount > 0
+      ? `Top ${linkedCount} ${alternative.name} Alternatives & Competitors in ${currentYear}`
+      : `Best ${alternative.name} Alternatives & Competitors in ${currentYear}`
 
   const description = alternative.description?.trim().length
     ? alternative.description

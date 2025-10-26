@@ -8,11 +8,7 @@ import {
   getFeaturedAlternatives,
 } from "@/actions/public/alternatives/actions"
 import AlternativeProductsClient from "@/app/(public)/alternatives/[slug]/AlternativeProductsClient"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/atoms/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { EmptyState } from "@/components/molecules/empty-state"
 import { AlternativeCatalogCard } from "@/components/molecules/AlternativeCatalogCard"
 import { ALTERNATIVES_PATH, alternativePath, productPath } from "@/lib/routes"
@@ -45,9 +41,8 @@ export async function AlternativeDetailPageContent({
     take: 6,
   })
 
-  const curatedCount = productsPage.total > 0
-    ? Math.min(productsPage.total, 8)
-    : 0
+  const curatedCount =
+    productsPage.total > 0 ? Math.min(productsPage.total, 8) : 0
 
   const subheading = curatedCount
     ? `A curated collection of the ${curatedCount} best alternatives to ${alternative.name}.`
@@ -74,8 +69,10 @@ export async function AlternativeDetailPageContent({
   ).toString()
 
   const itemListElements = productsPage.items.map((product, index) => {
-    const productUrl = new URL(productPath(product.slug), siteConfig.url)
-      .toString()
+    const productUrl = new URL(
+      productPath(product.slug),
+      siteConfig.url,
+    ).toString()
 
     const productNode: Record<string, unknown> = {
       "@type": "Product",
@@ -151,8 +148,10 @@ export async function AlternativeDetailPageContent({
 
   const structuredDataJson = JSON.stringify(structuredData)
 
-  const alternativesDirectoryUrl = new URL(ALTERNATIVES_PATH, siteConfig.url)
-    .toString()
+  const alternativesDirectoryUrl = new URL(
+    ALTERNATIVES_PATH,
+    siteConfig.url,
+  ).toString()
 
   const breadcrumbData = {
     "@context": "https://schema.org",
@@ -244,7 +243,6 @@ export async function AlternativeDetailPageContent({
                   Visit {alternative.name}
                 </Link>
               ) : null}
-
             </div>
           </section>
 
@@ -257,7 +255,8 @@ export async function AlternativeDetailPageContent({
                 <p className="text-sm text-slate-600">
                   {productsPage.total} product
                   {productsPage.total === 1 ? "" : "s"} positioned as
-                  alternative{productsPage.total === 1 ? "" : "s"} to {alternative.name}.
+                  alternative{productsPage.total === 1 ? "" : "s"} to{" "}
+                  {alternative.name}.
                 </p>
               </div>
             </header>

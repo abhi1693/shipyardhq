@@ -271,9 +271,7 @@ export default function Review({
                 key={alt.id}
                 className="flex flex-col rounded-md border border-slate-200 bg-slate-50 px-3 py-2"
               >
-                <span className="font-medium text-slate-900">
-                  {alt.name}
-                </span>
+                <span className="font-medium text-slate-900">{alt.name}</span>
                 {alt.websiteUrl ? (
                   <a
                     href={alt.websiteUrl}

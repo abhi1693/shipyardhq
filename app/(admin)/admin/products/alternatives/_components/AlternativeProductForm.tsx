@@ -136,7 +136,9 @@ export function AlternativeProductForm({
 
       const payload = await response.json()
       if (!response.ok) {
-        throw new Error(payload?.error || "Unable to fetch details from this URL")
+        throw new Error(
+          payload?.error || "Unable to fetch details from this URL",
+        )
       }
 
       const suggestion = payload?.suggestion as
@@ -250,7 +252,7 @@ export function AlternativeProductForm({
         return
       }
 
-    toast.success("Alternative created")
+      toast.success("Alternative created")
       router.push(adminPath("products", "alternatives"))
       return
     }
@@ -320,9 +322,9 @@ export function AlternativeProductForm({
                         Let AI profile this alternative
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Paste the competitor site below and Shipyard AI will draft the
-                        name, description, categories, and pull a logo. Adjust anything
-                        after it runs.
+                        Paste the competitor site below and Shipyard AI will
+                        draft the name, description, categories, and pull a
+                        logo. Adjust anything after it runs.
                       </p>
                     </div>
                   </div>
@@ -353,7 +355,9 @@ export function AlternativeProductForm({
                           field.onChange(event)
                         }}
                         onBlur={(event) => {
-                          const sanitized = cleanWebsiteUrlInput(event.target.value)
+                          const sanitized = cleanWebsiteUrlInput(
+                            event.target.value,
+                          )
                           if (sanitized !== field.value) {
                             form.setValue("websiteUrl", sanitized, {
                               shouldDirty: true,
@@ -365,8 +369,8 @@ export function AlternativeProductForm({
                       />
                     </FormControl>
                     <FormDescription>
-                      Start with the canonical marketing site. Autofill relies on it to
-                      gather details.
+                      Start with the canonical marketing site. Autofill relies
+                      on it to gather details.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -383,8 +387,8 @@ export function AlternativeProductForm({
                       <Input placeholder="e.g. Notion" {...field} />
                     </FormControl>
                     <FormDescription>
-                      Autofill usually finds this, but feel free to tweak the casing
-                      or spelling the team prefers.
+                      Autofill usually finds this, but feel free to tweak the
+                      casing or spelling the team prefers.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -398,9 +402,9 @@ export function AlternativeProductForm({
                   <FormItem>
                     <FormLabel>Positioning Summary</FormLabel>
                     <FormDescription>
-                      Keep it concise—two or three plain-text sentences that explain
-                      what the product does, who it serves, and why people consider it
-                      alongside Shipyard listings.
+                      Keep it concise—two or three plain-text sentences that
+                      explain what the product does, who it serves, and why
+                      people consider it alongside Shipyard listings.
                     </FormDescription>
                     <FormControl>
                       <Textarea
@@ -426,9 +430,9 @@ export function AlternativeProductForm({
                       scope="global"
                     />
                     <FormDescription>
-                      Prefer transparent PNG or SVG, at least 256×256px. Autofill
-                      will attach whatever it finds, so swap it out if the sizing is
-                      off.
+                      Prefer transparent PNG or SVG, at least 256×256px.
+                      Autofill will attach whatever it finds, so swap it out if
+                      the sizing is off.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -464,7 +468,9 @@ export function AlternativeProductForm({
                       ) : (
                         <div className="grid gap-2 sm:grid-cols-2">
                           {filteredCategories.map((category) => {
-                            const isSelected = field.value?.includes(category.id)
+                            const isSelected = field.value?.includes(
+                              category.id,
+                            )
                             return (
                               <label
                                 key={category.id}
@@ -494,7 +500,9 @@ export function AlternativeProductForm({
                                     field.onChange(next)
                                   }}
                                 />
-                                <span className="truncate">{category.name}</span>
+                                <span className="truncate">
+                                  {category.name}
+                                </span>
                               </label>
                             )
                           })}
@@ -583,7 +591,6 @@ export function AlternativeProductForm({
                   </FormItem>
                 )}
               />
-
             </CardContent>
             <CardFooter className="flex justify-end gap-2 border-t border-border/50 bg-muted/[0.35]">
               <Button

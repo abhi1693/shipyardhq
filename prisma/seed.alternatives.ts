@@ -200,4 +200,3 @@ if (invokedDirectly) {
       await prisma.$disconnect()
     })
 }
-

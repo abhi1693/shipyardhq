@@ -13,7 +13,8 @@ async function generateUniqueAlternativeSlug(
   base: string,
   excludeId?: string,
 ): Promise<string> {
-  const cleaned = slugify(base) || `alternative-${Math.random().toString(36).slice(2, 6)}`
+  const cleaned =
+    slugify(base) || `alternative-${Math.random().toString(36).slice(2, 6)}`
   let candidate = cleaned
   let suffix = 2
 

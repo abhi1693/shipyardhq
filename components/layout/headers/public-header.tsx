@@ -9,12 +9,7 @@ import { Menu, LayoutDashboard, LogOut, UserRound, Rocket } from "lucide-react"
 import SignInCtaButton from "@/components/molecules/SignInCtaButton"
 import NotificationBell from "@/components/molecules/NotificationBell"
 import clsx from "clsx"
-import {
-  SignOutButton,
-  SignedIn,
-  SignedOut,
-  useUser,
-} from "@clerk/nextjs"
+import { SignOutButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs"
 import { BrandLogo } from "@/components/atoms/brand-logo"
 import SignInButton from "@/components/molecules/SignInButton"
 import {

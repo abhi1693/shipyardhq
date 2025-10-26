@@ -1,11 +1,7 @@
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/atoms/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { cn } from "@/lib/utils"
 import type { AlternativeCatalogItem } from "@/actions/public/alternatives/actions"
 import { alternativePath } from "@/lib/routes"

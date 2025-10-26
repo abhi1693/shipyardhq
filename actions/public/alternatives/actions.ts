@@ -2,38 +2,35 @@ import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { Prisma } from "@/lib/vendor/prisma/client"
 
-const ALTERNATIVE_CARD_INCLUDE = Prisma.validator<
-  Prisma.AlternativeProductInclude
->()({
-  _count: {
-    select: {
-      products: true,
+const ALTERNATIVE_CARD_INCLUDE =
+  Prisma.validator<Prisma.AlternativeProductInclude>()({
+    _count: {
+      select: {
+        products: true,
+      },
     },
-  },
-})
+  })
 
-const ALTERNATIVE_DETAIL_SELECT = Prisma.validator<
-  Prisma.AlternativeProductSelect
->()({
-  id: true,
-  name: true,
-  slug: true,
-  description: true,
-  websiteUrl: true,
-  logoUrl: true,
-})
+const ALTERNATIVE_DETAIL_SELECT =
+  Prisma.validator<Prisma.AlternativeProductSelect>()({
+    id: true,
+    name: true,
+    slug: true,
+    description: true,
+    websiteUrl: true,
+    logoUrl: true,
+  })
 
-const ALTERNATIVE_DETAIL_PRODUCT_SELECT = Prisma.validator<
-  Prisma.ProductSelect
->()({
-  id: true,
-  slug: true,
-  name: true,
-  logo: true,
-  tagline: true,
-  analytics: { select: { upvotes: true } },
-  category: { select: { name: true } },
-})
+const ALTERNATIVE_DETAIL_PRODUCT_SELECT =
+  Prisma.validator<Prisma.ProductSelect>()({
+    id: true,
+    slug: true,
+    name: true,
+    logo: true,
+    tagline: true,
+    analytics: { select: { upvotes: true } },
+    category: { select: { name: true } },
+  })
 
 export type AlternativeCatalogItem = Prisma.AlternativeProductGetPayload<{
   include: typeof ALTERNATIVE_CARD_INCLUDE
@@ -76,32 +73,28 @@ export const getAlternativeCatalogStats = cached(
       products: { some: {} },
     }
 
-    const [
-      totalAlternatives,
-      linkedProducts,
-      categoriesCovered,
-      pairings,
-    ] = await Promise.all([
-      prisma.alternativeProduct.count({
-        where: activeAlternativeFilter,
-      }),
-      prisma.product.count({
-        where: { alternatives: { some: {} } },
-      }),
-      prisma.category.count({
-        where: {
-          alternativeProducts: {
-            some: {
-              products: { some: {} },
+    const [totalAlternatives, linkedProducts, categoriesCovered, pairings] =
+      await Promise.all([
+        prisma.alternativeProduct.count({
+          where: activeAlternativeFilter,
+        }),
+        prisma.product.count({
+          where: { alternatives: { some: {} } },
+        }),
+        prisma.category.count({
+          where: {
+            alternativeProducts: {
+              some: {
+                products: { some: {} },
+              },
             },
           },
-        },
-      }),
-      prisma.alternativeProduct.findMany({
-        where: activeAlternativeFilter,
-        include: { _count: { select: { products: true } } },
-      }),
-    ])
+        }),
+        prisma.alternativeProduct.findMany({
+          where: activeAlternativeFilter,
+          include: { _count: { select: { products: true } } },
+        }),
+      ])
 
     const totalPairings = pairings.reduce(
       (sum, entry) => sum + entry._count.products,
@@ -142,10 +135,9 @@ export const getAlternativeDetail = cached(
 )
 
 export const getFeaturedAlternatives = cached(
-  async ({
-    excludeId,
-    take = 6,
-  }: GetFeaturedAlternativesOptions = {}): Promise<AlternativeCatalogItem[]> => {
+  async ({ excludeId, take = 6 }: GetFeaturedAlternativesOptions = {}): Promise<
+    AlternativeCatalogItem[]
+  > => {
     const sanitizedTake = Math.min(Math.max(take, 1), 12)
 
     const records = await prisma.alternativeProduct.findMany({

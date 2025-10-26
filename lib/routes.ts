@@ -97,8 +97,7 @@ export const REWARDS_PATH = "/rewards" as const
 
 export const SHIPYARD_TWITTER_URL = "https://x.com/shipyardhq" as const
 
-export const alternativePath = (slug: string) =>
-  `${ALTERNATIVES_PATH}/${slug}`
+export const alternativePath = (slug: string) => `${ALTERNATIVES_PATH}/${slug}`
 
 export const categoryPath = (slug: string) => `${CATEGORIES_PATH}/${slug}`
 export const usecasePath = (slug: string) => `${USE_CASES_PATH}/${slug}`

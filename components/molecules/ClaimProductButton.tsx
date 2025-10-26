@@ -8,11 +8,7 @@ import { claimProductAction } from "@/actions/public/products/claim"
 import { Button } from "@/components/atoms/button"
 import { productPath } from "@/lib/routes"
 
-export function ClaimProductButton({
-  productId,
-}: {
-  productId: string
-}) {
+export function ClaimProductButton({ productId }: { productId: string }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
 
