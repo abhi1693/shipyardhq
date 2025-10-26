@@ -2,7 +2,6 @@ import * as React from "react"
 
 import { DirectorySectionHeaderSkeleton } from "@/components/molecules/directory/SectionHeader.skeleton"
 import { DirectoryProductListSkeleton } from "@/components/organisms/directory/DirectoryProductList.skeleton"
-import { Skeleton } from "@/components/atoms/skeleton"
 
 interface HomepageSpotlightSkeletonProps
   extends React.ComponentProps<"section"> {
@@ -25,22 +24,12 @@ export function HomepageSpotlightSkeleton({
       data-slot="homepage-spotlight-skeleton"
       {...props}
     >
-      <DirectorySectionHeaderSkeleton descriptionLines={2} />
-      <div className="mt-8 space-y-8">
-        <div className="space-y-4">
-          <Skeleton className="h-3 w-56 rounded-full" tone="muted" />
-          <DirectoryProductListSkeleton
-            count={primaryCount}
-            columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-          />
-        </div>
-        <div className="space-y-4">
-          <Skeleton className="h-3 w-48 rounded-full" tone="muted" />
-          <DirectoryProductListSkeleton
-            count={secondaryCount}
-            columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-          />
-        </div>
+      <DirectorySectionHeaderSkeleton descriptionLines={0} />
+      <div className="mt-8">
+        <DirectoryProductListSkeleton
+          count={primaryCount + secondaryCount}
+          columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+        />
       </div>
     </section>
   )

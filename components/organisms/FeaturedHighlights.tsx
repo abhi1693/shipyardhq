@@ -73,7 +73,6 @@ export function FeaturedHighlights({
       <DirectorySectionHeader
         kicker="Featured showcase"
         title="Marquee placements that keep your launch in view"
-        description="Featured cards combine sponsored campaigns with editorial standouts. Sponsored spotlights lead the row, followed by organic highlights powered by community momentum."
         action={
           <Button
             asChild

@@ -31,7 +31,6 @@ export function EditorsPick({ products }: { products: FeaturedProduct[] }) {
       <DirectorySectionHeader
         kicker="Team spotlight"
         title="Launches our editorial team can't stop talking about"
-        description="Handpicked by the Shipyard team for narrative, polish, and traction. Use this mix to discover the story-driven products poised for breakout growth."
       />
       <div className="mt-8">
         <DirectoryProductList
