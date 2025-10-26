@@ -12,9 +12,6 @@ export const metadata: Metadata = {
   ...baseMetadata,
 }
 
-export default function AlternativesPage(
-  props: Parameters<typeof AlternativesPageContent>[0],
-) {
-  return <AlternativesPageContent {...props} />
+export default function AlternativesPage() {
+  return <AlternativesPageContent />
 }
-
