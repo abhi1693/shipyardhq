@@ -13,6 +13,16 @@ type PublicProduct = Prisma.ProductGetPayload<{
         }
       }
     }
+    alternatives: {
+      orderBy: { name: "asc" }
+      select: {
+        id: true
+        slug: true
+        name: true
+        websiteUrl: true
+        logoUrl: true
+      }
+    }
     user: {
       select: {
         id: true
@@ -72,6 +82,16 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
           useCases: {
             include: { useCase: true },
           },
+        },
+      },
+      alternatives: {
+        orderBy: { name: "asc" },
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          websiteUrl: true,
+          logoUrl: true,
         },
       },
       user: {

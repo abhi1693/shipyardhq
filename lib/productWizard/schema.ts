@@ -52,6 +52,7 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       ctaLabel: z.string().optional(),
       ctaUrl: z.url().optional().or(z.literal("")),
       bannerImage: z.url().optional().or(z.literal("")),
+      alternativeIds: z.array(z.string()).default([]),
 
       // Metadata
       githubUrl: z.url().optional().or(z.literal("")),

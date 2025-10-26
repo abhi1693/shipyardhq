@@ -14,6 +14,7 @@ type Props = {
   folder?: string
   maxSizeMB?: number
   productId?: string
+  scope?: "user" | "global"
 }
 
 export default function ImageUploadField({
@@ -23,6 +24,7 @@ export default function ImageUploadField({
   folder = "assets",
   maxSizeMB = 5,
   productId,
+  scope = "user",
 }: Props) {
   const { setValue, watch } = useFormContext()
   const value = (watch(name) as string) || ""
@@ -40,6 +42,7 @@ export default function ImageUploadField({
       fd.append("file", file)
       fd.append("folder", folder)
       if (productId) fd.append("productId", productId)
+      fd.append("scope", scope)
       const res = await fetch("/api/uploads", { method: "POST", body: fd })
       if (!res.ok) throw new Error(await res.text())
       const data = await res.json()

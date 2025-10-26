@@ -49,6 +49,7 @@ import { ProductChangelog } from "@/components/organisms/ProductChangelog"
 import { ProductCrewRoster } from "@/components/organisms/ProductCrewRoster"
 import { ProductSimilarVoyages } from "@/components/organisms/ProductSimilarVoyages"
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import { ProductAlternativesSection } from "@/components/organisms/ProductAlternativesSection"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { queueProductViewReward } from "@/lib/server/rewards/engagement"
 import {
@@ -487,6 +488,9 @@ export async function ProductDetailPageContent({ params }: ProductPageProps) {
                 </dl>
               </section>
             ) : null}
+            <ProductAlternativesSection
+              alternatives={product.alternatives || []}
+            />
 
             {secondaryLinks.length ? (
               <section className="rounded-2xl border border-border bg-white p-4 shadow-sm">

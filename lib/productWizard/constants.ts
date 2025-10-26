@@ -59,5 +59,6 @@ export const STEP_FIELDS: Record<number, readonly string[]> = {
     "twitterUrl",
     "demoUrl",
     "contactEmail",
+    "alternativeIds",
   ],
 }

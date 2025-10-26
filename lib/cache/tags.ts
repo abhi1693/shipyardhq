@@ -4,6 +4,8 @@ export const TAGS = {
   productUpdates: (idOrSlug: string) => `product:${idOrSlug}:updates`,
   productUpdate: (id: string) => `product-update:${id}`,
   productUpdatesLatest: "product-updates:latest",
+  alternativeProducts: "alternative-products",
+  alternativeProduct: (id: string) => `alternative-product:${id}`,
   categories: "categories",
   category: (idOrSlug: string) => `category:${idOrSlug}`,
   leaderboardPage: "leaderboard:page",

@@ -12,6 +12,7 @@ import {
   HOME_PATH,
   LEADERBOARD_PATH,
   LEADERBOARD_GUIDE_PATH,
+  ALTERNATIVES_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
   REWARDS_PATH,
@@ -50,6 +51,7 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
   const discoverLinks = [
     { label: "All Products", href: BROWSE_PATH },
     { label: "Leaderboard", href: LEADERBOARD_PATH },
+    { label: "Alternatives", href: ALTERNATIVES_PATH },
     { label: "Live Launch Battles", href: RANK_IN_PUBLIC_PATH },
     { label: "Trend Radar", href: TRENDS_PATH },
     { label: "Rewards", href: REWARDS_PATH },

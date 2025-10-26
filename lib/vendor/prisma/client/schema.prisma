@@ -62,9 +62,27 @@ model Product {
   rewardTransactions    RewardTransaction[]
   redemptions           Redemption[]
   featureEntitlements   FeatureEntitlement[]
+  alternatives          AlternativeProduct[]    @relation("ProductAlternativeProducts")
 
   @@index([categoryId, createdAt])
   @@index([status, publishedAt])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model AlternativeProduct {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  websiteUrl  String   @unique
+  logoUrl     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products   Product[]  @relation("ProductAlternativeProducts")
+  categories Category[] @relation("AlternativeProductCategories")
+
   @@index([createdAt])
   @@index([updatedAt])
 }
@@ -562,8 +580,9 @@ model Category {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  products Product[] // reverse relation
-  useCases UseCaseCategory[]
+  products            Product[] // reverse relation
+  useCases            UseCaseCategory[]
+  alternativeProducts AlternativeProduct[] @relation("AlternativeProductCategories")
 
   @@index([createdAt])
   @@index([updatedAt])

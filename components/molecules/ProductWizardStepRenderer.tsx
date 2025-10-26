@@ -25,6 +25,12 @@ export function renderStep(
   args: {
     categories: { id: string; name: string }[]
     organizations: { id: string; name: string }[]
+    alternatives?: {
+      id: string
+      slug?: string | null
+      name: string
+      websiteUrl?: string | null
+    }[]
     productId?: string
     persistOnVerify?: boolean
     lockWebsiteUrl?: boolean
@@ -62,6 +68,7 @@ export function renderStep(
           organizations={args.organizations}
           productId={args.productId}
           canEditCTA={args.canEditCTA}
+          alternatives={args.alternatives ?? []}
         />
       )
     case 5:
@@ -70,6 +77,7 @@ export function renderStep(
         <Review
           categories={args.categories}
           organizations={args.organizations}
+          alternatives={args.alternatives ?? []}
         />
       )
   }

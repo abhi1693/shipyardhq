@@ -301,8 +301,7 @@ export function ProductDetailHero({
                   mode="modal"
                   forceRedirectUrl={reviewPrompt.redirectUrl}
                   signUpForceRedirectUrl={reviewPrompt.redirectUrl}
-                >
-                </SignInButton>
+                ></SignInButton>
               )}
             </div>
           </div>

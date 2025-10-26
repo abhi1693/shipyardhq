@@ -9,14 +9,35 @@ import remarkGfm from "remark-gfm"
 type Props = {
   categories: { id: string; name: string }[]
   organizations: { id: string; name: string }[]
+  alternatives: {
+    id: string
+    slug?: string | null
+    name: string
+    websiteUrl?: string | null
+  }[]
 }
 
-export default function Review({ categories, organizations }: Props) {
+export default function Review({
+  categories,
+  organizations,
+  alternatives,
+}: Props) {
   const form = useFormContext()
   const v = form.getValues() as any
   const categoryName = categories.find((c) => c.id === v.categoryId)?.name
   const checks = (v.reviewChecks || {}) as Record<string, boolean>
   const issues: string[] = (v.reviewIssues || []) as string[]
+  const alternativeMap = new Map(
+    alternatives.map((alt) => [alt.id, alt] as const),
+  )
+  type AlternativeOption = (typeof alternatives)[number]
+  const selectedAlternatives: AlternativeOption[] = Array.isArray(
+    v.alternativeIds,
+  )
+    ? (v.alternativeIds as string[])
+        .map((id) => alternativeMap.get(id))
+        .filter((alt): alt is AlternativeOption => Boolean(alt))
+    : []
 
   return (
     <div className="space-y-6">
@@ -238,6 +259,37 @@ export default function Review({ categories, organizations }: Props) {
           <Info label="CTA Label" value={v.ctaLabel} />
           <Info label="CTA URL" value={v.ctaUrl} />
         </div>
+      </section>
+
+      {/* Competitive Alternatives */}
+      <section className="space-y-2">
+        <h3 className="text-lg font-semibold">Competitive Alternatives</h3>
+        {selectedAlternatives.length ? (
+          <ul className="space-y-2 text-sm">
+            {selectedAlternatives.map((alt) => (
+              <li
+                key={alt.id}
+                className="flex flex-col rounded-md border border-slate-200 bg-slate-50 px-3 py-2"
+              >
+                <span className="font-medium text-slate-900">{alt.name}</span>
+                {alt.websiteUrl ? (
+                  <a
+                    href={alt.websiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary hover:underline"
+                  >
+                    {alt.websiteUrl}
+                  </a>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            You haven&apos;t selected any competitive alternatives yet.
+          </p>
+        )}
       </section>
     </div>
   )

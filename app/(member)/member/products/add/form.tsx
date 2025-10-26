@@ -40,11 +40,18 @@ export default function AddProductForm({
   organizations,
   userId,
   canEditCTA,
+  alternatives,
 }: {
   categories: { id: string; name: string }[]
   organizations: { id: string; name: string }[]
   userId: string
   canEditCTA: boolean
+  alternatives: {
+    id: string
+    slug?: string | null
+    name: string
+    websiteUrl?: string | null
+  }[]
 }) {
   const router = useRouter()
   const [newProductId] = useState(() => {
@@ -112,8 +119,16 @@ export default function AddProductForm({
       persistOnVerify: false,
       canEditCTA,
       enableAutofill: true,
+      alternatives,
     })
-  }, [wizard.step, categories, organizations, newProductId, canEditCTA])
+  }, [
+    wizard.step,
+    categories,
+    organizations,
+    newProductId,
+    canEditCTA,
+    alternatives,
+  ])
 
   return (
     <Card className="mx-auto w-full max-w-4xl">

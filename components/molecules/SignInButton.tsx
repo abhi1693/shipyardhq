@@ -43,9 +43,7 @@ export default function SignInButton({ children, ...props }: Props) {
   }
 
   if (typeof firstChild === "string" || typeof firstChild === "number") {
-    return (
-      <ClerkSignInButton {...props}>{firstChild}</ClerkSignInButton>
-    )
+    return <ClerkSignInButton {...props}>{firstChild}</ClerkSignInButton>
   }
 
   if (!isValidElement(firstChild)) {

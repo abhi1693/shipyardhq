@@ -18,6 +18,7 @@ import {
 const RequestSchema = z.object({
   url: z.string().url(),
   categories: z.array(z.string()).max(64).optional(),
+  descriptionGuidance: z.string().max(600).optional(),
 })
 
 const ModelOutputSchema = z.object({
@@ -525,6 +526,20 @@ export async function POST(request: Request) {
 
   const openai = getOpenAIClient()
 
+  const descriptionInstruction =
+    parsed.data.descriptionGuidance?.trim() ||
+    "- Rewrite the description as a launch-ready overview using Markdown (bold, italics, bullet lists allowed, but never heading syntax like '#'). In this order, include: Product Overview (one-line elevator pitch plus brief plain-language summary and problem statement), Key Features (3–7 concise bullets highlighting differentiators or tiered plans if available), Target Audience / Use Cases (who it's for and typical workflows), and Benefits / Value Proposition (tangible outcomes and any proof points)."
+
+  const guidelines = [
+    descriptionInstruction,
+    "- Always populate 'name' with the product brand or title and 'tagline' with a short, memorable elevator pitch derived from the supplied content.",
+    "- Base all narrative details on the supplied meta descriptions, pricing context, primary copy snippet, and truncated website text.",
+    "- Always include a keywords array with 3 to 6 concise, lowercase SEO keywords directly supported by the source content.",
+    "- If pricing page context is provided, reference the actual plan names, price points, and differentiators; if pricing data is missing, explicitly note that pricing details are unavailable and do not guess.",
+    "- Use null for unknown values and omit fields entirely when information is not available.",
+    "- Never invent features or details not present in the provided content.",
+  ].join("\n")
+
   let modelOutput: ModelOutput
   try {
     const response = await openai.responses.create({
@@ -571,7 +586,7 @@ export async function POST(request: Request) {
               ctaLabel: "string | null",
               ctaUrl: "string | null",
             },
-          )}\nGuidelines:\n- Rewrite the description as a launch-ready overview using Markdown (bold, italics, bullet lists allowed, but never heading syntax like '#'). In this order, include: Product Overview (one-line elevator pitch plus brief plain-language summary and problem statement), Key Features (3–7 concise bullets highlighting differentiators or tiered plans if available), Target Audience / Use Cases (who it's for and typical workflows), and Benefits / Value Proposition (tangible outcomes and any proof points).\n- Always populate 'name' with the product brand or title and 'tagline' with a short, memorable elevator pitch derived from the supplied content.\n- Base all narrative details on the supplied meta descriptions, pricing context, primary copy snippet, and truncated website text.\n- Always include a keywords array with 3 to 6 concise, lowercase SEO keywords directly supported by the source content.\n- If pricing page context is provided, reference the actual plan names, price points, and differentiators; if pricing data is missing, explicitly note that pricing details are unavailable and do not guess.\n- Use null for unknown values and omit fields entirely when information is not available.\n- Never invent features or details not present in the provided content.`,
+          )}\nGuidelines:\n${guidelines}`,
         },
       ],
     })
