@@ -52,7 +52,6 @@ export function HomepageSpotlight({
       <DirectorySectionHeader
         kicker="Homepage spotlight"
         title="Flagship homepage spotlight"
-        description="Command the first impression every visitor experiences. These premium slots pair scheduled takeovers with campaign boosts so your launch leads the directory the moment it goes live."
       />
 
       <div className="mt-8">
