@@ -5,23 +5,14 @@ import {
 import Link from "next/link"
 
 import { AlternativeCatalogGridClient } from "@/components/molecules/AlternativeCatalogGridClient"
-import {
-  BROWSE_PATH,
-  MEMBER_PRODUCTS_PATH,
-} from "@/lib/routes"
-import { brandGradient, gradientTint } from "@/lib/ui/tints"
+import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
+import { brandGradient } from "@/lib/ui/tints"
 import {
   launchPrimaryButton,
   launchSecondaryButton,
 } from "@/lib/ui/buttons"
 
-type SearchParamsRecord = Record<string, string | string[] | undefined>
-
-export async function AlternativesPageContent({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParamsRecord>
-}) {
+export async function AlternativesPageContent() {
   const { items, hasMore } = await getAlternativeCatalogPage({
     page: 1,
     pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,

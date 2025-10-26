@@ -170,7 +170,7 @@ export default async function ClaimProductPage({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <ClaimProductButton productId={product.id} slug={product.slug} />
+          <ClaimProductButton productId={product.id} />
           <Button asChild variant="outline">
             <Link href={backHref}>Cancel</Link>
           </Button>

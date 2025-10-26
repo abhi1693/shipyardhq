@@ -10,10 +10,8 @@ import { productPath } from "@/lib/routes"
 
 export function ClaimProductButton({
   productId,
-  slug,
 }: {
   productId: string
-  slug: string
 }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
