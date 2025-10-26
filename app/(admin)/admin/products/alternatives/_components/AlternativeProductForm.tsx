@@ -460,7 +460,7 @@ export function AlternativeProductForm({
                       placeholder="Filter categories"
                       className="mt-2"
                     />
-                    <div className="mt-3 max-h-60 overflow-y-auto rounded-md border border-dashed border-border/60 p-3">
+                    <div className="mt-3 max-h-60 overflow-y-auto contain-content rounded-md border border-dashed border-border/60 p-3">
                       {filteredCategories.length === 0 ? (
                         <p className="text-sm text-muted-foreground">
                           No categories match your search.
@@ -535,7 +535,7 @@ export function AlternativeProductForm({
                       placeholder="Search products"
                       className="mt-2"
                     />
-                    <div className="mt-3 max-h-72 space-y-2 overflow-y-auto rounded-md border border-dashed border-border/60 p-3">
+                    <div className="mt-3 max-h-72 space-y-2 overflow-y-auto contain-content rounded-md border border-dashed border-border/60 p-3">
                       {filteredProducts.length === 0 ? (
                         <p className="text-sm text-muted-foreground">
                           No products match your search.
