@@ -2,6 +2,31 @@ import type { HomepageFeaturePlacement } from "@/actions/public/products/feature
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 
+interface SpotlightListItem {
+  id: string
+  slug: string
+  name: string
+  logo: string
+  tagline: string
+  analytics?: { upvotes?: number | null } | null
+  category?: { name?: string | null } | null
+  badges: string[]
+}
+
+function toSpotlightItem(placement: HomepageFeaturePlacement): SpotlightListItem {
+  const { product } = placement
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    logo: product.logo,
+    tagline: product.tagline,
+    analytics: product.analytics ?? null,
+    category: product.category ?? undefined,
+    badges: [],
+  }
+}
+
 export function HomepageSpotlight({
   placements,
 }: {
@@ -11,14 +36,10 @@ export function HomepageSpotlight({
 
   const scheduled = placements
     .filter((entry) => entry.origin === "schedule")
-    .map((placement) => ({
-      ...placement.product,
-    }))
+    .map(toSpotlightItem)
   const queued = placements
     .filter((entry) => entry.origin === "plan")
-    .map((placement) => ({
-      ...placement.product,
-    }))
+    .map(toSpotlightItem)
   const orderedItems = [...scheduled, ...queued]
 
   return (
