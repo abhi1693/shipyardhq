@@ -9,6 +9,7 @@ import {
 } from "@/lib/vendor/prisma/client"
 import { PRICING_PATH } from "@/lib/routes"
 
+import { seedAlternatives } from "./seed.alternatives"
 import { seedCategories } from "./seed.categories"
 import { seedPlanFeatures } from "./seed.plan-features"
 import { seedPlans } from "./seed.plans"
@@ -563,6 +564,11 @@ async function main() {
   const productIdBySlug = new Map(
     products.map((product) => [product.slug, product.id]),
   )
+
+  await seedAlternatives(prisma, {
+    categoryIdBySlug,
+    productIdBySlug,
+  })
 
   const monthlyRankingSeeds: {
     month: Date
