@@ -97,7 +97,11 @@ describe("Organisms", () => {
     rerender(<HomepageSpotlight placements={placements} />)
     expect(screen.getByText("Flagship homepage spotlight")).toBeInTheDocument()
     expect(screen.getByText("Homepage 1")).toBeInTheDocument()
-    expect(screen.getByText("Plan upgrades in queue")).toBeInTheDocument()
+    expect(screen.getByText("Homepage 2")).toBeInTheDocument()
+    expect(screen.getAllByTestId("product-compact-card")).toHaveLength(2)
+    expect(
+      screen.queryByText("Plan upgrades in queue"),
+    ).not.toBeInTheDocument()
     expect(screen.queryByText("Plan placement")).not.toBeInTheDocument()
   })
 
