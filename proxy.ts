@@ -12,6 +12,14 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.rewrite(url)
   }
 
+  const alternativeMatch = url.pathname.match(
+    /^\/sitemap-alternatives\/(\d+)\.xml$/,
+  )
+  if (alternativeMatch) {
+    url.pathname = `/sitemap-alternatives/${alternativeMatch[1]}`
+    return NextResponse.rewrite(url)
+  }
+
   const tagMatch = url.pathname.match(/^\/sitemap-tags\/(\d+)\.xml$/)
   if (tagMatch) {
     url.pathname = `/sitemap-tags/${tagMatch[1]}`

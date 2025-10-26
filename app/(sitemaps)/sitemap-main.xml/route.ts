@@ -35,6 +35,7 @@ export async function GET() {
     RANK_IN_PUBLIC_PATH,
     PRICING_PATH,
     CATEGORIES_PATH,
+    "/alternatives",
     "/legal/terms",
     "/legal/privacy-policy",
   ] as const
@@ -75,6 +76,10 @@ export async function GET() {
         case CATEGORIES_PATH:
           changefreq = "weekly"
           priority = "0.7"
+          break
+        case "/alternatives":
+          changefreq = "weekly"
+          priority = "0.65"
           break
         case "/legal/terms":
         case "/legal/privacy-policy":

@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         destination: "/sitemap-products/:index",
       },
       {
+        source: "/sitemap-alternatives-:index(\\d+).xml",
+        destination: "/sitemap-alternatives/:index",
+      },
+      {
         source: "/sitemap-tags-:index(\\d+).xml",
         destination: "/sitemap-tags/:index",
       },
