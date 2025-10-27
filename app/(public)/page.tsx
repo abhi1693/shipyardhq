@@ -6,34 +6,6 @@ import {
   DirectoryHeaderSkeleton,
 } from "@/components/templates/public/homepage/directory-header"
 import {
-  HomepageSpotlightSection,
-  HomepageSpotlightSkeleton,
-} from "@/components/templates/public/homepage/spotlight"
-import {
-  FeaturedHighlightsSection,
-  FeaturedHighlightsSkeleton,
-} from "@/components/templates/public/homepage/featured-highlights"
-import {
-  VersusTeaserSection,
-  VersusTeaserSkeleton,
-} from "@/components/templates/public/homepage/versus"
-import {
-  EditorsPickSection,
-  EditorsPickSkeleton,
-} from "@/components/templates/public/homepage/editors-pick"
-import {
-  LatestLaunchesSection,
-  LatestLaunchesSkeleton,
-} from "@/components/templates/public/homepage/latest-launches"
-import {
-  LeaderboardSection,
-  LeaderboardSkeleton,
-} from "@/components/templates/public/homepage/leaderboard"
-import {
-  RewardsLeaderboardSection,
-  RewardsLeaderboardSkeleton,
-} from "@/components/templates/public/homepage/rewards"
-import {
   CategoryRailSection,
   CategoryRailSkeleton,
 } from "@/components/templates/public/homepage/category-rail"
@@ -50,6 +22,11 @@ import {
   InsightsPromo,
 } from "@/components/templates/public/homepage/promos"
 import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
+import {
+  HomepageFeedSection,
+  HomepageFeedSkeleton,
+} from "@/components/templates/public/homepage/homepage-feed-section"
+import { HomepageContextStrip } from "@/components/templates/public/homepage/context-strip"
 
 export const dynamic = "force-dynamic"
 
@@ -57,44 +34,28 @@ export default function HomePage() {
   return (
     <main className="relative isolate bg-white">
       <HomepageJsonLd />
-      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
+      <div className="relative mx-auto w-full max-w-[90rem] px-4 pb-24 pt-12 sm:px-6 md:px-8 lg:px-12">
         <Suspense fallback={<DirectoryHeaderSkeleton />}>
           <DirectoryHeaderSection />
         </Suspense>
 
-        <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
-          <div className="flex flex-col gap-10">
-            <Suspense fallback={<HomepageSpotlightSkeleton />}>
-              <HomepageSpotlightSection />
-            </Suspense>
-            <Suspense fallback={<FeaturedHighlightsSkeleton />}>
-              <FeaturedHighlightsSection />
-            </Suspense>
-            <Suspense fallback={<VersusTeaserSkeleton />}>
-              <VersusTeaserSection />
-            </Suspense>
-            <Suspense fallback={<EditorsPickSkeleton />}>
-              <EditorsPickSection />
-            </Suspense>
-            <Suspense fallback={<LatestLaunchesSkeleton />}>
-              <LatestLaunchesSection />
-            </Suspense>
-            <Suspense fallback={<LeaderboardSkeleton />}>
-              <LeaderboardSection />
-            </Suspense>
-            <Suspense fallback={<RewardsLeaderboardSkeleton />}>
-              <RewardsLeaderboardSection />
+        <HomepageContextStrip />
+
+        <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(296px,1fr)]">
+          <div className="flex flex-col gap-12">
+            <Suspense fallback={<HomepageFeedSkeleton />}>
+              <HomepageFeedSection />
             </Suspense>
           </div>
 
-          <aside className="flex flex-col gap-8">
+          <aside className="flex flex-col gap-8 lg:sticky lg:top-24">
             <Suspense fallback={<CategoryRailSkeleton />}>
               <CategoryRailSection />
             </Suspense>
+            <LaunchSpotlightPromo />
             <Suspense fallback={<RadarDigestSkeleton />}>
               <RadarDigestSection />
             </Suspense>
-            <LaunchSpotlightPromo />
             <InsightsPromo />
             <Suspense fallback={<ProductUpdatesSkeleton />}>
               <ProductUpdatesSection />
@@ -102,7 +63,7 @@ export default function HomePage() {
           </aside>
         </div>
 
-        <div className="mt-12">
+        <div className="mt-16">
           <DirectoryHowItWorks />
         </div>
       </div>

@@ -54,10 +54,6 @@ export function DirectoryProductList<T extends BaseProductListItem>({
   className,
   sentinelMargin,
 }: DirectoryProductListProps<T>) {
-  if (!items.length) {
-    return null
-  }
-
   const chunkSize = Math.max(1, pageSize)
 
   const chunks = useMemo(() => {
@@ -94,7 +90,7 @@ export function DirectoryProductList<T extends BaseProductListItem>({
   const renderMeta = useMemo(() => {
     if (!metaConfig) return undefined
     if (metaConfig.type === "badge") {
-      return (item: T) => {
+      function renderBadgeMeta(item: T) {
         const label = item.metaLabel ?? metaConfig.defaultLabel
         if (!label) return null
         return (
@@ -110,21 +106,25 @@ export function DirectoryProductList<T extends BaseProductListItem>({
           </Badge>
         )
       }
+      return renderBadgeMeta
     }
 
     const start = metaConfig.start ?? 0
-    return (_item: T, index: number) => (
-      <Badge
-        variant={metaConfig.badgeVariant ?? "outline"}
-        className={cn(
-          "rounded-full px-2 py-0.5 text-xs font-semibold",
-          metaConfig.badgeClassName ??
-            "border-primary/40 bg-primary/8 text-primary",
-        )}
-      >
-        #{start + index + 1}
-      </Badge>
-    )
+    function renderRankMeta(_item: T, index: number) {
+      return (
+        <Badge
+          variant={metaConfig.badgeVariant ?? "outline"}
+          className={cn(
+            "rounded-full px-2 py-0.5 text-xs font-semibold",
+            metaConfig.badgeClassName ??
+              "border-primary/40 bg-primary/8 text-primary",
+          )}
+        >
+          #{start + index + 1}
+        </Badge>
+      )
+    }
+    return renderRankMeta
   }, [metaConfig])
 
   return (

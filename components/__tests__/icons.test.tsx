@@ -13,6 +13,7 @@ describe("Icons mapping", () => {
         "billing",
         "building",
         "category",
+        "compass",
         "conversions",
         "dashboard",
         "feedback",
