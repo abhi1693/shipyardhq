@@ -240,13 +240,8 @@ export default function Step4({
           const selectedIds = Array.isArray(field.value) ? field.value : []
           return (
             <FormItem>
-              <FormLabel>Competitive alternatives</FormLabel>
-              <FormDescription>
-                Connect your product to well-known tools that customers compare
-                against. This helps Shipyard surface better side-by-side
-                insights.
-              </FormDescription>
-              <div className="mt-3 space-y-3">
+              <FormLabel>Alternative to</FormLabel>
+              <div className="mt-3 space-y-3 contain-content">
                 <Input
                   value={alternativeQuery}
                   onChange={(event) => setAlternativeQuery(event.target.value)}

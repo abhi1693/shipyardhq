@@ -835,9 +835,7 @@ export default async function ViewUserProductPage({
                   )}
                 </div>
                 <div className="space-y-2">
-                  <span className={sectionLabelClass}>
-                    Competitive Alternatives
-                  </span>
+                  <span className={sectionLabelClass}>Alternative to</span>
                   {alternativesList.length ? (
                     <div className="flex flex-col gap-2">
                       {alternativesList.map((alternative: any) => {

@@ -261,9 +261,9 @@ export default function Review({
         </div>
       </section>
 
-      {/* Competitive Alternatives */}
+      {/* Alternative to */}
       <section className="space-y-2">
-        <h3 className="text-lg font-semibold">Competitive Alternatives</h3>
+        <h3 className="text-lg font-semibold">Alternative to</h3>
         {selectedAlternatives.length ? (
           <ul className="space-y-2 text-sm">
             {selectedAlternatives.map((alt) => (
