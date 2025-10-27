@@ -1,9 +1,15 @@
+import Image from "next/image"
 import Link from "next/link"
 import { Play, Rocket } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { StickyBannerRegion } from "@/components/layout/sticky-banner-context"
-import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
+import {
+  BROWSE_PATH,
+  MEMBER_PRODUCTS_PATH,
+  PRICING_PATH,
+  productPath,
+} from "@/lib/routes"
 
 type HeaderActionConfig = {
   label: string
@@ -34,6 +40,8 @@ export type HeroShowcaseProduct = {
   sponsored?: boolean
   badge?: string | null
   placeholder?: boolean
+  slug?: string | null
+  logo?: string | null
 }
 
 interface DirectoryHeaderProps {
@@ -125,9 +133,7 @@ export function DirectoryHeader({
 
   return (
     <div className="space-y-8">
-      <section
-        className="relative overflow-hidden rounded-[32px] border border-[#E4E8F5] bg-white px-6 py-12 shadow-[0_45px_140px_-80px_rgba(28,35,51,0.65)] md:px-12"
-      >
+      <section className="relative overflow-hidden rounded-[32px] border border-[#E4E8F5] bg-white px-6 py-12 shadow-[0_45px_140px_-80px_rgba(28,35,51,0.65)] md:px-12 md:py-16">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:items-center">
           <div className="space-y-8">
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[#DADFF0] bg-[linear-gradient(135deg,#F3EDFF_0%,#FFFFFF_50%,#ECF9FF_100%)] px-5 py-2 text-sm font-semibold text-[#4F3FF4] shadow-[0_24px_44px_-32px_rgba(28,35,51,0.45)]">
@@ -190,44 +196,87 @@ export function DirectoryHeader({
                       ? product.votes.toLocaleString()
                       : product.votes
                   const isPlaceholder = Boolean(product.placeholder)
+                  const isPremium = isPlaceholder || Boolean(product.sponsored)
+                  const href = isPlaceholder
+                    ? PRICING_PATH
+                    : product.slug
+                      ? productPath(product.slug)
+                      : BROWSE_PATH
 
                   return (
-                    <div
+                    <Link
                       key={product.id ?? product.name}
+                      href={href}
+                      prefetch={false}
                       className={cn(
-                        "rounded-3xl p-5 shadow-[0_28px_70px_-50px_rgba(28,35,51,0.55)] transition",
-                        isPlaceholder
-                          ? "border border-dashed border-[#D9E1F5] bg-[#F9FAFF]"
+                        "group relative block rounded-3xl border p-5 transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F3FF4]/40 focus-visible:ring-offset-2",
+                        isPremium
+                          ? "border-[#D9D0FF] bg-white shadow-[0_20px_60px_-48px_rgba(79,63,244,0.4)] hover:-translate-y-1 hover:border-[#C5B8FF] hover:shadow-[0_32px_80px_-48px_rgba(79,63,244,0.45)] focus-visible:ring-offset-white"
                           : cn(
-                              "bg-white",
-                              index === 0
-                                ? "border border-[#F0E8FF]"
-                                : "border border-[#E9EEF9]",
+                              "border-[#E4E9F8] bg-white hover:-translate-y-0.5 hover:border-[#D8DEEF] hover:bg-[#F6F5F9] focus-visible:ring-offset-white",
+                              index === 0 && "border-[#F0E8FF]",
                             ),
                       )}
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p
+                        <div className="flex items-start gap-3">
+                          <div
                             className={cn(
-                              "text-base font-semibold text-[#1C2333]",
-                              isPlaceholder && "text-[#4F3FF4]",
+                              "relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#E0E7F8] bg-white transition-colors duration-200",
+                              isPlaceholder && "border-dashed border-[#C9D5F3]",
+                              isPremium && "group-hover:border-[#C6BBFF] group-hover:bg-[#F6F4FF]",
+                              !isPremium && "group-hover:border-[#D6DCFB] group-hover:bg-[#F8F9FF]",
                             )}
                           >
-                            {isPlaceholder ? "Advertise here" : product.name}
-                          </p>
-                          <p className="mt-1 text-sm text-[#5B6175]">
-                            {isPlaceholder
-                              ? "Feature your product in this premium slot and win consistent discovery."
-                              : product.tagline}
-                          </p>
+                            {isPlaceholder ? (
+                              <Rocket
+                                className="h-5 w-5 text-[#4F3FF4]"
+                                aria-hidden="true"
+                              />
+                            ) : product.logo ? (
+                              <Image
+                                src={product.logo}
+                                alt={product.name}
+                                width={48}
+                                height={48}
+                                priority
+                                className="h-full w-full object-contain"
+                              />
+                            ) : (
+                              <span className="text-sm font-semibold text-[#4F3FF4]">
+                                {(product.name ?? "?").slice(0, 2).toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <p
+                              className={cn(
+                                "text-base font-semibold text-[#1C2333]",
+                                isPlaceholder && "text-[#4F3FF4]",
+                              )}
+                            >
+                              {isPlaceholder ? "Advertise here" : product.name}
+                            </p>
+                            <p className="mt-1 text-sm text-[#5B6175]">
+                              {isPlaceholder
+                                ? "Feature your product in this premium slot and win consistent discovery."
+                                : product.tagline}
+                            </p>
+                          </div>
                         </div>
                         {isPlaceholder ? (
                           <div className="rounded-full border border-[#4F3FF4]/30 bg-white px-3 py-1 text-xs font-semibold text-[#4F3FF4]">
                             Reserve spot
                           </div>
                         ) : (
-                          <div className="rounded-full bg-[#1C2333] px-3 py-1 text-xs font-semibold text-white">
+                          <div
+                            className={cn(
+                              "rounded-full px-3 py-1 text-xs font-semibold transition-colors duration-200",
+                              isPremium
+                                ? "bg-[#4F3FF4]/90 text-white group-hover:bg-[#4F3FF4]"
+                                : "bg-[#1C2333] text-white",
+                            )}
+                          >
                             {votes ?? "—"}
                             <span className="ml-1 text-[0.65rem] font-normal opacity-80">
                               votes
@@ -236,16 +285,23 @@ export function DirectoryHeader({
                         )}
                       </div>
                       {product.badge || product.sponsored ? (
-                        <div className="mt-4 inline-flex items-center rounded-full bg-[#F3F0FF] px-3 py-1 text-xs font-semibold text-[#5B43F7]">
+                        <div
+                          className={cn(
+                            "mt-4 inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold transition-colors duration-200",
+                            isPremium
+                              ? "bg-[#F3F0FF] text-[#5B43F7] group-hover:bg-[#E5DBFF]"
+                              : "bg-[#EEF2F8] text-[#475067] group-hover:bg-[#E2E7F2]",
+                          )}
+                        >
                           {isPlaceholder ? "Homepage slot available" : "Sponsored"}
                         </div>
                       ) : null}
                       {isPlaceholder ? (
-                        <div className="mt-5 inline-flex rounded-full border border-[#4F3FF4] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#4F3FF4]">
+                        <div className="mt-5 inline-flex rounded-full border border-[#4F3FF4] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#4F3FF4] transition-colors duration-200 group-hover:bg-[#4F3FF4] group-hover:text-white">
                           Talk to sales
                         </div>
                       ) : null}
-                    </div>
+                    </Link>
                   )
                 })}
               </div>

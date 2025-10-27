@@ -33,6 +33,8 @@ export async function DirectoryHeaderSection() {
       tagline: product.tagline ?? "Makers discover you here first.",
       votes: product.analytics?.upvotes ?? 0,
       sponsored: hasPaidPlan || redeemedReward,
+      slug: product.slug,
+      logo: product.logo,
     })
   })
 

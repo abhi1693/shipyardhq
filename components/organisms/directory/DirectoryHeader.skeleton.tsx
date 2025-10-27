@@ -28,7 +28,7 @@ export function DirectoryHeaderSkeleton({
       data-slot="directory-header-skeleton"
       {...props}
     >
-      <section className="relative overflow-hidden rounded-[32px] border border-[#E4E8F5] bg-white px-6 py-12 shadow-[0_45px_140px_-80px_rgba(28,35,51,0.65)] md:px-12">
+      <section className="relative overflow-hidden rounded-[32px] border border-[#E4E8F5] bg-white px-6 py-12 shadow-[0_45px_140px_-80px_rgba(28,35,51,0.65)] md:px-12 md:py-16">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:items-center">
           <div className="space-y-8">
             <BadgeSkeleton
