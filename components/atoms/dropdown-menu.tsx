@@ -2,7 +2,12 @@
 
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
-import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react"
+import {
+  CheckIcon,
+  ChevronRightIcon,
+  CircleIcon,
+  SearchIcon,
+} from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -176,6 +181,104 @@ function DropdownMenuSeparator({
   )
 }
 
+interface DropdownMenuSearchProps
+  extends Omit<React.ComponentProps<"input">, "type"> {
+  value?: string
+  defaultValue?: string
+  onValueChange?: (value: string) => void
+  autoFocus?: boolean
+}
+
+const DropdownMenuSearch = React.forwardRef<
+  HTMLInputElement,
+  DropdownMenuSearchProps
+>(
+  (
+    {
+      className,
+      value,
+      defaultValue,
+      onValueChange,
+      onChange,
+      autoFocus = true,
+      placeholder = "Search...",
+      ...props
+    },
+    forwardedRef,
+  ) => {
+    const [uncontrolledValue, setUncontrolledValue] = React.useState(
+      defaultValue ?? "",
+    )
+    const isControlled = value !== undefined
+
+    const inputRef = React.useRef<HTMLInputElement>(null)
+    const setRefs = React.useCallback(
+      (node: HTMLInputElement | null) => {
+        inputRef.current = node
+        if (typeof forwardedRef === "function") {
+          forwardedRef(node)
+        } else if (forwardedRef) {
+          forwardedRef.current = node
+        }
+      },
+      [forwardedRef],
+    )
+
+    React.useEffect(() => {
+      if (!autoFocus) return
+      const node = inputRef.current
+      if (!node) return
+      const handle = window.requestAnimationFrame(() => {
+        node.focus({ preventScroll: true })
+        node.select()
+      })
+      return () => window.cancelAnimationFrame(handle)
+    }, [autoFocus])
+
+    const handleChange = React.useCallback(
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        const nextValue = event.target.value
+        if (!isControlled) {
+          setUncontrolledValue(nextValue)
+        }
+        onValueChange?.(nextValue)
+        onChange?.(event)
+      },
+      [isControlled, onChange, onValueChange],
+    )
+
+    const displayValue = isControlled ? value ?? "" : uncontrolledValue
+
+    return (
+      <div
+        data-slot="dropdown-menu-search"
+        className="relative px-2 py-1.5"
+        role="none"
+      >
+        <SearchIcon
+          aria-hidden="true"
+          className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+        />
+        <input
+          ref={setRefs}
+          type="search"
+          value={displayValue}
+          onChange={handleChange}
+          autoFocus={autoFocus}
+          placeholder={placeholder}
+          spellCheck={false}
+          className={cn(
+            "text-foreground placeholder:text-muted-foreground/80 block w-full rounded-sm border border-transparent bg-muted/40 py-1.5 pl-8 pr-3 text-sm outline-hidden transition focus:border-border focus:bg-background focus:ring-2 focus:ring-ring/30",
+            className,
+          )}
+          {...props}
+        />
+      </div>
+    )
+  },
+)
+DropdownMenuSearch.displayName = "DropdownMenuSearch"
+
 function DropdownMenuShortcut({
   className,
   ...props
@@ -250,6 +353,7 @@ export {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSearch,
   DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubTrigger,
