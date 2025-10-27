@@ -157,7 +157,7 @@ export function StickyBannerRegion({
   }
 
   return (
-    <div className={cn("bg-white", className)}>
+    <div className={cn("bg-transparent", className)}>
       <StickyBannerCarousel products={products} />
     </div>
   )

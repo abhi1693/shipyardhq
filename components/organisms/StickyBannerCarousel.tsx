@@ -80,7 +80,7 @@ export function StickyBannerCarousel({
     upvoteCount != null ? upvoteCount.toLocaleString() : undefined
   const showCategory = Boolean(categoryName)
   const showMaker = Boolean(makerName)
-  const showUpvotes = Boolean(upvoteLabel)
+  const showUpvotes = upvoteCount != null
 
   const handlePause = (next: boolean) => {
     if (total <= 1) return
@@ -89,81 +89,69 @@ export function StickyBannerCarousel({
 
   return (
     <div
-      className={cn("w-full bg-white", className)}
+      className={cn("w-full bg-transparent", className)}
       onMouseEnter={() => handlePause(true)}
       onMouseLeave={() => handlePause(false)}
       onFocusCapture={() => handlePause(true)}
       onBlurCapture={() => handlePause(false)}
     >
-      <div className="mx-auto flex w-full max-w-6xl flex-col px-4 sm:px-6">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6">
         <Link
           key={current.id}
           href={productPath(current.slug)}
-          className="group relative flex w-full items-center gap-4 overflow-hidden rounded-xl border border-border/70 bg-white px-4 py-3 text-sm shadow-sm transition hover:border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.45]"
+          className={cn(
+            "group relative flex w-full items-center justify-between gap-5 overflow-hidden rounded-[20px] border border-[#D6CCFF] bg-gradient-to-r from-[#FBF9FF] via-[#F8FCFF] to-[#FBF9FF] px-5 py-4 text-sm shadow-[0_20px_65px_-50px_rgba(79,63,244,0.45)] transition duration-200 ease-out",
+            "hover:-translate-y-0.5 hover:shadow-[0_28px_90px_-55px_rgba(79,63,244,0.48)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F3FF4]/45 focus-visible:ring-offset-3 focus-visible:ring-offset-white",
+          )}
           style={{
             animation: `${animationId} 320ms ease`,
             animationFillMode: "both",
           }}
           aria-label={`View ${current.name}`}
         >
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/60 bg-muted/20">
-            <Image
-              src={current.logo}
-              alt={current.name}
-              width={40}
-              height={40}
-              className="h-full w-full object-cover"
-            />
-          </span>
-
-          <div
-            className="flex min-w-0 flex-1 items-center gap-2"
-            role="status"
-            aria-live="polite"
-          >
-            <span className="truncate font-semibold text-foreground">
-              {current.name}
+          <div className="flex min-w-0 flex-1 items-center gap-4">
+            <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[#E0E4F7] bg-white">
+              <Image
+                src={current.logo}
+                alt={current.name}
+                width={44}
+                height={44}
+                priority
+                className="h-full w-full object-cover"
+              />
             </span>
-            {tagline ? (
-              <span className="hidden text-muted-foreground/60 sm:inline">
-                •
+
+            <div className="flex min-w-0 flex-col gap-1 text-left">
+              <span className="truncate text-sm font-semibold text-[#1C2333]">
+                {current.name}
               </span>
-            ) : null}
-            {tagline ? (
-              <span className="hidden truncate text-muted-foreground sm:inline">
-                {tagline}
-              </span>
-            ) : null}
+              {tagline ? (
+                <span className="truncate text-xs font-medium text-[#5B6175]">
+                  {tagline}
+                </span>
+              ) : null}
+            </div>
           </div>
 
-          <div className="hidden items-center gap-2 lg:flex">
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 text-xs">
             {showCategory ? (
-              <span className="inline-flex items-center gap-2 truncate rounded-full border border-border/60 bg-muted/20 px-2.5 py-1 text-xs text-muted-foreground/80">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.26em] text-muted-foreground/70">
-                  Category
-                </span>
-                <span className="font-semibold text-foreground">
-                  {categoryName}
-                </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#D6CCFF] bg-white px-3 py-1 font-semibold uppercase tracking-[0.22em] text-[#2D2A55]">
+                {categoryName}
               </span>
             ) : null}
             {showMaker ? (
-              <span className="inline-flex items-center gap-2 truncate rounded-full border border-border/60 bg-muted/20 px-2.5 py-1 text-xs text-muted-foreground/80">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.26em] text-muted-foreground/70">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#D6DFF2] bg-white px-3 py-1 font-semibold text-[#1C2333]">
+                <span className="text-[11px] uppercase tracking-[0.2em] text-[#5B6175]">
                   Maker
                 </span>
-                <span className="font-semibold text-foreground">
-                  {makerName}
-                </span>
+                {makerName}
               </span>
             ) : null}
             {showUpvotes ? (
-              <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-border/60 bg-muted/20 px-2.5 py-1 text-xs text-muted-foreground/80">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.26em] text-muted-foreground/70">
-                  Upvotes
-                </span>
-                <span className="font-semibold text-foreground">
-                  {upvoteLabel}
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#1C2333] px-3 py-1 text-xs font-semibold text-white">
+                {upvoteLabel}
+                <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/70">
+                  votes
                 </span>
               </span>
             ) : null}
