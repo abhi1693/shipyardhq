@@ -62,6 +62,7 @@ export interface HomepageFeedItem {
   category: string | null
   categorySlug: string | null
   voteCount: number
+  updatesCount?: number
   isSponsored: boolean
   isVoted: boolean
 }

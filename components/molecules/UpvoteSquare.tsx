@@ -1,7 +1,7 @@
 "use client"
 
 import clsx from "clsx"
-import { ChevronsUp } from "lucide-react"
+import { Crown } from "lucide-react"
 
 export function UpvoteSquare({
   count,
@@ -20,30 +20,54 @@ export function UpvoteSquare({
   pending?: boolean
   pop?: boolean
 }) {
+  const baseStyles =
+    "inline-flex select-none items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition-all duration-200 shadow-[0_6px_20px_-10px_rgba(15,23,42,0.35)]"
+  const idleStyles =
+    "border-slate-200 bg-white text-slate-800 hover:border-[color:var(--brand-1)]/40 hover:bg-[color:var(--brand-1)]/5 hover:text-[color:var(--brand-1)]"
+  const activeStyles =
+    "border-[color:var(--brand-1)] bg-white text-[color:var(--brand-1)] shadow-[0_10px_28px_-12px_rgba(31,82,201,0.35)]"
+  const compactStyles = "px-2.5 py-1 text-xs"
+
+  const iconWrapperStyles =
+    "inline-flex size-6 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-600 transition-colors"
+  const iconActiveStyles =
+    "border-[color:var(--brand-1)]/40 bg-[color:var(--brand-1)]/10 text-[color:var(--brand-1)] shadow-[0_4px_12px_-8px_rgba(31,82,201,0.45)]"
+  const iconCompactStyles = "size-5"
+
   return (
     <div
       className={clsx(
-        "inline-flex select-none items-center gap-3 rounded-full border border-transparent bg-[#EEF0F6] px-5 py-2 text-base font-semibold text-[#1C2333] shadow-[0_16px_40px_-30px_rgba(28,35,51,0.45)] transition-all duration-200",
-        compact && "gap-2 px-4 py-1.5 text-sm",
-        pending && "opacity-60",
-        active &&
-          "bg-[#1C2333] text-white shadow-[0_24px_50px_-30px_rgba(16,23,42,0.65)]",
+        baseStyles,
+        idleStyles,
+        pending && "opacity-70",
+        compact && compactStyles,
+        active && activeStyles,
         className,
       )}
       aria-label="Upvotes"
       title={title ?? `${count} upvotes`}
       data-active={active ? "true" : "false"}
     >
-      <ChevronsUp
-        className={clsx(
-          compact ? "h-4 w-4" : "h-5 w-5",
-          pop && "animate-pop",
-        )}
-      />
       <span
         className={clsx(
-          "font-semibold leading-none transition-transform duration-150",
-          compact ? "text-base" : "text-2xl",
+          iconWrapperStyles,
+          compact && iconCompactStyles,
+          active && iconActiveStyles,
+        )}
+      >
+        <Crown
+          className={clsx(
+            compact ? "h-3.5 w-3.5" : "h-4 w-4",
+            pop && "animate-pop",
+          )}
+          aria-hidden
+          fill={active ? "currentColor" : "none"}
+        />
+      </span>
+      <span
+        className={clsx(
+          "leading-none transition-transform duration-150",
+          compact ? "text-sm" : "text-base",
           pop && "animate-count-bump",
         )}
       >

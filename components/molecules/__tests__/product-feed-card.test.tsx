@@ -1,14 +1,10 @@
 import { render, screen } from "@testing-library/react"
 import { describe, it, expect, vi } from "vitest"
 
-vi.mock("@clerk/nextjs", () => ({
-  useUser: () => ({ isSignedIn: false }),
-}))
-
 vi.mock("@/components/molecules/UpvoteSquareButton", () => ({
   __esModule: true,
-  default: ({ children }: any) => (
-    <button data-testid="mock-upvote" type="button">
+  default: ({ children, ...props }: any) => (
+    <button data-testid="mock-upvote" type="button" {...props}>
       {children ?? "Upvote"}
     </button>
   ),
@@ -27,6 +23,7 @@ const baseItem: HomepageFeedItem = {
   category: "Automation",
   categorySlug: "automation",
   voteCount: 42,
+  updatesCount: 3,
   isSponsored: false,
   isVoted: false,
 }
@@ -39,14 +36,15 @@ describe("ProductFeedCard", () => {
     expect(
       screen.getByText("A helpful description for the first product."),
     ).toBeInTheDocument()
-    expect(
-      screen.getByRole("link", { name: "Automation" }),
-    ).toHaveAttribute("href", "/browse?category=automation")
+    expect(screen.getByTestId("homepage-feed-card")).toHaveAttribute(
+      "href",
+      "/products/first-product",
+    )
+    expect(screen.getByText("Automation")).toBeInTheDocument()
 
     expect(screen.queryByText("Sponsored")).not.toBeInTheDocument()
-
+    expect(screen.getByTitle("42 upvotes")).toBeInTheDocument()
     expect(screen.getByTestId("mock-upvote")).toBeInTheDocument()
-    expect(screen.getByText(/builders watching/i)).toBeInTheDocument()
   })
 
   it("shows badges and sponsored styling when supplied", () => {
