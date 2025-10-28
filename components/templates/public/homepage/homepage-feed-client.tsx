@@ -69,7 +69,7 @@ export function HomepageFeedClient({
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [activeFilter, setActiveFilter] = useState<"top" | "new" | "trending" | "sponsored">("top")
+  const [activeFilter, setActiveFilter] = useState<"top" | "new" | "trending">("top")
   const [isPending, startTransition] = useTransition()
 
   const resetKey = useMemo(
@@ -139,8 +139,6 @@ export function HomepageFeedClient({
             badge.toLowerCase().includes("trend"),
           ),
         )
-      case "sponsored":
-        return items.filter((item) => item.isSponsored)
       default:
         return items
     }
@@ -416,19 +414,6 @@ export function HomepageFeedClient({
       return []
     }
 
-    if (activeFilter === "sponsored") {
-      const rows: FeedRow[] = []
-      for (let index = 0; index < filteredItems.length; index += 2) {
-        const chunk = filteredItems.slice(index, index + 2)
-        rows.push({
-          kind: "sponsored",
-          key: `sponsored-${index / 2}`,
-          items: chunk,
-        })
-      }
-      return rows
-    }
-
     if (activeFilter !== "top") {
       return filteredItems.map((item) => ({
         kind: "product",
@@ -529,7 +514,6 @@ export function HomepageFeedClient({
           { key: "top", label: "Top" },
           { key: "new", label: "New" },
           { key: "trending", label: "Trending" },
-          { key: "sponsored", label: "Promoted" },
         ].map((filter) => {
           const isActive = activeFilter === filter.key
           return (
