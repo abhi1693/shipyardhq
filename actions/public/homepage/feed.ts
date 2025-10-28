@@ -14,6 +14,7 @@ const homepageFeedSelect = {
   logo: true,
   tagline: true,
   createdAt: true,
+  updatedAt: true,
   analytics: {
     select: {
       upvotes: true,
@@ -59,6 +60,7 @@ export interface HomepageFeedItem {
   logo: string
   tagline: string
   createdAt: string
+  updatedAt: string
   badges: string[]
   category: string | null
   categorySlug: string | null
@@ -163,6 +165,7 @@ function mapProductToFeedItem(
     logo: product.logo,
     tagline: product.tagline ?? "",
     createdAt: product.createdAt.toISOString(),
+    updatedAt: product.updatedAt.toISOString(),
     badges: activeBadges,
     category: product.category?.name ?? null,
     categorySlug: product.category?.slug ?? null,

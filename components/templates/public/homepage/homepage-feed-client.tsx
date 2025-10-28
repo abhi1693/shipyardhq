@@ -69,7 +69,7 @@ export function HomepageFeedClient({
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [activeFilter, setActiveFilter] = useState<"top" | "new" | "trending">("top")
+  const [activeFilter, setActiveFilter] = useState<"top" | "new" | "recent">("top")
   const [isPending, startTransition] = useTransition()
 
   const resetKey = useMemo(
@@ -133,19 +133,46 @@ export function HomepageFeedClient({
 
           return a.name.localeCompare(b.name)
         })
-      case "trending":
-        return items.filter((item) =>
-          item.badges.some((badge) =>
-            badge.toLowerCase().includes("trend"),
-          ),
-        )
+      case "recent":
+        return [...items].sort((a, b) => {
+          const aUpdated = new Date(a.updatedAt ?? "").getTime()
+          const bUpdated = new Date(b.updatedAt ?? "").getTime()
+
+          const aHasUpdated = !Number.isNaN(aUpdated)
+          const bHasUpdated = !Number.isNaN(bUpdated)
+
+          if (aHasUpdated && bHasUpdated) {
+            if (bUpdated !== aUpdated) {
+              return bUpdated - aUpdated
+            }
+          } else if (aHasUpdated && !bHasUpdated) {
+            return -1
+          } else if (!aHasUpdated && bHasUpdated) {
+            return 1
+          }
+
+          const aCreated = new Date(a.createdAt ?? "").getTime()
+          const bCreated = new Date(b.createdAt ?? "").getTime()
+          const aHasCreated = !Number.isNaN(aCreated)
+          const bHasCreated = !Number.isNaN(bCreated)
+
+          if (aHasCreated && bHasCreated && bCreated !== aCreated) {
+            return bCreated - aCreated
+          } else if (aHasCreated && !bHasCreated) {
+            return -1
+          } else if (!aHasCreated && bHasCreated) {
+            return 1
+          }
+
+          return a.name.localeCompare(b.name)
+        })
       default:
         return items
     }
   }, [activeFilter, items])
 
   const sectionedSections = useMemo<TopFeedSection[] | null>(() => {
-    if (activeFilter !== "top" && activeFilter !== "new") {
+    if (activeFilter !== "top" && activeFilter !== "new" && activeFilter !== "recent") {
       return null
     }
 
@@ -293,35 +320,144 @@ export function HomepageFeedClient({
       return sections
     }
 
-    type NewBucketKey = "today" | "yesterday" | "thisWeek"
-    const newBucketOrder: Array<{ key: NewBucketKey; label: string }> = [
-      { key: "today", label: "Published Today" },
-      { key: "yesterday", label: "Published Yesterday" },
-      { key: "thisWeek", label: "Published This Week" },
+    if (activeFilter === "new") {
+      type NewBucketKey = "today" | "yesterday" | "thisWeek"
+      const newBucketOrder: Array<{ key: NewBucketKey; label: string }> = [
+        { key: "today", label: "Published Today" },
+        { key: "yesterday", label: "Published Yesterday" },
+        { key: "thisWeek", label: "Published This Week" },
+      ]
+
+      const newBuckets = new Map<NewBucketKey, HomepageFeedItem[]>(
+        newBucketOrder.map((bucket) => [bucket.key, []]),
+      )
+
+      const organicItems = filteredItems.filter((item) => !item.isSponsored)
+      organicItems.forEach((item) => {
+        const created = new Date(item.createdAt)
+        const createdTime = created.getTime()
+        const resolvedDate = Number.isNaN(createdTime) ? startToday : created
+
+        let bucketKey: NewBucketKey = "thisWeek"
+        if (resolvedDate >= startToday) {
+          bucketKey = "today"
+        } else if (resolvedDate >= startYesterday) {
+          bucketKey = "yesterday"
+        } else if (resolvedDate >= startOfCurrentWeek) {
+          bucketKey = "thisWeek"
+        } else {
+          bucketKey = "thisWeek"
+        }
+
+        const bucket = newBuckets.get(bucketKey)
+        if (bucket) {
+          bucket.push(item)
+        }
+      })
+
+      const promotedItems = filteredItems.filter((item) => item.isSponsored)
+      const sections: TopFeedSection[] = []
+      let promotedIndex = 0
+      let promotedSectionCount = 0
+
+      const pushPromotedSection = (takeRemaining: boolean) => {
+        const remaining = promotedItems.length - promotedIndex
+        if (remaining <= 0) {
+          return
+        }
+
+        const chunkSize = takeRemaining
+          ? remaining
+          : Math.min(2, remaining)
+        const chunk = promotedItems.slice(
+          promotedIndex,
+          promotedIndex + chunkSize,
+        )
+        promotedIndex += chunk.length
+
+        if (chunk.length === 0) {
+          return
+        }
+
+        sections.push({
+          kind: "promoted",
+          key: `new-promoted-${promotedSectionCount}`,
+          title: "Promoted",
+          items: chunk,
+        })
+        promotedSectionCount += 1
+      }
+
+      const bucketsWithItems = newBucketOrder
+        .map((bucket) => ({
+          key: bucket.key,
+          label: bucket.label,
+          items: newBuckets.get(bucket.key) ?? [],
+        }))
+        .filter((bucket) => bucket.items.length > 0)
+
+      if (bucketsWithItems.length === 0) {
+        if (promotedItems.length > 0) {
+          sections.push({
+            kind: "promoted",
+            key: "new-promoted-only",
+            title: "Promoted",
+            items: promotedItems,
+          })
+        }
+        return sections
+      }
+
+      pushPromotedSection(false)
+
+      bucketsWithItems.forEach((bucket, index) => {
+        sections.push({
+          kind: "top",
+          key: `new-${bucket.key}`,
+          title: bucket.label,
+          items: bucket.items,
+        })
+
+        const isLastBucket = index === bucketsWithItems.length - 1
+        pushPromotedSection(isLastBucket)
+      })
+
+      return sections
+    }
+
+    type RecentBucketKey = "today" | "yesterday" | "thisWeek" | "thisMonth"
+    const recentBucketOrder: Array<{ key: RecentBucketKey; label: string }> = [
+      { key: "today", label: "Updated Today" },
+      { key: "yesterday", label: "Updated Yesterday" },
+      { key: "thisWeek", label: "Updated This Week" },
+      { key: "thisMonth", label: "Updated This Month" },
     ]
 
-    const newBuckets = new Map<NewBucketKey, HomepageFeedItem[]>(
-      newBucketOrder.map((bucket) => [bucket.key, []]),
+    const recentBuckets = new Map<RecentBucketKey, HomepageFeedItem[]>(
+      recentBucketOrder.map((bucket) => [bucket.key, []]),
     )
 
     const organicItems = filteredItems.filter((item) => !item.isSponsored)
     organicItems.forEach((item) => {
-      const created = new Date(item.createdAt)
-      const createdTime = created.getTime()
-      const resolvedDate = Number.isNaN(createdTime) ? startToday : created
+      const updatedSource = item.updatedAt ?? item.createdAt
+      const updated = new Date(updatedSource)
+      const updatedTime = updated.getTime()
+      const resolvedDate = Number.isNaN(updatedTime) ? startToday : updated
 
-      let bucketKey: NewBucketKey = "thisWeek"
+      let bucketKey: RecentBucketKey = "thisMonth"
       if (resolvedDate >= startToday) {
         bucketKey = "today"
       } else if (resolvedDate >= startYesterday) {
         bucketKey = "yesterday"
       } else if (resolvedDate >= startOfCurrentWeek) {
         bucketKey = "thisWeek"
+      } else if (resolvedDate >= startOfCurrentMonth) {
+        bucketKey = "thisMonth"
       } else {
-        bucketKey = "thisWeek"
+        bucketKey = "thisMonth"
       }
 
-      const bucket = newBuckets.get(bucketKey)
+      const bucket = recentBuckets.get(bucketKey)
       if (bucket) {
         bucket.push(item)
       }
@@ -353,18 +489,18 @@ export function HomepageFeedClient({
 
       sections.push({
         kind: "promoted",
-        key: `new-promoted-${promotedSectionCount}`,
+        key: `recent-promoted-${promotedSectionCount}`,
         title: "Promoted",
         items: chunk,
       })
       promotedSectionCount += 1
     }
 
-    const bucketsWithItems = newBucketOrder
+    const bucketsWithItems = recentBucketOrder
       .map((bucket) => ({
         key: bucket.key,
         label: bucket.label,
-        items: newBuckets.get(bucket.key) ?? [],
+        items: recentBuckets.get(bucket.key) ?? [],
       }))
       .filter((bucket) => bucket.items.length > 0)
 
@@ -372,7 +508,7 @@ export function HomepageFeedClient({
       if (promotedItems.length > 0) {
         sections.push({
           kind: "promoted",
-          key: "new-promoted-only",
+          key: "recent-promoted-only",
           title: "Promoted",
           items: promotedItems,
         })
@@ -385,7 +521,7 @@ export function HomepageFeedClient({
     bucketsWithItems.forEach((bucket, index) => {
       sections.push({
         kind: "top",
-        key: `new-${bucket.key}`,
+        key: `recent-${bucket.key}`,
         title: bucket.label,
         items: bucket.items,
       })
@@ -398,7 +534,7 @@ export function HomepageFeedClient({
   }, [activeFilter, filteredItems])
 
   const feedRows = useMemo<FeedRow[]>(() => {
-    if (activeFilter === "new") {
+    if (activeFilter === "new" || activeFilter === "recent") {
       return []
     }
 
@@ -482,7 +618,8 @@ export function HomepageFeedClient({
     loadMore()
   }, [activeFilter, hasMore, isPending, items, loadMore, loading])
 
-  const usesSectionedLayout = activeFilter === "top" || activeFilter === "new"
+  const usesSectionedLayout =
+    activeFilter === "top" || activeFilter === "new" || activeFilter === "recent"
 
   const renderableSections = Array.isArray(sectionedSections)
     ? sectionedSections.filter((section) => section.items.length > 0)
@@ -513,7 +650,7 @@ export function HomepageFeedClient({
         {[
           { key: "top", label: "Top" },
           { key: "new", label: "New" },
-          { key: "trending", label: "Trending" },
+          { key: "recent", label: "Recently Updated" },
         ].map((filter) => {
           const isActive = activeFilter === filter.key
           return (

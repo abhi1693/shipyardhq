@@ -1,5 +1,4 @@
 import { act, render, screen } from "@testing-library/react"
-import userEvent from "@testing-library/user-event"
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest"
 
 vi.mock("@clerk/nextjs", () => ({
@@ -34,6 +33,7 @@ function makeItem(id: string, overrides: Partial<HomepageFeedItem> = {}) {
     logo: "/logo.png",
     tagline: `Tagline for ${id}`,
     createdAt: new Date("2024-01-01T00:00:00Z").toISOString(),
+    updatedAt: new Date("2024-01-05T00:00:00Z").toISOString(),
     badges: [],
     category: "Automation",
     categorySlug: "automation",
@@ -96,7 +96,7 @@ describe("HomepageFeedClient", () => {
     expect(await screen.findByText("Product 2")).toBeInTheDocument()
   })
 
-  it("falls back to manual load button when observers are unavailable", async () => {
+  it("omits manual load button for static layouts when observers are unavailable", async () => {
     ;(global as any).IntersectionObserver = undefined
     window.matchMedia = () =>
       ({
@@ -104,14 +104,6 @@ describe("HomepageFeedClient", () => {
         addEventListener: () => {},
         removeEventListener: () => {},
       }) as any
-
-    mockedLoadMore.mockResolvedValue({
-      items: [makeItem("3")],
-      page: 2,
-      pageSize: 10,
-      hasMore: false,
-      nextPage: null,
-    })
 
     render(
       <HomepageFeedClient
@@ -122,14 +114,9 @@ describe("HomepageFeedClient", () => {
       />,
     )
 
-    const button = await screen.findByRole("button", {
-      name: /load more launches/i,
-    })
-    expect(button).toBeInTheDocument()
-
-    await userEvent.click(button)
-
-    expect(mockedLoadMore).toHaveBeenCalledWith({ page: 2 })
-    expect(await screen.findByText("Product 3")).toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: /load more launches/i }),
+    ).not.toBeInTheDocument()
+    expect(mockedLoadMore).not.toHaveBeenCalled()
   })
 })
