@@ -8,6 +8,16 @@ import {
   PricingModel,
 } from "@/lib/vendor/prisma/client"
 import { PRICING_PATH } from "@/lib/routes"
+import {
+  addDays,
+  addHours,
+  addMinutes,
+  addMonths,
+  addWeeks,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns"
 
 import { seedAlternatives } from "./seed.alternatives"
 import { seedCategories } from "./seed.categories"
@@ -41,6 +51,8 @@ type ProductSeed = {
   userClerkId: string
   categorySlug: string
   organizationName?: string
+  createdAt?: Date
+  updatedAt?: Date
   metadata?: Prisma.ProductMetadataCreateWithoutProductInput
   verification?: Prisma.ProductVerificationCreateWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateWithoutProductInput
@@ -108,6 +120,14 @@ function buildProductCreateInput(
     platforms: def.platforms,
     user: { connect: { id: userId } },
     category: { connect: { id: categoryId } },
+  }
+
+  if (def.createdAt) {
+    data.createdAt = def.createdAt
+  }
+
+  if (def.updatedAt) {
+    data.updatedAt = def.updatedAt
   }
 
   if (organizationId) {
@@ -181,6 +201,14 @@ function buildProductUpdateInput(
     user: { connect: { id: userId } },
     category: { connect: { id: categoryId } },
     planAssignedAt: def.planAssignedAt ?? null,
+  }
+
+  if (def.createdAt) {
+    update.createdAt = def.createdAt
+  }
+
+  if (def.updatedAt) {
+    update.updatedAt = def.updatedAt
   }
 
   if (organizationId) {
@@ -390,7 +418,48 @@ async function main() {
     planIdBySlug,
   }
 
+  const now = new Date()
+  const startToday = startOfDay(now)
+  const startYesterday = addDays(startToday, -1)
+  const startOfCurrentWeek = startOfWeek(now, { weekStartsOn: 1 })
+  const startOfPreviousWeek = addWeeks(startOfCurrentWeek, -1)
+  const startOfCurrentMonth = startOfMonth(now)
+  const startOfPreviousMonth = addMonths(startOfCurrentMonth, -1)
+
+  const ensurePast = (candidate: Date, fallbackDaysAgo: number) => {
+    if (candidate.getTime() <= now.getTime()) {
+      return candidate
+    }
+    if (fallbackDaysAgo === 0) {
+      return addMinutes(now, -30)
+    }
+    return addHours(addDays(startToday, -fallbackDaysAgo), 11)
+  }
+
+  const createdCycle = [
+    ensurePast(addHours(startToday, 10), 0),
+    ensurePast(addHours(startYesterday, 11), 1),
+    ensurePast(addHours(addDays(startOfCurrentWeek, 2), 13), 4),
+    ensurePast(addHours(addDays(startOfPreviousWeek, 3), 16), 8),
+    ensurePast(addHours(addDays(startOfCurrentMonth, 6), 9), 12),
+    ensurePast(addHours(addDays(startOfPreviousMonth, 10), 13), 30),
+  ]
+
+  const updatedCycle = [
+    ensurePast(addHours(startToday, 16), 0),
+    ensurePast(addHours(addDays(startToday, -1), 18), 1),
+    ensurePast(addHours(addDays(startToday, -4), 17), 5),
+    ensurePast(addHours(addDays(startOfCurrentMonth, 8), 15), 14),
+  ]
+
   const productRows: { slug: string; action: "create" | "update" }[] = []
+
+  const primaryCreatedAt = addMinutes(createdCycle[5], 5)
+  const primaryUpdatedCandidate = addMinutes(updatedCycle[3], 7)
+  const primaryUpdatedAt =
+    primaryUpdatedCandidate.getTime() >= primaryCreatedAt.getTime()
+      ? primaryUpdatedCandidate
+      : addHours(primaryCreatedAt, 6)
 
   const primaryProduct: ProductSeed = {
     slug: "shitposts",
@@ -402,7 +471,7 @@ async function main() {
     logo: "https://shitposts.ai/brand.png",
     bannerImage: "https://shitposts.ai/banner.png",
     status: ProductStatus.published,
-    publishedAt: new Date("2024-01-02T00:00:00.000Z"),
+    publishedAt: primaryCreatedAt,
     type: ProductType.saas,
     pricingModel: PricingModel.freemium,
     startingPriceCents: 0,
@@ -415,7 +484,9 @@ async function main() {
     categorySlug: "social-media-tools",
     organizationName: "OpenStackers Inc",
     planSlug: "pro",
-    planAssignedAt: new Date("2024-01-03T00:00:00.000Z"),
+    planAssignedAt: addDays(primaryCreatedAt, 2),
+    createdAt: primaryCreatedAt,
+    updatedAt: primaryUpdatedAt,
     metadata: {
       githubUrl: "https://github.com/deploykit/app",
       twitterUrl: "https://twitter.com/deploykit",
@@ -502,13 +573,18 @@ async function main() {
     "Tools for SaaS founders",
   ]
 
-  const basePublished = Date.parse("2025-10-01T00:00:00.000Z")
-  const baseAssignment = Date.parse("2025-10-10T00:00:00.000Z")
-
   const bulkSeeds: ProductSeed[] = productNames.map((name, index) => {
     const slug = toSlug(name)
     const domain = `https://${slug}.dev`
     const tagline = taglines[index % taglines.length]
+    const createdBase = createdCycle[index % createdCycle.length]
+    const createdAt = addMinutes(createdBase, (index % 6) * 5)
+    const updatedBase = updatedCycle[index % updatedCycle.length]
+    let updatedAt = addMinutes(updatedBase, (index % 5) * 7)
+    if (updatedAt.getTime() < createdAt.getTime()) {
+      updatedAt = addHours(createdAt, 6)
+    }
+    const planSlug = index % 5 === 0 ? "featured" : "free"
 
     return {
       slug,
@@ -519,7 +595,9 @@ async function main() {
       logo: `${domain}/logo.png`,
       bannerImage: `${domain}/banner.png`,
       status: ProductStatus.published,
-      publishedAt: new Date(basePublished + index * 86_400_000),
+      publishedAt: createdAt,
+      createdAt,
+      updatedAt,
       type: ProductType.saas,
       pricingModel: PricingModel.subscription,
       startingPriceCents: [0, 900, 1900, 2900, 4900][index % 5],
@@ -531,8 +609,11 @@ async function main() {
       userClerkId: index % 2 === 0 ? "clerk-001" : "clerk-002",
       categorySlug: index % 3 === 0 ? "developer-tools" : "productivity",
       organizationName: index % 2 === 0 ? "OpenStackers Inc" : "DevBoost Labs",
-      planSlug: index % 5 === 0 ? "featured" : "free",
-      planAssignedAt: new Date(baseAssignment + index * 86_400_000),
+      planSlug,
+      planAssignedAt:
+        planSlug === "featured"
+          ? ensurePast(addDays(createdAt, 2), 2)
+          : ensurePast(addDays(createdAt, 5), 7),
       metadata: {
         githubUrl: `https://github.com/${slug}`,
         twitterUrl: `https://twitter.com/${slug}`,
