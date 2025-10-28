@@ -4,7 +4,6 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
   useTransition,
 } from "react"
@@ -25,7 +24,19 @@ interface HomepageFeedClientProps {
 }
 
 const DEFAULT_SKELETON_COUNT = 2
-const SENTINEL_MARGIN = "0px 0px 160px 0px"
+const MIN_ORGANIC_BEFORE_SPONSORED = 5
+
+type FeedRow =
+  | {
+      kind: "product"
+      key: string
+      item: HomepageFeedItem
+    }
+  | {
+      kind: "sponsored"
+      key: string
+      items: HomepageFeedItem[]
+    }
 
 export function HomepageFeedClient({
   initialItems,
@@ -41,10 +52,7 @@ export function HomepageFeedClient({
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [manualMode, setManualMode] = useState(false)
   const [activeFilter, setActiveFilter] = useState<"top" | "new" | "trending" | "sponsored">("top")
-  const sentinelRef = useRef<HTMLDivElement | null>(null)
-  const observerRef = useRef<IntersectionObserver | null>(null)
   const [isPending, startTransition] = useTransition()
 
   const resetKey = useMemo(
@@ -59,18 +67,6 @@ export function HomepageFeedClient({
     setHasMore(initialHasMore)
     setError(null)
   }, [initialHasMore, initialItems, initialNextPage, initialPage, resetKey])
-
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    const prefersReducedMotion =
-      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false
-    const observerSupported =
-      typeof window.IntersectionObserver !== "undefined"
-
-    if (!observerSupported || prefersReducedMotion) {
-      setManualMode(true)
-    }
-  }, [])
 
   const loadMore = useCallback(() => {
     if (!hasMore || loading || isPending || !nextPage) {
@@ -89,46 +85,11 @@ export function HomepageFeedClient({
       } catch (loadError) {
         console.error("[HomepageFeed] Failed to load more products", loadError)
         setError("Unable to load more launches right now. Please try again.")
-        setManualMode(true)
       } finally {
         setLoading(false)
       }
     })
   }, [hasMore, isPending, loading, nextPage])
-
-  useEffect(() => {
-    if (manualMode || !hasMore || !nextPage) {
-      observerRef.current?.disconnect()
-      return
-    }
-
-    if (
-      typeof window === "undefined" ||
-      typeof window.IntersectionObserver === "undefined"
-    ) {
-      return
-    }
-
-    const node = sentinelRef.current
-    if (!node) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const isIntersecting = entries.some((entry) => entry.isIntersecting)
-        if (isIntersecting) {
-          loadMore()
-        }
-      },
-      { rootMargin: SENTINEL_MARGIN },
-    )
-
-    observer.observe(node)
-    observerRef.current = observer
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [hasMore, loadMore, manualMode, nextPage])
 
   const isLoading = loading || isPending
   const showSkeletons = isLoading && hasMore
@@ -150,105 +111,108 @@ export function HomepageFeedClient({
     }
   }, [activeFilter, items])
 
-  const sections = useMemo(() => {
+  const feedRows = useMemo<FeedRow[]>(() => {
+    if (filteredItems.length === 0) {
+      return []
+    }
+
+    if (
+      activeFilter === "top" &&
+      !filteredItems.some((item) => !item.isSponsored) &&
+      hasMore
+    ) {
+      return []
+    }
+
+    if (activeFilter === "sponsored") {
+      const rows: FeedRow[] = []
+      for (let index = 0; index < filteredItems.length; index += 2) {
+        const chunk = filteredItems.slice(index, index + 2)
+        rows.push({
+          kind: "sponsored",
+          key: `sponsored-${index / 2}`,
+          items: chunk,
+        })
+      }
+      return rows
+    }
+
     if (activeFilter !== "top") {
-      return [
-        {
-          key: activeFilter,
-          title:
-            activeFilter === "trending"
-              ? "Trending picks"
-              : activeFilter === "sponsored"
-                ? "Promoted lineup"
-                : "Fresh launches",
-          caption:
-            activeFilter === "trending"
-              ? "Communities can’t stop talking about these makers right now."
-              : activeFilter === "sponsored"
-                ? "Guaranteed placements from founders investing in visibility."
-                : "Browse the latest additions to the Shipyard directory.",
-          tone: activeFilter === "sponsored" ? "promoted" : "default",
-          items: filteredItems,
-        },
-      ].filter((section) => section.items.length > 0)
+      return filteredItems.map((item) => ({
+        kind: "product",
+        key: `product-${item.id}`,
+        item,
+      }))
     }
 
     const organic = filteredItems.filter((item) => !item.isSponsored)
-    const promoted = filteredItems.filter((item) => item.isSponsored)
+    const sponsored = filteredItems.filter((item) => item.isSponsored)
 
-    const today = organic.slice(0, 4)
-    const yesterday = organic.slice(4, 8)
-    const remaining = organic.slice(8)
-
-    const result: Array<{
-      key: string
-      title: string
-      caption?: string
-      tone: "primary" | "secondary" | "promoted" | "default"
-      items: HomepageFeedItem[]
-    }> = []
-
-    if (today.length) {
-      result.push({
-        key: "today",
-        title: "Today’s Top 4",
-        caption: "Four standouts climbing the charts in real time.",
-        tone: "primary",
-        items: today,
-      })
+    const sponsorPairs: HomepageFeedItem[][] = []
+    for (let index = 0; index < sponsored.length; index += 2) {
+      sponsorPairs.push(sponsored.slice(index, index + 2))
     }
 
-    if (promoted.length) {
-      result.push({
-        key: "promoted",
-        title: "Promoted",
-        caption: "Spotlight placements from makers investing in boost slots.",
-        tone: "promoted",
-        items: promoted,
+    const rows: FeedRow[] = []
+    let organicSinceLastSponsored = 0
+    let sponsorIndex = 0
+
+    organic.forEach((item) => {
+      rows.push({
+        kind: "product",
+        key: `product-${item.id}`,
+        item,
       })
+      organicSinceLastSponsored += 1
+
+      if (organicSinceLastSponsored === 5 && sponsorIndex < sponsorPairs.length) {
+        rows.push({
+          kind: "sponsored",
+          key: `sponsored-${sponsorIndex}`,
+          items: sponsorPairs[sponsorIndex],
+        })
+        sponsorIndex += 1
+        organicSinceLastSponsored = 0
+      }
+    })
+
+    while (sponsorIndex < sponsorPairs.length) {
+      rows.push({
+        kind: "sponsored",
+        key: `sponsored-${sponsorIndex}`,
+        items: sponsorPairs[sponsorIndex],
+      })
+      sponsorIndex += 1
     }
 
-    if (yesterday.length) {
-      result.push({
-        key: "yesterday",
-        title: "Yesterday’s Highlights",
-        caption: "Still earning upvotes after yesterday’s drop.",
-        tone: "secondary",
-        items: yesterday,
-      })
-    }
+    return rows
+  }, [activeFilter, filteredItems, hasMore])
 
-    if (remaining.length) {
-      result.push({
-        key: "all",
-        title: "All launches",
-        caption: "Keep scrolling to discover every product shipping today.",
-        tone: "default",
-        items: remaining,
-      })
-    }
+  useEffect(() => {
+    if (activeFilter !== "top") return
+    if (!hasMore) return
+    if (loading || isPending) return
 
-    return result
-  }, [activeFilter, filteredItems])
+    const organicCount = items.reduce(
+      (count, item) => (item.isSponsored ? count : count + 1),
+      0,
+    )
+    const hasSponsored = items.length > organicCount
 
-  const renderedCount = useMemo(
-    () =>
-      sections.reduce(
-        (total, section) => total + section.items.length,
-        0,
-      ),
-    [sections],
-  )
+    if (!hasSponsored) return
+    if (organicCount >= MIN_ORGANIC_BEFORE_SPONSORED) return
+
+    loadMore()
+  }, [activeFilter, hasMore, isPending, items, loadMore, loading])
 
   const emptyState =
-    filteredItems.length === 0 && !isLoading ? (
+    feedRows.length === 0 && !isLoading ? (
       <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-12 text-center text-sm font-medium text-slate-500">
         Nothing to show yet for this view. Try switching filters to explore more
         launches.
       </div>
     ) : null
-
-  const handleManualLoad = useCallback(() => {
+  const handleLoadMore = useCallback(() => {
     loadMore()
   }, [loadMore])
 
@@ -285,35 +249,34 @@ export function HomepageFeedClient({
         })}
       </div>
 
-      {sections.map((section) => (
-        <div key={section.key} className="space-y-6">
-          {section.title ? (
+      <div className="space-y-6">
+        {feedRows.map((row) => {
+          if (row.kind === "product") {
+            return <ProductFeedCard key={row.key} item={row.item} />
+          }
+
+          return (
             <div
-              className={cn(
-                "flex flex-col gap-1 rounded-2xl border border-transparent px-4 py-3",
-                section.tone === "primary" &&
-                  "bg-gradient-to-r from-[#F4F2FF] via-white to-[#F3FBFF] border-[#E1E8FF]",
-                section.tone === "secondary" &&
-                  "bg-gradient-to-r from-[#FDF5F1] via-white to-[#F7FAFF] border-[#F5E5D8]",
-                section.tone === "promoted" &&
-                  "bg-gradient-to-r from-[#F9F2FF] via-white to-[#F3F0FF] border-[#E7DAFF]",
-              )}
+              key={row.key}
+              className="space-y-4 rounded-3xl border border-[#E6E9F5] bg-[#F8F9FF] px-4 py-5"
             >
-              <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#7B81A0]">
-                {section.title}
-              </p>
-              {section.caption ? (
-                <p className="text-sm text-[#5B6175]">{section.caption}</p>
-              ) : null}
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#575C73]">
+                  Sponsored
+                </p>
+                <p className="text-xs text-[#6E7490]">
+                  Spotlighted makers investing in visibility.
+                </p>
+              </div>
+              <div className="space-y-6">
+                {row.items.map((item) => (
+                  <ProductFeedCard key={`${row.key}-${item.id}`} item={item} />
+                ))}
+              </div>
             </div>
-          ) : null}
-          <div className="space-y-6">
-            {section.items.map((item) => (
-              <ProductFeedCard key={`${section.key}-${item.id}`} item={item} />
-            ))}
-          </div>
-        </div>
-      ))}
+          )
+        })}
+      </div>
 
       {showSkeletons ? (
         <div className="space-y-6" aria-hidden="true">
@@ -334,26 +297,17 @@ export function HomepageFeedClient({
 
       {emptyState}
 
-      {hasMore && sections.length > 0 && renderedCount === filteredItems.length ? (
-        manualMode ? (
-          <div className="flex justify-center">
-            <button
-              type="button"
-              onClick={handleManualLoad}
-              disabled={isLoading}
-              className="inline-flex items-center rounded-full bg-[#1C2333] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#101524] disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {isLoading ? "Loading…" : "Load more launches"}
-            </button>
-          </div>
-        ) : (
-          <div
-            ref={sentinelRef}
-            aria-hidden="true"
-            className="h-1 w-full"
-            data-testid="homepage-feed-sentinel"
-          />
-        )
+      {hasMore ? (
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={handleLoadMore}
+            disabled={isLoading}
+            className="inline-flex items-center rounded-full bg-[#1C2333] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#101524] disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isLoading ? "Loading…" : "Load more launches"}
+          </button>
+        </div>
       ) : null}
 
       {!hasMore ? (

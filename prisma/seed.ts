@@ -502,8 +502,8 @@ async function main() {
     "Tools for SaaS founders",
   ]
 
-  const basePublished = Date.parse("2024-02-01T00:00:00.000Z")
-  const baseAssignment = Date.parse("2024-02-10T00:00:00.000Z")
+  const basePublished = Date.parse("2025-10-01T00:00:00.000Z")
+  const baseAssignment = Date.parse("2025-10-10T00:00:00.000Z")
 
   const bulkSeeds: ProductSeed[] = productNames.map((name, index) => {
     const slug = toSlug(name)
