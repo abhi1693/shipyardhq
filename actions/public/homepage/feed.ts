@@ -58,6 +58,7 @@ export interface HomepageFeedItem {
   name: string
   logo: string
   tagline: string
+  createdAt: string
   badges: string[]
   category: string | null
   categorySlug: string | null
@@ -161,6 +162,7 @@ function mapProductToFeedItem(
     name: product.name,
     logo: product.logo,
     tagline: product.tagline ?? "",
+    createdAt: product.createdAt.toISOString(),
     badges: activeBadges,
     category: product.category?.name ?? null,
     categorySlug: product.category?.slug ?? null,

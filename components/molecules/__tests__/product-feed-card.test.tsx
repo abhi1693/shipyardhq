@@ -19,6 +19,7 @@ const baseItem: HomepageFeedItem = {
   name: "First Product",
   logo: "/logo.png",
   tagline: "A helpful description for the first product.",
+  createdAt: new Date("2024-01-01T12:00:00Z").toISOString(),
   badges: [],
   category: "Automation",
   categorySlug: "automation",

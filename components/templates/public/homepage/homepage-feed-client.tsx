@@ -1,5 +1,6 @@
 "use client"
 
+import { Flame } from "lucide-react"
 import {
   useCallback,
   useEffect,
@@ -7,6 +8,14 @@ import {
   useState,
   useTransition,
 } from "react"
+import {
+  addDays,
+  addMonths,
+  addWeeks,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { loadHomepageFeed } from "@/actions/public/homepage/feed"
@@ -25,6 +34,14 @@ interface HomepageFeedClientProps {
 
 const DEFAULT_SKELETON_COUNT = 2
 const MIN_ORGANIC_BEFORE_SPONSORED = 5
+
+interface TopFeedSection {
+  kind: "top" | "promoted"
+  key: string
+  title: string
+  items: HomepageFeedItem[]
+  description?: string
+}
 
 type FeedRow =
   | {
@@ -111,7 +128,159 @@ export function HomepageFeedClient({
     }
   }, [activeFilter, items])
 
+  const topSections = useMemo<TopFeedSection[] | null>(() => {
+    if (activeFilter !== "top") {
+      return null
+    }
+
+    if (filteredItems.length === 0) {
+      return []
+    }
+
+    type BucketKey =
+      | "today"
+      | "yesterday"
+      | "thisWeek"
+      | "lastWeek"
+      | "thisMonth"
+      | "lastMonth"
+
+    const now = new Date()
+    const startToday = startOfDay(now)
+    const startYesterday = addDays(startToday, -1)
+    const startOfCurrentWeek = startOfWeek(now, { weekStartsOn: 1 })
+    const startOfPreviousWeek = addWeeks(startOfCurrentWeek, -1)
+    const startOfCurrentMonth = startOfMonth(now)
+    const startOfPreviousMonth = addMonths(startOfCurrentMonth, -1)
+
+    const bucketOrder: Array<{ key: BucketKey; label: string }> = [
+      { key: "today", label: "Today" },
+      { key: "yesterday", label: "Yesterday" },
+      { key: "thisWeek", label: "This Week" },
+      { key: "lastWeek", label: "Last Week" },
+      { key: "thisMonth", label: "This Month" },
+      { key: "lastMonth", label: "Last Month" },
+    ]
+
+    const buckets = new Map<BucketKey, HomepageFeedItem[]>(
+      bucketOrder.map((bucket) => [bucket.key, []]),
+    )
+
+    const organicItems = filteredItems.filter((item) => !item.isSponsored)
+    const sortedOrganic = [...organicItems].sort((a, b) => {
+      const voteDiff = b.voteCount - a.voteCount
+      if (voteDiff !== 0) return voteDiff
+
+      const aTime = new Date(a.createdAt).getTime()
+      const bTime = new Date(b.createdAt).getTime()
+      if (!Number.isNaN(bTime) && !Number.isNaN(aTime)) {
+        return bTime - aTime
+      }
+
+      return 0
+    })
+
+    sortedOrganic.forEach((item) => {
+      const created = new Date(item.createdAt)
+      const createdTime = created.getTime()
+      const resolvedDate = Number.isNaN(createdTime) ? startToday : created
+
+      let bucketKey: BucketKey = "lastMonth"
+      if (resolvedDate >= startToday) {
+        bucketKey = "today"
+      } else if (resolvedDate >= startYesterday) {
+        bucketKey = "yesterday"
+      } else if (resolvedDate >= startOfCurrentWeek) {
+        bucketKey = "thisWeek"
+      } else if (resolvedDate >= startOfPreviousWeek) {
+        bucketKey = "lastWeek"
+      } else if (resolvedDate >= startOfCurrentMonth) {
+        bucketKey = "thisMonth"
+      } else if (resolvedDate >= startOfPreviousMonth) {
+        bucketKey = "lastMonth"
+      } else {
+        bucketKey = "lastMonth"
+      }
+
+      const bucket = buckets.get(bucketKey)
+      if (bucket) {
+        bucket.push(item)
+      }
+    })
+
+    const promotedItems = filteredItems.filter((item) => item.isSponsored)
+    const sections: TopFeedSection[] = []
+    let promotedIndex = 0
+
+    const bucketsWithItems = bucketOrder
+      .map((bucket) => ({
+        key: bucket.key,
+        label: bucket.label,
+        items: (buckets.get(bucket.key) ?? []).slice(0, 5),
+      }))
+      .filter((bucket) => bucket.items.length > 0)
+
+    bucketsWithItems.forEach((bucket, index) => {
+      sections.push({
+        kind: "top",
+        key: `${bucket.key}-top`,
+        title: `${bucket.label} Top ${bucket.items.length}`,
+        items: bucket.items,
+      })
+
+      const remainingPromoted = promotedItems.length - promotedIndex
+      if (remainingPromoted <= 0) {
+        return
+      }
+
+      const isLastTopBucket = index === bucketsWithItems.length - 1
+      const chunkSize = isLastTopBucket
+        ? remainingPromoted
+        : Math.min(2, remainingPromoted)
+
+      const chunk = promotedItems.slice(
+        promotedIndex,
+        promotedIndex + chunkSize,
+      )
+      promotedIndex += chunk.length
+
+      if (chunk.length > 0) {
+        sections.push({
+          kind: "promoted",
+          key: `${bucket.key}-promoted-${index}`,
+          title: "Promoted",
+          items: chunk,
+        })
+      }
+    })
+
+    const remainingPromoted = promotedItems.slice(promotedIndex)
+    if (sections.length === 0 && remainingPromoted.length > 0) {
+      sections.push({
+        kind: "promoted",
+        key: "promoted-only",
+        title: "Promoted",
+        items: remainingPromoted,
+      })
+    } else if (remainingPromoted.length > 0) {
+      const lastBucket = bucketsWithItems[bucketsWithItems.length - 1]
+      const lastKey = lastBucket?.key ?? "promoted"
+      sections.push({
+        kind: "promoted",
+        key: `${lastKey}-promoted-final`,
+        title: "Promoted",
+        items: remainingPromoted,
+      })
+    }
+
+    return sections
+  }, [activeFilter, filteredItems])
+
   const feedRows = useMemo<FeedRow[]>(() => {
+    if (activeFilter === "new") {
+      return []
+    }
+
     if (filteredItems.length === 0) {
       return []
     }
@@ -205,8 +374,17 @@ export function HomepageFeedClient({
     loadMore()
   }, [activeFilter, hasMore, isPending, items, loadMore, loading])
 
+  const renderableTopSections = Array.isArray(topSections)
+    ? topSections.filter((section) => section.items.length > 0)
+    : []
+
+  const hasTopContent = renderableTopSections.length > 0
+
+  const shouldShowEmptyState =
+    activeFilter === "top" ? !hasTopContent : feedRows.length === 0
+
   const emptyState =
-    feedRows.length === 0 && !isLoading ? (
+    shouldShowEmptyState && !isLoading ? (
       <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-12 text-center text-sm font-medium text-slate-500">
         Nothing to show yet for this view. Try switching filters to explore more
         launches.
@@ -249,36 +427,101 @@ export function HomepageFeedClient({
         })}
       </div>
 
-      <div className="space-y-6">
-        {feedRows.map((row) => {
-          if (row.kind === "product") {
-            return <ProductFeedCard key={row.key} item={row.item} />
-          }
+      {activeFilter === "top" ? (
+        <section className="space-y-10">
+          {renderableTopSections.map((section, index) => {
+            const isLastSection = index === renderableTopSections.length - 1
+            if (section.kind === "promoted") {
+              return (
+                <div key={section.key} className="space-y-5">
+                  <div className="flex flex-col gap-3">
+                    <div className="inline-flex items-center gap-3 text-[#B45309]">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FEF3C7] text-[#D97706]">
+                        <Flame className="h-4 w-4" aria-hidden="true" />
+                      </span>
+                      <span className="text-lg font-semibold tracking-tight">
+                        {section.title}
+                      </span>
+                    </div>
+                    <span
+                      aria-hidden="true"
+                      className="block h-px w-full rounded-full bg-[#FCD34D]/60"
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    {section.items.map((item) => (
+                      <ProductFeedCard
+                        key={`${section.key}-${item.id}`}
+                        item={item}
+                      />
+                    ))}
+                  </div>
+                  {!isLastSection ? (
+                    <span
+                      aria-hidden="true"
+                      className="block h-px w-full rounded-full bg-[#E9ECF8]"
+                    />
+                  ) : null}
+                </div>
+              )
+            }
 
-          return (
-            <div
-              key={row.key}
-              className="space-y-4 rounded-3xl border border-[#E6E9F5] bg-[#F8F9FF] px-4 py-5"
-            >
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            return (
+              <div
+                key={section.key}
+                className={cn(
+                  "space-y-5",
+                  !isLastSection && "pb-6",
+                )}
+              >
+                <div className="space-y-3">
+                  <span className="text-lg font-semibold text-[#1C2333]">
+                    {section.title}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="block h-px w-full rounded-full bg-[#E5E8F5]"
+                  />
+                </div>
+                <div className="space-y-4">
+                  {section.items.map((item) => (
+                    <ProductFeedCard
+                      key={`${section.key}-${item.id}`}
+                      item={item}
+                    />
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </section>
+      ) : (
+        <div className="space-y-6">
+          {feedRows.map((row) => {
+            if (row.kind === "product") {
+              return <ProductFeedCard key={row.key} item={row.item} />
+            }
+
+            return (
+              <div
+                key={row.key}
+                className="space-y-4 rounded-3xl border border-[#E6E9F5] bg-[#F8F9FF] px-4 py-5"
+              >
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#575C73]">
                   Sponsored
                 </p>
-                <p className="text-xs text-[#6E7490]">
-                  Spotlighted makers investing in visibility.
-                </p>
+                <div className="space-y-6">
+                  {row.items.map((item) => (
+                    <ProductFeedCard key={`${row.key}-${item.id}`} item={item} />
+                  ))}
+                </div>
               </div>
-              <div className="space-y-6">
-                {row.items.map((item) => (
-                  <ProductFeedCard key={`${row.key}-${item.id}`} item={item} />
-                ))}
-              </div>
-            </div>
-          )
-        })}
-      </div>
+            )
+          })}
+        </div>
+      )}
 
-      {showSkeletons ? (
+      {activeFilter !== "top" && showSkeletons ? (
         <div className="space-y-6" aria-hidden="true">
           {Array.from({ length: skeletonCount }).map((_, index) => (
             <ProductFeedCardSkeleton key={`skeleton-${page}-${index}`} />
@@ -297,7 +540,7 @@ export function HomepageFeedClient({
 
       {emptyState}
 
-      {hasMore ? (
+      {activeFilter !== "top" && hasMore ? (
         <div className="flex justify-center">
           <button
             type="button"
@@ -310,7 +553,7 @@ export function HomepageFeedClient({
         </div>
       ) : null}
 
-      {!hasMore ? (
+      {activeFilter !== "top" && !hasMore ? (
         <p className="py-6 text-center text-sm font-semibold uppercase tracking-[0.22em] text-[#98A0B5]">
           You&apos;ve reached the end of today&apos;s launches — check back
           tomorrow for fresh drops.
