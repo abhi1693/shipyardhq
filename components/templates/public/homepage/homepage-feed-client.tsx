@@ -114,7 +114,25 @@ export function HomepageFeedClient({
   const filteredItems = useMemo(() => {
     switch (activeFilter) {
       case "new":
-        return [...items].sort((a, b) => a.name.localeCompare(b.name))
+        return [...items].sort((a, b) => {
+          const aTime = new Date(a.createdAt ?? "").getTime()
+          const bTime = new Date(b.createdAt ?? "").getTime()
+
+          const aHasTime = !Number.isNaN(aTime)
+          const bHasTime = !Number.isNaN(bTime)
+
+          if (aHasTime && bHasTime) {
+            if (bTime !== aTime) {
+              return bTime - aTime
+            }
+          } else if (aHasTime && !bHasTime) {
+            return -1
+          } else if (!aHasTime && bHasTime) {
+            return 1
+          }
+
+          return a.name.localeCompare(b.name)
+        })
       case "trending":
         return items.filter((item) =>
           item.badges.some((badge) =>
@@ -128,22 +146,14 @@ export function HomepageFeedClient({
     }
   }, [activeFilter, items])
 
-  const topSections = useMemo<TopFeedSection[] | null>(() => {
-    if (activeFilter !== "top") {
+  const sectionedSections = useMemo<TopFeedSection[] | null>(() => {
+    if (activeFilter !== "top" && activeFilter !== "new") {
       return null
     }
 
     if (filteredItems.length === 0) {
       return []
     }
-
-    type BucketKey =
-      | "today"
-      | "yesterday"
-      | "thisWeek"
-      | "lastWeek"
-      | "thisMonth"
-      | "lastMonth"
 
     const now = new Date()
     const startToday = startOfDay(now)
@@ -153,56 +163,167 @@ export function HomepageFeedClient({
     const startOfCurrentMonth = startOfMonth(now)
     const startOfPreviousMonth = addMonths(startOfCurrentMonth, -1)
 
-    const bucketOrder: Array<{ key: BucketKey; label: string }> = [
-      { key: "today", label: "Today" },
-      { key: "yesterday", label: "Yesterday" },
-      { key: "thisWeek", label: "This Week" },
-      { key: "lastWeek", label: "Last Week" },
-      { key: "thisMonth", label: "This Month" },
-      { key: "lastMonth", label: "Last Month" },
+    if (activeFilter === "top") {
+      type BucketKey =
+        | "today"
+        | "yesterday"
+        | "thisWeek"
+        | "lastWeek"
+        | "thisMonth"
+        | "lastMonth"
+
+      const bucketOrder: Array<{ key: BucketKey; label: string }> = [
+        { key: "today", label: "Today" },
+        { key: "yesterday", label: "Yesterday" },
+        { key: "thisWeek", label: "This Week" },
+        { key: "lastWeek", label: "Last Week" },
+        { key: "thisMonth", label: "This Month" },
+        { key: "lastMonth", label: "Last Month" },
+      ]
+
+      const buckets = new Map<BucketKey, HomepageFeedItem[]>(
+        bucketOrder.map((bucket) => [bucket.key, []]),
+      )
+
+      const organicItems = filteredItems.filter((item) => !item.isSponsored)
+      const sortedOrganic = [...organicItems].sort((a, b) => {
+        const voteDiff = b.voteCount - a.voteCount
+        if (voteDiff !== 0) return voteDiff
+
+        const aTime = new Date(a.createdAt).getTime()
+        const bTime = new Date(b.createdAt).getTime()
+        if (!Number.isNaN(bTime) && !Number.isNaN(aTime)) {
+          return bTime - aTime
+        }
+
+        return 0
+      })
+
+      sortedOrganic.forEach((item) => {
+        const created = new Date(item.createdAt)
+        const createdTime = created.getTime()
+        const resolvedDate = Number.isNaN(createdTime) ? startToday : created
+
+        let bucketKey: BucketKey = "lastMonth"
+        if (resolvedDate >= startToday) {
+          bucketKey = "today"
+        } else if (resolvedDate >= startYesterday) {
+          bucketKey = "yesterday"
+        } else if (resolvedDate >= startOfCurrentWeek) {
+          bucketKey = "thisWeek"
+        } else if (resolvedDate >= startOfPreviousWeek) {
+          bucketKey = "lastWeek"
+        } else if (resolvedDate >= startOfCurrentMonth) {
+          bucketKey = "thisMonth"
+        } else if (resolvedDate >= startOfPreviousMonth) {
+          bucketKey = "lastMonth"
+        } else {
+          bucketKey = "lastMonth"
+        }
+
+        const bucket = buckets.get(bucketKey)
+        if (bucket) {
+          bucket.push(item)
+        }
+      })
+
+      const promotedItems = filteredItems.filter((item) => item.isSponsored)
+      const sections: TopFeedSection[] = []
+      let promotedIndex = 0
+
+      const bucketsWithItems = bucketOrder
+        .map((bucket) => ({
+          key: bucket.key,
+          label: bucket.label,
+          items: (buckets.get(bucket.key) ?? []).slice(0, 5),
+        }))
+        .filter((bucket) => bucket.items.length > 0)
+
+      bucketsWithItems.forEach((bucket, index) => {
+        sections.push({
+          kind: "top",
+          key: `${bucket.key}-top`,
+          title: `${bucket.label} Top ${bucket.items.length}`,
+          items: bucket.items,
+        })
+
+        const remainingPromoted = promotedItems.length - promotedIndex
+        if (remainingPromoted <= 0) {
+          return
+        }
+
+        const isLastTopBucket = index === bucketsWithItems.length - 1
+        const chunkSize = isLastTopBucket
+          ? remainingPromoted
+          : Math.min(2, remainingPromoted)
+
+        const chunk = promotedItems.slice(
+          promotedIndex,
+          promotedIndex + chunkSize,
+        )
+        promotedIndex += chunk.length
+
+        if (chunk.length > 0) {
+          sections.push({
+            kind: "promoted",
+            key: `${bucket.key}-promoted-${index}`,
+            title: "Promoted",
+            items: chunk,
+          })
+        }
+      })
+
+      const remainingPromoted = promotedItems.slice(promotedIndex)
+      if (sections.length === 0 && remainingPromoted.length > 0) {
+        sections.push({
+          kind: "promoted",
+          key: "promoted-only",
+          title: "Promoted",
+          items: remainingPromoted,
+        })
+      } else if (remainingPromoted.length > 0) {
+        const lastBucket = bucketsWithItems[bucketsWithItems.length - 1]
+        const lastKey = lastBucket?.key ?? "promoted"
+        sections.push({
+          kind: "promoted",
+          key: `${lastKey}-promoted-final`,
+          title: "Promoted",
+          items: remainingPromoted,
+        })
+      }
+
+      return sections
+    }
+
+    type NewBucketKey = "today" | "yesterday" | "thisWeek"
+    const newBucketOrder: Array<{ key: NewBucketKey; label: string }> = [
+      { key: "today", label: "Published Today" },
+      { key: "yesterday", label: "Published Yesterday" },
+      { key: "thisWeek", label: "Published This Week" },
     ]
 
-    const buckets = new Map<BucketKey, HomepageFeedItem[]>(
-      bucketOrder.map((bucket) => [bucket.key, []]),
+    const newBuckets = new Map<NewBucketKey, HomepageFeedItem[]>(
+      newBucketOrder.map((bucket) => [bucket.key, []]),
     )
 
     const organicItems = filteredItems.filter((item) => !item.isSponsored)
-    const sortedOrganic = [...organicItems].sort((a, b) => {
-      const voteDiff = b.voteCount - a.voteCount
-      if (voteDiff !== 0) return voteDiff
-
-      const aTime = new Date(a.createdAt).getTime()
-      const bTime = new Date(b.createdAt).getTime()
-      if (!Number.isNaN(bTime) && !Number.isNaN(aTime)) {
-        return bTime - aTime
-      }
-
-      return 0
-    })
-
-    sortedOrganic.forEach((item) => {
+    organicItems.forEach((item) => {
       const created = new Date(item.createdAt)
       const createdTime = created.getTime()
       const resolvedDate = Number.isNaN(createdTime) ? startToday : created
 
-      let bucketKey: BucketKey = "lastMonth"
+      let bucketKey: NewBucketKey = "thisWeek"
       if (resolvedDate >= startToday) {
         bucketKey = "today"
       } else if (resolvedDate >= startYesterday) {
         bucketKey = "yesterday"
       } else if (resolvedDate >= startOfCurrentWeek) {
         bucketKey = "thisWeek"
-      } else if (resolvedDate >= startOfPreviousWeek) {
-        bucketKey = "lastWeek"
-      } else if (resolvedDate >= startOfCurrentMonth) {
-        bucketKey = "thisMonth"
-      } else if (resolvedDate >= startOfPreviousMonth) {
-        bucketKey = "lastMonth"
       } else {
-        bucketKey = "lastMonth"
+        bucketKey = "thisWeek"
       }
 
-      const bucket = buckets.get(bucketKey)
+      const bucket = newBuckets.get(bucketKey)
       if (bucket) {
         bucket.push(item)
       }
@@ -211,67 +332,69 @@ export function HomepageFeedClient({
     const promotedItems = filteredItems.filter((item) => item.isSponsored)
     const sections: TopFeedSection[] = []
     let promotedIndex = 0
+    let promotedSectionCount = 0
 
-    const bucketsWithItems = bucketOrder
-      .map((bucket) => ({
-        key: bucket.key,
-        label: bucket.label,
-        items: (buckets.get(bucket.key) ?? []).slice(0, 5),
-      }))
-      .filter((bucket) => bucket.items.length > 0)
-
-    bucketsWithItems.forEach((bucket, index) => {
-      sections.push({
-        kind: "top",
-        key: `${bucket.key}-top`,
-        title: `${bucket.label} Top ${bucket.items.length}`,
-        items: bucket.items,
-      })
-
-      const remainingPromoted = promotedItems.length - promotedIndex
-      if (remainingPromoted <= 0) {
+    const pushPromotedSection = (takeRemaining: boolean) => {
+      const remaining = promotedItems.length - promotedIndex
+      if (remaining <= 0) {
         return
       }
 
-      const isLastTopBucket = index === bucketsWithItems.length - 1
-      const chunkSize = isLastTopBucket
-        ? remainingPromoted
-        : Math.min(2, remainingPromoted)
-
+      const chunkSize = takeRemaining
+        ? remaining
+        : Math.min(2, remaining)
       const chunk = promotedItems.slice(
         promotedIndex,
         promotedIndex + chunkSize,
       )
       promotedIndex += chunk.length
 
-      if (chunk.length > 0) {
+      if (chunk.length === 0) {
+        return
+      }
+
+      sections.push({
+        kind: "promoted",
+        key: `new-promoted-${promotedSectionCount}`,
+        title: "Promoted",
+        items: chunk,
+      })
+      promotedSectionCount += 1
+    }
+
+    const bucketsWithItems = newBucketOrder
+      .map((bucket) => ({
+        key: bucket.key,
+        label: bucket.label,
+        items: newBuckets.get(bucket.key) ?? [],
+      }))
+      .filter((bucket) => bucket.items.length > 0)
+
+    if (bucketsWithItems.length === 0) {
+      if (promotedItems.length > 0) {
         sections.push({
           kind: "promoted",
-          key: `${bucket.key}-promoted-${index}`,
+          key: "new-promoted-only",
           title: "Promoted",
-          items: chunk,
+          items: promotedItems,
         })
       }
-    })
-
-    const remainingPromoted = promotedItems.slice(promotedIndex)
-    if (sections.length === 0 && remainingPromoted.length > 0) {
-      sections.push({
-        kind: "promoted",
-        key: "promoted-only",
-        title: "Promoted",
-        items: remainingPromoted,
-      })
-    } else if (remainingPromoted.length > 0) {
-      const lastBucket = bucketsWithItems[bucketsWithItems.length - 1]
-      const lastKey = lastBucket?.key ?? "promoted"
-      sections.push({
-        kind: "promoted",
-        key: `${lastKey}-promoted-final`,
-        title: "Promoted",
-        items: remainingPromoted,
-      })
+      return sections
     }
+
+    pushPromotedSection(false)
+
+    bucketsWithItems.forEach((bucket, index) => {
+      sections.push({
+        kind: "top",
+        key: `new-${bucket.key}`,
+        title: bucket.label,
+        items: bucket.items,
+      })
+
+      const isLastBucket = index === bucketsWithItems.length - 1
+      pushPromotedSection(isLastBucket)
+    })
 
     return sections
   }, [activeFilter, filteredItems])
@@ -374,14 +497,16 @@ export function HomepageFeedClient({
     loadMore()
   }, [activeFilter, hasMore, isPending, items, loadMore, loading])
 
-  const renderableTopSections = Array.isArray(topSections)
-    ? topSections.filter((section) => section.items.length > 0)
+  const usesSectionedLayout = activeFilter === "top" || activeFilter === "new"
+
+  const renderableSections = Array.isArray(sectionedSections)
+    ? sectionedSections.filter((section) => section.items.length > 0)
     : []
 
-  const hasTopContent = renderableTopSections.length > 0
+  const hasSectionedContent = renderableSections.length > 0
 
   const shouldShowEmptyState =
-    activeFilter === "top" ? !hasTopContent : feedRows.length === 0
+    usesSectionedLayout ? !hasSectionedContent : feedRows.length === 0
 
   const emptyState =
     shouldShowEmptyState && !isLoading ? (
@@ -427,10 +552,10 @@ export function HomepageFeedClient({
         })}
       </div>
 
-      {activeFilter === "top" ? (
+      {usesSectionedLayout ? (
         <section className="space-y-10">
-          {renderableTopSections.map((section, index) => {
-            const isLastSection = index === renderableTopSections.length - 1
+          {renderableSections.map((section, index) => {
+            const isLastSection = index === renderableSections.length - 1
             if (section.kind === "promoted") {
               return (
                 <div key={section.key} className="space-y-5">
@@ -521,7 +646,7 @@ export function HomepageFeedClient({
         </div>
       )}
 
-      {activeFilter !== "top" && showSkeletons ? (
+      {!usesSectionedLayout && showSkeletons ? (
         <div className="space-y-6" aria-hidden="true">
           {Array.from({ length: skeletonCount }).map((_, index) => (
             <ProductFeedCardSkeleton key={`skeleton-${page}-${index}`} />
@@ -540,7 +665,7 @@ export function HomepageFeedClient({
 
       {emptyState}
 
-      {activeFilter !== "top" && hasMore ? (
+      {!usesSectionedLayout && hasMore ? (
         <div className="flex justify-center">
           <button
             type="button"
@@ -553,7 +678,7 @@ export function HomepageFeedClient({
         </div>
       ) : null}
 
-      {activeFilter !== "top" && !hasMore ? (
+      {!usesSectionedLayout && !hasMore ? (
         <p className="py-6 text-center text-sm font-semibold uppercase tracking-[0.22em] text-[#98A0B5]">
           You&apos;ve reached the end of today&apos;s launches — check back
           tomorrow for fresh drops.
