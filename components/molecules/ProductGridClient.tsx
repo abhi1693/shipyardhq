@@ -4,31 +4,19 @@ import { useCallback, useMemo } from "react"
 
 import type { CompactProductItem } from "@/components/molecules/ProductCompactGrid"
 import { loadMoreProducts } from "@/actions/public/browse/loadMore"
-import InfiniteProductGrid from "@/components/molecules/InfiniteProductGrid"
-import ProductFeedCard from "@/components/molecules/ProductFeedCard"
-import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
-import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import ProductGrid from "@/components/molecules/ProductGrid"
+import type { ProductCardItem } from "@/components/molecules/ProductCard"
 
-type ProductGridItem = CompactProductItem
+type BrowseProduct = CompactProductItem
 
-const normalizeToFeedItem = (item: ProductGridItem): HomepageFeedItem => ({
-  id: item.id,
-  slug: item.slug,
-  name: item.name,
-  logo: item.logo ?? "",
-  tagline: item.tagline ?? "",
-  createdAt: "",
-  updatedAt: "",
-  badges: item.badges ?? [],
-  category: item.category?.name ?? null,
-  categorySlug: null,
+const toProductCardItem = (item: BrowseProduct): ProductCardItem => ({
+  ...item,
   voteCount: item.analytics?.upvotes ?? 0,
-  isSponsored: Boolean(item.sponsored),
-  isVoted: false,
+  categoryName: item.category?.name ?? null,
 })
 
 interface ProductGridClientProps {
-  initialProducts: ProductGridItem[]
+  initialProducts: BrowseProduct[]
   initialHasMore: boolean
   initialPage: number
   searchParams: {
@@ -46,6 +34,11 @@ export default function ProductGridClient({
   initialPage,
   searchParams,
 }: ProductGridClientProps) {
+  const initialItems = useMemo(
+    () => initialProducts.map(toProductCardItem),
+    [initialProducts],
+  )
+
   const normalizedSearch = useMemo(
     () => ({
       useCase: searchParams.useCase,
@@ -76,53 +69,23 @@ export default function ProductGridClient({
       })
 
       return {
-        items: result.products as ProductGridItem[],
+        items: result.products.map(toProductCardItem),
         hasMore: result.hasMore,
       }
     },
     [normalizedSearch],
   )
 
-  const renderItems = useCallback(
-    (items: ProductGridItem[]) => (
-      <div className="space-y-4" data-testid="browse-feed-list">
-        {items.map((item) => (
-          <ProductFeedCard
-            key={item.id}
-            item={normalizeToFeedItem(item)}
-          />
-        ))}
-      </div>
-    ),
-    [],
-  )
-
-  const renderLoadingSkeleton = useCallback((count: number) => {
-    return (
-      <div
-        className="space-y-6"
-        aria-hidden="true"
-        data-testid="browse-feed-skeleton"
-      >
-        {Array.from({ length: count }).map((_, index) => (
-          <ProductFeedCardSkeleton
-            key={`browse-feed-skeleton-${count}-${index}`}
-          />
-        ))}
-      </div>
-    )
-  }, [])
-
   return (
-    <InfiniteProductGrid
-      initialItems={initialProducts}
-      initialHasMore={initialHasMore}
-      initialPage={initialPage}
-      loadPage={loadPage}
-      resetKey={resetKey}
-      loadingSkeletonCount={3}
-      renderItems={renderItems}
-      renderLoadingSkeleton={renderLoadingSkeleton}
+    <ProductGrid
+      items={initialItems}
+      infinite={{
+        hasMore: initialHasMore,
+        initialPage,
+        loadPage,
+        resetKey,
+        loadingSkeletonCount: 3,
+      }}
     />
   )
 }

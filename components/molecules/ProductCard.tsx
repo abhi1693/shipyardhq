@@ -1,50 +1,59 @@
-import { ReactNode } from "react"
+import ProductFeedCard from "@/components/molecules/ProductFeedCard"
+import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { CompactProductItem } from "@/components/molecules/ProductCompactGrid"
 
-import { ProductCompactCard } from "@/components/molecules/ProductCompactCard"
-
-interface ProductCardProps {
-  product: {
-    id: string
-    slug: string
-    name: string
-    logo: string
-    tagline: string
-  }
-  badges?: string[]
-  upvotes?: number
-  category?: string
-  compact?: boolean
-  topRight?: ReactNode
-  imagePriority?: boolean
+export type ProductCardItem = CompactProductItem & {
+  voteCount?: number
+  isVoted?: boolean
+  updatesCount?: number
+  categoryName?: string | null
+  categorySlug?: string | null
+  createdAt?: string
+  updatedAt?: string
+  isSponsored?: boolean
 }
 
-// Legacy wrapper to keep existing imports working while the UI standardizes on the
-// compact product card design. New usage should prefer ProductCompactCard directly.
-export function ProductCard(props: ProductCardProps) {
-  const {
-    product,
-    badges = [],
-    upvotes = 0,
-    category,
-    compact = true,
-    topRight,
-    imagePriority = false,
-  } = props
+const FALLBACK_TAGLINE =
+  "Discover launch-ready tools from indie makers worldwide."
 
-  void compact
+const resolveUpvotes = (product: ProductCardItem) => {
+  if (typeof product.voteCount === "number") return product.voteCount
+  if (typeof product.analytics?.upvotes === "number") {
+    return product.analytics.upvotes
+  }
+  return 0
+}
 
-  const showCategory = Boolean(category)
+const resolveCategoryName = (product: ProductCardItem) =>
+  typeof product.categoryName !== "undefined"
+    ? product.categoryName ?? null
+    : product.category?.name ?? null
 
-  return (
-    <ProductCompactCard
-      product={product}
-      upvotes={upvotes}
-      badges={badges}
-      category={showCategory ? (category ?? null) : null}
-      imagePriority={imagePriority}
-      meta={topRight}
-      showCategory={showCategory}
-      showBadges={badges.length > 0}
-    />
-  )
+function toFeedItem(product: ProductCardItem): HomepageFeedItem {
+  const categoryName = resolveCategoryName(product)
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    logo: product.logo,
+    tagline: product.tagline || FALLBACK_TAGLINE,
+    createdAt: product.createdAt ?? "",
+    updatedAt: product.updatedAt ?? "",
+    badges: product.badges ?? [],
+    category: categoryName,
+    categorySlug: product.categorySlug ?? null,
+    voteCount: resolveUpvotes(product),
+    updatesCount: product.updatesCount,
+    isSponsored: Boolean(product.sponsored ?? product.isSponsored),
+    isVoted: Boolean(product.isVoted),
+  }
+}
+
+interface ProductCardProps {
+  product: ProductCardItem
+  className?: string
+}
+
+export function ProductCard({ product, className }: ProductCardProps) {
+  return <ProductFeedCard item={toFeedItem(product)} className={className} />
 }
