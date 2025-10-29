@@ -95,13 +95,17 @@ export function HomepageFeedClient({
   const [viewHydrating, setViewHydrating] = useState(false)
   const [maskNextAutoLoad, setMaskNextAutoLoad] = useState(false)
   const previousFilterRef = useRef<HomepageFeedView>(activeFilter)
+  const infiniteScrollRef = useRef<HTMLDivElement | null>(null)
   const [isPending, startTransition] = useTransition()
 
   const resetKey = useMemo(
-    () =>
-      `${activeFilter}:${initialPage}:${initialHasMore}:${initialItems.length}`,
+      () =>
+        `${activeFilter}:${initialPage}:${initialHasMore}:${initialItems.length}`,
     [activeFilter, initialHasMore, initialItems.length, initialPage],
   )
+
+  const infiniteScrollEnabled =
+    activeFilter === "new" || activeFilter === "recent"
 
   useEffect(() => {
     setItems(initialItems)
@@ -152,7 +156,9 @@ export function HomepageFeedClient({
       })
       setFilterPending(true)
       setViewHydrating(true)
-      setMaskNextAutoLoad(true)
+      if (nextFilter === "top") {
+        setMaskNextAutoLoad(true)
+      }
       startTransition(() => {
         router.push(nextUrl, { scroll: false })
       })
@@ -174,7 +180,7 @@ export function HomepageFeedClient({
         setViewHydrating(true)
       }
 
-      if (activeFilter !== "top") {
+      if (activeFilter !== "top" && activeFilter !== "new" && activeFilter !== "recent") {
         return
       }
 
@@ -200,6 +206,61 @@ export function HomepageFeedClient({
     },
     [activeFilter, filterPending, hasMore, isPending, loading, nextPage],
   )
+
+  useEffect(() => {
+    if (!infiniteScrollEnabled) {
+      return
+    }
+
+    const sentinel = infiniteScrollRef.current
+    if (!sentinel) {
+      return
+    }
+
+    if (!hasMore) {
+      return
+    }
+
+    if (filterPending || isPending || loading || viewHydrating) {
+      return
+    }
+
+    let triggered = false
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const isIntersecting = entries.some((entry) => entry.isIntersecting)
+        if (!isIntersecting) {
+          return
+        }
+
+        if (triggered) {
+          return
+        }
+
+        triggered = true
+        loadMore()
+      },
+      {
+        root: null,
+        rootMargin: "0px 0px 320px 0px",
+        threshold: 0,
+      },
+    )
+
+    observer.observe(sentinel)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [
+    filterPending,
+    hasMore,
+    infiniteScrollEnabled,
+    isPending,
+    loadMore,
+    loading,
+    viewHydrating,
+  ])
 
   useEffect(() => {
     if (filterPending || isPending || loading) {
@@ -814,13 +875,14 @@ export function HomepageFeedClient({
       ) : (
         <>
           {usesSectionedLayout ? (
-            <section className="space-y-10">
-              {renderableSections.map((section, index) => {
-                const isLastSection = index === renderableSections.length - 1
-                if (section.kind === "promoted") {
-                  return (
-                    <div key={section.key} className="space-y-5">
-                      <div className="flex flex-col gap-3">
+            <>
+              <section className="space-y-10">
+                {renderableSections.map((section, index) => {
+                  const isLastSection = index === renderableSections.length - 1
+                  if (section.kind === "promoted") {
+                    return (
+                      <div key={section.key} className="space-y-5">
+                        <div className="flex flex-col gap-3">
                         <div className="inline-flex items-center gap-3 text-[#B45309]">
                           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FEF3C7] text-[#D97706]">
                             <Flame className="h-4 w-4" aria-hidden="true" />
@@ -850,11 +912,11 @@ export function HomepageFeedClient({
                       ) : null}
                     </div>
                   )
-                }
+                  }
 
-                return (
-                  <div
-                    key={section.key}
+                  return (
+                    <div
+                      key={section.key}
                     className={cn(
                       "space-y-5",
                       !isLastSection && "pb-6",
@@ -878,9 +940,32 @@ export function HomepageFeedClient({
                       ))}
                     </div>
                   </div>
-                )
-              })}
-            </section>
+                  )
+                })}
+              </section>
+
+              {infiniteScrollEnabled ? (
+                <>
+                  {isLoading && hasMore ? (
+                    <div className="space-y-6" aria-hidden="true">
+                      {Array.from({ length: skeletonCount }).map((_, index) => (
+                        <ProductFeedCardSkeleton
+                          key={`infinite-skeleton-${page}-${index}`}
+                        />
+                      ))}
+                    </div>
+                  ) : null}
+                  {hasMore ? (
+                    <div
+                      ref={infiniteScrollRef}
+                      aria-hidden="true"
+                      className="h-1 w-full"
+                      data-testid="homepage-feed-infinite-sentinel"
+                    />
+                  ) : null}
+                </>
+              ) : null}
+            </>
           ) : (
             <div className="space-y-6">
               {feedRows.map((row) => {
