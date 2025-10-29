@@ -3,10 +3,16 @@ import { cn } from "@/lib/utils"
 
 interface ProductFeedCardSkeletonProps {
   className?: string
+  showCategory?: boolean
+  showBadges?: boolean
+  showMetaBadge?: boolean
 }
 
 export function ProductFeedCardSkeleton({
   className,
+  showCategory = true,
+  showBadges = true,
+  showMetaBadge = false,
 }: ProductFeedCardSkeletonProps) {
   return (
     <div
@@ -26,16 +32,23 @@ export function ProductFeedCardSkeleton({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {showMetaBadge ? (
+            <Skeleton className="h-6 w-16 rounded-full border border-border/40" />
+          ) : null}
           <Skeleton className="h-7 w-20 rounded-full border border-border/40" />
         </div>
       </div>
 
       <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-4">
-        <Skeleton className="h-7 w-28 rounded-full border-0 bg-[#F7F8FF]" />
-        <div className="flex flex-wrap items-center gap-2">
-          <Skeleton className="h-6 w-24 rounded-full border-0 bg-[#F1F5FF]" />
-          <Skeleton className="h-6 w-24 rounded-full border-0 bg-[#F8F9FB]" />
-        </div>
+        {showCategory ? (
+          <Skeleton className="h-7 w-28 rounded-full border-0 bg-[#F7F8FF]" />
+        ) : <span />}
+        {showBadges ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <Skeleton className="h-6 w-24 rounded-full border-0 bg-[#F1F5FF]" />
+            <Skeleton className="h-6 w-24 rounded-full border-0 bg-[#F8F9FB]" />
+          </div>
+        ) : null}
       </div>
     </div>
   )

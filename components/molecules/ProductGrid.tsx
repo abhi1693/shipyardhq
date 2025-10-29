@@ -5,6 +5,7 @@ import type { ReactNode } from "react"
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
 import InfiniteProductGrid from "@/components/molecules/InfiniteProductGrid"
 import { ProductCard, type ProductCardItem } from "@/components/molecules/ProductCard"
+import { cn } from "@/lib/utils"
 
 const DEFAULT_FEED_SKELETON_COUNT = 3
 
@@ -17,6 +18,7 @@ interface InfiniteConfig {
   initialPage?: number
   resetKey?: string | number | boolean
   loadingSkeletonCount?: number
+  sentinelMargin?: string
 }
 
 interface ProductGridProps {
@@ -28,14 +30,12 @@ interface ProductGridProps {
 }
 
 const renderSkeleton = (count: number, className?: string) => (
-  <div className={className}>
-    <div className="space-y-6" aria-hidden="true">
-      {Array.from({ length: count }).map((_, index) => (
-        <ProductFeedCardSkeleton
-          key={`product-grid-feed-skeleton-${index}`}
-        />
-      ))}
-    </div>
+  <div className={cn("space-y-6", className)} aria-hidden="true">
+    {Array.from({ length: count }).map((_, index) => (
+      <ProductFeedCardSkeleton
+        key={`product-grid-feed-skeleton-${index}`}
+      />
+    ))}
   </div>
 )
 
@@ -46,13 +46,13 @@ export default function ProductGrid({
   emptyState,
   endMessage,
 }: ProductGridProps) {
+  const listClassName = cn("space-y-4", className)
+
   const renderItems = (list: ProductCardItem[]) => (
-    <div className={className}>
-      <div className="space-y-4" data-slot="product-grid-feed">
-        {list.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+    <div className={listClassName} data-slot="product-grid-feed">
+      {list.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
     </div>
   )
 
@@ -71,6 +71,7 @@ export default function ProductGrid({
         endMessage={endMessage}
         renderItems={renderItems}
         renderLoadingSkeleton={(count) => renderSkeleton(count, className)}
+        sentinelMargin={infinite.sentinelMargin}
       />
     )
   }

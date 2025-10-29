@@ -93,6 +93,7 @@ function withPlaceholders(items: SponsorListItem[]): SponsorListItem[] {
     result.push({
       ...template,
       id: `placeholder-${placeholderIndex}`,
+      isPlaceholder: true,
     })
     placeholderIndex += 1
   }

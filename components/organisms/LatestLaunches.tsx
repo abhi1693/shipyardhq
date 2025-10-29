@@ -30,7 +30,6 @@ export function LatestLaunches({ products }: { products: FeaturedProduct[] }) {
         <DirectoryProductList
           items={items}
           columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-          showCategory
           pageSize={8}
           sentinelMargin="-25% 0px 160px 0px"
         />

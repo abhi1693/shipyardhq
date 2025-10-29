@@ -2,7 +2,8 @@
 
 import { useCallback, useMemo, useState } from "react"
 import InlineSelect from "@/components/molecules/InlineSelect"
-import InfiniteProductGrid from "@/components/molecules/InfiniteProductGrid"
+import ProductGrid from "@/components/molecules/ProductGrid"
+import type { ProductCardItem } from "@/components/molecules/ProductCard"
 import { cn } from "@/lib/utils"
 
 type ProductForCard = {
@@ -28,6 +29,11 @@ type Props = {
 type SortKey = "newest" | "upvotes" | "clicks" | "name"
 
 const CATEGORY_GRID_PAGE_SIZE = 12
+
+const normalizeDate = (value: string | Date | undefined) => {
+  if (!value) return undefined
+  return typeof value === "string" ? value : value.toISOString()
+}
 
 export function CategoryProductsClient({ products, className }: Props) {
   const [sort, setSort] = useState<SortKey>("newest")
@@ -66,29 +72,40 @@ export function CategoryProductsClient({ products, className }: Props) {
     return [...priority, ...regular]
   }, [products, sort])
 
-  const chunks = useMemo(() => {
-    const list: ProductForCard[][] = []
+  const toProductCardItem = useCallback(
+    (item: ProductForCard): ProductCardItem => ({
+      ...item,
+      voteCount: item.analytics?.upvotes ?? 0,
+      categoryName: item.category?.name ?? null,
+      createdAt: normalizeDate(item.createdAt) ?? undefined,
+    }),
+    [],
+  )
+
+  const cardChunks = useMemo(() => {
+    const list: ProductCardItem[][] = []
     const chunkSize = CATEGORY_GRID_PAGE_SIZE
     for (let index = 0; index < sorted.length; index += chunkSize) {
-      list.push(sorted.slice(index, index + chunkSize))
+      const slice = sorted.slice(index, index + chunkSize).map(toProductCardItem)
+      list.push(slice)
     }
     return list
-  }, [sorted])
+  }, [sorted, toProductCardItem])
 
-  const initialItems = chunks[0] ?? []
-  const initialHasMore = chunks.length > 1
+  const initialItems = cardChunks[0] ?? []
+  const initialHasMore = cardChunks.length > 1
 
   const loadPage = useCallback(
     async (page: number) => {
       const targetIndex = page - 1
-      const nextItems = chunks[targetIndex] ?? []
-      const hasMore = targetIndex + 1 < chunks.length
+      const nextItems = cardChunks[targetIndex] ?? []
+      const hasMore = targetIndex + 1 < cardChunks.length
       return {
         items: nextItems,
         hasMore,
       }
     },
-    [chunks],
+    [cardChunks],
   )
 
   return (
@@ -124,13 +141,15 @@ export function CategoryProductsClient({ products, className }: Props) {
       </div>
 
       <div className="mt-6">
-        <InfiniteProductGrid
-          initialItems={initialItems}
-          initialHasMore={initialHasMore}
-          initialPage={2}
-          loadPage={loadPage}
-          resetKey={`${sort}:${productKey}`}
-          loadingSkeletonCount={CATEGORY_GRID_PAGE_SIZE}
+        <ProductGrid
+          items={initialItems}
+          infinite={{
+            hasMore: initialHasMore,
+            initialPage: 2,
+            loadPage,
+            resetKey: `${sort}:${productKey}`,
+            loadingSkeletonCount: CATEGORY_GRID_PAGE_SIZE,
+          }}
           emptyState={
             <div className="rounded-2xl border border-dashed border-border/70 bg-muted/20">
               <p className="px-6 py-12 text-center text-sm text-muted-foreground">

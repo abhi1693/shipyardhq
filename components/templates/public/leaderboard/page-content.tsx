@@ -190,7 +190,6 @@ export async function LeaderboardPageContent({
                         badgeClassName:
                           "border-[color:var(--brand-1)/0.28] bg-[color:var(--brand-1)/0.12] text-[color:var(--brand-1)]",
                       }}
-                      showBadges
                     />
                   </div>
                 ) : (

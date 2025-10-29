@@ -2,7 +2,7 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-import { ProductCompactCardSkeleton } from "./ProductCompactCard.skeleton"
+import ProductFeedCardSkeleton from "./ProductFeedCard.skeleton"
 
 interface ProductCompactGridSkeletonProps extends React.ComponentProps<"div"> {
   count?: number
@@ -28,16 +28,21 @@ export function ProductCompactGridSkeleton({
 
   return (
     <div
-      className={cn("grid auto-rows-[minmax(0,1fr)] gap-5", columns, className)}
+      className={cn(
+        columns
+          ? cn("grid auto-rows-[minmax(0,1fr)] gap-5", columns)
+          : "space-y-4",
+        className,
+      )}
       data-slot="product-compact-grid-skeleton"
       {...props}
     >
       {items.map((_, index) => (
-        <ProductCompactCardSkeleton
+        <ProductFeedCardSkeleton
           key={index}
           showCategory={showCategory}
           showBadges={showBadges}
-          withMeta={withMeta}
+          showMetaBadge={withMeta}
         />
       ))}
     </div>

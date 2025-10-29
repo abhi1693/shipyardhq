@@ -223,7 +223,6 @@ export async function MonthlyLeaderboardView({
                     }))}
                     columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                     className="gap-y-6"
-                    showCategory
                     pageSize={9}
                     metaConfig={{
                       type: "badge",

@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useCallback, useRef } from "react"
+import { useCallback, useRef, type ReactNode } from "react"
 
 import { ArrowUpRight, Flame } from "lucide-react"
 
@@ -24,9 +24,14 @@ const LOGO_SIZE = 60
 interface ProductFeedCardProps {
   item: HomepageFeedItem
   className?: string
+  meta?: ReactNode
 }
 
-export function ProductFeedCard({ item, className }: ProductFeedCardProps) {
+export function ProductFeedCard({
+  item,
+  className,
+  meta,
+}: ProductFeedCardProps) {
   const cardClasses = cn(
     "group relative flex h-full flex-col rounded-3xl border border-border/70 bg-card p-5 text-left transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18] hover:-translate-y-[2px] hover:shadow-[0_36px_90px_-48px_rgba(7,68,134,0.45)]",
     item.isSponsored && "border-[#FACC15]/40 bg-[#FFF8EB]/90",
@@ -117,6 +122,7 @@ export function ProductFeedCard({ item, className }: ProductFeedCardProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {meta ? <span className="shrink-0">{meta}</span> : null}
           <span
             onClick={(event) => event.preventDefault()}
             onKeyDown={(event) => event.preventDefault()}

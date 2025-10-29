@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 
-import { ProductCompactCard } from "@/components/molecules/ProductCompactCard"
+import { ProductCard } from "@/components/molecules/ProductCard"
 import { type CompactProductItem } from "@/components/molecules/ProductCompactGrid"
 import { productPageCopy } from "@/lib/copy/productPage"
 
@@ -43,22 +43,14 @@ export function ProductSimilarVoyages<T extends CompactProductItem>({
       </div>
 
       <div className="mt-4 space-y-3">
-        {items.slice(0, 4).map((item, index) => (
-          <ProductCompactCard
+        {items.slice(0, 4).map((item) => (
+          <ProductCard
             key={item.id}
             product={{
-              id: item.id,
-              slug: item.slug,
-              name: item.name,
-              logo: item.logo,
-              tagline: item.tagline,
+              ...item,
+              voteCount: item.analytics?.upvotes ?? 0,
+              categoryName: item.category?.name ?? null,
             }}
-            upvotes={item.analytics?.upvotes ?? 0}
-            category={item.category?.name ?? null}
-            imagePriority={index === 0}
-            showCategory={false}
-            disableHoverEffects
-            className="border border-border bg-white p-3 shadow-none"
           />
         ))}
       </div>

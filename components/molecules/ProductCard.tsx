@@ -1,3 +1,5 @@
+import type { ReactNode } from "react"
+
 import ProductFeedCard from "@/components/molecules/ProductFeedCard"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import type { CompactProductItem } from "@/components/molecules/ProductCompactGrid"
@@ -11,6 +13,7 @@ export type ProductCardItem = CompactProductItem & {
   createdAt?: string
   updatedAt?: string
   isSponsored?: boolean
+  meta?: ReactNode
 }
 
 const FALLBACK_TAGLINE =
@@ -55,5 +58,11 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, className }: ProductCardProps) {
-  return <ProductFeedCard item={toFeedItem(product)} className={className} />
+  return (
+    <ProductFeedCard
+      item={toFeedItem(product)}
+      className={className}
+      meta={product.meta}
+    />
+  )
 }

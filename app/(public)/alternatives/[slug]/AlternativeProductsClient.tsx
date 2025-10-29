@@ -1,10 +1,11 @@
 "use client"
 
-import { useCallback } from "react"
+import { useCallback, useMemo } from "react"
 
 import type { AlternativeDetailProduct } from "@/actions/public/alternatives/actions"
 import { loadMoreAlternativeProducts } from "@/actions/public/alternatives/loadMore"
-import InfiniteProductGrid from "@/components/molecules/InfiniteProductGrid"
+import ProductGrid from "@/components/molecules/ProductGrid"
+import type { ProductCardItem } from "@/components/molecules/ProductCard"
 
 interface AlternativeProductsClientProps {
   alternativeId: string
@@ -21,6 +22,20 @@ export function AlternativeProductsClient({
   initialPage,
   pageSize,
 }: AlternativeProductsClientProps) {
+  const mapToProductCardItem = useCallback(
+    (item: AlternativeDetailProduct): ProductCardItem => ({
+      ...item,
+      voteCount: item.analytics?.upvotes ?? 0,
+      categoryName: item.category?.name ?? null,
+    }),
+    [],
+  )
+
+  const initialCardItems = useMemo(
+    () => initialItems.map(mapToProductCardItem),
+    [initialItems, mapToProductCardItem],
+  )
+
   const loadPage = useCallback(
     async (page: number) => {
       const result = await loadMoreAlternativeProducts({
@@ -30,20 +45,23 @@ export function AlternativeProductsClient({
       })
 
       return {
-        items: result.items,
+        items: result.items.map(mapToProductCardItem),
         hasMore: result.hasMore,
       }
     },
-    [alternativeId, pageSize],
+    [alternativeId, mapToProductCardItem, pageSize],
   )
 
   return (
-    <InfiniteProductGrid
-      initialItems={initialItems}
-      initialHasMore={initialHasMore}
-      initialPage={initialPage}
-      loadPage={loadPage}
-      resetKey={alternativeId}
+    <ProductGrid
+      items={initialCardItems}
+      infinite={{
+        hasMore: initialHasMore,
+        initialPage,
+        loadPage,
+        resetKey: alternativeId,
+        loadingSkeletonCount: 3,
+      }}
       endMessage={
         <p className="py-4 text-center text-sm text-muted-foreground">
           You&apos;ve reached the end of this alternatives list.
