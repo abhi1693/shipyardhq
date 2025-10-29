@@ -2,9 +2,9 @@
 
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 
-import { loadMoreProducts } from "@/actions/public/browse/loadMore"
-import { loadMoreTagProducts } from "@/actions/public/tags/loadMore"
-import { loadMoreAlternativeProducts } from "@/actions/public/alternatives/loadMore"
+import { getBrowseProducts } from "@/actions/public/browse/actions"
+import { getKeywordTagProducts } from "@/actions/public/tags/actions"
+import { getAlternativeProductsPage } from "@/actions/public/alternatives/actions"
 
 export type ProductFeedPageRequest =
   | {
@@ -34,18 +34,23 @@ export type ProductFeedPageResponse = {
   total?: number
 }
 
+const isValidBrowseSort = (
+  value: string | undefined,
+): value is "new" | "trending" | "votes" | "az" =>
+  ["new", "trending", "votes", "az"].includes(value as string)
+
 export async function getProductFeedPage(
   request: ProductFeedPageRequest,
 ): Promise<ProductFeedPageResponse> {
   switch (request.kind) {
     case "browse": {
-      const result = await loadMoreProducts({
+      const result = await getBrowseProducts({
         page: request.page,
-        useCase: request.useCase,
-        category: request.category,
+        useCaseSlug: request.useCase,
+        categorySlug: request.category,
         verified: request.verified,
-        sort: request.sort,
-        q: request.q,
+        sort: isValidBrowseSort(request.sort) ? request.sort : undefined,
+        query: request.q,
       })
 
       return {
@@ -55,20 +60,17 @@ export async function getProductFeedPage(
     }
 
     case "tag": {
-      const result = await loadMoreTagProducts({
-        slug: request.slug,
-        page: request.page,
-      })
+      const result = await getKeywordTagProducts(request.slug, request.page)
 
       return {
-        items: result.items,
-        hasMore: result.hasMore,
-        total: result.total,
+        items: result?.products ?? [],
+        hasMore: result?.hasMore ?? false,
+        total: result?.total ?? 0,
       }
     }
 
     case "alternative": {
-      const result = await loadMoreAlternativeProducts({
+      const result = await getAlternativeProductsPage({
         alternativeId: request.alternativeId,
         page: request.page,
         pageSize: request.pageSize,

@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react"
 import InlineSelect from "@/components/molecules/InlineSelect"
 import ProductGrid from "@/components/molecules/ProductGrid"
-import type { ProductCardItem } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { createStaticProductPager } from "@/lib/products/pagination"
 import { cn } from "@/lib/utils"

@@ -107,15 +107,17 @@ export function DirectoryProductList<T extends BaseProductListItem>({
     [chunkSize, items],
   )
 
-  const paging = useMemo(() =>
-    createStaticProductPager(items, {
-      pageSize: chunkSize,
-      mapItem: (item, index) =>
-        toProductCardItem(item, {
-          meta: renderMeta ? renderMeta(item, index) : undefined,
-        }),
-    }),
-  [chunkSize, items, renderMeta])
+  const paging = useMemo(
+    () =>
+      createStaticProductPager(items, {
+        pageSize: chunkSize,
+        mapItem: (item, index) =>
+          toProductCardItem(item, {
+            meta: renderMeta ? renderMeta(item, index) : undefined,
+          }),
+      }),
+    [chunkSize, items, renderMeta],
+  )
 
   const listClassName = useMemo(
     () => cn("space-y-4", className),
