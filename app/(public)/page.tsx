@@ -6,27 +6,18 @@ import {
   DirectoryHeaderSkeleton,
 } from "@/components/templates/public/homepage/directory-header"
 import {
-  CategoryRailSection,
-  CategoryRailSkeleton,
-} from "@/components/templates/public/homepage/category-rail"
-import {
-  RadarDigestSection,
-  RadarDigestSkeleton,
-} from "@/components/templates/public/homepage/radar-digest"
+  SponsoredProductsSection,
+  SponsoredProductsSkeleton,
+} from "@/components/templates/public/homepage/sponsored-products"
 import {
   ProductUpdatesSection,
   ProductUpdatesSkeleton,
 } from "@/components/templates/public/homepage/product-updates"
-import {
-  LaunchSpotlightPromo,
-  InsightsPromo,
-} from "@/components/templates/public/homepage/promos"
 import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
 import {
   HomepageFeedSection,
   HomepageFeedSkeleton,
 } from "@/components/templates/public/homepage/homepage-feed-section"
-import { HomepageContextStrip } from "@/components/templates/public/homepage/context-strip"
 import { resolveHomepageFeedView } from "@/lib/homepage/feed-views"
 
 export const dynamic = "force-dynamic"
@@ -47,8 +38,6 @@ export default async function HomePage({
           <DirectoryHeaderSection />
         </Suspense>
 
-        <HomepageContextStrip />
-
         <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(296px,1fr)]">
           <div className="flex flex-col gap-12">
             <Suspense fallback={<HomepageFeedSkeleton />}>
@@ -57,14 +46,9 @@ export default async function HomePage({
           </div>
 
           <aside className="flex flex-col gap-8 lg:sticky lg:top-24">
-            <Suspense fallback={<CategoryRailSkeleton />}>
-              <CategoryRailSection />
+            <Suspense fallback={<SponsoredProductsSkeleton />}>
+              <SponsoredProductsSection />
             </Suspense>
-            <LaunchSpotlightPromo />
-            <Suspense fallback={<RadarDigestSkeleton />}>
-              <RadarDigestSection />
-            </Suspense>
-            <InsightsPromo />
             <Suspense fallback={<ProductUpdatesSkeleton />}>
               <ProductUpdatesSection />
             </Suspense>

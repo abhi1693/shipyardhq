@@ -21,11 +21,11 @@ describe("Homepage discovery journey", () => {
 
     cy.story("They continue to the spotlight carousel to spot rising launches.")
 
-    cy.story("Morgan checks category guides to plan research.")
-    cy.contains("Browse by top categories")
+    cy.story("Morgan checks sponsor placements to see who's investing.")
+    cy.contains("Sponsors")
       .scrollIntoView()
       .should("be.visible")
-    cy.get('a[href^="/categories/"]').its("length").should("be.greaterThan", 0)
+    cy.contains("Advertise").should("exist")
 
     cy.story("Before leaving, Morgan checks the onboarding call to action.")
     cy.contains("Join the community").scrollIntoView()
