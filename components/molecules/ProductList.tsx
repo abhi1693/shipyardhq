@@ -5,6 +5,7 @@ import { CheckCircle } from "lucide-react"
 
 import ProductGrid from "@/components/molecules/ProductGrid"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
+import { toProductCardItem } from "@/lib/products/card-item"
 import { Badge } from "@/components/atoms/badge"
 import { cn } from "@/lib/utils"
 
@@ -43,37 +44,29 @@ export default function ProductList<T extends ProductListItem>({
   void _columns
   const cardItems = useMemo<ProductCardItem[]>(
     () =>
-      items.map((p, index) => ({
-        ...p,
-        voteCount: p.analytics?.upvotes ?? 0,
-        categoryName: p.category?.name ?? null,
-        badges: p.badges,
-        meta: topRight
-          ? topRight(p, index)
-          : showRank
-            ? (
-                <Badge
-                  variant="secondary"
-                  className="px-2 py-0.5 text-xs"
-                >
-                  #{rankStartAt + index + 1}
-                </Badge>
-              )
-            : showVerified && p.verification?.isVerified
+      items.map((item, index) =>
+        toProductCardItem(item, {
+          meta: topRight
+            ? topRight(item, index)
+            : showRank
               ? (
-                  <Badge className="gap-1 rounded-full border border-[color:var(--brand-2)/0.4] bg-[color:var(--brand-2)/0.12] px-2 py-0.5 text-[10px] font-semibold text-[color:var(--brand-2)]">
-                    <CheckCircle className="size-3" /> Verified
+                  <Badge
+                    variant="secondary"
+                    className="px-2 py-0.5 text-xs"
+                  >
+                    #{rankStartAt + index + 1}
                   </Badge>
                 )
-              : undefined,
-      })),
-    [
-      items,
-      rankStartAt,
-      showRank,
-      showVerified,
-      topRight,
-    ],
+              : showVerified && item.verification?.isVerified
+                ? (
+                    <Badge className="gap-1 rounded-full border border-[color:var(--brand-2)/0.4] bg-[color:var(--brand-2)/0.12] px-2 py-0.5 text-[10px] font-semibold text-[color:var(--brand-2)]">
+                      <CheckCircle className="size-3" /> Verified
+                    </Badge>
+                  )
+                : undefined,
+        }),
+      ),
+    [items, rankStartAt, showRank, showVerified, topRight],
   )
 
   const listClassName = cn("space-y-4", className)

@@ -4,18 +4,10 @@ import { useCallback, useMemo } from "react"
 
 import { loadMoreProducts } from "@/actions/public/browse/loadMore"
 import ProductGrid from "@/components/molecules/ProductGrid"
-import type {
-  ProductCardBase,
-  ProductCardItem,
-} from "@/components/molecules/ProductCard"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { toProductCardItem as buildProductCardItem } from "@/lib/products/card-item"
 
 type BrowseProduct = ProductCardBase
-
-const toProductCardItem = (item: BrowseProduct): ProductCardItem => ({
-  ...item,
-  voteCount: item.analytics?.upvotes ?? 0,
-  categoryName: item.category?.name ?? null,
-})
 
 interface ProductGridClientProps {
   initialProducts: BrowseProduct[]
@@ -37,7 +29,7 @@ export default function ProductGridClient({
   searchParams,
 }: ProductGridClientProps) {
   const initialItems = useMemo(
-    () => initialProducts.map(toProductCardItem),
+    () => initialProducts.map((item) => buildProductCardItem(item)),
     [initialProducts],
   )
 
@@ -71,7 +63,7 @@ export default function ProductGridClient({
       })
 
       return {
-        items: result.products.map(toProductCardItem),
+        items: result.products.map((item) => buildProductCardItem(item)),
         hasMore: result.hasMore,
       }
     },

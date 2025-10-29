@@ -5,6 +5,7 @@ import { ReactNode } from "react"
 import UniformCard from "@/components/molecules/UniformCard"
 import { ProductCard } from "@/components/molecules/ProductCard"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
+import { toProductCardItem } from "@/lib/products/card-item"
 import { FeaturedProduct } from "@/types"
 import { cn } from "@/lib/utils"
 
@@ -32,17 +33,9 @@ export function FeaturedProductGrid({
             ).map((pb) => pb.badge)
           : p.ProductBadge.map((pb) => pb.badge)
 
-        const productCard: ProductCardItem = {
-          ...p,
-          id: p.id,
-          slug: p.slug,
-          name: p.name,
-          logo: p.logo,
-          tagline: p.tagline,
+        const productCard: ProductCardItem = toProductCardItem(p, {
           badges,
-          voteCount: p.analytics?.upvotes ?? 0,
-          categoryName: p.category?.name ?? null,
-        }
+        })
 
         return (
           <UniformCard key={id} size="compact">

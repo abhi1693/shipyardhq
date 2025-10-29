@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { FeaturedProduct } from "@/types"
 import { ProductCard } from "@/components/molecules/ProductCard"
+import { toProductCardItem } from "@/lib/products/card-item"
 import { Button } from "@/components/atoms/button"
 import { cn } from "@/lib/utils"
 
@@ -94,11 +95,7 @@ export function BrowseFeaturedCarousel({
             aria-hidden={itemIndex !== activeIndex}
           >
             <ProductCard
-              product={{
-                ...item,
-                voteCount: item.analytics?.upvotes ?? 0,
-                categoryName: item.category?.name ?? null,
-              }}
+              product={toProductCardItem(item)}
               className="h-full"
             />
           </div>

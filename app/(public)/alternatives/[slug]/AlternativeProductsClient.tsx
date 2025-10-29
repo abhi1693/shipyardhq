@@ -6,6 +6,7 @@ import type { AlternativeDetailProduct } from "@/actions/public/alternatives/act
 import { loadMoreAlternativeProducts } from "@/actions/public/alternatives/loadMore"
 import ProductGrid from "@/components/molecules/ProductGrid"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
+import { toProductCardItem } from "@/lib/products/card-item"
 
 interface AlternativeProductsClientProps {
   alternativeId: string
@@ -23,11 +24,8 @@ export function AlternativeProductsClient({
   pageSize,
 }: AlternativeProductsClientProps) {
   const mapToProductCardItem = useCallback(
-    (item: AlternativeDetailProduct): ProductCardItem => ({
-      ...item,
-      voteCount: item.analytics?.upvotes ?? 0,
-      categoryName: item.category?.name ?? null,
-    }),
+    (item: AlternativeDetailProduct): ProductCardItem =>
+      toProductCardItem(item),
     [],
   )
 

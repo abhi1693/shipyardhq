@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react"
 import InlineSelect from "@/components/molecules/InlineSelect"
 import ProductGrid from "@/components/molecules/ProductGrid"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
+import { toProductCardItem } from "@/lib/products/card-item"
 import { cn } from "@/lib/utils"
 
 type ProductForCard = {
@@ -29,11 +30,6 @@ type Props = {
 type SortKey = "newest" | "upvotes" | "clicks" | "name"
 
 const CATEGORY_GRID_PAGE_SIZE = 12
-
-const normalizeDate = (value: string | Date | undefined) => {
-  if (!value) return undefined
-  return typeof value === "string" ? value : value.toISOString()
-}
 
 export function CategoryProductsClient({ products, className }: Props) {
   const [sort, setSort] = useState<SortKey>("newest")
@@ -72,13 +68,8 @@ export function CategoryProductsClient({ products, className }: Props) {
     return [...priority, ...regular]
   }, [products, sort])
 
-  const toProductCardItem = useCallback(
-    (item: ProductForCard): ProductCardItem => ({
-      ...item,
-      voteCount: item.analytics?.upvotes ?? 0,
-      categoryName: item.category?.name ?? null,
-      createdAt: normalizeDate(item.createdAt) ?? undefined,
-    }),
+  const mapToCardItem = useCallback(
+    (item: ProductForCard): ProductCardItem => toProductCardItem(item),
     [],
   )
 
@@ -86,11 +77,13 @@ export function CategoryProductsClient({ products, className }: Props) {
     const list: ProductCardItem[][] = []
     const chunkSize = CATEGORY_GRID_PAGE_SIZE
     for (let index = 0; index < sorted.length; index += chunkSize) {
-      const slice = sorted.slice(index, index + chunkSize).map(toProductCardItem)
+      const slice = sorted
+        .slice(index, index + chunkSize)
+        .map((product) => mapToCardItem(product))
       list.push(slice)
     }
     return list
-  }, [sorted, toProductCardItem])
+  }, [mapToCardItem, sorted])
 
   const initialItems = cardChunks[0] ?? []
   const initialHasMore = cardChunks.length > 1

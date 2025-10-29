@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react"
 
 import { ProductCard } from "@/components/molecules/ProductCard"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { toProductCardItem } from "@/lib/products/card-item"
 import { productPageCopy } from "@/lib/copy/productPage"
 
 interface ProductSimilarVoyagesProps<T extends ProductCardBase> {
@@ -44,14 +45,7 @@ export function ProductSimilarVoyages<T extends ProductCardBase>({
 
       <div className="mt-4 space-y-3">
         {items.slice(0, 4).map((item) => (
-          <ProductCard
-            key={item.id}
-            product={{
-              ...item,
-              voteCount: item.analytics?.upvotes ?? 0,
-              categoryName: item.category?.name ?? null,
-            }}
-          />
+          <ProductCard key={item.id} product={toProductCardItem(item)} />
         ))}
       </div>
     </section>

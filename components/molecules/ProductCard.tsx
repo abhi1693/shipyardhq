@@ -11,8 +11,10 @@ export type ProductCardBase = {
   tagline: string
   analytics?: { upvotes?: number | null } | null
   category?: { name?: string | null; slug?: string | null } | null
-  badges?: string[]
+  badges?: string[] | null
   sponsored?: boolean
+  createdAt?: string | Date | null
+  updatedAt?: string | Date | null
 }
 
 export type ProductCardItem = ProductCardBase & {

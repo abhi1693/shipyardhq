@@ -9,6 +9,7 @@ import type {
   ProductCardBase,
   ProductCardItem,
 } from "@/components/molecules/ProductCard"
+import { toProductCardItem } from "@/lib/products/card-item"
 import { cn } from "@/lib/utils"
 
 type BaseProductListItem = ProductCardBase & {
@@ -109,13 +110,10 @@ export function DirectoryProductList<T extends BaseProductListItem>({
   const initialHasMore = chunks.length > 1
 
   const mapToCardItem = useCallback(
-    (item: T, absoluteIndex: number): ProductCardItem => ({
-      ...item,
-      voteCount: item.analytics?.upvotes ?? 0,
-      categoryName: item.category?.name ?? null,
-      meta: renderMeta ? renderMeta(item, absoluteIndex) : undefined,
-      isSponsored: item.sponsored ?? false,
-    }),
+    (item: T, absoluteIndex: number): ProductCardItem =>
+      toProductCardItem(item, {
+        meta: renderMeta ? renderMeta(item, absoluteIndex) : undefined,
+      }),
     [renderMeta],
   )
 

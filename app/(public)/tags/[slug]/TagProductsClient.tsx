@@ -8,6 +8,7 @@ import type {
   ProductCardBase,
   ProductCardItem,
 } from "@/components/molecules/ProductCard"
+import { toProductCardItem } from "@/lib/products/card-item"
 import { EmptyState } from "@/components/molecules/empty-state"
 
 interface TagProductsClientProps {
@@ -28,11 +29,7 @@ export function TagProductsClient({
   total,
 }: TagProductsClientProps) {
   const mapToProductCardItem = useCallback(
-    (item: ProductCardBase): ProductCardItem => ({
-      ...item,
-      voteCount: item.analytics?.upvotes ?? 0,
-      categoryName: item.category?.name ?? null,
-    }),
+    (item: ProductCardBase): ProductCardItem => toProductCardItem(item),
     [],
   )
 
