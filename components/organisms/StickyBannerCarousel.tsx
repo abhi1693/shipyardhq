@@ -4,8 +4,9 @@ import { useEffect, useMemo, useState, useId } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
-import { productPath } from "@/lib/routes"
+import { PRICING_PATH, productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
+import { Badge } from "@/components/atoms/badge"
 
 export type StickyBannerProduct = {
   id: string
@@ -63,24 +64,6 @@ export function StickyBannerCarousel({
   const safeIndex = total > 0 ? Math.min(index, total - 1) : 0
   const current = items[safeIndex] ?? items[0]
   const tagline = current.tagline?.trim()
-  const categoryName = current.category?.name?.trim() || null
-  const makerName = (() => {
-    const orgName = current.organization?.name?.trim()
-    if (orgName) return orgName
-    const first = current.user?.firstName?.trim()
-    const last = current.user?.lastName?.trim()
-    const joined = [first, last].filter(Boolean).join(" ")
-    return joined || null
-  })()
-  const upvoteCount =
-    typeof current.analytics?.upvotes === "number"
-      ? current.analytics.upvotes
-      : null
-  const upvoteLabel =
-    upvoteCount != null ? upvoteCount.toLocaleString() : undefined
-  const showCategory = Boolean(categoryName)
-  const showMaker = Boolean(makerName)
-  const showUpvotes = upvoteCount != null
 
   const handlePause = (next: boolean) => {
     if (total <= 1) return
@@ -89,28 +72,23 @@ export function StickyBannerCarousel({
 
   return (
     <div
-      className={cn("w-full bg-transparent", className)}
+      className={cn("w-full", className)}
       onMouseEnter={() => handlePause(true)}
       onMouseLeave={() => handlePause(false)}
       onFocusCapture={() => handlePause(true)}
       onBlurCapture={() => handlePause(false)}
     >
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6">
+      <div className="w-full rounded-[26px] border border-[#E6E0FF] bg-[#F9F6FF] px-6 py-4 shadow-[0_26px_75px_-56px_rgba(79,63,244,0.45)]">
         <Link
-          key={current.id}
           href={productPath(current.slug)}
-          className={cn(
-            "group relative flex w-full items-center justify-between gap-5 overflow-hidden rounded-[20px] border border-[#D6CCFF] bg-gradient-to-r from-[#FBF9FF] via-[#F8FCFF] to-[#FBF9FF] px-5 py-4 text-sm shadow-[0_20px_65px_-50px_rgba(79,63,244,0.45)] transition duration-200 ease-out",
-            "hover:-translate-y-0.5 hover:shadow-[0_28px_90px_-55px_rgba(79,63,244,0.48)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F3FF4]/45 focus-visible:ring-offset-3 focus-visible:ring-offset-white",
-          )}
+          className="flex w-full flex-wrap items-center justify-between gap-4 text-left transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_30px_90px_-60px_rgba(79,63,244,0.48)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F3FF4]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F6FF]"
           style={{
-            animation: `${animationId} 320ms ease`,
+            animation: `${animationId} 260ms ease`,
             animationFillMode: "both",
           }}
-          aria-label={`View ${current.name}`}
         >
-          <div className="flex min-w-0 flex-1 items-center gap-4">
-            <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[#E0E4F7] bg-white">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#E2DEFF] bg-white shadow-[0_16px_32px_-28px_rgba(79,63,244,0.45)]">
               <Image
                 src={current.logo}
                 alt={current.name}
@@ -120,42 +98,33 @@ export function StickyBannerCarousel({
                 className="h-full w-full object-cover"
               />
             </span>
-
-            <div className="flex min-w-0 flex-col gap-1 text-left">
-              <span className="truncate text-sm font-semibold text-[#1C2333]">
+            <div className="min-w-0 space-y-1">
+              <span className="block truncate text-sm font-semibold text-[#1C2333]">
                 {current.name}
               </span>
               {tagline ? (
-                <span className="truncate text-xs font-medium text-[#5B6175]">
+                <span className="block text-xs text-[#5B6175]">
                   {tagline}
                 </span>
               ) : null}
             </div>
           </div>
+          <Badge
+            variant="outline"
+            className="shrink-0 rounded-full border-[#D8CFFF] bg-[#F2EEFF] px-3 py-1 text-[11px] font-semibold text-[#4F3FF4]"
+          >
+            Sponsored
+          </Badge>
+        </Link>
+      </div>
 
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 text-xs">
-            {showCategory ? (
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#D6CCFF] bg-white px-3 py-1 font-semibold uppercase tracking-[0.22em] text-[#2D2A55]">
-                {categoryName}
-              </span>
-            ) : null}
-            {showMaker ? (
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#D6DFF2] bg-white px-3 py-1 font-semibold text-[#1C2333]">
-                <span className="text-[11px] uppercase tracking-[0.2em] text-[#5B6175]">
-                  Maker
-                </span>
-                {makerName}
-              </span>
-            ) : null}
-            {showUpvotes ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#1C2333] px-3 py-1 text-xs font-semibold text-white">
-                {upvoteLabel}
-                <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/70">
-                  votes
-                </span>
-              </span>
-            ) : null}
-          </div>
+      <div className="mt-3 text-[11px] text-[#7B81A0]">
+        Want to become a sponsor and show your product here?{" "}
+        <Link
+          href={PRICING_PATH}
+          className="font-semibold text-[#4F3FF4] underline-offset-4 hover:underline"
+        >
+          Advertise
         </Link>
       </div>
 

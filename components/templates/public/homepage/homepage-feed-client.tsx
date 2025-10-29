@@ -23,6 +23,7 @@ import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { loadHomepageFeed } from "@/actions/public/homepage/feed"
 import ProductFeedCard from "@/components/molecules/ProductFeedCard"
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
+import { StickyBannerRegion } from "@/components/layout/sticky-banner-context"
 import {
   DEFAULT_HOMEPAGE_FEED_VIEW,
   HOMEPAGE_FEED_VIEW_PARAM,
@@ -869,6 +870,8 @@ export function HomepageFeedClient({
           )
         })}
       </div>
+
+      <StickyBannerRegion priority={20} className="w-full" />
 
       {filterPending || viewHydrating ? (
         filterViewSkeleton
