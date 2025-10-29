@@ -43,6 +43,8 @@ interface InfiniteProductGridProps<T extends CompactProductItem> {
   initialPage?: number
   gridOverrides?: GridOverrides<T>
   loadingSkeletonCount?: number
+  renderItems?: (items: T[]) => ReactNode
+  renderLoadingSkeleton?: (count: number) => ReactNode
   endMessage?: ReactNode
   emptyState?: ReactNode
   /**
@@ -66,6 +68,8 @@ export function InfiniteProductGrid<T extends CompactProductItem>({
   initialPage = 2,
   gridOverrides,
   loadingSkeletonCount = 8,
+  renderItems,
+  renderLoadingSkeleton,
   endMessage = (
     <p className="py-4 text-center text-sm text-muted-foreground">
       You&apos;ve reached the end of the directory.
@@ -207,17 +211,25 @@ export function InfiniteProductGrid<T extends CompactProductItem>({
   return (
     <section className="space-y-6" data-testid="infinite-product-grid">
       {hasItems ? (
-        <ProductCompactGrid items={items} {...gridProps} />
+        renderItems ? (
+          renderItems(items)
+        ) : (
+          <ProductCompactGrid items={items} {...gridProps} />
+        )
       ) : (
         emptyState
       )}
 
       {isPending && (
-        <ProductCompactGridSkeleton
-          count={loadingSkeletonCount}
-          columns={gridProps.columns}
-          data-testid="product-card-skeleton"
-        />
+        renderLoadingSkeleton ? (
+          renderLoadingSkeleton(loadingSkeletonCount)
+        ) : (
+          <ProductCompactGridSkeleton
+            count={loadingSkeletonCount}
+            columns={gridProps.columns}
+            data-testid="product-card-skeleton"
+          />
+        )
       )}
 
       {hasMore ? (
