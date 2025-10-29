@@ -3,10 +3,10 @@
 import { useCallback, useMemo } from "react"
 
 import type { AlternativeDetailProduct } from "@/actions/public/alternatives/actions"
-import { loadMoreAlternativeProducts } from "@/actions/public/alternatives/loadMore"
 import ProductGrid from "@/components/molecules/ProductGrid"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
+import { getProductFeedPage } from "@/actions/public/products/feedPage"
 
 interface AlternativeProductsClientProps {
   alternativeId: string
@@ -36,7 +36,8 @@ export function AlternativeProductsClient({
 
   const loadPage = useCallback(
     async (page: number) => {
-      const result = await loadMoreAlternativeProducts({
+      const result = await getProductFeedPage({
+        kind: "alternative",
         alternativeId,
         page,
         pageSize,

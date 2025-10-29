@@ -2,10 +2,10 @@
 
 import { useCallback, useMemo } from "react"
 
-import { loadMoreProducts } from "@/actions/public/browse/loadMore"
 import ProductGrid from "@/components/molecules/ProductGrid"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { toProductCardItem as buildProductCardItem } from "@/lib/products/card-item"
+import { getProductFeedPage } from "@/actions/public/products/feedPage"
 
 type BrowseProduct = ProductCardBase
 
@@ -57,13 +57,14 @@ export default function ProductGridClient({
 
   const loadPage = useCallback(
     async (page: number) => {
-      const result = await loadMoreProducts({
-        ...normalizedSearch,
+      const result = await getProductFeedPage({
+        kind: "browse",
         page,
+        ...normalizedSearch,
       })
 
       return {
-        items: result.products.map((item) => buildProductCardItem(item)),
+        items: result.items.map((item) => buildProductCardItem(item)),
         hasMore: result.hasMore,
       }
     },

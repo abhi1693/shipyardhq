@@ -1,10 +1,11 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import InlineSelect from "@/components/molecules/InlineSelect"
 import ProductGrid from "@/components/molecules/ProductGrid"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
+import { createStaticProductPager } from "@/lib/products/pagination"
 import { cn } from "@/lib/utils"
 
 type ProductForCard = {
@@ -68,38 +69,13 @@ export function CategoryProductsClient({ products, className }: Props) {
     return [...priority, ...regular]
   }, [products, sort])
 
-  const mapToCardItem = useCallback(
-    (item: ProductForCard): ProductCardItem => toProductCardItem(item),
-    [],
-  )
-
-  const cardChunks = useMemo(() => {
-    const list: ProductCardItem[][] = []
-    const chunkSize = CATEGORY_GRID_PAGE_SIZE
-    for (let index = 0; index < sorted.length; index += chunkSize) {
-      const slice = sorted
-        .slice(index, index + chunkSize)
-        .map((product) => mapToCardItem(product))
-      list.push(slice)
-    }
-    return list
-  }, [mapToCardItem, sorted])
-
-  const initialItems = cardChunks[0] ?? []
-  const initialHasMore = cardChunks.length > 1
-
-  const loadPage = useCallback(
-    async (page: number) => {
-      const targetIndex = page - 1
-      const nextItems = cardChunks[targetIndex] ?? []
-      const hasMore = targetIndex + 1 < cardChunks.length
-      return {
-        items: nextItems,
-        hasMore,
-      }
-    },
-    [cardChunks],
-  )
+  const { initialItems, initialHasMore, loadPage } = useMemo(() => {
+    const pager = createStaticProductPager(sorted, {
+      pageSize: CATEGORY_GRID_PAGE_SIZE,
+      mapItem: (item) => toProductCardItem(item),
+    })
+    return pager
+  }, [sorted])
 
   return (
     <section

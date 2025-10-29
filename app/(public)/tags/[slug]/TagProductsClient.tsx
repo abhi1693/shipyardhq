@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo } from "react"
 
-import { loadMoreTagProducts } from "@/actions/public/tags/loadMore"
 import ProductGrid from "@/components/molecules/ProductGrid"
 import type {
   ProductCardBase,
@@ -10,6 +9,7 @@ import type {
 } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { EmptyState } from "@/components/molecules/empty-state"
+import { getProductFeedPage } from "@/actions/public/products/feedPage"
 
 interface TagProductsClientProps {
   slug: string
@@ -40,7 +40,11 @@ export function TagProductsClient({
 
   const loadPage = useCallback(
     async (page: number) => {
-      const result = await loadMoreTagProducts({ slug, page })
+      const result = await getProductFeedPage({
+        kind: "tag",
+        slug,
+        page,
+      })
       return {
         items: (result.items as ProductCardBase[]).map(
           mapToProductCardItem,

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo } from "react"
+import { useMemo } from "react"
 import type { ComponentProps } from "react"
 
 import { Badge } from "@/components/atoms/badge"
@@ -10,6 +10,7 @@ import type {
   ProductCardItem,
 } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
+import { createStaticProductPager } from "@/lib/products/pagination"
 import { cn } from "@/lib/utils"
 
 type BaseProductListItem = ProductCardBase & {
@@ -55,8 +56,6 @@ export function DirectoryProductList<T extends BaseProductListItem>({
   sentinelMargin,
 }: DirectoryProductListProps<T>) {
   void _columns
-  const chunkSize = Math.max(1, pageSize)
-
   const renderMeta = useMemo(() => {
     if (!metaConfig) return undefined
     if (metaConfig.type === "badge") {
@@ -99,44 +98,7 @@ export function DirectoryProductList<T extends BaseProductListItem>({
     return renderRankMeta
   }, [metaConfig])
 
-  const chunks = useMemo(() => {
-    const result: T[][] = []
-    for (let index = 0; index < items.length; index += chunkSize) {
-      result.push(items.slice(index, index + chunkSize))
-    }
-    return result
-  }, [items, chunkSize])
-
-  const initialHasMore = chunks.length > 1
-
-  const mapToCardItem = useCallback(
-    (item: T, absoluteIndex: number): ProductCardItem =>
-      toProductCardItem(item, {
-        meta: renderMeta ? renderMeta(item, absoluteIndex) : undefined,
-      }),
-    [renderMeta],
-  )
-
-  const initialCardItems = useMemo(() => {
-    const firstChunk = chunks[0] ?? []
-    return firstChunk.map((item, index) => mapToCardItem(item, index))
-  }, [chunks, mapToCardItem])
-
-  const loadPage = useCallback(
-    async (page: number) => {
-      const targetIndex = page - 1
-      const nextItems = chunks[targetIndex] ?? []
-      const hasMore = targetIndex + 1 < chunks.length
-      const startIndex = targetIndex * chunkSize
-      return {
-        items: nextItems.map((item, index) =>
-          mapToCardItem(item, startIndex + index),
-        ),
-        hasMore,
-      }
-    },
-    [chunkSize, chunks, mapToCardItem],
-  )
+  const chunkSize = useMemo(() => Math.max(1, pageSize), [pageSize])
 
   const resetKey = useMemo(
     () =>
@@ -145,6 +107,16 @@ export function DirectoryProductList<T extends BaseProductListItem>({
     [chunkSize, items],
   )
 
+  const paging = useMemo(() =>
+    createStaticProductPager(items, {
+      pageSize: chunkSize,
+      mapItem: (item, index) =>
+        toProductCardItem(item, {
+          meta: renderMeta ? renderMeta(item, index) : undefined,
+        }),
+    }),
+  [chunkSize, items, renderMeta])
+
   const listClassName = useMemo(
     () => cn("space-y-4", className),
     [className],
@@ -152,12 +124,12 @@ export function DirectoryProductList<T extends BaseProductListItem>({
 
   return (
     <ProductGrid
-      items={initialCardItems}
+      items={paging.initialItems}
       className={listClassName}
       infinite={{
-        hasMore: initialHasMore,
+        hasMore: paging.initialHasMore,
         initialPage: 2,
-        loadPage,
+        loadPage: paging.loadPage,
         resetKey,
         loadingSkeletonCount: chunkSize,
         sentinelMargin,
