@@ -3,10 +3,7 @@
 import { useCallback, useMemo } from "react"
 
 import ProductGrid from "@/components/molecules/ProductGrid"
-import type {
-  ProductCardBase,
-  ProductCardItem,
-} from "@/components/molecules/ProductCard"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { EmptyState } from "@/components/molecules/empty-state"
 import { getProductFeedPage } from "@/actions/public/products/feedPage"
@@ -28,14 +25,9 @@ export function TagProductsClient({
   initialPage,
   total,
 }: TagProductsClientProps) {
-  const mapToProductCardItem = useCallback(
-    (item: ProductCardBase): ProductCardItem => toProductCardItem(item),
-    [],
-  )
-
   const initialCardItems = useMemo(
-    () => initialItems.map(mapToProductCardItem),
-    [initialItems, mapToProductCardItem],
+    () => initialItems.map((item) => toProductCardItem(item)),
+    [initialItems],
   )
 
   const loadPage = useCallback(
@@ -46,13 +38,13 @@ export function TagProductsClient({
         page,
       })
       return {
-        items: (result.items as ProductCardBase[]).map(
-          mapToProductCardItem,
+        items: (result.items as ProductCardBase[]).map((item) =>
+          toProductCardItem(item),
         ),
         hasMore: result.hasMore,
       }
     },
-    [mapToProductCardItem, slug],
+    [slug],
   )
 
   const endMessage = useMemo(() => {

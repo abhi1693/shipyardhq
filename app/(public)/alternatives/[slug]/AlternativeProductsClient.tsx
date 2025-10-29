@@ -4,7 +4,6 @@ import { useCallback, useMemo } from "react"
 
 import type { AlternativeDetailProduct } from "@/actions/public/alternatives/actions"
 import ProductGrid from "@/components/molecules/ProductGrid"
-import type { ProductCardItem } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { getProductFeedPage } from "@/actions/public/products/feedPage"
 
@@ -23,15 +22,9 @@ export function AlternativeProductsClient({
   initialPage,
   pageSize,
 }: AlternativeProductsClientProps) {
-  const mapToProductCardItem = useCallback(
-    (item: AlternativeDetailProduct): ProductCardItem =>
-      toProductCardItem(item),
-    [],
-  )
-
   const initialCardItems = useMemo(
-    () => initialItems.map(mapToProductCardItem),
-    [initialItems, mapToProductCardItem],
+    () => initialItems.map((item) => toProductCardItem(item)),
+    [initialItems],
   )
 
   const loadPage = useCallback(
@@ -44,11 +37,11 @@ export function AlternativeProductsClient({
       })
 
       return {
-        items: result.items.map(mapToProductCardItem),
+        items: result.items.map((item) => toProductCardItem(item)),
         hasMore: result.hasMore,
       }
     },
-    [alternativeId, mapToProductCardItem, pageSize],
+    [alternativeId, pageSize],
   )
 
   return (
