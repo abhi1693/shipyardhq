@@ -14,11 +14,14 @@ interface SpotlightListItem {
   sponsored: boolean
 }
 
-function toSpotlightItem(placement: HomepageFeaturePlacement): SpotlightListItem {
+function toSpotlightItem(
+  placement: HomepageFeaturePlacement,
+): SpotlightListItem {
   const { product, schedule, origin } = placement
   const planPrice = product.plan?.price ?? 0
   const hasPaidPlan = planPrice > 0
-  const redeemedReward = origin === "schedule" && Boolean(schedule?.redemptionId)
+  const redeemedReward =
+    origin === "schedule" && Boolean(schedule?.redemptionId)
   return {
     id: product.id,
     slug: product.slug,

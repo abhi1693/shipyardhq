@@ -9,7 +9,9 @@ import { PRICING_PATH, productPath } from "@/lib/routes"
 
 const SPONSOR_SLOT_COUNT = 3
 
-type SponsorPlacement = Awaited<ReturnType<typeof getHomepageFeatureProducts>>[number]
+type SponsorPlacement = Awaited<
+  ReturnType<typeof getHomepageFeatureProducts>
+>[number]
 
 type SponsorListItem =
   | {
@@ -79,13 +81,15 @@ function mapPlacementsToSponsors(
 }
 
 function withPlaceholders(items: SponsorListItem[]): SponsorListItem[] {
-  if (items.length >= SPONSOR_SLOT_COUNT) return items.slice(0, SPONSOR_SLOT_COUNT)
+  if (items.length >= SPONSOR_SLOT_COUNT)
+    return items.slice(0, SPONSOR_SLOT_COUNT)
 
   const result = [...items]
   let placeholderIndex = 0
 
   while (result.length < SPONSOR_SLOT_COUNT) {
-    const template = PLACEHOLDER_CONTENT[placeholderIndex % PLACEHOLDER_CONTENT.length]
+    const template =
+      PLACEHOLDER_CONTENT[placeholderIndex % PLACEHOLDER_CONTENT.length]
     result.push({
       ...template,
       id: `placeholder-${placeholderIndex}`,
@@ -225,11 +229,7 @@ export function SponsoredProductsSkeleton() {
           </div>
         ))}
       </div>
-      <Skeleton
-        tone="neutral"
-        radius="none"
-        className="mt-6 h-4 w-48"
-      />
+      <Skeleton tone="neutral" radius="none" className="mt-6 h-4 w-48" />
     </Skeleton>
   )
 }

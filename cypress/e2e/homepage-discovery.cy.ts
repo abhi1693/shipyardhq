@@ -22,9 +22,7 @@ describe("Homepage discovery journey", () => {
     cy.story("They continue to the spotlight carousel to spot rising launches.")
 
     cy.story("Morgan checks sponsor placements to see who's investing.")
-    cy.contains("Sponsors")
-      .scrollIntoView()
-      .should("be.visible")
+    cy.contains("Sponsors").scrollIntoView().should("be.visible")
     cy.contains("Advertise").should("exist")
 
     cy.story("Before leaving, Morgan checks the onboarding call to action.")

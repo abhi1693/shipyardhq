@@ -156,7 +156,9 @@ export function DirectoryHeader({
                   resolvedTitle
                 )}
               </h1>
-              <p className="max-w-xl text-lg text-[#3B4256]">{resolvedDescription}</p>
+              <p className="max-w-xl text-lg text-[#3B4256]">
+                {resolvedDescription}
+              </p>
             </div>
             {(resolvedPrimary ?? resolvedSecondary) ? (
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
@@ -224,8 +226,10 @@ export function DirectoryHeader({
                             className={cn(
                               "relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#E0E7F8] bg-white transition-colors duration-200",
                               isPlaceholder && "border-dashed border-[#C9D5F3]",
-                              isPremium && "group-hover:border-[#C6BBFF] group-hover:bg-[#F6F4FF]",
-                              !isPremium && "group-hover:border-[#D6DCFB] group-hover:bg-[#F8F9FF]",
+                              isPremium &&
+                                "group-hover:border-[#C6BBFF] group-hover:bg-[#F6F4FF]",
+                              !isPremium &&
+                                "group-hover:border-[#D6DCFB] group-hover:bg-[#F8F9FF]",
                             )}
                           >
                             {isPlaceholder ? (
@@ -244,7 +248,9 @@ export function DirectoryHeader({
                               />
                             ) : (
                               <span className="text-sm font-semibold text-[#4F3FF4]">
-                                {(product.name ?? "?").slice(0, 2).toUpperCase()}
+                                {(product.name ?? "?")
+                                  .slice(0, 2)
+                                  .toUpperCase()}
                               </span>
                             )}
                           </div>
@@ -293,7 +299,9 @@ export function DirectoryHeader({
                               : "bg-[#EEF2F8] text-[#475067] group-hover:bg-[#E2E7F2]",
                           )}
                         >
-                          {isPlaceholder ? "Homepage slot available" : "Sponsored"}
+                          {isPlaceholder
+                            ? "Homepage slot available"
+                            : "Sponsored"}
                         </div>
                       ) : null}
                       {isPlaceholder ? (

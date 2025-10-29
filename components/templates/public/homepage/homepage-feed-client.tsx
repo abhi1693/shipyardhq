@@ -100,8 +100,8 @@ export function HomepageFeedClient({
   const [isPending, startTransition] = useTransition()
 
   const resetKey = useMemo(
-      () =>
-        `${activeFilter}:${initialPage}:${initialHasMore}:${initialItems.length}`,
+    () =>
+      `${activeFilter}:${initialPage}:${initialHasMore}:${initialItems.length}`,
     [activeFilter, initialHasMore, initialItems.length, initialPage],
   )
 
@@ -115,13 +115,7 @@ export function HomepageFeedClient({
     setHasMore(initialHasMore)
     setError(null)
     setFilterPending(false)
-  }, [
-    initialHasMore,
-    initialItems,
-    initialNextPage,
-    initialPage,
-    resetKey,
-  ])
+  }, [initialHasMore, initialItems, initialNextPage, initialPage, resetKey])
 
   useEffect(() => {
     if (previousFilterRef.current === activeFilter) {
@@ -181,7 +175,11 @@ export function HomepageFeedClient({
         setViewHydrating(true)
       }
 
-      if (activeFilter !== "top" && activeFilter !== "new" && activeFilter !== "recent") {
+      if (
+        activeFilter !== "top" &&
+        activeFilter !== "new" &&
+        activeFilter !== "recent"
+      ) {
         return
       }
 
@@ -198,7 +196,10 @@ export function HomepageFeedClient({
           setNextPage(result.nextPage)
           setHasMore(result.hasMore)
         } catch (loadError) {
-          console.error("[HomepageFeed] Failed to load more products", loadError)
+          console.error(
+            "[HomepageFeed] Failed to load more products",
+            loadError,
+          )
           setError("Unable to load more launches right now. Please try again.")
         } finally {
           setLoading(false)
@@ -337,7 +338,11 @@ export function HomepageFeedClient({
   }, [activeFilter, items])
 
   const sectionedSections = useMemo<TopFeedSection[] | null>(() => {
-    if (activeFilter !== "top" && activeFilter !== "new" && activeFilter !== "recent") {
+    if (
+      activeFilter !== "top" &&
+      activeFilter !== "new" &&
+      activeFilter !== "recent"
+    ) {
       return null
     }
 
@@ -531,9 +536,7 @@ export function HomepageFeedClient({
           return
         }
 
-        const chunkSize = takeRemaining
-          ? remaining
-          : Math.min(2, remaining)
+        const chunkSize = takeRemaining ? remaining : Math.min(2, remaining)
         const chunk = promotedItems.slice(
           promotedIndex,
           promotedIndex + chunkSize,
@@ -639,9 +642,7 @@ export function HomepageFeedClient({
         return
       }
 
-      const chunkSize = takeRemaining
-        ? remaining
-        : Math.min(2, remaining)
+      const chunkSize = takeRemaining ? remaining : Math.min(2, remaining)
       const chunk = promotedItems.slice(
         promotedIndex,
         promotedIndex + chunkSize,
@@ -743,7 +744,10 @@ export function HomepageFeedClient({
       })
       organicSinceLastSponsored += 1
 
-      if (organicSinceLastSponsored === 5 && sponsorIndex < sponsorPairs.length) {
+      if (
+        organicSinceLastSponsored === 5 &&
+        sponsorIndex < sponsorPairs.length
+      ) {
         rows.push({
           kind: "sponsored",
           key: `sponsored-${sponsorIndex}`,
@@ -808,7 +812,9 @@ export function HomepageFeedClient({
   ])
 
   const usesSectionedLayout =
-    activeFilter === "top" || activeFilter === "new" || activeFilter === "recent"
+    activeFilter === "top" ||
+    activeFilter === "new" ||
+    activeFilter === "recent"
 
   const renderableSections = Array.isArray(sectionedSections)
     ? sectionedSections.filter((section) => section.items.length > 0)
@@ -816,8 +822,9 @@ export function HomepageFeedClient({
 
   const hasSectionedContent = renderableSections.length > 0
 
-  const shouldShowEmptyState =
-    usesSectionedLayout ? !hasSectionedContent : feedRows.length === 0
+  const shouldShowEmptyState = usesSectionedLayout
+    ? !hasSectionedContent
+    : feedRows.length === 0
 
   const emptyState =
     shouldShowEmptyState && !isLoading ? (
@@ -834,9 +841,7 @@ export function HomepageFeedClient({
     () => (
       <div className="space-y-6" aria-hidden="true">
         {Array.from({ length: FILTER_SKELETON_COUNT }).map((_, index) => (
-          <ProductFeedCardSkeleton
-            key={`filter-switch-skeleton-${index}`}
-          />
+          <ProductFeedCardSkeleton key={`filter-switch-skeleton-${index}`} />
         ))}
       </div>
     ),
@@ -886,17 +891,49 @@ export function HomepageFeedClient({
                     return (
                       <div key={section.key} className="space-y-5">
                         <div className="flex flex-col gap-3">
-                        <div className="inline-flex items-center gap-3 text-[#B45309]">
-                          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FEF3C7] text-[#D97706]">
-                            <Flame className="h-4 w-4" aria-hidden="true" />
-                          </span>
-                          <span className="text-lg font-semibold tracking-tight">
-                            {section.title}
-                          </span>
+                          <div className="inline-flex items-center gap-3 text-[#B45309]">
+                            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FEF3C7] text-[#D97706]">
+                              <Flame className="h-4 w-4" aria-hidden="true" />
+                            </span>
+                            <span className="text-lg font-semibold tracking-tight">
+                              {section.title}
+                            </span>
+                          </div>
+                          <span
+                            aria-hidden="true"
+                            className="block h-px w-full rounded-full bg-[#FCD34D]/60"
+                          />
                         </div>
+                        <div className="space-y-4">
+                          {section.items.map((item) => (
+                            <ProductFeedCard
+                              key={`${section.key}-${item.id}`}
+                              item={item}
+                            />
+                          ))}
+                        </div>
+                        {!isLastSection ? (
+                          <span
+                            aria-hidden="true"
+                            className="block h-px w-full rounded-full bg-[#E9ECF8]"
+                          />
+                        ) : null}
+                      </div>
+                    )
+                  }
+
+                  return (
+                    <div
+                      key={section.key}
+                      className={cn("space-y-5", !isLastSection && "pb-6")}
+                    >
+                      <div className="space-y-3">
+                        <span className="text-lg font-semibold text-[#1C2333]">
+                          {section.title}
+                        </span>
                         <span
                           aria-hidden="true"
-                          className="block h-px w-full rounded-full bg-[#FCD34D]/60"
+                          className="block h-px w-full rounded-full bg-[#E5E8F5]"
                         />
                       </div>
                       <div className="space-y-4">
@@ -907,42 +944,7 @@ export function HomepageFeedClient({
                           />
                         ))}
                       </div>
-                      {!isLastSection ? (
-                        <span
-                          aria-hidden="true"
-                          className="block h-px w-full rounded-full bg-[#E9ECF8]"
-                        />
-                      ) : null}
                     </div>
-                  )
-                  }
-
-                  return (
-                    <div
-                      key={section.key}
-                    className={cn(
-                      "space-y-5",
-                      !isLastSection && "pb-6",
-                    )}
-                  >
-                    <div className="space-y-3">
-                      <span className="text-lg font-semibold text-[#1C2333]">
-                        {section.title}
-                      </span>
-                      <span
-                        aria-hidden="true"
-                        className="block h-px w-full rounded-full bg-[#E5E8F5]"
-                      />
-                    </div>
-                    <div className="space-y-4">
-                      {section.items.map((item) => (
-                        <ProductFeedCard
-                          key={`${section.key}-${item.id}`}
-                          item={item}
-                        />
-                      ))}
-                    </div>
-                  </div>
                   )
                 })}
               </section>
@@ -1001,9 +1003,7 @@ export function HomepageFeedClient({
           {!usesSectionedLayout && showSkeletons ? (
             <div className="space-y-6" aria-hidden="true">
               {Array.from({ length: skeletonCount }).map((_, index) => (
-                <ProductFeedCardSkeleton
-                  key={`skeleton-${page}-${index}`}
-                />
+                <ProductFeedCardSkeleton key={`skeleton-${page}-${index}`} />
               ))}
             </div>
           ) : null}

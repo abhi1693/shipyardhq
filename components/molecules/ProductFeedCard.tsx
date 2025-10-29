@@ -25,8 +25,7 @@ interface ProductFeedCardProps {
 export function ProductFeedCard({ item, className }: ProductFeedCardProps) {
   const cardClasses = cn(
     "group relative flex h-full flex-col rounded-3xl border border-border/70 bg-card p-5 text-left transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18] hover:-translate-y-[2px] hover:shadow-[0_36px_90px_-48px_rgba(7,68,134,0.45)]",
-    item.isSponsored &&
-      "border-[#FACC15]/40 bg-[#FFF8EB]/90",
+    item.isSponsored && "border-[#FACC15]/40 bg-[#FFF8EB]/90",
     className,
   )
 
@@ -37,10 +36,8 @@ export function ProductFeedCard({ item, className }: ProductFeedCardProps) {
   const badgeColorMap: Record<string, string> = {
     yellow:
       "border-[#FACC15]/50 bg-[#FEF9C3] text-[#B45309] dark:border-[#FACC15]/40 dark:bg-[#422d0e] dark:text-[#FDE68A]",
-    red:
-      "border-[#FB923C]/55 bg-[#FFE4E6] text-[#B91C1C] dark:border-[#F97316]/40 dark:bg-[#451a0a] dark:text-[#FDBA74]",
-    blue:
-      "border-[#60A5FA]/55 bg-[#EFF6FF] text-[#1D4ED8] dark:border-[#60A5FA]/40 dark:bg-[#102036] dark:text-[#93C5FD]",
+    red: "border-[#FB923C]/55 bg-[#FFE4E6] text-[#B91C1C] dark:border-[#F97316]/40 dark:bg-[#451a0a] dark:text-[#FDBA74]",
+    blue: "border-[#60A5FA]/55 bg-[#EFF6FF] text-[#1D4ED8] dark:border-[#60A5FA]/40 dark:bg-[#102036] dark:text-[#93C5FD]",
     purple:
       "border-[#C084FC]/50 bg-[#F3E8FF] text-[#7C3AED] dark:border-[#C084FC]/35 dark:bg-[#2f1c47] dark:text-[#C084FC]",
   }
@@ -55,10 +52,8 @@ export function ProductFeedCard({ item, className }: ProductFeedCardProps) {
   const resolvedBadges = item.badges.map((rawBadge, index) => {
     const normalized = rawBadge.trim()
     const match = BADGE_OPTIONS.find((option) => {
-      const valueMatch =
-        option.value.toLowerCase() === normalized.toLowerCase()
-      const labelMatch =
-        option.label.toLowerCase() === normalized.toLowerCase()
+      const valueMatch = option.value.toLowerCase() === normalized.toLowerCase()
+      const labelMatch = option.label.toLowerCase() === normalized.toLowerCase()
       return valueMatch || labelMatch
     })
 
@@ -154,12 +149,19 @@ export function ProductFeedCard({ item, className }: ProductFeedCardProps) {
                             {badge.icon}
                           </span>
                         ) : (
-                          <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                          <ArrowUpRight
+                            className="h-3 w-3"
+                            aria-hidden="true"
+                          />
                         )}
                         {badge.label}
                       </span>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" align="end" className="text-xs">
+                    <TooltipContent
+                      side="bottom"
+                      align="end"
+                      className="text-xs"
+                    >
                       {badgeDescriptions[badge.value] ?? badge.label}
                     </TooltipContent>
                   </Tooltip>

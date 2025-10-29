@@ -1,6 +1,7 @@
 # Shipyard Homepage Blueprint
 
 ## 1. Foundations
+
 - **Layout width**: full-bleed white background (`bg-white`) with constrained content width (`max-w-[1440px]`) and consistent page padding (`px-12` desktop, `px-8` large tablet, `px-6` tablet, `px-4` mobile).
 - **Typography**: continue using the existing sans stack. Establish a headline scale inspired by Product Hunt and AI Directories:
   - Display: `text-5xl font-semibold tracking-tight`
@@ -13,10 +14,11 @@
   - Subtle hover wash: `#F6F5F9`
   - Sponsored tint: `#F3F0FF`
   - Accent gradient for micro elements: `from-[#7F5AF0] to-[#2CB1BC]`
-  Avoid borders; rely on soft shadows and background shifts.
+    Avoid borders; rely on soft shadows and background shifts.
 - **Spacing**: adopt an 8 px baseline grid; cards use 24–28 px internal padding; vertical sections separated by 80 px on desktop, 56 px on tablet, 40 px on mobile.
 
 ## 2. Page Structure Overview
+
 - **Global grid**
   - Desktop (`≥1280px`): `grid grid-cols-[minmax(0,3fr)_minmax(296px,1fr)] gap-10`.
   - Tablet (`768–1279px`): collapse to single column; sidebar modules render beneath the feed with `gap-12`.
@@ -37,6 +39,7 @@
   - Infinite scroll sentinel sits `pb-20` below the last card to avoid overlapping the sticky promo band.
 
 ### 2.1 Mobile Layout Details (`<768px`)
+
 - **Header & Hero**
   - Navigation remains sticky; compress hero into a single column with media stacked below copy.
   - Hero padding: `px-4 py-12`; CTA buttons stack vertical with `gap-3`.
@@ -58,6 +61,7 @@
   - Secondary CTA strip uses `flex-col` layout with centered buttons.
 
 ## 3. Hero Block
+
 - Keep the existing navigation untouched; focus updates on the hero and body content.
 - **Hero layout**
   - Two-column layout (left copy, right media) mirroring Product Hunt’s clarity and StartupListing’s social proof structure.
@@ -71,12 +75,14 @@
   - Background: minimal wash (`bg-gradient-to-br from-white via-white to-[#F6F5F9]`) to keep it airy without breaking the white canvas.
 
 ## 4. Context Strip & Promo Band
+
 - Immediately below the hero, add a slim bar (`h-12`) with muted text: “Featured launches for builders · Updated {{date}}”. Align left, keep it within content width.
 - Follow with a sticky promo banner (reuse existing pain placement component): `Want guaranteed visibility? Upgrade to Featured Placement →`. Give it the sponsored tint (`bg-[#F3F0FF] text-[#1C2333]`) so it stands apart from standard cards while staying in the same visual family.
 
 ## 5. Product Feed
 
 ### 5.1 Layout
+
 - Desktop: two-column layout (`grid grid-cols-[minmax(0,3fr)_minmax(260px,1fr)] gap-10`).
   - Main column hosts the launch cards (single column stack).
   - Right sidebar surfaces product updates, sponsored placements, and top categories.
@@ -89,6 +95,7 @@
 - Provide an accessible fallback “Load more launches” button that appears only when intersection observers are not supported or the user prefers reduced motion (toggle via feature flag or user setting).
 
 ### 5.2 Card Anatomy (Full-Width)
+
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │ [Logo]  Name (wraps)                          Vote pill                       │
@@ -127,15 +134,18 @@
 - Entire card (`article role="link"`) is clickable and routes to the product detail page; keep auxiliary interactions (bookmark/share) in the sidebar or detail page to avoid expanding the card footprint.
 
 ### 5.3 Sponsored / Promoted Card
+
 - Same structure, but background shifts to `bg-[#F3F0FF]`. Keep badge row behaviour identical; the bottom meta row renders the visible `Sponsored` chip using the placeholder slot so there is zero height variance. Vote pill remains identical to maintain muscle memory.
 
 ### 5.4 Interaction Treatments
+
 - Hover state: card lifts slightly, base background shifts to `bg-[#F6F5F9]`, and the vote pill gains a soft shadow.
 - Vote action: authenticated clicks trigger an optimistic increment (140 ms scale animation) and animate the pill fill (`bg-[#1C2333] text-white` or gradient); unauthenticated clicks open the sign-in modal without changing the count.
 
 ## 6. Supporting Sections
 
 ### 6.1 Value Pillars (“Why Shipyard”)
+
 - Three cards spanning full width (1 row on desktop, stacked on mobile). Each uses icons and 2-line copy.
 - Suggested copy aligned with the product:
   - “Launch in Minutes” — “Submit a product and publish when you’re ready—no lengthy onboarding.”
@@ -143,25 +153,30 @@
   - “Grow with Upvotes” — “Collect social proof, climb the charts, and unlock featured boosts when you need them.”
 
 ### 6.2 Explorer Carousel
+
 - Full-width slider showcasing discovery angles (e.g., “Latest Launches”, “Trending Categories”, “Editor’s Picks”, “Maker Spotlights”) similar to AI Directories’ featured tools.
 - Each slide: 320 px card with illustration, short description, “Explore feed” CTA. Default slide background `bg-white` with hover tint `hover:bg-[#F6F5F9]`.
 
 ### 6.3 Launch Playbooks & Resources
+
 - Two-column split:
   - Left: “Launch Playbooks” copy with CTA to guides on crafting listings, earning verified badges, and activating featured placement.
   - Right: stacked list of three resources (blog post on launch tips, changelog highlighting recent wins, community spotlight) using compact cards.
 - Draw inspiration from LaunchDirectories’ FAQ/resonance blocks by keeping typography tight with soft layering (`bg-white shadow-[0_12px_32px_-20px_rgba(28,35,51,0.45)]`) instead of borders.
 
 ### 6.4 Secondary CTA Strip
+
 - Narrow band before the existing footer: “Ready to boost your launch?” with two buttons (“Talk to the team”, “See featured plans”). Use a distinct background `bg-[#1C2333] text-white` so it mirrors the prominence of sponsored content without adding borders.
 
 ## 7. Motion & Micro-interactions
+
 - Section reveals: fade + 24 px upward motion on scroll (duration 320 ms, ease out).
 - Buttons: scale from 100% → 102% on hover with subtle shadow.
 - CTA banner: optional glowing underline animation (3 s loop) to draw attention without overwhelming.
 - Use consistent animation durations across hero media, cards, and toasts to maintain polish.
 
 ## 8. Implementation Notes
+
 - Refactor the card component to accept just the required fields: `logo`, `name`, `badges[]`, `tagline`, `category`, `voteCount`, `isVoted`, and `isSponsored`.
 - Ensure name and tagline use CSS line clamp to avoid layout shifts.
 - Ensure the badge row maintains consistent height: render badge pills when available; otherwise inject a spacer (`h-6`). Do the same for the sponsored chip slot using an `invisible` chip to keep widths aligned.
@@ -176,13 +191,16 @@
 - Provide a Storybook playground for the homepage card to confirm states (default, voted, sponsored).
 
 ## 9. Build Checklist
+
 - [ ] Implement hero adjustments with updated copy, CTAs, and media.
 - [ ] Refactor product card component to the specified anatomy.
 - [ ] Apply two-column grid and “Load more launches” bar.
 - [ ] Style sponsored variant with the dedicated tinted background and sponsored chip.
 - [ ] Add supporting sections (value pillars, explorer carousel, resources) with existing content assets.
 - [ ] Ensure secondary CTA strip integrates cleanly above the existing footer.
+
 ### 5.5 Sidebar Modules (Desktop)
+
 - **Sponsored Spotlight**: card with the same `bg-[#F3F0FF]` tint and CTA to the advertiser; appears near the top.
 - **Product Updates**: vertical list of latest ship logs or blog posts (title + date + link).
 - **Top Categories**: list of 6–8 categories with pill buttons linking to `browse` filters.

@@ -82,8 +82,7 @@ describe("HomepageFeedClient", () => {
       />,
     )
 
-    const observers = (global as any)
-      .__INTERSECTION_OBSERVER_INSTANCES__ as {
+    const observers = (global as any).__INTERSECTION_OBSERVER_INSTANCES__ as {
       trigger: (entries?: Partial<IntersectionObserverEntry>[]) => void
     }[]
     expect(observers.length).toBeGreaterThan(0)

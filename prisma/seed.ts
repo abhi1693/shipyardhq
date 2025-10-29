@@ -685,7 +685,9 @@ async function main() {
     publishedAt: Date
   }
 
-  const buildProductUpdateSeed = (seed: ProductUpdateSeed): ResolvedProductUpdateSeed => {
+  const buildProductUpdateSeed = (
+    seed: ProductUpdateSeed,
+  ): ResolvedProductUpdateSeed => {
     const {
       createdOffsetMinutes,
       publishedOffsetMinutes,
@@ -719,7 +721,8 @@ async function main() {
       productSlug: "postpilot",
       authorClerkId: "clerk-001",
       title: "Daily workflow board",
-      summary: "We added collaborative drafts and task tracking to keep launches on schedule.",
+      summary:
+        "We added collaborative drafts and task tracking to keep launches on schedule.",
       content: [
         "### What's new",
         "- Introduced a shared workflow board so teams can co-edit launch tasks in real time.",
@@ -737,7 +740,8 @@ async function main() {
       productSlug: "launchify",
       authorClerkId: "clerk-001",
       title: "Auto message suggestions",
-      summary: "Launchify can now draft launch copy based on your latest changelog.",
+      summary:
+        "Launchify can now draft launch copy based on your latest changelog.",
       content: [
         "### Highlights",
         "- AI-powered suggestions for email and social copy seeded from your changelog entries.",
@@ -755,7 +759,8 @@ async function main() {
       productSlug: "growthforge",
       authorClerkId: "clerk-002",
       title: "Growth canvas templates",
-      summary: "We shipped reusable experiment templates and deeper analytics filters.",
+      summary:
+        "We shipped reusable experiment templates and deeper analytics filters.",
       content: [
         "### Experiments",
         "- Template gallery for repeatable growth experiments with pre-filled metrics.",
@@ -773,7 +778,8 @@ async function main() {
       productSlug: "zapsync",
       authorClerkId: "clerk-002",
       title: "Automation insights dashboard",
-      summary: "ZapSync now tracks automation health and surfaces failed jobs proactively.",
+      summary:
+        "ZapSync now tracks automation health and surfaces failed jobs proactively.",
       content: [
         "### Dashboard",
         "- Centralized automation health overview with trend charts and failure alerts.",

@@ -8,9 +8,7 @@ export type HomepageFeedView = (typeof HOMEPAGE_FEED_VIEWS)[number]
 
 export const DEFAULT_HOMEPAGE_FEED_VIEW: HomepageFeedView = "top"
 
-export const isHomepageFeedView = (
-  value: unknown,
-): value is HomepageFeedView =>
+export const isHomepageFeedView = (value: unknown): value is HomepageFeedView =>
   typeof value === "string" &&
   HOMEPAGE_FEED_VIEWS.includes(value as HomepageFeedView)
 

@@ -49,11 +49,7 @@ export function ProductCompactCardSkeleton({
       </div>
       <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-4">
         {showCategory ? (
-          <BadgeSkeleton
-            variant="outline"
-            labelWidth="4rem"
-            className="h-7"
-          />
+          <BadgeSkeleton variant="outline" labelWidth="4rem" className="h-7" />
         ) : null}
         <div className="flex flex-col items-end gap-2">
           <div className="flex items-end justify-end gap-2">

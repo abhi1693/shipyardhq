@@ -25,7 +25,8 @@ export async function DirectoryHeaderSection() {
 
     const planPrice = product.plan?.price ?? 0
     const hasPaidPlan = planPrice > 0
-    const redeemedReward = origin === "schedule" && Boolean(schedule?.redemptionId)
+    const redeemedReward =
+      origin === "schedule" && Boolean(schedule?.redemptionId)
 
     uniqueProducts.set(mapKey, {
       id: product.id,

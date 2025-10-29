@@ -360,10 +360,7 @@ export async function getHomepageNewFeedPage(
     page,
     pageSize,
     clerkUserId,
-    orderBy: [
-      { createdAt: "desc" },
-      { analytics: { upvotes: "desc" } },
-    ],
+    orderBy: [{ createdAt: "desc" }, { analytics: { upvotes: "desc" } }],
   })
 }
 
@@ -387,10 +384,7 @@ export async function getHomepageFeedView(
   params: GetHomepageFeedViewParams = {},
 ): Promise<HomepageFeedPageResult> {
   const { view, ...rest } = params
-  const normalized = normalizeHomepageFeedView(
-    view,
-    DEFAULT_HOMEPAGE_FEED_VIEW,
-  )
+  const normalized = normalizeHomepageFeedView(view, DEFAULT_HOMEPAGE_FEED_VIEW)
   const baseParams: GetHomepageFeedPageParams = rest
 
   if (normalized === "new") {

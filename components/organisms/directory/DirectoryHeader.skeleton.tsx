@@ -70,7 +70,10 @@ export function DirectoryHeaderSkeleton({
           <div className="relative lg:ml-auto">
             <div className="absolute inset-0 -translate-y-20 scale-[1.2] rounded-[40px] bg-gradient-to-br from-[#EEF3FF] via-[#FFFFFF] to-[#E6FCFF] blur-3xl" />
             <div className="relative mx-auto flex w-full max-w-md flex-col gap-5 rounded-[36px] border border-[#E0E7F8] bg-[#FBFCFF] p-8 shadow-[0_40px_120px_-70px_rgba(28,35,51,0.65)] lg:ml-auto lg:mr-0">
-              <Skeleton className="h-10 w-40 rounded-full bg-[#F4EEFE]" tone="soft" />
+              <Skeleton
+                className="h-10 w-40 rounded-full bg-[#F4EEFE]"
+                tone="soft"
+              />
               <Skeleton className="h-6 w-3/4 rounded-full" tone="muted" />
               <Skeleton className="h-4 w-1/2 rounded-full" tone="muted" />
               <div className="space-y-4 pt-4">

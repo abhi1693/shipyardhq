@@ -103,9 +103,7 @@ export function StickyBannerCarousel({
                 {current.name}
               </span>
               {tagline ? (
-                <span className="block text-xs text-[#5B6175]">
-                  {tagline}
-                </span>
+                <span className="block text-xs text-[#5B6175]">{tagline}</span>
               ) : null}
             </div>
           </div>

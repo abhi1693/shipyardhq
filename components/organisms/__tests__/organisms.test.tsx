@@ -113,9 +113,7 @@ describe("Organisms", () => {
     expect(screen.getAllByTestId("product-compact-card")).toHaveLength(2)
     const sponsoredPills = screen.getAllByText("Sponsored")
     expect(sponsoredPills).toHaveLength(2)
-    expect(
-      screen.queryByText("Plan upgrades in queue"),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByText("Plan upgrades in queue")).not.toBeInTheDocument()
     expect(screen.queryByText("Plan placement")).not.toBeInTheDocument()
   })
 

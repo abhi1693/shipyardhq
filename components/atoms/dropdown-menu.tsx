@@ -247,7 +247,7 @@ const DropdownMenuSearch = React.forwardRef<
       [isControlled, onChange, onValueChange],
     )
 
-    const displayValue = isControlled ? value ?? "" : uncontrolledValue
+    const displayValue = isControlled ? (value ?? "") : uncontrolledValue
 
     return (
       <div

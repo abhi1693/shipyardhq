@@ -54,27 +54,25 @@ export function ProductCompactCard({
   }
 
   const resolvedBadges = badges
-    .map((value) => BADGE_OPTIONS.find((option) => option.value === value) ?? null)
+    .map(
+      (value) => BADGE_OPTIONS.find((option) => option.value === value) ?? null,
+    )
     .filter((badge): badge is (typeof BADGE_OPTIONS)[number] => Boolean(badge))
   const badgeLimit = 2
   const visibleBadges = resolvedBadges.slice(0, badgeLimit).map((badge) => ({
     ...badge,
     description: badgeDescriptions[badge.value] ?? badge.label,
   }))
-  const overflowBadges = resolvedBadges
-    .slice(badgeLimit)
-    .map((badge) => ({
-      ...badge,
-      description: badgeDescriptions[badge.value] ?? badge.label,
-    }))
+  const overflowBadges = resolvedBadges.slice(badgeLimit).map((badge) => ({
+    ...badge,
+    description: badgeDescriptions[badge.value] ?? badge.label,
+  }))
 
   const badgeColorMap: Record<string, string> = {
     yellow:
       "border-[#FACC15]/60 bg-[#FEF9C3] text-[#B45309] dark:border-[#FACC15]/40 dark:bg-[#422d0e] dark:text-[#FDE68A]",
-    red:
-      "border-[#FB923C]/60 bg-[#FFE4E6] text-[#B91C1C] dark:border-[#F97316]/40 dark:bg-[#451a0a] dark:text-[#FDBA74]",
-    blue:
-      "border-[#60A5FA]/60 bg-[#EFF6FF] text-[#1D4ED8] dark:border-[#60A5FA]/40 dark:bg-[#102036] dark:text-[#93C5FD]",
+    red: "border-[#FB923C]/60 bg-[#FFE4E6] text-[#B91C1C] dark:border-[#F97316]/40 dark:bg-[#451a0a] dark:text-[#FDBA74]",
+    blue: "border-[#60A5FA]/60 bg-[#EFF6FF] text-[#1D4ED8] dark:border-[#60A5FA]/40 dark:bg-[#102036] dark:text-[#93C5FD]",
     purple:
       "border-[#C084FC]/60 bg-[#F3E8FF] text-[#7C3AED] dark:border-[#C084FC]/35 dark:bg-[#2f1c47] dark:text-[#C084FC]",
   }
@@ -119,9 +117,9 @@ export function ProductCompactCard({
                       {product.name}
                     </h3>
                     {sponsored ? (
-                    <Badge className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
-                      Sponsored
-                    </Badge>
+                      <Badge className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                        Sponsored
+                      </Badge>
                     ) : null}
                   </div>
                   <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
@@ -179,7 +177,11 @@ export function ProductCompactCard({
                           {badge.label}
                         </Badge>
                       </TooltipTrigger>
-                      <TooltipContent side="bottom" align="end" className="text-xs">
+                      <TooltipContent
+                        side="bottom"
+                        align="end"
+                        className="text-xs"
+                      >
                         {badge.description}
                       </TooltipContent>
                     </Tooltip>
@@ -188,7 +190,9 @@ export function ProductCompactCard({
                     <span
                       key="badge-overflow"
                       className="inline-flex items-center justify-center rounded-full border border-border/60 bg-muted/60 px-3 py-1 text-xs font-semibold text-muted-foreground"
-                      title={overflowBadges.map((badge) => badge.label).join(", ")}
+                      title={overflowBadges
+                        .map((badge) => badge.label)
+                        .join(", ")}
                     >
                       +{overflowBadges.length}
                     </span>
