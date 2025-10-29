@@ -1,16 +1,22 @@
 import { auth } from "@clerk/nextjs/server"
 
-import { getHomepageFeedPage } from "@/actions/public/homepage/feed"
+import { getHomepageFeedView } from "@/actions/public/homepage/feed"
 import { HOMEPAGE_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
+import type { HomepageFeedView } from "@/lib/homepage/feed-views"
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
 import HomepageFeedClient from "./homepage-feed-client"
 
-export async function HomepageFeedSection() {
+interface HomepageFeedSectionProps {
+  view: HomepageFeedView
+}
+
+export async function HomepageFeedSection({ view }: HomepageFeedSectionProps) {
   const { userId } = await auth()
-  const initial = await getHomepageFeedPage({
+  const initial = await getHomepageFeedView({
     page: 1,
     pageSize: HOMEPAGE_FEED_PAGE_SIZE,
     clerkUserId: userId,
+    view,
   })
 
   return (
@@ -37,6 +43,7 @@ export async function HomepageFeedSection() {
       </div>
 
       <HomepageFeedClient
+        activeFilter={view}
         initialItems={initial.items}
         initialPage={initial.page}
         initialNextPage={initial.nextPage}

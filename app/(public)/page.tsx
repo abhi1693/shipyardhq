@@ -27,10 +27,18 @@ import {
   HomepageFeedSkeleton,
 } from "@/components/templates/public/homepage/homepage-feed-section"
 import { HomepageContextStrip } from "@/components/templates/public/homepage/context-strip"
+import { resolveHomepageFeedView } from "@/lib/homepage/feed-views"
 
 export const dynamic = "force-dynamic"
 
-export default function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
+}) {
+  const resolvedSearchParams = (await searchParams) ?? {}
+  const feedView = resolveHomepageFeedView(resolvedSearchParams)
+
   return (
     <main className="relative isolate bg-white">
       <HomepageJsonLd />
@@ -44,7 +52,7 @@ export default function HomePage() {
         <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(296px,1fr)]">
           <div className="flex flex-col gap-12">
             <Suspense fallback={<HomepageFeedSkeleton />}>
-              <HomepageFeedSection />
+              <HomepageFeedSection view={feedView} />
             </Suspense>
           </div>
 
