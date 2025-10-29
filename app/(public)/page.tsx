@@ -33,12 +33,12 @@ export default async function HomePage({
   return (
     <main className="relative isolate bg-white">
       <HomepageJsonLd />
-      <div className="relative mx-auto w-full max-w-[90rem] px-4 pb-24 pt-12 sm:px-6 md:px-8 lg:px-12">
+      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <Suspense fallback={<DirectoryHeaderSkeleton />}>
           <DirectoryHeaderSection />
         </Suspense>
 
-        <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(296px,1fr)]">
+        <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
           <div className="flex flex-col gap-12">
             <Suspense fallback={<HomepageFeedSkeleton />}>
               <HomepageFeedSection view={feedView} />
