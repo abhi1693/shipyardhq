@@ -2,16 +2,16 @@ import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 
 import { ProductCard } from "@/components/molecules/ProductCard"
-import { type CompactProductItem } from "@/components/molecules/ProductCompactGrid"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { productPageCopy } from "@/lib/copy/productPage"
 
-interface ProductSimilarVoyagesProps<T extends CompactProductItem> {
+interface ProductSimilarVoyagesProps<T extends ProductCardBase> {
   items: T[]
   headingSuffix?: string | null
   browseHref: string
 }
 
-export function ProductSimilarVoyages<T extends CompactProductItem>({
+export function ProductSimilarVoyages<T extends ProductCardBase>({
   items,
   headingSuffix,
   browseHref,

@@ -2,9 +2,20 @@ import type { ReactNode } from "react"
 
 import ProductFeedCard from "@/components/molecules/ProductFeedCard"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
-import type { CompactProductItem } from "@/components/molecules/ProductCompactGrid"
 
-export type ProductCardItem = CompactProductItem & {
+export type ProductCardBase = {
+  id: string
+  slug: string
+  name: string
+  logo: string
+  tagline: string
+  analytics?: { upvotes?: number | null } | null
+  category?: { name?: string | null; slug?: string | null } | null
+  badges?: string[]
+  sponsored?: boolean
+}
+
+export type ProductCardItem = ProductCardBase & {
   voteCount?: number
   isVoted?: boolean
   updatesCount?: number

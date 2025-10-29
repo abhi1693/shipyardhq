@@ -3,7 +3,7 @@ import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
-import { ProductCompactGridSkeleton } from "@/components/molecules/ProductCompactGrid.skeleton"
+import ProductListSkeleton from "@/components/molecules/ProductList.skeleton"
 
 export function CategoryDetailSkeleton() {
   return (
@@ -92,7 +92,7 @@ function FeaturedSkeleton() {
           className="rounded-3xl border border-border/70 bg-white/95"
           showHeader={false}
         />
-        <ProductCompactGridSkeleton count={3} columns="grid-cols-1" />
+        <ProductListSkeleton count={3} />
       </div>
     </section>
   )
@@ -104,10 +104,7 @@ function ProductsSkeleton() {
       <HeadingSkeleton lines={1} centered={false} className="max-w-sm" />
       <Skeleton className="mt-2 h-3 w-64 rounded-full" tone="muted" />
       <div className="mt-8 space-y-6">
-        <ProductCompactGridSkeleton
-          count={8}
-          columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-        />
+        <ProductListSkeleton count={8} />
         <ButtonSkeleton
           size="sm"
           variant="outline"

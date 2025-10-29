@@ -2,7 +2,7 @@ import { BadgeSkeleton } from "@/components/atoms/badge.skeleton"
 import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
-import { ProductCompactGridSkeleton } from "@/components/molecules/ProductCompactGrid.skeleton"
+import ProductListSkeleton from "@/components/molecules/ProductList.skeleton"
 
 export function TagDetailSkeleton() {
   return (
@@ -45,10 +45,7 @@ export function TagDetailSkeleton() {
               <Skeleton className="h-3 w-32 rounded-full" tone="muted" />
             </div>
 
-            <ProductCompactGridSkeleton
-              count={6}
-              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-            />
+        <ProductListSkeleton count={6} />
 
             <div className="flex items-center justify-between border-t border-slate-200 pt-6">
               <ButtonSkeleton

@@ -5,11 +5,13 @@ import type { ComponentProps } from "react"
 
 import { Badge } from "@/components/atoms/badge"
 import ProductGrid from "@/components/molecules/ProductGrid"
-import type { ProductCardItem } from "@/components/molecules/ProductCard"
-import type { CompactProductItem } from "@/components/molecules/ProductCompactGrid"
+import type {
+  ProductCardBase,
+  ProductCardItem,
+} from "@/components/molecules/ProductCard"
 import { cn } from "@/lib/utils"
 
-type BaseProductListItem = CompactProductItem & {
+type BaseProductListItem = ProductCardBase & {
   badges?: string[]
   metaLabel?: string
 }

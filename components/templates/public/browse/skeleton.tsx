@@ -4,7 +4,7 @@ import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { ProductListSkeleton } from "@/components/molecules/ProductList.skeleton"
-import { ProductCompactCardSkeleton } from "@/components/molecules/ProductCompactCard.skeleton"
+import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
 import DirectoryHeaderSkeleton from "@/components/organisms/directory/DirectoryHeader.skeleton"
 import { ProductUpdatesFeedSkeleton } from "@/components/molecules/ProductUpdatesFeed.skeleton"
 
@@ -34,13 +34,7 @@ export function BrowsePageSkeleton() {
                 </div>
 
                 <div className="mt-6 space-y-6">
-                  <ProductListSkeleton
-                    count={8}
-                    columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                    showCategory
-                    showBadges
-                    showMetaBadge
-                  />
+                  <ProductListSkeleton count={8} />
                   <Skeleton
                     className="mx-auto h-10 w-48 rounded-full"
                     tone="soft"
@@ -93,7 +87,7 @@ function FeaturedCarouselSkeleton() {
     <section className="flex w-full flex-col gap-4 rounded-3xl border border-border/70 bg-background/85 p-5 shadow-sm shadow-black/5">
       <Skeleton className="h-3 w-40 rounded-full" tone="muted" />
       <div className="relative h-[150px] overflow-hidden">
-        <ProductCompactCardSkeleton showCategory withMeta className="h-full" />
+        <ProductFeedCardSkeleton className="h-full" />
       </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">

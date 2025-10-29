@@ -3,7 +3,7 @@ import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
-import { ProductCompactGridSkeleton } from "@/components/molecules/ProductCompactGrid.skeleton"
+import ProductListSkeleton from "@/components/molecules/ProductList.skeleton"
 
 export function ProductDetailSkeleton() {
   return (
@@ -302,7 +302,7 @@ function SimilarVoyagesSkeleton() {
       <HeadingSkeleton lines={1} centered={false} className="max-w-sm" />
       <Skeleton className="mt-2 h-3 w-2/3 rounded-full" tone="muted" />
       <div className="mt-6">
-        <ProductCompactGridSkeleton count={4} columns="grid-cols-1" />
+        <ProductListSkeleton count={4} />
       </div>
       <ButtonSkeleton
         size="sm"

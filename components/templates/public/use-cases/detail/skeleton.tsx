@@ -3,7 +3,7 @@ import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
-import { ProductCompactGridSkeleton } from "@/components/molecules/ProductCompactGrid.skeleton"
+import ProductListSkeleton from "@/components/molecules/ProductList.skeleton"
 
 export function UseCaseDetailSkeleton() {
   return (
@@ -65,10 +65,7 @@ export function UseCaseDetailSkeleton() {
           <HeadingSkeleton lines={1} centered={false} className="max-w-sm" />
           <Skeleton className="mt-2 h-3 w-64 rounded-full" tone="muted" />
           <div className="mt-8 space-y-6">
-            <ProductCompactGridSkeleton
-              count={9}
-              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-            />
+            <ProductListSkeleton count={9} />
             <ButtonSkeleton
               size="sm"
               variant="outline"

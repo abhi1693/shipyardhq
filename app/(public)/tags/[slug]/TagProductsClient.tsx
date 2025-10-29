@@ -4,13 +4,15 @@ import { useCallback, useMemo } from "react"
 
 import { loadMoreTagProducts } from "@/actions/public/tags/loadMore"
 import ProductGrid from "@/components/molecules/ProductGrid"
-import type { ProductCardItem } from "@/components/molecules/ProductCard"
-import type { CompactProductItem } from "@/components/molecules/ProductCompactGrid"
+import type {
+  ProductCardBase,
+  ProductCardItem,
+} from "@/components/molecules/ProductCard"
 import { EmptyState } from "@/components/molecules/empty-state"
 
 interface TagProductsClientProps {
   slug: string
-  initialItems: CompactProductItem[]
+  initialItems: ProductCardBase[]
   initialHasMore: boolean
   initialPage: number
   total: number
@@ -26,7 +28,7 @@ export function TagProductsClient({
   total,
 }: TagProductsClientProps) {
   const mapToProductCardItem = useCallback(
-    (item: CompactProductItem): ProductCardItem => ({
+    (item: ProductCardBase): ProductCardItem => ({
       ...item,
       voteCount: item.analytics?.upvotes ?? 0,
       categoryName: item.category?.name ?? null,
@@ -43,7 +45,7 @@ export function TagProductsClient({
     async (page: number) => {
       const result = await loadMoreTagProducts({ slug, page })
       return {
-        items: (result.items as CompactProductItem[]).map(
+        items: (result.items as ProductCardBase[]).map(
           mapToProductCardItem,
         ),
         hasMore: result.hasMore,

@@ -2,12 +2,14 @@
 
 import { useCallback, useMemo } from "react"
 
-import type { CompactProductItem } from "@/components/molecules/ProductCompactGrid"
 import { loadMoreProducts } from "@/actions/public/browse/loadMore"
 import ProductGrid from "@/components/molecules/ProductGrid"
-import type { ProductCardItem } from "@/components/molecules/ProductCard"
+import type {
+  ProductCardBase,
+  ProductCardItem,
+} from "@/components/molecules/ProductCard"
 
-type BrowseProduct = CompactProductItem
+type BrowseProduct = ProductCardBase
 
 const toProductCardItem = (item: BrowseProduct): ProductCardItem => ({
   ...item,
