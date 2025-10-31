@@ -387,18 +387,10 @@ export async function getHomepageFeedView(
   params: GetHomepageFeedViewParams = {},
 ): Promise<HomepageFeedPageResult> {
   const { view, ...rest } = params
-  const normalized = normalizeHomepageFeedView(view, DEFAULT_HOMEPAGE_FEED_VIEW)
   const baseParams: GetHomepageFeedPageParams = rest
 
-  if (normalized === "new") {
-    return getHomepageNewFeedPage(baseParams)
-  }
-
-  if (normalized === "recent") {
-    return getHomepageRecentFeedPage(baseParams)
-  }
-
-  return getHomepageFeedPage(baseParams)
+  normalizeHomepageFeedView(view, DEFAULT_HOMEPAGE_FEED_VIEW)
+  return getHomepageNewFeedPage(baseParams)
 }
 
 export async function loadHomepageFeed(params: {

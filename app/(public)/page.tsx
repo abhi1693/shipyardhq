@@ -18,18 +18,12 @@ import {
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
-import { resolveHomepageFeedView } from "@/lib/homepage/feed-views"
+import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 
 export const dynamic = "force-dynamic"
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>
-}) {
-  const resolvedSearchParams = (await searchParams) ?? {}
-  const feedView = resolveHomepageFeedView(resolvedSearchParams)
-
+export default async function HomePage() {
+  const feedView = DEFAULT_HOMEPAGE_FEED_VIEW
   return (
     <main className="relative isolate bg-[#f5f7fb]">
       <HomepageJsonLd />
