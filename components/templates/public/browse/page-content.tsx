@@ -9,6 +9,7 @@ import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
 import { BrowseFeaturedCarousel } from "@/components/organisms/BrowseFeaturedCarousel"
 import { ProductUpdatesFeed } from "@/components/molecules/ProductUpdatesFeed"
+import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
   BROWSE_PATH,
   LEADERBOARD_PATH,
@@ -101,27 +102,30 @@ export async function BrowsePageContent({
   } = await getBrowsePagePayload(parsedFilters)
 
   return (
-    <main className="relative isolate bg-white">
-      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
-        <div className="space-y-12">
-          <DirectoryHeader
-            stats={stats}
-            eyebrow="Directory browse"
-            title="Browse the Shipyard launch catalog"
-            description="We run the homepage spotlight, curate featured campaigns, and track momentum across editor picks, new arrivals, the live leaderboard, and head-to-head live launch battles."
-            primaryAction={{
-              label: "Submit your launch",
-              href: MEMBER_PRODUCTS_PATH,
-            }}
-            secondaryAction={{
-              label: "Join the live showdown",
-              href: RANK_IN_PUBLIC_PATH,
-              variant: "outline",
-            }}
-            metrics={browseMetrics}
-          />
+    <main className="relative isolate bg-[#f5f7fb]">
+      <PublicTwoColumnLayout
+        className="pb-24 pt-12"
+        mainClassName="gap-12"
+        sidebarClassName="lg:sticky lg:top-24"
+        main={
+          <>
+            <DirectoryHeader
+              stats={stats}
+              eyebrow="Directory browse"
+              title="Browse the Shipyard launch catalog"
+              description="We run the homepage spotlight, curate featured campaigns, and track momentum across editor picks, new arrivals, the live leaderboard, and head-to-head live launch battles."
+              primaryAction={{
+                label: "Submit your launch",
+                href: MEMBER_PRODUCTS_PATH,
+              }}
+              secondaryAction={{
+                label: "Join the live showdown",
+                href: RANK_IN_PUBLIC_PATH,
+                variant: "outline",
+              }}
+              metrics={browseMetrics}
+            />
 
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
             <div className="flex flex-col gap-8">
               <BrowseFilterBar
                 useCases={useCases}
@@ -182,43 +186,44 @@ export async function BrowsePageContent({
               </section>
             </div>
 
-            <aside className="flex flex-col gap-8">
-              <BrowseFeaturedCarousel products={featured} />
-              <DirectoryCategoryRail categories={categories} />
-              <DirectoryPromoCard
-                eyebrow="Need more reach?"
-                title="Secure premium placement before launch day"
-                description="Upgrade to sponsored placements to lock in homepage spotlights and featured tiles ahead of your drop."
-                cta={{
-                  label: "Explore placement plans",
-                  href: PRICING_PATH,
-                  variant: "ghost",
-                }}
-                subtleCta={{
-                  label: "See what gets featured",
-                  href: `${BROWSE_PATH}?sort=trending`,
-                }}
-              />
-              <DirectoryPromoCard
-                eyebrow="Placement transparency"
-                title="Understand how rankings take shape"
-                description="Learn the signals, editorial calls, and sponsorship slots that determine placement across Shipyard listings."
-                cta={{
-                  label: "Explore the methodology",
-                  href: LEADERBOARD_GUIDE_PATH,
-                }}
-                subtleCta={{
-                  label: "Watch the live standings",
-                  href: LEADERBOARD_PATH,
-                }}
-              />
-              <ProductUpdatesFeed updates={latestProductUpdates} />
-            </aside>
-          </div>
-
-          <DirectoryHowItWorks />
-        </div>
-      </div>
+            <DirectoryHowItWorks />
+          </>
+        }
+        sidebar={
+          <>
+            <BrowseFeaturedCarousel products={featured} />
+            <DirectoryCategoryRail categories={categories} />
+            <DirectoryPromoCard
+              eyebrow="Need more reach?"
+              title="Secure premium placement before launch day"
+              description="Upgrade to sponsored placements to lock in homepage spotlights and featured tiles ahead of your drop."
+              cta={{
+                label: "Explore placement plans",
+                href: PRICING_PATH,
+                variant: "ghost",
+              }}
+              subtleCta={{
+                label: "See what gets featured",
+                href: `${BROWSE_PATH}?sort=trending`,
+              }}
+            />
+            <DirectoryPromoCard
+              eyebrow="Placement transparency"
+              title="Understand how rankings take shape"
+              description="Learn the signals, editorial calls, and sponsorship slots that determine placement across Shipyard listings."
+              cta={{
+                label: "Explore the methodology",
+                href: LEADERBOARD_GUIDE_PATH,
+              }}
+              subtleCta={{
+                label: "Watch the live standings",
+                href: LEADERBOARD_PATH,
+              }}
+            />
+            <ProductUpdatesFeed updates={latestProductUpdates} />
+          </>
+        }
+      />
     </main>
   )
 }

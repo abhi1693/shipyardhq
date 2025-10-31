@@ -28,6 +28,7 @@ import { DirectorySectionHeaderSkeleton } from "@/components/molecules/directory
 import { ProductUpdatesFeedSkeleton } from "@/components/molecules/ProductUpdatesFeed.skeleton"
 import DirectoryHeaderSkeleton from "@/components/organisms/directory/DirectoryHeader.skeleton"
 import { LeaderboardSkeleton as LeaderboardSectionSkeleton } from "@/components/organisms/Leaderboard.skeleton"
+import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 
 type LeaderboardProduct = LeaderboardPagePayload["products"][number]
 
@@ -79,27 +80,30 @@ export async function LeaderboardPageContent({
   const restHasEntries = rest.length > 0
 
   return (
-    <main className="relative isolate bg-white">
-      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
-        <div className="space-y-12">
-          <DirectoryHeader
-            stats={stats}
-            eyebrow="Shipyard leaderboard"
-            title="Live launch leaderboard"
-            description="Track the launches earning peak community momentum on Shipyard. These standings power the homepage spotlight, featured lanes, and daily analytics we share with builders."
-            primaryAction={{
-              label: "Submit your launch",
-              href: MEMBER_PRODUCTS_PATH,
-            }}
-            secondaryAction={{
-              label: "Browse the launch directory",
-              href: BROWSE_PATH,
-              variant: "outline",
-            }}
-            metrics={leaderboardMetrics}
-          />
+    <main className="relative isolate bg-[#f5f7fb]">
+      <PublicTwoColumnLayout
+        className="pb-24 pt-12"
+        mainClassName="gap-12"
+        sidebarClassName="lg:sticky lg:top-24 gap-8"
+        main={
+          <>
+            <DirectoryHeader
+              stats={stats}
+              eyebrow="Shipyard leaderboard"
+              title="Live launch leaderboard"
+              description="Track the launches earning peak community momentum on Shipyard. These standings power the homepage spotlight, featured lanes, and daily analytics we share with builders."
+              primaryAction={{
+                label: "Submit your launch",
+                href: MEMBER_PRODUCTS_PATH,
+              }}
+              secondaryAction={{
+                label: "Browse the launch directory",
+                href: BROWSE_PATH,
+                variant: "outline",
+              }}
+              metrics={leaderboardMetrics}
+            />
 
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.05fr)]">
             <div className="flex flex-col gap-10">
               {topThree.length > 0 ? (
                 <section className="rounded-3xl border border-border/80 bg-background/75 p-6 shadow-sm shadow-black/5 md:p-8">
@@ -216,158 +220,159 @@ export async function LeaderboardPageContent({
                 )}
               </section>
             </div>
-
-            <aside className="flex flex-col gap-8">
-              <section className="rounded-3xl border border-border/70 bg-background/80 p-6 shadow-sm shadow-black/5">
-                <div className="space-y-5">
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-                      Tune the leaderboard
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Filter by category or adjust how many launches you monitor
-                      at once.
-                    </p>
-                  </div>
-                  <LeaderboardFilters
-                    categories={categories}
-                    selected={normalizedFilters.categorySlug}
-                    limit={normalizedFilters.limit}
-                  />
-                  <div className="space-y-1 text-xs text-muted-foreground">
-                    <p>
-                      Showing top {totalCount} launch
-                      {totalCount === 1 ? "" : "es"}
-                      {categoryName
-                        ? ` in ${categoryName}`
-                        : " across all categories"}
-                      .
-                    </p>
-                    {normalizedFilters.categorySlug ||
-                    normalizedFilters.limit !== 50 ? (
-                      <Link
-                        href={LEADERBOARD_PATH}
-                        className="inline-flex items-center gap-1 font-semibold text-[color:var(--brand-1)] hover:underline"
-                      >
-                        Reset filters
-                      </Link>
-                    ) : null}
-                  </div>
+          </>
+        }
+        sidebar={
+          <>
+            <section className="rounded-3xl border border-border/70 bg-background/80 p-6 shadow-sm shadow-black/5">
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                    Tune the leaderboard
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Filter by category or adjust how many launches you monitor at
+                    once.
+                  </p>
                 </div>
-              </section>
+                <LeaderboardFilters
+                  categories={categories}
+                  selected={normalizedFilters.categorySlug}
+                  limit={normalizedFilters.limit}
+                />
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  <p>
+                    Showing top {totalCount} launch
+                    {totalCount === 1 ? "" : "es"}
+                    {categoryName
+                      ? ` in ${categoryName}`
+                      : " across all categories"}
+                    .
+                  </p>
+                  {normalizedFilters.categorySlug ||
+                  normalizedFilters.limit !== 50 ? (
+                    <Link
+                      href={LEADERBOARD_PATH}
+                      className="inline-flex items-center gap-1 font-semibold text-[color:var(--brand-1)] hover:underline"
+                    >
+                      Reset filters
+                    </Link>
+                  ) : null}
+                </div>
+              </div>
+            </section>
 
-              <DirectoryPromoCard
-                eyebrow="Category momentum"
-                title="See the Trend Radar in motion"
-                description="Watch Shipyard categories heat up across momentum, catalog depth, and upvote signal—auto-refreshed and ready to embed."
-                cta={{
-                  label: "Open Trend Radar",
-                  href: TRENDS_PATH,
-                }}
-                icon={<IconRadar className="h-4 w-4" />}
-                subtleCta={{
-                  label: "Grab the embed",
-                  href: `${TRENDS_PATH}/embed`,
-                }}
-              />
+            <DirectoryPromoCard
+              eyebrow="Category momentum"
+              title="See the Trend Radar in motion"
+              description="Watch Shipyard categories heat up across momentum, catalog depth, and upvote signal—auto-refreshed and ready to embed."
+              cta={{
+                label: "Open Trend Radar",
+                href: TRENDS_PATH,
+              }}
+              icon={<IconRadar className="h-4 w-4" />}
+              subtleCta={{
+                label: "Grab the embed",
+                href: `${TRENDS_PATH}/embed`,
+              }}
+            />
 
-              <DirectoryPromoCard
-                eyebrow="Placement perks"
-                title="Secure premium visibility for your launch"
-                description="Guarantee homepage and leaderboard exposure by booking featured or sponsored placements with Shipyard."
-                cta={{ label: "Explore promotion plans", href: PRICING_PATH }}
-                subtleCta={{
-                  label: "Submit your launch",
-                  href: MEMBER_PRODUCTS_PATH,
-                }}
-              />
+            <DirectoryPromoCard
+              eyebrow="Placement perks"
+              title="Secure premium visibility for your launch"
+              description="Guarantee homepage and leaderboard exposure by booking featured or sponsored placements with Shipyard."
+              cta={{ label: "Explore promotion plans", href: PRICING_PATH }}
+              subtleCta={{
+                label: "Submit your launch",
+                href: MEMBER_PRODUCTS_PATH,
+              }}
+            />
 
-              <TopCategories
-                categories={categories}
-                limit={6}
-                className="border-border/70"
-                description="Browse the leaderboard by the categories with the highest launch volume this week."
-              />
+            <TopCategories
+              categories={categories}
+              limit={6}
+              className="border-border/70"
+              description="Browse the leaderboard by the categories with the highest launch volume this week."
+            />
 
-              <ProductUpdatesFeed updates={latestProductUpdates} />
+            <ProductUpdatesFeed updates={latestProductUpdates} />
 
-              <DirectoryPromoCard
-                eyebrow="Ranking transparency"
-                title="How we surface leaderboard standings"
-                description="Understand the score formula, refresh cadence, and tie-break rules that keep the Shipyard leaderboard fair for every maker."
-                cta={{
-                  label: "Review the ranking guide",
-                  href: LEADERBOARD_GUIDE_PATH,
-                  variant: "ghost",
-                }}
-                icon={<IconTargetArrow className="h-4 w-4" />}
-                subtleCta={{
-                  label: "Browse monthly champions",
-                  href: LEADERBOARD_MONTHLY_PATH,
-                }}
-              />
-            </aside>
-          </div>
-        </div>
-      </div>
+            <DirectoryPromoCard
+              eyebrow="Ranking transparency"
+              title="How we surface leaderboard standings"
+              description="Understand the score formula, refresh cadence, and tie-break rules that keep the Shipyard leaderboard fair for every maker."
+              cta={{
+                label: "Review the ranking guide",
+                href: LEADERBOARD_GUIDE_PATH,
+                variant: "ghost",
+              }}
+              icon={<IconTargetArrow className="h-4 w-4" />}
+              subtleCta={{
+                label: "Browse monthly champions",
+                href: LEADERBOARD_MONTHLY_PATH,
+              }}
+            />
+          </>
+        }
+      />
     </main>
   )
 }
 
 export function LeaderboardPageSkeleton() {
   return (
-    <main className="relative isolate bg-white">
-      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
-        <div className="space-y-12">
-          <DirectoryHeaderSkeleton />
-
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.05fr)]">
-            <div className="flex flex-col gap-10">
-              <section className="rounded-3xl border border-border/80 bg-background/75 p-6 shadow-sm shadow-black/5 md:p-8">
-                <DirectorySectionHeaderSkeleton descriptionLines={2} />
-                <div className="mt-8 flex flex-col gap-6">
-                  <CardSkeleton
-                    tone="soft"
-                    radius="lg"
-                    lines={4}
-                    className="border border-border/70 bg-white/90"
-                    showFooter
-                  />
-                  <div className="grid gap-6 md:grid-cols-2">
-                    {Array.from({ length: 2 }).map((_, index) => (
-                      <CardSkeleton
-                        key={index}
-                        tone="soft"
-                        radius="lg"
-                        lines={3}
-                        className="border border-border/70 bg-white/90"
-                      />
-                    ))}
-                  </div>
+    <main className="relative isolate bg-[#f5f7fb]">
+      <PublicTwoColumnLayout
+        className="pb-24 pt-12"
+        mainClassName="gap-12"
+        sidebarClassName="lg:sticky lg:top-24 gap-6"
+        main={
+          <>
+            <DirectoryHeaderSkeleton />
+            <section className="rounded-3xl border border-border/80 bg-background/75 p-6 shadow-sm shadow-black/5 md:p-8">
+              <DirectorySectionHeaderSkeleton descriptionLines={2} />
+              <div className="mt-8 flex flex-col gap-6">
+                <CardSkeleton
+                  tone="soft"
+                  radius="lg"
+                  lines={4}
+                  className="border border-border/70 bg-white/90"
+                  showFooter
+                />
+                <div className="grid gap-6 md:grid-cols-2">
+                  {Array.from({ length: 2 }).map((_, index) => (
+                    <CardSkeleton
+                      key={index}
+                      tone="soft"
+                      radius="lg"
+                      lines={3}
+                      className="border border-border/70 bg-white/90"
+                    />
+                  ))}
                 </div>
-              </section>
-
-              <LeaderboardSectionSkeleton count={8} />
-            </div>
-
-            <aside className="flex flex-col gap-6">
-              <CardSkeleton
-                tone="soft"
-                radius="lg"
-                lines={4}
-                className="border border-border/80 bg-white/95"
-              />
-              <CardSkeleton
-                tone="soft"
-                radius="lg"
-                lines={4}
-                className="border border-border/80 bg-white/95"
-              />
-              <ProductUpdatesFeedSkeleton />
-            </aside>
-          </div>
-        </div>
-      </div>
+              </div>
+            </section>
+            <LeaderboardSectionSkeleton count={8} />
+          </>
+        }
+        sidebar={
+          <>
+            <CardSkeleton
+              tone="soft"
+              radius="lg"
+              lines={4}
+              className="border border-border/80 bg-white/95"
+            />
+            <CardSkeleton
+              tone="soft"
+              radius="lg"
+              lines={4}
+              className="border border-border/80 bg-white/95"
+            />
+            <ProductUpdatesFeedSkeleton />
+          </>
+        }
+      />
     </main>
   )
 }
