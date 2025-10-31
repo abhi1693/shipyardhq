@@ -9,7 +9,6 @@ import {
   ProductUpdatesSection,
   ProductUpdatesSkeleton,
 } from "@/components/templates/public/homepage/product-updates"
-import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
 import {
   HomepageFeedSection,
   HomepageFeedSkeleton,
@@ -46,7 +45,6 @@ export default async function HomePage({
             <Suspense fallback={<HomepageFeedSkeleton />}>
               <HomepageFeedSection view={feedView} />
             </Suspense>
-            <DirectoryHowItWorks />
           </>
         }
         sidebar={
