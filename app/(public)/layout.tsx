@@ -34,7 +34,7 @@ export default async function PublicLayout({
     .map((useCase) => ({ label: useCase.label, slug: useCase.slug }))
   return (
     <StickyBannerProvider products={stickyBannerProducts}>
-      <div className="min-h-screen flex flex-col bg-white">
+      <div className="flex min-h-screen flex-col bg-[#f5f7fb]">
         <Suspense fallback={null}>
           <PublicHeader />
         </Suspense>

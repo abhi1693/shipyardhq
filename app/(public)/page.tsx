@@ -6,10 +6,6 @@ import {
   DirectoryHeaderSkeleton,
 } from "@/components/templates/public/homepage/directory-header"
 import {
-  SponsoredProductsSection,
-  SponsoredProductsSkeleton,
-} from "@/components/templates/public/homepage/sponsored-products"
-import {
   ProductUpdatesSection,
   ProductUpdatesSkeleton,
 } from "@/components/templates/public/homepage/product-updates"
@@ -31,31 +27,28 @@ export default async function HomePage({
   const feedView = resolveHomepageFeedView(resolvedSearchParams)
 
   return (
-    <main className="relative isolate bg-white">
+    <main className="relative isolate bg-[#f5f7fb]">
       <HomepageJsonLd />
-      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
+      <div className="relative mx-auto w-full max-w-7xl px-4 pb-24 pt-10 md:px-6">
         <Suspense fallback={<DirectoryHeaderSkeleton />}>
           <DirectoryHeaderSection />
         </Suspense>
 
-        <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
-          <div className="flex flex-col gap-12">
+        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,2.5fr)_minmax(0,0.85fr)]">
+          <div className="flex flex-col gap-10">
             <Suspense fallback={<HomepageFeedSkeleton />}>
               <HomepageFeedSection view={feedView} />
             </Suspense>
           </div>
 
-          <aside className="flex flex-col gap-8 lg:sticky lg:top-24">
-            <Suspense fallback={<SponsoredProductsSkeleton />}>
-              <SponsoredProductsSection />
-            </Suspense>
+          <aside className="flex w-full max-w-sm flex-col gap-6 lg:sticky lg:top-24 lg:ml-auto">
             <Suspense fallback={<ProductUpdatesSkeleton />}>
               <ProductUpdatesSection />
             </Suspense>
           </aside>
         </div>
 
-        <div className="mt-16">
+        <div className="mt-14">
           <DirectoryHowItWorks />
         </div>
       </div>
