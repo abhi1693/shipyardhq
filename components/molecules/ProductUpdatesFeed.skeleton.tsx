@@ -63,5 +63,3 @@ export function ProductUpdatesFeedSkeleton({
     </section>
   )
 }
-
-export default ProductUpdatesFeedSkeleton

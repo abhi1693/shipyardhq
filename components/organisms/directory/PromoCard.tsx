@@ -75,5 +75,3 @@ export function DirectoryPromoCard({
     </section>
   )
 }
-
-export default DirectoryPromoCard

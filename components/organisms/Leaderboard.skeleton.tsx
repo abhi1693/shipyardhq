@@ -32,5 +32,3 @@ export function LeaderboardSkeleton({
     </section>
   )
 }
-
-export default LeaderboardSkeleton

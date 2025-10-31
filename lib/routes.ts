@@ -90,7 +90,7 @@ export const monthlyLeaderboardArchivePath = (monthKey: string) => {
 export const PRICING_PATH = "/pricing" as const
 export const WHY_SHIPYARD_PATH = "/why-shipyard" as const
 export const ANALYTICS_PATH = "/analytics" as const
-export const USE_CASES_PATH = "/use-cases" as const
+const USE_CASES_PATH = "/use-cases" as const
 export const CATEGORIES_PATH = "/categories" as const
 export const USERS_PATH = "/users" as const
 export const REWARDS_PATH = "/rewards" as const

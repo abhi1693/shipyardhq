@@ -60,5 +60,3 @@ export function DirectorySectionHeader({
     </div>
   )
 }
-
-export default DirectorySectionHeader

@@ -156,5 +156,3 @@ export function InsightsShowcase({
     </section>
   )
 }
-
-export default InsightsShowcase

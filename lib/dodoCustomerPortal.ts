@@ -5,7 +5,7 @@ import type Dodo from "dodopayments"
 type PortalOpts = { sendEmail?: boolean }
 
 // Create a Dodo billing portal (customer portal) session and return the link
-export async function createDodoCustomerPortalLink(
+async function createDodoCustomerPortalLink(
   customerId: string,
   opts: PortalOpts = {},
 ): Promise<string | null> {

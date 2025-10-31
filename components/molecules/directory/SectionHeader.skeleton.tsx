@@ -88,5 +88,3 @@ export function DirectorySectionHeaderSkeleton({
     </div>
   )
 }
-
-export default DirectorySectionHeaderSkeleton

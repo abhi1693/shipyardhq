@@ -15,16 +15,3 @@ export async function fetchDodoCustomerByEmail(
     return null
   }
 }
-
-// Fetch a Dodo customer by customer_id
-export async function fetchDodoCustomerById(
-  customerId: string,
-): Promise<Dodo.Customers.Customer | null> {
-  if (!customerId) return null
-  try {
-    const customer = await dodoClient.customers.retrieve(customerId)
-    return (customer as Dodo.Customers.Customer) || null
-  } catch {
-    return null
-  }
-}

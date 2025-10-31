@@ -145,5 +145,3 @@ export function StickyBannerCarousel({
     </div>
   )
 }
-
-export default StickyBannerCarousel

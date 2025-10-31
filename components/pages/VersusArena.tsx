@@ -202,5 +202,3 @@ export function VersusArena({ initialMatchup }: VersusArenaProps) {
     </section>
   )
 }
-
-export default VersusArena
