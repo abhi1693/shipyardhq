@@ -2,6 +2,8 @@ import type { ReactNode } from "react"
 
 import ProductFeedCard from "@/components/molecules/ProductFeedCard"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { ProductCardVariant } from "@/types/product-card"
+export type { ProductCardVariant } from "@/types/product-card"
 
 export type ProductCardBase = {
   id: string
@@ -27,6 +29,7 @@ export type ProductCardItem = ProductCardBase & {
   updatedAt?: string
   isSponsored?: boolean
   meta?: ReactNode
+  variant?: ProductCardVariant
 }
 
 const FALLBACK_TAGLINE =
@@ -47,6 +50,8 @@ const resolveCategoryName = (product: ProductCardItem) =>
 
 function toFeedItem(product: ProductCardItem): HomepageFeedItem {
   const categoryName = resolveCategoryName(product)
+  const isSponsored = Boolean(product.sponsored ?? product.isSponsored)
+  const variant = product.variant ?? (isSponsored ? "sponsored" : "default")
   return {
     id: product.id,
     slug: product.slug,
@@ -60,22 +65,25 @@ function toFeedItem(product: ProductCardItem): HomepageFeedItem {
     categorySlug: product.categorySlug ?? null,
     voteCount: resolveUpvotes(product),
     updatesCount: product.updatesCount,
-    isSponsored: Boolean(product.sponsored ?? product.isSponsored),
+    isSponsored,
     isVoted: Boolean(product.isVoted),
+    variant,
   }
 }
 
 interface ProductCardProps {
   product: ProductCardItem
   className?: string
+  variant?: ProductCardVariant
 }
 
-export function ProductCard({ product, className }: ProductCardProps) {
+export function ProductCard({ product, className, variant }: ProductCardProps) {
   return (
     <ProductFeedCard
       item={toFeedItem(product)}
       className={className}
       meta={product.meta}
+      variant={variant ?? product.variant}
     />
   )
 }

@@ -17,6 +17,7 @@ export const toProductCardItem = (
     updatedAt: overrideUpdatedAt,
     isSponsored: overrideIsSponsored,
     badges: overrideBadges,
+    variant: overrideVariant,
     ...restOverrides
   } = overrides
 
@@ -48,6 +49,13 @@ export const toProductCardItem = (
       ? overrideIsSponsored
       : Boolean(base.sponsored)
 
+  const variant =
+    typeof overrideVariant !== "undefined"
+      ? overrideVariant
+      : isSponsored
+        ? "sponsored"
+        : "default"
+
   return {
     ...base,
     badges,
@@ -57,6 +65,7 @@ export const toProductCardItem = (
     createdAt,
     updatedAt,
     isSponsored,
+    variant,
     ...restOverrides,
   }
 }

@@ -909,6 +909,7 @@ export function HomepageFeedClient({
                             <ProductFeedCard
                               key={`${section.key}-${item.id}`}
                               item={item}
+                              variant="promoted"
                             />
                           ))}
                         </div>
@@ -991,6 +992,7 @@ export function HomepageFeedClient({
                         <ProductFeedCard
                           key={`${row.key}-${item.id}`}
                           item={item}
+                          variant="sponsored"
                         />
                       ))}
                     </div>

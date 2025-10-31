@@ -10,6 +10,7 @@ import {
   type HomepageFeedView,
   normalizeHomepageFeedView,
 } from "@/lib/homepage/feed-views"
+import type { ProductCardVariant } from "@/types/product-card"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
 
 const homepageFeedSelect = {
@@ -73,6 +74,7 @@ export interface HomepageFeedItem {
   updatesCount?: number
   isSponsored: boolean
   isVoted: boolean
+  variant?: ProductCardVariant
 }
 
 export interface HomepageFeedPageResult {
@@ -189,6 +191,7 @@ function mapProductToFeedItem(
     voteCount: product.analytics?.upvotes ?? 0,
     isSponsored,
     isVoted: upvoted.has(product.id),
+    variant: isSponsored ? "sponsored" : "default",
   }
 }
 

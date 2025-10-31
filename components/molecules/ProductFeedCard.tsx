@@ -18,25 +18,73 @@ import { productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { clickProductCardAction } from "@/actions/public/products/analytics"
+import type { ProductCardVariant } from "@/types/product-card"
 
 const LOGO_SIZE = 60
+
+const CARD_VARIANT_CLASSES: Record<ProductCardVariant, string> = {
+  default:
+    "border-2 border-border/70 bg-card shadow-[4px_12px_28px_-20px_rgba(7,68,134,0.26)] hover:shadow-[14px_30px_60px_-34px_rgba(7,68,134,0.45)]",
+  sponsored:
+    "border-2 border-[#F59E0B]/45 bg-[#FFF7ED] shadow-[4px_12px_28px_-20px_rgba(226,120,34,0.26)] hover:shadow-[14px_30px_60px_-34px_rgba(226,120,34,0.45)]",
+  promoted:
+    "border-2 border-[#FCD34D]/60 bg-[#FEF3C7] shadow-[4px_12px_28px_-20px_rgba(217,119,6,0.26)] hover:shadow-[14px_30px_60px_-34px_rgba(217,119,6,0.45)]",
+}
+
+const resolveVariant = ({
+  variant,
+  itemVariant,
+  isSponsored,
+}: {
+  variant?: ProductCardVariant
+  itemVariant?: ProductCardVariant
+  isSponsored: boolean
+}): ProductCardVariant => {
+  if (variant) return variant
+  if (itemVariant) return itemVariant
+  return isSponsored ? "sponsored" : "default"
+}
 
 interface ProductFeedCardProps {
   item: HomepageFeedItem
   className?: string
   meta?: ReactNode
+  variant?: ProductCardVariant
 }
 
 export function ProductFeedCard({
   item,
   className,
   meta,
+  variant,
 }: ProductFeedCardProps) {
+  const cardVariant = resolveVariant({
+    variant,
+    itemVariant: item.variant,
+    isSponsored: item.isSponsored,
+  })
+
   const cardClasses = cn(
-    "group relative flex h-full flex-col rounded-2xl border-2 border-border/70 bg-card p-5 text-left transition-shadow duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18] hover:shadow-[0_36px_90px_-48px_rgba(7,68,134,0.45)]",
-    item.isSponsored && "border-[#FACC15]/40 bg-[#FFF8EB]/90",
+    "group relative flex h-full flex-col rounded-2xl p-5 text-left transition-shadow duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18]",
+    CARD_VARIANT_CLASSES[cardVariant],
     className,
   )
+
+  const badgePresentation = (() => {
+    switch (cardVariant) {
+      case "sponsored":
+        return {
+          label: "Sponsored",
+          className:
+            "rounded-full border border-[#F97316]/40 bg-[#FDEADF] px-2 py-0.5 text-[11px] font-semibold text-[#C2410C]",
+          Icon: Flame,
+        }
+      case "promoted":
+        return null
+      default:
+        return null
+    }
+  })()
 
   const tagline =
     item.tagline?.trim() ||
@@ -44,7 +92,7 @@ export function ProductFeedCard({
 
   const badgeColorMap: Record<string, string> = {
     yellow:
-      "border-[#FACC15]/50 bg-[#FEF9C3] text-[#B45309] dark:border-[#FACC15]/40 dark:bg-[#422d0e] dark:text-[#FDE68A]",
+      "border-[#F59E0B]/50 bg-[#FEF3C7] text-[#B45309] dark:border-[#F59E0B]/40 dark:bg-[#422d0e] dark:text-[#FDE68A]",
     red: "border-[#FB923C]/55 bg-[#FFE4E6] text-[#B91C1C] dark:border-[#F97316]/40 dark:bg-[#451a0a] dark:text-[#FDBA74]",
     blue: "border-[#60A5FA]/55 bg-[#EFF6FF] text-[#1D4ED8] dark:border-[#60A5FA]/40 dark:bg-[#102036] dark:text-[#93C5FD]",
     purple:
@@ -110,9 +158,10 @@ export function ProductFeedCard({
               <h3 className="line-clamp-1 text-base font-semibold text-foreground">
                 {item.name}
               </h3>
-              {item.isSponsored ? (
-                <Badge className="rounded-full border border-[#F97316]/40 bg-[#FDEADF] px-2 py-0.5 text-[11px] font-semibold text-[#C2410C]">
-                  <Flame className="h-3 w-3" aria-hidden="true" /> Sponsored
+              {badgePresentation ? (
+                <Badge className={badgePresentation.className}>
+                  <badgePresentation.Icon className="h-3 w-3" aria-hidden="true" />{" "}
+                  {badgePresentation.label}
                 </Badge>
               ) : null}
             </div>

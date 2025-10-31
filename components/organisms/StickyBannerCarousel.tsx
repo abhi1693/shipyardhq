@@ -78,17 +78,17 @@ export function StickyBannerCarousel({
       onFocusCapture={() => handlePause(true)}
       onBlurCapture={() => handlePause(false)}
     >
-      <div className="w-full rounded-[26px] border border-[#E6E0FF] bg-[#F9F6FF] px-6 py-4 shadow-[0_26px_75px_-56px_rgba(79,63,244,0.45)]">
+      <div className="w-full rounded-2xl border-2 border-[#F59E0B]/45 bg-[#FFF7ED] px-6 py-4 shadow-[4px_12px_28px_-20px_rgba(226,120,34,0.26)] transition-shadow duration-150 hover:shadow-[14px_30px_60px_-34px_rgba(226,120,34,0.45)]">
         <Link
           href={productPath(current.slug)}
-          className="flex w-full flex-wrap items-center justify-between gap-4 text-left transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_30px_90px_-60px_rgba(79,63,244,0.48)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F3FF4]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F6FF]"
+          className="flex w-full flex-wrap items-center justify-between gap-4 text-left transition-shadow duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFF7ED]"
           style={{
             animation: `${animationId} 260ms ease`,
             animationFillMode: "both",
           }}
         >
           <div className="flex min-w-0 items-center gap-3">
-            <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#E2DEFF] bg-white shadow-[0_16px_32px_-28px_rgba(79,63,244,0.45)]">
+            <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#FEF3C7] bg-white shadow-[0_16px_32px_-28px_rgba(7,68,134,0.2)]">
               <Image
                 src={current.logo}
                 alt={current.name}
@@ -99,17 +99,17 @@ export function StickyBannerCarousel({
               />
             </span>
             <div className="min-w-0 space-y-1">
-              <span className="block truncate text-sm font-semibold text-[#1C2333]">
+              <span className="block truncate text-sm font-semibold text-[#422006]">
                 {current.name}
               </span>
               {tagline ? (
-                <span className="block text-xs text-[#5B6175]">{tagline}</span>
+                <span className="block text-xs text-[#854d0e]">{tagline}</span>
               ) : null}
             </div>
           </div>
           <Badge
             variant="outline"
-            className="shrink-0 rounded-full border-[#D8CFFF] bg-[#F2EEFF] px-3 py-1 text-[11px] font-semibold text-[#4F3FF4]"
+            className="shrink-0 rounded-full border-[#F97316]/40 bg-[#FDEADF] px-3 py-1 text-[11px] font-semibold text-[#C2410C]"
           >
             Sponsored
           </Badge>
