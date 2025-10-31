@@ -5,6 +5,7 @@ import { Sparkles } from "lucide-react"
 import { getHomepageFeatureProducts } from "@/actions/public/products/featured"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
+import { SponsorPromo } from "@/components/molecules/SponsorPromo"
 import { PRICING_PATH, productPath } from "@/lib/routes"
 
 const SPONSOR_SLOT_COUNT = 3
@@ -197,15 +198,7 @@ export async function SponsoredProductsSection() {
         ))}
       </div>
 
-      <p className="mt-6 text-xs text-muted-foreground">
-        Ready to feature your launch alongside these sponsors?{" "}
-        <Link
-          href={PRICING_PATH}
-          className="font-semibold text-primary underline-offset-4 transition hover:text-primary/80 hover:underline"
-        >
-          Advertise
-        </Link>
-      </p>
+      <SponsorPromo className="mt-6" />
     </section>
   )
 }

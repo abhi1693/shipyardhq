@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState, useId } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
-import { PRICING_PATH, productPath } from "@/lib/routes"
+import { productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/atoms/badge"
+import { SponsorPromo } from "@/components/molecules/SponsorPromo"
 
 export type StickyBannerProduct = {
   id: string
@@ -116,15 +117,7 @@ export function StickyBannerCarousel({
         </Link>
       </div>
 
-      <div className="mt-3 text-[11px] text-[#7B81A0]">
-        Want to become a sponsor and show your product here?{" "}
-        <Link
-          href={PRICING_PATH}
-          className="font-semibold text-[#4F3FF4] underline-offset-4 hover:underline"
-        >
-          Advertise
-        </Link>
-      </div>
+      <SponsorPromo className="mt-3" />
 
       <style
         dangerouslySetInnerHTML={{
