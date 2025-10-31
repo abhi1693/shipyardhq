@@ -33,7 +33,7 @@ export function ProductFeedCard({
   meta,
 }: ProductFeedCardProps) {
   const cardClasses = cn(
-    "group relative flex h-full flex-col rounded-3xl border border-border/70 bg-card p-5 text-left transition-transform duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18] hover:-translate-y-[2px] hover:shadow-[0_36px_90px_-48px_rgba(7,68,134,0.45)]",
+    "group relative flex h-full flex-col rounded-2xl border-2 border-border/70 bg-card p-5 text-left transition-shadow duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18] hover:shadow-[0_36px_90px_-48px_rgba(7,68,134,0.45)]",
     item.isSponsored && "border-[#FACC15]/40 bg-[#FFF8EB]/90",
     className,
   )
