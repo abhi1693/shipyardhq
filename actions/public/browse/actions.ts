@@ -1,20 +1,12 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
-
-const browseProductSelect = {
-  id: true,
-  slug: true,
-  name: true,
-  logo: true,
-  tagline: true,
-  analytics: { select: { upvotes: true } },
-  category: { select: { name: true } },
-} satisfies Prisma.ProductSelect
-
-type BrowseProduct = Prisma.ProductGetPayload<{
-  select: typeof browseProductSelect
-}>
+import {
+  mapProductCardRecordToBase,
+  PRIORITY_FEATURE_KEY,
+  productCardSelect,
+  type ProductCardRecord,
+} from "@/lib/products/selects"
 
 interface GetBrowseProductsOptions {
   useCaseSlug?: string
@@ -112,9 +104,6 @@ export const getBrowseProducts = cached(
             ? { name: "asc" }
             : { createdAt: "desc" }
 
-    // Priority feature key
-    const PRIORITY_KEY = "priorityPlacement"
-
     // Build where clauses for priority and regular products
     const planExclusionWhere: Prisma.ProductWhereInput = {
       // plan is null OR (plan exists AND it does NOT have the priority assignment enabled)
@@ -126,7 +115,7 @@ export const getBrowseProducts = cached(
               assignments: {
                 none: {
                   enabled: true,
-                  feature: { is: { key: PRIORITY_KEY } },
+                  feature: { is: { key: PRIORITY_FEATURE_KEY } },
                 },
               },
             },
@@ -143,7 +132,7 @@ export const getBrowseProducts = cached(
           assignments: {
             some: {
               enabled: true,
-              feature: { is: { key: PRIORITY_KEY } },
+              feature: { is: { key: PRIORITY_FEATURE_KEY } },
             },
           },
         },
@@ -195,21 +184,24 @@ export const getBrowseProducts = cached(
             orderBy,
             skip: prioritySkip,
             take: priorityTake,
-            select: browseProductSelect,
+            select: productCardSelect,
           })
-        : Promise.resolve([] as any[]),
+        : Promise.resolve([] as ProductCardRecord[]),
       regularTake
         ? prisma.product.findMany({
             where: regularWhere,
             orderBy,
             skip: regularSkip,
             take: regularTake,
-            select: browseProductSelect,
+            select: productCardSelect,
           })
-        : Promise.resolve([] as any[]),
+        : Promise.resolve([] as ProductCardRecord[]),
     ])
 
-    const products: BrowseProduct[] = [...priorityProducts, ...regularProducts]
+    const now = new Date()
+    const products = [...priorityProducts, ...regularProducts].map((product) =>
+      mapProductCardRecordToBase(product, now),
+    )
     const total = totalPriority + totalRegular
     const hasMore = skip + products.length < total
 

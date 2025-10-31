@@ -2,6 +2,12 @@ import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { extractKeywordHash, keywordToSlug, normalizeKeyword } from "@/lib/tags"
+import {
+  mapProductCardRecordToBase,
+  productCardSelect,
+  type ProductCardRecord,
+} from "@/lib/products/selects"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
 
 const TAG_LIST_LIMIT = 200
 export const TAG_PRODUCTS_PAGE_SIZE = 24
@@ -139,22 +145,10 @@ export const getKeywordTagBySlug = cached(
 
 export interface KeywordTagProductsResult {
   summary: KeywordTagSummary
-  products: CompactTagProduct[]
+  products: ProductCardBase[]
   total: number
   hasMore: boolean
 }
-
-type CompactTagProduct = Prisma.ProductGetPayload<{
-  select: {
-    id: true
-    slug: true
-    name: true
-    logo: true
-    tagline: true
-    analytics: { select: { upvotes: true } }
-    category: { select: { name: true } }
-  }
-}>
 
 async function fetchProductIdsByKeyword(
   normalizedKeyword: string,
@@ -207,27 +201,21 @@ export const getKeywordTagProducts = cached(
 
     const products = await prisma.product.findMany({
       where: { id: { in: productIds } },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        logo: true,
-        tagline: true,
-        analytics: { select: { upvotes: true } },
-        category: { select: { name: true } },
-      },
+      select: productCardSelect,
     })
 
     const productMap = new Map(products.map((product) => [product.id, product]))
     const orderedProducts = productIds
       .map((id) => productMap.get(id))
-      .filter((product): product is CompactTagProduct => Boolean(product))
+      .filter((product): product is ProductCardRecord => Boolean(product))
 
     const hasMore = offset + productIds.length < total
 
     return {
       summary,
-      products: orderedProducts,
+      products: orderedProducts.map((product) =>
+        mapProductCardRecordToBase(product),
+      ),
       total,
       hasMore,
     }
