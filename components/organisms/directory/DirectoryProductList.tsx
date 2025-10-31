@@ -5,10 +5,7 @@ import type { ComponentProps } from "react"
 
 import { Badge } from "@/components/atoms/badge"
 import ProductGrid from "@/components/molecules/ProductGrid"
-import type {
-  ProductCardBase,
-  ProductCardItem,
-} from "@/components/molecules/ProductCard"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { createStaticProductPager } from "@/lib/products/pagination"
 import { cn } from "@/lib/utils"
