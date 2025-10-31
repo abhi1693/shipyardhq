@@ -135,10 +135,10 @@ export default function PublicHeader() {
                 key={link.href}
                 href={link.href}
                 className={clsx(
-                  "inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium transition",
+                  "inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 focus-visible:ring-offset-2",
                   isActive(link.href)
-                    ? "bg-muted/40 text-foreground"
-                    : "text-muted-foreground hover:text-foreground",
+                    ? "font-semibold text-black"
+                    : "text-black/70 hover:text-black",
                 )}
               >
                 {link.label}
@@ -321,10 +321,10 @@ export default function PublicHeader() {
                         href={link.href}
                         onClick={() => setOpen(false)}
                         className={clsx(
-                          "rounded-xl border border-border/60 px-4 py-2 text-sm font-semibold transition",
+                          "rounded-xl border border-border/60 px-4 py-2 text-sm font-medium transition-colors",
                           isActive(link.href)
-                            ? "bg-muted/40 text-foreground shadow-sm"
-                            : "bg-white/70 text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                            ? "font-semibold text-black"
+                            : "bg-white/80 text-black/70 hover:bg-black/[0.04] hover:text-black",
                         )}
                       >
                         {link.label}
