@@ -5,14 +5,7 @@ import { useState } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { Button } from "@/components/atoms/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/atoms/sheet"
-import {
-  Menu,
-  LayoutDashboard,
-  LogOut,
-  UserRound,
-  Rocket,
-  Search,
-} from "lucide-react"
+import { Menu, LayoutDashboard, LogOut, UserRound, Rocket } from "lucide-react"
 import SignInCtaButton from "@/components/molecules/SignInCtaButton"
 import NotificationBell from "@/components/molecules/NotificationBell"
 import clsx from "clsx"
@@ -106,25 +99,7 @@ export default function PublicHeader() {
             </span>
           </Link>
 
-          <form
-            action={BROWSE_PATH}
-            className="hidden flex-1 items-center gap-2 rounded-full border border-border/70 bg-muted/20 px-4 py-1.5 text-sm text-muted-foreground shadow-sm transition focus-within:border-border focus-within:bg-white focus-within:text-foreground focus-within:shadow-md md:flex"
-          >
-            <Search
-              className="h-4 w-4 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <input
-              type="search"
-              name="q"
-              defaultValue={searchParams?.get("q") ?? ""}
-              placeholder="Search products..."
-              aria-label="Search products"
-              className="flex-1 bg-transparent text-base text-foreground placeholder:text-muted-foreground focus:outline-none"
-            />
-          </form>
-
-          <nav className="hidden items-center gap-1 lg:flex">
+          <nav className="ml-auto hidden items-center gap-1 lg:flex">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -280,26 +255,6 @@ export default function PublicHeader() {
                     Shipyard
                   </span>
                 </Link>
-
-                <form
-                  action={BROWSE_PATH}
-                  className="flex items-center gap-2 rounded-full border border-border/60 bg-white px-4 py-2 text-sm text-muted-foreground shadow-sm"
-                  onSubmit={() => setOpen(false)}
-                >
-                  <Search
-                    className="h-4 w-4 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                  <input
-                    type="search"
-                    name="q"
-                    defaultValue={searchParams?.get("q") ?? ""}
-                    placeholder="Search products..."
-                    aria-label="Search products"
-                    className="flex-1 bg-transparent text-base text-foreground placeholder:text-muted-foreground focus:outline-none"
-                  />
-                </form>
-
                 <div className="space-y-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
                     Navigation
