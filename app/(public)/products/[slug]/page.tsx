@@ -36,6 +36,7 @@ import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
 import ProductShareBar from "@/components/molecules/ProductShareBar"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
+import ProductReviews from "@/components/organisms/ProductReviews"
 import {
   Tooltip,
   TooltipContent,
@@ -47,13 +48,23 @@ import {
   getPublicProductBySlug,
 } from "@/actions/public/products/actions"
 import { getPublicProductUpdates } from "@/actions/public/product-updates/actions"
-import { categoryPath, productUpdatesPath, userPath } from "@/lib/routes"
+import {
+  categoryPath,
+  productPath,
+  productUpdatesPath,
+  userPath,
+} from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import { addUtmParams } from "@/lib/marketing/utm"
 import { hasPlanFeature } from "@/lib/features"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import type { ProductUpdatePublicView } from "@/types/product-updates"
+import {
+  getProductReviewSummary,
+  getUserProductReview,
+} from "@/lib/server/productReviews"
+import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -237,15 +248,28 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return notFound()
 
-  const [sidebarProduct, productUpdates] = await Promise.all([
-    getPublicProductBySlug(slug),
-    getPublicProductUpdates(product.id),
-  ])
+  const authResult = await auth()
+  const clerkUserId = authResult?.userId ?? null
+  const viewerPromise = clerkUserId
+    ? getActiveUserByClerkId(clerkUserId).catch(() => null)
+    : Promise.resolve(null)
 
-  const { userId: clerkUserId } = auth()
+  const [sidebarProduct, productUpdates, reviewSummary, viewer] =
+    await Promise.all([
+      getPublicProductBySlug(slug),
+      getPublicProductUpdates(product.id),
+      getProductReviewSummary(product.id, 6),
+      viewerPromise,
+    ])
+
+  if (!sidebarProduct) return notFound()
+
   const viewerUpvoted = clerkUserId
     ? await hasUserUpvoted(product.id, clerkUserId)
     : false
+  const viewerReview = viewer
+    ? await getUserProductReview(product.id, viewer.id).catch(() => null)
+    : null
 
   const ownerName = [product.user?.firstName, product.user?.lastName]
     .filter(Boolean)
@@ -269,6 +293,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     `/products/${product.slug}`,
     siteConfig.url,
   ).toString()
+  const redirectUrl = productPath(product.slug)
   const productTypeLabel = sidebarProduct?.type
     ? PRODUCT_TYPE_LABELS[sidebarProduct.type] ??
       formatLabel(sidebarProduct.type)
@@ -473,6 +498,21 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             <ProductUpdatesSection
               updates={productUpdates}
               productSlug={product.slug}
+            />
+            <ProductReviews
+              productId={product.id}
+              productName={product.name}
+              reviewSummary={reviewSummary}
+              viewerReview={
+                viewerReview
+                  ? {
+                      rating: viewerReview.rating,
+                      message: viewerReview.message,
+                    }
+                  : null
+              }
+              isSignedIn={Boolean(viewer)}
+              redirectUrl={redirectUrl}
             />
           </div>
         }
