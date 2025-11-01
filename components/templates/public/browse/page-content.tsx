@@ -5,17 +5,12 @@ import ProductGridClient from "@/components/molecules/ProductGridClient"
 import BrowseFilterBar from "@/components/molecules/BrowseFilterBar"
 import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
 import { DirectoryCategoryRail } from "@/components/organisms/directory/CategoryRail"
-import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
-import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
 import { BrowseFeaturedCarousel } from "@/components/organisms/BrowseFeaturedCarousel"
 import { ProductUpdatesFeed } from "@/components/molecules/ProductUpdatesFeed"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
   BROWSE_PATH,
-  LEADERBOARD_PATH,
-  LEADERBOARD_GUIDE_PATH,
   MEMBER_PRODUCTS_PATH,
-  PRICING_PATH,
   RANK_IN_PUBLIC_PATH,
 } from "@/lib/routes"
 import {
@@ -104,7 +99,7 @@ export async function BrowsePageContent({
   return (
     <main className="relative isolate bg-[#f5f7fb]">
       <PublicTwoColumnLayout
-        className="pb-24 pt-12"
+        className="pb-24 pt-10"
         mainClassName="gap-12"
         sidebarClassName="lg:sticky lg:top-24"
         main={
@@ -185,41 +180,12 @@ export async function BrowsePageContent({
                 </div>
               </section>
             </div>
-
-            <DirectoryHowItWorks />
           </>
         }
         sidebar={
           <>
             <BrowseFeaturedCarousel products={featured} />
             <DirectoryCategoryRail categories={categories} />
-            <DirectoryPromoCard
-              eyebrow="Need more reach?"
-              title="Secure premium placement before launch day"
-              description="Upgrade to sponsored placements to lock in homepage spotlights and featured tiles ahead of your drop."
-              cta={{
-                label: "Explore placement plans",
-                href: PRICING_PATH,
-                variant: "ghost",
-              }}
-              subtleCta={{
-                label: "See what gets featured",
-                href: `${BROWSE_PATH}?sort=trending`,
-              }}
-            />
-            <DirectoryPromoCard
-              eyebrow="Placement transparency"
-              title="Understand how rankings take shape"
-              description="Learn the signals, editorial calls, and sponsorship slots that determine placement across Shipyard listings."
-              cta={{
-                label: "Explore the methodology",
-                href: LEADERBOARD_GUIDE_PATH,
-              }}
-              subtleCta={{
-                label: "Watch the live standings",
-                href: LEADERBOARD_PATH,
-              }}
-            />
             <ProductUpdatesFeed updates={latestProductUpdates} />
           </>
         }
