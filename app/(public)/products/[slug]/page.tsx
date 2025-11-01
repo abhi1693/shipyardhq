@@ -2,9 +2,26 @@ export const revalidate = 60
 
 import Image from "next/image"
 import Link from "next/link"
-import { Suspense } from "react"
+import {
+  Suspense,
+  type ReactNode,
+  type ComponentType,
+  type ComponentPropsWithoutRef,
+} from "react"
 import { notFound } from "next/navigation"
-import { Calendar, ExternalLink, PlayCircle, Sparkles } from "lucide-react"
+import {
+  Apple,
+  Calendar,
+  Chrome as ChromeIcon,
+  ExternalLink,
+  Globe,
+  Laptop,
+  Monitor,
+  PlayCircle,
+  Smartphone,
+  Sparkles,
+  Terminal,
+} from "lucide-react"
 import { auth } from "@clerk/nextjs/server"
 
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
@@ -15,22 +32,112 @@ import {
 import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
 import ProductShareBar from "@/components/molecules/ProductShareBar"
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/atoms/tooltip"
+import {
   getPublicProductMetaBySlug,
   hasUserUpvoted,
+  getPublicProductBySlug,
 } from "@/actions/public/products/actions"
-import { userPath } from "@/lib/routes"
+import { categoryPath, userPath } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import { addUtmParams } from "@/lib/marketing/utm"
 import { hasPlanFeature } from "@/lib/features"
+import { BADGE_OPTIONS } from "@/lib/constants"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
 }
 
+const PRODUCT_TYPE_LABELS: Record<string, string> = {
+  saas: "SaaS",
+  browser_extension: "Browser extension",
+  mobile_app: "Mobile app",
+  desktop_app: "Desktop app",
+  api: "API",
+  open_source: "Open source",
+  other: "Other",
+}
+
+const PRICING_MODEL_LABELS: Record<string, string> = {
+  free: "Free",
+  freemium: "Freemium",
+  subscription: "Subscription",
+  one_time: "One-time",
+  custom: "Custom",
+}
+
+type PlatformMeta = {
+  label: string
+  icon: ComponentType<ComponentPropsWithoutRef<"svg">>
+}
+
+const PLATFORM_CONFIG: Record<string, PlatformMeta> = {
+  web: { label: "Web", icon: Globe },
+  ios: { label: "iOS", icon: Apple },
+  android: { label: "Android", icon: Smartphone },
+  mac: { label: "macOS", icon: Laptop },
+  windows: { label: "Windows", icon: Monitor },
+  linux: { label: "Linux", icon: Terminal },
+  chrome: { label: "Chrome extension", icon: ChromeIcon },
+}
+
+const BADGE_LOOKUP = BADGE_OPTIONS.reduce(
+  (acc, badge) => {
+    acc[badge.value] = badge
+    return acc
+  },
+  {} as Record<string, (typeof BADGE_OPTIONS)[number]>,
+)
+
+function formatLabel(value: string) {
+  return value
+    .split(/[_-]/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ")
+}
+
+function formatCurrency(
+  amountCents: number,
+  currencyCode: string | null | undefined,
+) {
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currencyCode || "USD",
+      maximumFractionDigits: 2,
+    }).format(amountCents / 100)
+  } catch {
+    return `$${(amountCents / 100).toFixed(2)}`
+  }
+}
+
+function SidebarInfoRow({
+  label,
+  children,
+}: {
+  label: string
+  children: ReactNode
+}) {
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/80">
+        {label}
+      </p>
+      <div className="text-sm text-foreground">{children}</div>
+    </div>
+  )
+}
+
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
-  const product = await getPublicProductMetaBySlug(slug)
+  const [product, sidebarProduct] = await Promise.all([
+    getPublicProductMetaBySlug(slug),
+    getPublicProductBySlug(slug),
+  ])
   if (!product) return notFound()
 
   const { userId: clerkUserId } = auth()
@@ -60,6 +167,37 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     `/products/${product.slug}`,
     siteConfig.url,
   ).toString()
+  const productTypeLabel = sidebarProduct?.type
+    ? PRODUCT_TYPE_LABELS[sidebarProduct.type] ??
+      formatLabel(sidebarProduct.type)
+    : null
+  const pricingModelLabel = sidebarProduct?.pricingModel
+    ? PRICING_MODEL_LABELS[sidebarProduct.pricingModel] ??
+      formatLabel(sidebarProduct.pricingModel)
+    : null
+  const categoryLabel = product.category?.name ?? null
+  const startingPrice =
+    typeof sidebarProduct?.startingPriceCents === "number"
+      ? formatCurrency(
+          sidebarProduct.startingPriceCents,
+          sidebarProduct.currencyCode,
+        )
+      : null
+  const platformItems = (sidebarProduct?.platforms ?? [])
+    .map((platform) => {
+      const key = String(platform)
+      const meta = PLATFORM_CONFIG[key] ?? {
+        label: formatLabel(key),
+        icon: Globe,
+      }
+      return {
+        key,
+        ...meta,
+      }
+    })
+  const activeBadgeDefs = (sidebarProduct?.badges ?? [])
+    .map((badgeKey) => BADGE_LOOKUP[badgeKey])
+    .filter(Boolean)
   const entitlementFeatures = new Set(
     (product.featureEntitlements ?? [])
       .map((feature) => feature.featureKey)
@@ -218,16 +356,91 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           </header>
         }
         sidebar={
-          <>
+          <div className="flex flex-col gap-6">
             <ProductUpvoteBadge
               productId={product.id}
               count={product.analytics?.upvotes ?? 0}
               initialUpvoted={viewerUpvoted}
             />
+            <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+              <div className="flex flex-col gap-5">
+                <SidebarInfoRow label="Product type">
+                  {productTypeLabel ? (
+                    <span>{productTypeLabel}</span>
+                  ) : (
+                    <span className="text-muted-foreground">Not specified</span>
+                  )}
+                </SidebarInfoRow>
+                <SidebarInfoRow label="Pricing model">
+                  {pricingModelLabel ? (
+                    <span>
+                      {pricingModelLabel}
+                      {startingPrice ? ` · Starts at ${startingPrice}` : ""}
+                    </span>
+                  ) : startingPrice ? (
+                    <span>Starts at {startingPrice}</span>
+                  ) : (
+                    <span className="text-muted-foreground">Not specified</span>
+                  )}
+                </SidebarInfoRow>
+                <SidebarInfoRow label="Category">
+                  {categoryLabel && product.category?.slug ? (
+                    <Link
+                      href={categoryPath(product.category.slug)}
+                      className="inline-flex items-center gap-1 font-medium text-foreground underline-offset-4 transition-colors hover:text-foreground/80 hover:underline"
+                    >
+                      {categoryLabel}
+                    </Link>
+                  ) : categoryLabel ? (
+                    <span>{categoryLabel}</span>
+                  ) : (
+                    <span className="text-muted-foreground">Not categorized</span>
+                  )}
+                </SidebarInfoRow>
+                <SidebarInfoRow label="Platforms">
+                  {platformItems.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {platformItems.map(({ key, label, icon: Icon }) => (
+                        <span
+                          key={key}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-foreground shadow-sm"
+                        >
+                          <Icon className="h-3.5 w-3.5" aria-hidden />
+                          <span>{label}</span>
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">Platforms coming soon</span>
+                  )}
+                </SidebarInfoRow>
+                <SidebarInfoRow label="Badges">
+                  {activeBadgeDefs.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {activeBadgeDefs.map((badge) => (
+                        <Tooltip key={badge.value}>
+                          <TooltipTrigger asChild>
+                            <span
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-white text-sm shadow-sm"
+                              aria-label={badge.label}
+                            >
+                              <span aria-hidden>{badge.icon}</span>
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent sideOffset={6}>{badge.label}</TooltipContent>
+                        </Tooltip>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">No badges yet</span>
+                  )}
+                </SidebarInfoRow>
+              </div>
+            </div>
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>
-          </>
+          </div>
         }
       />
     </main>
