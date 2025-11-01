@@ -1,32 +1,19 @@
 "use client"
 
 import { Flame } from "lucide-react"
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from "react"
+import { useMemo } from "react"
 import { addDays, startOfDay, startOfWeek } from "date-fns"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
-import { loadHomepageFeed } from "@/actions/public/homepage/feed"
 import ProductFeedCard from "@/components/molecules/ProductFeedCard"
-import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
 import { StickyBannerRegion } from "@/components/layout/sticky-banner-context"
 import type { HomepageFeedView } from "@/lib/homepage/feed-views"
 import { cn } from "@/lib/utils"
 
 interface HomepageFeedClientProps {
   activeFilter: HomepageFeedView
-  initialItems: HomepageFeedItem[]
-  initialPage: number
-  initialNextPage: number | null
-  initialHasMore: boolean
+  items: HomepageFeedItem[]
   className?: string
-  skeletonCount?: number
 }
 
 type BucketRow =
@@ -54,8 +41,6 @@ type FeedSection =
       title: string
       items: HomepageFeedItem[]
     }
-
-const DEFAULT_SKELETON_COUNT = 2
 
 function buildNewViewSections(items: HomepageFeedItem[]): FeedSection[] {
   if (items.length === 0) {
@@ -193,105 +178,12 @@ function buildNewViewSections(items: HomepageFeedItem[]): FeedSection[] {
 
 export function HomepageFeedClient({
   activeFilter,
-  initialItems,
-  initialPage,
-  initialNextPage,
-  initialHasMore,
+  items,
   className,
-  skeletonCount = DEFAULT_SKELETON_COUNT,
 }: HomepageFeedClientProps) {
   const view = activeFilter
-  const infiniteScrollRef = useRef<HTMLDivElement | null>(null)
-  const [items, setItems] = useState(initialItems)
-  const [page, setPage] = useState(initialPage)
-  const [nextPage, setNextPage] = useState(initialNextPage)
-  const [hasMore, setHasMore] = useState(initialHasMore)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [isPending, startTransition] = useTransition()
 
-  useEffect(() => {
-    setItems(initialItems)
-    setPage(initialPage)
-    setNextPage(initialNextPage)
-    setHasMore(initialHasMore)
-    setError(null)
-  }, [initialHasMore, initialItems, initialNextPage, initialPage])
-
-  const loadMore = useCallback(() => {
-    if (!hasMore || loading || isPending || !nextPage) {
-      return
-    }
-
-    setError(null)
-    setLoading(true)
-    startTransition(async () => {
-      try {
-        const result = await loadHomepageFeed({
-          page: nextPage,
-          view,
-        })
-        setItems((prev) => [...prev, ...result.items])
-        setPage(result.page)
-        setNextPage(result.nextPage)
-        setHasMore(result.hasMore)
-      } catch (loadError) {
-        console.error("[HomepageFeed] Failed to load more products", loadError)
-        setError("Unable to load more launches right now. Please try again.")
-      } finally {
-        setLoading(false)
-      }
-    })
-  }, [hasMore, isPending, loading, nextPage, view])
-
-  const infiniteScrollEnabled = view === "new"
-
-  useEffect(() => {
-    if (!infiniteScrollEnabled) {
-      return
-    }
-
-    const sentinel = infiniteScrollRef.current
-    if (!sentinel) {
-      return
-    }
-
-    if (!hasMore) {
-      return
-    }
-
-    let triggered = false
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const isIntersecting = entries.some((entry) => entry.isIntersecting)
-        if (!isIntersecting) {
-          return
-        }
-
-        if (triggered) {
-          return
-        }
-
-        triggered = true
-        loadMore()
-      },
-      {
-        root: null,
-        rootMargin: "0px 0px 320px 0px",
-        threshold: 0,
-      },
-    )
-
-    observer.observe(sentinel)
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [hasMore, infiniteScrollEnabled, loadMore])
-
-  const isLoading = loading || isPending
-
-  const filteredItems = useMemo(() => {
+  const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
       const aTime = new Date(a.createdAt ?? "").getTime()
       const bTime = new Date(b.createdAt ?? "").getTime()
@@ -318,18 +210,30 @@ export function HomepageFeedClient({
       return [] as FeedSection[]
     }
 
-    return buildNewViewSections(filteredItems)
-  }, [filteredItems, view])
+    return buildNewViewSections(sortedItems)
+  }, [sortedItems, view])
 
   const hasSectionedContent = sections.some((section) =>
     section.kind === "bucket"
       ? section.rows.some((row) => row.kind === "product")
       : section.items.length > 0,
   )
+
+  const hasFallbackContent = view !== "new" && sortedItems.length > 0
+
   const emptyState =
-    !hasSectionedContent && !isLoading ? (
+    !hasSectionedContent && !hasFallbackContent ? (
       <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-12 text-center text-sm font-medium text-slate-500">
         Nothing to show here yet. Check back soon for fresh launches.
+      </div>
+    ) : null
+
+  const fallbackList =
+    view !== "new" && sortedItems.length > 0 ? (
+      <div className="space-y-4">
+        {sortedItems.map((item) => (
+          <ProductFeedCard key={`feed-${item.id}`} item={item} />
+        ))}
       </div>
     ) : null
 
@@ -417,36 +321,7 @@ export function HomepageFeedClient({
         </section>
       ) : null}
 
-      {infiniteScrollEnabled ? (
-        <>
-          {isLoading && hasMore ? (
-            <div className="space-y-6" aria-hidden="true">
-              {Array.from({ length: skeletonCount }).map((_, index) => (
-                <ProductFeedCardSkeleton
-                  key={`infinite-skeleton-${page}-${index}`}
-                />
-              ))}
-            </div>
-          ) : null}
-          {hasMore ? (
-            <div
-              ref={infiniteScrollRef}
-              aria-hidden="true"
-              className="h-1 w-full"
-              data-testid="homepage-feed-infinite-sentinel"
-            />
-          ) : null}
-        </>
-      ) : null}
-
-      {error ? (
-        <div
-          className="rounded-2xl border border-[#FEE4E2] bg-[#FEF3F2] px-4 py-3 text-sm text-[#B42318]"
-          role="status"
-        >
-          {error}
-        </div>
-      ) : null}
+      {fallbackList}
 
       {emptyState}
     </div>

@@ -20,7 +20,7 @@ import {
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 
 export default async function HomePage() {
   const feedView = DEFAULT_HOMEPAGE_FEED_VIEW

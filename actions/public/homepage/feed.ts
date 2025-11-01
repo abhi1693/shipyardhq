@@ -1,6 +1,7 @@
 "use server"
 
 import { auth } from "@clerk/nextjs/server"
+import { unstable_cache } from "next/cache"
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
@@ -383,7 +384,7 @@ export async function getHomepageRecentFeedPage(
   })
 }
 
-export async function getHomepageFeedView(
+async function getHomepageFeedViewImpl(
   params: GetHomepageFeedViewParams = {},
 ): Promise<HomepageFeedPageResult> {
   const { view, ...rest } = params
@@ -391,6 +392,44 @@ export async function getHomepageFeedView(
 
   normalizeHomepageFeedView(view, DEFAULT_HOMEPAGE_FEED_VIEW)
   return getHomepageNewFeedPage(baseParams)
+}
+
+export const getHomepageFeedView = unstable_cache(
+  getHomepageFeedViewImpl,
+  ["homepage-feed-view"],
+  { revalidate: 60, tags: ["homepage-feed"] },
+)
+
+export async function getHomepageFeedViewAll(
+  params: GetHomepageFeedViewParams = {},
+): Promise<HomepageFeedItem[]> {
+  const items: HomepageFeedItem[] = []
+  const baseParams = { ...params }
+  let page = normalizePage(params.page, 1)
+  let iterations = 0
+  const MAX_PAGES = 100
+
+  while (iterations < MAX_PAGES) {
+    const result = await getHomepageFeedView({
+      ...baseParams,
+      page,
+    })
+
+    items.push(...result.items)
+    iterations += 1
+
+    if (!result.hasMore || !result.nextPage) {
+      break
+    }
+
+    if (result.nextPage === page) {
+      break
+    }
+
+    page = result.nextPage
+  }
+
+  return items
 }
 
 export async function loadHomepageFeed(params: {
