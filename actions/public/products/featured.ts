@@ -165,143 +165,91 @@ export const getFeaturedByCategorySlug = cached(
 export const getStickyBannerProducts = cached(
   async (limit = 100) => {
     const now = new Date()
-    const [schedules, planProducts] = await Promise.all([
-      prisma.placementSchedule.findMany({
-        where: {
-          featureKey: "stickyBanner",
-          status: PlacementStatus.active,
-          startsAt: { lte: now },
-          endsAt: { gte: now },
-        },
-        include: {
-          product: {
-            select: {
-              id: true,
-              slug: true,
-              name: true,
-              logo: true,
-              tagline: true,
-              category: {
-                select: {
-                  name: true,
-                },
-              },
-              organization: {
-                select: {
-                  name: true,
-                },
-              },
-              user: {
-                select: {
-                  firstName: true,
-                  lastName: true,
-                },
-              },
-              analytics: {
-                select: {
-                  upvotes: true,
-                },
-              },
-            },
-          },
-        },
-        orderBy: { startsAt: "asc" },
-        take: limit,
-      }),
-      prisma.product.findMany({
-        where: {
-          status: "published" as any,
-          plan: {
-            is: {
-              assignments: {
-                some: {
-                  enabled: true,
-                  feature: { is: { key: "stickyBanner" } },
-                },
-              },
-            },
-          },
-        },
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          logo: true,
-          tagline: true,
-          category: {
-            select: {
-              name: true,
-            },
-          },
-          organization: {
-            select: {
-              name: true,
-            },
-          },
-          user: {
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          },
-          analytics: {
-            select: {
-              upvotes: true,
-            },
-          },
-        },
-        orderBy: { updatedAt: "desc" },
-        take: limit,
-      }),
-    ])
+    const effectiveLimit = Math.max(1, limit)
 
-    const scheduleLimit = Math.max(0, limit)
+    const stickyFeatureKey = "stickyBanner"
+    const activeStatus = PlacementStatus.active
 
-    const uniqueScheduled: typeof planProducts = []
-    const seenScheduled = new Set<string>()
-    for (const entry of schedules) {
-      const product = entry.product
-      if (!product) continue
-      if (seenScheduled.has(product.id)) continue
-      seenScheduled.add(product.id)
-      uniqueScheduled.push(product)
+    const scheduledIds = await prisma.$queryRaw<{ id: string }[]>(
+      Prisma.sql`
+        SELECT DISTINCT p.id
+        FROM "PlacementSchedule" AS ps
+        INNER JOIN "Product" AS p ON p.id = ps."productId"
+        WHERE ps."featureKey" = ${stickyFeatureKey}
+          AND ps.status = ${activeStatus}
+          AND ps."startsAt" <= ${now}
+          AND ps."endsAt" >= ${now}
+          AND p.status = 'published'
+        ORDER BY RANDOM()
+        LIMIT ${effectiveLimit}
+      `,
+    )
+
+    const remaining = Math.max(effectiveLimit - scheduledIds.length, 0)
+    const scheduledIdValues = scheduledIds.map((entry) => entry.id)
+
+    const exclusionClause =
+      scheduledIdValues.length > 0
+        ? Prisma.sql`AND p.id NOT IN (${Prisma.join(scheduledIdValues)})`
+        : Prisma.sql``
+
+    const planIds =
+      remaining > 0
+        ? await prisma.$queryRaw<{ id: string }[]>(
+            Prisma.sql`
+              SELECT p.id
+              FROM "Product" AS p
+              WHERE p.status = 'published'
+                AND EXISTS (
+                  SELECT 1
+                  FROM "PlanFeatureAssignment" AS a
+                  INNER JOIN "PlanFeature" AS f
+                    ON f.id = a."featureId"
+                  WHERE a."planId" = p."planId"
+                    AND a.enabled = true
+                    AND f.key = ${stickyFeatureKey}
+                )
+                ${exclusionClause}
+              ORDER BY RANDOM()
+              LIMIT ${remaining}
+            `,
+          )
+        : []
+
+    const combinedIds = [
+      ...scheduledIdValues,
+      ...planIds.map((entry) => entry.id),
+    ]
+
+    if (!combinedIds.length) {
+      return []
     }
 
-    const limitedScheduled = uniqueScheduled.slice(0, scheduleLimit)
+    const products = await prisma.product.findMany({
+      where: {
+        id: {
+          in: combinedIds,
+        },
+      },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        logo: true,
+        tagline: true,
+      },
+    })
 
-    const planSeen = new Set(limitedScheduled.map((product) => product.id))
-    const uniquePlan: typeof planProducts = []
-    for (const product of planProducts) {
-      if (planSeen.has(product.id)) continue
-      planSeen.add(product.id)
-      uniquePlan.push(product)
-    }
+    const uniqueProducts = Array.from(
+      new Map(products.map((product) => [product.id, product])).values(),
+    )
 
-    const limitedPlan = uniquePlan.slice(0, Math.max(0, limit))
-
-    const combined = [...limitedScheduled, ...limitedPlan]
-
-    return combined.map((product) => ({
+    return uniqueProducts.slice(0, effectiveLimit).map((product) => ({
       id: product.id,
       slug: product.slug,
       name: product.name,
       logo: product.logo,
       tagline: product.tagline ?? null,
-      category: product.category
-        ? { name: product.category.name ?? null }
-        : null,
-      organization: product.organization
-        ? { name: product.organization.name ?? null }
-        : null,
-      user: product.user
-        ? {
-            firstName: product.user.firstName ?? null,
-            lastName: product.user.lastName ?? null,
-          }
-        : null,
-      analytics: product.analytics
-        ? { upvotes: product.analytics.upvotes ?? null }
-        : null,
     }))
   },
   "products:sticky-banner",
