@@ -86,28 +86,23 @@ export default function PublicHeader() {
   const navbarAuthRedirectUrl = `${MEMBER_BASE_PATH}?${navbarAuthSearch}`
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-white/85 backdrop-blur supports-[backdrop-filter]:bg-white/70">
+    <header className="sticky top-0 z-50 border-b border-border/60 bg-white shadow-[0_18px_48px_-26px_rgba(17,24,39,0.35)]">
       <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 lg:px-8">
         <div className="flex flex-1 items-center gap-3 sm:gap-4">
           <Link
             href={HOME_PATH}
-            className="group inline-flex items-center gap-3 rounded-full border border-border/70 bg-white/90 px-3 py-2 text-left shadow-sm transition hover:border-border"
+            className="group inline-flex items-center gap-2 transition hover:opacity-90"
             aria-label="ShipYardHQ home"
           >
             <BrandLogo
               width={32}
               height={32}
               sizes="(max-width: 768px) 24px, 32px"
-              className="h-8 w-8 rounded-2xl transition group-hover:scale-[1.02]"
+              className="h-8 w-8 transition group-hover:scale-[1.05]"
               preload
             />
-            <span className="flex flex-col leading-tight">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                Shipyard
-              </span>
-              <span className="text-sm font-semibold text-foreground">
-                Launch Directory
-              </span>
+            <span className="text-base font-semibold tracking-tight text-foreground">
+              Shipyard
             </span>
           </Link>
 
