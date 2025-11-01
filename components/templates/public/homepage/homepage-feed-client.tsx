@@ -246,7 +246,12 @@ export function HomepageFeedClient({
       <div className="flex flex-col gap-3">
         <div className="inline-flex items-center gap-3 text-[#B45309]">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FEF3C7] text-[#D97706]">
-            <Flame className="h-4 w-4" aria-hidden="true" />
+            <Flame
+              className="h-4 w-4"
+              aria-hidden="true"
+              fill="currentColor"
+              strokeWidth={1.75}
+            />
           </span>
           <span className="text-lg font-semibold tracking-tight">Promoted</span>
         </div>

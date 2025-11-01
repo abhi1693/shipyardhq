@@ -92,7 +92,7 @@ export function DirectoryHeader({
   return (
     <div className="space-y-6">
       <section className="flex flex-col gap-6 rounded-[28px] border border-border/70 bg-white p-6 shadow-[0_24px_80px_-60px_rgba(15,23,42,0.28)] sm:p-12">
-        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-border/80 bg-muted/40 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
+        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-border/80 bg-muted/40 px-4 py-1.5 text-xs font-semibold tracking-[0.18em] text-[color:var(--brand-1)]">
           <span aria-hidden="true">🚀</span>
           {resolvedEyebrow}
         </span>
@@ -100,15 +100,15 @@ export function DirectoryHeader({
           {isDefaultHeadline ? (
             <h1 className="text-4xl font-semibold tracking-tight text-[#1C2333] sm:text-[2.4rem]">
               <span className="bg-gradient-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] bg-clip-text text-transparent">
-                Boost
+                Secure
               </span>{" "}
-              your launch with trusted backlinks.
+              backlinks that rank fast.
               <br className="hidden sm:block" />
-              <span className="text-[color:var(--brand-1)]">Share</span>{" "}
-              progress in minutes.
+              <span className="text-[color:var(--brand-1)]">Ship</span>{" "}
+              updates in minutes.
               <br className="hidden sm:block" />
               <span className="text-[color:var(--brand-2)]">Grow</span>{" "}
-              with builders on your side.
+              with our builder community.
             </h1>
           ) : (
             <h1 className="text-4xl font-semibold tracking-tight text-[#1C2333] sm:text-5xl">

@@ -113,8 +113,13 @@ function SponsorAvatar({
 }) {
   if (placeholder) {
     return (
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-dashed border-muted-foreground/40 bg-muted/40 text-muted-foreground">
-        <Sparkles className="h-4 w-4" aria-hidden="true" />
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-dashed border-muted-foreground/40 text-muted-foreground">
+        <Sparkles
+          className="h-4 w-4 text-amber-500"
+          aria-hidden="true"
+          fill="currentColor"
+          strokeWidth={1.75}
+        />
       </span>
     )
   }
@@ -186,8 +191,13 @@ export async function SponsoredProductsSection() {
   return (
     <section className="rounded-xl border border-border bg-white p-6 shadow-sm">
       <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <Sparkles className="h-4 w-4" aria-hidden="true" />
+        <span className="text-amber-500">
+          <Sparkles
+            className="h-4 w-4"
+            aria-hidden="true"
+            fill="currentColor"
+            strokeWidth={1.75}
+          />
         </span>
         <h3 className="text-lg font-semibold text-foreground">Sponsors</h3>
       </div>
