@@ -147,7 +147,7 @@ export const getBrowsePagePayload = async (
         ? `${selectedUseCaseLabel} playbook`
         : filters.verified
           ? "Verified launches"
-          : "Browse every Shipyard launch"
+          : "Every Shipyard launch"
 
   return {
     filters,

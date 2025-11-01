@@ -133,12 +133,9 @@ export async function BrowsePageContent({
                 }}
               />
 
-              <section className="rounded-3xl border border-border/80 bg-background/85 p-6 shadow-sm shadow-black/5 md:p-8">
+              <section className="space-y-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div className="space-y-1">
-                    <h2 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
-                      {headline}
-                    </h2>
                     <p className="text-sm text-muted-foreground">
                       {filterSummary.join(" • ")}
                     </p>
@@ -153,9 +150,9 @@ export async function BrowsePageContent({
                   ) : null}
                 </div>
 
-                <div className="mt-6">
+                <div>
                   {products.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-border/70 bg-muted/20">
+                    <div className="rounded-2xl border border-dashed border-border/70 bg-muted/20 p-10 text-center">
                       <EmptyState
                         title="No results in sight"
                         description="Adjust filters or jump into another category to keep your search going."
