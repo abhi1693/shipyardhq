@@ -16,12 +16,15 @@ import {
   ExternalLink,
   Globe,
   Laptop,
+  Megaphone,
   Monitor,
   PlayCircle,
   Smartphone,
   Sparkles,
   Terminal,
 } from "lucide-react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import { auth } from "@clerk/nextjs/server"
 
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
@@ -43,12 +46,14 @@ import {
   hasUserUpvoted,
   getPublicProductBySlug,
 } from "@/actions/public/products/actions"
-import { categoryPath, userPath } from "@/lib/routes"
+import { getPublicProductUpdates } from "@/actions/public/product-updates/actions"
+import { categoryPath, productUpdatesPath, userPath } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import { addUtmParams } from "@/lib/marketing/utm"
 import { hasPlanFeature } from "@/lib/features"
 import { BADGE_OPTIONS } from "@/lib/constants"
+import type { ProductUpdatePublicView } from "@/types/product-updates"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -134,13 +139,108 @@ function SidebarInfoRow({
   )
 }
 
+function ProductUpdatesSection({
+  updates,
+  productSlug,
+}: {
+  updates: ProductUpdatePublicView[]
+  productSlug: string
+}) {
+  const visibleUpdates = updates.slice(0, 3)
+  const updatesCount = updates.length
+
+  const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
+
+  return (
+    <section className="space-y-5">
+      <div className="flex items-center gap-3">
+        <span className="h-px flex-1 bg-border" aria-hidden />
+        <div className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-base font-semibold text-foreground shadow-sm shadow-black/5">
+          <Megaphone className="h-4 w-4 text-primary" aria-hidden />
+          <span className="text-foreground">
+            Product updates ({updatesCount})
+          </span>
+        </div>
+        <span className="h-px flex-1 bg-border" aria-hidden />
+      </div>
+
+      {visibleUpdates.length ? (
+        <div className="divide-y divide-border/70">
+          {visibleUpdates.map((update) => {
+            const publishedLabel = dateFormatter.format(
+              new Date(update.publishedAt ?? update.createdAt),
+            )
+            return (
+              <article
+                key={update.id}
+                className="space-y-4 py-5 first:pt-0 last:border-b-0 last:pb-0"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="space-y-1.5">
+                    <h3 className="text-lg font-semibold text-foreground sm:text-xl">
+                      {update.title}
+                    </h3>
+                    {update.summary ? (
+                      <p className="text-sm text-muted-foreground">
+                        {update.summary}
+                      </p>
+                    ) : null}
+                  </div>
+                  <time
+                    dateTime={update.publishedAt ?? update.createdAt}
+                    className="text-xs font-medium uppercase tracking-wide text-muted-foreground/80"
+                  >
+                    {publishedLabel}
+                  </time>
+                </div>
+                {update.content ? (
+                  <div className="prose prose-sm mt-4 max-w-none text-muted-foreground [&>*:last-child]:mb-0">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      disallowedElements={["h1"]}
+                      unwrapDisallowed
+                    >
+                      {update.content}
+                    </ReactMarkdown>
+                  </div>
+                ) : null}
+              </article>
+            )
+          })}
+          {updatesCount > visibleUpdates.length ? (
+            <div className="mt-4 flex justify-end">
+              <Link
+                href={productUpdatesPath(productSlug)}
+                className="inline-flex items-center gap-1 text-sm font-semibold text-foreground underline-offset-4 transition hover:text-foreground/80 hover:underline"
+              >
+                View all updates
+              </Link>
+            </div>
+          ) : null}
+        </div>
+      ) : (
+        <p className="rounded-2xl border border-dashed border-border/70 px-6 py-7 text-center text-sm text-muted-foreground">
+          No updates yet. Check back later for updates from the team.
+        </p>
+      )}
+      <span className="block h-px w-full bg-border/80" aria-hidden />
+    </section>
+  )
+}
+
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
-  const [product, sidebarProduct] = await Promise.all([
-    getPublicProductMetaBySlug(slug),
-    getPublicProductBySlug(slug),
-  ])
+  const product = await getPublicProductMetaBySlug(slug)
   if (!product) return notFound()
+
+  const [sidebarProduct, productUpdates] = await Promise.all([
+    getPublicProductBySlug(slug),
+    getPublicProductUpdates(product.id),
+  ])
 
   const { userId: clerkUserId } = auth()
   const viewerUpvoted = clerkUserId
@@ -369,6 +469,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               bannerImage={product.bannerImage}
               media={galleryMedia}
               productName={product.name}
+            />
+            <ProductUpdatesSection
+              updates={productUpdates}
+              productSlug={product.slug}
             />
           </div>
         }
