@@ -121,10 +121,10 @@ export function ProductMediaGallery({
                 type="button"
                 onClick={() => setSelectedIndex(index)}
                 className={cn(
-                  "relative h-20 w-32 shrink-0 overflow-hidden rounded-2xl border bg-muted transition hover:border-border/80",
+                  "group relative h-20 w-32 shrink-0 overflow-hidden rounded-2xl border border-border bg-muted transition hover:border-border/80",
                   index === currentIndex
-                    ? "border-primary ring-2 ring-primary/30"
-                    : "border-border",
+                    ? "border-border/60 bg-white outline outline-2 outline-offset-2 outline-foreground/10"
+                    : undefined,
                 )}
                 aria-label={`View image ${index + 1}`}
               >
