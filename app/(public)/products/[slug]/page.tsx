@@ -1,86 +1,119 @@
-import type { Metadata } from "next"
+export const revalidate = 60
+
+import Image from "next/image"
 import { Suspense } from "react"
+import { notFound } from "next/navigation"
 
-import { ProductDetailPageContent } from "@/components/templates/public/products/detail/page-content"
-import { ProductDetailSkeleton } from "@/components/templates/public/products/detail/skeleton"
+import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+import {
+  SponsoredProductsSection,
+  SponsoredProductsSkeleton,
+} from "@/components/templates/public/homepage/sponsored-products"
 import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
-import { buildPageMetadata } from "@/lib/metadata"
-import { productPath } from "@/lib/routes"
+import { userPath } from "@/lib/routes"
+import Link from "next/link"
+import { Calendar } from "lucide-react"
 
-export async function generateMetadata(
-  props: Parameters<typeof ProductDetailPageContent>[0],
-): Promise<Metadata> {
-  const { slug } = await props.params
-  const product = await getPublicProductMetaBySlug(slug)
-  if (!product) return {}
-
-  const relativeUrl = productPath(product.slug)
-  const desc = product.tagline || product.description || undefined
-  const imageEntries = (
-    [
-      product.bannerImage
-        ? { url: product.bannerImage, alt: `${product.name} banner` }
-        : null,
-      product.logo ? { url: product.logo, alt: `${product.name} logo` } : null,
-    ] as Array<{ url: string; alt: string } | null>
-  )
-    .filter((entry): entry is { url: string; alt: string } => Boolean(entry))
-    .filter(
-      (entry, index, entries) =>
-        entries.findIndex((candidate) => candidate.url === entry.url) === index,
-    )
-
-  const authorName =
-    [product.user?.firstName || "", product.user?.lastName || ""]
-      .join(" ")
-      .trim() || undefined
-
-  const openGraphExtras = {
-    url: relativeUrl,
-    type: "website" as const,
-    ...(imageEntries.length ? { images: imageEntries } : {}),
-  }
-
-  const twitterExtras = {
-    card: "summary_large_image" as const,
-    ...(imageEntries.length
-      ? {
-          images: imageEntries.map(({ url, alt }) => ({ url, alt })),
-        }
-      : {}),
-  }
-
-  const baseMetadata = buildPageMetadata({
-    title: product.name,
-    section: "Product",
-    description: desc,
-    openGraph: openGraphExtras,
-    twitter: twitterExtras,
-  })
-
-  const robotsConfig =
-    product.status === "published"
-      ? { index: true, follow: true }
-      : { index: false, follow: false }
-
-  const keywords =
-    product.keywords && product.keywords.length ? product.keywords : undefined
-
-  return {
-    ...baseMetadata,
-    alternates: { canonical: relativeUrl },
-    robots: robotsConfig,
-    ...(keywords ? { keywords } : {}),
-    ...(authorName ? { authors: [{ name: authorName }] } : {}),
-  }
+interface ProductPageProps {
+  params: Promise<{ slug: string }>
 }
 
-export default function ProductDetailPage(
-  props: Parameters<typeof ProductDetailPageContent>[0],
-) {
+export default async function ProductDetailPage({ params }: ProductPageProps) {
+  const { slug } = await params
+  const product = await getPublicProductMetaBySlug(slug)
+  if (!product) return notFound()
+
+  const ownerName = [product.user?.firstName, product.user?.lastName]
+    .filter(Boolean)
+    .join(" ")
+  const ownerInitials = ownerName
+    ? ownerName
+        .split(/\s+/)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join("")
+        .slice(0, 2)
+    : "SP"
+  const publishedSource = product.publishedAt || product.createdAt
+  const publishedLabel = publishedSource
+    ? new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }).format(new Date(publishedSource))
+    : null
+
   return (
-    <Suspense fallback={<ProductDetailSkeleton />}>
-      <ProductDetailPageContent {...props} />
-    </Suspense>
+    <main className="bg-white">
+      <PublicTwoColumnLayout
+        className="pb-20 pt-12"
+        mainClassName="gap-8"
+        sidebarClassName="lg:sticky lg:top-24"
+        main={
+          <header className="flex flex-col gap-5">
+            <div className="flex items-center gap-5">
+              {product.logo ? (
+                <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-border bg-white shadow-sm sm:h-20 sm:w-20">
+                  <Image
+                    src={product.logo}
+                    alt={`${product.name} logo`}
+                    width={80}
+                    height={80}
+                    className="h-full w-full object-cover"
+                    priority
+                  />
+                </div>
+              ) : (
+                <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-border bg-muted text-lg font-semibold uppercase text-muted-foreground shadow-sm sm:h-20 sm:w-20">
+                  {product.name.slice(0, 2)}
+                </div>
+              )}
+              <div className="space-y-2">
+                <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+                  {product.name}
+                </h1>
+                {product.tagline ? (
+                  <p className="text-lg text-muted-foreground">
+                    {product.tagline}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
+                {ownerInitials}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {product.user?.id && ownerName ? (
+                  <Link
+                    href={userPath(product.user.id)}
+                    className="font-medium text-foreground hover:underline"
+                  >
+                    {ownerName}
+                  </Link>
+                ) : ownerName ? (
+                  <span className="font-medium text-foreground">
+                    {ownerName}
+                  </span>
+                ) : null}
+                {publishedLabel ? (
+                  <>
+                    <span aria-hidden>•</span>
+                    <span className="inline-flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground/80" />
+                      <span>Published on {publishedLabel}</span>
+                    </span>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          </header>
+        }
+        sidebar={
+          <Suspense fallback={<SponsoredProductsSkeleton />}>
+            <SponsoredProductsSection />
+          </Suspense>
+        }
+      />
+    </main>
   )
 }
