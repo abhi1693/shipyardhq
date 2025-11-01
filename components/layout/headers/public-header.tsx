@@ -267,22 +267,17 @@ export default function PublicHeader() {
                 <Link
                   href={HOME_PATH}
                   onClick={() => setOpen(false)}
-                  className="inline-flex items-center gap-3 rounded-2xl border border-border/70 bg-white/95 px-3 py-2 shadow-sm"
+                  className="inline-flex items-center gap-2 text-foreground transition hover:opacity-90"
                   aria-label="ShipYardHQ home"
                 >
                   <BrandLogo
                     width={28}
                     height={28}
                     sizes="28px"
-                    className="h-7 w-7"
+                    className="h-7 w-7 transition"
                   />
-                  <span className="flex flex-col leading-tight">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                      Shipyard
-                    </span>
-                    <span className="text-sm font-semibold text-foreground">
-                      Launch Directory
-                    </span>
+                  <span className="text-base font-semibold tracking-tight">
+                    Shipyard
                   </span>
                 </Link>
 
