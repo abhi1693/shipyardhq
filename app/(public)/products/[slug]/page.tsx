@@ -31,6 +31,7 @@ import {
 } from "@/components/templates/public/homepage/sponsored-products"
 import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
 import ProductShareBar from "@/components/molecules/ProductShareBar"
+import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
 import {
   Tooltip,
   TooltipContent,
@@ -353,6 +354,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 ) : null}
               </div>
             )}
+            <ProductDescriptionCard description={product.description} />
           </header>
         }
         sidebar={
