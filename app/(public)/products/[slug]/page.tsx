@@ -28,6 +28,7 @@ import remarkGfm from "remark-gfm"
 import { auth } from "@clerk/nextjs/server"
 
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+import { StickyBannerRegion } from "@/components/layout/sticky-banner-context"
 import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
@@ -514,6 +515,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               isSignedIn={Boolean(viewer)}
               redirectUrl={redirectUrl}
             />
+            <StickyBannerRegion priority={20} className="w-full" />
           </div>
         }
         sidebar={
