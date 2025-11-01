@@ -263,7 +263,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   const primaryUseCase = sidebarProduct.category?.useCases?.[0]?.useCase ?? null
   const similarProductsPromise = primaryUseCase?.slug
-    ? getPublicProductsByUseCase(primaryUseCase.slug, product.id)
+    ? getPublicProductsByUseCase(primaryUseCase.slug, product.id, 4)
     : Promise.resolve([])
 
   const [productUpdates, reviewSummary, viewer, similarProducts] =
@@ -550,7 +550,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   You may also like
                 </h2>
                 <div className="space-y-3">
-                  {similarProductCardItems.slice(0, 4).map((item) => (
+                  {similarProductCardItems.map((item) => (
                     <ProductCard key={item.id} product={item} />
                   ))}
                 </div>
