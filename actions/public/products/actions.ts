@@ -188,9 +188,27 @@ export const getPublicProductMetaBySlug = cached(
         bannerImage: true,
         keywords: true,
         status: true,
+        websiteUrl: true,
+        ctaLabel: true,
+        ctaUrl: true,
         category: { select: { name: true, slug: true } },
         user: { select: { id: true, firstName: true, lastName: true } },
         analytics: { select: { upvotes: true } },
+        metadata: { select: { demoUrl: true, utmCampaign: true } },
+        plan: {
+          select: {
+            assignments: {
+              select: {
+                enabled: true,
+                feature: { select: { key: true } },
+              },
+            },
+          },
+        },
+        featureEntitlements: {
+          where: { status: { in: ["active", "pending"] } },
+          select: { featureKey: true },
+        },
       },
     }),
   "product:meta-by-slug",

@@ -4,7 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
-import { Calendar } from "lucide-react"
+import { Calendar, ExternalLink, PlayCircle, Sparkles } from "lucide-react"
 import { auth } from "@clerk/nextjs/server"
 
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
@@ -13,11 +13,16 @@ import {
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
 import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
+import ProductShareBar from "@/components/molecules/ProductShareBar"
 import {
   getPublicProductMetaBySlug,
   hasUserUpvoted,
 } from "@/actions/public/products/actions"
 import { userPath } from "@/lib/routes"
+import { siteConfig } from "@/lib/siteConfig"
+import { ensureUrlHasSchema } from "@/lib/utils"
+import { addUtmParams } from "@/lib/marketing/utm"
+import { hasPlanFeature } from "@/lib/features"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -51,6 +56,52 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         year: "numeric",
       }).format(new Date(publishedSource))
     : null
+  const shareUrl = new URL(
+    `/products/${product.slug}`,
+    siteConfig.url,
+  ).toString()
+  const entitlementFeatures = new Set(
+    (product.featureEntitlements ?? [])
+      .map((feature) => feature.featureKey)
+      .filter((value): value is string => Boolean(value)),
+  )
+  const hasCustomCtaFeature =
+    hasPlanFeature(product.plan, "customCTA") ||
+    entitlementFeatures.has("customCTA")
+  const normalizedWebsiteUrl = product.websiteUrl?.trim()
+    ? ensureUrlHasSchema(product.websiteUrl.trim())
+    : null
+  const normalizedDemoUrl = product.metadata?.demoUrl?.trim()
+    ? ensureUrlHasSchema(product.metadata.demoUrl.trim())
+    : null
+  const ctaLabel = product.ctaLabel?.trim() ?? ""
+  const rawCtaUrl = product.ctaUrl?.trim() ?? ""
+  const normalizedCtaUrl = rawCtaUrl
+    ? ensureUrlHasSchema(rawCtaUrl)
+    : null
+  const withReferralParams = (url: string, content: string) =>
+    addUtmParams(url, {
+      source: "shipyard",
+      medium: "referral",
+      campaign: product.metadata?.utmCampaign ?? undefined,
+      content,
+    })
+  const websiteHref = normalizedWebsiteUrl
+    ? withReferralParams(normalizedWebsiteUrl, "visit-website")
+    : null
+  const demoHref = normalizedDemoUrl
+    ? withReferralParams(normalizedDemoUrl, "demo")
+    : null
+  const ctaHref =
+    hasCustomCtaFeature && normalizedCtaUrl
+      ? withReferralParams(normalizedCtaUrl, "cta")
+      : null
+  const effectiveCtaLabel =
+    ctaLabel || `Get started with ${product.name}`
+  const quickLinkClass =
+    "inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-sm shadow-black/5 transition-colors hover:bg-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+  const primaryQuickLinkClass =
+    "inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background shadow-sm shadow-black/10 transition-colors hover:bg-foreground/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 
   return (
     <main className="bg-white">
@@ -92,30 +143,78 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
                 {ownerInitials}
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {product.user?.id && ownerName ? (
-                  <Link
-                    href={userPath(product.user.id)}
-                    className="font-medium text-foreground hover:underline"
-                  >
-                    {ownerName}
-                  </Link>
-                ) : ownerName ? (
-                  <span className="font-medium text-foreground">
-                    {ownerName}
-                  </span>
-                ) : null}
-                {publishedLabel ? (
-                  <>
-                    <span aria-hidden>•</span>
-                    <span className="inline-flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground/80" />
-                      <span>Published on {publishedLabel}</span>
+              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  {product.user?.id && ownerName ? (
+                    <Link
+                      href={userPath(product.user.id)}
+                      className="font-medium text-foreground hover:underline"
+                    >
+                      {ownerName}
+                    </Link>
+                  ) : ownerName ? (
+                    <span className="font-medium text-foreground">
+                      {ownerName}
                     </span>
-                  </>
-                ) : null}
+                  ) : null}
+                  {publishedLabel ? (
+                    <>
+                      <span aria-hidden>•</span>
+                      <span className="inline-flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-muted-foreground/80" />
+                        <span>Published on {publishedLabel}</span>
+                      </span>
+                    </>
+                  ) : null}
+                </div>
+                <ProductShareBar
+                  productName={product.name}
+                  productTagline={product.tagline}
+                  shareUrl={shareUrl}
+                  className="ml-auto"
+                />
               </div>
             </div>
+            {(websiteHref || demoHref || ctaHref) && (
+              <div className="flex w-full flex-wrap items-center gap-2 text-sm">
+                {websiteHref ? (
+                  <a
+                    key="website"
+                    href={websiteHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={quickLinkClass}
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                    <span>Visit website</span>
+                  </a>
+                ) : null}
+                {demoHref ? (
+                  <a
+                    key="demo"
+                    href={demoHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={quickLinkClass}
+                  >
+                    <PlayCircle className="h-3.5 w-3.5" aria-hidden />
+                    <span>Visit demo</span>
+                  </a>
+                ) : null}
+                {ctaHref ? (
+                  <a
+                    key="cta"
+                    href={ctaHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={primaryQuickLinkClass}
+                  >
+                    <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                    <span>{effectiveCtaLabel}</span>
+                  </a>
+                ) : null}
+              </div>
+            )}
           </header>
         }
         sidebar={
