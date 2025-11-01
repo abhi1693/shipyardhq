@@ -1,18 +1,23 @@
 export const revalidate = 60
 
 import Image from "next/image"
+import Link from "next/link"
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
+import { Calendar } from "lucide-react"
+import { auth } from "@clerk/nextjs/server"
 
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
-import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
+import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
+import {
+  getPublicProductMetaBySlug,
+  hasUserUpvoted,
+} from "@/actions/public/products/actions"
 import { userPath } from "@/lib/routes"
-import Link from "next/link"
-import { Calendar } from "lucide-react"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -22,6 +27,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return notFound()
+
+  const { userId: clerkUserId } = auth()
+  const viewerUpvoted = clerkUserId
+    ? await hasUserUpvoted(product.id, clerkUserId)
+    : false
 
   const ownerName = [product.user?.firstName, product.user?.lastName]
     .filter(Boolean)
@@ -45,40 +55,40 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   return (
     <main className="bg-white">
       <PublicTwoColumnLayout
-        className="pb-20 pt-12"
         mainClassName="gap-8"
         sidebarClassName="lg:sticky lg:top-24"
         main={
           <header className="flex flex-col gap-5">
-            <div className="flex items-center gap-5">
-              {product.logo ? (
-                <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-border bg-white shadow-sm sm:h-20 sm:w-20">
-                  <Image
-                    src={product.logo}
-                    alt={`${product.name} logo`}
-                    width={80}
-                    height={80}
-                    className="h-full w-full object-cover"
-                    priority
-                  />
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+              <div className="flex items-start gap-5">
+                {product.logo ? (
+                  <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-border bg-white shadow-sm sm:h-20 sm:w-20">
+                    <Image
+                      src={product.logo}
+                      alt={`${product.name} logo`}
+                      width={80}
+                      height={80}
+                      priority
+                    />
+                  </div>
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-border bg-muted text-lg font-semibold uppercase text-muted-foreground shadow-sm sm:h-20 sm:w-20">
+                    {product.name.slice(0, 2)}
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+                    {product.name}
+                  </h1>
+                  {product.tagline ? (
+                    <p className="text-lg text-muted-foreground">
+                      {product.tagline}
+                    </p>
+                  ) : null}
                 </div>
-              ) : (
-                <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-border bg-muted text-lg font-semibold uppercase text-muted-foreground shadow-sm sm:h-20 sm:w-20">
-                  {product.name.slice(0, 2)}
-                </div>
-              )}
-              <div className="space-y-2">
-                <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-                  {product.name}
-                </h1>
-                {product.tagline ? (
-                  <p className="text-lg text-muted-foreground">
-                    {product.tagline}
-                  </p>
-                ) : null}
               </div>
             </div>
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
                 {ownerInitials}
               </div>
@@ -109,9 +119,16 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           </header>
         }
         sidebar={
-          <Suspense fallback={<SponsoredProductsSkeleton />}>
-            <SponsoredProductsSection />
-          </Suspense>
+          <>
+            <ProductUpvoteBadge
+              productId={product.id}
+              count={product.analytics?.upvotes ?? 0}
+              initialUpvoted={viewerUpvoted}
+            />
+            <Suspense fallback={<SponsoredProductsSkeleton />}>
+              <SponsoredProductsSection />
+            </Suspense>
+          </>
         }
       />
     </main>

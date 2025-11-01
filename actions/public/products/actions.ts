@@ -190,6 +190,7 @@ export const getPublicProductMetaBySlug = cached(
         status: true,
         category: { select: { name: true, slug: true } },
         user: { select: { id: true, firstName: true, lastName: true } },
+        analytics: { select: { upvotes: true } },
       },
     }),
   "product:meta-by-slug",
