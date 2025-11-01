@@ -51,11 +51,15 @@ export function DirectoryHeader({
   secondaryAction,
   metrics = [],
 }: DirectoryHeaderProps) {
-  const resolvedEyebrow = eyebrow ?? "Join the community, launch today"
+  const resolvedEyebrow =
+    typeof eyebrow === "string" && eyebrow.trim().length > 0
+      ? eyebrow.trim()
+      : null
   const resolvedTitle = title ?? "Shipyard homepage"
   const resolvedDescription =
     description ??
-    "Instant backlinks, curated visibility, and a community that amplifies every release."
+    "Launch once, and we handle the distribution—your story hits the right builders, fast."
+  const contentGapClass = resolvedEyebrow ? "gap-6" : "gap-5"
 
   const defaultPrimary: HeaderActionConfig = {
     label: "Launch your product now",
@@ -91,22 +95,27 @@ export function DirectoryHeader({
   const hasMetrics = metrics.length > 0
   return (
     <div className="space-y-6">
-      <section className="flex flex-col gap-6 rounded-[28px] border border-border/70 bg-white p-6 shadow-[0_24px_80px_-60px_rgba(15,23,42,0.28)] sm:p-12">
-        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-border/80 bg-muted/40 px-4 py-1.5 text-xs font-semibold tracking-[0.18em] text-[color:var(--brand-1)]">
-          <span aria-hidden="true">🚀</span>
-          {resolvedEyebrow}
-        </span>
-        <div className="space-y-4 text-balance">
+      <section
+        className={cn(
+          "flex flex-col rounded-[28px] border border-border/70 bg-white p-6 shadow-[0_24px_80px_-60px_rgba(15,23,42,0.28)] sm:p-12",
+          contentGapClass,
+        )}
+      >
+        {resolvedEyebrow ? (
+          <span className="inline-flex w-fit items-center gap-2 self-center rounded-full border border-border/80 bg-muted/40 px-4 py-1.5 text-xs font-semibold tracking-[0.18em] text-[color:var(--brand-1)]">
+            <span aria-hidden="true">🚀</span>
+            {resolvedEyebrow}
+          </span>
+        ) : null}
+        <div className="space-y-4 text-balance text-center">
           {isDefaultHeadline ? (
             <h1 className="text-4xl font-semibold tracking-tight text-[#1C2333] sm:text-[2.4rem]">
               <span className="bg-gradient-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] bg-clip-text text-transparent">
                 Secure
               </span>{" "}
-              backlinks that rank fast.
-              <br className="hidden sm:block" />
-              <span className="text-[color:var(--brand-1)]">Ship</span>{" "}
-              updates in minutes.
-              <br className="hidden sm:block" />
+              backlinks that rank fast.{" "}
+              <span className="text-[color:var(--brand-3)]">Ship</span>{" "}
+              updates in seconds.{" "}
               <span className="text-[color:var(--brand-2)]">Grow</span>{" "}
               with our builder community.
             </h1>
@@ -115,18 +124,18 @@ export function DirectoryHeader({
               {resolvedTitle}
             </h1>
           )}
-          <p className="max-w-xl text-base text-[#3B4256] sm:text-lg">
+          <p className="mx-auto max-w-xl text-base text-[#3B4256] sm:text-lg">
             {resolvedDescription}
           </p>
         </div>
         {(resolvedPrimary ?? resolvedSecondary) ? (
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             {resolvedPrimary ? renderAction(resolvedPrimary, 0) : null}
             {resolvedSecondary ? renderAction(resolvedSecondary, 1) : null}
           </div>
         ) : null}
         {hasMetrics ? (
-          <dl className="grid gap-4 border-t border-border/60 pt-6 sm:grid-cols-2 xl:grid-cols-4">
+          <dl className="grid gap-4 border-t border-border/60 pt-6 text-center sm:grid-cols-2 xl:grid-cols-4">
             {metrics.map((metric) => {
               const rawValue = stats[metric.key]
               return (
