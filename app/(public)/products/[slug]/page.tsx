@@ -32,6 +32,7 @@ import {
 import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
 import ProductShareBar from "@/components/molecules/ProductShareBar"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
+import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
 import {
   Tooltip,
   TooltipContent,
@@ -196,6 +197,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         ...meta,
       }
     })
+  const galleryMedia = (product.ProductMedia ?? [])
+    .map((item) => ({
+      id: item.id,
+      imageUrl: item.imageUrl,
+      altText: item.altText,
+    }))
+    .filter((item) => Boolean(item.imageUrl))
   const activeBadgeDefs = (sidebarProduct?.badges ?? [])
     .map((badgeKey) => BADGE_LOOKUP[badgeKey])
     .filter(Boolean)
@@ -248,114 +256,121 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         mainClassName="gap-8"
         sidebarClassName="lg:sticky lg:top-24"
         main={
-          <header className="flex flex-col gap-5">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-              <div className="flex items-start gap-5">
-                {product.logo ? (
-                  <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-border bg-white shadow-sm sm:h-20 sm:w-20">
-                    <Image
-                      src={product.logo}
-                      alt={`${product.name} logo`}
-                      width={80}
-                      height={80}
-                      priority
-                    />
+          <div className="flex flex-col gap-8">
+            <header className="flex flex-col gap-5">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="flex items-start gap-5">
+                  {product.logo ? (
+                    <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-border bg-white shadow-sm sm:h-20 sm:w-20">
+                      <Image
+                        src={product.logo}
+                        alt={`${product.name} logo`}
+                        width={80}
+                        height={80}
+                        priority
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-border bg-muted text-lg font-semibold uppercase text-muted-foreground shadow-sm sm:h-20 sm:w-20">
+                      {product.name.slice(0, 2)}
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+                      {product.name}
+                    </h1>
+                    {product.tagline ? (
+                      <p className="text-lg text-muted-foreground">
+                        {product.tagline}
+                      </p>
+                    ) : null}
                   </div>
-                ) : (
-                  <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-border bg-muted text-lg font-semibold uppercase text-muted-foreground shadow-sm sm:h-20 sm:w-20">
-                    {product.name.slice(0, 2)}
-                  </div>
-                )}
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-                    {product.name}
-                  </h1>
-                  {product.tagline ? (
-                    <p className="text-lg text-muted-foreground">
-                      {product.tagline}
-                    </p>
-                  ) : null}
                 </div>
               </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
-                {ownerInitials}
-              </div>
-              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  {product.user?.id && ownerName ? (
-                    <Link
-                      href={userPath(product.user.id)}
-                      className="font-medium text-foreground hover:underline"
-                    >
-                      {ownerName}
-                    </Link>
-                  ) : ownerName ? (
-                    <span className="font-medium text-foreground">
-                      {ownerName}
-                    </span>
-                  ) : null}
-                  {publishedLabel ? (
-                    <>
-                      <span aria-hidden>•</span>
-                      <span className="inline-flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground/80" />
-                        <span>Published on {publishedLabel}</span>
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
+                  {ownerInitials}
+                </div>
+                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {product.user?.id && ownerName ? (
+                      <Link
+                        href={userPath(product.user.id)}
+                        className="font-medium text-foreground hover:underline"
+                      >
+                        {ownerName}
+                      </Link>
+                    ) : ownerName ? (
+                      <span className="font-medium text-foreground">
+                        {ownerName}
                       </span>
-                    </>
+                    ) : null}
+                    {publishedLabel ? (
+                      <>
+                        <span aria-hidden>•</span>
+                        <span className="inline-flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground/80" />
+                          <span>Published on {publishedLabel}</span>
+                        </span>
+                      </>
+                    ) : null}
+                  </div>
+                  <ProductShareBar
+                    productName={product.name}
+                    productTagline={product.tagline}
+                    shareUrl={shareUrl}
+                    className="ml-auto"
+                  />
+                </div>
+              </div>
+              {(websiteHref || demoHref || ctaHref) && (
+                <div className="flex w-full flex-wrap items-center gap-2 text-sm">
+                  {websiteHref ? (
+                    <a
+                      key="website"
+                      href={websiteHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={quickLinkClass}
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                      <span>Visit website</span>
+                    </a>
+                  ) : null}
+                  {demoHref ? (
+                    <a
+                      key="demo"
+                      href={demoHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={quickLinkClass}
+                    >
+                      <PlayCircle className="h-3.5 w-3.5" aria-hidden />
+                      <span>Visit demo</span>
+                    </a>
+                  ) : null}
+                  {ctaHref ? (
+                    <a
+                      key="cta"
+                      href={ctaHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={primaryQuickLinkClass}
+                    >
+                      <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                      <span>{effectiveCtaLabel}</span>
+                    </a>
                   ) : null}
                 </div>
-                <ProductShareBar
-                  productName={product.name}
-                  productTagline={product.tagline}
-                  shareUrl={shareUrl}
-                  className="ml-auto"
-                />
-              </div>
-            </div>
-            {(websiteHref || demoHref || ctaHref) && (
-              <div className="flex w-full flex-wrap items-center gap-2 text-sm">
-                {websiteHref ? (
-                  <a
-                    key="website"
-                    href={websiteHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={quickLinkClass}
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                    <span>Visit website</span>
-                  </a>
-                ) : null}
-                {demoHref ? (
-                  <a
-                    key="demo"
-                    href={demoHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={quickLinkClass}
-                  >
-                    <PlayCircle className="h-3.5 w-3.5" aria-hidden />
-                    <span>Visit demo</span>
-                  </a>
-                ) : null}
-                {ctaHref ? (
-                  <a
-                    key="cta"
-                    href={ctaHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={primaryQuickLinkClass}
-                  >
-                    <Sparkles className="h-3.5 w-3.5" aria-hidden />
-                    <span>{effectiveCtaLabel}</span>
-                  </a>
-                ) : null}
-              </div>
-            )}
-            <ProductDescriptionCard description={product.description} />
-          </header>
+              )}
+              <ProductDescriptionCard description={product.description} />
+            </header>
+            <ProductMediaGallery
+              bannerImage={product.bannerImage}
+              media={galleryMedia}
+              productName={product.name}
+            />
+          </div>
         }
         sidebar={
           <div className="flex flex-col gap-6">

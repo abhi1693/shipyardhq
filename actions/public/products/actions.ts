@@ -198,6 +198,14 @@ export const getPublicProductMetaBySlug = cached(
         user: { select: { id: true, firstName: true, lastName: true } },
         analytics: { select: { upvotes: true } },
         metadata: { select: { demoUrl: true, utmCampaign: true } },
+        ProductMedia: {
+          select: {
+            id: true,
+            imageUrl: true,
+            altText: true,
+          },
+          orderBy: { createdAt: "asc" },
+        },
         plan: {
           select: {
             assignments: {

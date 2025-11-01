@@ -4,7 +4,6 @@ import Image from "next/image"
 import { useMemo, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
-import { productPageCopy } from "@/lib/copy/productPage"
 import { cn } from "@/lib/utils"
 
 interface MediaItem {
@@ -56,7 +55,6 @@ export function ProductMediaGallery({
     return null
   }
 
-  const { media: mediaCopy } = productPageCopy
   const currentItem = mediaItems[currentIndex]
   const totalAssets = mediaItems.length
 
@@ -74,24 +72,6 @@ export function ProductMediaGallery({
 
   return (
     <section className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-            {mediaCopy.eyebrow}
-          </p>
-          {totalAssets > 3 ? (
-            <span className="text-sm text-muted-foreground">
-              {mediaCopy.caption}
-            </span>
-          ) : null}
-        </div>
-        {totalAssets > 1 ? (
-          <span className="rounded-full border border-border bg-white px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
-            {totalAssets} asset{totalAssets === 1 ? "" : "s"}
-          </span>
-        ) : null}
-      </div>
-
       <div className="space-y-4 rounded-3xl border border-border bg-white p-4 shadow-sm">
         <div className="relative overflow-hidden rounded-2xl border border-border bg-muted">
           <div className="relative aspect-[16/9] w-full">
@@ -164,3 +144,5 @@ export function ProductMediaGallery({
     </section>
   )
 }
+
+export default ProductMediaGallery
