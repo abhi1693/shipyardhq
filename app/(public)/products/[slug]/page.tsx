@@ -38,6 +38,7 @@ import ProductShareBar from "@/components/molecules/ProductShareBar"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
 import ProductReviews from "@/components/organisms/ProductReviews"
+import { ProductCard } from "@/components/molecules/ProductCard"
 import {
   Tooltip,
   TooltipContent,
@@ -47,6 +48,7 @@ import {
   getPublicProductMetaBySlug,
   hasUserUpvoted,
   getPublicProductBySlug,
+  getPublicProductsByUseCase,
 } from "@/actions/public/products/actions"
 import { getPublicProductUpdates } from "@/actions/public/product-updates/actions"
 import {
@@ -66,6 +68,7 @@ import {
   getUserProductReview,
 } from "@/lib/server/productReviews"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
+import { toProductCardItem } from "@/lib/products/card-item"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -255,15 +258,21 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     ? getActiveUserByClerkId(clerkUserId).catch(() => null)
     : Promise.resolve(null)
 
-  const [sidebarProduct, productUpdates, reviewSummary, viewer] =
+  const sidebarProduct = await getPublicProductBySlug(slug)
+  if (!sidebarProduct) return notFound()
+
+  const primaryUseCase = sidebarProduct.category?.useCases?.[0]?.useCase ?? null
+  const similarProductsPromise = primaryUseCase?.slug
+    ? getPublicProductsByUseCase(primaryUseCase.slug, product.id)
+    : Promise.resolve([])
+
+  const [productUpdates, reviewSummary, viewer, similarProducts] =
     await Promise.all([
-      getPublicProductBySlug(slug),
       getPublicProductUpdates(product.id),
       getProductReviewSummary(product.id, 6),
       viewerPromise,
+      similarProductsPromise,
     ])
-
-  if (!sidebarProduct) return notFound()
 
   const viewerUpvoted = clerkUserId
     ? await hasUserUpvoted(product.id, clerkUserId)
@@ -375,6 +384,25 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     "inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-sm shadow-black/5 transition-colors hover:bg-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
   const primaryQuickLinkClass =
     "inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background shadow-sm shadow-black/10 transition-colors hover:bg-foreground/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+  const similarProductBaseItems = similarProducts.map((item) => ({
+    id: item.id,
+    slug: item.slug,
+    name: item.name,
+    logo: item.logo ?? "",
+    tagline: item.tagline ?? "",
+    analytics: item.analytics
+      ? { upvotes: item.analytics.upvotes ?? 0 }
+      : undefined,
+    category: item.category
+      ? {
+          name: item.category.name ?? null,
+          slug: item.category.slug ?? null,
+        }
+      : undefined,
+  }))
+  const similarProductCardItems = similarProductBaseItems.map((item) =>
+    toProductCardItem(item),
+  )
 
   return (
     <main className="bg-white">
@@ -516,6 +544,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               redirectUrl={redirectUrl}
             />
             <StickyBannerRegion priority={20} className="w-full" />
+            {similarProductCardItems.length ? (
+              <section className="space-y-4">
+                <h2 className="text-lg font-semibold text-foreground">
+                  You may also like
+                </h2>
+                <div className="space-y-3">
+                  {similarProductCardItems.slice(0, 4).map((item) => (
+                    <ProductCard key={item.id} product={item} />
+                  ))}
+                </div>
+              </section>
+            ) : null}
           </div>
         }
         sidebar={
