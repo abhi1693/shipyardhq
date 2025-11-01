@@ -197,7 +197,7 @@ export default function BrowseFilterBar({
             }
           }}
           placeholder="Search products in the directory"
-          className="h-12 w-full rounded-2xl border border-border/80 bg-background pl-12 pr-28 text-base text-foreground placeholder:text-muted-foreground focus-visible:border-[color:var(--brand-1)] focus-visible:ring-[color:var(--brand-1)/0.4] dark:border-border/50 dark:bg-slate-950/80"
+          className="h-12 w-full rounded-2xl border border-border/80 bg-background pl-12 pr-20 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-[color:var(--brand-1)] focus-visible:ring-[color:var(--brand-1)/0.4] dark:border-border/50 dark:bg-slate-950/80 sm:pr-28 sm:text-base"
           data-testid="browse-search"
           aria-label="Search products"
         />
@@ -206,7 +206,7 @@ export default function BrowseFilterBar({
             type="button"
             variant="ghost"
             size="sm"
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full px-3 text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--brand-1)] hover:bg-[color:var(--brand-1)/0.12]"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--brand-1)] hover:bg-[color:var(--brand-1)/0.12] sm:px-3 sm:text-xs"
             onClick={() => {
               setQ("")
               pushNoScroll(
