@@ -1,14 +1,98 @@
+import { Suspense } from "react"
+import Link from "next/link"
+import { auth } from "@clerk/nextjs/server"
 import { notFound } from "next/navigation"
 
-import { EmptyState } from "@/components/molecules/empty-state"
-import KeywordTagCloud from "@/components/molecules/KeywordTagCloud"
-import { getTagDetailPayload } from "@/lib/tags/page-cache"
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
-import TagProductsClient from "@/app/(public)/tags/[slug]/TagProductsClient"
+import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+import HomepageFeedClient from "@/components/templates/public/homepage/homepage-feed-client"
+import {
+  ProductUpdatesSection,
+  ProductUpdatesSkeleton,
+} from "@/components/templates/public/homepage/product-updates"
+import {
+  SponsoredProductsSection,
+  SponsoredProductsSkeleton,
+} from "@/components/templates/public/homepage/sponsored-products"
+import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
+import { cn } from "@/lib/utils"
+import { getTagDetailPayload } from "@/lib/tags/page-cache"
+import { toProductCardItem } from "@/lib/products/card-item"
+import {
+  HERO_PRIMARY_BUTTON_CLASSES,
+  HERO_SECONDARY_BUTTON_CLASSES,
+} from "@/components/templates/public/categories/hero-button-classes"
+import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
+import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
+import { getKeywordTagProducts } from "@/actions/public/tags/actions"
+import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { ProductCardItem } from "@/components/molecules/ProductCard"
 
 interface TagPageProps {
   params: Promise<{ slug: string }>
 }
+
+const FALLBACK_TAGLINE =
+  "Discover launch-ready tools from indie makers worldwide."
+
+function mapProductCardItemToFeedItem(
+  product: ProductCardItem,
+): HomepageFeedItem {
+  const resolveVoteCount = () => {
+    if (typeof product.voteCount === "number") return product.voteCount
+    if (typeof product.analytics?.upvotes === "number") {
+      return product.analytics.upvotes ?? 0
+    }
+    return 0
+  }
+
+  const resolveCategoryName = () => {
+    if (typeof product.categoryName !== "undefined") {
+      return product.categoryName ?? null
+    }
+    return product.category?.name ?? null
+  }
+
+  const resolveCategorySlug = () => {
+    if (typeof product.categorySlug !== "undefined") {
+      return product.categorySlug ?? null
+    }
+    return product.category?.slug ?? null
+  }
+
+  const isSponsored =
+    typeof product.isSponsored !== "undefined"
+      ? product.isSponsored
+      : Boolean(product.sponsored)
+
+  const variant =
+    typeof product.variant !== "undefined"
+      ? product.variant
+      : isSponsored
+        ? "sponsored"
+        : "default"
+
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    logo: product.logo,
+    tagline: product.tagline || FALLBACK_TAGLINE,
+    createdAt: product.createdAt ?? "",
+    updatedAt: product.updatedAt ?? "",
+    badges: product.badges ?? [],
+    category: resolveCategoryName(),
+    categorySlug: resolveCategorySlug(),
+    voteCount: resolveVoteCount(),
+    updatesCount: product.updatesCount,
+    isSponsored,
+    isVoted: Boolean(product.isVoted),
+    variant,
+  }
+}
+
+const MAX_TAG_PAGES = 50
 
 export async function TagDetailPageContent({ params }: TagPageProps) {
   const { slug } = await params
@@ -18,84 +102,156 @@ export async function TagDetailPageContent({ params }: TagPageProps) {
     notFound()
   }
 
-  const { summary, products, summaries } = payload
-  const navSummaries = [
-    summary,
-    ...summaries.filter((item) => item.slug !== summary.slug),
-  ]
-  const cloudItems = navSummaries.map((summary) => ({
-    slug: summary.slug,
-    label: formatTagLabel(summary.canonical || summary.keyword),
-    count: summary.productCount,
-    href: `/tags/${summary.slug}`,
-  }))
+  const { summary, products } = payload
+  const tagLabel = formatTagLabel(summary.canonical || summary.keyword)
+  const totalTaggedProducts = summary.productCount
 
-  const total = products.total
-  const activeLabel = formatTagLabel(summary.canonical || summary.keyword)
+  const collectedProducts = [...products.products]
+  let hasMore = products.hasMore
+  let page = 2
+
+  while (hasMore && page <= MAX_TAG_PAGES) {
+    const nextPage = await getKeywordTagProducts(summary.slug, page)
+    if (!nextPage) {
+      break
+    }
+
+    collectedProducts.push(...nextPage.products)
+
+    const expectedTotal = nextPage.total ?? totalTaggedProducts
+    hasMore = nextPage.hasMore && collectedProducts.length < expectedTotal
+    page += 1
+  }
+
+  const tagProductItems = collectedProducts.map((product) =>
+    toProductCardItem(product),
+  )
+  const tagProductIdSet = new Set(tagProductItems.map((item) => item.id))
+
+  const { userId } = await auth()
+  const homepageFeedItems = await getHomepageFeedViewAll({
+    view: DEFAULT_HOMEPAGE_FEED_VIEW,
+    clerkUserId: userId,
+  })
+
+  const filteredHomepageItems = homepageFeedItems.filter((item) => {
+    if (item.isSponsored) {
+      return true
+    }
+    return tagProductIdSet.has(item.id)
+  })
+
+  const seenIds = new Set(filteredHomepageItems.map((item) => item.id))
+
+  const fallbackFeedItems = tagProductItems
+    .filter((item) => !seenIds.has(item.id))
+    .map((item) => mapProductCardItemToFeedItem(item))
+    .sort((a, b) => {
+      const aTime = new Date(a.createdAt ?? "").getTime()
+      const bTime = new Date(b.createdAt ?? "").getTime()
+      if (Number.isNaN(aTime) && Number.isNaN(bTime)) return 0
+      if (Number.isNaN(aTime)) return 1
+      if (Number.isNaN(bTime)) return -1
+      return bTime - aTime
+    })
+
+  const combinedFeedItems: HomepageFeedItem[] = []
+  const combinedSeen = new Set<string>()
+
+  for (const item of filteredHomepageItems) {
+    if (combinedSeen.has(item.id)) continue
+    combinedSeen.add(item.id)
+    combinedFeedItems.push(item)
+  }
+
+  for (const item of fallbackFeedItems) {
+    if (combinedSeen.has(item.id)) continue
+    combinedSeen.add(item.id)
+    combinedFeedItems.push(item)
+  }
+
+  const taggedCount = tagProductIdSet.size
 
   return (
-    <main className="bg-white">
-      <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:px-10">
-        <header className="space-y-3 pb-10">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-600">
-            Tag Directory
-          </p>
-          <h1 className="text-4xl font-semibold text-slate-900">
-            {activeLabel} launches
-          </h1>
-          <p className="max-w-2xl text-base text-slate-600">
-            These products include the “{activeLabel}” keyword. Explore related
-            tools or switch tags to explore adjacent themes.
-          </p>
-        </header>
-
-        <div className="space-y-10">
-          <section className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-6 sm:px-6">
-            <header className="mb-4 space-y-1">
-              <h2 className="text-lg font-semibold text-slate-900">
-                Explore related tags
-              </h2>
-              <p className="text-sm text-slate-600">
-                Jump to other high-signal keywords from this product cluster.
-              </p>
-            </header>
-            <KeywordTagCloud
-              items={cloudItems}
-              activeSlug={summary.slug}
-              className="pt-2"
-            />
-          </section>
-
-          <section className="space-y-6">
-            <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-6">
-              <div className="space-y-1">
-                <h2 className="text-2xl font-semibold text-slate-900">
-                  {activeLabel}
-                </h2>
-                <p className="text-sm text-slate-600">
-                  {total} product{total === 1 ? "" : "s"} tagged with this
-                  keyword.
+    <main className="relative isolate bg-[#f5f7fb]">
+      <PublicTwoColumnLayout
+        className="pb-24 pt-12"
+        mainClassName="gap-10"
+        sidebarClassName="lg:sticky lg:top-24"
+        main={
+          <>
+            <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
+              <div className="mx-auto flex max-w-2xl flex-col items-center gap-6">
+                <div className="space-y-4">
+                  <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+                    {tagLabel}
+                  </h1>
+                  <p className="text-base text-muted-foreground">
+                    Explore launches using the “{tagLabel}” keyword.
+                  </p>
+                </div>
+                <p className="text-sm font-medium text-muted-foreground/80">
+                  {new Intl.NumberFormat().format(totalTaggedProducts)}{" "}
+                  {totalTaggedProducts === 1 ? "product" : "products"} currently
+                  include this tag.
                 </p>
+                <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
+                  <Link
+                    href={MEMBER_PRODUCTS_PATH}
+                    className={cn(
+                      HERO_PRIMARY_BUTTON_CLASSES,
+                      "w-full justify-center sm:w-auto",
+                    )}
+                  >
+                    Launch with this keyword
+                  </Link>
+                  <Link
+                    href={PRICING_PATH}
+                    className={cn(
+                      HERO_SECONDARY_BUTTON_CLASSES,
+                      "w-full justify-center sm:w-auto",
+                    )}
+                  >
+                    Explore promotion tiers
+                  </Link>
+                </div>
               </div>
-            </div>
+            </section>
 
-            {products.products.length > 0 ? (
-              <TagProductsClient
-                slug={summary.slug}
-                initialItems={products.products}
-                initialHasMore={products.hasMore}
-                initialPage={2}
-                total={total}
-              />
-            ) : (
-              <EmptyState
-                title="No products yet"
-                description="Products will appear here once they use this keyword."
-              />
-            )}
-          </section>
-        </div>
-      </div>
+            <HeroStickyBanner wrapperClassName="px-0" innerClassName="max-w-none" />
+
+            <section className="space-y-6" data-testid="tag-feed-section">
+              <h2 className="sr-only">Tag feed</h2>
+              {combinedFeedItems.length > 0 ? (
+                <HomepageFeedClient
+                  activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
+                  items={combinedFeedItems}
+                />
+              ) : (
+                <div className="rounded-3xl border border-dashed border-border/40 bg-white/70 px-6 py-12 text-center text-sm font-medium text-muted-foreground">
+                  No launches use this keyword yet. Check back soon.
+                </div>
+              )}
+              {taggedCount > 0 ? (
+                <p className="text-center text-xs uppercase tracking-[0.2em] text-muted-foreground/80">
+                  Showing {new Intl.NumberFormat().format(taggedCount)} tagged
+                  product{taggedCount === 1 ? "" : "s"}
+                </p>
+              ) : null}
+            </section>
+          </>
+        }
+        sidebar={
+          <>
+            <Suspense fallback={<SponsoredProductsSkeleton />}>
+              <SponsoredProductsSection />
+            </Suspense>
+            <Suspense fallback={<ProductUpdatesSkeleton />}>
+              <ProductUpdatesSection />
+            </Suspense>
+          </>
+        }
+      />
     </main>
   )
 }
