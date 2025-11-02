@@ -69,6 +69,8 @@ import {
 } from "@/lib/server/productReviews"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { toProductCardItem } from "@/lib/products/card-item"
+import { keywordToSlug } from "@/lib/tags"
+import { formatTagLabel } from "@/app/(public)/tags/_utils"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -360,6 +362,20 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const activeBadgeDefs = (sidebarProduct?.badges ?? [])
     .map((badgeKey) => BADGE_LOOKUP[badgeKey])
     .filter(Boolean)
+  const keywordTagItems = Array.from(
+    new Set(
+      (product.keywords ?? [])
+        .map((keyword) => keyword?.trim())
+        .filter((keyword): keyword is string => Boolean(keyword)),
+    ),
+  ).map((keyword) => {
+    const slugValue = keywordToSlug(keyword)
+    const formattedLabel = formatTagLabel(keyword)
+    return {
+      slug: slugValue,
+      label: formattedLabel || keyword,
+    }
+  })
   const entitlementFeatures = new Set(
     (product.featureEntitlements ?? [])
       .map((feature) => feature.featureKey)
@@ -542,6 +558,24 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               media={galleryMedia}
               productName={product.name}
             />
+            {keywordTagItems.length ? (
+              <div className="space-y-3">
+                <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                  Tags
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {keywordTagItems.map((tag) => (
+                    <Link
+                      key={tag.slug}
+                      href={`/tags/${tag.slug}`}
+                      className="text-sm font-medium text-foreground underline decoration-dotted underline-offset-4 transition hover:text-foreground/80"
+                    >
+                      #{tag.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : null}
             <ProductUpdatesSection
               updates={productUpdates}
               productSlug={product.slug}
