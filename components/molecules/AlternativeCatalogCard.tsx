@@ -1,6 +1,4 @@
 import Link from "next/link"
-import { ArrowUpRight } from "lucide-react"
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { cn } from "@/lib/utils"
 import type { AlternativeCatalogItem } from "@/actions/public/alternatives/actions"
@@ -16,7 +14,7 @@ export function AlternativeCatalogCard({
   className,
 }: AlternativeCatalogCardProps) {
   const count = alternative._count.products
-  const countLabel = `${count} alternative${count === 1 ? "" : "s"}`
+  const countLabel = `${count.toLocaleString()} alternative${count === 1 ? "" : "s"}`
   const initials = getInitials(alternative.name)
   const websiteUrl = alternative.websiteUrl?.trim()
   const detailHref = alternativePath(alternative.slug)
@@ -24,10 +22,13 @@ export function AlternativeCatalogCard({
   const content = (
     <article
       className={cn(
-        "group flex h-full flex-col rounded-2xl border border-border bg-white p-5 shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-md",
+        "group relative flex h-full flex-col rounded-2xl border border-border bg-white p-5 shadow-sm transition-shadow duration-200 hover:shadow-md",
         className,
       )}
     >
+      <span className="absolute right-5 top-5 inline-flex items-center gap-2 rounded-full border border-border/60 bg-muted/30 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {countLabel}
+      </span>
       <header className="flex items-start gap-4">
         <Avatar className="h-12 w-12 border border-border bg-white shadow-sm">
           {alternative.logoUrl ? (
@@ -46,23 +47,16 @@ export function AlternativeCatalogCard({
             {alternative.name}
           </h3>
           {websiteUrl ? (
-            <p className="inline-flex items-center gap-1 text-sm font-medium text-primary">
-              <span className="truncate">{cleanHost(websiteUrl)}</span>
-              <ArrowUpRight className="h-4 w-4 shrink-0 opacity-80 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" />
+            <p className="truncate text-sm font-medium text-primary">
+              {cleanHost(websiteUrl)}
             </p>
           ) : null}
         </div>
       </header>
 
-      <p className="mt-4 text-sm leading-relaxed text-muted-foreground break-words">
+      <p className="mt-4 flex-1 break-words text-sm leading-relaxed text-muted-foreground">
         {alternative.description}
       </p>
-
-      <footer className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
-        <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-muted/30 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          {countLabel}
-        </span>
-      </footer>
     </article>
   )
 
