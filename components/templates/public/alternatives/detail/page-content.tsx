@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
@@ -10,11 +11,29 @@ import {
 import AlternativeProductsClient from "@/app/(public)/alternatives/[slug]/AlternativeProductsClient"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { EmptyState } from "@/components/molecules/empty-state"
-import { AlternativeCatalogCard } from "@/components/molecules/AlternativeCatalogCard"
-import { ALTERNATIVES_PATH, alternativePath, productPath } from "@/lib/routes"
-import { brandGradient } from "@/lib/ui/tints"
+import {
+  ALTERNATIVES_PATH,
+  BROWSE_PATH,
+  MEMBER_PRODUCTS_PATH,
+  alternativePath,
+  productPath,
+} from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { siteConfig } from "@/lib/siteConfig"
+import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+import {
+  SponsoredProductsSection,
+  SponsoredProductsSkeleton,
+} from "@/components/templates/public/homepage/sponsored-products"
+import {
+  ProductUpdatesSection,
+  ProductUpdatesSkeleton,
+} from "@/components/templates/public/homepage/product-updates"
+import {
+  HERO_PRIMARY_BUTTON_CLASSES,
+  HERO_SECONDARY_BUTTON_CLASSES,
+} from "@/components/templates/public/categories/hero-button-classes"
 
 interface AlternativeDetailPageProps {
   params: Promise<{ slug: string }>
@@ -175,7 +194,7 @@ export async function AlternativeDetailPageContent({
   const breadcrumbJson = JSON.stringify(breadcrumbData)
 
   return (
-    <main className="relative isolate bg-white">
+    <main className="relative isolate bg-[#f5f7fb]">
       <script
         type="application/ld+json"
         suppressHydrationWarning
@@ -190,116 +209,165 @@ export async function AlternativeDetailPageContent({
           __html: breadcrumbJson,
         }}
       />
-      <div className="mx-auto w-full max-w-[120rem] px-4 pb-24 pt-16 sm:px-6 lg:px-8">
-        <div className="space-y-14">
-          <section
-            className={brandGradient(
-              "relative overflow-hidden rounded-3xl border border-border px-6 py-16 shadow-sm sm:px-10",
-            )}
-          >
-            <div className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
-              <Avatar className="h-20 w-20 border border-white/30 bg-white/20 shadow-inner">
-                {alternative.logoUrl ? (
-                  <AvatarImage
-                    src={alternative.logoUrl}
-                    alt={`${alternative.name} logo`}
-                  />
-                ) : (
-                  <AvatarFallback className="text-lg font-semibold uppercase tracking-wide text-white">
-                    {avatarInitials}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-
-              <div className="space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
-                  Alternatives
-                </p>
-                <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                  Best {alternative.name} Alternatives
-                </h1>
-              </div>
-
-              <p className="max-w-xl text-base text-white/85 sm:text-lg">
-                {subheading}
-              </p>
-
-              {alternative.description ? (
-                <p className="max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base">
-                  {alternative.description}
-                </p>
-              ) : null}
-
-              {websiteUrl ? (
-                <Link
-                  href={websiteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    "inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition",
-                    "hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+      <PublicTwoColumnLayout
+        className="pb-24 pt-12"
+        mainClassName="space-y-12"
+        sidebarClassName="lg:sticky lg:top-24"
+        main={
+          <>
+            <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
+              <div className="mx-auto flex max-w-2xl flex-col items-center gap-6">
+                <Avatar className="h-20 w-20 border border-border/50 bg-muted/30 shadow-[0_18px_42px_-28px_rgba(7,68,134,0.35)]">
+                  {alternative.logoUrl ? (
+                    <AvatarImage
+                      src={alternative.logoUrl}
+                      alt={`${alternative.name} logo`}
+                    />
+                  ) : (
+                    <AvatarFallback className="text-lg font-semibold uppercase tracking-wide text-muted-foreground">
+                      {avatarInitials}
+                    </AvatarFallback>
                   )}
-                >
-                  Visit {alternative.name}
-                </Link>
-              ) : null}
-            </div>
-          </section>
+                </Avatar>
 
-          <section className="space-y-6 rounded-3xl border border-border bg-white px-4 py-8 shadow-sm sm:px-6 lg:px-8">
-            <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
-              <div className="space-y-1">
-                <h2 className="text-2xl font-semibold text-slate-900">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                      Alternatives
+                    </p>
+                    <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+                      Best {alternative.name} alternatives
+                    </h1>
+                  </div>
+                  <p className="text-base text-muted-foreground sm:text-lg">
+                    {subheading}
+                  </p>
+                  {alternative.description ? (
+                    <p className="text-sm leading-relaxed text-muted-foreground/90 sm:text-base">
+                      {alternative.description}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row sm:justify-center sm:gap-4">
+                  <Link
+                    href={MEMBER_PRODUCTS_PATH}
+                    className={cn(
+                      HERO_PRIMARY_BUTTON_CLASSES,
+                      "w-full justify-center sm:w-auto",
+                    )}
+                  >
+                    Submit your alternative
+                  </Link>
+                  <Link
+                    href={BROWSE_PATH}
+                    className={cn(
+                      HERO_SECONDARY_BUTTON_CLASSES,
+                      "w-full justify-center sm:w-auto",
+                    )}
+                  >
+                    Browse the directory
+                  </Link>
+                </div>
+
+                {websiteUrl ? (
+                  <Link
+                    href={websiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-semibold text-primary transition hover:text-primary/80"
+                  >
+                    Visit {alternative.name}
+                  </Link>
+                ) : null}
+              </div>
+            </section>
+
+            <HeroStickyBanner
+              wrapperClassName="px-0"
+              innerClassName="max-w-none"
+            />
+
+            <section className="space-y-6">
+              <header className="space-y-1 text-left">
+                <h2 className="text-2xl font-semibold text-foreground">
                   Products like {alternative.name}
                 </h2>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-muted-foreground">
                   {productsPage.total} product
-                  {productsPage.total === 1 ? "" : "s"} positioned as
-                  alternative{productsPage.total === 1 ? "" : "s"} to{" "}
-                  {alternative.name}.
-                </p>
-              </div>
-            </header>
-
-            {hasProducts ? (
-              <AlternativeProductsClient
-                alternativeId={alternative.id}
-                initialItems={productsPage.items}
-                initialHasMore={productsPage.hasMore}
-                initialPage={productsPage.nextPage ?? 2}
-                pageSize={ALTERNATIVE_DETAIL_PAGE_SIZE}
-              />
-            ) : (
-              <EmptyState
-                title="No linked alternatives yet"
-                description={`Products will appear here once Shipyard launches are mapped as alternatives to ${alternative.name}.`}
-              />
-            )}
-          </section>
-
-          {hasFeaturedAlternatives ? (
-            <section className="space-y-6 rounded-3xl border border-border bg-white px-4 py-8 shadow-sm sm:px-6 lg:px-8">
-              <header className="space-y-1">
-                <h2 className="text-2xl font-semibold text-slate-900">
-                  Featured alternatives
-                </h2>
-                <p className="text-sm text-slate-600">
-                  Explore other vetted alternatives in the Shipyard library.
+                  {productsPage.total === 1 ? "" : "s"} mapped as alternatives
+                  to {alternative.name}.
                 </p>
               </header>
 
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {featuredAlternatives.map((featured) => (
-                  <AlternativeCatalogCard
-                    key={featured.id}
-                    alternative={featured}
-                  />
-                ))}
-              </div>
+              {hasProducts ? (
+                <AlternativeProductsClient
+                  alternativeId={alternative.id}
+                  initialItems={productsPage.items}
+                  initialHasMore={productsPage.hasMore}
+                  initialPage={productsPage.nextPage ?? 2}
+                  pageSize={ALTERNATIVE_DETAIL_PAGE_SIZE}
+                />
+              ) : (
+                <EmptyState
+                  title="No linked alternatives yet"
+                  description={`Products will appear here once Shipyard launches are mapped as alternatives to ${alternative.name}.`}
+                />
+              )}
             </section>
-          ) : null}
-        </div>
-      </div>
+
+            {hasFeaturedAlternatives ? (
+              <section className="space-y-6 rounded-3xl border border-border/40 bg-white px-6 py-8 shadow-[0_24px_80px_-60px_rgba(7,58,104,0.35)]">
+                <header className="space-y-2 text-left">
+                  <h2 className="text-2xl font-semibold text-foreground">
+                    Featured alternatives
+                  </h2>
+                </header>
+
+                <ul className="divide-y divide-border/60 border-y border-border/60">
+                  {featuredAlternatives.map((featured) => {
+                    const count = featured._count.products
+                    const countLabel = `${count.toLocaleString()} product${count === 1 ? "" : "s"}`
+
+                    return (
+                      <li key={featured.id}>
+                        <Link
+                          href={alternativePath(featured.slug)}
+                          className="flex flex-col gap-2 px-4 py-4 transition hover:bg-muted/40 hover:text-primary"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <span className="text-base font-semibold text-foreground">
+                              {featured.name}
+                            </span>
+                            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                              {countLabel}
+                            </span>
+                          </div>
+                          {featured.description ? (
+                            <p className="text-sm text-muted-foreground">
+                              {featured.description}
+                            </p>
+                          ) : null}
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </section>
+            ) : null}
+          </>
+        }
+        sidebar={
+          <>
+            <Suspense fallback={<SponsoredProductsSkeleton />}>
+              <SponsoredProductsSection />
+            </Suspense>
+            <Suspense fallback={<ProductUpdatesSkeleton />}>
+              <ProductUpdatesSection />
+            </Suspense>
+          </>
+        }
+      />
     </main>
   )
 }
