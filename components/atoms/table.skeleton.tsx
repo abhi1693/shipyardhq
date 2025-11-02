@@ -59,7 +59,7 @@ interface TableRowSkeletonProps {
   dense?: boolean
 }
 
-export function TableRowSkeleton({
+function TableRowSkeleton({
   columns = 4,
   dense = false,
 }: TableRowSkeletonProps) {

@@ -92,7 +92,6 @@ export async function BrowsePageContent({
     stats,
     latestProductUpdates,
     filterSummary,
-    headline,
     hasActiveFilters,
   } = await getBrowsePagePayload(parsedFilters)
 
