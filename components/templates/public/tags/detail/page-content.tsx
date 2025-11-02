@@ -6,7 +6,7 @@ import { notFound } from "next/navigation"
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
-import HomepageFeedClient from "@/components/templates/public/homepage/homepage-feed-client"
+import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
 import {
   ProductUpdatesSection,
   ProductUpdatesSkeleton,
@@ -226,7 +226,7 @@ export async function TagDetailPageContent({ params }: TagPageProps) {
             <section className="space-y-6" data-testid="tag-feed-section">
               <h2 className="sr-only">Tag feed</h2>
               {combinedFeedItems.length > 0 ? (
-                <HomepageFeedClient
+                <ProductFeedList
                   activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
                   items={combinedFeedItems}
                 />

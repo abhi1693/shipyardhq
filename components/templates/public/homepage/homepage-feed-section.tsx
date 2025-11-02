@@ -4,7 +4,7 @@ import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
 import { HOMEPAGE_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 import type { HomepageFeedView } from "@/lib/homepage/feed-views"
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
-import HomepageFeedClient from "./homepage-feed-client"
+import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
 
 interface HomepageFeedSectionProps {
   view: HomepageFeedView
@@ -20,7 +20,10 @@ export async function HomepageFeedSection({ view }: HomepageFeedSectionProps) {
 
   return (
     <section className="space-y-6" data-testid="homepage-feed-section">
-      <HomepageFeedClient activeFilter={view} items={items} />
+      <ProductFeedList
+        activeFilter={view}
+        items={items}
+      />
     </section>
   )
 }

@@ -19,7 +19,7 @@ import {
 import { getCategoryDetailPayload } from "@/lib/categories/page-cache"
 import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
-import HomepageFeedClient from "@/components/templates/public/homepage/homepage-feed-client"
+import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
 import {
   HERO_PRIMARY_BUTTON_CLASSES,
   HERO_SECONDARY_BUTTON_CLASSES,
@@ -111,7 +111,7 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
             />
 
             <section className="space-y-6" data-testid="category-feed-section">
-              <HomepageFeedClient
+              <ProductFeedList
                 activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
                 items={categoryFeedItems}
               />
