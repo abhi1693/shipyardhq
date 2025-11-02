@@ -1,16 +1,25 @@
+import { Suspense } from "react"
+import { auth } from "@clerk/nextjs/server"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 
-import FeaturedBanner from "@/components/molecules/FeaturedBanner"
-import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
-import { CategoryProductsClient } from "@/app/(public)/categories/[slug]/client-products"
-import { pluralize } from "@/lib/pluralize"
 import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
-import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
-import { brandGradient, gradientTint } from "@/lib/ui/tints"
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+import { cn } from "@/lib/utils"
+import { SponsoredProductsSection, SponsoredProductsSkeleton } from "@/components/templates/public/homepage/sponsored-products"
+import { ProductUpdatesSection, ProductUpdatesSkeleton } from "@/components/templates/public/homepage/product-updates"
 import { getCategoryDetailPayload } from "@/lib/categories/page-cache"
+import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
+import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
+import HomepageFeedClient from "@/components/templates/public/homepage/homepage-feed-client"
+
+const HERO_PRIMARY_BUTTON_CLASSES =
+  "inline-flex h-11 min-w-[12rem] items-center justify-center gap-2 rounded-full bg-[#111827] px-6 text-sm font-semibold text-white shadow-[0_18px_30px_-18px_rgba(17,24,39,0.6)] transition hover:bg-[#0f172a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111827]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+
+const HERO_SECONDARY_BUTTON_CLASSES =
+  "inline-flex h-11 min-w-[12rem] items-center justify-center gap-2 rounded-full border border-border/80 bg-white px-6 text-sm font-semibold text-foreground shadow-[0_12px_28px_-24px_rgba(15,23,42,0.22)] transition hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)]/15 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
@@ -24,172 +33,93 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
     notFound()
   }
 
-  const { category, products, metrics, featured } = data
+  const { category } = data
 
-  const heroHighlights = [
-    `${pluralize(metrics.totalProducts, "launch")} live`,
-    metrics.totalFeatured > 0
-      ? `${metrics.totalFeatured} featured spot${metrics.totalFeatured === 1 ? "" : "s"}`
-      : "Feature your launch",
-    metrics.totalPriority > 0
-      ? `${metrics.totalPriority} premium placement${metrics.totalPriority === 1 ? "" : "s"}`
-      : "Premium slots open",
-  ]
+  const { userId } = await auth()
+  const homepageFeedItems = await getHomepageFeedViewAll({
+    view: DEFAULT_HOMEPAGE_FEED_VIEW,
+    clerkUserId: userId,
+  })
+
+  const categorySlug = category.slug?.toLowerCase()
+  const categoryName = category.name?.toLowerCase()
+  const categoryFeedItems = homepageFeedItems.filter((item) => {
+    if (item.isSponsored) return true
+    const itemSlug = item.categorySlug?.toLowerCase()
+    if (itemSlug && categorySlug && itemSlug === categorySlug) {
+      return true
+    }
+    const itemCategory = item.category?.toLowerCase()
+    return Boolean(itemCategory && categoryName && itemCategory === categoryName)
+  })
 
   return (
-    <main className="relative isolate bg-white">
-      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
-        <div className="space-y-16">
-          <section
-            className={brandGradient(
-              "rounded-3xl border border-[color:var(--brand-1)/0.18] px-6 py-12 text-white shadow-[0_28px_100px_-48px_rgba(18,66,112,0.65)] backdrop-blur md:px-10",
-            )}
-          >
-            <div className="grid gap-10 lg:grid-cols-[minmax(0,2.3fr)_minmax(0,1fr)]">
-              <div className="space-y-8">
-                <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8">
-                  <span className="inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/30 bg-white/10 text-white shadow-[0_20px_46px_-32px_rgba(7,58,104,0.6)]">
-                    <CategoryIcon
-                      icon={category.icon}
-                      size={28}
-                      className="text-white"
-                    />
-                  </span>
-                  <div className="space-y-5">
-                    <span
-                      className={gradientTint(
-                        "inline-flex items-center gap-2 rounded-full px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
-                      )}
-                    >
-                      Category profile
-                    </span>
-                    <div className="space-y-3">
-                      <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                        {category.name}
-                      </h1>
-                      {category.description ? (
-                        <p className="max-w-2xl text-base text-white/85">
-                          {category.description}
-                        </p>
-                      ) : null}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {heroHighlights.map((highlight) => (
-                        <span
-                          key={highlight}
-                          className={gradientTint(
-                            "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-[0.26em] text-white/80",
-                          )}
-                        >
-                          {highlight}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+    <main className="relative isolate bg-[#f5f7fb]">
+      <PublicTwoColumnLayout
+        className="pb-24 pt-12"
+        mainClassName="gap-10"
+        sidebarClassName="lg:sticky lg:top-24"
+        main={
+          <>
+            <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
+              <div className="mx-auto flex max-w-2xl flex-col items-center gap-6">
+                <span className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-border/40 bg-muted/40 text-[color:var(--brand-1)] shadow-[0_18px_42px_-28px_rgba(7,68,134,0.35)]">
+                  <CategoryIcon icon={category.icon} size={28} />
+                </span>
+                <div className="space-y-4">
+                  <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+                    {category.name}
+                  </h1>
+                  {category.description ? (
+                    <p className="text-base text-muted-foreground">
+                      {category.description}
+                    </p>
+                  ) : null}
                 </div>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
                   <Link
                     href={MEMBER_PRODUCTS_PATH}
-                    className={launchPrimaryButton({ size: "lg" })}
+                    className={cn(
+                      HERO_PRIMARY_BUTTON_CLASSES,
+                      "w-full justify-center sm:w-auto",
+                    )}
                   >
                     Launch in this category
                   </Link>
                   <Link
                     href={PRICING_PATH}
-                    className={launchSecondaryButton({
-                      size: "lg",
-                      className: "text-white/90 hover:text-white",
-                    })}
+                    className={cn(
+                      HERO_SECONDARY_BUTTON_CLASSES,
+                      "w-full justify-center sm:w-auto",
+                    )}
                   >
                     Explore promotion tiers
                   </Link>
                 </div>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-                <div className="rounded-2xl border border-white/25 bg-white/90 p-5 text-foreground shadow-sm">
-                  <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
-                    Launches live
-                  </p>
-                  <p className="mt-3 text-3xl font-semibold text-foreground">
-                    {metrics.totalProducts.toLocaleString()}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {pluralize(metrics.totalProducts, "launch")} currently live
-                    in this category.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
-                  <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
-                    Featured momentum
-                  </p>
-                  <p className="mt-3 text-3xl font-semibold text-foreground">
-                    {metrics.totalFeatured.toLocaleString()}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {metrics.totalFeatured > 0
-                      ? "Spotlights featured this week."
-                      : "Claim the next editorial spotlight."}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/25 bg-white/90 p-5 text-foreground shadow-sm">
-                  <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
-                    Community signal
-                  </p>
-                  <p className="mt-3 text-3xl font-semibold text-foreground">
-                    {metrics.averageUpvotes.toLocaleString()} avg upvotes
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {metrics.latestLaunchName
-                      ? `Latest arrival ${metrics.latestLaunchName} (${metrics.latestLaunchDate}).`
-                      : "Be the first to launch and set the tone."}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <HeroStickyBanner
-            wrapperClassName="px-0"
-            innerClassName="max-w-[120rem]"
-          />
-
-          {featured.length > 0 ? (
-            <section className="rounded-3xl border border-border/60 bg-card/95 px-6 py-10 shadow-[0_24px_80px_-50px_rgba(7,58,104,0.5)] backdrop-blur md:px-10">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="space-y-1">
-                  <h2 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-                    Featured in {category.name}
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    Spotlighted launches leading this category.
-                  </p>
-                </div>
-                <Link
-                  href={PRICING_PATH}
-                  className={launchSecondaryButton({
-                    size: "sm",
-                    className:
-                      "text-[color:var(--brand-1)] hover:text-[color:var(--brand-1)]",
-                  })}
-                >
-                  Get featured
-                </Link>
-              </div>
-              <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr,1fr]">
-                <FeaturedBanner item={featured[0]} />
-                {featured.length > 1 ? (
-                  <FeaturedProductGrid
-                    items={featured.slice(1)}
-                    className="grid-cols-1"
-                  />
-                ) : null}
-              </div>
             </section>
-          ) : null}
 
-          <CategoryProductsClient products={products} />
-        </div>
-      </div>
+            <HeroStickyBanner wrapperClassName="px-0" innerClassName="max-w-none" />
+
+            <section className="space-y-6" data-testid="category-feed-section">
+              <HomepageFeedClient
+                activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
+                items={categoryFeedItems}
+              />
+            </section>
+          </>
+        }
+        sidebar={
+          <>
+            <Suspense fallback={<SponsoredProductsSkeleton />}>
+              <SponsoredProductsSection />
+            </Suspense>
+            <Suspense fallback={<ProductUpdatesSkeleton />}>
+              <ProductUpdatesSection />
+            </Suspense>
+          </>
+        }
+      />
     </main>
   )
 }

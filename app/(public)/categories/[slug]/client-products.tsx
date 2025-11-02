@@ -24,6 +24,8 @@ type ProductForCard = {
 
 type Props = {
   products: ProductForCard[]
+  title?: string
+  description?: string
   className?: string
 }
 
@@ -31,7 +33,12 @@ type SortKey = "newest" | "upvotes" | "clicks" | "name"
 
 const CATEGORY_GRID_PAGE_SIZE = 12
 
-export function CategoryProductsClient({ products, className }: Props) {
+export function CategoryProductsClient({
+  products,
+  title = "Products",
+  description = "Sort to surface fresh launches, rising favorites, or the most clicks.",
+  className,
+}: Props) {
   const [sort, setSort] = useState<SortKey>("newest")
 
   const productKey = useMemo(
@@ -79,17 +86,16 @@ export function CategoryProductsClient({ products, className }: Props) {
   return (
     <section
       className={cn(
-        "rounded-3xl border border-border/60 bg-card/95 px-6 py-8 shadow-[0_24px_80px_-50px_rgba(7,58,104,0.5)] backdrop-blur",
+        "rounded-3xl border border-border/50 bg-white px-6 py-8 shadow-[0_24px_80px_-60px_rgba(7,58,104,0.4)]",
         className,
       )}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold text-foreground">Products</h2>
-          <p className="text-xs text-muted-foreground">
-            Sort to surface fresh launches, rising favorites, or the most
-            clicks.
-          </p>
+          <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
+            {title}
+          </h2>
+          <p className="text-sm text-muted-foreground">{description}</p>
         </div>
         <div className="flex items-center gap-2 text-sm">
           <span className="text-muted-foreground">Sort by</span>
@@ -111,6 +117,7 @@ export function CategoryProductsClient({ products, className }: Props) {
       <div className="mt-6">
         <ProductGrid
           items={initialItems}
+          className="space-y-5"
           infinite={{
             hasMore: initialHasMore,
             initialPage: 2,
