@@ -88,9 +88,11 @@ export function ProductUpvoteBadge({
       const response = await fetch(`/api/products/${productId}/upvote`, {
         method: "POST",
       })
-      const payload = (await response
-        .json()
-        .catch(() => ({}))) as Partial<{ upvotes: number; upvoted: boolean; error: string }>
+      const payload = (await response.json().catch(() => ({}))) as Partial<{
+        upvotes: number
+        upvoted: boolean
+        error: string
+      }>
 
       if (!response.ok) {
         throw new Error(

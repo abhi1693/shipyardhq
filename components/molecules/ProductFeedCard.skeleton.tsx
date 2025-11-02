@@ -42,7 +42,9 @@ export function ProductFeedCardSkeleton({
       <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-4">
         {showCategory ? (
           <Skeleton className="h-7 w-28 rounded-full border-0 bg-[#F7F8FF]" />
-        ) : <span />}
+        ) : (
+          <span />
+        )}
         {showBadges ? (
           <div className="flex flex-wrap items-center gap-2">
             <Skeleton className="h-6 w-24 rounded-full border-0 bg-[#F1F5FF]" />

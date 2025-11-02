@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useId, useMemo, useState } from "react"
 import ReactMarkdown from "react-markdown"
@@ -126,7 +126,11 @@ export function ProductDescriptionCard({
           )}
         >
           <ReactMarkdown
-            remarkPlugins={isExpanded || !shouldTruncate ? baseRemarkPlugins : limitedRemarkPlugins}
+            remarkPlugins={
+              isExpanded || !shouldTruncate
+                ? baseRemarkPlugins
+                : limitedRemarkPlugins
+            }
             components={{
               a: (props) => (
                 <a
@@ -136,16 +140,17 @@ export function ProductDescriptionCard({
                   className="font-medium text-foreground underline underline-offset-2 transition-colors hover:text-foreground/80"
                 />
               ),
-              img: isExpanded || !shouldTruncate
-                ? (props) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      {...props}
-                      alt={(props as any).alt || ""}
-                      className="rounded-xl"
-                    />
-                  )
-                : () => null,
+              img:
+                isExpanded || !shouldTruncate
+                  ? (props) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        {...props}
+                        alt={(props as any).alt || ""}
+                        className="rounded-xl"
+                      />
+                    )
+                  : () => null,
             }}
           >
             {trimmedDescription}

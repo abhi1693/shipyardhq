@@ -156,10 +156,7 @@ export async function getProductFeedPage(
       const [records, total] = await Promise.all([
         prisma.product.findMany({
           where,
-          orderBy: [
-            { updatedAt: "desc" },
-            { analytics: { upvotes: "desc" } },
-          ],
+          orderBy: [{ updatedAt: "desc" }, { analytics: { upvotes: "desc" } }],
           skip,
           take: pageSize,
           select: productCardSelect,
@@ -171,7 +168,9 @@ export async function getProductFeedPage(
       const typedRecords = records as unknown as ProductCardRecord[]
 
       return {
-        items: typedRecords.map((record) => mapProductCardRecordToBase(record, now)),
+        items: typedRecords.map((record) =>
+          mapProductCardRecordToBase(record, now),
+        ),
         hasMore: skip + typedRecords.length < total,
         total,
       }

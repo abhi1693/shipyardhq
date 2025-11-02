@@ -245,7 +245,10 @@ export default function BrowseFilterBar({
             <ScrollArea className="max-h-64">
               <div className="space-y-1 p-1">
                 <DropdownMenuItem asChild>
-                  <Link href={buildUrlMulti({ useCase: "__all__" })} scroll={false}>
+                  <Link
+                    href={buildUrlMulti({ useCase: "__all__" })}
+                    scroll={false}
+                  >
                     All Use Cases
                   </Link>
                 </DropdownMenuItem>

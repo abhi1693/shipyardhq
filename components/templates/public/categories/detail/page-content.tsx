@@ -8,8 +8,14 @@ import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { cn } from "@/lib/utils"
-import { SponsoredProductsSection, SponsoredProductsSkeleton } from "@/components/templates/public/homepage/sponsored-products"
-import { ProductUpdatesSection, ProductUpdatesSkeleton } from "@/components/templates/public/homepage/product-updates"
+import {
+  SponsoredProductsSection,
+  SponsoredProductsSkeleton,
+} from "@/components/templates/public/homepage/sponsored-products"
+import {
+  ProductUpdatesSection,
+  ProductUpdatesSkeleton,
+} from "@/components/templates/public/homepage/product-updates"
 import { getCategoryDetailPayload } from "@/lib/categories/page-cache"
 import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
@@ -48,7 +54,9 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
       return true
     }
     const itemCategory = item.category?.toLowerCase()
-    return Boolean(itemCategory && categoryName && itemCategory === categoryName)
+    return Boolean(
+      itemCategory && categoryName && itemCategory === categoryName,
+    )
   })
 
   return (
@@ -97,7 +105,10 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
               </div>
             </section>
 
-            <HeroStickyBanner wrapperClassName="px-0" innerClassName="max-w-none" />
+            <HeroStickyBanner
+              wrapperClassName="px-0"
+              innerClassName="max-w-none"
+            />
 
             <section className="space-y-6" data-testid="category-feed-section">
               <HomepageFeedClient

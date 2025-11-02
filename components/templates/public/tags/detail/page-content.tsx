@@ -218,7 +218,10 @@ export async function TagDetailPageContent({ params }: TagPageProps) {
               </div>
             </section>
 
-            <HeroStickyBanner wrapperClassName="px-0" innerClassName="max-w-none" />
+            <HeroStickyBanner
+              wrapperClassName="px-0"
+              innerClassName="max-w-none"
+            />
 
             <section className="space-y-6" data-testid="tag-feed-section">
               <h2 className="sr-only">Tag feed</h2>

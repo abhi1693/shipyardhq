@@ -116,10 +116,7 @@ export function DirectoryProductList<T extends BaseProductListItem>({
     [chunkSize, items, renderMeta],
   )
 
-  const listClassName = useMemo(
-    () => cn("space-y-4", className),
-    [className],
-  )
+  const listClassName = useMemo(() => cn("space-y-4", className), [className])
 
   return (
     <ProductGrid

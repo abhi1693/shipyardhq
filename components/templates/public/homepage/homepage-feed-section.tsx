@@ -20,10 +20,7 @@ export async function HomepageFeedSection({ view }: HomepageFeedSectionProps) {
 
   return (
     <section className="space-y-6" data-testid="homepage-feed-section">
-      <HomepageFeedClient
-        activeFilter={view}
-        items={items}
-      />
+      <HomepageFeedClient activeFilter={view} items={items} />
     </section>
   )
 }

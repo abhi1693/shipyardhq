@@ -118,7 +118,10 @@ export default function ProductReviews({
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                       <div className="text-sm font-semibold text-foreground">
-                        {formatName(review.user.firstName, review.user.lastName)}
+                        {formatName(
+                          review.user.firstName,
+                          review.user.lastName,
+                        )}
                       </div>
                       <RatingStars rating={review.rating} size={14} />
                     </div>
@@ -133,10 +136,7 @@ export default function ProductReviews({
                     {review.message}
                   </p>
                 </article>
-                <span
-                  aria-hidden
-                  className="block h-px w-full bg-border/70"
-                />
+                <span aria-hidden className="block h-px w-full bg-border/70" />
               </div>
             )
           })

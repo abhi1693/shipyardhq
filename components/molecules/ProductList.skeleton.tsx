@@ -15,7 +15,8 @@ interface ProductListSkeletonProps extends React.ComponentProps<"div"> {
 export function ProductListSkeleton({
   className,
   count = 6,
-  columns: _columns = "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4",
+  columns:
+    _columns = "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4",
   showCategory = true,
   showBadges = false,
   showMetaBadge = false,

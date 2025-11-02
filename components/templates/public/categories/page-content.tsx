@@ -105,7 +105,9 @@ export async function CategoriesPageContent() {
                   Missing a category for your launch?
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Pitch a new category and we’ll create a dedicated lane, signal it to the community, and feature the first builders ready to launch.
+                  Pitch a new category and we’ll create a dedicated lane, signal
+                  it to the community, and feature the first builders ready to
+                  launch.
                 </p>
                 <a
                   href="mailto:support@shipyardhq.dev"

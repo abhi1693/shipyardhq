@@ -36,11 +36,8 @@ export async function LeaderboardPageContent({
     limit: Number(sp?.limit ?? 50),
   }
 
-  const {
-    stats,
-    products,
-    latestProductUpdates,
-  } = await getLeaderboardPagePayload(filters)
+  const { stats, products, latestProductUpdates } =
+    await getLeaderboardPagePayload(filters)
 
   const leaderboardItems = products.map((product) => {
     const activeBadges = (product.ProductBadge ?? []).filter(
@@ -105,7 +102,8 @@ export async function LeaderboardPageContent({
                       No contenders yet.
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Invite your team or explore another category to discover early movers.
+                      Invite your team or explore another category to discover
+                      early movers.
                     </p>
                   </div>
                   <Button
@@ -167,10 +165,7 @@ export function LeaderboardPageSkeleton() {
           <>
             <DirectoryHeaderSkeleton metricCount={0} />
             <section className="flex flex-col gap-8">
-              <DirectoryProductListSkeleton
-                count={12}
-                showMetaBadge
-              />
+              <DirectoryProductListSkeleton count={12} showMetaBadge />
             </section>
           </>
         }

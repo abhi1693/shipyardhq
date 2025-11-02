@@ -32,10 +32,7 @@ function HeroSkeleton() {
         <Skeleton className="h-16 w-16 rounded-2xl border border-border/40 bg-muted/40 shadow-[0_18px_42px_-28px_rgba(7,68,134,0.35)]" />
         <div className="w-full space-y-4">
           <HeadingSkeleton lines={2} centered className="text-foreground" />
-          <Skeleton
-            className="mx-auto h-3 w-4/5 rounded-full"
-            tone="muted"
-          />
+          <Skeleton className="mx-auto h-3 w-4/5 rounded-full" tone="muted" />
         </div>
         <Skeleton className="h-3 w-40 rounded-full" tone="muted" />
         <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row sm:justify-center sm:gap-4">

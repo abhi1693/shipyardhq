@@ -4,7 +4,10 @@ import type { ReactNode } from "react"
 
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
 import InfiniteProductGrid from "@/components/molecules/InfiniteProductGrid"
-import { ProductCard, type ProductCardItem } from "@/components/molecules/ProductCard"
+import {
+  ProductCard,
+  type ProductCardItem,
+} from "@/components/molecules/ProductCard"
 import { cn } from "@/lib/utils"
 
 const DEFAULT_FEED_SKELETON_COUNT = 3
@@ -32,9 +35,7 @@ interface ProductGridProps {
 const renderSkeleton = (count: number, className?: string) => (
   <div className={cn("space-y-6", className)} aria-hidden="true">
     {Array.from({ length: count }).map((_, index) => (
-      <ProductFeedCardSkeleton
-        key={`product-grid-feed-skeleton-${index}`}
-      />
+      <ProductFeedCardSkeleton key={`product-grid-feed-skeleton-${index}`} />
     ))}
   </div>
 )

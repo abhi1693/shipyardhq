@@ -326,12 +326,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   ).toString()
   const redirectUrl = productPath(product.slug)
   const productTypeLabel = sidebarProduct?.type
-    ? PRODUCT_TYPE_LABELS[sidebarProduct.type] ??
-      formatLabel(sidebarProduct.type)
+    ? (PRODUCT_TYPE_LABELS[sidebarProduct.type] ??
+      formatLabel(sidebarProduct.type))
     : null
   const pricingModelLabel = sidebarProduct?.pricingModel
-    ? PRICING_MODEL_LABELS[sidebarProduct.pricingModel] ??
-      formatLabel(sidebarProduct.pricingModel)
+    ? (PRICING_MODEL_LABELS[sidebarProduct.pricingModel] ??
+      formatLabel(sidebarProduct.pricingModel))
     : null
   const categoryLabel = product.category?.name ?? null
   const startingPrice =
@@ -341,18 +341,17 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           sidebarProduct.currencyCode,
         )
       : null
-  const platformItems = (sidebarProduct?.platforms ?? [])
-    .map((platform) => {
-      const key = String(platform)
-      const meta = PLATFORM_CONFIG[key] ?? {
-        label: formatLabel(key),
-        icon: Globe,
-      }
-      return {
-        key,
-        ...meta,
-      }
-    })
+  const platformItems = (sidebarProduct?.platforms ?? []).map((platform) => {
+    const key = String(platform)
+    const meta = PLATFORM_CONFIG[key] ?? {
+      label: formatLabel(key),
+      icon: Globe,
+    }
+    return {
+      key,
+      ...meta,
+    }
+  })
   const galleryMedia = (product.ProductMedia ?? [])
     .map((item) => ({
       id: item.id,
@@ -393,9 +392,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     : null
   const ctaLabel = product.ctaLabel?.trim() ?? ""
   const rawCtaUrl = product.ctaUrl?.trim() ?? ""
-  const normalizedCtaUrl = rawCtaUrl
-    ? ensureUrlHasSchema(rawCtaUrl)
-    : null
+  const normalizedCtaUrl = rawCtaUrl ? ensureUrlHasSchema(rawCtaUrl) : null
   const withReferralParams = (url: string, content: string) =>
     addUtmParams(url, {
       source: "shipyard",
@@ -413,8 +410,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     hasCustomCtaFeature && normalizedCtaUrl
       ? withReferralParams(normalizedCtaUrl, "cta")
       : null
-  const effectiveCtaLabel =
-    ctaLabel || `Get started with ${product.name}`
+  const effectiveCtaLabel = ctaLabel || `Get started with ${product.name}`
   const quickLinkClass =
     "inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-sm shadow-black/5 transition-colors hover:bg-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
   const primaryQuickLinkClass =
@@ -650,7 +646,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   ) : categoryLabel ? (
                     <span>{categoryLabel}</span>
                   ) : (
-                    <span className="text-muted-foreground">Not categorized</span>
+                    <span className="text-muted-foreground">
+                      Not categorized
+                    </span>
                   )}
                 </SidebarInfoRow>
                 <SidebarInfoRow label="Platforms">
@@ -667,7 +665,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       ))}
                     </div>
                   ) : (
-                    <span className="text-muted-foreground">Platforms coming soon</span>
+                    <span className="text-muted-foreground">
+                      Platforms coming soon
+                    </span>
                   )}
                 </SidebarInfoRow>
                 <SidebarInfoRow label="Badges">
@@ -683,7 +683,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                               <span aria-hidden>{badge.icon}</span>
                             </span>
                           </TooltipTrigger>
-                          <TooltipContent sideOffset={6}>{badge.label}</TooltipContent>
+                          <TooltipContent sideOffset={6}>
+                            {badge.label}
+                          </TooltipContent>
                         </Tooltip>
                       ))}
                     </div>

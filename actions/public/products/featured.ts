@@ -337,7 +337,10 @@ export const getHomepageFeatureProducts = cached(
           )
         : []
 
-    const productIds = [...scheduledProductIds, ...planRows.map((row) => row.id)]
+    const productIds = [
+      ...scheduledProductIds,
+      ...planRows.map((row) => row.id),
+    ]
 
     if (!productIds.length) {
       return []

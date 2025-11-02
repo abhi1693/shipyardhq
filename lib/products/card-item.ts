@@ -1,4 +1,7 @@
-import type { ProductCardBase, ProductCardItem } from "@/components/molecules/ProductCard"
+import type {
+  ProductCardBase,
+  ProductCardItem,
+} from "@/components/molecules/ProductCard"
 
 const coerceDate = (value?: string | Date | null): string | undefined => {
   if (!value) return undefined
@@ -23,20 +26,22 @@ export const toProductCardItem = (
 
   const voteCount =
     overrideVoteCount ??
-    (typeof base.analytics?.upvotes === "number" ? base.analytics.upvotes ?? 0 : 0)
+    (typeof base.analytics?.upvotes === "number"
+      ? (base.analytics.upvotes ?? 0)
+      : 0)
 
   const categoryName =
     typeof overrideCategoryName !== "undefined"
       ? overrideCategoryName
       : typeof base.category?.name !== "undefined"
-        ? base.category?.name ?? null
+        ? (base.category?.name ?? null)
         : null
 
   const categorySlug =
     typeof overrideCategorySlug !== "undefined"
       ? overrideCategorySlug
       : typeof base.category?.slug !== "undefined"
-        ? base.category?.slug ?? null
+        ? (base.category?.slug ?? null)
         : null
 
   const badges = overrideBadges ?? base.badges ?? []

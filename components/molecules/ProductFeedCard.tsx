@@ -126,13 +126,21 @@ export function ProductFeedCard({
 
   const formRef = useRef<HTMLFormElement | null>(null)
 
-  const handleClick = useCallback((event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1)
-      return
-    if (event.defaultPrevented) return
-    event.preventDefault()
-    formRef.current?.requestSubmit()
-  }, [])
+  const handleClick = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>) => {
+      if (
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.button === 1
+      )
+        return
+      if (event.defaultPrevented) return
+      event.preventDefault()
+      formRef.current?.requestSubmit()
+    },
+    [],
+  )
 
   const cardContent = (
     <article className="flex flex-1 flex-col gap-4">
@@ -160,7 +168,10 @@ export function ProductFeedCard({
               </h3>
               {badgePresentation ? (
                 <Badge className={badgePresentation.className}>
-                  <badgePresentation.Icon className="h-3 w-3" aria-hidden="true" />{" "}
+                  <badgePresentation.Icon
+                    className="h-3 w-3"
+                    aria-hidden="true"
+                  />{" "}
                   {badgePresentation.label}
                 </Badge>
               ) : null}
@@ -218,11 +229,7 @@ export function ProductFeedCard({
                       {badge.label}
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent
-                    side="bottom"
-                    align="end"
-                    className="text-xs"
-                  >
+                  <TooltipContent side="bottom" align="end" className="text-xs">
                     {badgeDescriptions[badge.value] ?? badge.label}
                   </TooltipContent>
                 </Tooltip>

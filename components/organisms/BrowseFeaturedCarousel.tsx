@@ -94,10 +94,7 @@ export function BrowseFeaturedCarousel({
             )}
             aria-hidden={itemIndex !== activeIndex}
           >
-            <ProductCard
-              product={toProductCardItem(item)}
-              className="h-full"
-            />
+            <ProductCard product={toProductCardItem(item)} className="h-full" />
           </div>
         ))}
       </div>

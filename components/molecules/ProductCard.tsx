@@ -45,8 +45,8 @@ const resolveUpvotes = (product: ProductCardItem) => {
 
 const resolveCategoryName = (product: ProductCardItem) =>
   typeof product.categoryName !== "undefined"
-    ? product.categoryName ?? null
-    : product.category?.name ?? null
+    ? (product.categoryName ?? null)
+    : (product.category?.name ?? null)
 
 function toFeedItem(product: ProductCardItem): HomepageFeedItem {
   const categoryName = resolveCategoryName(product)

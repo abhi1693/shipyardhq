@@ -89,6 +89,7 @@ To understand a stage’s data contract, look at the matching union branches in 
 6. **Database:** No schema changes are needed unless you require additional indexes; data lands in `ProductInsightStageResult.data` as JSON.
 7. **UI renderer:** Implement a renderer path in `ProductInsightsView` (or a new component) keyed by the new `renderer` hint. Extend `ProductInsightStageRendererHint` if necessary (`types/product-insights.ts:235`).
 8. **Stage dependencies:** Update dependent stages to read from `context.shared` as needed. Share stage data by returning it in the `shared` block of `serialize` (`lib/server/productInsights/pipeline/types.ts:26`).
+
 ## Using existing stage data elsewhere
 
 - For reporting, extract stage-specific data from `profile.stages[stageId].data`, casting with the union types.

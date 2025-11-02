@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import {
   useCallback,
@@ -19,7 +19,11 @@ import {
   IconLink,
 } from "@tabler/icons-react"
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/atoms/tooltip"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/atoms/tooltip"
 import { cn } from "@/lib/utils"
 
 type ShareTarget = {
@@ -153,13 +157,7 @@ export function ProductShareBar({
         iconHoverClass: "group-hover:text-[#25D366]",
       },
     ],
-    [
-      copied,
-      handleCopy,
-      productName,
-      shareText,
-      shareUrl,
-    ],
+    [copied, handleCopy, productName, shareText, shareUrl],
   )
 
   return (
@@ -170,41 +168,40 @@ export function ProductShareBar({
         className,
       )}
     >
-      {targets.map(({ key, icon: Icon, label, href, onClick, iconHoverClass }) => {
-        const iconClassName = cn(
-          "h-4 w-4 transition-colors",
-          iconHoverClass,
-        )
-        const content = (
-          <Tooltip key={key}>
-            <TooltipTrigger asChild>
-              {href ? (
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  aria-label={label}
-                >
-                  <Icon className={iconClassName} strokeWidth={1.8} />
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  onClick={onClick}
-                  className="group inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-muted/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  aria-label={label}
-                >
-                  <Icon className={iconClassName} strokeWidth={1.8} />
-                </button>
-              )}
-            </TooltipTrigger>
-            <TooltipContent sideOffset={4}>{label}</TooltipContent>
-          </Tooltip>
-        )
+      {targets.map(
+        ({ key, icon: Icon, label, href, onClick, iconHoverClass }) => {
+          const iconClassName = cn("h-4 w-4 transition-colors", iconHoverClass)
+          const content = (
+            <Tooltip key={key}>
+              <TooltipTrigger asChild>
+                {href ? (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    aria-label={label}
+                  >
+                    <Icon className={iconClassName} strokeWidth={1.8} />
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={onClick}
+                    className="group inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-muted/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    aria-label={label}
+                  >
+                    <Icon className={iconClassName} strokeWidth={1.8} />
+                  </button>
+                )}
+              </TooltipTrigger>
+              <TooltipContent sideOffset={4}>{label}</TooltipContent>
+            </Tooltip>
+          )
 
-        return content
-      })}
+          return content
+        },
+      )}
     </div>
   )
 }

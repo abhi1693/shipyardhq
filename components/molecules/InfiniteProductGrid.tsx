@@ -192,8 +192,8 @@ export function InfiniteProductGrid<T extends ProductCardItem>({
         emptyState
       )}
 
-      {isPending && (
-        renderLoadingSkeleton ? (
+      {isPending &&
+        (renderLoadingSkeleton ? (
           renderLoadingSkeleton(loadingSkeletonCount)
         ) : (
           <div className="space-y-4" data-testid="product-card-skeleton">
@@ -203,8 +203,7 @@ export function InfiniteProductGrid<T extends ProductCardItem>({
               />
             ))}
           </div>
-        )
-      )}
+        ))}
 
       {hasMore ? (
         <div

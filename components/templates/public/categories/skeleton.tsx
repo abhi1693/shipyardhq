@@ -81,7 +81,12 @@ function CtaSkeleton() {
         <HeadingSkeleton lines={2} centered className="text-foreground" />
         <Skeleton className="mx-auto h-3 w-3/4 rounded-full" tone="muted" />
       </div>
-      <ButtonSkeleton size="lg" variant="outline" labelWidth="12rem" className="mt-6" />
+      <ButtonSkeleton
+        size="lg"
+        variant="outline"
+        labelWidth="12rem"
+        className="mt-6"
+      />
     </section>
   )
 }

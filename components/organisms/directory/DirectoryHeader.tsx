@@ -114,10 +114,10 @@ export function DirectoryHeader({
                 Secure
               </span>{" "}
               backlinks that rank fast.{" "}
-              <span className="text-[color:var(--brand-3)]">Ship</span>{" "}
-              updates in seconds.{" "}
-              <span className="text-[color:var(--brand-2)]">Grow</span>{" "}
-              with our builder community.
+              <span className="text-[color:var(--brand-3)]">Ship</span> updates
+              in seconds.{" "}
+              <span className="text-[color:var(--brand-2)]">Grow</span> with our
+              builder community.
             </h1>
           ) : (
             <h1 className="text-4xl font-semibold tracking-tight text-[#1C2333] sm:text-5xl">

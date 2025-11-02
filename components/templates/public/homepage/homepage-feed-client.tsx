@@ -96,10 +96,7 @@ function buildNewViewSections(items: HomepageFeedItem[]): FeedSection[] {
       return null
     }
     const chunkSize = Math.min(2, remaining)
-    const chunk = promotedItems.slice(
-      promotedIndex,
-      promotedIndex + chunkSize,
-    )
+    const chunk = promotedItems.slice(promotedIndex, promotedIndex + chunkSize)
     promotedIndex += chunk.length
     return chunk
   }
@@ -313,9 +310,7 @@ export function HomepageFeedClient({
                 <div className="space-y-4">
                   {section.rows.map((row) => {
                     if (row.kind === "product") {
-                      return (
-                        <ProductFeedCard key={row.key} item={row.item} />
-                      )
+                      return <ProductFeedCard key={row.key} item={row.item} />
                     }
                     return renderPromotedGroup(row.key, row.items)
                   })}
