@@ -3,18 +3,15 @@
 import {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
   useTransition,
   type ReactNode,
 } from "react"
 
-import {
-  ProductCompactGrid,
-  type CompactProductItem,
-} from "@/components/molecules/ProductCompactGrid"
-import { ProductCompactGridSkeleton } from "@/components/molecules/ProductCompactGrid.skeleton"
+import { ProductCard } from "@/components/molecules/ProductCard"
+import type { ProductCardItem } from "@/components/molecules/ProductCard"
+import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
 
 type LoadResult<T> = {
   items: T[]
@@ -23,16 +20,7 @@ type LoadResult<T> = {
 
 type LoadPageHandler<T> = (page: number) => Promise<LoadResult<T>>
 
-interface GridOverrides<T extends CompactProductItem> {
-  className?: string
-  columns?: string
-  imagePriorityFirstN?: number
-  renderMeta?: (item: T, index: number) => ReactNode
-  showCategory?: boolean
-  showBadges?: boolean
-}
-
-interface InfiniteProductGridProps<T extends CompactProductItem> {
+interface InfiniteProductGridProps<T extends ProductCardItem> {
   initialItems: T[]
   initialHasMore: boolean
   loadPage: LoadPageHandler<T>
@@ -41,8 +29,9 @@ interface InfiniteProductGridProps<T extends CompactProductItem> {
    * Defaults to 2 assuming the first page is already provided via `initialItems`.
    */
   initialPage?: number
-  gridOverrides?: GridOverrides<T>
   loadingSkeletonCount?: number
+  renderItems?: (items: T[]) => ReactNode
+  renderLoadingSkeleton?: (count: number) => ReactNode
   endMessage?: ReactNode
   emptyState?: ReactNode
   /**
@@ -59,13 +48,14 @@ interface InfiniteProductGridProps<T extends CompactProductItem> {
 
 const DEFAULT_SENTINEL_MARGIN = "0px 0px 200px 0px"
 
-export function InfiniteProductGrid<T extends CompactProductItem>({
+export function InfiniteProductGrid<T extends ProductCardItem>({
   initialItems,
   initialHasMore,
   loadPage,
   initialPage = 2,
-  gridOverrides,
   loadingSkeletonCount = 8,
+  renderItems,
+  renderLoadingSkeleton,
   endMessage = (
     <p className="py-4 text-center text-sm text-muted-foreground">
       You&apos;ve reached the end of the directory.
@@ -186,39 +176,34 @@ export function InfiniteProductGrid<T extends CompactProductItem>({
     }
   }, [hasMore, loadMore, sentinelMargin])
 
-  const gridProps: GridOverrides<T> = useMemo(
-    () => ({
-      className: gridOverrides?.className,
-      columns: gridOverrides?.columns,
-      imagePriorityFirstN: gridOverrides?.imagePriorityFirstN,
-      renderMeta: gridOverrides?.renderMeta,
-      showCategory:
-        gridOverrides?.showCategory === undefined
-          ? true
-          : gridOverrides.showCategory,
-      showBadges:
-        gridOverrides?.showBadges === undefined
-          ? false
-          : gridOverrides.showBadges,
-    }),
-    [gridOverrides],
-  )
-
   return (
     <section className="space-y-6" data-testid="infinite-product-grid">
       {hasItems ? (
-        <ProductCompactGrid items={items} {...gridProps} />
+        renderItems ? (
+          renderItems(items)
+        ) : (
+          <div className="space-y-4">
+            {items.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        )
       ) : (
         emptyState
       )}
 
-      {isPending && (
-        <ProductCompactGridSkeleton
-          count={loadingSkeletonCount}
-          columns={gridProps.columns}
-          data-testid="product-card-skeleton"
-        />
-      )}
+      {isPending &&
+        (renderLoadingSkeleton ? (
+          renderLoadingSkeleton(loadingSkeletonCount)
+        ) : (
+          <div className="space-y-4" data-testid="product-card-skeleton">
+            {Array.from({ length: loadingSkeletonCount }).map((_, index) => (
+              <ProductFeedCardSkeleton
+                key={`infinite-product-grid-skeleton-${index}`}
+              />
+            ))}
+          </div>
+        ))}
 
       {hasMore ? (
         <div

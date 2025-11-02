@@ -5,16 +5,12 @@ import ProductGridClient from "@/components/molecules/ProductGridClient"
 import BrowseFilterBar from "@/components/molecules/BrowseFilterBar"
 import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
 import { DirectoryCategoryRail } from "@/components/organisms/directory/CategoryRail"
-import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
-import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
 import { BrowseFeaturedCarousel } from "@/components/organisms/BrowseFeaturedCarousel"
 import { ProductUpdatesFeed } from "@/components/molecules/ProductUpdatesFeed"
+import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
   BROWSE_PATH,
-  LEADERBOARD_PATH,
-  LEADERBOARD_GUIDE_PATH,
   MEMBER_PRODUCTS_PATH,
-  PRICING_PATH,
   RANK_IN_PUBLIC_PATH,
 } from "@/lib/routes"
 import {
@@ -96,32 +92,34 @@ export async function BrowsePageContent({
     stats,
     latestProductUpdates,
     filterSummary,
-    headline,
     hasActiveFilters,
   } = await getBrowsePagePayload(parsedFilters)
 
   return (
-    <main className="relative isolate bg-white">
-      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
-        <div className="space-y-12">
-          <DirectoryHeader
-            stats={stats}
-            eyebrow="Directory browse"
-            title="Browse the Shipyard launch catalog"
-            description="We run the homepage spotlight, curate featured campaigns, and track momentum across editor picks, new arrivals, the live leaderboard, and head-to-head live launch battles."
-            primaryAction={{
-              label: "Submit your launch",
-              href: MEMBER_PRODUCTS_PATH,
-            }}
-            secondaryAction={{
-              label: "Join the live showdown",
-              href: RANK_IN_PUBLIC_PATH,
-              variant: "outline",
-            }}
-            metrics={browseMetrics}
-          />
+    <main className="relative isolate bg-[#f5f7fb]">
+      <PublicTwoColumnLayout
+        className="pb-24 pt-10"
+        mainClassName="gap-12"
+        sidebarClassName="lg:sticky lg:top-24"
+        main={
+          <>
+            <DirectoryHeader
+              stats={stats}
+              eyebrow="Directory browse"
+              title="Browse the Shipyard launch catalog"
+              description="We run the homepage spotlight, curate featured campaigns, and track momentum across editor picks, new arrivals, the live leaderboard, and head-to-head live launch battles."
+              primaryAction={{
+                label: "Submit your launch",
+                href: MEMBER_PRODUCTS_PATH,
+              }}
+              secondaryAction={{
+                label: "Join the live showdown",
+                href: RANK_IN_PUBLIC_PATH,
+                variant: "outline",
+              }}
+              metrics={browseMetrics}
+            />
 
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
             <div className="flex flex-col gap-8">
               <BrowseFilterBar
                 useCases={useCases}
@@ -134,12 +132,9 @@ export async function BrowsePageContent({
                 }}
               />
 
-              <section className="rounded-3xl border border-border/80 bg-background/85 p-6 shadow-sm shadow-black/5 md:p-8">
+              <section className="space-y-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div className="space-y-1">
-                    <h2 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
-                      {headline}
-                    </h2>
                     <p className="text-sm text-muted-foreground">
                       {filterSummary.join(" • ")}
                     </p>
@@ -154,9 +149,9 @@ export async function BrowsePageContent({
                   ) : null}
                 </div>
 
-                <div className="mt-6">
+                <div>
                   {products.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-border/70 bg-muted/20">
+                    <div className="rounded-2xl border border-dashed border-border/70 bg-muted/20 p-10 text-center">
                       <EmptyState
                         title="No results in sight"
                         description="Adjust filters or jump into another category to keep your search going."
@@ -181,44 +176,16 @@ export async function BrowsePageContent({
                 </div>
               </section>
             </div>
-
-            <aside className="flex flex-col gap-8">
-              <BrowseFeaturedCarousel products={featured} />
-              <DirectoryCategoryRail categories={categories} />
-              <DirectoryPromoCard
-                eyebrow="Need more reach?"
-                title="Secure premium placement before launch day"
-                description="Upgrade to sponsored placements to lock in homepage spotlights and featured tiles ahead of your drop."
-                cta={{
-                  label: "Explore placement plans",
-                  href: PRICING_PATH,
-                  variant: "ghost",
-                }}
-                subtleCta={{
-                  label: "See what gets featured",
-                  href: `${BROWSE_PATH}?sort=trending`,
-                }}
-              />
-              <DirectoryPromoCard
-                eyebrow="Placement transparency"
-                title="Understand how rankings take shape"
-                description="Learn the signals, editorial calls, and sponsorship slots that determine placement across Shipyard listings."
-                cta={{
-                  label: "Explore the methodology",
-                  href: LEADERBOARD_GUIDE_PATH,
-                }}
-                subtleCta={{
-                  label: "Watch the live standings",
-                  href: LEADERBOARD_PATH,
-                }}
-              />
-              <ProductUpdatesFeed updates={latestProductUpdates} />
-            </aside>
-          </div>
-
-          <DirectoryHowItWorks />
-        </div>
-      </div>
+          </>
+        }
+        sidebar={
+          <>
+            <BrowseFeaturedCarousel products={featured} />
+            <DirectoryCategoryRail categories={categories} />
+            <ProductUpdatesFeed updates={latestProductUpdates} />
+          </>
+        }
+      />
     </main>
   )
 }

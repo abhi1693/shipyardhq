@@ -5,6 +5,10 @@ import {
   parseMonthKey,
   toMonthKey,
 } from "@/lib/server/monthlyLeaderboard"
+import {
+  productCardSelect,
+  type ProductCardRecord,
+} from "@/lib/products/selects"
 
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -57,13 +61,8 @@ export const getTopRankedProducts = cached(
           upvotes: "desc",
         },
       },
-      include: {
-        category: true,
-        user: true,
-        analytics: true,
-        ProductBadge: true,
-      },
-    })
+      select: productCardSelect,
+    }) as Promise<ProductCardRecord[]>
   },
   "leaderboard:top-products",
   {

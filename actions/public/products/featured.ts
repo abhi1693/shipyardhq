@@ -5,17 +5,12 @@ import type { FeaturedProduct } from "@/types"
 import { featuredProductSelect } from "@/types"
 
 type HomepageProduct = Prisma.ProductGetPayload<{
-  include: {
-    category: true
-    user: true
-    analytics: true
-    ProductBadge: true
-    plan: {
-      select: {
-        id: true
-        price: true
-      }
-    }
+  select: {
+    id: true
+    slug: true
+    name: true
+    tagline: true
+    logo: true
   }
 }>
 
@@ -165,143 +160,97 @@ export const getFeaturedByCategorySlug = cached(
 export const getStickyBannerProducts = cached(
   async (limit = 100) => {
     const now = new Date()
-    const [schedules, planProducts] = await Promise.all([
-      prisma.placementSchedule.findMany({
-        where: {
-          featureKey: "stickyBanner",
-          status: PlacementStatus.active,
-          startsAt: { lte: now },
-          endsAt: { gte: now },
-        },
-        include: {
-          product: {
-            select: {
-              id: true,
-              slug: true,
-              name: true,
-              logo: true,
-              tagline: true,
-              category: {
-                select: {
-                  name: true,
-                },
-              },
-              organization: {
-                select: {
-                  name: true,
-                },
-              },
-              user: {
-                select: {
-                  firstName: true,
-                  lastName: true,
-                },
-              },
-              analytics: {
-                select: {
-                  upvotes: true,
-                },
-              },
-            },
-          },
-        },
-        orderBy: { startsAt: "asc" },
-        take: limit,
-      }),
-      prisma.product.findMany({
-        where: {
-          status: "published" as any,
-          plan: {
-            is: {
-              assignments: {
-                some: {
-                  enabled: true,
-                  feature: { is: { key: "stickyBanner" } },
-                },
-              },
-            },
-          },
-        },
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          logo: true,
-          tagline: true,
-          category: {
-            select: {
-              name: true,
-            },
-          },
-          organization: {
-            select: {
-              name: true,
-            },
-          },
-          user: {
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          },
-          analytics: {
-            select: {
-              upvotes: true,
-            },
-          },
-        },
-        orderBy: { updatedAt: "desc" },
-        take: limit,
-      }),
-    ])
+    const effectiveLimit = Math.max(1, limit)
 
-    const scheduleLimit = Math.max(0, limit)
+    const stickyFeatureKey = "stickyBanner"
+    const activeStatus = PlacementStatus.active
 
-    const uniqueScheduled: typeof planProducts = []
-    const seenScheduled = new Set<string>()
-    for (const entry of schedules) {
-      const product = entry.product
-      if (!product) continue
-      if (seenScheduled.has(product.id)) continue
-      seenScheduled.add(product.id)
-      uniqueScheduled.push(product)
+    const scheduledIds = await prisma.$queryRaw<{ id: string }[]>(
+      Prisma.sql`
+        SELECT ids.id
+        FROM (
+          SELECT DISTINCT p.id
+          FROM "PlacementSchedule" AS ps
+          INNER JOIN "Product" AS p ON p.id = ps."productId"
+          WHERE ps."featureKey" = ${stickyFeatureKey}
+            AND ps.status = CAST(${activeStatus} AS "PlacementStatus")
+            AND ps."startsAt" <= ${now}
+            AND ps."endsAt" >= ${now}
+            AND p.status = 'published'
+        ) AS ids
+        ORDER BY RANDOM()
+        LIMIT ${effectiveLimit}
+      `,
+    )
+
+    const remaining = Math.max(effectiveLimit - scheduledIds.length, 0)
+    const scheduledIdValues = scheduledIds.map((entry) => entry.id)
+
+    const exclusionClause =
+      scheduledIdValues.length > 0
+        ? Prisma.sql`AND p.id NOT IN (${Prisma.join(scheduledIdValues)})`
+        : Prisma.sql``
+
+    const planIds =
+      remaining > 0
+        ? await prisma.$queryRaw<{ id: string }[]>(
+            Prisma.sql`
+              SELECT ids.id
+              FROM (
+                SELECT DISTINCT p.id
+                FROM "Product" AS p
+                WHERE p.status = 'published'
+                  AND EXISTS (
+                    SELECT 1
+                    FROM "PlanFeatureAssignment" AS a
+                    INNER JOIN "PlanFeature" AS f
+                      ON f.id = a."featureId"
+                    WHERE a."planId" = p."planId"
+                      AND a.enabled = true
+                      AND f.key = ${stickyFeatureKey}
+                  )
+                  ${exclusionClause}
+              ) AS ids
+              ORDER BY RANDOM()
+              LIMIT ${remaining}
+            `,
+          )
+        : []
+
+    const combinedIds = [
+      ...scheduledIdValues,
+      ...planIds.map((entry) => entry.id),
+    ]
+
+    if (!combinedIds.length) {
+      return []
     }
 
-    const limitedScheduled = uniqueScheduled.slice(0, scheduleLimit)
+    const products = await prisma.product.findMany({
+      where: {
+        id: {
+          in: combinedIds,
+        },
+      },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        logo: true,
+        tagline: true,
+      },
+    })
 
-    const planSeen = new Set(limitedScheduled.map((product) => product.id))
-    const uniquePlan: typeof planProducts = []
-    for (const product of planProducts) {
-      if (planSeen.has(product.id)) continue
-      planSeen.add(product.id)
-      uniquePlan.push(product)
-    }
+    const uniqueProducts = Array.from(
+      new Map(products.map((product) => [product.id, product])).values(),
+    )
 
-    const limitedPlan = uniquePlan.slice(0, Math.max(0, limit))
-
-    const combined = [...limitedScheduled, ...limitedPlan]
-
-    return combined.map((product) => ({
+    return uniqueProducts.slice(0, effectiveLimit).map((product) => ({
       id: product.id,
       slug: product.slug,
       name: product.name,
       logo: product.logo,
       tagline: product.tagline ?? null,
-      category: product.category
-        ? { name: product.category.name ?? null }
-        : null,
-      organization: product.organization
-        ? { name: product.organization.name ?? null }
-        : null,
-      user: product.user
-        ? {
-            firstName: product.user.firstName ?? null,
-            lastName: product.user.lastName ?? null,
-          }
-        : null,
-      analytics: product.analytics
-        ? { upvotes: product.analytics.upvotes ?? null }
-        : null,
     }))
   },
   "products:sticky-banner",
@@ -320,95 +269,133 @@ export const getStickyBannerProducts = cached(
 export const getHomepageFeatureProducts = cached(
   async (limit = 12) => {
     const now = new Date()
-    const [schedules, planProducts] = await Promise.all([
-      prisma.placementSchedule.findMany({
-        where: {
-          featureKey: "homepage",
-          status: PlacementStatus.active,
-          startsAt: { lte: now },
-          endsAt: { gte: now },
-        },
-        include: {
-          product: {
-            include: {
-              category: true,
-              user: true,
-              analytics: true,
-              ProductBadge: true,
-              plan: {
-                select: {
-                  id: true,
-                  price: true,
-                },
-              },
-            },
-          },
-        },
-        orderBy: { startsAt: "asc" },
-        take: limit,
-      }),
-      prisma.product.findMany({
-        where: {
-          status: "published" as any,
-          plan: {
-            is: {
-              assignments: {
-                some: {
-                  enabled: true,
-                  feature: { is: { key: "homepage" } },
-                },
-              },
-            },
-          },
-        },
-        include: {
-          category: true,
-          user: true,
-          analytics: true,
-          ProductBadge: true,
-          plan: {
-            select: {
-              id: true,
-              price: true,
-            },
-          },
-        },
-        orderBy: { updatedAt: "desc" },
-        take: limit,
-      }),
-    ])
+    const effectiveLimit = Math.max(1, limit)
+    const homepageFeatureKey = "homepage"
+    const activeStatus = PlacementStatus.active
 
-    const seen = new Set<string>()
+    const scheduledRows = await prisma.$queryRaw<
+      {
+        scheduleId: string
+        productId: string
+        slotKey: string
+        startsAt: Date
+        endsAt: Date
+        redemptionId: string | null
+      }[]
+    >(
+      Prisma.sql`
+        SELECT ps.id AS "scheduleId",
+               ps."productId" AS "productId",
+               ps."slotKey" AS "slotKey",
+               ps."startsAt" AS "startsAt",
+               ps."endsAt" AS "endsAt",
+               ps."redemptionId" AS "redemptionId"
+        FROM "PlacementSchedule" AS ps
+        INNER JOIN "Product" AS p ON p.id = ps."productId"
+        WHERE ps."featureKey" = ${homepageFeatureKey}
+          AND ps.status = CAST(${activeStatus} AS "PlacementStatus")
+          AND ps."startsAt" <= ${now}
+          AND ps."endsAt" >= ${now}
+          AND p.status = 'published'
+        ORDER BY RANDOM()
+        LIMIT ${effectiveLimit}
+      `,
+    )
+
+    const scheduledProductIds = scheduledRows.map((row) => row.productId)
+    const remaining = Math.max(effectiveLimit - scheduledRows.length, 0)
+
+    const exclusionClause =
+      scheduledProductIds.length > 0
+        ? Prisma.sql`AND p.id NOT IN (${Prisma.join(scheduledProductIds)})`
+        : Prisma.sql``
+
+    const planRows =
+      remaining > 0
+        ? await prisma.$queryRaw<{ id: string }[]>(
+            Prisma.sql`
+              SELECT ids.id
+              FROM (
+                SELECT DISTINCT p.id
+                FROM "Product" AS p
+                WHERE p.status = 'published'
+                  AND p."planId" IS NOT NULL
+                  AND EXISTS (
+                    SELECT 1
+                    FROM "PlanFeatureAssignment" AS a
+                    INNER JOIN "PlanFeature" AS f
+                      ON f.id = a."featureId"
+                    WHERE a."planId" = p."planId"
+                      AND a.enabled = true
+                      AND f.key = ${homepageFeatureKey}
+                  )
+                  ${exclusionClause}
+              ) AS ids
+              ORDER BY RANDOM()
+              LIMIT ${remaining}
+            `,
+          )
+        : []
+
+    const productIds = [
+      ...scheduledProductIds,
+      ...planRows.map((row) => row.id),
+    ]
+
+    if (!productIds.length) {
+      return []
+    }
+
+    const products = await prisma.product.findMany({
+      where: {
+        id: {
+          in: productIds,
+        },
+      },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        tagline: true,
+        logo: true,
+      },
+    })
+
+    const productMap = new Map(products.map((product) => [product.id, product]))
     const placements: HomepageFeaturePlacement[] = []
+    const seen = new Set<string>()
 
-    for (const entry of schedules) {
-      const product = entry.product
+    for (const row of scheduledRows) {
+      const product = productMap.get(row.productId)
       if (!product || seen.has(product.id)) continue
       seen.add(product.id)
       placements.push({
-        id: `schedule:${entry.id}`,
+        id: `schedule:${row.scheduleId}`,
         product,
         origin: "schedule",
         schedule: {
-          id: entry.id,
-          slotKey: entry.slotKey,
-          startsAt: entry.startsAt,
-          endsAt: entry.endsAt,
-          redemptionId: entry.redemptionId ?? null,
+          id: row.scheduleId,
+          slotKey: row.slotKey,
+          startsAt: row.startsAt,
+          endsAt: row.endsAt,
+          redemptionId: row.redemptionId ?? null,
         },
       })
-      if (placements.length >= limit) return placements
+      if (placements.length >= effectiveLimit) break
     }
 
-    for (const product of planProducts) {
-      if (seen.has(product.id)) continue
-      seen.add(product.id)
-      placements.push({
-        id: `plan:${product.id}`,
-        product,
-        origin: "plan",
-      })
-      if (placements.length >= limit) break
+    if (placements.length < effectiveLimit) {
+      for (const planRow of planRows) {
+        const product = productMap.get(planRow.id)
+        if (!product || seen.has(product.id)) continue
+        seen.add(product.id)
+        placements.push({
+          id: `plan:${planRow.id}`,
+          product,
+          origin: "plan",
+        })
+        if (placements.length >= effectiveLimit) break
+      }
     }
 
     return placements
@@ -422,5 +409,6 @@ export const getHomepageFeatureProducts = cached(
       TAGS.planFeature("homepage"),
       TAGS.plans,
     ],
+    keyParts: ([limit]) => [`limit:${limit ?? 12}`],
   },
 )

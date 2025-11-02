@@ -18,5 +18,5 @@ export async function DirectoryHeaderSection() {
 }
 
 export function DirectoryHeaderSkeleton() {
-  return <DirectoryHeaderSkeletonSection />
+  return <DirectoryHeaderSkeletonSection metricCount={0} />
 }

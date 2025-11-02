@@ -1,4 +1,4 @@
-export type SearchParamValue = string | string[] | undefined
+type SearchParamValue = string | string[] | undefined
 
 export interface PaginationSearchParams {
   page?: SearchParamValue
@@ -6,13 +6,13 @@ export interface PaginationSearchParams {
   [key: string]: SearchParamValue
 }
 
-export interface PaginationOptions {
+interface PaginationOptions {
   defaultPage?: number
   defaultPageSize?: number
   maxPageSize?: number
 }
 
-export interface PaginationResult {
+interface PaginationResult {
   page: number
   pageSize: number
   skip: number

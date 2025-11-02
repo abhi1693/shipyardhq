@@ -132,14 +132,14 @@ const resolveTemplateString = (value: unknown): string | undefined => {
   return undefined
 }
 
-export type SectionMetadataOptions = {
+type SectionMetadataOptions = {
   section?: string
   description?: string
   openGraph?: Metadata["openGraph"]
   twitter?: Metadata["twitter"]
 }
 
-export type PageMetadataOptions = {
+type PageMetadataOptions = {
   title?: string
   section?: string
   description?: string

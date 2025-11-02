@@ -1,90 +1,52 @@
-import { BadgeSkeleton } from "@/components/atoms/badge.skeleton"
 import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
-import { ProductCompactGridSkeleton } from "@/components/molecules/ProductCompactGrid.skeleton"
+import { HomepageFeedSkeleton } from "@/components/templates/public/homepage/homepage-feed-section"
+import { ProductUpdatesSkeleton } from "@/components/templates/public/homepage/product-updates"
+import { SponsoredProductsSkeleton } from "@/components/templates/public/homepage/sponsored-products"
 
 export function TagDetailSkeleton() {
   return (
-    <main className="bg-white">
-      <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:px-10">
-        <header className="space-y-3 pb-10">
-          <BadgeSkeleton
-            variant="outline"
-            leadingIcon
-            labelWidth="8rem"
-            className="h-7"
-          />
-          <HeadingSkeleton lines={1} centered={false} className="max-w-xl" />
-          <Skeleton className="h-3 w-2/3 rounded-full" tone="muted" />
-        </header>
-
-        <div className="space-y-10">
-          <section className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-6 sm:px-6">
-            <div className="space-y-2">
-              <HeadingSkeleton
-                lines={1}
-                centered={false}
-                className="max-w-sm"
-              />
-              <Skeleton className="h-3 w-64 rounded-full" tone="muted" />
-            </div>
-            <TagCloudSkeleton />
-          </section>
-
-          <section className="space-y-6 rounded-3xl border border-slate-200 bg-white px-5 py-6 shadow-sm sm:px-6">
-            <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-6">
-              <div className="space-y-1">
-                <HeadingSkeleton
-                  lines={1}
-                  centered={false}
-                  className="max-w-sm"
-                />
-                <Skeleton className="h-3 w-48 rounded-full" tone="muted" />
-              </div>
-              <Skeleton className="h-3 w-32 rounded-full" tone="muted" />
-            </div>
-
-            <ProductCompactGridSkeleton
-              count={6}
-              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-            />
-
-            <div className="flex items-center justify-between border-t border-slate-200 pt-6">
-              <ButtonSkeleton
-                size="sm"
-                variant="outline"
-                labelWidth="5rem"
-                className="bg-slate-100/70"
-              />
-              <ButtonSkeleton
-                size="sm"
-                variant="outline"
-                labelWidth="4.5rem"
-                className="bg-slate-100/70"
-              />
-            </div>
-          </section>
+    <main className="relative isolate bg-[#f5f7fb]">
+      <div className="relative mx-auto w-full max-w-7xl px-4 pb-24 pt-12 md:px-6">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,2.6fr)_minmax(240px,0.9fr)]">
+          <div className="flex flex-col gap-10">
+            <HeroSkeleton />
+            <Skeleton className="h-20 rounded-3xl border border-border/40 bg-white shadow-sm" />
+            <ProductsSkeleton />
+          </div>
+          <aside className="flex w-full max-w-sm flex-col gap-6 lg:ml-auto">
+            <SponsoredProductsSkeleton />
+            <ProductUpdatesSkeleton />
+          </aside>
         </div>
       </div>
     </main>
   )
 }
 
-function TagCloudSkeleton() {
+function HeroSkeleton() {
   return (
-    <div className="mt-4 flex flex-wrap gap-3">
-      {Array.from({ length: 10 }).map((_, index) => (
-        <Skeleton
-          key={index}
-          className="h-9 rounded-full px-5"
-          tone={index % 2 === 0 ? "brand" : "soft"}
-        >
-          <span className="inline-flex h-full w-full items-center justify-center">
-            <Skeleton className="h-3 w-16 rounded-full" tone="muted" />
-          </span>
-        </Skeleton>
-      ))}
-    </div>
+    <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
+      <div className="mx-auto flex max-w-2xl flex-col items-center gap-6">
+        <div className="w-full space-y-4">
+          <HeadingSkeleton lines={2} centered className="text-foreground" />
+          <Skeleton className="mx-auto h-3 w-4/5 rounded-full" tone="muted" />
+        </div>
+        <Skeleton className="h-3 w-44 rounded-full" tone="muted" />
+        <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row sm:justify-center sm:gap-4">
+          <ButtonSkeleton size="lg" labelWidth="11rem" />
+          <ButtonSkeleton size="lg" variant="outline" labelWidth="12rem" />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ProductsSkeleton() {
+  return (
+    <section className="space-y-6">
+      <HomepageFeedSkeleton />
+    </section>
   )
 }

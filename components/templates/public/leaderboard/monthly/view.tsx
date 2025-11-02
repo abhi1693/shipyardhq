@@ -22,7 +22,6 @@ import {
   IconTrophy,
   IconUsersGroup,
 } from "@tabler/icons-react"
-import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 
 const rankLabels = ["Top rank", "Second place", "Third place"]
@@ -142,11 +141,6 @@ export async function MonthlyLeaderboardView({
         </div>
       </section>
 
-      <HeroStickyBanner
-        wrapperClassName="mt-6"
-        innerClassName="max-w-[84rem]"
-      />
-
       {hasRankings ? (
         <>
           <section className="relative py-16">
@@ -223,7 +217,6 @@ export async function MonthlyLeaderboardView({
                     }))}
                     columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                     className="gap-y-6"
-                    showCategory
                     pageSize={9}
                     metaConfig={{
                       type: "badge",

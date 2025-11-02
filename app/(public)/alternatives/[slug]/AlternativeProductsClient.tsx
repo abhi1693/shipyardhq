@@ -1,10 +1,11 @@
 "use client"
 
-import { useCallback } from "react"
+import { useCallback, useMemo } from "react"
 
 import type { AlternativeDetailProduct } from "@/actions/public/alternatives/actions"
-import { loadMoreAlternativeProducts } from "@/actions/public/alternatives/loadMore"
-import InfiniteProductGrid from "@/components/molecules/InfiniteProductGrid"
+import ProductGrid from "@/components/molecules/ProductGrid"
+import { toProductCardItem } from "@/lib/products/card-item"
+import { getProductFeedPage } from "@/actions/public/products/feedPage"
 
 interface AlternativeProductsClientProps {
   alternativeId: string
@@ -21,16 +22,22 @@ export function AlternativeProductsClient({
   initialPage,
   pageSize,
 }: AlternativeProductsClientProps) {
+  const initialCardItems = useMemo(
+    () => initialItems.map((item) => toProductCardItem(item)),
+    [initialItems],
+  )
+
   const loadPage = useCallback(
     async (page: number) => {
-      const result = await loadMoreAlternativeProducts({
+      const result = await getProductFeedPage({
+        kind: "alternative",
         alternativeId,
         page,
         pageSize,
       })
 
       return {
-        items: result.items,
+        items: result.items.map((item) => toProductCardItem(item)),
         hasMore: result.hasMore,
       }
     },
@@ -38,12 +45,15 @@ export function AlternativeProductsClient({
   )
 
   return (
-    <InfiniteProductGrid
-      initialItems={initialItems}
-      initialHasMore={initialHasMore}
-      initialPage={initialPage}
-      loadPage={loadPage}
-      resetKey={alternativeId}
+    <ProductGrid
+      items={initialCardItems}
+      infinite={{
+        hasMore: initialHasMore,
+        initialPage,
+        loadPage,
+        resetKey: alternativeId,
+        loadingSkeletonCount: 3,
+      }}
       endMessage={
         <p className="py-4 text-center text-sm text-muted-foreground">
           You&apos;ve reached the end of this alternatives list.

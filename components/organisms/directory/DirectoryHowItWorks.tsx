@@ -63,5 +63,3 @@ export function DirectoryHowItWorks() {
     </section>
   )
 }
-
-export default DirectoryHowItWorks

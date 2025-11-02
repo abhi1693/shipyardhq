@@ -1,50 +1,89 @@
-import { ReactNode } from "react"
+import type { ReactNode } from "react"
 
-import { ProductCompactCard } from "@/components/molecules/ProductCompactCard"
+import ProductFeedCard from "@/components/molecules/ProductFeedCard"
+import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { ProductCardVariant } from "@/types/product-card"
+export type { ProductCardVariant } from "@/types/product-card"
 
-interface ProductCardProps {
-  product: {
-    id: string
-    slug: string
-    name: string
-    logo: string
-    tagline: string
-  }
-  badges?: string[]
-  upvotes?: number
-  category?: string
-  compact?: boolean
-  topRight?: ReactNode
-  imagePriority?: boolean
+export type ProductCardBase = {
+  id: string
+  slug: string
+  name: string
+  logo: string
+  tagline: string
+  analytics?: { upvotes?: number | null } | null
+  category?: { name?: string | null; slug?: string | null } | null
+  badges?: string[] | null
+  sponsored?: boolean
+  createdAt?: string | Date | null
+  updatedAt?: string | Date | null
 }
 
-// Legacy wrapper to keep existing imports working while the UI standardizes on the
-// compact product card design. New usage should prefer ProductCompactCard directly.
-export function ProductCard(props: ProductCardProps) {
-  const {
-    product,
-    badges = [],
-    upvotes = 0,
-    category,
-    compact = true,
-    topRight,
-    imagePriority = false,
-  } = props
+export type ProductCardItem = ProductCardBase & {
+  voteCount?: number
+  isVoted?: boolean
+  updatesCount?: number
+  categoryName?: string | null
+  categorySlug?: string | null
+  createdAt?: string
+  updatedAt?: string
+  isSponsored?: boolean
+  meta?: ReactNode
+  variant?: ProductCardVariant
+}
 
-  void compact
+const FALLBACK_TAGLINE =
+  "Discover launch-ready tools from indie makers worldwide."
 
-  const showCategory = Boolean(category)
+const resolveUpvotes = (product: ProductCardItem) => {
+  if (typeof product.voteCount === "number") return product.voteCount
+  if (typeof product.analytics?.upvotes === "number") {
+    return product.analytics.upvotes
+  }
+  return 0
+}
 
+const resolveCategoryName = (product: ProductCardItem) =>
+  typeof product.categoryName !== "undefined"
+    ? (product.categoryName ?? null)
+    : (product.category?.name ?? null)
+
+function toFeedItem(product: ProductCardItem): HomepageFeedItem {
+  const categoryName = resolveCategoryName(product)
+  const isSponsored = Boolean(product.sponsored ?? product.isSponsored)
+  const variant = product.variant ?? (isSponsored ? "sponsored" : "default")
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    logo: product.logo,
+    tagline: product.tagline || FALLBACK_TAGLINE,
+    createdAt: product.createdAt ?? "",
+    updatedAt: product.updatedAt ?? "",
+    badges: product.badges ?? [],
+    category: categoryName,
+    categorySlug: product.categorySlug ?? null,
+    voteCount: resolveUpvotes(product),
+    updatesCount: product.updatesCount,
+    isSponsored,
+    isVoted: Boolean(product.isVoted),
+    variant,
+  }
+}
+
+interface ProductCardProps {
+  product: ProductCardItem
+  className?: string
+  variant?: ProductCardVariant
+}
+
+export function ProductCard({ product, className, variant }: ProductCardProps) {
   return (
-    <ProductCompactCard
-      product={product}
-      upvotes={upvotes}
-      badges={badges}
-      category={showCategory ? (category ?? null) : null}
-      imagePriority={imagePriority}
-      meta={topRight}
-      showCategory={showCategory}
-      showBadges={badges.length > 0}
+    <ProductFeedCard
+      item={toFeedItem(product)}
+      className={className}
+      meta={product.meta}
+      variant={variant ?? product.variant}
     />
   )
 }

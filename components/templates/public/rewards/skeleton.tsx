@@ -3,9 +3,8 @@ import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
-import { ProductCompactGridSkeleton } from "@/components/molecules/ProductCompactGrid.skeleton"
+import ProductListSkeleton from "@/components/molecules/ProductList.skeleton"
 import { DirectoryProductListSkeleton } from "@/components/organisms/directory/DirectoryProductList.skeleton"
-import DirectoryRadarDigestSkeleton from "@/components/organisms/directory/RadarDigest.skeleton"
 
 export function RewardsPageSkeleton() {
   return (
@@ -133,15 +132,9 @@ export function RewardsPageSkeleton() {
           <HeadingSkeleton lines={2} centered={false} />
           <Skeleton className="mt-2 h-3 w-3/4 rounded-full" tone="muted" />
           <div className="mt-8">
-            <ProductCompactGridSkeleton
-              count={4}
-              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-            />
+            <ProductListSkeleton count={4} />
           </div>
         </section>
-
-        <DirectoryRadarDigestSkeleton />
-
         <section className="rounded-3xl border border-border bg-white p-6 shadow-sm md:p-8">
           <HeadingSkeleton lines={2} centered={false} />
           <Skeleton className="mt-2 h-3 w-2/3 rounded-full" tone="muted" />

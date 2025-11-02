@@ -75,7 +75,7 @@ To understand a stage’s data contract, look at the matching union branches in 
 ## Running the pipeline locally
 
 - Seed Redis and ensure env vars are present.
-- Trigger via UI (Product detail → Insights → “Refresh insights”) or invoke the action directly in a REPL: `await scheduleProductInsightsPipeline(slug)`. For admin tests, call `scheduleAdminProductInsightsPipeline`.
+- Trigger via UI (Product detail → Insights → “Refresh insights”) or invoke the action directly in a REPL: `await scheduleProductInsightsPipeline(slug)`. For admin scenarios, call `scheduleAdminProductInsightsPipeline`.
 - To emulate cron, hit `/api/cron/product-insight-pipeline?limit=1` with the correct `Authorization` header.
 - Inspect logs for `[productInsights:pipeline]` to trace stage execution; failures bubble up via `ProductInsightStatus.failed` and stage `errorMessage` fields.
 
@@ -89,7 +89,6 @@ To understand a stage’s data contract, look at the matching union branches in 
 6. **Database:** No schema changes are needed unless you require additional indexes; data lands in `ProductInsightStageResult.data` as JSON.
 7. **UI renderer:** Implement a renderer path in `ProductInsightsView` (or a new component) keyed by the new `renderer` hint. Extend `ProductInsightStageRendererHint` if necessary (`types/product-insights.ts:235`).
 8. **Stage dependencies:** Update dependent stages to read from `context.shared` as needed. Share stage data by returning it in the `shared` block of `serialize` (`lib/server/productInsights/pipeline/types.ts:26`).
-9. **Tests:** Add unit coverage under `lib/server/productInsights/__tests__` mirroring existing stage tests (e.g., `hackerNews.test.ts`).
 
 ## Using existing stage data elsewhere
 
@@ -104,15 +103,13 @@ To understand a stage’s data contract, look at the matching union branches in 
 - Queue state can be inspected with `peekPipelineQueueLength` (`lib/server/productInsights/pipelineQueue.ts:180`) and `getPipelineJobState` (`lib/server/productInsights/pipelineQueue.ts:200`).
 - Email notifications are sent automatically on successful runs (`lib/server/productInsights/pipelineRunner.ts:631`). Disable per-run by passing `notifyOnCompletion: false` to `runProductInsightPipeline` when calling it programmatically.
 
-## Testing & local development
+## Local development
 
-- Vitest coverage exists for core pieces under `lib/server/productInsights/__tests__`; run `npm run test -- productInsights` to iterate quickly.
-- Mock external services (Reddit, OpenAI, HN) through the helpers in tests or via `vitest.setup.tsx` mocks.
 - Ensure you regenerate the Prisma client if you change schema (`npm run prisma:generate`).
 
 ## Checklist before shipping changes
 
 - Confirm stage definitions and renderer hints stay in sync (`lib/server/productInsights/stages.ts:12`).
 - Verify new env vars are documented and provided in deployment environments.
-- Run `npm run lint`, `npm run test`, and, if applicable, exercise `/api/cron/product-insight-pipeline` in a staging environment.
+- Run `npm run lint` and, if applicable, exercise `/api/cron/product-insight-pipeline` in a staging environment.
 - Communicate schema or cache migrations to operations; Redis key namespaces are versioned, so bumping keys avoids cross-environment collisions.

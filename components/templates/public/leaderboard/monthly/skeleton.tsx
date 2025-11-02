@@ -3,7 +3,7 @@ import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
-import { ProductCompactGridSkeleton } from "@/components/molecules/ProductCompactGrid.skeleton"
+import ProductListSkeleton from "@/components/molecules/ProductList.skeleton"
 
 export function MonthlyLeaderboardSkeleton() {
   return (
@@ -87,10 +87,7 @@ function ArchiveGridSkeleton() {
         <ButtonSkeleton size="sm" variant="outline" labelWidth="7rem" />
       </div>
       <div className="mt-8">
-        <ProductCompactGridSkeleton
-          count={6}
-          columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-        />
+        <ProductListSkeleton count={6} />
       </div>
     </section>
   )

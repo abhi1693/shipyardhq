@@ -17,7 +17,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/atoms/accordion"
-import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
 import { buildPageMetadata } from "@/lib/metadata"
 import { ANALYTICS_PATH, REWARDS_PATH } from "@/lib/routes"
@@ -102,11 +101,6 @@ export default function PricingPage() {
           </div>
         </div>
       </section>
-
-      <HeroStickyBanner
-        wrapperClassName="mt-6"
-        innerClassName="max-w-[84rem]"
-      />
 
       <section className="relative py-16">
         <div className="mx-auto max-w-[84rem] px-4 md:px-8">

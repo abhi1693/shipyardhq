@@ -2,14 +2,15 @@
 
 import { useCallback, useMemo } from "react"
 
-import { loadMoreTagProducts } from "@/actions/public/tags/loadMore"
-import InfiniteProductGrid from "@/components/molecules/InfiniteProductGrid"
+import ProductGrid from "@/components/molecules/ProductGrid"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { toProductCardItem } from "@/lib/products/card-item"
 import { EmptyState } from "@/components/molecules/empty-state"
-import type { CompactProductItem } from "@/components/molecules/ProductCompactGrid"
+import { getProductFeedPage } from "@/actions/public/products/feedPage"
 
 interface TagProductsClientProps {
   slug: string
-  initialItems: CompactProductItem[]
+  initialItems: ProductCardBase[]
   initialHasMore: boolean
   initialPage: number
   total: number
@@ -24,11 +25,22 @@ export function TagProductsClient({
   initialPage,
   total,
 }: TagProductsClientProps) {
+  const initialCardItems = useMemo(
+    () => initialItems.map((item) => toProductCardItem(item)),
+    [initialItems],
+  )
+
   const loadPage = useCallback(
     async (page: number) => {
-      const result = await loadMoreTagProducts({ slug, page })
+      const result = await getProductFeedPage({
+        kind: "tag",
+        slug,
+        page,
+      })
       return {
-        items: result.items as CompactProductItem[],
+        items: (result.items as ProductCardBase[]).map((item) =>
+          toProductCardItem(item),
+        ),
         hasMore: result.hasMore,
       }
     },
@@ -45,15 +57,14 @@ export function TagProductsClient({
   }, [total])
 
   return (
-    <InfiniteProductGrid
-      initialItems={initialItems}
-      initialHasMore={initialHasMore}
-      initialPage={initialPage}
-      loadPage={loadPage}
-      resetKey={`${slug}:${total}`}
-      loadingSkeletonCount={TAG_GRID_PAGE_SIZE}
-      gridOverrides={{
-        columns: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+    <ProductGrid
+      items={initialCardItems}
+      infinite={{
+        hasMore: initialHasMore,
+        initialPage,
+        loadPage,
+        resetKey: `${slug}:${total}`,
+        loadingSkeletonCount: TAG_GRID_PAGE_SIZE,
       }}
       emptyState={
         <EmptyState

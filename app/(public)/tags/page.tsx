@@ -1,7 +1,13 @@
-import { type ReactNode, Suspense } from "react"
+import { Suspense } from "react"
 
 import { TagsIndexPageContent } from "@/components/templates/public/tags/index/page-content"
 import { buildPageMetadata } from "@/lib/metadata"
+import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+import { Skeleton } from "@/components/atoms/skeleton"
+import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
+import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
+import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
+import { SponsoredProductsSkeleton } from "@/components/templates/public/homepage/sponsored-products"
 
 export const metadata = buildPageMetadata({
   title: "Browse Tags",
@@ -13,79 +19,70 @@ export default function TagsIndexPage(
   props: Parameters<typeof TagsIndexPageContent>[0],
 ) {
   return (
-    <TagsShell>
-      <Suspense fallback={<TagSectionsSkeleton />}>
-        <TagsIndexPageContent {...props} />
-      </Suspense>
-    </TagsShell>
+    <Suspense fallback={<TagsIndexPageSkeleton />}>
+      <TagsIndexPageContent {...props} />
+    </Suspense>
   )
 }
 
-function TagsShell({ children }: { children: ReactNode }) {
+function TagsIndexPageSkeleton() {
   return (
-    <main className="bg-white">
-      <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:px-10">
-        <header className="space-y-3 pb-10">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-600">
-            Tag Directory
-          </p>
-          <h1 className="text-4xl font-semibold text-slate-900">
-            Explore product tags
-          </h1>
-          <p className="max-w-2xl text-base text-slate-600">
-            Shipyard keywords double as tags. Browse the most popular themes and
-            discover new products linked to each topic.
-          </p>
-        </header>
-
-        {children}
-      </div>
+    <main className="relative isolate bg-[#f5f7fb]">
+      <PublicTwoColumnLayout
+        className="pb-24 pt-12"
+        mainClassName="space-y-12"
+        sidebarClassName="lg:sticky lg:top-24"
+        main={
+          <>
+            <TagsHeroSkeleton />
+            <Skeleton className="h-16 w-full rounded-3xl border border-border/40 bg-white shadow-[0_24px_80px_-60px_rgba(7,58,104,0.35)]" />
+            <TagListSkeleton />
+          </>
+        }
+        sidebar={<SponsoredProductsSkeleton />}
+      />
     </main>
   )
 }
 
-function TagSectionsSkeleton() {
+function TagsHeroSkeleton() {
   return (
-    <div className="space-y-10">
-      <section className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-6 sm:px-6">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <div className="space-y-2">
-            <div className="h-4 w-28 rounded-full bg-slate-200 animate-pulse" />
-            <div className="h-3 w-64 rounded-full bg-slate-200/80 animate-pulse" />
-          </div>
-          <div className="h-8 w-32 rounded-full bg-slate-100 animate-pulse" />
+    <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
+      <div className="mx-auto flex max-w-3xl flex-col items-center gap-6">
+        <div className="space-y-4">
+          <Skeleton className="mx-auto h-3 w-32 rounded-full" tone="muted" />
+          <HeadingSkeleton lines={2} centered className="text-foreground" />
+          <Skeleton className="mx-auto h-3 w-3/4 rounded-full" tone="muted" />
         </div>
-        <div className="flex flex-wrap gap-3 pt-2">
-          {Array.from({ length: 14 }).map((_, index) => (
-            <div
-              key={index}
-              className="h-9 w-24 rounded-full bg-slate-200/70 animate-pulse"
-            />
-          ))}
+        <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row sm:justify-center sm:gap-4">
+          <ButtonSkeleton size="lg" labelWidth="12rem" />
+          <ButtonSkeleton size="lg" variant="outline" labelWidth="14rem" />
         </div>
-      </section>
+      </div>
+    </section>
+  )
+}
 
-      <section className="space-y-6 rounded-3xl border border-slate-200 bg-white px-5 py-6 shadow-sm sm:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-6">
-          <div className="space-y-2">
-            <div className="h-5 w-44 rounded-full bg-slate-200 animate-pulse" />
-            <div className="h-3 w-40 rounded-full bg-slate-200/70 animate-pulse" />
-          </div>
-          <div className="h-3 w-28 rounded-full bg-slate-200/70 animate-pulse" />
+function TagListSkeleton() {
+  return (
+    <section className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-2">
+          <HeadingSkeleton lines={1} className="h-7 w-48" />
+          <Skeleton className="h-3 w-64 rounded-full" tone="muted" />
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div
-              key={index}
-              className="h-48 rounded-3xl border border-slate-200 bg-slate-100/60 animate-pulse"
-            />
-          ))}
-        </div>
-        <div className="flex items-center justify-between border-t border-slate-200 pt-6">
-          <div className="h-9 w-24 rounded-full bg-slate-200/80 animate-pulse" />
-          <div className="h-9 w-20 rounded-full bg-slate-200/80 animate-pulse" />
-        </div>
-      </section>
-    </div>
+        <Skeleton className="h-4 w-24 rounded-full" tone="muted" />
+      </div>
+      <div className="space-y-4">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <ProductFeedCardSkeleton
+            key={`tag-directory-feed-skeleton-${index}`}
+            showCategory={false}
+            showBadges={false}
+            showMetaBadge
+          />
+        ))}
+      </div>
+    </section>
   )
 }

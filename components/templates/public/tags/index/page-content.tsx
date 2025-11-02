@@ -1,11 +1,21 @@
 import Link from "next/link"
+import { Suspense } from "react"
 
 import { EmptyState } from "@/components/molecules/empty-state"
-import KeywordTagCloud from "@/components/molecules/KeywordTagCloud"
+import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+import {
+  HERO_PRIMARY_BUTTON_CLASSES,
+  HERO_SECONDARY_BUTTON_CLASSES,
+} from "@/components/templates/public/categories/hero-button-classes"
+import { TagDirectoryList } from "@/components/templates/public/tags/index/tag-directory-list"
+import {
+  SponsoredProductsSection,
+  SponsoredProductsSkeleton,
+} from "@/components/templates/public/homepage/sponsored-products"
+import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 import { getTagsIndexPayload } from "@/lib/tags/page-cache"
 
-import { formatTagLabel } from "@/app/(public)/tags/_utils"
-import TagProductsClient from "@/app/(public)/tags/[slug]/TagProductsClient"
 
 type TagsSearchParams = {
   page?: string | string[]
@@ -18,84 +28,76 @@ export async function TagsIndexPageContent({
 }) {
   await searchParams
 
-  const payload = await getTagsIndexPayload(1)
-  const { summaries, activeSummary, activeProducts } = payload
-
-  if (!summaries.length || !activeSummary) {
-    return (
-      <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-8 px-4 py-20 text-center">
-        <EmptyState
-          title="No tags yet"
-          description="Once products add keywords, you’ll be able to explore them here."
-        />
-      </div>
-    )
-  }
-
-  const cloudItems = summaries.map((summary) => ({
-    slug: summary.slug,
-    label: formatTagLabel(summary.canonical || summary.keyword),
-    count: summary.productCount,
-    href: `/tags/${summary.slug}`,
-  }))
-  const tagData = activeProducts
-
-  const total = tagData?.total ?? activeSummary.productCount
+  const payload = await getTagsIndexPayload()
+  const { initialItems, hasMore, totalTags, pageSize } = payload
+  const hasTags = initialItems.length > 0
+  const listResetKey =
+    initialItems.map((tag) => tag.slug).join("|") || "tags-empty"
 
   return (
-    <div className="space-y-10">
-      <section className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-6 sm:px-6">
-        <header className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-slate-900">Top tags</h2>
-            <p className="text-sm text-slate-600">
-              Spotlighting the {cloudItems.length} most-used keywords across
-              published products.
-            </p>
-          </div>
-          <Link
-            href="/browse"
-            className="text-sm font-medium text-sky-600 transition hover:text-sky-700"
-          >
-            Browse all products
-          </Link>
-        </header>
-        <KeywordTagCloud
-          items={cloudItems}
-          activeSlug={activeSummary.slug}
-          className="pt-2"
-        />
-      </section>
+    <main className="relative isolate bg-[#f5f7fb]">
+      <PublicTwoColumnLayout
+        className="pb-24 pt-12"
+        mainClassName="space-y-12"
+        sidebarClassName="lg:sticky lg:top-24"
+        main={
+          <>
+            <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
+              <div className="mx-auto flex max-w-3xl flex-col items-center gap-6">
+                <div className="space-y-4">
+                  <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+                    Discover every keyword powering launches
+                  </h1>
+                  <p className="text-base text-muted-foreground">
+                    Browse tags sorted by live product count and see which
+                    themes are shaping the Shipyard community.
+                  </p>
+                </div>
+                <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row sm:justify-center sm:gap-4">
+                  <Link
+                    href={BROWSE_PATH}
+                    className={`${HERO_PRIMARY_BUTTON_CLASSES} w-full justify-center sm:w-auto`}
+                  >
+                    Browse trending launches
+                  </Link>
+                  <Link
+                    href={MEMBER_PRODUCTS_PATH}
+                    className={`${HERO_SECONDARY_BUTTON_CLASSES} w-full justify-center sm:w-auto`}
+                  >
+                    Submit your tagged launch
+                  </Link>
+                </div>
+              </div>
+            </section>
 
-      <section className="space-y-6">
-        <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-6">
-          <div className="space-y-1">
-            <h2 className="text-2xl font-semibold text-slate-900">
-              {formatTagLabel(
-                tagData?.summary.canonical || activeSummary.canonical,
+            <HeroStickyBanner wrapperClassName="px-0" innerClassName="w-full" />
+
+            <section className="space-y-6" data-testid="tag-directory-section">
+              {hasTags ? (
+                <TagDirectoryList
+                  key={`${pageSize}:${listResetKey}`}
+                  initialItems={initialItems}
+                  initialHasMore={hasMore}
+                  pageSize={pageSize}
+                  totalTags={totalTags}
+                />
+              ) : (
+                <div className="rounded-3xl border border-dashed border-border/40 bg-white/70 px-6 py-12 text-center text-sm font-medium text-muted-foreground">
+                  <EmptyState
+                    title="No tags yet"
+                    description="Once products add keywords, you’ll be able to explore them here."
+                  />
+                </div>
               )}
-            </h2>
-            <p className="text-sm text-slate-600">
-              {total} product{total === 1 ? "" : "s"} tagged with this keyword.
-            </p>
-          </div>
-        </div>
-
-        {tagData && tagData.products.length > 0 ? (
-          <TagProductsClient
-            slug={tagData.summary.slug}
-            initialItems={tagData.products}
-            initialHasMore={tagData.hasMore}
-            initialPage={2}
-            total={total}
-          />
-        ) : (
-          <EmptyState
-            title="No products yet"
-            description="Products will appear here once they use this keyword."
-          />
-        )}
-      </section>
-    </div>
+            </section>
+          </>
+        }
+        sidebar={
+          <Suspense fallback={<SponsoredProductsSkeleton />}>
+            <SponsoredProductsSection />
+          </Suspense>
+        }
+      />
+    </main>
   )
 }

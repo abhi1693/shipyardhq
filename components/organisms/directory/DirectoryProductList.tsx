@@ -1,14 +1,16 @@
 "use client"
 
-import { useCallback, useMemo } from "react"
+import { useMemo } from "react"
 import type { ComponentProps } from "react"
 
 import { Badge } from "@/components/atoms/badge"
-import InfiniteProductGrid from "@/components/molecules/InfiniteProductGrid"
-import type { CompactProductItem } from "@/components/molecules/ProductCompactGrid"
+import ProductGrid from "@/components/molecules/ProductGrid"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { toProductCardItem } from "@/lib/products/card-item"
+import { createStaticProductPager } from "@/lib/products/pagination"
 import { cn } from "@/lib/utils"
 
-type BaseProductListItem = CompactProductItem & {
+type BaseProductListItem = ProductCardBase & {
   badges?: string[]
   metaLabel?: string
 }
@@ -36,9 +38,7 @@ type MetaConfig = BadgeMetaConfig | RankMetaConfig
 interface DirectoryProductListProps<T extends BaseProductListItem> {
   items: T[]
   columns?: string
-  showCategory?: boolean
   metaConfig?: MetaConfig
-  showBadges?: boolean
   pageSize?: number
   className?: string
   sentinelMargin?: string
@@ -46,43 +46,56 @@ interface DirectoryProductListProps<T extends BaseProductListItem> {
 
 export function DirectoryProductList<T extends BaseProductListItem>({
   items,
-  columns,
-  showCategory = true,
+  columns: _columns,
   metaConfig,
-  showBadges = false,
   pageSize = DEFAULT_PAGE_SIZE,
   className,
   sentinelMargin,
 }: DirectoryProductListProps<T>) {
-  if (!items.length) {
-    return null
-  }
-
-  const chunkSize = Math.max(1, pageSize)
-
-  const chunks = useMemo(() => {
-    const result: T[][] = []
-    for (let index = 0; index < items.length; index += chunkSize) {
-      result.push(items.slice(index, index + chunkSize))
-    }
-    return result
-  }, [items, chunkSize])
-
-  const initialItems = chunks[0] ?? []
-  const initialHasMore = chunks.length > 1
-
-  const loadPage = useCallback(
-    async (page: number) => {
-      const targetIndex = page - 1
-      const nextItems = chunks[targetIndex] ?? []
-      const hasMore = targetIndex + 1 < chunks.length
-      return {
-        items: nextItems,
-        hasMore,
+  void _columns
+  const renderMeta = useMemo(() => {
+    if (!metaConfig) return undefined
+    if (metaConfig.type === "badge") {
+      const badgeConfig = metaConfig
+      function renderBadgeMeta(item: T) {
+        const label = item.metaLabel ?? badgeConfig.defaultLabel
+        if (!label) return null
+        return (
+          <Badge
+            variant={badgeConfig.badgeVariant ?? "outline"}
+            className={cn(
+              "rounded-full px-3 py-0.5 text-xs font-semibold",
+              badgeConfig.badgeClassName ??
+                "border-muted-foreground/30 bg-muted/70 text-muted-foreground",
+            )}
+          >
+            {label}
+          </Badge>
+        )
       }
-    },
-    [chunks],
-  )
+      return renderBadgeMeta
+    }
+
+    const rankConfig = metaConfig
+    const start = rankConfig.start ?? 0
+    function renderRankMeta(_item: T, index: number) {
+      return (
+        <Badge
+          variant={rankConfig.badgeVariant ?? "outline"}
+          className={cn(
+            "rounded-full px-2 py-0.5 text-xs font-semibold",
+            rankConfig.badgeClassName ??
+              "border-primary/40 bg-primary/8 text-primary",
+          )}
+        >
+          #{start + index + 1}
+        </Badge>
+      )
+    }
+    return renderRankMeta
+  }, [metaConfig])
+
+  const chunkSize = useMemo(() => Math.max(1, pageSize), [pageSize])
 
   const resetKey = useMemo(
     () =>
@@ -91,60 +104,34 @@ export function DirectoryProductList<T extends BaseProductListItem>({
     [chunkSize, items],
   )
 
-  const renderMeta = useMemo(() => {
-    if (!metaConfig) return undefined
-    if (metaConfig.type === "badge") {
-      return (item: T) => {
-        const label = item.metaLabel ?? metaConfig.defaultLabel
-        if (!label) return null
-        return (
-          <Badge
-            variant={metaConfig.badgeVariant ?? "outline"}
-            className={cn(
-              "rounded-full px-3 py-0.5 text-xs font-semibold",
-              metaConfig.badgeClassName ??
-                "border-muted-foreground/30 bg-muted/70 text-muted-foreground",
-            )}
-          >
-            {label}
-          </Badge>
-        )
-      }
-    }
+  const paging = useMemo(
+    () =>
+      createStaticProductPager(items, {
+        pageSize: chunkSize,
+        mapItem: (item, index) =>
+          toProductCardItem(item, {
+            meta: renderMeta ? renderMeta(item, index) : undefined,
+          }),
+      }),
+    [chunkSize, items, renderMeta],
+  )
 
-    const start = metaConfig.start ?? 0
-    return (_item: T, index: number) => (
-      <Badge
-        variant={metaConfig.badgeVariant ?? "outline"}
-        className={cn(
-          "rounded-full px-2 py-0.5 text-xs font-semibold",
-          metaConfig.badgeClassName ??
-            "border-primary/40 bg-primary/8 text-primary",
-        )}
-      >
-        #{start + index + 1}
-      </Badge>
-    )
-  }, [metaConfig])
+  const listClassName = useMemo(() => cn("space-y-4", className), [className])
 
   return (
-    <InfiniteProductGrid
-      initialItems={initialItems}
-      initialHasMore={initialHasMore}
-      initialPage={2}
-      loadPage={loadPage}
-      resetKey={resetKey}
-      loadingSkeletonCount={chunkSize}
-      endMessage={null}
-      emptyState={null}
-      gridOverrides={{
-        columns,
-        renderMeta,
-        showCategory,
-        showBadges,
-        className,
+    <ProductGrid
+      items={paging.initialItems}
+      className={listClassName}
+      infinite={{
+        hasMore: paging.initialHasMore,
+        initialPage: 2,
+        loadPage: paging.loadPage,
+        resetKey,
+        loadingSkeletonCount: chunkSize,
+        sentinelMargin,
       }}
-      sentinelMargin={sentinelMargin}
+      emptyState={null}
+      endMessage={null}
     />
   )
 }

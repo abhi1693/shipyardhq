@@ -2,14 +2,15 @@
 
 import { useCallback, useMemo } from "react"
 
-import type { CompactProductItem } from "@/components/molecules/ProductCompactGrid"
-import { loadMoreProducts } from "@/actions/public/browse/loadMore"
-import InfiniteProductGrid from "@/components/molecules/InfiniteProductGrid"
+import ProductGrid from "@/components/molecules/ProductGrid"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { toProductCardItem as buildProductCardItem } from "@/lib/products/card-item"
+import { getProductFeedPage } from "@/actions/public/products/feedPage"
 
-type ProductGridItem = CompactProductItem
+type BrowseProduct = ProductCardBase
 
 interface ProductGridClientProps {
-  initialProducts: ProductGridItem[]
+  initialProducts: BrowseProduct[]
   initialHasMore: boolean
   initialPage: number
   searchParams: {
@@ -27,6 +28,11 @@ export default function ProductGridClient({
   initialPage,
   searchParams,
 }: ProductGridClientProps) {
+  const initialItems = useMemo(
+    () => initialProducts.map((item) => buildProductCardItem(item)),
+    [initialProducts],
+  )
+
   const normalizedSearch = useMemo(
     () => ({
       useCase: searchParams.useCase,
@@ -51,13 +57,14 @@ export default function ProductGridClient({
 
   const loadPage = useCallback(
     async (page: number) => {
-      const result = await loadMoreProducts({
-        ...normalizedSearch,
+      const result = await getProductFeedPage({
+        kind: "browse",
         page,
+        ...normalizedSearch,
       })
 
       return {
-        items: result.products as ProductGridItem[],
+        items: result.items.map((item) => buildProductCardItem(item)),
         hasMore: result.hasMore,
       }
     },
@@ -65,12 +72,15 @@ export default function ProductGridClient({
   )
 
   return (
-    <InfiniteProductGrid
-      initialItems={initialProducts}
-      initialHasMore={initialHasMore}
-      initialPage={initialPage}
-      loadPage={loadPage}
-      resetKey={resetKey}
+    <ProductGrid
+      items={initialItems}
+      infinite={{
+        hasMore: initialHasMore,
+        initialPage,
+        loadPage,
+        resetKey,
+        loadingSkeletonCount: 3,
+      }}
     />
   )
 }

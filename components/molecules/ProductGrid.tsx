@@ -1,96 +1,85 @@
 "use client"
 
-import {
-  Category,
-  Product,
-  ProductAnalytics,
-  ProductVerification,
-  User,
-} from "@/lib/vendor/prisma/client"
-import { useState } from "react"
-import { Check } from "lucide-react"
-import { Button } from "@/components/atoms/button"
-import ProductList from "@/components/molecules/ProductList"
-import { buildQuery } from "@/lib/urlParams"
+import type { ReactNode } from "react"
 
-type ProductWithMeta = Product & {
-  category: Category
-  user: User
-  analytics: ProductAnalytics | null
-  verification: ProductVerification | null
-  ProductBadge?: { badge: string; expiresAt?: Date | string | null }[]
+import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
+import InfiniteProductGrid from "@/components/molecules/InfiniteProductGrid"
+import {
+  ProductCard,
+  type ProductCardItem,
+} from "@/components/molecules/ProductCard"
+import { cn } from "@/lib/utils"
+
+const DEFAULT_FEED_SKELETON_COUNT = 3
+
+interface InfiniteConfig {
+  hasMore: boolean
+  loadPage: (page: number) => Promise<{
+    items: ProductCardItem[]
+    hasMore: boolean
+  }>
+  initialPage?: number
+  resetKey?: string | number | boolean
+  loadingSkeletonCount?: number
+  sentinelMargin?: string
 }
 
 interface ProductGridProps {
-  initialProducts: ProductWithMeta[]
-  initialHasMore: boolean
-  searchParams: {
-    useCase?: string
-    category?: string
-    verified?: boolean
-    sort?: string
-  }
+  items: ProductCardItem[]
+  className?: string
+  infinite?: InfiniteConfig
+  emptyState?: ReactNode
+  endMessage?: ReactNode
 }
 
+const renderSkeleton = (count: number, className?: string) => (
+  <div className={cn("space-y-6", className)} aria-hidden="true">
+    {Array.from({ length: count }).map((_, index) => (
+      <ProductFeedCardSkeleton key={`product-grid-feed-skeleton-${index}`} />
+    ))}
+  </div>
+)
+
 export default function ProductGrid({
-  initialProducts,
-  initialHasMore,
-  searchParams,
+  items,
+  className,
+  infinite,
+  emptyState,
+  endMessage,
 }: ProductGridProps) {
-  const [products, setProducts] = useState<ProductWithMeta[]>(initialProducts)
-  const [hasMore, setHasMore] = useState(initialHasMore)
-  const [page, setPage] = useState(2)
-  const [loading, setLoading] = useState(false)
+  const listClassName = cn("space-y-4", className)
 
-  const loadMore = async () => {
-    setLoading(true)
+  const renderItems = (list: ProductCardItem[]) => (
+    <div className={listClassName} data-slot="product-grid-feed">
+      {list.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
+    </div>
+  )
 
-    const url = buildQuery("/api/browse", "", {
-      page: String(page),
-      useCase: searchParams.useCase,
-      category: searchParams.category,
-      sort: searchParams.sort,
-      verified: searchParams.verified ? "true" : undefined,
-    })
-
-    const res = await fetch(url)
-    const json = await res.json()
-
-    setProducts((prev) => [...prev, ...json.products])
-    setHasMore(json.hasMore)
-    setPage((prev) => prev + 1)
-    setLoading(false)
+  if (infinite) {
+    return (
+      <InfiniteProductGrid
+        initialItems={items}
+        initialHasMore={infinite.hasMore}
+        initialPage={infinite.initialPage}
+        loadPage={infinite.loadPage}
+        resetKey={infinite.resetKey}
+        loadingSkeletonCount={
+          infinite.loadingSkeletonCount ?? DEFAULT_FEED_SKELETON_COUNT
+        }
+        emptyState={emptyState}
+        endMessage={endMessage}
+        renderItems={renderItems}
+        renderLoadingSkeleton={(count) => renderSkeleton(count, className)}
+        sentinelMargin={infinite.sentinelMargin}
+      />
+    )
   }
 
-  return (
-    <section className="space-y-10">
-      <ProductList
-        items={products.map((p) => ({
-          ...p,
-          badges: p.ProductBadge?.filter(
-            (pb) => !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
-          ).map((pb) => pb.badge),
-        }))}
-        showCategory
-        showVerified
-        topRight={(p) => (
-          <div className="flex items-center gap-1">
-            {p.verification?.isVerified && (
-              <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px]">
-                <Check className="h-3 w-3" />
-              </span>
-            )}
-          </div>
-        )}
-      />
+  if (!items.length && emptyState) {
+    return <div className={className}>{emptyState}</div>
+  }
 
-      {hasMore && (
-        <div className="text-center pt-6">
-          <Button onClick={loadMore} disabled={loading}>
-            {loading ? "Loading..." : "Load More"}
-          </Button>
-        </div>
-      )}
-    </section>
-  )
+  return renderItems(items)
 }

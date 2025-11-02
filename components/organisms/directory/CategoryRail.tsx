@@ -65,5 +65,3 @@ export function DirectoryCategoryRail({
     </section>
   )
 }
-
-export default DirectoryCategoryRail

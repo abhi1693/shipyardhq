@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { FeaturedProduct } from "@/types"
-import { ProductCompactCard } from "@/components/molecules/ProductCompactCard"
+import { ProductCard } from "@/components/molecules/ProductCard"
+import { toProductCardItem } from "@/lib/products/card-item"
 import { Button } from "@/components/atoms/button"
 import { cn } from "@/lib/utils"
 
@@ -93,20 +94,7 @@ export function BrowseFeaturedCarousel({
             )}
             aria-hidden={itemIndex !== activeIndex}
           >
-            <ProductCompactCard
-              product={{
-                id: item.id,
-                slug: item.slug,
-                name: item.name,
-                logo: item.logo,
-                tagline: item.tagline,
-              }}
-              category={item.category?.name ?? null}
-              upvotes={item.analytics?.upvotes ?? 0}
-              imagePriority={itemIndex === activeIndex}
-              className="h-full"
-              disableHoverEffects
-            />
+            <ProductCard product={toProductCardItem(item)} className="h-full" />
           </div>
         ))}
       </div>

@@ -1,17 +1,18 @@
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 
-import { ProductCompactCard } from "@/components/molecules/ProductCompactCard"
-import { type CompactProductItem } from "@/components/molecules/ProductCompactGrid"
+import { ProductCard } from "@/components/molecules/ProductCard"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { toProductCardItem } from "@/lib/products/card-item"
 import { productPageCopy } from "@/lib/copy/productPage"
 
-interface ProductSimilarVoyagesProps<T extends CompactProductItem> {
+interface ProductSimilarVoyagesProps<T extends ProductCardBase> {
   items: T[]
   headingSuffix?: string | null
   browseHref: string
 }
 
-export function ProductSimilarVoyages<T extends CompactProductItem>({
+export function ProductSimilarVoyages<T extends ProductCardBase>({
   items,
   headingSuffix,
   browseHref,
@@ -43,23 +44,8 @@ export function ProductSimilarVoyages<T extends CompactProductItem>({
       </div>
 
       <div className="mt-4 space-y-3">
-        {items.slice(0, 4).map((item, index) => (
-          <ProductCompactCard
-            key={item.id}
-            product={{
-              id: item.id,
-              slug: item.slug,
-              name: item.name,
-              logo: item.logo,
-              tagline: item.tagline,
-            }}
-            upvotes={item.analytics?.upvotes ?? 0}
-            category={item.category?.name ?? null}
-            imagePriority={index === 0}
-            showCategory={false}
-            disableHoverEffects
-            className="border border-border bg-white p-3 shadow-none"
-          />
+        {items.slice(0, 4).map((item) => (
+          <ProductCard key={item.id} product={toProductCardItem(item)} />
         ))}
       </div>
     </section>

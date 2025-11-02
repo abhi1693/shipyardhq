@@ -73,6 +73,56 @@ type PublicProduct = Prisma.ProductGetPayload<{
   }
 }>
 
+const publicProductMetaSelect = Prisma.validator<Prisma.ProductSelect>()({
+  id: true,
+  slug: true,
+  name: true,
+  tagline: true,
+  description: true,
+  publishedAt: true,
+  createdAt: true,
+  logo: true,
+  bannerImage: true,
+  keywords: true,
+  status: true,
+  type: true,
+  pricingModel: true,
+  platforms: true,
+  websiteUrl: true,
+  ctaLabel: true,
+  ctaUrl: true,
+  category: { select: { name: true, slug: true } },
+  user: { select: { id: true, firstName: true, lastName: true } },
+  analytics: { select: { upvotes: true } },
+  metadata: { select: { demoUrl: true, utmCampaign: true } },
+  ProductMedia: {
+    select: {
+      id: true,
+      imageUrl: true,
+      altText: true,
+    },
+    orderBy: { createdAt: "asc" },
+  },
+  plan: {
+    select: {
+      assignments: {
+        select: {
+          enabled: true,
+          feature: { select: { key: true } },
+        },
+      },
+    },
+  },
+  featureEntitlements: {
+    where: { status: { in: ["active", "pending"] } },
+    select: { featureKey: true },
+  },
+})
+
+export type PublicProductMeta = Prisma.ProductGetPayload<{
+  select: typeof publicProductMetaSelect
+}>
+
 async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
   const product = await prisma.product.findUnique({
     where,
@@ -176,18 +226,7 @@ export const getPublicProductMetaBySlug = cached(
   async (slug: string) =>
     prisma.product.findUnique({
       where: { slug },
-      select: {
-        slug: true,
-        name: true,
-        tagline: true,
-        description: true,
-        logo: true,
-        bannerImage: true,
-        keywords: true,
-        status: true,
-        category: { select: { name: true, slug: true } },
-        user: { select: { firstName: true, lastName: true } },
-      },
+      select: publicProductMetaSelect,
     }),
   "product:meta-by-slug",
   {
@@ -211,31 +250,50 @@ type CompactProduct = Prisma.ProductGetPayload<{
 }>
 
 export const getPublicProductsByUseCase = cached(
-  async (useCaseSlug: string, excludeId: string): Promise<CompactProduct[]> =>
-    prisma.product.findMany({
+  async (
+    useCaseSlug: string,
+    excludeId: string,
+    limit = 6,
+  ): Promise<CompactProduct[]> => {
+    const effectiveLimit = Math.max(1, Math.min(limit, 12))
+
+    const randomProductIds = await prisma.$queryRaw<{ id: string }[]>`
+      SELECT p.id
+      FROM "Product" AS p
+      INNER JOIN "Category" AS c ON c.id = p."categoryId"
+      INNER JOIN "UseCaseCategory" AS uc ON uc."categoryId" = c.id
+      INNER JOIN "UseCase" AS u ON u.id = uc."useCaseId"
+      WHERE u.slug = ${useCaseSlug}
+        AND p.status = 'published'
+        AND p.id <> ${excludeId}
+      ORDER BY RANDOM()
+      LIMIT ${effectiveLimit}
+    `
+
+    if (!randomProductIds.length) {
+      return []
+    }
+
+    return prisma.product.findMany({
       where: {
-        id: { not: excludeId },
-        status: "published",
-        category: {
-          useCases: {
-            some: {
-              useCase: {
-                slug: useCaseSlug,
-              },
-            },
-          },
+        id: {
+          in: randomProductIds.map(({ id }) => id),
         },
       },
-      orderBy: { createdAt: "desc" },
-      take: 6,
       include: compactProductInclude,
-    }),
+    })
+  },
   "products:public-by-usecase",
   {
     ttl: DEFAULT_TTL.medium,
     tags: ([useCaseSlug]) => [
       TAGS.products,
       TAGS.category(String(useCaseSlug)),
+    ],
+    keyParts: ([useCaseSlug, excludeId, limit]) => [
+      `useCase:${useCaseSlug}`,
+      `exclude:${excludeId}`,
+      `limit:${limit ?? 6}`,
     ],
   },
 )

@@ -14,7 +14,6 @@ import { buildPageMetadata } from "@/lib/metadata"
 import { ANALYTICS_PATH, PRICING_PATH } from "@/lib/routes"
 import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
 import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
-import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 
 const HERO_HIGHLIGHTS = [
   {
@@ -208,11 +207,6 @@ export default function WhyShipyardPage() {
           </div>
         </div>
       </section>
-
-      <HeroStickyBanner
-        wrapperClassName="mt-6"
-        innerClassName="max-w-[84rem]"
-      />
 
       <InsightsShowcase
         eyebrow="Shipyard Insights"

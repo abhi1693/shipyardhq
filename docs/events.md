@@ -26,7 +26,7 @@ Shipyard now routes non-critical product events through a durable outbox so UI c
 
 ## Local Development
 
-- The dispatcher’s queue push is mocked in Vitest (`lib/server/__tests__/events.test.ts`). For manual testing, call `dispatchEvent` then invoke `processEnvelope(envelopeId)` with an id selected from `"EventEnvelope"` to simulate the worker locally.
+- For local verification, call `dispatchEvent` then invoke `processEnvelope(envelopeId)` with an id selected from `"EventEnvelope"` to simulate the worker end-to-end.
 - Outside production, if queueing fails (for example, missing local credentials), the dispatcher will fall back to invoking each async handler inline and mark the envelope as completed. You’ll still see the envelope row for observability.
 - When adjusting handlers, run the worker against one of the inserted envelopes (or call the registered handler directly) to assert behaviour, since everything is async by default.
 

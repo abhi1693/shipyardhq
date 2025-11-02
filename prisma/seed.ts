@@ -5,9 +5,20 @@ import {
   PrismaClient,
   ProductStatus,
   ProductType,
+  ProductUpdateStatus,
   PricingModel,
 } from "@/lib/vendor/prisma/client"
 import { PRICING_PATH } from "@/lib/routes"
+import {
+  addDays,
+  addHours,
+  addMinutes,
+  addMonths,
+  addWeeks,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns"
 
 import { seedAlternatives } from "./seed.alternatives"
 import { seedCategories } from "./seed.categories"
@@ -41,6 +52,8 @@ type ProductSeed = {
   userClerkId: string
   categorySlug: string
   organizationName?: string
+  createdAt?: Date
+  updatedAt?: Date
   metadata?: Prisma.ProductMetadataCreateWithoutProductInput
   verification?: Prisma.ProductVerificationCreateWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateWithoutProductInput
@@ -108,6 +121,14 @@ function buildProductCreateInput(
     platforms: def.platforms,
     user: { connect: { id: userId } },
     category: { connect: { id: categoryId } },
+  }
+
+  if (def.createdAt) {
+    data.createdAt = def.createdAt
+  }
+
+  if (def.updatedAt) {
+    data.updatedAt = def.updatedAt
   }
 
   if (organizationId) {
@@ -181,6 +202,14 @@ function buildProductUpdateInput(
     user: { connect: { id: userId } },
     category: { connect: { id: categoryId } },
     planAssignedAt: def.planAssignedAt ?? null,
+  }
+
+  if (def.createdAt) {
+    update.createdAt = def.createdAt
+  }
+
+  if (def.updatedAt) {
+    update.updatedAt = def.updatedAt
   }
 
   if (organizationId) {
@@ -390,7 +419,48 @@ async function main() {
     planIdBySlug,
   }
 
+  const now = new Date()
+  const startToday = startOfDay(now)
+  const startYesterday = addDays(startToday, -1)
+  const startOfCurrentWeek = startOfWeek(now, { weekStartsOn: 1 })
+  const startOfPreviousWeek = addWeeks(startOfCurrentWeek, -1)
+  const startOfCurrentMonth = startOfMonth(now)
+  const startOfPreviousMonth = addMonths(startOfCurrentMonth, -1)
+
+  const ensurePast = (candidate: Date, fallbackDaysAgo: number) => {
+    if (candidate.getTime() <= now.getTime()) {
+      return candidate
+    }
+    if (fallbackDaysAgo === 0) {
+      return addMinutes(now, -30)
+    }
+    return addHours(addDays(startToday, -fallbackDaysAgo), 11)
+  }
+
+  const createdCycle = [
+    ensurePast(addHours(startToday, 10), 0),
+    ensurePast(addHours(startYesterday, 11), 1),
+    ensurePast(addHours(addDays(startOfCurrentWeek, 2), 13), 4),
+    ensurePast(addHours(addDays(startOfPreviousWeek, 3), 16), 8),
+    ensurePast(addHours(addDays(startOfCurrentMonth, 6), 9), 12),
+    ensurePast(addHours(addDays(startOfPreviousMonth, 10), 13), 30),
+  ]
+
+  const updatedCycle = [
+    ensurePast(addHours(startToday, 16), 0),
+    ensurePast(addHours(addDays(startToday, -1), 18), 1),
+    ensurePast(addHours(addDays(startToday, -4), 17), 5),
+    ensurePast(addHours(addDays(startOfCurrentMonth, 8), 15), 14),
+  ]
+
   const productRows: { slug: string; action: "create" | "update" }[] = []
+
+  const primaryCreatedAt = addMinutes(createdCycle[5], 5)
+  const primaryUpdatedCandidate = addMinutes(updatedCycle[3], 7)
+  const primaryUpdatedAt =
+    primaryUpdatedCandidate.getTime() >= primaryCreatedAt.getTime()
+      ? primaryUpdatedCandidate
+      : addHours(primaryCreatedAt, 6)
 
   const primaryProduct: ProductSeed = {
     slug: "shitposts",
@@ -402,7 +472,7 @@ async function main() {
     logo: "https://shitposts.ai/brand.png",
     bannerImage: "https://shitposts.ai/banner.png",
     status: ProductStatus.published,
-    publishedAt: new Date("2024-01-02T00:00:00.000Z"),
+    publishedAt: primaryCreatedAt,
     type: ProductType.saas,
     pricingModel: PricingModel.freemium,
     startingPriceCents: 0,
@@ -415,7 +485,9 @@ async function main() {
     categorySlug: "social-media-tools",
     organizationName: "OpenStackers Inc",
     planSlug: "pro",
-    planAssignedAt: new Date("2024-01-03T00:00:00.000Z"),
+    planAssignedAt: addDays(primaryCreatedAt, 2),
+    createdAt: primaryCreatedAt,
+    updatedAt: primaryUpdatedAt,
     metadata: {
       githubUrl: "https://github.com/deploykit/app",
       twitterUrl: "https://twitter.com/deploykit",
@@ -489,6 +561,21 @@ async function main() {
     "BoostMate",
   ]
 
+  const productIndexBySlug = new Map<string, number>()
+  productNames.forEach((name, index) => {
+    productIndexBySlug.set(toSlug(name), index)
+  })
+
+  const resolveUpdateAnchor = (slug: string) => {
+    const index = productIndexBySlug.get(slug)
+    if (index == null) {
+      return ensurePast(addDays(startToday, -10), 14)
+    }
+    const cycleBase = updatedCycle[index % updatedCycle.length]
+    const offset = (index % 5) * 7
+    return ensurePast(addMinutes(cycleBase, offset), 14)
+  }
+
   const taglines = [
     "Streamline your workflow",
     "Grow your audience fast",
@@ -502,13 +589,18 @@ async function main() {
     "Tools for SaaS founders",
   ]
 
-  const basePublished = Date.parse("2024-02-01T00:00:00.000Z")
-  const baseAssignment = Date.parse("2024-02-10T00:00:00.000Z")
-
   const bulkSeeds: ProductSeed[] = productNames.map((name, index) => {
     const slug = toSlug(name)
     const domain = `https://${slug}.dev`
     const tagline = taglines[index % taglines.length]
+    const createdBase = createdCycle[index % createdCycle.length]
+    const createdAt = addMinutes(createdBase, (index % 6) * 5)
+    const updatedBase = updatedCycle[index % updatedCycle.length]
+    let updatedAt = addMinutes(updatedBase, (index % 5) * 7)
+    if (updatedAt.getTime() < createdAt.getTime()) {
+      updatedAt = addHours(createdAt, 6)
+    }
+    const planSlug = index % 5 === 0 ? "featured" : "free"
 
     return {
       slug,
@@ -519,7 +611,9 @@ async function main() {
       logo: `${domain}/logo.png`,
       bannerImage: `${domain}/banner.png`,
       status: ProductStatus.published,
-      publishedAt: new Date(basePublished + index * 86_400_000),
+      publishedAt: createdAt,
+      createdAt,
+      updatedAt,
       type: ProductType.saas,
       pricingModel: PricingModel.subscription,
       startingPriceCents: [0, 900, 1900, 2900, 4900][index % 5],
@@ -531,8 +625,11 @@ async function main() {
       userClerkId: index % 2 === 0 ? "clerk-001" : "clerk-002",
       categorySlug: index % 3 === 0 ? "developer-tools" : "productivity",
       organizationName: index % 2 === 0 ? "OpenStackers Inc" : "DevBoost Labs",
-      planSlug: index % 5 === 0 ? "featured" : "free",
-      planAssignedAt: new Date(baseAssignment + index * 86_400_000),
+      planSlug,
+      planAssignedAt:
+        planSlug === "featured"
+          ? ensurePast(addDays(createdAt, 2), 2)
+          : ensurePast(addDays(createdAt, 5), 7),
       metadata: {
         githubUrl: `https://github.com/${slug}`,
         twitterUrl: `https://twitter.com/${slug}`,
@@ -564,6 +661,201 @@ async function main() {
   const productIdBySlug = new Map(
     products.map((product) => [product.slug, product.id]),
   )
+
+  type ProductUpdateSeed = {
+    id: string
+    productSlug: string
+    authorClerkId?: string
+    title: string
+    summary: string
+    content: string
+    createdOffsetMinutes: number
+    publishedOffsetMinutes: number
+    fallbackDaysAgo: number
+  }
+
+  type ResolvedProductUpdateSeed = {
+    id: string
+    productSlug: string
+    authorClerkId?: string
+    title: string
+    summary: string
+    content: string
+    createdAt: Date
+    publishedAt: Date
+  }
+
+  const buildProductUpdateSeed = (
+    seed: ProductUpdateSeed,
+  ): ResolvedProductUpdateSeed => {
+    const {
+      createdOffsetMinutes,
+      publishedOffsetMinutes,
+      fallbackDaysAgo,
+      ...rest
+    } = seed
+    const anchor = resolveUpdateAnchor(seed.productSlug)
+    const createdAt = ensurePast(
+      addMinutes(anchor, createdOffsetMinutes),
+      fallbackDaysAgo,
+    )
+    const publishedCandidate = ensurePast(
+      addMinutes(anchor, publishedOffsetMinutes),
+      fallbackDaysAgo,
+    )
+    const publishedAt =
+      publishedCandidate.getTime() >= createdAt.getTime()
+        ? publishedCandidate
+        : addMinutes(createdAt, 30)
+
+    return {
+      ...rest,
+      createdAt,
+      publishedAt,
+    }
+  }
+
+  const productUpdateSeeds: ResolvedProductUpdateSeed[] = [
+    buildProductUpdateSeed({
+      id: "seed-update-postpilot-daily-workflow",
+      productSlug: "postpilot",
+      authorClerkId: "clerk-001",
+      title: "Daily workflow board",
+      summary:
+        "We added collaborative drafts and task tracking to keep launches on schedule.",
+      content: [
+        "### What's new",
+        "- Introduced a shared workflow board so teams can co-edit launch tasks in real time.",
+        "- Added inline comments and suggestions while drafting announcements.",
+        "",
+        "### Fixes",
+        "- Resolved an issue with reminders firing twice in certain timezones.",
+      ].join("\n"),
+      createdOffsetMinutes: -120,
+      publishedOffsetMinutes: -75,
+      fallbackDaysAgo: 0,
+    }),
+    buildProductUpdateSeed({
+      id: "seed-update-launchify-auto-messages",
+      productSlug: "launchify",
+      authorClerkId: "clerk-001",
+      title: "Auto message suggestions",
+      summary:
+        "Launchify can now draft launch copy based on your latest changelog.",
+      content: [
+        "### Highlights",
+        "- AI-powered suggestions for email and social copy seeded from your changelog entries.",
+        "- One-click publishing to your connected channels with approval flows.",
+        "",
+        "### Improvements",
+        "- Faster asset uploads and better image optimization for launch pages.",
+      ].join("\n"),
+      createdOffsetMinutes: -160,
+      publishedOffsetMinutes: -110,
+      fallbackDaysAgo: 1,
+    }),
+    buildProductUpdateSeed({
+      id: "seed-update-growthforge-growth-canvas",
+      productSlug: "growthforge",
+      authorClerkId: "clerk-002",
+      title: "Growth canvas templates",
+      summary:
+        "We shipped reusable experiment templates and deeper analytics filters.",
+      content: [
+        "### Experiments",
+        "- Template gallery for repeatable growth experiments with pre-filled metrics.",
+        "- Added comparison mode to review experiment performance across cohorts.",
+        "",
+        "### Quality",
+        "- Improved CSV export reliability and clarified status badges.",
+      ].join("\n"),
+      createdOffsetMinutes: -210,
+      publishedOffsetMinutes: -165,
+      fallbackDaysAgo: 5,
+    }),
+    buildProductUpdateSeed({
+      id: "seed-update-zapsync-automation",
+      productSlug: "zapsync",
+      authorClerkId: "clerk-002",
+      title: "Automation insights dashboard",
+      summary:
+        "ZapSync now tracks automation health and surfaces failed jobs proactively.",
+      content: [
+        "### Dashboard",
+        "- Centralized automation health overview with trend charts and failure alerts.",
+        "- Bulk retry options and new filters for mission-critical workflows.",
+        "",
+        "### Reliability",
+        "- Hardened webhook retries and improved logging around third-party rate limits.",
+      ].join("\n"),
+      createdOffsetMinutes: -260,
+      publishedOffsetMinutes: -200,
+      fallbackDaysAgo: 14,
+    }),
+  ]
+
+  const productUpdateRows: { id: string; action: "create" | "update" }[] = []
+
+  for (const seed of productUpdateSeeds) {
+    const productId = productIdBySlug.get(seed.productSlug)
+    if (!productId) {
+      console.warn(
+        `[seed] Skipping product update '${seed.id}' because product '${seed.productSlug}' was not found.`,
+      )
+      continue
+    }
+
+    const authorId = seed.authorClerkId
+      ? userIdByClerkId.get(seed.authorClerkId)
+      : undefined
+
+    const createData: Prisma.ProductUpdateCreateInput = {
+      id: seed.id,
+      title: seed.title,
+      summary: seed.summary,
+      content: seed.content,
+      status: ProductUpdateStatus.published,
+      publishedAt: seed.publishedAt,
+      createdAt: seed.createdAt,
+      product: { connect: { id: productId } },
+    }
+
+    if (authorId) {
+      createData.author = { connect: { id: authorId } }
+    }
+
+    const updateData: Prisma.ProductUpdateUpdateInput = {
+      title: seed.title,
+      summary: seed.summary,
+      content: seed.content,
+      status: ProductUpdateStatus.published,
+      publishedAt: seed.publishedAt,
+      createdAt: seed.createdAt,
+      product: { connect: { id: productId } },
+    }
+
+    updateData.author = authorId
+      ? { connect: { id: authorId } }
+      : { disconnect: true }
+
+    const existing = await prisma.productUpdate.findUnique({
+      where: { id: seed.id },
+      select: { id: true },
+    })
+
+    await prisma.productUpdate.upsert({
+      where: { id: seed.id },
+      create: createData,
+      update: updateData,
+    })
+
+    productUpdateRows.push({
+      id: seed.id,
+      action: existing ? "update" : "create",
+    })
+  }
+
+  console.table(productUpdateRows)
 
   await seedAlternatives(prisma, {
     categoryIdBySlug,

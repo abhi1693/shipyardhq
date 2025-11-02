@@ -126,13 +126,7 @@ export default function ProductReviewForm({
       <input type="hidden" name="rating" value={rating} />
 
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <label
-            htmlFor="rating-picker"
-            className="text-sm font-medium text-foreground"
-          >
-            Your rating
-          </label>
+        <div className="flex items-center justify-end">
           <button
             type="button"
             onClick={() => setRating(0)}
@@ -186,17 +180,12 @@ export default function ProductReviewForm({
       </div>
 
       <div className="space-y-2">
-        <label
-          htmlFor="product-review-message"
-          className="text-sm font-medium text-foreground"
-        >
-          Share a short note
-        </label>
         <Textarea
           id="product-review-message"
           name="message"
           value={message}
           onChange={(event) => setMessage(event.target.value)}
+          aria-label="Review"
           placeholder="What stood out? How did this product help you?"
           rows={6}
           cols={60}
@@ -229,8 +218,14 @@ export default function ProductReviewForm({
 function SubmitButton() {
   const { pending } = useFormStatus()
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? "Saving…" : "Post review"}
+    <Button
+      type="submit"
+      disabled={pending}
+      variant="outline"
+      size="lg"
+      className="rounded-full border-border bg-white px-6 py-2.5 text-sm font-semibold text-foreground shadow-sm shadow-black/5 transition-colors hover:bg-muted/70 focus-visible:ring-ring focus-visible:ring-offset-2"
+    >
+      {pending ? "Submitting…" : "Post review"}
     </Button>
   )
 }

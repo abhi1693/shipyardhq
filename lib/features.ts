@@ -1,6 +1,6 @@
 // Lightweight helpers to check plan features on a product/plan
 
-export type PlanWithFeatures = {
+type PlanWithFeatures = {
   assignments?:
     | { enabled: boolean; feature?: { key?: string | null } | null }[]
     | null

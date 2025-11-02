@@ -6,6 +6,8 @@ import Link from "next/link"
 
 import { productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
+import { Badge } from "@/components/atoms/badge"
+import { SponsorPromo } from "@/components/molecules/SponsorPromo"
 
 export type StickyBannerProduct = {
   id: string
@@ -63,24 +65,6 @@ export function StickyBannerCarousel({
   const safeIndex = total > 0 ? Math.min(index, total - 1) : 0
   const current = items[safeIndex] ?? items[0]
   const tagline = current.tagline?.trim()
-  const categoryName = current.category?.name?.trim() || null
-  const makerName = (() => {
-    const orgName = current.organization?.name?.trim()
-    if (orgName) return orgName
-    const first = current.user?.firstName?.trim()
-    const last = current.user?.lastName?.trim()
-    const joined = [first, last].filter(Boolean).join(" ")
-    return joined || null
-  })()
-  const upvoteCount =
-    typeof current.analytics?.upvotes === "number"
-      ? current.analytics.upvotes
-      : null
-  const upvoteLabel =
-    upvoteCount != null ? upvoteCount.toLocaleString() : undefined
-  const showCategory = Boolean(categoryName)
-  const showMaker = Boolean(makerName)
-  const showUpvotes = Boolean(upvoteLabel)
 
   const handlePause = (next: boolean) => {
     if (total <= 1) return
@@ -89,87 +73,51 @@ export function StickyBannerCarousel({
 
   return (
     <div
-      className={cn("w-full bg-white", className)}
+      className={cn("w-full", className)}
       onMouseEnter={() => handlePause(true)}
       onMouseLeave={() => handlePause(false)}
       onFocusCapture={() => handlePause(true)}
       onBlurCapture={() => handlePause(false)}
     >
-      <div className="mx-auto flex w-full max-w-6xl flex-col px-4 sm:px-6">
+      <div className="w-full rounded-2xl border-2 border-[#F59E0B]/45 bg-[#FFF7ED] px-6 py-4 shadow-[4px_12px_28px_-20px_rgba(226,120,34,0.26)] transition-shadow duration-150 hover:shadow-[14px_30px_60px_-34px_rgba(226,120,34,0.45)]">
         <Link
-          key={current.id}
           href={productPath(current.slug)}
-          className="group relative flex w-full items-center gap-4 overflow-hidden rounded-xl border border-border/70 bg-white px-4 py-3 text-sm shadow-sm transition hover:border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.45]"
+          className="flex w-full flex-wrap items-center justify-between gap-4 text-left transition-shadow duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFF7ED]"
           style={{
-            animation: `${animationId} 320ms ease`,
+            animation: `${animationId} 260ms ease`,
             animationFillMode: "both",
           }}
-          aria-label={`View ${current.name}`}
         >
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/60 bg-muted/20">
-            <Image
-              src={current.logo}
-              alt={current.name}
-              width={40}
-              height={40}
-              className="h-full w-full object-cover"
-            />
-          </span>
-
-          <div
-            className="flex min-w-0 flex-1 items-center gap-2"
-            role="status"
-            aria-live="polite"
-          >
-            <span className="truncate font-semibold text-foreground">
-              {current.name}
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#FEF3C7] bg-white shadow-[0_16px_32px_-28px_rgba(7,68,134,0.2)]">
+              <Image
+                src={current.logo}
+                alt={current.name}
+                width={44}
+                height={44}
+                priority
+                className="h-full w-full object-cover"
+              />
             </span>
-            {tagline ? (
-              <span className="hidden text-muted-foreground/60 sm:inline">
-                •
+            <div className="min-w-0 space-y-1">
+              <span className="block truncate text-sm font-semibold text-[#422006]">
+                {current.name}
               </span>
-            ) : null}
-            {tagline ? (
-              <span className="hidden truncate text-muted-foreground sm:inline">
-                {tagline}
-              </span>
-            ) : null}
+              {tagline ? (
+                <span className="block text-xs text-[#854d0e]">{tagline}</span>
+              ) : null}
+            </div>
           </div>
-
-          <div className="hidden items-center gap-2 lg:flex">
-            {showCategory ? (
-              <span className="inline-flex items-center gap-2 truncate rounded-full border border-border/60 bg-muted/20 px-2.5 py-1 text-xs text-muted-foreground/80">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.26em] text-muted-foreground/70">
-                  Category
-                </span>
-                <span className="font-semibold text-foreground">
-                  {categoryName}
-                </span>
-              </span>
-            ) : null}
-            {showMaker ? (
-              <span className="inline-flex items-center gap-2 truncate rounded-full border border-border/60 bg-muted/20 px-2.5 py-1 text-xs text-muted-foreground/80">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.26em] text-muted-foreground/70">
-                  Maker
-                </span>
-                <span className="font-semibold text-foreground">
-                  {makerName}
-                </span>
-              </span>
-            ) : null}
-            {showUpvotes ? (
-              <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-border/60 bg-muted/20 px-2.5 py-1 text-xs text-muted-foreground/80">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.26em] text-muted-foreground/70">
-                  Upvotes
-                </span>
-                <span className="font-semibold text-foreground">
-                  {upvoteLabel}
-                </span>
-              </span>
-            ) : null}
-          </div>
+          <Badge
+            variant="outline"
+            className="shrink-0 rounded-full border-[#F97316]/40 bg-[#FDEADF] px-3 py-1 text-[11px] font-semibold text-[#C2410C]"
+          >
+            Sponsored
+          </Badge>
         </Link>
       </div>
+
+      <SponsorPromo className="mt-3" />
 
       <style
         dangerouslySetInnerHTML={{
@@ -190,5 +138,3 @@ export function StickyBannerCarousel({
     </div>
   )
 }
-
-export default StickyBannerCarousel

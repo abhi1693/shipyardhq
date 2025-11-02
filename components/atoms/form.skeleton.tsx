@@ -86,7 +86,7 @@ interface FormFieldSkeletonProps extends React.ComponentProps<"div"> {
   columns?: number
 }
 
-export function FormFieldSkeleton({
+function FormFieldSkeleton({
   className,
   type = "input",
   helper = false,
@@ -124,7 +124,7 @@ interface FormActionsSkeletonProps extends React.ComponentProps<"div"> {
   actions?: number
 }
 
-export function FormActionsSkeleton({
+function FormActionsSkeleton({
   className,
   actions = 2,
   ...props

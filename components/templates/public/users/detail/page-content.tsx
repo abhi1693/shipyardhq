@@ -317,7 +317,6 @@ export async function UserProfilePageContent({ params }: PageProps) {
                   <DirectoryProductList
                     items={directoryItems}
                     columns="grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
-                    showBadges
                     metaConfig={{
                       type: "badge",
                       badgeClassName:

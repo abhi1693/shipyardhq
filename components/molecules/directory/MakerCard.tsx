@@ -83,5 +83,3 @@ export function MakerCard({
     </Link>
   )
 }
-
-export default MakerCard

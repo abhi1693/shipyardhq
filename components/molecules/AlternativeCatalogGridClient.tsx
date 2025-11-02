@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react"
 import type { AlternativeCatalogItem } from "@/actions/public/alternatives/actions"
 import { loadMoreAlternatives } from "@/actions/public/alternatives/loadMore"
 import { AlternativeCatalogCard } from "@/components/molecules/AlternativeCatalogCard"
+import { cn } from "@/lib/utils"
 
 interface AlternativeCatalogGridClientProps {
   initialItems: AlternativeCatalogItem[]
@@ -14,6 +15,7 @@ interface AlternativeCatalogGridClientProps {
   query?: string
   pageSize?: number
   emptyState?: ReactNode
+  gridClassName?: string
 }
 
 export function AlternativeCatalogGridClient({
@@ -27,6 +29,7 @@ export function AlternativeCatalogGridClient({
       No alternatives match your filters yet. Try a different search term.
     </p>
   ),
+  gridClassName,
 }: AlternativeCatalogGridClientProps) {
   const [items, setItems] = useState<AlternativeCatalogItem[]>(initialItems)
   const [hasMore, setHasMore] = useState(initialHasMore)
@@ -92,7 +95,12 @@ export function AlternativeCatalogGridClient({
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+      <div
+        className={cn(
+          "grid gap-6 sm:grid-cols-2 xl:grid-cols-3",
+          gridClassName,
+        )}
+      >
         {items.map((alternative) => (
           <AlternativeCatalogCard
             key={alternative.id}

@@ -1,6 +1,13 @@
 import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { Prisma } from "@/lib/vendor/prisma/client"
+import {
+  mapProductCardRecordToBase,
+  PRIORITY_FEATURE_KEY,
+  productCardSelect,
+  type ProductCardRecord,
+} from "@/lib/products/selects"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
 
 const ALTERNATIVE_CARD_INCLUDE =
   Prisma.validator<Prisma.AlternativeProductInclude>()({
@@ -21,17 +28,6 @@ const ALTERNATIVE_DETAIL_SELECT =
     logoUrl: true,
   })
 
-const ALTERNATIVE_DETAIL_PRODUCT_SELECT =
-  Prisma.validator<Prisma.ProductSelect>()({
-    id: true,
-    slug: true,
-    name: true,
-    logo: true,
-    tagline: true,
-    analytics: { select: { upvotes: true } },
-    category: { select: { name: true } },
-  })
-
 export type AlternativeCatalogItem = Prisma.AlternativeProductGetPayload<{
   include: typeof ALTERNATIVE_CARD_INCLUDE
 }>
@@ -40,9 +36,7 @@ export type AlternativeDetail = Prisma.AlternativeProductGetPayload<{
   select: typeof ALTERNATIVE_DETAIL_SELECT
 }>
 
-export type AlternativeDetailProduct = Prisma.ProductGetPayload<{
-  select: typeof ALTERNATIVE_DETAIL_PRODUCT_SELECT
-}>
+export type AlternativeDetailProduct = ProductCardBase
 
 interface GetAlternativeCatalogPageOptions {
   page?: number
@@ -205,8 +199,6 @@ export const getAlternativeProductsPage = cached(
       },
     }
 
-    const PRIORITY_KEY = "priorityPlacement"
-
     const planExclusionWhere: Prisma.ProductWhereInput = {
       OR: [
         { plan: null },
@@ -216,7 +208,7 @@ export const getAlternativeProductsPage = cached(
               assignments: {
                 none: {
                   enabled: true,
-                  feature: { is: { key: PRIORITY_KEY } },
+                  feature: { is: { key: PRIORITY_FEATURE_KEY } },
                 },
               },
             },
@@ -232,7 +224,7 @@ export const getAlternativeProductsPage = cached(
           assignments: {
             some: {
               enabled: true,
-              feature: { is: { key: PRIORITY_KEY } },
+              feature: { is: { key: PRIORITY_FEATURE_KEY } },
             },
           },
         },
@@ -280,24 +272,24 @@ export const getAlternativeProductsPage = cached(
             orderBy,
             skip: prioritySkip,
             take: priorityTake,
-            select: ALTERNATIVE_DETAIL_PRODUCT_SELECT,
+            select: productCardSelect,
           })
-        : Promise.resolve([] as AlternativeDetailProduct[]),
+        : Promise.resolve([] as ProductCardRecord[]),
       regularTake
         ? prisma.product.findMany({
             where: regularWhere,
             orderBy,
             skip: regularSkip,
             take: regularTake,
-            select: ALTERNATIVE_DETAIL_PRODUCT_SELECT,
+            select: productCardSelect,
           })
-        : Promise.resolve([] as AlternativeDetailProduct[]),
+        : Promise.resolve([] as ProductCardRecord[]),
     ])
 
-    const items: AlternativeDetailProduct[] = [
-      ...priorityProducts,
-      ...regularProducts,
-    ]
+    const now = new Date()
+    const items = [...priorityProducts, ...regularProducts].map((product) =>
+      mapProductCardRecordToBase(product, now),
+    )
 
     const hasMore = skip + items.length < total
 
