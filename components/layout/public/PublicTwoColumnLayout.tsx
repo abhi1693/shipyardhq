@@ -23,7 +23,10 @@ export function PublicTwoColumnLayout({
 
   return (
     <div
-      className={cn("relative mx-auto w-full max-w-7xl px-4 md:px-6", className)}
+      className={cn(
+        "relative mx-auto w-full max-w-7xl px-4 pb-24 pt-10 md:px-6",
+        className,
+      )}
     >
       <div
         className={cn(

@@ -163,6 +163,13 @@ function ProductUpdatesSection({
 }) {
   const visibleUpdates = updates.slice(0, 3)
   const updatesCount = updates.length
+  const hasUpdates = updatesCount > 0
+  const updatesBadgeClass = [
+    "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold",
+    hasUpdates
+      ? "border-border bg-white text-foreground shadow-sm shadow-black/5"
+      : "border-dashed border-border/80 text-muted-foreground",
+  ].join(" ")
 
   const dateFormatter = new Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -171,19 +178,31 @@ function ProductUpdatesSection({
   })
 
   return (
-    <section className="space-y-5">
-      <div className="flex items-center gap-3">
-        <span className="h-px flex-1 bg-border" aria-hidden />
-        <div className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-base font-semibold text-foreground shadow-sm shadow-black/5">
-          <Megaphone className="h-4 w-4 text-primary" aria-hidden />
-          <span className="text-foreground">
-            Product updates ({updatesCount})
+    <section className="space-y-6">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex items-center gap-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-muted text-foreground shadow-sm">
+            <Megaphone className="h-5 w-5" aria-hidden />
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">
+              Product updates
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {hasUpdates
+                ? "Latest changelog entries and announcements from the team."
+                : "No updates yet. Check back soon for announcements from the team."}
+            </p>
+          </div>
+        </div>
+        <div className={updatesBadgeClass}>
+          <span>
+            {updatesCount} update{updatesCount === 1 ? "" : "s"}
           </span>
         </div>
-        <span className="h-px flex-1 bg-border" aria-hidden />
-      </div>
+      </header>
 
-      {visibleUpdates.length ? (
+      {hasUpdates ? (
         <div className="divide-y divide-border/70">
           {visibleUpdates.map((update) => {
             const publishedLabel = dateFormatter.format(
@@ -239,10 +258,9 @@ function ProductUpdatesSection({
         </div>
       ) : (
         <p className="rounded-2xl border border-dashed border-border/70 px-6 py-7 text-center text-sm text-muted-foreground">
-          No updates yet. Check back later for updates from the team.
+          No updates yet. Check back soon for announcements from the team.
         </p>
       )}
-      <span className="block h-px w-full bg-border/80" aria-hidden />
     </section>
   )
 }
