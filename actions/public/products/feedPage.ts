@@ -8,6 +8,7 @@ import {
   mapProductCardRecordToBase,
   PRIORITY_FEATURE_KEY,
   productCardSelect,
+  type ProductCardRecord,
 } from "@/lib/products/selects"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { getKeywordTagProducts } from "@/actions/public/tags/actions"
@@ -167,10 +168,11 @@ export async function getProductFeedPage(
       ])
 
       const now = new Date()
+      const typedRecords = records as unknown as ProductCardRecord[]
 
       return {
-        items: records.map((record) => mapProductCardRecordToBase(record, now)),
-        hasMore: skip + records.length < total,
+        items: typedRecords.map((record) => mapProductCardRecordToBase(record, now)),
+        hasMore: skip + typedRecords.length < total,
         total,
       }
     }

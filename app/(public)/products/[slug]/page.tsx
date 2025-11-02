@@ -301,7 +301,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     ? await getUserProductReview(product.id, viewer.id).catch(() => null)
     : null
 
-  const ownerName = [product.user?.firstName, product.user?.lastName]
+  const productOwner = sidebarProduct.user
+  const ownerName = [productOwner?.firstName, productOwner?.lastName]
     .filter(Boolean)
     .join(" ")
   const ownerInitials = ownerName
@@ -481,9 +482,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </div>
                 <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    {product.user?.id && ownerName ? (
+                    {productOwner?.id && ownerName ? (
                       <Link
-                        href={userPath(product.user.id)}
+                        href={userPath(productOwner.id)}
                         className="font-medium text-foreground hover:underline"
                       >
                         {ownerName}

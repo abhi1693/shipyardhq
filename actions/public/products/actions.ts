@@ -73,6 +73,56 @@ type PublicProduct = Prisma.ProductGetPayload<{
   }
 }>
 
+const publicProductMetaSelect = Prisma.validator<Prisma.ProductSelect>()({
+  id: true,
+  slug: true,
+  name: true,
+  tagline: true,
+  description: true,
+  publishedAt: true,
+  createdAt: true,
+  logo: true,
+  bannerImage: true,
+  keywords: true,
+  status: true,
+  type: true,
+  pricingModel: true,
+  platforms: true,
+  websiteUrl: true,
+  ctaLabel: true,
+  ctaUrl: true,
+  category: { select: { name: true, slug: true } },
+  user: { select: { id: true, firstName: true, lastName: true } },
+  analytics: { select: { upvotes: true } },
+  metadata: { select: { demoUrl: true, utmCampaign: true } },
+  ProductMedia: {
+    select: {
+      id: true,
+      imageUrl: true,
+      altText: true,
+    },
+    orderBy: { createdAt: "asc" },
+  },
+  plan: {
+    select: {
+      assignments: {
+        select: {
+          enabled: true,
+          feature: { select: { key: true } },
+        },
+      },
+    },
+  },
+  featureEntitlements: {
+    where: { status: { in: ["active", "pending"] } },
+    select: { featureKey: true },
+  },
+})
+
+export type PublicProductMeta = Prisma.ProductGetPayload<{
+  select: typeof publicProductMetaSelect
+}>
+
 async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
   const product = await prisma.product.findUnique({
     where,
@@ -176,51 +226,7 @@ export const getPublicProductMetaBySlug = cached(
   async (slug: string) =>
     prisma.product.findUnique({
       where: { slug },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        tagline: true,
-        description: true,
-        publishedAt: true,
-        createdAt: true,
-        logo: true,
-        bannerImage: true,
-        keywords: true,
-        status: true,
-        type: true,
-        pricingModel: true,
-        platforms: true,
-        websiteUrl: true,
-        ctaLabel: true,
-        ctaUrl: true,
-        category: { select: { name: true, slug: true } },
-        user: { select: { id: true, firstName: true, lastName: true } },
-        analytics: { select: { upvotes: true } },
-        metadata: { select: { demoUrl: true, utmCampaign: true } },
-        ProductMedia: {
-          select: {
-            id: true,
-            imageUrl: true,
-            altText: true,
-          },
-          orderBy: { createdAt: "asc" },
-        },
-        plan: {
-          select: {
-            assignments: {
-              select: {
-                enabled: true,
-                feature: { select: { key: true } },
-              },
-            },
-          },
-        },
-        featureEntitlements: {
-          where: { status: { in: ["active", "pending"] } },
-          select: { featureKey: true },
-        },
-      },
+      select: publicProductMetaSelect,
     }),
   "product:meta-by-slug",
   {
