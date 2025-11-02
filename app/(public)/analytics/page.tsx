@@ -14,7 +14,6 @@ import { cn } from "@/lib/utils"
 import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
-import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 
 const PLAN_HIGHLIGHTS = [
   {
@@ -197,11 +196,6 @@ export default function AnalyticsPage() {
           </p>
         </div>
       </section>
-
-      <HeroStickyBanner
-        wrapperClassName="mt-6"
-        innerClassName="max-w-[84rem]"
-      />
 
       <InsightsShowcase
         eyebrow="Insights + Analytics"

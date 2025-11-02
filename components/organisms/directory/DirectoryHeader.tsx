@@ -2,7 +2,6 @@ import Link from "next/link"
 import { Play, Rocket } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { StickyBannerRegion } from "@/components/layout/sticky-banner-context"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
 type HeaderActionConfig = {
@@ -158,7 +157,6 @@ export function DirectoryHeader({
           </dl>
         ) : null}
       </section>
-      <StickyBannerRegion priority={10} className="rounded-2xl" />
     </div>
   )
 }

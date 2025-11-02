@@ -14,7 +14,6 @@ import { productHasFeature } from "@/lib/features"
 import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
-import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 import {
   getUseCasePagePayload,
   type UseCasePagePayload,
@@ -166,8 +165,6 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
           </div>
         </div>
       </section>
-
-      <HeroStickyBanner wrapperClassName="mt-6" innerClassName="max-w-5xl" />
 
       {categories.length > 0 && (
         <section className="relative py-16">

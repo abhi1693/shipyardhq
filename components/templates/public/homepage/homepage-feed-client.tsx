@@ -5,8 +5,7 @@ import {
   type ProductFeedListProps,
 } from "@/components/organisms/feed/ProductFeedList"
 
-export interface HomepageFeedClientProps
-  extends Omit<ProductFeedListProps, "showStickyBannerRegion"> {}
+export type HomepageFeedClientProps = ProductFeedListProps
 
 export function HomepageFeedClient(props: HomepageFeedClientProps) {
   return <ProductFeedList {...props} />
