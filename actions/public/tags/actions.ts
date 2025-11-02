@@ -11,10 +11,19 @@ import type { ProductCardBase } from "@/components/molecules/ProductCard"
 
 const TAG_LIST_LIMIT = 200
 export const TAG_PRODUCTS_PAGE_SIZE = 24
+export const TAG_DIRECTORY_DEFAULT_PAGE_SIZE = 36
 
 function sanitizeTagListLimit(limit?: number): number {
   const normalized = Math.trunc(limit ?? TAG_LIST_LIMIT) || TAG_LIST_LIMIT
   return Math.min(Math.max(normalized, 1), TAG_LIST_LIMIT)
+}
+
+function sanitizePageNumber(page?: number): number {
+  const normalized = Math.trunc(page ?? 1)
+  if (!Number.isFinite(normalized) || normalized <= 0) {
+    return 1
+  }
+  return normalized
 }
 
 interface RawTagRow {
@@ -76,6 +85,43 @@ async function fetchKeywordTagSummaries(limit: number): Promise<RawTagRow[]> {
   return rows
 }
 
+async function fetchKeywordTagSummariesPage(
+  offset: number,
+  limit: number,
+): Promise<RawTagRow[]> {
+  const safeOffset = Math.max(0, Math.trunc(offset))
+  const safeLimit = Math.max(1, Math.trunc(limit))
+
+  const rows = await prisma.$queryRaw<RawTagRow[]>(Prisma.sql`
+    WITH expanded AS (
+      SELECT
+        LOWER(TRIM(k)) AS keyword,
+        TRIM(k) AS raw_keyword,
+        SUBSTRING(md5(LOWER(TRIM(k))), 1, 6) AS hash,
+        p."id" AS "productId",
+        COALESCE(p."updatedAt", p."publishedAt", p."createdAt") AS "updatedAt"
+      FROM "Product" p
+      CROSS JOIN LATERAL UNNEST(p."keywords") AS k
+      WHERE
+        p."status" = 'published'
+        AND k IS NOT NULL
+        AND TRIM(k) <> ''
+    )
+    SELECT
+      keyword,
+      MIN(raw_keyword) AS canonical,
+      hash,
+      COUNT(DISTINCT "productId")::int AS "productCount",
+      MAX("updatedAt") AS "lastUpdated"
+    FROM expanded
+    GROUP BY keyword, hash
+    ORDER BY "productCount" DESC, canonical ASC
+    OFFSET ${safeOffset}
+    LIMIT ${safeLimit}
+  `)
+  return rows
+}
+
 export const getKeywordTagSummaries = cached(
   async (limit: number = TAG_LIST_LIMIT) => {
     const safeLimit = sanitizeTagListLimit(limit)
@@ -89,6 +135,49 @@ export const getKeywordTagSummaries = cached(
     keyParts: ([limit]) => [String(sanitizeTagListLimit(limit))],
   },
 )
+
+export interface TagDirectoryPageParams {
+  page?: number
+  pageSize?: number
+  includeTotal?: boolean
+}
+
+export interface TagDirectoryPageResult {
+  items: KeywordTagSummary[]
+  hasMore: boolean
+  total?: number
+}
+
+export async function getKeywordTagDirectoryPage({
+  page = 1,
+  pageSize = TAG_DIRECTORY_DEFAULT_PAGE_SIZE,
+  includeTotal = false,
+}: TagDirectoryPageParams = {}): Promise<TagDirectoryPageResult> {
+  const safePage = sanitizePageNumber(page)
+  const safePageSize = sanitizeTagListLimit(pageSize)
+  const queryLimit = Math.min(TAG_LIST_LIMIT, safePageSize + 1)
+  const offset = Math.max(0, (safePage - 1) * safePageSize)
+
+  const [rows, stats] = await Promise.all([
+    fetchKeywordTagSummariesPage(offset, queryLimit),
+    includeTotal ? fetchKeywordTagStats() : Promise.resolve(null),
+  ])
+
+  const summaries = rows.slice(0, safePageSize).map(mapTagRow)
+  const hasMore = rows.length > safePageSize
+  const total =
+    includeTotal && stats
+      ? Number(stats.total ?? 0)
+      : includeTotal
+        ? 0
+        : undefined
+
+  return {
+    items: summaries,
+    hasMore,
+    total,
+  }
+}
 
 async function fetchTagByHash(hash: string): Promise<RawTagRow[]> {
   const rows = await prisma.$queryRaw<RawTagRow[]>(Prisma.sql`

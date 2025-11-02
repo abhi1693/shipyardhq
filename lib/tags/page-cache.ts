@@ -2,35 +2,42 @@ import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   getKeywordTagSummaries,
   getKeywordTagProducts,
+  getKeywordTagDirectoryPage,
+  TAG_DIRECTORY_DEFAULT_PAGE_SIZE,
   type KeywordTagProductsResult,
   type KeywordTagSummary,
 } from "@/actions/public/tags/actions"
 
 type TagsIndexPayload = {
-  summaries: KeywordTagSummary[]
-  activeSummary: KeywordTagSummary
-  activeProducts: KeywordTagProductsResult | null
+  initialItems: KeywordTagSummary[]
+  hasMore: boolean
+  totalTags: number
+  pageSize: number
 }
 
 export const getTagsIndexPayload = cached(
-  async (page: number = 1): Promise<TagsIndexPayload> => {
-    const summaries = await getKeywordTagSummaries()
-    const activeSummary = summaries[0]
+  async (): Promise<TagsIndexPayload> => {
+    const result = await getKeywordTagDirectoryPage({
+      page: 1,
+      pageSize: TAG_DIRECTORY_DEFAULT_PAGE_SIZE,
+      includeTotal: true,
+    })
 
-    const activeProducts = activeSummary
-      ? await getKeywordTagProducts(activeSummary.slug, page)
-      : null
+    const pageSize = TAG_DIRECTORY_DEFAULT_PAGE_SIZE
+    const initialItems = result.items
+    const totalTags = result.total ?? initialItems.length
 
     return {
-      summaries,
-      activeSummary,
-      activeProducts,
+      initialItems,
+      hasMore: result.hasMore,
+      totalTags,
+      pageSize,
     }
   },
   "tags:index:payload",
   {
     ttl: DEFAULT_TTL.slow,
-    keyParts: ([page]) => [`page:${page}`],
+    keyParts: () => [],
     tags: () => [TAGS.tagsPage, TAGS.keywords],
   },
 )
