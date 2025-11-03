@@ -72,3 +72,19 @@ export const getTagDetailPayload = cached(
     tags: ([slug]) => [TAGS.tagDetail(slug), TAGS.tagsPage, TAGS.keywords],
   },
 )
+
+export const getTagStaticParams = cached(
+  async () => {
+    const tags = await getKeywordTagSummaries()
+    return tags
+      .filter((tag) => tag.slug && tag.productCount > 0)
+      .map((tag) => ({
+        slug: tag.slug,
+      }))
+  },
+  "tags:static-params",
+  {
+    ttl: DEFAULT_TTL.slowest,
+    tags: () => [TAGS.keywords],
+  },
+)

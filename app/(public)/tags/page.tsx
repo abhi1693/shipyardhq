@@ -1,13 +1,24 @@
+import Link from "next/link"
 import { Suspense } from "react"
 
-import { TagsIndexPageContent } from "@/components/templates/public/tags/index/page-content"
-import { buildPageMetadata } from "@/lib/metadata"
+import { EmptyState } from "@/components/molecules/empty-state"
+import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
-import { Skeleton } from "@/components/atoms/skeleton"
-import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
-import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
-import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
-import { SponsoredProductsSkeleton } from "@/components/templates/public/homepage/sponsored-products"
+import {
+  HERO_PRIMARY_BUTTON_CLASSES,
+  HERO_SECONDARY_BUTTON_CLASSES,
+} from "@/components/templates/public/categories/hero-button-classes"
+import { TagDirectoryList } from "@/components/templates/public/tags/index/tag-directory-list"
+import {
+  SponsoredProductsSection,
+  SponsoredProductsSkeleton,
+} from "@/components/templates/public/homepage/sponsored-products"
+import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
+import { getTagsIndexPayload } from "@/lib/tags/page-cache"
+import { buildPageMetadata } from "@/lib/metadata"
+
+export const dynamic = "force-static"
+export const revalidate = 300
 
 export const metadata = buildPageMetadata({
   title: "Browse Tags",
@@ -15,17 +26,23 @@ export const metadata = buildPageMetadata({
     "Explore Shipyard products by their top keywords and discover new tools aligned with your interests.",
 })
 
-export default function TagsIndexPage(
-  props: Parameters<typeof TagsIndexPageContent>[0],
-) {
-  return (
-    <Suspense fallback={<TagsIndexPageSkeleton />}>
-      <TagsIndexPageContent {...props} />
-    </Suspense>
-  )
+type TagsSearchParams = {
+  page?: string | string[]
 }
 
-function TagsIndexPageSkeleton() {
+export default async function TagsIndexPage({
+  searchParams,
+}: {
+  searchParams: Promise<TagsSearchParams>
+}) {
+  await searchParams
+
+  const payload = await getTagsIndexPayload()
+  const { initialItems, hasMore, totalTags, pageSize } = payload
+  const hasTags = initialItems.length > 0
+  const listResetKey =
+    initialItems.map((tag) => tag.slug).join("|") || "tags-empty"
+
   return (
     <main className="relative isolate bg-[#f5f7fb]">
       <PublicTwoColumnLayout
@@ -34,55 +51,62 @@ function TagsIndexPageSkeleton() {
         sidebarClassName="lg:sticky lg:top-24"
         main={
           <>
-            <TagsHeroSkeleton />
-            <Skeleton className="h-16 w-full rounded-3xl border border-border/40 bg-white shadow-[0_24px_80px_-60px_rgba(7,58,104,0.35)]" />
-            <TagListSkeleton />
+            <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
+              <div className="mx-auto flex max-w-3xl flex-col items-center gap-6">
+                <div className="space-y-4">
+                  <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+                    Discover every keyword powering launches
+                  </h1>
+                  <p className="text-base text-muted-foreground">
+                    Browse tags sorted by live product count and see which
+                    themes are shaping the Shipyard community.
+                  </p>
+                </div>
+                <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row sm:justify-center sm:gap-4">
+                  <Link
+                    href={BROWSE_PATH}
+                    className={`${HERO_PRIMARY_BUTTON_CLASSES} w-full justify-center sm:w-auto`}
+                  >
+                    Browse trending launches
+                  </Link>
+                  <Link
+                    href={MEMBER_PRODUCTS_PATH}
+                    className={`${HERO_SECONDARY_BUTTON_CLASSES} w-full justify-center sm:w-auto`}
+                  >
+                    Submit your tagged launch
+                  </Link>
+                </div>
+              </div>
+            </section>
+
+            <StickyBanner className="mx-auto w-full rounded-2xl" />
+
+            <section className="space-y-6" data-testid="tag-directory-section">
+              {hasTags ? (
+                <TagDirectoryList
+                  key={`${pageSize}:${listResetKey}`}
+                  initialItems={initialItems}
+                  initialHasMore={hasMore}
+                  pageSize={pageSize}
+                  totalTags={totalTags}
+                />
+              ) : (
+                <div className="rounded-3xl border border-dashed border-border/40 bg-white/70 px-6 py-12 text-center text-sm font-medium text-muted-foreground">
+                  <EmptyState
+                    title="No tags yet"
+                    description="Once products add keywords, you’ll be able to explore them here."
+                  />
+                </div>
+              )}
+            </section>
           </>
         }
-        sidebar={<SponsoredProductsSkeleton />}
+        sidebar={
+          <Suspense fallback={<SponsoredProductsSkeleton />}>
+            <SponsoredProductsSection />
+          </Suspense>
+        }
       />
     </main>
-  )
-}
-
-function TagsHeroSkeleton() {
-  return (
-    <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
-      <div className="mx-auto flex max-w-3xl flex-col items-center gap-6">
-        <div className="space-y-4">
-          <Skeleton className="mx-auto h-3 w-32 rounded-full" tone="muted" />
-          <HeadingSkeleton lines={2} centered className="text-foreground" />
-          <Skeleton className="mx-auto h-3 w-3/4 rounded-full" tone="muted" />
-        </div>
-        <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row sm:justify-center sm:gap-4">
-          <ButtonSkeleton size="lg" labelWidth="12rem" />
-          <ButtonSkeleton size="lg" variant="outline" labelWidth="14rem" />
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function TagListSkeleton() {
-  return (
-    <section className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-2">
-          <HeadingSkeleton lines={1} className="h-7 w-48" />
-          <Skeleton className="h-3 w-64 rounded-full" tone="muted" />
-        </div>
-        <Skeleton className="h-4 w-24 rounded-full" tone="muted" />
-      </div>
-      <div className="space-y-4">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <ProductFeedCardSkeleton
-            key={`tag-directory-feed-skeleton-${index}`}
-            showCategory={false}
-            showBadges={false}
-            showMetaBadge
-          />
-        ))}
-      </div>
-    </section>
   )
 }
