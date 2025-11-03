@@ -808,11 +808,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </SidebarInfoRow>
               </div>
             </div>
-            <Suspense fallback={<SponsoredProductsSkeleton />}>
-              <SponsoredProductsSection />
-            </Suspense>
-          </div>
-        }
+            <div className="hidden lg:block">
+              <Suspense fallback={<SponsoredProductsSkeleton />}>
+                <SponsoredProductsSection />
+              </Suspense>
+            </div>
+         </div>
+       }
       />
     </main>
   )
