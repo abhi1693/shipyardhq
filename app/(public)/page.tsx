@@ -36,6 +36,17 @@ export default async function HomePage() {
             <Suspense fallback={<DirectoryHeaderSkeleton />}>
               <DirectoryHeaderSection />
             </Suspense>
+            <Suspense
+              fallback={
+                <div className="lg:hidden">
+                  <SponsoredProductsSkeleton />
+                </div>
+              }
+            >
+              <div className="lg:hidden">
+                <SponsoredProductsSection />
+              </div>
+            </Suspense>
             <Suspense fallback={<HomepageFeedSkeleton />}>
               <HomepageFeedSection view={feedView} />
             </Suspense>
@@ -43,8 +54,16 @@ export default async function HomePage() {
         }
         sidebar={
           <>
-            <Suspense fallback={<SponsoredProductsSkeleton />}>
-              <SponsoredProductsSection />
+            <Suspense
+              fallback={
+                <div className="hidden lg:block">
+                  <SponsoredProductsSkeleton />
+                </div>
+              }
+            >
+              <div className="hidden lg:block">
+                <SponsoredProductsSection />
+              </div>
             </Suspense>
             <Suspense fallback={<ProductUpdatesSkeleton />}>
               <ProductUpdatesSection />
