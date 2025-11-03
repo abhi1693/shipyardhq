@@ -623,18 +623,20 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   ) : null}
                 </div>
               )}
-              <ProductUpvoteBadge
-                productId={product.id}
-                count={product.analytics?.upvotes ?? 0}
-                initialUpvoted={viewerUpvoted}
-              />
-              <ProductDescriptionCard description={product.description} />
+              <div className="lg:hidden">
+                <ProductUpvoteBadge
+                  productId={product.id}
+                  count={product.analytics?.upvotes ?? 0}
+                  initialUpvoted={viewerUpvoted}
+                />
+              </div>
             </header>
             <ProductMediaGallery
               bannerImage={product.bannerImage}
               media={galleryMedia}
               productName={product.name}
             />
+            <ProductDescriptionCard description={product.description} />
             {keywordTagItems.length ? (
               <div className="space-y-3">
                 <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
@@ -694,6 +696,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         }
         sidebar={
           <div className="flex flex-col gap-6">
+            <div className="hidden lg:block">
+              <ProductUpvoteBadge
+                productId={product.id}
+                count={product.analytics?.upvotes ?? 0}
+                initialUpvoted={viewerUpvoted}
+              />
+            </div>
             <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
               <div className="flex flex-col gap-5">
                 <SidebarInfoRow label="Product type">
