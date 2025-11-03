@@ -3,7 +3,7 @@
 import clsx from "clsx"
 import { Crown } from "lucide-react"
 
-export function UpvoteSquare({
+export function VoteCount({
   count,
   compact = false,
   className,
@@ -22,8 +22,7 @@ export function UpvoteSquare({
 }) {
   const baseStyles =
     "inline-flex select-none items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition-all duration-200 shadow-[0_6px_20px_-10px_rgba(15,23,42,0.35)]"
-  const idleStyles =
-    "border-slate-200 bg-white text-slate-800 hover:border-[color:var(--brand-1)]/40 hover:bg-[color:var(--brand-1)]/5 hover:text-[color:var(--brand-1)]"
+  const idleStyles = "border-slate-200 bg-white text-slate-800"
   const activeStyles =
     "border-[color:var(--brand-1)] bg-white text-[color:var(--brand-1)] shadow-[0_10px_28px_-12px_rgba(31,82,201,0.35)]"
   const compactStyles = "px-2.5 py-1 text-xs"

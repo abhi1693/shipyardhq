@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useUser } from "@clerk/nextjs"
 import { usePathname, useSearchParams } from "next/navigation"
-import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
+import { VoteCount } from "@/components/molecules/VoteCount"
 import SignInButton from "@/components/molecules/SignInButton"
 
 interface Props {
@@ -151,7 +151,7 @@ export default function UpvoteSquareButton({
       disabled={pending}
       className="cursor-pointer disabled:opacity-70 disabled:cursor-pointer"
     >
-      <UpvoteSquare
+      <VoteCount
         count={state.upvotes}
         title={title}
         className={className}

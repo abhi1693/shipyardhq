@@ -12,7 +12,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/atoms/tooltip"
-import UpvoteSquareButton from "@/components/molecules/UpvoteSquareButton"
+import { VoteCount } from "@/components/molecules/VoteCount"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
@@ -142,6 +142,10 @@ export function ProductFeedCard({
     [],
   )
 
+  const voteCount =
+    typeof item.voteCount === "number" && Number.isFinite(item.voteCount)
+      ? item.voteCount
+      : 0
   const cardContent = (
     <article className="flex flex-1 flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
@@ -183,19 +187,13 @@ export function ProductFeedCard({
         </div>
         <div className="flex items-center gap-2">
           {meta ? <span className="shrink-0">{meta}</span> : null}
-          <span
-            onClick={(event) => event.preventDefault()}
-            onKeyDown={(event) => event.preventDefault()}
-          >
-            <UpvoteSquareButton
-              productId={item.id}
-              initialCount={item.voteCount}
-              initialUpvoted={item.isVoted}
-              title={`${item.voteCount} upvotes`}
-              compact
-              className="border-border/50 bg-background px-3 py-1.5 text-xs shadow-none transition-colors"
-            />
-          </span>
+          <VoteCount
+            count={voteCount}
+            title={`${voteCount} upvotes`}
+            compact
+            className="border-border/50 bg-background px-3 py-1.5 text-xs shadow-none transition-colors"
+            active={Boolean(item.isVoted)}
+          />
         </div>
       </div>
       <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-2">

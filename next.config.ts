@@ -1,6 +1,15 @@
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      {
+        source: "/rank-in-public",
+        destination: "/browse",
+        permanent: true,
+      },
+    ]
+  },
   async rewrites() {
     return [
       {
