@@ -95,7 +95,7 @@ export default function PublicHeader() {
               preload
             />
             <span className="text-base font-semibold tracking-tight text-foreground">
-              Shipyard
+              ShipYard HQ
             </span>
           </Link>
 

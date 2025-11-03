@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react"
 import Link from "next/link"
-import { Mail, Rocket, Sparkles, Twitter } from "lucide-react"
+import { Mail, Sparkles, Twitter } from "lucide-react"
 
 import { BrandLogo } from "@/components/atoms/brand-logo"
 import DomainRatingBadge from "@/components/molecules/DomainRatingBadge"
@@ -24,8 +24,6 @@ import {
   SHIPYARD_TWITTER_URL,
 } from "@/lib/routes"
 import { cn } from "@/lib/utils"
-import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
-import { brandGradient, gradientTint } from "@/lib/ui/tints"
 
 type UseCaseLink = { label: string; slug: string }
 
@@ -75,47 +73,6 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
 
   return (
     <footer className="border-t bg-gradient-to-b from-white via-white to-white/90 text-sm text-foreground">
-      <section
-        className={brandGradient(
-          "relative w-full overflow-hidden border-b border-[color:var(--brand-1)/0.15] px-4 py-10 text-white shadow-[0_40px_120px_-60px_rgba(18,66,112,0.8)] md:px-8",
-        )}
-      >
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div className="max-w-2xl space-y-3">
-              <span
-                className={gradientTint(
-                  "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white/80",
-                )}
-              >
-                Launch update
-              </span>
-              <h2 className="text-2xl font-semibold leading-tight tracking-tight md:text-3xl">
-                Ready to put your next launch on the Shipyard spotlight?
-              </h2>
-              <p className="text-sm text-white/80 md:text-base">
-                Showcase your drop to thousands of engaged builders, investors,
-                and operator-fans. Feature placements bundle homepage,
-                leaderboard, and Insights signals in one launch console.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Link
-                href={MEMBER_PRODUCTS_PATH}
-                className={launchPrimaryButton()}
-              >
-                <Rocket className="h-4 w-4" aria-hidden="true" />
-                Submit your launch
-              </Link>
-              <Link href={PRICING_PATH} className={launchSecondaryButton()}>
-                <Sparkles className="h-4 w-4" aria-hidden="true" />
-                Book a spotlight tour
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <div className="w-full px-4 pb-16 pt-12 sm:px-6 lg:px-8 lg:pb-20 lg:pt-16">
         <section className="grid gap-y-10 gap-x-8 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,1fr))_minmax(0,1.15fr)]">
           <div className="space-y-5">
