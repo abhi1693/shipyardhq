@@ -70,6 +70,9 @@ export function ProductMediaGallery({
     )
   }
 
+  const mobileThumbnailGridClass =
+    totalAssets >= 3 ? "grid-cols-3" : totalAssets === 2 ? "grid-cols-2" : "grid-cols-1"
+
   return (
     <section className="space-y-5">
       <div className="space-y-4 rounded-3xl border border-border bg-white p-4 shadow-sm">
@@ -114,14 +117,21 @@ export function ProductMediaGallery({
         </div>
 
         {totalAssets > 1 ? (
-          <div className="flex gap-3 overflow-x-auto pb-1">
+          <div
+            className={cn(
+              "grid w-full gap-2 pb-1",
+              mobileThumbnailGridClass,
+              "sm:flex sm:flex-row sm:gap-3 sm:overflow-x-auto",
+            )}
+          >
             {mediaItems.map((item, index) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => setSelectedIndex(index)}
                 className={cn(
-                  "group relative h-20 w-32 shrink-0 overflow-hidden rounded-2xl border border-border bg-muted transition hover:border-border/80",
+                  "group relative h-20 w-full overflow-hidden rounded-2xl border border-border bg-muted transition hover:border-border/80",
+                  "sm:h-20 sm:w-32 sm:shrink-0",
                   index === currentIndex
                     ? "border-border/60 bg-white outline outline-2 outline-offset-2 outline-foreground/10"
                     : undefined,

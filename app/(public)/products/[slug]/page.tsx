@@ -393,6 +393,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         year: "numeric",
       }).format(new Date(publishedSource))
     : null
+  const publishedDateIso = publishedSource
+    ? new Date(publishedSource).toISOString()
+    : null
   const shareUrl = new URL(
     `/products/${product.slug}`,
     siteConfig.url,
@@ -484,10 +487,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       ? withReferralParams(normalizedCtaUrl, "cta")
       : null
   const effectiveCtaLabel = ctaLabel || `Get started with ${product.name}`
+  const quickLinkCount =
+    (websiteHref ? 1 : 0) + (demoHref ? 1 : 0) + (ctaHref ? 1 : 0)
+  const quickLinkGridClass =
+    quickLinkCount === 3
+      ? "grid-cols-3"
+      : quickLinkCount === 2
+        ? "grid-cols-2"
+        : "grid-cols-1"
   const quickLinkClass =
-    "inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-sm shadow-black/5 transition-colors hover:bg-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    "inline-flex w-full items-center gap-1.5 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-sm shadow-black/5 transition-colors hover:bg-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto"
   const primaryQuickLinkClass =
-    "inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background shadow-sm shadow-black/10 transition-colors hover:bg-foreground/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    "inline-flex w-full items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background shadow-sm shadow-black/10 transition-colors hover:bg-foreground/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto"
   const similarProductBaseItems = similarProducts.map((item) => ({
     id: item.id,
     slug: item.slug,
@@ -547,12 +558,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
-                  {ownerInitials}
-                </div>
-                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-                  <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
+                    {ownerInitials}
+                  </div>
+                  <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                     {productOwner?.id && ownerName ? (
                       <Link
                         href={userPath(productOwner.id)}
@@ -566,25 +577,33 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       </span>
                     ) : null}
                     {publishedLabel ? (
-                      <>
-                        <span aria-hidden>•</span>
-                        <span className="inline-flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground/80" />
-                          <span>Published on {publishedLabel}</span>
-                        </span>
-                      </>
+                      <span className="inline-flex items-center gap-1">
+                        <Calendar
+                          className="h-4 w-4 text-muted-foreground/80"
+                          aria-hidden="true"
+                        />
+                        <time
+                          dateTime={publishedDateIso ?? undefined}
+                          aria-label={`Published on ${publishedLabel}`}
+                          className="text-muted-foreground"
+                        >
+                          {publishedLabel}
+                        </time>
+                      </span>
                     ) : null}
                   </div>
-                  <ProductShareBar
-                    productName={product.name}
-                    productTagline={product.tagline}
-                    shareUrl={shareUrl}
-                    className="ml-auto"
-                  />
                 </div>
+                <ProductShareBar
+                  productName={product.name}
+                  productTagline={product.tagline}
+                  shareUrl={shareUrl}
+                  className="self-start sm:ml-auto sm:self-center"
+                />
               </div>
               {(websiteHref || demoHref || ctaHref) && (
-                <div className="flex w-full flex-wrap items-center gap-2 text-sm">
+                <div
+                  className={`grid w-full gap-2 text-sm ${quickLinkGridClass} sm:flex sm:flex-wrap sm:items-center`}
+                >
                   {websiteHref ? (
                     <a
                       key="website"

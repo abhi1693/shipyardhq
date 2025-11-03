@@ -132,7 +132,7 @@ export function ProductUpvoteBadge({
   }
 
   const buttonClasses = cn(
-    "inline-flex items-center justify-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold shadow-sm transition",
+    "inline-flex w-full items-center justify-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold shadow-sm transition sm:w-auto",
     state.upvoted
       ? "border-[#1d9cf4] bg-[#1d9cf4] text-white shadow-[0_12px_30px_-18px_rgba(29,156,244,0.4)] hover:cursor-pointer"
       : "border-[#1d9cf4]/40 bg-white text-[#1d9cf4] hover:bg-[#1d9cf4]/8 hover:cursor-pointer",
@@ -174,7 +174,7 @@ export function ProductUpvoteBadge({
   )
 
   return (
-    <section className="rounded-3xl border border-border/60 bg-white p-6 shadow-sm">
+    <section className="w-full max-w-full overflow-hidden rounded-3xl border border-border/60 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex flex-col gap-4">
         <div className="space-y-1">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-muted-foreground">
