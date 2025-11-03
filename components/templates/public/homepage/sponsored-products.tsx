@@ -199,7 +199,7 @@ export async function SponsoredProductsSection() {
             strokeWidth={1.75}
           />
         </span>
-        <h3 className="text-lg font-semibold text-foreground">Sponsors</h3>
+        <h2 className="text-lg font-semibold text-foreground">Sponsors</h2>
       </div>
 
       <div className="mt-6 divide-y divide-border/50">

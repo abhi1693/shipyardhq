@@ -44,7 +44,7 @@ export function PricingFeature({
         {isExperimental ? (
           <Badge
             variant="outline"
-            className="border-dashed border-[color:var(--brand-2)/0.55] bg-transparent text-[10px] font-semibold uppercase tracking-[0.25em] text-[color:var(--brand-2)]"
+            className="border-dashed border-[color:var(--brand-2)/0.55] bg-transparent text-[10px] font-semibold uppercase tracking-[0.25em] text-[color:var(--brand-2-text,#0a5678)]"
           >
             Experimental
           </Badge>

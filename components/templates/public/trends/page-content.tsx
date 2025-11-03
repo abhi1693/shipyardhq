@@ -157,7 +157,7 @@ export async function TrendsPageContent() {
                           {category.upvotesPerLaunch.toFixed(1)} per launch
                         </span>
                       </div>
-                      <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-2,#0ea5e9)]">
+                      <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-2-text,#0a5678)]">
                         {category.normalizedSignal}
                       </span>
                     </li>

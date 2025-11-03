@@ -89,7 +89,7 @@ export function LeaderboardGuidePageContent() {
         <div className="mx-auto max-w-[84rem] px-4 md:px-8">
           <div className="relative mx-auto flex flex-col gap-12 lg:flex-row lg:items-center">
             <div className="flex-1 space-y-6">
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.4] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-[0_18px_40px_-30px_rgba(7,58,104,0.45)] backdrop-blur">
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.4] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2-text,#0a5678)] shadow-[0_18px_40px_-30px_rgba(7,58,104,0.45)] backdrop-blur">
                 Leaderboard playbook
               </span>
               <h1 className="bg-gradient-to-r from-[color:var(--brand-1)] via-[color:var(--brand-2)] to-[color:var(--brand-3)] bg-clip-text text-4xl font-semibold tracking-tight text-transparent md:text-5xl">

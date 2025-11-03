@@ -25,7 +25,7 @@ export const revalidate = 60
 export default async function HomePage() {
   const feedView = DEFAULT_HOMEPAGE_FEED_VIEW
   return (
-    <main className="relative isolate bg-[#f5f7fb]">
+    <div className="relative isolate bg-[#f5f7fb]">
       <HomepageJsonLd />
       <PublicTwoColumnLayout
         className="pb-24 pt-10"
@@ -71,6 +71,6 @@ export default async function HomePage() {
           </>
         }
       />
-    </main>
+    </div>
   )
 }

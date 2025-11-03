@@ -53,7 +53,7 @@ export async function StickyBanner({
           </div>
           <Badge
             variant="outline"
-            className="shrink-0 rounded-full border-[#F97316]/40 bg-[#FDEADF] px-3 py-1 text-[11px] font-semibold text-[#C2410C]"
+            className="shrink-0 rounded-full border-[#F97316]/40 bg-[#FDEADF] px-3 py-1 text-[11px] font-semibold text-[#A33105]"
           >
             Sponsored
           </Badge>

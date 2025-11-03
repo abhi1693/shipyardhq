@@ -160,7 +160,7 @@ export default function WhyShipyardPage() {
     <main className="relative isolate overflow-hidden bg-white">
       <section className="relative py-24">
         <div className="relative mx-auto max-w-[84rem] px-4 text-center md:px-8">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2-text,#0a5678)] shadow-sm backdrop-blur">
             Why Shipyard
           </span>
           <div className="mx-auto mt-8 max-w-3xl space-y-6">
@@ -238,7 +238,7 @@ export default function WhyShipyardPage() {
                 className="rounded-2xl border border-[color:var(--brand-1)/0.16] bg-background/85 p-6 shadow-[0px_22px_60px_-45px_rgba(7,58,104,0.75)] backdrop-blur"
               >
                 <div className="flex items-start gap-4">
-                  <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[color:var(--brand-2)/0.14] text-[color:var(--brand-2)]">
+                  <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[color:var(--brand-2)/0.14] text-[color:var(--brand-2-text,#0a5678)]">
                     {reason.icon}
                   </span>
                   <div>
@@ -279,7 +279,7 @@ export default function WhyShipyardPage() {
                   key={item.title}
                   className="flex flex-col gap-4 rounded-2xl border border-[color:var(--brand-1)/0.16] bg-background/85 p-6 text-left shadow-[0px_22px_50px_-42px_rgba(7,58,104,0.72)] backdrop-blur"
                 >
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[color:var(--brand-2)/0.14] text-[color:var(--brand-2)]">
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[color:var(--brand-2)/0.14] text-[color:var(--brand-2-text,#0a5678)]">
                     <Icon className="h-6 w-6" />
                   </span>
                   <div className="space-y-3">
@@ -322,7 +322,7 @@ export default function WhyShipyardPage() {
             </p>
           </div>
           <div className="divide-y divide-[color:var(--brand-1)/0.12] overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/85 shadow-[0px_30px_70px_-50px_rgba(7,58,104,0.75)] backdrop-blur">
-            <div className="hidden grid-cols-[1.2fr_1fr_1fr] gap-6 px-6 py-5 text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--brand-2)] sm:grid">
+            <div className="hidden grid-cols-[1.2fr_1fr_1fr] gap-6 px-6 py-5 text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--brand-2-text,#0a5678)] sm:grid">
               <span>Focus</span>
               <span>Shipyard</span>
               <span>Other directories</span>
@@ -367,7 +367,7 @@ export default function WhyShipyardPage() {
                 key={step.title}
                 className="flex flex-col rounded-2xl border border-[color:var(--brand-1)/0.16] bg-background/85 p-6 text-left shadow-[0px_22px_50px_-40px_rgba(7,58,104,0.7)] backdrop-blur"
               >
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--brand-2)/0.12] text-sm font-semibold text-[color:var(--brand-2)]">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--brand-2)/0.12] text-sm font-semibold text-[color:var(--brand-2-text,#0a5678)]">
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <h3 className="mt-4 text-lg font-semibold text-foreground">
@@ -386,7 +386,7 @@ export default function WhyShipyardPage() {
         <div className="relative mx-auto max-w-[84rem] px-4 md:px-8">
           <div className="relative mx-auto flex max-w-4xl flex-col gap-10 overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.25] bg-background/95 px-6 py-12 text-center shadow-[0px_50px_140px_-90px_rgba(7,58,104,0.85)] sm:px-12">
             <div className="space-y-5">
-              <span className="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
+              <span className="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2-text,#0a5678)] shadow-sm backdrop-blur">
                 Keep momentum
               </span>
               <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">

@@ -115,7 +115,10 @@ export function DirectoryHeader({
               backlinks that rank fast.{" "}
               <span className="text-[color:var(--brand-3)]">Ship</span> updates
               in seconds.{" "}
-              <span className="text-[color:var(--brand-2)]">Grow</span> with our
+              <span className="text-[color:var(--brand-2-text,#0a5678)]">
+                Grow
+              </span>{" "}
+              with our
               builder community.
             </h1>
           ) : (

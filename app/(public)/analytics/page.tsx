@@ -301,7 +301,7 @@ export default function AnalyticsPage() {
                 className="flex h-full flex-col justify-between rounded-3xl border border-[color:var(--brand-1)/0.15] bg-background/80 p-8 text-left shadow-[0px_25px_60px_-35px_rgba(7,58,104,0.6)] backdrop-blur"
               >
                 <div className="space-y-4">
-                  <div className="text-xs font-semibold uppercase tracking-[0.34em] text-[color:var(--brand-2)]">
+                  <div className="text-xs font-semibold uppercase tracking-[0.34em] text-[color:var(--brand-2-text,#0a5678)]">
                     {plan.tier}
                   </div>
                   <h3 className="text-2xl font-semibold text-foreground">

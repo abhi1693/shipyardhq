@@ -35,7 +35,7 @@ export function DirectoryHeaderSkeleton({
               variant="outline"
               labelWidth="11rem"
               leadingIcon
-              className="h-9 w-fit rounded-full bg-[#F3EDFF] text-[#6C5AF2]"
+              className="h-9 w-fit rounded-full bg-[#E8EDFB] text-[#344074]"
             />
             <div className="space-y-6">
               <HeadingSkeleton

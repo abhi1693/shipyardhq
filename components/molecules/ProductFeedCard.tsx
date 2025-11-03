@@ -76,7 +76,7 @@ export function ProductFeedCard({
         return {
           label: "Sponsored",
           className:
-            "rounded-full border border-[#F97316]/40 bg-[#FDEADF] px-2 py-0.5 text-[11px] font-semibold text-[#C2410C]",
+            "rounded-full border border-[#F97316]/40 bg-[#FDEADF] px-2 py-0.5 text-[11px] font-semibold text-[#A33105]",
           Icon: Flame,
         }
       case "promoted":

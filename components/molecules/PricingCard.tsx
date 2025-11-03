@@ -95,7 +95,7 @@ export function PricingCard({
             )}
           </div>
           {isPopular && !isFree ? (
-            <Badge className="inline-flex items-center gap-1 rounded-full border-[color:var(--brand-2)/0.3] bg-[color:var(--brand-2)/0.15] text-[color:var(--brand-2)]">
+            <Badge className="inline-flex items-center gap-1 rounded-full border-[color:var(--brand-2)/0.3] bg-[color:var(--brand-2)/0.15] text-[color:var(--brand-2-text,#0a5678)]">
               <IconAnchor className="h-3.5 w-3.5" /> Most popular
             </Badge>
           ) : null}

@@ -72,7 +72,7 @@ export function InsightsShowcase({
     <section className="relative border-y border-border bg-white py-20">
       <div className="relative mx-auto max-w-[84rem] px-4 md:px-8 space-y-16">
         <div className="relative mx-auto max-w-3xl text-center space-y-6">
-          <span className="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
+          <span className="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2-text,#0a5678)] shadow-sm backdrop-blur">
             <Sparkles className="h-4 w-4" /> {eyebrow}
           </span>
           <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">

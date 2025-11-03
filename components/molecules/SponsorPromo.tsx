@@ -10,7 +10,7 @@ type SponsorPromoProps = {
 
 const PROMO_COPY = "Want to become a sponsor and show your product here?"
 const LINK_TEXT = "Advertise"
-const BASE_TEXT_CLASS = "text-[11px] text-[#7B81A0]"
+const BASE_TEXT_CLASS = "text-[11px] text-muted-foreground"
 const LINK_CLASS =
   "font-semibold text-[#4F3FF4] underline-offset-4 hover:underline"
 

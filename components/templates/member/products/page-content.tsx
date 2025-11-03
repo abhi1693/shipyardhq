@@ -87,7 +87,7 @@ export async function MemberProductsPageContent({
     return (
       <div className="mx-auto max-w-3xl py-12">
         <div className="flex flex-col items-center justify-center rounded-2xl border border-[color:var(--brand-1)/0.22] bg-background/92 px-6 py-14 text-center shadow-[0_32px_95px_-70px_rgba(7,78,134,0.55)]">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/75 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-[color:var(--brand-2)] shadow-sm">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/75 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-[color:var(--brand-2-text,#0a5678)] shadow-sm">
             Member Command Deck
           </span>
           <h1 className="mt-6 text-3xl font-bold tracking-tight">
