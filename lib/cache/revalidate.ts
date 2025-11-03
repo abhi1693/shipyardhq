@@ -134,15 +134,6 @@ export function revalidateBadges(mode: CacheInvalidationMode = "update") {
   revalidateProducts(mode)
 }
 
-export function revalidatePlanFeature(
-  key: string,
-  mode: CacheInvalidationMode = "update",
-) {
-  revalidateTag(TAGS.planFeature(key), mode)
-  revalidateTag(TAGS.plans, mode)
-  revalidateProducts(mode)
-}
-
 export function revalidatePlacement(
   featureKey: string,
   mode: CacheInvalidationMode = "update",

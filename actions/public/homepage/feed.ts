@@ -1,6 +1,5 @@
 "use server"
 
-import { auth } from "@clerk/nextjs/server"
 import { unstable_cache } from "next/cache"
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
@@ -114,52 +113,6 @@ function normalizePageSize(value: unknown, fallback: number) {
 function buildBaseWhere(): Prisma.ProductWhereInput {
   return {
     status: "published",
-  }
-}
-
-function buildPriorityWhere(): Prisma.ProductWhereInput {
-  return {
-    ...buildBaseWhere(),
-    plan: {
-      is: {
-        assignments: {
-          some: {
-            enabled: true,
-            feature: {
-              is: { key: PRIORITY_FEATURE_KEY },
-            },
-          },
-        },
-      },
-    },
-  }
-}
-
-function buildRegularWhere(): Prisma.ProductWhereInput {
-  const base = buildBaseWhere()
-
-  const planExclusionWhere: Prisma.ProductWhereInput = {
-    OR: [
-      { plan: null },
-      {
-        plan: {
-          is: {
-            assignments: {
-              none: {
-                enabled: true,
-                feature: {
-                  is: { key: PRIORITY_FEATURE_KEY },
-                },
-              },
-            },
-          },
-        },
-      },
-    ],
-  }
-
-  return {
-    AND: [base, planExclusionWhere],
   }
 }
 
@@ -282,80 +235,6 @@ async function getOrderedHomepageFeedPage({
   }
 }
 
-export async function getHomepageFeedPage({
-  page = 1,
-  pageSize = HOMEPAGE_FEED_PAGE_SIZE,
-  clerkUserId,
-}: GetHomepageFeedPageParams = {}): Promise<HomepageFeedPageResult> {
-  const safePage = normalizePage(page, 1)
-  const safePageSize = normalizePageSize(pageSize, HOMEPAGE_FEED_PAGE_SIZE)
-  const skip = (safePage - 1) * safePageSize
-
-  const priorityWhere = buildPriorityWhere()
-  const regularWhere = buildRegularWhere()
-
-  const [priorityCount, regularCount] = await Promise.all([
-    prisma.product.count({ where: priorityWhere }),
-    prisma.product.count({ where: regularWhere }),
-  ])
-  const total = priorityCount + regularCount
-
-  let prioritySkip = 0
-  let priorityTake = 0
-  let regularSkip = 0
-  let regularTake = 0
-
-  if (skip < priorityCount) {
-    prioritySkip = skip
-    priorityTake = Math.min(safePageSize, priorityCount - prioritySkip)
-    regularSkip = 0
-    regularTake = Math.max(0, safePageSize - priorityTake)
-  } else {
-    prioritySkip = priorityCount
-    priorityTake = 0
-    regularSkip = skip - priorityCount
-    regularTake = safePageSize
-  }
-
-  const orderBy: Prisma.ProductOrderByWithRelationInput[] = [
-    { analytics: { upvotes: "desc" } },
-    { createdAt: "desc" },
-  ]
-
-  const [priorityProducts, regularProducts] = await Promise.all([
-    priorityTake
-      ? prisma.product.findMany({
-          where: priorityWhere,
-          orderBy,
-          skip: prioritySkip,
-          take: priorityTake,
-          select: homepageFeedSelect,
-        })
-      : Promise.resolve([] as HomepageFeedProduct[]),
-    regularTake
-      ? prisma.product.findMany({
-          where: regularWhere,
-          orderBy,
-          skip: regularSkip,
-          take: regularTake,
-          select: homepageFeedSelect,
-        })
-      : Promise.resolve([] as HomepageFeedProduct[]),
-  ])
-
-  const combined = [...priorityProducts, ...regularProducts]
-  const items = await buildFeedItemsFromProducts(combined, clerkUserId)
-  const hasMore = skip + combined.length < total
-
-  return {
-    items,
-    page: safePage,
-    pageSize: safePageSize,
-    hasMore,
-    nextPage: hasMore ? safePage + 1 : null,
-  }
-}
-
 export async function getHomepageNewFeedPage(
   params: GetHomepageFeedPageParams = {},
 ): Promise<HomepageFeedPageResult> {
@@ -365,22 +244,6 @@ export async function getHomepageNewFeedPage(
     pageSize,
     clerkUserId,
     orderBy: [{ createdAt: "desc" }, { analytics: { upvotes: "desc" } }],
-  })
-}
-
-export async function getHomepageRecentFeedPage(
-  params: GetHomepageFeedPageParams = {},
-): Promise<HomepageFeedPageResult> {
-  const { page, pageSize, clerkUserId } = params
-  return getOrderedHomepageFeedPage({
-    page,
-    pageSize,
-    clerkUserId,
-    orderBy: [
-      { updatedAt: "desc" },
-      { createdAt: "desc" },
-      { analytics: { upvotes: "desc" } },
-    ],
   })
 }
 
@@ -430,16 +293,4 @@ export async function getHomepageFeedViewAll(
   }
 
   return items
-}
-
-export async function loadHomepageFeed(params: {
-  page: number
-  view?: HomepageFeedView
-}): Promise<HomepageFeedPageResult> {
-  const { userId } = await auth()
-  return getHomepageFeedView({
-    page: params.page,
-    view: params.view,
-    clerkUserId: userId,
-  })
 }

@@ -1,7 +1,3 @@
-import { pickFirst } from "@/lib/urlParams"
-
-export const HOMEPAGE_FEED_VIEW_PARAM = "view" as const
-
 export const HOMEPAGE_FEED_VIEWS = ["new"] as const
 
 export type HomepageFeedView = (typeof HOMEPAGE_FEED_VIEWS)[number]
@@ -20,19 +16,4 @@ export const normalizeHomepageFeedView = (
     return value
   }
   return fallback
-}
-
-export const resolveHomepageFeedView = (
-  searchParams?:
-    | Record<string, string | string[] | undefined>
-    | null
-    | undefined,
-): HomepageFeedView => {
-  if (!searchParams) {
-    return DEFAULT_HOMEPAGE_FEED_VIEW
-  }
-
-  const raw = searchParams[HOMEPAGE_FEED_VIEW_PARAM]
-  const candidate = pickFirst(raw)
-  return normalizeHomepageFeedView(candidate)
 }

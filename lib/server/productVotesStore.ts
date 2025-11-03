@@ -37,23 +37,6 @@ export async function resolveVoteState(
   }
 }
 
-export async function setDesiredVoteState({
-  productId,
-  userId,
-  desiredState,
-}: {
-  productId: string
-  userId: string
-  desiredState: VoteState
-}): Promise<VoteState> {
-  const result = await mutateVote({
-    productId,
-    userId,
-    desiredState,
-  })
-  return result.newState
-}
-
 export async function toggleVoteState({
   productId,
   userId,

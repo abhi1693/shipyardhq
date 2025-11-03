@@ -172,26 +172,6 @@ async function isPipelineJobQueuedOnClient(
   }
 }
 
-export async function peekPipelineQueueLength(): Promise<number> {
-  const client = await getRedisClient()
-  if (!client) return 0
-  try {
-    return await client.lLen(QUEUE_KEY)
-  } catch (error) {
-    console.warn(
-      "[productInsights:pipeline] failed to read queue length",
-      error,
-    )
-    return 0
-  }
-}
-
-export async function isPipelineJobQueued(productId: string): Promise<boolean> {
-  const client = await getRedisClient()
-  if (!client) return false
-  return isPipelineJobQueuedOnClient(client, productId)
-}
-
 export async function getPipelineJobState(
   productId: string,
 ): Promise<ProductInsightPipelineJobState> {

@@ -5,7 +5,6 @@ import { checkRole } from "@/lib/roles"
 import { adminPath } from "@/lib/routes"
 import { revalidatePath } from "next/cache"
 import { enqueueEvent } from "@/lib/server/events/queueClient"
-import { drainEventQueue } from "@/lib/server/events/drain"
 import {
   DEFAULT_EVENT_QUEUE,
   EVENT_QUEUE_NAMES,
@@ -451,38 +450,6 @@ export async function getTopEventVolumes(
   }))
 }
 
-export async function getRecentEventEnvelopes(limit = 25) {
-  return prisma.eventEnvelope.findMany({
-    orderBy: { updatedAt: "desc" },
-    take: limit,
-    select: {
-      id: true,
-      event: true,
-      status: true,
-      attempts: true,
-      asyncHandlers: true,
-      pendingHandlers: true,
-      lastError: true,
-      enqueuedAt: true,
-      processedAt: true,
-      updatedAt: true,
-      attemptsLog: {
-        orderBy: { createdAt: "desc" },
-        take: 5,
-        select: {
-          id: true,
-          handler: true,
-          status: true,
-          durationMs: true,
-          error: true,
-          createdAt: true,
-          attempt: true,
-        },
-      },
-    },
-  })
-}
-
 export async function getEventEnvelopesPaginated({
   page = 1,
   pageSize = 25,
@@ -621,23 +588,6 @@ export async function requeueEnvelopeAction(formData: FormData): Promise<void> {
     revalidatePath(adminPath("operations", "events", envelopeId))
   } catch (error) {
     console.error("requeueEnvelopeAction failed", error)
-    throw error
-  }
-}
-
-export async function drainEventQueueAction(): Promise<void> {
-  try {
-    const isAdmin = await checkRole("admin")
-    if (!isAdmin) {
-      throw new Error("Unauthorized")
-    }
-
-    await drainEventQueue({ queue: DEFAULT_EVENT_QUEUE })
-
-    revalidatePath(ADMIN_EVENTS_PATH)
-    revalidatePath(ADMIN_EVENTS_ANALYTICS_PATH)
-  } catch (error) {
-    console.error("drainEventQueueAction failed", error)
     throw error
   }
 }

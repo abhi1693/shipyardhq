@@ -92,29 +92,6 @@ export async function getAlternativeProductById(
   }
 }
 
-export async function getAlternativeProductBySlug(
-  slug: string,
-  args: Omit<Prisma.AlternativeProductFindUniqueArgs, "where"> = {},
-) {
-  try {
-    return await prisma.alternativeProduct.findUnique({
-      where: { slug },
-      include: {
-        categories: true,
-        products: {
-          include: {
-            category: true,
-          },
-        },
-      },
-      ...args,
-    })
-  } catch (error) {
-    console.error("Error fetching alternative product by slug:", error)
-    throw new Error("Failed to fetch alternative product")
-  }
-}
-
 export async function createAlternativeProductAction(formData: FormData) {
   const isAdmin = await checkRole("admin")
   if (!isAdmin) {

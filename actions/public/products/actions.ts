@@ -119,10 +119,6 @@ const publicProductMetaSelect = Prisma.validator<Prisma.ProductSelect>()({
   },
 })
 
-export type PublicProductMeta = Prisma.ProductGetPayload<{
-  select: typeof publicProductMetaSelect
-}>
-
 async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
   const product = await prisma.product.findUnique({
     where,

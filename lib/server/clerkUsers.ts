@@ -1,10 +1,8 @@
 import type { User as ClerkUser } from "@clerk/backend"
 import { clerkClient } from "@clerk/nextjs/server"
 import {
-  buildCacheKey,
   cacheHit,
   cacheMiss,
-  cacheInvalidate,
 } from "@/lib/server/cache"
 const DEFAULT_TTL_SECONDS = 300
 
@@ -60,21 +58,3 @@ export async function getClerkUserByIdCached(
 
   return clerkUser
 }
-
-export async function invalidateClerkUserCache(clerkId: string) {
-  if (!clerkId) {
-    return
-  }
-
-  await cacheInvalidate({
-    key: ["clerk", "user", clerkId],
-    onError: (error) => {
-      console.error("Failed to invalidate Clerk user cache", {
-        clerkId,
-        error,
-      })
-    },
-  })
-}
-
-export const CLERK_USER_CACHE_PREFIX = `${buildCacheKey("clerk", "user")}:`

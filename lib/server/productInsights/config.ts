@@ -64,17 +64,3 @@ export function getProductHuntIndexName(): string {
     process.env.PRODUCT_HUNT_INDEX_NAME?.trim() || DEFAULT_PRODUCT_HUNT_INDEX
   )
 }
-
-export function getProductInsightDiscussionModelLabel(): string {
-  const query = getProductInsightDiscussionQueryModel()
-  const insight = getProductInsightDiscussionInsightModel()
-  return insight && insight !== query ? `${query} → ${insight}` : query
-}
-
-export function getProductInsightSubredditModelLabel(): string {
-  const primary = getProductInsightSubredditModel()
-  const relevance = getProductInsightSubredditRelevanceModel()
-  return relevance && relevance !== primary
-    ? `${primary} → ${relevance}`
-    : primary
-}

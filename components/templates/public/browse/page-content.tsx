@@ -10,8 +10,8 @@ import { ProductUpdatesFeed } from "@/components/molecules/ProductUpdatesFeed"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
   BROWSE_PATH,
+  LEADERBOARD_PATH,
   MEMBER_PRODUCTS_PATH,
-  RANK_IN_PUBLIC_PATH,
 } from "@/lib/routes"
 import {
   getBrowsePagePayload,
@@ -107,14 +107,14 @@ export async function BrowsePageContent({
               stats={stats}
               eyebrow="Directory browse"
               title="Browse the Shipyard launch catalog"
-              description="We run the homepage spotlight, curate featured campaigns, and track momentum across editor picks, new arrivals, the live leaderboard, and head-to-head live launch battles."
+              description="We run the homepage spotlight, curate featured campaigns, and track momentum across editor picks, new arrivals, and the live leaderboard."
               primaryAction={{
                 label: "Submit your launch",
                 href: MEMBER_PRODUCTS_PATH,
               }}
               secondaryAction={{
-                label: "Join the live showdown",
-                href: RANK_IN_PUBLIC_PATH,
+                label: "View the leaderboard",
+                href: LEADERBOARD_PATH,
                 variant: "outline",
               }}
               metrics={browseMetrics}

@@ -204,40 +204,6 @@ export async function cacheMiss<T>({
   }
 }
 
-interface CacheInvalidateOptions {
-  key: CacheKeyInput
-  onError?: CacheErrorHandler
-  client?: CacheClient | null
-}
-
-export async function cacheInvalidate({
-  key,
-  onError,
-  client: providedClient,
-}: CacheInvalidateOptions): Promise<void> {
-  const { client, namespacedKey } = await resolveClientForOperation({
-    key,
-    providedClient,
-    onError,
-  })
-
-  if (!client) {
-    return
-  }
-
-  try {
-    await client.del(namespacedKey)
-    logCacheEvent("invalidate", namespacedKey)
-  } catch (error) {
-    logCacheEvent("error", namespacedKey, { error })
-    onError?.(error)
-  }
-}
-
-export function __resetCacheClientForTesting() {
-  cachedClientPromise = null
-}
-
 interface ClientResolutionOptions {
   key: CacheKeyInput
   onError?: CacheErrorHandler

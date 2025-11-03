@@ -154,5 +154,3 @@ export function ProductMediaGallery({
     </section>
   )
 }
-
-export default ProductMediaGallery

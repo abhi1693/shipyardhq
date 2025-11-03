@@ -410,16 +410,6 @@ export function resolveRegisteredHandler(
   return handlers?.find((item) => item.id === handlerId)
 }
 
-export function listRegisteredAsyncHandlers(event: string): string[] {
-  return (LISTENERS.get(event) ?? [])
-    .filter((item) => item.mode === "async")
-    .map((item) => item.id)
-}
-
-export function resetEventRegistryForTesting(): void {
-  LISTENERS.clear()
-}
-
 function toJsonValue(payload: unknown): Prisma.JsonValue {
   return JSON.parse(JSON.stringify(payload)) as Prisma.JsonValue
 }
@@ -446,9 +436,3 @@ export function dispatchEventAsync<K extends keyof AppEvents>(
 }
 
 export type { AppEvents, HandlerMode, Handler, RegisterEventHandlerConfig }
-export {
-  DEFAULT_EVENT_QUEUE,
-  EVENT_QUEUE_DEFINITIONS,
-  EVENT_QUEUE_NAMES,
-  type EventQueueName,
-} from "@/lib/server/events/queues"

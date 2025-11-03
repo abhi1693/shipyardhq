@@ -4,8 +4,6 @@ declare global {
   var __shipyardhqEmailDeliveryDisabled: boolean | undefined
 }
 
-let bypassEmailDeliveryGuard = false
-
 function isEnvFlagEnabled(value: string | undefined) {
   if (!value) return false
   return ["1", "true", "yes", "on"].includes(value.toLowerCase())
@@ -98,10 +96,6 @@ function hasBodyContent(opts: SendEmailOptions): boolean {
 }
 
 function shouldBypassEmailDeliveryChecks(): boolean {
-  if (!bypassEmailDeliveryGuard) {
-    return false
-  }
-
   return process.env.NODE_ENV === "test" || Boolean(process.env.VITEST)
 }
 
@@ -288,20 +282,7 @@ function createDefaultEmailSender(): EmailSender {
   )
 }
 
-let activeEmailSender: EmailSender = createDefaultEmailSender()
-
-export function configureEmailSender(sender: EmailSender) {
-  activeEmailSender = sender
-
-  if (process.env.NODE_ENV === "test" || process.env.VITEST) {
-    bypassEmailDeliveryGuard = true
-  }
-}
-
-export function resetEmailSender() {
-  activeEmailSender = createDefaultEmailSender()
-  bypassEmailDeliveryGuard = false
-}
+const activeEmailSender: EmailSender = createDefaultEmailSender()
 
 export async function sendEmail(options: SendEmailOptions) {
   if (!hasBodyContent(options)) {

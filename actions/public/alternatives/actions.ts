@@ -54,61 +54,6 @@ interface GetFeaturedAlternativesOptions {
   take?: number
 }
 
-type AlternativeCatalogStats = {
-  totalAlternatives: number
-  linkedProducts: number
-  categoriesCovered: number
-  totalPairings: number
-}
-
-export const getAlternativeCatalogStats = cached(
-  async (): Promise<AlternativeCatalogStats> => {
-    const activeAlternativeFilter: Prisma.AlternativeProductWhereInput = {
-      products: { some: {} },
-    }
-
-    const [totalAlternatives, linkedProducts, categoriesCovered, pairings] =
-      await Promise.all([
-        prisma.alternativeProduct.count({
-          where: activeAlternativeFilter,
-        }),
-        prisma.product.count({
-          where: { alternatives: { some: {} } },
-        }),
-        prisma.category.count({
-          where: {
-            alternativeProducts: {
-              some: {
-                products: { some: {} },
-              },
-            },
-          },
-        }),
-        prisma.alternativeProduct.findMany({
-          where: activeAlternativeFilter,
-          include: { _count: { select: { products: true } } },
-        }),
-      ])
-
-    const totalPairings = pairings.reduce(
-      (sum, entry) => sum + entry._count.products,
-      0,
-    )
-
-    return {
-      totalAlternatives,
-      linkedProducts,
-      categoriesCovered,
-      totalPairings,
-    }
-  },
-  "alternative-products:stats",
-  {
-    ttl: DEFAULT_TTL.slow,
-    tags: () => [TAGS.alternativeProducts],
-  },
-)
-
 export const getAlternativeDetail = cached(
   async (slug: string): Promise<AlternativeDetail | null> => {
     if (!slug?.trim()) {

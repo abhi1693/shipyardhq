@@ -1,7 +1,7 @@
 import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
 import DirectoryHeaderSkeletonSection from "@/components/organisms/directory/DirectoryHeader.skeleton"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
-import { RANK_IN_PUBLIC_PATH } from "@/lib/routes"
+import { LEADERBOARD_PATH } from "@/lib/routes"
 
 export async function DirectoryHeaderSection() {
   const stats = await getLeaderboardStats()
@@ -10,8 +10,9 @@ export async function DirectoryHeaderSection() {
     <DirectoryHeader
       stats={stats}
       secondaryAction={{
-        label: "Join the live showdown",
-        href: RANK_IN_PUBLIC_PATH,
+        label: "View the leaderboard",
+        href: LEADERBOARD_PATH,
+        variant: "outline",
       }}
     />
   )
