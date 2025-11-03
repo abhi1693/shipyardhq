@@ -577,18 +577,23 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       </span>
                     ) : null}
                     {publishedLabel ? (
-                      <span className="inline-flex items-center gap-1">
+                      <span className="inline-flex items-center gap-1 sm:gap-1.5">
                         <Calendar
                           className="h-4 w-4 text-muted-foreground/80"
                           aria-hidden="true"
                         />
-                        <time
-                          dateTime={publishedDateIso ?? undefined}
-                          aria-label={`Published on ${publishedLabel}`}
-                          className="text-muted-foreground"
-                        >
-                          {publishedLabel}
-                        </time>
+                        <span className="inline-flex items-center gap-1">
+                          <span className="hidden text-muted-foreground sm:inline">
+                            Published On
+                          </span>
+                          <time
+                            dateTime={publishedDateIso ?? undefined}
+                            aria-label={`Published on ${publishedLabel}`}
+                            className="text-muted-foreground"
+                          >
+                            {publishedLabel}
+                          </time>
+                        </span>
                       </span>
                     ) : null}
                   </div>
