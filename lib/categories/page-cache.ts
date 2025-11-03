@@ -1,5 +1,8 @@
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
-import { getCategoryWithProducts } from "@/actions/public/categories/actions"
+import {
+  getCategoriesWithCounts,
+  getCategoryWithProducts,
+} from "@/actions/public/categories/actions"
 import { getFeaturedByCategorySlug } from "@/actions/public/products/featured"
 import { productHasFeature } from "@/lib/features"
 import type { FeaturedProduct } from "@/types"
@@ -112,5 +115,21 @@ export const getCategoryDetailPayload = cached(
       TAGS.products,
       TAGS.featured,
     ],
+  },
+)
+
+export const getCategoryStaticParams = cached(
+  async () => {
+    const categories = await getCategoriesWithCounts()
+    return categories
+      .filter((category) => category.slug && category.count > 0)
+      .map((category) => ({
+        slug: category.slug,
+      }))
+  },
+  "categories:static-params",
+  {
+    ttl: DEFAULT_TTL.slowest,
+    tags: () => [TAGS.categories],
   },
 )

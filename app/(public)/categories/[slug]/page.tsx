@@ -1,3 +1,5 @@
+export const revalidate = 120
+
 import type { Metadata } from "next"
 import { Suspense } from "react"
 
@@ -5,6 +7,9 @@ import { CategoryDetailPageContent } from "@/components/templates/public/categor
 import { CategoryDetailSkeleton } from "@/components/templates/public/categories/detail/skeleton"
 import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { buildPageMetadata } from "@/lib/metadata"
+import { getCategoryStaticParams } from "@/lib/categories/page-cache"
+
+export const generateStaticParams = getCategoryStaticParams
 
 export async function generateMetadata(
   props: Parameters<typeof CategoryDetailPageContent>[0],
