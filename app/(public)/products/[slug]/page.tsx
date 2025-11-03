@@ -623,6 +623,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   ) : null}
                 </div>
               )}
+              <ProductUpvoteBadge
+                productId={product.id}
+                count={product.analytics?.upvotes ?? 0}
+                initialUpvoted={viewerUpvoted}
+              />
               <ProductDescriptionCard description={product.description} />
             </header>
             <ProductMediaGallery
@@ -689,11 +694,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         }
         sidebar={
           <div className="flex flex-col gap-6">
-            <ProductUpvoteBadge
-              productId={product.id}
-              count={product.analytics?.upvotes ?? 0}
-              initialUpvoted={viewerUpvoted}
-            />
             <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
               <div className="flex flex-col gap-5">
                 <SidebarInfoRow label="Product type">
