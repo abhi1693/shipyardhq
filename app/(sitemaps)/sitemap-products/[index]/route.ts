@@ -5,13 +5,25 @@ type ProductSitemapEntry = Prisma.ProductGetPayload<{
   select: { id: true; slug: true; updatedAt: true; publishedAt: true }
 }>
 
-export const revalidate = 3600
+export const dynamic = "force-static"
+export const revalidate = 86400
 
 function xml(parts: TemplateStringsArray, ...subs: any[]) {
   return parts.map((p, i) => p + (subs[i] ?? "")).join("")
 }
 
 const CHUNK_SIZE = 50000
+
+export async function generateStaticParams(): Promise<Array<{ index: string }>> {
+  const total = await prisma.product.count({
+    where: { status: "published" as any },
+  })
+  const totalPages = Math.max(Math.ceil(total / CHUNK_SIZE), 1)
+
+  return Array.from({ length: totalPages }, (_, pageIndex) => ({
+    index: String(pageIndex + 1),
+  }))
+}
 
 export async function GET(
   _req: Request,

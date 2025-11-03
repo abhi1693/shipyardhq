@@ -1,11 +1,24 @@
-import { getKeywordTagSitemapChunk } from "@/actions/public/tags/actions"
+import {
+  getKeywordTagSitemapChunk,
+  getKeywordTagSitemapStats,
+} from "@/actions/public/tags/actions"
 
-export const revalidate = 3600
+export const dynamic = "force-static"
+export const revalidate = 86400
 
 const CHUNK_SIZE = 50000
 
 function xml(parts: TemplateStringsArray, ...subs: any[]) {
   return parts.map((part, index) => part + (subs[index] ?? "")).join("")
+}
+
+export async function generateStaticParams(): Promise<Array<{ index: string }>> {
+  const { total } = await getKeywordTagSitemapStats()
+  const totalPages = Math.max(Math.ceil(total / CHUNK_SIZE), 1)
+
+  return Array.from({ length: totalPages }, (_, pageIndex) => ({
+    index: String(pageIndex + 1),
+  }))
 }
 
 export async function GET(

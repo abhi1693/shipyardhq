@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma"
 
 export const dynamic = "force-static"
-export const revalidate = 3600
+export const revalidate = 86400
 
 const CHUNK_SIZE = 50000
 

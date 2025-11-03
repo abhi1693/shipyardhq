@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma"
 
 export const dynamic = "force-static"
-export const revalidate = 3600
+export const revalidate = 86400
 
 function xml(parts: TemplateStringsArray, ...subs: any[]) {
   return parts.map((p, i) => p + (subs[i] ?? "")).join("")
