@@ -1,6 +1,5 @@
 import { Suspense } from "react"
 import Link from "next/link"
-import { auth } from "@clerk/nextjs/server"
 import { notFound } from "next/navigation"
 
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
@@ -128,10 +127,8 @@ export async function TagDetailPageContent({ params }: TagPageProps) {
   )
   const tagProductIdSet = new Set(tagProductItems.map((item) => item.id))
 
-  const { userId } = await auth()
   const homepageFeedItems = await getHomepageFeedViewAll({
     view: DEFAULT_HOMEPAGE_FEED_VIEW,
-    clerkUserId: userId,
   })
 
   const filteredHomepageItems = homepageFeedItems.filter((item) => {

@@ -1,5 +1,4 @@
 import { Suspense } from "react"
-import { auth } from "@clerk/nextjs/server"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 
@@ -39,10 +38,8 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
 
   const { category } = data
 
-  const { userId } = await auth()
   const homepageFeedItems = await getHomepageFeedViewAll({
     view: DEFAULT_HOMEPAGE_FEED_VIEW,
-    clerkUserId: userId,
   })
 
   const categorySlug = category.slug?.toLowerCase()

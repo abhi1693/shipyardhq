@@ -1,5 +1,3 @@
-import { auth } from "@clerk/nextjs/server"
-
 import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
 import { HOMEPAGE_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 import type { HomepageFeedView } from "@/lib/homepage/feed-views"
@@ -12,10 +10,8 @@ interface HomepageFeedSectionProps {
 }
 
 export async function HomepageFeedSection({ view }: HomepageFeedSectionProps) {
-  const { userId } = await auth()
   const items = await getHomepageFeedViewAll({
     pageSize: HOMEPAGE_FEED_PAGE_SIZE,
-    clerkUserId: userId,
     view,
   })
 
