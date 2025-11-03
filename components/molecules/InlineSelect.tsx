@@ -18,6 +18,8 @@ export function InlineSelect({
   placeholder,
   testId,
   dropdownTestId,
+  ariaLabel,
+  ariaLabelledBy,
 }: {
   value: string
   onValueChange: (v: string) => void
@@ -26,12 +28,16 @@ export function InlineSelect({
   placeholder?: string
   testId?: string
   dropdownTestId?: string
+  ariaLabel?: string
+  ariaLabelledBy?: string
 }) {
   return (
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger
         className={triggerClassName ?? "h-8 w-[200px]"}
         data-testid={testId}
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledBy}
       >
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>

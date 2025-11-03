@@ -167,9 +167,9 @@ export function ProductFeedCard({
           </span>
           <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="line-clamp-1 text-base font-semibold text-foreground">
+              <h2 className="line-clamp-1 text-base font-semibold text-foreground">
                 {item.name}
-              </h3>
+              </h2>
               {badgePresentation ? (
                 <Badge className={badgePresentation.className}>
                   <badgePresentation.Icon

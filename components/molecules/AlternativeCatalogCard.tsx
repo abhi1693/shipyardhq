@@ -43,9 +43,9 @@ export function AlternativeCatalogCard({
           )}
         </Avatar>
         <div className="min-w-0 flex-1 space-y-1">
-          <h3 className="text-lg font-semibold text-foreground">
+          <h2 className="text-lg font-semibold text-foreground">
             {alternative.name}
-          </h3>
+          </h2>
           {websiteUrl ? (
             <p className="truncate text-sm font-medium text-primary">
               {cleanHost(websiteUrl)}

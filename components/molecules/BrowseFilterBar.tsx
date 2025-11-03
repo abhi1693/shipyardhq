@@ -340,6 +340,7 @@ export default function BrowseFilterBar({
           placeholder="Sort"
           options={sortOptions}
           triggerClassName="h-9 min-w-[9rem] cursor-pointer rounded-xl border border-border/70 bg-background text-sm font-medium text-foreground shadow-sm transition hover:border-border hover:bg-muted/60 dark:border-border/40 dark:bg-slate-950/70"
+          ariaLabel="Sort products"
         />
 
         <Label

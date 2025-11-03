@@ -42,6 +42,8 @@ export const BrandWordmark = forwardRef<
   const { "aria-label": ariaLabel, ...linkElementProps } = rest
   const size = compact ? 28 : 32
   const sizeClasses = compact ? "h-7 w-7" : "h-8 w-8"
+  const computedAriaLabel =
+    ariaLabel ?? (hideLabel ? "ShipYard HQ home" : undefined)
 
   return (
     <Link
@@ -52,7 +54,7 @@ export const BrandWordmark = forwardRef<
       scroll={scroll}
       shallow={shallow}
       locale={locale}
-      aria-label={ariaLabel ?? "ShipYardHQ home"}
+      aria-label={computedAriaLabel}
       className="group inline-flex items-center gap-2 text-foreground transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white group-data-[collapsible=icon]/sidebar-wrapper:justify-center group-data-[collapsible=icon]/sidebar-wrapper:gap-0"
       {...linkElementProps}
     >
