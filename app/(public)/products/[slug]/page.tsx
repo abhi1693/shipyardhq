@@ -519,6 +519,87 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     toProductCardItem(item),
   )
   const stickyBannerProducts = await getStickyBannerProducts()
+  const productDetailsCard = (
+    <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+      <div className="flex flex-col gap-5">
+        <SidebarInfoRow label="Product type">
+          {productTypeLabel ? (
+            <span>{productTypeLabel}</span>
+          ) : (
+            <span className="text-muted-foreground">Not specified</span>
+          )}
+        </SidebarInfoRow>
+        <SidebarInfoRow label="Pricing model">
+          {pricingModelLabel ? (
+            <span>
+              {pricingModelLabel}
+              {startingPrice ? ` · Starts at ${startingPrice}` : ""}
+            </span>
+          ) : startingPrice ? (
+            <span>Starts at {startingPrice}</span>
+          ) : (
+            <span className="text-muted-foreground">Not specified</span>
+          )}
+        </SidebarInfoRow>
+        <SidebarInfoRow label="Category">
+          {categoryLabel && product.category?.slug ? (
+            <Link
+              href={categoryPath(product.category.slug)}
+              className="inline-flex items-center gap-1 font-medium text-foreground underline-offset-4 transition-colors hover:text-foreground/80 hover:underline"
+            >
+              {categoryLabel}
+            </Link>
+          ) : categoryLabel ? (
+            <span>{categoryLabel}</span>
+          ) : (
+            <span className="text-muted-foreground">Not categorized</span>
+          )}
+        </SidebarInfoRow>
+        <SidebarInfoRow label="Platforms">
+          {platformItems.length ? (
+            <div className="flex flex-wrap gap-2">
+              {platformItems.map(({ key, label, icon: Icon }) => (
+                <span
+                  key={key}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-foreground shadow-sm"
+                >
+                  <Icon className="h-3.5 w-3.5" aria-hidden />
+                  <span>{label}</span>
+                </span>
+              ))}
+            </div>
+          ) : (
+            <span className="text-muted-foreground">
+              Platforms coming soon
+            </span>
+          )}
+        </SidebarInfoRow>
+        <SidebarInfoRow label="Badges">
+          {activeBadgeDefs.length ? (
+            <div className="flex flex-wrap gap-2">
+              {activeBadgeDefs.map((badge) => (
+                <Tooltip key={badge.value}>
+                  <TooltipTrigger asChild>
+                    <span
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-white text-sm shadow-sm"
+                      aria-label={badge.label}
+                    >
+                      <span aria-hidden>{badge.icon}</span>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent sideOffset={6}>
+                    {badge.label}
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+          ) : (
+            <span className="text-muted-foreground">No badges yet</span>
+          )}
+        </SidebarInfoRow>
+      </div>
+    </div>
+  )
 
   return (
     <main className="bg-white">
@@ -661,6 +742,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               productName={product.name}
             />
             <ProductDescriptionCard description={product.description} />
+            <div className="lg:hidden">{productDetailsCard}</div>
             {keywordTagItems.length ? (
               <div className="space-y-3">
                 <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
@@ -727,94 +809,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 initialUpvoted={viewerUpvoted}
               />
             </div>
-            <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-              <div className="flex flex-col gap-5">
-                <SidebarInfoRow label="Product type">
-                  {productTypeLabel ? (
-                    <span>{productTypeLabel}</span>
-                  ) : (
-                    <span className="text-muted-foreground">Not specified</span>
-                  )}
-                </SidebarInfoRow>
-                <SidebarInfoRow label="Pricing model">
-                  {pricingModelLabel ? (
-                    <span>
-                      {pricingModelLabel}
-                      {startingPrice ? ` · Starts at ${startingPrice}` : ""}
-                    </span>
-                  ) : startingPrice ? (
-                    <span>Starts at {startingPrice}</span>
-                  ) : (
-                    <span className="text-muted-foreground">Not specified</span>
-                  )}
-                </SidebarInfoRow>
-                <SidebarInfoRow label="Category">
-                  {categoryLabel && product.category?.slug ? (
-                    <Link
-                      href={categoryPath(product.category.slug)}
-                      className="inline-flex items-center gap-1 font-medium text-foreground underline-offset-4 transition-colors hover:text-foreground/80 hover:underline"
-                    >
-                      {categoryLabel}
-                    </Link>
-                  ) : categoryLabel ? (
-                    <span>{categoryLabel}</span>
-                  ) : (
-                    <span className="text-muted-foreground">
-                      Not categorized
-                    </span>
-                  )}
-                </SidebarInfoRow>
-                <SidebarInfoRow label="Platforms">
-                  {platformItems.length ? (
-                    <div className="flex flex-wrap gap-2">
-                      {platformItems.map(({ key, label, icon: Icon }) => (
-                        <span
-                          key={key}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-foreground shadow-sm"
-                        >
-                          <Icon className="h-3.5 w-3.5" aria-hidden />
-                          <span>{label}</span>
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-muted-foreground">
-                      Platforms coming soon
-                    </span>
-                  )}
-                </SidebarInfoRow>
-                <SidebarInfoRow label="Badges">
-                  {activeBadgeDefs.length ? (
-                    <div className="flex flex-wrap gap-2">
-                      {activeBadgeDefs.map((badge) => (
-                        <Tooltip key={badge.value}>
-                          <TooltipTrigger asChild>
-                            <span
-                              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-white text-sm shadow-sm"
-                              aria-label={badge.label}
-                            >
-                              <span aria-hidden>{badge.icon}</span>
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent sideOffset={6}>
-                            {badge.label}
-                          </TooltipContent>
-                        </Tooltip>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-muted-foreground">No badges yet</span>
-                  )}
-                </SidebarInfoRow>
-              </div>
-            </div>
+            <div className="hidden lg:block">{productDetailsCard}</div>
             <div className="hidden lg:block">
               <Suspense fallback={<SponsoredProductsSkeleton />}>
                 <SponsoredProductsSection />
               </Suspense>
             </div>
-         </div>
-       }
+          </div>
+        }
       />
     </main>
   )
