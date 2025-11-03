@@ -4,12 +4,11 @@ import { useState, type FormEvent } from "react"
 import Link from "next/link"
 import { Mail, Sparkles, Twitter } from "lucide-react"
 
-import { BrandLogo } from "@/components/atoms/brand-logo"
+import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import DomainRatingBadge from "@/components/molecules/DomainRatingBadge"
 import {
   ANALYTICS_PATH,
   BROWSE_PATH,
-  HOME_PATH,
   LEADERBOARD_PATH,
   LEADERBOARD_GUIDE_PATH,
   ALTERNATIVES_PATH,
@@ -76,21 +75,7 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
       <div className="w-full px-4 pb-16 pt-12 sm:px-6 lg:px-8 lg:pb-20 lg:pt-16">
         <section className="grid gap-y-10 gap-x-8 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,1fr))_minmax(0,1.15fr)]">
           <div className="space-y-5">
-            <Link
-              href={HOME_PATH}
-              className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/80 px-3 py-2 shadow-sm"
-            >
-              <BrandLogo
-                width={28}
-                height={28}
-                sizes="(min-width: 768px) 28px, 24px"
-                className="h-7 w-7"
-                preload
-              />
-              <span className="text-lg font-semibold tracking-tight text-[color:var(--brand-1)]">
-                ShipYardHQ
-              </span>
-            </Link>
+            <BrandWordmark />
             <p className="max-w-xs text-sm text-muted-foreground lg:max-w-sm">
               Shipyard is the launch directory built for founders shipping fast,
               investors watching the radar, and operator-fans who amplify

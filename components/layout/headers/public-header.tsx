@@ -10,12 +10,11 @@ import SignInCtaButton from "@/components/molecules/SignInCtaButton"
 import NotificationBell from "@/components/molecules/NotificationBell"
 import clsx from "clsx"
 import { SignOutButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs"
-import { BrandLogo } from "@/components/atoms/brand-logo"
+import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import SignInButton from "@/components/molecules/SignInButton"
 import {
   ANALYTICS_PATH,
   BROWSE_PATH,
-  HOME_PATH,
   LEADERBOARD_PATH,
   MEMBER_BASE_PATH,
   MEMBER_ACCOUNT_PROFILE_PATH,
@@ -82,22 +81,7 @@ export default function PublicHeader() {
     <header className="sticky top-0 z-50 border-b border-border/60 bg-white shadow-[0_18px_48px_-26px_rgba(17,24,39,0.35)]">
       <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 lg:px-8">
         <div className="flex flex-1 items-center gap-3 sm:gap-4">
-          <Link
-            href={HOME_PATH}
-            className="group inline-flex items-center gap-2 transition hover:opacity-90"
-            aria-label="ShipYardHQ home"
-          >
-            <BrandLogo
-              width={32}
-              height={32}
-              sizes="(max-width: 768px) 24px, 32px"
-              className="h-8 w-8 transition group-hover:scale-[1.05]"
-              preload
-            />
-            <span className="text-base font-semibold tracking-tight text-foreground">
-              ShipYard HQ
-            </span>
-          </Link>
+          <BrandWordmark preload />
 
           <nav className="ml-auto hidden items-center gap-1 lg:flex">
             {navLinks.map((link) => (
@@ -239,22 +223,10 @@ export default function PublicHeader() {
               className="w-80 border-l border-border/60 bg-white/90 p-6 backdrop-blur supports-[backdrop-filter]:bg-white/80"
             >
               <div className="flex flex-col gap-6">
-                <Link
-                  href={HOME_PATH}
+                <BrandWordmark
+                  compact
                   onClick={() => setOpen(false)}
-                  className="inline-flex items-center gap-2 text-foreground transition hover:opacity-90"
-                  aria-label="ShipYardHQ home"
-                >
-                  <BrandLogo
-                    width={28}
-                    height={28}
-                    sizes="28px"
-                    className="h-7 w-7 transition"
-                  />
-                  <span className="text-base font-semibold tracking-tight">
-                    Shipyard
-                  </span>
-                </Link>
+                />
                 <div className="space-y-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
                     Navigation

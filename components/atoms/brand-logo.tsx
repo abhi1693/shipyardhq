@@ -1,7 +1,7 @@
 import Image, { type ImageProps } from "next/image"
 import clsx from "clsx"
 
-type BrandLogoProps = Omit<ImageProps, "src" | "alt"> & {
+export type BrandLogoProps = Omit<ImageProps, "src" | "alt"> & {
   /**
    * Optional alt text override. Defaults to the ShipYardHQ brand name.
    */

@@ -28,7 +28,7 @@ import Link from "next/link"
 import { NavItem } from "@/types"
 import { toast } from "sonner"
 import { createBillingPortalAction } from "@/actions/member/billing/portal"
-import { BrandLogo } from "@/components/atoms/brand-logo"
+import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import {
   ADMIN_BASE_PATH,
   ADMIN_OVERVIEW_PATH,
@@ -111,21 +111,7 @@ export default function AppSidebar(props: SidebarProps) {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <Link
-          href={brandHref}
-          className="inline-flex items-center gap-2 px-1"
-          aria-label="ShipYardHQ home"
-        >
-          <BrandLogo
-            width={28}
-            height={28}
-            className="h-7 w-7 rounded-sm"
-            preload
-          />
-          <span className="text-base md:text-lg font-bold tracking-tight text-[color:var(--brand-1)] group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none">
-            ShipYardHQ
-          </span>
-        </Link>
+        <BrandWordmark href={brandHref} compact preload />
         <div className="mx-1 mt-1 h-px rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] opacity-70" />
       </SidebarHeader>
       <SidebarContent className="overflow-x-hidden">
