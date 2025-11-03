@@ -1,5 +1,6 @@
 export const revalidate = 60
 
+import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -63,6 +64,7 @@ import { ensureUrlHasSchema } from "@/lib/utils"
 import { addUtmParams } from "@/lib/marketing/utm"
 import { hasPlanFeature } from "@/lib/features"
 import { BADGE_OPTIONS } from "@/lib/constants"
+import { buildPageMetadata } from "@/lib/metadata"
 import type { ProductUpdatePublicView } from "@/types/product-updates"
 import {
   getProductReviewSummary,
@@ -76,6 +78,75 @@ import { getStickyBannerProducts } from "@/actions/public/products/featured"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata(
+  props: ProductPageProps,
+): Promise<Metadata> {
+  const { slug } = await props.params
+  const product = await getPublicProductMetaBySlug(slug)
+  if (!product) return {}
+
+  const canonicalPath = productPath(slug)
+  const tagline = product.tagline?.trim() ?? ""
+  const description =
+    tagline.length > 220 ? `${tagline.slice(0, 217).trimEnd()}...` : tagline
+
+  const pageTitle = tagline
+    ? `${product.name} · ${tagline}`
+    : product.name
+
+  const toAbsoluteImageUrl = (value?: string | null) => {
+    if (!value) return null
+    const trimmed = value.trim()
+    if (!trimmed) return null
+    if (trimmed.startsWith("data:")) return trimmed
+    if (/^https?:\/\//i.test(trimmed)) return trimmed
+    try {
+      return new URL(trimmed, siteConfig.url).toString()
+    } catch {
+      return ensureUrlHasSchema(trimmed)
+    }
+  }
+
+  const bannerImageUrl = toAbsoluteImageUrl(product.bannerImage)
+  const openGraphImages = bannerImageUrl
+    ? [
+        {
+          url: bannerImageUrl,
+          alt: `${product.name} preview`,
+        },
+      ]
+    : []
+
+  const twitterImages = bannerImageUrl ? [bannerImageUrl] : []
+
+  const keywords =
+    product.keywords?.map((keyword) => keyword.trim()).filter(Boolean) ?? []
+
+  const metadata = buildPageMetadata({
+    title: pageTitle,
+    section: "Products",
+    description: description || undefined,
+    canonical: canonicalPath,
+    openGraph: {
+      url: canonicalPath,
+      ...(openGraphImages.length ? { images: openGraphImages } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      ...(twitterImages.length ? { images: twitterImages } : {}),
+    },
+  })
+
+  if (keywords.length) {
+    return {
+      ...metadata,
+      keywords,
+    }
+  }
+
+  return metadata
 }
 
 const PRODUCT_TYPE_LABELS: Record<string, string> = {
