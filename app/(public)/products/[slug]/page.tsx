@@ -44,6 +44,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/atoms/tooltip"
+import { ScrollReset } from "@/components/atoms/scroll-reset"
 import {
   getPublicProductMetaBySlug,
   hasUserUpvoted,
@@ -439,6 +440,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   return (
     <main className="bg-white">
+      <ScrollReset triggerKey={product.slug} />
       <PublicTwoColumnLayout
         mainClassName="gap-8"
         sidebarClassName="lg:sticky lg:top-24"
