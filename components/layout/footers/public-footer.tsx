@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useState, type FormEvent, useTransition } from "react"
 import Link from "next/link"
 import { Mail, Sparkles, Twitter } from "lucide-react"
 
@@ -19,30 +19,43 @@ import {
   USERS_PATH,
   WHY_SHIPYARD_PATH,
   TRENDS_PATH,
-  usecasePath,
   SHIPYARD_TWITTER_URL,
 } from "@/lib/routes"
 import { cn } from "@/lib/utils"
-
-type UseCaseLink = { label: string; slug: string }
-
-interface PublicFooterProps {
-  useCases?: UseCaseLink[]
-}
+import { subscribeToNewsletterAction } from "@/actions/public/newsletter/actions"
 
 const navLinkBase =
   "relative text-[15px] font-medium text-muted-foreground transition-colors hover:text-foreground after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full after:rounded-full after:bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] after:opacity-0 hover:after:opacity-100 after:transition-opacity"
 
-export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
+export default function PublicFooter() {
   const year = new Date().getFullYear()
   const [email, setEmail] = useState("")
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!email.trim()) return
-    setSubmitted(true)
-    setEmail("")
+    if (isPending) return
+
+    const trimmed = email.trim()
+    if (!trimmed) {
+      setError("Please enter your email")
+      return
+    }
+
+    startTransition(async () => {
+      const result = await subscribeToNewsletterAction(trimmed)
+      if (result && "error" in result && result.error) {
+        setSubmitted(false)
+        setError(result.error)
+        return
+      }
+
+      setEmail("")
+      setError(null)
+      setSubmitted(true)
+    })
   }
 
   const discoverLinks = [
@@ -72,8 +85,8 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
 
   return (
     <footer className="border-t bg-gradient-to-b from-white via-white to-white/90 text-sm text-foreground">
-      <div className="w-full px-4 pb-16 pt-12 sm:px-6 lg:px-8 lg:pb-20 lg:pt-16">
-        <section className="grid gap-y-10 gap-x-8 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,1fr))_minmax(0,1.15fr)]">
+      <div className="mx-auto w-full max-w-7xl px-4 pb-16 pt-12 sm:px-6 lg:px-8 lg:pb-20 lg:pt-16">
+        <section className="grid gap-y-10 gap-x-8 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.2fr)_repeat(3,minmax(0,1fr))]">
           <div className="space-y-5">
             <BrandWordmark />
             <p className="max-w-xs text-sm text-muted-foreground lg:max-w-sm">
@@ -117,125 +130,121 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
             </ul>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--brand-1)]">
-              Launch
-            </h3>
-            <ul className="space-y-2">
-              {launchLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className={navLinkBase}
-                    target={link.href.startsWith("http") ? "_blank" : undefined}
-                    rel={
-                      link.href.startsWith("http") ? "noreferrer" : undefined
-                    }
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <div className="space-y-8 lg:col-span-2 lg:self-start">
+            <div className="grid gap-y-8 gap-x-8 sm:grid-cols-2">
+              <div className="space-y-4">
+                <h3 className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--brand-1)]">
+                  Launch
+                </h3>
+                <ul className="space-y-2">
+                  {launchLinks.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className={navLinkBase}
+                        target={
+                          link.href.startsWith("http") ? "_blank" : undefined
+                        }
+                        rel={
+                          link.href.startsWith("http") ? "noreferrer" : undefined
+                        }
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-          <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--brand-1)]">
-              Popular use cases
-            </h3>
-            {useCases.length ? (
-              <ul className="space-y-2">
-                {useCases.slice(0, 6).map((uc) => (
-                  <li key={uc.slug}>
-                    <Link href={usecasePath(uc.slug)} className={navLinkBase}>
-                      {uc.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-xs text-muted-foreground/80">
-                Explore the browse directory to see launches by problem space.
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--brand-1)]">
-              Company
-            </h3>
-            <ul className="space-y-2">
-              {companyLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className={navLinkBase}
-                    target={link.external ? "_blank" : undefined}
-                    rel={link.external ? "noreferrer" : undefined}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="space-y-3 max-w-sm lg:max-w-xs xl:max-w-sm">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-[color:var(--brand-1)]">
-                Stay in the loop
-              </h3>
-              {submitted ? (
-                <span className="hidden items-center gap-2 rounded-full bg-[color:var(--brand-1)/0.12] px-3 py-1 text-[11px] font-semibold text-[color:var(--brand-1)] lg:inline-flex">
-                  <Sparkles className="h-3 w-3" aria-hidden="true" />
-                  Subscribed!
-                </span>
-              ) : null}
+              <div className="space-y-4">
+                <h3 className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--brand-1)]">
+                  Company
+                </h3>
+                <ul className="space-y-2">
+                  {companyLinks.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className={navLinkBase}
+                        target={link.external ? "_blank" : undefined}
+                        rel={link.external ? "noreferrer" : undefined}
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-            <form
-              className="flex w-full flex-col gap-3 rounded-2xl border border-border/60 bg-white/75 p-3 shadow-sm"
-              onSubmit={handleSubmit}
-              noValidate
-            >
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value)
-                  if (submitted) setSubmitted(false)
-                }}
-                placeholder="you@startup.com"
-                className="h-10 w-full rounded-full border border-border/50 bg-white px-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.3]"
-                aria-label="Email address"
-                required
-              />
-              <button
-                type="submit"
-                className="inline-flex h-10 items-center justify-center rounded-full bg-[color:var(--brand-1)] px-4 text-sm font-semibold text-white transition hover:brightness-105"
+
+            <div className="space-y-3 max-w-sm sm:max-w-full">
+              {submitted ? (
+                <div className="flex items-center justify-end">
+                  <span className="hidden items-center gap-2 rounded-full bg-[color:var(--brand-1)/0.12] px-3 py-1 text-[11px] font-semibold text-[color:var(--brand-1)] lg:inline-flex">
+                    <Sparkles className="h-3 w-3" aria-hidden="true" />
+                    Subscribed!
+                  </span>
+                </div>
+              ) : null}
+              <form
+                className="flex w-full flex-col gap-3 rounded-2xl border border-border/60 bg-white/75 p-3 shadow-sm"
+                onSubmit={handleSubmit}
+                noValidate
               >
-                Join newsletter
-              </button>
-            </form>
-            <div className="text-xs text-muted-foreground">
-              {!submitted ? (
-                <span className="inline-flex items-center gap-2">
-                  <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                  Wednesday digest — launch signals, operator moves, highlights.
-                  No spam.
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-2 text-[color:var(--brand-1)] lg:hidden">
-                  <Sparkles className="h-3 w-3" aria-hidden="true" />
-                  Thanks! You&apos;re subscribed.
-                </span>
-              )}
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(event) => {
+                    setEmail(event.target.value)
+                    if (submitted) setSubmitted(false)
+                    if (error) setError(null)
+                  }}
+                  placeholder="you@startup.com"
+                  className="h-10 w-full rounded-full border border-border/50 bg-white px-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.3]"
+                  aria-label="Email address"
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="inline-flex h-10 items-center justify-center rounded-full bg-[color:var(--brand-1)] px-4 text-sm font-semibold text-white transition hover:brightness-105 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-75"
+                >
+                  {isPending ? "Subscribing..." : "Join newsletter"}
+                </button>
+              </form>
+              <div
+                className={cn(
+                  "text-xs",
+                  error
+                    ? "text-red-600"
+                    : submitted
+                      ? "text-[color:var(--brand-1)]"
+                      : "text-muted-foreground",
+                )}
+                aria-live="polite"
+              >
+                {error ? (
+                  error
+                ) : submitted ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Sparkles className="h-3 w-3" aria-hidden="true" />
+                    Thanks! You&apos;re subscribed.
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-2">
+                    <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                    Wednesday digest — launch signals, operator moves,
+                    highlights. No spam.
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </section>
       </div>
 
       <div className="border-t border-border/30 bg-white/80">
-        <div className="flex w-full flex-col gap-4 px-4 py-6 text-xs text-muted-foreground sm:px-6 lg:px-8 md:flex-row md:items-center md:justify-between">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6 text-xs text-muted-foreground sm:px-6 lg:px-8 md:flex-row md:items-center md:justify-between">
           <span>
             © {year} ShipYardHQ • Built for indie makers and operator-fans.
           </span>
