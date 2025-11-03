@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Suspense } from "react"
 
 import { EmptyState } from "@/components/molecules/empty-state"
-import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
   HERO_PRIMARY_BUTTON_CLASSES,
@@ -70,7 +70,7 @@ export async function TagsIndexPageContent({
               </div>
             </section>
 
-            <HeroStickyBanner wrapperClassName="px-0" innerClassName="w-full" />
+            <StickyBanner className="mx-auto w-full rounded-2xl" />
 
             <section className="space-y-6" data-testid="tag-directory-section">
               {hasTags ? (

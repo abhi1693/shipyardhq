@@ -48,7 +48,7 @@ import { ProductNarrative } from "@/components/organisms/ProductNarrative"
 import { ProductChangelog } from "@/components/organisms/ProductChangelog"
 import { ProductCrewRoster } from "@/components/organisms/ProductCrewRoster"
 import { ProductSimilarVoyages } from "@/components/organisms/ProductSimilarVoyages"
-import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import { StickyBanner } from "@/components/organisms/StickyBanner"
 import { ProductAlternativesSection } from "@/components/organisms/ProductAlternativesSection"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { queueProductViewReward } from "@/lib/server/rewards/engagement"
@@ -409,10 +409,7 @@ export async function ProductDetailPageContent({ params }: ProductPageProps) {
               }}
             />
 
-            <HeroStickyBanner
-              wrapperClassName="px-0"
-              innerClassName="max-w-[120rem]"
-            />
+            <StickyBanner className="mx-auto w-full max-w-[120rem] rounded-2xl" />
 
             <ProductMediaGallery
               bannerImage={product.bannerImage}

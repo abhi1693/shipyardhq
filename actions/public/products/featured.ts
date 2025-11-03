@@ -157,8 +157,16 @@ export const getFeaturedByCategorySlug = cached(
 )
 
 // Get products that have the stickyBanner plan feature enabled
+type StickyBannerProductResult = {
+  id: string
+  slug: string
+  name: string
+  logo: string
+  tagline: string | null
+}
+
 export const getStickyBannerProducts = cached(
-  async (limit = 100) => {
+  async (limit = 100): Promise<StickyBannerProductResult | null> => {
     const now = new Date()
     const effectiveLimit = Math.max(1, limit)
 
@@ -223,7 +231,7 @@ export const getStickyBannerProducts = cached(
     ]
 
     if (!combinedIds.length) {
-      return []
+      return null
     }
 
     const products = await prisma.product.findMany({
@@ -241,17 +249,42 @@ export const getStickyBannerProducts = cached(
       },
     })
 
-    const uniqueProducts = Array.from(
-      new Map(products.map((product) => [product.id, product])).values(),
-    )
+    const productMap = new Map(products.map((product) => [product.id, product]))
+    const ordered: typeof products = []
+    const seen = new Set<string>()
 
-    return uniqueProducts.slice(0, effectiveLimit).map((product) => ({
-      id: product.id,
-      slug: product.slug,
-      name: product.name,
-      logo: product.logo,
-      tagline: product.tagline ?? null,
-    }))
+    for (const id of combinedIds) {
+      const product = productMap.get(id)
+      if (!product || seen.has(id)) {
+        continue
+      }
+      ordered.push(product)
+      seen.add(id)
+      if (ordered.length >= effectiveLimit) {
+        break
+      }
+    }
+
+    const pool = ordered.length > 0 ? ordered : products
+
+    if (!pool.length) {
+      return null
+    }
+
+    const randomIndex = Math.floor(Math.random() * pool.length)
+    const selected = pool[randomIndex]
+
+    if (!selected) {
+      return null
+    }
+
+    return {
+      id: selected.id,
+      slug: selected.slug,
+      name: selected.name,
+      logo: selected.logo,
+      tagline: selected.tagline ?? null,
+    }
   },
   "products:sticky-banner",
   {

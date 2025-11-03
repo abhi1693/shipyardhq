@@ -20,7 +20,7 @@ import {
 } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { siteConfig } from "@/lib/siteConfig"
-import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
   SponsoredProductsSection,
@@ -283,10 +283,7 @@ export async function AlternativeDetailPageContent({
               </div>
             </section>
 
-            <HeroStickyBanner
-              wrapperClassName="px-0"
-              innerClassName="max-w-none"
-            />
+            <StickyBanner className="mx-auto w-full rounded-2xl" />
 
             <section className="space-y-6">
               <header className="space-y-1 text-left">

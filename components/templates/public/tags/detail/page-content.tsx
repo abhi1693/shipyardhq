@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server"
 import { notFound } from "next/navigation"
 
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
-import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
 import {
@@ -218,10 +218,7 @@ export async function TagDetailPageContent({ params }: TagPageProps) {
               </div>
             </section>
 
-            <HeroStickyBanner
-              wrapperClassName="px-0"
-              innerClassName="max-w-none"
-            />
+            <StickyBanner className="mx-auto w-full rounded-2xl" />
 
             <section className="space-y-6" data-testid="tag-feed-section">
               <h2 className="sr-only">Tag feed</h2>

@@ -5,7 +5,7 @@ import Link from "next/link"
 
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
-import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { cn } from "@/lib/utils"
 import {
@@ -105,10 +105,7 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
               </div>
             </section>
 
-            <HeroStickyBanner
-              wrapperClassName="px-0"
-              innerClassName="max-w-none"
-            />
+            <StickyBanner className="mx-auto w-full rounded-2xl" />
 
             <section className="space-y-6" data-testid="category-feed-section">
               <ProductFeedList

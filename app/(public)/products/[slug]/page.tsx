@@ -29,7 +29,7 @@ import remarkGfm from "remark-gfm"
 import { auth } from "@clerk/nextjs/server"
 
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
-import { StickyBannerCarousel } from "@/components/organisms/StickyBannerCarousel"
+import { StickyBanner } from "@/components/organisms/StickyBanner"
 import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
@@ -74,7 +74,6 @@ import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { keywordToSlug } from "@/lib/tags"
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
-import { getStickyBannerProducts } from "@/actions/public/products/featured"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -518,7 +517,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const similarProductCardItems = similarProductBaseItems.map((item) =>
     toProductCardItem(item),
   )
-  const stickyBannerProducts = await getStickyBannerProducts()
   const productDetailsCard = (
     <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-5">
@@ -780,12 +778,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               isSignedIn={Boolean(viewer)}
               redirectUrl={redirectUrl}
             />
-            {stickyBannerProducts.length ? (
-              <StickyBannerCarousel
-                products={stickyBannerProducts}
-                className="w-full"
-              />
-            ) : null}
+            <StickyBanner className="w-full" />
             {similarProductCardItems.length ? (
               <section className="space-y-4">
                 <h2 className="text-lg font-semibold text-foreground">

@@ -11,7 +11,7 @@ import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
-import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
   HERO_PRIMARY_BUTTON_CLASSES,
@@ -62,7 +62,7 @@ export async function AlternativesPageContent() {
               </div>
             </section>
 
-            <HeroStickyBanner wrapperClassName="px-0" innerClassName="w-full" />
+            <StickyBanner className="mx-auto w-full rounded-2xl" />
 
             <section className="space-y-6">
               <AlternativeCatalogGridClient

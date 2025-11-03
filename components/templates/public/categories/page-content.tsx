@@ -12,7 +12,7 @@ import {
   HERO_PRIMARY_BUTTON_CLASSES,
   HERO_SECONDARY_BUTTON_CLASSES,
 } from "@/components/templates/public/categories/hero-button-classes"
-import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 
 const CATEGORY_CARD_CLASSES =
@@ -73,7 +73,7 @@ export async function CategoriesPageContent() {
               </div>
             </section>
 
-            <HeroStickyBanner wrapperClassName="px-0" innerClassName="w-full" />
+            <StickyBanner className="mx-auto w-full rounded-2xl" />
 
             <section className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2">

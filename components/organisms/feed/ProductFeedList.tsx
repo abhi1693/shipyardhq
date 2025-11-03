@@ -6,10 +6,6 @@ import { addDays, startOfDay, startOfWeek } from "date-fns"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import ProductFeedCard from "@/components/molecules/ProductFeedCard"
-import {
-  StickyBannerCarousel,
-  type StickyBannerProduct,
-} from "@/components/organisms/StickyBannerCarousel"
 import type { HomepageFeedView } from "@/lib/homepage/feed-views"
 import { cn } from "@/lib/utils"
 
@@ -17,8 +13,6 @@ export interface ProductFeedListProps {
   activeFilter: HomepageFeedView
   items: HomepageFeedItem[]
   className?: string
-  stickyBannerProducts?: StickyBannerProduct[]
-  stickyBannerClassName?: string
 }
 
 type BucketRow =
@@ -182,8 +176,6 @@ export function ProductFeedList({
   activeFilter,
   items,
   className,
-  stickyBannerProducts,
-  stickyBannerClassName,
 }: ProductFeedListProps) {
   const view = activeFilter
 
@@ -287,13 +279,6 @@ export function ProductFeedList({
       className={cn("space-y-6", className)}
       data-testid="homepage-feed-client"
     >
-      {stickyBannerProducts && stickyBannerProducts.length > 0 ? (
-        <StickyBannerCarousel
-          products={stickyBannerProducts}
-          className={cn("w-full", stickyBannerClassName)}
-        />
-      ) : null}
-
       {hasSectionedContent ? (
         <section className="space-y-10">
           {sections.map((section, index) => {
