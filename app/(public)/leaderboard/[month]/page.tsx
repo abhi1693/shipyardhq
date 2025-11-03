@@ -1,3 +1,5 @@
+export const dynamic = "force-static"
+
 import type { Metadata } from "next"
 import { Suspense } from "react"
 import { notFound, redirect } from "next/navigation"
@@ -5,11 +7,17 @@ import { notFound, redirect } from "next/navigation"
 import { buildPageMetadata } from "@/lib/metadata"
 import { isMonthKey, monthlyLeaderboardArchivePath } from "@/lib/routes"
 import { getMonthlyLeaderboardPagePayload } from "@/lib/leaderboard/monthly-cache"
+import { getMonthlyLeaderboardMonths } from "@/actions/public/leaderboard/actions"
 
 import { MonthlyLeaderboardView } from "@/components/templates/public/leaderboard/monthly/view"
 import { MonthlyLeaderboardSkeleton } from "@/components/templates/public/leaderboard/monthly/skeleton"
 
 export const revalidate = 120
+
+export async function generateStaticParams() {
+  const months = await getMonthlyLeaderboardMonths()
+  return months.map(({ month }) => ({ month }))
+}
 
 export async function generateMetadata({
   params,
