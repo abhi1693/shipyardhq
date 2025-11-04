@@ -245,6 +245,7 @@ export default async function TagDetailPage({ params }: TagPageProps) {
                 <ProductFeedList
                   activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
                   items={combinedFeedItems}
+                  showRemaining
                 />
               ) : (
                 <div className="rounded-3xl border border-dashed border-border/40 bg-white/70 px-6 py-12 text-center text-sm font-medium text-muted-foreground">
