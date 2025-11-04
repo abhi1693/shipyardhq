@@ -13,6 +13,7 @@ export interface ProductFeedListProps {
   activeFilter: HomepageFeedView
   items: HomepageFeedItem[]
   className?: string
+  showRemaining?: boolean
 }
 
 type BucketRow =
@@ -180,6 +181,7 @@ export function ProductFeedList({
   activeFilter,
   items,
   className,
+  showRemaining = false,
 }: ProductFeedListProps) {
   const view = activeFilter
 
@@ -213,16 +215,56 @@ export function ProductFeedList({
     return buildNewViewSections(sortedItems)
   }, [sortedItems, view])
 
+  const sectionProductIds = useMemo(() => {
+    if (view !== "new" || !showRemaining) {
+      return new Set<string>()
+    }
+
+    const ids = new Set<string>()
+
+    sections.forEach((section) => {
+      if (section.kind === "bucket") {
+        section.rows.forEach((row) => {
+          if (row.kind === "product") {
+            ids.add(row.item.id)
+          } else {
+            row.items.forEach((item) => ids.add(item.id))
+          }
+        })
+      } else {
+        section.items.forEach((item) => ids.add(item.id))
+      }
+    })
+
+    return ids
+  }, [sections, showRemaining, view])
+
+  const remainingItems = useMemo(() => {
+    if (view !== "new" || !showRemaining) {
+      return [] as HomepageFeedItem[]
+    }
+
+    if (!sortedItems.length) {
+      return [] as HomepageFeedItem[]
+    }
+
+    return sortedItems.filter((item) => !sectionProductIds.has(item.id))
+  }, [sectionProductIds, showRemaining, sortedItems, view])
+
   const hasSectionedContent = sections.some((section) =>
     section.kind === "bucket"
       ? section.rows.some((row) => row.kind === "product")
       : section.items.length > 0,
   )
 
+  const hasRemainingContent =
+    showRemaining && view === "new" && remainingItems.length > 0
   const hasFallbackContent = view !== "new" && sortedItems.length > 0
 
   const emptyState =
-    !hasSectionedContent && !hasFallbackContent ? (
+    !hasSectionedContent &&
+    !hasFallbackContent &&
+    (!showRemaining || !hasRemainingContent) ? (
       <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-12 text-center text-sm font-medium text-slate-500">
         Nothing to show here yet. Check back soon for fresh launches.
       </div>
@@ -235,6 +277,28 @@ export function ProductFeedList({
           <ProductFeedCard key={`feed-${item.id}`} item={item} />
         ))}
       </div>
+    ) : null
+
+  const remainingList =
+    showRemaining && hasRemainingContent && view === "new" ? (
+      <section className="space-y-5">
+        {hasSectionedContent ? (
+          <div className="space-y-3">
+            <span className="text-lg font-semibold text-[#1C2333]">
+              Earlier launches
+            </span>
+            <span
+              aria-hidden="true"
+              className="block h-px w-full rounded-full bg-[#E5E8F5]"
+            />
+          </div>
+        ) : null}
+        <div className="space-y-4">
+          {remainingItems.map((item) => (
+            <ProductFeedCard key={`remaining-${item.id}`} item={item} />
+          ))}
+        </div>
+      </section>
     ) : null
 
   const renderPromotedGroup = (
@@ -321,6 +385,8 @@ export function ProductFeedList({
           })}
         </section>
       ) : null}
+
+      {remainingList}
 
       {fallbackList}
 

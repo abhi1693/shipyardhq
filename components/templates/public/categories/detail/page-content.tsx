@@ -108,6 +108,7 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
               <ProductFeedList
                 activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
                 items={categoryFeedItems}
+                showRemaining
               />
             </section>
           </>
