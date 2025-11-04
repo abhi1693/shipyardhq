@@ -78,18 +78,15 @@ export default function UpvoteSquareButton({
   }, [pathname, search, hash])
 
   async function handleClick() {
-    if (pending || !isSignedIn) return
+    if (pending || !isSignedIn || state.upvoted) return
 
     const rollbackState = prev.current
 
     setState((current) => {
-      const nextUpvoted = !current.upvoted
-      const delta = nextUpvoted ? 1 : -1
-      const nextUpvotes = Math.max(current.upvotes + delta, 0)
       return {
         ...current,
-        upvotes: nextUpvotes,
-        upvoted: nextUpvoted,
+        upvotes: current.upvotes + 1,
+        upvoted: true,
         error: undefined,
       }
     })
@@ -148,8 +145,8 @@ export default function UpvoteSquareButton({
     <button
       type="button"
       onClick={handleClick}
-      disabled={pending}
-      className="cursor-pointer disabled:opacity-70 disabled:cursor-pointer"
+      disabled={pending || state.upvoted}
+      className="cursor-pointer disabled:cursor-pointer"
     >
       <VoteCount
         count={state.upvotes}

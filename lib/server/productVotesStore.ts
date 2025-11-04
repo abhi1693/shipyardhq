@@ -88,12 +88,6 @@ async function mutateVote({
     })
 
     const previousState: VoteState = existing ? "upvoted" : "not_upvoted"
-    const targetState: VoteState =
-      desiredState === "toggle"
-        ? previousState === "upvoted"
-          ? "not_upvoted"
-          : "upvoted"
-        : desiredState
     const analytics = await tx.productAnalytics.findUnique({
       where: { productId },
       select: { upvotes: true },
@@ -103,6 +97,18 @@ async function mutateVote({
       (await tx.productUpvote.count({
         where: { productId },
       }))
+
+    if (desiredState === "toggle" && previousState === "upvoted") {
+      // Downvoting is disabled; once a user upvotes we keep the record.
+      return {
+        previousState,
+        newState: previousState,
+        upvotes: baseCount,
+      }
+    }
+
+    const targetState: VoteState =
+      desiredState === "toggle" ? "upvoted" : desiredState
 
     if (targetState === previousState) {
       return {

@@ -58,7 +58,7 @@ export function ProductUpvoteBadge({
   }, [pathname, search])
 
   async function handleToggle() {
-    if (state.pending) return
+    if (state.pending || state.upvoted) return
 
     if (!isSignedIn) return
 
@@ -69,11 +69,8 @@ export function ProductUpvoteBadge({
       error: null as string | null,
     }
 
-    const optimisticUpvoted = !state.upvoted
-    const optimisticUpvotes = Math.max(
-      state.upvotes + (optimisticUpvoted ? 1 : -1),
-      0,
-    )
+    const optimisticUpvoted = true
+    const optimisticUpvotes = state.upvotes + 1
 
     previous.current = rollback
 
@@ -132,11 +129,10 @@ export function ProductUpvoteBadge({
   }
 
   const buttonClasses = cn(
-    "inline-flex w-full items-center justify-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold shadow-sm transition sm:w-auto",
+    "inline-flex w-full items-center justify-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold shadow-sm transition sm:w-auto cursor-pointer disabled:cursor-pointer",
     state.upvoted
-      ? "border-[#1d9cf4] bg-[#1d9cf4] text-white shadow-[0_12px_30px_-18px_rgba(29,156,244,0.4)] hover:cursor-pointer"
+      ? "border-[#1d9cf4] bg-[#1d9cf4] text-white shadow-[0_12px_30px_-18px_rgba(29,156,244,0.4)]"
       : "border-[#1d9cf4]/40 bg-white text-[#1d9cf4] hover:bg-[#1d9cf4]/8 hover:cursor-pointer",
-    state.pending && "opacity-70",
   )
 
   const badgeContent = (
@@ -152,7 +148,7 @@ export function ProductUpvoteBadge({
     <button
       type="button"
       onClick={handleToggle}
-      disabled={state.pending}
+      disabled={state.pending || state.upvoted}
       className={buttonClasses}
     >
       {badgeContent}
