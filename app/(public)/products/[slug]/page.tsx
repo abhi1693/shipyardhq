@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import {
   Suspense,
+  cache,
   type ReactNode,
   type ComponentType,
   type ComponentPropsWithoutRef,
@@ -70,6 +71,7 @@ import {
   getProductReviewSummary,
   getUserProductReview,
 } from "@/lib/server/productReviews"
+import type { ProductReviewSummary } from "@/lib/server/productReviews"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { keywordToSlug } from "@/lib/tags"
@@ -339,16 +341,101 @@ function ProductUpdatesSection({
   )
 }
 
+type ViewerProductState = {
+  isSignedIn: boolean
+  viewerUpvoted: boolean
+  viewerReview: { rating: number; message: string } | null
+}
+
+const getViewerProductState = cache(
+  async (productId: string): Promise<ViewerProductState> => {
+    const authResult = await auth()
+    const clerkUserId = authResult?.userId ?? null
+    if (!clerkUserId) {
+      return { isSignedIn: false, viewerUpvoted: false, viewerReview: null }
+    }
+
+    const viewer = await getActiveUserByClerkId(clerkUserId).catch(() => null)
+    if (!viewer) {
+      return { isSignedIn: false, viewerUpvoted: false, viewerReview: null }
+    }
+
+    const [viewerUpvoted, viewerReview] = await Promise.all([
+      hasUserUpvoted(productId, clerkUserId),
+      getUserProductReview(productId, viewer.id).catch(() => null),
+    ])
+
+    return {
+      isSignedIn: true,
+      viewerUpvoted,
+      viewerReview: viewerReview
+        ? {
+            rating: viewerReview.rating,
+            message: viewerReview.message,
+          }
+        : null,
+    }
+  },
+)
+
+async function ProductUpvoteBadgeServer({
+  productId,
+  upvoteCount,
+}: {
+  productId: string
+  upvoteCount: number
+}) {
+  const { viewerUpvoted } = await getViewerProductState(productId)
+  return (
+    <ProductUpvoteBadge
+      productId={productId}
+      count={upvoteCount}
+      initialUpvoted={viewerUpvoted}
+    />
+  )
+}
+
+async function ProductReviewsServer({
+  productId,
+  productName,
+  reviewSummary,
+  redirectUrl,
+}: {
+  productId: string
+  productName: string
+  reviewSummary: ProductReviewSummary
+  redirectUrl: string
+}) {
+  const { isSignedIn, viewerReview } = await getViewerProductState(productId)
+
+  return (
+    <ProductReviews
+      productId={productId}
+      productName={productName}
+      reviewSummary={reviewSummary}
+      viewerReview={viewerReview}
+      isSignedIn={isSignedIn}
+      redirectUrl={redirectUrl}
+    />
+  )
+}
+
+function ProductUpvoteBadgeFallback() {
+  return (
+    <div className="h-32 animate-pulse rounded-3xl border border-border/60 bg-white" />
+  )
+}
+
+function ProductReviewsFallback() {
+  return (
+    <div className="min-h-[18rem] animate-pulse rounded-2xl border border-border/70 bg-white" />
+  )
+}
+
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return notFound()
-
-  const authResult = await auth()
-  const clerkUserId = authResult?.userId ?? null
-  const viewerPromise = clerkUserId
-    ? getActiveUserByClerkId(clerkUserId).catch(() => null)
-    : Promise.resolve(null)
 
   const sidebarProduct = await getPublicProductBySlug(slug)
   if (!sidebarProduct) return notFound()
@@ -358,20 +445,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     ? getPublicProductsByUseCase(primaryUseCase.slug, product.id, 4)
     : Promise.resolve([])
 
-  const [productUpdates, reviewSummary, viewer, similarProducts] =
-    await Promise.all([
-      getPublicProductUpdates(product.id),
-      getProductReviewSummary(product.id, 6),
-      viewerPromise,
-      similarProductsPromise,
-    ])
-
-  const viewerUpvoted = clerkUserId
-    ? await hasUserUpvoted(product.id, clerkUserId)
-    : false
-  const viewerReview = viewer
-    ? await getUserProductReview(product.id, viewer.id).catch(() => null)
-    : null
+  const [productUpdates, reviewSummary, similarProducts] = await Promise.all([
+    getPublicProductUpdates(product.id),
+    getProductReviewSummary(product.id, 6),
+    similarProductsPromise,
+  ])
 
   const productOwner = sidebarProduct.user
   const ownerName = [productOwner?.firstName, productOwner?.lastName]
@@ -728,11 +806,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </div>
               )}
               <div className="lg:hidden">
-                <ProductUpvoteBadge
-                  productId={product.id}
-                  count={product.analytics?.upvotes ?? 0}
-                  initialUpvoted={viewerUpvoted}
-                />
+                <Suspense fallback={<ProductUpvoteBadgeFallback />}>
+                  <ProductUpvoteBadgeServer
+                    productId={product.id}
+                    upvoteCount={product.analytics?.upvotes ?? 0}
+                  />
+                </Suspense>
               </div>
             </header>
             <ProductMediaGallery
@@ -764,21 +843,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               updates={productUpdates}
               productSlug={product.slug}
             />
-            <ProductReviews
-              productId={product.id}
-              productName={product.name}
-              reviewSummary={reviewSummary}
-              viewerReview={
-                viewerReview
-                  ? {
-                      rating: viewerReview.rating,
-                      message: viewerReview.message,
-                    }
-                  : null
-              }
-              isSignedIn={Boolean(viewer)}
-              redirectUrl={redirectUrl}
-            />
+            <Suspense fallback={<ProductReviewsFallback />}>
+              <ProductReviewsServer
+                productId={product.id}
+                productName={product.name}
+                reviewSummary={reviewSummary}
+                redirectUrl={redirectUrl}
+              />
+            </Suspense>
             <StickyBanner className="w-full" />
             {similarProductCardItems.length ? (
               <section className="space-y-4">
@@ -797,11 +869,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         sidebar={
           <div className="flex flex-col gap-6">
             <div className="hidden lg:block">
-              <ProductUpvoteBadge
-                productId={product.id}
-                count={product.analytics?.upvotes ?? 0}
-                initialUpvoted={viewerUpvoted}
-              />
+              <Suspense fallback={<ProductUpvoteBadgeFallback />}>
+                <ProductUpvoteBadgeServer
+                  productId={product.id}
+                  upvoteCount={product.analytics?.upvotes ?? 0}
+                />
+              </Suspense>
             </div>
             <div className="hidden lg:block">{productDetailsCard}</div>
             <div className="hidden lg:block">
