@@ -68,13 +68,17 @@ function buildNewViewSections(items: HomepageFeedItem[]): FeedSection[] {
     const createdTime = created.getTime()
     const resolvedDate = Number.isNaN(createdTime) ? startToday : created
 
-    let bucketKey: BucketKey = "thisWeek"
+    let bucketKey: BucketKey | null = null
     if (resolvedDate >= startToday) {
       bucketKey = "today"
     } else if (resolvedDate >= startYesterday) {
       bucketKey = "yesterday"
     } else if (resolvedDate >= startOfCurrentWeek) {
       bucketKey = "thisWeek"
+    }
+
+    if (!bucketKey) {
+      return
     }
 
     const bucket = buckets.get(bucketKey)
