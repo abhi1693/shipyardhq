@@ -86,7 +86,6 @@ export async function generateStaticParams() {
     where: { status: "published" },
     select: { slug: true },
     orderBy: { updatedAt: "desc" },
-    take: 2000,
   })
 
   return slugs
