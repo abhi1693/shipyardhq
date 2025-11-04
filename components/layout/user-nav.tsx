@@ -13,10 +13,17 @@ import { UserAvatarProfile } from "@/components/molecules/UserAvatarProfile"
 import { SignOutButton, useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { LogOut, User as UserIcon } from "lucide-react"
-import { MEMBER_ACCOUNT_PROFILE_PATH } from "@/lib/routes"
-export function UserNav() {
+import { MEMBER_ACCOUNT_PROFILE_PATH, MEMBER_REWARDS_PATH } from "@/lib/routes"
+import { RewardMenuItemContent } from "@/components/molecules/RewardMenuItemContent"
+
+type UserNavProps = {
+  rewardBalance?: number | null
+}
+
+export function UserNav({ rewardBalance }: UserNavProps) {
   const { user } = useUser()
   const router = useRouter()
+  const rewardsValue = rewardBalance ?? 0
   if (user) {
     return (
       <DropdownMenu>
@@ -45,6 +52,15 @@ export function UserNav() {
               </p>
             </div>
           </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              className="items-start"
+              onClick={() => router.push(MEMBER_REWARDS_PATH)}
+            >
+              <RewardMenuItemContent balance={rewardsValue} />
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem

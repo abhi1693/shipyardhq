@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { Button } from "@/components/atoms/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/atoms/sheet"
@@ -12,12 +12,14 @@ import clsx from "clsx"
 import { SignOutButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs"
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import SignInButton from "@/components/molecules/SignInButton"
+import { getCurrentUserRewardBalanceAction } from "@/actions/member/rewards/get-reward-balance"
 import {
   ANALYTICS_PATH,
   BROWSE_PATH,
   LEADERBOARD_PATH,
   MEMBER_BASE_PATH,
   MEMBER_ACCOUNT_PROFILE_PATH,
+  MEMBER_REWARDS_PATH,
   MEMBER_NOTIFICATIONS_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
@@ -32,6 +34,7 @@ import {
 } from "@/components/atoms/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { useRouter } from "next/navigation"
+import { RewardMenuItemContent } from "@/components/molecules/RewardMenuItemContent"
 
 const navLinks = [
   { label: "Browse", href: BROWSE_PATH },
@@ -47,6 +50,7 @@ export default function PublicHeader() {
   const [open, setOpen] = useState(false)
   const router = useRouter()
   const { user } = useUser()
+  const [rewardBalance, setRewardBalance] = useState<number | null>(null)
 
   const userInitials = (() => {
     const nameInitials = user?.fullName
@@ -76,6 +80,31 @@ export default function PublicHeader() {
     source: "navbar",
   }).toString()
   const navbarAuthRedirectUrl = `${MEMBER_BASE_PATH}?${navbarAuthSearch}`
+
+  const userId = user?.id ?? null
+
+  useEffect(() => {
+    if (!userId) return undefined
+
+    let isCurrent = true
+    async function loadBalance() {
+      try {
+        const balance = await getCurrentUserRewardBalanceAction()
+        if (!isCurrent) return
+        setRewardBalance(balance)
+      } catch {
+        if (isCurrent) {
+          setRewardBalance(null)
+        }
+      }
+    }
+
+    loadBalance()
+
+    return () => {
+      isCurrent = false
+    }
+  }, [userId])
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-white shadow-[0_18px_48px_-26px_rgba(17,24,39,0.35)]">
@@ -180,6 +209,15 @@ export default function PublicHeader() {
                       Dashboard
                     </DropdownMenuItem>
                     <DropdownMenuItem
+                      className="cursor-pointer items-start"
+                      onSelect={(event) => {
+                        event.preventDefault()
+                        router.push(MEMBER_REWARDS_PATH)
+                      }}
+                    >
+                      <RewardMenuItemContent balance={rewardBalance ?? 0} />
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
                       className="cursor-pointer"
                       onSelect={(event) => {
                         event.preventDefault()
@@ -279,6 +317,13 @@ export default function PublicHeader() {
                         className="inline-flex w-full items-center justify-between rounded-xl border border-border/60 bg-white/80 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted/60"
                       >
                         Notifications
+                      </Link>
+                      <Link
+                        href={MEMBER_REWARDS_PATH}
+                        onClick={() => setOpen(false)}
+                        className="inline-flex w-full items-center rounded-xl border border-border/60 bg-white/80 px-4 py-2 text-left text-sm font-semibold text-foreground transition hover:bg-muted/60"
+                      >
+                        <RewardMenuItemContent balance={rewardBalance ?? 0} />
                       </Link>
                       <Link
                         href={MEMBER_BASE_PATH}
