@@ -1,5 +1,3 @@
-export const revalidate = 60
-
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
@@ -63,6 +61,7 @@ import {
 import { siteConfig } from "@/lib/siteConfig"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import { addUtmParams } from "@/lib/marketing/utm"
+import prisma from "@/lib/prisma"
 import { hasPlanFeature } from "@/lib/features"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { buildPageMetadata } from "@/lib/metadata"
@@ -71,7 +70,6 @@ import {
   getProductReviewSummary,
   getUserProductReview,
 } from "@/lib/server/productReviews"
-import type { ProductReviewSummary } from "@/lib/server/productReviews"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { keywordToSlug } from "@/lib/tags"
@@ -79,6 +77,22 @@ import { formatTagLabel } from "@/app/(public)/tags/_utils"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
+}
+
+export const revalidate = 60
+
+export async function generateStaticParams() {
+  const slugs = await prisma.product.findMany({
+    where: { status: "published" },
+    select: { slug: true },
+    orderBy: { updatedAt: "desc" },
+    take: 2000,
+  })
+
+  return slugs
+    .map((entry) => entry.slug?.trim())
+    .filter((value): value is string => Boolean(value))
+    .map((slug) => ({ slug }))
 }
 
 export async function generateMetadata(
@@ -398,14 +412,13 @@ async function ProductUpvoteBadgeServer({
 async function ProductReviewsServer({
   productId,
   productName,
-  reviewSummary,
   redirectUrl,
 }: {
   productId: string
   productName: string
-  reviewSummary: ProductReviewSummary
   redirectUrl: string
 }) {
+  const reviewSummary = await getProductReviewSummary(productId, 6)
   const { isSignedIn, viewerReview } = await getViewerProductState(productId)
 
   return (
@@ -417,6 +430,63 @@ async function ProductReviewsServer({
       isSignedIn={isSignedIn}
       redirectUrl={redirectUrl}
     />
+  )
+}
+
+async function ProductUpdatesServer({
+  productId,
+  productSlug,
+}: {
+  productId: string
+  productSlug: string
+}) {
+  const updates = await getPublicProductUpdates(productId)
+  return <ProductUpdatesSection updates={updates} productSlug={productSlug} />
+}
+
+async function SimilarProductsServer({
+  productId,
+  useCaseSlug,
+}: {
+  productId: string
+  useCaseSlug: string
+}) {
+  if (!useCaseSlug) return null
+  const similarProducts = await getPublicProductsByUseCase(
+    useCaseSlug,
+    productId,
+    4,
+  )
+  if (!similarProducts.length) return null
+
+  const cardItems = similarProducts.map((item) =>
+    toProductCardItem({
+      id: item.id,
+      slug: item.slug,
+      name: item.name,
+      logo: item.logo ?? "",
+      tagline: item.tagline ?? "",
+      analytics: item.analytics
+        ? { upvotes: item.analytics.upvotes ?? 0 }
+        : undefined,
+      category: item.category
+        ? {
+            name: item.category.name ?? null,
+            slug: item.category.slug ?? null,
+          }
+        : undefined,
+    }),
+  )
+
+  return (
+    <section className="space-y-4">
+      <h2 className="text-lg font-semibold text-foreground">You may also like</h2>
+      <div className="space-y-3">
+        {cardItems.map((item) => (
+          <ProductCard key={item.id} product={item} />
+        ))}
+      </div>
+    </section>
   )
 }
 
@@ -432,6 +502,18 @@ function ProductReviewsFallback() {
   )
 }
 
+function ProductUpdatesFallback() {
+  return (
+    <div className="min-h-[14rem] animate-pulse rounded-2xl border border-border/70 bg-white" />
+  )
+}
+
+function SimilarProductsFallback() {
+  return (
+    <div className="h-48 animate-pulse rounded-2xl border border-border/70 bg-white" />
+  )
+}
+
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
   const product = await getPublicProductMetaBySlug(slug)
@@ -440,16 +522,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const sidebarProduct = await getPublicProductBySlug(slug)
   if (!sidebarProduct) return notFound()
 
-  const primaryUseCase = sidebarProduct.category?.useCases?.[0]?.useCase ?? null
-  const similarProductsPromise = primaryUseCase?.slug
-    ? getPublicProductsByUseCase(primaryUseCase.slug, product.id, 4)
-    : Promise.resolve([])
-
-  const [productUpdates, reviewSummary, similarProducts] = await Promise.all([
-    getPublicProductUpdates(product.id),
-    getProductReviewSummary(product.id, 6),
-    similarProductsPromise,
-  ])
+  const primaryUseCaseSlug =
+    sidebarProduct.category?.useCases?.[0]?.useCase?.slug ?? null
 
   const productOwner = sidebarProduct.user
   const ownerName = [productOwner?.firstName, productOwner?.lastName]
@@ -576,25 +650,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     "inline-flex w-full items-center gap-1.5 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-sm shadow-black/5 transition-colors hover:bg-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto"
   const primaryQuickLinkClass =
     "inline-flex w-full items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background shadow-sm shadow-black/10 transition-colors hover:bg-foreground/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto"
-  const similarProductBaseItems = similarProducts.map((item) => ({
-    id: item.id,
-    slug: item.slug,
-    name: item.name,
-    logo: item.logo ?? "",
-    tagline: item.tagline ?? "",
-    analytics: item.analytics
-      ? { upvotes: item.analytics.upvotes ?? 0 }
-      : undefined,
-    category: item.category
-      ? {
-          name: item.category.name ?? null,
-          slug: item.category.slug ?? null,
-        }
-      : undefined,
-  }))
-  const similarProductCardItems = similarProductBaseItems.map((item) =>
-    toProductCardItem(item),
-  )
   const productDetailsCard = (
     <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-5">
@@ -839,30 +894,27 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </div>
               </div>
             ) : null}
-            <ProductUpdatesSection
-              updates={productUpdates}
-              productSlug={product.slug}
-            />
+            <Suspense fallback={<ProductUpdatesFallback />}>
+              <ProductUpdatesServer
+                productId={product.id}
+                productSlug={product.slug}
+              />
+            </Suspense>
             <Suspense fallback={<ProductReviewsFallback />}>
               <ProductReviewsServer
                 productId={product.id}
                 productName={product.name}
-                reviewSummary={reviewSummary}
                 redirectUrl={redirectUrl}
               />
             </Suspense>
             <StickyBanner className="w-full" />
-            {similarProductCardItems.length ? (
-              <section className="space-y-4">
-                <h2 className="text-lg font-semibold text-foreground">
-                  You may also like
-                </h2>
-                <div className="space-y-3">
-                  {similarProductCardItems.map((item) => (
-                    <ProductCard key={item.id} product={item} />
-                  ))}
-                </div>
-              </section>
+            {primaryUseCaseSlug ? (
+              <Suspense fallback={<SimilarProductsFallback />}>
+                <SimilarProductsServer
+                  productId={product.id}
+                  useCaseSlug={primaryUseCaseSlug}
+                />
+              </Suspense>
             ) : null}
           </div>
         }
