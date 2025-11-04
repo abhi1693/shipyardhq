@@ -6,7 +6,7 @@ import {
   getRewardsLeaderboardEntries,
 } from "@/actions/public/rewards/actions"
 import { RewardLeaderboardLimitSelect } from "@/app/(public)/leaderboard/rewards/limit-select"
-import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
+import Hero from "@/components/organisms/directory/Hero"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import {
@@ -111,7 +111,7 @@ export async function RewardsLeaderboardPageContent({
     <main className="relative isolate bg-white">
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <div className="space-y-12">
-          <DirectoryHeader
+          <Hero
             stats={headerStats}
             eyebrow="Rewards leaderboard"
             title="Members leading Shipyard rewards"

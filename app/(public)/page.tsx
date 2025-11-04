@@ -2,9 +2,9 @@ import { Suspense } from "react"
 
 import { HomepageJsonLd } from "@/components/templates/public/homepage/json-ld"
 import {
-  DirectoryHeaderSection,
-  DirectoryHeaderSkeleton,
-} from "@/components/templates/public/homepage/directory-header"
+  HeroSection,
+  HeroSectionSkeleton,
+} from "@/components/templates/public/homepage/hero-section"
 import {
   ProductUpdatesSection,
   ProductUpdatesSkeleton,
@@ -33,8 +33,8 @@ export default async function HomePage() {
         sidebarClassName="lg:sticky lg:top-24"
         main={
           <>
-            <Suspense fallback={<DirectoryHeaderSkeleton />}>
-              <DirectoryHeaderSection />
+            <Suspense fallback={<HeroSectionSkeleton />}>
+              <HeroSection />
             </Suspense>
             <Suspense
               fallback={

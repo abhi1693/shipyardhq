@@ -25,7 +25,7 @@ type MetricConfig = {
   formatter?: (value: number) => string
 }
 
-interface DirectoryHeaderProps {
+interface HeroProps {
   stats: StatsShape
   eyebrow?: string
   title?: string
@@ -41,7 +41,7 @@ const HERO_PRIMARY_CLASSES =
 const HERO_SECONDARY_CLASSES =
   "inline-flex h-11 min-w-[12rem] items-center justify-center gap-2 rounded-full border border-border/80 bg-white px-6 text-sm font-semibold text-foreground shadow-[0_12px_28px_-24px_rgba(15,23,42,0.22)] transition hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)]/15 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
 
-export function DirectoryHeader({
+export function Hero({
   stats,
   eyebrow,
   title,
@@ -49,7 +49,7 @@ export function DirectoryHeader({
   primaryAction,
   secondaryAction,
   metrics = [],
-}: DirectoryHeaderProps) {
+}: HeroProps) {
   const resolvedEyebrow =
     typeof eyebrow === "string" && eyebrow.trim().length > 0
       ? eyebrow.trim()
@@ -164,4 +164,4 @@ export function DirectoryHeader({
   )
 }
 
-export default DirectoryHeader
+export default Hero

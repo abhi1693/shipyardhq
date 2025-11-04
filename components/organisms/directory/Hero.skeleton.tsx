@@ -6,26 +6,26 @@ import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { cn } from "@/lib/utils"
 
-interface DirectoryHeaderSkeletonProps extends React.ComponentProps<"div"> {
+interface HeroSkeletonProps extends React.ComponentProps<"div"> {
   metricCount?: number
   showSecondary?: boolean
   showPrimary?: boolean
 }
 
-export function DirectoryHeaderSkeleton({
+export function HeroSkeleton({
   className,
   metricCount = 4,
   showPrimary = true,
   showSecondary = true,
   ...props
-}: DirectoryHeaderSkeletonProps) {
+}: HeroSkeletonProps) {
   const metrics = Array.from({ length: Math.max(0, metricCount) })
   const hasMetrics = metrics.length > 0
 
   return (
     <div
       className={cn("space-y-8", className)}
-      data-slot="directory-header-skeleton"
+      data-slot="hero-skeleton"
       {...props}
     >
       <section className="relative overflow-hidden rounded-[32px] border border-[#E4E8F5] bg-white px-6 py-12 shadow-[0_45px_140px_-80px_rgba(28,35,51,0.65)] md:px-12 md:py-16">
@@ -107,4 +107,4 @@ export function DirectoryHeaderSkeleton({
   )
 }
 
-export default DirectoryHeaderSkeleton
+export default HeroSkeleton

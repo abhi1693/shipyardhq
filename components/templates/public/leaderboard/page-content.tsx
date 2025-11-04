@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import Link from "next/link"
 
 import { Button } from "@/components/atoms/button"
-import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
+import Hero from "@/components/organisms/directory/Hero"
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { IconAnchor, IconRadar, IconTargetArrow } from "@tabler/icons-react"
@@ -21,7 +21,7 @@ import {
 import { getLeaderboardPagePayload } from "@/lib/leaderboard/cache"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import { ProductUpdatesFeedSkeleton } from "@/components/molecules/ProductUpdatesFeed.skeleton"
-import DirectoryHeaderSkeleton from "@/components/organisms/directory/DirectoryHeader.skeleton"
+import HeroSkeleton from "@/components/organisms/directory/Hero.skeleton"
 import DirectoryProductListSkeleton from "@/components/organisms/directory/DirectoryProductList.skeleton"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 
@@ -68,7 +68,7 @@ export async function LeaderboardPageContent({
         sidebarClassName="lg:sticky lg:top-24 gap-8"
         main={
           <>
-            <DirectoryHeader
+            <Hero
               stats={stats}
               title="This month's leaderboard"
               description="Watch the Shipyard launches leading the board this month, updated as founders earn fresh momentum from the community."
@@ -163,7 +163,7 @@ export function LeaderboardPageSkeleton() {
         sidebarClassName="lg:sticky lg:top-24 gap-6"
         main={
           <>
-            <DirectoryHeaderSkeleton metricCount={0} />
+            <HeroSkeleton metricCount={0} />
             <section className="flex flex-col gap-8">
               <DirectoryProductListSkeleton count={12} showMetaBadge />
             </section>

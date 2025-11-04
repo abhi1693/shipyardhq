@@ -4,7 +4,7 @@ import { Suspense } from "react"
 import { EmptyState } from "@/components/molecules/empty-state"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
 import BrowseFilterBar from "@/components/molecules/BrowseFilterBar"
-import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
+import Hero from "@/components/organisms/directory/Hero"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
   SponsoredProductsSection,
@@ -107,7 +107,7 @@ export async function BrowsePageContent({
         sidebarClassName="lg:sticky lg:top-24"
         main={
           <>
-            <DirectoryHeader
+            <Hero
               stats={stats}
               eyebrow="Directory browse"
               title="Browse the Shipyard launch catalog"

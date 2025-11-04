@@ -2,7 +2,7 @@ import Link from "next/link"
 
 import { getPublicUsersWithCounts } from "@/actions/public/users/actions"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
-import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
+import Hero from "@/components/organisms/directory/Hero"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
 import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { MakerCard } from "@/components/molecules/directory/MakerCard"
@@ -68,7 +68,7 @@ export async function UsersIndexPageContent() {
     <main className="relative isolate bg-white">
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <div className="space-y-12">
-          <DirectoryHeader
+          <Hero
             stats={stats}
             eyebrow="Profile directory"
             title="Meet the people powering Shipyard"

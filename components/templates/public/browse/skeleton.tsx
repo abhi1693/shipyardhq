@@ -5,7 +5,7 @@ import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { ProductListSkeleton } from "@/components/molecules/ProductList.skeleton"
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
-import DirectoryHeaderSkeleton from "@/components/organisms/directory/DirectoryHeader.skeleton"
+import HeroSkeleton from "@/components/organisms/directory/Hero.skeleton"
 import { ProductUpdatesFeedSkeleton } from "@/components/molecules/ProductUpdatesFeed.skeleton"
 
 export function BrowsePageSkeleton() {
@@ -13,7 +13,7 @@ export function BrowsePageSkeleton() {
     <main className="relative isolate bg-white">
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <div className="space-y-12">
-          <DirectoryHeaderSkeleton />
+          <HeroSkeleton />
           <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
             <div className="flex flex-col gap-8">
               <FilterBarSkeleton />
