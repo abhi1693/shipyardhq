@@ -1,13 +1,15 @@
 "use client"
 
 import { Flame } from "lucide-react"
-import { useMemo } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { addDays, startOfDay, startOfWeek } from "date-fns"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import ProductFeedCard from "@/components/molecules/ProductFeedCard"
 import type { HomepageFeedView } from "@/lib/homepage/feed-views"
 import { cn } from "@/lib/utils"
+
+const REMAINING_PAGE_SIZE = 20
 
 export interface ProductFeedListProps {
   activeFilter: HomepageFeedView
@@ -184,6 +186,22 @@ export function ProductFeedList({
   showRemaining = false,
 }: ProductFeedListProps) {
   const view = activeFilter
+  const [remainingPages, setRemainingPages] = useState<Record<string, number>>({})
+  const remainingObserverRef = useRef<IntersectionObserver | null>(null)
+
+  useEffect(() => {
+    return () => {
+      remainingObserverRef.current?.disconnect()
+      remainingObserverRef.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!showRemaining || view !== "new") {
+      remainingObserverRef.current?.disconnect()
+      remainingObserverRef.current = null
+    }
+  }, [showRemaining, view])
 
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
@@ -239,6 +257,15 @@ export function ProductFeedList({
     return ids
   }, [sections, showRemaining, view])
 
+  const remainingKey = useMemo(() => {
+    if (!showRemaining || view !== "new") {
+      return "disabled"
+    }
+
+    const ids = sortedItems.map((item) => item.id).join("|")
+    return `${view}:${ids}`
+  }, [showRemaining, sortedItems, view])
+
   const remainingItems = useMemo(() => {
     if (view !== "new" || !showRemaining) {
       return [] as HomepageFeedItem[]
@@ -251,6 +278,26 @@ export function ProductFeedList({
     return sortedItems.filter((item) => !sectionProductIds.has(item.id))
   }, [sectionProductIds, showRemaining, sortedItems, view])
 
+  const remainingPage = useMemo(() => {
+    if (!showRemaining || view !== "new") {
+      return 1
+    }
+
+    return remainingPages[remainingKey] ?? 1
+  }, [remainingKey, remainingPages, showRemaining, view])
+
+  const visibleRemainingItems = useMemo(() => {
+    if (!showRemaining || view !== "new") {
+      return [] as HomepageFeedItem[]
+    }
+
+    return remainingItems.slice(0, remainingPage * REMAINING_PAGE_SIZE)
+  }, [remainingItems, remainingPage, showRemaining, view])
+
+  const hasMoreRemaining =
+    showRemaining && view === "new" &&
+    visibleRemainingItems.length < remainingItems.length
+
   const hasSectionedContent = sections.some((section) =>
     section.kind === "bucket"
       ? section.rows.some((row) => row.kind === "product")
@@ -258,8 +305,43 @@ export function ProductFeedList({
   )
 
   const hasRemainingContent =
-    showRemaining && view === "new" && remainingItems.length > 0
+    showRemaining && view === "new" && visibleRemainingItems.length > 0
   const hasFallbackContent = view !== "new" && sortedItems.length > 0
+
+  const remainingLoaderRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (remainingObserverRef.current) {
+        remainingObserverRef.current.disconnect()
+        remainingObserverRef.current = null
+      }
+
+      if (!node || !showRemaining || view !== "new" || !hasMoreRemaining) {
+        return
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0]
+          if (entry?.isIntersecting) {
+            observer.disconnect()
+            remainingObserverRef.current = null
+            setRemainingPages((prev) => {
+              const current = prev[remainingKey] ?? 1
+              return {
+                ...prev,
+                [remainingKey]: current + 1,
+              }
+            })
+          }
+        },
+        { rootMargin: "0px 0px 200px", threshold: 0.1 },
+      )
+
+      observer.observe(node)
+      remainingObserverRef.current = observer
+    },
+    [hasMoreRemaining, remainingKey, showRemaining, view],
+  )
 
   const emptyState =
     !hasSectionedContent &&
@@ -294,10 +376,18 @@ export function ProductFeedList({
           </div>
         ) : null}
         <div className="space-y-4">
-          {remainingItems.map((item) => (
+          {visibleRemainingItems.map((item) => (
             <ProductFeedCard key={`remaining-${item.id}`} item={item} />
           ))}
         </div>
+        {hasMoreRemaining ? (
+          <div
+            ref={remainingLoaderRef}
+            className="flex justify-center py-4 text-sm text-slate-500"
+          >
+            Loading more launches…
+          </div>
+        ) : null}
       </section>
     ) : null
 
