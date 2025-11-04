@@ -1,8 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useUser } from "@clerk/nextjs"
-import { usePathname, useSearchParams } from "next/navigation"
 import { Crown } from "lucide-react"
 
 import SignInButton from "@/components/molecules/SignInButton"
@@ -22,8 +21,6 @@ export function ProductUpvoteBadge({
   initialUpvoted,
 }: ProductUpvoteBadgeProps) {
   const { isSignedIn } = useUser()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
 
   const [state, setState] = useState(() => ({
     upvotes: count,
@@ -33,6 +30,7 @@ export function ProductUpvoteBadge({
   }))
 
   const previous = useRef(state)
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
 
   useEffect(() => {
     const next = {
@@ -45,17 +43,15 @@ export function ProductUpvoteBadge({
     previous.current = next
   }, [count, initialUpvoted])
 
-  const search = useMemo(() => {
-    if (!searchParams) return ""
-    const value = searchParams.toString()
-    return value ? `?${value}` : ""
-  }, [searchParams])
-
-  const redirectPath = useMemo(() => {
-    const basePath = pathname ?? "/"
-    const hash = typeof window !== "undefined" ? window.location.hash : ""
-    return `${basePath}${search}${hash}`
-  }, [pathname, search])
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    if (isSignedIn) {
+      setRedirectUrl(null)
+      return
+    }
+    const { pathname, search, hash } = window.location
+    setRedirectUrl(`${pathname}${search}${hash}`)
+  }, [isSignedIn])
 
   async function handleToggle() {
     if (state.pending || state.upvoted) return
@@ -156,8 +152,8 @@ export function ProductUpvoteBadge({
   ) : (
     <SignInButton
       mode="modal"
-      forceRedirectUrl={redirectPath}
-      signUpForceRedirectUrl={redirectPath}
+      forceRedirectUrl={redirectUrl ?? undefined}
+      signUpForceRedirectUrl={redirectUrl ?? undefined}
     >
       <span
         className={cn(buttonClasses, "cursor-pointer")}

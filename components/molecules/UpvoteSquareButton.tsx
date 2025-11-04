@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useUser } from "@clerk/nextjs"
-import { usePathname, useSearchParams } from "next/navigation"
 import { VoteCount } from "@/components/molecules/VoteCount"
 import SignInButton from "@/components/molecules/SignInButton"
 
@@ -28,8 +27,6 @@ export default function UpvoteSquareButton({
   onVoteChange,
 }: Props) {
   const { isSignedIn } = useUser()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
   const baseState = useMemo<State>(
     () => ({
       upvotes: initialCount,
@@ -41,7 +38,7 @@ export default function UpvoteSquareButton({
   const [state, setState] = useState<State>(baseState)
   const [pop, setPop] = useState(false)
   const [pending, setPending] = useState(false)
-  const [hash, setHash] = useState("")
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
   const prev = useRef<State>(baseState)
 
   useEffect(() => {
@@ -63,19 +60,13 @@ export default function UpvoteSquareButton({
 
   useEffect(() => {
     if (typeof window === "undefined") return
-    setHash(window.location.hash ?? "")
-  }, [])
-
-  const search = useMemo(() => {
-    if (!searchParams) return ""
-    const value = searchParams.toString()
-    return value ? `?${value}` : ""
-  }, [searchParams])
-
-  const redirectPath = useMemo(() => {
-    const basePath = pathname ?? "/"
-    return `${basePath}${search}${hash}`
-  }, [pathname, search, hash])
+    if (isSignedIn) {
+      setRedirectUrl(null)
+      return
+    }
+    const { pathname, search, hash } = window.location
+    setRedirectUrl(`${pathname}${search}${hash}`)
+  }, [isSignedIn])
 
   async function handleClick() {
     if (pending || !isSignedIn || state.upvoted) return
@@ -164,8 +155,8 @@ export default function UpvoteSquareButton({
     return (
       <SignInButton
         mode="modal"
-        forceRedirectUrl={redirectPath}
-        signUpForceRedirectUrl={redirectPath}
+        forceRedirectUrl={redirectUrl ?? undefined}
+        signUpForceRedirectUrl={redirectUrl ?? undefined}
       >
         {button}
       </SignInButton>
