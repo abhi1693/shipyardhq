@@ -6,17 +6,32 @@ import { productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/atoms/badge"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 
 interface StickyBannerProps {
   limit?: number
   className?: string
 }
 
+const getCachedStickyBannerProduct = cached(
+  async (limit: number) => getStickyBannerProducts(limit),
+  "sticky-banner:product",
+  {
+    ttl: DEFAULT_TTL.medium,
+    tags: () => [
+      TAGS.products,
+      TAGS.placement("stickyBanner"),
+      TAGS.planFeature("stickyBanner"),
+    ],
+    keyParts: ([limit]) => [`limit:${limit ?? 100}`],
+  },
+)
+
 export async function StickyBanner({
   limit = 100,
   className,
 }: StickyBannerProps) {
-  const product = await getStickyBannerProducts(limit)
+  const product = await getCachedStickyBannerProduct(limit)
 
   if (!product) {
     return null

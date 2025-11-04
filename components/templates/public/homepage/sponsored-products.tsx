@@ -7,6 +7,7 @@ import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
 import { PRICING_PATH, productPath } from "@/lib/routes"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 
 const SPONSOR_SLOT_COUNT = 3
 
@@ -184,9 +185,20 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
   )
 }
 
+const getCachedSponsorItems = cached(
+  async () => {
+    const placements = await getHomepageFeatureProducts(12)
+    return withPlaceholders(mapPlacementsToSponsors(placements))
+  },
+  "sponsored-products:section",
+  {
+    ttl: DEFAULT_TTL.medium,
+    tags: () => [TAGS.products, TAGS.placement("homepage")],
+  },
+)
+
 export async function SponsoredProductsSection() {
-  const placements = await getHomepageFeatureProducts(12)
-  const sponsors = withPlaceholders(mapPlacementsToSponsors(placements))
+  const sponsors = await getCachedSponsorItems()
 
   return (
     <section className="rounded-xl border border-border bg-white p-6 shadow-sm">
