@@ -615,9 +615,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       <Image
                         src={product.logo}
                         alt={`${product.name} logo`}
-                        width={80}
-                        height={80}
+                        fill
+                        sizes="(min-width: 640px) 80px, 64px"
                         priority
+                        className="h-full w-full object-cover"
                       />
                     </div>
                   ) : (
