@@ -1,13 +1,19 @@
 import Link from "next/link"
+import { Suspense } from "react"
 
 import { EmptyState } from "@/components/molecules/empty-state"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
 import BrowseFilterBar from "@/components/molecules/BrowseFilterBar"
 import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
-import { DirectoryCategoryRail } from "@/components/organisms/directory/CategoryRail"
-import { BrowseFeaturedCarousel } from "@/components/organisms/BrowseFeaturedCarousel"
-import { ProductUpdatesFeed } from "@/components/molecules/ProductUpdatesFeed"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+import {
+  SponsoredProductsSection,
+  SponsoredProductsSkeleton,
+} from "@/components/templates/public/homepage/sponsored-products"
+import {
+  ProductUpdatesSection,
+  ProductUpdatesSkeleton,
+} from "@/components/templates/public/homepage/product-updates"
 import {
   BROWSE_PATH,
   LEADERBOARD_PATH,
@@ -86,11 +92,9 @@ export async function BrowsePageContent({
     filters: normalizedFilters,
     products,
     hasMore,
-    featured,
     useCases,
     categories,
     stats,
-    latestProductUpdates,
     filterSummary,
     hasActiveFilters,
   } = await getBrowsePagePayload(parsedFilters)
@@ -119,6 +123,18 @@ export async function BrowsePageContent({
               }}
               metrics={browseMetrics}
             />
+
+            <Suspense
+              fallback={
+                <div className="lg:hidden">
+                  <SponsoredProductsSkeleton />
+                </div>
+              }
+            >
+              <div className="lg:hidden">
+                <SponsoredProductsSection />
+              </div>
+            </Suspense>
 
             <div className="flex flex-col gap-8">
               <BrowseFilterBar
@@ -180,9 +196,20 @@ export async function BrowsePageContent({
         }
         sidebar={
           <>
-            <BrowseFeaturedCarousel products={featured} />
-            <DirectoryCategoryRail categories={categories} />
-            <ProductUpdatesFeed updates={latestProductUpdates} />
+            <Suspense
+              fallback={
+                <div className="hidden lg:block">
+                  <SponsoredProductsSkeleton />
+                </div>
+              }
+            >
+              <div className="hidden lg:block">
+                <SponsoredProductsSection />
+              </div>
+            </Suspense>
+            <Suspense fallback={<ProductUpdatesSkeleton />}>
+              <ProductUpdatesSection />
+            </Suspense>
           </>
         }
       />
