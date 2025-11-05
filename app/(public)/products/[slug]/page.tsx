@@ -743,7 +743,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div className="flex items-start gap-5">
                   {product.logo ? (
-                    <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-border bg-white shadow-sm sm:h-20 sm:w-20">
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-border bg-white shadow-sm sm:h-20 sm:w-20">
                       <Image
                         src={product.logo}
                         alt={`${product.name} logo`}
@@ -754,7 +754,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       />
                     </div>
                   ) : (
-                    <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-border bg-muted text-lg font-semibold uppercase text-muted-foreground shadow-sm sm:h-20 sm:w-20">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-dashed border-border bg-muted text-lg font-semibold uppercase text-muted-foreground shadow-sm sm:h-20 sm:w-20">
                       {product.name.slice(0, 2)}
                     </div>
                   )}
