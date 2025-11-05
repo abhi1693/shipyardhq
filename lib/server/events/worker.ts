@@ -357,7 +357,6 @@ function hydratePayload(
 
   switch (event) {
     case "product.upvoted":
-    case "product.downvoted":
       return {
         ...data,
         occurredAt: reviveDate(data.occurredAt),

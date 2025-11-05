@@ -74,12 +74,6 @@ export type ProductUpvotedEvent = {
   upvoteId: string
   occurredAt: Date
 }
-export type ProductDownvotedEvent = {
-  productId: string
-  userId: string
-  upvoteId: string
-  occurredAt: Date
-}
 export type ProductReviewCreatedEvent = {
   reviewId: string
   productId: string
@@ -187,7 +181,6 @@ type AppEvents = {
   [APP_EVENTS.PRODUCT_CLICKED]: ProductClickedEvent
   [APP_EVENTS.PRODUCT_VIEWED]: ProductViewedEvent
   [APP_EVENTS.PRODUCT_UPVOTED]: ProductUpvotedEvent
-  [APP_EVENTS.PRODUCT_DOWNVOTED]: ProductDownvotedEvent
   [APP_EVENTS.PRODUCT_REVIEWED]: ProductReviewCreatedEvent
   [APP_EVENTS.PRODUCT_UPDATE_PUBLISHED]: ProductUpdatePublishedEvent
   [APP_EVENTS.BADGE_ASSIGNED]: BadgeAssignedEvent

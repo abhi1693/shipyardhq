@@ -16,7 +16,6 @@ export const APP_EVENTS = {
   PRODUCT_DELETED: "product.deleted",
   PRODUCT_CLICKED: "product.clicked",
   PRODUCT_UPVOTED: "product.upvoted",
-  PRODUCT_DOWNVOTED: "product.downvoted",
   PRODUCT_REVIEWED: "product.reviewed",
   PRODUCT_VIEWED: "product.viewed",
   PRODUCT_UPDATE_PUBLISHED: "product.update.published",

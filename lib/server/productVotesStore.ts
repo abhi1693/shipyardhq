@@ -2,7 +2,6 @@ import prisma from "@/lib/prisma"
 import {
   dispatchEventAsync,
   type AppEvents,
-  type ProductDownvotedEvent,
   type ProductUpvotedEvent,
 } from "@/lib/server/events"
 import "@/lib/server/rewards/listeners"
@@ -44,7 +43,7 @@ export async function toggleVoteState({
   productId: string
   userId: string
 }): Promise<VoteMutationResult> {
-  return mutateVote({ productId, userId, desiredState: "toggle" })
+  return mutateVote({ productId, userId })
 }
 
 export async function getLiveUpvoteCount(productId: string): Promise<number> {
@@ -54,8 +53,6 @@ export async function getLiveUpvoteCount(productId: string): Promise<number> {
   })
   return record?.upvotes ?? 0
 }
-
-type VoteMutationTarget = VoteState | "toggle"
 
 function scheduleEvent<K extends keyof AppEvents>(
   event: K,
@@ -71,15 +68,11 @@ function scheduleEvent<K extends keyof AppEvents>(
 async function mutateVote({
   productId,
   userId,
-  desiredState,
 }: {
   productId: string
   userId: string
-  desiredState: VoteMutationTarget
 }): Promise<VoteMutationResult> {
-  const now = new Date()
   let createdEvent: ProductUpvotedEvent | null = null
-  let removedEvent: ProductDownvotedEvent | null = null
 
   const mutation = await prisma.$transaction(async (tx) => {
     const existing = await tx.productUpvote.findUnique({
@@ -98,8 +91,8 @@ async function mutateVote({
         where: { productId },
       }))
 
-    if (desiredState === "toggle" && previousState === "upvoted") {
-      // Downvoting is disabled; once a user upvotes we keep the record.
+    if (previousState === "upvoted") {
+      // Upvotes are permanent; once a user upvotes we keep the record.
       return {
         previousState,
         newState: previousState,
@@ -107,68 +100,27 @@ async function mutateVote({
       }
     }
 
-    const targetState: VoteState =
-      desiredState === "toggle" ? "upvoted" : desiredState
-
-    if (targetState === previousState) {
-      return {
-        previousState,
-        newState: previousState,
-        upvotes: baseCount,
-      }
-    }
-
-    if (targetState === "upvoted") {
-      const created = await tx.productUpvote.create({
-        data: { productId, userId },
-        select: { id: true, createdAt: true },
-      })
-
-      createdEvent = {
-        productId,
-        userId,
-        upvoteId: created.id,
-        occurredAt: created.createdAt,
-      }
-
-      return {
-        previousState,
-        newState: "upvoted" as VoteState,
-        upvotes: baseCount + 1,
-      }
-    }
-
-    if (!existing) {
-      return {
-        previousState,
-        newState: previousState,
-        upvotes: baseCount,
-      }
-    }
-
-    await tx.productUpvote.delete({
-      where: { productId_userId: { productId, userId } },
+    const created = await tx.productUpvote.create({
+      data: { productId, userId },
+      select: { id: true, createdAt: true },
     })
 
-    removedEvent = {
+    createdEvent = {
       productId,
       userId,
-      upvoteId: existing.id,
-      occurredAt: now,
+      upvoteId: created.id,
+      occurredAt: created.createdAt,
     }
 
     return {
       previousState,
-      newState: "not_upvoted" as VoteState,
-      upvotes: Math.max(baseCount - 1, 0),
+      newState: "upvoted" as VoteState,
+      upvotes: baseCount + 1,
     }
   })
 
   if (createdEvent) {
     scheduleEvent("product.upvoted", createdEvent)
-  }
-  if (removedEvent) {
-    scheduleEvent("product.downvoted", removedEvent)
   }
 
   return mutation
