@@ -68,6 +68,7 @@ function toFeedItem(product: ProductCardItem): HomepageFeedItem {
     isSponsored,
     isVoted: Boolean(product.isVoted),
     variant,
+    shuffleRank: Math.random(),
   }
 }
 

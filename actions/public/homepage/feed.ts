@@ -75,6 +75,7 @@ export interface HomepageFeedItem {
   isSponsored: boolean
   isVoted: boolean
   variant?: ProductCardVariant
+  shuffleRank: number
 }
 
 export interface HomepageFeedPageResult {
@@ -146,6 +147,7 @@ function mapProductToFeedItem(
     isSponsored,
     isVoted: upvoted.has(product.id),
     variant: isSponsored ? "sponsored" : "default",
+    shuffleRank: Math.random(),
   }
 }
 

@@ -110,6 +110,7 @@ function mapProductCardItemToFeedItem(
     isSponsored,
     isVoted: Boolean(product.isVoted),
     variant,
+    shuffleRank: Math.random(),
   }
 }
 

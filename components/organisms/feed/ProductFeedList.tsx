@@ -44,6 +44,29 @@ type FeedSection =
       items: HomepageFeedItem[]
     }
 
+function compareBucketItems(a: HomepageFeedItem, b: HomepageFeedItem) {
+  const aRank = Number.isFinite(a.shuffleRank) ? a.shuffleRank : null
+  const bRank = Number.isFinite(b.shuffleRank) ? b.shuffleRank : null
+
+  if (aRank !== null && bRank !== null && aRank !== bRank) {
+    return aRank - bRank
+  }
+
+  if (aRank !== null) return -1
+  if (bRank !== null) return 1
+
+  const aTime = new Date(a.createdAt ?? "").getTime()
+  const bTime = new Date(b.createdAt ?? "").getTime()
+  const aHasTime = !Number.isNaN(aTime)
+  const bHasTime = !Number.isNaN(bTime)
+
+  if (aHasTime && bHasTime && aTime !== bTime) {
+    return bTime - aTime
+  }
+
+  return a.name.localeCompare(b.name)
+}
+
 function buildNewViewSections(items: HomepageFeedItem[]): FeedSection[] {
   if (items.length === 0) {
     return []
@@ -111,7 +134,7 @@ function buildNewViewSections(items: HomepageFeedItem[]): FeedSection[] {
     .map((bucket) => ({
       key: bucket.key,
       label: bucket.label,
-      items: buckets.get(bucket.key) ?? [],
+      items: [...(buckets.get(bucket.key) ?? [])].sort(compareBucketItems),
     }))
     .filter((bucket) => bucket.items.length > 0)
 
