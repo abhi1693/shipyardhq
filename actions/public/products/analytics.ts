@@ -71,7 +71,7 @@ export async function clickProductCardAction(formData: FormData) {
   } catch (err) {
     console.error("click publish scheduling failed", err)
   }
-  redirect(productPath(productSlug))
+  redirect(productSlug ? productPath(productSlug) : "/")
 }
 
 // For future use: track outbound link clicks distinctly if needed

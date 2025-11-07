@@ -6,6 +6,7 @@ import { Megaphone } from "lucide-react"
 import type { ProductUpdateFeedItem } from "@/types/product-updates"
 import { cn } from "@/lib/utils"
 import { BROWSE_PATH, productPath } from "@/lib/routes"
+import { ProductClickLink } from "@/components/molecules/ProductClickLink"
 
 type ProductUpdatesFeedProps = {
   updates: ProductUpdateFeedItem[]
@@ -56,9 +57,12 @@ export function ProductUpdatesFeed({
               })
 
           return (
-            <Link
+            <ProductClickLink
               key={update.id}
-              href={`${productUrl}#changelog`}
+              productId={update.product.id}
+              productSlug={update.product.slug}
+              href={productUrl}
+              formClassName="block"
               className="flex gap-3 rounded-xl border border-border/70 bg-white/95 p-3 shadow-xs transition hover:border-border hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
             >
               {update.product.logo ? (
@@ -94,7 +98,7 @@ export function ProductUpdatesFeed({
                   </p>
                 ) : null}
               </div>
-            </Link>
+            </ProductClickLink>
           )
         })}
       </div>

@@ -14,7 +14,12 @@ import { productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 type NextLinkProps = ComponentPropsWithoutRef<typeof Link>
-type FormElementProps = Omit<ComponentPropsWithoutRef<"form">, "action">
+type DataAttributes = Partial<
+  Record<`data-${string}`, string | number | boolean | undefined>
+>
+
+type FormElementProps = Omit<ComponentPropsWithoutRef<"form">, "action"> &
+  DataAttributes
 
 interface ProductClickLinkProps
   extends Omit<NextLinkProps, "href" | "children" | "onClick"> {
