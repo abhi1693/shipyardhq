@@ -4,7 +4,25 @@ import {
   cacheHit,
   cacheMiss,
 } from "@/lib/server/cache"
+
 const DEFAULT_TTL_SECONDS = 300
+const LOCAL_CACHE_TTL_MS = 60_000
+
+type LocalCacheEntry = {
+  user: ClerkUser
+  expiresAt: number
+}
+
+const globalForClerk = globalThis as unknown as {
+  __clerkUserLocalCache?: Map<string, LocalCacheEntry>
+}
+
+function getLocalCache() {
+  if (!globalForClerk.__clerkUserLocalCache) {
+    globalForClerk.__clerkUserLocalCache = new Map()
+  }
+  return globalForClerk.__clerkUserLocalCache
+}
 
 function resolveTtl(): number {
   const raw = process.env.CLERK_USER_CACHE_TTL_SECONDS
@@ -27,6 +45,12 @@ export async function getClerkUserByIdCached(
     throw new Error("Missing Clerk user ID")
   }
 
+  const localCache = getLocalCache()
+  const localEntry = localCache.get(clerkId)
+  if (localEntry && localEntry.expiresAt > Date.now()) {
+    return localEntry.user
+  }
+
   const cachedUser = await cacheHit<ClerkUser>({
     key: ["clerk", "user", clerkId],
     onError: (error) => {
@@ -38,6 +62,10 @@ export async function getClerkUserByIdCached(
   })
 
   if (cachedUser) {
+    localCache.set(clerkId, {
+      user: cachedUser,
+      expiresAt: Date.now() + LOCAL_CACHE_TTL_MS,
+    })
     return cachedUser
   }
 
@@ -54,6 +82,11 @@ export async function getClerkUserByIdCached(
         error,
       })
     },
+  })
+
+  localCache.set(clerkId, {
+    user: clerkUser,
+    expiresAt: Date.now() + LOCAL_CACHE_TTL_MS,
   })
 
   return clerkUser

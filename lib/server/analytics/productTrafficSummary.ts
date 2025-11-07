@@ -304,7 +304,6 @@ async function buildTrafficSummary(
   const rangeStart = subDays(today, windowDays - 1)
   const previousStart = subDays(rangeStart, windowDays)
   const previousEnd = subDays(rangeStart, 1)
-
   const productId = extractProductId(where)
   const targetProductIds = explicitProductIds?.length
     ? Array.from(new Set(explicitProductIds))
@@ -328,6 +327,42 @@ async function buildTrafficSummary(
   })
   const cacheTtlSeconds = resolveCacheTtl(cacheTier)
 
+  const trafficEventSelect = includeAdvancedMetrics
+    ? ({
+        createdAt: true,
+        device: true,
+        browser: true,
+        os: true,
+        country: true,
+        region: true,
+        city: true,
+        referrer: true,
+        ipHash: true,
+        path: true,
+        productId: true,
+        isBot: true,
+      } satisfies Prisma.ProductTrafficEventSelect)
+    : ({
+        createdAt: true,
+        ipHash: true,
+        isBot: true,
+      } satisfies Prisma.ProductTrafficEventSelect)
+
+  const previousTrafficEventSelect = includeAdvancedMetrics
+    ? ({
+        createdAt: true,
+        ipHash: true,
+        path: true,
+        country: true,
+        productId: true,
+        isBot: true,
+      } satisfies Prisma.ProductTrafficEventSelect)
+    : ({
+        createdAt: true,
+        ipHash: true,
+        isBot: true,
+      } satisfies Prisma.ProductTrafficEventSelect)
+
   const cachedSummary = await cacheHit<ProductTrafficSummary>({
     key: cacheKey,
     onError: (error) => {
@@ -343,7 +378,6 @@ async function buildTrafficSummary(
       })
     },
   })
-
   if (cachedSummary) {
     return cachedSummary
   }
@@ -353,20 +387,7 @@ async function buildTrafficSummary(
         ...where,
         createdAt: { gte: rangeStart },
       },
-      select: {
-        createdAt: true,
-        device: true,
-        browser: true,
-        os: true,
-        country: true,
-        region: true,
-        city: true,
-        referrer: true,
-        ipHash: true,
-        path: true,
-        productId: true,
-        isBot: true,
-      },
+      select: trafficEventSelect,
     }),
     previousComparison
       ? prisma.productTrafficEvent.findMany({
@@ -377,15 +398,7 @@ async function buildTrafficSummary(
               lte: previousEnd,
             },
           },
-          select: {
-            createdAt: true,
-            ipHash: true,
-            path: true,
-            country: true,
-            referrer: true,
-            productId: true,
-            isBot: true,
-          },
+          select: previousTrafficEventSelect,
         })
       : Promise.resolve([]),
   ])
@@ -581,17 +594,19 @@ async function buildTrafficSummary(
     }
 
     previousIncludedViews += 1
-    if (prev.path) {
+    if (includeAdvancedMetrics && "path" in prev && prev.path) {
       previousPathCounts.set(
         prev.path,
         (previousPathCounts.get(prev.path) ?? 0) + 1,
       )
     }
-    const prevCountryLabel = labelForCountry(prev.country)
-    previousCountryCounts.set(
-      prevCountryLabel,
-      (previousCountryCounts.get(prevCountryLabel) ?? 0) + 1,
-    )
+    if (includeAdvancedMetrics && "country" in prev) {
+      const prevCountryLabel = labelForCountry(prev.country)
+      previousCountryCounts.set(
+        prevCountryLabel,
+        (previousCountryCounts.get(prevCountryLabel) ?? 0) + 1,
+      )
+    }
   }
 
   const totalViews = includedViewCount
@@ -675,17 +690,23 @@ async function buildTrafficSummary(
       previousUpvoteWhere.product = { userId }
     }
 
+    const clickEventSelect = includeAdvancedMetrics
+      ? ({
+          createdAt: true,
+          device: true,
+          browser: true,
+          os: true,
+          referrer: true,
+        } satisfies Prisma.ProductClickEventSelect)
+      : ({
+          createdAt: true,
+        } satisfies Prisma.ProductClickEventSelect)
+
     ;[clickEvents, upvoteEvents, previousClickCount, previousUpvoteCount] =
       await Promise.all([
         prisma.productClickEvent.findMany({
           where: clickWhere,
-          select: {
-            createdAt: true,
-            device: true,
-            browser: true,
-            os: true,
-            referrer: true,
-          },
+          select: clickEventSelect,
         }),
         prisma.productUpvote.findMany({
           where: upvoteWhere,
@@ -734,27 +755,36 @@ async function buildTrafficSummary(
     entry.clicks += 1
     engagementCounts.set(key, entry)
 
-    const deviceKey = event.device ?? "unknown"
-    deviceClickCounts.set(
-      deviceKey,
-      (deviceClickCounts.get(deviceKey) ?? 0) + 1,
-    )
+    if (includeAdvancedMetrics) {
+      const deviceKey =
+        "device" in event && event.device ? event.device : "unknown"
+      deviceClickCounts.set(
+        deviceKey,
+        (deviceClickCounts.get(deviceKey) ?? 0) + 1,
+      )
 
-    const browserLabel = event.browser || "Unknown"
-    browserClickCounts.set(
-      browserLabel,
-      (browserClickCounts.get(browserLabel) ?? 0) + 1,
-    )
+      const browserValue =
+        "browser" in event && event.browser ? event.browser : "Unknown"
+      browserClickCounts.set(
+        browserValue,
+        (browserClickCounts.get(browserValue) ?? 0) + 1,
+      )
 
-    const osLabel = event.os || "Unknown"
-    osClickCounts.set(osLabel, (osClickCounts.get(osLabel) ?? 0) + 1)
+      const osValue =
+        "os" in event && event.os && event.os.trim().length
+          ? event.os
+          : "Unknown"
+      osClickCounts.set(osValue, (osClickCounts.get(osValue) ?? 0) + 1)
 
-    const { label: refLabel } = classifyReferrer(event.referrer)
-    referrerClickCounts.set(
-      refLabel,
-      (referrerClickCounts.get(refLabel) ?? 0) + 1,
-    )
-    clickTimeline.push({ createdAt: event.createdAt, referrer: refLabel })
+      const refSource =
+        "referrer" in event ? event.referrer ?? undefined : undefined
+      const { label: refLabel } = classifyReferrer(refSource)
+      referrerClickCounts.set(
+        refLabel,
+        (referrerClickCounts.get(refLabel) ?? 0) + 1,
+      )
+      clickTimeline.push({ createdAt: event.createdAt, referrer: refLabel })
+    }
   }
 
   for (const upvote of upvoteEvents) {

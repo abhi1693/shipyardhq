@@ -5,7 +5,10 @@ import AppSidebar from "@/components/layout/sidebar"
 import { NavItem } from "@/types"
 import { auth } from "@clerk/nextjs/server"
 import PageContainer from "@/components/layout/page-container"
-import { canOpenDodoBillingPortalByEmail } from "@/lib/dodoCustomerPortal"
+import {
+  ensureBillingPortalEligibility,
+  getCachedBillingPortalEligibility,
+} from "@/lib/dodoCustomerPortal"
 import { syncCurrentUserBilling } from "@/lib/server/billing"
 import MemberFooter from "@/components/layout/footers/member-footer"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
@@ -27,6 +30,71 @@ import {
 import { redirect } from "next/navigation"
 
 export const metadata = buildSectionMetadata({ section: "Member" })
+
+type SyncMap = Map<string, number>
+
+const globalMemberSyncState = globalThis as unknown as {
+  __memberClerkSyncMap?: SyncMap
+  __memberBillingSyncMap?: SyncMap
+}
+
+const CLERK_SYNC_INTERVAL_MS = 15 * 60 * 1000
+const BILLING_SYNC_INTERVAL_MS = 5 * 60 * 1000
+
+function getSyncMap(key: "clerk" | "billing"): SyncMap {
+  const storeKey =
+    key === "clerk" ? "__memberClerkSyncMap" : "__memberBillingSyncMap"
+  if (!globalMemberSyncState[storeKey]) {
+    globalMemberSyncState[storeKey] = new Map<string, number>()
+  }
+  return globalMemberSyncState[storeKey]!
+}
+
+function reserveSync(key: "clerk" | "billing", id: string, ttlMs: number) {
+  const map = getSyncMap(key)
+  const now = Date.now()
+  const last = map.get(id)
+  if (last && now - last < ttlMs) {
+    return false
+  }
+  map.set(id, now)
+  return true
+}
+
+function releaseSync(key: "clerk" | "billing", id: string) {
+  getSyncMap(key).delete(id)
+}
+
+function finalizeSync(key: "clerk" | "billing", id: string) {
+  getSyncMap(key).set(id, Date.now())
+}
+
+async function syncClerkUserInBackground(clerkId: string) {
+  try {
+    const clerkUser = await getClerkUserByIdCached(clerkId)
+    await syncUserFromClerk(clerkUser)
+    finalizeSync("clerk", clerkId)
+  } catch (error) {
+    releaseSync("clerk", clerkId)
+    console.error("Failed to sync Clerk user in background", {
+      clerkId,
+      error,
+    })
+  }
+}
+
+async function syncBillingInBackground(clerkId: string) {
+  try {
+    await syncCurrentUserBilling()
+    finalizeSync("billing", clerkId)
+  } catch (error) {
+    releaseSync("billing", clerkId)
+    console.error("Failed to sync billing in background", {
+      clerkId,
+      error,
+    })
+  }
+}
 
 const navItems: NavItem[] = [
   {
@@ -79,20 +147,14 @@ export default async function MemberLayout({
     redirect(signInPath)
   }
 
-  try {
-    const clerkUser = await getClerkUserByIdCached(userId)
-    await syncUserFromClerk(clerkUser)
-  } catch (error) {
-    console.error("Failed to load active member context", error)
-    redirect(signInPath)
+  if (reserveSync("clerk", userId, CLERK_SYNC_INTERVAL_MS)) {
+    void syncClerkUserInBackground(userId)
   }
 
   const activeUser = await requireActiveUserOrRedirect(userId)
 
-  try {
-    await syncCurrentUserBilling()
-  } catch (error) {
-    console.error("Failed to sync current user billing", error)
+  if (reserveSync("billing", userId, BILLING_SYNC_INTERVAL_MS)) {
+    void syncBillingInBackground(userId)
   }
 
   if (!activeUser.onboardedAt) {
@@ -124,7 +186,8 @@ export default async function MemberLayout({
 
   let hasBillingPortal = false
   if (activeUser?.email) {
-    hasBillingPortal = await canOpenDodoBillingPortalByEmail(activeUser.email)
+    hasBillingPortal = await getCachedBillingPortalEligibility(activeUser.email)
+    void ensureBillingPortalEligibility(activeUser.email)
   }
 
   const shouldShowBillingPortal = isBillingPortalEnvEnabled && hasBillingPortal

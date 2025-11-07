@@ -4,9 +4,10 @@ import {
   Card,
   CardContent,
 } from "@/components/atoms/card"
-import { currentUser } from "@clerk/nextjs/server"
+import { auth } from "@clerk/nextjs/server"
 import { getMemberTrafficOverview } from "@/actions/member/overview/actions"
 import { MemberAnalyticsCharts } from "@/components/templates/member/overview/analytics-charts"
+import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 
 const AGGREGATION_WINDOW_DAYS = 7
 
@@ -21,15 +22,20 @@ const numberFormatter = new Intl.NumberFormat("en-US", {
 })
 
 export async function MemberOverviewPageContent() {
-  const user = await currentUser()
+  const { userId } = await auth()
+  if (!userId) {
+    throw new Error("MemberOverviewPageContent requires an authenticated user")
+  }
 
-  const primaryEmail =
-    user?.primaryEmailAddress?.emailAddress ??
-    user?.emailAddresses?.[0]?.emailAddress ??
-    null
-  const emailHandle = primaryEmail ? primaryEmail.split("@")[0] : null
-  const displayName =
-    user?.firstName ?? user?.username ?? emailHandle ?? "Shipmate"
+  let displayName = "Shipmate"
+  try {
+    const clerkUser = await getClerkUserByIdCached(userId)
+    const primaryEmail = clerkUser.emailAddresses?.[0]?.emailAddress ?? null
+    const emailHandle = primaryEmail ? primaryEmail.split("@")[0] : null
+    displayName = clerkUser.firstName ?? emailHandle ?? "Shipmate"
+  } catch {
+    // fallback to default display name
+  }
 
   return (
     <div className="space-y-8">
@@ -43,14 +49,17 @@ export async function MemberOverviewPageContent() {
       </header>
 
       <Suspense fallback={<AnalyticsSectionSkeleton />}>
-        <MemberOverviewAnalyticsSection />
+        <MemberOverviewAnalyticsSection userId={userId} />
       </Suspense>
     </div>
   )
 }
 
-async function MemberOverviewAnalyticsSection() {
-  const summary = await getMemberTrafficOverview(AGGREGATION_WINDOW_DAYS)
+async function MemberOverviewAnalyticsSection({ userId }: { userId: string }) {
+  const summary = await getMemberTrafficOverview(
+    AGGREGATION_WINDOW_DAYS,
+    userId,
+  )
 
   const stats: StatDefinition[] = [
     { id: "views", label: "Views", value: summary.totalViews },
