@@ -30,6 +30,8 @@ type EngagementPoint = {
 interface MemberAnalyticsChartsProps {
   trafficData: TrafficPoint[]
   engagementData: EngagementPoint[]
+  hasTrafficActivity?: boolean
+  hasEngagementActivity?: boolean
 }
 
 const trafficChartConfig: ChartConfig = {
@@ -59,13 +61,21 @@ const numberFormatter = new Intl.NumberFormat("en-US", {
 export function MemberAnalyticsCharts({
   trafficData,
   engagementData,
+  hasTrafficActivity,
+  hasEngagementActivity,
 }: MemberAnalyticsChartsProps) {
-  const hasTrafficPoints = trafficData.some(
-    (point) => point.views > 0 || point.uniqueVisitors > 0,
-  )
-  const hasEngagementPoints = engagementData.some(
-    (point) => point.clicks > 0 || point.upvotes > 0,
-  )
+  const hasTrafficPoints =
+    typeof hasTrafficActivity === "boolean"
+      ? hasTrafficActivity
+      : trafficData.some(
+          (point) => point.views > 0 || point.uniqueVisitors > 0,
+        )
+  const hasEngagementPoints =
+    typeof hasEngagementActivity === "boolean"
+      ? hasEngagementActivity
+      : engagementData.some(
+          (point) => point.clicks > 0 || point.upvotes > 0,
+        )
 
   return (
     <section className="grid gap-4 lg:grid-cols-2">

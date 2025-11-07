@@ -58,6 +58,11 @@ export async function MemberOverviewPageContent() {
     upvotes: point.upvotes,
   }))
 
+  const hasTrafficActivity =
+    summary.totalViews > 0 || summary.uniqueVisitors > 0
+  const hasEngagementActivity =
+    summary.clicksInRange > 0 || summary.upvotesInRange > 0
+
   return (
     <div className="space-y-8">
       <header>
@@ -74,6 +79,8 @@ export async function MemberOverviewPageContent() {
       <MemberAnalyticsCharts
         trafficData={trafficData}
         engagementData={engagementData}
+        hasTrafficActivity={hasTrafficActivity}
+        hasEngagementActivity={hasEngagementActivity}
       />
     </div>
   )

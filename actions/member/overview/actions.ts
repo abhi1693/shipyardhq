@@ -585,6 +585,7 @@ export async function getMemberTrafficOverview(days = 7) {
     rangeDays: days,
     previousComparison: false,
     includeAdvanced: false,
+    includeEngagement: true,
     includeProductBreakdown: false,
     includeReferrerMatrix: false,
   })

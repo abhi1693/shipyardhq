@@ -40,6 +40,7 @@ interface SummaryOptions {
   includeProductBreakdown?: boolean
   includeReferrerMatrix?: boolean
   includeAdvanced?: boolean
+  includeEngagement?: boolean
   productIds?: string[]
   organizationId?: string
   userId?: string
@@ -55,6 +56,7 @@ interface TrafficCacheKeyParts {
   rangeDays: number
   previousComparison: boolean
   includeAdvanced: boolean
+  includeEngagement: boolean
   includeProductBreakdown: boolean
   includeReferrerMatrix: boolean
   cacheTier: CacheTier
@@ -77,6 +79,7 @@ function buildTrafficSummaryCacheKey(parts: TrafficCacheKeyParts): string {
     rangeDays,
     previousComparison,
     includeAdvanced,
+    includeEngagement,
     includeProductBreakdown,
     includeReferrerMatrix,
     cacheTier,
@@ -104,6 +107,7 @@ function buildTrafficSummaryCacheKey(parts: TrafficCacheKeyParts): string {
     `range:${rangeDays}`,
     `previous:${previousComparison ? 1 : 0}`,
     `advanced:${includeAdvanced ? 1 : 0}`,
+    `engagement:${includeEngagement ? 1 : 0}`,
     `productBreakdown:${includeProductBreakdown ? 1 : 0}`,
     `referrerMatrix:${includeReferrerMatrix ? 1 : 0}`,
     `tier:${cacheTier}`,
@@ -277,6 +281,7 @@ async function buildTrafficSummary(
     includeProductBreakdown: includeProductBreakdownOption,
     includeReferrerMatrix: includeReferrerMatrixOption,
     includeAdvanced = true,
+    includeEngagement = false,
     productIds: explicitProductIds,
     organizationId,
     includeBots = false,
@@ -284,6 +289,7 @@ async function buildTrafficSummary(
   } = options
 
   const includeAdvancedMetrics = includeAdvanced
+  const includeEngagementMetrics = includeAdvancedMetrics || includeEngagement
   const autoIncludeBreakdown =
     context === "global" || context === "organization"
   const includeProductBreakdown =
@@ -314,6 +320,7 @@ async function buildTrafficSummary(
     rangeDays: windowDays,
     previousComparison,
     includeAdvanced: includeAdvancedMetrics,
+    includeEngagement: includeEngagementMetrics,
     includeProductBreakdown,
     includeReferrerMatrix,
     cacheTier,
@@ -614,7 +621,7 @@ async function buildTrafficSummary(
   let previousClickCount = 0
   let previousUpvoteCount = 0
 
-  if (includeAdvancedMetrics) {
+  if (includeEngagementMetrics) {
     const rangeEnd = addDays(today, 1)
     const previousRangeStart = previousStart
     const previousRangeEnd = rangeStart
@@ -661,6 +668,11 @@ async function buildTrafficSummary(
       previousClickWhere.product = { organizationId }
       upvoteWhere.product = { organizationId }
       previousUpvoteWhere.product = { organizationId }
+    } else if (context === "member" && userId) {
+      clickWhere.product = { userId }
+      previousClickWhere.product = { userId }
+      upvoteWhere.product = { userId }
+      previousUpvoteWhere.product = { userId }
     }
 
     ;[clickEvents, upvoteEvents, previousClickCount, previousUpvoteCount] =
