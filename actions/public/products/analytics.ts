@@ -7,7 +7,6 @@ import { after } from "next/server"
 
 import { trackProductClicked } from "@/lib/server/analytics/productClicks"
 import "@/lib/server/analytics/productClicks" // ensure listeners are registered
-import { allowOncePerWindow } from "@/lib/server/rateLimit"
 import { getClientIp } from "@/lib/server/ip"
 import { productPath } from "@/lib/routes"
 import {
@@ -37,42 +36,38 @@ export async function clickProductCardAction(formData: FormData) {
   if (!productId) return redirect("/")
   try {
     const ip = await getClientIp()
-    const key = `click:${productId}:${ip}`
-    const WINDOW_MS = 10_000
-    if (allowOncePerWindow(key, WINDOW_MS)) {
-      const hdrs = await headers()
-      const userAgent = hdrs.get("user-agent")
-      const secChUaMobile = hdrs.get("sec-ch-ua-mobile")
-      const secChUa = hdrs.get("sec-ch-ua")
-      const secChUaPlatform = hdrs.get("sec-ch-ua-platform")
-      const device = inferDeviceCategory(userAgent, secChUaMobile)
-      const browser = parseBrowser(userAgent, secChUa)
-      const os = parseOs(userAgent, secChUaPlatform)
-      const referrerHeader = hdrs.get("referer") ?? hdrs.get("referrer")
-      const country = hdrs.get("x-vercel-ip-country")
-      const region = hdrs.get("x-vercel-ip-country-region")
-      const city = decodeNullable(hdrs.get("x-vercel-ip-city"))
-      const ipHash = hashIpAddress(ip)
-      const metadata = {
-        referrer: sanitizeReferrer(referrerHeader),
-        userAgent,
-        device,
-        browser,
-        os,
-        country,
-        region,
-        city,
-        ipHash,
-      }
-
-      after(async () => {
-        try {
-          await trackProductClicked(productId, metadata)
-        } catch (err) {
-          console.error("click publish failed", err)
-        }
-      })
+    const hdrs = await headers()
+    const userAgent = hdrs.get("user-agent")
+    const secChUaMobile = hdrs.get("sec-ch-ua-mobile")
+    const secChUa = hdrs.get("sec-ch-ua")
+    const secChUaPlatform = hdrs.get("sec-ch-ua-platform")
+    const device = inferDeviceCategory(userAgent, secChUaMobile)
+    const browser = parseBrowser(userAgent, secChUa)
+    const os = parseOs(userAgent, secChUaPlatform)
+    const referrerHeader = hdrs.get("referer") ?? hdrs.get("referrer")
+    const country = hdrs.get("x-vercel-ip-country")
+    const region = hdrs.get("x-vercel-ip-country-region")
+    const city = decodeNullable(hdrs.get("x-vercel-ip-city"))
+    const ipHash = hashIpAddress(ip)
+    const metadata = {
+      referrer: sanitizeReferrer(referrerHeader),
+      userAgent,
+      device,
+      browser,
+      os,
+      country,
+      region,
+      city,
+      ipHash,
     }
+
+    after(async () => {
+      try {
+        await trackProductClicked(productId, metadata)
+      } catch (err) {
+        console.error("click publish failed", err)
+      }
+    })
   } catch (err) {
     console.error("click publish scheduling failed", err)
   }
@@ -99,62 +94,58 @@ export async function clickExternalProductLinkAction(formData: FormData) {
 
   try {
     const ip = await getClientIp()
-    const key = `click:${productId}:${ip}`
-    const WINDOW_MS = 10_000
-    if (allowOncePerWindow(key, WINDOW_MS)) {
-      const { userId: clerkUserId } = await auth()
-      const viewer = clerkUserId
-        ? await getActiveUserByClerkId(clerkUserId)
-        : null
-      const viewerId = viewer?.id ?? null
+    const { userId: clerkUserId } = await auth()
+    const viewer = clerkUserId ? await getActiveUserByClerkId(clerkUserId) : null
+    const viewerId = viewer?.id ?? null
 
-      const hdrs = await headers()
-      const userAgent = hdrs.get("user-agent")
-      const secChUaMobile = hdrs.get("sec-ch-ua-mobile")
-      const secChUa = hdrs.get("sec-ch-ua")
-      const secChUaPlatform = hdrs.get("sec-ch-ua-platform")
-      const device = inferDeviceCategory(userAgent, secChUaMobile)
-      const browser = parseBrowser(userAgent, secChUa)
-      const os = parseOs(userAgent, secChUaPlatform)
-      const referrerHeader = hdrs.get("referer") ?? hdrs.get("referrer")
-      const country = hdrs.get("x-vercel-ip-country")
-      const region = hdrs.get("x-vercel-ip-country-region")
-      const city = decodeNullable(hdrs.get("x-vercel-ip-city"))
-      const ipHash = hashIpAddress(ip)
+    const hdrs = await headers()
+    const userAgent = hdrs.get("user-agent")
+    const secChUaMobile = hdrs.get("sec-ch-ua-mobile")
+    const secChUa = hdrs.get("sec-ch-ua")
+    const secChUaPlatform = hdrs.get("sec-ch-ua-platform")
+    const device = inferDeviceCategory(userAgent, secChUaMobile)
+    const browser = parseBrowser(userAgent, secChUa)
+    const os = parseOs(userAgent, secChUaPlatform)
+    const referrerHeader = hdrs.get("referer") ?? hdrs.get("referrer")
+    const country = hdrs.get("x-vercel-ip-country")
+    const region = hdrs.get("x-vercel-ip-country-region")
+    const city = decodeNullable(hdrs.get("x-vercel-ip-city"))
+    const ipHash = hashIpAddress(ip)
 
-      after(async () => {
-        try {
-          await trackProductClicked(productId, {
-            referrer: sanitizeReferrer(referrerHeader),
-            userAgent,
-            device,
-            browser,
-            os,
-            country,
-            region,
-            city,
-            ipHash,
-          })
-        } catch (err) {
-          console.error("click publish failed", err)
-        }
-
-        if (viewerId) {
-          try {
-            const ownerId = await getProductOwnerId(productId)
-            if (!ownerId || ownerId !== viewerId) {
-              await awardProductVisitReward({
-                userId: viewerId,
-                productId,
-                destination: to,
-              })
-            }
-          } catch (err) {
-            console.error("reward award failed for product CTA click", err)
-          }
-        }
-      })
+    const metadata = {
+      referrer: sanitizeReferrer(referrerHeader),
+      userAgent,
+      device,
+      browser,
+      os,
+      country,
+      region,
+      city,
+      ipHash,
     }
+
+    after(async () => {
+      try {
+        await trackProductClicked(productId, metadata)
+      } catch (err) {
+        console.error("click publish failed", err)
+      }
+
+      if (viewerId) {
+        try {
+          const ownerId = await getProductOwnerId(productId)
+          if (!ownerId || ownerId !== viewerId) {
+            await awardProductVisitReward({
+              userId: viewerId,
+              productId,
+              destination: to,
+            })
+          }
+        } catch (err) {
+          console.error("reward award failed for product CTA click", err)
+        }
+      }
+    })
   } catch (err) {
     console.error("click publish scheduling failed", err)
   }

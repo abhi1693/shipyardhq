@@ -1,8 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
-import { useCallback, useRef, type ReactNode } from "react"
+import { type ReactNode } from "react"
 
 import { ArrowUpRight, Flame } from "lucide-react"
 
@@ -13,11 +12,10 @@ import {
   TooltipTrigger,
 } from "@/components/atoms/tooltip"
 import { VoteCount } from "@/components/molecules/VoteCount"
+import { ProductClickLink } from "@/components/molecules/ProductClickLink"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
-import { productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { BADGE_OPTIONS } from "@/lib/constants"
-import { clickProductCardAction } from "@/actions/public/products/analytics"
 import type { ProductCardVariant } from "@/types/product-card"
 
 const LOGO_SIZE = 60
@@ -124,24 +122,6 @@ export function ProductFeedCard({
   })
   const hasBadges = resolvedBadges.length > 0
 
-  const formRef = useRef<HTMLFormElement | null>(null)
-
-  const handleClick = useCallback(
-    (event: React.MouseEvent<HTMLAnchorElement>) => {
-      if (
-        event.metaKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        event.button === 1
-      )
-        return
-      if (event.defaultPrevented) return
-      event.preventDefault()
-      formRef.current?.requestSubmit()
-    },
-    [],
-  )
-
   const voteCount =
     typeof item.voteCount === "number" && Number.isFinite(item.voteCount)
       ? item.voteCount
@@ -239,28 +219,19 @@ export function ProductFeedCard({
     </article>
   )
 
-  const link = (
-    <Link
-      href={productPath(item.slug)}
+  return (
+    <ProductClickLink
+      productId={item.id}
+      productSlug={item.slug}
       className={cardClasses}
       data-testid="homepage-feed-card"
-      onClick={handleClick}
+      formProps={{
+        className: "h-full",
+        "data-testid": "homepage-feed-card-form",
+      }}
     >
       {cardContent}
-    </Link>
-  )
-
-  return (
-    <form
-      ref={formRef}
-      action={clickProductCardAction}
-      className="h-full"
-      data-testid="homepage-feed-card-form"
-    >
-      <input type="hidden" name="productId" value={item.id} />
-      <input type="hidden" name="productSlug" value={item.slug} />
-      {link}
-    </form>
+    </ProductClickLink>
   )
 }
 

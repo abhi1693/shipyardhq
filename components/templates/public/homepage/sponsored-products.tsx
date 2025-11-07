@@ -6,7 +6,8 @@ import { getHomepageFeatureProducts } from "@/actions/public/products/featured"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
-import { PRICING_PATH, productPath } from "@/lib/routes"
+import { ProductClickLink } from "@/components/molecules/ProductClickLink"
+import { PRICING_PATH } from "@/lib/routes"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 
 const SPONSOR_SLOT_COUNT = 3
@@ -175,13 +176,15 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
   }
 
   return (
-    <Link
-      href={productPath(item.slug)}
+    <ProductClickLink
+      productId={item.id}
+      productSlug={item.slug}
       prefetch={false}
       className="group block w-full px-2 py-4 text-sm transition hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+      formClassName="w-full"
     >
       {content}
-    </Link>
+    </ProductClickLink>
   )
 }
 
