@@ -58,11 +58,6 @@ const FEATURES = [
     description: "Add your own button/CTA",
   },
   {
-    key: "earlyAccess",
-    name: "Early Access",
-    description: "Access new features early",
-  },
-  {
     key: "newsletterPromotion",
     name: "Newsletter Promotion",
     description: "Promoted in email campaigns",

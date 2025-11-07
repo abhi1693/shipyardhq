@@ -86,7 +86,6 @@ const PLANS: PlanSeed[] = [
       { key: "homepage" },
       { key: "stickyBanner" },
       { key: "customCTA" },
-      { key: "earlyAccess" },
       { key: "newsletterPromotion" },
       { key: "backlink" },
       {
