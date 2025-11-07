@@ -1,9 +1,10 @@
+import { Suspense } from "react"
+
 import {
   Card,
   CardContent,
 } from "@/components/atoms/card"
 import { currentUser } from "@clerk/nextjs/server"
-
 import { getMemberTrafficOverview } from "@/actions/member/overview/actions"
 import { MemberAnalyticsCharts } from "@/components/templates/member/overview/analytics-charts"
 
@@ -20,10 +21,7 @@ const numberFormatter = new Intl.NumberFormat("en-US", {
 })
 
 export async function MemberOverviewPageContent() {
-  const [summary, user] = await Promise.all([
-    getMemberTrafficOverview(AGGREGATION_WINDOW_DAYS),
-    currentUser(),
-  ])
+  const user = await currentUser()
 
   const primaryEmail =
     user?.primaryEmailAddress?.emailAddress ??
@@ -32,6 +30,27 @@ export async function MemberOverviewPageContent() {
   const emailHandle = primaryEmail ? primaryEmail.split("@")[0] : null
   const displayName =
     user?.firstName ?? user?.username ?? emailHandle ?? "Shipmate"
+
+  return (
+    <div className="space-y-8">
+      <header>
+        <h1 className="text-2xl font-semibold text-slate-900">
+          Hi {displayName}, Welcome back{" "}
+          <span role="img" aria-label="Waving hand">
+            👋
+          </span>
+        </h1>
+      </header>
+
+      <Suspense fallback={<AnalyticsSectionSkeleton />}>
+        <MemberOverviewAnalyticsSection />
+      </Suspense>
+    </div>
+  )
+}
+
+async function MemberOverviewAnalyticsSection() {
+  const summary = await getMemberTrafficOverview(AGGREGATION_WINDOW_DAYS)
 
   const stats: StatDefinition[] = [
     { id: "views", label: "Views", value: summary.totalViews },
@@ -64,16 +83,7 @@ export async function MemberOverviewPageContent() {
     summary.clicksInRange > 0 || summary.upvotesInRange > 0
 
   return (
-    <div className="space-y-8">
-      <header>
-        <h1 className="text-2xl font-semibold text-slate-900">
-          Hi {displayName}, Welcome back{" "}
-          <span role="img" aria-label="Waving hand">
-            👋
-          </span>
-        </h1>
-      </header>
-
+    <>
       <AnalyticsStatRow stats={stats} />
 
       <MemberAnalyticsCharts
@@ -82,7 +92,7 @@ export async function MemberOverviewPageContent() {
         hasTrafficActivity={hasTrafficActivity}
         hasEngagementActivity={hasEngagementActivity}
       />
-    </div>
+    </>
   )
 }
 
@@ -105,5 +115,49 @@ function AnalyticsStatRow({ stats }: { stats: StatDefinition[] }) {
         </Card>
       ))}
     </section>
+  )
+}
+
+function AnalyticsSectionSkeleton() {
+  return (
+    <div className="space-y-6">
+      <AnalyticsStatRowSkeleton />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ChartCardSkeleton />
+        <ChartCardSkeleton />
+      </div>
+    </div>
+  )
+}
+
+function AnalyticsStatRowSkeleton() {
+  return (
+    <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <Card
+          key={`stat-skeleton-${index}`}
+          className="border border-slate-200 bg-white/80 shadow-sm"
+        >
+          <CardContent className="space-y-3 p-5">
+            <div className="h-3 w-24 rounded bg-slate-200/80 animate-pulse" />
+            <div className="h-9 w-32 rounded bg-slate-200/80 animate-pulse" />
+          </CardContent>
+        </Card>
+      ))}
+    </section>
+  )
+}
+
+function ChartCardSkeleton() {
+  return (
+    <Card className="border border-slate-200 bg-white">
+      <CardContent className="space-y-4 p-6">
+        <div className="space-y-2">
+          <div className="h-5 w-28 rounded bg-slate-200/80 animate-pulse" />
+          <div className="h-4 w-40 rounded bg-slate-200/80 animate-pulse" />
+        </div>
+        <div className="h-[240px] rounded-lg bg-slate-100 animate-pulse" />
+      </CardContent>
+    </Card>
   )
 }
