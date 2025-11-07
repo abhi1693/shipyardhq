@@ -38,6 +38,7 @@ import ProductShareBar from "@/components/molecules/ProductShareBar"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
 import ProductReviews from "@/components/organisms/ProductReviews"
+import ProductMetricsTracker from "@/components/pages/ProductMetricsTracker"
 import { ProductCard } from "@/components/molecules/ProductCard"
 import {
   Tooltip,
@@ -734,6 +735,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   return (
     <main className="bg-white">
       <ScrollReset triggerKey={product.slug} />
+      <ProductMetricsTracker productId={product.id} />
       <PublicTwoColumnLayout
         mainClassName="gap-8"
         sidebarClassName="lg:sticky lg:top-24"
