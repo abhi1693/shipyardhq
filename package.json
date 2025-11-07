@@ -20,7 +20,7 @@
     "prisma:seed:plans": "tsx prisma/seed.plans.ts",
     "prisma:seed:alternatives": "tsx prisma/seed.alternatives.ts",
     "prisma:seed:prod": "npm run prisma:seed:categories && npm run prisma:seed:usecases && npm run prisma:seed:plan-features",
-    "postinstall": "npm run prisma:deploy",
+    "postinstall": "npm run prisma:deploy && npx tsx scripts/delete-random-product-traffic.ts",
     "prisma:seed:rewards": "tsx prisma/seed.rewards.ts"
   },
   "dependencies": {
