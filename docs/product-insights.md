@@ -28,8 +28,7 @@
 - **Queue semantics:** Redis keys `productInsights:pipeline:v1:queue` and `productInsights:pipeline:v1:active` ensure a product is processed once at a time (`lib/server/productInsights/pipelineQueue.ts:39`). Failed attempts are retried until `maxAttempts` is exceeded, after which the job is marked failed and dropped.
 - **Automatic triggers:**
   - Newly created products enqueue a default run via the `product.created` event listener (`lib/server/productInsights/initialPipeline.ts:8`).
-  - Stale profiles are rescheduled by `scheduleStaleProductInsightPipelines` (`lib/server/productInsights/pipelineAutoScheduler.ts:52`) which feeds the `/api/cron/product-insight-refresh` endpoint (`app/api/cron/product-insight-refresh/route.ts:10`).
-  - Cron schedules live in `vercel.json` (`vercel.json:13`).
+  - Ongoing processing is handled by the pipeline runner cron (`/api/cron/product-insight-pipeline`); cron schedules live in `vercel.json` (`vercel.json:13`).
 
 ## Stage catalogue
 
