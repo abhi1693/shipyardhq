@@ -170,16 +170,17 @@ const CATALOG: CatalogSeed[] = [
     metadata: { surface: "featured" },
   },
   {
-    featureKey: REWARD_FEATURE_KEY.homepage,
-    planFeatureKey: REWARD_FEATURE_KEY.homepage,
-    name: "Homepage placement",
-    description: "Showcase on the homepage hero carousel for three days.",
+    featureKey: REWARD_FEATURE_KEY.sponsoredProducts,
+    planFeatureKey: REWARD_FEATURE_KEY.sponsoredProducts,
+    name: "Sponsored placement",
+    description:
+      "Reserve a sponsored placement featured across Shipyard for three days.",
     category: RewardFeatureCategory.exposure,
     baseCost: 300,
     durationSeconds: 3 * DAY,
     requiresProduct: true,
     maxPendingPerUser: 2,
-    metadata: { surface: "homepage" },
+    metadata: { surface: "sponsored-products" },
   },
   {
     featureKey: REWARD_FEATURE_KEY.stickyBanner,

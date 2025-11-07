@@ -4,7 +4,7 @@ import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import type { FeaturedProduct } from "@/types"
 import { featuredProductSelect } from "@/types"
 
-type HomepageProduct = Prisma.ProductGetPayload<{
+type SponsoredProduct = Prisma.ProductGetPayload<{
   select: {
     id: true
     slug: true
@@ -14,9 +14,9 @@ type HomepageProduct = Prisma.ProductGetPayload<{
   }
 }>
 
-export type HomepageFeaturePlacement = {
+export type SponsoredProductPlacement = {
   id: string
-  product: HomepageProduct
+  product: SponsoredProduct
   origin: "schedule" | "plan"
   schedule?: {
     id: string
@@ -298,12 +298,14 @@ export const getStickyBannerProducts = cached(
   },
 )
 
-// Get products that have the homepage plan feature enabled (for homepage spotlight)
-export const getHomepageFeatureProducts = cached(
+const SPONSORED_PLACEMENT_FEATURE_KEY = "sponsoredProducts" as const
+
+// Get products that have the sponsored placement plan feature enabled
+export const getSponsoredProducts = cached(
   async (limit = 12) => {
     const now = new Date()
     const effectiveLimit = Math.max(1, limit)
-    const homepageFeatureKey = "homepage"
+    const sponsoredFeatureKey = SPONSORED_PLACEMENT_FEATURE_KEY
     const activeStatus = PlacementStatus.active
 
     const scheduledRows = await prisma.$queryRaw<
@@ -325,7 +327,7 @@ export const getHomepageFeatureProducts = cached(
                ps."redemptionId" AS "redemptionId"
         FROM "PlacementSchedule" AS ps
         INNER JOIN "Product" AS p ON p.id = ps."productId"
-        WHERE ps."featureKey" = ${homepageFeatureKey}
+        WHERE ps."featureKey" = ${sponsoredFeatureKey}
           AND ps.status = CAST(${activeStatus} AS "PlacementStatus")
           AND ps."startsAt" <= ${now}
           AND ps."endsAt" >= ${now}
@@ -360,7 +362,7 @@ export const getHomepageFeatureProducts = cached(
                       ON f.id = a."featureId"
                     WHERE a."planId" = p."planId"
                       AND a.enabled = true
-                      AND f.key = ${homepageFeatureKey}
+                      AND f.key = ${sponsoredFeatureKey}
                   )
                   ${exclusionClause}
               ) AS ids
@@ -395,7 +397,7 @@ export const getHomepageFeatureProducts = cached(
     })
 
     const productMap = new Map(products.map((product) => [product.id, product]))
-    const placements: HomepageFeaturePlacement[] = []
+    const placements: SponsoredProductPlacement[] = []
     const seen = new Set<string>()
 
     for (const row of scheduledRows) {
@@ -433,13 +435,13 @@ export const getHomepageFeatureProducts = cached(
 
     return placements
   },
-  "products:homepage-feature",
+  "products:sponsored-products",
   {
     ttl: DEFAULT_TTL.fast,
     tags: () => [
       TAGS.products,
-      TAGS.placement("homepage"),
-      TAGS.planFeature("homepage"),
+      TAGS.placement("sponsoredProducts"),
+      TAGS.planFeature("sponsoredProducts"),
       TAGS.plans,
     ],
     keyParts: ([limit]) => [`limit:${limit ?? 12}`],

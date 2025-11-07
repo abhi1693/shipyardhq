@@ -421,7 +421,7 @@ export async function UserProfilePageContent({ params }: PageProps) {
             <DirectoryPromoCard
               eyebrow="Launch with Shipyard"
               title="Ready to publish your own product?"
-              description="Join Shipyard to unlock homepage features, leaderboard visibility, and analytics that help your next launch go further."
+              description="Join Shipyard to unlock sponsored placements, leaderboard visibility, and analytics that help your next launch go further."
               cta={{
                 label: "Submit your launch",
                 href: MEMBER_PRODUCTS_PATH,

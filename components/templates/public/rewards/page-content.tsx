@@ -158,7 +158,7 @@ export async function RewardsPageContent() {
             <p className="mx-auto max-w-3xl text-lg text-white/85">
               Contribute reviews, verify traction, and keep streaks alive to
               bank rewards. When you&apos;re ready, swap that momentum for
-              homepage features, analytics, and marquee placements.
+              sponsored placements, analytics, and marquee placements.
             </p>
           </div>
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
@@ -558,7 +558,7 @@ export async function RewardsPageContent() {
             </h2>
             <p className="text-sm text-muted-foreground">
               Catalog items mirror the perks available to Shipyard
-              teams—homepage features, analytics, promos, and utility boosts.
+              teams—sponsored placements, analytics, promos, and utility boosts.
               Queue them up as soon as your balance is ready.
             </p>
           </div>

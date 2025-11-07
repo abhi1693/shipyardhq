@@ -111,7 +111,8 @@ export function BuilderOutreachEmail({
         </li>
         <li>
           Share updates at your pace; when you&#39;re ready we can spotlight you
-          across the homepage, editorial newsletters, and community features.
+          via sponsored placements, editorial newsletters, and community
+          features.
         </li>
         <li>
           Review plan-specific analytics to understand what resonates and which
@@ -162,7 +163,7 @@ export function buildBuilderOutreachTextBody(firstName?: string | null) {
     "",
     "Here's how we help:",
     "- Work through guided checklists, templates, and examples so your listing hits the moments people expect.",
-    "- Share updates at your pace; when you're ready we can spotlight you across the homepage, editorial newsletters, and community features.",
+    "- Share updates at your pace; when you're ready we can spotlight you via sponsored placements, editorial newsletters, and community features.",
     "- Review plan-specific analytics to understand what resonates and which channels to lean on next.",
     "- Get weekly Shipyard Insights distilling performance data, competitor research, and community sentiment into next steps.",
     "",

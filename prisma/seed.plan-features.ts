@@ -43,9 +43,9 @@ const FEATURES = [
     description: "Listed higher in results",
   },
   {
-    key: "homepage",
-    name: "Homepage Placement",
-    description: "Visible on homepage",
+    key: "sponsoredProducts",
+    name: "Sponsored Placement",
+    description: "Reserve a sponsored slot across Shipyard",
   },
   {
     key: "stickyBanner",

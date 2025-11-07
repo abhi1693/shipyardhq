@@ -21,7 +21,7 @@ export const CORE_PERKS = [
   {
     icon: IconTargetArrow,
     title: "Flexible exposure",
-    body: "Dial in the reach you need—from free listings to homepage takeovers—with instant plan upgrades.",
+    body: "Dial in the reach you need—from free listings to sponsored placements—with instant plan upgrades.",
   },
   {
     icon: IconSparkles,
@@ -34,7 +34,7 @@ export const PRICING_FAQS = [
   {
     question: "Can I start for free and upgrade later?",
     answer:
-      "Absolutely. Every maker can list for free. Upgrade any product for extra reach—featured badges, homepage placement, newsletter spots—whenever you need a boost.",
+      "Absolutely. Every maker can list for free. Upgrade any product for extra reach—featured badges, sponsored placements, newsletter spots—whenever you need a boost.",
   },
   {
     question: "Which plans include Shipyard Insights?",

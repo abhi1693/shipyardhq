@@ -7,9 +7,9 @@ const REWARD_FEATURE_DEFINITIONS = {
     value: "featured",
     label: "Featured badge",
   },
-  homepage: {
-    value: "homepage",
-    label: "Homepage placement",
+  sponsoredProducts: {
+    value: "sponsoredProducts",
+    label: "Sponsored placement",
   },
   stickyBanner: {
     value: "stickyBanner",

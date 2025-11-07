@@ -61,7 +61,7 @@ const CORE_REASONS = [
     icon: <IconRocket size={24} />,
     title: "Promotion on your terms",
     description:
-      "Upgrade placements instantly—homepage spotlights, newsletter features, leaderboard boosts—without rebuilding your listing.",
+      "Upgrade placements instantly—sponsored placements, newsletter features, leaderboard boosts—without rebuilding your listing.",
   },
 ]
 

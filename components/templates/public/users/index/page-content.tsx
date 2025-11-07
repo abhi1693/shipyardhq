@@ -161,7 +161,7 @@ export async function UsersIndexPageContent() {
               <DirectoryPromoCard
                 eyebrow="Shipyard for makers"
                 title="Ready to launch your next product?"
-                description="Publish on Shipyard to get on the maker directory, earn homepage placements, and rally upvotes from the community."
+                description="Publish on Shipyard to get on the maker directory, earn sponsored placements, and rally upvotes from the community."
                 cta={{
                   label: "Submit your launch",
                   href: MEMBER_PRODUCTS_PATH,

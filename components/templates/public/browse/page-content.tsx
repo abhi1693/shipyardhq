@@ -111,7 +111,7 @@ export async function BrowsePageContent({
               stats={stats}
               eyebrow="Directory browse"
               title="Browse the Shipyard launch catalog"
-              description="We run the homepage spotlight, curate featured campaigns, and track momentum across editor picks, new arrivals, and the live leaderboard."
+              description="We run the sponsored placement spotlight, curate featured campaigns, and track momentum across editor picks, new arrivals, and the live leaderboard."
               primaryAction={{
                 label: "Submit your launch",
                 href: MEMBER_PRODUCTS_PATH,

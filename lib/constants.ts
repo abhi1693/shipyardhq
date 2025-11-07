@@ -35,7 +35,7 @@ export const PLAN_FEATURE_KEYS = [
   "product.sitemap",
   REWARD_FEATURE_KEY.featured,
   REWARD_FEATURE_KEY.priorityPlacement,
-  REWARD_FEATURE_KEY.homepage,
+  REWARD_FEATURE_KEY.sponsoredProducts,
   REWARD_FEATURE_KEY.stickyBanner,
   REWARD_FEATURE_KEY.customCTA,
   REWARD_FEATURE_KEY.newsletterPromotion,

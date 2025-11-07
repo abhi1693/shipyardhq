@@ -89,7 +89,8 @@ export function WelcomeEmail({
       <ul style={listStyle}>
         <li>Earn launch fuel by sharing honest signal with the community.</li>
         <li>
-          Redeem it for homepage placements, analytics boosts, and perk unlocks.
+          Redeem it for sponsored placements, analytics boosts, and perk
+          unlocks.
         </li>
       </ul>
 
@@ -178,7 +179,7 @@ export function buildWelcomeTextBody({
     rewardsUrl,
     "",
     "• Earn launch fuel by sharing honest signal with the community.",
-    "• Redeem it for homepage placements, analytics boosts, and perk unlocks.",
+    "• Redeem it for sponsored placements, analytics boosts, and perk unlocks.",
     "• Fleet Pulse tracks live balances, rolling trends, and ready-to-redeem perks.",
     "",
   ]

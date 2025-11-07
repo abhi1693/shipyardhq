@@ -185,7 +185,7 @@ export function ProductPublishedEmail({
       {Boolean(planName) && (
         <p style={paragraphStyle}>
           Your current plan: <strong>{planName}</strong>. Upgrade anytime for
-          homepage placement, newsletter promotion, and more visibility.
+          sponsored placements, newsletter promotion, and more visibility.
         </p>
       )}
 

@@ -62,7 +62,7 @@ const PLANS: PlanSeed[] = [
       { key: "product.sitemap" },
       { key: "featured" },
       { key: "priorityPlacement" },
-      { key: "homepage" },
+      { key: "sponsoredProducts" },
       {
         key: "insights.pipeline",
         config: { usageLimit: 1, usageInterval: "day" },
@@ -83,7 +83,7 @@ const PLANS: PlanSeed[] = [
       { key: "product.sitemap" },
       { key: "featured" },
       { key: "priorityPlacement" },
-      { key: "homepage" },
+      { key: "sponsoredProducts" },
       { key: "stickyBanner" },
       { key: "customCTA" },
       { key: "newsletterPromotion" },
@@ -107,7 +107,7 @@ const PLANS: PlanSeed[] = [
       { key: "analytics.advanced" },
       { key: "product.sitemap" },
       { key: "priorityPlacement" },
-      { key: "homepage" },
+      { key: "sponsoredProducts" },
       { key: "organization" },
       {
         key: "insights.pipeline",

@@ -87,8 +87,8 @@ export function MonthlyWinnerEmail({
         <p style={paragraphStyle}>
           As the flagship this month, you’ve hoisted our{" "}
           <strong>Editor’s Pick</strong>
-          ensign and earned a fresh spotlight on the homepage. Let the fleet see
-          that pennant flying high—your crew deserves the cheers.
+          ensign and earned a fresh sponsored placement. Let the fleet see that
+          pennant flying high—your crew deserves the cheers.
         </p>
       ) : null}
 

@@ -2,7 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Sparkles } from "lucide-react"
 
-import { getHomepageFeatureProducts } from "@/actions/public/products/featured"
+import { getSponsoredProducts } from "@/actions/public/products/featured"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
@@ -13,7 +13,7 @@ import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 const SPONSOR_SLOT_COUNT = 3
 
 type SponsorPlacement = Awaited<
-  ReturnType<typeof getHomepageFeatureProducts>
+  ReturnType<typeof getSponsoredProducts>
 >[number]
 
 type SponsorListItem =
@@ -190,13 +190,13 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
 
 const getCachedSponsorItems = cached(
   async () => {
-    const placements = await getHomepageFeatureProducts(12)
+    const placements = await getSponsoredProducts(1000)
     return withPlaceholders(mapPlacementsToSponsors(placements))
   },
   "sponsored-products:section",
   {
     ttl: DEFAULT_TTL.medium,
-    tags: () => [TAGS.products, TAGS.placement("homepage")],
+    tags: () => [TAGS.products, TAGS.placement("sponsoredProducts")],
   },
 )
 

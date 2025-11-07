@@ -7,13 +7,13 @@ Clear, fair tiers that start generous and scale with growth. Free is the default
 | Plan           | Type                |        Price |          Boost Window | Included Feature Keys                                                                                                                         | Primary Value                                                                        |
 | -------------- | ------------------- | -----------: | --------------------: | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | Free (Default) | Default             |           $0 |                     — | `analytics.basic`, `product.sitemap`, `backlink`                                                                                              | Public listing, product page, browse visibility, basic analytics, do‑follow backlink |
-| Pro            | One‑time (lifetime) | $19 one‑time | Time‑boxed placements | `priorityPlacement`, `featured`, `homepage`, `newsletterPromotion`, `stickyBanner`, `customCTA`, `product.sitemap`, `backlink` | Stronger page + premium surfaces + visibility bump                                   |
+| Pro            | One‑time (lifetime) | $19 one‑time | Time‑boxed placements | `priorityPlacement`, `featured`, `sponsoredProducts`, `newsletterPromotion`, `stickyBanner`, `customCTA`, `product.sitemap`, `backlink` | Stronger page + premium surfaces + visibility bump                                   |
 | Team           | One‑time (lifetime) | $49 one‑time | Time‑boxed placements | All Pro features + `organization`                                                                                                             | Collaboration (orgs) with all Pro growth tools                                       |
 
 Notes
 
 - Keep Free feeling complete: listing + upvotes + product page + basic click/upvote analytics.
-- Reserve homepage/featured/banner/newsletter for Spotlight to protect feed quality.
+- Reserve sponsored placement/featured/banner/newsletter for Spotlight to protect feed quality.
 - Pro remains compelling via ongoing outcomes: traffic lift + better on‑page conversion + earlier access.
 
 ## Feature Comparison
@@ -23,7 +23,7 @@ Notes
 | `analytics.basic`     |  ✓   |  ✓  |  ✓   |
 | `priorityPlacement`   |  —   |  ✓  |  ✓   |
 | `featured`            |  —   |  ✓  |  ✓   |
-| `homepage`            |  —   |  ✓  |  ✓   |
+| `sponsoredProducts`   |  —   |  ✓  |  ✓   |
 | `stickyBanner`        |  —   |  ✓  |  ✓   |
 | `customCTA`           |  —   |  ✓  |  ✓   |
 | `newsletterPromotion` |  —   |  ✓  |  ✓   |
@@ -35,7 +35,7 @@ Notes
 
 - Plans
   - Free: create a `Plan` with `price=0`, `isDefault=true`.
-  - Pro/Team: `Plan.type=one_time_price` (lifetime entitlements); assign Pro features including former Spotlight surfaces (`featured`, `homepage`, `newsletterPromotion`, `stickyBanner`).
+  - Pro/Team: `Plan.type=one_time_price` (lifetime entitlements); assign Pro features including former Spotlight surfaces (`featured`, `sponsoredProducts`, `newsletterPromotion`, `stickyBanner`).
 - Feature Keys: use the existing constants in `lib/constants.ts` for `PlanFeature` records.
 - Entitlements
   - Pro/Team purchases grant lifetime feature access; time‑boxed placements can still be scheduled editorially (use `boostForDays` if desired per placement).

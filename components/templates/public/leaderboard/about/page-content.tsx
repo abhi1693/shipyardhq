@@ -287,9 +287,9 @@ export function LeaderboardGuidePageContent() {
                   </h3>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                     Featured placements keep your product in the spotlight
-                    across the homepage, newsletters, and leaderboard hero
-                    cards. It’s the fastest way to convert momentum into lasting
-                    visibility.
+                    across sponsored placements, newsletters, and leaderboard
+                    hero cards. It’s the fastest way to convert momentum into
+                    lasting visibility.
                   </p>
                   <div className="mt-6 flex flex-col gap-3 text-sm text-muted-foreground">
                     <div className="flex items-start gap-3">
@@ -301,9 +301,9 @@ export function LeaderboardGuidePageContent() {
                           Lock in hero visibility
                         </p>
                         <p className="text-muted-foreground">
-                          Appear above the fold on the leaderboard and homepage
-                          to catch investors and early adopters scanning the
-                          board.
+                          Appear above the fold on the leaderboard and in
+                          sponsored placements to catch investors and early
+                          adopters scanning the board.
                         </p>
                       </div>
                     </div>

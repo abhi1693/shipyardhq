@@ -15,7 +15,7 @@ const HIGHLIGHT_PRIORITY = [
   "analytics.basic",
   "product.sitemap",
   "priorityPlacement",
-  "homepage",
+  "sponsoredProducts",
   "featured",
   "backlink",
 ] as const
