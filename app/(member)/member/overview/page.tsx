@@ -2,8 +2,6 @@ import { MemberOverviewPageContent } from "@/components/templates/member/overvie
 
 export const dynamic = "force-dynamic"
 
-export default function OverviewPage(
-  props: Parameters<typeof MemberOverviewPageContent>[0],
-) {
-  return <MemberOverviewPageContent {...props} />
+export default function OverviewPage() {
+  return <MemberOverviewPageContent />
 }

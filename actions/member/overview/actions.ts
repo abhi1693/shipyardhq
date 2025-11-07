@@ -7,6 +7,7 @@ import {
   MEMBER_PRODUCTS_PATH,
   memberProductsVerificationPath,
 } from "@/lib/routes"
+import { getMemberTrafficSummary as fetchMemberTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
 
 type UserRef = { id: string }
 
@@ -575,4 +576,16 @@ export async function getProductHealthSummary(days?: number) {
     .slice(0, 3)
 
   return { averageScore, suggestions, productsNeedingAttention }
+}
+
+export async function getMemberTrafficOverview(days = 7) {
+  const { id } = await getCurrentUser()
+
+  return fetchMemberTrafficSummary(id, {
+    rangeDays: days,
+    previousComparison: false,
+    includeAdvanced: false,
+    includeProductBreakdown: false,
+    includeReferrerMatrix: false,
+  })
 }

@@ -36,12 +36,13 @@ type UpvoteEventSelection = Prisma.ProductUpvoteGetPayload<{
 interface SummaryOptions {
   rangeDays?: number
   previousComparison?: boolean
-  context?: "product" | "global" | "organization"
+  context?: "product" | "global" | "organization" | "member"
   includeProductBreakdown?: boolean
   includeReferrerMatrix?: boolean
   includeAdvanced?: boolean
   productIds?: string[]
   organizationId?: string
+  userId?: string
   cacheTier?: CacheTier
   includeBots?: boolean
 }
@@ -50,6 +51,7 @@ interface TrafficCacheKeyParts {
   productId?: string
   organizationId?: string
   productIds?: string[]
+  userId?: string
   rangeDays: number
   previousComparison: boolean
   includeAdvanced: boolean
@@ -71,6 +73,7 @@ function buildTrafficSummaryCacheKey(parts: TrafficCacheKeyParts): string {
     productId,
     organizationId,
     productIds,
+    userId,
     rangeDays,
     previousComparison,
     includeAdvanced,
@@ -88,6 +91,8 @@ function buildTrafficSummaryCacheKey(parts: TrafficCacheKeyParts): string {
     scopeToken = `products:${hashProductIds(normalized)}:${normalized.length}`
   } else if (organizationId) {
     scopeToken = `org:${organizationId}`
+  } else if (userId) {
+    scopeToken = `user:${userId}`
   }
 
   return buildCacheKey(
@@ -275,6 +280,7 @@ async function buildTrafficSummary(
     productIds: explicitProductIds,
     organizationId,
     includeBots = false,
+    userId,
   } = options
 
   const includeAdvancedMetrics = includeAdvanced
@@ -304,6 +310,7 @@ async function buildTrafficSummary(
     productId,
     organizationId,
     productIds: targetProductIds,
+    userId,
     rangeDays: windowDays,
     previousComparison,
     includeAdvanced: includeAdvancedMetrics,
@@ -1327,6 +1334,28 @@ export async function getGlobalTrafficSummary(
       includeProductBreakdown: true,
       includeReferrerMatrix: true,
       ...options,
+    },
+  )
+}
+
+export async function getMemberTrafficSummary(
+  userId: string,
+  options: SummaryOptions = {},
+): Promise<ProductTrafficSummary> {
+  const {
+    includeProductBreakdown = false,
+    includeReferrerMatrix = false,
+    ...rest
+  } = options
+
+  return buildTrafficSummary(
+    { product: { userId } },
+    {
+      context: "member",
+      userId,
+      includeProductBreakdown,
+      includeReferrerMatrix,
+      ...rest,
     },
   )
 }
