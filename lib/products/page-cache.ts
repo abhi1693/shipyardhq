@@ -121,13 +121,15 @@ export function buildProductStructuredData(
     }
     return ensureUrlHasSchema(trimmed)
   }
-  const imageUrls = [product.logo, product.bannerImage]
-    .map((value) => toAbsoluteUrl(value))
-    .filter((value): value is string => Boolean(value))
+  const logoUrl = toAbsoluteUrl(product.logo)
+  const bannerUrl = toAbsoluteUrl(product.bannerImage)
   const galleryImages =
     product.ProductMedia?.map((item) => toAbsoluteUrl(item.imageUrl)).filter(
       (value): value is string => Boolean(value),
     ) ?? []
+  const screenshotImages = [bannerUrl, ...galleryImages].filter(
+    (value): value is string => Boolean(value),
+  )
 
   const schemaOperatingSystems = Array.from(
     new Set(
@@ -164,8 +166,8 @@ export function buildProductStructuredData(
     "@type": "SoftwareApplication",
     name: product.name,
     description: product.tagline || product.description || undefined,
-    image: imageUrls.length ? imageUrls : undefined,
-    screenshot: galleryImages.length ? galleryImages : undefined,
+    image: logoUrl ? [logoUrl] : undefined,
+    screenshot: screenshotImages.length ? screenshotImages : undefined,
     url: canonicalUrl,
     applicationCategory: APPLICATION_CATEGORY_MAP[product.type] || undefined,
     operatingSystem: schemaOperatingSystems.length
