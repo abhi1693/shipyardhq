@@ -1,4 +1,5 @@
-import { ReactNode } from "react"
+import { Fragment, ReactNode } from "react"
+import { renderToStaticMarkup } from "react-dom/server"
 import {
   Accordion,
   AccordionContent,
@@ -141,6 +142,26 @@ export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
       "Every signed-in member can toggle a single upvote per product. Votes update analytics in real time, drive the leaderboard, and help us surface trending tools while keeping spam out.",
   },
 ]
+
+const renderAnswerToText = (answer: ReactNode): string => {
+  if (answer === null || answer === undefined || typeof answer === "boolean") {
+    return ""
+  }
+  if (typeof answer === "string") return answer
+  if (typeof answer === "number") return answer.toString()
+
+  try {
+    const markup = renderToStaticMarkup(<Fragment>{answer}</Fragment>)
+    return markup.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
+  } catch {
+    return ""
+  }
+}
+
+export const FAQ_JSON_LD_ENTRIES = FAQ_ITEMS.map((item) => ({
+  question: item.question,
+  answer: renderAnswerToText(item.answer),
+})).filter((entry) => entry.answer.length > 0)
 
 export function FaqSection() {
   const faqs = FAQ_ITEMS

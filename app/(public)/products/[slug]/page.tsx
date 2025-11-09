@@ -3,12 +3,11 @@ import Image from "next/image"
 import Link from "next/link"
 import {
   Suspense,
-  cache,
-  type ReactNode,
   type ComponentType,
   type ComponentPropsWithoutRef,
 } from "react"
 import { notFound } from "next/navigation"
+import { JsonLdScript } from "next-seo"
 import {
   Apple,
   Calendar,
@@ -16,16 +15,12 @@ import {
   ExternalLink,
   Globe,
   Laptop,
-  Megaphone,
   Monitor,
   PlayCircle,
   Smartphone,
   Sparkles,
   Terminal,
 } from "lucide-react"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import { auth } from "@clerk/nextjs/server"
 
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
@@ -33,30 +28,39 @@ import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
-import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
 import ProductShareBar from "@/components/molecules/ProductShareBar"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
-import ProductReviews from "@/components/organisms/ProductReviews"
 import ProductMetricsTracker from "@/components/pages/ProductMetricsTracker"
-import { ProductCard } from "@/components/molecules/ProductCard"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/atoms/tooltip"
 import { ScrollReset } from "@/components/atoms/scroll-reset"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
+import { SidebarInfoRow } from "@/components/templates/public/products/detail/sidebar-info-row"
+import {
+  ProductUpvoteBadgeServer,
+  ProductReviewsServer,
+  ProductUpdatesServer,
+  SimilarProductsServer,
+} from "@/components/templates/public/products/detail/server-components"
+import {
+  ProductUpvoteBadgeFallback,
+  ProductReviewsFallback,
+  ProductUpdatesFallback,
+  SimilarProductsFallback,
+} from "@/components/templates/public/products/detail/product-fallbacks"
 import {
   getPublicProductMetaBySlug,
-  hasUserUpvoted,
   getPublicProductBySlug,
-  getPublicProductsByUseCase,
 } from "@/actions/public/products/actions"
-import { getPublicProductUpdates } from "@/actions/public/product-updates/actions"
 import {
+  BROWSE_PATH,
+  HOME_PATH,
   categoryPath,
   productPath,
-  productUpdatesPath,
   userPath,
 } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
@@ -66,16 +70,12 @@ import prisma from "@/lib/prisma"
 import { hasPlanFeature } from "@/lib/features"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { buildPageMetadata } from "@/lib/metadata"
-import type { ProductUpdatePublicView } from "@/types/product-updates"
-import {
-  getProductReviewSummary,
-  getUserProductReview,
-} from "@/lib/server/productReviews"
-import { getActiveUserByClerkId } from "@/lib/server/userStatus"
-import { toProductCardItem } from "@/lib/products/card-item"
+import { getProductReviewSummary } from "@/lib/server/productReviews"
 import { keywordToSlug } from "@/lib/tags"
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
-import { buildProductStructuredData } from "@/lib/products/page-cache"
+import { buildProductStructuredData } from "@/lib/seo/product"
+import { buildWebApplicationStructuredData } from "@/lib/seo/web-application"
+import { buildMobileApplicationStructuredData } from "@/lib/seo/mobile-application"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -228,292 +228,6 @@ function formatCurrency(
   }
 }
 
-function SidebarInfoRow({
-  label,
-  children,
-}: {
-  label: string
-  children: ReactNode
-}) {
-  return (
-    <div className="space-y-1.5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/80">
-        {label}
-      </p>
-      <div className="text-sm text-foreground">{children}</div>
-    </div>
-  )
-}
-
-function ProductUpdatesSection({
-  updates,
-  productSlug,
-}: {
-  updates: ProductUpdatePublicView[]
-  productSlug: string
-}) {
-  const visibleUpdates = updates.slice(0, 3)
-  const updatesCount = updates.length
-  const hasUpdates = updatesCount > 0
-  const updatesBadgeClass = [
-    "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold",
-    hasUpdates
-      ? "border-border bg-white text-foreground shadow-sm shadow-black/5"
-      : "border-dashed border-border/80 text-muted-foreground",
-  ].join(" ")
-
-  const dateFormatter = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  })
-
-  return (
-    <section className="space-y-6">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-muted text-foreground shadow-sm">
-            <Megaphone className="h-5 w-5" aria-hidden />
-          </div>
-          <div className="space-y-1">
-            <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">
-              Product updates
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {hasUpdates
-                ? "Latest changelog entries and announcements from the team."
-                : "No updates yet. Check back soon for announcements from the team."}
-            </p>
-          </div>
-        </div>
-        <div className={updatesBadgeClass}>
-          <span>
-            {updatesCount} update{updatesCount === 1 ? "" : "s"}
-          </span>
-        </div>
-      </header>
-
-      {hasUpdates ? (
-        <div className="divide-y divide-border/70">
-          {visibleUpdates.map((update) => {
-            const publishedLabel = dateFormatter.format(
-              new Date(update.publishedAt ?? update.createdAt),
-            )
-            return (
-              <article
-                key={update.id}
-                className="space-y-4 py-5 first:pt-0 last:border-b-0 last:pb-0"
-              >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="space-y-1.5">
-                    <h3 className="text-lg font-semibold text-foreground sm:text-xl">
-                      {update.title}
-                    </h3>
-                    {update.summary ? (
-                      <p className="text-sm text-muted-foreground">
-                        {update.summary}
-                      </p>
-                    ) : null}
-                  </div>
-                  <time
-                    dateTime={update.publishedAt ?? update.createdAt}
-                    className="text-xs font-medium uppercase tracking-wide text-muted-foreground/80"
-                  >
-                    {publishedLabel}
-                  </time>
-                </div>
-                {update.content ? (
-                  <div className="prose prose-sm mt-4 max-w-none text-muted-foreground [&>*:last-child]:mb-0">
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      disallowedElements={["h1"]}
-                      unwrapDisallowed
-                    >
-                      {update.content}
-                    </ReactMarkdown>
-                  </div>
-                ) : null}
-              </article>
-            )
-          })}
-          {updatesCount > visibleUpdates.length ? (
-            <div className="mt-4 flex justify-end">
-              <Link
-                href={productUpdatesPath(productSlug)}
-                className="inline-flex items-center gap-1 text-sm font-semibold text-foreground underline-offset-4 transition hover:text-foreground/80 hover:underline"
-              >
-                View all updates
-              </Link>
-            </div>
-          ) : null}
-        </div>
-      ) : (
-        <p className="rounded-2xl border border-dashed border-border/70 px-6 py-7 text-center text-sm text-muted-foreground">
-          No updates yet. Check back soon for announcements from the team.
-        </p>
-      )}
-    </section>
-  )
-}
-
-type ViewerProductState = {
-  isSignedIn: boolean
-  viewerUpvoted: boolean
-  viewerReview: { rating: number; message: string } | null
-}
-
-const getViewerProductState = cache(
-  async (productId: string): Promise<ViewerProductState> => {
-    const authResult = await auth()
-    const clerkUserId = authResult?.userId ?? null
-    if (!clerkUserId) {
-      return { isSignedIn: false, viewerUpvoted: false, viewerReview: null }
-    }
-
-    const viewer = await getActiveUserByClerkId(clerkUserId).catch(() => null)
-    if (!viewer) {
-      return { isSignedIn: false, viewerUpvoted: false, viewerReview: null }
-    }
-
-    const [viewerUpvoted, viewerReview] = await Promise.all([
-      hasUserUpvoted(productId, clerkUserId),
-      getUserProductReview(productId, viewer.id).catch(() => null),
-    ])
-
-    return {
-      isSignedIn: true,
-      viewerUpvoted,
-      viewerReview: viewerReview
-        ? {
-            rating: viewerReview.rating,
-            message: viewerReview.message,
-          }
-        : null,
-    }
-  },
-)
-
-async function ProductUpvoteBadgeServer({
-  productId,
-  upvoteCount,
-}: {
-  productId: string
-  upvoteCount: number
-}) {
-  const { viewerUpvoted } = await getViewerProductState(productId)
-  return (
-    <ProductUpvoteBadge
-      productId={productId}
-      count={upvoteCount}
-      initialUpvoted={viewerUpvoted}
-    />
-  )
-}
-
-async function ProductReviewsServer({
-  productId,
-  productName,
-  redirectUrl,
-}: {
-  productId: string
-  productName: string
-  redirectUrl: string
-}) {
-  const reviewSummary = await getProductReviewSummary(productId, 6)
-  const { isSignedIn, viewerReview } = await getViewerProductState(productId)
-
-  return (
-    <ProductReviews
-      productId={productId}
-      productName={productName}
-      reviewSummary={reviewSummary}
-      viewerReview={viewerReview}
-      isSignedIn={isSignedIn}
-      redirectUrl={redirectUrl}
-    />
-  )
-}
-
-async function ProductUpdatesServer({
-  productId,
-  productSlug,
-}: {
-  productId: string
-  productSlug: string
-}) {
-  const updates = await getPublicProductUpdates(productId)
-  return <ProductUpdatesSection updates={updates} productSlug={productSlug} />
-}
-
-async function SimilarProductsServer({
-  productId,
-  useCaseSlug,
-}: {
-  productId: string
-  useCaseSlug: string
-}) {
-  if (!useCaseSlug) return null
-  const similarProducts = await getPublicProductsByUseCase(
-    useCaseSlug,
-    productId,
-    4,
-  )
-  if (!similarProducts.length) return null
-
-  const cardItems = similarProducts.map((item) =>
-    toProductCardItem({
-      id: item.id,
-      slug: item.slug,
-      name: item.name,
-      logo: item.logo ?? "",
-      tagline: item.tagline ?? "",
-      analytics: item.analytics
-        ? { upvotes: item.analytics.upvotes ?? 0 }
-        : undefined,
-      category: item.category
-        ? {
-            name: item.category.name ?? null,
-            slug: item.category.slug ?? null,
-          }
-        : undefined,
-    }),
-  )
-
-  return (
-    <section className="space-y-4">
-      <h2 className="text-lg font-semibold text-foreground">You may also like</h2>
-      <div className="space-y-3">
-        {cardItems.map((item) => (
-          <ProductCard key={item.id} product={item} />
-        ))}
-      </div>
-    </section>
-  )
-}
-
-function ProductUpvoteBadgeFallback() {
-  return (
-    <div className="h-32 animate-pulse rounded-3xl border border-border/60 bg-white" />
-  )
-}
-
-function ProductReviewsFallback() {
-  return (
-    <div className="min-h-[18rem] animate-pulse rounded-2xl border border-border/70 bg-white" />
-  )
-}
-
-function ProductUpdatesFallback() {
-  return (
-    <div className="min-h-[14rem] animate-pulse rounded-2xl border border-border/70 bg-white" />
-  )
-}
-
-function SimilarProductsFallback() {
-  return (
-    <div className="h-48 animate-pulse rounded-2xl border border-border/70 bg-white" />
-  )
-}
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
@@ -524,19 +238,121 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   if (!sidebarProduct) return notFound()
 
   const structuredReviewSummary = await getProductReviewSummary(product.id, 12)
-  const structuredDataJson = JSON.stringify(
-    buildProductStructuredData(sidebarProduct, structuredReviewSummary),
-  ).replace(/</g, "\\u003c")
+  const canonicalPath = productPath(product.slug)
+  const productBreadcrumbs = [
+    { name: "Home", path: HOME_PATH },
+    { name: "Browse", path: BROWSE_PATH },
+    { name: product.name, path: canonicalPath },
+  ]
+  const screenshotSources = [
+    product.bannerImage,
+    ...(product.ProductMedia ?? []).map((media) => media.imageUrl),
+  ].filter((value): value is string => Boolean(value?.trim()))
+  const schemaPublishedDateIso = (product.publishedAt || product.createdAt)
+    ? new Date(product.publishedAt || product.createdAt).toISOString()
+    : undefined
+  const updatedDateIso = sidebarProduct.updatedAt
+    ? new Date(sidebarProduct.updatedAt).toISOString()
+    : undefined
+  const ownerName = [
+    product.user?.firstName ?? "",
+    product.user?.lastName ?? "",
+  ]
+    .join(" ")
+    .trim()
+  const productTypeLabel = sidebarProduct?.type
+    ? PRODUCT_TYPE_LABELS[sidebarProduct.type as keyof typeof PRODUCT_TYPE_LABELS] ??
+      formatLabel(sidebarProduct.type)
+    : null
+  const pricingModelLabel = sidebarProduct?.pricingModel
+    ? PRICING_MODEL_LABELS[sidebarProduct.pricingModel as keyof typeof PRICING_MODEL_LABELS] ??
+      formatLabel(sidebarProduct.pricingModel)
+    : null
+  const productAuthors = product.user
+    ? [
+        {
+          name: ownerName || product.user.id,
+          url: userPath(product.user.id),
+        },
+      ]
+    : undefined
+  const aggregateRating =
+    structuredReviewSummary.totalReviews > 0
+      ? {
+          ratingValue: Number(
+            structuredReviewSummary.averageRating.toFixed(1),
+          ),
+          ratingCount: structuredReviewSummary.totalReviews,
+          bestRating: 5,
+          worstRating: 1,
+        }
+      : undefined
+  const offer =
+    typeof sidebarProduct.startingPriceCents === "number"
+      ? {
+          price: (sidebarProduct.startingPriceCents / 100).toFixed(2),
+          priceCurrency: sidebarProduct.currencyCode || "USD",
+        }
+      : undefined
+  const productStructuredData = buildProductStructuredData({
+    path: canonicalPath,
+    name: product.name,
+    description: product.tagline || product.description || undefined,
+    datePublished: schemaPublishedDateIso,
+    dateModified: updatedDateIso,
+    image: product.logo ?? undefined,
+    screenshots: screenshotSources,
+    aggregateRating,
+    offers: offer,
+    authors: productAuthors,
+  })
+
+  const platformValues = sidebarProduct.platforms ?? []
+  const hasWebPlatform = platformValues.includes("web")
+  const mobilePlatforms = platformValues.filter((platform) =>
+    ["ios", "android"].includes(platform),
+  )
+
+  const webApplicationStructuredData = hasWebPlatform
+    ? buildWebApplicationStructuredData({
+        path: canonicalPath,
+        name: product.name,
+        description: product.tagline || product.description || undefined,
+        datePublished: schemaPublishedDateIso,
+        dateModified: updatedDateIso,
+        operatingSystem: "Web",
+        screenshots: screenshotSources,
+        offers: offer,
+        applicationCategory: productTypeLabel ?? undefined,
+      })
+    : null
+
+  const mobileOperatingSystems = mobilePlatforms.map((platform) =>
+    platform === "ios" ? "iOS" : "Android",
+  )
+
+  const mobileApplicationStructuredData = mobileOperatingSystems.length
+    ? buildMobileApplicationStructuredData({
+        path: canonicalPath,
+        name: product.name,
+        description: product.tagline || product.description || undefined,
+        datePublished: schemaPublishedDateIso,
+        dateModified: updatedDateIso,
+        operatingSystem: mobileOperatingSystems,
+        screenshots: screenshotSources,
+        offers: offer,
+      })
+    : null
 
   const primaryUseCaseSlug =
     sidebarProduct.category?.useCases?.[0]?.useCase?.slug ?? null
 
   const productOwner = sidebarProduct.user
-  const ownerName = [productOwner?.firstName, productOwner?.lastName]
+  const ownerDisplayName = [productOwner?.firstName, productOwner?.lastName]
     .filter(Boolean)
     .join(" ")
-  const ownerInitials = ownerName
-    ? ownerName
+  const ownerInitials = ownerDisplayName
+    ? ownerDisplayName
         .split(/\s+/)
         .map((part) => part.charAt(0).toUpperCase())
         .join("")
@@ -558,14 +374,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     siteConfig.url,
   ).toString()
   const redirectUrl = productPath(product.slug)
-  const productTypeLabel = sidebarProduct?.type
-    ? (PRODUCT_TYPE_LABELS[sidebarProduct.type] ??
-      formatLabel(sidebarProduct.type))
-    : null
-  const pricingModelLabel = sidebarProduct?.pricingModel
-    ? (PRICING_MODEL_LABELS[sidebarProduct.pricingModel] ??
-      formatLabel(sidebarProduct.pricingModel))
-    : null
   const categoryLabel = product.category?.name ?? null
   const startingPrice =
     typeof sidebarProduct?.startingPriceCents === "number"
@@ -740,11 +548,27 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   return (
     <main className="bg-white">
-      <script
-        type="application/ld+json"
-        suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: structuredDataJson }}
+      <CoreStructuredData
+        scriptKeyPrefix={`product-${product.slug}`}
+        webPage={{ path: canonicalPath, name: product.name }}
+        breadcrumbs={{ items: productBreadcrumbs }}
       />
+      <JsonLdScript
+        data={productStructuredData}
+        scriptKey={`product-${product.slug}-schema`}
+      />
+      {webApplicationStructuredData ? (
+        <JsonLdScript
+          data={webApplicationStructuredData}
+          scriptKey={`product-${product.slug}-webapp`}
+        />
+      ) : null}
+      {mobileApplicationStructuredData ? (
+        <JsonLdScript
+          data={mobileApplicationStructuredData}
+          scriptKey={`product-${product.slug}-mobileapp`}
+        />
+      ) : null}
       <ScrollReset triggerKey={product.slug} />
       <ProductMetricsTracker productId={product.id} />
       <PublicTwoColumnLayout

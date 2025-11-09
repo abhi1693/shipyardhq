@@ -12,15 +12,24 @@ import {
 } from "@/components/templates/public/categories/hero-button-classes"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
-import { BROWSE_PATH, MEMBER_PRODUCTS_PATH, categoryPath } from "@/lib/routes"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
+import {
+  BROWSE_PATH,
+  CATEGORIES_PATH,
+  HOME_PATH,
+  MEMBER_PRODUCTS_PATH,
+  categoryPath,
+} from "@/lib/routes"
 import { getCategoriesPagePayload } from "@/lib/categories/cache"
 import { buildPageMetadata } from "@/lib/metadata"
 
 export const dynamic = "force-static"
 export const revalidate = 300
 
+const PAGE_TITLE = "Categories"
+
 export const metadata = buildPageMetadata({
-  title: "Categories",
+  title: PAGE_TITLE,
   description: "Browse Shipyard by category and discover innovative products.",
 })
 
@@ -33,6 +42,16 @@ export default async function CategoriesPage() {
 
   return (
     <main className="relative isolate bg-[#f5f7fb]">
+      <CoreStructuredData
+        scriptKeyPrefix="categories"
+        webPage={{ path: CATEGORIES_PATH, name: PAGE_TITLE }}
+        breadcrumbs={{
+          items: [
+            { name: "Home", path: HOME_PATH },
+            { name: PAGE_TITLE, path: CATEGORIES_PATH },
+          ],
+        }}
+      />
       <PublicTwoColumnLayout
         className="pb-24 pt-12"
         mainClassName="space-y-12"

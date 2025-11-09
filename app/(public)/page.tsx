@@ -1,6 +1,5 @@
 import { Suspense } from "react"
 
-import { HomepageJsonLd } from "@/components/templates/public/homepage/json-ld"
 import {
   HeroSection,
   HeroSectionSkeleton,
@@ -19,6 +18,9 @@ import {
 } from "@/components/templates/public/homepage/sponsored-products"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
+import { siteConfig } from "@/lib/siteConfig"
+import { HOME_PATH } from "@/lib/routes"
 
 export const revalidate = 60
 
@@ -26,7 +28,13 @@ export default async function HomePage() {
   const feedView = DEFAULT_HOMEPAGE_FEED_VIEW
   return (
     <div className="relative isolate bg-[#f5f7fb]">
-      <HomepageJsonLd />
+      <CoreStructuredData
+        scriptKeyPrefix="home"
+        webPage={{ path: HOME_PATH, name: siteConfig.tagline }}
+        breadcrumbs={{
+          items: [{ name: "Home", path: HOME_PATH }],
+        }}
+      />
       <PublicTwoColumnLayout
         className="pb-24 pt-10"
         mainClassName="gap-12"

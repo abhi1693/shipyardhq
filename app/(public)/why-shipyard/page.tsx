@@ -10,8 +10,14 @@ import {
   IconUsersGroup,
 } from "@tabler/icons-react"
 import { Button } from "@/components/atoms/button"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
-import { ANALYTICS_PATH, PRICING_PATH } from "@/lib/routes"
+import {
+  ANALYTICS_PATH,
+  HOME_PATH,
+  PRICING_PATH,
+  WHY_SHIPYARD_PATH,
+} from "@/lib/routes"
 import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
 import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
 
@@ -149,15 +155,28 @@ const MOMENTUM_STEPS = [
   },
 ]
 
+const PAGE_TITLE = "Why Shipyard"
+
 export const metadata = buildPageMetadata({
-  title: "Why Shipyard",
+  title: PAGE_TITLE,
   description:
     "List your product where builders, investors, and operators gather. Shipyard pairs curated discovery with analytics, insights, and hands-on support so every launch hits with purpose.",
 })
 
 export default function WhyShipyardPage() {
   return (
-    <main className="relative isolate overflow-hidden bg-white">
+    <>
+      <CoreStructuredData
+        scriptKeyPrefix="why-shipyard"
+        webPage={{ path: WHY_SHIPYARD_PATH, name: PAGE_TITLE }}
+        breadcrumbs={{
+          items: [
+            { name: "Home", path: HOME_PATH },
+            { name: PAGE_TITLE, path: WHY_SHIPYARD_PATH },
+          ],
+        }}
+      />
+      <main className="relative isolate overflow-hidden bg-white">
       <section className="relative py-24">
         <div className="relative mx-auto max-w-[84rem] px-4 text-center md:px-8">
           <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2-text,#0a5678)] shadow-sm backdrop-blur">
@@ -423,5 +442,6 @@ export default function WhyShipyardPage() {
         </div>
       </section>
     </main>
+    </>
   )
 }
