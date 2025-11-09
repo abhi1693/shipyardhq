@@ -50,48 +50,62 @@ export async function ProductUpdatesArchivePageContent({
     process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
   ).replace(/\/$/, "")
 
-  const structuredData = updates.length
-    ? {
-        "@context": "https://schema.org",
-        "@type": "ItemList",
-        name: `${product.name} product updates`,
+  const toAbsoluteUrl = (value?: string | null) => {
+    if (!value) return undefined
+    const trimmed = value.trim()
+    if (!trimmed) return undefined
+    if (/^https?:\/\//i.test(trimmed)) return trimmed
+    if (trimmed.startsWith("/")) return `${baseUrl}${trimmed}`
+    return `${baseUrl}/${trimmed}`
+  }
+
+  const productEntity = {
+    "@type": "Product",
+    name: product.name,
+    url: `${baseUrl}${productPath(product.slug)}`,
+    ...(product.tagline ? { description: product.tagline } : {}),
+    ...(product.logo ? { image: toAbsoluteUrl(product.logo) } : {}),
+  }
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `${product.name} product updates`,
+    description:
+      product.tagline ||
+      `Latest announcements, improvements, and changelog for ${product.name}.`,
+    itemListElement: updates.map((update, index) => {
+      const article: Record<string, any> = {
+        "@type": "Article",
+        headline: update.title,
+        datePublished: update.publishedAt ?? update.createdAt,
+        dateModified: update.updatedAt,
         description:
+          update.summary ||
           product.tagline ||
-          `Latest announcements, improvements, and changelog for ${product.name}.`,
-        itemListElement: updates.map((update, index) => {
-          const article: Record<string, any> = {
-            "@type": "Article",
-            headline: update.title,
-            datePublished: update.publishedAt ?? update.createdAt,
-            dateModified: update.updatedAt,
-            description:
-              update.summary ||
-              product.tagline ||
-              `Recent update for ${product.name}.`,
-            url: `${baseUrl}${productUpdatesPath(product.slug)}#update-${update.id}`,
-            about: {
-              "@type": "Product",
-              name: product.name,
-              url: `${baseUrl}${productPath(product.slug)}`,
-            },
-          }
-
-          if (update.author?.displayName) {
-            article.author = {
-              "@type": "Person",
-              name: update.author.displayName,
-            }
-          }
-
-          return {
-            "@type": "ListItem",
-            position: index + 1,
-            url: `${baseUrl}${productUpdatesPath(product.slug)}#update-${update.id}`,
-            item: article,
-          }
-        }),
+          `Recent update for ${product.name}.`,
+        url: `${baseUrl}${productUpdatesPath(product.slug)}#update-${update.id}`,
+        about: productEntity,
       }
-    : null
+
+      if (update.author?.displayName) {
+        article.author = {
+          "@type": "Person",
+          name: update.author.displayName,
+        }
+      }
+
+      return {
+        "@type": "ListItem",
+        position: index + 1,
+        url: `${baseUrl}${productUpdatesPath(product.slug)}#update-${update.id}`,
+        item: article,
+      }
+    }),
+    about: productEntity,
+    mainEntity: productEntity,
+    url: `${baseUrl}${productUpdatesPath(product.slug)}`,
+  }
 
   return (
     <main className="relative isolate bg-white">
