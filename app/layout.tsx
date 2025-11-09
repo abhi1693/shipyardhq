@@ -28,9 +28,9 @@ export const metadata: Metadata = {
   },
   description: siteSeo.description,
   icons: {
-    icon: siteConfig.ogImage,
-    shortcut: siteConfig.ogImage,
-    apple: siteConfig.ogImage,
+    icon: siteConfig.icon,
+    shortcut: siteConfig.icon,
+    apple: siteConfig.icon,
   },
   openGraph: siteSeo.openGraph,
   twitter: siteSeo.twitter,

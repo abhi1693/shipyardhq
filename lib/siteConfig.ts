@@ -5,6 +5,7 @@ export const siteConfig = {
     "ShipYardHQ is the Product Hunt alternative for indie hackers and micro-SaaS teams to ship in public, share progress, and rally their first customers through ongoing launches.",
   url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   ogImage: "/opengraph.png",
+  icon: "/favicon.ico",
 }
 
 export const absoluteOgImageUrl = new URL(
