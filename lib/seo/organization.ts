@@ -5,6 +5,7 @@ import { resolveSiteUrl, toAbsoluteUrlFromSite } from "@/lib/seo/base"
 const DEFAULT_LOGO_PATH = "/brand.png" as const
 
 export type OrganizationStructuredData = {
+  "@context": "https://schema.org"
   "@type": "Organization"
   "@id": string
   name: string
@@ -29,6 +30,7 @@ export function buildOrganizationStructuredData(): OrganizationStructuredData {
   )
 
   return {
+    "@context": "https://schema.org",
     "@type": "Organization",
     "@id": `${siteUrl}#organization`,
     name: siteConfig.name,

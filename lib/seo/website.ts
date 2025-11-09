@@ -3,6 +3,7 @@ import { siteConfig } from "@/lib/siteConfig"
 import { resolveSiteUrl, toAbsoluteUrlFromSite } from "@/lib/seo/base"
 
 export type WebSiteStructuredData = {
+  "@context": "https://schema.org"
   "@type": "WebSite"
   "@id": string
   url: string
@@ -45,7 +46,7 @@ const DEFAULT_SEARCH_PARAM = "q" as const
 const SEARCH_PLACEHOLDER = "search_term_string" as const
 
 const buildQueryInput = () => ({
-  "@type": "PropertyValueSpecification",
+  "@type": "PropertyValueSpecification" as const,
   valueRequired: "http://schema.org/True",
   valueName: SEARCH_PLACEHOLDER,
 })
@@ -61,7 +62,7 @@ const buildSearchAction = (
     const target = toAbsoluteUrlFromSite(options.target, siteUrl)
     if (!target) return undefined
     return {
-      "@type": "SearchAction",
+      "@type": "SearchAction" as const,
       target,
       "query-input": buildQueryInput(),
     }
@@ -76,7 +77,7 @@ const buildSearchAction = (
   const target = `${siteUrl}${normalizedPath}`
 
   return {
-    "@type": "SearchAction",
+    "@type": "SearchAction" as const,
     target: `${target}?${param}={${SEARCH_PLACEHOLDER}}`,
     "query-input": buildQueryInput(),
   }
@@ -99,6 +100,7 @@ export function buildWebSiteStructuredData(
   const potentialAction = buildSearchAction(siteUrl, options.search)
 
   return {
+    "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": id,
     url,

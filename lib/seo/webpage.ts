@@ -2,6 +2,7 @@ import { siteConfig } from "@/lib/siteConfig"
 import { resolveSiteUrl, toAbsoluteUrlFromSite } from "@/lib/seo/base"
 
 export type WebPageStructuredData = {
+  "@context": "https://schema.org"
   "@type": "WebPage"
   "@id": string
   url: string
@@ -58,6 +59,7 @@ export function buildWebPageStructuredData(
     options.name?.trim() || siteConfig.tagline || siteConfig.name || "WebPage"
 
   return {
+    "@context": "https://schema.org",
     "@type": "WebPage",
     "@id": id,
     url,

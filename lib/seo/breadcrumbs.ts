@@ -13,6 +13,7 @@ export type BreadcrumbInput = {
 }
 
 export type BreadcrumbListStructuredData = {
+  "@context"?: string
   "@type": "BreadcrumbList"
   "@id"?: string
   itemListElement: Array<{

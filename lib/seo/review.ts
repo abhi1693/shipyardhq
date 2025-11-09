@@ -33,6 +33,7 @@ export type ReviewInput = {
 }
 
 export type ReviewStructuredData = {
+  "@context": "https://schema.org"
   "@type": "Review"
   "@id"?: string
   url?: string
@@ -142,7 +143,8 @@ export function buildReviewStructuredData(
       const itemReviewed = normalizeItemReviewed(siteUrl, review.itemReviewed)
 
       return {
-        "@type": "Review",
+        "@context": "https://schema.org",
+        "@type": "Review" as const,
         ...(id ? { "@id": id } : {}),
         ...(url ? { url } : {}),
         ...(review.title?.trim() ? { name: review.title.trim() } : {}),

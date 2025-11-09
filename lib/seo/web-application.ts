@@ -14,6 +14,7 @@ export type WebApplicationOffer = {
 }
 
 export type WebApplicationStructuredData = {
+  "@context": "https://schema.org"
   "@type": "WebApplication"
   "@id": string
   url: string
@@ -162,6 +163,7 @@ export function buildWebApplicationStructuredData(
   const author = normalizeAuthor(siteUrl, options.author)
 
   return {
+    "@context": "https://schema.org",
     "@type": "WebApplication",
     "@id": id,
     url,
