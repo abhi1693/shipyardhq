@@ -9,7 +9,7 @@ import { productPath } from "@/lib/routes"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import type { ProductUpdatePublicView } from "@/types/product-updates"
 
-type PublicProduct = NonNullable<
+export type PublicProduct = NonNullable<
   Awaited<ReturnType<typeof getPublicProductBySlug>>
 >
 
@@ -103,7 +103,7 @@ function mapUseCaseProducts(products: UseCaseProduct[]): SimilarProduct[] {
   }))
 }
 
-function buildStructuredData(
+export function buildProductStructuredData(
   product: PublicProduct,
   reviewSummary: ProductReviewSummary,
 ) {
@@ -242,7 +242,7 @@ export const getProductPagePayload = cached(
         }
       : null
 
-    const structuredData = buildStructuredData(product, reviewSummary)
+    const structuredData = buildProductStructuredData(product, reviewSummary)
 
     return {
       product,

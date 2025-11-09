@@ -75,6 +75,7 @@ import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { keywordToSlug } from "@/lib/tags"
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
+import { buildProductStructuredData } from "@/lib/products/page-cache"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -522,6 +523,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const sidebarProduct = await getPublicProductBySlug(slug)
   if (!sidebarProduct) return notFound()
 
+  const structuredReviewSummary = await getProductReviewSummary(product.id, 12)
+  const structuredDataJson = JSON.stringify(
+    buildProductStructuredData(sidebarProduct, structuredReviewSummary),
+  ).replace(/</g, "\\u003c")
+
   const primaryUseCaseSlug =
     sidebarProduct.category?.useCases?.[0]?.useCase?.slug ?? null
 
@@ -734,6 +740,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   return (
     <main className="bg-white">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: structuredDataJson }}
+      />
       <ScrollReset triggerKey={product.slug} />
       <ProductMetricsTracker productId={product.id} />
       <PublicTwoColumnLayout
