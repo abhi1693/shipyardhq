@@ -121,7 +121,7 @@ export function buildProductStructuredData(
     }
     return ensureUrlHasSchema(trimmed)
   }
-  const imageUrls = [product.bannerImage, product.logo]
+  const imageUrls = [product.logo, product.bannerImage]
     .map((value) => toAbsoluteUrl(value))
     .filter((value): value is string => Boolean(value))
   const galleryImages =
