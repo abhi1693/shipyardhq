@@ -70,10 +70,8 @@ import prisma from "@/lib/prisma"
 import { hasPlanFeature } from "@/lib/features"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { buildPageMetadata } from "@/lib/metadata"
-import { getProductReviewSummary } from "@/lib/server/productReviews"
 import { keywordToSlug } from "@/lib/tags"
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
-import { buildProductStructuredData } from "@/lib/seo/product"
 import { buildWebApplicationStructuredData } from "@/lib/seo/web-application"
 import { buildMobileApplicationStructuredData } from "@/lib/seo/mobile-application"
 
@@ -237,7 +235,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const sidebarProduct = await getPublicProductBySlug(slug)
   if (!sidebarProduct) return notFound()
 
-  const structuredReviewSummary = await getProductReviewSummary(product.id, 12)
   const canonicalPath = productPath(product.slug)
   const productBreadcrumbs = [
     { name: "Home", path: HOME_PATH },
@@ -268,25 +265,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     ? PRICING_MODEL_LABELS[sidebarProduct.pricingModel as keyof typeof PRICING_MODEL_LABELS] ??
       formatLabel(sidebarProduct.pricingModel)
     : null
-  const productAuthors = product.user
-    ? [
-        {
-          name: ownerName || product.user.id,
-          url: userPath(product.user.id),
-        },
-      ]
-    : undefined
-  const aggregateRating =
-    structuredReviewSummary.totalReviews > 0
-      ? {
-          ratingValue: Number(
-            structuredReviewSummary.averageRating.toFixed(1),
-          ),
-          ratingCount: structuredReviewSummary.totalReviews,
-          bestRating: 5,
-          worstRating: 1,
-        }
-      : undefined
   const offer =
     typeof sidebarProduct.startingPriceCents === "number"
       ? {
@@ -294,19 +272,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           priceCurrency: sidebarProduct.currencyCode || "USD",
         }
       : undefined
-  const productStructuredData = buildProductStructuredData({
-    path: canonicalPath,
-    name: product.name,
-    description: product.tagline || product.description || undefined,
-    datePublished: schemaPublishedDateIso,
-    dateModified: updatedDateIso,
-    image: product.logo ?? undefined,
-    screenshots: screenshotSources,
-    aggregateRating,
-    offers: offer,
-    authors: productAuthors,
-  })
-
   const platformValues = sidebarProduct.platforms ?? []
   const hasWebPlatform = platformValues.includes("web")
   const mobilePlatforms = platformValues.filter((platform) =>
@@ -552,10 +517,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         scriptKeyPrefix={`product-${product.slug}`}
         webPage={{ path: canonicalPath, name: product.name }}
         breadcrumbs={{ items: productBreadcrumbs }}
-      />
-      <JsonLdScript
-        data={productStructuredData}
-        scriptKey={`product-${product.slug}-schema`}
       />
       {webApplicationStructuredData ? (
         <JsonLdScript
