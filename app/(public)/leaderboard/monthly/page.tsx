@@ -1,15 +1,24 @@
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
-import { buildPageMetadata } from "@/lib/metadata"
-import { isMonthKey, monthlyLeaderboardArchivePath } from "@/lib/routes"
-import { MonthlyLeaderboardView } from "@/components/templates/public/leaderboard/monthly/view"
 import { MonthlyLeaderboardSkeleton } from "@/components/templates/public/leaderboard/monthly/skeleton"
+import { MonthlyLeaderboardView } from "@/components/templates/public/leaderboard/monthly/view"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
+import { buildPageMetadata } from "@/lib/metadata"
+import {
+  HOME_PATH,
+  LEADERBOARD_MONTHLY_PATH,
+  LEADERBOARD_PATH,
+  isMonthKey,
+  monthlyLeaderboardArchivePath,
+} from "@/lib/routes"
 
 export const revalidate = 120
 
+const PAGE_TITLE = "Monthly Product Winners"
+
 export const metadata = buildPageMetadata({
-  title: "Monthly Product Winners",
+  title: PAGE_TITLE,
   description:
     "Browse the top-ranked products for each month and celebrate the makers topping the leaderboard.",
 })
@@ -28,8 +37,21 @@ export default async function MonthlyLeaderboardPage({
   }
 
   return (
-    <Suspense fallback={<MonthlyLeaderboardSkeleton />}>
-      <MonthlyLeaderboardView monthParam={monthParam ?? undefined} />
-    </Suspense>
+    <>
+      <CoreStructuredData
+        scriptKeyPrefix="leaderboard-monthly"
+        webPage={{ path: LEADERBOARD_MONTHLY_PATH, name: PAGE_TITLE }}
+        breadcrumbs={{
+          items: [
+            { name: "Home", path: HOME_PATH },
+            { name: "Leaderboard", path: LEADERBOARD_PATH },
+            { name: PAGE_TITLE, path: LEADERBOARD_MONTHLY_PATH },
+          ],
+        }}
+      />
+      <Suspense fallback={<MonthlyLeaderboardSkeleton />}>
+        <MonthlyLeaderboardView monthParam={monthParam ?? undefined} />
+      </Suspense>
+    </>
   )
 }

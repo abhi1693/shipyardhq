@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Suspense } from "react"
+import { JsonLdScript } from "next-seo"
 
 import {
   CORE_PERKS,
@@ -18,19 +19,46 @@ import {
   AccordionTrigger,
 } from "@/components/atoms/accordion"
 import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
+import { buildFaqStructuredData } from "@/lib/seo/faq"
 import { buildPageMetadata } from "@/lib/metadata"
-import { ANALYTICS_PATH, REWARDS_PATH } from "@/lib/routes"
+import { ANALYTICS_PATH, HOME_PATH, PRICING_PATH, REWARDS_PATH } from "@/lib/routes"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
 
+const PAGE_TITLE = "Pricing"
+
 export const metadata = buildPageMetadata({
-  title: "Pricing",
+  title: PAGE_TITLE,
   description: "Transparent pricing for every stage.",
 })
 
 export default function PricingPage() {
+  const faqStructuredData = buildFaqStructuredData(
+    PRICING_FAQS.map((faq) => ({ question: faq.question, answer: faq.answer })),
+    { pageUrl: PRICING_PATH },
+  )
+  const hasFaqStructuredData = faqStructuredData.mainEntity.length > 0
+
   return (
-    <main className="relative isolate overflow-hidden bg-white">
+    <>
+      <CoreStructuredData
+        scriptKeyPrefix="pricing"
+        webPage={{ path: PRICING_PATH, name: PAGE_TITLE }}
+        breadcrumbs={{
+          items: [
+            { name: "Home", path: HOME_PATH },
+            { name: PAGE_TITLE, path: PRICING_PATH },
+          ],
+        }}
+      />
+      {hasFaqStructuredData ? (
+        <JsonLdScript
+          data={faqStructuredData}
+          scriptKey="pricing-faq-jsonld"
+        />
+      ) : null}
+      <main className="relative isolate overflow-hidden bg-white">
       <section
         className={brandGradient(
           "relative overflow-hidden border border-[color:var(--brand-1)/0.18] py-24 shadow-[0px_60px_140px_-60px_rgba(18,66,112,0.7)]",
@@ -213,5 +241,6 @@ export default function PricingPage() {
         </div>
       </section>
     </main>
+    </>
   )
 }

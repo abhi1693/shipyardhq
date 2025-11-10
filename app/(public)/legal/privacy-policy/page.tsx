@@ -1,21 +1,37 @@
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
+import { HOME_PATH, LEGAL_PATH, LEGAL_PRIVACY_PATH } from "@/lib/routes"
+
+const PAGE_TITLE = "Privacy Policy"
 
 export const metadata = buildPageMetadata({
-  title: "Privacy Policy",
+  title: PAGE_TITLE,
   description:
     "Learn how ShipYardHQ collects, uses, and protects your personal information.",
 })
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen py-16">
-      <div className="mx-auto max-w-3xl px-4 md:px-8">
-        <PageHeader
-          title="Privacy Policy"
-          subtitle="Learn how ShipYardHQ collects, uses, and protects your personal information."
-        />
-        <div className="mt-6 space-y-6">
+    <>
+      <CoreStructuredData
+        scriptKeyPrefix="privacy"
+        webPage={{ path: LEGAL_PRIVACY_PATH, name: PAGE_TITLE }}
+        breadcrumbs={{
+          items: [
+            { name: "Home", path: HOME_PATH },
+            { name: "Legal", path: LEGAL_PATH },
+            { name: PAGE_TITLE, path: LEGAL_PRIVACY_PATH },
+          ],
+        }}
+      />
+      <div className="min-h-screen py-16">
+        <div className="mx-auto max-w-3xl px-4 md:px-8">
+          <PageHeader
+            title="Privacy Policy"
+            subtitle="Learn how ShipYardHQ collects, uses, and protects your personal information."
+          />
+          <div className="mt-6 space-y-6">
           <p className="text-muted-foreground">Last updated: Oct 9, 2025</p>
 
           <p>
@@ -291,8 +307,9 @@ export default function PrivacyPolicyPage() {
             </a>
             .
           </p>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }

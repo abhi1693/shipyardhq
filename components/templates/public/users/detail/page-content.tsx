@@ -14,11 +14,9 @@ import { Rocket } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import {
   BROWSE_PATH,
-  HOME_PATH,
   LEADERBOARD_PATH,
   LEADERBOARD_REWARDS_PATH,
   MEMBER_PRODUCTS_PATH,
-  USERS_PATH,
   productPath,
   userPath,
 } from "@/lib/routes"
@@ -132,74 +130,11 @@ export async function UserProfilePageContent({ params }: PageProps) {
       .join("")
       .slice(0, 2) || "SY"
 
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-  ).replace(/\/$/, "")
   const profilePath = userPath(profile.id)
-  const profileUrl = `${baseUrl}${profilePath}`
-
-  const ldPerson = {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: fullName,
-    url: profileUrl,
-    identifier: profile.id,
-  }
-  const ldItemList = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    itemListElement: directoryItems.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      item: `${baseUrl}${productPath(item.slug)}`,
-    })),
-  }
-  const ldBreadcrumb = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: `${baseUrl}${HOME_PATH}`,
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "Makers",
-        item: `${baseUrl}${USERS_PATH}`,
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: fullName,
-        item: profileUrl,
-      },
-    ],
-  }
 
   return (
     <main className="relative isolate bg-white">
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-14 md:px-8">
-        <script
-          type="application/ld+json"
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(ldPerson) }}
-        />
-        <script
-          type="application/ld+json"
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(ldBreadcrumb) }}
-        />
-        {directoryItems.length > 0 ? (
-          <script
-            type="application/ld+json"
-            suppressHydrationWarning
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(ldItemList) }}
-          />
-        ) : null}
-
         <div className="grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
           <div className="flex flex-col gap-10">
             <section className="relative overflow-hidden rounded-3xl border border-border bg-white p-6 shadow-sm md:p-10">

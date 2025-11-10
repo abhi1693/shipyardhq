@@ -2,13 +2,16 @@ import { Suspense } from "react"
 
 import { RewardsLeaderboardPageContent } from "@/components/templates/public/leaderboard/rewards/page-content"
 import { RewardsLeaderboardSkeleton } from "@/components/templates/public/leaderboard/rewards/skeleton"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
-import { LEADERBOARD_REWARDS_PATH } from "@/lib/routes"
+import { HOME_PATH, LEADERBOARD_REWARDS_PATH } from "@/lib/routes"
 
 export const revalidate = 120
 
+const PAGE_TITLE = "Rewards Leaderboard"
+
 export const metadata = buildPageMetadata({
-  title: "Rewards Leaderboard — Shipyard",
+  title: `${PAGE_TITLE} — Shipyard`,
   description:
     "See which Shipyard members have earned the most rewards from community activity, engagement streaks, and launch momentum.",
   openGraph: {
@@ -24,8 +27,20 @@ export default function RewardsLeaderboardPage(
   props: Parameters<typeof RewardsLeaderboardPageContent>[0],
 ) {
   return (
-    <Suspense fallback={<RewardsLeaderboardSkeleton />}>
-      <RewardsLeaderboardPageContent {...props} />
-    </Suspense>
+    <>
+      <CoreStructuredData
+        scriptKeyPrefix="leaderboard-rewards"
+        webPage={{ path: LEADERBOARD_REWARDS_PATH, name: PAGE_TITLE }}
+        breadcrumbs={{
+          items: [
+            { name: "Home", path: HOME_PATH },
+            { name: PAGE_TITLE, path: LEADERBOARD_REWARDS_PATH },
+          ],
+        }}
+      />
+      <Suspense fallback={<RewardsLeaderboardSkeleton />}>
+        <RewardsLeaderboardPageContent {...props} />
+      </Suspense>
+    </>
   )
 }

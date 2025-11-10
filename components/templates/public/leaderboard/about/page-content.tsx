@@ -67,7 +67,7 @@ const RANKING_EVENTS = [
   },
 ]
 
-const FAQ = [
+export const LEADERBOARD_FAQ = [
   {
     q: "Where do upvotes come from?",
     a: "Any signed-in member can cast a single upvote per product. They can toggle it off if they change their mind, and we immediately recalc the score.",
@@ -384,7 +384,7 @@ export function LeaderboardGuidePageContent() {
                 <div className="hidden h-full w-px rounded-full bg-[color:var(--brand-1)/0.12] md:block" />
               </div>
               <div className="space-y-4">
-                {FAQ.map((item, index) => (
+                {LEADERBOARD_FAQ.map((item, index) => (
                   <div
                     key={item.q}
                     className={cn(

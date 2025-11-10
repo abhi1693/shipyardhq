@@ -13,15 +13,18 @@ import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
-import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
+import { BROWSE_PATH, HOME_PATH, MEMBER_PRODUCTS_PATH, TAGS_PATH } from "@/lib/routes"
 import { getTagsIndexPayload } from "@/lib/tags/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
 
 export const dynamic = "force-static"
 export const revalidate = 300
 
+const PAGE_TITLE = "Browse Tags"
+
 export const metadata = buildPageMetadata({
-  title: "Browse Tags",
+  title: PAGE_TITLE,
   description:
     "Explore Shipyard products by their top keywords and discover new tools aligned with your interests.",
 })
@@ -45,6 +48,16 @@ export default async function TagsIndexPage({
 
   return (
     <main className="relative isolate bg-[#f5f7fb]">
+      <CoreStructuredData
+        scriptKeyPrefix="tags"
+        webPage={{ path: TAGS_PATH, name: PAGE_TITLE }}
+        breadcrumbs={{
+          items: [
+            { name: "Home", path: HOME_PATH },
+            { name: PAGE_TITLE, path: TAGS_PATH },
+          ],
+        }}
+      />
       <PublicTwoColumnLayout
         className="pb-24 pt-12"
         mainClassName="space-y-12"

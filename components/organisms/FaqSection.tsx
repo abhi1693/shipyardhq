@@ -6,7 +6,13 @@ import {
   AccordionTrigger,
 } from "@/components/atoms/accordion"
 
-export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
+export type FaqEntry = {
+  question: string
+  answer: ReactNode
+  answerText: string
+}
+
+export const FAQ_ITEMS: FaqEntry[] = [
   {
     question: "What analytics are included on the Free plan?",
     answer: (
@@ -26,6 +32,8 @@ export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
         </ul>
       </div>
     ),
+    answerText:
+      "Free listings include lifetime vote/click totals, total page views, interactive view trends (7–90 day ranges), and one automated Insights report each week for competitive and community research.",
   },
   {
     question: "What is Shipyard Insights?",
@@ -51,6 +59,8 @@ export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
         </ul>
       </div>
     ),
+    answerText:
+      "Shipyard Insights is an automated report combining analytics, competitor dossiers, community sentiment, and prioritized actions—free plans get one run per week and upgraded plans add more credits.",
   },
   {
     question: "What extra insight do paid plans unlock?",
@@ -71,6 +81,8 @@ export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
         </ul>
       </div>
     ),
+    answerText:
+      "Paid plans add click-through splits by channel/device, loyalty and retention cohorts, OS and traffic breakdowns, and extra Insights credits for running reports between launches.",
   },
   {
     question: "How does analytics scale for Crew plan organizations?",
@@ -86,6 +98,8 @@ export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
         </p>
       </div>
     ),
+    answerText:
+      "Crew plan organizations share one analytics workspace, letting teams compare launches, monitor shared momentum, and coordinate next steps without swapping dashboards.",
   },
   {
     question: "How do I access analytics for a product?",
@@ -104,43 +118,64 @@ export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
         </p>
       </div>
     ),
+    answerText:
+      "Open Member View, choose Products, and click Analytics on the listing you want—dashboards refresh in near real time, so check after major campaigns.",
   },
   {
     question: "Is it free to submit a product?",
     answer:
       "Yes. Listing a product on ShipyardHQ is free—you can publish immediately or keep a draft without paying. Free listings now include the core analytics dashboard, and you can upgrade anytime for more reach and deeper reporting.",
+    answerText:
+      "Yes. Listing on ShipyardHQ is free with core analytics included, and you can upgrade later for more reach or reporting.",
   },
   {
     question: "How does the product submission flow work?",
     answer:
       "The four-step product wizard walks through core details, pricing, domain verification, and launch assets. A final review screen runs link and image checks so you can fix issues before you ship. You can save progress, move between steps, and publish or save as draft when you’re ready.",
+    answerText:
+      "A four-step wizard guides you through details, pricing, verification, and assets with a final review step so you can fix issues before publishing or saving as a draft.",
   },
   {
     question: "How do I get the Verified badge on my listing?",
     answer:
       "During the verification step we generate a unique prod-verif-shipyard TXT record. Add it to your DNS, then click Verify Now from the wizard or product edit screen. Once the record resolves we persist the status so your public page shows the Verified badge until you remove the record.",
+    answerText:
+      "Add the provided prod-verif-shipyard TXT record to your DNS and click Verify; once it resolves, the Verified badge stays active until you remove the record.",
   },
   {
     question: "Can I update or relaunch after publishing?",
     answer:
       "Absolutely. Edit from your member dashboard at any time to refresh copy, swap assets, or re-run verification. You can also flip a live product back to draft while you iterate. Analytics retain historical data, so you can relaunch without losing past performance.",
+    answerText:
+      "Yes. You can edit a listing anytime, revert it to draft, and analytics history stays intact when you relaunch.",
   },
   {
     question: "How do I manage billing or cancel an upgrade?",
     answer:
       "Open the Billing Portal link in the member sidebar. We use Dodo Payments, so the portal lets you download invoices, update payment methods, or cancel future renewals without waiting on support.",
+    answerText:
+      "Use the Billing Portal link in the member sidebar to download invoices, update payment methods, or cancel renewals instantly.",
   },
   {
     question: "Who can create organizations or invite teammates?",
     answer:
       "Organizations unlock for makers on plans that include the collaboration feature. Eligible plans instantly expose shared analytics, team roles, and handoff tooling once a qualifying purchase is active.",
+    answerText:
+      "Organization workspaces unlock on plans with the collaboration feature, exposing shared analytics, team roles, and handoff tools after you upgrade.",
   },
   {
     question: "How do upvotes work?",
     answer:
       "Every signed-in member can toggle a single upvote per product. Votes update analytics in real time, drive the leaderboard, and help us surface trending tools while keeping spam out.",
+    answerText:
+      "Every signed-in member can toggle one upvote per product, updating analytics and leaderboard rankings in real time.",
   },
 ]
+
+export const FAQ_JSON_LD_ENTRIES = FAQ_ITEMS.map((item) => ({
+  question: item.question,
+  answer: item.answerText,
+}))
 
 export function FaqSection() {
   const faqs = FAQ_ITEMS

@@ -1,15 +1,23 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Sparkles } from "lucide-react"
+import { JsonLdScript } from "next-seo"
 
+import {
+  FaqSection,
+  FAQ_JSON_LD_ENTRIES,
+} from "@/components/organisms/FaqSection"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/atoms/dialog"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
+  ANALYTICS_PATH,
+  HOME_PATH,
   MEMBER_BASE_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
 } from "@/lib/routes"
-import { FaqSection } from "@/components/organisms/FaqSection"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/atoms/dialog"
+import { buildFaqStructuredData } from "@/lib/seo/faq"
 import { cn } from "@/lib/utils"
 import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
@@ -134,15 +142,39 @@ const ANALYTICS_GALLERY: GalleryItem[] = [
   },
 ]
 
+const PAGE_TITLE = "Analytics"
+
 export const metadata = buildPageMetadata({
-  title: "Analytics",
+  title: PAGE_TITLE,
   description:
     "Understand how builders engage with your products. Shipyard analytics now includes plan-specific dashboards for free, paid, and team members.",
 })
 
 export default function AnalyticsPage() {
+  const faqStructuredData = buildFaqStructuredData(FAQ_JSON_LD_ENTRIES, {
+    pageUrl: ANALYTICS_PATH,
+  })
+  const hasFaqStructuredData = faqStructuredData.mainEntity.length > 0
+
   return (
-    <main className="relative isolate overflow-hidden bg-white">
+    <>
+      <CoreStructuredData
+        scriptKeyPrefix="analytics"
+        webPage={{ path: ANALYTICS_PATH, name: PAGE_TITLE }}
+        breadcrumbs={{
+          items: [
+            { name: "Home", path: HOME_PATH },
+            { name: PAGE_TITLE, path: ANALYTICS_PATH },
+          ],
+        }}
+      />
+      {hasFaqStructuredData ? (
+        <JsonLdScript
+          data={faqStructuredData}
+          scriptKey="analytics-faq-jsonld"
+        />
+      ) : null}
+      <main className="relative isolate overflow-hidden bg-white">
       <section
         className={brandGradient(
           "relative overflow-hidden border border-[color:var(--brand-1)/0.18] py-24 shadow-[0px_60px_140px_-60px_rgba(18,66,112,0.7)]",
@@ -375,5 +407,6 @@ export default function AnalyticsPage() {
 
       <FaqSection />
     </main>
+    </>
   )
 }

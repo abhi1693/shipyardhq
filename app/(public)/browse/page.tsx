@@ -3,12 +3,15 @@ import { Suspense } from "react"
 
 import { BrowsePageContent } from "@/components/templates/public/browse/page-content"
 import { BrowsePageSkeleton } from "@/components/templates/public/browse/skeleton"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
 import { buildPageMetadata } from "@/lib/metadata"
-import { BROWSE_PATH, usecasePath } from "@/lib/routes"
+import { BROWSE_PATH, HOME_PATH, usecasePath } from "@/lib/routes"
+
+const PAGE_TITLE = "Browse Products"
 
 const baseMetadata = buildPageMetadata({
-  title: "Browse Products",
+  title: PAGE_TITLE,
   description: "Explore tools, startups, and products by use case or category.",
 })
 
@@ -41,8 +44,20 @@ export default function BrowsePage(
   props: Parameters<typeof BrowsePageContent>[0],
 ) {
   return (
-    <Suspense fallback={<BrowsePageSkeleton />}>
-      <BrowsePageContent {...props} />
-    </Suspense>
+    <>
+      <CoreStructuredData
+        scriptKeyPrefix="browse"
+        webPage={{ path: BROWSE_PATH, name: PAGE_TITLE }}
+        breadcrumbs={{
+          items: [
+            { name: "Home", path: HOME_PATH },
+            { name: PAGE_TITLE, path: BROWSE_PATH },
+          ],
+        }}
+      />
+      <Suspense fallback={<BrowsePageSkeleton />}>
+        <BrowsePageContent {...props} />
+      </Suspense>
+    </>
   )
 }
