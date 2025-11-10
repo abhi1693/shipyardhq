@@ -75,7 +75,7 @@ function buildNewViewSections(items: HomepageFeedItem[]): FeedSection[] {
   const now = new Date()
   const startToday = startOfDay(now)
   const startYesterday = addDays(startToday, -1)
-  const startOfCurrentWeek = startOfWeek(now, { weekStartsOn: 1 })
+  const startLastSevenDays = addDays(startToday, -7)
 
   type BucketKey = "today" | "yesterday" | "thisWeek"
   const bucketOrder: Array<{ key: BucketKey; label: string }> = [
@@ -99,7 +99,7 @@ function buildNewViewSections(items: HomepageFeedItem[]): FeedSection[] {
       bucketKey = "today"
     } else if (resolvedDate >= startYesterday) {
       bucketKey = "yesterday"
-    } else if (resolvedDate >= startOfCurrentWeek) {
+    } else if (resolvedDate >= startLastSevenDays) {
       bucketKey = "thisWeek"
     }
 
