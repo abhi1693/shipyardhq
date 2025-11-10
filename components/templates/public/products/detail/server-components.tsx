@@ -8,8 +8,14 @@ import { ProductUpdatesSection } from "@/components/templates/public/products/de
 import { toProductCardItem } from "@/lib/products/card-item"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { getPublicProductUpdates } from "@/actions/public/product-updates/actions"
-import { getPublicProductsByUseCase, hasUserUpvoted } from "@/actions/public/products/actions"
-import { getProductReviewSummary, getUserProductReview } from "@/lib/server/productReviews"
+import {
+  getPublicProductsByUseCase,
+  hasUserUpvoted,
+} from "@/actions/public/products/actions"
+import {
+  getProductReviewSummary,
+  getUserProductReview,
+} from "@/lib/server/productReviews"
 
 export type ViewerProductState = {
   isSignedIn: boolean
@@ -136,7 +142,9 @@ export async function SimilarProductsServer({
 
   return (
     <section className="space-y-4">
-      <h2 className="text-lg font-semibold text-foreground">You may also like</h2>
+      <h2 className="text-lg font-semibold text-foreground">
+        You may also like
+      </h2>
       <div className="space-y-3">
         {cardItems.map((item) => (
           <ProductCard key={item.id} product={item} />

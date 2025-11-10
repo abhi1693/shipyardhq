@@ -360,8 +360,8 @@ export default async function AlternativeDetailPage({
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   {productsPage.total} product
-                  {productsPage.total === 1 ? "" : "s"} mapped as alternatives to{" "}
-                  {alternative.name}.
+                  {productsPage.total === 1 ? "" : "s"} mapped as alternatives
+                  to {alternative.name}.
                 </p>
               </header>
 

@@ -177,271 +177,273 @@ export default function WhyShipyardPage() {
         }}
       />
       <main className="relative isolate overflow-hidden bg-white">
-      <section className="relative py-24">
-        <div className="relative mx-auto max-w-[84rem] px-4 text-center md:px-8">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2-text,#0a5678)] shadow-sm backdrop-blur">
-            Why Shipyard
-          </span>
-          <div className="mx-auto mt-8 max-w-3xl space-y-6">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              List where launches become lasting momentum
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              Shipyard is the only launch platform engineered for enduring
-              growth: curated discovery, guided preparation, and analytics plus
-              insights that keep your team focused on what moves the needle.
-            </p>
-          </div>
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button
-              asChild
-              size="lg"
-              className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]"
-            >
-              <Link href="/register">List your product</Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)] shadow-[0px_18px_40px_-32px_rgba(7,58,104,0.75)]"
-            >
-              <Link href={PRICING_PATH}>Explore plans</Link>
-            </Button>
-          </div>
-          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {HERO_HIGHLIGHTS.map((highlight) => (
-              <div
-                key={highlight.title}
-                className="rounded-2xl border border-[color:var(--brand-1)/0.18] bg-background/80 p-6 text-left shadow-[0px_22px_50px_-38px_rgba(7,58,104,0.65)] backdrop-blur"
-              >
-                <h3 className="text-base font-semibold text-foreground">
-                  {highlight.title}
-                </h3>
-                <p className="mt-3 text-sm text-muted-foreground">
-                  {highlight.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <InsightsShowcase
-        eyebrow="Shipyard Insights"
-        title="Insights keeps your team aligned after launch day"
-        description="Request a run for any eligible product to blend analytics with competitor research, community sentiment, and prioritized plays in one briefing—free plans include a weekly run and higher tiers add more credits."
-        primaryCta={{ label: "Start using insights", href: "/register" }}
-        secondaryCta={{
-          label: "Explore analytics & insights",
-          href: ANALYTICS_PATH,
-        }}
-      />
-
-      <section className="relative py-16">
-        <div className="mx-auto max-w-[84rem] space-y-12 px-4 md:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Designed to outpace every other listing platform
-            </h2>
-            <p className="mt-4 text-muted-foreground">
-              Every Shipyard workflow points toward traction: get discovered by
-              the right audience, understand what resonates, and amplify
-              momentum when it matters most.
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2">
-            {CORE_REASONS.map((reason) => (
-              <div
-                key={reason.title}
-                className="rounded-2xl border border-[color:var(--brand-1)/0.16] bg-background/85 p-6 shadow-[0px_22px_60px_-45px_rgba(7,58,104,0.75)] backdrop-blur"
-              >
-                <div className="flex items-start gap-4">
-                  <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[color:var(--brand-2)/0.14] text-[color:var(--brand-2-text,#0a5678)]">
-                    {reason.icon}
-                  </span>
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground">
-                      {reason.title}
-                    </h3>
-                    <p className="mt-3 text-sm text-muted-foreground">
-                      {reason.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative py-16">
-        <div className="mx-auto max-w-[84rem] space-y-12 px-4 md:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Why makers switch to Shipyard
-            </h2>
-            <p className="mt-4 text-muted-foreground">
-              These are the roadblocks we hit on other launch platforms—and the
-              reasons Shipyard keeps the path to launch clear.
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {MAKER_REALITIES.map((item) => {
-              const Icon = item.icon
-              const segments = item.highlight
-                ? item.description.split("{link}")
-                : [item.description]
-
-              return (
-                <div
-                  key={item.title}
-                  className="flex flex-col gap-4 rounded-2xl border border-[color:var(--brand-1)/0.16] bg-background/85 p-6 text-left shadow-[0px_22px_50px_-42px_rgba(7,58,104,0.72)] backdrop-blur"
-                >
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[color:var(--brand-2)/0.14] text-[color:var(--brand-2-text,#0a5678)]">
-                    <Icon className="h-6 w-6" />
-                  </span>
-                  <div className="space-y-3">
-                    <h3 className="text-lg font-semibold text-foreground">
-                      {item.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {item.highlight ? (
-                        <>
-                          {segments[0] ?? ""}
-                          <Link
-                            href={item.highlight.href}
-                            className="font-semibold text-[color:var(--brand-1)] underline-offset-4 hover:underline"
-                          >
-                            {item.highlight.label}
-                          </Link>
-                          {segments[1] ?? ""}
-                        </>
-                      ) : (
-                        segments[0]
-                      )}
-                    </p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative py-16">
-        <div className="mx-auto max-w-[84rem] space-y-10 px-4 md:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              How Shipyard stacks up
-            </h2>
-            <p className="mt-4 text-muted-foreground">
-              From the first teaser to the post-launch surge, Shipyard delivers
-              the guidance, audience, and tooling other directories skip.
-            </p>
-          </div>
-          <div className="divide-y divide-[color:var(--brand-1)/0.12] overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/85 shadow-[0px_30px_70px_-50px_rgba(7,58,104,0.75)] backdrop-blur">
-            <div className="hidden grid-cols-[1.2fr_1fr_1fr] gap-6 px-6 py-5 text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--brand-2-text,#0a5678)] sm:grid">
-              <span>Focus</span>
-              <span>Shipyard</span>
-              <span>Other directories</span>
-            </div>
-            {COMPARISON_POINTS.map((row) => (
-              <div
-                key={row.feature}
-                className="grid gap-6 px-6 py-6 sm:grid-cols-[1.2fr_1fr_1fr] sm:items-start"
-              >
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--brand-1)]">
-                    {row.feature}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-[color:var(--brand-2)/0.12] p-4 text-sm font-semibold text-[color:var(--brand-1)] shadow-[0px_18px_40px_-32px_rgba(7,58,104,0.65)] sm:bg-transparent sm:p-0 sm:shadow-none sm:text-base">
-                  {row.shipyard}
-                </div>
-                <div className="text-sm text-muted-foreground sm:text-base">
-                  {row.others}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative py-16">
-        <div className="mx-auto max-w-[84rem] space-y-12 px-4 md:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              A launch loop that keeps compounding
-            </h2>
-            <p className="mt-4 text-muted-foreground">
-              The Shipyard flywheel gives you clarity at every stage—before
-              launch, while the spotlight shines, and long after the initial
-              wave.
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {MOMENTUM_STEPS.map((step, index) => (
-              <div
-                key={step.title}
-                className="flex flex-col rounded-2xl border border-[color:var(--brand-1)/0.16] bg-background/85 p-6 text-left shadow-[0px_22px_50px_-40px_rgba(7,58,104,0.7)] backdrop-blur"
-              >
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--brand-2)/0.12] text-sm font-semibold text-[color:var(--brand-2-text,#0a5678)]">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <h3 className="mt-4 text-lg font-semibold text-foreground">
-                  {step.title}
-                </h3>
-                <p className="mt-3 text-sm text-muted-foreground">
-                  {step.detail}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative py-24">
-        <div className="relative mx-auto max-w-[84rem] px-4 md:px-8">
-          <div className="relative mx-auto flex max-w-4xl flex-col gap-10 overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.25] bg-background/95 px-6 py-12 text-center shadow-[0px_50px_140px_-90px_rgba(7,58,104,0.85)] sm:px-12">
-            <div className="space-y-5">
-              <span className="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2-text,#0a5678)] shadow-sm backdrop-blur">
-                Keep momentum
-              </span>
-              <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-                Ready to plan your next launch?
-              </h2>
-              <p className="text-base text-muted-foreground sm:text-lg">
-                Publish once, keep momentum rolling, and promote on your
-                terms—from first launch to repeat features.
+        <section className="relative py-24">
+          <div className="relative mx-auto max-w-[84rem] px-4 text-center md:px-8">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2-text,#0a5678)] shadow-sm backdrop-blur">
+              Why Shipyard
+            </span>
+            <div className="mx-auto mt-8 max-w-3xl space-y-6">
+              <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+                List where launches become lasting momentum
+              </h1>
+              <p className="text-lg text-muted-foreground">
+                Shipyard is the only launch platform engineered for enduring
+                growth: curated discovery, guided preparation, and analytics
+                plus insights that keep your team focused on what moves the
+                needle.
               </p>
             </div>
-            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link href="/register">
-                <Button
-                  size="lg"
-                  className="gap-2 shadow-[0px_25px_55px_-35px_rgba(7,58,104,0.85)]"
-                >
-                  Start listing today
-                </Button>
-              </Link>
-              <Link
-                href={PRICING_PATH}
-                className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.35] bg-background/80 px-4 py-2 text-sm font-semibold text-[color:var(--brand-1)] shadow-[0px_20px_45px_-32px_rgba(7,58,104,0.75)] transition-colors hover:bg-[color:var(--brand-1)/0.06]"
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Button
+                asChild
+                size="lg"
+                className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]"
               >
-                See placement options
-              </Link>
+                <Link href="/register">List your product</Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)] shadow-[0px_18px_40px_-32px_rgba(7,58,104,0.75)]"
+              >
+                <Link href={PRICING_PATH}>Explore plans</Link>
+              </Button>
+            </div>
+            <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {HERO_HIGHLIGHTS.map((highlight) => (
+                <div
+                  key={highlight.title}
+                  className="rounded-2xl border border-[color:var(--brand-1)/0.18] bg-background/80 p-6 text-left shadow-[0px_22px_50px_-38px_rgba(7,58,104,0.65)] backdrop-blur"
+                >
+                  <h3 className="text-base font-semibold text-foreground">
+                    {highlight.title}
+                  </h3>
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    {highlight.description}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="relative py-16">
-        <div className="mx-auto max-w-[84rem] overflow-hidden rounded-[46px] border border-primary/15 px-0 md:px-0 dark:border-slate-800/60">
-          <NewsletterSignupSection />
-        </div>
-      </section>
-    </main>
+        <InsightsShowcase
+          eyebrow="Shipyard Insights"
+          title="Insights keeps your team aligned after launch day"
+          description="Request a run for any eligible product to blend analytics with competitor research, community sentiment, and prioritized plays in one briefing—free plans include a weekly run and higher tiers add more credits."
+          primaryCta={{ label: "Start using insights", href: "/register" }}
+          secondaryCta={{
+            label: "Explore analytics & insights",
+            href: ANALYTICS_PATH,
+          }}
+        />
+
+        <section className="relative py-16">
+          <div className="mx-auto max-w-[84rem] space-y-12 px-4 md:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                Designed to outpace every other listing platform
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                Every Shipyard workflow points toward traction: get discovered
+                by the right audience, understand what resonates, and amplify
+                momentum when it matters most.
+              </p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              {CORE_REASONS.map((reason) => (
+                <div
+                  key={reason.title}
+                  className="rounded-2xl border border-[color:var(--brand-1)/0.16] bg-background/85 p-6 shadow-[0px_22px_60px_-45px_rgba(7,58,104,0.75)] backdrop-blur"
+                >
+                  <div className="flex items-start gap-4">
+                    <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[color:var(--brand-2)/0.14] text-[color:var(--brand-2-text,#0a5678)]">
+                      {reason.icon}
+                    </span>
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground">
+                        {reason.title}
+                      </h3>
+                      <p className="mt-3 text-sm text-muted-foreground">
+                        {reason.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="relative py-16">
+          <div className="mx-auto max-w-[84rem] space-y-12 px-4 md:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                Why makers switch to Shipyard
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                These are the roadblocks we hit on other launch platforms—and
+                the reasons Shipyard keeps the path to launch clear.
+              </p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-3">
+              {MAKER_REALITIES.map((item) => {
+                const Icon = item.icon
+                const segments = item.highlight
+                  ? item.description.split("{link}")
+                  : [item.description]
+
+                return (
+                  <div
+                    key={item.title}
+                    className="flex flex-col gap-4 rounded-2xl border border-[color:var(--brand-1)/0.16] bg-background/85 p-6 text-left shadow-[0px_22px_50px_-42px_rgba(7,58,104,0.72)] backdrop-blur"
+                  >
+                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[color:var(--brand-2)/0.14] text-[color:var(--brand-2-text,#0a5678)]">
+                      <Icon className="h-6 w-6" />
+                    </span>
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-foreground">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {item.highlight ? (
+                          <>
+                            {segments[0] ?? ""}
+                            <Link
+                              href={item.highlight.href}
+                              className="font-semibold text-[color:var(--brand-1)] underline-offset-4 hover:underline"
+                            >
+                              {item.highlight.label}
+                            </Link>
+                            {segments[1] ?? ""}
+                          </>
+                        ) : (
+                          segments[0]
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section className="relative py-16">
+          <div className="mx-auto max-w-[84rem] space-y-10 px-4 md:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                How Shipyard stacks up
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                From the first teaser to the post-launch surge, Shipyard
+                delivers the guidance, audience, and tooling other directories
+                skip.
+              </p>
+            </div>
+            <div className="divide-y divide-[color:var(--brand-1)/0.12] overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/85 shadow-[0px_30px_70px_-50px_rgba(7,58,104,0.75)] backdrop-blur">
+              <div className="hidden grid-cols-[1.2fr_1fr_1fr] gap-6 px-6 py-5 text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--brand-2-text,#0a5678)] sm:grid">
+                <span>Focus</span>
+                <span>Shipyard</span>
+                <span>Other directories</span>
+              </div>
+              {COMPARISON_POINTS.map((row) => (
+                <div
+                  key={row.feature}
+                  className="grid gap-6 px-6 py-6 sm:grid-cols-[1.2fr_1fr_1fr] sm:items-start"
+                >
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--brand-1)]">
+                      {row.feature}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-[color:var(--brand-2)/0.12] p-4 text-sm font-semibold text-[color:var(--brand-1)] shadow-[0px_18px_40px_-32px_rgba(7,58,104,0.65)] sm:bg-transparent sm:p-0 sm:shadow-none sm:text-base">
+                    {row.shipyard}
+                  </div>
+                  <div className="text-sm text-muted-foreground sm:text-base">
+                    {row.others}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="relative py-16">
+          <div className="mx-auto max-w-[84rem] space-y-12 px-4 md:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                A launch loop that keeps compounding
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                The Shipyard flywheel gives you clarity at every stage—before
+                launch, while the spotlight shines, and long after the initial
+                wave.
+              </p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-3">
+              {MOMENTUM_STEPS.map((step, index) => (
+                <div
+                  key={step.title}
+                  className="flex flex-col rounded-2xl border border-[color:var(--brand-1)/0.16] bg-background/85 p-6 text-left shadow-[0px_22px_50px_-40px_rgba(7,58,104,0.7)] backdrop-blur"
+                >
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--brand-2)/0.12] text-sm font-semibold text-[color:var(--brand-2-text,#0a5678)]">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="mt-4 text-lg font-semibold text-foreground">
+                    {step.title}
+                  </h3>
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    {step.detail}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="relative py-24">
+          <div className="relative mx-auto max-w-[84rem] px-4 md:px-8">
+            <div className="relative mx-auto flex max-w-4xl flex-col gap-10 overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.25] bg-background/95 px-6 py-12 text-center shadow-[0px_50px_140px_-90px_rgba(7,58,104,0.85)] sm:px-12">
+              <div className="space-y-5">
+                <span className="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2-text,#0a5678)] shadow-sm backdrop-blur">
+                  Keep momentum
+                </span>
+                <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+                  Ready to plan your next launch?
+                </h2>
+                <p className="text-base text-muted-foreground sm:text-lg">
+                  Publish once, keep momentum rolling, and promote on your
+                  terms—from first launch to repeat features.
+                </p>
+              </div>
+              <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+                <Link href="/register">
+                  <Button
+                    size="lg"
+                    className="gap-2 shadow-[0px_25px_55px_-35px_rgba(7,58,104,0.85)]"
+                  >
+                    Start listing today
+                  </Button>
+                </Link>
+                <Link
+                  href={PRICING_PATH}
+                  className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.35] bg-background/80 px-4 py-2 text-sm font-semibold text-[color:var(--brand-1)] shadow-[0px_20px_45px_-32px_rgba(7,58,104,0.75)] transition-colors hover:bg-[color:var(--brand-1)/0.06]"
+                >
+                  See placement options
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="relative py-16">
+          <div className="mx-auto max-w-[84rem] overflow-hidden rounded-[46px] border border-primary/15 px-0 md:px-0 dark:border-slate-800/60">
+            <NewsletterSignupSection />
+          </div>
+        </section>
+      </main>
     </>
   )
 }

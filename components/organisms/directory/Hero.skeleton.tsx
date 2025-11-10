@@ -71,8 +71,14 @@ export function HeroSkeleton({
                 key={index}
                 className="rounded-2xl border border-border/60 bg-white px-5 py-4 shadow-sm"
               >
-                <Skeleton className="mx-auto h-3 w-24 rounded-full" tone="muted" />
-                <Skeleton className="mx-auto mt-3 h-6 w-20 rounded-full" tone="brand" />
+                <Skeleton
+                  className="mx-auto h-3 w-24 rounded-full"
+                  tone="muted"
+                />
+                <Skeleton
+                  className="mx-auto mt-3 h-6 w-20 rounded-full"
+                  tone="brand"
+                />
               </div>
             ))}
           </div>

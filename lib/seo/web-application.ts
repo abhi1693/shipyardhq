@@ -81,10 +81,7 @@ const normalizeStringArray = (value?: string | string[]) => {
   return cleaned.length === 1 ? cleaned[0] : cleaned
 }
 
-const normalizeMediaList = (
-  siteUrl: string,
-  value?: string | string[],
-) => {
+const normalizeMediaList = (siteUrl: string, value?: string | string[]) => {
   if (!value) return undefined
   const array = Array.isArray(value) ? value : [value]
   const cleaned = Array.from(
@@ -128,7 +125,9 @@ const normalizeAuthor = (
   author?: WebApplicationAuthor,
 ): WebApplicationStructuredData["author"] => {
   if (!author || !author.name?.trim()) return undefined
-  const url = author.url ? toAbsoluteUrlFromSite(author.url, siteUrl) : undefined
+  const url = author.url
+    ? toAbsoluteUrlFromSite(author.url, siteUrl)
+    : undefined
   const image = author.image
     ? toAbsoluteUrlFromSite(author.image, siteUrl)
     : undefined

@@ -14,7 +14,9 @@ function xml(parts: TemplateStringsArray, ...subs: any[]) {
 
 const CHUNK_SIZE = 50000
 
-export async function generateStaticParams(): Promise<Array<{ index: string }>> {
+export async function generateStaticParams(): Promise<
+  Array<{ index: string }>
+> {
   const total = await prisma.product.count({
     where: { status: "published" as any },
   })

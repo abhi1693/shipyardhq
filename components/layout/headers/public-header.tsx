@@ -261,10 +261,7 @@ export default function PublicHeader() {
               className="w-80 border-l border-border/60 bg-white/90 p-6 backdrop-blur supports-[backdrop-filter]:bg-white/80"
             >
               <div className="flex flex-col gap-6">
-                <BrandWordmark
-                  compact
-                  onClick={() => setOpen(false)}
-                />
+                <BrandWordmark compact onClick={() => setOpen(false)} />
                 <div className="space-y-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
                     Navigation

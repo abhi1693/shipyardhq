@@ -118,8 +118,7 @@ export function Hero({
               <span className="text-[color:var(--brand-2-text,#0a5678)]">
                 Grow
               </span>{" "}
-              with our
-              builder community.
+              with our builder community.
             </h1>
           ) : (
             <h1 className="text-4xl font-semibold tracking-tight text-[#1C2333] sm:text-5xl">

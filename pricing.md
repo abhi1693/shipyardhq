@@ -4,11 +4,11 @@ Clear, fair tiers that start generous and scale with growth. Free is the default
 
 ## Plan Summary
 
-| Plan           | Type                |        Price |          Boost Window | Included Feature Keys                                                                                                                         | Primary Value                                                                        |
-| -------------- | ------------------- | -----------: | --------------------: | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Free (Default) | Default             |           $0 |                     — | `analytics.basic`, `product.sitemap`, `backlink`                                                                                              | Public listing, product page, browse visibility, basic analytics, do‑follow backlink |
+| Plan           | Type                |        Price |          Boost Window | Included Feature Keys                                                                                                                   | Primary Value                                                                        |
+| -------------- | ------------------- | -----------: | --------------------: | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Free (Default) | Default             |           $0 |                     — | `analytics.basic`, `product.sitemap`, `backlink`                                                                                        | Public listing, product page, browse visibility, basic analytics, do‑follow backlink |
 | Pro            | One‑time (lifetime) | $19 one‑time | Time‑boxed placements | `priorityPlacement`, `featured`, `sponsoredProducts`, `newsletterPromotion`, `stickyBanner`, `customCTA`, `product.sitemap`, `backlink` | Stronger page + premium surfaces + visibility bump                                   |
-| Team           | One‑time (lifetime) | $49 one‑time | Time‑boxed placements | All Pro features + `organization`                                                                                                             | Collaboration (orgs) with all Pro growth tools                                       |
+| Team           | One‑time (lifetime) | $49 one‑time | Time‑boxed placements | All Pro features + `organization`                                                                                                       | Collaboration (orgs) with all Pro growth tools                                       |
 
 Notes
 

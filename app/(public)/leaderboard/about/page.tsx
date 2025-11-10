@@ -9,7 +9,11 @@ import { LeaderboardGuideSkeleton } from "@/components/templates/public/leaderbo
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildFaqStructuredData } from "@/lib/seo/faq"
 import { buildPageMetadata } from "@/lib/metadata"
-import { HOME_PATH, LEADERBOARD_GUIDE_PATH, LEADERBOARD_PATH } from "@/lib/routes"
+import {
+  HOME_PATH,
+  LEADERBOARD_GUIDE_PATH,
+  LEADERBOARD_PATH,
+} from "@/lib/routes"
 
 const PAGE_TITLE = "How ShipYardHQ leaderboard scoring works"
 

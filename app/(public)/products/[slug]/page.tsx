@@ -108,9 +108,7 @@ export async function generateMetadata(
   const description =
     tagline.length > 220 ? `${tagline.slice(0, 217).trimEnd()}...` : tagline
 
-  const pageTitle = tagline
-    ? `${product.name} · ${tagline}`
-    : product.name
+  const pageTitle = tagline ? `${product.name} · ${tagline}` : product.name
 
   const toAbsoluteImageUrl = (value?: string | null) => {
     if (!value) return null
@@ -228,7 +226,6 @@ function formatCurrency(
   }
 }
 
-
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
   const product = await getPublicProductMetaBySlug(slug)
@@ -250,9 +247,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     product.bannerImage,
     ...(product.ProductMedia ?? []).map((media) => media.imageUrl),
   ].filter((value): value is string => Boolean(value?.trim()))
-  const schemaPublishedDateIso = (product.publishedAt || product.createdAt)
-    ? new Date(product.publishedAt || product.createdAt).toISOString()
-    : undefined
+  const schemaPublishedDateIso =
+    product.publishedAt || product.createdAt
+      ? new Date(product.publishedAt || product.createdAt).toISOString()
+      : undefined
   const updatedDateIso = sidebarProduct.updatedAt
     ? new Date(sidebarProduct.updatedAt).toISOString()
     : undefined
@@ -263,12 +261,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     .join(" ")
     .trim()
   const productTypeLabel = sidebarProduct?.type
-    ? PRODUCT_TYPE_LABELS[sidebarProduct.type as keyof typeof PRODUCT_TYPE_LABELS] ??
-      formatLabel(sidebarProduct.type)
+    ? (PRODUCT_TYPE_LABELS[
+        sidebarProduct.type as keyof typeof PRODUCT_TYPE_LABELS
+      ] ?? formatLabel(sidebarProduct.type))
     : null
   const pricingModelLabel = sidebarProduct?.pricingModel
-    ? PRICING_MODEL_LABELS[sidebarProduct.pricingModel as keyof typeof PRICING_MODEL_LABELS] ??
-      formatLabel(sidebarProduct.pricingModel)
+    ? (PRICING_MODEL_LABELS[
+        sidebarProduct.pricingModel as keyof typeof PRICING_MODEL_LABELS
+      ] ?? formatLabel(sidebarProduct.pricingModel))
     : null
   const offer =
     typeof sidebarProduct.startingPriceCents === "number"
@@ -504,9 +504,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               ))}
             </div>
           ) : (
-            <span className="text-muted-foreground">
-              Platforms coming soon
-            </span>
+            <span className="text-muted-foreground">Platforms coming soon</span>
           )}
         </SidebarInfoRow>
         <SidebarInfoRow label="Badges">
@@ -522,9 +520,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       <span aria-hidden>{badge.icon}</span>
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent sideOffset={6}>
-                    {badge.label}
-                  </TooltipContent>
+                  <TooltipContent sideOffset={6}>{badge.label}</TooltipContent>
                 </Tooltip>
               ))}
             </div>

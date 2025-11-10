@@ -45,7 +45,8 @@ export function buildAggregateRatingStructuredData(
   return payload
 }
 
-export const emptyAggregateRatingStructuredData: AggregateRatingStructuredData = {
-  "@type": "AggregateRating",
-  ratingValue: "0",
-}
+export const emptyAggregateRatingStructuredData: AggregateRatingStructuredData =
+  {
+    "@type": "AggregateRating",
+    ratingValue: "0",
+  }

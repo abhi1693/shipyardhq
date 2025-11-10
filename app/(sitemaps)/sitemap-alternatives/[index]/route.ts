@@ -9,7 +9,9 @@ function xml(parts: TemplateStringsArray, ...subs: unknown[]) {
   return parts.map((part, index) => part + (subs[index] ?? "")).join("")
 }
 
-export async function generateStaticParams(): Promise<Array<{ index: string }>> {
+export async function generateStaticParams(): Promise<
+  Array<{ index: string }>
+> {
   const total = await prisma.alternativeProduct.count()
   const totalPages = Math.max(Math.ceil(total / CHUNK_SIZE), 1)
 

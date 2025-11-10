@@ -80,7 +80,8 @@ export function buildBreadcrumbListStructuredData(
     ? toAbsoluteUrlFromSite(options.pageUrl, siteUrl)
     : undefined
 
-  const id = options.id?.trim() || (pageUrl ? `${pageUrl}#breadcrumb` : undefined)
+  const id =
+    options.id?.trim() || (pageUrl ? `${pageUrl}#breadcrumb` : undefined)
 
   return {
     "@context": "https://schema.org",

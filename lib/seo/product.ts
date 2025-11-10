@@ -52,7 +52,10 @@ const normalizePath = (value: string) => {
   return trimmed.startsWith("/") ? trimmed : `/${trimmed}`
 }
 
-const normalizeMedia = (value: string | string[] | undefined, siteUrl: string) => {
+const normalizeMedia = (
+  value: string | string[] | undefined,
+  siteUrl: string,
+) => {
   if (!value) return undefined
   const list = Array.isArray(value) ? value : [value]
   const unique = Array.from(

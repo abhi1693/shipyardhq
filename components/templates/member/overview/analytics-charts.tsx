@@ -67,15 +67,11 @@ export function MemberAnalyticsCharts({
   const hasTrafficPoints =
     typeof hasTrafficActivity === "boolean"
       ? hasTrafficActivity
-      : trafficData.some(
-          (point) => point.views > 0 || point.uniqueVisitors > 0,
-        )
+      : trafficData.some((point) => point.views > 0 || point.uniqueVisitors > 0)
   const hasEngagementPoints =
     typeof hasEngagementActivity === "boolean"
       ? hasEngagementActivity
-      : engagementData.some(
-          (point) => point.clicks > 0 || point.upvotes > 0,
-        )
+      : engagementData.some((point) => point.clicks > 0 || point.upvotes > 0)
 
   return (
     <section className="grid gap-4 lg:grid-cols-2">

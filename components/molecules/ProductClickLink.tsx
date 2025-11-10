@@ -42,21 +42,13 @@ export function ProductClickLink({
 }: ProductClickLinkProps) {
   const formRef = useRef<HTMLFormElement | null>(null)
 
-  const handleClick = useCallback(
-    (event: MouseEvent<HTMLAnchorElement>) => {
-      if (
-        event.metaKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        event.button === 1
-      )
-        return
-      if (event.defaultPrevented) return
-      event.preventDefault()
-      formRef.current?.requestSubmit()
-    },
-    [],
-  )
+  const handleClick = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1)
+      return
+    if (event.defaultPrevented) return
+    event.preventDefault()
+    formRef.current?.requestSubmit()
+  }, [])
 
   return (
     <form

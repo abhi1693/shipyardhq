@@ -4,8 +4,14 @@ import { Suspense } from "react"
 import { notFound } from "next/navigation"
 
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
-import { getKeywordTagBySlug, getKeywordTagProducts } from "@/actions/public/tags/actions"
-import { getHomepageFeedViewAll, type HomepageFeedItem } from "@/actions/public/homepage/feed"
+import {
+  getKeywordTagBySlug,
+  getKeywordTagProducts,
+} from "@/actions/public/tags/actions"
+import {
+  getHomepageFeedViewAll,
+  type HomepageFeedItem,
+} from "@/actions/public/homepage/feed"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import ProductFeedList from "@/components/organisms/feed/ProductFeedList"

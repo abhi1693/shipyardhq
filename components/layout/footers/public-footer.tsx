@@ -144,7 +144,9 @@ export default function PublicFooter() {
                           link.href.startsWith("http") ? "_blank" : undefined
                         }
                         rel={
-                          link.href.startsWith("http") ? "noreferrer" : undefined
+                          link.href.startsWith("http")
+                            ? "noreferrer"
+                            : undefined
                         }
                       >
                         {link.label}

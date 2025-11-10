@@ -95,7 +95,9 @@ export async function clickExternalProductLinkAction(formData: FormData) {
   try {
     const ip = await getClientIp()
     const { userId: clerkUserId } = await auth()
-    const viewer = clerkUserId ? await getActiveUserByClerkId(clerkUserId) : null
+    const viewer = clerkUserId
+      ? await getActiveUserByClerkId(clerkUserId)
+      : null
     const viewerId = viewer?.id ?? null
 
     const hdrs = await headers()

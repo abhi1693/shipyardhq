@@ -209,7 +209,9 @@ export function ProductFeedList({
   showRemaining = false,
 }: ProductFeedListProps) {
   const view = activeFilter
-  const [remainingPages, setRemainingPages] = useState<Record<string, number>>({})
+  const [remainingPages, setRemainingPages] = useState<Record<string, number>>(
+    {},
+  )
   const remainingObserverRef = useRef<IntersectionObserver | null>(null)
 
   useEffect(() => {
@@ -318,7 +320,8 @@ export function ProductFeedList({
   }, [remainingItems, remainingPage, showRemaining, view])
 
   const hasMoreRemaining =
-    showRemaining && view === "new" &&
+    showRemaining &&
+    view === "new" &&
     visibleRemainingItems.length < remainingItems.length
 
   const hasSectionedContent = sections.some((section) =>

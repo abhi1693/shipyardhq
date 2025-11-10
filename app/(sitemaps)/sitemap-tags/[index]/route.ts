@@ -12,7 +12,9 @@ function xml(parts: TemplateStringsArray, ...subs: any[]) {
   return parts.map((part, index) => part + (subs[index] ?? "")).join("")
 }
 
-export async function generateStaticParams(): Promise<Array<{ index: string }>> {
+export async function generateStaticParams(): Promise<
+  Array<{ index: string }>
+> {
   const { total } = await getKeywordTagSitemapStats()
   const totalPages = Math.max(Math.ceil(total / CHUNK_SIZE), 1)
 

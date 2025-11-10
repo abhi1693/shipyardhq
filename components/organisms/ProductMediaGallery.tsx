@@ -71,7 +71,11 @@ export function ProductMediaGallery({
   }
 
   const mobileThumbnailGridClass =
-    totalAssets >= 3 ? "grid-cols-3" : totalAssets === 2 ? "grid-cols-2" : "grid-cols-1"
+    totalAssets >= 3
+      ? "grid-cols-3"
+      : totalAssets === 2
+        ? "grid-cols-2"
+        : "grid-cols-1"
 
   return (
     <section className="space-y-5">

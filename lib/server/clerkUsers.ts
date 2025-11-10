@@ -1,9 +1,6 @@
 import type { User as ClerkUser } from "@clerk/backend"
 import { clerkClient } from "@clerk/nextjs/server"
-import {
-  cacheHit,
-  cacheMiss,
-} from "@/lib/server/cache"
+import { cacheHit, cacheMiss } from "@/lib/server/cache"
 const DEFAULT_TTL_SECONDS = 300
 
 function resolveTtl(): number {

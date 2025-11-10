@@ -12,9 +12,7 @@ import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 
 const SPONSOR_SLOT_COUNT = 3
 
-type SponsorPlacement = Awaited<
-  ReturnType<typeof getSponsoredProducts>
->[number]
+type SponsorPlacement = Awaited<ReturnType<typeof getSponsoredProducts>>[number]
 
 type SponsorListItem =
   | {

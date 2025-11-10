@@ -66,11 +66,7 @@ const normalizePath = (value?: string) => {
   return trimmed.startsWith("/") ? trimmed : `/${trimmed}`
 }
 
-const buildAbsoluteUrl = (
-  siteUrl: string,
-  url?: string,
-  path?: string,
-) => {
+const buildAbsoluteUrl = (siteUrl: string, url?: string, path?: string) => {
   if (url) {
     const resolved = toAbsoluteUrlFromSite(url, siteUrl)
     if (resolved) return resolved

@@ -35,10 +35,7 @@ export function CoreStructuredData({
   const webSiteData = buildWebSiteStructuredData(webSite)
   const webPageData = buildWebPageStructuredData(webPage)
   const breadcrumbData = breadcrumbs
-    ? buildBreadcrumbListStructuredData(
-        breadcrumbs.items,
-        breadcrumbs.options,
-      )
+    ? buildBreadcrumbListStructuredData(breadcrumbs.items, breadcrumbs.options)
     : undefined
 
   const makeKey = (suffix: string) => `${scriptKeyPrefix}-${suffix}`
@@ -49,14 +46,8 @@ export function CoreStructuredData({
         data={organizationStructuredData}
         scriptKey={makeKey("organization-jsonld")}
       />
-      <JsonLdScript
-        data={webSiteData}
-        scriptKey={makeKey("website-jsonld")}
-      />
-      <JsonLdScript
-        data={webPageData}
-        scriptKey={makeKey("webpage-jsonld")}
-      />
+      <JsonLdScript data={webSiteData} scriptKey={makeKey("website-jsonld")} />
+      <JsonLdScript data={webPageData} scriptKey={makeKey("webpage-jsonld")} />
       {breadcrumbData ? (
         <JsonLdScript
           data={breadcrumbData}

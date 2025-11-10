@@ -1,9 +1,6 @@
 import { Suspense } from "react"
 
-import {
-  Card,
-  CardContent,
-} from "@/components/atoms/card"
+import { Card, CardContent } from "@/components/atoms/card"
 import { currentUser } from "@clerk/nextjs/server"
 import { getMemberTrafficOverview } from "@/actions/member/overview/actions"
 import { MemberAnalyticsCharts } from "@/components/templates/member/overview/analytics-charts"
