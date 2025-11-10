@@ -92,7 +92,11 @@ export const ANALYTICS_PATH = "/analytics" as const
 const USE_CASES_PATH = "/use-cases" as const
 export const CATEGORIES_PATH = "/categories" as const
 export const USERS_PATH = "/users" as const
+export const TAGS_PATH = "/tags" as const
 export const REWARDS_PATH = "/rewards" as const
+export const LEGAL_PATH = "/legal" as const
+export const LEGAL_PRIVACY_PATH = "/legal/privacy-policy" as const
+export const LEGAL_TERMS_PATH = "/legal/terms" as const
 
 export const SHIPYARD_TWITTER_URL = "https://x.com/shipyardhq" as const
 

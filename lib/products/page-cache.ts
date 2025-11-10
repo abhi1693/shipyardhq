@@ -6,9 +6,10 @@ import {
 import { getPublicProductUpdates } from "@/actions/public/product-updates/actions"
 import { getProductReviewSummary } from "@/lib/server/productReviews"
 import { productPath } from "@/lib/routes"
+import { ensureUrlHasSchema } from "@/lib/utils"
 import type { ProductUpdatePublicView } from "@/types/product-updates"
 
-type PublicProduct = NonNullable<
+export type PublicProduct = NonNullable<
   Awaited<ReturnType<typeof getPublicProductBySlug>>
 >
 
@@ -102,7 +103,7 @@ function mapUseCaseProducts(products: UseCaseProduct[]): SimilarProduct[] {
   }))
 }
 
-function buildStructuredData(
+export function buildProductStructuredData(
   product: PublicProduct,
   reviewSummary: ProductReviewSummary,
 ) {
@@ -110,6 +111,25 @@ function buildStructuredData(
     process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
   ).replace(/\/$/, "")
   const canonicalUrl = `${baseUrl}${productPath(product.slug)}`
+  const toAbsoluteUrl = (value?: string | null) => {
+    if (!value) return null
+    const trimmed = value.trim()
+    if (!trimmed) return null
+    if (/^https?:\/\//i.test(trimmed)) return trimmed
+    if (trimmed.startsWith("/")) {
+      return `${baseUrl}${trimmed}`
+    }
+    return ensureUrlHasSchema(trimmed)
+  }
+  const logoUrl = toAbsoluteUrl(product.logo)
+  const bannerUrl = toAbsoluteUrl(product.bannerImage)
+  const galleryImages =
+    product.ProductMedia?.map((item) => toAbsoluteUrl(item.imageUrl)).filter(
+      (value): value is string => Boolean(value),
+    ) ?? []
+  const screenshotImages = [bannerUrl, ...galleryImages].filter(
+    (value): value is string => Boolean(value),
+  )
 
   const schemaOperatingSystems = Array.from(
     new Set(
@@ -129,11 +149,7 @@ function buildStructuredData(
           bestRating: 5,
           worstRating: 0,
         }
-      : null
-
-  if (!aggregateRating) {
-    return null
-  }
+      : undefined
 
   const offers =
     product.startingPriceCents !== null &&
@@ -145,42 +161,52 @@ function buildStructuredData(
         }
       : undefined
 
-  return {
+  const structuredData: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: product.name,
     description: product.tagline || product.description || undefined,
-    image: [product.bannerImage, product.logo].filter(Boolean),
+    image: logoUrl ? [logoUrl] : undefined,
+    screenshot: screenshotImages.length ? screenshotImages : undefined,
     url: canonicalUrl,
     applicationCategory: APPLICATION_CATEGORY_MAP[product.type] || undefined,
     operatingSystem: schemaOperatingSystems.length
       ? schemaOperatingSystems
       : undefined,
     offers,
-    aggregateRating,
-    review: reviewSummary.reviews.map((review) => ({
-      "@type": "Review",
-      author: {
-        "@type": "Person",
-        name: reviewerDisplayName(review.user.firstName, review.user.lastName),
-      },
-      datePublished: (() => {
-        try {
-          return new Date(review.createdAt).toISOString()
-        } catch {
-          return undefined
-        }
-      })(),
-      reviewBody: review.message,
-      name: `Feedback for ${product.name}`,
-      reviewRating: {
-        "@type": "Rating",
-        ratingValue: review.rating,
-        bestRating: 5,
-        worstRating: 0,
-      },
-    })),
   }
+
+  if (aggregateRating) {
+    structuredData.aggregateRating = aggregateRating
+  }
+
+  const reviews = reviewSummary.reviews.map((review) => ({
+    "@type": "Review",
+    author: {
+      "@type": "Person",
+      name: reviewerDisplayName(review.user.firstName, review.user.lastName),
+    },
+    datePublished: (() => {
+      try {
+        return new Date(review.createdAt).toISOString()
+      } catch {
+        return undefined
+      }
+    })(),
+    reviewBody: review.message,
+    name: `Feedback for ${product.name}`,
+    reviewRating: {
+      "@type": "Rating",
+      ratingValue: review.rating,
+      bestRating: 5,
+      worstRating: 0,
+    },
+  }))
+  if (reviews.length) {
+    structuredData.review = reviews
+  }
+
+  return structuredData
 }
 
 export const getProductPagePayload = cached(
@@ -218,7 +244,7 @@ export const getProductPagePayload = cached(
         }
       : null
 
-    const structuredData = buildStructuredData(product, reviewSummary)
+    const structuredData = buildProductStructuredData(product, reviewSummary)
 
     return {
       product,

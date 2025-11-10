@@ -1,20 +1,36 @@
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
+import { HOME_PATH, LEGAL_PATH, LEGAL_TERMS_PATH } from "@/lib/routes"
+
+const PAGE_TITLE = "Terms of Service"
 
 export const metadata = buildPageMetadata({
-  title: "Terms of Service",
+  title: PAGE_TITLE,
   description: "Review the terms and conditions for using ShipYardHQ.",
 })
 
 export default function TermsOfServicePage() {
   return (
-    <div className="min-h-screen py-16">
-      <div className="mx-auto max-w-3xl px-4 md:px-8">
-        <PageHeader
-          title="Terms of Service"
-          subtitle="Review the terms and conditions for using ShipYardHQ."
-        />
-        <div className="mt-6 space-y-6">
+    <>
+      <CoreStructuredData
+        scriptKeyPrefix="terms"
+        webPage={{ path: LEGAL_TERMS_PATH, name: PAGE_TITLE }}
+        breadcrumbs={{
+          items: [
+            { name: "Home", path: HOME_PATH },
+            { name: "Legal", path: LEGAL_PATH },
+            { name: PAGE_TITLE, path: LEGAL_TERMS_PATH },
+          ],
+        }}
+      />
+      <div className="min-h-screen py-16">
+        <div className="mx-auto max-w-3xl px-4 md:px-8">
+          <PageHeader
+            title="Terms of Service"
+            subtitle="Review the terms and conditions for using ShipYardHQ."
+          />
+          <div className="mt-6 space-y-6">
           <p className="text-muted-foreground">Last updated: Oct 9, 2025</p>
 
           <p>
@@ -350,8 +366,9 @@ export default function TermsOfServicePage() {
             </a>
             .
           </p>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }

@@ -12,15 +12,23 @@ import {
   HERO_PRIMARY_BUTTON_CLASSES,
   HERO_SECONDARY_BUTTON_CLASSES,
 } from "@/components/templates/public/categories/hero-button-classes"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { getAlternativesIndexPayload } from "@/lib/alternatives/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
-import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
+import {
+  ALTERNATIVES_PATH,
+  BROWSE_PATH,
+  HOME_PATH,
+  MEMBER_PRODUCTS_PATH,
+} from "@/lib/routes"
 
 export const dynamic = "force-static"
 export const revalidate = 300
 
+const PAGE_TITLE = "Browse SaaS Alternatives"
+
 export const metadata = buildPageMetadata({
-  title: "Browse SaaS Alternatives",
+  title: PAGE_TITLE,
   description: "Explore the best alternatives to popular SaaS tools.",
 })
 
@@ -33,6 +41,16 @@ export default async function AlternativesPage() {
 
   return (
     <main className="relative isolate bg-[#f5f7fb]">
+      <CoreStructuredData
+        scriptKeyPrefix="alternatives"
+        webPage={{ path: ALTERNATIVES_PATH, name: PAGE_TITLE }}
+        breadcrumbs={{
+          items: [
+            { name: "Home", path: HOME_PATH },
+            { name: PAGE_TITLE, path: ALTERNATIVES_PATH },
+          ],
+        }}
+      />
       <PublicTwoColumnLayout
         className="pb-24 pt-12"
         mainClassName="space-y-12"
