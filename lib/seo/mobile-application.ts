@@ -17,7 +17,8 @@ export function buildMobileApplicationStructuredData(
 ): MobileApplicationStructuredData {
   const base = buildWebApplicationStructuredData({
     ...options,
-    applicationCategory: options.applicationCategory?.trim() || "MobileApplication",
+    applicationCategory:
+      options.applicationCategory?.trim() || "MobileApplication",
   })
 
   const idOverride = options.id?.trim()
@@ -25,10 +26,8 @@ export function buildMobileApplicationStructuredData(
     ? base["@id"].replace(/#webapplication$/, "#mobileapplication")
     : `${base.url}#mobileapplication`
 
-  const { "@type": _ignoredType, "@id": _ignoredId, ...rest } = base
-
   return {
-    ...rest,
+    ...base,
     "@type": "MobileApplication",
     "@id": idOverride || defaultMobileId,
   } as MobileApplicationStructuredData

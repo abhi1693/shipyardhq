@@ -2,7 +2,6 @@ export const revalidate = 120
 
 import type { Metadata } from "next"
 import { Suspense } from "react"
-import { JsonLdScript } from "next-seo"
 
 import { CategoryDetailPageContent } from "@/components/templates/public/categories/detail/page-content"
 import { CategoryDetailSkeleton } from "@/components/templates/public/categories/detail/skeleton"
@@ -13,13 +12,7 @@ import {
   getCategoryStaticParams,
 } from "@/lib/categories/page-cache"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
-import {
-  CATEGORIES_PATH,
-  HOME_PATH,
-  categoryPath,
-  productPath,
-} from "@/lib/routes"
-import { resolveSiteUrl } from "@/lib/siteConfig"
+import { CATEGORIES_PATH, HOME_PATH, categoryPath } from "@/lib/routes"
 
 export const generateStaticParams = getCategoryStaticParams
 
@@ -66,7 +59,6 @@ async function CategoryStructuredData({
     { name: categoryName, path },
   ]
 
-  const siteUrl = resolveSiteUrl()
   return (
     <>
       <CoreStructuredData

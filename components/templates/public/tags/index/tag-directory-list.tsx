@@ -213,5 +213,3 @@ export function TagDirectoryList({
     </section>
   )
 }
-
-export default TagDirectoryList
