@@ -113,9 +113,6 @@ export const userPath = (id: string) => `${USERS_PATH}/${id}`
 export const memberProductsStatusPath = (status: string) =>
   `${MEMBER_PRODUCTS_PATH}?status=${status}`
 
-export const memberProductsVerificationPath = (status: string) =>
-  `${MEMBER_PRODUCTS_PATH}?verification=${status}`
-
 export const memberProductPath = (slug: string) =>
   `${MEMBER_PRODUCTS_PATH}/${slug}`
 

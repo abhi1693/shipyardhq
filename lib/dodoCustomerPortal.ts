@@ -187,12 +187,3 @@ export async function createDodoCustomerPortalLinkByEmail(
   if (!customer) return null
   return createDodoCustomerPortalLink(customer.customer_id, opts)
 }
-
-export async function canOpenDodoBillingPortalByEmail(
-  email: string,
-): Promise<boolean> {
-  if (!email) return false
-  const normalized = normalizeEmail(email)
-  const eligibility = await refreshEligibility(normalized)
-  return eligibility
-}
