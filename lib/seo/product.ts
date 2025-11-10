@@ -1,13 +1,6 @@
 import { resolveSiteUrl, toAbsoluteUrlFromSite } from "@/lib/seo/base"
 import { siteConfig } from "@/lib/siteConfig"
 
-export type ProductReviewAuthor = {
-  name: string
-  type?: "Person" | "Organization"
-  url?: string
-  image?: string
-}
-
 export type ProductAggregateRating = {
   ratingValue?: number | string
   ratingCount?: number
@@ -28,9 +21,6 @@ export type ProductStructuredData = {
   description?: string
   url: string
   image?: string | string[]
-  screenshot?: string | string[]
-  datePublished?: string
-  dateModified?: string
   aggregateRating?: {
     "@type": "AggregateRating"
     ratingValue?: string
@@ -43,12 +33,6 @@ export type ProductStructuredData = {
     price?: string
     priceCurrency?: string
   }
-  author?: Array<{
-    "@type": "Person" | "Organization"
-    name: string
-    url?: string
-    image?: string
-  }>
 }
 
 export type BuildProductStructuredDataOptions = {
@@ -57,13 +41,9 @@ export type BuildProductStructuredDataOptions = {
   id?: string
   name?: string
   description?: string
-  datePublished?: string
-  dateModified?: string
   image?: string | string[]
-  screenshots?: string | string[]
   aggregateRating?: ProductAggregateRating
   offers?: ProductOffer
-  authors?: ProductReviewAuthor[]
 }
 
 const normalizePath = (value: string) => {
@@ -139,30 +119,6 @@ const normalizeOffer = (
   }
 }
 
-const normalizeAuthors = (
-  siteUrl: string,
-  authors?: ProductReviewAuthor[],
-): ProductStructuredData["author"] => {
-  if (!authors?.length) return undefined
-  const normalized = authors
-    .map((author) => {
-      const name = author.name?.trim()
-      if (!name) return null
-      const url = author.url ? toAbsoluteUrlFromSite(author.url, siteUrl) : undefined
-      const image = author.image
-        ? toAbsoluteUrlFromSite(author.image, siteUrl)
-        : undefined
-      return {
-        "@type": author.type ?? "Person",
-        name,
-        ...(url ? { url } : {}),
-        ...(image ? { image } : {}),
-      }
-    })
-    .filter((value): value is NonNullable<typeof value> => Boolean(value))
-  return normalized.length ? normalized : undefined
-}
-
 export function buildProductStructuredData(
   options: BuildProductStructuredDataOptions = {},
 ): ProductStructuredData {
@@ -175,13 +131,9 @@ export function buildProductStructuredData(
 
   const name = options.name?.trim() || siteConfig.name
   const description = options.description?.trim() || siteConfig.description
-  const datePublished = options.datePublished?.trim()
-  const dateModified = options.dateModified?.trim()
   const image = normalizeMedia(options.image, siteUrl)
-  const screenshot = normalizeMedia(options.screenshots, siteUrl)
   const aggregateRating = normalizeAggregateRating(options.aggregateRating)
   const offers = normalizeOffer(options.offers)
-  const author = normalizeAuthors(siteUrl, options.authors)
 
   return {
     "@context": "https://schema.org",
@@ -190,13 +142,9 @@ export function buildProductStructuredData(
     url,
     name,
     description,
-    datePublished,
-    dateModified,
     image,
-    screenshot,
     aggregateRating,
     offers,
-    author,
   }
 }
 

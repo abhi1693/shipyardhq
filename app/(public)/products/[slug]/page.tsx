@@ -74,6 +74,8 @@ import { keywordToSlug } from "@/lib/tags"
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
 import { buildWebApplicationStructuredData } from "@/lib/seo/web-application"
 import { buildMobileApplicationStructuredData } from "@/lib/seo/mobile-application"
+import { buildProductStructuredData } from "@/lib/seo/product"
+import { getProductReviewSummary } from "@/lib/server/productReviews"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -232,7 +234,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return notFound()
 
-  const sidebarProduct = await getPublicProductBySlug(slug)
+  const [sidebarProduct, reviewSummary] = await Promise.all([
+    getPublicProductBySlug(slug),
+    getProductReviewSummary(product.id, 1),
+  ])
   if (!sidebarProduct) return notFound()
 
   const canonicalPath = productPath(product.slug)
@@ -309,13 +314,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       })
     : null
 
-  const primaryUseCaseSlug =
-    sidebarProduct.category?.useCases?.[0]?.useCase?.slug ?? null
-
   const productOwner = sidebarProduct.user
   const ownerDisplayName = [productOwner?.firstName, productOwner?.lastName]
     .filter(Boolean)
     .join(" ")
+    .trim()
   const ownerInitials = ownerDisplayName
     ? ownerDisplayName
         .split(/\s+/)
@@ -323,6 +326,28 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         .join("")
         .slice(0, 2)
     : "SP"
+
+  const aggregateRating =
+    reviewSummary.totalReviews > 0
+      ? {
+          ratingValue: reviewSummary.averageRating,
+          ratingCount: reviewSummary.totalReviews,
+          bestRating: 5,
+          worstRating: 0,
+        }
+      : undefined
+
+  const productStructuredData = buildProductStructuredData({
+    path: canonicalPath,
+    name: product.name,
+    description: product.tagline || product.description || undefined,
+    image: product.logo ?? undefined,
+    aggregateRating,
+    offers: offer,
+  })
+
+  const primaryUseCaseSlug =
+    sidebarProduct.category?.useCases?.[0]?.useCase?.slug ?? null
   const publishedSource = product.publishedAt || product.createdAt
   const publishedLabel = publishedSource
     ? new Intl.DateTimeFormat("en-US", {
@@ -517,6 +542,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         scriptKeyPrefix={`product-${product.slug}`}
         webPage={{ path: canonicalPath, name: product.name }}
         breadcrumbs={{ items: productBreadcrumbs }}
+      />
+      <JsonLdScript
+        data={productStructuredData}
+        scriptKey={`product-${product.slug}-product`}
       />
       {webApplicationStructuredData ? (
         <JsonLdScript
