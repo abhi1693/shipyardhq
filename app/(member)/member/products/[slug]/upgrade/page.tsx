@@ -48,12 +48,13 @@ export default async function ProductUpgradePage({
 
       <div className="mt-10">
         {paidPlans.length ? (
-          <ProductUpgradePricingTable
-            plans={paidPlans}
-            productId={product.id}
-            redirectPath={productHref}
-            className="mx-auto w-full max-w-5xl"
-          />
+          <div className="mx-auto w-full max-w-5xl">
+            <ProductUpgradePricingTable
+              plans={paidPlans}
+              productId={product.id}
+              redirectPath={productHref}
+            />
+          </div>
         ) : (
           <div className="mx-auto max-w-5xl rounded-2xl border border-dashed border-[color:var(--brand-1)/0.15] bg-white/80 px-6 py-10 text-center text-muted-foreground">
             Paid plans are not available yet. You can continue to your product page
