@@ -134,6 +134,9 @@ export const memberProductUpdatesPath = (slug: string) =>
 export const memberProductDeletePath = (slug: string) =>
   `${memberProductPath(slug)}/delete`
 
+export const memberProductUpgradePath = (slug: string) =>
+  `${memberProductPath(slug)}/upgrade`
+
 export const memberOrganizationPath = (organizationId: string) =>
   `${MEMBER_ORGANIZATIONS_PATH}/${organizationId}`
 

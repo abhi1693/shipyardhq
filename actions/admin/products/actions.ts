@@ -738,7 +738,8 @@ export async function checkDomainTxtAction(websiteUrl: string) {
   if (!websiteUrl) return { error: "Missing website URL" }
   try {
     const domain = getRootDomain(websiteUrl)
-    if (!domain) return { error: "Unable to derive root domain for verification." }
+    if (!domain)
+      return { error: "Unable to derive root domain for verification." }
 
     const resolver = new Resolver()
     resolver.setServers(["1.1.1.1", "8.8.8.8"])

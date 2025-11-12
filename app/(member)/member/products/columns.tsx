@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
-import { BarChart3, Eye, Pencil, Trash2 } from "lucide-react"
+import { BarChart3, Megaphone, Pencil, Trash2 } from "lucide-react"
 
 import {
   Product,
@@ -17,6 +17,7 @@ import {
   memberProductDeletePath,
   memberProductEditPath,
   memberProductPath,
+  memberProductUpgradePath,
   categoryPath,
 } from "@/lib/routes"
 
@@ -183,10 +184,10 @@ export const columns: ColumnDef<MemberProductRow>[] = [
           className={minimalActionButton}
         >
           <Link
-            href={memberProductPath(row.original.slug)}
+            href={memberProductUpgradePath(row.original.slug)}
             className={minimalActionLink}
           >
-            <Eye className={minimalActionIcon} /> View
+            <Megaphone className={minimalActionIcon} /> Promote
           </Link>
         </Button>
         <Button
