@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, type ReactNode } from "react"
+import clsx from "clsx"
 import { PricingCard } from "@/components/molecules/PricingCard"
 import type { PublicPlan } from "@/actions/public/plans/actions"
 
@@ -15,10 +16,16 @@ export function PricingTable({ plans, renderPlanCTA }: PricingTableProps) {
     ? Math.max(...paidPlans.map((p) => p.productCount || 0))
     : 0
 
+  const gridClassName = clsx(
+    "grid gap-6 grid-cols-1",
+    plans.length >= 2 && "sm:grid-cols-2",
+    plans.length >= 3 && "xl:grid-cols-3",
+  )
+
   return (
     <section className="py-12">
       <div className="mx-auto max-w-6xl px-4">
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className={gridClassName}>
           {plans.map((p) => {
             const recurringSuffix = (p as any).priceSuffix as string | undefined
             const priceSuffix =
