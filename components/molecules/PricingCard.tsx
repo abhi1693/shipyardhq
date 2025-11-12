@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import {
   Card,
   CardContent,
@@ -31,6 +32,7 @@ export type PricingCardProps = {
   ctaHref?: string
   ctaLabel?: string
   boostForDays?: number | null
+  ctaSlot?: ReactNode
 }
 
 export function PricingCard({
@@ -44,6 +46,7 @@ export function PricingCard({
   boostForDays,
   ctaHref = MEMBER_OVERVIEW_PATH,
   ctaLabel = "Choose Plan",
+  ctaSlot,
 }: PricingCardProps) {
   const isFree = price === 0
   const currency = new Intl.NumberFormat("en-US", {
@@ -152,22 +155,24 @@ export function PricingCard({
         </div>
 
         <div className="mt-8">
-          <Button
-            asChild
-            className={clsx(
-              "group w-full justify-center gap-2 transition",
-              isFree
-                ? "border-[color:var(--brand-1)/0.4] bg-[color:var(--brand-1)] text-white shadow-[0px_20px_55px_-32px_rgba(7,58,104,0.65)] hover:border-[color:var(--brand-1)/0.55] hover:bg-[color:var(--brand-1)/0.92] hover:shadow-[0px_26px_70px_-34px_rgba(7,78,134,0.7)] focus-visible:border-[color:var(--brand-2)/0.6] focus-visible:ring-[color:var(--brand-2)/0.35]"
-                : "shadow-[0px_22px_55px_-32px_rgba(7,58,104,0.65)] hover:shadow-[0px_30px_70px_-38px_rgba(7,78,134,0.7)]",
-            )}
-          >
-            <a href={ctaHref}>
-              {isFree ? "Start for free" : ctaLabel}
-              {!isFree && (
-                <IconArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          {ctaSlot ?? (
+            <Button
+              asChild
+              className={clsx(
+                "group w-full justify-center gap-2 transition",
+                isFree
+                  ? "border-[color:var(--brand-1)/0.4] bg-[color:var(--brand-1)] text-white shadow-[0px_20px_55px_-32px_rgba(7,58,104,0.65)] hover:border-[color:var(--brand-1)/0.55] hover:bg-[color:var(--brand-1)/0.92] hover:shadow-[0px_26px_70px_-34px_rgba(7,78,134,0.7)] focus-visible:border-[color:var(--brand-2)/0.6] focus-visible:ring-[color:var(--brand-2)/0.35]"
+                  : "shadow-[0px_22px_55px_-32px_rgba(7,58,104,0.65)] hover:shadow-[0px_30px_70px_-38px_rgba(7,78,134,0.7)]",
               )}
-            </a>
-          </Button>
+            >
+              <a href={ctaHref}>
+                {isFree ? "Start for free" : ctaLabel}
+                {!isFree && (
+                  <IconArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                )}
+              </a>
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

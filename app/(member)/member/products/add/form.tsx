@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, FormProvider } from "react-hook-form"
 import { toast } from "sonner"
-import { MEMBER_PRODUCTS_PATH, memberProductPath } from "@/lib/routes"
+import {
+  MEMBER_PRODUCTS_PATH,
+  memberProductUpgradePath,
+} from "@/lib/routes"
 
 import { createProductAction } from "@/actions/admin/products/actions"
 import {
@@ -84,7 +87,7 @@ export default function AddProductForm({
       toast.success("Product created successfully!")
       const slug = (result as any)?.slug
       if (slug) {
-        router.push(`${memberProductPath(slug)}?celebrate=1`)
+        router.push(memberProductUpgradePath(slug))
         return
       }
       router.push(MEMBER_PRODUCTS_PATH)

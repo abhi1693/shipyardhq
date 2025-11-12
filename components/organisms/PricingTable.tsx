@@ -1,10 +1,15 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, type ReactNode } from "react"
 import { PricingCard } from "@/components/molecules/PricingCard"
 import type { PublicPlan } from "@/actions/public/plans/actions"
 
-export function PricingTable({ plans }: { plans: PublicPlan[] }) {
+type PricingTableProps = {
+  plans: PublicPlan[]
+  renderPlanCTA?: (plan: PublicPlan) => ReactNode
+}
+
+export function PricingTable({ plans, renderPlanCTA }: PricingTableProps) {
   const paidPlans = plans.filter((p) => p.price > 0)
   const maxCount = paidPlans.length
     ? Math.max(...paidPlans.map((p) => p.productCount || 0))
@@ -38,6 +43,7 @@ export function PricingTable({ plans }: { plans: PublicPlan[] }) {
                   }
                   features={p.features}
                   boostForDays={p.boostForDays}
+                  ctaSlot={renderPlanCTA?.(p)}
                 />
               </CardWrapper>
             )
