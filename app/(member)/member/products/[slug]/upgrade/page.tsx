@@ -6,7 +6,6 @@ import { PlanType } from "@/lib/vendor/prisma/client"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import { memberProductPath, memberProductsStatusPath } from "@/lib/routes"
 import { ProductUpgradePricingTable } from "@/components/organisms/ProductUpgradePricingTable"
-import { Button } from "@/components/atoms/button"
 import { Badge } from "@/components/atoms/badge"
 
 export default async function ProductUpgradePage({
@@ -44,35 +43,33 @@ export default async function ProductUpgradePage({
             <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
               Give {product.name} a launch boost
             </h1>
-            <p className="text-base text-muted-foreground sm:text-lg">
-              Your product is saved and ready. Choose a promotion tier to highlight
-              it for launch day, or continue on the starter plan to review the page.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Button asChild className="w-full sm:w-auto">
-              <Link href={celebrateHref}>Continue with Free plan</Link>
-            </Button>
-            <Button asChild variant="secondary" className="w-full sm:w-auto">
-              <Link href={productHref}>Skip for now</Link>
-            </Button>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto mt-10 max-w-5xl">
+      <div className="mt-10">
         {paidPlans.length ? (
           <ProductUpgradePricingTable
             plans={paidPlans}
             productId={product.id}
             redirectPath={productHref}
+            className="mx-auto w-full max-w-5xl"
           />
         ) : (
-          <div className="rounded-2xl border border-dashed border-[color:var(--brand-1)/0.15] bg-white/80 px-6 py-10 text-center text-muted-foreground">
+          <div className="mx-auto max-w-5xl rounded-2xl border border-dashed border-[color:var(--brand-1)/0.15] bg-white/80 px-6 py-10 text-center text-muted-foreground">
             Paid plans are not available yet. You can continue to your product page
             and manage upgrades later.
           </div>
         )}
+      </div>
+
+      <div className="mt-6 text-center text-sm text-muted-foreground">
+        <Link
+          href={celebrateHref}
+          className="text-foreground underline-offset-4 transition hover:text-foreground/80 hover:underline"
+        >
+          Continue with free plan
+        </Link>
       </div>
 
     </div>
