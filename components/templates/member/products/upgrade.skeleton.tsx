@@ -1,4 +1,3 @@
-import { BadgeSkeleton } from "@/components/atoms/badge.skeleton"
 import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
@@ -44,10 +43,6 @@ export function ProductUpgradePageSkeleton() {
       aria-hidden="true"
     >
       <div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-4 text-center">
-        <BadgeSkeleton
-          variant="outline"
-          className="h-8 w-36 rounded-full border border-foreground/15"
-        />
         <HeadingSkeleton lines={1} centered />
       </div>
 
