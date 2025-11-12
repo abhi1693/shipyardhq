@@ -10,6 +10,7 @@ import {
   checkDomainTxtAction,
   verifyProductDomainAction,
 } from "@/actions/admin/products/actions"
+import { getRootDomain } from "@/lib/domain"
 
 export default function Step3({
   productId,
@@ -37,11 +38,7 @@ export default function Step3({
   }) as boolean | undefined
   const [verifying, setVerifying] = useState(false)
   const domain = useMemo(() => {
-    try {
-      return new URL(website).hostname
-    } catch {
-      return ""
-    }
+    return getRootDomain(website) ?? ""
   }, [website])
 
   useEffect(() => {

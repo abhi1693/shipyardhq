@@ -31,6 +31,7 @@ import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
+import { getRootDomain } from "@/lib/domain"
 
 async function generateUniqueSlug(base: string): Promise<string> {
   const clean = slugify(base)
@@ -196,13 +197,16 @@ export async function createProductAction(formData: FormData) {
     // Attempt live DNS check so new products can start verified if TXT already set
     let initialVerified = false
     try {
-      const url = new URL(websiteUrl)
-      const domain = url.hostname
-      const resolver = new Resolver()
-      resolver.setServers(["1.1.1.1", "8.8.8.8"])
-      const txtRecords = await resolver.resolveTxt(domain)
-      const flattened = txtRecords.flat().map((t) => t.trim())
-      initialVerified = flattened.some((txt) => txt === verificationTxt.trim())
+      const domain = getRootDomain(websiteUrl)
+      if (domain) {
+        const resolver = new Resolver()
+        resolver.setServers(["1.1.1.1", "8.8.8.8"])
+        const txtRecords = await resolver.resolveTxt(domain)
+        const flattened = txtRecords.flat().map((t) => t.trim())
+        initialVerified = flattened.some(
+          (txt) => txt === verificationTxt.trim(),
+        )
+      }
     } catch {
       // Ignore DNS errors during creation; user can verify later
     }
@@ -689,8 +693,10 @@ export async function verifyProductDomainAction(productId: string) {
   }
 
   try {
-    const url = new URL(product.websiteUrl)
-    const domain = url.hostname
+    const domain = getRootDomain(product.websiteUrl)
+    if (!domain) {
+      return { error: "Unable to derive root domain for verification." }
+    }
 
     const resolver = new Resolver()
     resolver.setServers(["1.1.1.1", "8.8.8.8"])
@@ -731,8 +737,8 @@ export async function checkDomainTxtAction(websiteUrl: string) {
   // Stateless DNS check for add-flow verification
   if (!websiteUrl) return { error: "Missing website URL" }
   try {
-    const url = new URL(websiteUrl)
-    const domain = url.hostname
+    const domain = getRootDomain(websiteUrl)
+    if (!domain) return { error: "Unable to derive root domain for verification." }
 
     const resolver = new Resolver()
     resolver.setServers(["1.1.1.1", "8.8.8.8"])
