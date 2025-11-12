@@ -34,17 +34,16 @@ export default async function ProductUpgradePage({
 
   return (
     <div className="px-4 py-8 md:px-8">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 text-center">
-        <div className="space-y-4 rounded-3xl border border-[color:var(--brand-1)/0.12] bg-white/90 px-6 py-8 shadow-[0px_30px_80px_-60px_rgba(7,58,104,0.35)]">
-          <Badge variant="outline" className="mx-auto w-fit uppercase tracking-[0.28em]">
-            Step 2
-          </Badge>
-          <div className="space-y-3">
-            <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
-              Give {product.name} a launch boost
-            </h1>
-          </div>
-        </div>
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 text-center">
+        <Badge
+          variant="outline"
+          className="mx-auto w-fit rounded-full border border-foreground/15 px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-foreground/70"
+        >
+          Step 2
+        </Badge>
+        <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
+          Give {product.name} a launch boost
+        </h1>
       </div>
 
       <div className="mt-10">
