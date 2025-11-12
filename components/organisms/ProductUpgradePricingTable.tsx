@@ -30,8 +30,7 @@ export function ProductUpgradePricingTable({
     <PricingTable
       plans={plans}
       renderPlanCTA={(plan) => {
-        const isCurrentPlan =
-          currentPlanId != null && plan.id === currentPlanId
+        const isCurrentPlan = currentPlanId != null && plan.id === currentPlanId
 
         if (isCurrentPlan) {
           return (

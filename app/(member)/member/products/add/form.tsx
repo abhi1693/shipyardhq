@@ -5,10 +5,7 @@ import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, FormProvider } from "react-hook-form"
 import { toast } from "sonner"
-import {
-  MEMBER_PRODUCTS_PATH,
-  memberProductUpgradePath,
-} from "@/lib/routes"
+import { MEMBER_PRODUCTS_PATH, memberProductUpgradePath } from "@/lib/routes"
 
 import { createProductAction } from "@/actions/admin/products/actions"
 import {
