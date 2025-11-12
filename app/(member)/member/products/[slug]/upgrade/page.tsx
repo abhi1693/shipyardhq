@@ -6,7 +6,6 @@ import { PlanType } from "@/lib/vendor/prisma/client"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import { memberProductPath, memberProductsStatusPath } from "@/lib/routes"
 import { ProductUpgradePricingTable } from "@/components/organisms/ProductUpgradePricingTable"
-import { Badge } from "@/components/atoms/badge"
 import prisma from "@/lib/prisma"
 
 export default async function ProductUpgradePage({
@@ -49,12 +48,6 @@ export default async function ProductUpgradePage({
   return (
     <div className="px-4 py-8 md:px-8">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 text-center">
-        <Badge
-          variant="outline"
-          className="mx-auto w-fit rounded-full border border-foreground/15 px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-foreground/70"
-        >
-          Step 2
-        </Badge>
         <div className="space-y-2">
           <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
             Give {product.name} a launch boost
