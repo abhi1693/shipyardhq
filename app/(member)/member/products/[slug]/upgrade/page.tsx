@@ -7,6 +7,7 @@ import { requireManageableProduct } from "@/lib/server/productAccess"
 import { memberProductPath, memberProductsStatusPath } from "@/lib/routes"
 import { ProductUpgradePricingTable } from "@/components/organisms/ProductUpgradePricingTable"
 import { Badge } from "@/components/atoms/badge"
+import prisma from "@/lib/prisma"
 
 export default async function ProductUpgradePage({
   params,
@@ -29,6 +30,19 @@ export default async function ProductUpgradePage({
   }).catch(() => [])
   const paidPlans = allPlans.filter((plan) => (plan.price || 0) > 0)
 
+  const productPlan = await prisma.product.findUnique({
+    where: { id: product.id },
+    select: {
+      plan: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  })
+  const currentPlan = productPlan?.plan ?? null
+
   const productHref = memberProductPath(product.slug)
   const celebrateHref = `${productHref}?celebrate=1`
 
@@ -41,9 +55,20 @@ export default async function ProductUpgradePage({
         >
           Step 2
         </Badge>
-        <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
-          Give {product.name} a launch boost
-        </h1>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
+            Give {product.name} a launch boost
+          </h1>
+          {currentPlan ? (
+            <p className="text-sm text-muted-foreground">
+              You&apos;re currently on the {currentPlan.name} plan.
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Pick a paid boost to feature your product across ShipYard HQ.
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="mt-10">
@@ -53,6 +78,7 @@ export default async function ProductUpgradePage({
               plans={paidPlans}
               productId={product.id}
               redirectPath={productHref}
+              currentPlanId={currentPlan?.id}
             />
           </div>
         ) : (
@@ -63,14 +89,16 @@ export default async function ProductUpgradePage({
         )}
       </div>
 
-      <div className="mt-6 text-center text-sm text-muted-foreground">
-        <Link
-          href={celebrateHref}
-          className="text-foreground underline-offset-4 transition hover:text-foreground/80 hover:underline"
-        >
-          Continue with free plan
-        </Link>
-      </div>
+      {!currentPlan ? (
+        <div className="mt-6 text-center text-sm text-muted-foreground">
+          <Link
+            href={celebrateHref}
+            className="text-foreground underline-offset-4 transition hover:text-foreground/80 hover:underline"
+          >
+            Continue with free plan
+          </Link>
+        </div>
+      ) : null}
 
     </div>
   )
