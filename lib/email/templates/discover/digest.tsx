@@ -6,8 +6,6 @@ export type DigestProduct = {
   tagline: string
   url: string
   category?: string | null
-  upvotes?: number | null
-  clicks?: number | null
   publishedAt?: Date | null
 }
 
@@ -109,12 +107,6 @@ function renderProductList(items: DigestProduct[], emptyText: string) {
             <p style={taglineStyle}>{item.tagline}</p>
             <div style={metaStyle}>
               {item.category ? <span>{item.category}</span> : null}
-              {typeof item.upvotes === "number" ? (
-                <span>{item.upvotes} upvotes</span>
-              ) : null}
-              {typeof item.clicks === "number" ? (
-                <span>{item.clicks} clicks</span>
-              ) : null}
               {published ? <span>Launched {published}</span> : null}
             </div>
           </div>
@@ -142,11 +134,15 @@ export function DiscoverDigestEmail({
       intro={`Featured upgrades, trending standouts, and fresh launches between ${range}.`}
       cta={{ label: "Browse all products", href: ctaUrl }}
     >
-      <h2 style={sectionHeadingStyle}>Featured upgrades</h2>
-      {renderProductList(
-        featured,
-        "No featured upgrades this week—upgrade your listing to sail into the digest.",
-      )}
+      {featured.length > 0 ? (
+        <>
+          <h2 style={sectionHeadingStyle}>Featured upgrades</h2>
+          {renderProductList(
+            featured,
+            "No featured upgrades this week—upgrade your listing to sail into the digest.",
+          )}
+        </>
+      ) : null}
 
       <h2 style={sectionHeadingStyle}>Trending now</h2>
       {renderProductList(

@@ -19,7 +19,6 @@ type FeaturedBadgeRow = Prisma.ProductBadgeGetPayload<{
         tagline: true
         publishedAt: true
         category: { select: { name: true } }
-        analytics: { select: { upvotes: true; clicks: true } }
       }
     }
   }
@@ -34,7 +33,6 @@ type NewsletterPlacementRow = Prisma.PlacementScheduleGetPayload<{
         tagline: true
         publishedAt: true
         category: { select: { name: true } }
-        analytics: { select: { upvotes: true; clicks: true } }
       }
     }
   }
@@ -60,15 +58,12 @@ function toDigestProduct(row: {
   tagline: string
   publishedAt: Date | null | undefined
   category?: { name: string | null } | null
-  analytics?: { upvotes: number | null; clicks: number | null } | null
 }) {
   return {
     name: row.name,
     tagline: row.tagline,
     url: buildProductUrl(row.slug),
     category: row.category?.name ?? null,
-    upvotes: row.analytics?.upvotes ?? null,
-    clicks: row.analytics?.clicks ?? null,
     publishedAt: row.publishedAt ?? null,
   }
 }
@@ -118,7 +113,6 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
           tagline: true,
           publishedAt: true,
           category: { select: { name: true } },
-          analytics: { select: { upvotes: true, clicks: true } },
         },
       },
     },
@@ -140,7 +134,6 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
           tagline: true,
           publishedAt: true,
           category: { select: { name: true } },
-          analytics: { select: { upvotes: true, clicks: true } },
         },
       },
     },
@@ -159,7 +152,6 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
       tagline: true,
       publishedAt: true,
       category: { select: { name: true } },
-      analytics: { select: { upvotes: true, clicks: true } },
     },
   })
 
@@ -176,7 +168,6 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
       tagline: true,
       publishedAt: true,
       category: { select: { name: true } },
-      analytics: { select: { upvotes: true, clicks: true } },
     },
   })
 
