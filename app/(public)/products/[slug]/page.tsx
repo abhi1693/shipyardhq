@@ -61,6 +61,7 @@ import {
   HOME_PATH,
   alternativePath,
   categoryPath,
+  platformPath,
   productPath,
   userPath,
 } from "@/lib/routes"
@@ -77,6 +78,7 @@ import { buildWebApplicationStructuredData } from "@/lib/seo/web-application"
 import { buildMobileApplicationStructuredData } from "@/lib/seo/mobile-application"
 import { buildProductStructuredData } from "@/lib/seo/product"
 import { getProductReviewSummary } from "@/lib/server/productReviews"
+import { getPlatformMetaByValue } from "@/lib/platforms/config"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -195,6 +197,7 @@ const PLATFORM_CONFIG: Record<string, PlatformMeta> = {
   windows: { label: "Windows", icon: Monitor },
   linux: { label: "Linux", icon: Terminal },
   chrome: { label: "Chrome extension", icon: ChromeIcon },
+  chrome_extension: { label: "Chrome extension", icon: ChromeIcon },
 }
 
 const BADGE_LOOKUP = BADGE_OPTIONS.reduce(
@@ -375,13 +378,19 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       : null
   const platformItems = (sidebarProduct?.platforms ?? []).map((platform) => {
     const key = String(platform)
-    const meta = PLATFORM_CONFIG[key] ?? {
-      label: formatLabel(key),
-      icon: Globe,
-    }
+    const platformMeta = getPlatformMetaByValue(platform)
+    const iconKey = platformMeta?.slug ?? key
+    const meta =
+      PLATFORM_CONFIG[iconKey] ??
+      PLATFORM_CONFIG[key] ?? {
+        label: platformMeta?.label ?? formatLabel(key),
+        icon: Globe,
+      }
+    const path = platformMeta ? platformPath(platformMeta.slug) : null
     return {
       key,
       ...meta,
+      path,
     }
   })
   const galleryMedia = (product.ProductMedia ?? [])
@@ -494,15 +503,26 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         <SidebarInfoRow label="Platforms">
           {platformItems.length ? (
             <div className="flex flex-wrap gap-2">
-              {platformItems.map(({ key, label, icon: Icon }) => (
-                <span
-                  key={key}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-foreground shadow-sm"
-                >
-                  <Icon className="h-3.5 w-3.5" aria-hidden />
-                  <span>{label}</span>
-                </span>
-              ))}
+              {platformItems.map(({ key, label, icon: Icon, path }) =>
+                path ? (
+                  <Link
+                    key={key}
+                    href={path}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-[color:var(--brand-1)] underline-offset-4 transition hover:bg-muted/80 hover:underline"
+                  >
+                    <Icon className="h-3.5 w-3.5" aria-hidden />
+                    <span>{label}</span>
+                  </Link>
+                ) : (
+                  <span
+                    key={key}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-foreground shadow-sm"
+                  >
+                    <Icon className="h-3.5 w-3.5" aria-hidden />
+                    <span>{label}</span>
+                  </span>
+                ),
+              )}
             </div>
           ) : (
             <span className="text-muted-foreground">Platforms coming soon</span>

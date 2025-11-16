@@ -43,6 +43,7 @@ export const adminStatusPath = (segments: string[], status: string) =>
   `${adminPath(...segments)}?status=${status}`
 
 export const ALTERNATIVES_PATH = "/alternatives" as const
+export const PLATFORMS_PATH = "/platforms" as const
 
 export const BROWSE_PATH = "/browse" as const
 export const LEADERBOARD_PATH = "/leaderboard" as const
@@ -116,6 +117,7 @@ export const memberProductsStatusPath = (status: string) =>
 export const memberProductsVerificationPath = (status: string) =>
   `${MEMBER_PRODUCTS_PATH}?verification=${status}`
 
+export const platformPath = (slug: string) => `${PLATFORMS_PATH}/${slug}`
 export const memberProductPath = (slug: string) =>
   `${MEMBER_PRODUCTS_PATH}/${slug}`
 

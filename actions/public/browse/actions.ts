@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
+import type { Platform } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   mapProductCardRecordToBase,
@@ -16,6 +17,7 @@ interface GetBrowseProductsOptions {
   page?: number
   pageSize?: number
   query?: string
+  platform?: Platform
 }
 
 type UseCaseCategoryRef = Prisma.UseCaseCategoryGetPayload<{
@@ -31,6 +33,7 @@ export const getBrowseProducts = cached(
     page = 1,
     pageSize = 20,
     query,
+    platform,
   }: GetBrowseProductsOptions) => {
     const skip = (page - 1) * pageSize
 
@@ -73,6 +76,7 @@ export const getBrowseProducts = cached(
     const baseWhere: Prisma.ProductWhereInput = {
       ...(verified ? { verification: { is: { isVerified: true } } } : {}),
       ...(categoryIds?.length ? { categoryId: { in: categoryIds } } : {}),
+      ...(platform ? { platforms: { has: platform } } : {}),
       ...(q
         ? {
             OR: [
@@ -205,7 +209,7 @@ export const getBrowseProducts = cached(
     const total = totalPriority + totalRegular
     const hasMore = skip + products.length < total
 
-    return { products, hasMore }
+    return { products, hasMore, total }
   },
   "browse:products",
   {

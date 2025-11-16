@@ -14,6 +14,7 @@ import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { getKeywordTagProducts } from "@/actions/public/tags/actions"
 import { getAlternativeProductsPage } from "@/actions/public/alternatives/actions"
 import { getTopRankedProducts } from "@/actions/public/leaderboard/actions"
+import { getPlatformMeta } from "@/lib/platforms/config"
 
 export type ProductFeedPageRequest =
   | {
@@ -24,6 +25,7 @@ export type ProductFeedPageRequest =
       verified?: boolean
       sort?: string
       q?: string
+      platform?: string
     }
   | {
       kind: "tag"
@@ -65,6 +67,9 @@ export async function getProductFeedPage(
 ): Promise<ProductFeedPageResponse> {
   switch (request.kind) {
     case "browse": {
+      const platformEnum = request.platform
+        ? getPlatformMeta(request.platform)?.value
+        : undefined
       const result = await getBrowseProducts({
         page: request.page,
         useCaseSlug: request.useCase,
@@ -72,6 +77,7 @@ export async function getProductFeedPage(
         verified: request.verified,
         sort: isValidBrowseSort(request.sort) ? request.sort : undefined,
         query: request.q,
+        platform: platformEnum,
       })
 
       return {

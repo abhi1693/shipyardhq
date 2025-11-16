@@ -19,6 +19,7 @@ interface ProductGridClientProps {
     verified?: boolean
     sort?: string
     q?: string
+    platform?: string
   }
 }
 
@@ -40,9 +41,11 @@ export default function ProductGridClient({
       verified: searchParams.verified,
       sort: searchParams.sort,
       q: searchParams.q,
+      platform: searchParams.platform,
     }),
     [
       searchParams.category,
+      searchParams.platform,
       searchParams.q,
       searchParams.sort,
       searchParams.useCase,
