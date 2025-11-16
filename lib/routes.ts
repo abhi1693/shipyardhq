@@ -88,6 +88,7 @@ export const monthlyLeaderboardArchivePath = (monthKey: string) => {
 }
 
 export const PRICING_PATH = "/pricing" as const
+export const pricingModelPath = (slug: string) => `${PRICING_PATH}/${slug}`
 export const WHY_SHIPYARD_PATH = "/why-shipyard" as const
 export const ANALYTICS_PATH = "/analytics" as const
 const USE_CASES_PATH = "/use-cases" as const

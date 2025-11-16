@@ -15,6 +15,7 @@ import { getKeywordTagProducts } from "@/actions/public/tags/actions"
 import { getAlternativeProductsPage } from "@/actions/public/alternatives/actions"
 import { getTopRankedProducts } from "@/actions/public/leaderboard/actions"
 import { getPlatformMeta } from "@/lib/platforms/config"
+import { pricingModelValueFromSlug } from "@/lib/pricing/models"
 
 export type ProductFeedPageRequest =
   | {
@@ -26,6 +27,7 @@ export type ProductFeedPageRequest =
       sort?: string
       q?: string
       platform?: string
+      pricingModel?: string
     }
   | {
       kind: "tag"
@@ -70,6 +72,7 @@ export async function getProductFeedPage(
       const platformEnum = request.platform
         ? getPlatformMeta(request.platform)?.value
         : undefined
+      const pricingModelEnum = pricingModelValueFromSlug(request.pricingModel)
       const result = await getBrowseProducts({
         page: request.page,
         useCaseSlug: request.useCase,
@@ -78,6 +81,7 @@ export async function getProductFeedPage(
         sort: isValidBrowseSort(request.sort) ? request.sort : undefined,
         query: request.q,
         platform: platformEnum,
+        pricingModel: pricingModelEnum,
       })
 
       return {

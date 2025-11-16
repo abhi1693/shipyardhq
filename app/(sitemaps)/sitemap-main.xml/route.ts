@@ -5,6 +5,7 @@ import {
   CATEGORIES_PATH,
   LEADERBOARD_PATH,
   PRICING_PATH,
+  pricingModelPath,
   categoryPath,
   platformPath,
   usecasePath,
@@ -15,6 +16,11 @@ import {
   platformValueFromSlug,
   type PlatformSlug,
 } from "@/lib/platforms/config"
+import {
+  getPricingModelMeta,
+  PRICING_MODEL_SLUGS,
+  type PricingModelSlug,
+} from "@/lib/pricing/models"
 
 type CategorySitemapEntry = Prisma.CategoryGetPayload<{
   select: { slug: true; updatedAt: true }
@@ -44,31 +50,54 @@ export async function GET() {
     "/legal/privacy-policy",
   ] as const
 
-  const [categories, useCases, platformSlices] = await Promise.all([
-    prisma.category.findMany({
-      select: { slug: true, updatedAt: true },
-      orderBy: { updatedAt: "desc" },
-    }),
-    getPublicUseCasesWithCounts(),
-    Promise.all(
-      PLATFORM_SLUGS.map(async (slug) => {
-        const latest = await prisma.product.findFirst({
-          where: {
-            status: "published" as any,
-            platforms: { has: platformValueFromSlug(slug) },
-          },
-          select: { updatedAt: true, publishedAt: true },
-          orderBy: { updatedAt: "desc" },
-        })
-
-        if (!latest) return null
-        return {
-          slug,
-          lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
-        }
+  const [categories, useCases, platformSlices, pricingModelSlices] =
+    await Promise.all([
+      prisma.category.findMany({
+        select: { slug: true, updatedAt: true },
+        orderBy: { updatedAt: "desc" },
       }),
-    ),
-  ])
+      getPublicUseCasesWithCounts(),
+      Promise.all(
+        PLATFORM_SLUGS.map(async (slug) => {
+          const latest = await prisma.product.findFirst({
+            where: {
+              status: "published" as any,
+              platforms: { has: platformValueFromSlug(slug) },
+            },
+            select: { updatedAt: true, publishedAt: true },
+            orderBy: { updatedAt: "desc" },
+          })
+
+          if (!latest) return null
+          return {
+            slug,
+            lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
+          }
+        }),
+      ),
+      Promise.all(
+        PRICING_MODEL_SLUGS.map(async (slug) => {
+          const meta = getPricingModelMeta(slug)
+          if (!meta) return null
+
+          const latest = await prisma.product.findFirst({
+            where: {
+              status: "published" as any,
+              pricingModel: meta.value,
+            },
+            select: { updatedAt: true, publishedAt: true },
+            orderBy: { updatedAt: "desc" },
+          })
+
+          if (!latest) return null
+
+          return {
+            slug,
+            lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
+          }
+        }),
+      ),
+    ])
 
   const urls = [
     ...staticPaths.map((path) => {
@@ -129,6 +158,27 @@ export async function GET() {
         return xml`
           <url>
             <loc>${base}${platformPath(entry.slug)}</loc>
+            <lastmod>${entry.lastmod.toISOString()}</lastmod>
+            <changefreq>${changefreq}</changefreq>
+            <priority>${priority}</priority>
+          </url>
+        `
+      })),
+    ...(pricingModelSlices
+      .filter(
+        (entry): entry is { slug: PricingModelSlug; lastmod: Date } =>
+          entry !== null,
+      )
+      .map((entry) => {
+        const days = Math.floor(
+          (now.getTime() - entry.lastmod.getTime()) / 86400000,
+        )
+        const changefreq =
+          days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
+        const priority = days <= 7 ? "0.6" : days <= 60 ? "0.5" : "0.45"
+        return xml`
+          <url>
+            <loc>${base}${pricingModelPath(entry.slug)}</loc>
             <lastmod>${entry.lastmod.toISOString()}</lastmod>
             <changefreq>${changefreq}</changefreq>
             <priority>${priority}</priority>

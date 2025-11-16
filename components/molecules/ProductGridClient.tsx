@@ -20,6 +20,7 @@ interface ProductGridClientProps {
     sort?: string
     q?: string
     platform?: string
+    pricingModel?: string
   }
 }
 
@@ -42,10 +43,12 @@ export default function ProductGridClient({
       sort: searchParams.sort,
       q: searchParams.q,
       platform: searchParams.platform,
+      pricingModel: searchParams.pricingModel,
     }),
     [
       searchParams.category,
       searchParams.platform,
+      searchParams.pricingModel,
       searchParams.q,
       searchParams.sort,
       searchParams.useCase,

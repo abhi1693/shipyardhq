@@ -62,6 +62,7 @@ import {
   alternativePath,
   categoryPath,
   platformPath,
+  pricingModelPath,
   productPath,
   userPath,
 } from "@/lib/routes"
@@ -79,6 +80,7 @@ import { buildMobileApplicationStructuredData } from "@/lib/seo/mobile-applicati
 import { buildProductStructuredData } from "@/lib/seo/product"
 import { getProductReviewSummary } from "@/lib/server/productReviews"
 import { getPlatformMetaByValue } from "@/lib/platforms/config"
+import { pricingModelSlugFromValue } from "@/lib/pricing/models"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -274,6 +276,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         sidebarProduct.pricingModel as keyof typeof PRICING_MODEL_LABELS
       ] ?? formatLabel(sidebarProduct.pricingModel))
     : null
+  const pricingModelSlug = pricingModelSlugFromValue(sidebarProduct?.pricingModel)
   const offer =
     typeof sidebarProduct.startingPriceCents === "number"
       ? {
@@ -476,9 +479,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         </SidebarInfoRow>
         <SidebarInfoRow label="Pricing model">
           {pricingModelLabel ? (
-            <span>
-              {pricingModelLabel}
-              {startingPrice ? ` · Starts at ${startingPrice}` : ""}
+            <span className="inline-flex items-center gap-1 font-medium text-foreground">
+              {pricingModelSlug ? (
+                <Link
+                  href={pricingModelPath(pricingModelSlug)}
+                  className="underline-offset-4 transition-colors hover:text-foreground/80 hover:underline"
+                >
+                  {pricingModelLabel}
+                </Link>
+              ) : (
+                <span>{pricingModelLabel}</span>
+              )}
+              {startingPrice ? <span className="text-muted-foreground">· Starts at {startingPrice}</span> : null}
             </span>
           ) : startingPrice ? (
             <span>Starts at {startingPrice}</span>
