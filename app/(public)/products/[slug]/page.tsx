@@ -59,6 +59,7 @@ import {
 import {
   BROWSE_PATH,
   HOME_PATH,
+  alternativePath,
   categoryPath,
   productPath,
   userPath,
@@ -507,8 +508,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             <span className="text-muted-foreground">Platforms coming soon</span>
           )}
         </SidebarInfoRow>
-        <SidebarInfoRow label="Badges">
-          {activeBadgeDefs.length ? (
+        {activeBadgeDefs.length ? (
+          <SidebarInfoRow label="Badges">
             <div className="flex flex-wrap gap-2">
               {activeBadgeDefs.map((badge) => (
                 <Tooltip key={badge.value}>
@@ -524,10 +525,40 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </Tooltip>
               ))}
             </div>
-          ) : (
-            <span className="text-muted-foreground">No badges yet</span>
-          )}
-        </SidebarInfoRow>
+          </SidebarInfoRow>
+        ) : null}
+        {sidebarProduct?.alternatives.length ? (
+          <SidebarInfoRow label="Alternative to">
+            <div className="flex flex-wrap gap-2">
+              {sidebarProduct?.alternatives.map((alternative) => {
+                const href = alternativePath(alternative.slug as string)
+
+                return (
+                  <Tooltip key={alternative.id}>
+                    <TooltipTrigger asChild>
+                      <Link
+                        href={href}
+                        aria-label={`View ${alternative.name} alternative`}
+                        className="group relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      >
+                        <Image
+                          src={alternative.logoUrl}
+                          alt={`${alternative.name} logo`}
+                          fill
+                          sizes="40px"
+                          className="object-cover"
+                        />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent sideOffset={6}>
+                      <span className="font-medium">{alternative.name}</span>
+                    </TooltipContent>
+                  </Tooltip>
+                )
+              })}
+            </div>
+          </SidebarInfoRow>
+        ) : null}
       </div>
     </div>
   )
