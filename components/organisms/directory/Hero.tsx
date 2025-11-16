@@ -3,6 +3,7 @@ import { Play, Rocket } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
+import DomainRatingBadge from "@/components/molecules/DomainRatingBadge"
 
 type HeaderActionConfig = {
   label: string
@@ -135,6 +136,7 @@ export function Hero({
             {resolvedSecondary ? renderAction(resolvedSecondary, 1) : null}
           </div>
         ) : null}
+        <DomainRatingBadge className="mx-auto" />
         {hasMetrics ? (
           <dl className="grid gap-4 border-t border-border/60 pt-6 text-center sm:grid-cols-2 xl:grid-cols-4">
             {metrics.map((metric) => {
