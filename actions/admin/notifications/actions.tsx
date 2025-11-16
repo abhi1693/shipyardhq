@@ -1,6 +1,6 @@
 "use server"
 
-import { renderAsync } from "@react-email/render"
+import { render } from "@react-email/render"
 
 import prisma from "@/lib/prisma"
 import type { NotificationType, Prisma } from "@/lib/vendor/prisma/client"
@@ -894,7 +894,7 @@ export async function renderBuilderOutreachEmailPreviewAction(params?: {
   const resolvedFirstName = normalizedFirstName || fallbackName || undefined
 
   try {
-    return await renderAsync(
+    return await render(
       <BuilderOutreachEmail
         firstName={resolvedFirstName}
         subject={BUILDER_OUTREACH_SUBJECT}
