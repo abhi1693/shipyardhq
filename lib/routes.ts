@@ -108,6 +108,10 @@ export const SHIPYARD_TWITTER_URL = "https://x.com/shipyardhq" as const
 export const alternativePath = (slug: string) => `${ALTERNATIVES_PATH}/${slug}`
 
 export const categoryPath = (slug: string) => `${CATEGORIES_PATH}/${slug}`
+export const categoryPricingPath = (categorySlug: string, pricingModel: string) =>
+  `${categoryPath(categorySlug)}/pricing/${pricingModel}`
+export const categoryPlatformPath = (categorySlug: string, platform: string) =>
+  `${categoryPath(categorySlug)}/platforms/${platform}`
 export const usecasePath = (slug: string) => `${USE_CASES_PATH}/${slug}`
 export const productPath = (slug: string) => `/products/${slug}`
 export const productUpdatesPath = (slug: string) =>
