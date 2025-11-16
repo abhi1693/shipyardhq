@@ -7,6 +7,8 @@ import {
   PRICING_PATH,
   pricingModelPath,
   categoryPath,
+  categoryPlatformPath,
+  categoryPricingPath,
   platformPath,
   productTypePath,
   usecasePath,
@@ -29,7 +31,7 @@ import {
 } from "@/lib/product-types/models"
 
 type CategorySitemapEntry = Prisma.CategoryGetPayload<{
-  select: { slug: true; updatedAt: true }
+  select: { id: true; slug: true; updatedAt: true }
 }>
 
 export const dynamic = "force-static"
@@ -65,7 +67,7 @@ export async function GET() {
   ] =
     await Promise.all([
       prisma.category.findMany({
-        select: { slug: true, updatedAt: true },
+        select: { id: true, slug: true, updatedAt: true },
         orderBy: { updatedAt: "desc" },
       }),
       getPublicUseCasesWithCounts(),
@@ -132,6 +134,69 @@ export async function GET() {
         }),
       ),
     ])
+
+  const categoryPlatformSlices = (
+    await Promise.all(
+      categories.map(async (category) => {
+        const perPlatform = await Promise.all(
+          PLATFORM_SLUGS.map(async (platformSlug) => {
+            const platformValue = platformValueFromSlug(platformSlug)
+            const latest = await prisma.product.findFirst({
+              where: {
+                status: "published" as any,
+                categoryId: category.id,
+                platforms: { has: platformValue },
+              },
+              select: { updatedAt: true, publishedAt: true },
+              orderBy: { updatedAt: "desc" },
+            })
+            if (!latest) return null
+            return {
+              categorySlug: category.slug,
+              platform: platformSlug,
+              lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
+            }
+          }),
+        )
+        return perPlatform.filter(
+          (entry): entry is { categorySlug: string; platform: PlatformSlug; lastmod: Date } =>
+            Boolean(entry),
+        )
+      }),
+    )
+  ).flat()
+
+  const categoryPricingSlices = (
+    await Promise.all(
+      categories.map(async (category) => {
+        const perPricing = await Promise.all(
+          PRICING_MODEL_SLUGS.map(async (pricingModel) => {
+            const meta = getPricingModelMeta(pricingModel)
+            if (!meta) return null
+            const latest = await prisma.product.findFirst({
+              where: {
+                status: "published" as any,
+                categoryId: category.id,
+                pricingModel: meta.value,
+              },
+              select: { updatedAt: true, publishedAt: true },
+              orderBy: { updatedAt: "desc" },
+            })
+            if (!latest) return null
+            return {
+              categorySlug: category.slug,
+              pricingModel,
+              lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
+            }
+          }),
+        )
+        return perPricing.filter(
+          (entry): entry is { categorySlug: string; pricingModel: PricingModelSlug; lastmod: Date } =>
+            Boolean(entry),
+        )
+      }),
+    )
+  ).flat()
 
   const urls = [
     ...staticPaths.map((path) => {
@@ -219,6 +284,38 @@ export async function GET() {
           </url>
         `
       })),
+    ...(categoryPlatformSlices.map((entry) => {
+      const days = Math.floor(
+        (now.getTime() - entry.lastmod.getTime()) / 86400000,
+      )
+      const changefreq =
+        days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
+      const priority = days <= 7 ? "0.6" : days <= 60 ? "0.5" : "0.45"
+      return xml`
+        <url>
+          <loc>${base}${categoryPlatformPath(entry.categorySlug, entry.platform)}</loc>
+          <lastmod>${entry.lastmod.toISOString()}</lastmod>
+          <changefreq>${changefreq}</changefreq>
+          <priority>${priority}</priority>
+        </url>
+      `
+    })),
+    ...(categoryPricingSlices.map((entry) => {
+      const days = Math.floor(
+        (now.getTime() - entry.lastmod.getTime()) / 86400000,
+      )
+      const changefreq =
+        days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
+      const priority = days <= 7 ? "0.6" : days <= 60 ? "0.5" : "0.45"
+      return xml`
+        <url>
+          <loc>${base}${categoryPricingPath(entry.categorySlug, entry.pricingModel)}</loc>
+          <lastmod>${entry.lastmod.toISOString()}</lastmod>
+          <changefreq>${changefreq}</changefreq>
+          <priority>${priority}</priority>
+        </url>
+      `
+    })),
     ...(productTypeSlices
       .filter(
         (entry): entry is { slug: ProductTypeSlug; lastmod: Date } =>
