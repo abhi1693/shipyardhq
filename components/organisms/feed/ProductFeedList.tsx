@@ -2,7 +2,7 @@
 
 import { Flame } from "lucide-react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { addDays, startOfDay, startOfWeek } from "date-fns"
+import { addDays, startOfDay } from "date-fns"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import ProductFeedCard from "@/components/molecules/ProductFeedCard"

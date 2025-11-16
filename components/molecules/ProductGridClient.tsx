@@ -21,6 +21,7 @@ interface ProductGridClientProps {
     q?: string
     platform?: string
     pricingModel?: string
+    productType?: string
   }
 }
 
@@ -44,10 +45,12 @@ export default function ProductGridClient({
       q: searchParams.q,
       platform: searchParams.platform,
       pricingModel: searchParams.pricingModel,
+      productType: searchParams.productType,
     }),
     [
       searchParams.category,
       searchParams.platform,
+      searchParams.productType,
       searchParams.pricingModel,
       searchParams.q,
       searchParams.sort,

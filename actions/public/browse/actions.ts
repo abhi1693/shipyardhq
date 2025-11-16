@@ -1,6 +1,10 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
-import type { Platform, PricingModel } from "@/lib/vendor/prisma/client"
+import type {
+  Platform,
+  PricingModel,
+  ProductType,
+} from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   mapProductCardRecordToBase,
@@ -19,6 +23,7 @@ interface GetBrowseProductsOptions {
   query?: string
   platform?: Platform
   pricingModel?: PricingModel
+  type?: ProductType
 }
 
 type UseCaseCategoryRef = Prisma.UseCaseCategoryGetPayload<{
@@ -36,6 +41,7 @@ export const getBrowseProducts = cached(
     query,
     platform,
     pricingModel,
+    type,
   }: GetBrowseProductsOptions) => {
     const skip = (page - 1) * pageSize
 
@@ -80,6 +86,7 @@ export const getBrowseProducts = cached(
       ...(categoryIds?.length ? { categoryId: { in: categoryIds } } : {}),
       ...(platform ? { platforms: { has: platform } } : {}),
       ...(pricingModel ? { pricingModel } : {}),
+      ...(type ? { type } : {}),
       ...(q
         ? {
             OR: [
@@ -233,6 +240,7 @@ export const getBrowseProducts = cached(
         options.query ? `q:${options.query}` : "",
         options.platform ?? "",
         options.pricingModel ?? "",
+        options.type ?? "",
       ]
 
       return parts.filter((part) => Boolean(part))

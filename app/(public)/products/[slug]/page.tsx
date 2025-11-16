@@ -64,6 +64,7 @@ import {
   platformPath,
   pricingModelPath,
   productPath,
+  productTypePath,
   userPath,
 } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
@@ -81,6 +82,10 @@ import { buildProductStructuredData } from "@/lib/seo/product"
 import { getProductReviewSummary } from "@/lib/server/productReviews"
 import { getPlatformMetaByValue } from "@/lib/platforms/config"
 import { pricingModelSlugFromValue } from "@/lib/pricing/models"
+import {
+  getProductTypeMeta,
+  productTypeSlugFromValue,
+} from "@/lib/product-types/models"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -166,16 +171,6 @@ export async function generateMetadata(
   }
 
   return metadata
-}
-
-const PRODUCT_TYPE_LABELS: Record<string, string> = {
-  saas: "SaaS",
-  browser_extension: "Browser extension",
-  mobile_app: "Mobile app",
-  desktop_app: "Desktop app",
-  api: "API",
-  open_source: "Open source",
-  other: "Other",
 }
 
 const PRICING_MODEL_LABELS: Record<string, string> = {
@@ -266,10 +261,15 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   ]
     .join(" ")
     .trim()
-  const productTypeLabel = sidebarProduct?.type
-    ? (PRODUCT_TYPE_LABELS[
-        sidebarProduct.type as keyof typeof PRODUCT_TYPE_LABELS
-      ] ?? formatLabel(sidebarProduct.type))
+  const productTypeSlug = productTypeSlugFromValue(sidebarProduct?.type)
+  const productTypeMeta = productTypeSlug
+    ? getProductTypeMeta(productTypeSlug)
+    : null
+  const productTypeLabel =
+    productTypeMeta?.label ??
+    (sidebarProduct?.type ? formatLabel(sidebarProduct.type) : null)
+  const productTypeHref = productTypeMeta
+    ? productTypePath(productTypeMeta.slug)
     : null
   const pricingModelLabel = sidebarProduct?.pricingModel
     ? (PRICING_MODEL_LABELS[
@@ -472,7 +472,16 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       <div className="flex flex-col gap-5">
         <SidebarInfoRow label="Product type">
           {productTypeLabel ? (
-            <span>{productTypeLabel}</span>
+            productTypeHref ? (
+              <Link
+                href={productTypeHref}
+                className="inline-flex items-center gap-1 font-medium text-foreground underline-offset-4 transition-colors hover:text-foreground/80 hover:underline"
+              >
+                {productTypeLabel}
+              </Link>
+            ) : (
+              <span>{productTypeLabel}</span>
+            )
           ) : (
             <span className="text-muted-foreground">Not specified</span>
           )}
