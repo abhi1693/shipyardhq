@@ -107,20 +107,21 @@ export async function generateMetadata(props: {
 
   const pagePath = categoryPlatformPath(slug, platformMeta.slug)
 
+  const metadata = buildPageMetadata({
+    title,
+    description,
+    section: "Categories",
+    openGraph: { title, description },
+    twitter: { title, description },
+  })
+
   return {
-    ...buildPageMetadata({
-      title,
-      description,
-      section: "Categories",
-      openGraph: { title, description },
-      twitter: { title, description },
-      alternates: { canonical: pagePath },
-      keywords: [
-        `${category.name.toLowerCase()} tools for ${platformMeta.label.toLowerCase()}`,
-        `${category.name.toLowerCase()} ${platformMeta.label.toLowerCase()} apps`,
-        `${platformMeta.label.toLowerCase()} ${category.name.toLowerCase()} software`,
-      ],
-    }),
+    ...metadata,
+    keywords: [
+      `${category.name.toLowerCase()} tools for ${platformMeta.label.toLowerCase()}`,
+      `${category.name.toLowerCase()} ${platformMeta.label.toLowerCase()} apps`,
+      `${platformMeta.label.toLowerCase()} ${category.name.toLowerCase()} software`,
+    ],
   }
 }
 

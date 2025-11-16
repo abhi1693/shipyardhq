@@ -107,20 +107,21 @@ export async function generateMetadata(props: {
 
   const pagePath = categoryPricingPath(slug, pricingModelMeta.slug)
 
+  const metadata = buildPageMetadata({
+    title,
+    description,
+    section: "Categories",
+    openGraph: { title, description },
+    twitter: { title, description },
+  })
+
   return {
-    ...buildPageMetadata({
-      title,
-      description,
-      section: "Categories",
-      openGraph: { title, description },
-      twitter: { title, description },
-      alternates: { canonical: pagePath },
-      keywords: [
-        `${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} tools`,
-        `${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} software`,
-        `${category.name.toLowerCase()} products with ${pricingModelMeta.label.toLowerCase()} pricing`,
-      ],
-    }),
+    ...metadata,
+    keywords: [
+      `${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} tools`,
+      `${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} software`,
+      `${category.name.toLowerCase()} products with ${pricingModelMeta.label.toLowerCase()} pricing`,
+    ],
   }
 }
 
