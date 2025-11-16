@@ -4,6 +4,8 @@ import {
   BROWSE_PATH,
   CATEGORIES_PATH,
   LEADERBOARD_PATH,
+  LEADERBOARD_GUIDE_PATH,
+  LEADERBOARD_REWARDS_PATH,
   PRICING_PATH,
   pricingModelPath,
   categoryPath,
@@ -12,6 +14,11 @@ import {
   platformPath,
   productTypePath,
   usecasePath,
+  ANALYTICS_PATH,
+  REWARDS_PATH,
+  TAGS_PATH,
+  TRENDS_PATH,
+  WHY_SHIPYARD_PATH,
 } from "@/lib/routes"
 import { getPublicUseCasesWithCounts } from "@/actions/public/use-cases/actions"
 import {
@@ -56,6 +63,13 @@ export async function GET() {
     "/alternatives",
     "/legal/terms",
     "/legal/privacy-policy",
+    ANALYTICS_PATH,
+    TAGS_PATH,
+    REWARDS_PATH,
+    TRENDS_PATH,
+    WHY_SHIPYARD_PATH,
+    LEADERBOARD_GUIDE_PATH,
+    LEADERBOARD_REWARDS_PATH,
   ] as const
 
   const [
@@ -231,6 +245,34 @@ export async function GET() {
         case "/legal/privacy-policy":
           changefreq = "yearly"
           priority = "0.3"
+          break
+        case TAGS_PATH:
+          changefreq = "weekly"
+          priority = "0.6"
+          break
+        case ANALYTICS_PATH:
+          changefreq = "weekly"
+          priority = "0.5"
+          break
+        case REWARDS_PATH:
+          changefreq = "weekly"
+          priority = "0.55"
+          break
+        case TRENDS_PATH:
+          changefreq = "daily"
+          priority = "0.65"
+          break
+        case WHY_SHIPYARD_PATH:
+          changefreq = "monthly"
+          priority = "0.45"
+          break
+        case LEADERBOARD_GUIDE_PATH:
+          changefreq = "yearly"
+          priority = "0.35"
+          break
+        case LEADERBOARD_REWARDS_PATH:
+          changefreq = "weekly"
+          priority = "0.55"
           break
       }
       return xml`
