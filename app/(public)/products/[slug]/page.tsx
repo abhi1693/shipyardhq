@@ -25,6 +25,11 @@ import {
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/atoms/avatar"
+import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
@@ -86,6 +91,7 @@ import {
   getProductTypeMeta,
   productTypeSlugFromValue,
 } from "@/lib/product-types/models"
+import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -333,6 +339,15 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         .join("")
         .slice(0, 2)
     : "SP"
+  let ownerAvatarUrl: string | null = null
+  if (productOwner?.clerkId) {
+    try {
+      const clerkUser = await getClerkUserByIdCached(productOwner.clerkId)
+      ownerAvatarUrl = clerkUser.imageUrl ?? null
+    } catch {
+      ownerAvatarUrl = null
+    }
+  }
 
   const aggregateRating =
     reviewSummary.totalReviews > 0
@@ -668,9 +683,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               </div>
               <div className="flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
-                    {ownerInitials}
-                  </div>
+                  <Avatar className="h-9 w-9 text-sm font-semibold text-foreground">
+                    {ownerAvatarUrl ? (
+                      <AvatarImage
+                        src={ownerAvatarUrl}
+                        alt={ownerName || "Product owner"}
+                        width={56}
+                        height={56}
+                        className="object-cover"
+                      />
+                    ) : null}
+                    <AvatarFallback>{ownerInitials}</AvatarFallback>
+                  </Avatar>
                   <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                     {productOwner?.id && ownerName ? (
                       <Link
