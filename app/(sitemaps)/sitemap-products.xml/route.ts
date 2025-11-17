@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 
 export const dynamic = "force-static"
 export const revalidate = 86400
@@ -10,9 +11,7 @@ function xml(parts: TemplateStringsArray, ...subs: any[]) {
 const CHUNK_SIZE = 50000
 
 export async function GET() {
-  const base = (
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-  ).replace(/\/$/, "")
+  const base = resolveSiteUrl()
 
   const [count, latest] = await Promise.all([
     prisma.product.count({ where: { status: "published" as any } }),

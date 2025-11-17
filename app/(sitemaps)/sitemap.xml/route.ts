@@ -1,3 +1,5 @@
+import { resolveSiteUrl } from "@/lib/siteConfig"
+
 export const dynamic = "force-static"
 export const revalidate = 86400
 
@@ -6,9 +8,7 @@ function xml(parts: TemplateStringsArray, ...subs: any[]) {
 }
 
 export async function GET() {
-  const base = (
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-  ).replace(/\/$/, "")
+  const base = resolveSiteUrl()
   const now = new Date().toISOString()
   const body = xml`
     <?xml version="1.0" encoding="UTF-8"?>

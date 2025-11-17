@@ -2,6 +2,7 @@ import {
   getKeywordTagSitemapChunk,
   getKeywordTagSitemapStats,
 } from "@/actions/public/tags/actions"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 
 export const dynamic = "force-static"
 export const revalidate = 86400
@@ -27,9 +28,7 @@ export async function GET(
   _req: Request,
   { params }: { params: Promise<{ index: string }> },
 ) {
-  const base = (
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-  ).replace(/\/$/, "")
+  const base = resolveSiteUrl()
   const { index } = await params
   const page = Number(index)
   if (!Number.isFinite(page) || page < 1) {

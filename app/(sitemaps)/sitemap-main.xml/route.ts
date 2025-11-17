@@ -20,6 +20,7 @@ import {
   TRENDS_PATH,
   WHY_SHIPYARD_PATH,
 } from "@/lib/routes"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 import { getPublicUseCasesWithCounts } from "@/actions/public/use-cases/actions"
 import {
   PLATFORM_SLUGS,
@@ -49,9 +50,7 @@ function xml(parts: TemplateStringsArray, ...subs: any[]) {
 }
 
 export async function GET() {
-  const base = (
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-  ).replace(/\/$/, "")
+  const base = resolveSiteUrl()
   const now = new Date()
 
   const staticPaths = [

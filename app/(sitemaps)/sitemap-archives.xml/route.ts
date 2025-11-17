@@ -3,6 +3,7 @@ import {
   LEADERBOARD_MONTHLY_PATH,
   monthlyLeaderboardArchivePath,
 } from "@/lib/routes"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 
 export const dynamic = "force-static"
 export const revalidate = 86400
@@ -35,9 +36,7 @@ const toMonthDate = (monthKey: string, fallback: Date) => {
 }
 
 export async function GET() {
-  const base = (
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-  ).replace(/\/$/, "")
+  const base = resolveSiteUrl()
 
   const months = await getMonthlyLeaderboardMonths()
   const now = new Date()

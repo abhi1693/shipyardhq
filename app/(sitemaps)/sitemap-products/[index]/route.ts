@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 
 type ProductSitemapEntry = Prisma.ProductGetPayload<{
   select: { id: true; slug: true; updatedAt: true; publishedAt: true }
@@ -31,9 +32,7 @@ export async function GET(
   _req: Request,
   { params }: { params: Promise<{ index: string }> },
 ) {
-  const base = (
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-  ).replace(/\/$/, "")
+  const base = resolveSiteUrl()
   const { index } = await params
   const page = Number(index)
   if (!Number.isFinite(page) || page < 1) {

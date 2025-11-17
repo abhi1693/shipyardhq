@@ -18,6 +18,7 @@ import {
   getUseCasePagePayload,
   type UseCasePagePayload,
 } from "@/lib/useCases/page-cache"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 
 interface UseCasePageProps {
   params: Promise<{ slug: string }>
@@ -36,9 +37,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
   const { useCase, categories, products, productCount } = data
 
   const heroHighlight = categories[0]
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-  ).replace(/\/$/, "")
+  const baseUrl = resolveSiteUrl()
   const pageUrl = `${baseUrl}${usecasePath(useCase.slug)}`
   const toAbsoluteUrl = (input?: string | null) => {
     if (!input) return undefined
