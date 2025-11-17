@@ -1,7 +1,7 @@
-import Image from "next/image"
 import { getStickyBannerProducts } from "@/actions/public/products/featured"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/atoms/badge"
+import { SquareImage } from "@/components/molecules/SquareImage"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
 import { ProductClickLink } from "@/components/molecules/ProductClickLink"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
@@ -48,12 +48,11 @@ export async function StickyBanner({
         >
           <div className="flex min-w-0 items-center gap-3">
             <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#FEF3C7] bg-white shadow-[0_16px_32px_-28px_rgba(7,68,134,0.2)]">
-              <Image
+              <SquareImage
                 src={product.logo}
                 alt={product.name}
-                width={44}
-                height={44}
-                priority
+                size={44}
+                eager
                 className="h-full w-full object-cover"
               />
             </span>

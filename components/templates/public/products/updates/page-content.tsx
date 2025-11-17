@@ -1,7 +1,7 @@
-import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
+import { SquareImage } from "@/components/molecules/SquareImage"
 import prisma from "@/lib/prisma"
 import { ProductStatus } from "@/lib/vendor/prisma/client"
 import { getPublicProductUpdatesPage } from "@/actions/public/product-updates/actions"
@@ -122,11 +122,10 @@ export async function ProductUpdatesArchivePageContent({
           <header className="rounded-3xl border border-border/70 bg-white p-6 shadow-sm">
             <div className="flex items-start gap-4">
               {product.logo ? (
-                <Image
+                <SquareImage
                   src={product.logo}
                   alt={`${product.name} logo`}
-                  width={64}
-                  height={64}
+                  size={64}
                   className="h-16 w-16 rounded-lg border border-border object-contain"
                 />
               ) : (

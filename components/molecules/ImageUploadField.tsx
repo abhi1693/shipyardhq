@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import DeleteButton from "@/components/molecules/DeleteButton"
 import { ExternalLink } from "lucide-react"
 // Server-side uses Sharp to convert/compress; client pre-processing disabled.
 import { useFormContext } from "react-hook-form"
+import { Image } from "@/components/atoms/image"
 
 type Props = {
   name: string

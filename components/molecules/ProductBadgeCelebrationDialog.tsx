@@ -1,7 +1,6 @@
 "use client"
 
 import { useCallback, useMemo, useState } from "react"
-import Image from "next/image"
 
 import {
   Dialog,
@@ -13,6 +12,7 @@ import {
   DialogClose,
 } from "@/components/atoms/dialog"
 import { Button } from "@/components/atoms/button"
+import { Image } from "@/components/atoms/image"
 import { Textarea } from "@/components/atoms/textarea"
 import CopyButton from "@/components/molecules/CopyButton"
 import { siteConfig } from "@/lib/siteConfig"

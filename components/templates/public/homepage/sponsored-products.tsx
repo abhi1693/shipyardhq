@@ -1,7 +1,8 @@
-import Image from "next/image"
 import Link from "next/link"
 import { Sparkles } from "lucide-react"
 
+import { Image } from "@/components/atoms/image"
+import { SquareImage } from "@/components/molecules/SquareImage"
 import { getSponsoredProducts } from "@/actions/public/products/featured"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
@@ -127,11 +128,10 @@ function SponsorAvatar({
   return (
     <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border/50 bg-muted/40">
       {logo ? (
-        <Image
+        <SquareImage
           src={logo}
           alt={name}
-          width={48}
-          height={48}
+          size={48}
           className="h-full w-full object-cover"
         />
       ) : (

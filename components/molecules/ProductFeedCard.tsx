@@ -1,11 +1,11 @@
 "use client"
 
-import Image from "next/image"
 import { type ReactNode } from "react"
 
 import { ArrowUpRight, Flame } from "lucide-react"
 
 import { Badge } from "@/components/atoms/badge"
+import { SquareImage } from "@/components/molecules/SquareImage"
 import {
   Tooltip,
   TooltipContent,
@@ -132,11 +132,10 @@ export function ProductFeedCard({
         <div className="flex flex-1 items-start gap-4">
           <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border/50 bg-muted/40">
             {item.logo ? (
-              <Image
+              <SquareImage
                 src={item.logo}
                 alt={`${item.name} logo`}
-                width={LOGO_SIZE}
-                height={LOGO_SIZE}
+                size={LOGO_SIZE}
                 className="h-full w-full object-cover"
               />
             ) : (

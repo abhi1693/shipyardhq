@@ -1,7 +1,9 @@
-import Image, { type ImageProps } from "next/image"
+import type { ComponentProps } from "react"
+
+import { Image } from "@/components/atoms/image"
 import clsx from "clsx"
 
-export type BrandLogoProps = Omit<ImageProps, "src" | "alt"> & {
+export type BrandLogoProps = Omit<ComponentProps<typeof Image>, "src" | "alt"> & {
   /**
    * Optional alt text override. Defaults to the ShipYardHQ brand name.
    */
@@ -11,7 +13,7 @@ export type BrandLogoProps = Omit<ImageProps, "src" | "alt"> & {
 export function BrandLogo({
   className,
   alt = "ShipYardHQ",
-  preload = false,
+  eager = false,
   loading,
   fetchPriority,
   width,
@@ -20,9 +22,9 @@ export function BrandLogo({
 }: BrandLogoProps) {
   const shared = {
     ...restProps,
-    preload,
-    loading: loading ?? (preload ? "eager" : undefined),
-    fetchPriority: fetchPriority ?? (preload ? "high" : undefined),
+    eager,
+    loading: loading ?? (eager ? "eager" : undefined),
+    fetchPriority: fetchPriority ?? (eager ? "high" : undefined),
     width: width ?? 32,
     height: height ?? 32,
   }

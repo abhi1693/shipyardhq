@@ -1,6 +1,6 @@
-import Image from "next/image"
 import Link from "next/link"
 import { Check, ListChecks, Radar, Sparkles, Target, Users } from "lucide-react"
+import { Image } from "@/components/atoms/image"
 import { Button } from "@/components/atoms/button"
 import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
 

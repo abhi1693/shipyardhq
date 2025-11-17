@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import Image from "next/image"
 import DeleteButton from "@/components/molecules/DeleteButton"
 import { useRouter } from "next/navigation"
 // Server-side uses Sharp to convert/compress; client pre-processing disabled.
+
+import { Image } from "@/components/atoms/image"
 
 type Media = { id: string; imageUrl: string }
 

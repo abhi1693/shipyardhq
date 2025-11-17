@@ -1,10 +1,10 @@
 import React from "react"
 import Link from "next/link"
-import Image from "next/image"
 import Medal from "@/components/atoms/Medal"
 import { cn } from "@/lib/utils"
 import { productPath } from "@/lib/routes"
 import { IconAnchor } from "@tabler/icons-react"
+import { SquareImage } from "@/components/molecules/SquareImage"
 
 export type LeaderboardPlacementProduct = {
   slug: string
@@ -71,11 +71,10 @@ export function TopPlacementCard({
         <div className="flex items-start gap-4">
           <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-muted/60 shadow-[0_22px_50px_-40px_rgba(7,78,134,0.55)]">
             {product.logo ? (
-              <Image
+              <SquareImage
                 src={product.logo}
                 alt={product.name}
-                width={64}
-                height={64}
+                size={64}
                 className="h-full w-full object-cover"
               />
             ) : (

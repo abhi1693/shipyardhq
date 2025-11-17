@@ -1,8 +1,8 @@
 import Link from "next/link"
-import Image from "next/image"
 import { formatDistanceToNow } from "date-fns"
 import { Megaphone } from "lucide-react"
 
+import { SquareImage } from "@/components/molecules/SquareImage"
 import type { ProductUpdateFeedItem } from "@/types/product-updates"
 import { cn } from "@/lib/utils"
 import { BROWSE_PATH, productPath } from "@/lib/routes"
@@ -67,11 +67,10 @@ export function ProductUpdatesFeed({
             >
               {update.product.logo ? (
                 <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border bg-white">
-                  <Image
+                  <SquareImage
                     src={update.product.logo}
                     alt={`${update.product.name} logo`}
-                    width={40}
-                    height={40}
+                    size={40}
                     className="h-9 w-9 rounded-full object-contain"
                   />
                 </div>

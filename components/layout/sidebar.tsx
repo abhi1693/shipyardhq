@@ -111,7 +111,7 @@ export default function AppSidebar(props: SidebarProps) {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <BrandWordmark href={brandHref} compact preload />
+        <BrandWordmark href={brandHref} compact eager />
         <div className="mx-1 mt-1 h-px rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] opacity-70" />
       </SidebarHeader>
       <SidebarContent className="overflow-x-hidden">

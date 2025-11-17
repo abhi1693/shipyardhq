@@ -1,4 +1,3 @@
-import Image from "next/image"
 import Link from "next/link"
 import { JSX } from "react"
 import { CheckCircle, Tag as TagIcon } from "lucide-react"
@@ -6,6 +5,7 @@ import SignInButton from "@/components/molecules/SignInButton"
 
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
+import { SquareImage } from "@/components/molecules/SquareImage"
 import { cn } from "@/lib/utils"
 import { productPageCopy } from "@/lib/copy/productPage"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
@@ -108,12 +108,11 @@ export function ProductDetailHero({
       <header className="flex flex-col gap-6 sm:flex-row sm:items-start">
         <div className="flex gap-5">
           <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-border bg-white shadow-sm sm:h-20 sm:w-20">
-            <Image
+            <SquareImage
               src={logo}
               alt={`${name} logo`}
-              width={96}
-              height={96}
-              preload
+              size={96}
+              eager
               loading="eager"
               fetchPriority="high"
               className="h-full w-full object-cover"

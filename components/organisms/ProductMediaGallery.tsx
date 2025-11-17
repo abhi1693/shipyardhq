@@ -1,9 +1,9 @@
 "use client"
 
-import Image from "next/image"
 import { useMemo, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
+import { Image } from "@/components/atoms/image"
 import { cn } from "@/lib/utils"
 
 interface MediaItem {
@@ -90,7 +90,7 @@ export function ProductMediaGallery({
               sizes="(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1100px"
               quality={95}
               className="object-contain transition-opacity duration-200"
-              preload={currentIndex === 0}
+              eager={currentIndex === 0}
               loading={currentIndex === 0 ? "eager" : "lazy"}
               fetchPriority={currentIndex === 0 ? "high" : "auto"}
             />

@@ -18,7 +18,7 @@ type BrandWordmarkProps = Omit<
     href?: LinkProps["href"]
     hideLabel?: boolean
     compact?: boolean
-    preload?: boolean
+    eager?: boolean
   }
 
 export const BrandWordmark = forwardRef<HTMLAnchorElement, BrandWordmarkProps>(
@@ -27,7 +27,7 @@ export const BrandWordmark = forwardRef<HTMLAnchorElement, BrandWordmarkProps>(
       href = HOME_PATH,
       hideLabel = false,
       compact = false,
-      preload = false,
+      eager = false,
       prefetch,
       replace,
       scroll,
@@ -60,7 +60,7 @@ export const BrandWordmark = forwardRef<HTMLAnchorElement, BrandWordmarkProps>(
           width={size}
           height={size}
           sizes={compact ? "28px" : "(max-width: 768px) 24px, 32px"}
-          preload={preload}
+          eager={eager}
           className={clsx(
             "shrink-0 transition-transform duration-150 ease-out group-hover:scale-[1.05]",
             sizeClasses,

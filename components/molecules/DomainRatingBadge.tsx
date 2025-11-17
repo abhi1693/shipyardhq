@@ -1,4 +1,4 @@
-import Image from "next/image"
+import { Image } from "@/components/atoms/image"
 import { cn } from "@/lib/utils"
 
 const BADGE_IMAGE_URL =
