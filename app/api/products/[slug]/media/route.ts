@@ -12,10 +12,10 @@ function sanitizeFilename(name: string) {
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
-    const { id } = await params
+    const { slug } = await params
     const { userId } = await auth()
     if (!userId) return new Response("Unauthorized", { status: 401 })
 
@@ -23,7 +23,7 @@ export async function POST(
     if (!user) return new Response("Account inactive", { status: 403 })
 
     const product = await prisma.product.findUnique({
-      where: { id },
+      where: { slug },
       select: { id: true, userId: true },
     })
     if (!product) return new Response("Not Found", { status: 404 })

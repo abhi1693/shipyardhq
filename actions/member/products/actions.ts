@@ -7,9 +7,16 @@ import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import { createPlanCheckout } from "@/lib/server/dodoCheckout"
 import {
   FeatureEntitlementStatus,
+  PaymentConnectorProvider,
+  PaymentCredentialStatus,
   Prisma,
   ProductStatus,
 } from "@/lib/vendor/prisma/client"
+import {
+  getConnectorRevenueHistory,
+  syncPaymentConnector,
+  upsertPaymentConnector,
+} from "@/lib/server/payments/connectors"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -404,4 +411,149 @@ export async function choosePlanAction(
 
   // If checkout couldn't be created, do NOT grant the plan
   redirect(`${ctx.redirectPath}?error=checkout_init_failed`)
+}
+
+async function requireOwnedProduct(productId: string) {
+  const { userId } = await auth()
+  if (!userId) return { error: "Unauthenticated" as const } as const
+  const user = await getActiveUserByClerkId(userId)
+  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE as const } as const
+
+  const product = await prisma.product.findFirst({
+    where: { id: productId, userId: user.id },
+    select: { id: true, slug: true, userId: true },
+  })
+  if (!product) return { error: "Product not found or not owned by user" as const } as const
+
+  return { user, product }
+}
+
+export async function getProductConnectorSummary(productId: string) {
+  const { error } = await requireOwnedProduct(productId)
+  if (error) return null
+
+  const connector = await prisma.paymentConnector.findUnique({
+    where: { productId },
+    select: {
+      id: true,
+      provider: true,
+      status: true,
+      lastSyncedAt: true,
+      lastSyncError: true,
+      latestAllTimeRevenueCents: true,
+      latestCurrencyCode: true,
+      latestPeriodStart: true,
+      credentials: {
+        where: { status: PaymentCredentialStatus.active },
+        select: { keyHint: true },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      },
+    },
+  })
+
+  if (!connector) return null
+  const keyHint = connector.credentials?.[0]?.keyHint || null
+  const { credentials: _creds, ...rest } = connector
+  void _creds
+  return { ...rest, keyHint }
+}
+
+export async function getProductConnectorRevenue(
+  productId: string,
+  options?: { limit?: number },
+) {
+  const { error } = await requireOwnedProduct(productId)
+  if (error) return null
+
+  const connector = await getConnectorRevenueHistory({
+    productId,
+    limit: options?.limit,
+  })
+  if (!connector) return null
+
+  const fullHistory = connector.revenueHistory ?? []
+  const latestHistory =
+    options?.limit && options.limit > 0
+      ? fullHistory.slice(Math.max(fullHistory.length - options.limit, 0))
+      : fullHistory
+
+  const allTimeByCurrency = new Map<string, number>()
+  for (const entry of fullHistory) {
+    const current = allTimeByCurrency.get(entry.currencyCode) ?? 0
+    const candidate = Math.max(
+      entry.allTimeRevenueCents ?? 0,
+      entry.periodRevenueCents ?? 0,
+    )
+    allTimeByCurrency.set(entry.currencyCode, Math.max(current, candidate))
+  }
+
+  const sortedCurrencies = Array.from(allTimeByCurrency.entries()).sort(
+    (a, b) => b[1] - a[1],
+  )
+  const primaryCurrency = connector.latestCurrencyCode ?? sortedCurrencies[0]?.[0] ?? null
+  const primaryAllTime =
+    primaryCurrency != null ? allTimeByCurrency.get(primaryCurrency) ?? 0 : null
+
+  return {
+    connector: {
+      id: connector.id,
+      provider: connector.provider,
+      status: connector.status,
+      lastSyncedAt: connector.lastSyncedAt,
+      lastSyncError: connector.lastSyncError,
+      latestAllTimeRevenueCents:
+        connector.latestAllTimeRevenueCents ?? primaryAllTime ?? 0,
+      latestCurrencyCode: connector.latestCurrencyCode ?? primaryCurrency,
+      latestPeriodStart: connector.latestPeriodStart,
+    },
+    revenueHistory: latestHistory,
+    totals: {
+      byCurrency: Array.from(allTimeByCurrency.entries()).map(
+        ([currencyCode, allTimeRevenueCents]) => ({
+          currencyCode,
+          allTimeRevenueCents,
+        }),
+      ),
+      primary: primaryCurrency
+        ? {
+            currencyCode: primaryCurrency,
+            allTimeRevenueCents: primaryAllTime ?? 0,
+          }
+        : null,
+    },
+  }
+}
+
+export async function saveProductConnectorAction(input: {
+  productId: string
+  provider: PaymentConnectorProvider | string
+  apiKey: string
+}) {
+  const guard = await requireOwnedProduct(input.productId)
+  if ("error" in guard) return guard
+
+  const provider =
+    typeof input.provider === "string"
+      ? (input.provider as PaymentConnectorProvider)
+      : input.provider
+  if (!Object.values(PaymentConnectorProvider).includes(provider)) {
+    return { error: "Unsupported payment provider" }
+  }
+  const apiKey = input.apiKey?.trim()
+  if (!apiKey) return { error: "API key is required" }
+
+  try {
+    const result = await upsertPaymentConnector({
+      productId: input.productId,
+      provider,
+      apiKey,
+      config: {},
+    })
+    await syncPaymentConnector(result.connector.id)
+    const summary = await getProductConnectorSummary(input.productId)
+    return { ok: true, connectorId: result.connector.id, connector: summary }
+  } catch (e: any) {
+    return { error: e?.message || "Failed to save connector" }
+  }
 }

@@ -98,6 +98,10 @@ export type ProductUpdatePublishedEvent = {
   authorId: string | null
 }
 
+export type PaymentConnectorSyncEvent = {
+  connectorId: string
+}
+
 export type LeaderboardMonthlyWinnersEvent = {
   monthKey: string
   monthLabel: string
@@ -183,6 +187,7 @@ type AppEvents = {
   [APP_EVENTS.PRODUCT_UPVOTED]: ProductUpvotedEvent
   [APP_EVENTS.PRODUCT_REVIEWED]: ProductReviewCreatedEvent
   [APP_EVENTS.PRODUCT_UPDATE_PUBLISHED]: ProductUpdatePublishedEvent
+  [APP_EVENTS.PAYMENTS_CONNECTOR_SYNC]: PaymentConnectorSyncEvent
   [APP_EVENTS.BADGE_ASSIGNED]: BadgeAssignedEvent
   [APP_EVENTS.BADGE_REMOVED]: BadgeRemovedEvent
   [APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC]: ProductTrafficRecordedEvent

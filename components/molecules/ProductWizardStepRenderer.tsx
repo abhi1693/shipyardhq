@@ -38,6 +38,7 @@ export function renderStep(
     rightOfWebsite?: ReactNode
     enableAutofill?: boolean
     autofillNotice?: ReactNode
+    pricingAside?: ReactNode
   },
 ) {
   switch (step) {
@@ -54,7 +55,7 @@ export function renderStep(
         />
       )
     case 2:
-      return <Step2 />
+      return <Step2 rightOfPricing={args.pricingAside} />
     case 3:
       return (
         <Step3

@@ -1,9 +1,14 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, FormProvider } from "react-hook-form"
+import {
+  useForm,
+  FormProvider,
+  useWatch,
+  type UseFormReturn,
+} from "react-hook-form"
 import { toast } from "sonner"
 import { MEMBER_PRODUCTS_PATH, memberProductUpgradePath } from "@/lib/routes"
 
@@ -30,6 +35,51 @@ import {
 } from "@/lib/productWizard/mappers"
 import { useProductWizard } from "@/hooks/useProductWizard"
 import { renderStep } from "@/components/molecules/ProductWizardStepRenderer"
+import { PaymentConnectorProvider } from "@/lib/vendor/prisma/client"
+import { PaymentConnectorCard } from "../shared/PaymentConnectorCard"
+
+function ConnectorFields({ form }: { form: UseFormReturn<ProductWizardInput> }) {
+  const provider = useWatch({
+    control: form.control,
+    name: "connectorProvider" as any,
+  }) as PaymentConnectorProvider | undefined
+  const apiKey =
+    (useWatch({
+      control: form.control,
+      name: "connectorApiKey" as any,
+    }) as string | undefined) ?? ""
+  const pricingModel =
+    (useWatch({
+      control: form.control,
+      name: "pricingModel" as any,
+    }) as string | undefined) ?? undefined
+
+  if (pricingModel === "free") return null
+
+  return (
+    <PaymentConnectorCard
+      provider={
+        provider ?? (PaymentConnectorProvider.dodo as PaymentConnectorProvider)
+      }
+      apiKey={apiKey ?? ""}
+      showSaveButton={false}
+      onChange={(draft) => {
+        if (draft.provider) {
+          form.setValue("connectorProvider" as any, draft.provider, {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+        if (draft.apiKey !== undefined) {
+          form.setValue("connectorApiKey" as any, draft.apiKey ?? "", {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+      }}
+    />
+  )
+}
 
 const schema = makeAddProductSchema()
 
@@ -64,7 +114,6 @@ export default function AddProductForm({
     const rand = () => Math.random().toString(36).slice(2, 10)
     return `prod_${Date.now().toString(36)}_${rand()}_${rand()}`
   })
-
   const form = useForm<ProductWizardInput>({
     resolver: zodResolver(schema) as any,
     defaultValues: getInitialValuesForAdd(),
@@ -111,24 +160,16 @@ export default function AddProductForm({
     onSubmit: submitAll as any,
   })
 
-  const StepComponent = useMemo(() => {
-    return renderStep(wizard.step, {
-      categories,
-      organizations,
-      productId: newProductId,
-      persistOnVerify: false,
-      canEditCTA,
-      enableAutofill: true,
-      alternatives,
-    })
-  }, [
-    wizard.step,
+  const StepComponent = renderStep(wizard.step, {
     categories,
     organizations,
-    newProductId,
+    productId: newProductId,
+    persistOnVerify: false,
     canEditCTA,
+    enableAutofill: true,
     alternatives,
-  ])
+    pricingAside: <ConnectorFields form={form} />,
+  })
 
   return (
     <Card className="mx-auto w-full max-w-4xl">

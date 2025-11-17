@@ -13,7 +13,12 @@ import "@/lib/server/social/twitterBot"
 import "@/lib/server/rewards/listeners"
 import { sendProductPublishedEmail } from "@/lib/server/email/productPublished"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
-import { ProductType, PricingModel, Prisma } from "@/lib/vendor/prisma/client"
+import {
+  ProductType,
+  PricingModel,
+  Prisma,
+  PaymentConnectorProvider,
+} from "@/lib/vendor/prisma/client"
 import { slugify } from "@/lib/utils"
 import { checkRole } from "@/lib/roles"
 import { memberHasFeature } from "@/lib/memberFeatures"
@@ -27,6 +32,10 @@ import {
   revalidateAlternativeProduct,
   revalidateAlternativeProducts,
 } from "@/lib/cache/revalidate"
+import {
+  syncPaymentConnector,
+  upsertPaymentConnector,
+} from "@/lib/server/payments/connectors"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -143,6 +152,8 @@ export async function createProductAction(formData: FormData) {
   const demoUrl = formData.get("demoUrl")?.toString().trim()
   const contactEmail = formData.get("contactEmail")?.toString().trim()
   const utmCampaign = formData.get("utmCampaign")?.toString().trim()
+  const connectorProvider = formData.get("connectorProvider")?.toString().trim()
+  const connectorApiKey = formData.get("connectorApiKey")?.toString().trim()
 
   const startingPriceCentsRaw = formData.get("startingPriceCents")?.toString()
   const startingPriceCents = startingPriceCentsRaw
@@ -272,6 +283,24 @@ export async function createProductAction(formData: FormData) {
           : undefined,
       },
     })
+    if (connectorApiKey && connectorProvider) {
+      const providerEnum =
+        (PaymentConnectorProvider as any)[connectorProvider] ??
+        connectorProvider
+      if (
+        Object.values(PaymentConnectorProvider).includes(
+          providerEnum as PaymentConnectorProvider,
+        )
+      ) {
+        const { connector } = await upsertPaymentConnector({
+          productId: created.id,
+          provider: providerEnum as PaymentConnectorProvider,
+          apiKey: connectorApiKey,
+          config: {},
+        })
+        await syncPaymentConnector(connector.id)
+      }
+    }
     // Fire domain event for listeners (e.g., auto badges) without blocking the response
     dispatchEventAsync(
       "product.created",
@@ -370,6 +399,8 @@ export async function updateProductAction(
     utmCampaign?: string | null
     planId?: string | null
     alternativeIds?: string[]
+    connectorProvider?: string | null
+    connectorApiKey?: string
   },
 ) {
   // Determine role for permission-sensitive updates
@@ -550,6 +581,33 @@ export async function updateProductAction(
         ...planUpdate,
       },
     })
+
+    const connectorInputProvided = data.connectorApiKey || data.connectorProvider
+    if (connectorInputProvided) {
+      const existingConnector = await prisma.paymentConnector.findUnique({
+        where: { productId: id },
+        select: { id: true, provider: true },
+      })
+      const providerValue =
+        data.connectorProvider || existingConnector?.provider || undefined
+      const providerEnum =
+        providerValue &&
+        (Object.values(PaymentConnectorProvider).includes(
+          providerValue as PaymentConnectorProvider,
+        )
+          ? (providerValue as PaymentConnectorProvider)
+          : (PaymentConnectorProvider as any)[providerValue])
+
+      if (providerEnum && data.connectorApiKey) {
+        const { connector } = await upsertPaymentConnector({
+          productId: id,
+          provider: providerEnum as PaymentConnectorProvider,
+          apiKey: data.connectorApiKey,
+          config: {},
+        })
+        await syncPaymentConnector(connector.id)
+      }
+    }
 
     // Fire update event (available for future listeners)
     dispatchEventAsync(

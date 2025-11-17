@@ -12,5 +12,6 @@ import "@/lib/server/social/twitterBot"
 import "@/lib/server/analytics/productVotes"
 import "@/lib/server/analytics/productClicks"
 import "@/lib/server/analytics/productTraffic"
+import "@/lib/server/payments/listeners"
 
 export {}

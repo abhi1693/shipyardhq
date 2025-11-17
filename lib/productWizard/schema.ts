@@ -62,6 +62,10 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       utmCampaign: z.string().optional().or(z.literal("")),
       status: z.enum(statusValues).optional(),
 
+      // Payment connector (optional, saved with product)
+      connectorProvider: z.enum(["dodo"]).optional(),
+      connectorApiKey: z.string().optional().or(z.literal("")),
+
       // Verification (client-side check state)
       verificationExpectedTxt: z.string().optional(),
       verificationChecked: z.boolean().optional(),
@@ -118,6 +122,14 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
             message: "Should be empty for free/custom",
           })
         }
+      }
+
+      if (val.connectorApiKey && !val.connectorProvider) {
+        ctx.addIssue({
+          path: ["connectorProvider"],
+          code: z.ZodIssueCode.custom,
+          message: "Choose a provider when adding an API key",
+        })
       }
     })
 }

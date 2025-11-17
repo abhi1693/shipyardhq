@@ -1,9 +1,13 @@
 "use client"
 
-import { useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, FormProvider } from "react-hook-form"
+import {
+  useForm,
+  FormProvider,
+  useWatch,
+  type UseFormReturn,
+} from "react-hook-form"
 import { toast } from "sonner"
 
 import { updateProductAction } from "@/actions/admin/products/actions"
@@ -24,6 +28,72 @@ import {
 import { useProductWizard } from "@/hooks/useProductWizard"
 import { renderStep } from "@/components/molecules/ProductWizardStepRenderer"
 import { memberProductPath } from "@/lib/routes"
+import {
+  PaymentConnectorProvider,
+  PaymentConnectorStatus,
+} from "@/lib/vendor/prisma/client"
+import { PaymentConnectorCard } from "../../shared/PaymentConnectorCard"
+
+function ConnectorFields({
+  form,
+  connector,
+}: {
+  form: UseFormReturn<ProductWizardInput>
+  connector: {
+    provider?: PaymentConnectorProvider
+    status?: PaymentConnectorStatus | null
+    lastSyncedAt?: Date | string | null
+    lastSyncError?: string | null
+    keyHint?: string | null
+  } | null
+}) {
+  const provider = useWatch({
+    control: form.control,
+    name: "connectorProvider" as any,
+  }) as PaymentConnectorProvider | undefined
+  const apiKey =
+    (useWatch({
+      control: form.control,
+      name: "connectorApiKey" as any,
+    }) as string | undefined) ?? ""
+  const pricingModel =
+    (useWatch({
+      control: form.control,
+      name: "pricingModel" as any,
+    }) as string | undefined) ?? undefined
+
+  if (pricingModel === "free") return null
+
+  return (
+    <PaymentConnectorCard
+      provider={
+        provider ??
+        connector?.provider ??
+        (PaymentConnectorProvider.dodo as PaymentConnectorProvider)
+      }
+      apiKey={apiKey ?? ""}
+      keyHint={connector?.keyHint ?? null}
+      status={connector?.status ?? null}
+      lastSyncedAt={connector?.lastSyncedAt ?? null}
+      lastSyncError={connector?.lastSyncError ?? null}
+      showSaveButton={false}
+      onChange={(draft) => {
+        if (draft.provider) {
+          form.setValue("connectorProvider" as any, draft.provider, {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+        if (draft.apiKey !== undefined) {
+          form.setValue("connectorApiKey" as any, draft.apiKey ?? "", {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+      }}
+    />
+  )
+}
 
 const schema = makeEditProductSchema()
 
@@ -35,6 +105,7 @@ export default function EditProductForm({
   organizations,
   canEditCTA,
   alternatives,
+  connector,
 }: {
   product: any
   categories: { id: string; name: string }[]
@@ -46,12 +117,20 @@ export default function EditProductForm({
     name: string
     websiteUrl?: string | null
   }[]
+  connector?: {
+    id: string
+    provider: PaymentConnectorProvider
+    status: PaymentConnectorStatus | null
+    lastSyncedAt?: Date | string | null
+    lastSyncError?: string | null
+    keyHint?: string | null
+  } | null
 }) {
   const router = useRouter()
 
   const form = useForm<ProductWizardInput>({
     resolver: zodResolver(schema) as any,
-    defaultValues: getInitialValuesFromProduct(product),
+    defaultValues: getInitialValuesFromProduct(product, connector || undefined),
     mode: "onBlur",
   })
 
@@ -82,27 +161,19 @@ export default function EditProductForm({
     },
   })
 
-  const StepComponent = useMemo(() => {
-    return renderStep(wizard.step, {
-      categories,
-      organizations,
-      productId: product.id,
-      lockWebsiteUrl: true,
-      persistOnVerify: true,
-      canEditCTA,
-      enableAutofill: true,
-      autofillNotice:
-        "AI Autofill replaces the fields on this step with new suggestions. Your current content will be overwritten.",
-      alternatives,
-    })
-  }, [
-    wizard.step,
+  const StepComponent = renderStep(wizard.step, {
     categories,
     organizations,
-    product.id,
+    productId: product.id,
+    lockWebsiteUrl: true,
+    persistOnVerify: true,
     canEditCTA,
+    enableAutofill: true,
+    autofillNotice:
+      "AI Autofill replaces the fields on this step with new suggestions. Your current content will be overwritten.",
     alternatives,
-  ])
+    pricingAside: <ConnectorFields form={form} connector={connector ?? null} />,
+  })
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6">

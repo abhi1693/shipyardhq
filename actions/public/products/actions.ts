@@ -3,6 +3,7 @@ import { Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { resolveVoteState } from "@/lib/server/productVotesStore"
+import { getConnectorRevenueHistory } from "@/lib/server/payments/connectors"
 
 type PublicProduct = Prisma.ProductGetPayload<{
   include: {
@@ -306,4 +307,88 @@ export async function hasUserUpvoted(productId: string, clerkId: string) {
   if (!user) return false
   const { currentState } = await resolveVoteState(productId, user.id)
   return currentState === "upvoted"
+}
+
+type PublicRevenuePoint = {
+  periodStart: string
+  label: string
+  allTimeRevenueCents: number
+  periodRevenueCents: number
+  charges: number | null
+}
+
+export async function getPublicProductRevenue(
+  productId: string,
+  options?: { limit?: number },
+) {
+  const connector = await getConnectorRevenueHistory({
+    productId,
+    limit: options?.limit,
+  })
+  const history = connector?.revenueHistory ?? []
+  if (!connector || !history.length) return null
+
+  const sortedHistory = history
+    .slice()
+    .sort(
+      (a, b) =>
+        new Date(a.periodStart).getTime() - new Date(b.periodStart).getTime(),
+    )
+
+  const currencyByAllTime = new Map<string, number>()
+  for (const point of sortedHistory) {
+    const current = currencyByAllTime.get(point.currencyCode) ?? 0
+    const candidate = Math.max(
+      point.allTimeRevenueCents ?? 0,
+      point.periodRevenueCents ?? 0,
+    )
+    currencyByAllTime.set(
+      point.currencyCode,
+      Math.max(current, candidate ?? 0),
+    )
+  }
+  const primaryCurrency =
+    connector.latestCurrencyCode ||
+    Array.from(currencyByAllTime.entries()).sort((a, b) => b[1] - a[1])[0]?.[0]
+  if (!primaryCurrency) return null
+
+  const primarySeries = sortedHistory.filter(
+    (item) => item.currencyCode === primaryCurrency,
+  )
+  if (!primarySeries.length) return null
+
+  const limitedSeries =
+    options?.limit && options.limit > 0
+      ? primarySeries.slice(Math.max(primarySeries.length - options.limit, 0))
+      : primarySeries
+
+  const points: PublicRevenuePoint[] = limitedSeries.map((point) => {
+    const periodDate = new Date(point.periodStart)
+    const label = new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }).format(periodDate)
+    return {
+      periodStart: periodDate.toISOString(),
+      label,
+      allTimeRevenueCents: point.allTimeRevenueCents ?? 0,
+      periodRevenueCents: point.periodRevenueCents ?? 0,
+      charges:
+        point.data && typeof point.data === "object" && !Array.isArray(point.data)
+          ? (point.data as any).charges ?? null
+          : null,
+    }
+  })
+
+  const latestPoint = primarySeries[primarySeries.length - 1]
+
+  return {
+    currencyCode: primaryCurrency,
+    lastSyncedAt: connector.lastSyncedAt?.toISOString() ?? null,
+    status: connector.status,
+    provider: connector.provider,
+    latestAllTimeRevenueCents: latestPoint.allTimeRevenueCents ?? 0,
+    points,
+  }
 }

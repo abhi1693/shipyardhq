@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo } from "react"
+import React, { useEffect, useMemo } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import {
   FormField,
@@ -18,7 +18,11 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 
-export default function Step2() {
+export default function Step2({
+  rightOfPricing,
+}: {
+  rightOfPricing?: React.ReactNode
+}) {
   const form = useFormContext()
   const pricingModel = useWatch({
     control: form.control,
@@ -198,6 +202,10 @@ export default function Step2() {
         <p className="text-sm text-muted-foreground">
           Price Preview: {formattedPrice}
         </p>
+      ) : null}
+
+      {rightOfPricing ? (
+        <div className="space-y-3 pt-2">{rightOfPricing}</div>
       ) : null}
     </div>
   )

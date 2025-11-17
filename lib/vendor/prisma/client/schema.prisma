@@ -63,11 +63,87 @@ model Product {
   redemptions           Redemption[]
   featureEntitlements   FeatureEntitlement[]
   alternatives          AlternativeProduct[]    @relation("ProductAlternativeProducts")
+  paymentConnector      PaymentConnector?
 
   @@index([categoryId, createdAt])
   @@index([status, publishedAt])
   @@index([createdAt])
   @@index([updatedAt])
+}
+
+enum PaymentConnectorProvider {
+  dodo
+  stripe
+}
+
+enum PaymentConnectorStatus {
+  active
+  disabled
+  error
+}
+
+enum PaymentCredentialStatus {
+  active
+  revoked
+  expired
+}
+
+model PaymentConnector {
+  id                        String                   @id @default(cuid())
+  productId                 String
+  provider                  PaymentConnectorProvider
+  status                    PaymentConnectorStatus   @default(active)
+  config                    Json?
+  lastSyncedAt              DateTime?
+  lastSyncError             String?
+  verifiedAt                DateTime?
+  latestAllTimeRevenueCents Int?
+  latestCurrencyCode        String?
+  latestPeriodStart         DateTime?
+  createdAt                 DateTime                 @default(now())
+  updatedAt                 DateTime                 @updatedAt
+
+  product        Product                      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  credentials    PaymentConnectorCredential[]
+  revenueHistory PaymentRevenueSnapshot[]
+
+  @@unique([productId])
+  @@index([productId, updatedAt])
+  @@index([status, updatedAt])
+}
+
+model PaymentConnectorCredential {
+  id                String                  @id @default(cuid())
+  connectorId       String
+  status            PaymentCredentialStatus @default(active)
+  encryptionVersion Int                     @default(1)
+  encryptedKey      String
+  keyHint           String?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+
+  connector PaymentConnector @relation(fields: [connectorId], references: [id], onDelete: Cascade)
+
+  @@index([connectorId, status])
+  @@index([createdAt])
+}
+
+model PaymentRevenueSnapshot {
+  id                  String   @id @default(cuid())
+  connectorId         String
+  currencyCode        String
+  periodStart         DateTime
+  periodRevenueCents  Int      @default(0)
+  allTimeRevenueCents Int      @default(0)
+  data                Json?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  connector PaymentConnector @relation(fields: [connectorId], references: [id], onDelete: Cascade)
+
+  @@unique([connectorId, periodStart, currencyCode])
+  @@index([connectorId, periodStart])
+  @@index([createdAt])
 }
 
 model AlternativeProduct {
