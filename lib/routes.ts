@@ -90,8 +90,7 @@ export const monthlyLeaderboardArchivePath = (monthKey: string) => {
 export const PRICING_PATH = "/pricing" as const
 export const pricingModelPath = (slug: string) => `${PRICING_PATH}/${slug}`
 export const PRODUCT_TYPES_PATH = "/product-types" as const
-export const productTypePath = (slug: string) =>
-  `${PRODUCT_TYPES_PATH}/${slug}`
+export const productTypePath = (slug: string) => `${PRODUCT_TYPES_PATH}/${slug}`
 export const WHY_SHIPYARD_PATH = "/why-shipyard" as const
 export const ANALYTICS_PATH = "/analytics" as const
 const USE_CASES_PATH = "/use-cases" as const
@@ -108,8 +107,10 @@ export const SHIPYARD_TWITTER_URL = "https://x.com/shipyardhq" as const
 export const alternativePath = (slug: string) => `${ALTERNATIVES_PATH}/${slug}`
 
 export const categoryPath = (slug: string) => `${CATEGORIES_PATH}/${slug}`
-export const categoryPricingPath = (categorySlug: string, pricingModel: string) =>
-  `${categoryPath(categorySlug)}/pricing/${pricingModel}`
+export const categoryPricingPath = (
+  categorySlug: string,
+  pricingModel: string,
+) => `${categoryPath(categorySlug)}/pricing/${pricingModel}`
 export const categoryPlatformPath = (categorySlug: string, platform: string) =>
   `${categoryPath(categorySlug)}/platforms/${platform}`
 export const usecasePath = (slug: string) => `${USE_CASES_PATH}/${slug}`

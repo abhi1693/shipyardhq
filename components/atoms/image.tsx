@@ -46,7 +46,7 @@ export function Image({
 }: Props) {
   const hasSources = Array.isArray(sources) && sources.length > 0
   const shouldEager = eager || loading === "eager" || fetchPriority === "high"
-  const resolvedLoading = shouldEager ? "eager" : loading ?? "lazy"
+  const resolvedLoading = shouldEager ? "eager" : (loading ?? "lazy")
   const resolvedFetchPriority =
     fetchPriority ?? (shouldEager ? ("high" as const) : ("auto" as const))
   const resolvedPlaceholder =

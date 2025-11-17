@@ -32,7 +32,9 @@ export type PlatformPagePayload = {
 export const getPlatformStaticParams = () =>
   PLATFORM_SLUGS.map((platform) => ({ platform }))
 
-const normalizeFilters = (filters: PlatformPageFilters): PlatformPageFilters => {
+const normalizeFilters = (
+  filters: PlatformPageFilters,
+): PlatformPageFilters => {
   const page =
     Number.isFinite(filters.page) && filters.page > 0 ? filters.page : 1
   const query = filters.query?.trim()

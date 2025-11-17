@@ -33,9 +33,7 @@ type ProductTypeSearchParams = {
 const resolveSingle = (value: StrOrArr) =>
   Array.isArray(value) ? value[0] : value
 
-const isSort = (
-  value: string | undefined,
-): ProductTypePageFilters["sort"] => {
+const isSort = (value: string | undefined): ProductTypePageFilters["sort"] => {
   switch (value) {
     case "trending":
     case "votes":

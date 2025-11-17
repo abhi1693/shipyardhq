@@ -4,7 +4,10 @@ export const revalidate = 600
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { getCategoriesWithCounts, getCategoryMeta } from "@/actions/public/categories/actions"
+import {
+  getCategoriesWithCounts,
+  getCategoryMeta,
+} from "@/actions/public/categories/actions"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
@@ -43,7 +46,9 @@ const sortOptions = [
 const resolveSingle = (value: StrOrArr) =>
   Array.isArray(value) ? value[0] : value
 
-const isSort = (value: string | undefined): "new" | "trending" | "votes" | "az" =>
+const isSort = (
+  value: string | undefined,
+): "new" | "trending" | "votes" | "az" =>
   value === "trending" || value === "votes" || value === "az" ? value : "new"
 
 const parseSearchParams = (
@@ -151,10 +156,9 @@ export default async function CategoryPricingPage({
     query: parsed.query,
   })
 
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev").replace(
-    /\/$/,
-    "",
-  )
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
+  ).replace(/\/$/, "")
   const pagePath = categoryPricingPath(slug, pricingModelMeta.slug)
 
   const searchParamState = buildSearchParams(resolvedSearchParams)
@@ -235,7 +239,8 @@ export default async function CategoryPricingPage({
             </h1>
             <p className="text-base text-muted-foreground sm:text-lg">
               Browse {resultCount} {pluralize(resultCount, "product")} in{" "}
-              {category.name.toLowerCase()} with {pricingModelMeta.label.toLowerCase()} pricing.
+              {category.name.toLowerCase()} with{" "}
+              {pricingModelMeta.label.toLowerCase()} pricing.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
               <span className="rounded-full border border-border/70 bg-white px-3 py-1 font-semibold text-foreground shadow-sm">

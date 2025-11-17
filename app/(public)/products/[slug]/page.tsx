@@ -24,11 +24,7 @@ import {
 
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/atoms/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
@@ -282,7 +278,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         sidebarProduct.pricingModel as keyof typeof PRICING_MODEL_LABELS
       ] ?? formatLabel(sidebarProduct.pricingModel))
     : null
-  const pricingModelSlug = pricingModelSlugFromValue(sidebarProduct?.pricingModel)
+  const pricingModelSlug = pricingModelSlugFromValue(
+    sidebarProduct?.pricingModel,
+  )
   const offer =
     typeof sidebarProduct.startingPriceCents === "number"
       ? {
@@ -398,8 +396,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     const key = String(platform)
     const platformMeta = getPlatformMetaByValue(platform)
     const iconKey = platformMeta?.slug ?? key
-    const meta =
-      PLATFORM_CONFIG[iconKey] ??
+    const meta = PLATFORM_CONFIG[iconKey] ??
       PLATFORM_CONFIG[key] ?? {
         label: platformMeta?.label ?? formatLabel(key),
         icon: Globe,
@@ -514,7 +511,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               ) : (
                 <span>{pricingModelLabel}</span>
               )}
-              {startingPrice ? <span className="text-muted-foreground">· Starts at {startingPrice}</span> : null}
+              {startingPrice ? (
+                <span className="text-muted-foreground">
+                  · Starts at {startingPrice}
+                </span>
+              ) : null}
             </span>
           ) : startingPrice ? (
             <span>Starts at {startingPrice}</span>

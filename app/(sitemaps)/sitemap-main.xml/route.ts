@@ -77,76 +77,75 @@ export async function GET() {
     platformSlices,
     pricingModelSlices,
     productTypeSlices,
-  ] =
-    await Promise.all([
-      prisma.category.findMany({
-        select: { id: true, slug: true, updatedAt: true },
-        orderBy: { updatedAt: "desc" },
+  ] = await Promise.all([
+    prisma.category.findMany({
+      select: { id: true, slug: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
+    }),
+    getPublicUseCasesWithCounts(),
+    Promise.all(
+      PLATFORM_SLUGS.map(async (slug) => {
+        const latest = await prisma.product.findFirst({
+          where: {
+            status: "published" as any,
+            platforms: { has: platformValueFromSlug(slug) },
+          },
+          select: { updatedAt: true, publishedAt: true },
+          orderBy: { updatedAt: "desc" },
+        })
+
+        if (!latest) return null
+        return {
+          slug,
+          lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
+        }
       }),
-      getPublicUseCasesWithCounts(),
-      Promise.all(
-        PLATFORM_SLUGS.map(async (slug) => {
-          const latest = await prisma.product.findFirst({
-            where: {
-              status: "published" as any,
-              platforms: { has: platformValueFromSlug(slug) },
-            },
-            select: { updatedAt: true, publishedAt: true },
-            orderBy: { updatedAt: "desc" },
-          })
+    ),
+    Promise.all(
+      PRICING_MODEL_SLUGS.map(async (slug) => {
+        const meta = getPricingModelMeta(slug)
+        if (!meta) return null
 
-          if (!latest) return null
-          return {
-            slug,
-            lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
-          }
-        }),
-      ),
-      Promise.all(
-        PRICING_MODEL_SLUGS.map(async (slug) => {
-          const meta = getPricingModelMeta(slug)
-          if (!meta) return null
+        const latest = await prisma.product.findFirst({
+          where: {
+            status: "published" as any,
+            pricingModel: meta.value,
+          },
+          select: { updatedAt: true, publishedAt: true },
+          orderBy: { updatedAt: "desc" },
+        })
 
-          const latest = await prisma.product.findFirst({
-            where: {
-              status: "published" as any,
-              pricingModel: meta.value,
-            },
-            select: { updatedAt: true, publishedAt: true },
-            orderBy: { updatedAt: "desc" },
-          })
+        if (!latest) return null
 
-          if (!latest) return null
+        return {
+          slug,
+          lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
+        }
+      }),
+    ),
+    Promise.all(
+      PRODUCT_TYPE_SLUGS.map(async (slug) => {
+        const meta = getProductTypeMeta(slug)
+        if (!meta) return null
 
-          return {
-            slug,
-            lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
-          }
-        }),
-      ),
-      Promise.all(
-        PRODUCT_TYPE_SLUGS.map(async (slug) => {
-          const meta = getProductTypeMeta(slug)
-          if (!meta) return null
+        const latest = await prisma.product.findFirst({
+          where: {
+            status: "published" as any,
+            type: meta.value,
+          },
+          select: { updatedAt: true, publishedAt: true },
+          orderBy: { updatedAt: "desc" },
+        })
 
-          const latest = await prisma.product.findFirst({
-            where: {
-              status: "published" as any,
-              type: meta.value,
-            },
-            select: { updatedAt: true, publishedAt: true },
-            orderBy: { updatedAt: "desc" },
-          })
+        if (!latest) return null
 
-          if (!latest) return null
-
-          return {
-            slug,
-            lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
-          }
-        }),
-      ),
-    ])
+        return {
+          slug,
+          lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
+        }
+      }),
+    ),
+  ])
 
   const categoryPlatformSlices = (
     await Promise.all(
@@ -172,8 +171,13 @@ export async function GET() {
           }),
         )
         return perPlatform.filter(
-          (entry): entry is { categorySlug: string; platform: PlatformSlug; lastmod: Date } =>
-            Boolean(entry),
+          (
+            entry,
+          ): entry is {
+            categorySlug: string
+            platform: PlatformSlug
+            lastmod: Date
+          } => Boolean(entry),
         )
       }),
     )
@@ -204,8 +208,13 @@ export async function GET() {
           }),
         )
         return perPricing.filter(
-          (entry): entry is { categorySlug: string; pricingModel: PricingModelSlug; lastmod: Date } =>
-            Boolean(entry),
+          (
+            entry,
+          ): entry is {
+            categorySlug: string
+            pricingModel: PricingModelSlug
+            lastmod: Date
+          } => Boolean(entry),
         )
       }),
     )
@@ -283,7 +292,7 @@ export async function GET() {
         </url>
       `
     }),
-    ...(platformSlices
+    ...platformSlices
       .filter(
         (entry): entry is { slug: PlatformSlug; lastmod: Date } =>
           entry !== null,
@@ -303,8 +312,8 @@ export async function GET() {
             <priority>${priority}</priority>
           </url>
         `
-      })),
-    ...(pricingModelSlices
+      }),
+    ...pricingModelSlices
       .filter(
         (entry): entry is { slug: PricingModelSlug; lastmod: Date } =>
           entry !== null,
@@ -324,13 +333,12 @@ export async function GET() {
             <priority>${priority}</priority>
           </url>
         `
-      })),
-    ...(categoryPlatformSlices.map((entry) => {
+      }),
+    ...categoryPlatformSlices.map((entry) => {
       const days = Math.floor(
         (now.getTime() - entry.lastmod.getTime()) / 86400000,
       )
-      const changefreq =
-        days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
+      const changefreq = days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
       const priority = days <= 7 ? "0.6" : days <= 60 ? "0.5" : "0.45"
       return xml`
         <url>
@@ -340,13 +348,12 @@ export async function GET() {
           <priority>${priority}</priority>
         </url>
       `
-    })),
-    ...(categoryPricingSlices.map((entry) => {
+    }),
+    ...categoryPricingSlices.map((entry) => {
       const days = Math.floor(
         (now.getTime() - entry.lastmod.getTime()) / 86400000,
       )
-      const changefreq =
-        days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
+      const changefreq = days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
       const priority = days <= 7 ? "0.6" : days <= 60 ? "0.5" : "0.45"
       return xml`
         <url>
@@ -356,8 +363,8 @@ export async function GET() {
           <priority>${priority}</priority>
         </url>
       `
-    })),
-    ...(productTypeSlices
+    }),
+    ...productTypeSlices
       .filter(
         (entry): entry is { slug: ProductTypeSlug; lastmod: Date } =>
           entry !== null,
@@ -377,7 +384,7 @@ export async function GET() {
             <priority>${priority}</priority>
           </url>
         `
-      })),
+      }),
     ...categories.map((c: CategorySitemapEntry) => {
       const last = c.updatedAt || now
       const days = Math.floor(

@@ -144,7 +144,7 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
       user: {
         select: {
           id: true,
-            clerkId: true,
+          clerkId: true,
           firstName: true,
           lastName: true,
           email: true,

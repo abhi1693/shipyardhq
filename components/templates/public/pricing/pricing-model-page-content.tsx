@@ -34,9 +34,7 @@ type PricingModelSearchParams = {
 const resolveSingle = (value: StrOrArr) =>
   Array.isArray(value) ? value[0] : value
 
-const isSort = (
-  value: string | undefined,
-): PricingModelPageFilters["sort"] => {
+const isSort = (value: string | undefined): PricingModelPageFilters["sort"] => {
   switch (value) {
     case "trending":
     case "votes":

@@ -3,7 +3,10 @@ import type { ComponentProps } from "react"
 import { Image } from "@/components/atoms/image"
 import clsx from "clsx"
 
-export type BrandLogoProps = Omit<ComponentProps<typeof Image>, "src" | "alt"> & {
+export type BrandLogoProps = Omit<
+  ComponentProps<typeof Image>,
+  "src" | "alt"
+> & {
   /**
    * Optional alt text override. Defaults to the ShipYardHQ brand name.
    */

@@ -25,10 +25,13 @@ const PLATFORM_VALUE_MAP: Record<PlatformSlug, Platform> = {
 
 const PLATFORM_VALUE_TO_SLUG = Object.entries(PLATFORM_VALUE_MAP).reduce<
   Record<Platform, PlatformSlug>
->((acc, [slug, value]) => {
-  acc[value] = slug as PlatformSlug
-  return acc
-}, {} as Record<Platform, PlatformSlug>)
+>(
+  (acc, [slug, value]) => {
+    acc[value] = slug as PlatformSlug
+    return acc
+  },
+  {} as Record<Platform, PlatformSlug>,
+)
 
 const PLATFORM_DESCRIPTION_MAP: Record<PlatformSlug, string> = {
   web: "Browser-based SaaS and web apps built to run on any device.",

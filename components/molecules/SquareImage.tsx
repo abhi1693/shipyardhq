@@ -2,7 +2,10 @@ import type { ComponentProps } from "react"
 
 import { Image } from "@/components/atoms/image"
 
-type Props = Omit<ComponentProps<typeof Image>, "width" | "height" | "sizes"> & {
+type Props = Omit<
+  ComponentProps<typeof Image>,
+  "width" | "height" | "sizes"
+> & {
   size: number
   /**
    * Override sizes; defaults to the fixed pixel size for accuracy.
@@ -12,11 +15,6 @@ type Props = Omit<ComponentProps<typeof Image>, "width" | "height" | "sizes"> & 
 
 export function SquareImage({ size, sizes, ...props }: Props) {
   return (
-    <Image
-      {...props}
-      width={size}
-      height={size}
-      sizes={sizes ?? `${size}px`}
-    />
+    <Image {...props} width={size} height={size} sizes={sizes ?? `${size}px`} />
   )
 }

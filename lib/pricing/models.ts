@@ -32,7 +32,8 @@ const PRICING_MODELS: PricingModelMeta[] = [
     slug: "subscription",
     value: "subscription",
     label: "Subscription",
-    description: "Recurring subscriptions with monthly or annual billing tiers.",
+    description:
+      "Recurring subscriptions with monthly or annual billing tiers.",
   },
   {
     slug: "one-time",
