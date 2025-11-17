@@ -644,7 +644,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                         alt={`${product.name} logo`}
                         fill
                         sizes="(min-width: 640px) 80px, 64px"
-                        priority
+                        preload
+                        fetchPriority="high"
                         className="h-full w-full object-cover"
                       />
                     </div>
