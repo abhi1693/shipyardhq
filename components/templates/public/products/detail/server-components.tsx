@@ -103,6 +103,8 @@ export async function ProductUpdatesServer({
   productSlug: string
 }) {
   const updates = await getPublicProductUpdates(productId)
+  if (!updates.length) return null
+
   return <ProductUpdatesSection updates={updates} productSlug={productSlug} />
 }
 
