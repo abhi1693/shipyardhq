@@ -417,7 +417,7 @@ async function requireOwnedProduct(productId: string) {
   const { userId } = await auth()
   if (!userId) return { error: "Unauthenticated" as const } as const
   const user = await getActiveUserByClerkId(userId)
-  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE as const } as const
+  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
 
   const product = await prisma.product.findFirst({
     where: { id: productId, userId: user.id },
