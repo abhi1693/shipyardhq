@@ -25,11 +25,15 @@ type SyncHandler = (options: {
   apiKey: string
 }) => Promise<ProviderSyncResult>
 
-const PROVIDER_SYNC_HANDLERS: Partial<Record<PaymentConnectorProvider, SyncHandler>> = {
+const PROVIDER_SYNC_HANDLERS: Partial<
+  Record<PaymentConnectorProvider, SyncHandler>
+> = {
   [PaymentConnectorProvider.dodo]: ({ connector, apiKey }) =>
     syncDodoConnector({
       apiKey,
-      config: (connector.config ?? undefined) as PaymentConnectorConfig | undefined,
+      config: (connector.config ?? undefined) as
+        | PaymentConnectorConfig
+        | undefined,
     }),
 }
 
@@ -132,7 +136,10 @@ export async function upsertPaymentConnector({
     })
 
     await tx.paymentConnectorCredential.updateMany({
-      where: { connectorId: connector.id, status: PaymentCredentialStatus.active },
+      where: {
+        connectorId: connector.id,
+        status: PaymentCredentialStatus.active,
+      },
       data: { status: PaymentCredentialStatus.revoked },
     })
 
@@ -186,7 +193,9 @@ export async function syncPaymentConnector(connectorId: string) {
     apiKey = decryptConnectorSecret(credential.encryptedKey)
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Unable to decrypt connector secret"
+      error instanceof Error
+        ? error.message
+        : "Unable to decrypt connector secret"
     await prisma.paymentConnector.update({
       where: { id: connector.id },
       data: { status: PaymentConnectorStatus.error, lastSyncError: message },
@@ -219,7 +228,9 @@ export async function syncPaymentConnector(connectorId: string) {
     }
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Unexpected connector sync failure"
+      error instanceof Error
+        ? error.message
+        : "Unexpected connector sync failure"
     await prisma.paymentConnector.update({
       where: { id: connector.id },
       data: { status: PaymentConnectorStatus.error, lastSyncError: message },
@@ -238,21 +249,23 @@ export async function getConnectorRevenueHistory({
   limit?: number
 }) {
   const where = { productId, ...(provider ? { provider } : {}) }
-  const historyOrder = limit ? { periodStart: "desc" as const } : { periodStart: "asc" as const }
+  const historyOrder = limit
+    ? { periodStart: "desc" as const }
+    : { periodStart: "asc" as const }
 
   const connector = await prisma.paymentConnector.findFirst({
     where,
     orderBy: { updatedAt: "desc" },
-      select: {
-        id: true,
-        provider: true,
-        status: true,
-        lastSyncedAt: true,
-        lastSyncError: true,
-        latestAllTimeRevenueCents: true,
-        latestCurrencyCode: true,
-        latestPeriodStart: true,
-        revenueHistory: {
+    select: {
+      id: true,
+      provider: true,
+      status: true,
+      lastSyncedAt: true,
+      lastSyncError: true,
+      latestAllTimeRevenueCents: true,
+      latestCurrencyCode: true,
+      latestPeriodStart: true,
+      revenueHistory: {
         orderBy: historyOrder,
         take: limit,
         select: {
@@ -271,7 +284,8 @@ export async function getConnectorRevenueHistory({
   if (!connector) return null
 
   const sortedHistory = [...(connector.revenueHistory ?? [])].sort(
-    (a, b) => new Date(a.periodStart).getTime() - new Date(b.periodStart).getTime(),
+    (a, b) =>
+      new Date(a.periodStart).getTime() - new Date(b.periodStart).getTime(),
   )
 
   return { ...connector, revenueHistory: sortedHistory }

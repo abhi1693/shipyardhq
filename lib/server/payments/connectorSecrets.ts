@@ -72,7 +72,10 @@ export function encryptConnectorSecret(secret: string): string {
   const key = getConnectorSecretKey()
   const iv = randomBytes(12)
   const cipher = createCipheriv("aes-256-gcm", key, iv)
-  const ciphertext = Buffer.concat([cipher.update(secret, "utf8"), cipher.final()])
+  const ciphertext = Buffer.concat([
+    cipher.update(secret, "utf8"),
+    cipher.final(),
+  ])
   const authTag = cipher.getAuthTag()
 
   return serializeSecret({
@@ -88,7 +91,10 @@ export function decryptConnectorSecret(payload: string): string {
   const parsed = parseSecret(payload)
   const decipher = createDecipheriv("aes-256-gcm", key, parsed.iv)
   decipher.setAuthTag(parsed.authTag)
-  const decrypted = Buffer.concat([decipher.update(parsed.ciphertext), decipher.final()])
+  const decrypted = Buffer.concat([
+    decipher.update(parsed.ciphertext),
+    decipher.final(),
+  ])
   return decrypted.toString("utf8")
 }
 

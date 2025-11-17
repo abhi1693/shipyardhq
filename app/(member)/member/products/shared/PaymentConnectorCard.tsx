@@ -90,7 +90,8 @@ export function PaymentConnectorCard({
             Show verified revenue
           </p>
           <p className="text-xs text-muted-foreground">
-            Connect your billing provider so we can display verified revenue on your product page.
+            Connect your billing provider so we can display verified revenue on
+            your product page.
           </p>
         </div>
         {renderStatus(status)}
@@ -122,12 +123,15 @@ export function PaymentConnectorCard({
 
       <div className="space-y-2">
         <Label htmlFor="connector-key">
-          API key <span className="text-xs text-muted-foreground">(never stored in plain text)</span>
+          API key{" "}
+          <span className="text-xs text-muted-foreground">
+            (never stored in plain text)
+          </span>
         </Label>
         <Input
           id="connector-key"
           type="password"
-        placeholder="Enter API secret key"
+          placeholder="Enter API secret key"
           value={apiKey || ""}
           onChange={(e) =>
             onChange?.({
@@ -138,11 +142,13 @@ export function PaymentConnectorCard({
         />
         {keyHint ? (
           <p className="text-xs text-muted-foreground">
-            Key on file ending with <span className="font-mono">{keyHint}</span>. Enter a new key to replace.
+            Key on file ending with <span className="font-mono">{keyHint}</span>
+            . Enter a new key to replace.
           </p>
         ) : (
           <p className="text-xs text-muted-foreground">
-            Paste the secret key from your provider. We only keep an encrypted copy.
+            Paste the secret key from your provider. We only keep an encrypted
+            copy.
           </p>
         )}
       </div>
@@ -172,11 +178,9 @@ export function PaymentConnectorCard({
         >
           {saving ? "Saving…" : saveLabel}
         </Button>
-      ) : (
-        readOnlyMessage ? (
-          <p className="text-xs text-muted-foreground">{readOnlyMessage}</p>
-        ) : null
-      )}
+      ) : readOnlyMessage ? (
+        <p className="text-xs text-muted-foreground">{readOnlyMessage}</p>
+      ) : null}
     </div>
   )
 }

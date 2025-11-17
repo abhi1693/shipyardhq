@@ -423,7 +423,8 @@ async function requireOwnedProduct(productId: string) {
     where: { id: productId, userId: user.id },
     select: { id: true, slug: true, userId: true },
   })
-  if (!product) return { error: "Product not found or not owned by user" as const } as const
+  if (!product)
+    return { error: "Product not found or not owned by user" as const } as const
 
   return { user, product }
 }
@@ -491,9 +492,12 @@ export async function getProductConnectorRevenue(
   const sortedCurrencies = Array.from(allTimeByCurrency.entries()).sort(
     (a, b) => b[1] - a[1],
   )
-  const primaryCurrency = connector.latestCurrencyCode ?? sortedCurrencies[0]?.[0] ?? null
+  const primaryCurrency =
+    connector.latestCurrencyCode ?? sortedCurrencies[0]?.[0] ?? null
   const primaryAllTime =
-    primaryCurrency != null ? allTimeByCurrency.get(primaryCurrency) ?? 0 : null
+    primaryCurrency != null
+      ? (allTimeByCurrency.get(primaryCurrency) ?? 0)
+      : null
 
   return {
     connector: {

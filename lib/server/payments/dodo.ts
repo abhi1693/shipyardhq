@@ -55,7 +55,9 @@ function normalizePaymentFrequencyToMonthly(
   return Math.round(monthly)
 }
 
-function resolveEnvironment(config?: PaymentConnectorConfig): "live_mode" | "test_mode" {
+function resolveEnvironment(
+  config?: PaymentConnectorConfig,
+): "live_mode" | "test_mode" {
   const env =
     config?.environment ||
     (process.env.DODO_ENV as "live_mode" | "test_mode" | undefined) ||
@@ -84,7 +86,8 @@ export async function syncDodoConnector({
     const currency = (payment as any)?.currency as string | undefined
     const amount = Number((payment as any)?.total_amount ?? 0)
     const createdAt = (payment as any)?.created_at
-    if (!currency || !Number.isFinite(amount) || amount <= 0 || !createdAt) continue
+    if (!currency || !Number.isFinite(amount) || amount <= 0 || !createdAt)
+      continue
 
     const dayKey = toDayKey(new Date(createdAt))
     const aggregate =
@@ -117,10 +120,18 @@ export async function syncDodoConnector({
       | "Year"
       | undefined
     const count = Number((subscription as any)?.payment_frequency_count ?? 1)
-    if (!currency || !interval || !Number.isFinite(amount) || amount <= 0) continue
+    if (!currency || !interval || !Number.isFinite(amount) || amount <= 0)
+      continue
 
-    const monthlyAmount = normalizePaymentFrequencyToMonthly(amount, interval, count)
-    mrrByCurrency.set(currency, (mrrByCurrency.get(currency) || 0) + monthlyAmount)
+    const monthlyAmount = normalizePaymentFrequencyToMonthly(
+      amount,
+      interval,
+      count,
+    )
+    mrrByCurrency.set(
+      currency,
+      (mrrByCurrency.get(currency) || 0) + monthlyAmount,
+    )
   }
 
   const allCurrencies = new Set<string>([
@@ -150,7 +161,10 @@ export async function syncDodoConnector({
 
     let runningTotal = 0
     for (const dayKey of dayKeys) {
-      const entry = aggregates.daily.get(dayKey) || { amountCents: 0, charges: 0 }
+      const entry = aggregates.daily.get(dayKey) || {
+        amountCents: 0,
+        charges: 0,
+      }
       const periodRevenueCents = entry.amountCents
       runningTotal += periodRevenueCents
       snapshots.push({

@@ -37,7 +37,9 @@ export async function GET(request: Request) {
     where: {
       ...(targetConnectorId ? { id: targetConnectorId } : {}),
       ...(targetProductId ? { productId: targetProductId } : {}),
-      status: { in: [PaymentConnectorStatus.active, PaymentConnectorStatus.error] },
+      status: {
+        in: [PaymentConnectorStatus.active, PaymentConnectorStatus.error],
+      },
       credentials: { some: { status: PaymentCredentialStatus.active } },
       OR: [
         { lastSyncedAt: null },

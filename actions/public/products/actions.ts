@@ -342,10 +342,7 @@ export async function getPublicProductRevenue(
       point.allTimeRevenueCents ?? 0,
       point.periodRevenueCents ?? 0,
     )
-    currencyByAllTime.set(
-      point.currencyCode,
-      Math.max(current, candidate ?? 0),
-    )
+    currencyByAllTime.set(point.currencyCode, Math.max(current, candidate ?? 0))
   }
   const primaryCurrency =
     connector.latestCurrencyCode ||
@@ -375,8 +372,10 @@ export async function getPublicProductRevenue(
       allTimeRevenueCents: point.allTimeRevenueCents ?? 0,
       periodRevenueCents: point.periodRevenueCents ?? 0,
       charges:
-        point.data && typeof point.data === "object" && !Array.isArray(point.data)
-          ? (point.data as any).charges ?? null
+        point.data &&
+        typeof point.data === "object" &&
+        !Array.isArray(point.data)
+          ? ((point.data as any).charges ?? null)
           : null,
     }
   })

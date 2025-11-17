@@ -92,7 +92,9 @@ export function ProductRevenueChart({
         case "1m":
         case "3m":
         case "6m": {
-          const weekStart = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
+          const weekStart = new Date(
+            Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
+          )
           const day = weekStart.getUTCDay()
           // Normalize to Monday as start of week
           weekStart.setUTCDate(weekStart.getUTCDate() - ((day + 6) % 7))
@@ -123,10 +125,13 @@ export function ProductRevenueChart({
       entry.revenue += point.revenue
       byBucket.set(key, entry)
     }
-    return Array.from(byBucket.values()).sort((a, b) => a.date.getTime() - b.date.getTime())
+    return Array.from(byBucket.values()).sort(
+      (a, b) => a.date.getTime() - b.date.getTime(),
+    )
   }, [filtered, range])
 
-  const formatValue = (value: number) => formatCurrency(Math.round(value * 100), currency)
+  const formatValue = (value: number) =>
+    formatCurrency(Math.round(value * 100), currency)
   const chartData = aggregated.map((point) => ({
     ...point,
     value: point.revenue,
@@ -159,21 +164,37 @@ export function ProductRevenueChart({
 
       <div className="h-72 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+          <AreaChart
+            data={chartData}
+            margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+          >
             <defs>
               <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(221, 83%, 53%)" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="hsl(221, 83%, 53%)" stopOpacity={0.03} />
+                <stop
+                  offset="5%"
+                  stopColor="hsl(221, 83%, 53%)"
+                  stopOpacity={0.25}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="hsl(221, 83%, 53%)"
+                  stopOpacity={0.03}
+                />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 13%, 90%)" vertical={false} />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="hsl(220, 13%, 90%)"
+              vertical={false}
+            />
             <XAxis
               dataKey="date"
               tickFormatter={(value) =>
                 new Intl.DateTimeFormat("en-US", {
                   month: "short",
                   year: "numeric",
-                  day: range === "24h" || range === "7d" ? "numeric" : undefined,
+                  day:
+                    range === "24h" || range === "7d" ? "numeric" : undefined,
                 }).format(new Date(value))
               }
               tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
@@ -184,10 +205,14 @@ export function ProductRevenueChart({
               width={80}
             />
             <Tooltip
-              formatter={(value: any) => [formatValue(Number(value)), "Revenue"]}
+              formatter={(value: any) => [
+                formatValue(Number(value)),
+                "Revenue",
+              ]}
               labelFormatter={(label) => {
                 const date = new Date(label)
-                const isWeekly = range === "1m" || range === "3m" || range === "6m"
+                const isWeekly =
+                  range === "1m" || range === "3m" || range === "6m"
                 const isMonthly = range === "all" || range === "1y"
 
                 if (isWeekly) {
@@ -231,10 +256,11 @@ export function ProductRevenueChart({
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ShieldCheckIcon className="h-4 w-4 text-foreground/80" aria-hidden />
           <span>
-            All revenue is verified through {" "}
+            All revenue is verified through{" "}
             <span className="font-semibold">
               {summary.provider
-                ? summary.provider.charAt(0).toUpperCase() + summary.provider.slice(1)
+                ? summary.provider.charAt(0).toUpperCase() +
+                  summary.provider.slice(1)
                 : "Connected provider"}
             </span>{" "}
             API keys. Last updated:{" "}

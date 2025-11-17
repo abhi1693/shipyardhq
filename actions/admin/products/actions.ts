@@ -582,7 +582,8 @@ export async function updateProductAction(
       },
     })
 
-    const connectorInputProvided = data.connectorApiKey || data.connectorProvider
+    const connectorInputProvided =
+      data.connectorApiKey || data.connectorProvider
     if (connectorInputProvided) {
       const existingConnector = await prisma.paymentConnector.findUnique({
         where: { productId: id },

@@ -38,7 +38,11 @@ import { renderStep } from "@/components/molecules/ProductWizardStepRenderer"
 import { PaymentConnectorProvider } from "@/lib/vendor/prisma/client"
 import { PaymentConnectorCard } from "../shared/PaymentConnectorCard"
 
-function ConnectorFields({ form }: { form: UseFormReturn<ProductWizardInput> }) {
+function ConnectorFields({
+  form,
+}: {
+  form: UseFormReturn<ProductWizardInput>
+}) {
   const provider = useWatch({
     control: form.control,
     name: "connectorProvider" as any,

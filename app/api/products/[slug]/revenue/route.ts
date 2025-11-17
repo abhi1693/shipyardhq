@@ -19,7 +19,11 @@ export async function GET(
 ) {
   const { slug } = await context.params
   const product = await getPublicProductMetaBySlug(slug)
-  if (!product || product.status !== "published" || product.pricingModel === "free") {
+  if (
+    !product ||
+    product.status !== "published" ||
+    product.pricingModel === "free"
+  ) {
     return NextResponse.json<RevenueResponse>({ loading: false, data: [] })
   }
 
@@ -48,12 +52,15 @@ export async function GET(
 
   const series = history
     .filter((item) => item.currencyCode === primaryCurrency)
-    .sort((a, b) => new Date(a.periodStart).getTime() - new Date(b.periodStart).getTime())
+    .sort(
+      (a, b) =>
+        new Date(a.periodStart).getTime() - new Date(b.periodStart).getTime(),
+    )
   const data = series.map((point) => {
     const date = new Date(point.periodStart)
     const charges =
       point.data && typeof point.data === "object" && !Array.isArray(point.data)
-        ? (point.data as any).charges ?? null
+        ? ((point.data as any).charges ?? null)
         : null
     return {
       date: date.toISOString().slice(0, 10),

@@ -808,7 +808,10 @@ async function main() {
       })
 
       await prisma.paymentConnectorCredential.updateMany({
-        where: { connectorId: connector.id, status: PaymentCredentialStatus.active },
+        where: {
+          connectorId: connector.id,
+          status: PaymentCredentialStatus.active,
+        },
         data: { status: PaymentCredentialStatus.revoked },
       })
 

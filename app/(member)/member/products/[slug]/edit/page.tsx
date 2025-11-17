@@ -22,15 +22,16 @@ export default async function EditProductPage({
   const product = await getProductById(summary.id)
   if (!product) return notFound()
 
-  const [categories, organizations, alternatives, connector] = await Promise.all([
-    getCategories({ orderBy: { name: "asc" } }),
-    getMyOrganizations().catch(() => []),
-    getAlternativeProducts({
-      select: { id: true, slug: true, name: true, websiteUrl: true },
-      orderBy: { name: "asc" },
-    }).catch(() => []),
-    getProductConnectorSummary(product.id).catch(() => null),
-  ])
+  const [categories, organizations, alternatives, connector] =
+    await Promise.all([
+      getCategories({ orderBy: { name: "asc" } }),
+      getMyOrganizations().catch(() => []),
+      getAlternativeProducts({
+        select: { id: true, slug: true, name: true, websiteUrl: true },
+        orderBy: { name: "asc" },
+      }).catch(() => []),
+      getProductConnectorSummary(product.id).catch(() => null),
+    ])
 
   const canEditCTA = await memberHasFeature("customCTA")
 
