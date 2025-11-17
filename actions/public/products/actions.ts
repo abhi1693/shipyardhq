@@ -188,7 +188,7 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
     },
   })
 
-  if (!product) return null
+  if (!product || product.status !== "published") return null
 
   const fullProduct = product as PublicProduct
 
@@ -221,11 +221,16 @@ export const getPublicProductBySlug = cached(
 )
 
 export const getPublicProductMetaBySlug = cached(
-  async (slug: string) =>
-    prisma.product.findUnique({
+  async (slug: string) => {
+    const product = await prisma.product.findUnique({
       where: { slug },
       select: publicProductMetaSelect,
-    }),
+    })
+
+    if (!product || product.status !== "published") return null
+
+    return product
+  },
   "product:meta-by-slug",
   {
     ttl: DEFAULT_TTL.medium,
