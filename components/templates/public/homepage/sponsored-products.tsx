@@ -31,26 +31,14 @@ type SponsorListItem =
       isPlaceholder: true
     }
 
-const PLACEHOLDER_CONTENT: Omit<SponsorListItem, "id">[] = [
-  {
-    name: "Spotlight your launch",
-    tagline:
-      "Drive consistent discovery with a dedicated placement seen by builders daily.",
+const PLACEHOLDER_CONTENT: Omit<SponsorListItem, "id">[] = Array.from(
+  { length: SPONSOR_SLOT_COUNT },
+  () => ({
+    name: "Advertise here",
+    tagline: "Advertise here",
     isPlaceholder: true,
-  },
-  {
-    name: "Reserve a premium slot",
-    tagline:
-      "Keep your product front-and-center next to Shipyard’s trending products.",
-    isPlaceholder: true,
-  },
-  {
-    name: "Tell your story here",
-    tagline:
-      "Sponsor the community that helps founders learn, launch, and grow faster.",
-    isPlaceholder: true,
-  },
-]
+  }),
+)
 
 function mapPlacementsToSponsors(
   placements: SponsorPlacement[],
