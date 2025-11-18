@@ -90,7 +90,7 @@ export function PaymentConnectorCard({
             Show verified revenue
           </p>
           <p className="text-xs text-muted-foreground">
-            Connect your billing provider so we can display verified revenue on
+            Connect your payment provider so we can display verified revenue on
             your product page.
           </p>
         </div>
