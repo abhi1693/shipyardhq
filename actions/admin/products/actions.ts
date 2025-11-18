@@ -34,6 +34,7 @@ import {
 } from "@/lib/cache/revalidate"
 import {
   syncPaymentConnector,
+  validateConnectorApiKey,
   upsertPaymentConnector,
 } from "@/lib/server/payments/connectors"
 import {
@@ -292,6 +293,12 @@ export async function createProductAction(formData: FormData) {
           providerEnum as PaymentConnectorProvider,
         )
       ) {
+        await validateConnectorApiKey({
+          provider: providerEnum as PaymentConnectorProvider,
+          apiKey: connectorApiKey,
+          config: {},
+          productName: name,
+        })
         const { connector } = await upsertPaymentConnector({
           productId: created.id,
           provider: providerEnum as PaymentConnectorProvider,
@@ -356,7 +363,8 @@ export async function createProductAction(formData: FormData) {
         error: "Duplicate unique field (likely slug). Choose a different slug.",
       }
     }
-    return { error: "Failed to create product" }
+    const message = error instanceof Error ? error.message : null
+    return { error: message || "Failed to create product" }
   }
 }
 
@@ -429,6 +437,7 @@ export async function updateProductAction(
     type,
     pricingModel,
   } = data
+  const connectorApiKey = data.connectorApiKey?.trim()
 
   // Load current product for comparisons
   const current = await prisma.product.findUnique({
@@ -582,8 +591,7 @@ export async function updateProductAction(
       },
     })
 
-    const connectorInputProvided =
-      data.connectorApiKey || data.connectorProvider
+    const connectorInputProvided = connectorApiKey || data.connectorProvider
     if (connectorInputProvided) {
       const existingConnector = await prisma.paymentConnector.findUnique({
         where: { productId: id },
@@ -599,11 +607,17 @@ export async function updateProductAction(
           ? (providerValue as PaymentConnectorProvider)
           : (PaymentConnectorProvider as any)[providerValue])
 
-      if (providerEnum && data.connectorApiKey) {
+      if (providerEnum && connectorApiKey) {
+        await validateConnectorApiKey({
+          provider: providerEnum as PaymentConnectorProvider,
+          apiKey: connectorApiKey,
+          config: {},
+          productName: name,
+        })
         const { connector } = await upsertPaymentConnector({
           productId: id,
           provider: providerEnum as PaymentConnectorProvider,
-          apiKey: data.connectorApiKey,
+          apiKey: connectorApiKey,
           config: {},
         })
         await syncPaymentConnector(connector.id)
@@ -672,7 +686,8 @@ export async function updateProductAction(
     return updated
   } catch (error) {
     console.error("Error updating product:", error)
-    return { error: "Failed to update product" }
+    const message = error instanceof Error ? error.message : null
+    return { error: message || "Failed to update product" }
   }
 }
 

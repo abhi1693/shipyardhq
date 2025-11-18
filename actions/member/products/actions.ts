@@ -15,6 +15,7 @@ import {
 import {
   getConnectorRevenueHistory,
   syncPaymentConnector,
+  validateConnectorApiKey,
   upsertPaymentConnector,
 } from "@/lib/server/payments/connectors"
 import {
@@ -421,7 +422,7 @@ async function requireOwnedProduct(productId: string) {
 
   const product = await prisma.product.findFirst({
     where: { id: productId, userId: user.id },
-    select: { id: true, slug: true, userId: true },
+    select: { id: true, slug: true, userId: true, name: true },
   })
   if (!product)
     return { error: "Product not found or not owned by user" as const } as const
@@ -548,6 +549,12 @@ export async function saveProductConnectorAction(input: {
   if (!apiKey) return { error: "API key is required" }
 
   try {
+    await validateConnectorApiKey({
+      provider,
+      apiKey,
+      config: {},
+      productName: guard.product.name,
+    })
     const result = await upsertPaymentConnector({
       productId: input.productId,
       provider,

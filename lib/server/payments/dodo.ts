@@ -1,4 +1,4 @@
-import DodoPayments from "dodopayments"
+import DodoPayments, { AuthenticationError } from "dodopayments"
 
 import {
   ProviderSyncResult,
@@ -63,6 +63,77 @@ function resolveEnvironment(
     (process.env.DODO_ENV as "live_mode" | "test_mode" | undefined) ||
     "live_mode"
   return env === "test_mode" ? "test_mode" : "live_mode"
+}
+
+function requireConfiguredEnvironment(): "live_mode" | "test_mode" {
+  const env = (process.env.DODO_ENV || "").trim()
+  if (env !== "live_mode" && env !== "test_mode") {
+    throw new Error("DODO_ENV must be set to 'live_mode' or 'test_mode'")
+  }
+  return env
+}
+
+export async function validateDodoApiKey({
+  apiKey,
+  config,
+  productName,
+}: {
+  apiKey: string
+  config?: PaymentConnectorConfig
+  productName?: string
+}) {
+  const environment = resolveEnvironment(config)
+  const expectedEnv = requireConfiguredEnvironment()
+  if (environment !== expectedEnv) {
+    throw new Error(
+      `Dodo environment must match DODO_ENV (${expectedEnv}); received ${environment}`,
+    )
+  }
+
+  const client = new DodoPayments({
+    bearerToken: apiKey.trim(),
+    environment,
+  })
+
+  try {
+    let matchedBrand = false
+    const normalizedProductName = productName?.trim().toLowerCase()
+
+    if (normalizedProductName) {
+      const brandsResponse: any = await client.brands.list()
+      const brands = Array.isArray(brandsResponse?.items)
+        ? brandsResponse.items
+        : []
+
+      for (const brand of brands) {
+        const brandName = (brand as any)?.name
+        if (
+          typeof brandName === "string" &&
+          brandName.trim().toLowerCase() === normalizedProductName
+        ) {
+          matchedBrand = true
+          break
+        }
+      }
+    }
+
+    if (normalizedProductName && !matchedBrand) {
+      throw new Error(
+        `Dodo brand '${productName}' was not found. Create or rename the brand to match your product name.`,
+      )
+    }
+  } catch (error) {
+    if (error instanceof AuthenticationError) {
+      throw new Error(
+        `Dodo authentication failed for environment '${expectedEnv}'. Please use a key provisioned for this environment.`,
+      )
+    }
+    throw new Error(
+      error instanceof Error
+        ? `Failed to validate Dodo API key: ${error.message}`
+        : "Failed to validate Dodo API key",
+    )
+  }
 }
 
 export async function syncDodoConnector({

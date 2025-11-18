@@ -13,7 +13,7 @@ import {
   decryptConnectorSecret,
   encryptConnectorSecret,
 } from "./connectorSecrets"
-import { syncDodoConnector } from "./dodo"
+import { syncDodoConnector, validateDodoApiKey } from "./dodo"
 import {
   type PaymentConnectorConfig,
   type ProviderSyncResult,
@@ -35,6 +35,26 @@ const PROVIDER_SYNC_HANDLERS: Partial<
         | PaymentConnectorConfig
         | undefined,
     }),
+}
+
+export async function validateConnectorApiKey({
+  provider,
+  apiKey,
+  config,
+  productName,
+}: {
+  provider: PaymentConnectorProvider
+  apiKey: string
+  config?: PaymentConnectorConfig
+  productName?: string
+}) {
+  switch (provider) {
+    case PaymentConnectorProvider.dodo:
+      await validateDodoApiKey({ apiKey, config, productName })
+      break
+    default:
+      break
+  }
 }
 
 async function getActiveCredential(
