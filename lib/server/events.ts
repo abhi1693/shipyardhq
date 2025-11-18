@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto"
 
 import prisma from "@/lib/prisma"
+import registerEventHandlers from "@/lib/server/events/register-handlers"
 import { enqueueEvent } from "@/lib/server/events/queueClient"
 import { APP_EVENTS } from "@/lib/server/events/constants"
 import {
@@ -24,6 +25,11 @@ type ListenerRegistry = Map<string, Array<RegisteredHandler<keyof AppEvents>>>
 
 const DEFAULT_HANDLER_MODE: HandlerMode = "async"
 const LISTENERS: ListenerRegistry = new Map()
+
+// Register handlers once on module load; listeners are side-effectful imports.
+void registerEventHandlers().catch((error) => {
+  console.error("[events] failed to register handlers", { error })
+})
 
 const DEFAULT_DEAD_LETTER_MESSAGE =
   "Event envelope moved to dead letter because enqueue failed"

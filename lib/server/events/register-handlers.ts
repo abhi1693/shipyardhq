@@ -1,17 +1,23 @@
-import "@/lib/server/plans"
-import "@/lib/server/badges"
-import "@/lib/server/productInsights/initialPipeline"
-import "@/lib/server/email/productVerificationReminder"
-import "@/lib/server/email/productVoteMilestone"
-import "@/lib/server/email/backlinkVerifiedReward"
-import "@/lib/server/rewards/listeners"
-import "@/lib/server/rewards/loginReward"
-import "@/lib/server/rewards/engagement"
-import "@/lib/server/notifications/listeners"
-import "@/lib/server/social/twitterBot"
-import "@/lib/server/analytics/productVotes"
-import "@/lib/server/analytics/productClicks"
-import "@/lib/server/analytics/productTraffic"
-import "@/lib/server/payments/listeners"
+// Dynamically register all event listeners. We import lazily to avoid circular
+// initialization issues when listeners depend on the events module itself.
+export async function registerEventHandlers(): Promise<void> {
+  await Promise.all([
+    import("@/lib/server/plans"),
+    import("@/lib/server/badges"),
+    import("@/lib/server/productInsights/initialPipeline"),
+    import("@/lib/server/email/productVerificationReminder"),
+    import("@/lib/server/email/productVoteMilestone"),
+    import("@/lib/server/email/backlinkVerifiedReward"),
+    import("@/lib/server/rewards/listeners"),
+    import("@/lib/server/rewards/loginReward"),
+    import("@/lib/server/rewards/engagement"),
+    import("@/lib/server/notifications/listeners"),
+    import("@/lib/server/social/twitterBot"),
+    import("@/lib/server/analytics/productVotes"),
+    import("@/lib/server/analytics/productClicks"),
+    import("@/lib/server/analytics/productTraffic"),
+    import("@/lib/server/payments/listeners"),
+  ])
+}
 
-export {}
+export default registerEventHandlers

@@ -65,7 +65,10 @@ async function queuePaymentConnectorResync(productId: string) {
     where: { productId },
     select: { id: true },
   })
-  if (!connector?.id) return
+  if (!connector?.id) {
+    console.warn("[payments] no connector found to resync", { productId })
+    return
+  }
 
   dispatchEventAsync(
     APP_EVENTS.PAYMENTS_CONNECTOR_SYNC,
