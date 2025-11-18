@@ -82,9 +82,9 @@ function buildBaseSvg(options: {
   const logoX = (leftWidth - logoSize) / 2
   const logoY = (HEIGHT - logoSize) / 2
   const rightInset = 20
-  const headingSize = 22
-  const subheadingSize = 44
-  const gap = 38
+  const headingSize = 16
+  const subheadingSize = 46
+  const gap = 26
   const headingText =
     badgeType === "featured"
       ? "Featured On"
@@ -99,11 +99,12 @@ function buildBaseSvg(options: {
         : metricValue
   const showVerification = badgeType !== "featured" && !!brandLogo
   const verifiedLogoSize = 20
-  const subtextSize = 18
-  const verificationGap = 3
+  const subtextSize = 14
+  const verificationGap = 6
+  const verificationTextY = (verifiedLogoSize - subtextSize) / 2
   const blockHeight =
     headingSize + gap + subheadingSize + (showVerification ? verificationGap + subtextSize : 0)
-  const contentY = logoY + (logoSize - blockHeight) / 2 + 30
+  const contentY = logoY + (logoSize - blockHeight) / 2
 
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH + OUTER_PADDING * 2}" height="${HEIGHT + OUTER_PADDING * 2}" role="img" aria-label="Shipyard badge placeholder">
@@ -122,14 +123,14 @@ function buildBaseSvg(options: {
       }
     </g>
     <g aria-label="Content area" transform="translate(${leftWidth + rightInset}, ${contentY})">
-      <text x="0" y="0" fill="${palette.muted}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="${headingSize}" font-weight="800" letter-spacing="1.4">${headingText.toUpperCase()}</text>
+      <text x="0" y="0" fill="${palette.muted}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="${headingSize}" font-weight="600" letter-spacing="1.4" dominant-baseline="hanging">${headingText.toUpperCase()}</text>
       <g transform="translate(0, ${gap})">
-        <text x="0" y="0" fill="${palette.text}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="${subheadingSize}" font-weight="900">${subheadingText}</text>
+        <text x="0" y="0" fill="${palette.text}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="${subheadingSize}" font-weight="900" dominant-baseline="hanging">${subheadingText}</text>
         ${
           showVerification
             ? `<g transform="translate(0, ${subheadingSize + verificationGap})" aria-label="Verification text">
               <image x="0" y="0" width="${verifiedLogoSize}" height="${verifiedLogoSize}" href="${brandLogo}" preserveAspectRatio="xMidYMid slice" />
-              <text x="${verifiedLogoSize + 8}" y="${subtextSize - 2}" fill="${palette.muted}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="${subtextSize}" font-weight="600">Verified by ${siteConfig.name}</text>
+              <text x="${verifiedLogoSize + 8}" y="${verificationTextY}" fill="${palette.muted}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="${subtextSize}" font-weight="600" dominant-baseline="hanging">Verified by ${siteConfig.name}</text>
             </g>`
             : ""
         }
