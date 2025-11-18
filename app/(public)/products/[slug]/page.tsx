@@ -582,6 +582,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             <span className="text-muted-foreground">Platforms coming soon</span>
           )}
         </SidebarInfoRow>
+        {revenue?.latestAllTimeRevenueCents ? (
+          <SidebarInfoRow label="Total revenue">
+            <span className="font-medium text-foreground">
+              {formatCurrency(revenue.latestAllTimeRevenueCents, "USD")}
+            </span>
+          </SidebarInfoRow>
+        ) : null}
         {activeBadgeDefs.length ? (
           <SidebarInfoRow label="Badges">
             <div className="flex flex-wrap gap-2">
