@@ -88,7 +88,6 @@ const toDataUri = async (
     }
 
     const base64 = buffer.toString("base64")
-      console.log(`data:${contentType};base64,${base64}`)
     return `data:${contentType};base64,${base64}`
   } catch (error) {
     console.warn("[badge] Failed to inline image for badge", { url, error })
