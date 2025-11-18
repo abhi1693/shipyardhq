@@ -4,6 +4,10 @@ import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { resolveVoteState } from "@/lib/server/productVotesStore"
 import { getConnectorRevenueHistory } from "@/lib/server/payments/connectors"
+import {
+  convertToUsdCents,
+  getUsdConversionRates,
+} from "@/lib/server/payments/currency"
 
 type PublicProduct = Prisma.ProductGetPayload<{
   include: {
@@ -328,29 +332,52 @@ export async function getPublicProductRevenue(
   const history = connector?.revenueHistory ?? []
   if (!connector || !history.length) return null
 
-  const sortedHistory = history
+  const rates = await getUsdConversionRates()
+  const historyInUsd = history.map((entry) => {
+    const { usdCents: allTimeUsd, rateUsed } = convertToUsdCents(
+      entry.allTimeRevenueCents ?? 0,
+      entry.currencyCode,
+      rates,
+    )
+    const { usdCents: periodUsd } = convertToUsdCents(
+      entry.periodRevenueCents ?? 0,
+      entry.currencyCode,
+      rates,
+    )
+
+    const baseData =
+      entry.data && typeof entry.data === "object" && !Array.isArray(entry.data)
+        ? entry.data
+        : {}
+
+    return {
+      ...entry,
+      currencyCode: rateUsed ? "USD" : entry.currencyCode,
+      allTimeRevenueCents: rateUsed ? allTimeUsd : entry.allTimeRevenueCents,
+      periodRevenueCents: rateUsed ? periodUsd : entry.periodRevenueCents,
+      data: {
+        ...baseData,
+        originalCurrencyCode: entry.currencyCode,
+        rateToUsd: rateUsed,
+      },
+    }
+  })
+
+  const sortedHistory = historyInUsd
     .slice()
     .sort(
       (a, b) =>
         new Date(a.periodStart).getTime() - new Date(b.periodStart).getTime(),
     )
 
-  const currencyByAllTime = new Map<string, number>()
-  for (const point of sortedHistory) {
-    const current = currencyByAllTime.get(point.currencyCode) ?? 0
-    const candidate = Math.max(
-      point.allTimeRevenueCents ?? 0,
-      point.periodRevenueCents ?? 0,
-    )
-    currencyByAllTime.set(point.currencyCode, Math.max(current, candidate ?? 0))
-  }
-  const primaryCurrency =
-    connector.latestCurrencyCode ||
-    Array.from(currencyByAllTime.entries()).sort((a, b) => b[1] - a[1])[0]?.[0]
-  if (!primaryCurrency) return null
+  // If conversion failed (no rates), fall back to the primary currency from data.
+  const primaryCurrency = "USD"
+  const hasUsd = sortedHistory.some((item) => item.currencyCode === "USD")
+  const displayCurrency = hasUsd ? "USD" : sortedHistory[0]?.currencyCode
+  if (!displayCurrency) return null
 
   const primarySeries = sortedHistory.filter(
-    (item) => item.currencyCode === primaryCurrency,
+    (item) => item.currencyCode === displayCurrency,
   )
   if (!primarySeries.length) return null
 
@@ -383,7 +410,7 @@ export async function getPublicProductRevenue(
   const latestPoint = primarySeries[primarySeries.length - 1]
 
   return {
-    currencyCode: primaryCurrency,
+    currencyCode: displayCurrency,
     lastSyncedAt: connector.lastSyncedAt?.toISOString() ?? null,
     status: connector.status,
     provider: connector.provider,

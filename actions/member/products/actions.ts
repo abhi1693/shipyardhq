@@ -19,6 +19,10 @@ import {
   upsertPaymentConnector,
 } from "@/lib/server/payments/connectors"
 import {
+  convertToUsdCents,
+  getUsdConversionRates,
+} from "@/lib/server/payments/currency"
+import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
@@ -474,31 +478,53 @@ export async function getProductConnectorRevenue(
   })
   if (!connector) return null
 
-  const fullHistory = connector.revenueHistory ?? []
+  const rates = await getUsdConversionRates()
+  const fullHistory = (connector.revenueHistory ?? []).map((entry) => {
+    const { usdCents: allTimeUsd, rateUsed } = convertToUsdCents(
+      entry.allTimeRevenueCents ?? 0,
+      entry.currencyCode,
+      rates,
+    )
+    const { usdCents: periodUsd } = convertToUsdCents(
+      entry.periodRevenueCents ?? 0,
+      entry.currencyCode,
+      rates,
+    )
+
+    const baseData =
+      entry.data && typeof entry.data === "object" && !Array.isArray(entry.data)
+        ? entry.data
+        : {}
+
+    return {
+      ...entry,
+      currencyCode: rateUsed ? "USD" : entry.currencyCode,
+      allTimeRevenueCents: rateUsed ? allTimeUsd : entry.allTimeRevenueCents,
+      periodRevenueCents: rateUsed ? periodUsd : entry.periodRevenueCents,
+      data: {
+        ...baseData,
+        originalCurrencyCode: entry.currencyCode,
+        rateToUsd: rateUsed,
+      },
+    }
+  })
   const latestHistory =
     options?.limit && options.limit > 0
       ? fullHistory.slice(Math.max(fullHistory.length - options.limit, 0))
       : fullHistory
 
-  const allTimeByCurrency = new Map<string, number>()
-  for (const entry of fullHistory) {
-    const current = allTimeByCurrency.get(entry.currencyCode) ?? 0
-    const candidate = Math.max(
-      entry.allTimeRevenueCents ?? 0,
-      entry.periodRevenueCents ?? 0,
+  const hasUsd = fullHistory.some((entry) => entry.currencyCode === "USD")
+  const displayCurrency = hasUsd
+    ? "USD"
+    : fullHistory[fullHistory.length - 1]?.currencyCode || null
+  const primaryCurrency = displayCurrency
+  const primaryAllTime = fullHistory[fullHistory.length - 1]?.allTimeRevenueCents ?? 0
+  const { usdCents: connectorLatestUsd, rateUsed: latestRate } =
+    convertToUsdCents(
+      connector.latestAllTimeRevenueCents ?? 0,
+      connector.latestCurrencyCode,
+      rates,
     )
-    allTimeByCurrency.set(entry.currencyCode, Math.max(current, candidate))
-  }
-
-  const sortedCurrencies = Array.from(allTimeByCurrency.entries()).sort(
-    (a, b) => b[1] - a[1],
-  )
-  const primaryCurrency =
-    connector.latestCurrencyCode ?? sortedCurrencies[0]?.[0] ?? null
-  const primaryAllTime =
-    primaryCurrency != null
-      ? (allTimeByCurrency.get(primaryCurrency) ?? 0)
-      : null
 
   return {
     connector: {
@@ -508,18 +534,20 @@ export async function getProductConnectorRevenue(
       lastSyncedAt: connector.lastSyncedAt,
       lastSyncError: connector.lastSyncError,
       latestAllTimeRevenueCents:
-        connector.latestAllTimeRevenueCents ?? primaryAllTime ?? 0,
-      latestCurrencyCode: connector.latestCurrencyCode ?? primaryCurrency,
+        (latestRate ? connectorLatestUsd : connector.latestAllTimeRevenueCents) ??
+        primaryAllTime ??
+        0,
+      latestCurrencyCode: displayCurrency ?? connector.latestCurrencyCode,
       latestPeriodStart: connector.latestPeriodStart,
     },
     revenueHistory: latestHistory,
     totals: {
-      byCurrency: Array.from(allTimeByCurrency.entries()).map(
-        ([currencyCode, allTimeRevenueCents]) => ({
-          currencyCode,
-          allTimeRevenueCents,
-        }),
-      ),
+      byCurrency: [
+        {
+          currencyCode: displayCurrency ?? primaryCurrency ?? "USD",
+          allTimeRevenueCents: primaryAllTime ?? 0,
+        },
+      ],
       primary: primaryCurrency
         ? {
             currencyCode: primaryCurrency,
