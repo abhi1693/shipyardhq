@@ -383,7 +383,10 @@ export async function createProductAction(formData: FormData) {
       }
     }
     const message = error instanceof Error ? error.message : null
-    return { error: message || "Failed to create product" }
+    return {
+      error:
+        message || "Failed to create product or set up payment connector",
+    }
   }
 }
 
