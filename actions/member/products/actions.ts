@@ -23,6 +23,12 @@ import {
   getUsdConversionRates,
 } from "@/lib/server/payments/currency"
 import {
+  findLatestMrr,
+  normalizeRevenueHistory,
+  selectDisplaySeries,
+  sortRevenueHistory,
+} from "@/lib/server/payments/revenue"
+import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
@@ -479,61 +485,29 @@ export async function getProductConnectorRevenue(
   if (!connector) return null
 
   const rates = await getUsdConversionRates()
-  const fullHistory = (connector.revenueHistory ?? []).map((entry) => {
-    const { usdCents: allTimeUsd, rateUsed } = convertToUsdCents(
-      entry.allTimeRevenueCents ?? 0,
-      entry.currencyCode,
-      rates,
-    )
-    const { usdCents: periodUsd } = convertToUsdCents(
-      entry.periodRevenueCents ?? 0,
-      entry.currencyCode,
-      rates,
-    )
-    const hasMrr =
-      entry.data && typeof entry.data === "object" && !Array.isArray(entry.data)
-    const rawMrr = hasMrr ? (entry.data as any).mrrCents : null
-    const { usdCents: mrrUsd, rateUsed: mrrRate } = convertToUsdCents(
-      typeof rawMrr === "number" ? rawMrr : 0,
-      entry.currencyCode,
-      rates,
-    )
-
-    const baseData =
-      entry.data && typeof entry.data === "object" && !Array.isArray(entry.data)
-        ? entry.data
-        : {}
-
-    return {
-      ...entry,
-      currencyCode: rateUsed ? "USD" : entry.currencyCode,
-      allTimeRevenueCents: rateUsed ? allTimeUsd : entry.allTimeRevenueCents,
-      periodRevenueCents: rateUsed ? periodUsd : entry.periodRevenueCents,
-      mrrCents:
-        rateUsed || mrrRate
-          ? mrrUsd
-          : typeof rawMrr === "number"
-            ? rawMrr
-            : undefined,
-      data: {
-        ...baseData,
-        originalCurrencyCode: entry.currencyCode,
-        rateToUsd: rateUsed,
-      },
-    }
-  })
-  const latestHistory =
+  const normalizedHistory = normalizeRevenueHistory(
+    connector.revenueHistory ?? [],
+    rates,
+  )
+  const sortedHistory = sortRevenueHistory(normalizedHistory)
+  const limitedHistory =
     options?.limit && options.limit > 0
-      ? fullHistory.slice(Math.max(fullHistory.length - options.limit, 0))
-      : fullHistory
-
-  const hasUsd = fullHistory.some((entry) => entry.currencyCode === "USD")
-  const displayCurrency = hasUsd
-    ? "USD"
-    : fullHistory[fullHistory.length - 1]?.currencyCode || null
-  const primaryCurrency = displayCurrency
-  const primaryAllTime = fullHistory[fullHistory.length - 1]?.allTimeRevenueCents ?? 0
-  const primaryMrr = fullHistory[fullHistory.length - 1]?.mrrCents ?? 0
+      ? sortedHistory.slice(
+          Math.max(sortedHistory.length - options.limit, 0),
+        )
+      : sortedHistory
+  const { displayCurrency, series: primarySeries } = selectDisplaySeries(
+    sortedHistory,
+    options?.limit,
+  )
+  const primaryAllTime =
+    primarySeries[primarySeries.length - 1]?.allTimeRevenueCents ?? 0
+  const primaryMrr = findLatestMrr(primarySeries) ?? 0
+  const primaryCurrency =
+    displayCurrency ??
+    sortedHistory[sortedHistory.length - 1]?.currencyCode ??
+    connector.latestCurrencyCode ??
+    null
   const { usdCents: connectorLatestUsd, rateUsed: latestRate } =
     convertToUsdCents(
       connector.latestAllTimeRevenueCents ?? 0,
@@ -556,7 +530,7 @@ export async function getProductConnectorRevenue(
       latestPeriodStart: connector.latestPeriodStart,
       latestMrrCents: primaryMrr,
     },
-    revenueHistory: latestHistory,
+    revenueHistory: limitedHistory,
     totals: {
       byCurrency: [
         {

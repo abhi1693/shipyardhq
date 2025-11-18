@@ -4,10 +4,13 @@ import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { resolveVoteState } from "@/lib/server/productVotesStore"
 import { getConnectorRevenueHistory } from "@/lib/server/payments/connectors"
+import { getUsdConversionRates } from "@/lib/server/payments/currency"
 import {
-  convertToUsdCents,
-  getUsdConversionRates,
-} from "@/lib/server/payments/currency"
+  findLatestMrr,
+  normalizeRevenueHistory,
+  selectDisplaySeries,
+  sortRevenueHistory,
+} from "@/lib/server/payments/revenue"
 
 type PublicProduct = Prisma.ProductGetPayload<{
   include: {
@@ -334,69 +337,13 @@ export async function getPublicProductRevenue(
   if (!connector || !history.length) return null
 
   const rates = await getUsdConversionRates()
-  const historyInUsd = history.map((entry) => {
-    const { usdCents: allTimeUsd, rateUsed } = convertToUsdCents(
-      entry.allTimeRevenueCents ?? 0,
-      entry.currencyCode,
-      rates,
-    )
-    const { usdCents: periodUsd } = convertToUsdCents(
-      entry.periodRevenueCents ?? 0,
-      entry.currencyCode,
-      rates,
-    )
-    const rawMrr = (typeof entry.mrrCents === "number") ? entry.mrrCents : (entry.data && typeof entry.data === "object" && !Array.isArray(entry.data) ? (entry.data as any).mrrCents : null)
-    const { usdCents: mrrUsd, rateUsed: mrrRate } = convertToUsdCents(
-      typeof rawMrr === "number" ? rawMrr : 0,
-      entry.currencyCode,
-      rates,
-    )
-
-    const baseData =
-      entry.data && typeof entry.data === "object" && !Array.isArray(entry.data)
-        ? entry.data
-        : {}
-
-    return {
-      ...entry,
-      currencyCode: rateUsed ? "USD" : entry.currencyCode,
-      allTimeRevenueCents: rateUsed ? allTimeUsd : entry.allTimeRevenueCents,
-      periodRevenueCents: rateUsed ? periodUsd : entry.periodRevenueCents,
-      mrrCents:
-        rateUsed || mrrRate
-          ? mrrUsd
-          : typeof rawMrr === "number"
-            ? rawMrr
-            : undefined,
-      data: {
-        ...baseData,
-        originalCurrencyCode: entry.currencyCode,
-        rateToUsd: rateUsed,
-      },
-    }
-  })
-
-  const sortedHistory = historyInUsd
-    .slice()
-    .sort(
-      (a, b) =>
-        new Date(a.periodStart).getTime() - new Date(b.periodStart).getTime(),
-    )
-
-  // If conversion failed (no rates), fall back to the primary currency from data.
-  const hasUsd = sortedHistory.some((item) => item.currencyCode === "USD")
-  const displayCurrency = hasUsd ? "USD" : sortedHistory[0]?.currencyCode
-  if (!displayCurrency) return null
-
-  const primarySeries = sortedHistory.filter(
-    (item) => item.currencyCode === displayCurrency,
+  const normalizedHistory = normalizeRevenueHistory(history, rates)
+  const sortedHistory = sortRevenueHistory(normalizedHistory)
+  const { displayCurrency, series: limitedSeries } = selectDisplaySeries(
+    sortedHistory,
+    options?.limit,
   )
-  if (!primarySeries.length) return null
-
-  const limitedSeries =
-    options?.limit && options.limit > 0
-      ? primarySeries.slice(Math.max(primarySeries.length - options.limit, 0))
-      : primarySeries
+  if (!displayCurrency || !limitedSeries.length) return null
 
   const points: PublicRevenuePoint[] = limitedSeries.map((point) => {
     const periodDate = new Date(point.periodStart)
@@ -420,20 +367,8 @@ export async function getPublicProductRevenue(
     }
   })
 
-  const latestPoint = primarySeries[primarySeries.length - 1]
-  const latestMrr =
-    [...primarySeries]
-      .reverse()
-      .find((point) => typeof point.mrrCents === "number" && point.mrrCents > 0)?.mrrCents ??
-    [...primarySeries]
-      .reverse()
-      .find((point) => typeof point.mrrCents === "number")?.mrrCents ??
-    (latestPoint &&
-      latestPoint.data &&
-      typeof latestPoint.data === "object" &&
-      !Array.isArray(latestPoint.data)
-        ? Number((latestPoint.data as any).mrrCents) || null
-        : null)
+  const latestPoint = limitedSeries[limitedSeries.length - 1]
+  const latestMrr = findLatestMrr(limitedSeries)
 
   return {
     currencyCode: displayCurrency,
