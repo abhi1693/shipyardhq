@@ -174,7 +174,8 @@ function aggregateByCurrency(
       periodStart: entry.periodStart,
       currencyCode: entry.currencyCode,
       periodRevenueCents: (existing?.periodRevenueCents ?? 0) + periodRevenueCents,
-      mrrCents: (existing?.mrrCents ?? 0) + (mrrCents > 0 ? mrrCents : 0),
+      // MRR is point-in-time; use the latest non-zero value instead of summing.
+      mrrCents: mrrCents > 0 ? mrrCents : (existing?.mrrCents ?? 0),
       data: mergedData,
       allTimeRevenueCents: existing?.allTimeRevenueCents ?? null,
     })
