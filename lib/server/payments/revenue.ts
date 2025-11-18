@@ -4,11 +4,7 @@ import type {
   PaymentConnectorStatus,
 } from "@/lib/vendor/prisma/client"
 
-import {
-  buildCacheKey,
-  cacheHit,
-  cacheMiss,
-} from "@/lib/server/cache"
+import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
 import { convertToUsdCents } from "./currency"
 
 type RevenueSnapshotInput = {
@@ -24,7 +20,11 @@ type RevenueSnapshotInput = {
 
 export type NormalizedRevenueSnapshot = Omit<
   RevenueSnapshotInput,
-  "allTimeRevenueCents" | "periodRevenueCents" | "mrrCents" | "currencyCode" | "data"
+  | "allTimeRevenueCents"
+  | "periodRevenueCents"
+  | "mrrCents"
+  | "currencyCode"
+  | "data"
 > & {
   currencyCode: string | null
   allTimeRevenueCents: number | null
@@ -99,13 +99,13 @@ export function normalizeRevenueHistory(
       id: entry.id,
       createdAt: entry.createdAt,
       periodStart: entry.periodStart,
-      currencyCode: rateUsed ? "USD" : entry.currencyCode ?? null,
+      currencyCode: rateUsed ? "USD" : (entry.currencyCode ?? null),
       allTimeRevenueCents: rateUsed
         ? allTimeUsd
-        : entry.allTimeRevenueCents ?? null,
+        : (entry.allTimeRevenueCents ?? null),
       periodRevenueCents: rateUsed
         ? periodUsd
-        : entry.periodRevenueCents ?? null,
+        : (entry.periodRevenueCents ?? null),
       mrrCents:
         rateUsed || mrrRate
           ? mrrUsd
@@ -171,7 +171,8 @@ function aggregateByCurrency(
       // Prefer earliest createdAt for stability when merging multiple entries.
       periodStart: entry.periodStart,
       currencyCode: entry.currencyCode,
-      periodRevenueCents: (existing?.periodRevenueCents ?? 0) + periodRevenueCents,
+      periodRevenueCents:
+        (existing?.periodRevenueCents ?? 0) + periodRevenueCents,
       // MRR is point-in-time; use the latest non-zero value instead of summing.
       mrrCents: mrrCents > 0 ? mrrCents : (existing?.mrrCents ?? 0),
       data: mergedData,
@@ -204,10 +205,7 @@ export function selectDisplaySeries(
       item.currencyCode === "USD" ||
       typeof (item.data as any)?.rateToUsd === "number",
   )
-  const displayCurrency =
-    (allConvertibleToUsd
-      ? "USD"
-      : lastCurrency) ?? null
+  const displayCurrency = (allConvertibleToUsd ? "USD" : lastCurrency) ?? null
 
   const aggregatedSeries = displayCurrency
     ? aggregateByCurrency(history, displayCurrency)
@@ -215,9 +213,7 @@ export function selectDisplaySeries(
 
   const limitedSeries =
     limit && limit > 0
-      ? aggregatedSeries.slice(
-          Math.max(aggregatedSeries.length - limit, 0),
-        )
+      ? aggregatedSeries.slice(Math.max(aggregatedSeries.length - limit, 0))
       : aggregatedSeries
 
   return { displayCurrency, series: limitedSeries }
@@ -307,7 +303,7 @@ export function buildRevenueSummary({
     lastSyncedAt:
       typeof lastSyncedAt === "string"
         ? lastSyncedAt
-        : lastSyncedAt?.toISOString() ?? null,
+        : (lastSyncedAt?.toISOString() ?? null),
     latestAllTimeRevenueCents: latestPoint.allTimeRevenueCents ?? 0,
     latestMrrCents: findLatestMrr(series),
     points,

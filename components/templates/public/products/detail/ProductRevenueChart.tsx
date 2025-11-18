@@ -119,7 +119,10 @@ export function ProductRevenueChart({
       return new Date(key)
     }
 
-    const byBucket = new Map<string, { date: Date; revenue: number; mrr: number }>()
+    const byBucket = new Map<
+      string,
+      { date: Date; revenue: number; mrr: number }
+    >()
     for (const point of filtered) {
       const d = point.date
       const key = bucketKey(d)
@@ -192,7 +195,9 @@ export function ProductRevenueChart({
           <Select
             value={range}
             onValueChange={(value) =>
-              setRange(value as "24h" | "7d" | "1m" | "3m" | "6m" | "1y" | "all")
+              setRange(
+                value as "24h" | "7d" | "1m" | "3m" | "6m" | "1y" | "all",
+              )
             }
           >
             <SelectTrigger className="h-10 min-w-[150px] px-3 text-sm font-medium">
@@ -213,10 +218,10 @@ export function ProductRevenueChart({
 
       <div className="h-72 w-full">
         <ResponsiveContainer width="100%" height="100%">
-      <AreaChart
-        data={chartData}
-        margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-      >
+          <AreaChart
+            data={chartData}
+            margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+          >
             <defs>
               <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
                 <stop
@@ -300,9 +305,7 @@ export function ProductRevenueChart({
               type="monotone"
               dataKey="value"
               stroke={
-                metric === "mrr"
-                  ? "hsl(153, 47%, 48%)"
-                  : "hsl(221, 83%, 53%)"
+                metric === "mrr" ? "hsl(153, 47%, 48%)" : "hsl(221, 83%, 53%)"
               }
               fillOpacity={1}
               fill="url(#chartFill)"

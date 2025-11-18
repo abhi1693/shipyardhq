@@ -10,8 +10,7 @@ type RateMap = Map<string, number>
 function mapFromObject(objectRates?: Record<string, number>): RateMap {
   if (!objectRates) return new Map<string, number>()
   const entries = Object.entries(objectRates).map(
-    ([code, rate]) =>
-      [code.toUpperCase(), Number(rate)] as [string, number],
+    ([code, rate]) => [code.toUpperCase(), Number(rate)] as [string, number],
   )
   return new Map<string, number>(entries)
 }

@@ -15,10 +15,7 @@ import {
 import { getProviderDefinition } from "./providers"
 import { getUsdConversionRates } from "./currency"
 import { type PaymentConnectorConfig, type RevenueSnapshotInput } from "./types"
-import {
-  buildRevenueSummary,
-  cacheRevenueSummary,
-} from "./revenue"
+import { buildRevenueSummary, cacheRevenueSummary } from "./revenue"
 
 export async function validateConnectorApiKey({
   provider,

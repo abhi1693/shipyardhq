@@ -58,7 +58,9 @@ export async function registerEventHandlers(): Promise<void> {
     },
   ]
 
-  const results = await Promise.allSettled(modules.map((module) => module.load()))
+  const results = await Promise.allSettled(
+    modules.map((module) => module.load()),
+  )
   results.forEach((result, index) => {
     if (result.status === "rejected") {
       console.error("[events] failed to register handler module", {

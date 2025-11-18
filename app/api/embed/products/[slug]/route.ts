@@ -82,13 +82,12 @@ function buildBaseSvg(options: {
   const logoX = (leftWidth - logoSize) / 2
   const logoY = (HEIGHT - logoSize) / 2
   const rightInset = 20
-    const headingSize = 22
+  const headingSize = 22
   const subheadingSize = 44
   const gap = 38
   const blockHeight = headingSize + gap + subheadingSize
   const contentY = logoY + (logoSize - blockHeight) / 2 + 30
-  const headingText =
-    badgeType === "featured" ? "Featured On" : "Badge content"
+  const headingText = badgeType === "featured" ? "Featured On" : "Badge content"
   const subheadingText =
     badgeType === "featured"
       ? siteConfig.name
@@ -131,10 +130,7 @@ async function svgToPng(svg: string): Promise<Buffer | null> {
   }
 }
 
-async function toDataUri(
-  href: string,
-  origin: string,
-): Promise<string | null> {
+async function toDataUri(href: string, origin: string): Promise<string | null> {
   try {
     const url = new URL(href)
     let buf: Buffer | null = null
@@ -188,7 +184,7 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
   const logoHref =
     badgeType === "featured"
       ? new URL(brandLogoPath, url.origin).toString()
-      : product?.logo ?? null
+      : (product?.logo ?? null)
   // Placeholder: swap with real metric formatting (featured/revenue/mrr specific).
   const metricValue = "Coming soon"
 
@@ -200,7 +196,7 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
     metricValue,
     productLogo:
       format === "png" && logoHref
-        ? (await toDataUri(logoHref, url.origin)) ?? logoHref
+        ? ((await toDataUri(logoHref, url.origin)) ?? logoHref)
         : logoHref,
   })
   const headers = new Headers({ "Cache-Control": CACHE_CONTROL })

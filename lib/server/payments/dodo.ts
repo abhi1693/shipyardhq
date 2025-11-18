@@ -71,7 +71,9 @@ function resolveEnvironment(
 function requireConfiguredEnvironment(): "live_mode" | "test_mode" {
   const env = (process.env.DODO_ENV || "").trim()
   if (env !== "live_mode" && env !== "test_mode") {
-    throw new Error("DODO_ENV environment variable must be set to either 'live_mode' or 'test_mode'")
+    throw new Error(
+      "DODO_ENV environment variable must be set to either 'live_mode' or 'test_mode'",
+    )
   }
   return env
 }
