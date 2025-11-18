@@ -4,6 +4,7 @@ import { Resolver } from "node:dns/promises"
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dispatchEventAsync } from "@/lib/server/events"
+import { APP_EVENTS } from "@/lib/server/events/constants"
 import "@/lib/server/badges" // register badge listeners
 import { deleteBlob, deleteBlobPrefix } from "@/lib/blob"
 import "@/lib/server/plans" // register default-plan listeners
@@ -57,6 +58,20 @@ async function generateUniqueSlug(base: string): Promise<string> {
     if (!existing) return candidate
     candidate = `${clean}-${i++}`
   }
+}
+
+async function queuePaymentConnectorResync(productId: string) {
+  const connector = await prisma.paymentConnector.findUnique({
+    where: { productId },
+    select: { id: true },
+  })
+  if (!connector?.id) return
+
+  dispatchEventAsync(
+    APP_EVENTS.PAYMENTS_CONNECTOR_SYNC,
+    { connectorId: connector.id },
+    { context: { productId, connectorId: connector.id } },
+  )
 }
 
 export async function getProducts(args: Prisma.ProductFindManyArgs = {}) {
@@ -340,6 +355,7 @@ export async function createProductAction(formData: FormData) {
         { context: { productId: created.id } },
       )
       sideEffects.push(sendProductPublishedEmail(created.id))
+      sideEffects.push(queuePaymentConnectorResync(created.id))
     }
 
     const results = await Promise.allSettled(sideEffects)
@@ -681,6 +697,10 @@ export async function updateProductAction(
         { context: { productId: updated.id } },
       )
       await sendProductPublishedEmail(updated.id)
+    }
+
+    if (updated.status === "published") {
+      await queuePaymentConnectorResync(updated.id)
     }
 
     return updated
