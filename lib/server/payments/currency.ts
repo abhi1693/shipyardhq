@@ -34,7 +34,7 @@ async function fetchUsdRates(): Promise<RateMap> {
     }).catch(() => null)
 
     return rates
-  } catch (error) {
+  } catch {
     // No rates available; signal caller to keep provider currency.
     return new Map<string, number>()
   }

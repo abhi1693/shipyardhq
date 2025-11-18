@@ -70,11 +70,13 @@ async function applySnapshots(
           periodStart: snapshot.periodStart,
           periodRevenueCents: snapshot.periodRevenueCents,
           allTimeRevenueCents: snapshot.allTimeRevenueCents,
+          mrrCents: snapshot.mrrCents ?? undefined,
           data: snapshot.data,
         },
         update: {
           periodRevenueCents: snapshot.periodRevenueCents,
           allTimeRevenueCents: snapshot.allTimeRevenueCents,
+          mrrCents: snapshot.mrrCents ?? undefined,
           data: snapshot.data,
         },
       }),
@@ -202,6 +204,13 @@ export async function syncPaymentConnector(connectorId: string) {
     const result = await providerDefinition.sync({ connector, apiKey })
     await applySnapshots(connector.id, result.snapshots)
     const primary = selectPrimarySnapshot(result.snapshots)
+    const sortedByDate = [...result.snapshots].sort(
+      (a, b) => a.periodStart.getTime() - b.periodStart.getTime(),
+    )
+    const latestMrr =
+      sortedByDate.findLast((snap) => (snap.mrrCents ?? 0) > 0)?.mrrCents ??
+      sortedByDate.findLast((snap) => typeof snap.mrrCents === "number")
+        ?.mrrCents ?? null
     const now = new Date()
 
     await prisma.paymentConnector.update({
@@ -214,6 +223,7 @@ export async function syncPaymentConnector(connectorId: string) {
         latestAllTimeRevenueCents: primary?.allTimeRevenueCents ?? 0,
         latestCurrencyCode: primary?.currencyCode,
         latestPeriodStart: primary?.periodStart,
+        latestMrrCents: latestMrr ?? null,
       },
     })
 
@@ -269,6 +279,7 @@ export async function getConnectorRevenueHistory({
           periodStart: true,
           periodRevenueCents: true,
           allTimeRevenueCents: true,
+          mrrCents: true,
           data: true,
           createdAt: true,
         },

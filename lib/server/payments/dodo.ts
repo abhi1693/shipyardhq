@@ -219,6 +219,7 @@ export async function syncDodoConnector({
       daily: new Map<string, { amountCents: number; charges: number }>(),
       allTime: 0,
     }
+    const mrrCents = mrrByCurrency.get(currency) || 0
 
     const dayKeys = Array.from(aggregates.daily.keys()).sort()
     if (dayKeys.length === 0) {
@@ -228,7 +229,8 @@ export async function syncDodoConnector({
         periodStart: startOfDayFromKey(toDayKey(now)),
         periodRevenueCents: 0,
         allTimeRevenueCents: aggregates.allTime,
-        data: { provider: "dodo", environment, charges: 0 },
+        mrrCents,
+        data: { provider: "dodo", environment, charges: 0, mrrCents },
       })
       continue
     }
@@ -246,7 +248,13 @@ export async function syncDodoConnector({
         periodStart: startOfDayFromKey(dayKey),
         periodRevenueCents,
         allTimeRevenueCents: runningTotal,
-        data: { provider: "dodo", environment, charges: entry.charges },
+        mrrCents,
+        data: {
+          provider: "dodo",
+          environment,
+          charges: entry.charges,
+          mrrCents,
+        },
       })
     }
   }

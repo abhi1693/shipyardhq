@@ -490,6 +490,14 @@ export async function getProductConnectorRevenue(
       entry.currencyCode,
       rates,
     )
+    const hasMrr =
+      entry.data && typeof entry.data === "object" && !Array.isArray(entry.data)
+    const rawMrr = hasMrr ? (entry.data as any).mrrCents : null
+    const { usdCents: mrrUsd, rateUsed: mrrRate } = convertToUsdCents(
+      typeof rawMrr === "number" ? rawMrr : 0,
+      entry.currencyCode,
+      rates,
+    )
 
     const baseData =
       entry.data && typeof entry.data === "object" && !Array.isArray(entry.data)
@@ -501,6 +509,12 @@ export async function getProductConnectorRevenue(
       currencyCode: rateUsed ? "USD" : entry.currencyCode,
       allTimeRevenueCents: rateUsed ? allTimeUsd : entry.allTimeRevenueCents,
       periodRevenueCents: rateUsed ? periodUsd : entry.periodRevenueCents,
+      mrrCents:
+        rateUsed || mrrRate
+          ? mrrUsd
+          : typeof rawMrr === "number"
+            ? rawMrr
+            : undefined,
       data: {
         ...baseData,
         originalCurrencyCode: entry.currencyCode,
@@ -519,6 +533,7 @@ export async function getProductConnectorRevenue(
     : fullHistory[fullHistory.length - 1]?.currencyCode || null
   const primaryCurrency = displayCurrency
   const primaryAllTime = fullHistory[fullHistory.length - 1]?.allTimeRevenueCents ?? 0
+  const primaryMrr = fullHistory[fullHistory.length - 1]?.mrrCents ?? 0
   const { usdCents: connectorLatestUsd, rateUsed: latestRate } =
     convertToUsdCents(
       connector.latestAllTimeRevenueCents ?? 0,
@@ -539,6 +554,7 @@ export async function getProductConnectorRevenue(
         0,
       latestCurrencyCode: displayCurrency ?? connector.latestCurrencyCode,
       latestPeriodStart: connector.latestPeriodStart,
+      latestMrrCents: primaryMrr,
     },
     revenueHistory: latestHistory,
     totals: {
@@ -554,6 +570,7 @@ export async function getProductConnectorRevenue(
             allTimeRevenueCents: primaryAllTime ?? 0,
           }
         : null,
+      mrrCents: primaryMrr,
     },
   }
 }

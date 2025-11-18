@@ -28,11 +28,13 @@ type RevenuePoint = {
   allTimeRevenueCents: number
   periodRevenueCents: number
   charges: number | null
+  mrrCents?: number | null
 }
 
 type RevenueSummary = {
   currencyCode: string
   latestAllTimeRevenueCents: number
+  latestMrrCents?: number | null
   provider?: string
   lastSyncedAt?: string | null
 }
@@ -61,6 +63,7 @@ export function ProductRevenueChart({
   const [range, setRange] = useState<
     "24h" | "7d" | "1m" | "3m" | "6m" | "1y" | "all"
   >("all")
+  const [metric, setMetric] = useState<"revenue" | "mrr">("revenue")
 
   const filtered = useMemo(() => {
     let cutoff: Date | null = null
@@ -80,6 +83,7 @@ export function ProductRevenueChart({
         date: new Date(point.periodStart),
         label: point.label,
         revenue: point.periodRevenueCents / 100,
+        mrr: typeof point.mrrCents === "number" ? point.mrrCents / 100 : 0,
       }))
   }, [points, range])
 
@@ -116,14 +120,24 @@ export function ProductRevenueChart({
       return new Date(key)
     }
 
-    const byBucket = new Map<string, { date: Date; revenue: number }>()
+    const byBucket = new Map<string, { date: Date; revenue: number; mrr: number }>()
     for (const point of filtered) {
       const d = point.date
       const key = bucketKey(d)
       const start = bucketDate(key)
-      const entry = byBucket.get(key) || { date: start, revenue: 0 }
-      entry.revenue += point.revenue
-      byBucket.set(key, entry)
+      const existing = byBucket.get(key)
+      const nextMrr =
+        typeof point.mrr === "number" && point.mrr > 0
+          ? point.mrr
+          : typeof existing?.mrr === "number" && existing.mrr > 0
+            ? existing.mrr
+            : 0
+      const updated = {
+        date: existing?.date ?? start,
+        revenue: (existing?.revenue ?? 0) + point.revenue,
+        mrr: nextMrr,
+      }
+      byBucket.set(key, updated)
     }
     return Array.from(byBucket.values()).sort(
       (a, b) => a.date.getTime() - b.date.getTime(),
@@ -134,50 +148,84 @@ export function ProductRevenueChart({
     formatCurrency(Math.round(value * 100), currency)
   const chartData = aggregated.map((point) => ({
     ...point,
-    value: point.revenue,
+    value: metric === "revenue" ? point.revenue : point.mrr,
   }))
+
+  const mrrDisplay =
+    typeof summary.latestMrrCents === "number"
+      ? formatCurrency(summary.latestMrrCents, currency)
+      : null
 
   return (
     <section className="space-y-4 rounded-2xl border border-border bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-lg font-semibold">Verified revenue</p>
-        <Select
-          value={range}
-          onValueChange={(value) =>
-            setRange(value as "24h" | "7d" | "1m" | "3m" | "6m" | "1y" | "all")
-          }
-        >
-          <SelectTrigger className="h-10 min-w-[150px] px-3 text-sm font-medium">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="w-[180px] text-sm">
-            <SelectItem value="24h">Last 24 hours</SelectItem>
-            <SelectItem value="7d">Last 7 days</SelectItem>
-            <SelectItem value="1m">Last 1 month</SelectItem>
-            <SelectItem value="3m">Last 3 months</SelectItem>
-            <SelectItem value="6m">Last 6 months</SelectItem>
-            <SelectItem value="1y">Last 1 year</SelectItem>
-            <SelectItem value="all">All time</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
+          <p className="text-lg font-semibold">Verified revenue</p>
+          {mrrDisplay ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground">
+              MRR: {mrrDisplay}
+            </span>
+          ) : null}
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
+          <Select
+            value={metric}
+            onValueChange={(value) => setMetric(value as "revenue" | "mrr")}
+          >
+            <SelectTrigger className="h-10 min-w-[140px] px-3 text-sm font-medium">
+              <SelectValue placeholder="Metric" />
+            </SelectTrigger>
+            <SelectContent className="w-[160px] text-sm">
+              <SelectItem value="revenue">Revenue</SelectItem>
+              <SelectItem value="mrr">MRR</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={range}
+            onValueChange={(value) =>
+              setRange(value as "24h" | "7d" | "1m" | "3m" | "6m" | "1y" | "all")
+            }
+          >
+            <SelectTrigger className="h-10 min-w-[150px] px-3 text-sm font-medium">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="w-[180px] text-sm">
+              <SelectItem value="24h">Last 24 hours</SelectItem>
+              <SelectItem value="7d">Last 7 days</SelectItem>
+              <SelectItem value="1m">Last 1 month</SelectItem>
+              <SelectItem value="3m">Last 3 months</SelectItem>
+              <SelectItem value="6m">Last 6 months</SelectItem>
+              <SelectItem value="1y">Last 1 year</SelectItem>
+              <SelectItem value="all">All time</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="h-72 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={chartData}
-            margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-          >
+      <AreaChart
+        data={chartData}
+        margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+      >
             <defs>
-              <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="hsl(221, 83%, 53%)"
+                  stopColor={
+                    metric === "mrr"
+                      ? "hsl(153, 47%, 48%)"
+                      : "hsl(221, 83%, 53%)"
+                  }
                   stopOpacity={0.25}
                 />
                 <stop
                   offset="95%"
-                  stopColor="hsl(221, 83%, 53%)"
+                  stopColor={
+                    metric === "mrr"
+                      ? "hsl(153, 47%, 48%)"
+                      : "hsl(221, 83%, 53%)"
+                  }
                   stopOpacity={0.03}
                 />
               </linearGradient>
@@ -207,7 +255,7 @@ export function ProductRevenueChart({
             <Tooltip
               formatter={(value: any) => [
                 formatValue(Number(value)),
-                "Revenue",
+                metric === "mrr" ? "MRR" : "Revenue",
               ]}
               labelFormatter={(label) => {
                 const date = new Date(label)
@@ -242,11 +290,16 @@ export function ProductRevenueChart({
             <Area
               type="monotone"
               dataKey="value"
-              stroke="hsl(221, 83%, 53%)"
+              stroke={
+                metric === "mrr"
+                  ? "hsl(153, 47%, 48%)"
+                  : "hsl(221, 83%, 53%)"
+              }
               fillOpacity={1}
-              fill="url(#revenueFill)"
+              fill="url(#chartFill)"
               strokeWidth={2}
               activeDot={{ r: 4 }}
+              isAnimationActive={false}
             />
           </AreaChart>
         </ResponsiveContainer>

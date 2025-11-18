@@ -319,6 +319,7 @@ type PublicRevenuePoint = {
   allTimeRevenueCents: number
   periodRevenueCents: number
   charges: number | null
+  mrrCents?: number | null
 }
 
 export async function getPublicProductRevenue(
@@ -344,6 +345,12 @@ export async function getPublicProductRevenue(
       entry.currencyCode,
       rates,
     )
+    const rawMrr = (typeof entry.mrrCents === "number") ? entry.mrrCents : (entry.data && typeof entry.data === "object" && !Array.isArray(entry.data) ? (entry.data as any).mrrCents : null)
+    const { usdCents: mrrUsd, rateUsed: mrrRate } = convertToUsdCents(
+      typeof rawMrr === "number" ? rawMrr : 0,
+      entry.currencyCode,
+      rates,
+    )
 
     const baseData =
       entry.data && typeof entry.data === "object" && !Array.isArray(entry.data)
@@ -355,6 +362,12 @@ export async function getPublicProductRevenue(
       currencyCode: rateUsed ? "USD" : entry.currencyCode,
       allTimeRevenueCents: rateUsed ? allTimeUsd : entry.allTimeRevenueCents,
       periodRevenueCents: rateUsed ? periodUsd : entry.periodRevenueCents,
+      mrrCents:
+        rateUsed || mrrRate
+          ? mrrUsd
+          : typeof rawMrr === "number"
+            ? rawMrr
+            : undefined,
       data: {
         ...baseData,
         originalCurrencyCode: entry.currencyCode,
@@ -371,7 +384,6 @@ export async function getPublicProductRevenue(
     )
 
   // If conversion failed (no rates), fall back to the primary currency from data.
-  const primaryCurrency = "USD"
   const hasUsd = sortedHistory.some((item) => item.currencyCode === "USD")
   const displayCurrency = hasUsd ? "USD" : sortedHistory[0]?.currencyCode
   if (!displayCurrency) return null
@@ -404,10 +416,24 @@ export async function getPublicProductRevenue(
         !Array.isArray(point.data)
           ? ((point.data as any).charges ?? null)
           : null,
+      mrrCents: point.mrrCents ?? null,
     }
   })
 
   const latestPoint = primarySeries[primarySeries.length - 1]
+  const latestMrr =
+    [...primarySeries]
+      .reverse()
+      .find((point) => typeof point.mrrCents === "number" && point.mrrCents > 0)?.mrrCents ??
+    [...primarySeries]
+      .reverse()
+      .find((point) => typeof point.mrrCents === "number")?.mrrCents ??
+    (latestPoint &&
+      latestPoint.data &&
+      typeof latestPoint.data === "object" &&
+      !Array.isArray(latestPoint.data)
+        ? Number((latestPoint.data as any).mrrCents) || null
+        : null)
 
   return {
     currencyCode: displayCurrency,
@@ -415,6 +441,7 @@ export async function getPublicProductRevenue(
     status: connector.status,
     provider: connector.provider,
     latestAllTimeRevenueCents: latestPoint.allTimeRevenueCents ?? 0,
+    latestMrrCents: latestMrr,
     points,
   }
 }

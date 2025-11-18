@@ -7546,10 +7546,12 @@ export namespace Prisma {
 
   export type PaymentConnectorAvgAggregateOutputType = {
     latestAllTimeRevenueCents: number | null
+    latestMrrCents: number | null
   }
 
   export type PaymentConnectorSumAggregateOutputType = {
     latestAllTimeRevenueCents: number | null
+    latestMrrCents: number | null
   }
 
   export type PaymentConnectorMinAggregateOutputType = {
@@ -7561,6 +7563,7 @@ export namespace Prisma {
     lastSyncError: string | null
     verifiedAt: Date | null
     latestAllTimeRevenueCents: number | null
+    latestMrrCents: number | null
     latestCurrencyCode: string | null
     latestPeriodStart: Date | null
     createdAt: Date | null
@@ -7576,6 +7579,7 @@ export namespace Prisma {
     lastSyncError: string | null
     verifiedAt: Date | null
     latestAllTimeRevenueCents: number | null
+    latestMrrCents: number | null
     latestCurrencyCode: string | null
     latestPeriodStart: Date | null
     createdAt: Date | null
@@ -7592,6 +7596,7 @@ export namespace Prisma {
     lastSyncError: number
     verifiedAt: number
     latestAllTimeRevenueCents: number
+    latestMrrCents: number
     latestCurrencyCode: number
     latestPeriodStart: number
     createdAt: number
@@ -7602,10 +7607,12 @@ export namespace Prisma {
 
   export type PaymentConnectorAvgAggregateInputType = {
     latestAllTimeRevenueCents?: true
+    latestMrrCents?: true
   }
 
   export type PaymentConnectorSumAggregateInputType = {
     latestAllTimeRevenueCents?: true
+    latestMrrCents?: true
   }
 
   export type PaymentConnectorMinAggregateInputType = {
@@ -7617,6 +7624,7 @@ export namespace Prisma {
     lastSyncError?: true
     verifiedAt?: true
     latestAllTimeRevenueCents?: true
+    latestMrrCents?: true
     latestCurrencyCode?: true
     latestPeriodStart?: true
     createdAt?: true
@@ -7632,6 +7640,7 @@ export namespace Prisma {
     lastSyncError?: true
     verifiedAt?: true
     latestAllTimeRevenueCents?: true
+    latestMrrCents?: true
     latestCurrencyCode?: true
     latestPeriodStart?: true
     createdAt?: true
@@ -7648,6 +7657,7 @@ export namespace Prisma {
     lastSyncError?: true
     verifiedAt?: true
     latestAllTimeRevenueCents?: true
+    latestMrrCents?: true
     latestCurrencyCode?: true
     latestPeriodStart?: true
     createdAt?: true
@@ -7751,6 +7761,7 @@ export namespace Prisma {
     lastSyncError: string | null
     verifiedAt: Date | null
     latestAllTimeRevenueCents: number | null
+    latestMrrCents: number | null
     latestCurrencyCode: string | null
     latestPeriodStart: Date | null
     createdAt: Date
@@ -7786,6 +7797,7 @@ export namespace Prisma {
     lastSyncError?: boolean
     verifiedAt?: boolean
     latestAllTimeRevenueCents?: boolean
+    latestMrrCents?: boolean
     latestCurrencyCode?: boolean
     latestPeriodStart?: boolean
     createdAt?: boolean
@@ -7806,6 +7818,7 @@ export namespace Prisma {
     lastSyncError?: boolean
     verifiedAt?: boolean
     latestAllTimeRevenueCents?: boolean
+    latestMrrCents?: boolean
     latestCurrencyCode?: boolean
     latestPeriodStart?: boolean
     createdAt?: boolean
@@ -7823,6 +7836,7 @@ export namespace Prisma {
     lastSyncError?: boolean
     verifiedAt?: boolean
     latestAllTimeRevenueCents?: boolean
+    latestMrrCents?: boolean
     latestCurrencyCode?: boolean
     latestPeriodStart?: boolean
     createdAt?: boolean
@@ -7840,13 +7854,14 @@ export namespace Prisma {
     lastSyncError?: boolean
     verifiedAt?: boolean
     latestAllTimeRevenueCents?: boolean
+    latestMrrCents?: boolean
     latestCurrencyCode?: boolean
     latestPeriodStart?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type PaymentConnectorOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "provider" | "status" | "config" | "lastSyncedAt" | "lastSyncError" | "verifiedAt" | "latestAllTimeRevenueCents" | "latestCurrencyCode" | "latestPeriodStart" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentConnector"]>
+  export type PaymentConnectorOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "provider" | "status" | "config" | "lastSyncedAt" | "lastSyncError" | "verifiedAt" | "latestAllTimeRevenueCents" | "latestMrrCents" | "latestCurrencyCode" | "latestPeriodStart" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentConnector"]>
   export type PaymentConnectorInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProductDefaultArgs<ExtArgs>
     credentials?: boolean | PaymentConnector$credentialsArgs<ExtArgs>
@@ -7877,6 +7892,7 @@ export namespace Prisma {
       lastSyncError: string | null
       verifiedAt: Date | null
       latestAllTimeRevenueCents: number | null
+      latestMrrCents: number | null
       latestCurrencyCode: string | null
       latestPeriodStart: Date | null
       createdAt: Date
@@ -8316,6 +8332,7 @@ export namespace Prisma {
     readonly lastSyncError: FieldRef<"PaymentConnector", 'String'>
     readonly verifiedAt: FieldRef<"PaymentConnector", 'DateTime'>
     readonly latestAllTimeRevenueCents: FieldRef<"PaymentConnector", 'Int'>
+    readonly latestMrrCents: FieldRef<"PaymentConnector", 'Int'>
     readonly latestCurrencyCode: FieldRef<"PaymentConnector", 'String'>
     readonly latestPeriodStart: FieldRef<"PaymentConnector", 'DateTime'>
     readonly createdAt: FieldRef<"PaymentConnector", 'DateTime'>
@@ -9928,11 +9945,13 @@ export namespace Prisma {
   export type PaymentRevenueSnapshotAvgAggregateOutputType = {
     periodRevenueCents: number | null
     allTimeRevenueCents: number | null
+    mrrCents: number | null
   }
 
   export type PaymentRevenueSnapshotSumAggregateOutputType = {
     periodRevenueCents: number | null
     allTimeRevenueCents: number | null
+    mrrCents: number | null
   }
 
   export type PaymentRevenueSnapshotMinAggregateOutputType = {
@@ -9942,6 +9961,7 @@ export namespace Prisma {
     periodStart: Date | null
     periodRevenueCents: number | null
     allTimeRevenueCents: number | null
+    mrrCents: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9953,6 +9973,7 @@ export namespace Prisma {
     periodStart: Date | null
     periodRevenueCents: number | null
     allTimeRevenueCents: number | null
+    mrrCents: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9964,6 +9985,7 @@ export namespace Prisma {
     periodStart: number
     periodRevenueCents: number
     allTimeRevenueCents: number
+    mrrCents: number
     data: number
     createdAt: number
     updatedAt: number
@@ -9974,11 +9996,13 @@ export namespace Prisma {
   export type PaymentRevenueSnapshotAvgAggregateInputType = {
     periodRevenueCents?: true
     allTimeRevenueCents?: true
+    mrrCents?: true
   }
 
   export type PaymentRevenueSnapshotSumAggregateInputType = {
     periodRevenueCents?: true
     allTimeRevenueCents?: true
+    mrrCents?: true
   }
 
   export type PaymentRevenueSnapshotMinAggregateInputType = {
@@ -9988,6 +10012,7 @@ export namespace Prisma {
     periodStart?: true
     periodRevenueCents?: true
     allTimeRevenueCents?: true
+    mrrCents?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9999,6 +10024,7 @@ export namespace Prisma {
     periodStart?: true
     periodRevenueCents?: true
     allTimeRevenueCents?: true
+    mrrCents?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -10010,6 +10036,7 @@ export namespace Prisma {
     periodStart?: true
     periodRevenueCents?: true
     allTimeRevenueCents?: true
+    mrrCents?: true
     data?: true
     createdAt?: true
     updatedAt?: true
@@ -10109,6 +10136,7 @@ export namespace Prisma {
     periodStart: Date
     periodRevenueCents: number
     allTimeRevenueCents: number
+    mrrCents: number | null
     data: JsonValue | null
     createdAt: Date
     updatedAt: Date
@@ -10140,6 +10168,7 @@ export namespace Prisma {
     periodStart?: boolean
     periodRevenueCents?: boolean
     allTimeRevenueCents?: boolean
+    mrrCents?: boolean
     data?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -10153,6 +10182,7 @@ export namespace Prisma {
     periodStart?: boolean
     periodRevenueCents?: boolean
     allTimeRevenueCents?: boolean
+    mrrCents?: boolean
     data?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -10166,6 +10196,7 @@ export namespace Prisma {
     periodStart?: boolean
     periodRevenueCents?: boolean
     allTimeRevenueCents?: boolean
+    mrrCents?: boolean
     data?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -10179,12 +10210,13 @@ export namespace Prisma {
     periodStart?: boolean
     periodRevenueCents?: boolean
     allTimeRevenueCents?: boolean
+    mrrCents?: boolean
     data?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type PaymentRevenueSnapshotOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "connectorId" | "currencyCode" | "periodStart" | "periodRevenueCents" | "allTimeRevenueCents" | "data" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentRevenueSnapshot"]>
+  export type PaymentRevenueSnapshotOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "connectorId" | "currencyCode" | "periodStart" | "periodRevenueCents" | "allTimeRevenueCents" | "mrrCents" | "data" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentRevenueSnapshot"]>
   export type PaymentRevenueSnapshotInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     connector?: boolean | PaymentConnectorDefaultArgs<ExtArgs>
   }
@@ -10207,6 +10239,7 @@ export namespace Prisma {
       periodStart: Date
       periodRevenueCents: number
       allTimeRevenueCents: number
+      mrrCents: number | null
       data: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
@@ -10640,6 +10673,7 @@ export namespace Prisma {
     readonly periodStart: FieldRef<"PaymentRevenueSnapshot", 'DateTime'>
     readonly periodRevenueCents: FieldRef<"PaymentRevenueSnapshot", 'Int'>
     readonly allTimeRevenueCents: FieldRef<"PaymentRevenueSnapshot", 'Int'>
+    readonly mrrCents: FieldRef<"PaymentRevenueSnapshot", 'Int'>
     readonly data: FieldRef<"PaymentRevenueSnapshot", 'Json'>
     readonly createdAt: FieldRef<"PaymentRevenueSnapshot", 'DateTime'>
     readonly updatedAt: FieldRef<"PaymentRevenueSnapshot", 'DateTime'>
@@ -54257,6 +54291,7 @@ export namespace Prisma {
     lastSyncError: 'lastSyncError',
     verifiedAt: 'verifiedAt',
     latestAllTimeRevenueCents: 'latestAllTimeRevenueCents',
+    latestMrrCents: 'latestMrrCents',
     latestCurrencyCode: 'latestCurrencyCode',
     latestPeriodStart: 'latestPeriodStart',
     createdAt: 'createdAt',
@@ -54287,6 +54322,7 @@ export namespace Prisma {
     periodStart: 'periodStart',
     periodRevenueCents: 'periodRevenueCents',
     allTimeRevenueCents: 'allTimeRevenueCents',
+    mrrCents: 'mrrCents',
     data: 'data',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -55582,6 +55618,7 @@ export namespace Prisma {
     lastSyncError?: StringNullableFilter<"PaymentConnector"> | string | null
     verifiedAt?: DateTimeNullableFilter<"PaymentConnector"> | Date | string | null
     latestAllTimeRevenueCents?: IntNullableFilter<"PaymentConnector"> | number | null
+    latestMrrCents?: IntNullableFilter<"PaymentConnector"> | number | null
     latestCurrencyCode?: StringNullableFilter<"PaymentConnector"> | string | null
     latestPeriodStart?: DateTimeNullableFilter<"PaymentConnector"> | Date | string | null
     createdAt?: DateTimeFilter<"PaymentConnector"> | Date | string
@@ -55601,6 +55638,7 @@ export namespace Prisma {
     lastSyncError?: SortOrderInput | SortOrder
     verifiedAt?: SortOrderInput | SortOrder
     latestAllTimeRevenueCents?: SortOrderInput | SortOrder
+    latestMrrCents?: SortOrderInput | SortOrder
     latestCurrencyCode?: SortOrderInput | SortOrder
     latestPeriodStart?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -55623,6 +55661,7 @@ export namespace Prisma {
     lastSyncError?: StringNullableFilter<"PaymentConnector"> | string | null
     verifiedAt?: DateTimeNullableFilter<"PaymentConnector"> | Date | string | null
     latestAllTimeRevenueCents?: IntNullableFilter<"PaymentConnector"> | number | null
+    latestMrrCents?: IntNullableFilter<"PaymentConnector"> | number | null
     latestCurrencyCode?: StringNullableFilter<"PaymentConnector"> | string | null
     latestPeriodStart?: DateTimeNullableFilter<"PaymentConnector"> | Date | string | null
     createdAt?: DateTimeFilter<"PaymentConnector"> | Date | string
@@ -55642,6 +55681,7 @@ export namespace Prisma {
     lastSyncError?: SortOrderInput | SortOrder
     verifiedAt?: SortOrderInput | SortOrder
     latestAllTimeRevenueCents?: SortOrderInput | SortOrder
+    latestMrrCents?: SortOrderInput | SortOrder
     latestCurrencyCode?: SortOrderInput | SortOrder
     latestPeriodStart?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -55666,6 +55706,7 @@ export namespace Prisma {
     lastSyncError?: StringNullableWithAggregatesFilter<"PaymentConnector"> | string | null
     verifiedAt?: DateTimeNullableWithAggregatesFilter<"PaymentConnector"> | Date | string | null
     latestAllTimeRevenueCents?: IntNullableWithAggregatesFilter<"PaymentConnector"> | number | null
+    latestMrrCents?: IntNullableWithAggregatesFilter<"PaymentConnector"> | number | null
     latestCurrencyCode?: StringNullableWithAggregatesFilter<"PaymentConnector"> | string | null
     latestPeriodStart?: DateTimeNullableWithAggregatesFilter<"PaymentConnector"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"PaymentConnector"> | Date | string
@@ -55754,6 +55795,7 @@ export namespace Prisma {
     periodStart?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
     periodRevenueCents?: IntFilter<"PaymentRevenueSnapshot"> | number
     allTimeRevenueCents?: IntFilter<"PaymentRevenueSnapshot"> | number
+    mrrCents?: IntNullableFilter<"PaymentRevenueSnapshot"> | number | null
     data?: JsonNullableFilter<"PaymentRevenueSnapshot">
     createdAt?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
     updatedAt?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
@@ -55767,6 +55809,7 @@ export namespace Prisma {
     periodStart?: SortOrder
     periodRevenueCents?: SortOrder
     allTimeRevenueCents?: SortOrder
+    mrrCents?: SortOrderInput | SortOrder
     data?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -55784,6 +55827,7 @@ export namespace Prisma {
     periodStart?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
     periodRevenueCents?: IntFilter<"PaymentRevenueSnapshot"> | number
     allTimeRevenueCents?: IntFilter<"PaymentRevenueSnapshot"> | number
+    mrrCents?: IntNullableFilter<"PaymentRevenueSnapshot"> | number | null
     data?: JsonNullableFilter<"PaymentRevenueSnapshot">
     createdAt?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
     updatedAt?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
@@ -55797,6 +55841,7 @@ export namespace Prisma {
     periodStart?: SortOrder
     periodRevenueCents?: SortOrder
     allTimeRevenueCents?: SortOrder
+    mrrCents?: SortOrderInput | SortOrder
     data?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -55817,6 +55862,7 @@ export namespace Prisma {
     periodStart?: DateTimeWithAggregatesFilter<"PaymentRevenueSnapshot"> | Date | string
     periodRevenueCents?: IntWithAggregatesFilter<"PaymentRevenueSnapshot"> | number
     allTimeRevenueCents?: IntWithAggregatesFilter<"PaymentRevenueSnapshot"> | number
+    mrrCents?: IntNullableWithAggregatesFilter<"PaymentRevenueSnapshot"> | number | null
     data?: JsonNullableWithAggregatesFilter<"PaymentRevenueSnapshot">
     createdAt?: DateTimeWithAggregatesFilter<"PaymentRevenueSnapshot"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"PaymentRevenueSnapshot"> | Date | string
@@ -59199,6 +59245,7 @@ export namespace Prisma {
     lastSyncError?: string | null
     verifiedAt?: Date | string | null
     latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
     latestCurrencyCode?: string | null
     latestPeriodStart?: Date | string | null
     createdAt?: Date | string
@@ -59218,6 +59265,7 @@ export namespace Prisma {
     lastSyncError?: string | null
     verifiedAt?: Date | string | null
     latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
     latestCurrencyCode?: string | null
     latestPeriodStart?: Date | string | null
     createdAt?: Date | string
@@ -59235,6 +59283,7 @@ export namespace Prisma {
     lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
     latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59254,6 +59303,7 @@ export namespace Prisma {
     lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
     latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59272,6 +59322,7 @@ export namespace Prisma {
     lastSyncError?: string | null
     verifiedAt?: Date | string | null
     latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
     latestCurrencyCode?: string | null
     latestPeriodStart?: Date | string | null
     createdAt?: Date | string
@@ -59287,6 +59338,7 @@ export namespace Prisma {
     lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
     latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59303,6 +59355,7 @@ export namespace Prisma {
     lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
     latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59391,6 +59444,7 @@ export namespace Prisma {
     periodStart: Date | string
     periodRevenueCents?: number
     allTimeRevenueCents?: number
+    mrrCents?: number | null
     data?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -59404,6 +59458,7 @@ export namespace Prisma {
     periodStart: Date | string
     periodRevenueCents?: number
     allTimeRevenueCents?: number
+    mrrCents?: number | null
     data?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -59415,6 +59470,7 @@ export namespace Prisma {
     periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     periodRevenueCents?: IntFieldUpdateOperationsInput | number
     allTimeRevenueCents?: IntFieldUpdateOperationsInput | number
+    mrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     data?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59428,6 +59484,7 @@ export namespace Prisma {
     periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     periodRevenueCents?: IntFieldUpdateOperationsInput | number
     allTimeRevenueCents?: IntFieldUpdateOperationsInput | number
+    mrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     data?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59440,6 +59497,7 @@ export namespace Prisma {
     periodStart: Date | string
     periodRevenueCents?: number
     allTimeRevenueCents?: number
+    mrrCents?: number | null
     data?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -59451,6 +59509,7 @@ export namespace Prisma {
     periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     periodRevenueCents?: IntFieldUpdateOperationsInput | number
     allTimeRevenueCents?: IntFieldUpdateOperationsInput | number
+    mrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     data?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59463,6 +59522,7 @@ export namespace Prisma {
     periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     periodRevenueCents?: IntFieldUpdateOperationsInput | number
     allTimeRevenueCents?: IntFieldUpdateOperationsInput | number
+    mrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     data?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -63442,6 +63502,7 @@ export namespace Prisma {
     lastSyncError?: SortOrder
     verifiedAt?: SortOrder
     latestAllTimeRevenueCents?: SortOrder
+    latestMrrCents?: SortOrder
     latestCurrencyCode?: SortOrder
     latestPeriodStart?: SortOrder
     createdAt?: SortOrder
@@ -63450,6 +63511,7 @@ export namespace Prisma {
 
   export type PaymentConnectorAvgOrderByAggregateInput = {
     latestAllTimeRevenueCents?: SortOrder
+    latestMrrCents?: SortOrder
   }
 
   export type PaymentConnectorMaxOrderByAggregateInput = {
@@ -63461,6 +63523,7 @@ export namespace Prisma {
     lastSyncError?: SortOrder
     verifiedAt?: SortOrder
     latestAllTimeRevenueCents?: SortOrder
+    latestMrrCents?: SortOrder
     latestCurrencyCode?: SortOrder
     latestPeriodStart?: SortOrder
     createdAt?: SortOrder
@@ -63476,6 +63539,7 @@ export namespace Prisma {
     lastSyncError?: SortOrder
     verifiedAt?: SortOrder
     latestAllTimeRevenueCents?: SortOrder
+    latestMrrCents?: SortOrder
     latestCurrencyCode?: SortOrder
     latestPeriodStart?: SortOrder
     createdAt?: SortOrder
@@ -63484,6 +63548,7 @@ export namespace Prisma {
 
   export type PaymentConnectorSumOrderByAggregateInput = {
     latestAllTimeRevenueCents?: SortOrder
+    latestMrrCents?: SortOrder
   }
 
   export type EnumPaymentConnectorProviderWithAggregatesFilter<$PrismaModel = never> = {
@@ -63635,6 +63700,7 @@ export namespace Prisma {
     periodStart?: SortOrder
     periodRevenueCents?: SortOrder
     allTimeRevenueCents?: SortOrder
+    mrrCents?: SortOrder
     data?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -63643,6 +63709,7 @@ export namespace Prisma {
   export type PaymentRevenueSnapshotAvgOrderByAggregateInput = {
     periodRevenueCents?: SortOrder
     allTimeRevenueCents?: SortOrder
+    mrrCents?: SortOrder
   }
 
   export type PaymentRevenueSnapshotMaxOrderByAggregateInput = {
@@ -63652,6 +63719,7 @@ export namespace Prisma {
     periodStart?: SortOrder
     periodRevenueCents?: SortOrder
     allTimeRevenueCents?: SortOrder
+    mrrCents?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -63663,6 +63731,7 @@ export namespace Prisma {
     periodStart?: SortOrder
     periodRevenueCents?: SortOrder
     allTimeRevenueCents?: SortOrder
+    mrrCents?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -63670,6 +63739,7 @@ export namespace Prisma {
   export type PaymentRevenueSnapshotSumOrderByAggregateInput = {
     periodRevenueCents?: SortOrder
     allTimeRevenueCents?: SortOrder
+    mrrCents?: SortOrder
   }
 
   export type ProductListRelationFilter = {
@@ -70565,6 +70635,7 @@ export namespace Prisma {
     lastSyncError?: string | null
     verifiedAt?: Date | string | null
     latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
     latestCurrencyCode?: string | null
     latestPeriodStart?: Date | string | null
     createdAt?: Date | string
@@ -70582,6 +70653,7 @@ export namespace Prisma {
     lastSyncError?: string | null
     verifiedAt?: Date | string | null
     latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
     latestCurrencyCode?: string | null
     latestPeriodStart?: Date | string | null
     createdAt?: Date | string
@@ -71366,6 +71438,7 @@ export namespace Prisma {
     lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
     latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -71383,6 +71456,7 @@ export namespace Prisma {
     lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
     latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -71522,6 +71596,7 @@ export namespace Prisma {
     periodStart: Date | string
     periodRevenueCents?: number
     allTimeRevenueCents?: number
+    mrrCents?: number | null
     data?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -71533,6 +71608,7 @@ export namespace Prisma {
     periodStart: Date | string
     periodRevenueCents?: number
     allTimeRevenueCents?: number
+    mrrCents?: number | null
     data?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -71705,6 +71781,7 @@ export namespace Prisma {
     periodStart?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
     periodRevenueCents?: IntFilter<"PaymentRevenueSnapshot"> | number
     allTimeRevenueCents?: IntFilter<"PaymentRevenueSnapshot"> | number
+    mrrCents?: IntNullableFilter<"PaymentRevenueSnapshot"> | number | null
     data?: JsonNullableFilter<"PaymentRevenueSnapshot">
     createdAt?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
     updatedAt?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
@@ -71719,6 +71796,7 @@ export namespace Prisma {
     lastSyncError?: string | null
     verifiedAt?: Date | string | null
     latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
     latestCurrencyCode?: string | null
     latestPeriodStart?: Date | string | null
     createdAt?: Date | string
@@ -71737,6 +71815,7 @@ export namespace Prisma {
     lastSyncError?: string | null
     verifiedAt?: Date | string | null
     latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
     latestCurrencyCode?: string | null
     latestPeriodStart?: Date | string | null
     createdAt?: Date | string
@@ -71769,6 +71848,7 @@ export namespace Prisma {
     lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
     latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -71787,6 +71867,7 @@ export namespace Prisma {
     lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
     latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -71803,6 +71884,7 @@ export namespace Prisma {
     lastSyncError?: string | null
     verifiedAt?: Date | string | null
     latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
     latestCurrencyCode?: string | null
     latestPeriodStart?: Date | string | null
     createdAt?: Date | string
@@ -71821,6 +71903,7 @@ export namespace Prisma {
     lastSyncError?: string | null
     verifiedAt?: Date | string | null
     latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
     latestCurrencyCode?: string | null
     latestPeriodStart?: Date | string | null
     createdAt?: Date | string
@@ -71853,6 +71936,7 @@ export namespace Prisma {
     lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
     latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -71871,6 +71955,7 @@ export namespace Prisma {
     lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
     latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -81574,6 +81659,7 @@ export namespace Prisma {
     periodStart: Date | string
     periodRevenueCents?: number
     allTimeRevenueCents?: number
+    mrrCents?: number | null
     data?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -81615,6 +81701,7 @@ export namespace Prisma {
     periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     periodRevenueCents?: IntFieldUpdateOperationsInput | number
     allTimeRevenueCents?: IntFieldUpdateOperationsInput | number
+    mrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     data?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -81626,6 +81713,7 @@ export namespace Prisma {
     periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     periodRevenueCents?: IntFieldUpdateOperationsInput | number
     allTimeRevenueCents?: IntFieldUpdateOperationsInput | number
+    mrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     data?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -81637,6 +81725,7 @@ export namespace Prisma {
     periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     periodRevenueCents?: IntFieldUpdateOperationsInput | number
     allTimeRevenueCents?: IntFieldUpdateOperationsInput | number
+    mrrCents?: NullableIntFieldUpdateOperationsInput | number | null
     data?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

@@ -98,6 +98,7 @@ model PaymentConnector {
   lastSyncError             String?
   verifiedAt                DateTime?
   latestAllTimeRevenueCents Int?
+  latestMrrCents            Int?
   latestCurrencyCode        String?
   latestPeriodStart         DateTime?
   createdAt                 DateTime                @default(now())
@@ -135,6 +136,7 @@ model PaymentRevenueSnapshot {
   periodStart            DateTime
   periodRevenueCents     Int                      @default(0)
   allTimeRevenueCents    Int                      @default(0)
+  mrrCents               Int?
   data                   Json?
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime                 @updatedAt
