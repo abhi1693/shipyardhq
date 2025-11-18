@@ -150,6 +150,11 @@ export function ProductRevenueChart({
     value: metric === "revenue" ? point.revenue : point.mrr,
   }))
 
+  const revenueDisplay =
+    typeof summary.latestAllTimeRevenueCents === "number"
+      ? formatCurrency(summary.latestAllTimeRevenueCents, currency)
+      : null
+
   const mrrDisplay =
     typeof summary.latestMrrCents === "number"
       ? formatCurrency(summary.latestMrrCents, currency)
@@ -160,7 +165,12 @@ export function ProductRevenueChart({
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
           <p className="text-lg font-semibold">Verified revenue</p>
-          {mrrDisplay ? (
+          {metric === "revenue" && revenueDisplay ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground">
+              Total revenue: {revenueDisplay}
+            </span>
+          ) : null}
+          {metric === "mrr" && mrrDisplay ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground">
               MRR: {mrrDisplay}
             </span>
