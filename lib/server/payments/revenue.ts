@@ -93,24 +93,95 @@ export function sortRevenueHistory(
   )
 }
 
+function aggregateByCurrency(
+  history: NormalizedRevenueSnapshot[],
+  currencyCode: string,
+): NormalizedRevenueSnapshot[] {
+  // Bucket by day so multi-currency snapshots on the same day are merged after conversion.
+  const buckets = new Map<
+    number,
+    Omit<NormalizedRevenueSnapshot, "allTimeRevenueCents">
+  >()
+
+  for (const entry of history) {
+    if (entry.currencyCode !== currencyCode) continue
+
+    const day = new Date(entry.periodStart)
+    const dayKey = Date.UTC(
+      day.getUTCFullYear(),
+      day.getUTCMonth(),
+      day.getUTCDate(),
+    )
+
+    const existing = buckets.get(dayKey)
+    const periodRevenueCents = (entry.periodRevenueCents ?? 0) as number
+    const charges =
+      typeof entry.data?.charges === "number" ? entry.data.charges : 0
+    const mrrCents = (entry.mrrCents ?? 0) as number
+    const existingCharges =
+      typeof (existing?.data as any)?.charges === "number"
+        ? (existing?.data as any).charges
+        : 0
+
+    buckets.set(dayKey, {
+      ...entry,
+      // Prefer earliest createdAt for stability when merging multiple entries.
+      createdAt:
+        existing?.createdAt &&
+        entry.createdAt &&
+        existing.createdAt < entry.createdAt
+          ? existing.createdAt
+          : entry.createdAt,
+      periodRevenueCents: (existing?.periodRevenueCents ?? 0) + periodRevenueCents,
+      mrrCents: (existing?.mrrCents ?? 0) + (mrrCents > 0 ? mrrCents : 0),
+      data: {
+        ...(isObject(existing?.data) ? existing?.data : {}),
+        ...(isObject(entry.data) ? entry.data : {}),
+        charges: existingCharges + charges,
+      },
+    })
+  }
+
+  const series = Array.from(buckets.values()).sort(
+    (a, b) =>
+      new Date(a.periodStart).getTime() - new Date(b.periodStart).getTime(),
+  )
+
+  let runningTotal = 0
+  return series.map((entry) => {
+    runningTotal += entry.periodRevenueCents ?? 0
+    return {
+      ...entry,
+      allTimeRevenueCents: runningTotal,
+    }
+  })
+}
+
 export function selectDisplaySeries(
   history: NormalizedRevenueSnapshot[],
   limit?: number,
 ) {
-  const hasUsd = history.some((item) => item.currencyCode === "USD")
+  const lastCurrency = history[history.length - 1]?.currencyCode ?? null
+  const allConvertibleToUsd = history.every(
+    (item) =>
+      item.currencyCode === "USD" ||
+      typeof (item.data as any)?.rateToUsd === "number",
+  )
   const displayCurrency =
-    (hasUsd
+    (allConvertibleToUsd
       ? "USD"
-      : history[history.length - 1]?.currencyCode ?? null) ?? null
+      : lastCurrency) ?? null
 
-  const primarySeries = displayCurrency
-    ? history.filter((item) => item.currencyCode === displayCurrency)
+  const aggregatedSeries = displayCurrency
+    ? aggregateByCurrency(history, displayCurrency)
     : []
 
   const limitedSeries =
     limit && limit > 0
-      ? primarySeries.slice(Math.max(primarySeries.length - limit, 0))
-      : primarySeries
+      ? aggregatedSeries.slice(
+          Math.max(aggregatedSeries.length - limit, 0),
+        )
+      : aggregatedSeries
 
   return { displayCurrency, series: limitedSeries }
 }
