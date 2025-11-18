@@ -490,12 +490,6 @@ export async function getProductConnectorRevenue(
     rates,
   )
   const sortedHistory = sortRevenueHistory(normalizedHistory)
-  const limitedHistory =
-    options?.limit && options.limit > 0
-      ? sortedHistory.slice(
-          Math.max(sortedHistory.length - options.limit, 0),
-        )
-      : sortedHistory
   const { displayCurrency, series: primarySeries } = selectDisplaySeries(
     sortedHistory,
     options?.limit,
@@ -530,7 +524,7 @@ export async function getProductConnectorRevenue(
       latestPeriodStart: connector.latestPeriodStart,
       latestMrrCents: primaryMrr,
     },
-    revenueHistory: limitedHistory,
+    revenueHistory: primarySeries,
     totals: {
       byCurrency: [
         {
