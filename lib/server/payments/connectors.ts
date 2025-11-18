@@ -212,10 +212,14 @@ export async function syncPaymentConnector(connectorId: string) {
     const sortedByDate = [...result.snapshots].sort(
       (a, b) => a.periodStart.getTime() - b.periodStart.getTime(),
     )
-    const latestMrr =
-      sortedByDate.findLast((snap) => (snap.mrrCents ?? 0) > 0)?.mrrCents ??
-      sortedByDate.findLast((snap) => typeof snap.mrrCents === "number")
-        ?.mrrCents ?? null
+    let latestMrr: number | null = null
+    for (let i = sortedByDate.length - 1; i >= 0; i -= 1) {
+      const value = sortedByDate[i]?.mrrCents
+      if (typeof value === "number") {
+        latestMrr = value
+        if (value > 0) break
+      }
+    }
     const now = new Date()
 
     await prisma.paymentConnector.update({
