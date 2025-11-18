@@ -17,6 +17,8 @@ export type ProductCardBase = {
   sponsored?: boolean
   createdAt?: string | Date | null
   updatedAt?: string | Date | null
+  latestMrrCents?: number | null
+  mrrCurrencyCode?: string | null
 }
 
 export type ProductCardItem = ProductCardBase & {
@@ -68,6 +70,11 @@ function toFeedItem(product: ProductCardItem): HomepageFeedItem {
     isSponsored,
     isVoted: Boolean(product.isVoted),
     variant,
+    latestMrrCents:
+      typeof product.latestMrrCents === "number"
+        ? product.latestMrrCents
+        : null,
+    mrrCurrencyCode: product.mrrCurrencyCode ?? null,
     shuffleRank: Math.random(),
   }
 }

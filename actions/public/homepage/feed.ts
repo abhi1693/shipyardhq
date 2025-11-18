@@ -6,6 +6,10 @@ import { Prisma } from "@/lib/vendor/prisma/client"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { HOMEPAGE_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 import {
+  convertToUsdCents,
+  getUsdConversionRates,
+} from "@/lib/server/payments/currency"
+import {
   DEFAULT_HOMEPAGE_FEED_VIEW,
   type HomepageFeedView,
   normalizeHomepageFeedView,
@@ -53,6 +57,20 @@ const homepageFeedSelect = {
       },
     },
   },
+  paymentConnector: {
+    select: {
+      latestMrrCents: true,
+      latestCurrencyCode: true,
+      revenueHistory: {
+        orderBy: { periodStart: "desc" },
+        take: 1,
+        select: {
+          mrrCents: true,
+          currencyCode: true,
+        },
+      },
+    },
+  },
 } satisfies Prisma.ProductSelect
 
 type HomepageFeedProduct = Prisma.ProductGetPayload<{
@@ -75,6 +93,8 @@ export interface HomepageFeedItem {
   isSponsored: boolean
   isVoted: boolean
   variant?: ProductCardVariant
+  latestMrrCents?: number | null
+  mrrCurrencyCode?: string | null
   shuffleRank: number
 }
 
@@ -121,6 +141,7 @@ function mapProductToFeedItem(
   product: HomepageFeedProduct,
   upvoted: Set<string>,
   now: Date,
+  rates: Map<string, number>,
 ): HomepageFeedItem {
   const activeBadges =
     product.ProductBadge?.filter(
@@ -131,6 +152,26 @@ function mapProductToFeedItem(
     product.plan?.assignments?.some(
       (assignment) => assignment.feature?.key === PRIORITY_FEATURE_KEY,
     ) ?? false
+
+  const latestMrrCents = product.paymentConnector?.latestMrrCents ?? null
+  const fallbackSnapshot = product.paymentConnector?.revenueHistory?.[0]
+  const normalizedLatestMrrCents =
+    typeof latestMrrCents === "number"
+      ? latestMrrCents
+      : typeof fallbackSnapshot?.mrrCents === "number"
+        ? fallbackSnapshot.mrrCents
+        : null
+
+  const mrrCurrencyCode =
+    product.paymentConnector?.latestCurrencyCode ??
+    fallbackSnapshot?.currencyCode ??
+    null
+
+  const normalizedMrrInUsd =
+    typeof normalizedLatestMrrCents === "number"
+      ? convertToUsdCents(normalizedLatestMrrCents, mrrCurrencyCode, rates)
+          .usdCents
+      : null
 
   return {
     id: product.id,
@@ -147,6 +188,8 @@ function mapProductToFeedItem(
     isSponsored,
     isVoted: upvoted.has(product.id),
     variant: isSponsored ? "sponsored" : "default",
+    latestMrrCents: normalizedMrrInUsd,
+    mrrCurrencyCode: normalizedMrrInUsd !== null ? "USD" : null,
     shuffleRank: Math.random(),
   }
 }
@@ -188,8 +231,11 @@ async function buildFeedItemsFromProducts(
   const productIds = products.map((product) => product.id)
   const upvoted = await resolveUpvotedProductIds(clerkUserId, productIds)
   const now = new Date()
+  const rates = await getUsdConversionRates()
 
-  return products.map((product) => mapProductToFeedItem(product, upvoted, now))
+  return products.map((product) =>
+    mapProductToFeedItem(product, upvoted, now, rates),
+  )
 }
 
 interface GetOrderedHomepageFeedParams extends GetHomepageFeedPageParams {

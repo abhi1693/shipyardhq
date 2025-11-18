@@ -116,6 +116,11 @@ function mapProductCardItemToFeedItem(
     isSponsored,
     isVoted: Boolean(product.isVoted),
     variant,
+    latestMrrCents:
+      typeof product.latestMrrCents === "number"
+        ? product.latestMrrCents
+        : null,
+    mrrCurrencyCode: product.mrrCurrencyCode ?? null,
     shuffleRank: Math.random(),
   }
 }
