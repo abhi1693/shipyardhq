@@ -5,7 +5,6 @@ import {
   PaymentConnectorProvider,
   PaymentConnectorStatus,
   PaymentCredentialStatus,
-  type PaymentConnector,
   type PaymentConnectorCredential,
 } from "@/lib/vendor/prisma/client"
 import {
@@ -13,29 +12,8 @@ import {
   decryptConnectorSecret,
   encryptConnectorSecret,
 } from "./connectorSecrets"
-import { syncDodoConnector, validateDodoApiKey } from "./dodo"
-import {
-  type PaymentConnectorConfig,
-  type ProviderSyncResult,
-  type RevenueSnapshotInput,
-} from "./types"
-
-type SyncHandler = (options: {
-  connector: PaymentConnector
-  apiKey: string
-}) => Promise<ProviderSyncResult>
-
-const PROVIDER_SYNC_HANDLERS: Partial<
-  Record<PaymentConnectorProvider, SyncHandler>
-> = {
-  [PaymentConnectorProvider.dodo]: ({ connector, apiKey }) =>
-    syncDodoConnector({
-      apiKey,
-      config: (connector.config ?? undefined) as
-        | PaymentConnectorConfig
-        | undefined,
-    }),
-}
+import { getProviderDefinition } from "./providers"
+import { type PaymentConnectorConfig, type RevenueSnapshotInput } from "./types"
 
 export async function validateConnectorApiKey({
   provider,
@@ -48,13 +26,10 @@ export async function validateConnectorApiKey({
   config?: PaymentConnectorConfig
   productName?: string
 }) {
-  switch (provider) {
-    case PaymentConnectorProvider.dodo:
-      await validateDodoApiKey({ apiKey, config, productName })
-      break
-    default:
-      break
-  }
+  const providerDefinition = getProviderDefinition(provider)
+  if (!providerDefinition?.validateApiKey) return
+
+  await providerDefinition.validateApiKey({ apiKey, config, productName })
 }
 
 async function getActiveCredential(
@@ -196,8 +171,8 @@ export async function syncPaymentConnector(connectorId: string) {
     return { error: "No active credential configured" }
   }
 
-  const handler = PROVIDER_SYNC_HANDLERS[connector.provider]
-  if (!handler) {
+  const providerDefinition = getProviderDefinition(connector.provider)
+  if (!providerDefinition?.sync) {
     await prisma.paymentConnector.update({
       where: { id: connector.id },
       data: {
@@ -224,7 +199,7 @@ export async function syncPaymentConnector(connectorId: string) {
   }
 
   try {
-    const result = await handler({ connector, apiKey })
+    const result = await providerDefinition.sync({ connector, apiKey })
     await applySnapshots(connector.id, result.snapshots)
     const primary = selectPrimarySnapshot(result.snapshots)
     const now = new Date()

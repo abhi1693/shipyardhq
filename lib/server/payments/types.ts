@@ -1,4 +1,8 @@
-import type { Prisma } from "@/lib/vendor/prisma/client"
+import type {
+  PaymentConnector,
+  PaymentConnectorProvider,
+  Prisma,
+} from "@/lib/vendor/prisma/client"
 
 export type PaymentConnectorConfig = {
   environment?: "live_mode" | "test_mode"
@@ -15,4 +19,21 @@ export type RevenueSnapshotInput = {
 
 export type ProviderSyncResult = {
   snapshots: RevenueSnapshotInput[]
+}
+
+export type ProviderSyncHandler = (options: {
+  connector: PaymentConnector
+  apiKey: string
+}) => Promise<ProviderSyncResult>
+
+export type ProviderApiValidator = (options: {
+  apiKey: string
+  config?: PaymentConnectorConfig
+  productName?: string
+}) => Promise<void>
+
+export type PaymentProviderDefinition = {
+  provider: PaymentConnectorProvider
+  sync: ProviderSyncHandler
+  validateApiKey?: ProviderApiValidator
 }

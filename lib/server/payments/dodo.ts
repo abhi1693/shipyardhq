@@ -1,8 +1,11 @@
 import DodoPayments, { AuthenticationError } from "dodopayments"
 
+import { PaymentConnectorProvider } from "@/lib/vendor/prisma/client"
+
 import {
   ProviderSyncResult,
   type PaymentConnectorConfig,
+  type PaymentProviderDefinition,
   type RevenueSnapshotInput,
 } from "./types"
 
@@ -249,4 +252,16 @@ export async function syncDodoConnector({
   }
 
   return { snapshots }
+}
+
+export const dodoProvider: PaymentProviderDefinition = {
+  provider: PaymentConnectorProvider.dodo,
+  validateApiKey: validateDodoApiKey,
+  sync: async ({ connector, apiKey }) =>
+    syncDodoConnector({
+      apiKey,
+      config: (connector.config ?? undefined) as
+        | PaymentConnectorConfig
+        | undefined,
+    }),
 }
