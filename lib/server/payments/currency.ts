@@ -64,7 +64,7 @@ export function convertToUsdCents(
 
   const rate = rates.get(code)
   if (rate && rate > 0) {
-    // rates are relative to USD (1 USD = rate * <currency>), so invert to convert amount -> USD
+    // Rates express how many units of the foreign currency equal 1 USD, so divide to convert amount -> USD
     const usdCents = Math.round(amountCents / rate)
     return { usdCents, rateUsed: rate }
   }
