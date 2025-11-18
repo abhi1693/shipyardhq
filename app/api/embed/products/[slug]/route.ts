@@ -3,7 +3,10 @@ import { NextRequest, NextResponse } from "next/server"
 import fs from "fs/promises"
 import path from "path"
 
-import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
+import {
+  getPublicProductMetaBySlug,
+  getPublicProductRevenue,
+} from "@/actions/public/products/actions"
 import { siteConfig } from "@/lib/siteConfig"
 
 export const runtime = "nodejs"
@@ -45,12 +48,6 @@ const THEME_STYLES: Record<
   },
 }
 
-const TYPE_LABELS: Record<BadgeType, string> = {
-  featured: "Featured badge",
-  revenue: "Revenue badge",
-  mrr: "MRR badge",
-}
-
 function parseParam<T extends string>(
   value: string | null,
   allowed: readonly T[],
@@ -68,9 +65,17 @@ function buildBaseSvg(options: {
   productName: string
   metricValue: string
   productLogo?: string | null
+  brandLogo?: string | null
 }): string {
-  const { theme, badgeType, slug, productName, metricValue, productLogo } =
-    options
+  const {
+    theme,
+    badgeType,
+    slug,
+    productName,
+    metricValue,
+    productLogo,
+    brandLogo,
+  } = options
   const palette = THEME_STYLES[theme]
   const leftWidth = 170
   const logoInitial =
@@ -85,13 +90,25 @@ function buildBaseSvg(options: {
   const headingSize = 22
   const subheadingSize = 44
   const gap = 38
-  const blockHeight = headingSize + gap + subheadingSize
-  const contentY = logoY + (logoSize - blockHeight) / 2 + 30
-  const headingText = badgeType === "featured" ? "Featured On" : "Badge content"
+  const headingText =
+    badgeType === "featured"
+      ? "Featured On"
+      : badgeType === "revenue"
+        ? "Total Revenue"
+        : "MRR"
   const subheadingText =
     badgeType === "featured"
       ? siteConfig.name
-      : `${badgeType} · slug: ${slug} · metric: ${metricValue}`
+      : badgeType === "revenue"
+        ? metricValue
+        : metricValue
+  const showVerification = badgeType !== "featured" && !!brandLogo
+  const verifiedLogoSize = 20
+  const subtextSize = 18
+  const verificationGap = 3
+  const blockHeight =
+    headingSize + gap + subheadingSize + (showVerification ? verificationGap + subtextSize : 0)
+  const contentY = logoY + (logoSize - blockHeight) / 2 + 30
 
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH + OUTER_PADDING * 2}" height="${HEIGHT + OUTER_PADDING * 2}" role="img" aria-label="Shipyard badge placeholder">
@@ -113,6 +130,14 @@ function buildBaseSvg(options: {
       <text x="0" y="0" fill="${palette.muted}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="${headingSize}" font-weight="800" letter-spacing="1.4">${headingText.toUpperCase()}</text>
       <g transform="translate(0, ${gap})">
         <text x="0" y="0" fill="${palette.text}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="${subheadingSize}" font-weight="900">${subheadingText}</text>
+        ${
+          showVerification
+            ? `<g transform="translate(0, ${subheadingSize + verificationGap})" aria-label="Verification text">
+              <image x="0" y="0" width="${verifiedLogoSize}" height="${verifiedLogoSize}" href="${brandLogo}" preserveAspectRatio="xMidYMid slice" />
+              <text x="${verifiedLogoSize + 8}" y="${subtextSize - 2}" fill="${palette.muted}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="${subtextSize}" font-weight="600">Verified by ${siteConfig.name}</text>
+            </g>`
+            : ""
+        }
       </g>
     </g>
   </g>
@@ -130,9 +155,22 @@ async function svgToPng(svg: string): Promise<Buffer | null> {
   }
 }
 
+function resolveHref(href: string | null | undefined, origin: string): string | null {
+  if (!href) return null
+  try {
+    return new URL(href).toString()
+  } catch {
+    try {
+      return new URL(href, origin).toString()
+    } catch {
+      return null
+    }
+  }
+}
+
 async function toDataUri(href: string, origin: string): Promise<string | null> {
   try {
-    const url = new URL(href)
+    const url = new URL(href, origin)
     let buf: Buffer | null = null
     let mime = "image/png"
 
@@ -181,12 +219,30 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
     DEFAULT_TYPE,
   )
   const brandLogoPath = theme === "dark" ? "/brand-white.png" : "/brand.png"
-  const logoHref =
-    badgeType === "featured"
-      ? new URL(brandLogoPath, url.origin).toString()
-      : (product?.logo ?? null)
-  // Placeholder: swap with real metric formatting (featured/revenue/mrr specific).
-  const metricValue = "Coming soon"
+  const brandLogoHref = resolveHref(brandLogoPath, url.origin)
+  const isFeatured = badgeType === "featured"
+  const productLogoHref = resolveHref(product?.logo ?? null, url.origin)
+  const logoHref = isFeatured ? brandLogoHref : productLogoHref
+  let metricValue = "$0"
+
+  if (!isFeatured && product?.id) {
+    const revenue = await getPublicProductRevenue(product.id)
+    const currencyCode = revenue?.currencyCode ?? "USD"
+
+    const formatCurrency = (cents: number | null | undefined) =>
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: currencyCode,
+        maximumFractionDigits: 0,
+        minimumFractionDigits: 0,
+      }).format((cents ?? 0) / 100)
+
+    if (badgeType === "revenue") {
+      metricValue = formatCurrency(revenue?.latestAllTimeRevenueCents)
+    } else if (badgeType === "mrr") {
+      metricValue = formatCurrency(revenue?.latestMrrCents)
+    }
+  }
 
   const svg = buildBaseSvg({
     theme,
@@ -198,6 +254,10 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
       format === "png" && logoHref
         ? ((await toDataUri(logoHref, url.origin)) ?? logoHref)
         : logoHref,
+    brandLogo:
+      format === "png" && brandLogoHref
+        ? (await toDataUri(brandLogoHref, url.origin)) ?? brandLogoHref
+        : brandLogoHref ?? undefined,
   })
   const headers = new Headers({ "Cache-Control": CACHE_CONTROL })
 
