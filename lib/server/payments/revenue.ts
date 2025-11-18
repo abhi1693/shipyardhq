@@ -2,7 +2,6 @@ import type {
   Prisma,
   PaymentConnectorProvider,
   PaymentConnectorStatus,
-  PaymentRevenueSnapshot,
 } from "@/lib/vendor/prisma/client"
 
 import {
@@ -55,7 +54,6 @@ export type RevenueSummary = {
 }
 
 const REVENUE_CACHE_TTL_SECONDS = 24 * 60 * 60 // 1 day
-const REVENUE_CACHE_VERSION = "v2"
 
 const isObject = (
   value: Prisma.JsonValue | null | undefined,
