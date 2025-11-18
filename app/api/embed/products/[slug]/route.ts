@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 
+import fs from "fs/promises"
+import path from "path"
+
 import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
 import { siteConfig } from "@/lib/siteConfig"
 
@@ -128,6 +131,39 @@ async function svgToPng(svg: string): Promise<Buffer | null> {
   }
 }
 
+async function toDataUri(
+  href: string,
+  origin: string,
+): Promise<string | null> {
+  try {
+    const url = new URL(href)
+    let buf: Buffer | null = null
+    let mime = "image/png"
+
+    if (url.origin === origin) {
+      const filePath = path.join(process.cwd(), "public", url.pathname)
+      buf = await fs.readFile(filePath)
+      const ext = path.extname(filePath).toLowerCase()
+      if (ext === ".svg") mime = "image/svg+xml"
+      else if (ext === ".jpg" || ext === ".jpeg") mime = "image/jpeg"
+      else if (ext === ".webp") mime = "image/webp"
+      else if (ext === ".gif") mime = "image/gif"
+      else mime = "image/png"
+    } else {
+      const res = await fetch(href)
+      if (!res.ok) return null
+      const ab = await res.arrayBuffer()
+      buf = Buffer.from(ab)
+      mime = res.headers.get("content-type")?.split(";")[0] || mime
+    }
+
+    if (!buf) return null
+    return `data:${mime};base64,${buf.toString("base64")}`
+  } catch {
+    return null
+  }
+}
+
 export async function GET(_req: NextRequest, context: { params: RouteParams }) {
   const { slug } = await context.params
   const url = _req.nextUrl
@@ -162,7 +198,10 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
     slug,
     productName,
     metricValue,
-    productLogo: logoHref,
+    productLogo:
+      format === "png" && logoHref
+        ? (await toDataUri(logoHref, url.origin)) ?? logoHref
+        : logoHref,
   })
   const headers = new Headers({ "Cache-Control": CACHE_CONTROL })
 
