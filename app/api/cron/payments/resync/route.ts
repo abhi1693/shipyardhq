@@ -32,6 +32,9 @@ export async function GET(request: Request) {
 
   const intervalMinutes = getIntervalMinutes()
   const staleBefore = new Date(Date.now() - intervalMinutes * 60 * 1000)
+  const staleCondition = {
+    OR: [{ lastSyncedAt: null }, { lastSyncedAt: { lt: staleBefore } }],
+  }
 
   const connectors = await prisma.paymentConnector.findMany({
     where: {
@@ -41,10 +44,17 @@ export async function GET(request: Request) {
         in: [PaymentConnectorStatus.active, PaymentConnectorStatus.error],
       },
       credentials: { some: { status: PaymentCredentialStatus.active } },
-      OR: [
-        { lastSyncedAt: null },
-        { lastSyncedAt: { lt: staleBefore } },
-        { revenueHistory: { none: {} } },
+      AND: [
+        staleCondition,
+        {
+          OR: [
+            { revenueHistory: { some: {} } },
+            {
+              // Only treat missing revenue as a reason to resync when also stale.
+              AND: [{ revenueHistory: { none: {} } }, staleCondition],
+            },
+          ],
+        },
       ],
     },
     select: {
