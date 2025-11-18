@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import fs from "fs/promises"
-import path from "path"
-
 import {
   getPublicProductMetaBySlug,
   getPublicProductRevenue,
@@ -13,7 +10,6 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 type Theme = "light" | "dark"
-type Format = "svg" | "png"
 type BadgeType = "featured" | "revenue" | "mrr"
 
 type RouteParams = Promise<{ slug: string }>
@@ -22,7 +18,6 @@ const WIDTH = 500
 const HEIGHT = 162
 const OUTER_PADDING = 1
 const DEFAULT_THEME: Theme = "light"
-const DEFAULT_FORMAT: Format = "svg"
 const DEFAULT_TYPE: BadgeType = "featured"
 
 const CACHE_CONTROL =
@@ -145,16 +140,6 @@ function buildBaseSvg(options: {
 `.trim()
 }
 
-async function svgToPng(svg: string): Promise<Buffer | null> {
-  try {
-    const sharp = (await import("sharp")).default
-    return await sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer()
-  } catch (error) {
-    console.error("Badge PNG render failed:", error)
-    return null
-  }
-}
-
 function resolveHref(href: string | null | undefined, origin: string): string | null {
   if (!href) return null
   try {
@@ -168,36 +153,6 @@ function resolveHref(href: string | null | undefined, origin: string): string | 
   }
 }
 
-async function toDataUri(href: string, origin: string): Promise<string | null> {
-  try {
-    const url = new URL(href, origin)
-    let buf: Buffer | null = null
-    let mime = "image/png"
-
-    if (url.origin === origin) {
-      const filePath = path.join(process.cwd(), "public", url.pathname)
-      buf = await fs.readFile(filePath)
-      const ext = path.extname(filePath).toLowerCase()
-      if (ext === ".svg") mime = "image/svg+xml"
-      else if (ext === ".jpg" || ext === ".jpeg") mime = "image/jpeg"
-      else if (ext === ".webp") mime = "image/webp"
-      else if (ext === ".gif") mime = "image/gif"
-      else mime = "image/png"
-    } else {
-      const res = await fetch(href)
-      if (!res.ok) return null
-      const ab = await res.arrayBuffer()
-      buf = Buffer.from(ab)
-      mime = res.headers.get("content-type")?.split(";")[0] || mime
-    }
-
-    if (!buf) return null
-    return `data:${mime};base64,${buf.toString("base64")}`
-  } catch {
-    return null
-  }
-}
-
 export async function GET(_req: NextRequest, context: { params: RouteParams }) {
   const { slug } = await context.params
   const url = _req.nextUrl
@@ -207,11 +162,6 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
     url.searchParams.get("theme"),
     ["light", "dark"],
     DEFAULT_THEME,
-  )
-  const format = parseParam<Format>(
-    url.searchParams.get("format"),
-    ["svg", "png"],
-    DEFAULT_FORMAT,
   )
   const badgeType = parseParam<BadgeType>(
     url.searchParams.get("type"),
@@ -250,31 +200,14 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
     slug,
     productName,
     metricValue,
-    productLogo:
-      format === "png" && logoHref
-        ? ((await toDataUri(logoHref, url.origin)) ?? logoHref)
-        : logoHref,
-    brandLogo:
-      format === "png" && brandLogoHref
-        ? (await toDataUri(brandLogoHref, url.origin)) ?? brandLogoHref
-        : brandLogoHref ?? undefined,
+    productLogo: logoHref,
+    brandLogo: brandLogoHref ?? undefined,
   })
-  const headers = new Headers({ "Cache-Control": CACHE_CONTROL })
 
-  if (format === "svg") {
-    headers.set("Content-Type", "image/svg+xml")
-    return new NextResponse(svg, { status: 200, headers })
-  }
+  const headers = new Headers({
+    "Cache-Control": CACHE_CONTROL,
+    "Content-Type": "image/svg+xml",
+  })
 
-  const png = await svgToPng(svg)
-  if (!png) {
-    return NextResponse.json(
-      { error: "Unable to generate badge preview" },
-      { status: 500 },
-    )
-  }
-
-  headers.set("Content-Type", "image/png")
-  const pngArray = new Uint8Array(png)
-  return new NextResponse(pngArray, { status: 200, headers })
+  return new NextResponse(svg, { status: 200, headers })
 }
