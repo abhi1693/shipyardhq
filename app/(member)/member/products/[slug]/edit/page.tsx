@@ -6,6 +6,7 @@ import { getMyOrganizations } from "@/actions/member/organizations/actions"
 import { memberHasFeature } from "@/lib/memberFeatures"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import { getAlternativeProducts } from "@/actions/admin/alternative-products/actions"
+import { getProductConnectorSummary } from "@/actions/member/products/actions"
 
 export default async function EditProductPage({
   params,
@@ -21,14 +22,16 @@ export default async function EditProductPage({
   const product = await getProductById(summary.id)
   if (!product) return notFound()
 
-  const [categories, organizations, alternatives] = await Promise.all([
-    getCategories({ orderBy: { name: "asc" } }),
-    getMyOrganizations().catch(() => []),
-    getAlternativeProducts({
-      select: { id: true, slug: true, name: true, websiteUrl: true },
-      orderBy: { name: "asc" },
-    }).catch(() => []),
-  ])
+  const [categories, organizations, alternatives, connector] =
+    await Promise.all([
+      getCategories({ orderBy: { name: "asc" } }),
+      getMyOrganizations().catch(() => []),
+      getAlternativeProducts({
+        select: { id: true, slug: true, name: true, websiteUrl: true },
+        orderBy: { name: "asc" },
+      }).catch(() => []),
+      getProductConnectorSummary(product.id).catch(() => null),
+    ])
 
   const canEditCTA = await memberHasFeature("customCTA")
 
@@ -39,6 +42,7 @@ export default async function EditProductPage({
       organizations={organizations}
       canEditCTA={canEditCTA}
       alternatives={alternatives}
+      connector={connector}
     />
   )
 }

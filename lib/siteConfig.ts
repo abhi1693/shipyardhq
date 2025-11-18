@@ -16,7 +16,7 @@ const SITE_URL = computeSiteUrl()
 export const resolveSiteUrl = () => SITE_URL
 
 export const siteConfig = {
-  name: "ShipYardHQ",
+  name: "ShipYard HQ",
   tagline: "The Product Hunt alternative where builders ship together.",
   description:
     "ShipYardHQ is the Product Hunt alternative for indie hackers and micro-SaaS teams to ship in public, share progress, and rally their first customers through ongoing launches.",

@@ -19,6 +19,7 @@ export const APP_EVENTS = {
   PRODUCT_REVIEWED: "product.reviewed",
   PRODUCT_VIEWED: "product.viewed",
   PRODUCT_UPDATE_PUBLISHED: "product.update.published",
+  PAYMENTS_CONNECTOR_SYNC: "payments.connector.sync",
   BADGE_ASSIGNED: "badge.assigned",
   BADGE_REMOVED: "badge.removed",
   ANALYTICS_PRODUCT_TRAFFIC: "analytics.product-traffic",

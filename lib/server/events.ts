@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto"
 
 import prisma from "@/lib/prisma"
+import registerEventHandlers from "@/lib/server/events/register-handlers"
 import { enqueueEvent } from "@/lib/server/events/queueClient"
 import { APP_EVENTS } from "@/lib/server/events/constants"
 import {
@@ -24,6 +25,11 @@ type ListenerRegistry = Map<string, Array<RegisteredHandler<keyof AppEvents>>>
 
 const DEFAULT_HANDLER_MODE: HandlerMode = "async"
 const LISTENERS: ListenerRegistry = new Map()
+
+// Register handlers once on module load; listeners are side-effectful imports.
+void registerEventHandlers().catch((error) => {
+  console.error("[events] failed to register handlers", { error })
+})
 
 const DEFAULT_DEAD_LETTER_MESSAGE =
   "Event envelope moved to dead letter because enqueue failed"
@@ -96,6 +102,10 @@ export type ProductUpdatePublishedEvent = {
   updateSummary: string | null
   updatePublishedAt: Date
   authorId: string | null
+}
+
+export type PaymentConnectorSyncEvent = {
+  connectorId: string
 }
 
 export type LeaderboardMonthlyWinnersEvent = {
@@ -183,6 +193,7 @@ type AppEvents = {
   [APP_EVENTS.PRODUCT_UPVOTED]: ProductUpvotedEvent
   [APP_EVENTS.PRODUCT_REVIEWED]: ProductReviewCreatedEvent
   [APP_EVENTS.PRODUCT_UPDATE_PUBLISHED]: ProductUpdatePublishedEvent
+  [APP_EVENTS.PAYMENTS_CONNECTOR_SYNC]: PaymentConnectorSyncEvent
   [APP_EVENTS.BADGE_ASSIGNED]: BadgeAssignedEvent
   [APP_EVENTS.BADGE_REMOVED]: BadgeRemovedEvent
   [APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC]: ProductTrafficRecordedEvent

@@ -32,6 +32,8 @@ export function getInitialValuesForAdd(): BaseValues {
     contactEmail: "",
     utmCampaign: "",
     alternativeIds: [],
+    connectorProvider: "dodo",
+    connectorApiKey: "",
     verificationExpectedTxt: "",
     verificationChecked: false,
     verificationSuccess: false,
@@ -40,7 +42,10 @@ export function getInitialValuesForAdd(): BaseValues {
   }
 }
 
-export function getInitialValuesFromProduct(product: any): BaseValues {
+export function getInitialValuesFromProduct(
+  product: any,
+  connector?: { provider?: string | null },
+): BaseValues {
   return {
     name: product.name,
     tagline: product.tagline ?? "",
@@ -66,6 +71,8 @@ export function getInitialValuesFromProduct(product: any): BaseValues {
     alternativeIds: Array.isArray(product.alternatives)
       ? product.alternatives.map((alt: any) => alt.id)
       : [],
+    connectorProvider: connector?.provider ?? "dodo",
+    connectorApiKey: "",
     status: product.status,
     verificationExpectedTxt: "",
     verificationChecked: false,
@@ -118,6 +125,8 @@ export function toCreateFormData(
   if (Array.isArray(v.alternativeIds) && v.alternativeIds.length) {
     fd.append("alternativeIds", JSON.stringify(v.alternativeIds))
   }
+  if (v.connectorProvider) fd.append("connectorProvider", v.connectorProvider)
+  if (v.connectorApiKey) fd.append("connectorApiKey", v.connectorApiKey)
 
   fd.append("userId", userId)
   if (v.status) fd.append("status", v.status)
@@ -156,5 +165,7 @@ export function toUpdatePayload(values: BaseValues, product: any) {
     contactEmail: v.contactEmail || null,
     utmCampaign: v.utmCampaign || null,
     alternativeIds: Array.isArray(v.alternativeIds) ? v.alternativeIds : [],
+    connectorProvider: v.connectorProvider || null,
+    connectorApiKey: v.connectorApiKey || "",
   }
 }

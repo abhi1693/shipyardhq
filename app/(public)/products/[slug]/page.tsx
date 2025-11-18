@@ -56,6 +56,7 @@ import {
 import {
   getPublicProductMetaBySlug,
   getPublicProductBySlug,
+  getPublicProductRevenue,
 } from "@/actions/public/products/actions"
 import {
   BROWSE_PATH,
@@ -88,6 +89,7 @@ import {
   productTypeSlugFromValue,
 } from "@/lib/product-types/models"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
+import { ProductRevenueChart } from "@/components/templates/public/products/detail/ProductRevenueChart"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -234,9 +236,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return notFound()
 
-  const [sidebarProduct, reviewSummary] = await Promise.all([
+  const [sidebarProduct, reviewSummary, revenue] = await Promise.all([
     getPublicProductBySlug(slug),
     getProductReviewSummary(product.id, 1),
+    product.pricingModel === "free"
+      ? Promise.resolve(null)
+      : getPublicProductRevenue(product.id, { limit: 24 }),
   ])
   if (!sidebarProduct) return notFound()
 
@@ -479,6 +484,19 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     "inline-flex w-full items-center gap-1.5 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-sm shadow-black/5 transition-colors hover:bg-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto"
   const primaryQuickLinkClass =
     "inline-flex w-full items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background shadow-sm shadow-black/10 transition-colors hover:bg-foreground/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto"
+  const revenueSection =
+    revenue && revenue.points.length ? (
+      <ProductRevenueChart
+        points={revenue.points}
+        summary={{
+          currencyCode: revenue.currencyCode,
+          latestAllTimeRevenueCents: revenue.latestAllTimeRevenueCents,
+          latestMrrCents: revenue.latestMrrCents,
+          lastSyncedAt: revenue.lastSyncedAt,
+          provider: revenue.provider,
+        }}
+      />
+    ) : null
   const productDetailsCard = (
     <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-5">
@@ -795,6 +813,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               productName={product.name}
             />
             <ProductDescriptionCard description={product.description} />
+            {revenueSection}
             <div className="lg:hidden">{productDetailsCard}</div>
             {keywordTagItems.length ? (
               <div className="space-y-3">

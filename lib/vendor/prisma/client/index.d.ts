@@ -19,6 +19,21 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type Product = $Result.DefaultSelection<Prisma.$ProductPayload>
 /**
+ * Model PaymentConnector
+ * 
+ */
+export type PaymentConnector = $Result.DefaultSelection<Prisma.$PaymentConnectorPayload>
+/**
+ * Model PaymentConnectorCredential
+ * 
+ */
+export type PaymentConnectorCredential = $Result.DefaultSelection<Prisma.$PaymentConnectorCredentialPayload>
+/**
+ * Model PaymentRevenueSnapshot
+ * 
+ */
+export type PaymentRevenueSnapshot = $Result.DefaultSelection<Prisma.$PaymentRevenueSnapshotPayload>
+/**
  * Model AlternativeProduct
  * 
  */
@@ -208,7 +223,33 @@ export type EventAttempt = $Result.DefaultSelection<Prisma.$EventAttemptPayload>
  * Enums
  */
 export namespace $Enums {
-  export const ProductType: {
+  export const PaymentConnectorProvider: {
+  dodo: 'dodo',
+  stripe: 'stripe'
+};
+
+export type PaymentConnectorProvider = (typeof PaymentConnectorProvider)[keyof typeof PaymentConnectorProvider]
+
+
+export const PaymentConnectorStatus: {
+  active: 'active',
+  disabled: 'disabled',
+  error: 'error'
+};
+
+export type PaymentConnectorStatus = (typeof PaymentConnectorStatus)[keyof typeof PaymentConnectorStatus]
+
+
+export const PaymentCredentialStatus: {
+  active: 'active',
+  revoked: 'revoked',
+  expired: 'expired'
+};
+
+export type PaymentCredentialStatus = (typeof PaymentCredentialStatus)[keyof typeof PaymentCredentialStatus]
+
+
+export const ProductType: {
   saas: 'saas',
   browser_extension: 'browser_extension',
   mobile_app: 'mobile_app',
@@ -429,6 +470,18 @@ export type EventAttemptStatus = (typeof EventAttemptStatus)[keyof typeof EventA
 
 }
 
+export type PaymentConnectorProvider = $Enums.PaymentConnectorProvider
+
+export const PaymentConnectorProvider: typeof $Enums.PaymentConnectorProvider
+
+export type PaymentConnectorStatus = $Enums.PaymentConnectorStatus
+
+export const PaymentConnectorStatus: typeof $Enums.PaymentConnectorStatus
+
+export type PaymentCredentialStatus = $Enums.PaymentCredentialStatus
+
+export const PaymentCredentialStatus: typeof $Enums.PaymentCredentialStatus
+
 export type ProductType = $Enums.ProductType
 
 export const ProductType: typeof $Enums.ProductType
@@ -640,6 +693,36 @@ export class PrismaClient<
     * ```
     */
   get product(): Prisma.ProductDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.paymentConnector`: Exposes CRUD operations for the **PaymentConnector** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaymentConnectors
+    * const paymentConnectors = await prisma.paymentConnector.findMany()
+    * ```
+    */
+  get paymentConnector(): Prisma.PaymentConnectorDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.paymentConnectorCredential`: Exposes CRUD operations for the **PaymentConnectorCredential** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaymentConnectorCredentials
+    * const paymentConnectorCredentials = await prisma.paymentConnectorCredential.findMany()
+    * ```
+    */
+  get paymentConnectorCredential(): Prisma.PaymentConnectorCredentialDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.paymentRevenueSnapshot`: Exposes CRUD operations for the **PaymentRevenueSnapshot** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaymentRevenueSnapshots
+    * const paymentRevenueSnapshots = await prisma.paymentRevenueSnapshot.findMany()
+    * ```
+    */
+  get paymentRevenueSnapshot(): Prisma.PaymentRevenueSnapshotDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.alternativeProduct`: Exposes CRUD operations for the **AlternativeProduct** model.
@@ -1452,6 +1535,9 @@ export namespace Prisma {
 
   export const ModelName: {
     Product: 'Product',
+    PaymentConnector: 'PaymentConnector',
+    PaymentConnectorCredential: 'PaymentConnectorCredential',
+    PaymentRevenueSnapshot: 'PaymentRevenueSnapshot',
     AlternativeProduct: 'AlternativeProduct',
     MonthlyProductRanking: 'MonthlyProductRanking',
     MonthlyLeaderboardNotification: 'MonthlyLeaderboardNotification',
@@ -1507,7 +1593,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "product" | "alternativeProduct" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "notification" | "productMedia" | "productUpdate" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+      modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "notification" | "productMedia" | "productUpdate" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1582,6 +1668,228 @@ export namespace Prisma {
           count: {
             args: Prisma.ProductCountArgs<ExtArgs>
             result: $Utils.Optional<ProductCountAggregateOutputType> | number
+          }
+        }
+      }
+      PaymentConnector: {
+        payload: Prisma.$PaymentConnectorPayload<ExtArgs>
+        fields: Prisma.PaymentConnectorFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaymentConnectorFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaymentConnectorFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>
+          }
+          findFirst: {
+            args: Prisma.PaymentConnectorFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaymentConnectorFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>
+          }
+          findMany: {
+            args: Prisma.PaymentConnectorFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>[]
+          }
+          create: {
+            args: Prisma.PaymentConnectorCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>
+          }
+          createMany: {
+            args: Prisma.PaymentConnectorCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PaymentConnectorCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>[]
+          }
+          delete: {
+            args: Prisma.PaymentConnectorDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>
+          }
+          update: {
+            args: Prisma.PaymentConnectorUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaymentConnectorDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaymentConnectorUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PaymentConnectorUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>[]
+          }
+          upsert: {
+            args: Prisma.PaymentConnectorUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>
+          }
+          aggregate: {
+            args: Prisma.PaymentConnectorAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePaymentConnector>
+          }
+          groupBy: {
+            args: Prisma.PaymentConnectorGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaymentConnectorGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaymentConnectorCountArgs<ExtArgs>
+            result: $Utils.Optional<PaymentConnectorCountAggregateOutputType> | number
+          }
+        }
+      }
+      PaymentConnectorCredential: {
+        payload: Prisma.$PaymentConnectorCredentialPayload<ExtArgs>
+        fields: Prisma.PaymentConnectorCredentialFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaymentConnectorCredentialFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaymentConnectorCredentialFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>
+          }
+          findFirst: {
+            args: Prisma.PaymentConnectorCredentialFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaymentConnectorCredentialFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>
+          }
+          findMany: {
+            args: Prisma.PaymentConnectorCredentialFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>[]
+          }
+          create: {
+            args: Prisma.PaymentConnectorCredentialCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>
+          }
+          createMany: {
+            args: Prisma.PaymentConnectorCredentialCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PaymentConnectorCredentialCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>[]
+          }
+          delete: {
+            args: Prisma.PaymentConnectorCredentialDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>
+          }
+          update: {
+            args: Prisma.PaymentConnectorCredentialUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaymentConnectorCredentialDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaymentConnectorCredentialUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PaymentConnectorCredentialUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>[]
+          }
+          upsert: {
+            args: Prisma.PaymentConnectorCredentialUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>
+          }
+          aggregate: {
+            args: Prisma.PaymentConnectorCredentialAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePaymentConnectorCredential>
+          }
+          groupBy: {
+            args: Prisma.PaymentConnectorCredentialGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaymentConnectorCredentialGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaymentConnectorCredentialCountArgs<ExtArgs>
+            result: $Utils.Optional<PaymentConnectorCredentialCountAggregateOutputType> | number
+          }
+        }
+      }
+      PaymentRevenueSnapshot: {
+        payload: Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>
+        fields: Prisma.PaymentRevenueSnapshotFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaymentRevenueSnapshotFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaymentRevenueSnapshotFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>
+          }
+          findFirst: {
+            args: Prisma.PaymentRevenueSnapshotFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaymentRevenueSnapshotFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>
+          }
+          findMany: {
+            args: Prisma.PaymentRevenueSnapshotFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>[]
+          }
+          create: {
+            args: Prisma.PaymentRevenueSnapshotCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>
+          }
+          createMany: {
+            args: Prisma.PaymentRevenueSnapshotCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PaymentRevenueSnapshotCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>[]
+          }
+          delete: {
+            args: Prisma.PaymentRevenueSnapshotDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>
+          }
+          update: {
+            args: Prisma.PaymentRevenueSnapshotUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaymentRevenueSnapshotDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaymentRevenueSnapshotUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PaymentRevenueSnapshotUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>[]
+          }
+          upsert: {
+            args: Prisma.PaymentRevenueSnapshotUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>
+          }
+          aggregate: {
+            args: Prisma.PaymentRevenueSnapshotAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePaymentRevenueSnapshot>
+          }
+          groupBy: {
+            args: Prisma.PaymentRevenueSnapshotGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaymentRevenueSnapshotGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaymentRevenueSnapshotCountArgs<ExtArgs>
+            result: $Utils.Optional<PaymentRevenueSnapshotCountAggregateOutputType> | number
           }
         }
       }
@@ -4420,6 +4728,9 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     product?: ProductOmit
+    paymentConnector?: PaymentConnectorOmit
+    paymentConnectorCredential?: PaymentConnectorCredentialOmit
+    paymentRevenueSnapshot?: PaymentRevenueSnapshotOmit
     alternativeProduct?: AlternativeProductOmit
     monthlyProductRanking?: MonthlyProductRankingOmit
     monthlyLeaderboardNotification?: MonthlyLeaderboardNotificationOmit
@@ -4668,6 +4979,46 @@ export namespace Prisma {
    */
   export type ProductCountOutputTypeCountAlternativesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AlternativeProductWhereInput
+  }
+
+
+  /**
+   * Count Type PaymentConnectorCountOutputType
+   */
+
+  export type PaymentConnectorCountOutputType = {
+    credentials: number
+    revenueHistory: number
+  }
+
+  export type PaymentConnectorCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    credentials?: boolean | PaymentConnectorCountOutputTypeCountCredentialsArgs
+    revenueHistory?: boolean | PaymentConnectorCountOutputTypeCountRevenueHistoryArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * PaymentConnectorCountOutputType without action
+   */
+  export type PaymentConnectorCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnectorCountOutputType
+     */
+    select?: PaymentConnectorCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * PaymentConnectorCountOutputType without action
+   */
+  export type PaymentConnectorCountOutputTypeCountCredentialsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentConnectorCredentialWhereInput
+  }
+
+  /**
+   * PaymentConnectorCountOutputType without action
+   */
+  export type PaymentConnectorCountOutputTypeCountRevenueHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentRevenueSnapshotWhereInput
   }
 
 
@@ -5665,6 +6016,7 @@ export namespace Prisma {
     redemptions?: boolean | Product$redemptionsArgs<ExtArgs>
     featureEntitlements?: boolean | Product$featureEntitlementsArgs<ExtArgs>
     alternatives?: boolean | Product$alternativesArgs<ExtArgs>
+    paymentConnector?: boolean | Product$paymentConnectorArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["product"]>
 
@@ -5783,6 +6135,7 @@ export namespace Prisma {
     redemptions?: boolean | Product$redemptionsArgs<ExtArgs>
     featureEntitlements?: boolean | Product$featureEntitlementsArgs<ExtArgs>
     alternatives?: boolean | Product$alternativesArgs<ExtArgs>
+    paymentConnector?: boolean | Product$paymentConnectorArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ProductIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5822,6 +6175,7 @@ export namespace Prisma {
       redemptions: Prisma.$RedemptionPayload<ExtArgs>[]
       featureEntitlements: Prisma.$FeatureEntitlementPayload<ExtArgs>[]
       alternatives: Prisma.$AlternativeProductPayload<ExtArgs>[]
+      paymentConnector: Prisma.$PaymentConnectorPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6264,6 +6618,7 @@ export namespace Prisma {
     redemptions<T extends Product$redemptionsArgs<ExtArgs> = {}>(args?: Subset<T, Product$redemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     featureEntitlements<T extends Product$featureEntitlementsArgs<ExtArgs> = {}>(args?: Subset<T, Product$featureEntitlementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeatureEntitlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     alternatives<T extends Product$alternativesArgs<ExtArgs> = {}>(args?: Subset<T, Product$alternativesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlternativeProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    paymentConnector<T extends Product$paymentConnectorArgs<ExtArgs> = {}>(args?: Subset<T, Product$paymentConnectorArgs<ExtArgs>>): Prisma__PaymentConnectorClient<$Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7140,6 +7495,25 @@ export namespace Prisma {
   }
 
   /**
+   * Product.paymentConnector
+   */
+  export type Product$paymentConnectorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnector
+     */
+    select?: PaymentConnectorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnector
+     */
+    omit?: PaymentConnectorOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorInclude<ExtArgs> | null
+    where?: PaymentConnectorWhereInput
+  }
+
+  /**
    * Product without action
    */
   export type ProductDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7155,6 +7529,3565 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ProductInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PaymentConnector
+   */
+
+  export type AggregatePaymentConnector = {
+    _count: PaymentConnectorCountAggregateOutputType | null
+    _avg: PaymentConnectorAvgAggregateOutputType | null
+    _sum: PaymentConnectorSumAggregateOutputType | null
+    _min: PaymentConnectorMinAggregateOutputType | null
+    _max: PaymentConnectorMaxAggregateOutputType | null
+  }
+
+  export type PaymentConnectorAvgAggregateOutputType = {
+    latestAllTimeRevenueCents: number | null
+    latestMrrCents: number | null
+  }
+
+  export type PaymentConnectorSumAggregateOutputType = {
+    latestAllTimeRevenueCents: number | null
+    latestMrrCents: number | null
+  }
+
+  export type PaymentConnectorMinAggregateOutputType = {
+    id: string | null
+    productId: string | null
+    provider: $Enums.PaymentConnectorProvider | null
+    status: $Enums.PaymentConnectorStatus | null
+    lastSyncedAt: Date | null
+    lastSyncError: string | null
+    verifiedAt: Date | null
+    latestAllTimeRevenueCents: number | null
+    latestMrrCents: number | null
+    latestCurrencyCode: string | null
+    latestPeriodStart: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PaymentConnectorMaxAggregateOutputType = {
+    id: string | null
+    productId: string | null
+    provider: $Enums.PaymentConnectorProvider | null
+    status: $Enums.PaymentConnectorStatus | null
+    lastSyncedAt: Date | null
+    lastSyncError: string | null
+    verifiedAt: Date | null
+    latestAllTimeRevenueCents: number | null
+    latestMrrCents: number | null
+    latestCurrencyCode: string | null
+    latestPeriodStart: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PaymentConnectorCountAggregateOutputType = {
+    id: number
+    productId: number
+    provider: number
+    status: number
+    config: number
+    lastSyncedAt: number
+    lastSyncError: number
+    verifiedAt: number
+    latestAllTimeRevenueCents: number
+    latestMrrCents: number
+    latestCurrencyCode: number
+    latestPeriodStart: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PaymentConnectorAvgAggregateInputType = {
+    latestAllTimeRevenueCents?: true
+    latestMrrCents?: true
+  }
+
+  export type PaymentConnectorSumAggregateInputType = {
+    latestAllTimeRevenueCents?: true
+    latestMrrCents?: true
+  }
+
+  export type PaymentConnectorMinAggregateInputType = {
+    id?: true
+    productId?: true
+    provider?: true
+    status?: true
+    lastSyncedAt?: true
+    lastSyncError?: true
+    verifiedAt?: true
+    latestAllTimeRevenueCents?: true
+    latestMrrCents?: true
+    latestCurrencyCode?: true
+    latestPeriodStart?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PaymentConnectorMaxAggregateInputType = {
+    id?: true
+    productId?: true
+    provider?: true
+    status?: true
+    lastSyncedAt?: true
+    lastSyncError?: true
+    verifiedAt?: true
+    latestAllTimeRevenueCents?: true
+    latestMrrCents?: true
+    latestCurrencyCode?: true
+    latestPeriodStart?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PaymentConnectorCountAggregateInputType = {
+    id?: true
+    productId?: true
+    provider?: true
+    status?: true
+    config?: true
+    lastSyncedAt?: true
+    lastSyncError?: true
+    verifiedAt?: true
+    latestAllTimeRevenueCents?: true
+    latestMrrCents?: true
+    latestCurrencyCode?: true
+    latestPeriodStart?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PaymentConnectorAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentConnector to aggregate.
+     */
+    where?: PaymentConnectorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentConnectors to fetch.
+     */
+    orderBy?: PaymentConnectorOrderByWithRelationInput | PaymentConnectorOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaymentConnectorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentConnectors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentConnectors.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PaymentConnectors
+    **/
+    _count?: true | PaymentConnectorCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PaymentConnectorAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PaymentConnectorSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaymentConnectorMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaymentConnectorMaxAggregateInputType
+  }
+
+  export type GetPaymentConnectorAggregateType<T extends PaymentConnectorAggregateArgs> = {
+        [P in keyof T & keyof AggregatePaymentConnector]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePaymentConnector[P]>
+      : GetScalarType<T[P], AggregatePaymentConnector[P]>
+  }
+
+
+
+
+  export type PaymentConnectorGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentConnectorWhereInput
+    orderBy?: PaymentConnectorOrderByWithAggregationInput | PaymentConnectorOrderByWithAggregationInput[]
+    by: PaymentConnectorScalarFieldEnum[] | PaymentConnectorScalarFieldEnum
+    having?: PaymentConnectorScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaymentConnectorCountAggregateInputType | true
+    _avg?: PaymentConnectorAvgAggregateInputType
+    _sum?: PaymentConnectorSumAggregateInputType
+    _min?: PaymentConnectorMinAggregateInputType
+    _max?: PaymentConnectorMaxAggregateInputType
+  }
+
+  export type PaymentConnectorGroupByOutputType = {
+    id: string
+    productId: string
+    provider: $Enums.PaymentConnectorProvider
+    status: $Enums.PaymentConnectorStatus
+    config: JsonValue | null
+    lastSyncedAt: Date | null
+    lastSyncError: string | null
+    verifiedAt: Date | null
+    latestAllTimeRevenueCents: number | null
+    latestMrrCents: number | null
+    latestCurrencyCode: string | null
+    latestPeriodStart: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: PaymentConnectorCountAggregateOutputType | null
+    _avg: PaymentConnectorAvgAggregateOutputType | null
+    _sum: PaymentConnectorSumAggregateOutputType | null
+    _min: PaymentConnectorMinAggregateOutputType | null
+    _max: PaymentConnectorMaxAggregateOutputType | null
+  }
+
+  type GetPaymentConnectorGroupByPayload<T extends PaymentConnectorGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaymentConnectorGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaymentConnectorGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaymentConnectorGroupByOutputType[P]>
+            : GetScalarType<T[P], PaymentConnectorGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaymentConnectorSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    provider?: boolean
+    status?: boolean
+    config?: boolean
+    lastSyncedAt?: boolean
+    lastSyncError?: boolean
+    verifiedAt?: boolean
+    latestAllTimeRevenueCents?: boolean
+    latestMrrCents?: boolean
+    latestCurrencyCode?: boolean
+    latestPeriodStart?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+    credentials?: boolean | PaymentConnector$credentialsArgs<ExtArgs>
+    revenueHistory?: boolean | PaymentConnector$revenueHistoryArgs<ExtArgs>
+    _count?: boolean | PaymentConnectorCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentConnector"]>
+
+  export type PaymentConnectorSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    provider?: boolean
+    status?: boolean
+    config?: boolean
+    lastSyncedAt?: boolean
+    lastSyncError?: boolean
+    verifiedAt?: boolean
+    latestAllTimeRevenueCents?: boolean
+    latestMrrCents?: boolean
+    latestCurrencyCode?: boolean
+    latestPeriodStart?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentConnector"]>
+
+  export type PaymentConnectorSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    provider?: boolean
+    status?: boolean
+    config?: boolean
+    lastSyncedAt?: boolean
+    lastSyncError?: boolean
+    verifiedAt?: boolean
+    latestAllTimeRevenueCents?: boolean
+    latestMrrCents?: boolean
+    latestCurrencyCode?: boolean
+    latestPeriodStart?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentConnector"]>
+
+  export type PaymentConnectorSelectScalar = {
+    id?: boolean
+    productId?: boolean
+    provider?: boolean
+    status?: boolean
+    config?: boolean
+    lastSyncedAt?: boolean
+    lastSyncError?: boolean
+    verifiedAt?: boolean
+    latestAllTimeRevenueCents?: boolean
+    latestMrrCents?: boolean
+    latestCurrencyCode?: boolean
+    latestPeriodStart?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PaymentConnectorOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "provider" | "status" | "config" | "lastSyncedAt" | "lastSyncError" | "verifiedAt" | "latestAllTimeRevenueCents" | "latestMrrCents" | "latestCurrencyCode" | "latestPeriodStart" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentConnector"]>
+  export type PaymentConnectorInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+    credentials?: boolean | PaymentConnector$credentialsArgs<ExtArgs>
+    revenueHistory?: boolean | PaymentConnector$revenueHistoryArgs<ExtArgs>
+    _count?: boolean | PaymentConnectorCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type PaymentConnectorIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+  export type PaymentConnectorIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+
+  export type $PaymentConnectorPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PaymentConnector"
+    objects: {
+      product: Prisma.$ProductPayload<ExtArgs>
+      credentials: Prisma.$PaymentConnectorCredentialPayload<ExtArgs>[]
+      revenueHistory: Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      productId: string
+      provider: $Enums.PaymentConnectorProvider
+      status: $Enums.PaymentConnectorStatus
+      config: Prisma.JsonValue | null
+      lastSyncedAt: Date | null
+      lastSyncError: string | null
+      verifiedAt: Date | null
+      latestAllTimeRevenueCents: number | null
+      latestMrrCents: number | null
+      latestCurrencyCode: string | null
+      latestPeriodStart: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["paymentConnector"]>
+    composites: {}
+  }
+
+  type PaymentConnectorGetPayload<S extends boolean | null | undefined | PaymentConnectorDefaultArgs> = $Result.GetResult<Prisma.$PaymentConnectorPayload, S>
+
+  type PaymentConnectorCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaymentConnectorFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PaymentConnectorCountAggregateInputType | true
+    }
+
+  export interface PaymentConnectorDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PaymentConnector'], meta: { name: 'PaymentConnector' } }
+    /**
+     * Find zero or one PaymentConnector that matches the filter.
+     * @param {PaymentConnectorFindUniqueArgs} args - Arguments to find a PaymentConnector
+     * @example
+     * // Get one PaymentConnector
+     * const paymentConnector = await prisma.paymentConnector.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaymentConnectorFindUniqueArgs>(args: SelectSubset<T, PaymentConnectorFindUniqueArgs<ExtArgs>>): Prisma__PaymentConnectorClient<$Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PaymentConnector that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PaymentConnectorFindUniqueOrThrowArgs} args - Arguments to find a PaymentConnector
+     * @example
+     * // Get one PaymentConnector
+     * const paymentConnector = await prisma.paymentConnector.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaymentConnectorFindUniqueOrThrowArgs>(args: SelectSubset<T, PaymentConnectorFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaymentConnectorClient<$Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentConnector that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentConnectorFindFirstArgs} args - Arguments to find a PaymentConnector
+     * @example
+     * // Get one PaymentConnector
+     * const paymentConnector = await prisma.paymentConnector.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaymentConnectorFindFirstArgs>(args?: SelectSubset<T, PaymentConnectorFindFirstArgs<ExtArgs>>): Prisma__PaymentConnectorClient<$Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentConnector that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentConnectorFindFirstOrThrowArgs} args - Arguments to find a PaymentConnector
+     * @example
+     * // Get one PaymentConnector
+     * const paymentConnector = await prisma.paymentConnector.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaymentConnectorFindFirstOrThrowArgs>(args?: SelectSubset<T, PaymentConnectorFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaymentConnectorClient<$Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PaymentConnectors that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentConnectorFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PaymentConnectors
+     * const paymentConnectors = await prisma.paymentConnector.findMany()
+     * 
+     * // Get first 10 PaymentConnectors
+     * const paymentConnectors = await prisma.paymentConnector.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const paymentConnectorWithIdOnly = await prisma.paymentConnector.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PaymentConnectorFindManyArgs>(args?: SelectSubset<T, PaymentConnectorFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PaymentConnector.
+     * @param {PaymentConnectorCreateArgs} args - Arguments to create a PaymentConnector.
+     * @example
+     * // Create one PaymentConnector
+     * const PaymentConnector = await prisma.paymentConnector.create({
+     *   data: {
+     *     // ... data to create a PaymentConnector
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaymentConnectorCreateArgs>(args: SelectSubset<T, PaymentConnectorCreateArgs<ExtArgs>>): Prisma__PaymentConnectorClient<$Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PaymentConnectors.
+     * @param {PaymentConnectorCreateManyArgs} args - Arguments to create many PaymentConnectors.
+     * @example
+     * // Create many PaymentConnectors
+     * const paymentConnector = await prisma.paymentConnector.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaymentConnectorCreateManyArgs>(args?: SelectSubset<T, PaymentConnectorCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PaymentConnectors and returns the data saved in the database.
+     * @param {PaymentConnectorCreateManyAndReturnArgs} args - Arguments to create many PaymentConnectors.
+     * @example
+     * // Create many PaymentConnectors
+     * const paymentConnector = await prisma.paymentConnector.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PaymentConnectors and only return the `id`
+     * const paymentConnectorWithIdOnly = await prisma.paymentConnector.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PaymentConnectorCreateManyAndReturnArgs>(args?: SelectSubset<T, PaymentConnectorCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PaymentConnector.
+     * @param {PaymentConnectorDeleteArgs} args - Arguments to delete one PaymentConnector.
+     * @example
+     * // Delete one PaymentConnector
+     * const PaymentConnector = await prisma.paymentConnector.delete({
+     *   where: {
+     *     // ... filter to delete one PaymentConnector
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaymentConnectorDeleteArgs>(args: SelectSubset<T, PaymentConnectorDeleteArgs<ExtArgs>>): Prisma__PaymentConnectorClient<$Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PaymentConnector.
+     * @param {PaymentConnectorUpdateArgs} args - Arguments to update one PaymentConnector.
+     * @example
+     * // Update one PaymentConnector
+     * const paymentConnector = await prisma.paymentConnector.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaymentConnectorUpdateArgs>(args: SelectSubset<T, PaymentConnectorUpdateArgs<ExtArgs>>): Prisma__PaymentConnectorClient<$Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PaymentConnectors.
+     * @param {PaymentConnectorDeleteManyArgs} args - Arguments to filter PaymentConnectors to delete.
+     * @example
+     * // Delete a few PaymentConnectors
+     * const { count } = await prisma.paymentConnector.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaymentConnectorDeleteManyArgs>(args?: SelectSubset<T, PaymentConnectorDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentConnectors.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentConnectorUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PaymentConnectors
+     * const paymentConnector = await prisma.paymentConnector.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaymentConnectorUpdateManyArgs>(args: SelectSubset<T, PaymentConnectorUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentConnectors and returns the data updated in the database.
+     * @param {PaymentConnectorUpdateManyAndReturnArgs} args - Arguments to update many PaymentConnectors.
+     * @example
+     * // Update many PaymentConnectors
+     * const paymentConnector = await prisma.paymentConnector.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PaymentConnectors and only return the `id`
+     * const paymentConnectorWithIdOnly = await prisma.paymentConnector.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PaymentConnectorUpdateManyAndReturnArgs>(args: SelectSubset<T, PaymentConnectorUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PaymentConnector.
+     * @param {PaymentConnectorUpsertArgs} args - Arguments to update or create a PaymentConnector.
+     * @example
+     * // Update or create a PaymentConnector
+     * const paymentConnector = await prisma.paymentConnector.upsert({
+     *   create: {
+     *     // ... data to create a PaymentConnector
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PaymentConnector we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaymentConnectorUpsertArgs>(args: SelectSubset<T, PaymentConnectorUpsertArgs<ExtArgs>>): Prisma__PaymentConnectorClient<$Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PaymentConnectors.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentConnectorCountArgs} args - Arguments to filter PaymentConnectors to count.
+     * @example
+     * // Count the number of PaymentConnectors
+     * const count = await prisma.paymentConnector.count({
+     *   where: {
+     *     // ... the filter for the PaymentConnectors we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaymentConnectorCountArgs>(
+      args?: Subset<T, PaymentConnectorCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaymentConnectorCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PaymentConnector.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentConnectorAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaymentConnectorAggregateArgs>(args: Subset<T, PaymentConnectorAggregateArgs>): Prisma.PrismaPromise<GetPaymentConnectorAggregateType<T>>
+
+    /**
+     * Group by PaymentConnector.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentConnectorGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaymentConnectorGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaymentConnectorGroupByArgs['orderBy'] }
+        : { orderBy?: PaymentConnectorGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaymentConnectorGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaymentConnectorGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PaymentConnector model
+   */
+  readonly fields: PaymentConnectorFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PaymentConnector.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaymentConnectorClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    product<T extends ProductDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductDefaultArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    credentials<T extends PaymentConnector$credentialsArgs<ExtArgs> = {}>(args?: Subset<T, PaymentConnector$credentialsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentConnectorCredentialPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    revenueHistory<T extends PaymentConnector$revenueHistoryArgs<ExtArgs> = {}>(args?: Subset<T, PaymentConnector$revenueHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PaymentConnector model
+   */
+  interface PaymentConnectorFieldRefs {
+    readonly id: FieldRef<"PaymentConnector", 'String'>
+    readonly productId: FieldRef<"PaymentConnector", 'String'>
+    readonly provider: FieldRef<"PaymentConnector", 'PaymentConnectorProvider'>
+    readonly status: FieldRef<"PaymentConnector", 'PaymentConnectorStatus'>
+    readonly config: FieldRef<"PaymentConnector", 'Json'>
+    readonly lastSyncedAt: FieldRef<"PaymentConnector", 'DateTime'>
+    readonly lastSyncError: FieldRef<"PaymentConnector", 'String'>
+    readonly verifiedAt: FieldRef<"PaymentConnector", 'DateTime'>
+    readonly latestAllTimeRevenueCents: FieldRef<"PaymentConnector", 'Int'>
+    readonly latestMrrCents: FieldRef<"PaymentConnector", 'Int'>
+    readonly latestCurrencyCode: FieldRef<"PaymentConnector", 'String'>
+    readonly latestPeriodStart: FieldRef<"PaymentConnector", 'DateTime'>
+    readonly createdAt: FieldRef<"PaymentConnector", 'DateTime'>
+    readonly updatedAt: FieldRef<"PaymentConnector", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PaymentConnector findUnique
+   */
+  export type PaymentConnectorFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnector
+     */
+    select?: PaymentConnectorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnector
+     */
+    omit?: PaymentConnectorOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentConnector to fetch.
+     */
+    where: PaymentConnectorWhereUniqueInput
+  }
+
+  /**
+   * PaymentConnector findUniqueOrThrow
+   */
+  export type PaymentConnectorFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnector
+     */
+    select?: PaymentConnectorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnector
+     */
+    omit?: PaymentConnectorOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentConnector to fetch.
+     */
+    where: PaymentConnectorWhereUniqueInput
+  }
+
+  /**
+   * PaymentConnector findFirst
+   */
+  export type PaymentConnectorFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnector
+     */
+    select?: PaymentConnectorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnector
+     */
+    omit?: PaymentConnectorOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentConnector to fetch.
+     */
+    where?: PaymentConnectorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentConnectors to fetch.
+     */
+    orderBy?: PaymentConnectorOrderByWithRelationInput | PaymentConnectorOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentConnectors.
+     */
+    cursor?: PaymentConnectorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentConnectors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentConnectors.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentConnectors.
+     */
+    distinct?: PaymentConnectorScalarFieldEnum | PaymentConnectorScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentConnector findFirstOrThrow
+   */
+  export type PaymentConnectorFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnector
+     */
+    select?: PaymentConnectorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnector
+     */
+    omit?: PaymentConnectorOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentConnector to fetch.
+     */
+    where?: PaymentConnectorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentConnectors to fetch.
+     */
+    orderBy?: PaymentConnectorOrderByWithRelationInput | PaymentConnectorOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentConnectors.
+     */
+    cursor?: PaymentConnectorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentConnectors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentConnectors.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentConnectors.
+     */
+    distinct?: PaymentConnectorScalarFieldEnum | PaymentConnectorScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentConnector findMany
+   */
+  export type PaymentConnectorFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnector
+     */
+    select?: PaymentConnectorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnector
+     */
+    omit?: PaymentConnectorOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentConnectors to fetch.
+     */
+    where?: PaymentConnectorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentConnectors to fetch.
+     */
+    orderBy?: PaymentConnectorOrderByWithRelationInput | PaymentConnectorOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PaymentConnectors.
+     */
+    cursor?: PaymentConnectorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentConnectors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentConnectors.
+     */
+    skip?: number
+    distinct?: PaymentConnectorScalarFieldEnum | PaymentConnectorScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentConnector create
+   */
+  export type PaymentConnectorCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnector
+     */
+    select?: PaymentConnectorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnector
+     */
+    omit?: PaymentConnectorOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PaymentConnector.
+     */
+    data: XOR<PaymentConnectorCreateInput, PaymentConnectorUncheckedCreateInput>
+  }
+
+  /**
+   * PaymentConnector createMany
+   */
+  export type PaymentConnectorCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PaymentConnectors.
+     */
+    data: PaymentConnectorCreateManyInput | PaymentConnectorCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaymentConnector createManyAndReturn
+   */
+  export type PaymentConnectorCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnector
+     */
+    select?: PaymentConnectorSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnector
+     */
+    omit?: PaymentConnectorOmit<ExtArgs> | null
+    /**
+     * The data used to create many PaymentConnectors.
+     */
+    data: PaymentConnectorCreateManyInput | PaymentConnectorCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaymentConnector update
+   */
+  export type PaymentConnectorUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnector
+     */
+    select?: PaymentConnectorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnector
+     */
+    omit?: PaymentConnectorOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PaymentConnector.
+     */
+    data: XOR<PaymentConnectorUpdateInput, PaymentConnectorUncheckedUpdateInput>
+    /**
+     * Choose, which PaymentConnector to update.
+     */
+    where: PaymentConnectorWhereUniqueInput
+  }
+
+  /**
+   * PaymentConnector updateMany
+   */
+  export type PaymentConnectorUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PaymentConnectors.
+     */
+    data: XOR<PaymentConnectorUpdateManyMutationInput, PaymentConnectorUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentConnectors to update
+     */
+    where?: PaymentConnectorWhereInput
+    /**
+     * Limit how many PaymentConnectors to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentConnector updateManyAndReturn
+   */
+  export type PaymentConnectorUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnector
+     */
+    select?: PaymentConnectorSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnector
+     */
+    omit?: PaymentConnectorOmit<ExtArgs> | null
+    /**
+     * The data used to update PaymentConnectors.
+     */
+    data: XOR<PaymentConnectorUpdateManyMutationInput, PaymentConnectorUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentConnectors to update
+     */
+    where?: PaymentConnectorWhereInput
+    /**
+     * Limit how many PaymentConnectors to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaymentConnector upsert
+   */
+  export type PaymentConnectorUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnector
+     */
+    select?: PaymentConnectorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnector
+     */
+    omit?: PaymentConnectorOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PaymentConnector to update in case it exists.
+     */
+    where: PaymentConnectorWhereUniqueInput
+    /**
+     * In case the PaymentConnector found by the `where` argument doesn't exist, create a new PaymentConnector with this data.
+     */
+    create: XOR<PaymentConnectorCreateInput, PaymentConnectorUncheckedCreateInput>
+    /**
+     * In case the PaymentConnector was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaymentConnectorUpdateInput, PaymentConnectorUncheckedUpdateInput>
+  }
+
+  /**
+   * PaymentConnector delete
+   */
+  export type PaymentConnectorDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnector
+     */
+    select?: PaymentConnectorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnector
+     */
+    omit?: PaymentConnectorOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorInclude<ExtArgs> | null
+    /**
+     * Filter which PaymentConnector to delete.
+     */
+    where: PaymentConnectorWhereUniqueInput
+  }
+
+  /**
+   * PaymentConnector deleteMany
+   */
+  export type PaymentConnectorDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentConnectors to delete
+     */
+    where?: PaymentConnectorWhereInput
+    /**
+     * Limit how many PaymentConnectors to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentConnector.credentials
+   */
+  export type PaymentConnector$credentialsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnectorCredential
+     */
+    select?: PaymentConnectorCredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnectorCredential
+     */
+    omit?: PaymentConnectorCredentialOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorCredentialInclude<ExtArgs> | null
+    where?: PaymentConnectorCredentialWhereInput
+    orderBy?: PaymentConnectorCredentialOrderByWithRelationInput | PaymentConnectorCredentialOrderByWithRelationInput[]
+    cursor?: PaymentConnectorCredentialWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaymentConnectorCredentialScalarFieldEnum | PaymentConnectorCredentialScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentConnector.revenueHistory
+   */
+  export type PaymentConnector$revenueHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentRevenueSnapshot
+     */
+    select?: PaymentRevenueSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentRevenueSnapshot
+     */
+    omit?: PaymentRevenueSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentRevenueSnapshotInclude<ExtArgs> | null
+    where?: PaymentRevenueSnapshotWhereInput
+    orderBy?: PaymentRevenueSnapshotOrderByWithRelationInput | PaymentRevenueSnapshotOrderByWithRelationInput[]
+    cursor?: PaymentRevenueSnapshotWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaymentRevenueSnapshotScalarFieldEnum | PaymentRevenueSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentConnector without action
+   */
+  export type PaymentConnectorDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnector
+     */
+    select?: PaymentConnectorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnector
+     */
+    omit?: PaymentConnectorOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PaymentConnectorCredential
+   */
+
+  export type AggregatePaymentConnectorCredential = {
+    _count: PaymentConnectorCredentialCountAggregateOutputType | null
+    _avg: PaymentConnectorCredentialAvgAggregateOutputType | null
+    _sum: PaymentConnectorCredentialSumAggregateOutputType | null
+    _min: PaymentConnectorCredentialMinAggregateOutputType | null
+    _max: PaymentConnectorCredentialMaxAggregateOutputType | null
+  }
+
+  export type PaymentConnectorCredentialAvgAggregateOutputType = {
+    encryptionVersion: number | null
+  }
+
+  export type PaymentConnectorCredentialSumAggregateOutputType = {
+    encryptionVersion: number | null
+  }
+
+  export type PaymentConnectorCredentialMinAggregateOutputType = {
+    id: string | null
+    connectorId: string | null
+    status: $Enums.PaymentCredentialStatus | null
+    encryptionVersion: number | null
+    encryptedKey: string | null
+    keyHint: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PaymentConnectorCredentialMaxAggregateOutputType = {
+    id: string | null
+    connectorId: string | null
+    status: $Enums.PaymentCredentialStatus | null
+    encryptionVersion: number | null
+    encryptedKey: string | null
+    keyHint: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PaymentConnectorCredentialCountAggregateOutputType = {
+    id: number
+    connectorId: number
+    status: number
+    encryptionVersion: number
+    encryptedKey: number
+    keyHint: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PaymentConnectorCredentialAvgAggregateInputType = {
+    encryptionVersion?: true
+  }
+
+  export type PaymentConnectorCredentialSumAggregateInputType = {
+    encryptionVersion?: true
+  }
+
+  export type PaymentConnectorCredentialMinAggregateInputType = {
+    id?: true
+    connectorId?: true
+    status?: true
+    encryptionVersion?: true
+    encryptedKey?: true
+    keyHint?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PaymentConnectorCredentialMaxAggregateInputType = {
+    id?: true
+    connectorId?: true
+    status?: true
+    encryptionVersion?: true
+    encryptedKey?: true
+    keyHint?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PaymentConnectorCredentialCountAggregateInputType = {
+    id?: true
+    connectorId?: true
+    status?: true
+    encryptionVersion?: true
+    encryptedKey?: true
+    keyHint?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PaymentConnectorCredentialAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentConnectorCredential to aggregate.
+     */
+    where?: PaymentConnectorCredentialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentConnectorCredentials to fetch.
+     */
+    orderBy?: PaymentConnectorCredentialOrderByWithRelationInput | PaymentConnectorCredentialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaymentConnectorCredentialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentConnectorCredentials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentConnectorCredentials.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PaymentConnectorCredentials
+    **/
+    _count?: true | PaymentConnectorCredentialCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PaymentConnectorCredentialAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PaymentConnectorCredentialSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaymentConnectorCredentialMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaymentConnectorCredentialMaxAggregateInputType
+  }
+
+  export type GetPaymentConnectorCredentialAggregateType<T extends PaymentConnectorCredentialAggregateArgs> = {
+        [P in keyof T & keyof AggregatePaymentConnectorCredential]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePaymentConnectorCredential[P]>
+      : GetScalarType<T[P], AggregatePaymentConnectorCredential[P]>
+  }
+
+
+
+
+  export type PaymentConnectorCredentialGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentConnectorCredentialWhereInput
+    orderBy?: PaymentConnectorCredentialOrderByWithAggregationInput | PaymentConnectorCredentialOrderByWithAggregationInput[]
+    by: PaymentConnectorCredentialScalarFieldEnum[] | PaymentConnectorCredentialScalarFieldEnum
+    having?: PaymentConnectorCredentialScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaymentConnectorCredentialCountAggregateInputType | true
+    _avg?: PaymentConnectorCredentialAvgAggregateInputType
+    _sum?: PaymentConnectorCredentialSumAggregateInputType
+    _min?: PaymentConnectorCredentialMinAggregateInputType
+    _max?: PaymentConnectorCredentialMaxAggregateInputType
+  }
+
+  export type PaymentConnectorCredentialGroupByOutputType = {
+    id: string
+    connectorId: string
+    status: $Enums.PaymentCredentialStatus
+    encryptionVersion: number
+    encryptedKey: string
+    keyHint: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: PaymentConnectorCredentialCountAggregateOutputType | null
+    _avg: PaymentConnectorCredentialAvgAggregateOutputType | null
+    _sum: PaymentConnectorCredentialSumAggregateOutputType | null
+    _min: PaymentConnectorCredentialMinAggregateOutputType | null
+    _max: PaymentConnectorCredentialMaxAggregateOutputType | null
+  }
+
+  type GetPaymentConnectorCredentialGroupByPayload<T extends PaymentConnectorCredentialGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaymentConnectorCredentialGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaymentConnectorCredentialGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaymentConnectorCredentialGroupByOutputType[P]>
+            : GetScalarType<T[P], PaymentConnectorCredentialGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaymentConnectorCredentialSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    connectorId?: boolean
+    status?: boolean
+    encryptionVersion?: boolean
+    encryptedKey?: boolean
+    keyHint?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    connector?: boolean | PaymentConnectorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentConnectorCredential"]>
+
+  export type PaymentConnectorCredentialSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    connectorId?: boolean
+    status?: boolean
+    encryptionVersion?: boolean
+    encryptedKey?: boolean
+    keyHint?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    connector?: boolean | PaymentConnectorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentConnectorCredential"]>
+
+  export type PaymentConnectorCredentialSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    connectorId?: boolean
+    status?: boolean
+    encryptionVersion?: boolean
+    encryptedKey?: boolean
+    keyHint?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    connector?: boolean | PaymentConnectorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentConnectorCredential"]>
+
+  export type PaymentConnectorCredentialSelectScalar = {
+    id?: boolean
+    connectorId?: boolean
+    status?: boolean
+    encryptionVersion?: boolean
+    encryptedKey?: boolean
+    keyHint?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PaymentConnectorCredentialOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "connectorId" | "status" | "encryptionVersion" | "encryptedKey" | "keyHint" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentConnectorCredential"]>
+  export type PaymentConnectorCredentialInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    connector?: boolean | PaymentConnectorDefaultArgs<ExtArgs>
+  }
+  export type PaymentConnectorCredentialIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    connector?: boolean | PaymentConnectorDefaultArgs<ExtArgs>
+  }
+  export type PaymentConnectorCredentialIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    connector?: boolean | PaymentConnectorDefaultArgs<ExtArgs>
+  }
+
+  export type $PaymentConnectorCredentialPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PaymentConnectorCredential"
+    objects: {
+      connector: Prisma.$PaymentConnectorPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      connectorId: string
+      status: $Enums.PaymentCredentialStatus
+      encryptionVersion: number
+      encryptedKey: string
+      keyHint: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["paymentConnectorCredential"]>
+    composites: {}
+  }
+
+  type PaymentConnectorCredentialGetPayload<S extends boolean | null | undefined | PaymentConnectorCredentialDefaultArgs> = $Result.GetResult<Prisma.$PaymentConnectorCredentialPayload, S>
+
+  type PaymentConnectorCredentialCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaymentConnectorCredentialFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PaymentConnectorCredentialCountAggregateInputType | true
+    }
+
+  export interface PaymentConnectorCredentialDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PaymentConnectorCredential'], meta: { name: 'PaymentConnectorCredential' } }
+    /**
+     * Find zero or one PaymentConnectorCredential that matches the filter.
+     * @param {PaymentConnectorCredentialFindUniqueArgs} args - Arguments to find a PaymentConnectorCredential
+     * @example
+     * // Get one PaymentConnectorCredential
+     * const paymentConnectorCredential = await prisma.paymentConnectorCredential.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaymentConnectorCredentialFindUniqueArgs>(args: SelectSubset<T, PaymentConnectorCredentialFindUniqueArgs<ExtArgs>>): Prisma__PaymentConnectorCredentialClient<$Result.GetResult<Prisma.$PaymentConnectorCredentialPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PaymentConnectorCredential that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PaymentConnectorCredentialFindUniqueOrThrowArgs} args - Arguments to find a PaymentConnectorCredential
+     * @example
+     * // Get one PaymentConnectorCredential
+     * const paymentConnectorCredential = await prisma.paymentConnectorCredential.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaymentConnectorCredentialFindUniqueOrThrowArgs>(args: SelectSubset<T, PaymentConnectorCredentialFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaymentConnectorCredentialClient<$Result.GetResult<Prisma.$PaymentConnectorCredentialPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentConnectorCredential that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentConnectorCredentialFindFirstArgs} args - Arguments to find a PaymentConnectorCredential
+     * @example
+     * // Get one PaymentConnectorCredential
+     * const paymentConnectorCredential = await prisma.paymentConnectorCredential.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaymentConnectorCredentialFindFirstArgs>(args?: SelectSubset<T, PaymentConnectorCredentialFindFirstArgs<ExtArgs>>): Prisma__PaymentConnectorCredentialClient<$Result.GetResult<Prisma.$PaymentConnectorCredentialPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentConnectorCredential that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentConnectorCredentialFindFirstOrThrowArgs} args - Arguments to find a PaymentConnectorCredential
+     * @example
+     * // Get one PaymentConnectorCredential
+     * const paymentConnectorCredential = await prisma.paymentConnectorCredential.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaymentConnectorCredentialFindFirstOrThrowArgs>(args?: SelectSubset<T, PaymentConnectorCredentialFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaymentConnectorCredentialClient<$Result.GetResult<Prisma.$PaymentConnectorCredentialPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PaymentConnectorCredentials that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentConnectorCredentialFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PaymentConnectorCredentials
+     * const paymentConnectorCredentials = await prisma.paymentConnectorCredential.findMany()
+     * 
+     * // Get first 10 PaymentConnectorCredentials
+     * const paymentConnectorCredentials = await prisma.paymentConnectorCredential.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const paymentConnectorCredentialWithIdOnly = await prisma.paymentConnectorCredential.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PaymentConnectorCredentialFindManyArgs>(args?: SelectSubset<T, PaymentConnectorCredentialFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentConnectorCredentialPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PaymentConnectorCredential.
+     * @param {PaymentConnectorCredentialCreateArgs} args - Arguments to create a PaymentConnectorCredential.
+     * @example
+     * // Create one PaymentConnectorCredential
+     * const PaymentConnectorCredential = await prisma.paymentConnectorCredential.create({
+     *   data: {
+     *     // ... data to create a PaymentConnectorCredential
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaymentConnectorCredentialCreateArgs>(args: SelectSubset<T, PaymentConnectorCredentialCreateArgs<ExtArgs>>): Prisma__PaymentConnectorCredentialClient<$Result.GetResult<Prisma.$PaymentConnectorCredentialPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PaymentConnectorCredentials.
+     * @param {PaymentConnectorCredentialCreateManyArgs} args - Arguments to create many PaymentConnectorCredentials.
+     * @example
+     * // Create many PaymentConnectorCredentials
+     * const paymentConnectorCredential = await prisma.paymentConnectorCredential.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaymentConnectorCredentialCreateManyArgs>(args?: SelectSubset<T, PaymentConnectorCredentialCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PaymentConnectorCredentials and returns the data saved in the database.
+     * @param {PaymentConnectorCredentialCreateManyAndReturnArgs} args - Arguments to create many PaymentConnectorCredentials.
+     * @example
+     * // Create many PaymentConnectorCredentials
+     * const paymentConnectorCredential = await prisma.paymentConnectorCredential.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PaymentConnectorCredentials and only return the `id`
+     * const paymentConnectorCredentialWithIdOnly = await prisma.paymentConnectorCredential.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PaymentConnectorCredentialCreateManyAndReturnArgs>(args?: SelectSubset<T, PaymentConnectorCredentialCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentConnectorCredentialPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PaymentConnectorCredential.
+     * @param {PaymentConnectorCredentialDeleteArgs} args - Arguments to delete one PaymentConnectorCredential.
+     * @example
+     * // Delete one PaymentConnectorCredential
+     * const PaymentConnectorCredential = await prisma.paymentConnectorCredential.delete({
+     *   where: {
+     *     // ... filter to delete one PaymentConnectorCredential
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaymentConnectorCredentialDeleteArgs>(args: SelectSubset<T, PaymentConnectorCredentialDeleteArgs<ExtArgs>>): Prisma__PaymentConnectorCredentialClient<$Result.GetResult<Prisma.$PaymentConnectorCredentialPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PaymentConnectorCredential.
+     * @param {PaymentConnectorCredentialUpdateArgs} args - Arguments to update one PaymentConnectorCredential.
+     * @example
+     * // Update one PaymentConnectorCredential
+     * const paymentConnectorCredential = await prisma.paymentConnectorCredential.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaymentConnectorCredentialUpdateArgs>(args: SelectSubset<T, PaymentConnectorCredentialUpdateArgs<ExtArgs>>): Prisma__PaymentConnectorCredentialClient<$Result.GetResult<Prisma.$PaymentConnectorCredentialPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PaymentConnectorCredentials.
+     * @param {PaymentConnectorCredentialDeleteManyArgs} args - Arguments to filter PaymentConnectorCredentials to delete.
+     * @example
+     * // Delete a few PaymentConnectorCredentials
+     * const { count } = await prisma.paymentConnectorCredential.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaymentConnectorCredentialDeleteManyArgs>(args?: SelectSubset<T, PaymentConnectorCredentialDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentConnectorCredentials.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentConnectorCredentialUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PaymentConnectorCredentials
+     * const paymentConnectorCredential = await prisma.paymentConnectorCredential.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaymentConnectorCredentialUpdateManyArgs>(args: SelectSubset<T, PaymentConnectorCredentialUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentConnectorCredentials and returns the data updated in the database.
+     * @param {PaymentConnectorCredentialUpdateManyAndReturnArgs} args - Arguments to update many PaymentConnectorCredentials.
+     * @example
+     * // Update many PaymentConnectorCredentials
+     * const paymentConnectorCredential = await prisma.paymentConnectorCredential.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PaymentConnectorCredentials and only return the `id`
+     * const paymentConnectorCredentialWithIdOnly = await prisma.paymentConnectorCredential.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PaymentConnectorCredentialUpdateManyAndReturnArgs>(args: SelectSubset<T, PaymentConnectorCredentialUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentConnectorCredentialPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PaymentConnectorCredential.
+     * @param {PaymentConnectorCredentialUpsertArgs} args - Arguments to update or create a PaymentConnectorCredential.
+     * @example
+     * // Update or create a PaymentConnectorCredential
+     * const paymentConnectorCredential = await prisma.paymentConnectorCredential.upsert({
+     *   create: {
+     *     // ... data to create a PaymentConnectorCredential
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PaymentConnectorCredential we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaymentConnectorCredentialUpsertArgs>(args: SelectSubset<T, PaymentConnectorCredentialUpsertArgs<ExtArgs>>): Prisma__PaymentConnectorCredentialClient<$Result.GetResult<Prisma.$PaymentConnectorCredentialPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PaymentConnectorCredentials.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentConnectorCredentialCountArgs} args - Arguments to filter PaymentConnectorCredentials to count.
+     * @example
+     * // Count the number of PaymentConnectorCredentials
+     * const count = await prisma.paymentConnectorCredential.count({
+     *   where: {
+     *     // ... the filter for the PaymentConnectorCredentials we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaymentConnectorCredentialCountArgs>(
+      args?: Subset<T, PaymentConnectorCredentialCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaymentConnectorCredentialCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PaymentConnectorCredential.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentConnectorCredentialAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaymentConnectorCredentialAggregateArgs>(args: Subset<T, PaymentConnectorCredentialAggregateArgs>): Prisma.PrismaPromise<GetPaymentConnectorCredentialAggregateType<T>>
+
+    /**
+     * Group by PaymentConnectorCredential.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentConnectorCredentialGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaymentConnectorCredentialGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaymentConnectorCredentialGroupByArgs['orderBy'] }
+        : { orderBy?: PaymentConnectorCredentialGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaymentConnectorCredentialGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaymentConnectorCredentialGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PaymentConnectorCredential model
+   */
+  readonly fields: PaymentConnectorCredentialFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PaymentConnectorCredential.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaymentConnectorCredentialClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    connector<T extends PaymentConnectorDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PaymentConnectorDefaultArgs<ExtArgs>>): Prisma__PaymentConnectorClient<$Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PaymentConnectorCredential model
+   */
+  interface PaymentConnectorCredentialFieldRefs {
+    readonly id: FieldRef<"PaymentConnectorCredential", 'String'>
+    readonly connectorId: FieldRef<"PaymentConnectorCredential", 'String'>
+    readonly status: FieldRef<"PaymentConnectorCredential", 'PaymentCredentialStatus'>
+    readonly encryptionVersion: FieldRef<"PaymentConnectorCredential", 'Int'>
+    readonly encryptedKey: FieldRef<"PaymentConnectorCredential", 'String'>
+    readonly keyHint: FieldRef<"PaymentConnectorCredential", 'String'>
+    readonly createdAt: FieldRef<"PaymentConnectorCredential", 'DateTime'>
+    readonly updatedAt: FieldRef<"PaymentConnectorCredential", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PaymentConnectorCredential findUnique
+   */
+  export type PaymentConnectorCredentialFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnectorCredential
+     */
+    select?: PaymentConnectorCredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnectorCredential
+     */
+    omit?: PaymentConnectorCredentialOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorCredentialInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentConnectorCredential to fetch.
+     */
+    where: PaymentConnectorCredentialWhereUniqueInput
+  }
+
+  /**
+   * PaymentConnectorCredential findUniqueOrThrow
+   */
+  export type PaymentConnectorCredentialFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnectorCredential
+     */
+    select?: PaymentConnectorCredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnectorCredential
+     */
+    omit?: PaymentConnectorCredentialOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorCredentialInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentConnectorCredential to fetch.
+     */
+    where: PaymentConnectorCredentialWhereUniqueInput
+  }
+
+  /**
+   * PaymentConnectorCredential findFirst
+   */
+  export type PaymentConnectorCredentialFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnectorCredential
+     */
+    select?: PaymentConnectorCredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnectorCredential
+     */
+    omit?: PaymentConnectorCredentialOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorCredentialInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentConnectorCredential to fetch.
+     */
+    where?: PaymentConnectorCredentialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentConnectorCredentials to fetch.
+     */
+    orderBy?: PaymentConnectorCredentialOrderByWithRelationInput | PaymentConnectorCredentialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentConnectorCredentials.
+     */
+    cursor?: PaymentConnectorCredentialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentConnectorCredentials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentConnectorCredentials.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentConnectorCredentials.
+     */
+    distinct?: PaymentConnectorCredentialScalarFieldEnum | PaymentConnectorCredentialScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentConnectorCredential findFirstOrThrow
+   */
+  export type PaymentConnectorCredentialFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnectorCredential
+     */
+    select?: PaymentConnectorCredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnectorCredential
+     */
+    omit?: PaymentConnectorCredentialOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorCredentialInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentConnectorCredential to fetch.
+     */
+    where?: PaymentConnectorCredentialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentConnectorCredentials to fetch.
+     */
+    orderBy?: PaymentConnectorCredentialOrderByWithRelationInput | PaymentConnectorCredentialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentConnectorCredentials.
+     */
+    cursor?: PaymentConnectorCredentialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentConnectorCredentials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentConnectorCredentials.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentConnectorCredentials.
+     */
+    distinct?: PaymentConnectorCredentialScalarFieldEnum | PaymentConnectorCredentialScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentConnectorCredential findMany
+   */
+  export type PaymentConnectorCredentialFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnectorCredential
+     */
+    select?: PaymentConnectorCredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnectorCredential
+     */
+    omit?: PaymentConnectorCredentialOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorCredentialInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentConnectorCredentials to fetch.
+     */
+    where?: PaymentConnectorCredentialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentConnectorCredentials to fetch.
+     */
+    orderBy?: PaymentConnectorCredentialOrderByWithRelationInput | PaymentConnectorCredentialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PaymentConnectorCredentials.
+     */
+    cursor?: PaymentConnectorCredentialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentConnectorCredentials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentConnectorCredentials.
+     */
+    skip?: number
+    distinct?: PaymentConnectorCredentialScalarFieldEnum | PaymentConnectorCredentialScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentConnectorCredential create
+   */
+  export type PaymentConnectorCredentialCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnectorCredential
+     */
+    select?: PaymentConnectorCredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnectorCredential
+     */
+    omit?: PaymentConnectorCredentialOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorCredentialInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PaymentConnectorCredential.
+     */
+    data: XOR<PaymentConnectorCredentialCreateInput, PaymentConnectorCredentialUncheckedCreateInput>
+  }
+
+  /**
+   * PaymentConnectorCredential createMany
+   */
+  export type PaymentConnectorCredentialCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PaymentConnectorCredentials.
+     */
+    data: PaymentConnectorCredentialCreateManyInput | PaymentConnectorCredentialCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaymentConnectorCredential createManyAndReturn
+   */
+  export type PaymentConnectorCredentialCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnectorCredential
+     */
+    select?: PaymentConnectorCredentialSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnectorCredential
+     */
+    omit?: PaymentConnectorCredentialOmit<ExtArgs> | null
+    /**
+     * The data used to create many PaymentConnectorCredentials.
+     */
+    data: PaymentConnectorCredentialCreateManyInput | PaymentConnectorCredentialCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorCredentialIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaymentConnectorCredential update
+   */
+  export type PaymentConnectorCredentialUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnectorCredential
+     */
+    select?: PaymentConnectorCredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnectorCredential
+     */
+    omit?: PaymentConnectorCredentialOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorCredentialInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PaymentConnectorCredential.
+     */
+    data: XOR<PaymentConnectorCredentialUpdateInput, PaymentConnectorCredentialUncheckedUpdateInput>
+    /**
+     * Choose, which PaymentConnectorCredential to update.
+     */
+    where: PaymentConnectorCredentialWhereUniqueInput
+  }
+
+  /**
+   * PaymentConnectorCredential updateMany
+   */
+  export type PaymentConnectorCredentialUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PaymentConnectorCredentials.
+     */
+    data: XOR<PaymentConnectorCredentialUpdateManyMutationInput, PaymentConnectorCredentialUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentConnectorCredentials to update
+     */
+    where?: PaymentConnectorCredentialWhereInput
+    /**
+     * Limit how many PaymentConnectorCredentials to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentConnectorCredential updateManyAndReturn
+   */
+  export type PaymentConnectorCredentialUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnectorCredential
+     */
+    select?: PaymentConnectorCredentialSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnectorCredential
+     */
+    omit?: PaymentConnectorCredentialOmit<ExtArgs> | null
+    /**
+     * The data used to update PaymentConnectorCredentials.
+     */
+    data: XOR<PaymentConnectorCredentialUpdateManyMutationInput, PaymentConnectorCredentialUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentConnectorCredentials to update
+     */
+    where?: PaymentConnectorCredentialWhereInput
+    /**
+     * Limit how many PaymentConnectorCredentials to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorCredentialIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaymentConnectorCredential upsert
+   */
+  export type PaymentConnectorCredentialUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnectorCredential
+     */
+    select?: PaymentConnectorCredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnectorCredential
+     */
+    omit?: PaymentConnectorCredentialOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorCredentialInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PaymentConnectorCredential to update in case it exists.
+     */
+    where: PaymentConnectorCredentialWhereUniqueInput
+    /**
+     * In case the PaymentConnectorCredential found by the `where` argument doesn't exist, create a new PaymentConnectorCredential with this data.
+     */
+    create: XOR<PaymentConnectorCredentialCreateInput, PaymentConnectorCredentialUncheckedCreateInput>
+    /**
+     * In case the PaymentConnectorCredential was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaymentConnectorCredentialUpdateInput, PaymentConnectorCredentialUncheckedUpdateInput>
+  }
+
+  /**
+   * PaymentConnectorCredential delete
+   */
+  export type PaymentConnectorCredentialDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnectorCredential
+     */
+    select?: PaymentConnectorCredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnectorCredential
+     */
+    omit?: PaymentConnectorCredentialOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorCredentialInclude<ExtArgs> | null
+    /**
+     * Filter which PaymentConnectorCredential to delete.
+     */
+    where: PaymentConnectorCredentialWhereUniqueInput
+  }
+
+  /**
+   * PaymentConnectorCredential deleteMany
+   */
+  export type PaymentConnectorCredentialDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentConnectorCredentials to delete
+     */
+    where?: PaymentConnectorCredentialWhereInput
+    /**
+     * Limit how many PaymentConnectorCredentials to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentConnectorCredential without action
+   */
+  export type PaymentConnectorCredentialDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentConnectorCredential
+     */
+    select?: PaymentConnectorCredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentConnectorCredential
+     */
+    omit?: PaymentConnectorCredentialOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentConnectorCredentialInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PaymentRevenueSnapshot
+   */
+
+  export type AggregatePaymentRevenueSnapshot = {
+    _count: PaymentRevenueSnapshotCountAggregateOutputType | null
+    _avg: PaymentRevenueSnapshotAvgAggregateOutputType | null
+    _sum: PaymentRevenueSnapshotSumAggregateOutputType | null
+    _min: PaymentRevenueSnapshotMinAggregateOutputType | null
+    _max: PaymentRevenueSnapshotMaxAggregateOutputType | null
+  }
+
+  export type PaymentRevenueSnapshotAvgAggregateOutputType = {
+    periodRevenueCents: number | null
+    allTimeRevenueCents: number | null
+    mrrCents: number | null
+  }
+
+  export type PaymentRevenueSnapshotSumAggregateOutputType = {
+    periodRevenueCents: number | null
+    allTimeRevenueCents: number | null
+    mrrCents: number | null
+  }
+
+  export type PaymentRevenueSnapshotMinAggregateOutputType = {
+    id: string | null
+    connectorId: string | null
+    currencyCode: string | null
+    periodStart: Date | null
+    periodRevenueCents: number | null
+    allTimeRevenueCents: number | null
+    mrrCents: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PaymentRevenueSnapshotMaxAggregateOutputType = {
+    id: string | null
+    connectorId: string | null
+    currencyCode: string | null
+    periodStart: Date | null
+    periodRevenueCents: number | null
+    allTimeRevenueCents: number | null
+    mrrCents: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PaymentRevenueSnapshotCountAggregateOutputType = {
+    id: number
+    connectorId: number
+    currencyCode: number
+    periodStart: number
+    periodRevenueCents: number
+    allTimeRevenueCents: number
+    mrrCents: number
+    data: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PaymentRevenueSnapshotAvgAggregateInputType = {
+    periodRevenueCents?: true
+    allTimeRevenueCents?: true
+    mrrCents?: true
+  }
+
+  export type PaymentRevenueSnapshotSumAggregateInputType = {
+    periodRevenueCents?: true
+    allTimeRevenueCents?: true
+    mrrCents?: true
+  }
+
+  export type PaymentRevenueSnapshotMinAggregateInputType = {
+    id?: true
+    connectorId?: true
+    currencyCode?: true
+    periodStart?: true
+    periodRevenueCents?: true
+    allTimeRevenueCents?: true
+    mrrCents?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PaymentRevenueSnapshotMaxAggregateInputType = {
+    id?: true
+    connectorId?: true
+    currencyCode?: true
+    periodStart?: true
+    periodRevenueCents?: true
+    allTimeRevenueCents?: true
+    mrrCents?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PaymentRevenueSnapshotCountAggregateInputType = {
+    id?: true
+    connectorId?: true
+    currencyCode?: true
+    periodStart?: true
+    periodRevenueCents?: true
+    allTimeRevenueCents?: true
+    mrrCents?: true
+    data?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PaymentRevenueSnapshotAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentRevenueSnapshot to aggregate.
+     */
+    where?: PaymentRevenueSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentRevenueSnapshots to fetch.
+     */
+    orderBy?: PaymentRevenueSnapshotOrderByWithRelationInput | PaymentRevenueSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaymentRevenueSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentRevenueSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentRevenueSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PaymentRevenueSnapshots
+    **/
+    _count?: true | PaymentRevenueSnapshotCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PaymentRevenueSnapshotAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PaymentRevenueSnapshotSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaymentRevenueSnapshotMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaymentRevenueSnapshotMaxAggregateInputType
+  }
+
+  export type GetPaymentRevenueSnapshotAggregateType<T extends PaymentRevenueSnapshotAggregateArgs> = {
+        [P in keyof T & keyof AggregatePaymentRevenueSnapshot]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePaymentRevenueSnapshot[P]>
+      : GetScalarType<T[P], AggregatePaymentRevenueSnapshot[P]>
+  }
+
+
+
+
+  export type PaymentRevenueSnapshotGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentRevenueSnapshotWhereInput
+    orderBy?: PaymentRevenueSnapshotOrderByWithAggregationInput | PaymentRevenueSnapshotOrderByWithAggregationInput[]
+    by: PaymentRevenueSnapshotScalarFieldEnum[] | PaymentRevenueSnapshotScalarFieldEnum
+    having?: PaymentRevenueSnapshotScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaymentRevenueSnapshotCountAggregateInputType | true
+    _avg?: PaymentRevenueSnapshotAvgAggregateInputType
+    _sum?: PaymentRevenueSnapshotSumAggregateInputType
+    _min?: PaymentRevenueSnapshotMinAggregateInputType
+    _max?: PaymentRevenueSnapshotMaxAggregateInputType
+  }
+
+  export type PaymentRevenueSnapshotGroupByOutputType = {
+    id: string
+    connectorId: string
+    currencyCode: string
+    periodStart: Date
+    periodRevenueCents: number
+    allTimeRevenueCents: number
+    mrrCents: number | null
+    data: JsonValue | null
+    createdAt: Date
+    updatedAt: Date
+    _count: PaymentRevenueSnapshotCountAggregateOutputType | null
+    _avg: PaymentRevenueSnapshotAvgAggregateOutputType | null
+    _sum: PaymentRevenueSnapshotSumAggregateOutputType | null
+    _min: PaymentRevenueSnapshotMinAggregateOutputType | null
+    _max: PaymentRevenueSnapshotMaxAggregateOutputType | null
+  }
+
+  type GetPaymentRevenueSnapshotGroupByPayload<T extends PaymentRevenueSnapshotGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaymentRevenueSnapshotGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaymentRevenueSnapshotGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaymentRevenueSnapshotGroupByOutputType[P]>
+            : GetScalarType<T[P], PaymentRevenueSnapshotGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaymentRevenueSnapshotSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    connectorId?: boolean
+    currencyCode?: boolean
+    periodStart?: boolean
+    periodRevenueCents?: boolean
+    allTimeRevenueCents?: boolean
+    mrrCents?: boolean
+    data?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    connector?: boolean | PaymentConnectorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentRevenueSnapshot"]>
+
+  export type PaymentRevenueSnapshotSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    connectorId?: boolean
+    currencyCode?: boolean
+    periodStart?: boolean
+    periodRevenueCents?: boolean
+    allTimeRevenueCents?: boolean
+    mrrCents?: boolean
+    data?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    connector?: boolean | PaymentConnectorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentRevenueSnapshot"]>
+
+  export type PaymentRevenueSnapshotSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    connectorId?: boolean
+    currencyCode?: boolean
+    periodStart?: boolean
+    periodRevenueCents?: boolean
+    allTimeRevenueCents?: boolean
+    mrrCents?: boolean
+    data?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    connector?: boolean | PaymentConnectorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentRevenueSnapshot"]>
+
+  export type PaymentRevenueSnapshotSelectScalar = {
+    id?: boolean
+    connectorId?: boolean
+    currencyCode?: boolean
+    periodStart?: boolean
+    periodRevenueCents?: boolean
+    allTimeRevenueCents?: boolean
+    mrrCents?: boolean
+    data?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PaymentRevenueSnapshotOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "connectorId" | "currencyCode" | "periodStart" | "periodRevenueCents" | "allTimeRevenueCents" | "mrrCents" | "data" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentRevenueSnapshot"]>
+  export type PaymentRevenueSnapshotInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    connector?: boolean | PaymentConnectorDefaultArgs<ExtArgs>
+  }
+  export type PaymentRevenueSnapshotIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    connector?: boolean | PaymentConnectorDefaultArgs<ExtArgs>
+  }
+  export type PaymentRevenueSnapshotIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    connector?: boolean | PaymentConnectorDefaultArgs<ExtArgs>
+  }
+
+  export type $PaymentRevenueSnapshotPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PaymentRevenueSnapshot"
+    objects: {
+      connector: Prisma.$PaymentConnectorPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      connectorId: string
+      currencyCode: string
+      periodStart: Date
+      periodRevenueCents: number
+      allTimeRevenueCents: number
+      mrrCents: number | null
+      data: Prisma.JsonValue | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["paymentRevenueSnapshot"]>
+    composites: {}
+  }
+
+  type PaymentRevenueSnapshotGetPayload<S extends boolean | null | undefined | PaymentRevenueSnapshotDefaultArgs> = $Result.GetResult<Prisma.$PaymentRevenueSnapshotPayload, S>
+
+  type PaymentRevenueSnapshotCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaymentRevenueSnapshotFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PaymentRevenueSnapshotCountAggregateInputType | true
+    }
+
+  export interface PaymentRevenueSnapshotDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PaymentRevenueSnapshot'], meta: { name: 'PaymentRevenueSnapshot' } }
+    /**
+     * Find zero or one PaymentRevenueSnapshot that matches the filter.
+     * @param {PaymentRevenueSnapshotFindUniqueArgs} args - Arguments to find a PaymentRevenueSnapshot
+     * @example
+     * // Get one PaymentRevenueSnapshot
+     * const paymentRevenueSnapshot = await prisma.paymentRevenueSnapshot.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaymentRevenueSnapshotFindUniqueArgs>(args: SelectSubset<T, PaymentRevenueSnapshotFindUniqueArgs<ExtArgs>>): Prisma__PaymentRevenueSnapshotClient<$Result.GetResult<Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PaymentRevenueSnapshot that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PaymentRevenueSnapshotFindUniqueOrThrowArgs} args - Arguments to find a PaymentRevenueSnapshot
+     * @example
+     * // Get one PaymentRevenueSnapshot
+     * const paymentRevenueSnapshot = await prisma.paymentRevenueSnapshot.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaymentRevenueSnapshotFindUniqueOrThrowArgs>(args: SelectSubset<T, PaymentRevenueSnapshotFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaymentRevenueSnapshotClient<$Result.GetResult<Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentRevenueSnapshot that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentRevenueSnapshotFindFirstArgs} args - Arguments to find a PaymentRevenueSnapshot
+     * @example
+     * // Get one PaymentRevenueSnapshot
+     * const paymentRevenueSnapshot = await prisma.paymentRevenueSnapshot.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaymentRevenueSnapshotFindFirstArgs>(args?: SelectSubset<T, PaymentRevenueSnapshotFindFirstArgs<ExtArgs>>): Prisma__PaymentRevenueSnapshotClient<$Result.GetResult<Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentRevenueSnapshot that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentRevenueSnapshotFindFirstOrThrowArgs} args - Arguments to find a PaymentRevenueSnapshot
+     * @example
+     * // Get one PaymentRevenueSnapshot
+     * const paymentRevenueSnapshot = await prisma.paymentRevenueSnapshot.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaymentRevenueSnapshotFindFirstOrThrowArgs>(args?: SelectSubset<T, PaymentRevenueSnapshotFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaymentRevenueSnapshotClient<$Result.GetResult<Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PaymentRevenueSnapshots that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentRevenueSnapshotFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PaymentRevenueSnapshots
+     * const paymentRevenueSnapshots = await prisma.paymentRevenueSnapshot.findMany()
+     * 
+     * // Get first 10 PaymentRevenueSnapshots
+     * const paymentRevenueSnapshots = await prisma.paymentRevenueSnapshot.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const paymentRevenueSnapshotWithIdOnly = await prisma.paymentRevenueSnapshot.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PaymentRevenueSnapshotFindManyArgs>(args?: SelectSubset<T, PaymentRevenueSnapshotFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PaymentRevenueSnapshot.
+     * @param {PaymentRevenueSnapshotCreateArgs} args - Arguments to create a PaymentRevenueSnapshot.
+     * @example
+     * // Create one PaymentRevenueSnapshot
+     * const PaymentRevenueSnapshot = await prisma.paymentRevenueSnapshot.create({
+     *   data: {
+     *     // ... data to create a PaymentRevenueSnapshot
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaymentRevenueSnapshotCreateArgs>(args: SelectSubset<T, PaymentRevenueSnapshotCreateArgs<ExtArgs>>): Prisma__PaymentRevenueSnapshotClient<$Result.GetResult<Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PaymentRevenueSnapshots.
+     * @param {PaymentRevenueSnapshotCreateManyArgs} args - Arguments to create many PaymentRevenueSnapshots.
+     * @example
+     * // Create many PaymentRevenueSnapshots
+     * const paymentRevenueSnapshot = await prisma.paymentRevenueSnapshot.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaymentRevenueSnapshotCreateManyArgs>(args?: SelectSubset<T, PaymentRevenueSnapshotCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PaymentRevenueSnapshots and returns the data saved in the database.
+     * @param {PaymentRevenueSnapshotCreateManyAndReturnArgs} args - Arguments to create many PaymentRevenueSnapshots.
+     * @example
+     * // Create many PaymentRevenueSnapshots
+     * const paymentRevenueSnapshot = await prisma.paymentRevenueSnapshot.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PaymentRevenueSnapshots and only return the `id`
+     * const paymentRevenueSnapshotWithIdOnly = await prisma.paymentRevenueSnapshot.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PaymentRevenueSnapshotCreateManyAndReturnArgs>(args?: SelectSubset<T, PaymentRevenueSnapshotCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PaymentRevenueSnapshot.
+     * @param {PaymentRevenueSnapshotDeleteArgs} args - Arguments to delete one PaymentRevenueSnapshot.
+     * @example
+     * // Delete one PaymentRevenueSnapshot
+     * const PaymentRevenueSnapshot = await prisma.paymentRevenueSnapshot.delete({
+     *   where: {
+     *     // ... filter to delete one PaymentRevenueSnapshot
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaymentRevenueSnapshotDeleteArgs>(args: SelectSubset<T, PaymentRevenueSnapshotDeleteArgs<ExtArgs>>): Prisma__PaymentRevenueSnapshotClient<$Result.GetResult<Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PaymentRevenueSnapshot.
+     * @param {PaymentRevenueSnapshotUpdateArgs} args - Arguments to update one PaymentRevenueSnapshot.
+     * @example
+     * // Update one PaymentRevenueSnapshot
+     * const paymentRevenueSnapshot = await prisma.paymentRevenueSnapshot.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaymentRevenueSnapshotUpdateArgs>(args: SelectSubset<T, PaymentRevenueSnapshotUpdateArgs<ExtArgs>>): Prisma__PaymentRevenueSnapshotClient<$Result.GetResult<Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PaymentRevenueSnapshots.
+     * @param {PaymentRevenueSnapshotDeleteManyArgs} args - Arguments to filter PaymentRevenueSnapshots to delete.
+     * @example
+     * // Delete a few PaymentRevenueSnapshots
+     * const { count } = await prisma.paymentRevenueSnapshot.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaymentRevenueSnapshotDeleteManyArgs>(args?: SelectSubset<T, PaymentRevenueSnapshotDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentRevenueSnapshots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentRevenueSnapshotUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PaymentRevenueSnapshots
+     * const paymentRevenueSnapshot = await prisma.paymentRevenueSnapshot.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaymentRevenueSnapshotUpdateManyArgs>(args: SelectSubset<T, PaymentRevenueSnapshotUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentRevenueSnapshots and returns the data updated in the database.
+     * @param {PaymentRevenueSnapshotUpdateManyAndReturnArgs} args - Arguments to update many PaymentRevenueSnapshots.
+     * @example
+     * // Update many PaymentRevenueSnapshots
+     * const paymentRevenueSnapshot = await prisma.paymentRevenueSnapshot.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PaymentRevenueSnapshots and only return the `id`
+     * const paymentRevenueSnapshotWithIdOnly = await prisma.paymentRevenueSnapshot.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PaymentRevenueSnapshotUpdateManyAndReturnArgs>(args: SelectSubset<T, PaymentRevenueSnapshotUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PaymentRevenueSnapshot.
+     * @param {PaymentRevenueSnapshotUpsertArgs} args - Arguments to update or create a PaymentRevenueSnapshot.
+     * @example
+     * // Update or create a PaymentRevenueSnapshot
+     * const paymentRevenueSnapshot = await prisma.paymentRevenueSnapshot.upsert({
+     *   create: {
+     *     // ... data to create a PaymentRevenueSnapshot
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PaymentRevenueSnapshot we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaymentRevenueSnapshotUpsertArgs>(args: SelectSubset<T, PaymentRevenueSnapshotUpsertArgs<ExtArgs>>): Prisma__PaymentRevenueSnapshotClient<$Result.GetResult<Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PaymentRevenueSnapshots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentRevenueSnapshotCountArgs} args - Arguments to filter PaymentRevenueSnapshots to count.
+     * @example
+     * // Count the number of PaymentRevenueSnapshots
+     * const count = await prisma.paymentRevenueSnapshot.count({
+     *   where: {
+     *     // ... the filter for the PaymentRevenueSnapshots we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaymentRevenueSnapshotCountArgs>(
+      args?: Subset<T, PaymentRevenueSnapshotCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaymentRevenueSnapshotCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PaymentRevenueSnapshot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentRevenueSnapshotAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaymentRevenueSnapshotAggregateArgs>(args: Subset<T, PaymentRevenueSnapshotAggregateArgs>): Prisma.PrismaPromise<GetPaymentRevenueSnapshotAggregateType<T>>
+
+    /**
+     * Group by PaymentRevenueSnapshot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentRevenueSnapshotGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaymentRevenueSnapshotGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaymentRevenueSnapshotGroupByArgs['orderBy'] }
+        : { orderBy?: PaymentRevenueSnapshotGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaymentRevenueSnapshotGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaymentRevenueSnapshotGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PaymentRevenueSnapshot model
+   */
+  readonly fields: PaymentRevenueSnapshotFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PaymentRevenueSnapshot.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaymentRevenueSnapshotClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    connector<T extends PaymentConnectorDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PaymentConnectorDefaultArgs<ExtArgs>>): Prisma__PaymentConnectorClient<$Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PaymentRevenueSnapshot model
+   */
+  interface PaymentRevenueSnapshotFieldRefs {
+    readonly id: FieldRef<"PaymentRevenueSnapshot", 'String'>
+    readonly connectorId: FieldRef<"PaymentRevenueSnapshot", 'String'>
+    readonly currencyCode: FieldRef<"PaymentRevenueSnapshot", 'String'>
+    readonly periodStart: FieldRef<"PaymentRevenueSnapshot", 'DateTime'>
+    readonly periodRevenueCents: FieldRef<"PaymentRevenueSnapshot", 'Int'>
+    readonly allTimeRevenueCents: FieldRef<"PaymentRevenueSnapshot", 'Int'>
+    readonly mrrCents: FieldRef<"PaymentRevenueSnapshot", 'Int'>
+    readonly data: FieldRef<"PaymentRevenueSnapshot", 'Json'>
+    readonly createdAt: FieldRef<"PaymentRevenueSnapshot", 'DateTime'>
+    readonly updatedAt: FieldRef<"PaymentRevenueSnapshot", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PaymentRevenueSnapshot findUnique
+   */
+  export type PaymentRevenueSnapshotFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentRevenueSnapshot
+     */
+    select?: PaymentRevenueSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentRevenueSnapshot
+     */
+    omit?: PaymentRevenueSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentRevenueSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentRevenueSnapshot to fetch.
+     */
+    where: PaymentRevenueSnapshotWhereUniqueInput
+  }
+
+  /**
+   * PaymentRevenueSnapshot findUniqueOrThrow
+   */
+  export type PaymentRevenueSnapshotFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentRevenueSnapshot
+     */
+    select?: PaymentRevenueSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentRevenueSnapshot
+     */
+    omit?: PaymentRevenueSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentRevenueSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentRevenueSnapshot to fetch.
+     */
+    where: PaymentRevenueSnapshotWhereUniqueInput
+  }
+
+  /**
+   * PaymentRevenueSnapshot findFirst
+   */
+  export type PaymentRevenueSnapshotFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentRevenueSnapshot
+     */
+    select?: PaymentRevenueSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentRevenueSnapshot
+     */
+    omit?: PaymentRevenueSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentRevenueSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentRevenueSnapshot to fetch.
+     */
+    where?: PaymentRevenueSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentRevenueSnapshots to fetch.
+     */
+    orderBy?: PaymentRevenueSnapshotOrderByWithRelationInput | PaymentRevenueSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentRevenueSnapshots.
+     */
+    cursor?: PaymentRevenueSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentRevenueSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentRevenueSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentRevenueSnapshots.
+     */
+    distinct?: PaymentRevenueSnapshotScalarFieldEnum | PaymentRevenueSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentRevenueSnapshot findFirstOrThrow
+   */
+  export type PaymentRevenueSnapshotFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentRevenueSnapshot
+     */
+    select?: PaymentRevenueSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentRevenueSnapshot
+     */
+    omit?: PaymentRevenueSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentRevenueSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentRevenueSnapshot to fetch.
+     */
+    where?: PaymentRevenueSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentRevenueSnapshots to fetch.
+     */
+    orderBy?: PaymentRevenueSnapshotOrderByWithRelationInput | PaymentRevenueSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentRevenueSnapshots.
+     */
+    cursor?: PaymentRevenueSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentRevenueSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentRevenueSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentRevenueSnapshots.
+     */
+    distinct?: PaymentRevenueSnapshotScalarFieldEnum | PaymentRevenueSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentRevenueSnapshot findMany
+   */
+  export type PaymentRevenueSnapshotFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentRevenueSnapshot
+     */
+    select?: PaymentRevenueSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentRevenueSnapshot
+     */
+    omit?: PaymentRevenueSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentRevenueSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentRevenueSnapshots to fetch.
+     */
+    where?: PaymentRevenueSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentRevenueSnapshots to fetch.
+     */
+    orderBy?: PaymentRevenueSnapshotOrderByWithRelationInput | PaymentRevenueSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PaymentRevenueSnapshots.
+     */
+    cursor?: PaymentRevenueSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentRevenueSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentRevenueSnapshots.
+     */
+    skip?: number
+    distinct?: PaymentRevenueSnapshotScalarFieldEnum | PaymentRevenueSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentRevenueSnapshot create
+   */
+  export type PaymentRevenueSnapshotCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentRevenueSnapshot
+     */
+    select?: PaymentRevenueSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentRevenueSnapshot
+     */
+    omit?: PaymentRevenueSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentRevenueSnapshotInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PaymentRevenueSnapshot.
+     */
+    data: XOR<PaymentRevenueSnapshotCreateInput, PaymentRevenueSnapshotUncheckedCreateInput>
+  }
+
+  /**
+   * PaymentRevenueSnapshot createMany
+   */
+  export type PaymentRevenueSnapshotCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PaymentRevenueSnapshots.
+     */
+    data: PaymentRevenueSnapshotCreateManyInput | PaymentRevenueSnapshotCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaymentRevenueSnapshot createManyAndReturn
+   */
+  export type PaymentRevenueSnapshotCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentRevenueSnapshot
+     */
+    select?: PaymentRevenueSnapshotSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentRevenueSnapshot
+     */
+    omit?: PaymentRevenueSnapshotOmit<ExtArgs> | null
+    /**
+     * The data used to create many PaymentRevenueSnapshots.
+     */
+    data: PaymentRevenueSnapshotCreateManyInput | PaymentRevenueSnapshotCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentRevenueSnapshotIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaymentRevenueSnapshot update
+   */
+  export type PaymentRevenueSnapshotUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentRevenueSnapshot
+     */
+    select?: PaymentRevenueSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentRevenueSnapshot
+     */
+    omit?: PaymentRevenueSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentRevenueSnapshotInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PaymentRevenueSnapshot.
+     */
+    data: XOR<PaymentRevenueSnapshotUpdateInput, PaymentRevenueSnapshotUncheckedUpdateInput>
+    /**
+     * Choose, which PaymentRevenueSnapshot to update.
+     */
+    where: PaymentRevenueSnapshotWhereUniqueInput
+  }
+
+  /**
+   * PaymentRevenueSnapshot updateMany
+   */
+  export type PaymentRevenueSnapshotUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PaymentRevenueSnapshots.
+     */
+    data: XOR<PaymentRevenueSnapshotUpdateManyMutationInput, PaymentRevenueSnapshotUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentRevenueSnapshots to update
+     */
+    where?: PaymentRevenueSnapshotWhereInput
+    /**
+     * Limit how many PaymentRevenueSnapshots to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentRevenueSnapshot updateManyAndReturn
+   */
+  export type PaymentRevenueSnapshotUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentRevenueSnapshot
+     */
+    select?: PaymentRevenueSnapshotSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentRevenueSnapshot
+     */
+    omit?: PaymentRevenueSnapshotOmit<ExtArgs> | null
+    /**
+     * The data used to update PaymentRevenueSnapshots.
+     */
+    data: XOR<PaymentRevenueSnapshotUpdateManyMutationInput, PaymentRevenueSnapshotUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentRevenueSnapshots to update
+     */
+    where?: PaymentRevenueSnapshotWhereInput
+    /**
+     * Limit how many PaymentRevenueSnapshots to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentRevenueSnapshotIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaymentRevenueSnapshot upsert
+   */
+  export type PaymentRevenueSnapshotUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentRevenueSnapshot
+     */
+    select?: PaymentRevenueSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentRevenueSnapshot
+     */
+    omit?: PaymentRevenueSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentRevenueSnapshotInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PaymentRevenueSnapshot to update in case it exists.
+     */
+    where: PaymentRevenueSnapshotWhereUniqueInput
+    /**
+     * In case the PaymentRevenueSnapshot found by the `where` argument doesn't exist, create a new PaymentRevenueSnapshot with this data.
+     */
+    create: XOR<PaymentRevenueSnapshotCreateInput, PaymentRevenueSnapshotUncheckedCreateInput>
+    /**
+     * In case the PaymentRevenueSnapshot was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaymentRevenueSnapshotUpdateInput, PaymentRevenueSnapshotUncheckedUpdateInput>
+  }
+
+  /**
+   * PaymentRevenueSnapshot delete
+   */
+  export type PaymentRevenueSnapshotDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentRevenueSnapshot
+     */
+    select?: PaymentRevenueSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentRevenueSnapshot
+     */
+    omit?: PaymentRevenueSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentRevenueSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter which PaymentRevenueSnapshot to delete.
+     */
+    where: PaymentRevenueSnapshotWhereUniqueInput
+  }
+
+  /**
+   * PaymentRevenueSnapshot deleteMany
+   */
+  export type PaymentRevenueSnapshotDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentRevenueSnapshots to delete
+     */
+    where?: PaymentRevenueSnapshotWhereInput
+    /**
+     * Limit how many PaymentRevenueSnapshots to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentRevenueSnapshot without action
+   */
+  export type PaymentRevenueSnapshotDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentRevenueSnapshot
+     */
+    select?: PaymentRevenueSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentRevenueSnapshot
+     */
+    omit?: PaymentRevenueSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentRevenueSnapshotInclude<ExtArgs> | null
   }
 
 
@@ -50348,6 +54281,56 @@ export namespace Prisma {
   export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
 
 
+  export const PaymentConnectorScalarFieldEnum: {
+    id: 'id',
+    productId: 'productId',
+    provider: 'provider',
+    status: 'status',
+    config: 'config',
+    lastSyncedAt: 'lastSyncedAt',
+    lastSyncError: 'lastSyncError',
+    verifiedAt: 'verifiedAt',
+    latestAllTimeRevenueCents: 'latestAllTimeRevenueCents',
+    latestMrrCents: 'latestMrrCents',
+    latestCurrencyCode: 'latestCurrencyCode',
+    latestPeriodStart: 'latestPeriodStart',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PaymentConnectorScalarFieldEnum = (typeof PaymentConnectorScalarFieldEnum)[keyof typeof PaymentConnectorScalarFieldEnum]
+
+
+  export const PaymentConnectorCredentialScalarFieldEnum: {
+    id: 'id',
+    connectorId: 'connectorId',
+    status: 'status',
+    encryptionVersion: 'encryptionVersion',
+    encryptedKey: 'encryptedKey',
+    keyHint: 'keyHint',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PaymentConnectorCredentialScalarFieldEnum = (typeof PaymentConnectorCredentialScalarFieldEnum)[keyof typeof PaymentConnectorCredentialScalarFieldEnum]
+
+
+  export const PaymentRevenueSnapshotScalarFieldEnum: {
+    id: 'id',
+    connectorId: 'connectorId',
+    currencyCode: 'currencyCode',
+    periodStart: 'periodStart',
+    periodRevenueCents: 'periodRevenueCents',
+    allTimeRevenueCents: 'allTimeRevenueCents',
+    mrrCents: 'mrrCents',
+    data: 'data',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PaymentRevenueSnapshotScalarFieldEnum = (typeof PaymentRevenueSnapshotScalarFieldEnum)[keyof typeof PaymentRevenueSnapshotScalarFieldEnum]
+
+
   export const AlternativeProductScalarFieldEnum: {
     id: 'id',
     name: 'name',
@@ -51085,16 +55068,30 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'NotificationType'
+   * Reference to a field of type 'PaymentConnectorProvider'
    */
-  export type EnumNotificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationType'>
+  export type EnumPaymentConnectorProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentConnectorProvider'>
     
 
 
   /**
-   * Reference to a field of type 'NotificationType[]'
+   * Reference to a field of type 'PaymentConnectorProvider[]'
    */
-  export type ListEnumNotificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationType[]'>
+  export type ListEnumPaymentConnectorProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentConnectorProvider[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'PaymentConnectorStatus'
+   */
+  export type EnumPaymentConnectorStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentConnectorStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'PaymentConnectorStatus[]'
+   */
+  export type ListEnumPaymentConnectorStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentConnectorStatus[]'>
     
 
 
@@ -51109,6 +55106,34 @@ export namespace Prisma {
    * Reference to a field of type 'QueryMode'
    */
   export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'PaymentCredentialStatus'
+   */
+  export type EnumPaymentCredentialStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentCredentialStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'PaymentCredentialStatus[]'
+   */
+  export type ListEnumPaymentCredentialStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentCredentialStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'NotificationType'
+   */
+  export type EnumNotificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationType'>
+    
+
+
+  /**
+   * Reference to a field of type 'NotificationType[]'
+   */
+  export type ListEnumNotificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationType[]'>
     
 
 
@@ -51410,6 +55435,7 @@ export namespace Prisma {
     redemptions?: RedemptionListRelationFilter
     featureEntitlements?: FeatureEntitlementListRelationFilter
     alternatives?: AlternativeProductListRelationFilter
+    paymentConnector?: XOR<PaymentConnectorNullableScalarRelationFilter, PaymentConnectorWhereInput> | null
   }
 
   export type ProductOrderByWithRelationInput = {
@@ -51459,6 +55485,7 @@ export namespace Prisma {
     redemptions?: RedemptionOrderByRelationAggregateInput
     featureEntitlements?: FeatureEntitlementOrderByRelationAggregateInput
     alternatives?: AlternativeProductOrderByRelationAggregateInput
+    paymentConnector?: PaymentConnectorOrderByWithRelationInput
   }
 
   export type ProductWhereUniqueInput = Prisma.AtLeast<{
@@ -51511,6 +55538,7 @@ export namespace Prisma {
     redemptions?: RedemptionListRelationFilter
     featureEntitlements?: FeatureEntitlementListRelationFilter
     alternatives?: AlternativeProductListRelationFilter
+    paymentConnector?: XOR<PaymentConnectorNullableScalarRelationFilter, PaymentConnectorWhereInput> | null
   }, "id" | "slug">
 
   export type ProductOrderByWithAggregationInput = {
@@ -51575,6 +55603,269 @@ export namespace Prisma {
     platforms?: EnumPlatformNullableListFilter<"Product">
     createdAt?: DateTimeWithAggregatesFilter<"Product"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Product"> | Date | string
+  }
+
+  export type PaymentConnectorWhereInput = {
+    AND?: PaymentConnectorWhereInput | PaymentConnectorWhereInput[]
+    OR?: PaymentConnectorWhereInput[]
+    NOT?: PaymentConnectorWhereInput | PaymentConnectorWhereInput[]
+    id?: StringFilter<"PaymentConnector"> | string
+    productId?: StringFilter<"PaymentConnector"> | string
+    provider?: EnumPaymentConnectorProviderFilter<"PaymentConnector"> | $Enums.PaymentConnectorProvider
+    status?: EnumPaymentConnectorStatusFilter<"PaymentConnector"> | $Enums.PaymentConnectorStatus
+    config?: JsonNullableFilter<"PaymentConnector">
+    lastSyncedAt?: DateTimeNullableFilter<"PaymentConnector"> | Date | string | null
+    lastSyncError?: StringNullableFilter<"PaymentConnector"> | string | null
+    verifiedAt?: DateTimeNullableFilter<"PaymentConnector"> | Date | string | null
+    latestAllTimeRevenueCents?: IntNullableFilter<"PaymentConnector"> | number | null
+    latestMrrCents?: IntNullableFilter<"PaymentConnector"> | number | null
+    latestCurrencyCode?: StringNullableFilter<"PaymentConnector"> | string | null
+    latestPeriodStart?: DateTimeNullableFilter<"PaymentConnector"> | Date | string | null
+    createdAt?: DateTimeFilter<"PaymentConnector"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentConnector"> | Date | string
+    product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+    credentials?: PaymentConnectorCredentialListRelationFilter
+    revenueHistory?: PaymentRevenueSnapshotListRelationFilter
+  }
+
+  export type PaymentConnectorOrderByWithRelationInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    provider?: SortOrder
+    status?: SortOrder
+    config?: SortOrderInput | SortOrder
+    lastSyncedAt?: SortOrderInput | SortOrder
+    lastSyncError?: SortOrderInput | SortOrder
+    verifiedAt?: SortOrderInput | SortOrder
+    latestAllTimeRevenueCents?: SortOrderInput | SortOrder
+    latestMrrCents?: SortOrderInput | SortOrder
+    latestCurrencyCode?: SortOrderInput | SortOrder
+    latestPeriodStart?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    product?: ProductOrderByWithRelationInput
+    credentials?: PaymentConnectorCredentialOrderByRelationAggregateInput
+    revenueHistory?: PaymentRevenueSnapshotOrderByRelationAggregateInput
+  }
+
+  export type PaymentConnectorWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    productId?: string
+    AND?: PaymentConnectorWhereInput | PaymentConnectorWhereInput[]
+    OR?: PaymentConnectorWhereInput[]
+    NOT?: PaymentConnectorWhereInput | PaymentConnectorWhereInput[]
+    provider?: EnumPaymentConnectorProviderFilter<"PaymentConnector"> | $Enums.PaymentConnectorProvider
+    status?: EnumPaymentConnectorStatusFilter<"PaymentConnector"> | $Enums.PaymentConnectorStatus
+    config?: JsonNullableFilter<"PaymentConnector">
+    lastSyncedAt?: DateTimeNullableFilter<"PaymentConnector"> | Date | string | null
+    lastSyncError?: StringNullableFilter<"PaymentConnector"> | string | null
+    verifiedAt?: DateTimeNullableFilter<"PaymentConnector"> | Date | string | null
+    latestAllTimeRevenueCents?: IntNullableFilter<"PaymentConnector"> | number | null
+    latestMrrCents?: IntNullableFilter<"PaymentConnector"> | number | null
+    latestCurrencyCode?: StringNullableFilter<"PaymentConnector"> | string | null
+    latestPeriodStart?: DateTimeNullableFilter<"PaymentConnector"> | Date | string | null
+    createdAt?: DateTimeFilter<"PaymentConnector"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentConnector"> | Date | string
+    product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+    credentials?: PaymentConnectorCredentialListRelationFilter
+    revenueHistory?: PaymentRevenueSnapshotListRelationFilter
+  }, "id" | "productId">
+
+  export type PaymentConnectorOrderByWithAggregationInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    provider?: SortOrder
+    status?: SortOrder
+    config?: SortOrderInput | SortOrder
+    lastSyncedAt?: SortOrderInput | SortOrder
+    lastSyncError?: SortOrderInput | SortOrder
+    verifiedAt?: SortOrderInput | SortOrder
+    latestAllTimeRevenueCents?: SortOrderInput | SortOrder
+    latestMrrCents?: SortOrderInput | SortOrder
+    latestCurrencyCode?: SortOrderInput | SortOrder
+    latestPeriodStart?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PaymentConnectorCountOrderByAggregateInput
+    _avg?: PaymentConnectorAvgOrderByAggregateInput
+    _max?: PaymentConnectorMaxOrderByAggregateInput
+    _min?: PaymentConnectorMinOrderByAggregateInput
+    _sum?: PaymentConnectorSumOrderByAggregateInput
+  }
+
+  export type PaymentConnectorScalarWhereWithAggregatesInput = {
+    AND?: PaymentConnectorScalarWhereWithAggregatesInput | PaymentConnectorScalarWhereWithAggregatesInput[]
+    OR?: PaymentConnectorScalarWhereWithAggregatesInput[]
+    NOT?: PaymentConnectorScalarWhereWithAggregatesInput | PaymentConnectorScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PaymentConnector"> | string
+    productId?: StringWithAggregatesFilter<"PaymentConnector"> | string
+    provider?: EnumPaymentConnectorProviderWithAggregatesFilter<"PaymentConnector"> | $Enums.PaymentConnectorProvider
+    status?: EnumPaymentConnectorStatusWithAggregatesFilter<"PaymentConnector"> | $Enums.PaymentConnectorStatus
+    config?: JsonNullableWithAggregatesFilter<"PaymentConnector">
+    lastSyncedAt?: DateTimeNullableWithAggregatesFilter<"PaymentConnector"> | Date | string | null
+    lastSyncError?: StringNullableWithAggregatesFilter<"PaymentConnector"> | string | null
+    verifiedAt?: DateTimeNullableWithAggregatesFilter<"PaymentConnector"> | Date | string | null
+    latestAllTimeRevenueCents?: IntNullableWithAggregatesFilter<"PaymentConnector"> | number | null
+    latestMrrCents?: IntNullableWithAggregatesFilter<"PaymentConnector"> | number | null
+    latestCurrencyCode?: StringNullableWithAggregatesFilter<"PaymentConnector"> | string | null
+    latestPeriodStart?: DateTimeNullableWithAggregatesFilter<"PaymentConnector"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"PaymentConnector"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PaymentConnector"> | Date | string
+  }
+
+  export type PaymentConnectorCredentialWhereInput = {
+    AND?: PaymentConnectorCredentialWhereInput | PaymentConnectorCredentialWhereInput[]
+    OR?: PaymentConnectorCredentialWhereInput[]
+    NOT?: PaymentConnectorCredentialWhereInput | PaymentConnectorCredentialWhereInput[]
+    id?: StringFilter<"PaymentConnectorCredential"> | string
+    connectorId?: StringFilter<"PaymentConnectorCredential"> | string
+    status?: EnumPaymentCredentialStatusFilter<"PaymentConnectorCredential"> | $Enums.PaymentCredentialStatus
+    encryptionVersion?: IntFilter<"PaymentConnectorCredential"> | number
+    encryptedKey?: StringFilter<"PaymentConnectorCredential"> | string
+    keyHint?: StringNullableFilter<"PaymentConnectorCredential"> | string | null
+    createdAt?: DateTimeFilter<"PaymentConnectorCredential"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentConnectorCredential"> | Date | string
+    connector?: XOR<PaymentConnectorScalarRelationFilter, PaymentConnectorWhereInput>
+  }
+
+  export type PaymentConnectorCredentialOrderByWithRelationInput = {
+    id?: SortOrder
+    connectorId?: SortOrder
+    status?: SortOrder
+    encryptionVersion?: SortOrder
+    encryptedKey?: SortOrder
+    keyHint?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    connector?: PaymentConnectorOrderByWithRelationInput
+  }
+
+  export type PaymentConnectorCredentialWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: PaymentConnectorCredentialWhereInput | PaymentConnectorCredentialWhereInput[]
+    OR?: PaymentConnectorCredentialWhereInput[]
+    NOT?: PaymentConnectorCredentialWhereInput | PaymentConnectorCredentialWhereInput[]
+    connectorId?: StringFilter<"PaymentConnectorCredential"> | string
+    status?: EnumPaymentCredentialStatusFilter<"PaymentConnectorCredential"> | $Enums.PaymentCredentialStatus
+    encryptionVersion?: IntFilter<"PaymentConnectorCredential"> | number
+    encryptedKey?: StringFilter<"PaymentConnectorCredential"> | string
+    keyHint?: StringNullableFilter<"PaymentConnectorCredential"> | string | null
+    createdAt?: DateTimeFilter<"PaymentConnectorCredential"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentConnectorCredential"> | Date | string
+    connector?: XOR<PaymentConnectorScalarRelationFilter, PaymentConnectorWhereInput>
+  }, "id">
+
+  export type PaymentConnectorCredentialOrderByWithAggregationInput = {
+    id?: SortOrder
+    connectorId?: SortOrder
+    status?: SortOrder
+    encryptionVersion?: SortOrder
+    encryptedKey?: SortOrder
+    keyHint?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PaymentConnectorCredentialCountOrderByAggregateInput
+    _avg?: PaymentConnectorCredentialAvgOrderByAggregateInput
+    _max?: PaymentConnectorCredentialMaxOrderByAggregateInput
+    _min?: PaymentConnectorCredentialMinOrderByAggregateInput
+    _sum?: PaymentConnectorCredentialSumOrderByAggregateInput
+  }
+
+  export type PaymentConnectorCredentialScalarWhereWithAggregatesInput = {
+    AND?: PaymentConnectorCredentialScalarWhereWithAggregatesInput | PaymentConnectorCredentialScalarWhereWithAggregatesInput[]
+    OR?: PaymentConnectorCredentialScalarWhereWithAggregatesInput[]
+    NOT?: PaymentConnectorCredentialScalarWhereWithAggregatesInput | PaymentConnectorCredentialScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PaymentConnectorCredential"> | string
+    connectorId?: StringWithAggregatesFilter<"PaymentConnectorCredential"> | string
+    status?: EnumPaymentCredentialStatusWithAggregatesFilter<"PaymentConnectorCredential"> | $Enums.PaymentCredentialStatus
+    encryptionVersion?: IntWithAggregatesFilter<"PaymentConnectorCredential"> | number
+    encryptedKey?: StringWithAggregatesFilter<"PaymentConnectorCredential"> | string
+    keyHint?: StringNullableWithAggregatesFilter<"PaymentConnectorCredential"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"PaymentConnectorCredential"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PaymentConnectorCredential"> | Date | string
+  }
+
+  export type PaymentRevenueSnapshotWhereInput = {
+    AND?: PaymentRevenueSnapshotWhereInput | PaymentRevenueSnapshotWhereInput[]
+    OR?: PaymentRevenueSnapshotWhereInput[]
+    NOT?: PaymentRevenueSnapshotWhereInput | PaymentRevenueSnapshotWhereInput[]
+    id?: StringFilter<"PaymentRevenueSnapshot"> | string
+    connectorId?: StringFilter<"PaymentRevenueSnapshot"> | string
+    currencyCode?: StringFilter<"PaymentRevenueSnapshot"> | string
+    periodStart?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
+    periodRevenueCents?: IntFilter<"PaymentRevenueSnapshot"> | number
+    allTimeRevenueCents?: IntFilter<"PaymentRevenueSnapshot"> | number
+    mrrCents?: IntNullableFilter<"PaymentRevenueSnapshot"> | number | null
+    data?: JsonNullableFilter<"PaymentRevenueSnapshot">
+    createdAt?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
+    connector?: XOR<PaymentConnectorScalarRelationFilter, PaymentConnectorWhereInput>
+  }
+
+  export type PaymentRevenueSnapshotOrderByWithRelationInput = {
+    id?: SortOrder
+    connectorId?: SortOrder
+    currencyCode?: SortOrder
+    periodStart?: SortOrder
+    periodRevenueCents?: SortOrder
+    allTimeRevenueCents?: SortOrder
+    mrrCents?: SortOrderInput | SortOrder
+    data?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    connector?: PaymentConnectorOrderByWithRelationInput
+  }
+
+  export type PaymentRevenueSnapshotWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    connectorId_periodStart_currencyCode?: PaymentRevenueSnapshotConnectorIdPeriodStartCurrencyCodeCompoundUniqueInput
+    AND?: PaymentRevenueSnapshotWhereInput | PaymentRevenueSnapshotWhereInput[]
+    OR?: PaymentRevenueSnapshotWhereInput[]
+    NOT?: PaymentRevenueSnapshotWhereInput | PaymentRevenueSnapshotWhereInput[]
+    connectorId?: StringFilter<"PaymentRevenueSnapshot"> | string
+    currencyCode?: StringFilter<"PaymentRevenueSnapshot"> | string
+    periodStart?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
+    periodRevenueCents?: IntFilter<"PaymentRevenueSnapshot"> | number
+    allTimeRevenueCents?: IntFilter<"PaymentRevenueSnapshot"> | number
+    mrrCents?: IntNullableFilter<"PaymentRevenueSnapshot"> | number | null
+    data?: JsonNullableFilter<"PaymentRevenueSnapshot">
+    createdAt?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
+    connector?: XOR<PaymentConnectorScalarRelationFilter, PaymentConnectorWhereInput>
+  }, "id" | "connectorId_periodStart_currencyCode">
+
+  export type PaymentRevenueSnapshotOrderByWithAggregationInput = {
+    id?: SortOrder
+    connectorId?: SortOrder
+    currencyCode?: SortOrder
+    periodStart?: SortOrder
+    periodRevenueCents?: SortOrder
+    allTimeRevenueCents?: SortOrder
+    mrrCents?: SortOrderInput | SortOrder
+    data?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PaymentRevenueSnapshotCountOrderByAggregateInput
+    _avg?: PaymentRevenueSnapshotAvgOrderByAggregateInput
+    _max?: PaymentRevenueSnapshotMaxOrderByAggregateInput
+    _min?: PaymentRevenueSnapshotMinOrderByAggregateInput
+    _sum?: PaymentRevenueSnapshotSumOrderByAggregateInput
+  }
+
+  export type PaymentRevenueSnapshotScalarWhereWithAggregatesInput = {
+    AND?: PaymentRevenueSnapshotScalarWhereWithAggregatesInput | PaymentRevenueSnapshotScalarWhereWithAggregatesInput[]
+    OR?: PaymentRevenueSnapshotScalarWhereWithAggregatesInput[]
+    NOT?: PaymentRevenueSnapshotScalarWhereWithAggregatesInput | PaymentRevenueSnapshotScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PaymentRevenueSnapshot"> | string
+    connectorId?: StringWithAggregatesFilter<"PaymentRevenueSnapshot"> | string
+    currencyCode?: StringWithAggregatesFilter<"PaymentRevenueSnapshot"> | string
+    periodStart?: DateTimeWithAggregatesFilter<"PaymentRevenueSnapshot"> | Date | string
+    periodRevenueCents?: IntWithAggregatesFilter<"PaymentRevenueSnapshot"> | number
+    allTimeRevenueCents?: IntWithAggregatesFilter<"PaymentRevenueSnapshot"> | number
+    mrrCents?: IntNullableWithAggregatesFilter<"PaymentRevenueSnapshot"> | number | null
+    data?: JsonNullableWithAggregatesFilter<"PaymentRevenueSnapshot">
+    createdAt?: DateTimeWithAggregatesFilter<"PaymentRevenueSnapshot"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PaymentRevenueSnapshot"> | Date | string
   }
 
   export type AlternativeProductWhereInput = {
@@ -54724,6 +59015,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateInput = {
@@ -54769,6 +59061,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductUpdateInput = {
@@ -54814,6 +59107,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateInput = {
@@ -54859,6 +59153,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type ProductCreateManyInput = {
@@ -54937,6 +59232,298 @@ export namespace Prisma {
     bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     keywords?: ProductUpdatekeywordsInput | string[]
     platforms?: ProductUpdateplatformsInput | $Enums.Platform[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentConnectorCreateInput = {
+    id?: string
+    provider: $Enums.PaymentConnectorProvider
+    status?: $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: Date | string | null
+    lastSyncError?: string | null
+    verifiedAt?: Date | string | null
+    latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
+    latestCurrencyCode?: string | null
+    latestPeriodStart?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    product: ProductCreateNestedOneWithoutPaymentConnectorInput
+    credentials?: PaymentConnectorCredentialCreateNestedManyWithoutConnectorInput
+    revenueHistory?: PaymentRevenueSnapshotCreateNestedManyWithoutConnectorInput
+  }
+
+  export type PaymentConnectorUncheckedCreateInput = {
+    id?: string
+    productId: string
+    provider: $Enums.PaymentConnectorProvider
+    status?: $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: Date | string | null
+    lastSyncError?: string | null
+    verifiedAt?: Date | string | null
+    latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
+    latestCurrencyCode?: string | null
+    latestPeriodStart?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    credentials?: PaymentConnectorCredentialUncheckedCreateNestedManyWithoutConnectorInput
+    revenueHistory?: PaymentRevenueSnapshotUncheckedCreateNestedManyWithoutConnectorInput
+  }
+
+  export type PaymentConnectorUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumPaymentConnectorProviderFieldUpdateOperationsInput | $Enums.PaymentConnectorProvider
+    status?: EnumPaymentConnectorStatusFieldUpdateOperationsInput | $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: ProductUpdateOneRequiredWithoutPaymentConnectorNestedInput
+    credentials?: PaymentConnectorCredentialUpdateManyWithoutConnectorNestedInput
+    revenueHistory?: PaymentRevenueSnapshotUpdateManyWithoutConnectorNestedInput
+  }
+
+  export type PaymentConnectorUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    provider?: EnumPaymentConnectorProviderFieldUpdateOperationsInput | $Enums.PaymentConnectorProvider
+    status?: EnumPaymentConnectorStatusFieldUpdateOperationsInput | $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    credentials?: PaymentConnectorCredentialUncheckedUpdateManyWithoutConnectorNestedInput
+    revenueHistory?: PaymentRevenueSnapshotUncheckedUpdateManyWithoutConnectorNestedInput
+  }
+
+  export type PaymentConnectorCreateManyInput = {
+    id?: string
+    productId: string
+    provider: $Enums.PaymentConnectorProvider
+    status?: $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: Date | string | null
+    lastSyncError?: string | null
+    verifiedAt?: Date | string | null
+    latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
+    latestCurrencyCode?: string | null
+    latestPeriodStart?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentConnectorUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumPaymentConnectorProviderFieldUpdateOperationsInput | $Enums.PaymentConnectorProvider
+    status?: EnumPaymentConnectorStatusFieldUpdateOperationsInput | $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentConnectorUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    provider?: EnumPaymentConnectorProviderFieldUpdateOperationsInput | $Enums.PaymentConnectorProvider
+    status?: EnumPaymentConnectorStatusFieldUpdateOperationsInput | $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentConnectorCredentialCreateInput = {
+    id?: string
+    status?: $Enums.PaymentCredentialStatus
+    encryptionVersion?: number
+    encryptedKey: string
+    keyHint?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    connector: PaymentConnectorCreateNestedOneWithoutCredentialsInput
+  }
+
+  export type PaymentConnectorCredentialUncheckedCreateInput = {
+    id?: string
+    connectorId: string
+    status?: $Enums.PaymentCredentialStatus
+    encryptionVersion?: number
+    encryptedKey: string
+    keyHint?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentConnectorCredentialUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumPaymentCredentialStatusFieldUpdateOperationsInput | $Enums.PaymentCredentialStatus
+    encryptionVersion?: IntFieldUpdateOperationsInput | number
+    encryptedKey?: StringFieldUpdateOperationsInput | string
+    keyHint?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    connector?: PaymentConnectorUpdateOneRequiredWithoutCredentialsNestedInput
+  }
+
+  export type PaymentConnectorCredentialUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    connectorId?: StringFieldUpdateOperationsInput | string
+    status?: EnumPaymentCredentialStatusFieldUpdateOperationsInput | $Enums.PaymentCredentialStatus
+    encryptionVersion?: IntFieldUpdateOperationsInput | number
+    encryptedKey?: StringFieldUpdateOperationsInput | string
+    keyHint?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentConnectorCredentialCreateManyInput = {
+    id?: string
+    connectorId: string
+    status?: $Enums.PaymentCredentialStatus
+    encryptionVersion?: number
+    encryptedKey: string
+    keyHint?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentConnectorCredentialUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumPaymentCredentialStatusFieldUpdateOperationsInput | $Enums.PaymentCredentialStatus
+    encryptionVersion?: IntFieldUpdateOperationsInput | number
+    encryptedKey?: StringFieldUpdateOperationsInput | string
+    keyHint?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentConnectorCredentialUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    connectorId?: StringFieldUpdateOperationsInput | string
+    status?: EnumPaymentCredentialStatusFieldUpdateOperationsInput | $Enums.PaymentCredentialStatus
+    encryptionVersion?: IntFieldUpdateOperationsInput | number
+    encryptedKey?: StringFieldUpdateOperationsInput | string
+    keyHint?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentRevenueSnapshotCreateInput = {
+    id?: string
+    currencyCode: string
+    periodStart: Date | string
+    periodRevenueCents?: number
+    allTimeRevenueCents?: number
+    mrrCents?: number | null
+    data?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    connector: PaymentConnectorCreateNestedOneWithoutRevenueHistoryInput
+  }
+
+  export type PaymentRevenueSnapshotUncheckedCreateInput = {
+    id?: string
+    connectorId: string
+    currencyCode: string
+    periodStart: Date | string
+    periodRevenueCents?: number
+    allTimeRevenueCents?: number
+    mrrCents?: number | null
+    data?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentRevenueSnapshotUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currencyCode?: StringFieldUpdateOperationsInput | string
+    periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodRevenueCents?: IntFieldUpdateOperationsInput | number
+    allTimeRevenueCents?: IntFieldUpdateOperationsInput | number
+    mrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    data?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    connector?: PaymentConnectorUpdateOneRequiredWithoutRevenueHistoryNestedInput
+  }
+
+  export type PaymentRevenueSnapshotUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    connectorId?: StringFieldUpdateOperationsInput | string
+    currencyCode?: StringFieldUpdateOperationsInput | string
+    periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodRevenueCents?: IntFieldUpdateOperationsInput | number
+    allTimeRevenueCents?: IntFieldUpdateOperationsInput | number
+    mrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    data?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentRevenueSnapshotCreateManyInput = {
+    id?: string
+    connectorId: string
+    currencyCode: string
+    periodStart: Date | string
+    periodRevenueCents?: number
+    allTimeRevenueCents?: number
+    mrrCents?: number | null
+    data?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentRevenueSnapshotUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currencyCode?: StringFieldUpdateOperationsInput | string
+    periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodRevenueCents?: IntFieldUpdateOperationsInput | number
+    allTimeRevenueCents?: IntFieldUpdateOperationsInput | number
+    mrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    data?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentRevenueSnapshotUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    connectorId?: StringFieldUpdateOperationsInput | string
+    currencyCode?: StringFieldUpdateOperationsInput | string
+    periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodRevenueCents?: IntFieldUpdateOperationsInput | number
+    allTimeRevenueCents?: IntFieldUpdateOperationsInput | number
+    mrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    data?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -58583,6 +63170,11 @@ export namespace Prisma {
     none?: AlternativeProductWhereInput
   }
 
+  export type PaymentConnectorNullableScalarRelationFilter = {
+    is?: PaymentConnectorWhereInput | null
+    isNot?: PaymentConnectorWhereInput | null
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -58838,6 +63430,318 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type EnumPaymentConnectorProviderFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentConnectorProvider | EnumPaymentConnectorProviderFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentConnectorProvider[] | ListEnumPaymentConnectorProviderFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentConnectorProvider[] | ListEnumPaymentConnectorProviderFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentConnectorProviderFilter<$PrismaModel> | $Enums.PaymentConnectorProvider
+  }
+
+  export type EnumPaymentConnectorStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentConnectorStatus | EnumPaymentConnectorStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentConnectorStatus[] | ListEnumPaymentConnectorStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentConnectorStatus[] | ListEnumPaymentConnectorStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentConnectorStatusFilter<$PrismaModel> | $Enums.PaymentConnectorStatus
+  }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type ProductScalarRelationFilter = {
+    is?: ProductWhereInput
+    isNot?: ProductWhereInput
+  }
+
+  export type PaymentConnectorCredentialListRelationFilter = {
+    every?: PaymentConnectorCredentialWhereInput
+    some?: PaymentConnectorCredentialWhereInput
+    none?: PaymentConnectorCredentialWhereInput
+  }
+
+  export type PaymentRevenueSnapshotListRelationFilter = {
+    every?: PaymentRevenueSnapshotWhereInput
+    some?: PaymentRevenueSnapshotWhereInput
+    none?: PaymentRevenueSnapshotWhereInput
+  }
+
+  export type PaymentConnectorCredentialOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PaymentRevenueSnapshotOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PaymentConnectorCountOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    provider?: SortOrder
+    status?: SortOrder
+    config?: SortOrder
+    lastSyncedAt?: SortOrder
+    lastSyncError?: SortOrder
+    verifiedAt?: SortOrder
+    latestAllTimeRevenueCents?: SortOrder
+    latestMrrCents?: SortOrder
+    latestCurrencyCode?: SortOrder
+    latestPeriodStart?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentConnectorAvgOrderByAggregateInput = {
+    latestAllTimeRevenueCents?: SortOrder
+    latestMrrCents?: SortOrder
+  }
+
+  export type PaymentConnectorMaxOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    provider?: SortOrder
+    status?: SortOrder
+    lastSyncedAt?: SortOrder
+    lastSyncError?: SortOrder
+    verifiedAt?: SortOrder
+    latestAllTimeRevenueCents?: SortOrder
+    latestMrrCents?: SortOrder
+    latestCurrencyCode?: SortOrder
+    latestPeriodStart?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentConnectorMinOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    provider?: SortOrder
+    status?: SortOrder
+    lastSyncedAt?: SortOrder
+    lastSyncError?: SortOrder
+    verifiedAt?: SortOrder
+    latestAllTimeRevenueCents?: SortOrder
+    latestMrrCents?: SortOrder
+    latestCurrencyCode?: SortOrder
+    latestPeriodStart?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentConnectorSumOrderByAggregateInput = {
+    latestAllTimeRevenueCents?: SortOrder
+    latestMrrCents?: SortOrder
+  }
+
+  export type EnumPaymentConnectorProviderWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentConnectorProvider | EnumPaymentConnectorProviderFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentConnectorProvider[] | ListEnumPaymentConnectorProviderFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentConnectorProvider[] | ListEnumPaymentConnectorProviderFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentConnectorProviderWithAggregatesFilter<$PrismaModel> | $Enums.PaymentConnectorProvider
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPaymentConnectorProviderFilter<$PrismaModel>
+    _max?: NestedEnumPaymentConnectorProviderFilter<$PrismaModel>
+  }
+
+  export type EnumPaymentConnectorStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentConnectorStatus | EnumPaymentConnectorStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentConnectorStatus[] | ListEnumPaymentConnectorStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentConnectorStatus[] | ListEnumPaymentConnectorStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentConnectorStatusWithAggregatesFilter<$PrismaModel> | $Enums.PaymentConnectorStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPaymentConnectorStatusFilter<$PrismaModel>
+    _max?: NestedEnumPaymentConnectorStatusFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type EnumPaymentCredentialStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentCredentialStatus | EnumPaymentCredentialStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentCredentialStatus[] | ListEnumPaymentCredentialStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentCredentialStatus[] | ListEnumPaymentCredentialStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentCredentialStatusFilter<$PrismaModel> | $Enums.PaymentCredentialStatus
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type PaymentConnectorScalarRelationFilter = {
+    is?: PaymentConnectorWhereInput
+    isNot?: PaymentConnectorWhereInput
+  }
+
+  export type PaymentConnectorCredentialCountOrderByAggregateInput = {
+    id?: SortOrder
+    connectorId?: SortOrder
+    status?: SortOrder
+    encryptionVersion?: SortOrder
+    encryptedKey?: SortOrder
+    keyHint?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentConnectorCredentialAvgOrderByAggregateInput = {
+    encryptionVersion?: SortOrder
+  }
+
+  export type PaymentConnectorCredentialMaxOrderByAggregateInput = {
+    id?: SortOrder
+    connectorId?: SortOrder
+    status?: SortOrder
+    encryptionVersion?: SortOrder
+    encryptedKey?: SortOrder
+    keyHint?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentConnectorCredentialMinOrderByAggregateInput = {
+    id?: SortOrder
+    connectorId?: SortOrder
+    status?: SortOrder
+    encryptionVersion?: SortOrder
+    encryptedKey?: SortOrder
+    keyHint?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentConnectorCredentialSumOrderByAggregateInput = {
+    encryptionVersion?: SortOrder
+  }
+
+  export type EnumPaymentCredentialStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentCredentialStatus | EnumPaymentCredentialStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentCredentialStatus[] | ListEnumPaymentCredentialStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentCredentialStatus[] | ListEnumPaymentCredentialStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentCredentialStatusWithAggregatesFilter<$PrismaModel> | $Enums.PaymentCredentialStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPaymentCredentialStatusFilter<$PrismaModel>
+    _max?: NestedEnumPaymentCredentialStatusFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type PaymentRevenueSnapshotConnectorIdPeriodStartCurrencyCodeCompoundUniqueInput = {
+    connectorId: string
+    periodStart: Date | string
+    currencyCode: string
+  }
+
+  export type PaymentRevenueSnapshotCountOrderByAggregateInput = {
+    id?: SortOrder
+    connectorId?: SortOrder
+    currencyCode?: SortOrder
+    periodStart?: SortOrder
+    periodRevenueCents?: SortOrder
+    allTimeRevenueCents?: SortOrder
+    mrrCents?: SortOrder
+    data?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentRevenueSnapshotAvgOrderByAggregateInput = {
+    periodRevenueCents?: SortOrder
+    allTimeRevenueCents?: SortOrder
+    mrrCents?: SortOrder
+  }
+
+  export type PaymentRevenueSnapshotMaxOrderByAggregateInput = {
+    id?: SortOrder
+    connectorId?: SortOrder
+    currencyCode?: SortOrder
+    periodStart?: SortOrder
+    periodRevenueCents?: SortOrder
+    allTimeRevenueCents?: SortOrder
+    mrrCents?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentRevenueSnapshotMinOrderByAggregateInput = {
+    id?: SortOrder
+    connectorId?: SortOrder
+    currencyCode?: SortOrder
+    periodStart?: SortOrder
+    periodRevenueCents?: SortOrder
+    allTimeRevenueCents?: SortOrder
+    mrrCents?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentRevenueSnapshotSumOrderByAggregateInput = {
+    periodRevenueCents?: SortOrder
+    allTimeRevenueCents?: SortOrder
+    mrrCents?: SortOrder
+  }
+
   export type ProductListRelationFilter = {
     every?: ProductWhereInput
     some?: ProductWhereInput
@@ -58889,22 +63793,6 @@ export namespace Prisma {
     logoUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-  }
-
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
-  export type ProductScalarRelationFilter = {
-    is?: ProductWhereInput
-    isNot?: ProductWhereInput
   }
 
   export type MonthlyProductRankingMonthProductIdCompoundUniqueInput = {
@@ -58962,22 +63850,6 @@ export namespace Prisma {
     upvotes?: SortOrder
   }
 
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
-  }
-
   export type MonthlyLeaderboardNotificationCountOrderByAggregateInput = {
     id?: SortOrder
     month?: SortOrder
@@ -59004,29 +63876,6 @@ export namespace Prisma {
     in?: $Enums.NotificationType[] | ListEnumNotificationTypeFieldRefInput<$PrismaModel>
     notIn?: $Enums.NotificationType[] | ListEnumNotificationTypeFieldRefInput<$PrismaModel>
     not?: NestedEnumNotificationTypeFilter<$PrismaModel> | $Enums.NotificationType
-  }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NotificationCountOrderByAggregateInput = {
@@ -59068,32 +63917,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumNotificationTypeFilter<$PrismaModel>
     _max?: NestedEnumNotificationTypeFilter<$PrismaModel>
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type ProductMediaCountOrderByAggregateInput = {
@@ -61230,6 +66053,12 @@ export namespace Prisma {
     connect?: AlternativeProductWhereUniqueInput | AlternativeProductWhereUniqueInput[]
   }
 
+  export type PaymentConnectorCreateNestedOneWithoutProductInput = {
+    create?: XOR<PaymentConnectorCreateWithoutProductInput, PaymentConnectorUncheckedCreateWithoutProductInput>
+    connectOrCreate?: PaymentConnectorCreateOrConnectWithoutProductInput
+    connect?: PaymentConnectorWhereUniqueInput
+  }
+
   export type ProductMetadataUncheckedCreateNestedOneWithoutProductInput = {
     create?: XOR<ProductMetadataCreateWithoutProductInput, ProductMetadataUncheckedCreateWithoutProductInput>
     connectOrCreate?: ProductMetadataCreateOrConnectWithoutProductInput
@@ -61342,6 +66171,12 @@ export namespace Prisma {
     create?: XOR<AlternativeProductCreateWithoutProductsInput, AlternativeProductUncheckedCreateWithoutProductsInput> | AlternativeProductCreateWithoutProductsInput[] | AlternativeProductUncheckedCreateWithoutProductsInput[]
     connectOrCreate?: AlternativeProductCreateOrConnectWithoutProductsInput | AlternativeProductCreateOrConnectWithoutProductsInput[]
     connect?: AlternativeProductWhereUniqueInput | AlternativeProductWhereUniqueInput[]
+  }
+
+  export type PaymentConnectorUncheckedCreateNestedOneWithoutProductInput = {
+    create?: XOR<PaymentConnectorCreateWithoutProductInput, PaymentConnectorUncheckedCreateWithoutProductInput>
+    connectOrCreate?: PaymentConnectorCreateOrConnectWithoutProductInput
+    connect?: PaymentConnectorWhereUniqueInput
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -61647,6 +66482,16 @@ export namespace Prisma {
     deleteMany?: AlternativeProductScalarWhereInput | AlternativeProductScalarWhereInput[]
   }
 
+  export type PaymentConnectorUpdateOneWithoutProductNestedInput = {
+    create?: XOR<PaymentConnectorCreateWithoutProductInput, PaymentConnectorUncheckedCreateWithoutProductInput>
+    connectOrCreate?: PaymentConnectorCreateOrConnectWithoutProductInput
+    upsert?: PaymentConnectorUpsertWithoutProductInput
+    disconnect?: PaymentConnectorWhereInput | boolean
+    delete?: PaymentConnectorWhereInput | boolean
+    connect?: PaymentConnectorWhereUniqueInput
+    update?: XOR<XOR<PaymentConnectorUpdateToOneWithWhereWithoutProductInput, PaymentConnectorUpdateWithoutProductInput>, PaymentConnectorUncheckedUpdateWithoutProductInput>
+  }
+
   export type ProductMetadataUncheckedUpdateOneWithoutProductNestedInput = {
     create?: XOR<ProductMetadataCreateWithoutProductInput, ProductMetadataUncheckedCreateWithoutProductInput>
     connectOrCreate?: ProductMetadataCreateOrConnectWithoutProductInput
@@ -61868,6 +66713,162 @@ export namespace Prisma {
     deleteMany?: AlternativeProductScalarWhereInput | AlternativeProductScalarWhereInput[]
   }
 
+  export type PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput = {
+    create?: XOR<PaymentConnectorCreateWithoutProductInput, PaymentConnectorUncheckedCreateWithoutProductInput>
+    connectOrCreate?: PaymentConnectorCreateOrConnectWithoutProductInput
+    upsert?: PaymentConnectorUpsertWithoutProductInput
+    disconnect?: PaymentConnectorWhereInput | boolean
+    delete?: PaymentConnectorWhereInput | boolean
+    connect?: PaymentConnectorWhereUniqueInput
+    update?: XOR<XOR<PaymentConnectorUpdateToOneWithWhereWithoutProductInput, PaymentConnectorUpdateWithoutProductInput>, PaymentConnectorUncheckedUpdateWithoutProductInput>
+  }
+
+  export type ProductCreateNestedOneWithoutPaymentConnectorInput = {
+    create?: XOR<ProductCreateWithoutPaymentConnectorInput, ProductUncheckedCreateWithoutPaymentConnectorInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutPaymentConnectorInput
+    connect?: ProductWhereUniqueInput
+  }
+
+  export type PaymentConnectorCredentialCreateNestedManyWithoutConnectorInput = {
+    create?: XOR<PaymentConnectorCredentialCreateWithoutConnectorInput, PaymentConnectorCredentialUncheckedCreateWithoutConnectorInput> | PaymentConnectorCredentialCreateWithoutConnectorInput[] | PaymentConnectorCredentialUncheckedCreateWithoutConnectorInput[]
+    connectOrCreate?: PaymentConnectorCredentialCreateOrConnectWithoutConnectorInput | PaymentConnectorCredentialCreateOrConnectWithoutConnectorInput[]
+    createMany?: PaymentConnectorCredentialCreateManyConnectorInputEnvelope
+    connect?: PaymentConnectorCredentialWhereUniqueInput | PaymentConnectorCredentialWhereUniqueInput[]
+  }
+
+  export type PaymentRevenueSnapshotCreateNestedManyWithoutConnectorInput = {
+    create?: XOR<PaymentRevenueSnapshotCreateWithoutConnectorInput, PaymentRevenueSnapshotUncheckedCreateWithoutConnectorInput> | PaymentRevenueSnapshotCreateWithoutConnectorInput[] | PaymentRevenueSnapshotUncheckedCreateWithoutConnectorInput[]
+    connectOrCreate?: PaymentRevenueSnapshotCreateOrConnectWithoutConnectorInput | PaymentRevenueSnapshotCreateOrConnectWithoutConnectorInput[]
+    createMany?: PaymentRevenueSnapshotCreateManyConnectorInputEnvelope
+    connect?: PaymentRevenueSnapshotWhereUniqueInput | PaymentRevenueSnapshotWhereUniqueInput[]
+  }
+
+  export type PaymentConnectorCredentialUncheckedCreateNestedManyWithoutConnectorInput = {
+    create?: XOR<PaymentConnectorCredentialCreateWithoutConnectorInput, PaymentConnectorCredentialUncheckedCreateWithoutConnectorInput> | PaymentConnectorCredentialCreateWithoutConnectorInput[] | PaymentConnectorCredentialUncheckedCreateWithoutConnectorInput[]
+    connectOrCreate?: PaymentConnectorCredentialCreateOrConnectWithoutConnectorInput | PaymentConnectorCredentialCreateOrConnectWithoutConnectorInput[]
+    createMany?: PaymentConnectorCredentialCreateManyConnectorInputEnvelope
+    connect?: PaymentConnectorCredentialWhereUniqueInput | PaymentConnectorCredentialWhereUniqueInput[]
+  }
+
+  export type PaymentRevenueSnapshotUncheckedCreateNestedManyWithoutConnectorInput = {
+    create?: XOR<PaymentRevenueSnapshotCreateWithoutConnectorInput, PaymentRevenueSnapshotUncheckedCreateWithoutConnectorInput> | PaymentRevenueSnapshotCreateWithoutConnectorInput[] | PaymentRevenueSnapshotUncheckedCreateWithoutConnectorInput[]
+    connectOrCreate?: PaymentRevenueSnapshotCreateOrConnectWithoutConnectorInput | PaymentRevenueSnapshotCreateOrConnectWithoutConnectorInput[]
+    createMany?: PaymentRevenueSnapshotCreateManyConnectorInputEnvelope
+    connect?: PaymentRevenueSnapshotWhereUniqueInput | PaymentRevenueSnapshotWhereUniqueInput[]
+  }
+
+  export type EnumPaymentConnectorProviderFieldUpdateOperationsInput = {
+    set?: $Enums.PaymentConnectorProvider
+  }
+
+  export type EnumPaymentConnectorStatusFieldUpdateOperationsInput = {
+    set?: $Enums.PaymentConnectorStatus
+  }
+
+  export type ProductUpdateOneRequiredWithoutPaymentConnectorNestedInput = {
+    create?: XOR<ProductCreateWithoutPaymentConnectorInput, ProductUncheckedCreateWithoutPaymentConnectorInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutPaymentConnectorInput
+    upsert?: ProductUpsertWithoutPaymentConnectorInput
+    connect?: ProductWhereUniqueInput
+    update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutPaymentConnectorInput, ProductUpdateWithoutPaymentConnectorInput>, ProductUncheckedUpdateWithoutPaymentConnectorInput>
+  }
+
+  export type PaymentConnectorCredentialUpdateManyWithoutConnectorNestedInput = {
+    create?: XOR<PaymentConnectorCredentialCreateWithoutConnectorInput, PaymentConnectorCredentialUncheckedCreateWithoutConnectorInput> | PaymentConnectorCredentialCreateWithoutConnectorInput[] | PaymentConnectorCredentialUncheckedCreateWithoutConnectorInput[]
+    connectOrCreate?: PaymentConnectorCredentialCreateOrConnectWithoutConnectorInput | PaymentConnectorCredentialCreateOrConnectWithoutConnectorInput[]
+    upsert?: PaymentConnectorCredentialUpsertWithWhereUniqueWithoutConnectorInput | PaymentConnectorCredentialUpsertWithWhereUniqueWithoutConnectorInput[]
+    createMany?: PaymentConnectorCredentialCreateManyConnectorInputEnvelope
+    set?: PaymentConnectorCredentialWhereUniqueInput | PaymentConnectorCredentialWhereUniqueInput[]
+    disconnect?: PaymentConnectorCredentialWhereUniqueInput | PaymentConnectorCredentialWhereUniqueInput[]
+    delete?: PaymentConnectorCredentialWhereUniqueInput | PaymentConnectorCredentialWhereUniqueInput[]
+    connect?: PaymentConnectorCredentialWhereUniqueInput | PaymentConnectorCredentialWhereUniqueInput[]
+    update?: PaymentConnectorCredentialUpdateWithWhereUniqueWithoutConnectorInput | PaymentConnectorCredentialUpdateWithWhereUniqueWithoutConnectorInput[]
+    updateMany?: PaymentConnectorCredentialUpdateManyWithWhereWithoutConnectorInput | PaymentConnectorCredentialUpdateManyWithWhereWithoutConnectorInput[]
+    deleteMany?: PaymentConnectorCredentialScalarWhereInput | PaymentConnectorCredentialScalarWhereInput[]
+  }
+
+  export type PaymentRevenueSnapshotUpdateManyWithoutConnectorNestedInput = {
+    create?: XOR<PaymentRevenueSnapshotCreateWithoutConnectorInput, PaymentRevenueSnapshotUncheckedCreateWithoutConnectorInput> | PaymentRevenueSnapshotCreateWithoutConnectorInput[] | PaymentRevenueSnapshotUncheckedCreateWithoutConnectorInput[]
+    connectOrCreate?: PaymentRevenueSnapshotCreateOrConnectWithoutConnectorInput | PaymentRevenueSnapshotCreateOrConnectWithoutConnectorInput[]
+    upsert?: PaymentRevenueSnapshotUpsertWithWhereUniqueWithoutConnectorInput | PaymentRevenueSnapshotUpsertWithWhereUniqueWithoutConnectorInput[]
+    createMany?: PaymentRevenueSnapshotCreateManyConnectorInputEnvelope
+    set?: PaymentRevenueSnapshotWhereUniqueInput | PaymentRevenueSnapshotWhereUniqueInput[]
+    disconnect?: PaymentRevenueSnapshotWhereUniqueInput | PaymentRevenueSnapshotWhereUniqueInput[]
+    delete?: PaymentRevenueSnapshotWhereUniqueInput | PaymentRevenueSnapshotWhereUniqueInput[]
+    connect?: PaymentRevenueSnapshotWhereUniqueInput | PaymentRevenueSnapshotWhereUniqueInput[]
+    update?: PaymentRevenueSnapshotUpdateWithWhereUniqueWithoutConnectorInput | PaymentRevenueSnapshotUpdateWithWhereUniqueWithoutConnectorInput[]
+    updateMany?: PaymentRevenueSnapshotUpdateManyWithWhereWithoutConnectorInput | PaymentRevenueSnapshotUpdateManyWithWhereWithoutConnectorInput[]
+    deleteMany?: PaymentRevenueSnapshotScalarWhereInput | PaymentRevenueSnapshotScalarWhereInput[]
+  }
+
+  export type PaymentConnectorCredentialUncheckedUpdateManyWithoutConnectorNestedInput = {
+    create?: XOR<PaymentConnectorCredentialCreateWithoutConnectorInput, PaymentConnectorCredentialUncheckedCreateWithoutConnectorInput> | PaymentConnectorCredentialCreateWithoutConnectorInput[] | PaymentConnectorCredentialUncheckedCreateWithoutConnectorInput[]
+    connectOrCreate?: PaymentConnectorCredentialCreateOrConnectWithoutConnectorInput | PaymentConnectorCredentialCreateOrConnectWithoutConnectorInput[]
+    upsert?: PaymentConnectorCredentialUpsertWithWhereUniqueWithoutConnectorInput | PaymentConnectorCredentialUpsertWithWhereUniqueWithoutConnectorInput[]
+    createMany?: PaymentConnectorCredentialCreateManyConnectorInputEnvelope
+    set?: PaymentConnectorCredentialWhereUniqueInput | PaymentConnectorCredentialWhereUniqueInput[]
+    disconnect?: PaymentConnectorCredentialWhereUniqueInput | PaymentConnectorCredentialWhereUniqueInput[]
+    delete?: PaymentConnectorCredentialWhereUniqueInput | PaymentConnectorCredentialWhereUniqueInput[]
+    connect?: PaymentConnectorCredentialWhereUniqueInput | PaymentConnectorCredentialWhereUniqueInput[]
+    update?: PaymentConnectorCredentialUpdateWithWhereUniqueWithoutConnectorInput | PaymentConnectorCredentialUpdateWithWhereUniqueWithoutConnectorInput[]
+    updateMany?: PaymentConnectorCredentialUpdateManyWithWhereWithoutConnectorInput | PaymentConnectorCredentialUpdateManyWithWhereWithoutConnectorInput[]
+    deleteMany?: PaymentConnectorCredentialScalarWhereInput | PaymentConnectorCredentialScalarWhereInput[]
+  }
+
+  export type PaymentRevenueSnapshotUncheckedUpdateManyWithoutConnectorNestedInput = {
+    create?: XOR<PaymentRevenueSnapshotCreateWithoutConnectorInput, PaymentRevenueSnapshotUncheckedCreateWithoutConnectorInput> | PaymentRevenueSnapshotCreateWithoutConnectorInput[] | PaymentRevenueSnapshotUncheckedCreateWithoutConnectorInput[]
+    connectOrCreate?: PaymentRevenueSnapshotCreateOrConnectWithoutConnectorInput | PaymentRevenueSnapshotCreateOrConnectWithoutConnectorInput[]
+    upsert?: PaymentRevenueSnapshotUpsertWithWhereUniqueWithoutConnectorInput | PaymentRevenueSnapshotUpsertWithWhereUniqueWithoutConnectorInput[]
+    createMany?: PaymentRevenueSnapshotCreateManyConnectorInputEnvelope
+    set?: PaymentRevenueSnapshotWhereUniqueInput | PaymentRevenueSnapshotWhereUniqueInput[]
+    disconnect?: PaymentRevenueSnapshotWhereUniqueInput | PaymentRevenueSnapshotWhereUniqueInput[]
+    delete?: PaymentRevenueSnapshotWhereUniqueInput | PaymentRevenueSnapshotWhereUniqueInput[]
+    connect?: PaymentRevenueSnapshotWhereUniqueInput | PaymentRevenueSnapshotWhereUniqueInput[]
+    update?: PaymentRevenueSnapshotUpdateWithWhereUniqueWithoutConnectorInput | PaymentRevenueSnapshotUpdateWithWhereUniqueWithoutConnectorInput[]
+    updateMany?: PaymentRevenueSnapshotUpdateManyWithWhereWithoutConnectorInput | PaymentRevenueSnapshotUpdateManyWithWhereWithoutConnectorInput[]
+    deleteMany?: PaymentRevenueSnapshotScalarWhereInput | PaymentRevenueSnapshotScalarWhereInput[]
+  }
+
+  export type PaymentConnectorCreateNestedOneWithoutCredentialsInput = {
+    create?: XOR<PaymentConnectorCreateWithoutCredentialsInput, PaymentConnectorUncheckedCreateWithoutCredentialsInput>
+    connectOrCreate?: PaymentConnectorCreateOrConnectWithoutCredentialsInput
+    connect?: PaymentConnectorWhereUniqueInput
+  }
+
+  export type EnumPaymentCredentialStatusFieldUpdateOperationsInput = {
+    set?: $Enums.PaymentCredentialStatus
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type PaymentConnectorUpdateOneRequiredWithoutCredentialsNestedInput = {
+    create?: XOR<PaymentConnectorCreateWithoutCredentialsInput, PaymentConnectorUncheckedCreateWithoutCredentialsInput>
+    connectOrCreate?: PaymentConnectorCreateOrConnectWithoutCredentialsInput
+    upsert?: PaymentConnectorUpsertWithoutCredentialsInput
+    connect?: PaymentConnectorWhereUniqueInput
+    update?: XOR<XOR<PaymentConnectorUpdateToOneWithWhereWithoutCredentialsInput, PaymentConnectorUpdateWithoutCredentialsInput>, PaymentConnectorUncheckedUpdateWithoutCredentialsInput>
+  }
+
+  export type PaymentConnectorCreateNestedOneWithoutRevenueHistoryInput = {
+    create?: XOR<PaymentConnectorCreateWithoutRevenueHistoryInput, PaymentConnectorUncheckedCreateWithoutRevenueHistoryInput>
+    connectOrCreate?: PaymentConnectorCreateOrConnectWithoutRevenueHistoryInput
+    connect?: PaymentConnectorWhereUniqueInput
+  }
+
+  export type PaymentConnectorUpdateOneRequiredWithoutRevenueHistoryNestedInput = {
+    create?: XOR<PaymentConnectorCreateWithoutRevenueHistoryInput, PaymentConnectorUncheckedCreateWithoutRevenueHistoryInput>
+    connectOrCreate?: PaymentConnectorCreateOrConnectWithoutRevenueHistoryInput
+    upsert?: PaymentConnectorUpsertWithoutRevenueHistoryInput
+    connect?: PaymentConnectorWhereUniqueInput
+    update?: XOR<XOR<PaymentConnectorUpdateToOneWithWhereWithoutRevenueHistoryInput, PaymentConnectorUpdateWithoutRevenueHistoryInput>, PaymentConnectorUncheckedUpdateWithoutRevenueHistoryInput>
+  }
+
   export type ProductCreateNestedManyWithoutAlternativesInput = {
     create?: XOR<ProductCreateWithoutAlternativesInput, ProductUncheckedCreateWithoutAlternativesInput> | ProductCreateWithoutAlternativesInput[] | ProductUncheckedCreateWithoutAlternativesInput[]
     connectOrCreate?: ProductCreateOrConnectWithoutAlternativesInput | ProductCreateOrConnectWithoutAlternativesInput[]
@@ -61948,14 +66949,6 @@ export namespace Prisma {
     create?: XOR<ProductCreateWithoutMonthlyProductRankingInput, ProductUncheckedCreateWithoutMonthlyProductRankingInput>
     connectOrCreate?: ProductCreateOrConnectWithoutMonthlyProductRankingInput
     connect?: ProductWhereUniqueInput
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type ProductUpdateOneRequiredWithoutMonthlyProductRankingNestedInput = {
@@ -64442,6 +69435,80 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedEnumPaymentConnectorProviderFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentConnectorProvider | EnumPaymentConnectorProviderFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentConnectorProvider[] | ListEnumPaymentConnectorProviderFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentConnectorProvider[] | ListEnumPaymentConnectorProviderFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentConnectorProviderFilter<$PrismaModel> | $Enums.PaymentConnectorProvider
+  }
+
+  export type NestedEnumPaymentConnectorStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentConnectorStatus | EnumPaymentConnectorStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentConnectorStatus[] | ListEnumPaymentConnectorStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentConnectorStatus[] | ListEnumPaymentConnectorStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentConnectorStatusFilter<$PrismaModel> | $Enums.PaymentConnectorStatus
+  }
+
+  export type NestedEnumPaymentConnectorProviderWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentConnectorProvider | EnumPaymentConnectorProviderFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentConnectorProvider[] | ListEnumPaymentConnectorProviderFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentConnectorProvider[] | ListEnumPaymentConnectorProviderFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentConnectorProviderWithAggregatesFilter<$PrismaModel> | $Enums.PaymentConnectorProvider
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPaymentConnectorProviderFilter<$PrismaModel>
+    _max?: NestedEnumPaymentConnectorProviderFilter<$PrismaModel>
+  }
+
+  export type NestedEnumPaymentConnectorStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentConnectorStatus | EnumPaymentConnectorStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentConnectorStatus[] | ListEnumPaymentConnectorStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentConnectorStatus[] | ListEnumPaymentConnectorStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentConnectorStatusWithAggregatesFilter<$PrismaModel> | $Enums.PaymentConnectorStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPaymentConnectorStatusFilter<$PrismaModel>
+    _max?: NestedEnumPaymentConnectorStatusFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumPaymentCredentialStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentCredentialStatus | EnumPaymentCredentialStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentCredentialStatus[] | ListEnumPaymentCredentialStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentCredentialStatus[] | ListEnumPaymentCredentialStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentCredentialStatusFilter<$PrismaModel> | $Enums.PaymentCredentialStatus
+  }
+
+  export type NestedEnumPaymentCredentialStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentCredentialStatus | EnumPaymentCredentialStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentCredentialStatus[] | ListEnumPaymentCredentialStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentCredentialStatus[] | ListEnumPaymentCredentialStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentCredentialStatusWithAggregatesFilter<$PrismaModel> | $Enums.PaymentCredentialStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPaymentCredentialStatusFilter<$PrismaModel>
+    _max?: NestedEnumPaymentCredentialStatusFilter<$PrismaModel>
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -64484,29 +69551,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumNotificationTypeFilter<$PrismaModel>
     _max?: NestedEnumNotificationTypeFilter<$PrismaModel>
-  }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedEnumProductUpdateStatusFilter<$PrismaModel = never> = {
@@ -65582,6 +70626,47 @@ export namespace Prisma {
     create: XOR<AlternativeProductCreateWithoutProductsInput, AlternativeProductUncheckedCreateWithoutProductsInput>
   }
 
+  export type PaymentConnectorCreateWithoutProductInput = {
+    id?: string
+    provider: $Enums.PaymentConnectorProvider
+    status?: $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: Date | string | null
+    lastSyncError?: string | null
+    verifiedAt?: Date | string | null
+    latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
+    latestCurrencyCode?: string | null
+    latestPeriodStart?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    credentials?: PaymentConnectorCredentialCreateNestedManyWithoutConnectorInput
+    revenueHistory?: PaymentRevenueSnapshotCreateNestedManyWithoutConnectorInput
+  }
+
+  export type PaymentConnectorUncheckedCreateWithoutProductInput = {
+    id?: string
+    provider: $Enums.PaymentConnectorProvider
+    status?: $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: Date | string | null
+    lastSyncError?: string | null
+    verifiedAt?: Date | string | null
+    latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
+    latestCurrencyCode?: string | null
+    latestPeriodStart?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    credentials?: PaymentConnectorCredentialUncheckedCreateNestedManyWithoutConnectorInput
+    revenueHistory?: PaymentRevenueSnapshotUncheckedCreateNestedManyWithoutConnectorInput
+  }
+
+  export type PaymentConnectorCreateOrConnectWithoutProductInput = {
+    where: PaymentConnectorWhereUniqueInput
+    create: XOR<PaymentConnectorCreateWithoutProductInput, PaymentConnectorUncheckedCreateWithoutProductInput>
+  }
+
   export type UserUpsertWithoutProductsInput = {
     update: XOR<UserUpdateWithoutProductsInput, UserUncheckedUpdateWithoutProductsInput>
     create: XOR<UserCreateWithoutProductsInput, UserUncheckedCreateWithoutProductsInput>
@@ -66333,6 +71418,551 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"AlternativeProduct"> | Date | string
   }
 
+  export type PaymentConnectorUpsertWithoutProductInput = {
+    update: XOR<PaymentConnectorUpdateWithoutProductInput, PaymentConnectorUncheckedUpdateWithoutProductInput>
+    create: XOR<PaymentConnectorCreateWithoutProductInput, PaymentConnectorUncheckedCreateWithoutProductInput>
+    where?: PaymentConnectorWhereInput
+  }
+
+  export type PaymentConnectorUpdateToOneWithWhereWithoutProductInput = {
+    where?: PaymentConnectorWhereInput
+    data: XOR<PaymentConnectorUpdateWithoutProductInput, PaymentConnectorUncheckedUpdateWithoutProductInput>
+  }
+
+  export type PaymentConnectorUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumPaymentConnectorProviderFieldUpdateOperationsInput | $Enums.PaymentConnectorProvider
+    status?: EnumPaymentConnectorStatusFieldUpdateOperationsInput | $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    credentials?: PaymentConnectorCredentialUpdateManyWithoutConnectorNestedInput
+    revenueHistory?: PaymentRevenueSnapshotUpdateManyWithoutConnectorNestedInput
+  }
+
+  export type PaymentConnectorUncheckedUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumPaymentConnectorProviderFieldUpdateOperationsInput | $Enums.PaymentConnectorProvider
+    status?: EnumPaymentConnectorStatusFieldUpdateOperationsInput | $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    credentials?: PaymentConnectorCredentialUncheckedUpdateManyWithoutConnectorNestedInput
+    revenueHistory?: PaymentRevenueSnapshotUncheckedUpdateManyWithoutConnectorNestedInput
+  }
+
+  export type ProductCreateWithoutPaymentConnectorInput = {
+    id?: string
+    name: string
+    slug: string
+    tagline: string
+    description: string
+    websiteUrl: string
+    logo: string
+    planAssignedAt?: Date | string | null
+    type: $Enums.ProductType
+    pricingModel: $Enums.PricingModel
+    status?: $Enums.ProductStatus
+    publishedAt?: Date | string | null
+    startingPriceCents?: number | null
+    currencyCode?: string | null
+    ctaLabel?: string | null
+    ctaUrl?: string | null
+    bannerImage?: string | null
+    keywords?: ProductCreatekeywordsInput | string[]
+    platforms?: ProductCreateplatformsInput | $Enums.Platform[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutProductsInput
+    category: CategoryCreateNestedOneWithoutProductsInput
+    plan?: PlanCreateNestedOneWithoutProductsInput
+    organization?: OrganizationCreateNestedOneWithoutProductInput
+    metadata?: ProductMetadataCreateNestedOneWithoutProductInput
+    analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
+    verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
+    ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
+    ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
+    ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    ProductReview?: ProductReviewCreateNestedManyWithoutProductInput
+    ProductUpdate?: ProductUpdateCreateNestedManyWithoutProductInput
+    placementSchedules?: PlacementScheduleCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
+    redemptions?: RedemptionCreateNestedManyWithoutProductInput
+    featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
+    alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+  }
+
+  export type ProductUncheckedCreateWithoutPaymentConnectorInput = {
+    id?: string
+    name: string
+    slug: string
+    tagline: string
+    description: string
+    websiteUrl: string
+    logo: string
+    userId: string
+    categoryId: string
+    planId?: string | null
+    planAssignedAt?: Date | string | null
+    type: $Enums.ProductType
+    pricingModel: $Enums.PricingModel
+    status?: $Enums.ProductStatus
+    publishedAt?: Date | string | null
+    organizationId?: string | null
+    startingPriceCents?: number | null
+    currencyCode?: string | null
+    ctaLabel?: string | null
+    ctaUrl?: string | null
+    bannerImage?: string | null
+    keywords?: ProductCreatekeywordsInput | string[]
+    platforms?: ProductCreateplatformsInput | $Enums.Platform[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
+    analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
+    verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
+    ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
+    ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
+    ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    ProductReview?: ProductReviewUncheckedCreateNestedManyWithoutProductInput
+    ProductUpdate?: ProductUpdateUncheckedCreateNestedManyWithoutProductInput
+    placementSchedules?: PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
+    redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
+    featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
+    alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+  }
+
+  export type ProductCreateOrConnectWithoutPaymentConnectorInput = {
+    where: ProductWhereUniqueInput
+    create: XOR<ProductCreateWithoutPaymentConnectorInput, ProductUncheckedCreateWithoutPaymentConnectorInput>
+  }
+
+  export type PaymentConnectorCredentialCreateWithoutConnectorInput = {
+    id?: string
+    status?: $Enums.PaymentCredentialStatus
+    encryptionVersion?: number
+    encryptedKey: string
+    keyHint?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentConnectorCredentialUncheckedCreateWithoutConnectorInput = {
+    id?: string
+    status?: $Enums.PaymentCredentialStatus
+    encryptionVersion?: number
+    encryptedKey: string
+    keyHint?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentConnectorCredentialCreateOrConnectWithoutConnectorInput = {
+    where: PaymentConnectorCredentialWhereUniqueInput
+    create: XOR<PaymentConnectorCredentialCreateWithoutConnectorInput, PaymentConnectorCredentialUncheckedCreateWithoutConnectorInput>
+  }
+
+  export type PaymentConnectorCredentialCreateManyConnectorInputEnvelope = {
+    data: PaymentConnectorCredentialCreateManyConnectorInput | PaymentConnectorCredentialCreateManyConnectorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PaymentRevenueSnapshotCreateWithoutConnectorInput = {
+    id?: string
+    currencyCode: string
+    periodStart: Date | string
+    periodRevenueCents?: number
+    allTimeRevenueCents?: number
+    mrrCents?: number | null
+    data?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentRevenueSnapshotUncheckedCreateWithoutConnectorInput = {
+    id?: string
+    currencyCode: string
+    periodStart: Date | string
+    periodRevenueCents?: number
+    allTimeRevenueCents?: number
+    mrrCents?: number | null
+    data?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentRevenueSnapshotCreateOrConnectWithoutConnectorInput = {
+    where: PaymentRevenueSnapshotWhereUniqueInput
+    create: XOR<PaymentRevenueSnapshotCreateWithoutConnectorInput, PaymentRevenueSnapshotUncheckedCreateWithoutConnectorInput>
+  }
+
+  export type PaymentRevenueSnapshotCreateManyConnectorInputEnvelope = {
+    data: PaymentRevenueSnapshotCreateManyConnectorInput | PaymentRevenueSnapshotCreateManyConnectorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ProductUpsertWithoutPaymentConnectorInput = {
+    update: XOR<ProductUpdateWithoutPaymentConnectorInput, ProductUncheckedUpdateWithoutPaymentConnectorInput>
+    create: XOR<ProductCreateWithoutPaymentConnectorInput, ProductUncheckedCreateWithoutPaymentConnectorInput>
+    where?: ProductWhereInput
+  }
+
+  export type ProductUpdateToOneWithWhereWithoutPaymentConnectorInput = {
+    where?: ProductWhereInput
+    data: XOR<ProductUpdateWithoutPaymentConnectorInput, ProductUncheckedUpdateWithoutPaymentConnectorInput>
+  }
+
+  export type ProductUpdateWithoutPaymentConnectorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    tagline?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    websiteUrl?: StringFieldUpdateOperationsInput | string
+    logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+    pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startingPriceCents?: NullableIntFieldUpdateOperationsInput | number | null
+    currencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
+    keywords?: ProductUpdatekeywordsInput | string[]
+    platforms?: ProductUpdateplatformsInput | $Enums.Platform[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutProductsNestedInput
+    category?: CategoryUpdateOneRequiredWithoutProductsNestedInput
+    plan?: PlanUpdateOneWithoutProductsNestedInput
+    organization?: OrganizationUpdateOneWithoutProductNestedInput
+    metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
+    analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
+    verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
+    ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
+    ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
+    ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    ProductReview?: ProductReviewUpdateManyWithoutProductNestedInput
+    ProductUpdate?: ProductUpdateUpdateManyWithoutProductNestedInput
+    placementSchedules?: PlacementScheduleUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
+    redemptions?: RedemptionUpdateManyWithoutProductNestedInput
+    featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
+    alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+  }
+
+  export type ProductUncheckedUpdateWithoutPaymentConnectorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    tagline?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    websiteUrl?: StringFieldUpdateOperationsInput | string
+    logo?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    categoryId?: StringFieldUpdateOperationsInput | string
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+    pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startingPriceCents?: NullableIntFieldUpdateOperationsInput | number | null
+    currencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
+    keywords?: ProductUpdatekeywordsInput | string[]
+    platforms?: ProductUpdateplatformsInput | $Enums.Platform[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
+    analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
+    verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
+    ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
+    ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
+    ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    ProductReview?: ProductReviewUncheckedUpdateManyWithoutProductNestedInput
+    ProductUpdate?: ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
+    placementSchedules?: PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
+    redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
+    featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
+    alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+  }
+
+  export type PaymentConnectorCredentialUpsertWithWhereUniqueWithoutConnectorInput = {
+    where: PaymentConnectorCredentialWhereUniqueInput
+    update: XOR<PaymentConnectorCredentialUpdateWithoutConnectorInput, PaymentConnectorCredentialUncheckedUpdateWithoutConnectorInput>
+    create: XOR<PaymentConnectorCredentialCreateWithoutConnectorInput, PaymentConnectorCredentialUncheckedCreateWithoutConnectorInput>
+  }
+
+  export type PaymentConnectorCredentialUpdateWithWhereUniqueWithoutConnectorInput = {
+    where: PaymentConnectorCredentialWhereUniqueInput
+    data: XOR<PaymentConnectorCredentialUpdateWithoutConnectorInput, PaymentConnectorCredentialUncheckedUpdateWithoutConnectorInput>
+  }
+
+  export type PaymentConnectorCredentialUpdateManyWithWhereWithoutConnectorInput = {
+    where: PaymentConnectorCredentialScalarWhereInput
+    data: XOR<PaymentConnectorCredentialUpdateManyMutationInput, PaymentConnectorCredentialUncheckedUpdateManyWithoutConnectorInput>
+  }
+
+  export type PaymentConnectorCredentialScalarWhereInput = {
+    AND?: PaymentConnectorCredentialScalarWhereInput | PaymentConnectorCredentialScalarWhereInput[]
+    OR?: PaymentConnectorCredentialScalarWhereInput[]
+    NOT?: PaymentConnectorCredentialScalarWhereInput | PaymentConnectorCredentialScalarWhereInput[]
+    id?: StringFilter<"PaymentConnectorCredential"> | string
+    connectorId?: StringFilter<"PaymentConnectorCredential"> | string
+    status?: EnumPaymentCredentialStatusFilter<"PaymentConnectorCredential"> | $Enums.PaymentCredentialStatus
+    encryptionVersion?: IntFilter<"PaymentConnectorCredential"> | number
+    encryptedKey?: StringFilter<"PaymentConnectorCredential"> | string
+    keyHint?: StringNullableFilter<"PaymentConnectorCredential"> | string | null
+    createdAt?: DateTimeFilter<"PaymentConnectorCredential"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentConnectorCredential"> | Date | string
+  }
+
+  export type PaymentRevenueSnapshotUpsertWithWhereUniqueWithoutConnectorInput = {
+    where: PaymentRevenueSnapshotWhereUniqueInput
+    update: XOR<PaymentRevenueSnapshotUpdateWithoutConnectorInput, PaymentRevenueSnapshotUncheckedUpdateWithoutConnectorInput>
+    create: XOR<PaymentRevenueSnapshotCreateWithoutConnectorInput, PaymentRevenueSnapshotUncheckedCreateWithoutConnectorInput>
+  }
+
+  export type PaymentRevenueSnapshotUpdateWithWhereUniqueWithoutConnectorInput = {
+    where: PaymentRevenueSnapshotWhereUniqueInput
+    data: XOR<PaymentRevenueSnapshotUpdateWithoutConnectorInput, PaymentRevenueSnapshotUncheckedUpdateWithoutConnectorInput>
+  }
+
+  export type PaymentRevenueSnapshotUpdateManyWithWhereWithoutConnectorInput = {
+    where: PaymentRevenueSnapshotScalarWhereInput
+    data: XOR<PaymentRevenueSnapshotUpdateManyMutationInput, PaymentRevenueSnapshotUncheckedUpdateManyWithoutConnectorInput>
+  }
+
+  export type PaymentRevenueSnapshotScalarWhereInput = {
+    AND?: PaymentRevenueSnapshotScalarWhereInput | PaymentRevenueSnapshotScalarWhereInput[]
+    OR?: PaymentRevenueSnapshotScalarWhereInput[]
+    NOT?: PaymentRevenueSnapshotScalarWhereInput | PaymentRevenueSnapshotScalarWhereInput[]
+    id?: StringFilter<"PaymentRevenueSnapshot"> | string
+    connectorId?: StringFilter<"PaymentRevenueSnapshot"> | string
+    currencyCode?: StringFilter<"PaymentRevenueSnapshot"> | string
+    periodStart?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
+    periodRevenueCents?: IntFilter<"PaymentRevenueSnapshot"> | number
+    allTimeRevenueCents?: IntFilter<"PaymentRevenueSnapshot"> | number
+    mrrCents?: IntNullableFilter<"PaymentRevenueSnapshot"> | number | null
+    data?: JsonNullableFilter<"PaymentRevenueSnapshot">
+    createdAt?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
+  }
+
+  export type PaymentConnectorCreateWithoutCredentialsInput = {
+    id?: string
+    provider: $Enums.PaymentConnectorProvider
+    status?: $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: Date | string | null
+    lastSyncError?: string | null
+    verifiedAt?: Date | string | null
+    latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
+    latestCurrencyCode?: string | null
+    latestPeriodStart?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    product: ProductCreateNestedOneWithoutPaymentConnectorInput
+    revenueHistory?: PaymentRevenueSnapshotCreateNestedManyWithoutConnectorInput
+  }
+
+  export type PaymentConnectorUncheckedCreateWithoutCredentialsInput = {
+    id?: string
+    productId: string
+    provider: $Enums.PaymentConnectorProvider
+    status?: $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: Date | string | null
+    lastSyncError?: string | null
+    verifiedAt?: Date | string | null
+    latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
+    latestCurrencyCode?: string | null
+    latestPeriodStart?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    revenueHistory?: PaymentRevenueSnapshotUncheckedCreateNestedManyWithoutConnectorInput
+  }
+
+  export type PaymentConnectorCreateOrConnectWithoutCredentialsInput = {
+    where: PaymentConnectorWhereUniqueInput
+    create: XOR<PaymentConnectorCreateWithoutCredentialsInput, PaymentConnectorUncheckedCreateWithoutCredentialsInput>
+  }
+
+  export type PaymentConnectorUpsertWithoutCredentialsInput = {
+    update: XOR<PaymentConnectorUpdateWithoutCredentialsInput, PaymentConnectorUncheckedUpdateWithoutCredentialsInput>
+    create: XOR<PaymentConnectorCreateWithoutCredentialsInput, PaymentConnectorUncheckedCreateWithoutCredentialsInput>
+    where?: PaymentConnectorWhereInput
+  }
+
+  export type PaymentConnectorUpdateToOneWithWhereWithoutCredentialsInput = {
+    where?: PaymentConnectorWhereInput
+    data: XOR<PaymentConnectorUpdateWithoutCredentialsInput, PaymentConnectorUncheckedUpdateWithoutCredentialsInput>
+  }
+
+  export type PaymentConnectorUpdateWithoutCredentialsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumPaymentConnectorProviderFieldUpdateOperationsInput | $Enums.PaymentConnectorProvider
+    status?: EnumPaymentConnectorStatusFieldUpdateOperationsInput | $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: ProductUpdateOneRequiredWithoutPaymentConnectorNestedInput
+    revenueHistory?: PaymentRevenueSnapshotUpdateManyWithoutConnectorNestedInput
+  }
+
+  export type PaymentConnectorUncheckedUpdateWithoutCredentialsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    provider?: EnumPaymentConnectorProviderFieldUpdateOperationsInput | $Enums.PaymentConnectorProvider
+    status?: EnumPaymentConnectorStatusFieldUpdateOperationsInput | $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revenueHistory?: PaymentRevenueSnapshotUncheckedUpdateManyWithoutConnectorNestedInput
+  }
+
+  export type PaymentConnectorCreateWithoutRevenueHistoryInput = {
+    id?: string
+    provider: $Enums.PaymentConnectorProvider
+    status?: $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: Date | string | null
+    lastSyncError?: string | null
+    verifiedAt?: Date | string | null
+    latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
+    latestCurrencyCode?: string | null
+    latestPeriodStart?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    product: ProductCreateNestedOneWithoutPaymentConnectorInput
+    credentials?: PaymentConnectorCredentialCreateNestedManyWithoutConnectorInput
+  }
+
+  export type PaymentConnectorUncheckedCreateWithoutRevenueHistoryInput = {
+    id?: string
+    productId: string
+    provider: $Enums.PaymentConnectorProvider
+    status?: $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: Date | string | null
+    lastSyncError?: string | null
+    verifiedAt?: Date | string | null
+    latestAllTimeRevenueCents?: number | null
+    latestMrrCents?: number | null
+    latestCurrencyCode?: string | null
+    latestPeriodStart?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    credentials?: PaymentConnectorCredentialUncheckedCreateNestedManyWithoutConnectorInput
+  }
+
+  export type PaymentConnectorCreateOrConnectWithoutRevenueHistoryInput = {
+    where: PaymentConnectorWhereUniqueInput
+    create: XOR<PaymentConnectorCreateWithoutRevenueHistoryInput, PaymentConnectorUncheckedCreateWithoutRevenueHistoryInput>
+  }
+
+  export type PaymentConnectorUpsertWithoutRevenueHistoryInput = {
+    update: XOR<PaymentConnectorUpdateWithoutRevenueHistoryInput, PaymentConnectorUncheckedUpdateWithoutRevenueHistoryInput>
+    create: XOR<PaymentConnectorCreateWithoutRevenueHistoryInput, PaymentConnectorUncheckedCreateWithoutRevenueHistoryInput>
+    where?: PaymentConnectorWhereInput
+  }
+
+  export type PaymentConnectorUpdateToOneWithWhereWithoutRevenueHistoryInput = {
+    where?: PaymentConnectorWhereInput
+    data: XOR<PaymentConnectorUpdateWithoutRevenueHistoryInput, PaymentConnectorUncheckedUpdateWithoutRevenueHistoryInput>
+  }
+
+  export type PaymentConnectorUpdateWithoutRevenueHistoryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    provider?: EnumPaymentConnectorProviderFieldUpdateOperationsInput | $Enums.PaymentConnectorProvider
+    status?: EnumPaymentConnectorStatusFieldUpdateOperationsInput | $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: ProductUpdateOneRequiredWithoutPaymentConnectorNestedInput
+    credentials?: PaymentConnectorCredentialUpdateManyWithoutConnectorNestedInput
+  }
+
+  export type PaymentConnectorUncheckedUpdateWithoutRevenueHistoryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    provider?: EnumPaymentConnectorProviderFieldUpdateOperationsInput | $Enums.PaymentConnectorProvider
+    status?: EnumPaymentConnectorStatusFieldUpdateOperationsInput | $Enums.PaymentConnectorStatus
+    config?: NullableJsonNullValueInput | InputJsonValue
+    lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastSyncError?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latestAllTimeRevenueCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestMrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    latestCurrencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    latestPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    credentials?: PaymentConnectorCredentialUncheckedUpdateManyWithoutConnectorNestedInput
+  }
+
   export type ProductCreateWithoutAlternativesInput = {
     id?: string
     name: string
@@ -66375,6 +72005,7 @@ export namespace Prisma {
     rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutAlternativesInput = {
@@ -66419,6 +72050,7 @@ export namespace Prisma {
     rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutAlternativesInput = {
@@ -66573,6 +72205,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutMonthlyProductRankingInput = {
@@ -66617,6 +72250,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutMonthlyProductRankingInput = {
@@ -66677,6 +72311,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutMonthlyProductRankingInput = {
@@ -66721,6 +72356,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -66901,6 +72537,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutProductMediaInput = {
@@ -66945,6 +72582,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutProductMediaInput = {
@@ -67005,6 +72643,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutProductMediaInput = {
@@ -67049,6 +72688,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutProductUpdateInput = {
@@ -67093,6 +72733,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutProductUpdateInput = {
@@ -67137,6 +72778,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutProductUpdateInput = {
@@ -67262,6 +72904,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutProductUpdateInput = {
@@ -67306,6 +72949,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type UserUpsertWithoutProductUpdatesInput = {
@@ -67421,6 +73065,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutVerificationInput = {
@@ -67465,6 +73110,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutVerificationInput = {
@@ -67525,6 +73171,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutVerificationInput = {
@@ -67569,6 +73216,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutMetadataInput = {
@@ -67613,6 +73261,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutMetadataInput = {
@@ -67657,6 +73306,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutMetadataInput = {
@@ -67717,6 +73367,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutMetadataInput = {
@@ -67761,6 +73412,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutAnalyticsInput = {
@@ -67805,6 +73457,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutAnalyticsInput = {
@@ -67849,6 +73502,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutAnalyticsInput = {
@@ -67909,6 +73563,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutAnalyticsInput = {
@@ -67953,6 +73608,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutClickEventsInput = {
@@ -67997,6 +73653,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutClickEventsInput = {
@@ -68041,6 +73698,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutClickEventsInput = {
@@ -68101,6 +73759,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutClickEventsInput = {
@@ -68145,6 +73804,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutTrafficEventsInput = {
@@ -68189,6 +73849,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutTrafficEventsInput = {
@@ -68233,6 +73894,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutTrafficEventsInput = {
@@ -68293,6 +73955,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutTrafficEventsInput = {
@@ -68337,6 +74000,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutInsightProfileInput = {
@@ -68381,6 +74045,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutInsightProfileInput = {
@@ -68425,6 +74090,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutInsightProfileInput = {
@@ -68523,6 +74189,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutInsightProfileInput = {
@@ -68567,6 +74234,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type ProductInsightStageResultUpsertWithWhereUniqueWithoutProfileInput = {
@@ -68705,6 +74373,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutProductUpvoteInput = {
@@ -68749,6 +74418,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutProductUpvoteInput = {
@@ -68874,6 +74544,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutProductUpvoteInput = {
@@ -68918,6 +74589,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type UserUpsertWithoutProductUpvoteInput = {
@@ -69059,6 +74731,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutOrganizationInput = {
@@ -69103,6 +74776,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutOrganizationInput = {
@@ -69529,6 +75203,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutUserInput = {
@@ -69573,6 +75248,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutUserInput = {
@@ -70422,6 +76098,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutProductReviewInput = {
@@ -70466,6 +76143,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutProductReviewInput = {
@@ -70591,6 +76269,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutProductReviewInput = {
@@ -70635,6 +76314,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type UserUpsertWithoutProductReviewsInput = {
@@ -70886,6 +76566,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutCategoryInput = {
@@ -70930,6 +76611,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutCategoryInput = {
@@ -71087,6 +76769,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutPlanInput = {
@@ -71131,6 +76814,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutPlanInput = {
@@ -71830,6 +77514,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutProductBadgeInput = {
@@ -71874,6 +77559,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutProductBadgeInput = {
@@ -71934,6 +77620,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutProductBadgeInput = {
@@ -71978,6 +77665,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type UseCaseCategoryCreateWithoutUseCaseInput = {
@@ -72965,6 +78653,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutRewardTransactionsInput = {
@@ -73009,6 +78698,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutRewardTransactionsInput = {
@@ -73368,6 +79058,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutRewardTransactionsInput = {
@@ -73412,6 +79103,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type UserCreateWithoutRedemptionsInput = {
@@ -73568,6 +79260,7 @@ export namespace Prisma {
     rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutRedemptionsInput = {
@@ -73612,6 +79305,7 @@ export namespace Prisma {
     rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutRedemptionsInput = {
@@ -73942,6 +79636,7 @@ export namespace Prisma {
     rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutRedemptionsInput = {
@@ -73986,6 +79681,7 @@ export namespace Prisma {
     rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type RewardTransactionUpsertWithWhereUniqueWithoutRedemptionInput = {
@@ -74239,6 +79935,7 @@ export namespace Prisma {
     rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutFeatureEntitlementsInput = {
@@ -74283,6 +79980,7 @@ export namespace Prisma {
     rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutFeatureEntitlementsInput = {
@@ -74566,6 +80264,7 @@ export namespace Prisma {
     rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutFeatureEntitlementsInput = {
@@ -74610,6 +80309,7 @@ export namespace Prisma {
     rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type PlacementScheduleUpsertWithWhereUniqueWithoutEntitlementInput = {
@@ -74807,6 +80507,7 @@ export namespace Prisma {
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorCreateNestedOneWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutPlacementSchedulesInput = {
@@ -74851,6 +80552,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
     alternatives?: AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+    paymentConnector?: PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutPlacementSchedulesInput = {
@@ -75066,6 +80768,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutPlacementSchedulesInput = {
@@ -75110,6 +80813,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type EventAttemptCreateWithoutEnvelopeInput = {
@@ -75939,6 +81643,94 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type PaymentConnectorCredentialCreateManyConnectorInput = {
+    id?: string
+    status?: $Enums.PaymentCredentialStatus
+    encryptionVersion?: number
+    encryptedKey: string
+    keyHint?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentRevenueSnapshotCreateManyConnectorInput = {
+    id?: string
+    currencyCode: string
+    periodStart: Date | string
+    periodRevenueCents?: number
+    allTimeRevenueCents?: number
+    mrrCents?: number | null
+    data?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentConnectorCredentialUpdateWithoutConnectorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumPaymentCredentialStatusFieldUpdateOperationsInput | $Enums.PaymentCredentialStatus
+    encryptionVersion?: IntFieldUpdateOperationsInput | number
+    encryptedKey?: StringFieldUpdateOperationsInput | string
+    keyHint?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentConnectorCredentialUncheckedUpdateWithoutConnectorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumPaymentCredentialStatusFieldUpdateOperationsInput | $Enums.PaymentCredentialStatus
+    encryptionVersion?: IntFieldUpdateOperationsInput | number
+    encryptedKey?: StringFieldUpdateOperationsInput | string
+    keyHint?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentConnectorCredentialUncheckedUpdateManyWithoutConnectorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumPaymentCredentialStatusFieldUpdateOperationsInput | $Enums.PaymentCredentialStatus
+    encryptionVersion?: IntFieldUpdateOperationsInput | number
+    encryptedKey?: StringFieldUpdateOperationsInput | string
+    keyHint?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentRevenueSnapshotUpdateWithoutConnectorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currencyCode?: StringFieldUpdateOperationsInput | string
+    periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodRevenueCents?: IntFieldUpdateOperationsInput | number
+    allTimeRevenueCents?: IntFieldUpdateOperationsInput | number
+    mrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    data?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentRevenueSnapshotUncheckedUpdateWithoutConnectorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currencyCode?: StringFieldUpdateOperationsInput | string
+    periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodRevenueCents?: IntFieldUpdateOperationsInput | number
+    allTimeRevenueCents?: IntFieldUpdateOperationsInput | number
+    mrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    data?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentRevenueSnapshotUncheckedUpdateManyWithoutConnectorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currencyCode?: StringFieldUpdateOperationsInput | string
+    periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodRevenueCents?: IntFieldUpdateOperationsInput | number
+    allTimeRevenueCents?: IntFieldUpdateOperationsInput | number
+    mrrCents?: NullableIntFieldUpdateOperationsInput | number | null
+    data?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ProductUpdateWithoutAlternativesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -75981,6 +81773,7 @@ export namespace Prisma {
     rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutAlternativesInput = {
@@ -76025,6 +81818,7 @@ export namespace Prisma {
     rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutAlternativesInput = {
@@ -76246,6 +82040,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutOrganizationInput = {
@@ -76290,6 +82085,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutOrganizationInput = {
@@ -76544,6 +82340,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutUserInput = {
@@ -76588,6 +82385,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutUserInput = {
@@ -77170,6 +82968,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutCategoryInput = {
@@ -77214,6 +83013,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutCategoryInput = {
@@ -77377,6 +83177,7 @@ export namespace Prisma {
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutPlanInput = {
@@ -77421,6 +83222,7 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
     alternatives?: AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+    paymentConnector?: PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutPlanInput = {

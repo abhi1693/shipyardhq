@@ -1,19 +1,29 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
+
 import {
   toggleProductUpvote,
   UpvoteError,
 } from "@/actions/public/products/upvote"
+import prisma from "@/lib/prisma"
 
 interface RouteParams {
-  params: Promise<{ id?: string }>
+  params: Promise<{ slug?: string }>
 }
 
 export async function POST(_request: Request, { params }: RouteParams) {
   const resolvedParams = await params
-  const productId = resolvedParams.id?.trim()
-  if (!productId) {
-    return NextResponse.json({ error: "Missing productId" }, { status: 400 })
+  const slug = resolvedParams.slug?.trim()
+  if (!slug) {
+    return NextResponse.json({ error: "Missing product slug" }, { status: 400 })
+  }
+
+  const product = await prisma.product.findUnique({
+    where: { slug },
+    select: { id: true },
+  })
+  if (!product) {
+    return NextResponse.json({ error: "Product not found" }, { status: 404 })
   }
 
   const authResult = await auth()
@@ -23,7 +33,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
 
   try {
     const result = await toggleProductUpvote({
-      productId,
+      productId: product.id,
       clerkUserId: authResult.userId,
     })
 
