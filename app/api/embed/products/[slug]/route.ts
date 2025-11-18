@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic"
 
 type Theme = "light" | "dark"
 type BadgeType = "featured" | "revenue" | "mrr"
+type Format = "svg" | "png"
 
 type RouteParams = Promise<{ slug: string }>
 
@@ -19,6 +20,8 @@ const HEIGHT = 162
 const OUTER_PADDING = 1
 const DEFAULT_THEME: Theme = "light"
 const DEFAULT_TYPE: BadgeType = "featured"
+const DEFAULT_FORMAT: Format = "svg"
+const MAX_INLINE_BYTES = 1_500_000
 
 const CACHE_CONTROL =
   "public, max-age=300, s-maxage=300, stale-while-revalidate=600"
@@ -51,6 +54,46 @@ function parseParam<T extends string>(
   if (!value) return fallback
   const normalized = value.toLowerCase()
   return allowed.includes(normalized as T) ? (normalized as T) : fallback
+}
+
+const toDataUri = async (
+  url: string | null,
+  limitBytes = MAX_INLINE_BYTES,
+): Promise<string | null> => {
+  if (!url) return null
+
+  try {
+    const response = await fetch(url, {
+      cache: "no-store",
+      redirect: "follow",
+    })
+
+    if (!response.ok) return null
+
+    let contentType = response.headers.get("content-type") || ""
+    const arrayBuffer = await response.arrayBuffer()
+
+    // Force Buffer from Uint8Array to avoid ArrayBufferLike generic issues
+    let buffer: Buffer = Buffer.from(new Uint8Array(arrayBuffer))
+
+    if (!contentType.startsWith("image/")) {
+      return null
+    }
+
+    if (!contentType.startsWith("image/png")) {
+      const sharp = (await import("sharp")).default
+      buffer = await sharp(buffer).png({ compressionLevel: 9 }).toBuffer()
+      if (buffer.byteLength > limitBytes) return null
+      contentType = "image/png"
+    }
+
+    const base64 = buffer.toString("base64")
+      console.log(`data:${contentType};base64,${base64}`)
+    return `data:${contentType};base64,${base64}`
+  } catch (error) {
+    console.warn("[badge] Failed to inline image for badge", { url, error })
+    return null
+  }
 }
 
 function buildBaseSvg(options: {
@@ -141,17 +184,25 @@ function buildBaseSvg(options: {
 `.trim()
 }
 
-function resolveHref(href: string | null | undefined, origin: string): string | null {
+async function resolveHref(
+  href: string | null | undefined,
+  origin: string,
+  format: Format,
+): Promise<string | null> {
   if (!href) return null
-  try {
-    return new URL(href).toString()
-  } catch {
-    try {
-      return new URL(href, origin).toString()
-    } catch {
-      return null
-    }
+
+  const url =
+      href.startsWith("http://") || href.startsWith("https://")
+        ? new URL(href)
+        : new URL(href, origin)
+
+  if (format === "svg") {
+    // For SVG we just return a plain URL, no need to inline
+    return url.toString()
   }
+
+  // For PNG badges we inline the image as a data URI
+  return await toDataUri(url.toString())
 }
 
 export async function GET(_req: NextRequest, context: { params: RouteParams }) {
@@ -175,10 +226,19 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
     ["featured", "revenue", "mrr"],
     DEFAULT_TYPE,
   )
+  const format = parseParam<Format>(
+    url.searchParams.get("format"),
+    ["svg", "png"],
+    DEFAULT_FORMAT,
+  )
   const brandLogoPath = theme === "dark" ? "/brand-white.png" : "/brand.png"
-  const brandLogoHref = resolveHref(brandLogoPath, url.origin)
+  const brandLogoHref = await resolveHref(brandLogoPath, url.origin, format)
   const isFeatured = badgeType === "featured"
-  const productLogoHref = resolveHref(product?.logo ?? null, url.origin)
+  const productLogoHref = await resolveHref(
+    product?.logo ?? null,
+    url.origin,
+    format,
+  )
   const logoHref = isFeatured ? brandLogoHref : productLogoHref
   let metricValue = "$0"
 
@@ -210,6 +270,30 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
     productLogo: logoHref,
     brandLogo: brandLogoHref ?? undefined,
   })
+
+  if (format === "png") {
+    try {
+      const sharp = (await import("sharp")).default
+      const pngBuffer = await sharp(Buffer.from(svg)).png({
+        compressionLevel: 9,
+      })
+        .toBuffer()
+      const pngArray = new Uint8Array(pngBuffer)
+      const pngHeaders = new Headers({
+        "Cache-Control": CACHE_CONTROL,
+        "Content-Type": "image/png",
+        "Content-Length": `${pngArray.byteLength}`,
+      })
+      return new NextResponse(pngArray, { status: 200, headers: pngHeaders })
+    } catch (err) {
+      console.error("[badge] Failed to render PNG badge, falling back to SVG", {
+        error: err,
+        slug,
+        badgeType,
+        theme,
+      })
+    }
+  }
 
   const headers = new Headers({
     "Cache-Control": CACHE_CONTROL,

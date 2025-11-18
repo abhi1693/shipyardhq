@@ -95,7 +95,7 @@ export function ProductBadgeCelebrationDialog({
   }, [productPublicPath])
   const isMissingProduct = !productSlug
 
-  const previewBadgeUrl = useMemo(() => {
+  const baseBadgeUrl = useMemo(() => {
     if (!productSlug) return null
     try {
       const url = new URL(`/api/embed/products/${productSlug}`, origin)
@@ -107,7 +107,18 @@ export function ProductBadgeCelebrationDialog({
     }
   }, [badgeVariant, origin, productSlug, theme])
 
-  const badgeUrl = previewBadgeUrl ?? ""
+  const previewBadgeUrl = useMemo(() => {
+    if (!baseBadgeUrl) return null
+    try {
+      const url = new URL(baseBadgeUrl)
+      url.searchParams.set("format", "png")
+      return url.toString()
+    } catch {
+      return baseBadgeUrl
+    }
+  }, [baseBadgeUrl])
+
+  const badgeUrl = baseBadgeUrl ?? ""
   const embedCode = useMemo(
     () =>
       `<a href="${productUrl}" target="_blank" rel="noopener">\n  <img src="${badgeUrl}" alt="Shipyard badge" style="max-width: 500px;" />\n</a>`,
@@ -179,7 +190,7 @@ export function ProductBadgeCelebrationDialog({
           <section className="rounded-lg border bg-background/80 p-4">
             <div className="flex flex-col items-center gap-3">
               <img
-                src={badgeUrl}
+                src={previewBadgeUrl ?? badgeUrl}
                 alt={
                   productSlug ? `Badge preview for ${productSlug}` : "Badge preview"
                 }
