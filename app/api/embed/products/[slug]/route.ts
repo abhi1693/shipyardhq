@@ -158,6 +158,12 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
   const { slug } = await context.params
   const url = _req.nextUrl
   const product = await getPublicProductMetaBySlug(slug)
+  if (!product) {
+    return new NextResponse("Badge not found", {
+      status: 404,
+      headers: { "Content-Type": "text/plain" },
+    })
+  }
   const productName = product?.name ?? slug
   const theme = parseParam<Theme>(
     url.searchParams.get("theme"),
