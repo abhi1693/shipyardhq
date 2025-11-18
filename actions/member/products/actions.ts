@@ -18,16 +18,7 @@ import {
   validateConnectorApiKey,
   upsertPaymentConnector,
 } from "@/lib/server/payments/connectors"
-import {
-  convertToUsdCents,
-  getUsdConversionRates,
-} from "@/lib/server/payments/currency"
-import {
-  findLatestMrr,
-  normalizeRevenueHistory,
-  selectDisplaySeries,
-  sortRevenueHistory,
-} from "@/lib/server/payments/revenue"
+import { getCachedRevenueSummary } from "@/lib/server/payments/revenue"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -478,67 +469,61 @@ export async function getProductConnectorRevenue(
   const { error } = await requireOwnedProduct(productId)
   if (error) return null
 
-  const connector = await getConnectorRevenueHistory({
-    productId,
-    limit: options?.limit,
-  })
-  if (!connector) return null
+  const summary = await getCachedRevenueSummary(productId)
+  if (!summary) return null
 
-  const rates = await getUsdConversionRates()
-  const normalizedHistory = normalizeRevenueHistory(
-    connector.revenueHistory ?? [],
-    rates,
-  )
-  const sortedHistory = sortRevenueHistory(normalizedHistory)
-  const { displayCurrency, series: primarySeries } = selectDisplaySeries(
-    sortedHistory,
-    options?.limit,
-  )
-  const primaryAllTime =
-    primarySeries[primarySeries.length - 1]?.allTimeRevenueCents ?? 0
-  const primaryMrr = findLatestMrr(primarySeries) ?? 0
-  const primaryCurrency =
-    displayCurrency ??
-    sortedHistory[sortedHistory.length - 1]?.currencyCode ??
-    connector.latestCurrencyCode ??
-    null
-  const { usdCents: connectorLatestUsd, rateUsed: latestRate } =
-    convertToUsdCents(
-      connector.latestAllTimeRevenueCents ?? 0,
-      connector.latestCurrencyCode,
-      rates,
-    )
+  const connector = await prisma.paymentConnector.findUnique({
+    where: { productId },
+    select: {
+      id: true,
+      provider: true,
+      status: true,
+      lastSyncedAt: true,
+      lastSyncError: true,
+      latestPeriodStart: true,
+    },
+  })
+
+  const limitedPoints = options?.limit
+    ? summary.points.slice(Math.max(summary.points.length - options.limit, 0))
+    : summary.points
 
   return {
-    connector: {
-      id: connector.id,
-      provider: connector.provider,
-      status: connector.status,
-      lastSyncedAt: connector.lastSyncedAt,
-      lastSyncError: connector.lastSyncError,
-      latestAllTimeRevenueCents:
-        (latestRate ? connectorLatestUsd : connector.latestAllTimeRevenueCents) ??
-        primaryAllTime ??
-        0,
-      latestCurrencyCode: displayCurrency ?? connector.latestCurrencyCode,
-      latestPeriodStart: connector.latestPeriodStart,
-      latestMrrCents: primaryMrr,
-    },
-    revenueHistory: primarySeries,
+    connector: connector
+      ? {
+          id: connector.id,
+          provider: connector.provider,
+          status: connector.status,
+          lastSyncedAt: connector.lastSyncedAt,
+          lastSyncError: connector.lastSyncError,
+          latestAllTimeRevenueCents: summary.latestAllTimeRevenueCents,
+          latestCurrencyCode: summary.currencyCode,
+          latestPeriodStart: connector.latestPeriodStart,
+          latestMrrCents: summary.latestMrrCents ?? 0,
+        }
+      : null,
+    revenueHistory: limitedPoints.map((point) => ({
+      id: point.periodStart,
+      periodStart: new Date(point.periodStart),
+      currencyCode: summary.currencyCode,
+      periodRevenueCents: point.periodRevenueCents,
+      allTimeRevenueCents: point.allTimeRevenueCents,
+      mrrCents: point.mrrCents ?? 0,
+      data: {},
+      createdAt: new Date(point.periodStart),
+    })),
     totals: {
       byCurrency: [
         {
-          currencyCode: displayCurrency ?? primaryCurrency ?? "USD",
-          allTimeRevenueCents: primaryAllTime ?? 0,
+          currencyCode: summary.currencyCode,
+          allTimeRevenueCents: summary.latestAllTimeRevenueCents,
         },
       ],
-      primary: primaryCurrency
-        ? {
-            currencyCode: primaryCurrency,
-            allTimeRevenueCents: primaryAllTime ?? 0,
-          }
-        : null,
-      mrrCents: primaryMrr,
+      primary: {
+        currencyCode: summary.currencyCode,
+        allTimeRevenueCents: summary.latestAllTimeRevenueCents,
+      },
+      mrrCents: summary.latestMrrCents ?? 0,
     },
   }
 }

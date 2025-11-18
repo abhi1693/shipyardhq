@@ -27,7 +27,6 @@ type RevenuePoint = {
   periodStart: string
   allTimeRevenueCents: number
   periodRevenueCents: number
-  charges: number | null
   mrrCents?: number | null
 }
 

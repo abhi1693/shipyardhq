@@ -1,26 +1,61 @@
-import type { Prisma, PaymentRevenueSnapshot } from "@/lib/vendor/prisma/client"
+import type {
+  Prisma,
+  PaymentConnectorProvider,
+  PaymentConnectorStatus,
+  PaymentRevenueSnapshot,
+} from "@/lib/vendor/prisma/client"
 
+import {
+  buildCacheKey,
+  cacheHit,
+  cacheMiss,
+} from "@/lib/server/cache"
 import { convertToUsdCents } from "./currency"
 
-type RevenueSnapshotInput = Pick<
-  PaymentRevenueSnapshot,
-  | "id"
-  | "periodStart"
-  | "currencyCode"
-  | "periodRevenueCents"
-  | "allTimeRevenueCents"
-  | "mrrCents"
-  | "data"
-  | "createdAt"
->
+type RevenueSnapshotInput = {
+  id?: string
+  createdAt?: Date
+  periodStart: Date
+  currencyCode: string
+  periodRevenueCents: number
+  allTimeRevenueCents: number
+  mrrCents?: number | null
+  data?: Prisma.JsonValue | Prisma.InputJsonValue
+}
 
-export type NormalizedRevenueSnapshot = RevenueSnapshotInput & {
+export type NormalizedRevenueSnapshot = Omit<
+  RevenueSnapshotInput,
+  "allTimeRevenueCents" | "periodRevenueCents" | "mrrCents" | "currencyCode" | "data"
+> & {
   currencyCode: string | null
   allTimeRevenueCents: number | null
   periodRevenueCents: number | null
   mrrCents: number | null
   data: Record<string, unknown>
 }
+
+export type RevenuePoint = {
+  periodStart: string
+  label: string
+  allTimeRevenueCents: number
+  periodRevenueCents: number
+  mrrCents: number | null
+}
+
+export type RevenueSummary = {
+  productId: string
+  connectorId?: string
+  provider?: PaymentConnectorProvider
+  status?: PaymentConnectorStatus
+  currencyCode: string
+  lastSyncedAt: string | null
+  latestAllTimeRevenueCents: number
+  latestMrrCents: number | null
+  points: RevenuePoint[]
+}
+
+const REVENUE_CACHE_TTL_SECONDS = 24 * 60 * 60 // 1 day
+const REVENUE_CACHE_VERSION = "v2"
 
 const isObject = (
   value: Prisma.JsonValue | null | undefined,
@@ -36,7 +71,9 @@ export function normalizeRevenueHistory(
   rates: Map<string, number>,
 ): NormalizedRevenueSnapshot[] {
   return history.map((entry) => {
-    const baseData = isObject(entry.data) ? entry.data : {}
+    const baseData = isObject(entry.data as Prisma.JsonValue)
+      ? (entry.data as Prisma.JsonObject)
+      : {}
     const rawMrr =
       typeof entry.mrrCents === "number"
         ? entry.mrrCents
@@ -61,7 +98,9 @@ export function normalizeRevenueHistory(
     )
 
     return {
-      ...entry,
+      id: entry.id,
+      createdAt: entry.createdAt,
+      periodStart: entry.periodStart,
       currencyCode: rateUsed ? "USD" : entry.currencyCode ?? null,
       allTimeRevenueCents: rateUsed
         ? allTimeUsd
@@ -98,10 +137,7 @@ function aggregateByCurrency(
   currencyCode: string,
 ): NormalizedRevenueSnapshot[] {
   // Bucket by day so multi-currency snapshots on the same day are merged after conversion.
-  const buckets = new Map<
-    number,
-    Omit<NormalizedRevenueSnapshot, "allTimeRevenueCents">
-  >()
+  const buckets = new Map<number, NormalizedRevenueSnapshot>()
 
   for (const entry of history) {
     if (entry.currencyCode !== currencyCode) continue
@@ -115,30 +151,32 @@ function aggregateByCurrency(
 
     const existing = buckets.get(dayKey)
     const periodRevenueCents = (entry.periodRevenueCents ?? 0) as number
-    const charges =
-      typeof entry.data?.charges === "number" ? entry.data.charges : 0
     const mrrCents = (entry.mrrCents ?? 0) as number
-    const existingCharges =
-      typeof (existing?.data as any)?.charges === "number"
-        ? (existing?.data as any).charges
-        : 0
+
+    const mergedData = {
+      ...(isObject(existing?.data as Prisma.JsonValue)
+        ? ((existing?.data as Prisma.JsonObject) ?? {})
+        : {}),
+      ...(isObject(entry.data as Prisma.JsonValue)
+        ? ((entry.data as Prisma.JsonObject) ?? {})
+        : {}),
+    }
 
     buckets.set(dayKey, {
-      ...entry,
-      // Prefer earliest createdAt for stability when merging multiple entries.
+      id: existing?.id ?? entry.id,
       createdAt:
         existing?.createdAt &&
         entry.createdAt &&
         existing.createdAt < entry.createdAt
           ? existing.createdAt
           : entry.createdAt,
+      // Prefer earliest createdAt for stability when merging multiple entries.
+      periodStart: entry.periodStart,
+      currencyCode: entry.currencyCode,
       periodRevenueCents: (existing?.periodRevenueCents ?? 0) + periodRevenueCents,
       mrrCents: (existing?.mrrCents ?? 0) + (mrrCents > 0 ? mrrCents : 0),
-      data: {
-        ...(isObject(existing?.data) ? existing?.data : {}),
-        ...(isObject(entry.data) ? entry.data : {}),
-        charges: existingCharges + charges,
-      },
+      data: mergedData,
+      allTimeRevenueCents: existing?.allTimeRevenueCents ?? null,
     })
   }
 
@@ -198,4 +236,81 @@ export function findLatestMrr(
     if (typeof value === "number") return value
   }
   return null
+}
+
+function buildRevenueCacheKey(productId: string) {
+  return buildCacheKey("payments", "revenue", productId)
+}
+
+export async function getCachedRevenueSummary(
+  productId: string,
+): Promise<RevenueSummary | null> {
+  return cacheHit<RevenueSummary>({
+    key: buildRevenueCacheKey(productId),
+  }).catch(() => null)
+}
+
+export async function cacheRevenueSummary(
+  summary: RevenueSummary,
+): Promise<void> {
+  await cacheMiss({
+    key: buildRevenueCacheKey(summary.productId),
+    value: summary,
+    ttlSeconds: REVENUE_CACHE_TTL_SECONDS,
+  }).catch(() => null)
+}
+
+export function buildRevenueSummary({
+  productId,
+  connectorId,
+  provider,
+  status,
+  lastSyncedAt,
+  history,
+  rates,
+}: {
+  productId: string
+  connectorId?: string
+  provider?: PaymentConnectorProvider
+  status?: PaymentConnectorStatus
+  lastSyncedAt?: Date | string | null
+  history: RevenueSnapshotInput[]
+  rates: Map<string, number>
+}): RevenueSummary | null {
+  const normalizedHistory = normalizeRevenueHistory(history, rates)
+  const sortedHistory = sortRevenueHistory(normalizedHistory)
+  const { displayCurrency, series } = selectDisplaySeries(sortedHistory)
+  if (!displayCurrency || !series.length) return null
+
+  const points: RevenuePoint[] = series.map((point) => {
+    const periodDate = new Date(point.periodStart)
+    const label = new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }).format(periodDate)
+    return {
+      periodStart: periodDate.toISOString(),
+      label,
+      allTimeRevenueCents: point.allTimeRevenueCents ?? 0,
+      periodRevenueCents: point.periodRevenueCents ?? 0,
+      mrrCents: point.mrrCents ?? null,
+    }
+  })
+
+  const latestPoint = series[series.length - 1]
+  return {
+    productId,
+    connectorId,
+    provider,
+    status,
+    currencyCode: displayCurrency,
+    lastSyncedAt:
+      typeof lastSyncedAt === "string"
+        ? lastSyncedAt
+        : lastSyncedAt?.toISOString() ?? null,
+    latestAllTimeRevenueCents: latestPoint.allTimeRevenueCents ?? 0,
+    latestMrrCents: findLatestMrr(series),
+    points,
+  }
 }

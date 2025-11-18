@@ -13,7 +13,12 @@ import {
   encryptConnectorSecret,
 } from "./connectorSecrets"
 import { getProviderDefinition } from "./providers"
+import { getUsdConversionRates } from "./currency"
 import { type PaymentConnectorConfig, type RevenueSnapshotInput } from "./types"
+import {
+  buildRevenueSummary,
+  cacheRevenueSummary,
+} from "./revenue"
 
 export async function validateConnectorApiKey({
   provider,
@@ -226,6 +231,20 @@ export async function syncPaymentConnector(connectorId: string) {
         latestMrrCents: latestMrr ?? null,
       },
     })
+
+    const rates = await getUsdConversionRates()
+    const summary = buildRevenueSummary({
+      productId: connector.productId,
+      connectorId: connector.id,
+      provider: connector.provider,
+      status: PaymentConnectorStatus.active,
+      lastSyncedAt: now,
+      history: result.snapshots,
+      rates,
+    })
+    if (summary) {
+      await cacheRevenueSummary(summary)
+    }
 
     return {
       connectorId: connector.id,

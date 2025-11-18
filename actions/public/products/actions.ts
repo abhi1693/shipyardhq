@@ -3,14 +3,7 @@ import { Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { resolveVoteState } from "@/lib/server/productVotesStore"
-import { getConnectorRevenueHistory } from "@/lib/server/payments/connectors"
-import { getUsdConversionRates } from "@/lib/server/payments/currency"
-import {
-  findLatestMrr,
-  normalizeRevenueHistory,
-  selectDisplaySeries,
-  sortRevenueHistory,
-} from "@/lib/server/payments/revenue"
+import { getCachedRevenueSummary } from "@/lib/server/payments/revenue"
 
 type PublicProduct = Prisma.ProductGetPayload<{
   include: {
@@ -329,54 +322,19 @@ export async function getPublicProductRevenue(
   productId: string,
   options?: { limit?: number },
 ) {
-  const connector = await getConnectorRevenueHistory({
-    productId,
-    limit: options?.limit,
-  })
-  const history = connector?.revenueHistory ?? []
-  if (!connector || !history.length) return null
+  const cached = await getCachedRevenueSummary(productId)
+  if (!cached) return null
 
-  const rates = await getUsdConversionRates()
-  const normalizedHistory = normalizeRevenueHistory(history, rates)
-  const sortedHistory = sortRevenueHistory(normalizedHistory)
-  const { displayCurrency, series: limitedSeries } = selectDisplaySeries(
-    sortedHistory,
-    options?.limit,
-  )
-  if (!displayCurrency || !limitedSeries.length) return null
-
-  const points: PublicRevenuePoint[] = limitedSeries.map((point) => {
-    const periodDate = new Date(point.periodStart)
-    const label = new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }).format(periodDate)
-    return {
-      periodStart: periodDate.toISOString(),
-      label,
-      allTimeRevenueCents: point.allTimeRevenueCents ?? 0,
-      periodRevenueCents: point.periodRevenueCents ?? 0,
-      charges:
-        point.data &&
-        typeof point.data === "object" &&
-        !Array.isArray(point.data)
-          ? ((point.data as any).charges ?? null)
-          : null,
-      mrrCents: point.mrrCents ?? null,
-    }
-  })
-
-  const latestPoint = limitedSeries[limitedSeries.length - 1]
-  const latestMrr = findLatestMrr(limitedSeries)
-
+  const limitedPoints = options?.limit
+    ? cached.points.slice(Math.max(cached.points.length - options.limit, 0))
+    : cached.points
   return {
-    currencyCode: displayCurrency,
-    lastSyncedAt: connector.lastSyncedAt?.toISOString() ?? null,
-    status: connector.status,
-    provider: connector.provider,
-    latestAllTimeRevenueCents: latestPoint.allTimeRevenueCents ?? 0,
-    latestMrrCents: latestMrr,
-    points,
+    currencyCode: cached.currencyCode,
+    lastSyncedAt: cached.lastSyncedAt,
+    status: cached.status,
+    provider: cached.provider,
+    latestAllTimeRevenueCents: cached.latestAllTimeRevenueCents,
+    latestMrrCents: cached.latestMrrCents,
+    points: limitedPoints,
   }
 }

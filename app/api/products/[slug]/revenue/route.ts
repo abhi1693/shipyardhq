@@ -11,7 +11,6 @@ type RevenueResponse = {
   data: Array<{
     date: string
     revenue: number
-    charges: number | null
   }>
 }
 
@@ -37,7 +36,6 @@ export async function GET(
   const data = revenue.points.map((point) => ({
     date: point.periodStart.slice(0, 10),
     revenue: (point.periodRevenueCents ?? 0) / 100,
-    charges: typeof point.charges === "number" ? point.charges : null,
   }))
 
   return NextResponse.json<RevenueResponse>({
