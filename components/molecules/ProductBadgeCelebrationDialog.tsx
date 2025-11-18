@@ -139,7 +139,8 @@ export function ProductBadgeCelebrationDialog({
         <DialogHeader>
           <DialogTitle>Congratulations on the new launch!</DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            Pick a badge style and copy the embed. The badge stays in sync with your stats.
+            Pick a badge style and copy the embed. The badge stays in sync with
+            your stats.
           </DialogDescription>
         </DialogHeader>
 
@@ -156,7 +157,9 @@ export function ProductBadgeCelebrationDialog({
                       key={variant.id}
                       type="button"
                       size="sm"
-                      variant={badgeVariant === variant.id ? "default" : "outline"}
+                      variant={
+                        badgeVariant === variant.id ? "default" : "outline"
+                      }
                       onClick={() => handleVariantSelect(variant.id)}
                       className="h-9 px-3 text-sm"
                     >
@@ -175,7 +178,9 @@ export function ProductBadgeCelebrationDialog({
                       key={themeOption.id}
                       type="button"
                       size="sm"
-                      variant={theme === themeOption.id ? "secondary" : "outline"}
+                      variant={
+                        theme === themeOption.id ? "secondary" : "outline"
+                      }
                       onClick={() => handleThemeSelect(themeOption.id)}
                       className="h-9 px-3 text-sm"
                     >
@@ -192,14 +197,17 @@ export function ProductBadgeCelebrationDialog({
               <img
                 src={previewBadgeUrl ?? badgeUrl}
                 alt={
-                  productSlug ? `Badge preview for ${productSlug}` : "Badge preview"
+                  productSlug
+                    ? `Badge preview for ${productSlug}`
+                    : "Badge preview"
                 }
                 className="mx-auto h-auto w-full max-w-[520px] max-h-[170px] object-contain"
                 loading="eager"
               />
               {isMissingProduct ? (
                 <p className="text-[11px] text-destructive text-center">
-                  Missing product URL. Open this from a product page to preview your badge.
+                  Missing product URL. Open this from a product page to preview
+                  your badge.
                 </p>
               ) : null}
             </div>

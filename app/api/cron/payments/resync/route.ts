@@ -29,6 +29,9 @@ export async function GET(request: Request) {
   const searchParams = new URL(request.url).searchParams
   const targetProductId = searchParams.get("productId") || undefined
   const targetConnectorId = searchParams.get("connectorId") || undefined
+  const force =
+    (searchParams.get("force") || "").toLowerCase() === "true" ||
+    searchParams.get("force") === "1"
 
   const intervalMinutes = getIntervalMinutes()
   const staleBefore = new Date(Date.now() - intervalMinutes * 60 * 1000)
@@ -44,18 +47,22 @@ export async function GET(request: Request) {
         in: [PaymentConnectorStatus.active, PaymentConnectorStatus.error],
       },
       credentials: { some: { status: PaymentCredentialStatus.active } },
-      AND: [
-        staleCondition,
-        {
-          OR: [
-            { revenueHistory: { some: {} } },
-            {
-              // Only treat missing revenue as a reason to resync when also stale.
-              AND: [{ revenueHistory: { none: {} } }, staleCondition],
-            },
-          ],
-        },
-      ],
+      ...(force
+        ? {}
+        : {
+            AND: [
+              staleCondition,
+              {
+                OR: [
+                  { revenueHistory: { some: {} } },
+                  {
+                    // Only treat missing revenue as a reason to resync when also stale.
+                    AND: [{ revenueHistory: { none: {} } }, staleCondition],
+                  },
+                ],
+              },
+            ],
+          }),
     },
     select: {
       id: true,
@@ -76,6 +83,7 @@ export async function GET(request: Request) {
   console.info("[cron.payments:resync] dispatched", {
     enqueued,
     intervalMinutes,
+    force,
     connectorIds: connectors.map((connector) => connector.id),
   })
 
@@ -83,5 +91,6 @@ export async function GET(request: Request) {
     success: true,
     enqueued,
     intervalMinutes,
+    force,
   })
 }
