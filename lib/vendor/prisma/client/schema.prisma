@@ -73,6 +73,7 @@ model Product {
 
 enum PaymentConnectorProvider {
   dodo
+  polar
   stripe
 }
 

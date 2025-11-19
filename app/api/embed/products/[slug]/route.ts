@@ -145,7 +145,10 @@ function buildBaseSvg(options: {
   const verificationGap = 6
   const verificationTextY = (verifiedLogoSize - subtextSize) / 2
   const blockHeight =
-    headingSize + gap + subheadingSize + (showVerification ? verificationGap + subtextSize : 0)
+    headingSize +
+    gap +
+    subheadingSize +
+    (showVerification ? verificationGap + subtextSize : 0)
   const contentY = logoY + (logoSize - blockHeight) / 2
 
   return `
@@ -191,9 +194,9 @@ async function resolveHref(
   if (!href) return null
 
   const url =
-      href.startsWith("http://") || href.startsWith("https://")
-        ? new URL(href)
-        : new URL(href, origin)
+    href.startsWith("http://") || href.startsWith("https://")
+      ? new URL(href)
+      : new URL(href, origin)
 
   if (format === "svg") {
     // For SVG we just return a plain URL, no need to inline
@@ -273,9 +276,10 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
   if (format === "png") {
     try {
       const sharp = (await import("sharp")).default
-      const pngBuffer = await sharp(Buffer.from(svg)).png({
-        compressionLevel: 9,
-      })
+      const pngBuffer = await sharp(Buffer.from(svg))
+        .png({
+          compressionLevel: 9,
+        })
         .toBuffer()
       const pngArray = new Uint8Array(pngBuffer)
       const pngHeaders = new Headers({

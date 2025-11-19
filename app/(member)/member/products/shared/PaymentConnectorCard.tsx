@@ -39,6 +39,7 @@ type Props = {
 
 const PROVIDER_OPTIONS: { value: PaymentConnectorProvider; label: string }[] = [
   { value: PaymentConnectorProvider.dodo, label: "DodoPayments" },
+  { value: PaymentConnectorProvider.polar, label: "Polar" },
 ]
 
 function renderStatus(status?: PaymentConnectorStatus | null) {

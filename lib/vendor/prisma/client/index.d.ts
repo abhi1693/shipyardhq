@@ -225,6 +225,7 @@ export type EventAttempt = $Result.DefaultSelection<Prisma.$EventAttemptPayload>
 export namespace $Enums {
   export const PaymentConnectorProvider: {
   dodo: 'dodo',
+  polar: 'polar',
   stripe: 'stripe'
 };
 

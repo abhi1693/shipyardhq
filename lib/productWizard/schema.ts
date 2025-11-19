@@ -63,7 +63,7 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       status: z.enum(statusValues).optional(),
 
       // Payment connector (optional, saved with product)
-      connectorProvider: z.enum(["dodo"]).optional(),
+      connectorProvider: z.enum(["dodo", "polar", "stripe"]).optional(),
       connectorApiKey: z.string().optional().or(z.literal("")),
 
       // Verification (client-side check state)
