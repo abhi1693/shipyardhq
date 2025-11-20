@@ -129,7 +129,7 @@ async function stripeRequest<T>({
   return (await response.json()) as T
 }
 
-async function* iterateStripeList<T>({
+async function* iterateStripeList<T extends { id: string }>({
   apiKey,
   path,
   params,
@@ -158,7 +158,7 @@ async function* iterateStripeList<T>({
       yield item
     }
     if (!page.has_more || data.length === 0) break
-    startingAfter = (data[data.length - 1] as any)?.id
+    startingAfter = data[data.length - 1]?.id
     if (!startingAfter) break
   }
 }

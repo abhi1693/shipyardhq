@@ -55,7 +55,12 @@ async function getSyncContext(connectorId: string) {
   const currencyAllTimeBase = new Map<string, number>()
   const latestPeriodStartByCurrency = new Map<string, Date>()
 
-  const latestByCurrency = await prisma.paymentRevenueSnapshot.groupBy({
+  type LatestByCurrency = {
+    currencyCode: string | null
+    _max: { periodStart: Date | null }
+  }
+
+  const latestByCurrency: LatestByCurrency[] = await prisma.paymentRevenueSnapshot.groupBy({
     by: ["currencyCode"],
     where: { connectorId },
     _max: { periodStart: true },
@@ -63,7 +68,10 @@ async function getSyncContext(connectorId: string) {
 
   const since =
     latestByCurrency.reduce<Date | null>(
-      (earliest: number, entry: { _max: { periodStart: any } }) => {
+      (
+        earliest: Date | null,
+        entry: LatestByCurrency,
+      ) => {
         const periodStart = entry._max.periodStart
         if (!periodStart) return earliest
         if (!earliest || periodStart < earliest) return periodStart
@@ -73,15 +81,14 @@ async function getSyncContext(connectorId: string) {
     ) ?? null
 
   const lookups = latestByCurrency
-    .map((entry: { currencyCode: any; _max: { periodStart: any } }) => ({
+    .map((entry) => ({
       currencyCode: entry.currencyCode,
       periodStart: entry._max.periodStart,
     }))
     .filter(
-      (entry: {
-        currencyCode: any
-        periodStart: any
-      }): entry is { currencyCode: string; periodStart: Date } =>
+      (
+        entry,
+      ): entry is { currencyCode: string; periodStart: Date } =>
         Boolean(entry.currencyCode) && Boolean(entry.periodStart),
     )
 
@@ -120,40 +127,36 @@ async function applySnapshots(
 
   // Batch in chunks to avoid long-running transactions.
   const chunkSize = 10
-  try {
-    for (let i = 0; i < snapshots.length; i += chunkSize) {
-      const chunk = snapshots.slice(i, i + chunkSize)
-      await Promise.all(
-        chunk.map((snapshot) =>
-          prisma.paymentRevenueSnapshot.upsert({
-            where: {
-              connectorId_periodStart_currencyCode: {
-                connectorId,
-                periodStart: snapshot.periodStart,
-                currencyCode: snapshot.currencyCode,
-              },
-            },
-            create: {
+  for (let i = 0; i < snapshots.length; i += chunkSize) {
+    const chunk = snapshots.slice(i, i + chunkSize)
+    await Promise.all(
+      chunk.map((snapshot) =>
+        prisma.paymentRevenueSnapshot.upsert({
+          where: {
+            connectorId_periodStart_currencyCode: {
               connectorId,
-              currencyCode: snapshot.currencyCode,
               periodStart: snapshot.periodStart,
-              periodRevenueCents: snapshot.periodRevenueCents,
-              allTimeRevenueCents: snapshot.allTimeRevenueCents,
-              mrrCents: snapshot.mrrCents ?? undefined,
-              data: snapshot.data,
+              currencyCode: snapshot.currencyCode,
             },
-            update: {
-              periodRevenueCents: snapshot.periodRevenueCents,
-              allTimeRevenueCents: snapshot.allTimeRevenueCents,
-              mrrCents: snapshot.mrrCents ?? undefined,
-              data: snapshot.data,
-            },
-          }),
-        ),
-      )
-    }
-  } catch (error) {
-    throw error
+          },
+          create: {
+            connectorId,
+            currencyCode: snapshot.currencyCode,
+            periodStart: snapshot.periodStart,
+            periodRevenueCents: snapshot.periodRevenueCents,
+            allTimeRevenueCents: snapshot.allTimeRevenueCents,
+            mrrCents: snapshot.mrrCents ?? undefined,
+            data: snapshot.data,
+          },
+          update: {
+            periodRevenueCents: snapshot.periodRevenueCents,
+            allTimeRevenueCents: snapshot.allTimeRevenueCents,
+            mrrCents: snapshot.mrrCents ?? undefined,
+            data: snapshot.data,
+          },
+        }),
+      ),
+    )
   }
 }
 

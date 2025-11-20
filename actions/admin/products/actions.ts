@@ -656,7 +656,7 @@ export async function updateProductAction(
         await prisma.paymentConnector.update({
           where: { id: existingConnector.id },
           data: {
-            config: nextConfig as any,
+            config: nextConfig as Prisma.JsonValue,
           },
         })
         await syncPaymentConnector(existingConnector.id)
