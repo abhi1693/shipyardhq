@@ -232,11 +232,6 @@ export async function syncPaymentConnector(connectorId: string) {
         mrrCents: true,
       },
     })
-    console.info("[payments] revenue snapshots persisted", {
-      connectorId: connector.id,
-      snapshotCount,
-      latestSnapshot,
-    })
     const primary = selectPrimarySnapshot(result.snapshots)
     const sortedByDate = [...result.snapshots].sort(
       (a, b) => a.periodStart.getTime() - b.periodStart.getTime(),
