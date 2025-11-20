@@ -129,7 +129,8 @@ export function toCreateFormData(
   }
   if (v.connectorProvider) fd.append("connectorProvider", v.connectorProvider)
   if (v.connectorApiKey) fd.append("connectorApiKey", v.connectorApiKey)
-  if (v.connectorAccountId) fd.append("connectorAccountId", v.connectorAccountId)
+  if (v.connectorAccountId)
+    fd.append("connectorAccountId", v.connectorAccountId)
 
   fd.append("userId", userId)
   if (v.status) fd.append("status", v.status)

@@ -310,9 +310,7 @@ function buildSnapshots({
   const currencies = new Set<string>([
     ...chargesByCurrency.keys(),
     ...mrrByCurrency.keys(),
-    ...(allTimeBaseByCurrency
-      ? Array.from(allTimeBaseByCurrency.keys())
-      : []),
+    ...(allTimeBaseByCurrency ? Array.from(allTimeBaseByCurrency.keys()) : []),
   ])
 
   for (const currency of currencies) {
@@ -444,9 +442,7 @@ export const stripeProvider: PaymentProviderDefinition = {
       primaryAccountId,
       ...connectedAccountIds,
     ].filter((value, index, self) => self.indexOf(value) === index)
-    const includesPlatform = targetAccounts.some(
-      (value) => value === undefined,
-    )
+    const includesPlatform = targetAccounts.some((value) => value === undefined)
     const usedAccountIds = new Set<string>()
     const mode: "live" | "test" = IS_PROD ? "live" : "test"
     const allTimeBaseByCurrency = new Map<string, number>()
@@ -465,9 +461,7 @@ export const stripeProvider: PaymentProviderDefinition = {
       }
     }
 
-    const createdSince = since
-      ? startOfUtcDay(new Date(since))
-      : null
+    const createdSince = since ? startOfUtcDay(new Date(since)) : null
     const createdGte = createdSince
       ? Math.floor(createdSince.getTime() / 1000)
       : undefined
@@ -582,7 +576,10 @@ export const stripeProvider: PaymentProviderDefinition = {
       connectorId: connector.id,
       productId: connector.productId,
       mode,
-      currencies: snapshots.reduce((set, snap) => set.add(snap.currencyCode), new Set<string>()).size,
+      currencies: snapshots.reduce(
+        (set, snap) => set.add(snap.currencyCode),
+        new Set<string>(),
+      ).size,
       chargeDayBuckets: Array.from(chargesByCurrency.values()).reduce(
         (sum, map) => sum + map.size,
         0,

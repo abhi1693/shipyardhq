@@ -180,7 +180,9 @@ export function PaymentConnectorCard({
 
       {showStripeAccount ? (
         <div className="space-y-2">
-          <Label htmlFor="connector-account">Connected account ID (optional)</Label>
+          <Label htmlFor="connector-account">
+            Connected account ID (optional)
+          </Label>
           <Input
             id="connector-account"
             placeholder="acct_123..."

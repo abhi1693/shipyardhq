@@ -62,12 +62,15 @@ async function getSyncContext(connectorId: string) {
   })
 
   const since =
-    latestByCurrency.reduce<Date | null>((earliest: number, entry: { _max: { periodStart: any } }) => {
-      const periodStart = entry._max.periodStart
-      if (!periodStart) return earliest
-      if (!earliest || periodStart < earliest) return periodStart
-      return earliest
-    }, null) ?? null
+    latestByCurrency.reduce<Date | null>(
+      (earliest: number, entry: { _max: { periodStart: any } }) => {
+        const periodStart = entry._max.periodStart
+        if (!periodStart) return earliest
+        if (!earliest || periodStart < earliest) return periodStart
+        return earliest
+      },
+      null,
+    ) ?? null
 
   const lookups = latestByCurrency
     .map((entry: { currencyCode: any; _max: { periodStart: any } }) => ({
@@ -75,9 +78,10 @@ async function getSyncContext(connectorId: string) {
       periodStart: entry._max.periodStart,
     }))
     .filter(
-      (
-        entry: { currencyCode: any; periodStart: any },
-      ): entry is { currencyCode: string; periodStart: Date } =>
+      (entry: {
+        currencyCode: any
+        periodStart: any
+      }): entry is { currencyCode: string; periodStart: Date } =>
         Boolean(entry.currencyCode) && Boolean(entry.periodStart),
     )
 
@@ -151,7 +155,6 @@ async function applySnapshots(
   } catch (error) {
     throw error
   }
-
 }
 
 function selectPrimarySnapshot(
@@ -271,11 +274,8 @@ export async function syncPaymentConnector(connectorId: string) {
   }
 
   try {
-    const {
-      since,
-      currencyAllTimeBase,
-      latestPeriodStartByCurrency,
-    } = await getSyncContext(connector.id)
+    const { since, currencyAllTimeBase, latestPeriodStartByCurrency } =
+      await getSyncContext(connector.id)
     console.info("[payments.connector.sync] context", {
       connectorId: connector.id,
       since,
