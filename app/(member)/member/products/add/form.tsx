@@ -55,6 +55,11 @@ function ConnectorFields({
       control: form.control,
       name: "connectorApiKey" as any,
     }) as string | undefined) ?? ""
+  const accountId =
+    (useWatch({
+      control: form.control,
+      name: "connectorAccountId" as any,
+    }) as string | undefined) ?? ""
   const pricingModel =
     (useWatch({
       control: form.control,
@@ -70,6 +75,7 @@ function ConnectorFields({
         (PaymentConnectorProvider.dodo as PaymentConnectorProviderType)
       }
       apiKey={apiKey ?? ""}
+      accountId={accountId ?? ""}
       showSaveButton={false}
       onChange={(draft) => {
         if (draft.provider) {
@@ -80,6 +86,12 @@ function ConnectorFields({
         }
         if (draft.apiKey !== undefined) {
           form.setValue("connectorApiKey" as any, draft.apiKey ?? "", {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+        if (draft.accountId !== undefined) {
+          form.setValue("connectorAccountId" as any, draft.accountId ?? "", {
             shouldDirty: true,
             shouldValidate: true,
           })

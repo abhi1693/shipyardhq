@@ -49,38 +49,42 @@ export default async function RefundRedemptionsPage() {
     take: 200,
   })
 
-type RefundableRedemption = {
-  id: string
-  user: (typeof redemptions)[number]["user"]
-  featureKey: string
-  rewardName: string | null
-  status: RedemptionStatus
-  cost: number
-  refundedRewards: number
-  createdAt: string
-  productName: string | null
-  remainingAmount: number
-}
+  type RefundableRedemption = {
+    id: string
+    user: (typeof redemptions)[number]["user"]
+    featureKey: string
+    rewardName: string | null
+    status: RedemptionStatus
+    cost: number
+    refundedRewards: number
+    createdAt: string
+    productName: string | null
+    remainingAmount: number
+  }
 
   const refundable = redemptions
-    .map((redemption: (typeof redemptions)[number]): RefundableRedemption | null => {
-      const remainingAmount = redemption.cost - redemption.refundedRewards
-      if (remainingAmount <= 0) {
-        return null
-      }
-      return {
-        id: redemption.id,
-        user: redemption.user,
-        featureKey: redemption.catalogItem.featureKey,
-        rewardName: redemption.catalogItem.name,
-        status: redemption.status,
-        cost: redemption.cost,
-        refundedRewards: redemption.refundedRewards,
-        createdAt: redemption.createdAt.toISOString(),
-        productName: redemption.product?.name ?? null,
-        remainingAmount,
-      }
-    })
+    .map(
+      (
+        redemption: (typeof redemptions)[number],
+      ): RefundableRedemption | null => {
+        const remainingAmount = redemption.cost - redemption.refundedRewards
+        if (remainingAmount <= 0) {
+          return null
+        }
+        return {
+          id: redemption.id,
+          user: redemption.user,
+          featureKey: redemption.catalogItem.featureKey,
+          rewardName: redemption.catalogItem.name,
+          status: redemption.status,
+          cost: redemption.cost,
+          refundedRewards: redemption.refundedRewards,
+          createdAt: redemption.createdAt.toISOString(),
+          productName: redemption.product?.name ?? null,
+          remainingAmount,
+        }
+      },
+    )
     .filter(
       (value: RefundableRedemption | null): value is RefundableRedemption =>
         value !== null,

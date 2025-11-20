@@ -13,7 +13,6 @@ import {
   ProductStatus,
 } from "@/lib/vendor/prisma/client"
 import {
-  getConnectorRevenueHistory,
   syncPaymentConnector,
   validateConnectorApiKey,
   upsertPaymentConnector,
@@ -25,6 +24,7 @@ import {
 } from "@/lib/server/userStatus"
 import { hasPlanFeature } from "@/lib/features"
 import { memberProductPath } from "@/lib/routes"
+import type { PaymentConnectorConfig } from "@/lib/server/payments/types"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -446,6 +446,7 @@ export async function getProductConnectorSummary(productId: string) {
       latestAllTimeRevenueCents: true,
       latestCurrencyCode: true,
       latestPeriodStart: true,
+      config: true,
       credentials: {
         where: { status: PaymentCredentialStatus.active },
         select: { keyHint: true },
@@ -459,7 +460,10 @@ export async function getProductConnectorSummary(productId: string) {
   const keyHint = connector.credentials?.[0]?.keyHint || null
   const { credentials: _creds, ...rest } = connector
   void _creds
-  return { ...rest, keyHint }
+  const config = connector.config as PaymentConnectorConfig | null
+  const accountId =
+    typeof config?.accountId === "string" ? config.accountId : undefined
+  return { ...rest, keyHint, accountId }
 }
 
 export async function getProductConnectorRevenue(

@@ -55,9 +55,7 @@ async function getAccessibleOrganizationIds(userId: string) {
     select: { organizationId: true },
   })
   type Membership = (typeof memberships)[number]
-  return memberships.map(
-    (membership: Membership) => membership.organizationId,
-  )
+  return memberships.map((membership: Membership) => membership.organizationId)
 }
 
 async function getProductOptions(userId: string) {

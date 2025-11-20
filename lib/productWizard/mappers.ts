@@ -34,6 +34,7 @@ export function getInitialValuesForAdd(): BaseValues {
     alternativeIds: [],
     connectorProvider: "dodo",
     connectorApiKey: "",
+    connectorAccountId: "",
     verificationExpectedTxt: "",
     verificationChecked: false,
     verificationSuccess: false,
@@ -44,7 +45,7 @@ export function getInitialValuesForAdd(): BaseValues {
 
 export function getInitialValuesFromProduct(
   product: any,
-  connector?: { provider?: string | null },
+  connector?: { provider?: string | null; accountId?: string | null },
 ): BaseValues {
   return {
     name: product.name,
@@ -73,6 +74,7 @@ export function getInitialValuesFromProduct(
       : [],
     connectorProvider: connector?.provider ?? "dodo",
     connectorApiKey: "",
+    connectorAccountId: connector?.accountId ?? "",
     status: product.status,
     verificationExpectedTxt: "",
     verificationChecked: false,
@@ -127,6 +129,8 @@ export function toCreateFormData(
   }
   if (v.connectorProvider) fd.append("connectorProvider", v.connectorProvider)
   if (v.connectorApiKey) fd.append("connectorApiKey", v.connectorApiKey)
+  if (v.connectorAccountId)
+    fd.append("connectorAccountId", v.connectorAccountId)
 
   fd.append("userId", userId)
   if (v.status) fd.append("status", v.status)
@@ -167,5 +171,6 @@ export function toUpdatePayload(values: BaseValues, product: any) {
     alternativeIds: Array.isArray(v.alternativeIds) ? v.alternativeIds : [],
     connectorProvider: v.connectorProvider || null,
     connectorApiKey: v.connectorApiKey || "",
+    connectorAccountId: v.connectorAccountId || "",
   }
 }

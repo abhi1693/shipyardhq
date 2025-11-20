@@ -114,8 +114,7 @@ export const getBrowsePagePayload = async (
 
   const selectedCategoryLabel = filters.category
     ? categories.find(
-        (entry: (typeof categories)[number]) =>
-          entry.slug === filters.category,
+        (entry: (typeof categories)[number]) => entry.slug === filters.category,
       )?.name
     : undefined
 

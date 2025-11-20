@@ -72,15 +72,15 @@ export default async function CategoriesPage() {
                         <Link
                           key={cat.id}
                           href={categoryPath(cat.slug)}
-                        className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-[color:var(--brand-1)]/40 hover:text-foreground"
-                      >
-                        <span className="truncate">{cat.name}</span>
-                        {typeof cat.count === "number" ? (
-                          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                            {cat.count.toLocaleString()}
-                          </span>
-                        ) : null}
-                      </Link>
+                          className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-[color:var(--brand-1)]/40 hover:text-foreground"
+                        >
+                          <span className="truncate">{cat.name}</span>
+                          {typeof cat.count === "number" ? (
+                            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                              {cat.count.toLocaleString()}
+                            </span>
+                          ) : null}
+                        </Link>
                       ),
                     )}
                   </div>

@@ -163,12 +163,10 @@ export async function generateMonthlyLeaderboard(
     select: { productId: true, upvotes: true },
   })
   const analyticsMap = new Map(
-    analytics.map(
-      (item: (typeof analytics)[number]) => [
-        item.productId,
-        item.upvotes ?? 0,
-      ],
-    ),
+    analytics.map((item: (typeof analytics)[number]) => [
+      item.productId,
+      item.upvotes ?? 0,
+    ]),
   )
 
   const rankings = grouped.map((entry, index) => {
@@ -184,19 +182,23 @@ export async function generateMonthlyLeaderboard(
     }
   })
 
-  const createdCount = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-    await tx.monthlyProductRanking.deleteMany({ where: { month: monthStart } })
-    const createResult = await tx.monthlyProductRanking.createMany({
-      data: rankings.map((ranking) => ({
-        month: monthStart,
-        productId: ranking.productId,
-        rank: ranking.rank,
-        score: ranking.score,
-        upvotes: ranking.upvotes,
-      })),
-    })
-    return createResult.count
-  })
+  const createdCount = await prisma.$transaction(
+    async (tx: Prisma.TransactionClient) => {
+      await tx.monthlyProductRanking.deleteMany({
+        where: { month: monthStart },
+      })
+      const createResult = await tx.monthlyProductRanking.createMany({
+        data: rankings.map((ranking) => ({
+          month: monthStart,
+          productId: ranking.productId,
+          rank: ranking.rank,
+          score: ranking.score,
+          upvotes: ranking.upvotes,
+        })),
+      })
+      return createResult.count
+    },
+  )
 
   return {
     month: monthStart,

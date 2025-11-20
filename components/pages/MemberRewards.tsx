@@ -634,9 +634,11 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                         ? (transaction.ruleName ??
                           transaction.ruleKey ??
                           "Earned")
-                        : transaction.type === RewardTransactionTypeEnum.adjustment
+                        : transaction.type ===
+                            RewardTransactionTypeEnum.adjustment
                           ? formatAdjustmentDetail(transaction)
-                          : transaction.type === RewardTransactionTypeEnum.refund
+                          : transaction.type ===
+                              RewardTransactionTypeEnum.refund
                             ? (transaction.rewardName ??
                               transaction.rewardKey ??
                               "Refunded")
@@ -648,9 +650,14 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                       className={cn(
                         "text-right text-sm font-semibold",
                         (() => {
-                          if (transaction.type === RewardTransactionTypeEnum.earn)
+                          if (
+                            transaction.type === RewardTransactionTypeEnum.earn
+                          )
                             return "text-emerald-600"
-                          if (transaction.type === RewardTransactionTypeEnum.refund)
+                          if (
+                            transaction.type ===
+                            RewardTransactionTypeEnum.refund
+                          )
                             return "text-emerald-600"
                           if (
                             transaction.type ===
@@ -670,10 +677,13 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                       {(() => {
                         if (transaction.type === RewardTransactionTypeEnum.earn)
                           return "+"
-                        if (transaction.type === RewardTransactionTypeEnum.refund)
+                        if (
+                          transaction.type === RewardTransactionTypeEnum.refund
+                        )
                           return "+"
                         if (
-                          transaction.type === RewardTransactionTypeEnum.adjustment
+                          transaction.type ===
+                          RewardTransactionTypeEnum.adjustment
                         ) {
                           const delta =
                             transaction.adjustmentAmount ??

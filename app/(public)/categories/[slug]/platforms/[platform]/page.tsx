@@ -89,9 +89,7 @@ export async function generateStaticParams() {
   const categories = await getCategoriesWithCounts()
   type CategorySummary = (typeof categories)[number]
   return categories
-    .filter(
-      (category: CategorySummary) => category.slug && category.count > 0,
-    )
+    .filter((category: CategorySummary) => category.slug && category.count > 0)
     .flatMap((category: CategorySummary) =>
       PLATFORM_SLUGS.map((platform) => ({
         slug: category.slug,
@@ -112,8 +110,6 @@ export async function generateMetadata(props: {
   const description = category.description
     ? `${category.description} Browse ${category.name.toLowerCase()} products built for ${platformMeta.label}.`
     : `Discover ${category.name.toLowerCase()} software made for ${platformMeta.label} users.`
-
-  const pagePath = categoryPlatformPath(slug, platformMeta.slug)
 
   const metadata = buildPageMetadata({
     title,

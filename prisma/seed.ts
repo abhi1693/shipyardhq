@@ -2,7 +2,6 @@ import {
   DeviceCategory,
   Platform,
   Prisma,
-  PrismaClient,
   ProductStatus,
   ProductType,
   ProductUpdateStatus,

@@ -51,40 +51,113 @@ async function getActiveCredential(
   return connector?.credentials?.[0] || null
 }
 
+async function getSyncContext(connectorId: string) {
+  const currencyAllTimeBase = new Map<string, number>()
+  const latestPeriodStartByCurrency = new Map<string, Date>()
+
+  type LatestByCurrency = {
+    currencyCode: string | null
+    _max: { periodStart: Date | null }
+  }
+
+  const latestByCurrency: LatestByCurrency[] = await prisma.paymentRevenueSnapshot.groupBy({
+    by: ["currencyCode"],
+    where: { connectorId },
+    _max: { periodStart: true },
+  })
+
+  const since =
+    latestByCurrency.reduce<Date | null>(
+      (
+        earliest: Date | null,
+        entry: LatestByCurrency,
+      ) => {
+        const periodStart = entry._max.periodStart
+        if (!periodStart) return earliest
+        if (!earliest || periodStart < earliest) return periodStart
+        return earliest
+      },
+      null,
+    ) ?? null
+
+  const lookups = latestByCurrency
+    .map((entry) => ({
+      currencyCode: entry.currencyCode,
+      periodStart: entry._max.periodStart,
+    }))
+    .filter(
+      (
+        entry,
+      ): entry is { currencyCode: string; periodStart: Date } =>
+        Boolean(entry.currencyCode) && Boolean(entry.periodStart),
+    )
+
+  if (lookups.length > 0) {
+    const snapshots = await prisma.paymentRevenueSnapshot.findMany({
+      where: {
+        connectorId,
+        OR: lookups,
+      },
+      select: {
+        currencyCode: true,
+        periodStart: true,
+        periodRevenueCents: true,
+        allTimeRevenueCents: true,
+      },
+    })
+
+    for (const snapshot of snapshots) {
+      const currency = snapshot.currencyCode?.toUpperCase()
+      if (!currency) continue
+      const baseBeforeLatest =
+        snapshot.allTimeRevenueCents - snapshot.periodRevenueCents
+      currencyAllTimeBase.set(currency, Math.max(baseBeforeLatest, 0))
+      latestPeriodStartByCurrency.set(currency, snapshot.periodStart)
+    }
+  }
+
+  return { since, currencyAllTimeBase, latestPeriodStartByCurrency }
+}
+
 async function applySnapshots(
   connectorId: string,
   snapshots: RevenueSnapshotInput[],
 ): Promise<void> {
   if (snapshots.length === 0) return
 
-  await prisma.$transaction(
-    snapshots.map((snapshot) =>
-      prisma.paymentRevenueSnapshot.upsert({
-        where: {
-          connectorId_periodStart_currencyCode: {
-            connectorId,
-            periodStart: snapshot.periodStart,
-            currencyCode: snapshot.currencyCode,
+  // Batch in chunks to avoid long-running transactions.
+  const chunkSize = 10
+  for (let i = 0; i < snapshots.length; i += chunkSize) {
+    const chunk = snapshots.slice(i, i + chunkSize)
+    await Promise.all(
+      chunk.map((snapshot) =>
+        prisma.paymentRevenueSnapshot.upsert({
+          where: {
+            connectorId_periodStart_currencyCode: {
+              connectorId,
+              periodStart: snapshot.periodStart,
+              currencyCode: snapshot.currencyCode,
+            },
           },
-        },
-        create: {
-          connectorId,
-          currencyCode: snapshot.currencyCode,
-          periodStart: snapshot.periodStart,
-          periodRevenueCents: snapshot.periodRevenueCents,
-          allTimeRevenueCents: snapshot.allTimeRevenueCents,
-          mrrCents: snapshot.mrrCents ?? undefined,
-          data: snapshot.data,
-        },
-        update: {
-          periodRevenueCents: snapshot.periodRevenueCents,
-          allTimeRevenueCents: snapshot.allTimeRevenueCents,
-          mrrCents: snapshot.mrrCents ?? undefined,
-          data: snapshot.data,
-        },
-      }),
-    ),
-  )
+          create: {
+            connectorId,
+            currencyCode: snapshot.currencyCode,
+            periodStart: snapshot.periodStart,
+            periodRevenueCents: snapshot.periodRevenueCents,
+            allTimeRevenueCents: snapshot.allTimeRevenueCents,
+            mrrCents: snapshot.mrrCents ?? undefined,
+            data: snapshot.data,
+          },
+          update: {
+            periodRevenueCents: snapshot.periodRevenueCents,
+            allTimeRevenueCents: snapshot.allTimeRevenueCents,
+            mrrCents: snapshot.mrrCents ?? undefined,
+            data: snapshot.data,
+          },
+        }),
+      ),
+    )
+  }
 }
 
 function selectPrimarySnapshot(
@@ -204,7 +277,20 @@ export async function syncPaymentConnector(connectorId: string) {
   }
 
   try {
-    const result = await providerDefinition.sync({ connector, apiKey })
+    const { since, currencyAllTimeBase, latestPeriodStartByCurrency } =
+      await getSyncContext(connector.id)
+    console.info("[payments.connector.sync] context", {
+      connectorId: connector.id,
+      since,
+      currencies: Array.from(currencyAllTimeBase.keys()),
+    })
+    const result = await providerDefinition.sync({
+      connector,
+      apiKey,
+      since,
+      currencyAllTimeBase,
+      latestPeriodStartByCurrency,
+    })
     await applySnapshots(connector.id, result.snapshots)
     const primary = selectPrimarySnapshot(result.snapshots)
     const sortedByDate = [...result.snapshots].sort(
@@ -234,8 +320,16 @@ export async function syncPaymentConnector(connectorId: string) {
       },
     })
 
-    const requiresConversion = result.snapshots.some(
-      (snapshot) => (snapshot.currencyCode || "USD").toUpperCase() !== "USD",
+    const fullHistory =
+      (await prisma.paymentRevenueSnapshot.findMany({
+        where: { connectorId: connector.id },
+        orderBy: { periodStart: "asc" },
+      })) ?? []
+    const historyForSummary =
+      fullHistory.length > 0 ? fullHistory : result.snapshots
+
+    const requiresConversion = historyForSummary.some(
+      (snapshot: { currencyCode: any }) => (snapshot.currencyCode || "USD").toUpperCase() !== "USD",
     )
     const rates = requiresConversion
       ? await getUsdConversionRates()
@@ -246,7 +340,7 @@ export async function syncPaymentConnector(connectorId: string) {
       provider: connector.provider,
       status: PaymentConnectorStatus.active,
       lastSyncedAt: now,
-      history: result.snapshots,
+      history: historyForSummary,
       rates,
     })
     if (summary) {
@@ -262,6 +356,11 @@ export async function syncPaymentConnector(connectorId: string) {
       error instanceof Error
         ? error.message
         : "Unexpected connector sync failure"
+    console.error("[payments.connector.sync] failed", {
+      connectorId: connector.id,
+      provider: connector.provider,
+      error: message,
+    })
     await prisma.paymentConnector.update({
       where: { id: connector.id },
       data: { status: PaymentConnectorStatus.error, lastSyncError: message },

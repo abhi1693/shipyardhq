@@ -11,6 +11,7 @@ import {
 } from "@/components/atoms/dialog"
 import { Button } from "@/components/atoms/button"
 import { Textarea } from "@/components/atoms/textarea"
+import { Image } from "@/components/atoms/image"
 import CopyButton from "@/components/molecules/CopyButton"
 import { siteConfig } from "@/lib/siteConfig"
 
@@ -194,15 +195,19 @@ export function ProductBadgeCelebrationDialog({
 
           <section className="rounded-lg border bg-background/80 p-4">
             <div className="flex flex-col items-center gap-3">
-              <img
+              <Image
                 src={previewBadgeUrl ?? badgeUrl}
                 alt={
                   productSlug
                     ? `Badge preview for ${productSlug}`
                     : "Badge preview"
                 }
+                width={520}
+                height={170}
                 className="mx-auto h-auto w-full max-w-[520px] max-h-[170px] object-contain"
                 loading="eager"
+                placeholder="empty"
+                unoptimized
               />
               {isMissingProduct ? (
                 <p className="text-[11px] text-destructive text-center">

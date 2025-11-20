@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { Sparkles } from "lucide-react"
 
-import { Image } from "@/components/atoms/image"
 import { SquareImage } from "@/components/molecules/SquareImage"
 import { getSponsoredProducts } from "@/actions/public/products/featured"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"

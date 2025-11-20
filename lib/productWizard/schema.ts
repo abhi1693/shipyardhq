@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { IS_PROD } from "@/lib/constants"
 import { PRODUCT_TYPES, PRICING_MODELS, PLATFORMS } from "./constants"
 
 export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
@@ -65,6 +66,7 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       // Payment connector (optional, saved with product)
       connectorProvider: z.enum(["dodo", "polar", "stripe"]).optional(),
       connectorApiKey: z.string().optional().or(z.literal("")),
+      connectorAccountId: z.string().optional().or(z.literal("")),
 
       // Verification (client-side check state)
       verificationExpectedTxt: z.string().optional(),
@@ -130,6 +132,28 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
           code: z.ZodIssueCode.custom,
           message: "Choose a provider when adding an API key",
         })
+      }
+
+      if (val.connectorProvider === "stripe" && val.connectorApiKey) {
+        const key = val.connectorApiKey.trim()
+        const expectedPrefix = IS_PROD ? "rk_live_" : "rk_test_"
+        if (!key.startsWith(expectedPrefix)) {
+          ctx.addIssue({
+            path: ["connectorApiKey"],
+            code: z.ZodIssueCode.custom,
+            message: IS_PROD
+              ? "Use a Stripe restricted key starting with rk_live_"
+              : "Use a Stripe restricted key starting with rk_test_",
+          })
+        }
+        const acct = val.connectorAccountId?.trim()
+        if (acct && !acct.startsWith("acct_")) {
+          ctx.addIssue({
+            path: ["connectorAccountId"],
+            code: z.ZodIssueCode.custom,
+            message: "Stripe connected account IDs start with acct_",
+          })
+        }
       }
     })
 }

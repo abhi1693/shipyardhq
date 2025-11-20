@@ -5,7 +5,10 @@ import {
   type AppEvents,
   type ProductUpvotedEvent,
 } from "@/lib/server/events"
-import { revalidateLeaderboard, revalidateProduct } from "@/lib/cache/revalidate"
+import {
+  revalidateLeaderboard,
+  revalidateProduct,
+} from "@/lib/cache/revalidate"
 import "@/lib/server/rewards/listeners"
 import "@/lib/server/email/productVoteMilestone"
 

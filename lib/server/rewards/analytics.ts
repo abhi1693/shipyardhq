@@ -179,32 +179,16 @@ export async function getRewardAnalytics(
 
   const ruleKeys = topRuleRows
     .map((row: GroupRow) => row.ruleKey)
-    .filter(
-      (
-        value: GroupRow["ruleKey"],
-      ): value is string => Boolean(value),
-    )
+    .filter((value: GroupRow["ruleKey"]): value is string => Boolean(value))
   const rewardKeys = topRewardRows
     .map((row: GroupRow) => row.rewardKey)
-    .filter(
-      (
-        value: GroupRow["rewardKey"],
-      ): value is string => Boolean(value),
-    )
+    .filter((value: GroupRow["rewardKey"]): value is string => Boolean(value))
   const earnerIds = topEarnerRows
     .map((row: GroupRow) => row.userId)
-    .filter(
-      (
-        value: GroupRow["userId"],
-      ): value is string => Boolean(value),
-    )
+    .filter((value: GroupRow["userId"]): value is string => Boolean(value))
   const spenderIds = topSpenderRows
     .map((row: GroupRow) => row.userId)
-    .filter(
-      (
-        value: GroupRow["userId"],
-      ): value is string => Boolean(value),
-    )
+    .filter((value: GroupRow["userId"]): value is string => Boolean(value))
 
   const uniqueUserIds = Array.from(new Set([...earnerIds, ...spenderIds]))
   const [rules, catalogItems, users] = await Promise.all([
@@ -249,10 +233,7 @@ export async function getRewardAnalytics(
       item.name,
     ]),
   )
-  const userMap = new Map<
-    string,
-    { name: string; email: string | null }
-  >(
+  const userMap = new Map<string, { name: string; email: string | null }>(
     users.map((user: (typeof users)[number]) => [
       user.id,
       {

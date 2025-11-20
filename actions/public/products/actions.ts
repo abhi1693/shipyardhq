@@ -309,15 +309,6 @@ export async function hasUserUpvoted(productId: string, clerkId: string) {
   return currentState === "upvoted"
 }
 
-type PublicRevenuePoint = {
-  periodStart: string
-  label: string
-  allTimeRevenueCents: number
-  periodRevenueCents: number
-  charges: number | null
-  mrrCents?: number | null
-}
-
 export async function getPublicProductRevenue(
   productId: string,
   options?: { limit?: number },

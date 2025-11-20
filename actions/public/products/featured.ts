@@ -192,7 +192,9 @@ export const getStickyBannerProducts = cached(
     )
 
     const remaining = Math.max(effectiveLimit - scheduledIds.length, 0)
-    const scheduledIdValues = scheduledIds.map((entry: { id: string }) => entry.id)
+    const scheduledIdValues = scheduledIds.map(
+      (entry: { id: string }) => entry.id,
+    )
 
     const exclusionClause =
       scheduledIdValues.length > 0

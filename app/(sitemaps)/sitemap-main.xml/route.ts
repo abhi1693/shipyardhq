@@ -383,9 +383,8 @@ export async function GET() {
     }),
     ...productTypeSlices
       .filter(
-        (
-          entry: ProductTypeSlice | null,
-        ): entry is ProductTypeSlice => entry !== null,
+        (entry: ProductTypeSlice | null): entry is ProductTypeSlice =>
+          entry !== null,
       )
       .map((entry: ProductTypeSlice) => {
         const days = Math.floor(

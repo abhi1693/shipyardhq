@@ -299,8 +299,9 @@ export const getKeywordTagProducts = cached(
     const orderedProducts = productIds
       .map((id: string) => productMap.get(id))
       .filter(
-        (product: ProductCardRecord | undefined): product is ProductCardRecord =>
-          Boolean(product),
+        (
+          product: ProductCardRecord | undefined,
+        ): product is ProductCardRecord => Boolean(product),
       )
 
     const hasMore = offset + productIds.length < total

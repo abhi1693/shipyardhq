@@ -2,6 +2,7 @@ import { PaymentConnectorProvider } from "@/lib/vendor/prisma/client"
 
 import { dodoProvider } from "./dodo"
 import { polarProvider } from "./polar"
+import { stripeProvider } from "./stripe"
 import type { PaymentProviderDefinition } from "./types"
 
 const PROVIDERS: Partial<
@@ -9,6 +10,7 @@ const PROVIDERS: Partial<
 > = {
   [PaymentConnectorProvider.dodo]: dodoProvider,
   [PaymentConnectorProvider.polar]: polarProvider,
+  [PaymentConnectorProvider.stripe]: stripeProvider,
 }
 
 export function getProviderDefinition(

@@ -89,9 +89,7 @@ export async function generateStaticParams() {
   const categories = await getCategoriesWithCounts()
   type CategorySummary = (typeof categories)[number]
   return categories
-    .filter(
-      (category: CategorySummary) => category.slug && category.count > 0,
-    )
+    .filter((category: CategorySummary) => category.slug && category.count > 0)
     .flatMap((category: CategorySummary) =>
       PRICING_MODEL_SLUGS.map((pricingModel) => ({
         slug: category.slug,
@@ -112,8 +110,6 @@ export async function generateMetadata(props: {
   const description = category.description
     ? `${category.description} Browse ${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} products curated on Shipyard.`
     : `Discover ${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} software from indie makers.`
-
-  const pagePath = categoryPricingPath(slug, pricingModelMeta.slug)
 
   const metadata = buildPageMetadata({
     title,

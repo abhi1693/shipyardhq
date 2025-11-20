@@ -215,10 +215,13 @@ export async function getUseCasesWithCounts() {
         id: uc.id,
         slug: uc.slug,
         label: uc.label,
-        productCount: uc.categories.reduce((total: number, relation: UseCaseCategoryRelation) => {
-          const count = relation.category?._count?.products ?? 0
-          return total + count
-        }, 0),
+        productCount: uc.categories.reduce(
+          (total: number, relation: UseCaseCategoryRelation) => {
+            const count = relation.category?._count?.products ?? 0
+            return total + count
+          },
+          0,
+        ),
       }))
       .filter((uc: { productCount: number }) => uc.productCount > 0)
   } catch (error) {

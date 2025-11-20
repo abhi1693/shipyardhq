@@ -59,8 +59,8 @@ export async function getNewsletterSubscribers(
       .map((entry: { email?: string | null }) =>
         entry.email?.trim().toLowerCase(),
       )
-      .filter(
-        (value: string | undefined | null): value is string => Boolean(value),
+      .filter((value: string | undefined | null): value is string =>
+        Boolean(value),
       )
 
     const uniqueEmails = Array.from(new Set(normalizedEmails))

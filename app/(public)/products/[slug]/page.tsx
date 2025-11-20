@@ -106,8 +106,8 @@ export async function generateStaticParams() {
 
   return slugs
     .map((entry: (typeof slugs)[number]) => entry.slug?.trim())
-    .filter(
-      (value: string | undefined | null): value is string => Boolean(value),
+    .filter((value: string | undefined | null): value is string =>
+      Boolean(value),
     )
     .map((slug: string) => ({ slug }))
 }
@@ -257,7 +257,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   ]
   const screenshotSources = [
     product.bannerImage,
-    ...(product.ProductMedia ?? []).map((media: { imageUrl: string | null }) => media.imageUrl),
+    ...(product.ProductMedia ?? []).map(
+      (media: { imageUrl: string | null }) => media.imageUrl,
+    ),
   ].filter((value): value is string => Boolean(value?.trim()))
   const schemaPublishedDateIso =
     product.publishedAt || product.createdAt
@@ -431,9 +433,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     new Set<string>(
       (product.keywords ?? [])
         .map((keyword: string | null) => keyword?.trim())
-        .filter(
-          (keyword: string | undefined | null): keyword is string =>
-            Boolean(keyword),
+        .filter((keyword: string | undefined | null): keyword is string =>
+          Boolean(keyword),
         ),
     ),
   ).map((keyword: string) => {
@@ -446,9 +447,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   })
   const entitlementFeatures = new Set(
     (product.featureEntitlements ?? [])
-      .map((feature: (typeof product.featureEntitlements)[number]) => feature.featureKey)
-      .filter(
-        (value: string | undefined | null): value is string => Boolean(value),
+      .map(
+        (feature: (typeof product.featureEntitlements)[number]) =>
+          feature.featureKey,
+      )
+      .filter((value: string | undefined | null): value is string =>
+        Boolean(value),
       ),
   )
   const hasCustomCtaFeature =
