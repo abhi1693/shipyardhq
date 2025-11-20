@@ -1,12 +1,15 @@
 import path from "node:path"
 import { pathToFileURL } from "node:url"
 
-import { PrismaClient } from "@/lib/vendor/prisma/client"
+import type { PrismaClient } from "@/lib/vendor/prisma/client"
 import slugifyLib from "slugify"
-import { createSeedPrismaClient } from "./seedClient"
 
 const slugify = (text: string) =>
   slugifyLib(text, { lower: true, strict: true })
+
+const prismaPromise = import("@/lib/prisma").then(
+  (module) => module.default as PrismaClient,
+)
 
 type AlternativeSeed = {
   name: string
@@ -191,13 +194,14 @@ const invokedDirectly = (() => {
 })()
 
 if (invokedDirectly) {
-  const prisma = createSeedPrismaClient()
-  seedAlternatives(prisma)
+  prismaPromise
+    .then((prisma) => seedAlternatives(prisma))
     .catch((error) => {
       console.error(error)
       process.exit(1)
     })
     .finally(async () => {
+      const prisma = await prismaPromise
       await prisma.$disconnect()
     })
 }

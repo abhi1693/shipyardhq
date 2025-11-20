@@ -1,7 +1,19 @@
+import fs from "fs"
+import path from "path"
+
 import { PrismaClient } from "@/lib/vendor/prisma/client"
 import { IS_PROD } from "@/lib/constants"
 import { PrismaPg } from "@prisma/adapter-pg"
 import { withAccelerate } from "@prisma/extension-accelerate"
+import { loadEnvConfig } from "@next/env"
+
+// if .env.local exists, load it
+const projectRoot = process.cwd()
+const envLocalPath = path.join(projectRoot, ".env.local")
+
+if (fs.existsSync(envLocalPath)) {
+  loadEnvConfig(projectRoot)
+}
 
 const accelerateUrl = process.env.DATABASE_URL
 const directDatabaseUrl =

@@ -11,8 +11,8 @@ import {
   PaymentCredentialStatus,
 } from "@/lib/vendor/prisma/client"
 import { PRICING_PATH } from "@/lib/routes"
+import type { PrismaClient } from "@/lib/vendor/prisma/client"
 import { loadEnvConfig } from "@next/env"
-import { createSeedPrismaClient } from "./seedClient"
 import {
   addDays,
   addHours,
@@ -36,9 +36,10 @@ import { seedPlans } from "./seed.plans"
 import { seedRewards } from "./seed.rewards"
 import { seedUseCases } from "./seed.use-cases"
 
-loadEnvConfig(process.cwd())
-
-const prisma = createSeedPrismaClient()
+const prismaPromise = import("@/lib/prisma").then(
+  (module) => module.default as PrismaClient,
+)
+let prisma: PrismaClient
 
 type ProductSeed = {
   slug: string
@@ -330,6 +331,7 @@ async function upsertProduct(
 }
 
 async function main() {
+  prisma = await prismaPromise
   await seedCategories(prisma)
   await seedUseCases(prisma)
   await seedPlanFeatures(prisma)

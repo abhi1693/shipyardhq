@@ -1,8 +1,11 @@
 import path from "node:path"
 import { pathToFileURL } from "node:url"
 
-import { PrismaClient } from "@/lib/vendor/prisma/client"
-import { createSeedPrismaClient } from "./seedClient"
+import type { PrismaClient } from "@/lib/vendor/prisma/client"
+
+const prismaPromise = import("@/lib/prisma").then(
+  (module) => module.default as PrismaClient,
+)
 
 // Prod-safe, idempotent PlanFeature seeding
 const FEATURES = [
@@ -96,13 +99,14 @@ const invokedDirectly = (() => {
 })()
 
 if (invokedDirectly) {
-  const prisma = createSeedPrismaClient()
-  seedPlanFeatures(prisma)
+  prismaPromise
+    .then((prisma) => seedPlanFeatures(prisma))
     .catch((e) => {
       console.error(e)
       process.exit(1)
     })
     .finally(async () => {
+      const prisma = await prismaPromise
       await prisma.$disconnect()
     })
 }

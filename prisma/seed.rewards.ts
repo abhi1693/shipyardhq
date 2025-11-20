@@ -3,14 +3,15 @@ import { pathToFileURL } from "node:url"
 
 import {
   Prisma,
-  PrismaClient,
   RewardFeatureCategory,
   RewardRuleCategory,
 } from "@/lib/vendor/prisma/client"
+import type { PrismaClient } from "@/lib/vendor/prisma/client"
 import { REWARD_FEATURE_KEY } from "@/lib/rewards/constants"
-import { createSeedPrismaClient } from "./seedClient"
 
-const prisma = createSeedPrismaClient()
+const prismaPromise = import("@/lib/prisma").then(
+  (module) => module.default as PrismaClient,
+)
 
 const DAY = 86_400
 
@@ -343,12 +344,14 @@ const invokedDirectly = (() => {
 })()
 
 if (invokedDirectly) {
-  seedRewards(prisma)
+  prismaPromise
+    .then((prisma) => seedRewards(prisma))
     .catch((error) => {
       console.error("Failed to seed rewards data", error)
       process.exitCode = 1
     })
     .finally(async () => {
+      const prisma = await prismaPromise
       await prisma.$disconnect()
     })
 }

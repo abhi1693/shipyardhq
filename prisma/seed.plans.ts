@@ -4,10 +4,13 @@ import { pathToFileURL } from "node:url"
 import {
   PlanType,
   Prisma,
-  PrismaClient,
   TimeInterval,
 } from "@/lib/vendor/prisma/client"
-import { createSeedPrismaClient } from "./seedClient"
+import type { PrismaClient } from "@/lib/vendor/prisma/client"
+
+const prismaPromise = import("@/lib/prisma").then(
+  (module) => module.default as PrismaClient,
+)
 
 type PlanSeed = {
   name: string
@@ -201,13 +204,14 @@ const invokedDirectly = (() => {
 })()
 
 if (invokedDirectly) {
-  const prisma = createSeedPrismaClient()
-  seedPlans(prisma)
+  prismaPromise
+    .then((prisma) => seedPlans(prisma))
     .catch((e) => {
       console.error(e)
       process.exit(1)
     })
     .finally(async () => {
+      const prisma = await prismaPromise
       await prisma.$disconnect()
     })
 }
