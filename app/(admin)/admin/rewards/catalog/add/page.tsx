@@ -16,10 +16,12 @@ export default async function CatalogCreatePage() {
   return (
     <CatalogForm
       mode="create"
-      planFeatureOptions={planFeatures.map((feature: (typeof planFeatures)[number]) => ({
-        key: feature.key,
-        name: feature.name,
-      }))}
+      planFeatureOptions={planFeatures.map(
+        (feature: (typeof planFeatures)[number]) => ({
+          key: feature.key,
+          name: feature.name,
+        }),
+      )}
     />
   )
 }

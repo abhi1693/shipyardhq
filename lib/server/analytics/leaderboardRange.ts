@@ -143,12 +143,10 @@ export async function getLeaderboardRangeAnalytics(
   )
 
   const totalsMap = new Map<string, number>(
-    products.map(
-      (product: (typeof products)[number]) => [
-        product.id,
-        product.analytics?.upvotes ?? 0,
-      ],
-    ),
+    products.map((product: (typeof products)[number]) => [
+      product.id,
+      product.analytics?.upvotes ?? 0,
+    ]),
   )
 
   const sortedCurrent = [...currentCounts].sort((a, b) => {

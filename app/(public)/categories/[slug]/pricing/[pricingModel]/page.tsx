@@ -89,9 +89,7 @@ export async function generateStaticParams() {
   const categories = await getCategoriesWithCounts()
   type CategorySummary = (typeof categories)[number]
   return categories
-    .filter(
-      (category: CategorySummary) => category.slug && category.count > 0,
-    )
+    .filter((category: CategorySummary) => category.slug && category.count > 0)
     .flatMap((category: CategorySummary) =>
       PRICING_MODEL_SLUGS.map((pricingModel) => ({
         slug: category.slug,

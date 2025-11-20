@@ -9,7 +9,7 @@ const directDatabaseUrl =
 
 if (!directDatabaseUrl) {
   throw new Error(
-    "DATABASE_URL (or DIRECT_DATABASE_URL) must be set to initialize Prisma."
+    "DATABASE_URL (or DIRECT_DATABASE_URL) must be set to initialize Prisma.",
   )
 }
 

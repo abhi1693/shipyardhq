@@ -131,8 +131,8 @@ export async function awardRewards(
   const now = new Date()
 
   try {
-  const result = await prisma.$transaction(
-    async (tx: Prisma.TransactionClient) => {
+    const result = await prisma.$transaction(
+      async (tx: Prisma.TransactionClient) => {
         const rule = await tx.rewardRule.findUnique({
           where: { key: ruleKey },
         })
@@ -184,25 +184,25 @@ export async function awardRewards(
         })
 
         const transaction = await tx.rewardTransaction.create({
-        data: {
-          userId,
-          type: RewardTransactionType.earn,
-          rewardAmount,
-          balanceAfter: balance.balance,
-          ruleId: rule.id,
-          ruleKey: rule.key,
-          rewardKey: null,
-          eventId: payload.eventId ?? null,
-          eventHash,
-          sourceType: payload.sourceType,
-          sourceId: payload.sourceId,
-          targetType: payload.targetType,
-          targetId: payload.targetId,
-          productId: payload.productId,
-          metadata: payload.metadata,
-          notes: payload.notes,
-          actedByUserId: payload.actorUserId ?? null,
-        },
+          data: {
+            userId,
+            type: RewardTransactionType.earn,
+            rewardAmount,
+            balanceAfter: balance.balance,
+            ruleId: rule.id,
+            ruleKey: rule.key,
+            rewardKey: null,
+            eventId: payload.eventId ?? null,
+            eventHash,
+            sourceType: payload.sourceType,
+            sourceId: payload.sourceId,
+            targetType: payload.targetType,
+            targetId: payload.targetId,
+            productId: payload.productId,
+            metadata: payload.metadata,
+            notes: payload.notes,
+            actedByUserId: payload.actorUserId ?? null,
+          },
         })
 
         return { transaction, balance, rule, created: true }
@@ -260,210 +260,214 @@ export async function redeem(
     include: { catalogItem: true }
   }>
 
-  const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-    const catalogItem = await tx.rewardCatalogItem.findUnique({
-      where: { featureKey },
-    })
-    if (!catalogItem || !catalogItem.isActive) {
-      throw new RewardUnavailableError(featureKey)
-    }
+  const result = await prisma.$transaction(
+    async (tx: Prisma.TransactionClient) => {
+      const catalogItem = await tx.rewardCatalogItem.findUnique({
+        where: { featureKey },
+      })
+      if (!catalogItem || !catalogItem.isActive) {
+        throw new RewardUnavailableError(featureKey)
+      }
 
-    if (eventHash) {
-      const existing = await tx.rewardTransaction.findUnique({
-        where: { eventHash },
-        include: {
-          redemption: {
-            include: {
-              catalogItem: true,
-              entitlements: { orderBy: { createdAt: "asc" } },
-              placementSchedules: { orderBy: { createdAt: "asc" } },
+      if (eventHash) {
+        const existing = await tx.rewardTransaction.findUnique({
+          where: { eventHash },
+          include: {
+            redemption: {
+              include: {
+                catalogItem: true,
+                entitlements: { orderBy: { createdAt: "asc" } },
+                placementSchedules: { orderBy: { createdAt: "asc" } },
+              },
             },
           },
-        },
-      })
-      if (existing?.redemption) {
-        const balance = await requireBalance(tx, userId)
-        const entitlement = existing.redemption.entitlements[0] ?? null
-        const schedule = existing.redemption.placementSchedules[0] ?? null
-        return {
-          transaction: existing,
-          balance,
-          redemption: existing.redemption,
-          entitlement:
-            entitlement ?? (await fetchEntitlement(tx, existing.redemption.id)),
-          placementSchedule: schedule,
-          catalogItem: existing.redemption.catalogItem,
-          created: false,
+        })
+        if (existing?.redemption) {
+          const balance = await requireBalance(tx, userId)
+          const entitlement = existing.redemption.entitlements[0] ?? null
+          const schedule = existing.redemption.placementSchedules[0] ?? null
+          return {
+            transaction: existing,
+            balance,
+            redemption: existing.redemption,
+            entitlement:
+              entitlement ??
+              (await fetchEntitlement(tx, existing.redemption.id)),
+            placementSchedule: schedule,
+            catalogItem: existing.redemption.catalogItem,
+            created: false,
+          }
         }
       }
-    }
 
-    if (catalogItem.requiresProduct && !options.productId) {
-      throw new RedemptionValidationError(
-        `Reward '${featureKey}' requires a product context`,
+      if (catalogItem.requiresProduct && !options.productId) {
+        throw new RedemptionValidationError(
+          `Reward '${featureKey}' requires a product context`,
+          featureKey,
+        )
+      }
+      if (
+        catalogItem.category === RewardFeatureCategory.placement &&
+        !options.productId
+      ) {
+        throw new RedemptionValidationError(
+          `Placement rewards must target a product`,
+          featureKey,
+        )
+      }
+
+      const effectiveCost = resolveRedemptionCost(
+        catalogItem.baseCost,
+        options.costOverride,
         featureKey,
       )
-    }
-    if (
-      catalogItem.category === RewardFeatureCategory.placement &&
-      !options.productId
-    ) {
-      throw new RedemptionValidationError(
-        `Placement rewards must target a product`,
-        featureKey,
+      const balanceBefore = await tx.rewardBalance.findUnique({
+        where: { userId },
+      })
+      if (!balanceBefore || balanceBefore.balance < effectiveCost) {
+        throw new RewardsInsufficientBalanceError(userId, effectiveCost)
+      }
+
+      await enforceRedemptionLimits(tx, userId, featureKey, catalogItem)
+
+      const requiresSchedule = requiresPlacementSchedule(catalogItem)
+      const autoActivate = options.autoActivate ?? !requiresSchedule
+      const startsAt =
+        options.reservation?.startsAt ?? (autoActivate ? now : null)
+      const durationSeconds = resolveDuration(
+        options.reservation?.durationSeconds,
+        catalogItem.durationSeconds,
       )
-    }
-
-    const effectiveCost = resolveRedemptionCost(
-      catalogItem.baseCost,
-      options.costOverride,
-      featureKey,
-    )
-    const balanceBefore = await tx.rewardBalance.findUnique({
-      where: { userId },
-    })
-    if (!balanceBefore || balanceBefore.balance < effectiveCost) {
-      throw new RewardsInsufficientBalanceError(userId, effectiveCost)
-    }
-
-    await enforceRedemptionLimits(tx, userId, featureKey, catalogItem)
-
-    const requiresSchedule = requiresPlacementSchedule(catalogItem)
-    const autoActivate = options.autoActivate ?? !requiresSchedule
-    const startsAt =
-      options.reservation?.startsAt ?? (autoActivate ? now : null)
-    const durationSeconds = resolveDuration(
-      options.reservation?.durationSeconds,
-      catalogItem.durationSeconds,
-    )
-    const expiresAt =
-      startsAt && durationSeconds ? addSeconds(startsAt, durationSeconds) : null
-    const reservationDetails = serializeReservation(
-      options.reservation,
-      durationSeconds,
-    )
-    const reservationMetadata =
-      mergeMetadata(options.metadata, {
+      const expiresAt =
+        startsAt && durationSeconds
+          ? addSeconds(startsAt, durationSeconds)
+          : null
+      const reservationDetails = serializeReservation(
+        options.reservation,
+        durationSeconds,
+      )
+      const reservationMetadata = mergeMetadata(options.metadata, {
         reservation: reservationDetails,
       }) as Prisma.InputJsonValue
-    const updateResult = await tx.rewardBalance.updateMany({
-      where: {
-        userId,
-        balance: { gte: effectiveCost },
-      },
-      data: {
-        balance: { decrement: effectiveCost },
-        lifetimeSpent: { increment: effectiveCost },
-        lastRedeemedAt: now,
-      },
-    })
-    if (updateResult.count === 0) {
-      throw new RewardsInsufficientBalanceError(userId, effectiveCost)
-    }
-
-    const updatedBalance = await tx.rewardBalance.findUnique({
-      where: { userId },
-    })
-    if (!updatedBalance) {
-      throw new RewardsInsufficientBalanceError(userId, effectiveCost)
-    }
-
-    const redemption = (await tx.redemption.create({
-      data: {
-        userId,
-        featureKey,
-        productId: options.productId ?? null,
-        status: autoActivate
-          ? RedemptionStatus.active
-          : RedemptionStatus.pending,
-        cost: effectiveCost,
-        originalCost: catalogItem.baseCost,
-        refundedRewards: 0,
-        startsAt,
-        activatedAt: autoActivate ? startsAt : null,
-        expiresAt,
-        metadata: reservationMetadata,
-        failureReason: null,
-      },
-      include: { catalogItem: true },
-    })) as RedemptionWithCatalog
-
-    const entitlement = await tx.featureEntitlement.create({
-      data: {
-        userId,
-        featureKey,
-        redemptionId: redemption.id,
-        productId: options.productId ?? null,
-        subjectType: options.productId ? "product" : "user",
-        subjectId: options.productId ?? userId,
-        status: autoActivate
-          ? FeatureEntitlementStatus.active
-          : FeatureEntitlementStatus.pending,
-        startsAt,
-        activatedAt: autoActivate ? startsAt : null,
-        expiresAt,
-        metadata: reservationMetadata,
-      },
-    })
-
-    let placementSchedule = null
-    if (requiresSchedule) {
-      if (!options.reservation?.slotKey) {
-        throw new RedemptionValidationError(
-          `Placement rewards require a slotKey reservation`,
-          featureKey,
-        )
-      }
-      if (!startsAt || !expiresAt) {
-        throw new RedemptionValidationError(
-          `Placement rewards require schedule boundaries`,
-          featureKey,
-        )
-      }
-      placementSchedule = await tx.placementSchedule.create({
+      const updateResult = await tx.rewardBalance.updateMany({
+        where: {
+          userId,
+          balance: { gte: effectiveCost },
+        },
         data: {
-          entitlementId: entitlement.id,
-          redemptionId: redemption.id,
+          balance: { decrement: effectiveCost },
+          lifetimeSpent: { increment: effectiveCost },
+          lastRedeemedAt: now,
+        },
+      })
+      if (updateResult.count === 0) {
+        throw new RewardsInsufficientBalanceError(userId, effectiveCost)
+      }
+
+      const updatedBalance = await tx.rewardBalance.findUnique({
+        where: { userId },
+      })
+      if (!updatedBalance) {
+        throw new RewardsInsufficientBalanceError(userId, effectiveCost)
+      }
+
+      const redemption = (await tx.redemption.create({
+        data: {
+          userId,
           featureKey,
-          productId: options.productId!,
-          slotKey: options.reservation.slotKey,
+          productId: options.productId ?? null,
           status: autoActivate
-            ? PlacementStatus.active
-            : PlacementStatus.pending,
+            ? RedemptionStatus.active
+            : RedemptionStatus.pending,
+          cost: effectiveCost,
+          originalCost: catalogItem.baseCost,
+          refundedRewards: 0,
           startsAt,
-          endsAt: expiresAt,
+          activatedAt: autoActivate ? startsAt : null,
+          expiresAt,
+          metadata: reservationMetadata,
+          failureReason: null,
+        },
+        include: { catalogItem: true },
+      })) as RedemptionWithCatalog
+
+      const entitlement = await tx.featureEntitlement.create({
+        data: {
+          userId,
+          featureKey,
+          redemptionId: redemption.id,
+          productId: options.productId ?? null,
+          subjectType: options.productId ? "product" : "user",
+          subjectId: options.productId ?? userId,
+          status: autoActivate
+            ? FeatureEntitlementStatus.active
+            : FeatureEntitlementStatus.pending,
+          startsAt,
+          activatedAt: autoActivate ? startsAt : null,
+          expiresAt,
           metadata: reservationMetadata,
         },
       })
-    }
 
-    const transaction = await tx.rewardTransaction.create({
-      data: {
-        userId,
-        type: RewardTransactionType.spend,
-        rewardAmount: effectiveCost,
-        balanceAfter: updatedBalance.balance,
-        rewardKey: featureKey,
-        redemptionId: redemption.id,
-        productId: options.productId ?? null,
-        eventId: options.idempotencyKey ?? null,
-        eventHash,
-        metadata: options.metadata,
-        notes: options.notes,
-        actedByUserId: options.actorUserId ?? null,
-      },
-    })
+      let placementSchedule = null
+      if (requiresSchedule) {
+        if (!options.reservation?.slotKey) {
+          throw new RedemptionValidationError(
+            `Placement rewards require a slotKey reservation`,
+            featureKey,
+          )
+        }
+        if (!startsAt || !expiresAt) {
+          throw new RedemptionValidationError(
+            `Placement rewards require schedule boundaries`,
+            featureKey,
+          )
+        }
+        placementSchedule = await tx.placementSchedule.create({
+          data: {
+            entitlementId: entitlement.id,
+            redemptionId: redemption.id,
+            featureKey,
+            productId: options.productId!,
+            slotKey: options.reservation.slotKey,
+            status: autoActivate
+              ? PlacementStatus.active
+              : PlacementStatus.pending,
+            startsAt,
+            endsAt: expiresAt,
+            metadata: reservationMetadata,
+          },
+        })
+      }
 
-    return {
-      transaction,
-      balance: updatedBalance,
-      redemption,
-      entitlement,
-      placementSchedule,
-      catalogItem: redemption.catalogItem,
-      created: true,
-    }
-  })
+      const transaction = await tx.rewardTransaction.create({
+        data: {
+          userId,
+          type: RewardTransactionType.spend,
+          rewardAmount: effectiveCost,
+          balanceAfter: updatedBalance.balance,
+          rewardKey: featureKey,
+          redemptionId: redemption.id,
+          productId: options.productId ?? null,
+          eventId: options.idempotencyKey ?? null,
+          eventHash,
+          metadata: options.metadata,
+          notes: options.notes,
+          actedByUserId: options.actorUserId ?? null,
+        },
+      })
+
+      return {
+        transaction,
+        balance: updatedBalance,
+        redemption,
+        entitlement,
+        placementSchedule,
+        catalogItem: redemption.catalogItem,
+        created: true,
+      }
+    },
+  )
 
   if (result.created) {
     await dispatchEvent("rewards.redeemed", {
@@ -493,146 +497,146 @@ export async function refundRedemption(
 
   const result = await prisma.$transaction(
     async (tx: Prisma.TransactionClient) => {
-    const redemption = await tx.redemption.findUnique({
-      where: { id: redemptionId },
-      include: {
-        catalogItem: true,
-        placementSchedules: {
-          select: { id: true, status: true },
+      const redemption = await tx.redemption.findUnique({
+        where: { id: redemptionId },
+        include: {
+          catalogItem: true,
+          placementSchedules: {
+            select: { id: true, status: true },
+          },
+          entitlements: {
+            select: { id: true, status: true },
+          },
         },
-        entitlements: {
-          select: { id: true, status: true },
-        },
-      },
-    })
-
-    if (!redemption) {
-      throw new RedemptionNotFoundError(redemptionId)
-    }
-
-    if (redemption.status === RedemptionStatus.refunded) {
-      throw new RedemptionRefundError(
-        "Redemption has already been fully refunded",
-        redemptionId,
-      )
-    }
-
-    const refundableAmount = redemption.cost - redemption.refundedRewards
-    if (refundableAmount <= 0) {
-      throw new RedemptionRefundError(
-        "No refundable rewards remain for this redemption",
-        redemptionId,
-      )
-    }
-
-    const refundAmount = refundableAmount
-    const willBeFullyRefunded =
-      redemption.refundedRewards + refundAmount >= redemption.cost
-    const shouldRevert = options.revertPerk ?? willBeFullyRefunded
-
-    const eventHash = buildEventHash(
-      redemption.userId,
-      redemption.id,
-      options.idempotencyKey,
-      "refund",
-    )
-
-    if (eventHash) {
-      const existing = await tx.rewardTransaction.findUnique({
-        where: { eventHash },
-        include: { redemption: true },
       })
-      if (existing) {
-        const balance = await requireBalance(tx, redemption.userId)
-        return {
-          transaction: existing,
-          redemption: existing.redemption ?? redemption,
-          balance,
-          refundedAmount: existing.rewardAmount,
-          fullyRefunded:
-            (existing.redemption?.status ?? redemption.status) ===
-              RedemptionStatus.refunded ||
-            redemption.refundedRewards + existing.rewardAmount >=
-              redemption.cost,
+
+      if (!redemption) {
+        throw new RedemptionNotFoundError(redemptionId)
+      }
+
+      if (redemption.status === RedemptionStatus.refunded) {
+        throw new RedemptionRefundError(
+          "Redemption has already been fully refunded",
+          redemptionId,
+        )
+      }
+
+      const refundableAmount = redemption.cost - redemption.refundedRewards
+      if (refundableAmount <= 0) {
+        throw new RedemptionRefundError(
+          "No refundable rewards remain for this redemption",
+          redemptionId,
+        )
+      }
+
+      const refundAmount = refundableAmount
+      const willBeFullyRefunded =
+        redemption.refundedRewards + refundAmount >= redemption.cost
+      const shouldRevert = options.revertPerk ?? willBeFullyRefunded
+
+      const eventHash = buildEventHash(
+        redemption.userId,
+        redemption.id,
+        options.idempotencyKey,
+        "refund",
+      )
+
+      if (eventHash) {
+        const existing = await tx.rewardTransaction.findUnique({
+          where: { eventHash },
+          include: { redemption: true },
+        })
+        if (existing) {
+          const balance = await requireBalance(tx, redemption.userId)
+          return {
+            transaction: existing,
+            redemption: existing.redemption ?? redemption,
+            balance,
+            refundedAmount: existing.rewardAmount,
+            fullyRefunded:
+              (existing.redemption?.status ?? redemption.status) ===
+                RedemptionStatus.refunded ||
+              redemption.refundedRewards + existing.rewardAmount >=
+                redemption.cost,
+          }
         }
       }
-    }
 
-    await lockRewardBalance(tx, redemption.userId)
+      await lockRewardBalance(tx, redemption.userId)
 
-    if (shouldRevert) {
-      if (redemption.entitlements.length > 0) {
-        await tx.featureEntitlement.updateMany({
-          where: { redemptionId },
-          data: {
-            status: FeatureEntitlementStatus.canceled,
-            deactivatedAt: now,
-            expiresAt: now,
-          },
-        })
+      if (shouldRevert) {
+        if (redemption.entitlements.length > 0) {
+          await tx.featureEntitlement.updateMany({
+            where: { redemptionId },
+            data: {
+              status: FeatureEntitlementStatus.canceled,
+              deactivatedAt: now,
+              expiresAt: now,
+            },
+          })
+        }
+
+        if (redemption.placementSchedules.length > 0) {
+          await tx.placementSchedule.updateMany({
+            where: { redemptionId },
+            data: {
+              status: PlacementStatus.canceled,
+              endsAt: now,
+            },
+          })
+        }
       }
 
-      if (redemption.placementSchedules.length > 0) {
-        await tx.placementSchedule.updateMany({
-          where: { redemptionId },
-          data: {
-            status: PlacementStatus.canceled,
-            endsAt: now,
-          },
-        })
-      }
-    }
+      const updatedBalance = await tx.rewardBalance.update({
+        where: { userId: redemption.userId },
+        data: {
+          balance: { increment: refundAmount },
+          lifetimeRefunded: { increment: refundAmount },
+        },
+      })
 
-    const updatedBalance = await tx.rewardBalance.update({
-      where: { userId: redemption.userId },
-      data: {
-        balance: { increment: refundAmount },
-        lifetimeRefunded: { increment: refundAmount },
-      },
-    })
+      const updatedRedemption = await tx.redemption.update({
+        where: { id: redemptionId },
+        data: {
+          refundedRewards: { increment: refundAmount },
+          status: willBeFullyRefunded
+            ? RedemptionStatus.refunded
+            : redemption.status,
+          canceledAt: shouldRevert ? now : redemption.canceledAt,
+        },
+      })
 
-    const updatedRedemption = await tx.redemption.update({
-      where: { id: redemptionId },
-      data: {
-        refundedRewards: { increment: refundAmount },
-        status: willBeFullyRefunded
-          ? RedemptionStatus.refunded
-          : redemption.status,
-        canceledAt: shouldRevert ? now : redemption.canceledAt,
-      },
-    })
-
-    const transactionMetadata =
-      mergeMetadata(options.metadata, {
+      const transactionMetadata = mergeMetadata(options.metadata, {
         reference: options.reference,
         reason: options.reason,
       }) as Prisma.InputJsonValue
 
-    const transaction = await tx.rewardTransaction.create({
-      data: {
-        userId: redemption.userId,
-        type: RewardTransactionType.refund,
-        rewardAmount: refundAmount,
-        balanceAfter: updatedBalance.balance,
-        rewardKey: redemption.featureKey,
-        redemptionId: redemption.id,
-        productId: redemption.productId,
-        eventId: options.idempotencyKey ?? null,
-        eventHash,
-        notes: options.notes ?? options.reason,
-        metadata: transactionMetadata,
-        actedByUserId: options.actorUserId,
-      },
-    })
+      const transaction = await tx.rewardTransaction.create({
+        data: {
+          userId: redemption.userId,
+          type: RewardTransactionType.refund,
+          rewardAmount: refundAmount,
+          balanceAfter: updatedBalance.balance,
+          rewardKey: redemption.featureKey,
+          redemptionId: redemption.id,
+          productId: redemption.productId,
+          eventId: options.idempotencyKey ?? null,
+          eventHash,
+          notes: options.notes ?? options.reason,
+          metadata: transactionMetadata,
+          actedByUserId: options.actorUserId,
+        },
+      })
 
-    return {
-      transaction,
-      redemption: updatedRedemption,
-      balance: updatedBalance,
-      refundedAmount: refundAmount,
-      fullyRefunded: willBeFullyRefunded,
-    }
-  })
+      return {
+        transaction,
+        redemption: updatedRedemption,
+        balance: updatedBalance,
+        refundedAmount: refundAmount,
+        fullyRefunded: willBeFullyRefunded,
+      }
+    },
+  )
 
   await dispatchEvent("rewards.refunded", {
     transactionId: result.transaction.id,
@@ -683,53 +687,53 @@ export async function adjustRewards(
         }
       }
 
-    const balanceBefore = await tx.rewardBalance.findUnique({
-      where: { userId },
-    })
-    if (amount < 0) {
-      const needs = Math.abs(amount)
-      const available = balanceBefore?.balance ?? 0
-      if (available < needs) {
-        throw new RewardsInsufficientBalanceError(userId, needs)
+      const balanceBefore = await tx.rewardBalance.findUnique({
+        where: { userId },
+      })
+      if (amount < 0) {
+        const needs = Math.abs(amount)
+        const available = balanceBefore?.balance ?? 0
+        if (available < needs) {
+          throw new RewardsInsufficientBalanceError(userId, needs)
+        }
       }
-    }
-    const balance = balanceBefore
-      ? await tx.rewardBalance.update({
-          where: { userId },
-          data: {
-            balance:
-              amount > 0
-                ? { increment: amount }
-                : { decrement: Math.abs(amount) },
-            lifetimeAdjusted:
-              amount > 0
-                ? { increment: amount }
-                : { increment: Math.abs(amount) },
-            lastAdjustmentAt: now,
-          },
-        })
-      : await tx.rewardBalance.create({
-          data: {
-            userId,
-            balance: Math.max(amount, 0),
-            lifetimeAdjusted: Math.abs(amount),
-            lastAdjustmentAt: now,
-          },
-        })
+      const balance = balanceBefore
+        ? await tx.rewardBalance.update({
+            where: { userId },
+            data: {
+              balance:
+                amount > 0
+                  ? { increment: amount }
+                  : { decrement: Math.abs(amount) },
+              lifetimeAdjusted:
+                amount > 0
+                  ? { increment: amount }
+                  : { increment: Math.abs(amount) },
+              lastAdjustmentAt: now,
+            },
+          })
+        : await tx.rewardBalance.create({
+            data: {
+              userId,
+              balance: Math.max(amount, 0),
+              lifetimeAdjusted: Math.abs(amount),
+              lastAdjustmentAt: now,
+            },
+          })
 
-    const transaction = await tx.rewardTransaction.create({
-      data: {
-        userId,
-        type: RewardTransactionType.adjustment,
-        rewardAmount: Math.abs(amount),
-        balanceAfter: balance.balance,
-        eventId: options.eventId ?? null,
-        eventHash,
-        metadata: options.metadata,
-        notes: options.notes,
-        actedByUserId: options.actorUserId,
-      },
-    })
+      const transaction = await tx.rewardTransaction.create({
+        data: {
+          userId,
+          type: RewardTransactionType.adjustment,
+          rewardAmount: Math.abs(amount),
+          balanceAfter: balance.balance,
+          eventId: options.eventId ?? null,
+          eventHash,
+          metadata: options.metadata,
+          notes: options.notes,
+          actedByUserId: options.actorUserId,
+        },
+      })
 
       return {
         transaction,

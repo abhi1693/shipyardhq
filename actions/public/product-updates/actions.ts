@@ -167,8 +167,9 @@ async function fetchLatestPublishedUpdates(
       formatFeedItem(update as unknown as PublicProductUpdate),
     )
     .filter(
-      (item: ProductUpdateFeedItem | undefined): item is ProductUpdateFeedItem =>
-        Boolean(item),
+      (
+        item: ProductUpdateFeedItem | undefined,
+      ): item is ProductUpdateFeedItem => Boolean(item),
     )
 
   return selectBalancedProductUpdates(feedItems, safeLimit)

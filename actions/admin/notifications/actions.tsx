@@ -150,9 +150,8 @@ async function subscribeSentOutreachRecipients(emails: string[]) {
 
   const subscribedEmails = new Set(
     existingSubscriptions
-      .map(
-        (entry: (typeof existingSubscriptions)[number]) =>
-          entry.email?.trim().toLowerCase(),
+      .map((entry: (typeof existingSubscriptions)[number]) =>
+        entry.email?.trim().toLowerCase(),
       )
       .filter((email: string | undefined | null): email is string =>
         Boolean(email),

@@ -137,12 +137,13 @@ export default async function ViewProductPage({
           label: "Alternatives",
           value: product.alternatives?.length
             ? commaSeparated(
-                product.alternatives.map((alt: (typeof product.alternatives)[number]) =>
-                  linkify({
-                    href: adminPath("products", "alternatives", alt.id),
-                    label: alt.name,
-                    subtext: alt.websiteUrl ?? undefined,
-                  }),
+                product.alternatives.map(
+                  (alt: (typeof product.alternatives)[number]) =>
+                    linkify({
+                      href: adminPath("products", "alternatives", alt.id),
+                      label: alt.name,
+                      subtext: alt.websiteUrl ?? undefined,
+                    }),
                 ),
               )
             : placeholder(),

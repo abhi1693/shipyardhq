@@ -145,23 +145,23 @@ export default async function ViewUserPage({
         id: transaction.id,
         type: transaction.type,
         rewardAmount: transaction.rewardAmount,
-      balanceAfter: transaction.balanceAfter,
-      notes: transaction.notes,
-      eventId: transaction.eventId,
-      createdAt: transaction.createdAt,
-      rule: transaction.rule
-        ? {
-            id: transaction.rule.id,
-            key: transaction.rule.key,
-            name: transaction.rule.name,
-          }
-        : null,
-      catalogItem: transaction.catalogItem
-        ? {
-            featureKey: transaction.catalogItem.featureKey,
-            name: transaction.catalogItem.name,
-          }
-        : null,
+        balanceAfter: transaction.balanceAfter,
+        notes: transaction.notes,
+        eventId: transaction.eventId,
+        createdAt: transaction.createdAt,
+        rule: transaction.rule
+          ? {
+              id: transaction.rule.id,
+              key: transaction.rule.key,
+              name: transaction.rule.name,
+            }
+          : null,
+        catalogItem: transaction.catalogItem
+          ? {
+              featureKey: transaction.catalogItem.featureKey,
+              name: transaction.catalogItem.name,
+            }
+          : null,
         redemption: transaction.redemption
           ? {
               id: transaction.redemption.id,

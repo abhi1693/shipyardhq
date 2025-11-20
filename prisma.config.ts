@@ -6,7 +6,7 @@ const datasourceUrl =
 
 if (!datasourceUrl) {
   throw new Error(
-    "DATABASE_URL (or DIRECT_DATABASE_URL) must be set for Prisma CLI commands."
+    "DATABASE_URL (or DIRECT_DATABASE_URL) must be set for Prisma CLI commands.",
   )
 }
 

@@ -79,9 +79,7 @@ export default async function EventEnvelopePage({
       label: "Status",
       value: (
         <Badge
-          variant={
-            statusVariantMap[envelope.status as EventEnvelopeStatus]
-          }
+          variant={statusVariantMap[envelope.status as EventEnvelopeStatus]}
         >
           {envelope.status.replace(/_/g, " ")}
         </Badge>
