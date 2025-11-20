@@ -59,7 +59,6 @@ async function applySnapshots(
 
   // Batch in chunks to avoid long-running transactions.
   const chunkSize = 10
-  let processed = 0
   try {
     for (let i = 0; i < snapshots.length; i += chunkSize) {
       const chunk = snapshots.slice(i, i + chunkSize)
@@ -91,7 +90,6 @@ async function applySnapshots(
           }),
         ),
       )
-      processed += chunk.length
     }
   } catch (error) {
     throw error
@@ -218,20 +216,6 @@ export async function syncPaymentConnector(connectorId: string) {
   try {
     const result = await providerDefinition.sync({ connector, apiKey })
     await applySnapshots(connector.id, result.snapshots)
-    const snapshotCount = await prisma.paymentRevenueSnapshot.count({
-      where: { connectorId: connector.id },
-    })
-    const latestSnapshot = await prisma.paymentRevenueSnapshot.findFirst({
-      where: { connectorId: connector.id },
-      orderBy: { periodStart: "desc" },
-      select: {
-        periodStart: true,
-        currencyCode: true,
-        periodRevenueCents: true,
-        allTimeRevenueCents: true,
-        mrrCents: true,
-      },
-    })
     const primary = selectPrimarySnapshot(result.snapshots)
     const sortedByDate = [...result.snapshots].sort(
       (a, b) => a.periodStart.getTime() - b.periodStart.getTime(),
