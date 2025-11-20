@@ -15,6 +15,12 @@ type Props = Omit<
 
 export function SquareImage({ size, sizes, ...props }: Props) {
   return (
-    <Image {...props} width={size} height={size} sizes={sizes ?? `${size}px`} />
+    <Image
+      {...props}
+      alt={props.alt ?? ""}
+      width={size}
+      height={size}
+      sizes={sizes ?? `${size}px`}
+    />
   )
 }
