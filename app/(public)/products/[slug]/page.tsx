@@ -811,6 +811,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 <Suspense fallback={<ProductUpvoteBadgeFallback />}>
                   <ProductUpvoteBadgeServer
                     productId={product.id}
+                    productSlug={product.slug}
                     upvoteCount={product.analytics?.upvotes ?? 0}
                   />
                 </Suspense>
@@ -872,6 +873,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <Suspense fallback={<ProductUpvoteBadgeFallback />}>
                 <ProductUpvoteBadgeServer
                   productId={product.id}
+                  productSlug={product.slug}
                   upvoteCount={product.analytics?.upvotes ?? 0}
                 />
               </Suspense>
