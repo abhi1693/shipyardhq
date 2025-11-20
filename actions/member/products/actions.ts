@@ -13,7 +13,6 @@ import {
   ProductStatus,
 } from "@/lib/vendor/prisma/client"
 import {
-  getConnectorRevenueHistory,
   syncPaymentConnector,
   validateConnectorApiKey,
   upsertPaymentConnector,
