@@ -9,7 +9,6 @@
     "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "prisma:init": "grep '^DIRECT_DATABASE_URL=' .env.local > .env",
     "prisma:migrate:reset": "prisma migrate reset --force",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
