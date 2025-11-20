@@ -1,5 +1,7 @@
 import { Suspense } from "react"
 
+import { Skeleton } from "@/components/atoms/skeleton"
+
 import { Card, CardContent } from "@/components/atoms/card"
 import { currentUser } from "@clerk/nextjs/server"
 import { getMemberTrafficOverview } from "@/actions/member/overview/actions"
@@ -156,5 +158,22 @@ function ChartCardSkeleton() {
         <div className="h-[240px] rounded-lg bg-slate-100 animate-pulse" />
       </CardContent>
     </Card>
+  )
+}
+
+export function MemberOverviewPageSkeleton() {
+  return (
+    <div
+      className="space-y-8"
+      data-slot="member-overview-skeleton"
+      aria-busy="true"
+    >
+      <header className="space-y-2">
+        <Skeleton className="h-4 w-28 rounded-full" tone="muted" />
+        <Skeleton className="h-7 w-72 rounded-full" tone="soft" />
+        <Skeleton className="h-4 w-44 rounded-full" tone="muted" />
+      </header>
+      <AnalyticsSectionSkeleton />
+    </div>
   )
 }
