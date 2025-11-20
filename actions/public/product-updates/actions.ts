@@ -123,7 +123,8 @@ async function fetchPublicProductUpdates(
 
   const updates = await prisma.productUpdate.findMany(query)
 
-  return updates.map((update) =>
+  type ProductUpdateRecord = (typeof updates)[number]
+  return updates.map((update: ProductUpdateRecord) =>
     formatPublicUpdate(update as unknown as PublicProductUpdate),
   )
 }
@@ -162,8 +163,13 @@ async function fetchLatestPublishedUpdates(
   })
 
   const feedItems = updates
-    .map((update) => formatFeedItem(update as unknown as PublicProductUpdate))
-    .filter((item): item is ProductUpdateFeedItem => Boolean(item))
+    .map((update: (typeof updates)[number]) =>
+      formatFeedItem(update as unknown as PublicProductUpdate),
+    )
+    .filter(
+      (item: ProductUpdateFeedItem | undefined): item is ProductUpdateFeedItem =>
+        Boolean(item),
+    )
 
   return selectBalancedProductUpdates(feedItems, safeLimit)
 }

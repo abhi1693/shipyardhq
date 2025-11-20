@@ -7,6 +7,7 @@ import {
   PrismaClient,
   TimeInterval,
 } from "@/lib/vendor/prisma/client"
+import { createSeedPrismaClient } from "./seedClient"
 
 type PlanSeed = {
   name: string
@@ -200,7 +201,7 @@ const invokedDirectly = (() => {
 })()
 
 if (invokedDirectly) {
-  const prisma = new PrismaClient()
+  const prisma = createSeedPrismaClient()
   seedPlans(prisma)
     .catch((e) => {
       console.error(e)

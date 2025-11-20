@@ -49,8 +49,21 @@ export default async function RefundRedemptionsPage() {
     take: 200,
   })
 
+type RefundableRedemption = {
+  id: string
+  user: (typeof redemptions)[number]["user"]
+  featureKey: string
+  rewardName: string | null
+  status: RedemptionStatus
+  cost: number
+  refundedRewards: number
+  createdAt: string
+  productName: string | null
+  remainingAmount: number
+}
+
   const refundable = redemptions
-    .map((redemption) => {
+    .map((redemption: (typeof redemptions)[number]): RefundableRedemption | null => {
       const remainingAmount = redemption.cost - redemption.refundedRewards
       if (remainingAmount <= 0) {
         return null
@@ -68,7 +81,10 @@ export default async function RefundRedemptionsPage() {
         remainingAmount,
       }
     })
-    .filter((value): value is NonNullable<typeof value> => Boolean(value))
+    .filter(
+      (value: RefundableRedemption | null): value is RefundableRedemption =>
+        value !== null,
+    )
 
   return <RefundRedemptionForm redemptions={refundable} />
 }

@@ -16,7 +16,7 @@ export const revalidate = 120
 
 export async function generateStaticParams() {
   const months = await getMonthlyLeaderboardMonths()
-  return months.map(({ month }) => ({ month }))
+  return months.map(({ month }: { month: string }) => ({ month }))
 }
 
 export async function generateMetadata({

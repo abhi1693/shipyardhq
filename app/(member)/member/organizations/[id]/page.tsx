@@ -85,7 +85,9 @@ export default async function MemberOrganizationPage({
   const organizationUrl = ensureUrlHasSchema(org.url)
   const domainDisplay = getDisplayUrl(organizationUrl)
   const memberCount = members.length
-  const owner = members.find((member) => member.isOwner)
+  const owner = members.find(
+    (member: (typeof members)[number]) => member.isOwner,
+  )
   const ownerName = owner ? getMemberName(owner) : "Unassigned"
   const ownerEmail = owner?.user.email ?? null
   const ownerSince = owner

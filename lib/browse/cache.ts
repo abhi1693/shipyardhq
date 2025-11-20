@@ -107,11 +107,16 @@ export const getBrowsePagePayload = async (
   const sortLabel = browseSortLabelMap[filters.sort] ?? browseSortLabelMap.new
 
   const selectedUseCaseLabel = filters.useCase
-    ? useCases.find((entry) => entry.slug === filters.useCase)?.label
+    ? useCases.find(
+        (entry: (typeof useCases)[number]) => entry.slug === filters.useCase,
+      )?.label
     : undefined
 
   const selectedCategoryLabel = filters.category
-    ? categories.find((entry) => entry.slug === filters.category)?.name
+    ? categories.find(
+        (entry: (typeof categories)[number]) =>
+          entry.slug === filters.category,
+      )?.name
     : undefined
 
   const hasActiveFilters = Boolean(

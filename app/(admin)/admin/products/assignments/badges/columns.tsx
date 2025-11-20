@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ProductBadge, Product } from "@/lib/vendor/prisma/client"
+import type { ProductBadge, Product } from "@/lib/vendor/prisma/client"
 import { formatDate, linkify } from "@/lib/ui/formatters"
 import { adminPath } from "@/lib/routes"
 

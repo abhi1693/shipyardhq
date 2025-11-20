@@ -39,7 +39,8 @@ import {
   updateRewardRuleAction,
 } from "@/actions/admin/rewards/actions"
 import { adminPath } from "@/lib/routes"
-import { RewardRule, RewardRuleCategory } from "@/lib/vendor/prisma/client"
+import type { RewardRule } from "@/lib/vendor/prisma/client"
+import { RewardRuleCategory } from "@/lib/vendor/prisma/client/enums"
 
 const optionalNumber = z
   .string()

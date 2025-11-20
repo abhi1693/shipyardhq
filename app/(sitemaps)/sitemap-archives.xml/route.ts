@@ -50,7 +50,8 @@ export async function GET() {
         <priority>0.6</priority>
       </url>
     `,
-    ...months.map((monthEntry, index) => {
+    ...months.map(
+      (monthEntry: (typeof months)[number], index: number) => {
       const monthDate = toMonthDate(monthEntry.month, now)
       const recencyPriority = index < 3 ? "0.6" : index < 12 ? "0.5" : "0.4"
       return xml`

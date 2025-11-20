@@ -68,9 +68,13 @@ export default async function OrganizationAnalyticsPage({
     redirect(memberOrganizationPath(id))
   }
 
-  const productIds = products.map((product) => product.id)
+  type OrganizationProduct = (typeof products)[number]
+  const productIds = products.map((product: OrganizationProduct) => product.id)
   const aggregatedAnalytics = products.reduce(
-    (acc, product) => {
+    (
+      acc: { upvotes: number; clicks: number },
+      product: OrganizationProduct,
+    ) => {
       acc.upvotes += product.analytics?.upvotes ?? 0
       acc.clicks += product.analytics?.clicks ?? 0
       return acc

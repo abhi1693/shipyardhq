@@ -30,7 +30,7 @@ export default async function CatalogEditPage({
     <CatalogForm
       mode="edit"
       item={item}
-      planFeatureOptions={planFeatures.map((feature) => ({
+      planFeatureOptions={planFeatures.map((feature: (typeof planFeatures)[number]) => ({
         key: feature.key,
         name: feature.name,
       }))}

@@ -7,6 +7,7 @@ import {
 import {
   FeatureEntitlementStatus,
   PlacementStatus,
+  Prisma,
   RedemptionStatus,
 } from "@/lib/vendor/prisma/client"
 
@@ -35,7 +36,7 @@ export async function runPlacementScheduler(
   let badgesTouched = false
   const touchedFeatures = new Set<string>()
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     type BadgeTarget = { productId: string; badge: string }
     type BadgeRecord = {
       id: string

@@ -67,8 +67,10 @@ export const getLeaderboardPagePayload = cached(
     const runnerUps = topThree.slice(1)
     const rest = products.slice(3)
     const categoryName = filters.categorySlug
-      ? categories.find((category) => category.slug === filters.categorySlug)
-          ?.name
+      ? categories.find(
+          (category: (typeof categories)[number]) =>
+            category.slug === filters.categorySlug,
+        )?.name
       : undefined
 
     return {

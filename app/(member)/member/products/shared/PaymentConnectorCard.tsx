@@ -1,10 +1,14 @@
 "use client"
 
 import { useTransition } from "react"
-import {
+import type {
   PaymentConnectorProvider,
   PaymentConnectorStatus,
-} from "@/lib/vendor/prisma/client"
+} from "@/lib/vendor/prisma/client/enums"
+import {
+  PaymentConnectorProvider as PaymentConnectorProviderEnum,
+  PaymentConnectorStatus as PaymentConnectorStatusEnum,
+} from "@/lib/vendor/prisma/client/enums"
 import {
   Select,
   SelectContent,
@@ -38,16 +42,16 @@ type Props = {
 }
 
 const PROVIDER_OPTIONS: { value: PaymentConnectorProvider; label: string }[] = [
-  { value: PaymentConnectorProvider.dodo, label: "DodoPayments" },
-  { value: PaymentConnectorProvider.polar, label: "Polar" },
+  { value: PaymentConnectorProviderEnum.dodo, label: "DodoPayments" },
+  { value: PaymentConnectorProviderEnum.polar, label: "Polar" },
 ]
 
 function renderStatus(status?: PaymentConnectorStatus | null) {
   if (!status) return null
   const intent =
-    status === PaymentConnectorStatus.active
+    status === PaymentConnectorStatusEnum.active
       ? "success"
-      : status === PaymentConnectorStatus.disabled
+      : status === PaymentConnectorStatusEnum.disabled
         ? "secondary"
         : "destructive"
   return (
@@ -80,7 +84,9 @@ export function PaymentConnectorCard({
   const [saving, startTransition] = useTransition()
   const selectedProvider =
     provider ??
-    PROVIDER_OPTIONS.find((opt) => opt.value === PaymentConnectorProvider.dodo)
+    PROVIDER_OPTIONS.find(
+      (opt) => opt.value === PaymentConnectorProviderEnum.dodo,
+    )
       ?.value
 
   return (

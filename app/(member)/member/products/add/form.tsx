@@ -35,7 +35,10 @@ import {
 } from "@/lib/productWizard/mappers"
 import { useProductWizard } from "@/hooks/useProductWizard"
 import { renderStep } from "@/components/molecules/ProductWizardStepRenderer"
-import { PaymentConnectorProvider } from "@/lib/vendor/prisma/client"
+import {
+  PaymentConnectorProvider,
+  type PaymentConnectorProvider as PaymentConnectorProviderType,
+} from "@/lib/vendor/prisma/client/enums"
 import { PaymentConnectorCard } from "../shared/PaymentConnectorCard"
 
 function ConnectorFields({
@@ -46,7 +49,7 @@ function ConnectorFields({
   const provider = useWatch({
     control: form.control,
     name: "connectorProvider" as any,
-  }) as PaymentConnectorProvider | undefined
+  }) as PaymentConnectorProviderType | undefined
   const apiKey =
     (useWatch({
       control: form.control,
@@ -63,7 +66,8 @@ function ConnectorFields({
   return (
     <PaymentConnectorCard
       provider={
-        provider ?? (PaymentConnectorProvider.dodo as PaymentConnectorProvider)
+        provider ??
+        (PaymentConnectorProvider.dodo as PaymentConnectorProviderType)
       }
       apiKey={apiKey ?? ""}
       showSaveButton={false}

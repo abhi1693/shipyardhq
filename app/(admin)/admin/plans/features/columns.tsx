@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import {
+import type {
   Plan,
   PlanFeature,
   PlanFeatureAssignment,

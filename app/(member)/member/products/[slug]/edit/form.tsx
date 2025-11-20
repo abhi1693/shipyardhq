@@ -28,10 +28,11 @@ import {
 import { useProductWizard } from "@/hooks/useProductWizard"
 import { renderStep } from "@/components/molecules/ProductWizardStepRenderer"
 import { memberProductPath } from "@/lib/routes"
-import {
+import type {
   PaymentConnectorProvider,
   PaymentConnectorStatus,
-} from "@/lib/vendor/prisma/client"
+} from "@/lib/vendor/prisma/client/enums"
+import { PaymentConnectorProvider as PaymentConnectorProviderEnum } from "@/lib/vendor/prisma/client/enums"
 import { PaymentConnectorCard } from "../../shared/PaymentConnectorCard"
 
 function ConnectorFields({
@@ -69,7 +70,7 @@ function ConnectorFields({
       provider={
         provider ??
         connector?.provider ??
-        (PaymentConnectorProvider.dodo as PaymentConnectorProvider)
+        (PaymentConnectorProviderEnum.dodo as PaymentConnectorProvider)
       }
       apiKey={apiKey ?? ""}
       keyHint={connector?.keyHint ?? null}

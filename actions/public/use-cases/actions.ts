@@ -78,8 +78,9 @@ export const getPublicUseCasesWithCounts = cached(
 
     if (useCases.length === 0) return []
 
+    type UseCaseSummary = (typeof useCases)[number]
     const results = await Promise.all(
-      useCases.map(async (useCase) => {
+      useCases.map(async (useCase: UseCaseSummary) => {
         const productCount = await prisma.product.count({
           where: {
             status: "published",
@@ -199,7 +200,7 @@ export const getPublicUseCaseWithProducts = cached(
     })
 
     const categories: UseCaseCategory[] = categoriesRaw
-      .map((category) => ({
+      .map((category: (typeof categoriesRaw)[number]) => ({
         id: category.id,
         name: category.name,
         slug: category.slug,
@@ -207,8 +208,8 @@ export const getPublicUseCaseWithProducts = cached(
         icon: category.icon,
         productCount: categoryMap.get(category.id) ?? 0,
       }))
-      .filter((category) => category.productCount > 0)
-      .sort((a, b) => {
+      .filter((category: UseCaseCategory) => category.productCount > 0)
+      .sort((a: UseCaseCategory, b: UseCaseCategory) => {
         if (b.productCount !== a.productCount) {
           return b.productCount - a.productCount
         }

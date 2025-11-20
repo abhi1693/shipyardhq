@@ -105,9 +105,11 @@ export async function generateStaticParams() {
   })
 
   return slugs
-    .map((entry) => entry.slug?.trim())
-    .filter((value): value is string => Boolean(value))
-    .map((slug) => ({ slug }))
+    .map((entry: (typeof slugs)[number]) => entry.slug?.trim())
+    .filter(
+      (value: string | undefined | null): value is string => Boolean(value),
+    )
+    .map((slug: string) => ({ slug }))
 }
 
 export async function generateMetadata(
@@ -150,7 +152,9 @@ export async function generateMetadata(
   const twitterImages = bannerImageUrl ? [bannerImageUrl] : []
 
   const keywords =
-    product.keywords?.map((keyword) => keyword.trim()).filter(Boolean) ?? []
+    product.keywords
+      ?.map((keyword: string) => keyword.trim())
+      .filter(Boolean) ?? []
 
   const metadata = buildPageMetadata({
     title: pageTitle,
@@ -253,7 +257,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   ]
   const screenshotSources = [
     product.bannerImage,
-    ...(product.ProductMedia ?? []).map((media) => media.imageUrl),
+    ...(product.ProductMedia ?? []).map((media: { imageUrl: string | null }) => media.imageUrl),
   ].filter((value): value is string => Boolean(value?.trim()))
   const schemaPublishedDateIso =
     product.publishedAt || product.createdAt
@@ -414,22 +418,25 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     }
   })
   const galleryMedia = (product.ProductMedia ?? [])
-    .map((item) => ({
+    .map((item: (typeof product.ProductMedia)[number]) => ({
       id: item.id,
       imageUrl: item.imageUrl,
       altText: item.altText,
     }))
-    .filter((item) => Boolean(item.imageUrl))
+    .filter((item: { imageUrl: string | null }) => Boolean(item.imageUrl))
   const activeBadgeDefs = (sidebarProduct?.badges ?? [])
     .map((badgeKey) => BADGE_LOOKUP[badgeKey])
     .filter(Boolean)
   const keywordTagItems = Array.from(
-    new Set(
+    new Set<string>(
       (product.keywords ?? [])
-        .map((keyword) => keyword?.trim())
-        .filter((keyword): keyword is string => Boolean(keyword)),
+        .map((keyword: string | null) => keyword?.trim())
+        .filter(
+          (keyword: string | undefined | null): keyword is string =>
+            Boolean(keyword),
+        ),
     ),
-  ).map((keyword) => {
+  ).map((keyword: string) => {
     const slugValue = keywordToSlug(keyword)
     const formattedLabel = formatTagLabel(keyword)
     return {
@@ -439,8 +446,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   })
   const entitlementFeatures = new Set(
     (product.featureEntitlements ?? [])
-      .map((feature) => feature.featureKey)
-      .filter((value): value is string => Boolean(value)),
+      .map((feature: (typeof product.featureEntitlements)[number]) => feature.featureKey)
+      .filter(
+        (value: string | undefined | null): value is string => Boolean(value),
+      ),
   )
   const hasCustomCtaFeature =
     hasPlanFeature(product.plan, "customCTA") ||

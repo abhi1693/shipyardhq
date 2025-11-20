@@ -5,7 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { Relationship } from "@/components/molecules/Relationship"
 import { linkify } from "@/lib/ui/formatters"
 import { adminPath } from "@/lib/routes"
-import { Category } from "@/lib/vendor/prisma/client"
+import type { Category } from "@/lib/vendor/prisma/client"
 
 interface Props {
   rows: Category[]

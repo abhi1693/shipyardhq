@@ -9,7 +9,7 @@ import { Button } from "@/components/atoms/button"
 import DeleteButton from "@/components/molecules/DeleteButton"
 import { formatDate, linkify } from "@/lib/ui/formatters"
 import { adminPath } from "@/lib/routes"
-import { Prisma } from "@/lib/vendor/prisma/client"
+import type { Prisma } from "@/lib/vendor/prisma/client"
 
 export type AlternativeProductRow = Prisma.AlternativeProductGetPayload<{
   include: {

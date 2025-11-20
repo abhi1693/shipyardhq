@@ -110,7 +110,10 @@ export async function runStreakMaintenance(
     : []
 
   const balanceMap = new Map<string, StreakBalanceSnapshot>(
-    balances.map((balance) => [balance.userId, balance]),
+    balances.map((balance: (typeof balances)[number]) => [
+      balance.userId,
+      balance,
+    ]),
   )
 
   const processedUserIds = new Set<string>()

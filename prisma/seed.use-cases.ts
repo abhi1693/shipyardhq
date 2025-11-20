@@ -3,6 +3,7 @@ import { pathToFileURL } from "node:url"
 
 import { PrismaClient } from "@/lib/vendor/prisma/client"
 import slugifyLib from "slugify"
+import { createSeedPrismaClient } from "./seedClient"
 
 const slugify = (text: string) =>
   slugifyLib(text, { lower: true, strict: true })
@@ -176,7 +177,7 @@ const invokedDirectly = (() => {
 })()
 
 if (invokedDirectly) {
-  const prisma = new PrismaClient()
+  const prisma = createSeedPrismaClient()
   seedUseCases(prisma)
     .catch((e) => {
       console.error(e)

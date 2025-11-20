@@ -52,7 +52,8 @@ export async function listMyFeedback(
     take: pageSize,
   })
 
-  return rows.map((row) => ({
+  type FeedbackRow = (typeof rows)[number]
+  return rows.map((row: FeedbackRow) => ({
     id: row.id,
     subject: row.subject,
     message: row.message,

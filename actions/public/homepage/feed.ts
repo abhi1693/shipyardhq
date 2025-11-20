@@ -217,7 +217,8 @@ async function resolveUpvotedProductIds(
     },
   })
 
-  return new Set(votes.map((vote) => vote.productId))
+  type Vote = (typeof votes)[number]
+  return new Set(votes.map((vote: Vote) => vote.productId))
 }
 
 async function buildFeedItemsFromProducts(

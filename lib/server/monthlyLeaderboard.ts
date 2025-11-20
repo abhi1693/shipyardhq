@@ -163,12 +163,17 @@ export async function generateMonthlyLeaderboard(
     select: { productId: true, upvotes: true },
   })
   const analyticsMap = new Map(
-    analytics.map((item) => [item.productId, item.upvotes ?? 0]),
+    analytics.map(
+      (item: (typeof analytics)[number]) => [
+        item.productId,
+        item.upvotes ?? 0,
+      ],
+    ),
   )
 
   const rankings = grouped.map((entry, index) => {
-    const monthlyUpvotes = entry._count?.productId ?? 0
-    const totalUpvotes = analyticsMap.get(entry.productId) ?? 0
+    const monthlyUpvotes = Number(entry._count?.productId ?? 0)
+    const totalUpvotes = Number(analyticsMap.get(entry.productId) ?? 0)
     const score = monthlyUpvotes * 100 + totalUpvotes
 
     return {
@@ -179,7 +184,7 @@ export async function generateMonthlyLeaderboard(
     }
   })
 
-  const createdCount = await prisma.$transaction(async (tx) => {
+  const createdCount = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     await tx.monthlyProductRanking.deleteMany({ where: { month: monthStart } })
     const createResult = await tx.monthlyProductRanking.createMany({
       data: rankings.map((ranking) => ({
@@ -393,7 +398,10 @@ export async function notifyMonthlyWinners(
   })
 
   const productMap = new Map<string, WinnerProduct>(
-    products.map((product) => [product.id, product as WinnerProduct]),
+    products.map((product: (typeof products)[number]) => [
+      product.id,
+      product as WinnerProduct,
+    ]),
   )
   const leaderboardUrl = getLeaderboardUrl(result.monthKey)
   const monthLabel = monthLabelFormatter.format(result.month)

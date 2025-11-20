@@ -56,8 +56,12 @@ export async function getNewsletterSubscribers(
     }
 
     const normalizedEmails = subscriptions
-      .map((entry) => entry.email?.trim().toLowerCase())
-      .filter((value): value is string => Boolean(value))
+      .map((entry: { email?: string | null }) =>
+        entry.email?.trim().toLowerCase(),
+      )
+      .filter(
+        (value: string | undefined | null): value is string => Boolean(value),
+      )
 
     const uniqueEmails = Array.from(new Set(normalizedEmails))
 
@@ -72,11 +76,16 @@ export async function getNewsletterSubscribers(
         })
       : []
 
+    type NewsletterUser = (typeof users)[number]
     const userMap = new Map(
-      users.map((user) => [user.email.trim().toLowerCase(), user]),
+      users.map((user: NewsletterUser) => [
+        user.email.trim().toLowerCase(),
+        user,
+      ]),
     )
 
-    return subscriptions.map((subscription) => ({
+    type Subscription = (typeof subscriptions)[number]
+    return subscriptions.map((subscription: Subscription) => ({
       ...subscription,
       user: userMap.get(subscription.email.trim().toLowerCase()) ?? null,
     }))

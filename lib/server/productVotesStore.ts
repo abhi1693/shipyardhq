@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+import { Prisma } from "@/lib/vendor/prisma/client"
 import {
   dispatchEventAsync,
   type AppEvents,
@@ -74,7 +75,7 @@ async function mutateVote({
 }): Promise<VoteMutationResult> {
   let createdEvent: ProductUpvotedEvent | null = null
 
-  const mutation = await prisma.$transaction(async (tx) => {
+  const mutation = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const existing = await tx.productUpvote.findUnique({
       where: { productId_userId: { productId, userId } },
       select: { id: true, createdAt: true },

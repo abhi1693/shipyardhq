@@ -11,7 +11,7 @@ import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { Switch } from "@/components/atoms/switch"
 import { adminPath } from "@/lib/routes"
-import { RewardCatalogItem } from "@/lib/vendor/prisma/client"
+import type { RewardCatalogItem } from "@/lib/vendor/prisma/client"
 
 function CatalogActiveToggle({ item }: { item: RewardCatalogItem }) {
   const [isPending, startTransition] = useTransition()

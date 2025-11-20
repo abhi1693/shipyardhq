@@ -47,7 +47,7 @@ export async function UsersIndexPageContent() {
   ])
 
   const makersWithAvatars: MakerWithAvatar[] = await Promise.all(
-    users.map(async (maker) => {
+    users.map(async (maker: (typeof users)[number]) => {
       let avatarUrl: string | null = null
       if (maker.clerkId) {
         try {

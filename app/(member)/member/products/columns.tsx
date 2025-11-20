@@ -4,7 +4,7 @@ import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { BarChart3, Megaphone, Pencil, Trash2 } from "lucide-react"
 
-import {
+import type {
   Product,
   ProductAnalytics,
   ProductVerification,

@@ -100,11 +100,13 @@ export default async function EventsPage({
 
   const pageCount = Math.max(Math.ceil(total / effectivePageSize), 1)
 
-  const rows: EventEnvelopeTableRow[] = items.map((item) => ({
-    ...item,
-    enqueuedAt: item.enqueuedAt,
-    updatedAt: item.updatedAt,
-  }))
+  const rows: EventEnvelopeTableRow[] = items.map(
+    (item: (typeof items)[number]) => ({
+      ...item,
+      enqueuedAt: item.enqueuedAt,
+      updatedAt: item.updatedAt,
+    }),
+  )
 
   return (
     <ListPageWrapper

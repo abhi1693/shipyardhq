@@ -34,7 +34,7 @@ import { Separator } from "@/components/atoms/separator"
 
 import PageContainer from "@/components/layout/page-container"
 import { updatePlanAction } from "@/actions/admin/plans/actions"
-import { Plan } from "@/lib/vendor/prisma/client"
+import type { Plan } from "@/lib/vendor/prisma/client"
 import { adminPath } from "@/lib/routes"
 
 const planFormSchema = z

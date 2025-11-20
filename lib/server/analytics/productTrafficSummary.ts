@@ -1317,7 +1317,7 @@ export async function getOrganizationTrafficSummary(
       where: { organizationId },
       select: { id: true },
     })
-    productIds = rows.map((row) => row.id)
+    productIds = rows.map((row: (typeof rows)[number]) => row.id)
   }
 
   const includeProductBreakdown = restOptions.includeProductBreakdown ?? true

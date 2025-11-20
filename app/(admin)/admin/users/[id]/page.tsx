@@ -140,10 +140,11 @@ export default async function ViewUserPage({
   if (!user) return notFound()
 
   const rewardTransactionRows: UserRewardTransactionRow[] =
-    rewardTransactions.map((transaction) => ({
-      id: transaction.id,
-      type: transaction.type,
-      rewardAmount: transaction.rewardAmount,
+    rewardTransactions.map(
+      (transaction: (typeof rewardTransactions)[number]) => ({
+        id: transaction.id,
+        type: transaction.type,
+        rewardAmount: transaction.rewardAmount,
       balanceAfter: transaction.balanceAfter,
       notes: transaction.notes,
       eventId: transaction.eventId,
@@ -161,14 +162,15 @@ export default async function ViewUserPage({
             name: transaction.catalogItem.name,
           }
         : null,
-      redemption: transaction.redemption
-        ? {
-            id: transaction.redemption.id,
-            status: transaction.redemption.status,
-            featureKey: transaction.redemption.featureKey,
-          }
-        : null,
-    }))
+        redemption: transaction.redemption
+          ? {
+              id: transaction.redemption.id,
+              status: transaction.redemption.status,
+              featureKey: transaction.redemption.featureKey,
+            }
+          : null,
+      }),
+    )
 
   const rewardTransactionPageCount = Math.max(
     Math.ceil(rewardTransactionsTotal / pageSize),

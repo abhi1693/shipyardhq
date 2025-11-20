@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import {
+  Prisma,
   PaymentConnectorProvider,
   PaymentConnectorStatus,
   PaymentCredentialStatus,
@@ -118,7 +119,7 @@ export async function upsertPaymentConnector({
   const keyHint = buildConnectorKeyHint(apiKey)
   const normalizedConfig = config ? (config as object) : undefined
 
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const connector = await tx.paymentConnector.upsert({
       where: { productId },
       update: {

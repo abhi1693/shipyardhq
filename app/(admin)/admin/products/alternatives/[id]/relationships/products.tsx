@@ -5,7 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { Relationship } from "@/components/molecules/Relationship"
 import { formatDate, linkify } from "@/lib/ui/formatters"
 import { adminPath } from "@/lib/routes"
-import { Prisma } from "@/lib/vendor/prisma/client"
+import type { Prisma } from "@/lib/vendor/prisma/client"
 
 export type ProductWithCategory = Prisma.ProductGetPayload<{
   include: { category: true }

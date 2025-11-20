@@ -192,7 +192,7 @@ export const getStickyBannerProducts = cached(
     )
 
     const remaining = Math.max(effectiveLimit - scheduledIds.length, 0)
-    const scheduledIdValues = scheduledIds.map((entry) => entry.id)
+    const scheduledIdValues = scheduledIds.map((entry: { id: string }) => entry.id)
 
     const exclusionClause =
       scheduledIdValues.length > 0
@@ -227,14 +227,14 @@ export const getStickyBannerProducts = cached(
 
     const combinedIds = [
       ...scheduledIdValues,
-      ...planIds.map((entry) => entry.id),
+      ...planIds.map((entry: { id: string }) => entry.id),
     ]
 
     if (!combinedIds.length) {
       return null
     }
 
-    const products = await prisma.product.findMany({
+    const products: SponsoredProduct[] = await prisma.product.findMany({
       where: {
         id: {
           in: combinedIds,
@@ -249,12 +249,16 @@ export const getStickyBannerProducts = cached(
       },
     })
 
-    const productMap = new Map(products.map((product) => [product.id, product]))
+    type FeaturedProductRecord = (typeof products)[number]
+    const productMap = new Map<string, FeaturedProductRecord>()
+    for (const product of products) {
+      productMap.set(product.id, product)
+    }
     const ordered: typeof products = []
     const seen = new Set<string>()
 
     for (const id of combinedIds) {
-      const product = productMap.get(id)
+      const product = productMap.get(id) as SponsoredProduct | undefined
       if (!product || seen.has(id)) {
         continue
       }
@@ -337,7 +341,9 @@ export const getSponsoredProducts = cached(
       `,
     )
 
-    const scheduledProductIds = scheduledRows.map((row) => row.productId)
+    const scheduledProductIds = scheduledRows.map(
+      (row: { productId: string }) => row.productId,
+    )
     const remaining = Math.max(effectiveLimit - scheduledRows.length, 0)
 
     const exclusionClause =
@@ -374,7 +380,7 @@ export const getSponsoredProducts = cached(
 
     const productIds = [
       ...scheduledProductIds,
-      ...planRows.map((row) => row.id),
+      ...planRows.map((row: { id: string }) => row.id),
     ]
 
     if (!productIds.length) {
@@ -396,12 +402,19 @@ export const getSponsoredProducts = cached(
       },
     })
 
-    const productMap = new Map(products.map((product) => [product.id, product]))
+    const productMap = new Map(
+      products.map((product: (typeof products)[number]) => [
+        product.id,
+        product,
+      ]),
+    )
     const placements: SponsoredProductPlacement[] = []
     const seen = new Set<string>()
 
     for (const row of scheduledRows) {
-      const product = productMap.get(row.productId)
+      const product = productMap.get(row.productId) as
+        | SponsoredProduct
+        | undefined
       if (!product || seen.has(product.id)) continue
       seen.add(product.id)
       placements.push({
@@ -421,7 +434,9 @@ export const getSponsoredProducts = cached(
 
     if (placements.length < effectiveLimit) {
       for (const planRow of planRows) {
-        const product = productMap.get(planRow.id)
+        const product = productMap.get(planRow.id) as
+          | SponsoredProduct
+          | undefined
         if (!product || seen.has(product.id)) continue
         seen.add(product.id)
         placements.push({

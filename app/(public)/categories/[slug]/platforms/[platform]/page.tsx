@@ -87,9 +87,12 @@ const buildSearchParams = (params: CategoryPlatformSearchParams) => {
 
 export async function generateStaticParams() {
   const categories = await getCategoriesWithCounts()
+  type CategorySummary = (typeof categories)[number]
   return categories
-    .filter((category) => category.slug && category.count > 0)
-    .flatMap((category) =>
+    .filter(
+      (category: CategorySummary) => category.slug && category.count > 0,
+    )
+    .flatMap((category: CategorySummary) =>
       PLATFORM_SLUGS.map((platform) => ({
         slug: category.slug,
         platform,
