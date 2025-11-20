@@ -56,15 +56,17 @@ const getViewerProductState = cache(
 
 export async function ProductUpvoteBadgeServer({
   productId,
+  productSlug,
   upvoteCount,
 }: {
   productId: string
+  productSlug: string
   upvoteCount: number
 }) {
   const { viewerUpvoted } = await getViewerProductState(productId)
   return (
     <ProductUpvoteBadge
-      productId={productId}
+      productSlug={productSlug}
       count={upvoteCount}
       initialUpvoted={viewerUpvoted}
     />

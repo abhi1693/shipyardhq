@@ -8,7 +8,7 @@ import SignInButton from "@/components/molecules/SignInButton"
 import { cn } from "@/lib/utils"
 
 interface ProductUpvoteBadgeProps {
-  productId: string
+  productSlug: string
   count: number
   initialUpvoted: boolean
 }
@@ -16,7 +16,7 @@ interface ProductUpvoteBadgeProps {
 const formatter = new Intl.NumberFormat("en-US")
 
 export function ProductUpvoteBadge({
-  productId,
+  productSlug,
   count,
   initialUpvoted,
 }: ProductUpvoteBadgeProps) {
@@ -78,9 +78,12 @@ export function ProductUpvoteBadge({
     })
 
     try {
-      const response = await fetch(`/api/products/${productId}/upvote`, {
-        method: "POST",
-      })
+      const response = await fetch(
+        `/api/products/${encodeURIComponent(productSlug)}/upvote`,
+        {
+          method: "POST",
+        },
+      )
       const payload = (await response.json().catch(() => ({}))) as Partial<{
         upvotes: number
         upvoted: boolean
