@@ -93,14 +93,18 @@ export function PaymentConnectorCard({
       (opt) => opt.value === PaymentConnectorProviderEnum.dodo,
     )?.value
   const stripePrefix = IS_PROD ? "rk_live_" : "rk_test_"
-  const stripePlaceholder =
+  const apiKeyPlaceholder =
     selectedProvider === PaymentConnectorProviderEnum.stripe
       ? `${stripePrefix} restricted key`
-      : "Enter API secret key"
+      : selectedProvider === PaymentConnectorProviderEnum.polar
+        ? "polar_oat_... organization access token"
+        : "Enter API secret key"
   const showStripeAccount =
     selectedProvider === PaymentConnectorProviderEnum.stripe
   const showStripePermissions =
     selectedProvider === PaymentConnectorProviderEnum.stripe
+  const showPolarPermissions =
+    selectedProvider === PaymentConnectorProviderEnum.polar
 
   return (
     <div className="space-y-4">
@@ -151,7 +155,7 @@ export function PaymentConnectorCard({
         <Input
           id="connector-key"
           type="password"
-          placeholder={stripePlaceholder}
+          placeholder={apiKeyPlaceholder}
           value={apiKey || ""}
           onChange={(e) =>
             onChange?.({
@@ -177,17 +181,36 @@ export function PaymentConnectorCard({
             <span className="font-mono">{stripePrefix}</span> for this
             environment.
           </p>
+        ) : selectedProvider === PaymentConnectorProviderEnum.polar ? (
+          <p className="text-xs text-muted-foreground">
+            Use a Polar organization access token starting with{" "}
+            <span className="font-mono">polar_oat_</span> that can read your
+            organizations, orders, and subscriptions.
+          </p>
         ) : null}
       </div>
 
-      {showStripePermissions ? (
+      {showStripePermissions || showPolarPermissions ? (
         <div className="rounded-md border border-dashed border-border bg-muted/40 p-3">
           <p className="text-xs font-semibold text-foreground">
-            Stripe key permissions needed
+            {showStripePermissions
+              ? "Stripe key permissions needed"
+              : "Polar token permissions needed"}
           </p>
           <ul className="mt-1 list-disc pl-4 text-xs text-muted-foreground">
-            <li>Charges: Read</li>
-            <li>Subscriptions: Read</li>
+            {showStripePermissions ? (
+              <>
+                <li>Charges: Read</li>
+                <li>Subscriptions: Read</li>
+              </>
+            ) : null}
+            {showPolarPermissions ? (
+              <>
+                <li>Organizations: Read</li>
+                <li>Orders: Read</li>
+                <li>Subscriptions: Read</li>
+              </>
+            ) : null}
           </ul>
         </div>
       ) : null}
