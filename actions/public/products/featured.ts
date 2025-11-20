@@ -250,15 +250,14 @@ export const getStickyBannerProducts = cached(
     })
 
     type FeaturedProductRecord = (typeof products)[number]
-    const productMap = new Map<string, FeaturedProductRecord>()
-    for (const product of products) {
-      productMap.set(product.id, product)
-    }
+    const productMap: Map<string, FeaturedProductRecord> = new Map(
+      products.map((product) => [product.id, product]),
+    )
     const ordered: typeof products = []
     const seen = new Set<string>()
 
     for (const id of combinedIds) {
-      const product = productMap.get(id) as SponsoredProduct | undefined
+      const product = productMap.get(id)
       if (!product || seen.has(id)) {
         continue
       }
