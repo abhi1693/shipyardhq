@@ -8,8 +8,9 @@ import {
   RewardRuleCategory,
 } from "@/lib/vendor/prisma/client"
 import { REWARD_FEATURE_KEY } from "@/lib/rewards/constants"
+import { createSeedPrismaClient } from "./seedClient"
 
-const prisma = new PrismaClient()
+const prisma = createSeedPrismaClient()
 
 const DAY = 86_400
 

@@ -48,7 +48,7 @@ export async function GET(
     take: CHUNK_SIZE,
   })
 
-  const productIds = products.map((p) => p.id)
+  const productIds = products.map((p: (typeof products)[number]) => p.id)
   const updatesByProduct = await prisma.productUpdate.groupBy({
     by: ["productId"],
     where: {

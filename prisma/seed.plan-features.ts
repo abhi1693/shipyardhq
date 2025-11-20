@@ -2,6 +2,7 @@ import path from "node:path"
 import { pathToFileURL } from "node:url"
 
 import { PrismaClient } from "@/lib/vendor/prisma/client"
+import { createSeedPrismaClient } from "./seedClient"
 
 // Prod-safe, idempotent PlanFeature seeding
 const FEATURES = [
@@ -95,7 +96,7 @@ const invokedDirectly = (() => {
 })()
 
 if (invokedDirectly) {
-  const prisma = new PrismaClient()
+  const prisma = createSeedPrismaClient()
   seedPlanFeatures(prisma)
     .catch((e) => {
       console.error(e)

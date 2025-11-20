@@ -4,8 +4,10 @@ const RATES_TTL_SECONDS = 24 * 60 * 60 // 1 day
 const RATES_ENDPOINT =
   process.env.USD_RATES_URL || "https://open.er-api.com/v6/latest/USD"
 const RATES_CACHE_KEY = buildCacheKey("payments", "usd-rates")
+const IN_PROCESS_TTL_MS = 5 * 60 * 1000
 
 type RateMap = Map<string, number>
+let memoizedRates: { rates: RateMap; fetchedAt: number } | null = null
 
 function mapFromObject(objectRates?: Record<string, number>): RateMap {
   if (!objectRates) return new Map<string, number>()
@@ -40,6 +42,11 @@ async function fetchUsdRates(): Promise<RateMap> {
 }
 
 export async function getUsdConversionRates(): Promise<RateMap> {
+  const now = Date.now()
+  if (memoizedRates && now - memoizedRates.fetchedAt < IN_PROCESS_TTL_MS) {
+    return memoizedRates.rates
+  }
+
   const cached = await cacheHit<Record<string, number>>({
     key: RATES_CACHE_KEY,
   }).catch(() => null)
@@ -47,10 +54,13 @@ export async function getUsdConversionRates(): Promise<RateMap> {
   if (cached) {
     const rates = mapFromObject(cached)
     if (!rates.has("USD")) rates.set("USD", 1)
+    memoizedRates = { rates, fetchedAt: now }
     return rates
   }
 
-  return fetchUsdRates()
+  const rates = await fetchUsdRates()
+  memoizedRates = { rates, fetchedAt: now }
+  return rates
 }
 
 export function convertToUsdCents(

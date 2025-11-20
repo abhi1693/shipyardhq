@@ -68,6 +68,8 @@ function toDigestProduct(row: {
   }
 }
 
+type DigestProductRow = Parameters<typeof toDigestProduct>[0]
+
 function collectUniqueProducts<T>(
   rows: T[],
   mapProduct: (row: T) => ReturnType<typeof toDigestProduct> | null,
@@ -139,7 +141,7 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
     },
   })) as unknown as FeaturedBadgeRow[]
 
-  const trendingRows = await prisma.product.findMany({
+  const trendingRows: DigestProductRow[] = await prisma.product.findMany({
     where: {
       status: "published",
       publishedAt: { gte: subtractDays(now, 30) },
@@ -155,7 +157,7 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
     },
   })
 
-  const freshRows = await prisma.product.findMany({
+  const freshRows: DigestProductRow[] = await prisma.product.findMany({
     where: {
       status: "published",
       publishedAt: { gte: subtractDays(now, LOOKBACK_DAYS) },

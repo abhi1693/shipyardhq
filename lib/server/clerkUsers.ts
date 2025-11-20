@@ -2,6 +2,7 @@ import type { User as ClerkUser } from "@clerk/backend"
 import { clerkClient } from "@clerk/nextjs/server"
 import { cacheHit, cacheMiss } from "@/lib/server/cache"
 const DEFAULT_TTL_SECONDS = 300
+const IN_PROCESS_TTL_MS = 5 * 60 * 1000
 
 function resolveTtl(): number {
   const raw = process.env.CLERK_USER_CACHE_TTL_SECONDS
@@ -26,6 +27,7 @@ export async function getClerkUserByIdCached(
 
   const cachedUser = await cacheHit<ClerkUser>({
     key: ["clerk", "user", clerkId],
+    inProcessTtlMs: IN_PROCESS_TTL_MS,
     onError: (error) => {
       console.error("Failed to read Clerk user from Redis cache", {
         clerkId,
@@ -45,6 +47,7 @@ export async function getClerkUserByIdCached(
     key: ["clerk", "user", clerkId],
     value: clerkUser,
     ttlSeconds: resolveTtl(),
+    inProcessTtlMs: IN_PROCESS_TTL_MS,
     onError: (error) => {
       console.error("Failed to write Clerk user to Redis cache", {
         clerkId,

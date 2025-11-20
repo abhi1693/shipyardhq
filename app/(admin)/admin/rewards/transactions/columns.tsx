@@ -6,7 +6,7 @@ import { formatDistanceToNow } from "date-fns"
 import { Badge } from "@/components/atoms/badge"
 import { adminPath } from "@/lib/routes"
 import { linkify } from "@/lib/ui/formatters"
-import {
+import type {
   RewardTransactionType,
   RedemptionStatus,
 } from "@/lib/vendor/prisma/client"

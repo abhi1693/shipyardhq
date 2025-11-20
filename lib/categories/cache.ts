@@ -22,7 +22,8 @@ export const getCategoriesPagePayload = cached(
       getTopCategories(HIGHLIGHT_CATEGORY_LIMIT),
     ])
     const totalProducts = categories.reduce(
-      (sum, category) => sum + (category.count ?? 0),
+      (sum: number, category: (typeof categories)[number]) =>
+        sum + (category.count ?? 0),
       0,
     )
     const categoryCount = categories.length
@@ -31,7 +32,7 @@ export const getCategoriesPagePayload = cached(
         ? Math.max(1, Math.round(totalProducts / categoryCount))
         : 0
     const highlightCategories: CategoriesWithCounts = highlightSource.map(
-      (category) => ({
+      (category: (typeof highlightSource)[number]) => ({
         id: category.id,
         name: category.name,
         slug: category.slug,

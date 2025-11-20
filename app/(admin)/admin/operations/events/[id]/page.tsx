@@ -78,7 +78,11 @@ export default async function EventEnvelopePage({
     {
       label: "Status",
       value: (
-        <Badge variant={statusVariantMap[envelope.status]}>
+        <Badge
+          variant={
+            statusVariantMap[envelope.status as EventEnvelopeStatus]
+          }
+        >
           {envelope.status.replace(/_/g, " ")}
         </Badge>
       ),
@@ -148,7 +152,7 @@ export default async function EventEnvelopePage({
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
             <div className="flex flex-wrap gap-2">
-              {envelope.asyncHandlers.map((handler) => {
+              {envelope.asyncHandlers.map((handler: string) => {
                 const isPending = envelope.pendingHandlers.includes(handler)
                 return (
                   <Badge
@@ -192,7 +196,7 @@ export default async function EventEnvelopePage({
             </p>
           ) : (
             <div className="space-y-3 text-sm">
-              {envelope.attemptsLog.map((attempt) => (
+              {envelope.attemptsLog.map((attempt: AttemptLogEntry) => (
                 <div
                   key={attempt.id}
                   className="rounded-lg border border-slate-200/70 bg-white/80 p-3"
@@ -247,4 +251,13 @@ export default async function EventEnvelopePage({
       relationships={relationships}
     />
   )
+}
+type AttemptLogEntry = {
+  id: string
+  handler: string
+  status: EventAttemptStatus
+  durationMs: number | null
+  error: string | null
+  createdAt: Date
+  attempt: number
 }

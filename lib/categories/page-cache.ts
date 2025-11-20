@@ -35,8 +35,9 @@ export type CategoryDetailPayload = {
 
 const serializeBadges = (product: CategoryProduct): string[] =>
   product.ProductBadge?.filter(
-    (badge) => !badge.expiresAt || new Date(badge.expiresAt) > new Date(),
-  ).map((badge) => badge.badge) ?? []
+    (badge: CategoryProduct["ProductBadge"][number]) =>
+      !badge.expiresAt || new Date(badge.expiresAt) > new Date(),
+  ).map((badge: CategoryProduct["ProductBadge"][number]) => badge.badge) ?? []
 
 const serializeProduct = (product: CategoryProduct) => ({
   ...product,
@@ -122,8 +123,11 @@ export const getCategoryStaticParams = cached(
   async () => {
     const categories = await getCategoriesWithCounts()
     return categories
-      .filter((category) => category.slug && category.count > 0)
-      .map((category) => ({
+      .filter(
+        (category: (typeof categories)[number]) =>
+          category.slug && category.count > 0,
+      )
+      .map((category: (typeof categories)[number]) => ({
         slug: category.slug,
       }))
   },

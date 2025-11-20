@@ -183,7 +183,7 @@ export async function getProductReviewsForDigest(since: Date, until: Date) {
     },
   })
 
-  return rows.map((row) => ({
+  return rows.map((row: (typeof rows)[number]) => ({
     id: row.id,
     rating: row.rating,
     message: row.message,

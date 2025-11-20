@@ -13,6 +13,7 @@ import {
 } from "@/lib/vendor/prisma/client"
 import { PRICING_PATH } from "@/lib/routes"
 import { loadEnvConfig } from "@next/env"
+import { createSeedPrismaClient } from "./seedClient"
 import {
   addDays,
   addHours,
@@ -36,9 +37,9 @@ import { seedPlans } from "./seed.plans"
 import { seedRewards } from "./seed.rewards"
 import { seedUseCases } from "./seed.use-cases"
 
-const prisma = new PrismaClient()
-
 loadEnvConfig(process.cwd())
+
+const prisma = createSeedPrismaClient()
 
 type ProductSeed = {
   slug: string

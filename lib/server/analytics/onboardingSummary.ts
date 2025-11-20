@@ -451,8 +451,8 @@ export async function getOnboardingAnswersSummary(
     .sort((a, b) => b.total - a.total)
 
   const completedUserIds = completedMembers
-    .map((member) => member.id)
-    .filter((id): id is string => Boolean(id))
+    .map((member: (typeof completedMembers)[number]) => member.id)
+    .filter((id: string | null | undefined): id is string => Boolean(id))
 
   let productOwnerRows: DistinctUserSelection[] = []
   let upvoteRows: DistinctUserSelection[] = []

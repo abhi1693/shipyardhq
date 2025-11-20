@@ -207,17 +207,20 @@ export async function getUseCasesWithCounts() {
       },
     })
 
+    type UseCaseWithRelations = (typeof useCases)[number]
+    type UseCaseCategoryRelation = UseCaseWithRelations["categories"][number]
+
     return useCases
-      .map((uc) => ({
+      .map((uc: UseCaseWithRelations) => ({
         id: uc.id,
         slug: uc.slug,
         label: uc.label,
-        productCount: uc.categories.reduce((total, relation) => {
+        productCount: uc.categories.reduce((total: number, relation: UseCaseCategoryRelation) => {
           const count = relation.category?._count?.products ?? 0
           return total + count
         }, 0),
       }))
-      .filter((uc) => uc.productCount > 0)
+      .filter((uc: { productCount: number }) => uc.productCount > 0)
   } catch (error) {
     console.error("Error fetching use cases with counts:", error)
     throw new Error("Failed to fetch use cases with counts")

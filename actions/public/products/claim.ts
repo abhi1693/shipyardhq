@@ -16,6 +16,7 @@ import {
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
 import { APP_EVENTS } from "@/lib/server/events/constants"
+import type { Prisma } from "@/lib/vendor/prisma/client"
 
 type ClaimOutcome = { success: true; slug: string } | { error: string }
 
@@ -100,7 +101,7 @@ export async function claimProductAction(
   const previousOwnerId = product.userId
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const updated = await tx.product.updateMany({
         where: { id: productId, userId: previousOwnerId },
         data: { userId: claimant.id },

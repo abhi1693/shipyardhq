@@ -146,10 +146,15 @@ export async function GET() {
       }),
     ),
   ])
+  type ProductTypeSlice = {
+    slug: ProductTypeSlug
+    lastmod: Date
+  }
 
+  type CategorySummary = (typeof categories)[number]
   const categoryPlatformSlices = (
     await Promise.all(
-      categories.map(async (category) => {
+      categories.map(async (category: CategorySummary) => {
         const perPlatform = await Promise.all(
           PLATFORM_SLUGS.map(async (platformSlug) => {
             const platformValue = platformValueFromSlug(platformSlug)
@@ -182,10 +187,15 @@ export async function GET() {
       }),
     )
   ).flat()
+  type CategoryPlatformSlice = {
+    categorySlug: string
+    platform: PlatformSlug
+    lastmod: Date
+  }
 
   const categoryPricingSlices = (
     await Promise.all(
-      categories.map(async (category) => {
+      categories.map(async (category: CategorySummary) => {
         const perPricing = await Promise.all(
           PRICING_MODEL_SLUGS.map(async (pricingModel) => {
             const meta = getPricingModelMeta(pricingModel)
@@ -219,6 +229,11 @@ export async function GET() {
       }),
     )
   ).flat()
+  type CategoryPricingSlice = {
+    categorySlug: string
+    pricingModel: PricingModelSlug
+    lastmod: Date
+  }
 
   const urls = [
     ...staticPaths.map((path) => {
@@ -294,10 +309,11 @@ export async function GET() {
     }),
     ...platformSlices
       .filter(
-        (entry): entry is { slug: PlatformSlug; lastmod: Date } =>
-          entry !== null,
+        (
+          entry: { slug: PlatformSlug; lastmod: Date } | null,
+        ): entry is { slug: PlatformSlug; lastmod: Date } => entry !== null,
       )
-      .map((entry) => {
+      .map((entry: { slug: PlatformSlug; lastmod: Date }) => {
         const days = Math.floor(
           (now.getTime() - entry.lastmod.getTime()) / 86400000,
         )
@@ -315,10 +331,11 @@ export async function GET() {
       }),
     ...pricingModelSlices
       .filter(
-        (entry): entry is { slug: PricingModelSlug; lastmod: Date } =>
-          entry !== null,
+        (
+          entry: { slug: PricingModelSlug; lastmod: Date } | null,
+        ): entry is { slug: PricingModelSlug; lastmod: Date } => entry !== null,
       )
-      .map((entry) => {
+      .map((entry: { slug: PricingModelSlug; lastmod: Date }) => {
         const days = Math.floor(
           (now.getTime() - entry.lastmod.getTime()) / 86400000,
         )
@@ -334,7 +351,7 @@ export async function GET() {
           </url>
         `
       }),
-    ...categoryPlatformSlices.map((entry) => {
+    ...categoryPlatformSlices.map((entry: CategoryPlatformSlice) => {
       const days = Math.floor(
         (now.getTime() - entry.lastmod.getTime()) / 86400000,
       )
@@ -349,7 +366,7 @@ export async function GET() {
         </url>
       `
     }),
-    ...categoryPricingSlices.map((entry) => {
+    ...categoryPricingSlices.map((entry: CategoryPricingSlice) => {
       const days = Math.floor(
         (now.getTime() - entry.lastmod.getTime()) / 86400000,
       )
@@ -366,10 +383,11 @@ export async function GET() {
     }),
     ...productTypeSlices
       .filter(
-        (entry): entry is { slug: ProductTypeSlug; lastmod: Date } =>
-          entry !== null,
+        (
+          entry: ProductTypeSlice | null,
+        ): entry is ProductTypeSlice => entry !== null,
       )
-      .map((entry) => {
+      .map((entry: ProductTypeSlice) => {
         const days = Math.floor(
           (now.getTime() - entry.lastmod.getTime()) / 86400000,
         )
@@ -402,8 +420,8 @@ export async function GET() {
         `
     }),
     ...useCases
-      .filter((useCase) => useCase.productCount > 0)
-      .map((useCase) => {
+      .filter((useCase: (typeof useCases)[number]) => useCase.productCount > 0)
+      .map((useCase: (typeof useCases)[number]) => {
         const last = useCase.updatedAt || now
         const days = Math.floor(
           (now.getTime() - new Date(last).getTime()) / 86400000,

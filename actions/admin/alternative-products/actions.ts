@@ -251,10 +251,10 @@ export async function updateAlternativeProductAction(
       ? await generateUniqueAlternativeSlug(name, id)
       : existing.slug
 
-    const previousProductIds = new Set(
-      (existing.products ?? []).map((product) => product.id),
+    const previousProductIds = new Set<string>(
+      (existing.products ?? []).map((product: { id: string }) => product.id),
     )
-    const nextProductIds = new Set(data.productIds)
+    const nextProductIds = new Set<string>(data.productIds)
 
     await prisma.alternativeProduct.update({
       where: { id },

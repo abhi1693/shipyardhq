@@ -47,12 +47,18 @@ import {
   type MemberRewardsSnapshot,
   type RedeemFormState,
 } from "@/actions/member/rewards/types"
-import {
+import type {
   FeatureEntitlementStatus,
   RewardTransactionType,
   RedemptionStatus,
   RewardFeatureCategory,
-} from "@/lib/vendor/prisma/client"
+} from "@/lib/vendor/prisma/client/enums"
+import {
+  FeatureEntitlementStatus as FeatureEntitlementStatusEnum,
+  RewardTransactionType as RewardTransactionTypeEnum,
+  RedemptionStatus as RedemptionStatusEnum,
+  RewardFeatureCategory as RewardFeatureCategoryEnum,
+} from "@/lib/vendor/prisma/client/enums"
 import {
   MEMBER_PRODUCTS_PATH,
   REWARDS_PATH,
@@ -67,37 +73,37 @@ type CatalogItem = MemberRewardsSnapshot["catalog"][number]
 type ProductOption = MemberRewardsSnapshot["productOptions"][number]
 
 const categoryLabels: Record<RewardFeatureCategory, string> = {
-  [RewardFeatureCategory.placement]: "Placement",
-  [RewardFeatureCategory.analytics]: "Analytics",
-  [RewardFeatureCategory.insights]: "Insights",
-  [RewardFeatureCategory.access]: "Access",
-  [RewardFeatureCategory.exposure]: "Exposure",
-  [RewardFeatureCategory.utility]: "Utility",
+  [RewardFeatureCategoryEnum.placement]: "Placement",
+  [RewardFeatureCategoryEnum.analytics]: "Analytics",
+  [RewardFeatureCategoryEnum.insights]: "Insights",
+  [RewardFeatureCategoryEnum.access]: "Access",
+  [RewardFeatureCategoryEnum.exposure]: "Exposure",
+  [RewardFeatureCategoryEnum.utility]: "Utility",
 }
 
 const transactionTypeLabels: Record<RewardTransactionType, string> = {
-  [RewardTransactionType.earn]: "Earned",
-  [RewardTransactionType.spend]: "Redeemed",
-  [RewardTransactionType.adjustment]: "Adjusted",
-  [RewardTransactionType.refund]: "Refunded",
+  [RewardTransactionTypeEnum.earn]: "Earned",
+  [RewardTransactionTypeEnum.spend]: "Redeemed",
+  [RewardTransactionTypeEnum.adjustment]: "Adjusted",
+  [RewardTransactionTypeEnum.refund]: "Refunded",
 }
 
 const entitlementStatusTone: Record<FeatureEntitlementStatus, string> = {
-  [FeatureEntitlementStatus.active]: "text-emerald-600",
-  [FeatureEntitlementStatus.pending]: "text-amber-600",
-  [FeatureEntitlementStatus.paused]: "text-slate-500",
-  [FeatureEntitlementStatus.expired]: "text-slate-400",
-  [FeatureEntitlementStatus.canceled]: "text-slate-500",
-  [FeatureEntitlementStatus.failed]: "text-rose-600",
+  [FeatureEntitlementStatusEnum.active]: "text-emerald-600",
+  [FeatureEntitlementStatusEnum.pending]: "text-amber-600",
+  [FeatureEntitlementStatusEnum.paused]: "text-slate-500",
+  [FeatureEntitlementStatusEnum.expired]: "text-slate-400",
+  [FeatureEntitlementStatusEnum.canceled]: "text-slate-500",
+  [FeatureEntitlementStatusEnum.failed]: "text-rose-600",
 }
 
 const redemptionStatusTone: Record<RedemptionStatus, string> = {
-  [RedemptionStatus.pending]: "text-amber-600",
-  [RedemptionStatus.active]: "text-emerald-600",
-  [RedemptionStatus.expired]: "text-slate-400",
-  [RedemptionStatus.canceled]: "text-slate-500",
-  [RedemptionStatus.failed]: "text-rose-600",
-  [RedemptionStatus.refunded]: "text-emerald-600",
+  [RedemptionStatusEnum.pending]: "text-amber-600",
+  [RedemptionStatusEnum.active]: "text-emerald-600",
+  [RedemptionStatusEnum.expired]: "text-slate-400",
+  [RedemptionStatusEnum.canceled]: "text-slate-500",
+  [RedemptionStatusEnum.failed]: "text-rose-600",
+  [RedemptionStatusEnum.refunded]: "text-emerald-600",
 }
 
 function formatNumber(value: number) {
@@ -624,13 +630,13 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                       {transactionTypeLabels[transaction.type]}
                     </TableCell>
                     <TableCell className="text-sm text-slate-600">
-                      {transaction.type === RewardTransactionType.earn
+                      {transaction.type === RewardTransactionTypeEnum.earn
                         ? (transaction.ruleName ??
                           transaction.ruleKey ??
                           "Earned")
-                        : transaction.type === RewardTransactionType.adjustment
+                        : transaction.type === RewardTransactionTypeEnum.adjustment
                           ? formatAdjustmentDetail(transaction)
-                          : transaction.type === RewardTransactionType.refund
+                          : transaction.type === RewardTransactionTypeEnum.refund
                             ? (transaction.rewardName ??
                               transaction.rewardKey ??
                               "Refunded")
@@ -642,13 +648,13 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                       className={cn(
                         "text-right text-sm font-semibold",
                         (() => {
-                          if (transaction.type === RewardTransactionType.earn)
+                          if (transaction.type === RewardTransactionTypeEnum.earn)
                             return "text-emerald-600"
-                          if (transaction.type === RewardTransactionType.refund)
+                          if (transaction.type === RewardTransactionTypeEnum.refund)
                             return "text-emerald-600"
                           if (
                             transaction.type ===
-                            RewardTransactionType.adjustment
+                            RewardTransactionTypeEnum.adjustment
                           ) {
                             const delta =
                               transaction.adjustmentAmount ??
@@ -662,12 +668,12 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                       )}
                     >
                       {(() => {
-                        if (transaction.type === RewardTransactionType.earn)
+                        if (transaction.type === RewardTransactionTypeEnum.earn)
                           return "+"
-                        if (transaction.type === RewardTransactionType.refund)
+                        if (transaction.type === RewardTransactionTypeEnum.refund)
                           return "+"
                         if (
-                          transaction.type === RewardTransactionType.adjustment
+                          transaction.type === RewardTransactionTypeEnum.adjustment
                         ) {
                           const delta =
                             transaction.adjustmentAmount ??

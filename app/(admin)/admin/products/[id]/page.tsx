@@ -137,7 +137,7 @@ export default async function ViewProductPage({
           label: "Alternatives",
           value: product.alternatives?.length
             ? commaSeparated(
-                product.alternatives.map((alt) =>
+                product.alternatives.map((alt: (typeof product.alternatives)[number]) =>
                   linkify({
                     href: adminPath("products", "alternatives", alt.id),
                     label: alt.name,
@@ -456,7 +456,7 @@ export default async function ViewProductPage({
                       className="border rounded-md px-3 py-2 text-sm w-full bg-transparent"
                     >
                       <option value="">No plan</option>
-                      {plans.map((p) => (
+                      {plans.map((p: (typeof plans)[number]) => (
                         <option key={p.id} value={p.id}>
                           {p.name}{" "}
                           {p.price ? `— $${(p.price / 100).toFixed(2)}` : ""}

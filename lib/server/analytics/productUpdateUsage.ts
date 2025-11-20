@@ -8,10 +8,9 @@ const MAX_TOP_PRODUCTS = 8
 const MAX_RECENT_ACTIVITY = 12
 const MAX_RANGE_DAYS = 180
 
-const PRODUCT_UPDATE_USAGE_ARGS =
-  Prisma.validator<Prisma.ProductUpdateFindManyArgs>()({
-    include: { product: { select: { id: true, name: true, slug: true } } },
-  })
+const PRODUCT_UPDATE_USAGE_ARGS = {
+  include: { product: { select: { id: true, name: true, slug: true } } },
+} satisfies Prisma.ProductUpdateFindManyArgs
 
 type ProductUpdateRangeRecord = Prisma.ProductUpdateGetPayload<
   typeof PRODUCT_UPDATE_USAGE_ARGS

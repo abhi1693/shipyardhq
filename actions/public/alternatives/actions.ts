@@ -9,24 +9,22 @@ import {
 } from "@/lib/products/selects"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 
-const ALTERNATIVE_CARD_INCLUDE =
-  Prisma.validator<Prisma.AlternativeProductInclude>()({
-    _count: {
-      select: {
-        products: true,
-      },
+const ALTERNATIVE_CARD_INCLUDE = {
+  _count: {
+    select: {
+      products: true,
     },
-  })
+  },
+} satisfies Prisma.AlternativeProductInclude
 
-const ALTERNATIVE_DETAIL_SELECT =
-  Prisma.validator<Prisma.AlternativeProductSelect>()({
-    id: true,
-    name: true,
-    slug: true,
-    description: true,
-    websiteUrl: true,
-    logoUrl: true,
-  })
+const ALTERNATIVE_DETAIL_SELECT = {
+  id: true,
+  name: true,
+  slug: true,
+  description: true,
+  websiteUrl: true,
+  logoUrl: true,
+} satisfies Prisma.AlternativeProductSelect
 
 export type AlternativeCatalogItem = Prisma.AlternativeProductGetPayload<{
   include: typeof ALTERNATIVE_CARD_INCLUDE

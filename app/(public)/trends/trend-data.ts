@@ -12,7 +12,8 @@ export async function fetchTrendRadarSnapshot(limit = 12) {
     getLeaderboardStats(),
   ])
 
-  const radarSourceCategories = topCategories.map((category) => ({
+  type TopCategory = (typeof topCategories)[number]
+  const radarSourceCategories = topCategories.map((category: TopCategory) => ({
     id: category.id,
     slug: category.slug,
     name: category.name,
@@ -20,7 +21,8 @@ export async function fetchTrendRadarSnapshot(limit = 12) {
     productCount: category._count.products,
   }))
 
-  const radarTrending = trendingProducts.map((entry) => ({
+  type TrendingEntry = (typeof trendingProducts)[number]
+  const radarTrending = trendingProducts.map((entry: TrendingEntry) => ({
     categoryName: entry.product.category?.name ?? null,
     upvotes: entry.product.analytics?.upvotes ?? null,
   }))

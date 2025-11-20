@@ -311,8 +311,9 @@ export async function getIntentOutcomeAnalytics(
   const cohorts = new Map<string, CohortAccumulator>()
   const globalStages = createStageState()
   const summaryRetentionCounts = createRetentionCounts()
-  const userMap = new Map(
-    users.map((user) => {
+  type UserEntry = (typeof users)[number] & { cohort: CohortAccumulator }
+  const userMap = new Map<string, UserEntry>(
+    users.map((user: (typeof users)[number]) => {
       const cohort = ensureCohort(cohorts, user.roleIntent, user.heardFrom)
       cohort.totalUsers += 1
       return [

@@ -90,7 +90,7 @@ export const getMonthlyLeaderboardMonths = cached(
       select: { month: true },
     })
 
-    return months.map(({ month }) => ({
+    return months.map(({ month }: { month: Date }) => ({
       month: toMonthKey(month),
       label: monthLabelFormatter.format(month),
     })) satisfies MonthlyLeaderboardMonth[]

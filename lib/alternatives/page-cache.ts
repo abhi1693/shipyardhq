@@ -50,9 +50,14 @@ export const getAlternativeStaticParams = cached(
     })
 
     return alternatives
-      .map((alternative) => alternative.slug)
-      .filter((slug): slug is string => Boolean(slug?.trim()))
-      .map((slug) => ({ slug }))
+      .map(
+        (alternative: (typeof alternatives)[number]) => alternative.slug,
+      )
+      .filter(
+        (slug: string | undefined | null): slug is string =>
+          Boolean(slug?.trim()),
+      )
+      .map((slug: string) => ({ slug }))
   },
   "alternative-products:static-params",
   {

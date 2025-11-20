@@ -326,8 +326,10 @@ export async function getEventTypeTrend(
     `,
   ])
 
-  const trackedEvents = new Set(totals.map((row) => row.event))
-  const series = Array.from(trackedEvents)
+  const trackedEvents = new Set<string>(
+    totals.map((row: TotalRow) => row.event),
+  )
+  const series = Array.from(trackedEvents.values())
 
   const byDay = new Map<string, EventTypeTrendPoint>()
   let cursor = new Date(startDay)
@@ -444,7 +446,7 @@ export async function getTopEventVolumes(
     LIMIT ${Math.max(1, limit)}
   `
 
-  return rows.map((row) => ({
+  return rows.map((row: Row) => ({
     event: row.event,
     total: Number(row.total),
   }))
@@ -498,7 +500,8 @@ export async function getEventEnvelopesPaginated({
     prisma.eventEnvelope.count({ where }),
   ])
 
-  const normalizedItems = items.map((item) => ({
+  type EnvelopeItem = (typeof items)[number]
+  const normalizedItems = items.map((item: EnvelopeItem) => ({
     ...item,
     queue: isEventQueue(item.queue)
       ? (item.queue as EventQueueName)

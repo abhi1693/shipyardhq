@@ -84,7 +84,9 @@ export async function GET(request: Request) {
     enqueued,
     intervalMinutes,
     force,
-    connectorIds: connectors.map((connector) => connector.id),
+    connectorIds: connectors.map(
+      (connector: (typeof connectors)[number]) => connector.id,
+    ),
   })
 
   return NextResponse.json({

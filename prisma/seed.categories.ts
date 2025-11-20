@@ -1,8 +1,9 @@
 import path from "node:path"
 import { pathToFileURL } from "node:url"
 
-import { PrismaClient } from "../lib/vendor/prisma/client"
+import { PrismaClient } from "@/lib/vendor/prisma/client"
 import slugifyLib from "slugify"
+import { createSeedPrismaClient } from "./seedClient"
 
 // Use same slug rules as app utils
 const slugify = (text: string) =>
@@ -278,7 +279,7 @@ const invokedDirectly = (() => {
 })()
 
 if (invokedDirectly) {
-  const prisma = new PrismaClient()
+  const prisma = createSeedPrismaClient()
   seedCategories(prisma)
     .catch((e) => {
       console.error(e)

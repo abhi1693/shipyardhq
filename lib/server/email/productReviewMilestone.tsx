@@ -81,7 +81,9 @@ export async function sendProductReviewMilestoneEmails(now: Date = new Date()) {
     },
   })
 
-  const productMap = new Map(products.map((product) => [product.id, product]))
+  const productMap = new Map<string, (typeof products)[number]>(
+    products.map((product: (typeof products)[number]) => [product.id, product]),
+  )
 
   let sent = 0
   let skipped = 0

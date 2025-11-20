@@ -242,6 +242,7 @@ export async function getCachedRevenueSummary(
 ): Promise<RevenueSummary | null> {
   return cacheHit<RevenueSummary>({
     key: buildRevenueCacheKey(productId),
+    inProcessTtlMs: 5 * 60 * 1000,
   }).catch(() => null)
 }
 
@@ -252,6 +253,7 @@ export async function cacheRevenueSummary(
     key: buildRevenueCacheKey(summary.productId),
     value: summary,
     ttlSeconds: REVENUE_CACHE_TTL_SECONDS,
+    inProcessTtlMs: 5 * 60 * 1000,
   }).catch(() => null)
 }
 

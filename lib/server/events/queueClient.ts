@@ -30,7 +30,7 @@ export async function dequeueEnvelopeBatch(
     ORDER BY "nextRunAt" NULLS FIRST, "createdAt"
     LIMIT ${batchSize}
   `
-  return rows.map((row) => row.id)
+  return rows.map((row: (typeof rows)[number]) => row.id)
 }
 
 export async function requeueEnvelope(envelopeId: string): Promise<void> {

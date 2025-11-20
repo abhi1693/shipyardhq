@@ -5,7 +5,7 @@ import { Badge } from "@/components/atoms/badge"
 import { ColumnDef } from "@tanstack/react-table"
 import { formatDistanceToNow } from "date-fns"
 
-import {
+import type {
   RedemptionStatus,
   RewardTransactionType,
 } from "@/lib/vendor/prisma/client"

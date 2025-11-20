@@ -14,6 +14,9 @@ type CacheErrorHandler = (error: unknown) => void
 type CacheKeyPart = string | number | boolean
 type CacheKeyArray = ReadonlyArray<CacheKeyPart | null | undefined>
 type CacheKeyInput = string | CacheKeyArray
+type InProcessCacheEntry = { value: unknown; expiresAt: number }
+
+const inProcessCache = new Map<string, InProcessCacheEntry>()
 
 function logCacheEvent(
   event: string,
@@ -121,6 +124,7 @@ interface CacheHitOptions<T> {
   deserialize?: (value: string) => T
   onError?: CacheErrorHandler
   client?: CacheClient | null
+  inProcessTtlMs?: number
 }
 
 export async function cacheHit<T>({
@@ -128,6 +132,7 @@ export async function cacheHit<T>({
   deserialize,
   onError,
   client: providedClient,
+  inProcessTtlMs,
 }: CacheHitOptions<T>): Promise<T | null> {
   const { client, namespacedKey } = await resolveClientForOperation({
     key,
@@ -140,6 +145,14 @@ export async function cacheHit<T>({
   }
 
   const parser = deserialize ?? (JSON.parse as (value: string) => T)
+  const now = Date.now()
+
+  if (inProcessTtlMs && inProcessTtlMs > 0) {
+    const memo = inProcessCache.get(namespacedKey)
+    if (memo && memo.expiresAt > now) {
+      return memo.value as T
+    }
+  }
 
   try {
     const cached = await client.get(namespacedKey)
@@ -149,8 +162,15 @@ export async function cacheHit<T>({
     }
 
     logCacheEvent("hit", namespacedKey)
+    const value = parser(cached)
+    if (inProcessTtlMs && inProcessTtlMs > 0) {
+      inProcessCache.set(namespacedKey, {
+        value,
+        expiresAt: now + inProcessTtlMs,
+      })
+    }
 
-    return parser(cached)
+    return value
   } catch (error) {
     logCacheEvent("error", namespacedKey, { error })
     onError?.(error)
@@ -165,6 +185,7 @@ interface CacheMissOptions<T> {
   serialize?: (value: T) => string
   onError?: CacheErrorHandler
   client?: CacheClient | null
+  inProcessTtlMs?: number
 }
 
 export async function cacheMiss<T>({
@@ -174,6 +195,7 @@ export async function cacheMiss<T>({
   serialize,
   onError,
   client: providedClient,
+  inProcessTtlMs,
 }: CacheMissOptions<T>): Promise<void> {
   const { client, namespacedKey } = await resolveClientForOperation({
     key,
@@ -181,15 +203,28 @@ export async function cacheMiss<T>({
     onError,
   })
 
-  if (!client) {
-    return
-  }
-
   const serializer = serialize ?? JSON.stringify
   const ttl =
     Number.isFinite(ttlSeconds) && ttlSeconds && ttlSeconds > 0
       ? ttlSeconds
       : undefined
+
+  const now = Date.now()
+
+  // If no client is available, still memoize in-process so repeated calls within
+  // the TTL avoid extra work during builds when Redis is unavailable locally.
+  if (!client) {
+    if (inProcessTtlMs && inProcessTtlMs > 0) {
+      inProcessCache.set(namespacedKey, {
+        value,
+        expiresAt: now + inProcessTtlMs,
+      })
+      logCacheEvent("store (in-process)", namespacedKey, {
+        ttlSeconds: ttl ?? null,
+      })
+    }
+    return
+  }
 
   try {
     await client.set(
@@ -198,6 +233,12 @@ export async function cacheMiss<T>({
       ttl ? { EX: ttl } : undefined,
     )
     logCacheEvent("store", namespacedKey, { ttlSeconds: ttl })
+    if (inProcessTtlMs && inProcessTtlMs > 0) {
+      inProcessCache.set(namespacedKey, {
+        value,
+        expiresAt: now + inProcessTtlMs,
+      })
+    }
   } catch (error) {
     logCacheEvent("error", namespacedKey, { error })
     onError?.(error)

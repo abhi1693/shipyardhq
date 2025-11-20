@@ -54,7 +54,10 @@ async function getAccessibleOrganizationIds(userId: string) {
     where: { userId },
     select: { organizationId: true },
   })
-  return memberships.map((membership) => membership.organizationId)
+  type Membership = (typeof memberships)[number]
+  return memberships.map(
+    (membership: Membership) => membership.organizationId,
+  )
 }
 
 async function getProductOptions(userId: string) {
@@ -188,7 +191,8 @@ export async function getMemberRewardsSnapshot(): Promise<MemberRewardsSnapshot>
     pendingCountMap.set(item.featureKey, item._count.featureKey)
   }
 
-  const catalog = catalogItems.map((item) => {
+  type CatalogItem = (typeof catalogItems)[number]
+  const catalog = catalogItems.map((item: CatalogItem) => {
     const reasons: string[] = []
     const activeCount = activeCountMap.get(item.featureKey) ?? 0
     const pendingCount = pendingCountMap.get(item.featureKey) ?? 0
@@ -266,7 +270,8 @@ export async function getMemberRewardsSnapshot(): Promise<MemberRewardsSnapshot>
     return null
   }
 
-  const transactionsUi = transactions.map((transaction) => {
+  type RewardTransaction = (typeof transactions)[number]
+  const transactionsUi = transactions.map((transaction: RewardTransaction) => {
     const adjustmentAmount =
       transaction.type === RewardTransactionType.adjustment
         ? extractAdjustmentAmount(transaction.metadata)
@@ -291,7 +296,8 @@ export async function getMemberRewardsSnapshot(): Promise<MemberRewardsSnapshot>
     }
   })
 
-  const activeEntitlementsUi = entitlements.map((entitlement) => ({
+  type Entitlement = (typeof entitlements)[number]
+  const activeEntitlementsUi = entitlements.map((entitlement: Entitlement) => ({
     id: entitlement.id,
     featureKey: entitlement.catalogItem?.featureKey ?? entitlement.featureKey,
     name: entitlement.catalogItem?.name ?? entitlement.featureKey,
@@ -303,7 +309,8 @@ export async function getMemberRewardsSnapshot(): Promise<MemberRewardsSnapshot>
     productSlug: entitlement.product?.slug ?? null,
   }))
 
-  const recentRedemptions = redemptions.map((redemption) => ({
+  type Redemption = (typeof redemptions)[number]
+  const recentRedemptions = redemptions.map((redemption: Redemption) => ({
     id: redemption.id,
     featureKey: redemption.catalogItem?.featureKey ?? redemption.featureKey,
     name: redemption.catalogItem?.name ?? redemption.featureKey,

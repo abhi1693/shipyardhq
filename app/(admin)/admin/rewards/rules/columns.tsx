@@ -11,7 +11,7 @@ import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { Switch } from "@/components/atoms/switch"
 import { adminPath } from "@/lib/routes"
-import { RewardRule } from "@/lib/vendor/prisma/client"
+import type { RewardRule } from "@/lib/vendor/prisma/client"
 
 function RuleActiveToggle({ rule }: { rule: RewardRule }) {
   const [isPending, startTransition] = useTransition()

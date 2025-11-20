@@ -67,10 +67,11 @@ export default async function CategoriesPage() {
                 </div>
                 {primaryHighlights.length > 0 ? (
                   <div className="flex flex-wrap justify-center gap-2">
-                    {primaryHighlights.map((cat) => (
-                      <Link
-                        key={cat.id}
-                        href={categoryPath(cat.slug)}
+                    {primaryHighlights.map(
+                      (cat: (typeof primaryHighlights)[number]) => (
+                        <Link
+                          key={cat.id}
+                          href={categoryPath(cat.slug)}
                         className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-[color:var(--brand-1)]/40 hover:text-foreground"
                       >
                         <span className="truncate">{cat.name}</span>
@@ -80,7 +81,8 @@ export default async function CategoriesPage() {
                           </span>
                         ) : null}
                       </Link>
-                    ))}
+                      ),
+                    )}
                   </div>
                 ) : null}
                 <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row sm:justify-center sm:gap-4">
@@ -104,7 +106,7 @@ export default async function CategoriesPage() {
 
             <section className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2">
-                {categories.map((cat) => (
+                {categories.map((cat: (typeof categories)[number]) => (
                   <CategoryCard
                     key={cat.id}
                     href={categoryPath(cat.slug)}

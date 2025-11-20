@@ -139,16 +139,24 @@ async function subscribeSentOutreachRecipients(emails: string[]) {
     }),
   ])
 
+  type NotificationUser = (typeof existingUsers)[number]
   const registeredEmails = new Set(
     existingUsers
-      .map((user) => user.email?.trim().toLowerCase())
-      .filter((email): email is string => Boolean(email)),
+      .map((user: NotificationUser) => user.email?.trim().toLowerCase())
+      .filter((email: string | undefined | null): email is string =>
+        Boolean(email),
+      ),
   )
 
   const subscribedEmails = new Set(
     existingSubscriptions
-      .map((entry) => entry.email?.trim().toLowerCase())
-      .filter((email): email is string => Boolean(email)),
+      .map(
+        (entry: (typeof existingSubscriptions)[number]) =>
+          entry.email?.trim().toLowerCase(),
+      )
+      .filter((email: string | undefined | null): email is string =>
+        Boolean(email),
+      ),
   )
 
   const emailsToSubscribe = normalized.filter(
@@ -432,7 +440,8 @@ export async function getAdminNotifications(
     },
   })
 
-  return notifications.map((notification) => {
+  type NotificationRecord = (typeof notifications)[number]
+  return notifications.map((notification: NotificationRecord) => {
     const user = notification.user
     return {
       id: notification.id,
@@ -510,7 +519,7 @@ async function resolveSegmentRecipients(
       select: { email: true, firstName: true },
       take,
     })
-    return users.map((user) => ({
+    return users.map((user: (typeof users)[number]) => ({
       email: user.email,
       firstName: user.firstName,
     }))
@@ -534,7 +543,7 @@ async function resolveSegmentRecipients(
         orderBy: { createdAt: "asc" },
         take,
       })
-      return users.map((user) => ({
+      return users.map((user: (typeof users)[number]) => ({
         email: user.email,
         firstName: user.firstName,
       }))
@@ -551,7 +560,7 @@ async function resolveSegmentRecipients(
         orderBy: { createdAt: "asc" },
         take,
       })
-      return users.map((user) => ({
+      return users.map((user: (typeof users)[number]) => ({
         email: user.email,
         firstName: user.firstName,
       }))
@@ -569,7 +578,7 @@ async function resolveSegmentRecipients(
         orderBy: { createdAt: "asc" },
         take,
       })
-      return users.map((user) => ({
+      return users.map((user: (typeof users)[number]) => ({
         email: user.email,
         firstName: user.firstName,
       }))
@@ -587,7 +596,7 @@ async function resolveSegmentRecipients(
         orderBy: { createdAt: "asc" },
         take,
       })
-      return users.map((user) => ({
+      return users.map((user: (typeof users)[number]) => ({
         email: user.email,
         firstName: user.firstName,
       }))
@@ -604,7 +613,7 @@ async function resolveSegmentRecipients(
         orderBy: { createdAt: "asc" },
         take,
       })
-      return users.map((user) => ({
+      return users.map((user: (typeof users)[number]) => ({
         email: user.email,
         firstName: user.firstName,
       }))
@@ -622,7 +631,7 @@ async function resolveSegmentRecipients(
         orderBy: { createdAt: "asc" },
         take,
       })
-      return users.map((user) => ({
+      return users.map((user: (typeof users)[number]) => ({
         email: user.email,
         firstName: user.firstName,
       }))
@@ -639,7 +648,7 @@ async function resolveSegmentRecipients(
         orderBy: { createdAt: "asc" },
         take,
       })
-      return users.map((user) => ({
+      return users.map((user: (typeof users)[number]) => ({
         email: user.email,
         firstName: user.firstName,
       }))
@@ -656,7 +665,7 @@ async function resolveSegmentRecipients(
         orderBy: { createdAt: "asc" },
         take,
       })
-      return users.map((user) => ({
+      return users.map((user: (typeof users)[number]) => ({
         email: user.email,
         firstName: user.firstName,
       }))

@@ -555,7 +555,7 @@ export async function updateProductAction(
     }
 
     const previousAlternativeIds = current.alternatives
-      ? current.alternatives.map((alt) => alt.id)
+      ? current.alternatives.map((alt: { id: string }) => alt.id)
       : []
     const nextAlternativeIds = Array.isArray(data.alternativeIds)
       ? Array.from(

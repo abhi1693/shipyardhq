@@ -178,17 +178,33 @@ export async function getRewardAnalytics(
   ])
 
   const ruleKeys = topRuleRows
-    .map((row) => row.ruleKey)
-    .filter((value): value is string => Boolean(value))
+    .map((row: GroupRow) => row.ruleKey)
+    .filter(
+      (
+        value: GroupRow["ruleKey"],
+      ): value is string => Boolean(value),
+    )
   const rewardKeys = topRewardRows
-    .map((row) => row.rewardKey)
-    .filter((value): value is string => Boolean(value))
+    .map((row: GroupRow) => row.rewardKey)
+    .filter(
+      (
+        value: GroupRow["rewardKey"],
+      ): value is string => Boolean(value),
+    )
   const earnerIds = topEarnerRows
-    .map((row) => row.userId)
-    .filter((value): value is string => Boolean(value))
+    .map((row: GroupRow) => row.userId)
+    .filter(
+      (
+        value: GroupRow["userId"],
+      ): value is string => Boolean(value),
+    )
   const spenderIds = topSpenderRows
-    .map((row) => row.userId)
-    .filter((value): value is string => Boolean(value))
+    .map((row: GroupRow) => row.userId)
+    .filter(
+      (
+        value: GroupRow["userId"],
+      ): value is string => Boolean(value),
+    )
 
   const uniqueUserIds = Array.from(new Set([...earnerIds, ...spenderIds]))
   const [rules, catalogItems, users] = await Promise.all([
@@ -224,12 +240,20 @@ export async function getRewardAnalytics(
         ),
   ])
 
-  const ruleNameMap = new Map(rules.map((rule) => [rule.key, rule.name]))
-  const catalogNameMap = new Map(
-    catalogItems.map((item) => [item.featureKey, item.name]),
+  const ruleNameMap = new Map<string, string>(
+    rules.map((rule: (typeof rules)[number]) => [rule.key, rule.name]),
   )
-  const userMap = new Map(
-    users.map((user) => [
+  const catalogNameMap = new Map<string, string>(
+    catalogItems.map((item: (typeof catalogItems)[number]) => [
+      item.featureKey,
+      item.name,
+    ]),
+  )
+  const userMap = new Map<
+    string,
+    { name: string; email: string | null }
+  >(
+    users.map((user: (typeof users)[number]) => [
       user.id,
       {
         name:

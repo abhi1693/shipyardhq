@@ -42,7 +42,7 @@ export async function GET(
   })
 
   const urls = alternatives
-    .map((alternative) => {
+    .map((alternative: (typeof alternatives)[number]) => {
       const last = alternative.updatedAt ?? alternative.createdAt
       const daysSinceUpdate = Math.floor(
         (Date.now() - new Date(last).getTime()) / 86400000,

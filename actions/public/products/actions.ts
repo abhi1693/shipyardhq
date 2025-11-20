@@ -75,7 +75,7 @@ type PublicProduct = Prisma.ProductGetPayload<{
   }
 }>
 
-const publicProductMetaSelect = Prisma.validator<Prisma.ProductSelect>()({
+const publicProductMetaSelect = {
   id: true,
   slug: true,
   name: true,
@@ -119,7 +119,7 @@ const publicProductMetaSelect = Prisma.validator<Prisma.ProductSelect>()({
     where: { status: { in: ["active", "pending"] } },
     select: { featureKey: true },
   },
-})
+} satisfies Prisma.ProductSelect
 
 async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
   const product = await prisma.product.findUnique({
@@ -281,7 +281,7 @@ export const getPublicProductsByUseCase = cached(
     return prisma.product.findMany({
       where: {
         id: {
-          in: randomProductIds.map(({ id }) => id),
+          in: randomProductIds.map(({ id }: { id: string }) => id),
         },
       },
       include: compactProductInclude,

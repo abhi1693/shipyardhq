@@ -217,7 +217,8 @@ async function resolveUpvotedProductIds(
     },
   })
 
-  return new Set(votes.map((vote) => vote.productId))
+  type Vote = (typeof votes)[number]
+  return new Set(votes.map((vote: Vote) => vote.productId))
 }
 
 async function buildFeedItemsFromProducts(
@@ -231,7 +232,16 @@ async function buildFeedItemsFromProducts(
   const productIds = products.map((product) => product.id)
   const upvoted = await resolveUpvotedProductIds(clerkUserId, productIds)
   const now = new Date()
-  const rates = await getUsdConversionRates()
+  const needsRates = products.some((product) => {
+    const code =
+      product.paymentConnector?.latestCurrencyCode ??
+      product.paymentConnector?.revenueHistory?.[0]?.currencyCode ??
+      "USD"
+    return code.toUpperCase() !== "USD"
+  })
+  const rates = needsRates
+    ? await getUsdConversionRates()
+    : new Map<string, number>([["USD", 1]])
 
   return products.map((product) =>
     mapProductToFeedItem(product, upvoted, now, rates),

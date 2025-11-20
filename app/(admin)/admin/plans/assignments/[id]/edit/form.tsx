@@ -32,7 +32,7 @@ import SaveButton from "@/components/molecules/SaveButton"
 import PageContainer from "@/components/layout/page-container"
 import { updatePlanFeatureAssignmentAction } from "@/actions/admin/plans/assignments/actions"
 import { adminPath } from "@/lib/routes"
-import {
+import type {
   PlanFeatureAssignment,
   Plan,
   PlanFeature,

@@ -39,10 +39,8 @@ import {
   updateRewardCatalogItemAction,
 } from "@/actions/admin/rewards/actions"
 import { adminPath } from "@/lib/routes"
-import {
-  RewardCatalogItem,
-  RewardFeatureCategory,
-} from "@/lib/vendor/prisma/client"
+import type { RewardCatalogItem } from "@/lib/vendor/prisma/client"
+import { RewardFeatureCategory } from "@/lib/vendor/prisma/client/enums"
 import {
   REWARD_FEATURE_KEY_OPTIONS,
   isRewardFeatureKey,

@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link"
-import { PlanFeatureAssignment } from "@/lib/vendor/prisma/client"
+import type { PlanFeatureAssignment } from "@/lib/vendor/prisma/client"
 import { formatBoolean, formatDate, linkify } from "@/lib/ui/formatters"
 import { Button } from "@/components/atoms/button"
 import { Eye, Pencil } from "lucide-react"

@@ -278,7 +278,7 @@ export const getKeywordTagProducts = cached(
     )
     const total = summary.productCount
 
-    const productIds = ids.map((row) => row.id)
+    const productIds = ids.map((row: { id: string }) => row.id)
     if (productIds.length === 0) {
       return {
         summary,
@@ -293,16 +293,21 @@ export const getKeywordTagProducts = cached(
       select: productCardSelect,
     })
 
-    const productMap = new Map(products.map((product) => [product.id, product]))
+    const productMap = new Map(
+      products.map((product: ProductCardRecord) => [product.id, product]),
+    )
     const orderedProducts = productIds
-      .map((id) => productMap.get(id))
-      .filter((product): product is ProductCardRecord => Boolean(product))
+      .map((id: string) => productMap.get(id))
+      .filter(
+        (product: ProductCardRecord | undefined): product is ProductCardRecord =>
+          Boolean(product),
+      )
 
     const hasMore = offset + productIds.length < total
 
     return {
       summary,
-      products: orderedProducts.map((product) =>
+      products: orderedProducts.map((product: ProductCardRecord) =>
         mapProductCardRecordToBase(product),
       ),
       total,

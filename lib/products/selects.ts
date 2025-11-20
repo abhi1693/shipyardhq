@@ -3,7 +3,7 @@ import type { ProductCardBase } from "@/components/molecules/ProductCard"
 
 const PRIORITY_PLACEMENT_FEATURE_KEY = "priorityPlacement"
 
-export const productCardSelect = Prisma.validator<Prisma.ProductSelect>()({
+export const productCardSelect = {
   id: true,
   slug: true,
   name: true,
@@ -42,7 +42,7 @@ export const productCardSelect = Prisma.validator<Prisma.ProductSelect>()({
       },
     },
   },
-})
+} satisfies Prisma.ProductSelect
 
 export type ProductCardSelect = typeof productCardSelect
 

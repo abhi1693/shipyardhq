@@ -131,56 +131,59 @@ export async function awardRewards(
   const now = new Date()
 
   try {
-    const result = await prisma.$transaction(async (tx) => {
-      const rule = await tx.rewardRule.findUnique({ where: { key: ruleKey } })
-      if (!rule) {
-        throw new RewardRuleNotFoundError(ruleKey)
-      }
-
-      if (!rule.isActive) {
-        throw new RewardRuleInactiveError(ruleKey)
-      }
-
-      if (eventHash) {
-        const existing = await tx.rewardTransaction.findUnique({
-          where: { eventHash },
-          include: { redemption: true, catalogItem: true },
+  const result = await prisma.$transaction(
+    async (tx: Prisma.TransactionClient) => {
+        const rule = await tx.rewardRule.findUnique({
+          where: { key: ruleKey },
         })
-        if (existing) {
-          const balance = await requireBalance(tx, userId)
-          return { transaction: existing, balance, rule, created: false }
+        if (!rule) {
+          throw new RewardRuleNotFoundError(ruleKey)
         }
-      }
 
-      const rewardAmount = resolveRewardAmount(rule, payload)
-      if (rewardAmount <= 0) {
-        throw new RewardsError(
-          `Rewards for '${ruleKey}' must be positive`,
-          "INVALID_REWARDS",
-        )
-      }
+        if (!rule.isActive) {
+          throw new RewardRuleInactiveError(ruleKey)
+        }
 
-      await enforceCaps(tx, userId, rule, rewardAmount, now)
-      await enforceCooldowns(tx, userId, rule, payload, now)
+        if (eventHash) {
+          const existing = await tx.rewardTransaction.findUnique({
+            where: { eventHash },
+            include: { redemption: true, catalogItem: true },
+          })
+          if (existing) {
+            const balance = await requireBalance(tx, userId)
+            return { transaction: existing, balance, rule, created: false }
+          }
+        }
 
-      const lockedBalance = await lockRewardBalance(tx, userId)
-      const streakUpdate = resolveStreak(lockedBalance, payload.streak, now)
+        const rewardAmount = resolveRewardAmount(rule, payload)
+        if (rewardAmount <= 0) {
+          throw new RewardsError(
+            `Rewards for '${ruleKey}' must be positive`,
+            "INVALID_REWARDS",
+          )
+        }
 
-      const balance = await tx.rewardBalance.update({
-        where: { userId },
-        data: {
-          balance: { increment: rewardAmount },
-          lifetimeEarned: { increment: rewardAmount },
-          lastEarnedAt: now,
-          lastEvaluatedAt: streakUpdate.lastEvaluatedAt,
-          currentStreakCount: streakUpdate.currentStreakCount,
-          longestStreakCount: streakUpdate.longestStreakCount,
-          currentStreakTier: streakUpdate.currentStreakTier,
-          streakActiveThrough: streakUpdate.streakActiveThrough,
-        },
-      })
+        await enforceCaps(tx, userId, rule, rewardAmount, now)
+        await enforceCooldowns(tx, userId, rule, payload, now)
 
-      const transaction = await tx.rewardTransaction.create({
+        const lockedBalance = await lockRewardBalance(tx, userId)
+        const streakUpdate = resolveStreak(lockedBalance, payload.streak, now)
+
+        const balance = await tx.rewardBalance.update({
+          where: { userId },
+          data: {
+            balance: { increment: rewardAmount },
+            lifetimeEarned: { increment: rewardAmount },
+            lastEarnedAt: now,
+            lastEvaluatedAt: streakUpdate.lastEvaluatedAt,
+            currentStreakCount: streakUpdate.currentStreakCount,
+            longestStreakCount: streakUpdate.longestStreakCount,
+            currentStreakTier: streakUpdate.currentStreakTier,
+            streakActiveThrough: streakUpdate.streakActiveThrough,
+          },
+        })
+
+        const transaction = await tx.rewardTransaction.create({
         data: {
           userId,
           type: RewardTransactionType.earn,
@@ -200,10 +203,11 @@ export async function awardRewards(
           notes: payload.notes,
           actedByUserId: payload.actorUserId ?? null,
         },
-      })
+        })
 
-      return { transaction, balance, rule, created: true }
-    })
+        return { transaction, balance, rule, created: true }
+      },
+    )
 
     if (result.created) {
       await dispatchEvent("rewards.awarded", {
@@ -256,7 +260,7 @@ export async function redeem(
     include: { catalogItem: true }
   }>
 
-  const result = await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const catalogItem = await tx.rewardCatalogItem.findUnique({
       where: { featureKey },
     })
@@ -338,9 +342,10 @@ export async function redeem(
       options.reservation,
       durationSeconds,
     )
-    const reservationMetadata = mergeMetadata(options.metadata, {
-      reservation: reservationDetails,
-    })
+    const reservationMetadata =
+      mergeMetadata(options.metadata, {
+        reservation: reservationDetails,
+      }) as Prisma.InputJsonValue
     const updateResult = await tx.rewardBalance.updateMany({
       where: {
         userId,
@@ -486,7 +491,8 @@ export async function refundRedemption(
 ): Promise<RefundRedemptionResult> {
   const now = new Date()
 
-  const result = await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(
+    async (tx: Prisma.TransactionClient) => {
     const redemption = await tx.redemption.findUnique({
       where: { id: redemptionId },
       include: {
@@ -596,10 +602,11 @@ export async function refundRedemption(
       },
     })
 
-    const transactionMetadata = mergeMetadata(options.metadata, {
-      reference: options.reference,
-      reason: options.reason,
-    })
+    const transactionMetadata =
+      mergeMetadata(options.metadata, {
+        reference: options.reference,
+        reason: options.reason,
+      }) as Prisma.InputJsonValue
 
     const transaction = await tx.rewardTransaction.create({
       data: {
@@ -658,22 +665,23 @@ export async function adjustRewards(
   const now = new Date()
   const eventHash = buildEventHash(userId, "adjust", options.eventId, "adjust")
 
-  const result = await prisma.$transaction(async (tx) => {
-    if (eventHash) {
-      const existing = await tx.rewardTransaction.findUnique({
-        where: { eventHash },
-        include: { redemption: true, catalogItem: true, rule: true },
-      })
-      if (existing) {
-        const balance = await requireBalance(tx, userId)
-        return {
-          transaction: existing,
-          balance,
-          rule: existing.rule ?? createSyntheticRule(amount),
-          created: false,
+  const result = await prisma.$transaction(
+    async (tx: Prisma.TransactionClient) => {
+      if (eventHash) {
+        const existing = await tx.rewardTransaction.findUnique({
+          where: { eventHash },
+          include: { redemption: true, catalogItem: true, rule: true },
+        })
+        if (existing) {
+          const balance = await requireBalance(tx, userId)
+          return {
+            transaction: existing,
+            balance,
+            rule: existing.rule ?? createSyntheticRule(amount),
+            created: false,
+          }
         }
       }
-    }
 
     const balanceBefore = await tx.rewardBalance.findUnique({
       where: { userId },
@@ -723,13 +731,14 @@ export async function adjustRewards(
       },
     })
 
-    return {
-      transaction,
-      balance,
-      rule: createSyntheticRule(amount),
-      created: true,
-    }
-  })
+      return {
+        transaction,
+        balance,
+        rule: createSyntheticRule(amount),
+        created: true,
+      }
+    },
+  )
 
   if (result.created) {
     await dispatchEvent("rewards.adjusted", {

@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import { buildQuery } from "@/lib/urlParams"
-import { FeedbackStatus } from "@/lib/vendor/prisma/client"
+import type { FeedbackStatus } from "@/lib/vendor/prisma/client"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { adminPath } from "@/lib/routes"
 
