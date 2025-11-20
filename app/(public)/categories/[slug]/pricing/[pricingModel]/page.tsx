@@ -111,8 +111,6 @@ export async function generateMetadata(props: {
     ? `${category.description} Browse ${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} products curated on Shipyard.`
     : `Discover ${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} software from indie makers.`
 
-  const pagePath = categoryPricingPath(slug, pricingModelMeta.slug)
-
   const metadata = buildPageMetadata({
     title,
     description,

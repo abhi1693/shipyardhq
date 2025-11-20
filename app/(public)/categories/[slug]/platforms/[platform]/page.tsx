@@ -111,8 +111,6 @@ export async function generateMetadata(props: {
     ? `${category.description} Browse ${category.name.toLowerCase()} products built for ${platformMeta.label}.`
     : `Discover ${category.name.toLowerCase()} software made for ${platformMeta.label} users.`
 
-  const pagePath = categoryPlatformPath(slug, platformMeta.slug)
-
   const metadata = buildPageMetadata({
     title,
     description,

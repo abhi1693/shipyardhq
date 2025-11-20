@@ -1,5 +1,4 @@
 import { BadgeSkeleton } from "@/components/atoms/badge.skeleton"
-import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
