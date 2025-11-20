@@ -99,6 +99,8 @@ export function PaymentConnectorCard({
       : "Enter API secret key"
   const showStripeAccount =
     selectedProvider === PaymentConnectorProviderEnum.stripe
+  const showStripePermissions =
+    selectedProvider === PaymentConnectorProviderEnum.stripe
 
   return (
     <div className="space-y-4">
@@ -177,6 +179,18 @@ export function PaymentConnectorCard({
           </p>
         ) : null}
       </div>
+
+      {showStripePermissions ? (
+        <div className="rounded-md border border-dashed border-border bg-muted/40 p-3">
+          <p className="text-xs font-semibold text-foreground">
+            Stripe key permissions needed
+          </p>
+          <ul className="mt-1 list-disc pl-4 text-xs text-muted-foreground">
+            <li>Charges: Read</li>
+            <li>Subscriptions: Read</li>
+          </ul>
+        </div>
+      ) : null}
 
       {showStripeAccount ? (
         <div className="space-y-2">

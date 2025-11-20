@@ -30,6 +30,7 @@ export function BrandLogo({
     fetchPriority: fetchPriority ?? (eager ? "high" : undefined),
     width: width ?? 32,
     height: height ?? 32,
+    placeholder: "empty" as const,
   }
 
   return (

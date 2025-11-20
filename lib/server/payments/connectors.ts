@@ -317,8 +317,16 @@ export async function syncPaymentConnector(connectorId: string) {
       },
     })
 
-    const requiresConversion = result.snapshots.some(
-      (snapshot) => (snapshot.currencyCode || "USD").toUpperCase() !== "USD",
+    const fullHistory =
+      (await prisma.paymentRevenueSnapshot.findMany({
+        where: { connectorId: connector.id },
+        orderBy: { periodStart: "asc" },
+      })) ?? []
+    const historyForSummary =
+      fullHistory.length > 0 ? fullHistory : result.snapshots
+
+    const requiresConversion = historyForSummary.some(
+      (snapshot: { currencyCode: any }) => (snapshot.currencyCode || "USD").toUpperCase() !== "USD",
     )
     const rates = requiresConversion
       ? await getUsdConversionRates()
@@ -329,7 +337,7 @@ export async function syncPaymentConnector(connectorId: string) {
       provider: connector.provider,
       status: PaymentConnectorStatus.active,
       lastSyncedAt: now,
-      history: result.snapshots,
+      history: historyForSummary,
       rates,
     })
     if (summary) {
