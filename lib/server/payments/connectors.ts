@@ -234,7 +234,12 @@ export async function syncPaymentConnector(connectorId: string) {
       },
     })
 
-    const rates = await getUsdConversionRates()
+    const requiresConversion = result.snapshots.some(
+      (snapshot) => (snapshot.currencyCode || "USD").toUpperCase() !== "USD",
+    )
+    const rates = requiresConversion
+      ? await getUsdConversionRates()
+      : new Map<string, number>([["USD", 1]])
     const summary = buildRevenueSummary({
       productId: connector.productId,
       connectorId: connector.id,
