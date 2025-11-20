@@ -63,11 +63,13 @@ function normalizeIntervalToMonthly(
   intervalCount: number | undefined | null,
 ): number {
   const safeCount = intervalCount && intervalCount > 0 ? intervalCount : 1
+  const daysPerYear = 365.25
+  const weeksPerYear = daysPerYear / 7
   switch ((interval || "").toLowerCase()) {
     case "day":
-      return Math.round((amountCents * 365) / (12 * safeCount))
+      return Math.round((amountCents * daysPerYear) / (12 * safeCount))
     case "week":
-      return Math.round((amountCents * 52) / (12 * safeCount))
+      return Math.round((amountCents * weeksPerYear) / (12 * safeCount))
     case "year":
       return Math.round(amountCents / (12 * safeCount))
     case "month":
