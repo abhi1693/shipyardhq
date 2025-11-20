@@ -155,6 +155,17 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
           })
         }
       }
+
+      if (val.connectorProvider === "polar") {
+        const orgId = val.connectorAccountId?.trim()
+        if (val.connectorApiKey && !orgId) {
+          ctx.addIssue({
+            path: ["connectorAccountId"],
+            code: z.ZodIssueCode.custom,
+            message: "Polar organization ID is required",
+          })
+        }
+      }
     })
 }
 

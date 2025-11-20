@@ -309,6 +309,12 @@ export async function createProductAction(formData: FormData) {
         (PaymentConnectorProvider as any)[connectorProvider] ??
         connectorProvider
       if (
+        providerEnum === PaymentConnectorProvider.polar &&
+        !connectorAccountId
+      ) {
+        return { error: "Polar organization ID is required" }
+      }
+      if (
         Object.values(PaymentConnectorProvider).includes(
           providerEnum as PaymentConnectorProvider,
         )
@@ -634,6 +640,9 @@ export async function updateProductAction(
           : (PaymentConnectorProvider as any)[providerValue])
 
       if (providerEnum && connectorApiKey) {
+        if (providerEnum === PaymentConnectorProvider.polar && !connectorAccountId) {
+          return { error: "Polar organization ID is required" }
+        }
         await validateConnectorApiKey({
           provider: providerEnum as PaymentConnectorProvider,
           apiKey: connectorApiKey,

@@ -1,6 +1,6 @@
 import { PaymentConnectorProvider } from "@/lib/vendor/prisma/client"
 
-import type { PaymentProviderDefinition } from "./types"
+import type { PaymentConnectorConfig, PaymentProviderDefinition } from "./types"
 
 const DEFAULT_POLAR_API_BASE = "https://api.polar.sh"
 const SANDBOX_POLAR_API_BASE = "https://sandbox-api.polar.sh"
@@ -54,17 +54,21 @@ async function listPolarOrganizations(apiKey: string) {
   return items
 }
 
-async function listPolarOrders(apiKey: string) {
+async function listPolarOrders(apiKey: string, organizationId: string) {
   return fetchPolarCollection(
     apiKey,
-    "/v1/orders/?sorting=created_at&status=paid",
+    `/v1/orders/?sorting=created_at&status=paid&organization_id=${encodeURIComponent(
+      organizationId,
+    )}`,
   )
 }
 
-async function listPolarSubscriptions(apiKey: string) {
+async function listPolarSubscriptions(apiKey: string, organizationId: string) {
   return fetchPolarCollection(
     apiKey,
-    "/v1/subscriptions/?sorting=created_at&status=active",
+    `/v1/subscriptions/?sorting=created_at&status=active&organization_id=${encodeURIComponent(
+      organizationId,
+    )}`,
   )
 }
 
@@ -121,47 +125,78 @@ function pickCurrency(obj: any): string | null {
   return null
 }
 
+function getPolarOrganizationId(
+  source?: PaymentConnectorConfig | null,
+): string | null {
+  const raw =
+    (source as PaymentConnectorConfig | undefined)?.accountId ||
+    (source as any)?.organizationId
+  if (typeof raw !== "string") return null
+  const trimmed = raw.trim()
+  return trimmed.length ? trimmed : null
+}
+
+async function fetchPolarOrganization(apiKey: string, organizationId: string) {
+  const baseUrl = getPolarBaseUrl()
+  const url = `${baseUrl}/v1/organizations/${encodeURIComponent(organizationId)}`
+  const response = await fetch(url, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${apiKey}` },
+  })
+  if (response.status === 404) {
+    throw new Error(
+      "Polar organization ID not found or not accessible with this API key",
+    )
+  }
+  if (!response.ok) {
+    throw new Error(
+      `Polar request failed (${response.status} ${response.statusText}) for organization ${organizationId}`,
+    )
+  }
+  return response.json()
+}
+
 // Placeholder Polar connector to allow storing credentials and scheduling syncs.
 export const polarProvider: PaymentProviderDefinition = {
   provider: PaymentConnectorProvider.polar,
-  async validateApiKey({ apiKey, productName }) {
+  async validateApiKey({ apiKey, config }) {
     const trimmed = apiKey.trim()
     if (!trimmed.startsWith("polar_oat_")) {
       throw new Error("Polar API keys must start with 'polar_oat_'")
     }
 
-    const orgs = await listPolarOrganizations(trimmed)
-    const normalizedOrgNames: string[] = orgs
-      .map((org: any) => (typeof org?.name === "string" ? org.name : ""))
-      .map((name: string) => name.trim().toLowerCase())
-      .filter((name: string): name is string => Boolean(name))
-
-    if (normalizedOrgNames.length === 0) {
-      throw new Error("No Polar organizations found for this API key")
+    const organizationId = getPolarOrganizationId(config)
+    if (!organizationId) {
+      throw new Error("Polar organization ID is required")
     }
 
-    const normalizedProductName = productName?.trim().toLowerCase()
-    if (normalizedProductName) {
-      const hasMatch = normalizedOrgNames.some(
-        (name: string) => name === normalizedProductName,
-      )
-      if (!hasMatch) {
-        throw new Error(
-          `Polar organization '${productName}' not found. Create or rename the organization to match your product name.`,
-        )
-      }
-    }
+    await fetchPolarOrganization(trimmed, organizationId)
   },
-  async sync({ apiKey }) {
+  async sync({ connector, apiKey }) {
+    const orgId =
+      getPolarOrganizationId(
+        (connector.config ?? undefined) as PaymentConnectorConfig | undefined,
+      ) || undefined
+    if (!orgId) {
+      throw new Error("Polar organization ID is required for sync")
+    }
+
     const [orgs, orders, subscriptions] = await Promise.all([
       listPolarOrganizations(apiKey),
-      listPolarOrders(apiKey).catch(() => []),
-      listPolarSubscriptions(apiKey).catch(() => []),
+      listPolarOrders(apiKey, orgId).catch(() => []),
+      listPolarSubscriptions(apiKey, orgId).catch(() => []),
     ])
 
     const orgIds = orgs
       .map((org: any) => (typeof org?.id === "string" ? org.id : ""))
       .filter((id: string): id is string => Boolean(id))
+      .filter((id) => id === orgId)
+    if (!orgIds.includes(orgId)) {
+      throw new Error(
+        "Polar organization ID not found or not accessible with this API key",
+      )
+    }
+    const organizationIds = [orgId]
 
     type DailyBucket = {
       periodRevenueCents: number
@@ -254,10 +289,7 @@ export const polarProvider: PaymentProviderDefinition = {
             periodRevenueCents: bucket.periodRevenueCents,
             allTimeRevenueCents: runningAllTime,
             mrrCents: bucket === latest ? mrr : null,
-            data: {
-              source: "polar",
-              organizationIds: orgIds,
-            },
+            data: { source: "polar", organizationIds },
           }
         })
       })
@@ -272,10 +304,7 @@ export const polarProvider: PaymentProviderDefinition = {
         periodRevenueCents: 0,
         allTimeRevenueCents: 0,
         mrrCents: mrrByCurrency.get("USD") ?? null,
-        data: {
-          source: "polar",
-          organizationIds: orgIds,
-        },
+        data: { source: "polar", organizationIds },
       })
     }
 

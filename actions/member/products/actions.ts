@@ -536,6 +536,7 @@ export async function saveProductConnectorAction(input: {
   productId: string
   provider: PaymentConnectorProvider | string
   apiKey: string
+  accountId?: string
 }) {
   const guard = await requireOwnedProduct(input.productId)
   if ("error" in guard) return guard
@@ -549,19 +550,23 @@ export async function saveProductConnectorAction(input: {
   }
   const apiKey = input.apiKey?.trim()
   if (!apiKey) return { error: "API key is required" }
+  const accountId = input.accountId?.trim()
+  if (provider === PaymentConnectorProvider.polar && !accountId) {
+    return { error: "Polar organization ID is required" }
+  }
 
   try {
     await validateConnectorApiKey({
       provider,
       apiKey,
-      config: {},
+      config: { accountId },
       productName: guard.product.name,
     })
     const result = await upsertPaymentConnector({
       productId: input.productId,
       provider,
       apiKey,
-      config: {},
+      config: { accountId },
     })
     await syncPaymentConnector(result.connector.id)
     const summary = await getProductConnectorSummary(input.productId)

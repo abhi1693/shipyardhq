@@ -60,18 +60,16 @@ async function getSyncContext(connectorId: string) {
     _max: { periodStart: Date | null }
   }
 
-  const latestByCurrency: LatestByCurrency[] = await prisma.paymentRevenueSnapshot.groupBy({
-    by: ["currencyCode"],
-    where: { connectorId },
-    _max: { periodStart: true },
-  })
+  const latestByCurrency: LatestByCurrency[] =
+    await prisma.paymentRevenueSnapshot.groupBy({
+      by: ["currencyCode"],
+      where: { connectorId },
+      _max: { periodStart: true },
+    })
 
   const since =
     latestByCurrency.reduce<Date | null>(
-      (
-        earliest: Date | null,
-        entry: LatestByCurrency,
-      ) => {
+      (earliest: Date | null, entry: LatestByCurrency) => {
         const periodStart = entry._max.periodStart
         if (!periodStart) return earliest
         if (!earliest || periodStart < earliest) return periodStart
@@ -86,9 +84,7 @@ async function getSyncContext(connectorId: string) {
       periodStart: entry._max.periodStart,
     }))
     .filter(
-      (
-        entry,
-      ): entry is { currencyCode: string; periodStart: Date } =>
+      (entry): entry is { currencyCode: string; periodStart: Date } =>
         Boolean(entry.currencyCode) && Boolean(entry.periodStart),
     )
 
@@ -329,7 +325,8 @@ export async function syncPaymentConnector(connectorId: string) {
       fullHistory.length > 0 ? fullHistory : result.snapshots
 
     const requiresConversion = historyForSummary.some(
-      (snapshot: { currencyCode: any }) => (snapshot.currencyCode || "USD").toUpperCase() !== "USD",
+      (snapshot: { currencyCode: any }) =>
+        (snapshot.currencyCode || "USD").toUpperCase() !== "USD",
     )
     const rates = requiresConversion
       ? await getUsdConversionRates()

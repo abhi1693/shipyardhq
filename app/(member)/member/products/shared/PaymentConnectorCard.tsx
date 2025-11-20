@@ -105,6 +105,12 @@ export function PaymentConnectorCard({
     selectedProvider === PaymentConnectorProviderEnum.stripe
   const showPolarPermissions =
     selectedProvider === PaymentConnectorProviderEnum.polar
+  const showPolarOrganizationId =
+    selectedProvider === PaymentConnectorProviderEnum.polar
+  const accountPlaceholder =
+    selectedProvider === PaymentConnectorProviderEnum.stripe
+      ? "acct_123..."
+      : "org_..."
 
   return (
     <div className="space-y-4">
@@ -215,14 +221,16 @@ export function PaymentConnectorCard({
         </div>
       ) : null}
 
-      {showStripeAccount ? (
+      {showStripeAccount || showPolarOrganizationId ? (
         <div className="space-y-2">
           <Label htmlFor="connector-account">
-            Connected account ID (optional)
+            {showStripeAccount
+              ? "Connected account ID (optional)"
+              : "Polar organization ID (required)"}
           </Label>
           <Input
             id="connector-account"
-            placeholder="acct_123..."
+            placeholder={accountPlaceholder}
             value={accountId || ""}
             onChange={(e) =>
               onChange?.({
@@ -232,10 +240,17 @@ export function PaymentConnectorCard({
               })
             }
           />
-          <p className="text-xs text-muted-foreground">
-            Provide a Stripe connected account ID to pull revenue for that
-            account. Leave blank to use the platform account only.
-          </p>
+          {showStripeAccount ? (
+            <p className="text-xs text-muted-foreground">
+              Provide a Stripe connected account ID to pull revenue for that
+              account. Leave blank to use the platform account only.
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Required. We scope Polar API requests to this organization ID to
+              fetch revenue and subscriptions.
+            </p>
+          )}
         </div>
       ) : null}
 
@@ -258,6 +273,7 @@ export function PaymentConnectorCard({
               await onSave({
                 provider: selectedProvider,
                 apiKey,
+                accountId,
               })
             })
           }
