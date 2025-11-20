@@ -57,6 +57,11 @@ function ConnectorFields({
       control: form.control,
       name: "connectorApiKey" as any,
     }) as string | undefined) ?? ""
+  const accountId =
+    (useWatch({
+      control: form.control,
+      name: "connectorAccountId" as any,
+    }) as string | undefined) ?? ""
   const pricingModel =
     (useWatch({
       control: form.control,
@@ -73,6 +78,7 @@ function ConnectorFields({
         (PaymentConnectorProviderEnum.dodo as PaymentConnectorProvider)
       }
       apiKey={apiKey ?? ""}
+      accountId={accountId ?? ""}
       keyHint={connector?.keyHint ?? null}
       status={connector?.status ?? null}
       lastSyncedAt={connector?.lastSyncedAt ?? null}
@@ -87,6 +93,12 @@ function ConnectorFields({
         }
         if (draft.apiKey !== undefined) {
           form.setValue("connectorApiKey" as any, draft.apiKey ?? "", {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+        if (draft.accountId !== undefined) {
+          form.setValue("connectorAccountId" as any, draft.accountId ?? "", {
             shouldDirty: true,
             shouldValidate: true,
           })
@@ -125,6 +137,7 @@ export default function EditProductForm({
     lastSyncedAt?: Date | string | null
     lastSyncError?: string | null
     keyHint?: string | null
+    accountId?: string | null
   } | null
 }) {
   const router = useRouter()

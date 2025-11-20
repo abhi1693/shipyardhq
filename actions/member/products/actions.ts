@@ -446,6 +446,7 @@ export async function getProductConnectorSummary(productId: string) {
       latestAllTimeRevenueCents: true,
       latestCurrencyCode: true,
       latestPeriodStart: true,
+      config: true,
       credentials: {
         where: { status: PaymentCredentialStatus.active },
         select: { keyHint: true },
@@ -459,7 +460,11 @@ export async function getProductConnectorSummary(productId: string) {
   const keyHint = connector.credentials?.[0]?.keyHint || null
   const { credentials: _creds, ...rest } = connector
   void _creds
-  return { ...rest, keyHint }
+  const accountId =
+    typeof (connector.config as any)?.accountId === "string"
+      ? ((connector.config as any)?.accountId as string)
+      : undefined
+  return { ...rest, keyHint, accountId }
 }
 
 export async function getProductConnectorRevenue(

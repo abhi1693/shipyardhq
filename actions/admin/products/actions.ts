@@ -173,6 +173,8 @@ export async function createProductAction(formData: FormData) {
   const utmCampaign = formData.get("utmCampaign")?.toString().trim()
   const connectorProvider = formData.get("connectorProvider")?.toString().trim()
   const connectorApiKey = formData.get("connectorApiKey")?.toString().trim()
+  const connectorAccountId =
+    formData.get("connectorAccountId")?.toString().trim() || undefined
 
   const startingPriceCentsRaw = formData.get("startingPriceCents")?.toString()
   const startingPriceCents = startingPriceCentsRaw
@@ -314,14 +316,14 @@ export async function createProductAction(formData: FormData) {
         await validateConnectorApiKey({
           provider: providerEnum as PaymentConnectorProvider,
           apiKey: connectorApiKey,
-          config: {},
+          config: { accountId: connectorAccountId },
           productName: name,
         })
         const { connector } = await upsertPaymentConnector({
           productId: created.id,
           provider: providerEnum as PaymentConnectorProvider,
           apiKey: connectorApiKey,
-          config: {},
+          config: { accountId: connectorAccountId },
         })
         await syncPaymentConnector(connector.id)
       }
@@ -430,6 +432,7 @@ export async function updateProductAction(
     alternativeIds?: string[]
     connectorProvider?: string | null
     connectorApiKey?: string
+    connectorAccountId?: string | null
   },
 ) {
   // Determine role for permission-sensitive updates
@@ -459,6 +462,7 @@ export async function updateProductAction(
     pricingModel,
   } = data
   const connectorApiKey = data.connectorApiKey?.trim()
+  const connectorAccountId = data.connectorAccountId?.trim() || undefined
 
   // Load current product for comparisons
   const current = await prisma.product.findUnique({
@@ -612,11 +616,12 @@ export async function updateProductAction(
       },
     })
 
-    const connectorInputProvided = connectorApiKey || data.connectorProvider
+    const connectorInputProvided =
+      connectorApiKey || data.connectorProvider || connectorAccountId
     if (connectorInputProvided) {
       const existingConnector = await prisma.paymentConnector.findUnique({
         where: { productId: id },
-        select: { id: true, provider: true },
+        select: { id: true, provider: true, config: true },
       })
       const providerValue =
         data.connectorProvider || existingConnector?.provider || undefined
@@ -632,16 +637,29 @@ export async function updateProductAction(
         await validateConnectorApiKey({
           provider: providerEnum as PaymentConnectorProvider,
           apiKey: connectorApiKey,
-          config: {},
+          config: { accountId: connectorAccountId },
           productName: name,
         })
         const { connector } = await upsertPaymentConnector({
           productId: id,
           provider: providerEnum as PaymentConnectorProvider,
           apiKey: connectorApiKey,
-          config: {},
+          config: { accountId: connectorAccountId },
         })
         await syncPaymentConnector(connector.id)
+      } else if (connectorAccountId && existingConnector?.id) {
+        // Update config to include the connected account without requiring a new key.
+        const nextConfig = {
+          ...(existingConnector.config ?? {}),
+          accountId: connectorAccountId,
+        }
+        await prisma.paymentConnector.update({
+          where: { id: existingConnector.id },
+          data: {
+            config: nextConfig as any,
+          },
+        })
+        await syncPaymentConnector(existingConnector.id)
       }
     }
 

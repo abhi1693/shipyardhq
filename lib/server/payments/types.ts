@@ -7,6 +7,7 @@ import type {
 export type PaymentConnectorConfig = {
   environment?: "live_mode" | "test_mode"
   accountId?: string
+  connectedAccountIds?: string[]
 }
 
 export type RevenueSnapshotInput = {

@@ -9,6 +9,7 @@ import {
   PaymentConnectorProvider as PaymentConnectorProviderEnum,
   PaymentConnectorStatus as PaymentConnectorStatusEnum,
 } from "@/lib/vendor/prisma/client/enums"
+import { IS_PROD } from "@/lib/constants"
 import {
   Select,
   SelectContent,
@@ -25,11 +26,13 @@ import { cn } from "@/lib/utils"
 type Draft = {
   provider?: PaymentConnectorProvider
   apiKey?: string
+  accountId?: string
 }
 
 type Props = {
   provider?: PaymentConnectorProvider
   apiKey?: string
+  accountId?: string
   keyHint?: string | null
   status?: PaymentConnectorStatus | null
   lastSyncedAt?: Date | string | null
@@ -44,6 +47,7 @@ type Props = {
 const PROVIDER_OPTIONS: { value: PaymentConnectorProvider; label: string }[] = [
   { value: PaymentConnectorProviderEnum.dodo, label: "DodoPayments" },
   { value: PaymentConnectorProviderEnum.polar, label: "Polar" },
+  { value: PaymentConnectorProviderEnum.stripe, label: "Stripe" },
 ]
 
 function renderStatus(status?: PaymentConnectorStatus | null) {
@@ -71,6 +75,7 @@ function renderStatus(status?: PaymentConnectorStatus | null) {
 export function PaymentConnectorCard({
   provider,
   apiKey,
+  accountId,
   keyHint,
   status,
   lastSyncedAt,
@@ -86,8 +91,14 @@ export function PaymentConnectorCard({
     provider ??
     PROVIDER_OPTIONS.find(
       (opt) => opt.value === PaymentConnectorProviderEnum.dodo,
-    )
-      ?.value
+    )?.value
+  const stripePrefix = IS_PROD ? "rk_live_" : "rk_test_"
+  const stripePlaceholder =
+    selectedProvider === PaymentConnectorProviderEnum.stripe
+      ? `${stripePrefix} restricted key`
+      : "Enter API secret key"
+  const showStripeAccount =
+    selectedProvider === PaymentConnectorProviderEnum.stripe
 
   return (
     <div className="space-y-4">
@@ -138,7 +149,7 @@ export function PaymentConnectorCard({
         <Input
           id="connector-key"
           type="password"
-          placeholder="Enter API secret key"
+          placeholder={stripePlaceholder}
           value={apiKey || ""}
           onChange={(e) =>
             onChange?.({
@@ -158,7 +169,36 @@ export function PaymentConnectorCard({
             copy.
           </p>
         )}
+        {selectedProvider === PaymentConnectorProviderEnum.stripe ? (
+          <p className="text-xs text-muted-foreground">
+            Use a Stripe restricted key starting with{" "}
+            <span className="font-mono">{stripePrefix}</span> for this
+            environment.
+          </p>
+        ) : null}
       </div>
+
+      {showStripeAccount ? (
+        <div className="space-y-2">
+          <Label htmlFor="connector-account">Connected account ID (optional)</Label>
+          <Input
+            id="connector-account"
+            placeholder="acct_123..."
+            value={accountId || ""}
+            onChange={(e) =>
+              onChange?.({
+                provider: selectedProvider,
+                apiKey,
+                accountId: e.target.value,
+              })
+            }
+          />
+          <p className="text-xs text-muted-foreground">
+            Provide a Stripe connected account ID to pull revenue for that
+            account. Leave blank to use the platform account only.
+          </p>
+        </div>
+      ) : null}
 
       {lastSyncedAt ? (
         <p className="text-xs text-muted-foreground">

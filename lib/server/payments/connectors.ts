@@ -57,34 +57,46 @@ async function applySnapshots(
 ): Promise<void> {
   if (snapshots.length === 0) return
 
-  await prisma.$transaction(
-    snapshots.map((snapshot) =>
-      prisma.paymentRevenueSnapshot.upsert({
-        where: {
-          connectorId_periodStart_currencyCode: {
-            connectorId,
-            periodStart: snapshot.periodStart,
-            currencyCode: snapshot.currencyCode,
-          },
-        },
-        create: {
-          connectorId,
-          currencyCode: snapshot.currencyCode,
-          periodStart: snapshot.periodStart,
-          periodRevenueCents: snapshot.periodRevenueCents,
-          allTimeRevenueCents: snapshot.allTimeRevenueCents,
-          mrrCents: snapshot.mrrCents ?? undefined,
-          data: snapshot.data,
-        },
-        update: {
-          periodRevenueCents: snapshot.periodRevenueCents,
-          allTimeRevenueCents: snapshot.allTimeRevenueCents,
-          mrrCents: snapshot.mrrCents ?? undefined,
-          data: snapshot.data,
-        },
-      }),
-    ),
-  )
+  // Batch in chunks to avoid long-running transactions.
+  const chunkSize = 10
+  let processed = 0
+  try {
+    for (let i = 0; i < snapshots.length; i += chunkSize) {
+      const chunk = snapshots.slice(i, i + chunkSize)
+      await Promise.all(
+        chunk.map((snapshot) =>
+          prisma.paymentRevenueSnapshot.upsert({
+            where: {
+              connectorId_periodStart_currencyCode: {
+                connectorId,
+                periodStart: snapshot.periodStart,
+                currencyCode: snapshot.currencyCode,
+              },
+            },
+            create: {
+              connectorId,
+              currencyCode: snapshot.currencyCode,
+              periodStart: snapshot.periodStart,
+              periodRevenueCents: snapshot.periodRevenueCents,
+              allTimeRevenueCents: snapshot.allTimeRevenueCents,
+              mrrCents: snapshot.mrrCents ?? undefined,
+              data: snapshot.data,
+            },
+            update: {
+              periodRevenueCents: snapshot.periodRevenueCents,
+              allTimeRevenueCents: snapshot.allTimeRevenueCents,
+              mrrCents: snapshot.mrrCents ?? undefined,
+              data: snapshot.data,
+            },
+          }),
+        ),
+      )
+      processed += chunk.length
+    }
+  } catch (error) {
+    throw error
+  }
+
 }
 
 function selectPrimarySnapshot(
@@ -206,6 +218,25 @@ export async function syncPaymentConnector(connectorId: string) {
   try {
     const result = await providerDefinition.sync({ connector, apiKey })
     await applySnapshots(connector.id, result.snapshots)
+    const snapshotCount = await prisma.paymentRevenueSnapshot.count({
+      where: { connectorId: connector.id },
+    })
+    const latestSnapshot = await prisma.paymentRevenueSnapshot.findFirst({
+      where: { connectorId: connector.id },
+      orderBy: { periodStart: "desc" },
+      select: {
+        periodStart: true,
+        currencyCode: true,
+        periodRevenueCents: true,
+        allTimeRevenueCents: true,
+        mrrCents: true,
+      },
+    })
+    console.info("[payments] revenue snapshots persisted", {
+      connectorId: connector.id,
+      snapshotCount,
+      latestSnapshot,
+    })
     const primary = selectPrimarySnapshot(result.snapshots)
     const sortedByDate = [...result.snapshots].sort(
       (a, b) => a.periodStart.getTime() - b.periodStart.getTime(),
