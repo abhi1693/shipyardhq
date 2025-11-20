@@ -290,6 +290,7 @@ function buildSnapshots({
   mode,
   accountIds,
   includePlatform,
+  allTimeBaseByCurrency,
 }: {
   chargesByCurrency: Map<
     string,
@@ -302,12 +303,16 @@ function buildSnapshots({
   mode: "live" | "test"
   accountIds: string[]
   includePlatform: boolean
+  allTimeBaseByCurrency?: Map<string, number>
 }): RevenueSnapshotInput[] {
   const snapshots: RevenueSnapshotInput[] = []
 
   const currencies = new Set<string>([
     ...chargesByCurrency.keys(),
     ...mrrByCurrency.keys(),
+    ...(allTimeBaseByCurrency
+      ? Array.from(allTimeBaseByCurrency.keys())
+      : []),
   ])
 
   for (const currency of currencies) {
@@ -315,7 +320,11 @@ function buildSnapshots({
     const ordered = Array.from(buckets.values()).sort((a, b) =>
       a.periodStart.getTime() > b.periodStart.getTime() ? 1 : -1,
     )
-    let runningAllTime = 0
+    const baseAllTime =
+      allTimeBaseByCurrency?.get(currency.toUpperCase()) ??
+      allTimeBaseByCurrency?.get(currency) ??
+      0
+    let runningAllTime = baseAllTime
     const latestBucket = ordered[ordered.length - 1]
     const mrr = mrrByCurrency.get(currency) ?? null
 
@@ -325,7 +334,7 @@ function buildSnapshots({
         currencyCode: currency,
         periodStart: today,
         periodRevenueCents: 0,
-        allTimeRevenueCents: 0,
+        allTimeRevenueCents: runningAllTime,
         mrrCents: mrr,
         data: {
           source: "stripe",
@@ -359,11 +368,15 @@ function buildSnapshots({
 
   if (snapshots.length === 0) {
     const today = startOfUtcDay(new Date())
+    const fallbackBase =
+      allTimeBaseByCurrency?.get("USD") ??
+      allTimeBaseByCurrency?.get("usd") ??
+      0
     snapshots.push({
       currencyCode: "USD",
       periodStart: today,
       periodRevenueCents: 0,
-      allTimeRevenueCents: 0,
+      allTimeRevenueCents: fallbackBase,
       mrrCents: mrrByCurrency.get("USD") ?? null,
       data: {
         source: "stripe",
@@ -403,7 +416,13 @@ export const stripeProvider: PaymentProviderDefinition = {
     // Return void; success means validation passed for the expected environment.
     return
   },
-  async sync({ connector, apiKey }) {
+  async sync({
+    connector,
+    apiKey,
+    since,
+    currencyAllTimeBase,
+    latestPeriodStartByCurrency,
+  }) {
     ensureStripeKeyMatchesEnvironment(apiKey)
     const config = (connector.config ?? undefined) as
       | PaymentConnectorConfig
@@ -412,28 +431,59 @@ export const stripeProvider: PaymentProviderDefinition = {
       typeof config?.accountId === "string" && config.accountId.trim().length
         ? config.accountId.trim()
         : undefined
-  const connectedAccountIds = Array.isArray(config?.connectedAccountIds)
-    ? config.connectedAccountIds
-        .filter((id) => typeof id === "string")
-        .map((id) => id.trim())
-        .filter(Boolean)
-    : []
-  const includePlatformOnly =
-    !primaryAccountId && connectedAccountIds.length === 0
-  const targetAccounts: (string | undefined)[] = [
-    ...(includePlatformOnly ? [undefined] : []), // platform account only when no explicit accounts set
-    primaryAccountId,
-    ...connectedAccountIds,
-  ].filter((value, index, self) => self.indexOf(value) === index)
-  const includesPlatform = targetAccounts.some(
-    (value) => value === undefined,
-  )
-  const usedAccountIds = new Set<string>()
-  const mode: "live" | "test" = IS_PROD ? "live" : "test"
+    const connectedAccountIds = Array.isArray(config?.connectedAccountIds)
+      ? config.connectedAccountIds
+          .filter((id) => typeof id === "string")
+          .map((id) => id.trim())
+          .filter(Boolean)
+      : []
+    const includePlatformOnly =
+      !primaryAccountId && connectedAccountIds.length === 0
+    const targetAccounts: (string | undefined)[] = [
+      ...(includePlatformOnly ? [undefined] : []), // platform account only when no explicit accounts set
+      primaryAccountId,
+      ...connectedAccountIds,
+    ].filter((value, index, self) => self.indexOf(value) === index)
+    const includesPlatform = targetAccounts.some(
+      (value) => value === undefined,
+    )
+    const usedAccountIds = new Set<string>()
+    const mode: "live" | "test" = IS_PROD ? "live" : "test"
+    const allTimeBaseByCurrency = new Map<string, number>()
+    const latestStartByCurrency = new Map<string, Date>()
+    if (currencyAllTimeBase) {
+      for (const [currency, value] of currencyAllTimeBase.entries()) {
+        allTimeBaseByCurrency.set(currency.toUpperCase(), value)
+      }
+    }
+    if (latestPeriodStartByCurrency) {
+      for (const [currency, date] of latestPeriodStartByCurrency.entries()) {
+        if (currency) {
+          const normalized = startOfUtcDay(new Date(date))
+          latestStartByCurrency.set(currency.toUpperCase(), normalized)
+        }
+      }
+    }
 
-    // Fetch full history to keep all-time revenue accurate. If this becomes too heavy,
-    // consider adding a persisted cursor and incremental backfill.
-    const createdGte = undefined
+    const createdSince = since
+      ? startOfUtcDay(new Date(since))
+      : null
+    const createdGte = createdSince
+      ? Math.floor(createdSince.getTime() / 1000)
+      : undefined
+    console.info("[payments.stripe] sync start", {
+      connectorId: connector.id,
+      productId: connector.productId,
+      mode,
+      createdSince,
+      targetAccounts: targetAccounts.map((id) => id || "platform"),
+      latestPeriodStartByCurrency: Array.from(
+        latestStartByCurrency.entries(),
+      ).map(([currency, date]) => ({
+        currency,
+        periodStart: date.toISOString(),
+      })),
+    })
 
     const chargesByCurrency = new Map<
       string,
@@ -447,6 +497,8 @@ export const stripeProvider: PaymentProviderDefinition = {
     for (const accountId of targetAccounts) {
       try {
         const charges = await collectCharges({ apiKey, accountId, createdGte })
+        let totalRevenue = 0
+        let bucketCount = 0
         for (const [currency, buckets] of charges.entries()) {
           const existing = chargesByCurrency.get(currency) || new Map()
           for (const [dayKey, bucket] of buckets.entries()) {
@@ -457,9 +509,18 @@ export const stripeProvider: PaymentProviderDefinition = {
               charges: (prev?.charges ?? 0) + bucket.charges,
               periodStart: bucket.periodStart,
             })
+            totalRevenue += bucket.periodRevenueCents
+            bucketCount += 1
           }
           chargesByCurrency.set(currency, existing)
         }
+        console.info("[payments.stripe] collected charges", {
+          connectorId: connector.id,
+          accountId: accountId || "platform",
+          currencies: charges.size,
+          dayBuckets: bucketCount,
+          revenueCents: totalRevenue,
+        })
         if (accountId) usedAccountIds.add(accountId)
       } catch (error) {
         console.warn(
@@ -467,6 +528,27 @@ export const stripeProvider: PaymentProviderDefinition = {
           accountId || "platform",
           error,
         )
+      }
+    }
+
+    for (const [currency, buckets] of chargesByCurrency.entries()) {
+      const threshold = latestStartByCurrency.get(currency)
+      if (threshold) {
+        let removed = 0
+        for (const [dayKey, bucket] of Array.from(buckets.entries())) {
+          if (bucket.periodStart < threshold) {
+            buckets.delete(dayKey)
+            removed += 1
+          }
+        }
+        if (removed > 0) {
+          console.info("[payments.stripe] pruned historical buckets", {
+            connectorId: connector.id,
+            currency,
+            removed,
+            threshold: threshold.toISOString(),
+          })
+        }
       }
     }
 
@@ -494,6 +576,21 @@ export const stripeProvider: PaymentProviderDefinition = {
       mode,
       accountIds: Array.from(usedAccountIds),
       includePlatform: includesPlatform,
+      allTimeBaseByCurrency,
+    })
+    console.info("[payments.stripe] sync complete", {
+      connectorId: connector.id,
+      productId: connector.productId,
+      mode,
+      currencies: snapshots.reduce((set, snap) => set.add(snap.currencyCode), new Set<string>()).size,
+      chargeDayBuckets: Array.from(chargesByCurrency.values()).reduce(
+        (sum, map) => sum + map.size,
+        0,
+      ),
+      mrrCurrencies: mrrByCurrency.size,
+      snapshots: snapshots.length,
+      accountIds: Array.from(usedAccountIds),
+      includesPlatform,
     })
 
     return { snapshots }

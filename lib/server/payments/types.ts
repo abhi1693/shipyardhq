@@ -23,10 +23,18 @@ export type ProviderSyncResult = {
   snapshots: RevenueSnapshotInput[]
 }
 
-export type ProviderSyncHandler = (options: {
-  connector: PaymentConnector
-  apiKey: string
-}) => Promise<ProviderSyncResult>
+export type ProviderSyncContext = {
+  since?: Date | null
+  currencyAllTimeBase?: Map<string, number>
+  latestPeriodStartByCurrency?: Map<string, Date>
+}
+
+export type ProviderSyncHandler = (
+  options: {
+    connector: PaymentConnector
+    apiKey: string
+  } & ProviderSyncContext,
+) => Promise<ProviderSyncResult>
 
 export type ProviderApiValidator = (options: {
   apiKey: string

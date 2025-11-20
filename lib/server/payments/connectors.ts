@@ -51,6 +51,63 @@ async function getActiveCredential(
   return connector?.credentials?.[0] || null
 }
 
+async function getSyncContext(connectorId: string) {
+  const currencyAllTimeBase = new Map<string, number>()
+  const latestPeriodStartByCurrency = new Map<string, Date>()
+
+  const latestByCurrency = await prisma.paymentRevenueSnapshot.groupBy({
+    by: ["currencyCode"],
+    where: { connectorId },
+    _max: { periodStart: true },
+  })
+
+  const since =
+    latestByCurrency.reduce<Date | null>((earliest: number, entry: { _max: { periodStart: any } }) => {
+      const periodStart = entry._max.periodStart
+      if (!periodStart) return earliest
+      if (!earliest || periodStart < earliest) return periodStart
+      return earliest
+    }, null) ?? null
+
+  const lookups = latestByCurrency
+    .map((entry: { currencyCode: any; _max: { periodStart: any } }) => ({
+      currencyCode: entry.currencyCode,
+      periodStart: entry._max.periodStart,
+    }))
+    .filter(
+      (
+        entry: { currencyCode: any; periodStart: any },
+      ): entry is { currencyCode: string; periodStart: Date } =>
+        Boolean(entry.currencyCode) && Boolean(entry.periodStart),
+    )
+
+  if (lookups.length > 0) {
+    const snapshots = await prisma.paymentRevenueSnapshot.findMany({
+      where: {
+        connectorId,
+        OR: lookups,
+      },
+      select: {
+        currencyCode: true,
+        periodStart: true,
+        periodRevenueCents: true,
+        allTimeRevenueCents: true,
+      },
+    })
+
+    for (const snapshot of snapshots) {
+      const currency = snapshot.currencyCode?.toUpperCase()
+      if (!currency) continue
+      const baseBeforeLatest =
+        snapshot.allTimeRevenueCents - snapshot.periodRevenueCents
+      currencyAllTimeBase.set(currency, Math.max(baseBeforeLatest, 0))
+      latestPeriodStartByCurrency.set(currency, snapshot.periodStart)
+    }
+  }
+
+  return { since, currencyAllTimeBase, latestPeriodStartByCurrency }
+}
+
 async function applySnapshots(
   connectorId: string,
   snapshots: RevenueSnapshotInput[],
@@ -214,7 +271,23 @@ export async function syncPaymentConnector(connectorId: string) {
   }
 
   try {
-    const result = await providerDefinition.sync({ connector, apiKey })
+    const {
+      since,
+      currencyAllTimeBase,
+      latestPeriodStartByCurrency,
+    } = await getSyncContext(connector.id)
+    console.info("[payments.connector.sync] context", {
+      connectorId: connector.id,
+      since,
+      currencies: Array.from(currencyAllTimeBase.keys()),
+    })
+    const result = await providerDefinition.sync({
+      connector,
+      apiKey,
+      since,
+      currencyAllTimeBase,
+      latestPeriodStartByCurrency,
+    })
     await applySnapshots(connector.id, result.snapshots)
     const primary = selectPrimarySnapshot(result.snapshots)
     const sortedByDate = [...result.snapshots].sort(
@@ -272,6 +345,11 @@ export async function syncPaymentConnector(connectorId: string) {
       error instanceof Error
         ? error.message
         : "Unexpected connector sync failure"
+    console.error("[payments.connector.sync] failed", {
+      connectorId: connector.id,
+      provider: connector.provider,
+      error: message,
+    })
     await prisma.paymentConnector.update({
       where: { id: connector.id },
       data: { status: PaymentConnectorStatus.error, lastSyncError: message },
