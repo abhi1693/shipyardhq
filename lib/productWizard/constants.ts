@@ -48,7 +48,14 @@ export const STEP_FIELDS: Record<number, readonly string[]> = {
     "platforms",
     "keywordsText",
   ],
-  2: ["pricingModel", "startingPriceCents", "currencyCode"],
+  2: [
+    "pricingModel",
+    "startingPriceCents",
+    "currencyCode",
+    "connectorProvider",
+    "connectorApiKey",
+    "connectorAccountId",
+  ],
   3: [],
   4: [
     "organizationId",

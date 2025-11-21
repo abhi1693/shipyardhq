@@ -48,6 +48,7 @@ const PROVIDER_OPTIONS: { value: PaymentConnectorProvider; label: string }[] = [
   { value: PaymentConnectorProviderEnum.dodo, label: "DodoPayments" },
   { value: PaymentConnectorProviderEnum.polar, label: "Polar" },
   { value: PaymentConnectorProviderEnum.stripe, label: "Stripe" },
+  { value: PaymentConnectorProviderEnum.lemonsqueezy, label: "Lemon Squeezy" },
 ]
 
 function renderStatus(status?: PaymentConnectorStatus | null) {
@@ -98,7 +99,9 @@ export function PaymentConnectorCard({
       ? `${stripePrefix} restricted key`
       : selectedProvider === PaymentConnectorProviderEnum.polar
         ? "polar_oat_... organization access token"
-        : "Enter API secret key"
+        : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
+          ? "Lemon Squeezy API key from Settings -> API"
+          : "Enter API secret key"
   const showStripeAccount =
     selectedProvider === PaymentConnectorProviderEnum.stripe
   const showStripePermissions =
@@ -107,10 +110,16 @@ export function PaymentConnectorCard({
     selectedProvider === PaymentConnectorProviderEnum.polar
   const showPolarOrganizationId =
     selectedProvider === PaymentConnectorProviderEnum.polar
+  const showLemonStoreId =
+    selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
+  const showLemonPermissions =
+    selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
   const accountPlaceholder =
     selectedProvider === PaymentConnectorProviderEnum.stripe
       ? "acct_123..."
-      : "org_..."
+      : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
+        ? "Store ID (e.g. 123456)"
+        : "org_..."
 
   return (
     <div className="space-y-4">
@@ -193,15 +202,22 @@ export function PaymentConnectorCard({
             <span className="font-mono">polar_oat_</span> that can read your
             organizations, orders, and subscriptions.
           </p>
+        ) : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy ? (
+          <p className="text-xs text-muted-foreground">
+            Use an API key from Lemon Squeezy Settings &gt; Developer &gt; API
+            Keys with access to orders and subscriptions.
+          </p>
         ) : null}
       </div>
 
-      {showStripePermissions || showPolarPermissions ? (
+      {showStripePermissions || showPolarPermissions || showLemonPermissions ? (
         <div className="rounded-md border border-dashed border-border bg-muted/40 p-3">
           <p className="text-xs font-semibold text-foreground">
             {showStripePermissions
               ? "Stripe key permissions needed"
-              : "Polar token permissions needed"}
+              : showPolarPermissions
+                ? "Polar token permissions needed"
+                : "Lemon Squeezy key permissions needed"}
           </p>
           <ul className="mt-1 list-disc pl-4 text-xs text-muted-foreground">
             {showStripePermissions ? (
@@ -217,16 +233,24 @@ export function PaymentConnectorCard({
                 <li>Subscriptions: Read</li>
               </>
             ) : null}
+            {showLemonPermissions ? (
+              <>
+                <li>Orders: Read</li>
+                <li>Subscriptions: Read</li>
+              </>
+            ) : null}
           </ul>
         </div>
       ) : null}
 
-      {showStripeAccount || showPolarOrganizationId ? (
+      {showStripeAccount || showPolarOrganizationId || showLemonStoreId ? (
         <div className="space-y-2">
           <Label htmlFor="connector-account">
             {showStripeAccount
               ? "Connected account ID (optional)"
-              : "Polar organization ID (required)"}
+              : showLemonStoreId
+                ? "Lemon Squeezy store ID (required)"
+                : "Polar organization ID (required)"}
           </Label>
           <Input
             id="connector-account"
@@ -244,6 +268,11 @@ export function PaymentConnectorCard({
             <p className="text-xs text-muted-foreground">
               Provide a Stripe connected account ID to pull revenue for that
               account. Leave blank to use the platform account only.
+            </p>
+          ) : showLemonStoreId ? (
+            <p className="text-xs text-muted-foreground">
+              Required. Use the numeric store ID from Lemon Squeezy to scope
+              revenue to a single store.
             </p>
           ) : (
             <p className="text-xs text-muted-foreground">

@@ -64,7 +64,9 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       status: z.enum(statusValues).optional(),
 
       // Payment connector (optional, saved with product)
-      connectorProvider: z.enum(["dodo", "polar", "stripe"]).optional(),
+      connectorProvider: z
+        .enum(["dodo", "polar", "stripe", "lemonsqueezy"])
+        .optional(),
       connectorApiKey: z.string().optional().or(z.literal("")),
       connectorAccountId: z.string().optional().or(z.literal("")),
 
@@ -163,6 +165,17 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
             path: ["connectorAccountId"],
             code: z.ZodIssueCode.custom,
             message: "Polar organization ID is required",
+          })
+        }
+      }
+
+      if (val.connectorProvider === "lemonsqueezy") {
+        const storeId = val.connectorAccountId?.trim()
+        if (val.connectorApiKey && !storeId) {
+          ctx.addIssue({
+            path: ["connectorAccountId"],
+            code: z.ZodIssueCode.custom,
+            message: "Lemon Squeezy store ID is required",
           })
         }
       }

@@ -315,6 +315,12 @@ export async function createProductAction(formData: FormData) {
         return { error: "Polar organization ID is required" }
       }
       if (
+        providerEnum === PaymentConnectorProvider.lemonsqueezy &&
+        !connectorAccountId
+      ) {
+        return { error: "Lemon Squeezy store ID is required" }
+      }
+      if (
         Object.values(PaymentConnectorProvider).includes(
           providerEnum as PaymentConnectorProvider,
         )
@@ -645,6 +651,12 @@ export async function updateProductAction(
           !connectorAccountId
         ) {
           return { error: "Polar organization ID is required" }
+        }
+        if (
+          providerEnum === PaymentConnectorProvider.lemonsqueezy &&
+          !connectorAccountId
+        ) {
+          return { error: "Lemon Squeezy store ID is required" }
         }
         await validateConnectorApiKey({
           provider: providerEnum as PaymentConnectorProvider,
