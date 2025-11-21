@@ -8,7 +8,6 @@ import { APP_EVENTS } from "@/lib/server/events/constants"
 import "@/lib/server/badges" // register badge listeners
 import { deleteBlob, deleteBlobPrefix } from "@/lib/blob"
 import "@/lib/server/plans" // register default-plan listeners
-import "@/lib/server/email/productVerificationReminder"
 import "@/lib/server/productInsights/initialPipeline"
 import "@/lib/server/social/twitterBot"
 import "@/lib/server/rewards/listeners"

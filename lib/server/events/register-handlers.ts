@@ -9,10 +9,6 @@ export async function registerEventHandlers(): Promise<void> {
       load: () => import("@/lib/server/productInsights/initialPipeline"),
     },
     {
-      path: "@/lib/server/email/productVerificationReminder",
-      load: () => import("@/lib/server/email/productVerificationReminder"),
-    },
-    {
       path: "@/lib/server/email/productVoteMilestone",
       load: () => import("@/lib/server/email/productVoteMilestone"),
     },

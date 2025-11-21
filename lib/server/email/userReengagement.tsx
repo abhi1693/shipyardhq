@@ -11,7 +11,7 @@ import {
 } from "@/lib/routes"
 
 const LOGIN_RULE_KEY = "rewards.login.daily"
-const REENGAGEMENT_MILESTONES = [7, 14, 30, 90]
+const REENGAGEMENT_MILESTONES = [90]
 const DAY_IN_MS = 24 * 60 * 60 * 1000
 const REDIS_TTL_SECONDS = 60 * 60 * 24 * 365 // roughly a year
 
