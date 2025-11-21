@@ -62,7 +62,9 @@ async function lemonRequest<T>({
 }): Promise<T> {
   const base = getBaseUrl()
   const url = new URL(
-    path.startsWith("http") ? path : `${base}${path.startsWith("/") ? "" : "/"}${path}`,
+    path.startsWith("http")
+      ? path
+      : `${base}${path.startsWith("/") ? "" : "/"}${path}`,
   )
   if (query) {
     Object.entries(query).forEach(([key, value]) => {
@@ -237,9 +239,7 @@ async function validateLemonApiKey({
   }
 }
 
-function buildBaseMaps(
-  context: ProviderSyncContext,
-): {
+function buildBaseMaps(context: ProviderSyncContext): {
   baseByCurrency: Map<string, number>
   latestStartByCurrency: Map<string, Date>
 } {
@@ -253,7 +253,10 @@ function buildBaseMaps(
     }
   }
   if (context.latestPeriodStartByCurrency) {
-    for (const [currency, date] of context.latestPeriodStartByCurrency.entries()) {
+    for (const [
+      currency,
+      date,
+    ] of context.latestPeriodStartByCurrency.entries()) {
       if (!currency || !date) continue
       latestStartByCurrency.set(
         currency.toUpperCase(),
@@ -297,7 +300,10 @@ export async function syncLemonConnector({
   ])
   const revenueByCurrency = new Map<
     string,
-    Map<string, { periodRevenueCents: number; charges: number; periodStart: Date }>
+    Map<
+      string,
+      { periodRevenueCents: number; charges: number; periodStart: Date }
+    >
   >()
   const mrrByCurrency = new Map<string, number>()
 
@@ -327,12 +333,11 @@ export async function syncLemonConnector({
         string,
         { periodRevenueCents: number; charges: number; periodStart: Date }
       >()
-    const bucket =
-      currencyMap.get(dayKey) || {
-        periodRevenueCents: 0,
-        charges: 0,
-        periodStart,
-      }
+    const bucket = currencyMap.get(dayKey) || {
+      periodRevenueCents: 0,
+      charges: 0,
+      periodStart,
+    }
     bucket.periodRevenueCents += amountCents
     bucket.charges += 1
     currencyMap.set(dayKey, bucket)
@@ -434,7 +439,13 @@ export const lemonSqueezyProvider: PaymentProviderDefinition = {
       apiKey,
       config,
     }),
-  sync: async ({ connector, apiKey, since, currencyAllTimeBase, latestPeriodStartByCurrency }) =>
+  sync: async ({
+    connector,
+    apiKey,
+    since,
+    currencyAllTimeBase,
+    latestPeriodStartByCurrency,
+  }) =>
     syncLemonConnector({
       connector,
       apiKey,
