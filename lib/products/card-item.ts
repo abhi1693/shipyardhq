@@ -23,6 +23,8 @@ export const toProductCardItem = (
     variant: overrideVariant,
     latestMrrCents: overrideLatestMrrCents,
     mrrCurrencyCode: overrideMrrCurrencyCode,
+    latestRevenueCents: overrideLatestRevenueCents,
+    revenueCurrencyCode: overrideRevenueCurrencyCode,
     ...restOverrides
   } = overrides
 
@@ -77,6 +79,20 @@ export const toProductCardItem = (
         ? base.mrrCurrencyCode
         : null
 
+  const latestRevenueCents =
+    typeof overrideLatestRevenueCents !== "undefined"
+      ? overrideLatestRevenueCents
+      : typeof base.latestRevenueCents !== "undefined"
+        ? base.latestRevenueCents
+        : null
+
+  const revenueCurrencyCode =
+    typeof overrideRevenueCurrencyCode !== "undefined"
+      ? overrideRevenueCurrencyCode
+      : typeof base.revenueCurrencyCode !== "undefined"
+        ? base.revenueCurrencyCode
+        : null
+
   return {
     ...base,
     badges,
@@ -89,6 +105,8 @@ export const toProductCardItem = (
     variant,
     latestMrrCents,
     mrrCurrencyCode,
+    latestRevenueCents,
+    revenueCurrencyCode,
     ...restOverrides,
   }
 }

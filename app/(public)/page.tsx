@@ -17,15 +17,26 @@ import {
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
-import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
+import {
+  DEFAULT_HOMEPAGE_FEED_VIEW,
+  normalizeHomepageFeedView,
+} from "@/lib/homepage/feed-views"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { siteConfig } from "@/lib/siteConfig"
 import { HOME_PATH } from "@/lib/routes"
 
 export const revalidate = 60
 
-export default async function HomePage() {
-  const feedView = DEFAULT_HOMEPAGE_FEED_VIEW
+interface HomePageProps {
+  searchParams: Promise<{ view?: string | string[] }>
+}
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const params = await searchParams
+  const feedView = normalizeHomepageFeedView(
+    params?.view,
+    DEFAULT_HOMEPAGE_FEED_VIEW,
+  )
   return (
     <div className="relative isolate bg-[#f5f7fb]">
       <CoreStructuredData

@@ -19,6 +19,8 @@ export type ProductCardBase = {
   updatedAt?: string | Date | null
   latestMrrCents?: number | null
   mrrCurrencyCode?: string | null
+  latestRevenueCents?: number | null
+  revenueCurrencyCode?: string | null
 }
 
 export type ProductCardItem = ProductCardBase & {
@@ -75,6 +77,11 @@ function toFeedItem(product: ProductCardItem): HomepageFeedItem {
         ? product.latestMrrCents
         : null,
     mrrCurrencyCode: product.mrrCurrencyCode ?? null,
+    latestRevenueCents:
+      typeof product.latestRevenueCents === "number"
+        ? product.latestRevenueCents
+        : null,
+    revenueCurrencyCode: product.revenueCurrencyCode ?? null,
     shuffleRank: Math.random(),
   }
 }

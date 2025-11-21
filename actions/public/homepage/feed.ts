@@ -59,6 +59,7 @@ const homepageFeedSelect = {
   },
   paymentConnector: {
     select: {
+      latestAllTimeRevenueCents: true,
       latestMrrCents: true,
       latestCurrencyCode: true,
       revenueHistory: {
@@ -67,6 +68,7 @@ const homepageFeedSelect = {
         select: {
           mrrCents: true,
           currencyCode: true,
+          allTimeRevenueCents: true,
         },
       },
     },
@@ -95,6 +97,8 @@ export interface HomepageFeedItem {
   variant?: ProductCardVariant
   latestMrrCents?: number | null
   mrrCurrencyCode?: string | null
+  latestRevenueCents?: number | null
+  revenueCurrencyCode?: string | null
   shuffleRank: number
 }
 
@@ -137,6 +141,33 @@ function buildBaseWhere(): Prisma.ProductWhereInput {
   }
 }
 
+function buildVerifiedRevenueWhere(): Prisma.ProductWhereInput {
+  return {
+    paymentConnector: {
+      is: {
+        verifiedAt: { not: null },
+        status: "active",
+        OR: [
+          { latestAllTimeRevenueCents: { gt: 0 } },
+          { latestMrrCents: { gt: 0 } },
+        ],
+      },
+    },
+  }
+}
+
+function buildVerifiedMrrWhere(): Prisma.ProductWhereInput {
+  return {
+    paymentConnector: {
+      is: {
+        verifiedAt: { not: null },
+        status: "active",
+        latestMrrCents: { gt: 0 },
+      },
+    },
+  }
+}
+
 function mapProductToFeedItem(
   product: HomepageFeedProduct,
   upvoted: Set<string>,
@@ -154,12 +185,21 @@ function mapProductToFeedItem(
     ) ?? false
 
   const latestMrrCents = product.paymentConnector?.latestMrrCents ?? null
+  const latestRevenueCents =
+    product.paymentConnector?.latestAllTimeRevenueCents ?? null
   const fallbackSnapshot = product.paymentConnector?.revenueHistory?.[0]
   const normalizedLatestMrrCents =
     typeof latestMrrCents === "number"
       ? latestMrrCents
       : typeof fallbackSnapshot?.mrrCents === "number"
         ? fallbackSnapshot.mrrCents
+        : null
+
+  const normalizedLatestRevenueCents =
+    typeof latestRevenueCents === "number"
+      ? latestRevenueCents
+      : typeof fallbackSnapshot?.allTimeRevenueCents === "number"
+        ? fallbackSnapshot.allTimeRevenueCents
         : null
 
   const mrrCurrencyCode =
@@ -170,6 +210,12 @@ function mapProductToFeedItem(
   const normalizedMrrInUsd =
     typeof normalizedLatestMrrCents === "number"
       ? convertToUsdCents(normalizedLatestMrrCents, mrrCurrencyCode, rates)
+          .usdCents
+      : null
+
+  const normalizedRevenueInUsd =
+    typeof normalizedLatestRevenueCents === "number"
+      ? convertToUsdCents(normalizedLatestRevenueCents, mrrCurrencyCode, rates)
           .usdCents
       : null
 
@@ -190,6 +236,8 @@ function mapProductToFeedItem(
     variant: isSponsored ? "sponsored" : "default",
     latestMrrCents: normalizedMrrInUsd,
     mrrCurrencyCode: normalizedMrrInUsd !== null ? "USD" : null,
+    latestRevenueCents: normalizedRevenueInUsd,
+    revenueCurrencyCode: normalizedRevenueInUsd !== null ? "USD" : null,
     shuffleRank: Math.random(),
   }
 }
@@ -305,13 +353,59 @@ export async function getHomepageNewFeedPage(
   })
 }
 
+export async function getHomepageVerifiedRevenueFeedPage(
+  params: GetHomepageFeedPageParams = {},
+): Promise<HomepageFeedPageResult> {
+  const { page, pageSize, clerkUserId } = params
+  return getOrderedHomepageFeedPage({
+    page,
+    pageSize,
+    clerkUserId,
+    where: buildVerifiedRevenueWhere(),
+    orderBy: [
+      { paymentConnector: { latestMrrCents: "desc" } },
+      { paymentConnector: { latestAllTimeRevenueCents: "desc" } },
+      { analytics: { upvotes: "desc" } },
+      { createdAt: "desc" },
+    ],
+  })
+}
+
+export async function getHomepageVerifiedMrrFeedPage(
+  params: GetHomepageFeedPageParams = {},
+): Promise<HomepageFeedPageResult> {
+  const { page, pageSize, clerkUserId } = params
+  return getOrderedHomepageFeedPage({
+    page,
+    pageSize,
+    clerkUserId,
+    where: buildVerifiedMrrWhere(),
+    orderBy: [
+      { paymentConnector: { latestMrrCents: "desc" } },
+      { analytics: { upvotes: "desc" } },
+      { createdAt: "desc" },
+    ],
+  })
+}
+
 async function getHomepageFeedViewImpl(
   params: GetHomepageFeedViewParams = {},
 ): Promise<HomepageFeedPageResult> {
   const { view, ...rest } = params
   const baseParams: GetHomepageFeedPageParams = rest
+  const normalizedView = normalizeHomepageFeedView(
+    view,
+    DEFAULT_HOMEPAGE_FEED_VIEW,
+  )
 
-  normalizeHomepageFeedView(view, DEFAULT_HOMEPAGE_FEED_VIEW)
+  if (normalizedView === "verified-revenue") {
+    return getHomepageVerifiedRevenueFeedPage(baseParams)
+  }
+
+  if (normalizedView === "verified-mrr") {
+    return getHomepageVerifiedMrrFeedPage(baseParams)
+  }
+
   return getHomepageNewFeedPage(baseParams)
 }
 
@@ -325,10 +419,17 @@ export async function getHomepageFeedViewAll(
   params: GetHomepageFeedViewParams = {},
 ): Promise<HomepageFeedItem[]> {
   const items: HomepageFeedItem[] = []
-  const baseParams = { ...params }
+  const normalizedView = normalizeHomepageFeedView(
+    params.view,
+    DEFAULT_HOMEPAGE_FEED_VIEW,
+  )
+  const baseParams = { ...params, view: normalizedView }
   let page = normalizePage(params.page, 1)
   let iterations = 0
-  const MAX_PAGES = 100
+  const MAX_PAGES =
+    normalizedView === "verified-revenue" || normalizedView === "verified-mrr"
+      ? 1
+      : 100
 
   while (iterations < MAX_PAGES) {
     const result = await getHomepageFeedView({

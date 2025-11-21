@@ -121,6 +121,11 @@ function mapProductCardItemToFeedItem(
         ? product.latestMrrCents
         : null,
     mrrCurrencyCode: product.mrrCurrencyCode ?? null,
+    latestRevenueCents:
+      typeof product.latestRevenueCents === "number"
+        ? product.latestRevenueCents
+        : null,
+    revenueCurrencyCode: product.revenueCurrencyCode ?? null,
     shuffleRank: Math.random(),
   }
 }

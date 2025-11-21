@@ -1,11 +1,7 @@
 import path from "node:path"
 import { pathToFileURL } from "node:url"
 
-import {
-  PlanType,
-  Prisma,
-  TimeInterval,
-} from "@/lib/vendor/prisma/client"
+import { PlanType, Prisma, TimeInterval } from "@/lib/vendor/prisma/client"
 import type { PrismaClient } from "@/lib/vendor/prisma/client"
 
 const prismaPromise = import("@/lib/prisma").then(

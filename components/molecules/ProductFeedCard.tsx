@@ -74,6 +74,18 @@ export function ProductFeedCard({
       }).format(mrrCents / 100)
     : null
 
+  const revenueCents =
+    typeof item.latestRevenueCents === "number" ? item.latestRevenueCents : null
+  const hasRevenue = revenueCents !== null && revenueCents > 0
+  const revenueLabel = hasRevenue
+    ? new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: item.revenueCurrencyCode ?? "USD",
+        notation: "compact",
+        maximumFractionDigits: 1,
+      }).format(revenueCents / 100)
+    : null
+
   const cardClasses = cn(
     "group relative flex h-full flex-col rounded-2xl p-5 text-left transition-shadow duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18]",
     CARD_VARIANT_CLASSES[cardVariant],
@@ -177,6 +189,17 @@ export function ProductFeedCard({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {revenueLabel ? (
+            <span
+              className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-900 shadow-sm dark:border-sky-900/60 dark:bg-sky-950/40 dark:text-sky-100"
+              title="Verified revenue"
+            >
+              <Banknote className="h-3.5 w-3.5" aria-hidden="true" />
+              <span className="whitespace-nowrap">
+                Revenue · {revenueLabel}
+              </span>
+            </span>
+          ) : null}
           {mrrLabel ? (
             <span
               className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 shadow-sm dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200"

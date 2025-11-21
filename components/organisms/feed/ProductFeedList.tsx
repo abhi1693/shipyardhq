@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Flame } from "lucide-react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { addDays, startOfDay } from "date-fns"
@@ -7,6 +8,7 @@ import { addDays, startOfDay } from "date-fns"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import ProductFeedCard from "@/components/molecules/ProductFeedCard"
 import type { HomepageFeedView } from "@/lib/homepage/feed-views"
+import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 const REMAINING_PAGE_SIZE = 20
@@ -229,6 +231,10 @@ export function ProductFeedList({
   }, [showRemaining, view])
 
   const sortedItems = useMemo(() => {
+    if (view !== "new") {
+      return [...items]
+    }
+
     return [...items].sort((a, b) => {
       const aTime = new Date(a.createdAt ?? "").getTime()
       const bTime = new Date(b.createdAt ?? "").getTime()
@@ -248,7 +254,7 @@ export function ProductFeedList({
 
       return a.name.localeCompare(b.name)
     })
-  }, [items])
+  }, [items, view])
 
   const sections = useMemo(() => {
     if (view !== "new") {
@@ -373,8 +379,24 @@ export function ProductFeedList({
     !hasSectionedContent &&
     !hasFallbackContent &&
     (!showRemaining || !hasRemainingContent) ? (
-      <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-12 text-center text-sm font-medium text-slate-500">
-        Nothing to show here yet. Check back soon for fresh launches.
+      <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-12 text-center text-sm text-slate-600">
+        <div className="space-y-3">
+          <p className="text-base font-semibold text-[#1C2333]">
+            No launches yet. Be the first to add yours.
+          </p>
+          <p className="text-sm text-slate-500">
+            Share your startup to appear in the feed and start collecting
+            traction.
+          </p>
+          <div className="flex justify-center">
+            <Link
+              href={MEMBER_PRODUCTS_PATH}
+              className="inline-flex items-center gap-2 rounded-full bg-[color:var(--brand-1)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[color:var(--brand-2)]"
+            >
+              Launch your startup
+            </Link>
+          </div>
+        </div>
       </div>
     ) : null
 
