@@ -42,6 +42,11 @@ type Props = {
   saveLabel?: string
   readOnlyMessage?: string
   showSaveButton?: boolean
+  errors?: {
+    provider?: string
+    apiKey?: string
+    accountId?: string
+  }
 }
 
 const PROVIDER_OPTIONS: { value: PaymentConnectorProvider; label: string }[] = [
@@ -87,6 +92,7 @@ export function PaymentConnectorCard({
   saveLabel = "Save connector",
   readOnlyMessage,
   showSaveButton = true,
+  errors,
 }: Props) {
   const [saving, startTransition] = useTransition()
   const selectedProvider =
@@ -161,6 +167,9 @@ export function PaymentConnectorCard({
             ))}
           </SelectContent>
         </Select>
+        {errors?.provider ? (
+          <p className="text-xs text-destructive">{errors.provider}</p>
+        ) : null}
       </div>
 
       <div className="space-y-2">
@@ -182,6 +191,9 @@ export function PaymentConnectorCard({
             })
           }
         />
+        {errors?.apiKey ? (
+          <p className="text-xs text-destructive">{errors.apiKey}</p>
+        ) : null}
         {keyHint ? (
           <p className="text-xs text-muted-foreground">
             Key on file ending with <span className="font-mono">{keyHint}</span>
@@ -275,6 +287,9 @@ export function PaymentConnectorCard({
               })
             }
           />
+          {errors?.accountId ? (
+            <p className="text-xs text-destructive">{errors.accountId}</p>
+          ) : null}
           {showStripeAccount ? (
             <p className="text-xs text-muted-foreground">
               Provide a Stripe connected account ID to pull revenue for that

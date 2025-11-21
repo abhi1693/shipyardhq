@@ -8,6 +8,7 @@ import {
   FormProvider,
   useWatch,
   type UseFormReturn,
+  useFormState,
 } from "react-hook-form"
 import { toast } from "sonner"
 import { MEMBER_PRODUCTS_PATH, memberProductUpgradePath } from "@/lib/routes"
@@ -46,6 +47,7 @@ function ConnectorFields({
 }: {
   form: UseFormReturn<ProductWizardInput>
 }) {
+  const { errors } = useFormState({ control: form.control })
   const provider = useWatch({
     control: form.control,
     name: "connectorProvider" as any,
@@ -96,6 +98,15 @@ function ConnectorFields({
             shouldValidate: true,
           })
         }
+      }}
+      errors={{
+        provider: (errors as any)?.connectorProvider?.message as
+          | string
+          | undefined,
+        apiKey: (errors as any)?.connectorApiKey?.message as string | undefined,
+        accountId: (errors as any)?.connectorAccountId?.message as
+          | string
+          | undefined,
       }}
     />
   )

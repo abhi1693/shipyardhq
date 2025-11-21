@@ -7,6 +7,7 @@ import {
   FormProvider,
   useWatch,
   type UseFormReturn,
+  useFormState,
 } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -52,6 +53,7 @@ function ConnectorFields({
     control: form.control,
     name: "connectorProvider" as any,
   }) as PaymentConnectorProvider | undefined
+  const { errors } = useFormState({ control: form.control })
   const apiKey =
     (useWatch({
       control: form.control,
@@ -103,6 +105,15 @@ function ConnectorFields({
             shouldValidate: true,
           })
         }
+      }}
+      errors={{
+        provider: (errors as any)?.connectorProvider?.message as
+          | string
+          | undefined,
+        apiKey: (errors as any)?.connectorApiKey?.message as string | undefined,
+        accountId: (errors as any)?.connectorAccountId?.message as
+          | string
+          | undefined,
       }}
     />
   )
