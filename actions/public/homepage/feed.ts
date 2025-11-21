@@ -149,7 +149,11 @@ function buildVerifiedRevenueWhere(): Prisma.ProductWhereInput {
         status: "active",
         OR: [
           { latestAllTimeRevenueCents: { gt: 0 } },
-          { latestMrrCents: { gt: 0 } },
+          {
+            revenueHistory: {
+              some: { allTimeRevenueCents: { gt: 0 } },
+            },
+          },
         ],
       },
     },
@@ -162,7 +166,14 @@ function buildVerifiedMrrWhere(): Prisma.ProductWhereInput {
       is: {
         verifiedAt: { not: null },
         status: "active",
-        latestMrrCents: { gt: 0 },
+        OR: [
+          { latestMrrCents: { gt: 0 } },
+          {
+            revenueHistory: {
+              some: { mrrCents: { gt: 0 } },
+            },
+          },
+        ],
       },
     },
   }
@@ -363,8 +374,8 @@ export async function getHomepageVerifiedRevenueFeedPage(
     clerkUserId,
     where: buildVerifiedRevenueWhere(),
     orderBy: [
-      { paymentConnector: { latestMrrCents: "desc" } },
       { paymentConnector: { latestAllTimeRevenueCents: "desc" } },
+      { paymentConnector: { latestMrrCents: "desc" } },
       { analytics: { upvotes: "desc" } },
       { createdAt: "desc" },
     ],
@@ -449,6 +460,46 @@ export async function getHomepageFeedViewAll(
     }
 
     page = result.nextPage
+  }
+
+  if (normalizedView === "verified-revenue") {
+    items.sort((a, b) => {
+      const aRevenue = a.latestRevenueCents ?? 0
+      const bRevenue = b.latestRevenueCents ?? 0
+      if (bRevenue !== aRevenue) {
+        return bRevenue - aRevenue
+      }
+
+      const aMrr = a.latestMrrCents ?? 0
+      const bMrr = b.latestMrrCents ?? 0
+      if (bMrr !== aMrr) {
+        return bMrr - aMrr
+      }
+
+      if (b.voteCount !== a.voteCount) {
+        return b.voteCount - a.voteCount
+      }
+
+      const aCreated = new Date(a.createdAt).getTime() || 0
+      const bCreated = new Date(b.createdAt).getTime() || 0
+      return bCreated - aCreated
+    })
+  } else if (normalizedView === "verified-mrr") {
+    items.sort((a, b) => {
+      const aMrr = a.latestMrrCents ?? 0
+      const bMrr = b.latestMrrCents ?? 0
+      if (bMrr !== aMrr) {
+        return bMrr - aMrr
+      }
+
+      if (b.voteCount !== a.voteCount) {
+        return b.voteCount - a.voteCount
+      }
+
+      const aCreated = new Date(a.createdAt).getTime() || 0
+      const bCreated = new Date(b.createdAt).getTime() || 0
+      return bCreated - aCreated
+    })
   }
 
   return items
