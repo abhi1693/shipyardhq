@@ -423,7 +423,7 @@ async function getHomepageFeedViewImpl(
 export const getHomepageFeedView = unstable_cache(
   getHomepageFeedViewImpl,
   ["homepage-feed-view"],
-  { revalidate: 60, tags: ["homepage-feed"] },
+  { revalidate: 300, tags: ["homepage-feed"] },
 )
 
 export async function getHomepageFeedViewAll(

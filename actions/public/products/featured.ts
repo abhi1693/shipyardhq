@@ -293,7 +293,7 @@ export const getStickyBannerProducts = cached(
   },
   "products:sticky-banner",
   {
-    ttl: DEFAULT_TTL.fast,
+    ttl: 600,
     tags: () => [
       TAGS.products,
       TAGS.placement("stickyBanner"),

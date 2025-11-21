@@ -234,7 +234,7 @@ export const getPublicProductMetaBySlug = cached(
   },
   "product:meta-by-slug",
   {
-    ttl: DEFAULT_TTL.medium,
+    ttl: 600,
     tags: ([slug]) => [TAGS.products, TAGS.product(String(slug))],
   },
 )

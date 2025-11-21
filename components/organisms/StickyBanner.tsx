@@ -15,7 +15,7 @@ const getCachedStickyBannerProduct = cached(
   async (limit: number) => getStickyBannerProducts(limit),
   "sticky-banner:product",
   {
-    ttl: DEFAULT_TTL.medium,
+    ttl: 600,
     tags: () => [
       TAGS.products,
       TAGS.placement("stickyBanner"),

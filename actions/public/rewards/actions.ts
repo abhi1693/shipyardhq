@@ -347,7 +347,7 @@ export const getPublicRewardsStats = cached(
   },
   "rewards:public-stats",
   {
-    ttl: DEFAULT_TTL.fast,
+    ttl: 300,
     tags: () => [TAGS.rewards, "rewards:stats"],
   },
 )
