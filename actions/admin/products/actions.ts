@@ -328,7 +328,6 @@ export async function createProductAction(formData: FormData) {
           provider: providerEnum as PaymentConnectorProvider,
           apiKey: connectorApiKey,
           config: { accountId: connectorAccountId },
-          productName: name,
         })
         const { connector } = await upsertPaymentConnector({
           productId: created.id,
@@ -661,7 +660,6 @@ export async function updateProductAction(
           provider: providerEnum as PaymentConnectorProvider,
           apiKey: connectorApiKey,
           config: { accountId: connectorAccountId },
-          productName: name,
         })
         const { connector } = await upsertPaymentConnector({
           productId: id,

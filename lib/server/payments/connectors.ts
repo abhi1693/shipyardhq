@@ -22,17 +22,15 @@ export async function validateConnectorApiKey({
   provider,
   apiKey,
   config,
-  productName,
 }: {
   provider: PaymentConnectorProvider
   apiKey: string
   config?: PaymentConnectorConfig
-  productName?: string
 }) {
   const providerDefinition = getProviderDefinition(provider)
   if (!providerDefinition?.validateApiKey) return
 
-  await providerDefinition.validateApiKey({ apiKey, config, productName })
+  await providerDefinition.validateApiKey({ apiKey, config })
 }
 
 async function getActiveCredential(

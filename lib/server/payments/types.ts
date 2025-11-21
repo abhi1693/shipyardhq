@@ -39,7 +39,6 @@ export type ProviderSyncHandler = (
 export type ProviderApiValidator = (options: {
   apiKey: string
   config?: PaymentConnectorConfig
-  productName?: string
 }) => Promise<void>
 
 export type PaymentProviderDefinition = {

@@ -81,11 +81,9 @@ function requireConfiguredEnvironment(): "live_mode" | "test_mode" {
 export async function validateDodoApiKey({
   apiKey,
   config,
-  productName,
 }: {
   apiKey: string
   config?: PaymentConnectorConfig
-  productName?: string
 }) {
   const environment = resolveEnvironment(config)
   const expectedEnv = requireConfiguredEnvironment()
@@ -101,32 +99,8 @@ export async function validateDodoApiKey({
   })
 
   try {
-    let matchedBrand = false
-    const normalizedProductName = productName?.trim().toLowerCase()
-
-    if (normalizedProductName) {
-      const brandsResponse: any = await client.brands.list()
-      const brands = Array.isArray(brandsResponse?.items)
-        ? brandsResponse.items
-        : []
-
-      for (const brand of brands) {
-        const brandName = (brand as any)?.name
-        if (
-          typeof brandName === "string" &&
-          brandName.trim().toLowerCase() === normalizedProductName
-        ) {
-          matchedBrand = true
-          break
-        }
-      }
-    }
-
-    if (normalizedProductName && !matchedBrand) {
-      throw new Error(
-        `Dodo brand '${productName}' was not found. Create or rename the brand to match your product name.`,
-      )
-    }
+    // Basic authentication check; will throw for invalid keys or env mismatch
+    await client.brands.list({ page_size: 1 } as any)
   } catch (error) {
     if (error instanceof AuthenticationError) {
       throw new Error(

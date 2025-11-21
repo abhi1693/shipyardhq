@@ -563,7 +563,6 @@ export async function saveProductConnectorAction(input: {
       provider,
       apiKey,
       config: { accountId },
-      productName: guard.product.name,
     })
     const result = await upsertPaymentConnector({
       productId: input.productId,
