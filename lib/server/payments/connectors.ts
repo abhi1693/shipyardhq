@@ -288,8 +288,17 @@ export async function syncPaymentConnector(connectorId: string) {
       latestPeriodStartByCurrency,
     })
     await applySnapshots(connector.id, result.snapshots)
-    const primary = selectPrimarySnapshot(result.snapshots)
-    const sortedByDate = [...result.snapshots].sort(
+
+    const fullHistory =
+      (await prisma.paymentRevenueSnapshot.findMany({
+        where: { connectorId: connector.id },
+        orderBy: { periodStart: "asc" },
+      })) ?? []
+    const historyForSummary =
+      fullHistory.length > 0 ? fullHistory : result.snapshots
+
+    const primary = selectPrimarySnapshot(historyForSummary)
+    const sortedByDate = [...historyForSummary].sort(
       (a, b) => a.periodStart.getTime() - b.periodStart.getTime(),
     )
     let latestMrr: number | null = null
@@ -300,6 +309,7 @@ export async function syncPaymentConnector(connectorId: string) {
         if (value > 0) break
       }
     }
+    const latestSnapshot = sortedByDate[sortedByDate.length - 1]
     const now = new Date()
 
     await prisma.paymentConnector.update({
@@ -309,20 +319,15 @@ export async function syncPaymentConnector(connectorId: string) {
         lastSyncError: null,
         lastSyncedAt: now,
         verifiedAt: primary ? now : connector.verifiedAt,
-        latestAllTimeRevenueCents: primary?.allTimeRevenueCents ?? 0,
-        latestCurrencyCode: primary?.currencyCode,
-        latestPeriodStart: primary?.periodStart,
+        latestAllTimeRevenueCents:
+          primary?.allTimeRevenueCents ??
+          latestSnapshot?.allTimeRevenueCents ??
+          0,
+        latestCurrencyCode: primary?.currencyCode ?? latestSnapshot?.currencyCode,
+        latestPeriodStart: primary?.periodStart ?? latestSnapshot?.periodStart,
         latestMrrCents: latestMrr ?? null,
       },
     })
-
-    const fullHistory =
-      (await prisma.paymentRevenueSnapshot.findMany({
-        where: { connectorId: connector.id },
-        orderBy: { periodStart: "asc" },
-      })) ?? []
-    const historyForSummary =
-      fullHistory.length > 0 ? fullHistory : result.snapshots
 
     const requiresConversion = historyForSummary.some(
       (snapshot: { currencyCode: any }) =>
