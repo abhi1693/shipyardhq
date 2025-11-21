@@ -62,13 +62,6 @@ function ConnectorFields({
       control: form.control,
       name: "connectorAccountId" as any,
     }) as string | undefined) ?? ""
-  const pricingModel =
-    (useWatch({
-      control: form.control,
-      name: "pricingModel" as any,
-    }) as string | undefined) ?? undefined
-
-  if (pricingModel === "free") return null
 
   return (
     <PaymentConnectorCard
