@@ -297,38 +297,6 @@ export async function syncPaymentConnector(connectorId: string) {
     const historyForSummary =
       fullHistory.length > 0 ? fullHistory : result.snapshots
 
-    const primary = selectPrimarySnapshot(historyForSummary)
-    const sortedByDate = [...historyForSummary].sort(
-      (a, b) => a.periodStart.getTime() - b.periodStart.getTime(),
-    )
-    let latestMrr: number | null = null
-    for (let i = sortedByDate.length - 1; i >= 0; i -= 1) {
-      const value = sortedByDate[i]?.mrrCents
-      if (typeof value === "number") {
-        latestMrr = value
-        if (value > 0) break
-      }
-    }
-    const latestSnapshot = sortedByDate[sortedByDate.length - 1]
-    const now = new Date()
-
-    await prisma.paymentConnector.update({
-      where: { id: connector.id },
-      data: {
-        status: PaymentConnectorStatus.active,
-        lastSyncError: null,
-        lastSyncedAt: now,
-        verifiedAt: primary ? now : connector.verifiedAt,
-        latestAllTimeRevenueCents:
-          primary?.allTimeRevenueCents ??
-          latestSnapshot?.allTimeRevenueCents ??
-          0,
-        latestCurrencyCode: primary?.currencyCode ?? latestSnapshot?.currencyCode,
-        latestPeriodStart: primary?.periodStart ?? latestSnapshot?.periodStart,
-        latestMrrCents: latestMrr ?? null,
-      },
-    })
-
     const requiresConversion = historyForSummary.some(
       (snapshot: { currencyCode: any }) =>
         (snapshot.currencyCode || "USD").toUpperCase() !== "USD",
@@ -336,6 +304,7 @@ export async function syncPaymentConnector(connectorId: string) {
     const rates = requiresConversion
       ? await getUsdConversionRates()
       : new Map<string, number>([["USD", 1]])
+    const now = new Date()
     const summary = buildRevenueSummary({
       productId: connector.productId,
       connectorId: connector.id,
@@ -344,6 +313,50 @@ export async function syncPaymentConnector(connectorId: string) {
       lastSyncedAt: now,
       history: historyForSummary,
       rates,
+    })
+
+    const primary = selectPrimarySnapshot(historyForSummary)
+    const sortedByDate = [...historyForSummary].sort(
+      (a, b) => a.periodStart.getTime() - b.periodStart.getTime(),
+    )
+    const latestSnapshot = sortedByDate[sortedByDate.length - 1]
+    const latestPoint = summary?.points[summary.points.length - 1]
+    let latestMrr: number | null = summary?.latestMrrCents ?? null
+    if (latestMrr === null) {
+      for (let i = sortedByDate.length - 1; i >= 0; i -= 1) {
+        const value = sortedByDate[i]?.mrrCents
+        if (typeof value === "number") {
+          latestMrr = value
+          if (value > 0) break
+        }
+      }
+    }
+
+    await prisma.paymentConnector.update({
+      where: { id: connector.id },
+      data: {
+        status: PaymentConnectorStatus.active,
+        lastSyncError: null,
+        lastSyncedAt: now,
+        verifiedAt: primary ? now : connector.verifiedAt,
+        // Store connector rollup in USD when possible so it stays aligned with
+        // aggregated snapshots even when providers use other currencies.
+        latestAllTimeRevenueCents:
+          summary?.latestAllTimeRevenueCents ??
+          primary?.allTimeRevenueCents ??
+          latestSnapshot?.allTimeRevenueCents ??
+          0,
+        latestCurrencyCode:
+          summary?.currencyCode ??
+          primary?.currencyCode ??
+          latestSnapshot?.currencyCode ??
+          "USD",
+        latestPeriodStart:
+          latestPoint?.periodStart
+            ? new Date(latestPoint.periodStart)
+            : primary?.periodStart ?? latestSnapshot?.periodStart,
+        latestMrrCents: latestMrr ?? null,
+      },
     })
     if (summary) {
       await cacheRevenueSummary(summary)
