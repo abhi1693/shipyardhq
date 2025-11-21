@@ -554,6 +554,9 @@ export async function saveProductConnectorAction(input: {
   if (provider === PaymentConnectorProvider.polar && !accountId) {
     return { error: "Polar organization ID is required" }
   }
+  if (provider === PaymentConnectorProvider.revenuecat && !accountId) {
+    return { error: "RevenueCat project ID is required" }
+  }
   if (provider === PaymentConnectorProvider.lemonsqueezy && !accountId) {
     return { error: "Lemon Squeezy store ID is required" }
   }

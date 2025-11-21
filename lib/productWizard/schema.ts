@@ -169,6 +169,17 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
         }
       }
 
+      if (val.connectorProvider === "revenuecat") {
+        const projectId = val.connectorAccountId?.trim()
+        if (val.connectorApiKey && !projectId) {
+          ctx.addIssue({
+            path: ["connectorAccountId"],
+            code: z.ZodIssueCode.custom,
+            message: "RevenueCat project ID is required",
+          })
+        }
+      }
+
       if (val.connectorProvider === "lemonsqueezy") {
         const storeId = val.connectorAccountId?.trim()
         if (val.connectorApiKey && !storeId) {
