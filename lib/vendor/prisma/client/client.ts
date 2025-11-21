@@ -95,6 +95,11 @@ export type ProductUpdate = Prisma.ProductUpdateModel
  */
 export type ProductVerification = Prisma.ProductVerificationModel
 /**
+ * Model ProductClaimAttempt
+ * 
+ */
+export type ProductClaimAttempt = Prisma.ProductClaimAttemptModel
+/**
  * Model ProductMetadata
  * 
  */

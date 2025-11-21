@@ -20,6 +20,7 @@ import {
   MEMBER_ONBOARDING_PATH,
   MEMBER_ORGANIZATIONS_PATH,
   MEMBER_OVERVIEW_PATH,
+  MEMBER_PRODUCTS_CLAIM_PATH,
   MEMBER_PRODUCTS_PATH,
   MEMBER_REWARDS_PATH,
   MEMBER_NOTIFICATIONS_PATH,
@@ -49,6 +50,11 @@ const navItems: NavItem[] = [
     title: "Products",
     url: MEMBER_PRODUCTS_PATH,
     icon: "product",
+  },
+  {
+    title: "Claim products",
+    url: MEMBER_PRODUCTS_CLAIM_PATH,
+    icon: "link",
   },
   {
     title: "Organizations",

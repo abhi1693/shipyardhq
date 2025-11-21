@@ -11,7 +11,6 @@ export const EVENT_STATUS_KEYS: ReadonlyArray<EventEnvelopeStatus> = [
 export const APP_EVENTS = {
   PRODUCT_CREATED: "product.created",
   PRODUCT_UPDATED: "product.updated",
-  PRODUCT_CLAIMED: "product.claimed",
   PRODUCT_PUBLISHED: "product.published",
   PRODUCT_DELETED: "product.deleted",
   PRODUCT_CLICKED: "product.clicked",

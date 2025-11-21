@@ -395,6 +395,7 @@ export const ModelName = {
   ProductMedia: 'ProductMedia',
   ProductUpdate: 'ProductUpdate',
   ProductVerification: 'ProductVerification',
+  ProductClaimAttempt: 'ProductClaimAttempt',
   ProductMetadata: 'ProductMetadata',
   ProductAnalytics: 'ProductAnalytics',
   ProductClickEvent: 'ProductClickEvent',
@@ -440,7 +441,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "notification" | "productMedia" | "productUpdate" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "notification" | "productMedia" | "productUpdate" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1255,6 +1256,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductVerificationCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductVerificationCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductClaimAttempt: {
+      payload: Prisma.$ProductClaimAttemptPayload<ExtArgs>
+      fields: Prisma.ProductClaimAttemptFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductClaimAttemptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductClaimAttemptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductClaimAttemptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductClaimAttemptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>
+        }
+        findMany: {
+          args: Prisma.ProductClaimAttemptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>[]
+        }
+        create: {
+          args: Prisma.ProductClaimAttemptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>
+        }
+        createMany: {
+          args: Prisma.ProductClaimAttemptCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductClaimAttemptCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>[]
+        }
+        delete: {
+          args: Prisma.ProductClaimAttemptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>
+        }
+        update: {
+          args: Prisma.ProductClaimAttemptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductClaimAttemptDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductClaimAttemptUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductClaimAttemptUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductClaimAttemptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductClaimAttemptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductClaimAttempt>
+        }
+        groupBy: {
+          args: Prisma.ProductClaimAttemptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductClaimAttemptGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductClaimAttemptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductClaimAttemptCountAggregateOutputType> | number
         }
       }
     }
@@ -3694,6 +3769,22 @@ export const ProductVerificationScalarFieldEnum = {
 export type ProductVerificationScalarFieldEnum = (typeof ProductVerificationScalarFieldEnum)[keyof typeof ProductVerificationScalarFieldEnum]
 
 
+export const ProductClaimAttemptScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  userId: 'userId',
+  method: 'method',
+  status: 'status',
+  email: 'email',
+  otpHash: 'otpHash',
+  otpExpiresAt: 'otpExpiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductClaimAttemptScalarFieldEnum = (typeof ProductClaimAttemptScalarFieldEnum)[keyof typeof ProductClaimAttemptScalarFieldEnum]
+
+
 export const ProductMetadataScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
@@ -4425,6 +4516,34 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'ProductClaimMethod'
+ */
+export type EnumProductClaimMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductClaimMethod'>
+    
+
+
+/**
+ * Reference to a field of type 'ProductClaimMethod[]'
+ */
+export type ListEnumProductClaimMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductClaimMethod[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ProductClaimStatus'
+ */
+export type EnumProductClaimStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductClaimStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ProductClaimStatus[]'
+ */
+export type ListEnumProductClaimStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductClaimStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'DeviceCategory'
  */
 export type EnumDeviceCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeviceCategory'>
@@ -4737,6 +4856,7 @@ export type GlobalOmitConfig = {
   productMedia?: Prisma.ProductMediaOmit
   productUpdate?: Prisma.ProductUpdateOmit
   productVerification?: Prisma.ProductVerificationOmit
+  productClaimAttempt?: Prisma.ProductClaimAttemptOmit
   productMetadata?: Prisma.ProductMetadataOmit
   productAnalytics?: Prisma.ProductAnalyticsOmit
   productClickEvent?: Prisma.ProductClickEventOmit

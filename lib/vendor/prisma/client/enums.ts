@@ -103,6 +103,25 @@ export const Platform = {
 export type Platform = (typeof Platform)[keyof typeof Platform]
 
 
+export const ProductClaimMethod = {
+  dns: 'dns',
+  email_otp: 'email_otp'
+} as const
+
+export type ProductClaimMethod = (typeof ProductClaimMethod)[keyof typeof ProductClaimMethod]
+
+
+export const ProductClaimStatus = {
+  pending: 'pending',
+  fulfilled: 'fulfilled',
+  expired: 'expired',
+  cancelled: 'cancelled',
+  failed: 'failed'
+} as const
+
+export type ProductClaimStatus = (typeof ProductClaimStatus)[keyof typeof ProductClaimStatus]
+
+
 export const DeviceCategory = {
   desktop: 'desktop',
   mobile: 'mobile',

@@ -50,13 +50,6 @@ export type ProductCreatedEvent = { productId: string }
 export type ProductUpdatedEvent = { productId: string }
 export type ProductDeletedEvent = { productId: string }
 export type ProductPublishedEvent = { productId: string }
-export type ProductClaimedEvent = {
-  productId: string
-  slug: string
-  claimedByUserId: string
-  previousOwnerId: string | null
-  claimedAt: Date
-}
 export type ProductClickedEvent = {
   productId: string
   metadata?: ProductClickMetadata
@@ -185,7 +178,6 @@ export type RewardsDailyLoginEvent = {
 type AppEvents = {
   [APP_EVENTS.PRODUCT_CREATED]: ProductCreatedEvent
   [APP_EVENTS.PRODUCT_UPDATED]: ProductUpdatedEvent
-  [APP_EVENTS.PRODUCT_CLAIMED]: ProductClaimedEvent
   [APP_EVENTS.PRODUCT_PUBLISHED]: ProductPublishedEvent
   [APP_EVENTS.PRODUCT_DELETED]: ProductDeletedEvent
   [APP_EVENTS.PRODUCT_CLICKED]: ProductClickedEvent

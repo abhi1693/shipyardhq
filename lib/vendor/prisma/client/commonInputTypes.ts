@@ -389,6 +389,40 @@ export type BoolWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedBoolFilter<$PrismaModel>
 }
 
+export type EnumProductClaimMethodFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductClaimMethod | Prisma.EnumProductClaimMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductClaimMethod[] | Prisma.ListEnumProductClaimMethodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductClaimMethod[] | Prisma.ListEnumProductClaimMethodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductClaimMethodFilter<$PrismaModel> | $Enums.ProductClaimMethod
+}
+
+export type EnumProductClaimStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductClaimStatus | Prisma.EnumProductClaimStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductClaimStatus[] | Prisma.ListEnumProductClaimStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductClaimStatus[] | Prisma.ListEnumProductClaimStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductClaimStatusFilter<$PrismaModel> | $Enums.ProductClaimStatus
+}
+
+export type EnumProductClaimMethodWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductClaimMethod | Prisma.EnumProductClaimMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductClaimMethod[] | Prisma.ListEnumProductClaimMethodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductClaimMethod[] | Prisma.ListEnumProductClaimMethodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductClaimMethodWithAggregatesFilter<$PrismaModel> | $Enums.ProductClaimMethod
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProductClaimMethodFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProductClaimMethodFilter<$PrismaModel>
+}
+
+export type EnumProductClaimStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductClaimStatus | Prisma.EnumProductClaimStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductClaimStatus[] | Prisma.ListEnumProductClaimStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductClaimStatus[] | Prisma.ListEnumProductClaimStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductClaimStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductClaimStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProductClaimStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProductClaimStatusFilter<$PrismaModel>
+}
+
 export type EnumDeviceCategoryFilter<$PrismaModel = never> = {
   equals?: $Enums.DeviceCategory | Prisma.EnumDeviceCategoryFieldRefInput<$PrismaModel>
   in?: $Enums.DeviceCategory[] | Prisma.ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
@@ -1081,6 +1115,40 @@ export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedBoolFilter<$PrismaModel>
   _max?: Prisma.NestedBoolFilter<$PrismaModel>
+}
+
+export type NestedEnumProductClaimMethodFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductClaimMethod | Prisma.EnumProductClaimMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductClaimMethod[] | Prisma.ListEnumProductClaimMethodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductClaimMethod[] | Prisma.ListEnumProductClaimMethodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductClaimMethodFilter<$PrismaModel> | $Enums.ProductClaimMethod
+}
+
+export type NestedEnumProductClaimStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductClaimStatus | Prisma.EnumProductClaimStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductClaimStatus[] | Prisma.ListEnumProductClaimStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductClaimStatus[] | Prisma.ListEnumProductClaimStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductClaimStatusFilter<$PrismaModel> | $Enums.ProductClaimStatus
+}
+
+export type NestedEnumProductClaimMethodWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductClaimMethod | Prisma.EnumProductClaimMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductClaimMethod[] | Prisma.ListEnumProductClaimMethodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductClaimMethod[] | Prisma.ListEnumProductClaimMethodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductClaimMethodWithAggregatesFilter<$PrismaModel> | $Enums.ProductClaimMethod
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProductClaimMethodFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProductClaimMethodFilter<$PrismaModel>
+}
+
+export type NestedEnumProductClaimStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductClaimStatus | Prisma.EnumProductClaimStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductClaimStatus[] | Prisma.ListEnumProductClaimStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductClaimStatus[] | Prisma.ListEnumProductClaimStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductClaimStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductClaimStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProductClaimStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProductClaimStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumDeviceCategoryFilter<$PrismaModel = never> = {

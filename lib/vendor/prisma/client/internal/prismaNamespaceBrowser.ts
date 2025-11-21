@@ -62,6 +62,7 @@ export const ModelName = {
   ProductMedia: 'ProductMedia',
   ProductUpdate: 'ProductUpdate',
   ProductVerification: 'ProductVerification',
+  ProductClaimAttempt: 'ProductClaimAttempt',
   ProductMetadata: 'ProductMetadata',
   ProductAnalytics: 'ProductAnalytics',
   ProductClickEvent: 'ProductClickEvent',
@@ -285,6 +286,22 @@ export const ProductVerificationScalarFieldEnum = {
 } as const
 
 export type ProductVerificationScalarFieldEnum = (typeof ProductVerificationScalarFieldEnum)[keyof typeof ProductVerificationScalarFieldEnum]
+
+
+export const ProductClaimAttemptScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  userId: 'userId',
+  method: 'method',
+  status: 'status',
+  email: 'email',
+  otpHash: 'otpHash',
+  otpExpiresAt: 'otpExpiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductClaimAttemptScalarFieldEnum = (typeof ProductClaimAttemptScalarFieldEnum)[keyof typeof ProductClaimAttemptScalarFieldEnum]
 
 
 export const ProductMetadataScalarFieldEnum = {
