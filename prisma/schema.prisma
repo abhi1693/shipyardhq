@@ -75,6 +75,7 @@ enum PaymentConnectorProvider {
   polar
   stripe
   lemonsqueezy
+  paddle
 }
 
 enum PaymentConnectorStatus {

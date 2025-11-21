@@ -46,6 +46,7 @@ type Props = {
 
 const PROVIDER_OPTIONS: { value: PaymentConnectorProvider; label: string }[] = [
   { value: PaymentConnectorProviderEnum.dodo, label: "DodoPayments" },
+  { value: PaymentConnectorProviderEnum.paddle, label: "Paddle" },
   { value: PaymentConnectorProviderEnum.polar, label: "Polar" },
   { value: PaymentConnectorProviderEnum.stripe, label: "Stripe" },
   { value: PaymentConnectorProviderEnum.lemonsqueezy, label: "Lemon Squeezy" },
@@ -101,7 +102,9 @@ export function PaymentConnectorCard({
         ? "polar_oat_... organization access token"
         : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
           ? "Lemon Squeezy API key from Settings -> API"
-          : "Enter API secret key"
+          : selectedProvider === PaymentConnectorProviderEnum.paddle
+            ? "Paddle API key from Developer Tools"
+            : "Enter API secret key"
   const showStripeAccount =
     selectedProvider === PaymentConnectorProviderEnum.stripe
   const showStripePermissions =
@@ -206,6 +209,14 @@ export function PaymentConnectorCard({
           <p className="text-xs text-muted-foreground">
             Use an API key from Lemon Squeezy Settings &gt; Developer &gt; API
             Keys with access to orders and subscriptions.
+          </p>
+        ) : selectedProvider === PaymentConnectorProviderEnum.paddle ? (
+          <p className="text-xs text-muted-foreground">
+            Use a Paddle API key starting with{" "}
+            <span className="font-mono">
+              {IS_PROD ? "pdl_live_apikey_" : "pdl_sdbx_apikey_"}
+            </span>{" "}
+            from Developer Tools.
           </p>
         ) : null}
       </div>

@@ -65,7 +65,7 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
 
       // Payment connector (optional, saved with product)
       connectorProvider: z
-        .enum(["dodo", "polar", "stripe", "lemonsqueezy"])
+        .enum(["dodo", "polar", "stripe", "lemonsqueezy", "paddle"])
         .optional(),
       connectorApiKey: z.string().optional().or(z.literal("")),
       connectorAccountId: z.string().optional().or(z.literal("")),
@@ -176,6 +176,22 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
             path: ["connectorAccountId"],
             code: z.ZodIssueCode.custom,
             message: "Lemon Squeezy store ID is required",
+          })
+        }
+      }
+
+      if (val.connectorProvider === "paddle" && val.connectorApiKey) {
+        const key = val.connectorApiKey.trim()
+        const expectedPrefix = IS_PROD
+          ? "pdl_live_apikey_"
+          : "pdl_sdbx_apikey_"
+        if (!key.startsWith(expectedPrefix)) {
+          ctx.addIssue({
+            path: ["connectorApiKey"],
+            code: z.ZodIssueCode.custom,
+            message: IS_PROD
+              ? "Use a Paddle live key starting with pdl_live_apikey_"
+              : "Use a Paddle sandbox key starting with pdl_sdbx_apikey_",
           })
         }
       }
