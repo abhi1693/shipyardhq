@@ -3558,7 +3558,6 @@ export const PaymentConnectorScalarFieldEnum = {
   lastSyncError: 'lastSyncError',
   verifiedAt: 'verifiedAt',
   latestAllTimeRevenueCents: 'latestAllTimeRevenueCents',
-  latestMrrCents: 'latestMrrCents',
   latestCurrencyCode: 'latestCurrencyCode',
   latestPeriodStart: 'latestPeriodStart',
   createdAt: 'createdAt',
@@ -3589,7 +3588,6 @@ export const PaymentRevenueSnapshotScalarFieldEnum = {
   periodStart: 'periodStart',
   periodRevenueCents: 'periodRevenueCents',
   allTimeRevenueCents: 'allTimeRevenueCents',
-  mrrCents: 'mrrCents',
   data: 'data',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

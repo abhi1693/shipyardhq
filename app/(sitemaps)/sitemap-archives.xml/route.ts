@@ -5,7 +5,7 @@ import {
 } from "@/lib/routes"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 
-export const dynamic = "force-static"
+export const dynamic = "force-dynamic"
 export const revalidate = 86400
 
 function xml(parts: TemplateStringsArray, ...subs: any[]) {

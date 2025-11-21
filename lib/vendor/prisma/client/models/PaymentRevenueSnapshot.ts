@@ -29,13 +29,11 @@ export type AggregatePaymentRevenueSnapshot = {
 export type PaymentRevenueSnapshotAvgAggregateOutputType = {
   periodRevenueCents: number | null
   allTimeRevenueCents: number | null
-  mrrCents: number | null
 }
 
 export type PaymentRevenueSnapshotSumAggregateOutputType = {
   periodRevenueCents: number | null
   allTimeRevenueCents: number | null
-  mrrCents: number | null
 }
 
 export type PaymentRevenueSnapshotMinAggregateOutputType = {
@@ -45,7 +43,6 @@ export type PaymentRevenueSnapshotMinAggregateOutputType = {
   periodStart: Date | null
   periodRevenueCents: number | null
   allTimeRevenueCents: number | null
-  mrrCents: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -57,7 +54,6 @@ export type PaymentRevenueSnapshotMaxAggregateOutputType = {
   periodStart: Date | null
   periodRevenueCents: number | null
   allTimeRevenueCents: number | null
-  mrrCents: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -69,7 +65,6 @@ export type PaymentRevenueSnapshotCountAggregateOutputType = {
   periodStart: number
   periodRevenueCents: number
   allTimeRevenueCents: number
-  mrrCents: number
   data: number
   createdAt: number
   updatedAt: number
@@ -80,13 +75,11 @@ export type PaymentRevenueSnapshotCountAggregateOutputType = {
 export type PaymentRevenueSnapshotAvgAggregateInputType = {
   periodRevenueCents?: true
   allTimeRevenueCents?: true
-  mrrCents?: true
 }
 
 export type PaymentRevenueSnapshotSumAggregateInputType = {
   periodRevenueCents?: true
   allTimeRevenueCents?: true
-  mrrCents?: true
 }
 
 export type PaymentRevenueSnapshotMinAggregateInputType = {
@@ -96,7 +89,6 @@ export type PaymentRevenueSnapshotMinAggregateInputType = {
   periodStart?: true
   periodRevenueCents?: true
   allTimeRevenueCents?: true
-  mrrCents?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -108,7 +100,6 @@ export type PaymentRevenueSnapshotMaxAggregateInputType = {
   periodStart?: true
   periodRevenueCents?: true
   allTimeRevenueCents?: true
-  mrrCents?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -120,7 +111,6 @@ export type PaymentRevenueSnapshotCountAggregateInputType = {
   periodStart?: true
   periodRevenueCents?: true
   allTimeRevenueCents?: true
-  mrrCents?: true
   data?: true
   createdAt?: true
   updatedAt?: true
@@ -220,7 +210,6 @@ export type PaymentRevenueSnapshotGroupByOutputType = {
   periodStart: Date
   periodRevenueCents: number
   allTimeRevenueCents: number
-  mrrCents: number | null
   data: runtime.JsonValue | null
   createdAt: Date
   updatedAt: Date
@@ -256,7 +245,6 @@ export type PaymentRevenueSnapshotWhereInput = {
   periodStart?: Prisma.DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
   periodRevenueCents?: Prisma.IntFilter<"PaymentRevenueSnapshot"> | number
   allTimeRevenueCents?: Prisma.IntFilter<"PaymentRevenueSnapshot"> | number
-  mrrCents?: Prisma.IntNullableFilter<"PaymentRevenueSnapshot"> | number | null
   data?: Prisma.JsonNullableFilter<"PaymentRevenueSnapshot">
   createdAt?: Prisma.DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
@@ -270,7 +258,6 @@ export type PaymentRevenueSnapshotOrderByWithRelationInput = {
   periodStart?: Prisma.SortOrder
   periodRevenueCents?: Prisma.SortOrder
   allTimeRevenueCents?: Prisma.SortOrder
-  mrrCents?: Prisma.SortOrderInput | Prisma.SortOrder
   data?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -288,7 +275,6 @@ export type PaymentRevenueSnapshotWhereUniqueInput = Prisma.AtLeast<{
   periodStart?: Prisma.DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
   periodRevenueCents?: Prisma.IntFilter<"PaymentRevenueSnapshot"> | number
   allTimeRevenueCents?: Prisma.IntFilter<"PaymentRevenueSnapshot"> | number
-  mrrCents?: Prisma.IntNullableFilter<"PaymentRevenueSnapshot"> | number | null
   data?: Prisma.JsonNullableFilter<"PaymentRevenueSnapshot">
   createdAt?: Prisma.DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
@@ -302,7 +288,6 @@ export type PaymentRevenueSnapshotOrderByWithAggregationInput = {
   periodStart?: Prisma.SortOrder
   periodRevenueCents?: Prisma.SortOrder
   allTimeRevenueCents?: Prisma.SortOrder
-  mrrCents?: Prisma.SortOrderInput | Prisma.SortOrder
   data?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -323,7 +308,6 @@ export type PaymentRevenueSnapshotScalarWhereWithAggregatesInput = {
   periodStart?: Prisma.DateTimeWithAggregatesFilter<"PaymentRevenueSnapshot"> | Date | string
   periodRevenueCents?: Prisma.IntWithAggregatesFilter<"PaymentRevenueSnapshot"> | number
   allTimeRevenueCents?: Prisma.IntWithAggregatesFilter<"PaymentRevenueSnapshot"> | number
-  mrrCents?: Prisma.IntNullableWithAggregatesFilter<"PaymentRevenueSnapshot"> | number | null
   data?: Prisma.JsonNullableWithAggregatesFilter<"PaymentRevenueSnapshot">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentRevenueSnapshot"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentRevenueSnapshot"> | Date | string
@@ -335,7 +319,6 @@ export type PaymentRevenueSnapshotCreateInput = {
   periodStart: Date | string
   periodRevenueCents?: number
   allTimeRevenueCents?: number
-  mrrCents?: number | null
   data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -349,7 +332,6 @@ export type PaymentRevenueSnapshotUncheckedCreateInput = {
   periodStart: Date | string
   periodRevenueCents?: number
   allTimeRevenueCents?: number
-  mrrCents?: number | null
   data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -361,7 +343,6 @@ export type PaymentRevenueSnapshotUpdateInput = {
   periodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodRevenueCents?: Prisma.IntFieldUpdateOperationsInput | number
   allTimeRevenueCents?: Prisma.IntFieldUpdateOperationsInput | number
-  mrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -375,7 +356,6 @@ export type PaymentRevenueSnapshotUncheckedUpdateInput = {
   periodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodRevenueCents?: Prisma.IntFieldUpdateOperationsInput | number
   allTimeRevenueCents?: Prisma.IntFieldUpdateOperationsInput | number
-  mrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -388,7 +368,6 @@ export type PaymentRevenueSnapshotCreateManyInput = {
   periodStart: Date | string
   periodRevenueCents?: number
   allTimeRevenueCents?: number
-  mrrCents?: number | null
   data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -400,7 +379,6 @@ export type PaymentRevenueSnapshotUpdateManyMutationInput = {
   periodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodRevenueCents?: Prisma.IntFieldUpdateOperationsInput | number
   allTimeRevenueCents?: Prisma.IntFieldUpdateOperationsInput | number
-  mrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -413,7 +391,6 @@ export type PaymentRevenueSnapshotUncheckedUpdateManyInput = {
   periodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodRevenueCents?: Prisma.IntFieldUpdateOperationsInput | number
   allTimeRevenueCents?: Prisma.IntFieldUpdateOperationsInput | number
-  mrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -442,7 +419,6 @@ export type PaymentRevenueSnapshotCountOrderByAggregateInput = {
   periodStart?: Prisma.SortOrder
   periodRevenueCents?: Prisma.SortOrder
   allTimeRevenueCents?: Prisma.SortOrder
-  mrrCents?: Prisma.SortOrder
   data?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -451,7 +427,6 @@ export type PaymentRevenueSnapshotCountOrderByAggregateInput = {
 export type PaymentRevenueSnapshotAvgOrderByAggregateInput = {
   periodRevenueCents?: Prisma.SortOrder
   allTimeRevenueCents?: Prisma.SortOrder
-  mrrCents?: Prisma.SortOrder
 }
 
 export type PaymentRevenueSnapshotMaxOrderByAggregateInput = {
@@ -461,7 +436,6 @@ export type PaymentRevenueSnapshotMaxOrderByAggregateInput = {
   periodStart?: Prisma.SortOrder
   periodRevenueCents?: Prisma.SortOrder
   allTimeRevenueCents?: Prisma.SortOrder
-  mrrCents?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -473,7 +447,6 @@ export type PaymentRevenueSnapshotMinOrderByAggregateInput = {
   periodStart?: Prisma.SortOrder
   periodRevenueCents?: Prisma.SortOrder
   allTimeRevenueCents?: Prisma.SortOrder
-  mrrCents?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -481,7 +454,6 @@ export type PaymentRevenueSnapshotMinOrderByAggregateInput = {
 export type PaymentRevenueSnapshotSumOrderByAggregateInput = {
   periodRevenueCents?: Prisma.SortOrder
   allTimeRevenueCents?: Prisma.SortOrder
-  mrrCents?: Prisma.SortOrder
 }
 
 export type PaymentRevenueSnapshotCreateNestedManyWithoutConnectorInput = {
@@ -532,7 +504,6 @@ export type PaymentRevenueSnapshotCreateWithoutConnectorInput = {
   periodStart: Date | string
   periodRevenueCents?: number
   allTimeRevenueCents?: number
-  mrrCents?: number | null
   data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -544,7 +515,6 @@ export type PaymentRevenueSnapshotUncheckedCreateWithoutConnectorInput = {
   periodStart: Date | string
   periodRevenueCents?: number
   allTimeRevenueCents?: number
-  mrrCents?: number | null
   data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -586,7 +556,6 @@ export type PaymentRevenueSnapshotScalarWhereInput = {
   periodStart?: Prisma.DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
   periodRevenueCents?: Prisma.IntFilter<"PaymentRevenueSnapshot"> | number
   allTimeRevenueCents?: Prisma.IntFilter<"PaymentRevenueSnapshot"> | number
-  mrrCents?: Prisma.IntNullableFilter<"PaymentRevenueSnapshot"> | number | null
   data?: Prisma.JsonNullableFilter<"PaymentRevenueSnapshot">
   createdAt?: Prisma.DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PaymentRevenueSnapshot"> | Date | string
@@ -598,7 +567,6 @@ export type PaymentRevenueSnapshotCreateManyConnectorInput = {
   periodStart: Date | string
   periodRevenueCents?: number
   allTimeRevenueCents?: number
-  mrrCents?: number | null
   data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -610,7 +578,6 @@ export type PaymentRevenueSnapshotUpdateWithoutConnectorInput = {
   periodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodRevenueCents?: Prisma.IntFieldUpdateOperationsInput | number
   allTimeRevenueCents?: Prisma.IntFieldUpdateOperationsInput | number
-  mrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -622,7 +589,6 @@ export type PaymentRevenueSnapshotUncheckedUpdateWithoutConnectorInput = {
   periodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodRevenueCents?: Prisma.IntFieldUpdateOperationsInput | number
   allTimeRevenueCents?: Prisma.IntFieldUpdateOperationsInput | number
-  mrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -634,7 +600,6 @@ export type PaymentRevenueSnapshotUncheckedUpdateManyWithoutConnectorInput = {
   periodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodRevenueCents?: Prisma.IntFieldUpdateOperationsInput | number
   allTimeRevenueCents?: Prisma.IntFieldUpdateOperationsInput | number
-  mrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -649,7 +614,6 @@ export type PaymentRevenueSnapshotSelect<ExtArgs extends runtime.Types.Extension
   periodStart?: boolean
   periodRevenueCents?: boolean
   allTimeRevenueCents?: boolean
-  mrrCents?: boolean
   data?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -663,7 +627,6 @@ export type PaymentRevenueSnapshotSelectCreateManyAndReturn<ExtArgs extends runt
   periodStart?: boolean
   periodRevenueCents?: boolean
   allTimeRevenueCents?: boolean
-  mrrCents?: boolean
   data?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -677,7 +640,6 @@ export type PaymentRevenueSnapshotSelectUpdateManyAndReturn<ExtArgs extends runt
   periodStart?: boolean
   periodRevenueCents?: boolean
   allTimeRevenueCents?: boolean
-  mrrCents?: boolean
   data?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -691,13 +653,12 @@ export type PaymentRevenueSnapshotSelectScalar = {
   periodStart?: boolean
   periodRevenueCents?: boolean
   allTimeRevenueCents?: boolean
-  mrrCents?: boolean
   data?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PaymentRevenueSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectorId" | "currencyCode" | "periodStart" | "periodRevenueCents" | "allTimeRevenueCents" | "mrrCents" | "data" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentRevenueSnapshot"]>
+export type PaymentRevenueSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "connectorId" | "currencyCode" | "periodStart" | "periodRevenueCents" | "allTimeRevenueCents" | "data" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentRevenueSnapshot"]>
 export type PaymentRevenueSnapshotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   connector?: boolean | Prisma.PaymentConnectorDefaultArgs<ExtArgs>
 }
@@ -720,7 +681,6 @@ export type $PaymentRevenueSnapshotPayload<ExtArgs extends runtime.Types.Extensi
     periodStart: Date
     periodRevenueCents: number
     allTimeRevenueCents: number
-    mrrCents: number | null
     data: runtime.JsonValue | null
     createdAt: Date
     updatedAt: Date
@@ -1154,7 +1114,6 @@ export interface PaymentRevenueSnapshotFieldRefs {
   readonly periodStart: Prisma.FieldRef<"PaymentRevenueSnapshot", 'DateTime'>
   readonly periodRevenueCents: Prisma.FieldRef<"PaymentRevenueSnapshot", 'Int'>
   readonly allTimeRevenueCents: Prisma.FieldRef<"PaymentRevenueSnapshot", 'Int'>
-  readonly mrrCents: Prisma.FieldRef<"PaymentRevenueSnapshot", 'Int'>
   readonly data: Prisma.FieldRef<"PaymentRevenueSnapshot", 'Json'>
   readonly createdAt: Prisma.FieldRef<"PaymentRevenueSnapshot", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PaymentRevenueSnapshot", 'DateTime'>

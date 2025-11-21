@@ -15,7 +15,6 @@ export type RevenueSnapshotInput = {
   periodStart: Date
   periodRevenueCents: number
   allTimeRevenueCents: number
-  mrrCents?: number | null
   data?: Prisma.InputJsonValue
 }
 

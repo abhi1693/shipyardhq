@@ -4,7 +4,7 @@ import {
 } from "@/actions/public/tags/actions"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 
-export const dynamic = "force-static"
+export const dynamic = "force-dynamic"
 export const revalidate = 86400
 
 const CHUNK_SIZE = 50000

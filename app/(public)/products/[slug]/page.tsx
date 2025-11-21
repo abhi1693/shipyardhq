@@ -504,7 +504,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         summary={{
           currencyCode: revenue.currencyCode,
           latestAllTimeRevenueCents: revenue.latestAllTimeRevenueCents,
-          latestMrrCents: revenue.latestMrrCents,
           lastSyncedAt: revenue.lastSyncedAt,
           provider: revenue.provider,
         }}

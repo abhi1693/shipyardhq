@@ -294,10 +294,7 @@ export async function syncLemonConnector({
     latestPeriodStartByCurrency,
   })
 
-  const [orders, subscriptions] = await Promise.all([
-    listLemonOrders(apiKey, storeId),
-    listLemonSubscriptions(apiKey, storeId).catch(() => []),
-  ])
+  const orders = await listLemonOrders(apiKey, storeId)
   const revenueByCurrency = new Map<
     string,
     Map<
@@ -305,7 +302,6 @@ export async function syncLemonConnector({
       { periodRevenueCents: number; charges: number; periodStart: Date }
     >
   >()
-  const mrrByCurrency = new Map<string, number>()
 
   for (const order of orders) {
     const attrs = (order as any)?.attributes || {}
@@ -344,52 +340,12 @@ export async function syncLemonConnector({
     revenueByCurrency.set(currency, currencyMap)
   }
 
-  for (const sub of subscriptions) {
-    const attrs = (sub as any)?.attributes || {}
-    const status = String(attrs.status || "").toLowerCase()
-    if (!["active", "paused", "trialing"].includes(status)) continue
-
-    const amount = pickAmount(attrs)
-    const interval = String(
-      attrs.renewal_interval_unit ||
-        attrs.interval_unit ||
-        attrs.billing_interval ||
-        "",
-    ).toLowerCase()
-    const intervalCount =
-      Number(
-        attrs.renewal_interval_quantity ||
-          attrs.interval_quantity ||
-          attrs.interval_count ||
-          1,
-      ) || 1
-    const currency = (pickCurrency(attrs) || "USD").toUpperCase()
-    if (!amount || amount <= 0) continue
-
-    const monthly = (() => {
-      switch (interval) {
-        case "day":
-          return Math.round((amount * 365) / (12 * intervalCount))
-        case "week":
-          return Math.round((amount * 52) / (12 * intervalCount))
-        case "year":
-          return Math.round(amount / (12 * intervalCount))
-        case "month":
-        default:
-          return Math.round(amount / intervalCount)
-      }
-    })()
-
-    mrrByCurrency.set(currency, (mrrByCurrency.get(currency) || 0) + monthly)
-  }
-
   const snapshots: RevenueSnapshotInput[] = []
   for (const [currency, buckets] of revenueByCurrency.entries()) {
     const ordered = Array.from(buckets.values()).sort((a, b) =>
       a.periodStart.getTime() > b.periodStart.getTime() ? 1 : -1,
     )
     let runningTotal = baseByCurrency.get(currency) ?? 0
-    const mrrCents = mrrByCurrency.get(currency) ?? null
     for (const bucket of ordered) {
       runningTotal += bucket.periodRevenueCents
       snapshots.push({
@@ -397,7 +353,6 @@ export async function syncLemonConnector({
         periodStart: bucket.periodStart,
         periodRevenueCents: bucket.periodRevenueCents,
         allTimeRevenueCents: runningTotal,
-        mrrCents,
         data: {
           provider: "lemonsqueezy",
           storeId,
@@ -424,7 +379,6 @@ export async function syncLemonConnector({
       periodStart: fallbackStart,
       periodRevenueCents: 0,
       allTimeRevenueCents: priorAllTime,
-      mrrCents: connector.latestMrrCents ?? null,
       data: { provider: "lemonsqueezy", storeId, charges: 0 },
     })
   }

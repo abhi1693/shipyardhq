@@ -116,11 +116,6 @@ function mapProductCardItemToFeedItem(
     isSponsored,
     isVoted: Boolean(product.isVoted),
     variant,
-    latestMrrCents:
-      typeof product.latestMrrCents === "number"
-        ? product.latestMrrCents
-        : null,
-    mrrCurrencyCode: product.mrrCurrencyCode ?? null,
     latestRevenueCents:
       typeof product.latestRevenueCents === "number"
         ? product.latestRevenueCents

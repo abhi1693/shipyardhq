@@ -16,7 +16,7 @@ import CopyButton from "@/components/molecules/CopyButton"
 import { siteConfig } from "@/lib/siteConfig"
 
 type BadgeTheme = "light" | "dark"
-type BadgeVariant = "featured" | "revenue" | "mrr"
+type BadgeVariant = "featured" | "revenue"
 
 const BADGE_THEMES: Array<{
   id: BadgeTheme
@@ -49,11 +49,6 @@ const BADGE_VARIANTS: Array<{
     id: "revenue",
     label: "Total revenue",
     description: "Shows lifetime revenue and verification",
-  },
-  {
-    id: "mrr",
-    label: "MRR",
-    description: "Shows current monthly recurring revenue",
   },
 ]
 

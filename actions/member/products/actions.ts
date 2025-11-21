@@ -503,7 +503,6 @@ export async function getProductConnectorRevenue(
           latestAllTimeRevenueCents: summary.latestAllTimeRevenueCents,
           latestCurrencyCode: summary.currencyCode,
           latestPeriodStart: connector.latestPeriodStart,
-          latestMrrCents: summary.latestMrrCents ?? 0,
         }
       : null,
     revenueHistory: limitedPoints.map((point) => ({
@@ -512,7 +511,6 @@ export async function getProductConnectorRevenue(
       currencyCode: summary.currencyCode,
       periodRevenueCents: point.periodRevenueCents,
       allTimeRevenueCents: point.allTimeRevenueCents,
-      mrrCents: point.mrrCents ?? 0,
       data: {},
       createdAt: new Date(point.periodStart),
     })),
@@ -527,7 +525,6 @@ export async function getProductConnectorRevenue(
         currencyCode: summary.currencyCode,
         allTimeRevenueCents: summary.latestAllTimeRevenueCents,
       },
-      mrrCents: summary.latestMrrCents ?? 0,
     },
   }
 }

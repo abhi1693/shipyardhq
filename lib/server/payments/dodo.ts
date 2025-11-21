@@ -32,32 +32,6 @@ function startOfDayFromKey(key: string): Date {
   return new Date(Date.UTC(year, (month || 1) - 1, day || 1, 0, 0, 0, 0))
 }
 
-function normalizePaymentFrequencyToMonthly(
-  amount: number,
-  interval: "Day" | "Week" | "Month" | "Year",
-  count: number | null | undefined,
-): number {
-  const safeCount = count && count > 0 ? count : 1
-  let periodsPerYear = 12
-  switch (interval) {
-    case "Day":
-      periodsPerYear = 365 / safeCount
-      break
-    case "Week":
-      periodsPerYear = 52 / safeCount
-      break
-    case "Year":
-      periodsPerYear = 1 / safeCount
-      break
-    case "Month":
-    default:
-      periodsPerYear = 12 / safeCount
-  }
-
-  const monthly = (amount * periodsPerYear) / 12
-  return Math.round(monthly)
-}
-
 function resolveEnvironment(
   config?: PaymentConnectorConfig,
 ): "live_mode" | "test_mode" {
@@ -156,38 +130,7 @@ export async function syncDodoConnector({
     revenueByCurrency.set(currency, aggregate)
   }
 
-  const mrrByCurrency = new Map<string, number>()
-  for await (const subscription of client.subscriptions.list({
-    status: "active",
-    page_size: 100,
-  } as any)) {
-    const currency = (subscription as any)?.currency as string | undefined
-    const amount = Number((subscription as any)?.recurring_pre_tax_amount ?? 0)
-    const interval = (subscription as any)?.payment_frequency_interval as
-      | "Day"
-      | "Week"
-      | "Month"
-      | "Year"
-      | undefined
-    const count = Number((subscription as any)?.payment_frequency_count ?? 1)
-    if (!currency || !interval || !Number.isFinite(amount) || amount <= 0)
-      continue
-
-    const monthlyAmount = normalizePaymentFrequencyToMonthly(
-      amount,
-      interval,
-      count,
-    )
-    mrrByCurrency.set(
-      currency,
-      (mrrByCurrency.get(currency) || 0) + monthlyAmount,
-    )
-  }
-
-  const allCurrencies = new Set<string>([
-    ...revenueByCurrency.keys(),
-    ...mrrByCurrency.keys(),
-  ])
+  const allCurrencies = new Set<string>([...revenueByCurrency.keys()])
 
   const snapshots: RevenueSnapshotInput[] = []
   for (const currency of allCurrencies) {
@@ -195,8 +138,6 @@ export async function syncDodoConnector({
       daily: new Map<string, { amountCents: number; charges: number }>(),
       allTime: 0,
     }
-    const mrrCents = mrrByCurrency.get(currency) || 0
-
     const dayKeys = Array.from(aggregates.daily.keys()).sort()
     if (dayKeys.length === 0) {
       const now = new Date()
@@ -205,8 +146,7 @@ export async function syncDodoConnector({
         periodStart: startOfDayFromKey(toDayKey(now)),
         periodRevenueCents: 0,
         allTimeRevenueCents: aggregates.allTime,
-        mrrCents,
-        data: { provider: "dodo", environment, charges: 0, mrrCents },
+        data: { provider: "dodo", environment, charges: 0 },
       })
       continue
     }
@@ -224,12 +164,10 @@ export async function syncDodoConnector({
         periodStart: startOfDayFromKey(dayKey),
         periodRevenueCents,
         allTimeRevenueCents: runningTotal,
-        mrrCents,
         data: {
           provider: "dodo",
           environment,
           charges: entry.charges,
-          mrrCents,
         },
       })
     }

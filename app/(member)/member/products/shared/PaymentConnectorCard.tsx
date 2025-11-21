@@ -279,7 +279,7 @@ export function PaymentConnectorCard({
               <>
                 <li>Scope: customer_information:customers:read</li>
                 <li>Scope: customer_information:subscriptions:read</li>
-                <li>Includes revenue and MRR (derived from subscriptions)</li>
+                <li>Includes verified revenue derived from subscriptions</li>
               </>
             ) : null}
             {showLemonPermissions ? (

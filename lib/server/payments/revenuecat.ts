@@ -274,9 +274,7 @@ async function syncRevenueCatConnector({
   }
   const environment = getEnvironment(config)
 
-  const currencyCode =
-    connector.latestCurrencyCode?.toUpperCase() || "USD"
-  const mrrCents = connector.latestMrrCents ?? null
+  const currencyCode = connector.latestCurrencyCode?.toUpperCase() || "USD"
 
   const customers = await fetchCustomers({ apiKey, projectId, environment })
   const subscriptions: Subscription[] = []
@@ -338,7 +336,6 @@ async function syncRevenueCatConnector({
       a.periodStart.getTime() > b.periodStart.getTime() ? 1 : -1,
     )
     let runningTotal = baseByCurrency.get(currency) ?? 0
-    const mrr = mrrCents ?? connector.latestMrrCents ?? null
     for (const bucket of ordered) {
       runningTotal += bucket.revenueCents
       snapshots.push({
@@ -346,7 +343,6 @@ async function syncRevenueCatConnector({
         periodStart: bucket.periodStart,
         periodRevenueCents: bucket.revenueCents,
         allTimeRevenueCents: runningTotal,
-        mrrCents: mrr,
         data: {
           provider: "revenuecat",
           projectId,
@@ -374,7 +370,6 @@ async function syncRevenueCatConnector({
       periodStart: fallbackStart,
       periodRevenueCents: 0,
       allTimeRevenueCents: priorAllTime,
-      mrrCents: connector.latestMrrCents ?? null,
       data: { provider: "revenuecat", projectId, charges: 0 },
     })
   }

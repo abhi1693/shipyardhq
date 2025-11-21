@@ -325,7 +325,6 @@ export async function getPublicProductRevenue(
     status: cached.status,
     provider: cached.provider,
     latestAllTimeRevenueCents: cached.latestAllTimeRevenueCents,
-    latestMrrCents: cached.latestMrrCents,
     points: limitedPoints,
   }
 }

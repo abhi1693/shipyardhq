@@ -26,25 +26,6 @@ type StripeCharge = {
   paid?: boolean
 }
 
-type StripeSubscription = {
-  id: string
-  currency?: string
-  status?: string
-  items?: {
-    data?: Array<{
-      quantity?: number
-      price?: {
-        unit_amount?: number | null
-        currency?: string | null
-        recurring?: {
-          interval?: string | null
-          interval_count?: number | null
-        } | null
-      } | null
-    }>
-  }
-}
-
 type StripeListParams = Record<string, string | number | boolean | undefined>
 
 function encodeBasicAuth(apiKey: string) {
@@ -55,27 +36,6 @@ function startOfUtcDay(date: Date): Date {
   return new Date(
     Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
   )
-}
-
-function normalizeIntervalToMonthly(
-  amountCents: number,
-  interval: string | undefined | null,
-  intervalCount: number | undefined | null,
-): number {
-  const safeCount = intervalCount && intervalCount > 0 ? intervalCount : 1
-  const daysPerYear = 365.25
-  const weeksPerYear = daysPerYear / 7
-  switch ((interval || "").toLowerCase()) {
-    case "day":
-      return Math.round((amountCents * daysPerYear) / (12 * safeCount))
-    case "week":
-      return Math.round((amountCents * weeksPerYear) / (12 * safeCount))
-    case "year":
-      return Math.round(amountCents / (12 * safeCount))
-    case "month":
-    default:
-      return Math.round(amountCents / safeCount)
-  }
 }
 
 function ensureStripeKeyMatchesEnvironment(apiKey: string): "live" | "test" {
@@ -245,50 +205,11 @@ async function collectSubscriptions({
   apiKey: string
   accountId?: string
 }) {
-  const mrrByCurrency = new Map<string, number>()
-
-  for await (const sub of iterateStripeList<StripeSubscription>({
-    apiKey,
-    path: "/subscriptions",
-    accountId,
-    params: {
-      status: "active",
-      "expand[]": "data.items.data.price",
-    },
-  })) {
-    if (!sub || (sub.status && sub.status !== "active")) continue
-    const items = sub.items?.data ?? []
-    for (const item of items) {
-      const price = item?.price
-      if (!price) continue
-      const currency =
-        typeof price.currency === "string"
-          ? price.currency.toUpperCase()
-          : typeof sub.currency === "string"
-            ? sub.currency.toUpperCase()
-            : undefined
-      if (!currency) continue
-
-      const amount = Number(price.unit_amount ?? 0) * (item.quantity ?? 1)
-      if (!Number.isFinite(amount) || amount <= 0) continue
-      const interval = price.recurring?.interval ?? "month"
-      const intervalCount = price.recurring?.interval_count ?? 1
-      const monthly = normalizeIntervalToMonthly(
-        Math.round(amount),
-        interval,
-        intervalCount,
-      )
-
-      mrrByCurrency.set(currency, (mrrByCurrency.get(currency) || 0) + monthly)
-    }
-  }
-
-  return mrrByCurrency
+  return new Map<string, number>()
 }
 
 function buildSnapshots({
   chargesByCurrency,
-  mrrByCurrency,
   mode,
   accountIds,
   includePlatform,
@@ -301,7 +222,6 @@ function buildSnapshots({
       { periodRevenueCents: number; charges: number; periodStart: Date }
     >
   >
-  mrrByCurrency: Map<string, number>
   mode: "live" | "test"
   accountIds: string[]
   includePlatform: boolean
@@ -311,7 +231,6 @@ function buildSnapshots({
 
   const currencies = new Set<string>([
     ...chargesByCurrency.keys(),
-    ...mrrByCurrency.keys(),
     ...(allTimeBaseByCurrency ? Array.from(allTimeBaseByCurrency.keys()) : []),
   ])
 
@@ -325,9 +244,6 @@ function buildSnapshots({
       allTimeBaseByCurrency?.get(currency) ??
       0
     let runningAllTime = baseAllTime
-    const latestBucket = ordered[ordered.length - 1]
-    const mrr = mrrByCurrency.get(currency) ?? null
-
     if (ordered.length === 0) {
       const today = startOfUtcDay(new Date())
       snapshots.push({
@@ -335,7 +251,6 @@ function buildSnapshots({
         periodStart: today,
         periodRevenueCents: 0,
         allTimeRevenueCents: runningAllTime,
-        mrrCents: mrr,
         data: {
           source: "stripe",
           mode,
@@ -354,7 +269,6 @@ function buildSnapshots({
         periodStart: bucket.periodStart,
         periodRevenueCents: bucket.periodRevenueCents,
         allTimeRevenueCents: runningAllTime,
-        mrrCents: bucket === latestBucket ? mrr : null,
         data: {
           source: "stripe",
           mode,
@@ -377,7 +291,6 @@ function buildSnapshots({
       periodStart: today,
       periodRevenueCents: 0,
       allTimeRevenueCents: fallbackBase,
-      mrrCents: mrrByCurrency.get("USD") ?? null,
       data: {
         source: "stripe",
         mode,
@@ -488,7 +401,6 @@ export const stripeProvider: PaymentProviderDefinition = {
         { periodRevenueCents: number; charges: number; periodStart: Date }
       >
     >()
-    const mrrByCurrency = new Map<string, number>()
 
     for (const accountId of targetAccounts) {
       try {
@@ -548,27 +460,8 @@ export const stripeProvider: PaymentProviderDefinition = {
       }
     }
 
-    for (const accountId of targetAccounts) {
-      try {
-        const mrrMap = await collectSubscriptions({ apiKey, accountId }).catch(
-          () => new Map<string, number>(),
-        )
-        for (const [currency, mrr] of mrrMap.entries()) {
-          mrrByCurrency.set(currency, (mrrByCurrency.get(currency) || 0) + mrr)
-        }
-        if (accountId) usedAccountIds.add(accountId)
-      } catch (error) {
-        console.warn(
-          "[payments.stripe] failed to collect subscriptions for account",
-          accountId || "platform",
-          error,
-        )
-      }
-    }
-
     const snapshots = buildSnapshots({
       chargesByCurrency,
-      mrrByCurrency,
       mode,
       accountIds: Array.from(usedAccountIds),
       includePlatform: includesPlatform,
@@ -586,7 +479,6 @@ export const stripeProvider: PaymentProviderDefinition = {
         (sum, map) => sum + map.size,
         0,
       ),
-      mrrCurrencies: mrrByCurrency.size,
       snapshots: snapshots.length,
       accountIds: Array.from(usedAccountIds),
       includesPlatform,

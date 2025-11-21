@@ -255,26 +255,6 @@ function pickCurrency(entry: any): string | null {
   return null
 }
 
-function normalizeIntervalToMonthly(
-  amountCents: number,
-  interval: string | undefined,
-  frequency: number | undefined,
-): number {
-  const safeFrequency = frequency && frequency > 0 ? frequency : 1
-  const normalizedInterval = (interval || "").toLowerCase()
-  switch (normalizedInterval) {
-    case "day":
-      return Math.round((amountCents * 365) / (12 * safeFrequency))
-    case "week":
-      return Math.round((amountCents * 52) / (12 * safeFrequency))
-    case "year":
-      return Math.round(amountCents / (12 * safeFrequency))
-    case "month":
-    default:
-      return Math.round(amountCents / safeFrequency)
-  }
-}
-
 function buildBaseMaps(context: ProviderSyncContext): {
   baseByCurrency: Map<string, number>
   latestStartByCurrency: Map<string, Date>
@@ -358,16 +338,10 @@ export async function syncPaddleConnector({
     latestPeriodStartByCurrency,
   })
 
-  const [transactions, subscriptions] = await Promise.all([
-    listPaddleTransactions({
-      apiKey,
-      environment,
-    }),
-    listPaddleSubscriptions({
-      apiKey,
-      environment,
-    }).catch(() => []),
-  ])
+  const transactions = await listPaddleTransactions({
+    apiKey,
+    environment,
+  })
 
   const revenueByCurrency = new Map<
     string,
@@ -376,7 +350,6 @@ export async function syncPaddleConnector({
       { periodRevenueCents: number; charges: number; periodStart: Date }
     >
   >()
-  const mrrByCurrency = new Map<string, number>()
 
   for (const tx of transactions as any[]) {
     const status =
@@ -416,66 +389,12 @@ export async function syncPaddleConnector({
     revenueByCurrency.set(currency, currencyMap)
   }
 
-  for (const sub of subscriptions as any[]) {
-    const status = String(sub?.status || "").toLowerCase()
-    if (
-      status &&
-      !["active", "trialing", "paused", "past_due"].some((ok) =>
-        status.includes(ok),
-      )
-    ) {
-      continue
-    }
-
-    const items = Array.isArray(sub?.items) ? (sub.items as any[]) : [sub]
-    const fallbackCurrency =
-      pickCurrency(sub) || pickCurrency(sub?.price) || "USD"
-
-    for (const item of items) {
-      const currency = (
-        pickCurrency(item) ||
-        pickCurrency(item?.price) ||
-        pickCurrency(item?.price?.unit_price) ||
-        fallbackCurrency
-      ).toUpperCase()
-      const amount = pickAmountCents(
-        item?.price?.unit_price ?? item?.price?.unitPrice ?? item?.price ?? item,
-      )
-      if (!amount || amount <= 0) continue
-      const quantity = Number(item?.quantity ?? 1)
-
-      const billingCycle =
-        item?.price?.billing_cycle ||
-        item?.price?.billingCycle ||
-        sub?.billing_cycle ||
-        sub?.billingCycle ||
-        {}
-      const interval = billingCycle?.interval
-      const frequency =
-        Number(
-          billingCycle?.frequency ??
-            billingCycle?.count ??
-            billingCycle?.interval_count,
-        ) || 1
-
-      const monthly = normalizeIntervalToMonthly(
-        amount * (Number.isFinite(quantity) ? quantity : 1),
-        interval,
-        frequency,
-      )
-      if (monthly > 0) {
-        mrrByCurrency.set(currency, (mrrByCurrency.get(currency) || 0) + monthly)
-      }
-    }
-  }
-
   const snapshots: RevenueSnapshotInput[] = []
   for (const [currency, buckets] of revenueByCurrency.entries()) {
     const ordered = Array.from(buckets.values()).sort((a, b) =>
       a.periodStart.getTime() > b.periodStart.getTime() ? 1 : -1,
     )
     let runningTotal = baseByCurrency.get(currency) ?? 0
-    const mrrCents = mrrByCurrency.get(currency) ?? null
     for (const bucket of ordered) {
       runningTotal += bucket.periodRevenueCents
       snapshots.push({
@@ -483,28 +402,12 @@ export async function syncPaddleConnector({
         periodStart: bucket.periodStart,
         periodRevenueCents: bucket.periodRevenueCents,
         allTimeRevenueCents: runningTotal,
-        mrrCents,
         data: {
           provider: "paddle",
           charges: bucket.charges,
         },
       })
     }
-  }
-
-  if (snapshots.length === 0 && mrrByCurrency.size > 0) {
-    const dayStart = startOfUtcDay(new Date())
-    for (const [currency, mrr] of mrrByCurrency.entries()) {
-      const base = baseByCurrency.get(currency) ?? 0
-      snapshots.push({
-        currencyCode: currency,
-        periodStart: dayStart,
-      periodRevenueCents: 0,
-      allTimeRevenueCents: base,
-      mrrCents: mrr,
-      data: { provider: "paddle", charges: 0 },
-    })
-  }
   }
 
   if (snapshots.length === 0) {
@@ -524,10 +427,6 @@ export async function syncPaddleConnector({
       periodStart: fallbackStart,
       periodRevenueCents: 0,
       allTimeRevenueCents: priorAllTime,
-      mrrCents:
-        mrrByCurrency.get(fallbackCurrency) ??
-        connector.latestMrrCents ??
-        null,
       data: { provider: "paddle", charges: 0 },
     })
   }

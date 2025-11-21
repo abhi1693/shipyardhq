@@ -28,12 +28,10 @@ export type AggregatePaymentConnector = {
 
 export type PaymentConnectorAvgAggregateOutputType = {
   latestAllTimeRevenueCents: number | null
-  latestMrrCents: number | null
 }
 
 export type PaymentConnectorSumAggregateOutputType = {
   latestAllTimeRevenueCents: number | null
-  latestMrrCents: number | null
 }
 
 export type PaymentConnectorMinAggregateOutputType = {
@@ -45,7 +43,6 @@ export type PaymentConnectorMinAggregateOutputType = {
   lastSyncError: string | null
   verifiedAt: Date | null
   latestAllTimeRevenueCents: number | null
-  latestMrrCents: number | null
   latestCurrencyCode: string | null
   latestPeriodStart: Date | null
   createdAt: Date | null
@@ -61,7 +58,6 @@ export type PaymentConnectorMaxAggregateOutputType = {
   lastSyncError: string | null
   verifiedAt: Date | null
   latestAllTimeRevenueCents: number | null
-  latestMrrCents: number | null
   latestCurrencyCode: string | null
   latestPeriodStart: Date | null
   createdAt: Date | null
@@ -78,7 +74,6 @@ export type PaymentConnectorCountAggregateOutputType = {
   lastSyncError: number
   verifiedAt: number
   latestAllTimeRevenueCents: number
-  latestMrrCents: number
   latestCurrencyCode: number
   latestPeriodStart: number
   createdAt: number
@@ -89,12 +84,10 @@ export type PaymentConnectorCountAggregateOutputType = {
 
 export type PaymentConnectorAvgAggregateInputType = {
   latestAllTimeRevenueCents?: true
-  latestMrrCents?: true
 }
 
 export type PaymentConnectorSumAggregateInputType = {
   latestAllTimeRevenueCents?: true
-  latestMrrCents?: true
 }
 
 export type PaymentConnectorMinAggregateInputType = {
@@ -106,7 +99,6 @@ export type PaymentConnectorMinAggregateInputType = {
   lastSyncError?: true
   verifiedAt?: true
   latestAllTimeRevenueCents?: true
-  latestMrrCents?: true
   latestCurrencyCode?: true
   latestPeriodStart?: true
   createdAt?: true
@@ -122,7 +114,6 @@ export type PaymentConnectorMaxAggregateInputType = {
   lastSyncError?: true
   verifiedAt?: true
   latestAllTimeRevenueCents?: true
-  latestMrrCents?: true
   latestCurrencyCode?: true
   latestPeriodStart?: true
   createdAt?: true
@@ -139,7 +130,6 @@ export type PaymentConnectorCountAggregateInputType = {
   lastSyncError?: true
   verifiedAt?: true
   latestAllTimeRevenueCents?: true
-  latestMrrCents?: true
   latestCurrencyCode?: true
   latestPeriodStart?: true
   createdAt?: true
@@ -243,7 +233,6 @@ export type PaymentConnectorGroupByOutputType = {
   lastSyncError: string | null
   verifiedAt: Date | null
   latestAllTimeRevenueCents: number | null
-  latestMrrCents: number | null
   latestCurrencyCode: string | null
   latestPeriodStart: Date | null
   createdAt: Date
@@ -283,7 +272,6 @@ export type PaymentConnectorWhereInput = {
   lastSyncError?: Prisma.StringNullableFilter<"PaymentConnector"> | string | null
   verifiedAt?: Prisma.DateTimeNullableFilter<"PaymentConnector"> | Date | string | null
   latestAllTimeRevenueCents?: Prisma.IntNullableFilter<"PaymentConnector"> | number | null
-  latestMrrCents?: Prisma.IntNullableFilter<"PaymentConnector"> | number | null
   latestCurrencyCode?: Prisma.StringNullableFilter<"PaymentConnector"> | string | null
   latestPeriodStart?: Prisma.DateTimeNullableFilter<"PaymentConnector"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"PaymentConnector"> | Date | string
@@ -303,7 +291,6 @@ export type PaymentConnectorOrderByWithRelationInput = {
   lastSyncError?: Prisma.SortOrderInput | Prisma.SortOrder
   verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   latestAllTimeRevenueCents?: Prisma.SortOrderInput | Prisma.SortOrder
-  latestMrrCents?: Prisma.SortOrderInput | Prisma.SortOrder
   latestCurrencyCode?: Prisma.SortOrderInput | Prisma.SortOrder
   latestPeriodStart?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -326,7 +313,6 @@ export type PaymentConnectorWhereUniqueInput = Prisma.AtLeast<{
   lastSyncError?: Prisma.StringNullableFilter<"PaymentConnector"> | string | null
   verifiedAt?: Prisma.DateTimeNullableFilter<"PaymentConnector"> | Date | string | null
   latestAllTimeRevenueCents?: Prisma.IntNullableFilter<"PaymentConnector"> | number | null
-  latestMrrCents?: Prisma.IntNullableFilter<"PaymentConnector"> | number | null
   latestCurrencyCode?: Prisma.StringNullableFilter<"PaymentConnector"> | string | null
   latestPeriodStart?: Prisma.DateTimeNullableFilter<"PaymentConnector"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"PaymentConnector"> | Date | string
@@ -346,7 +332,6 @@ export type PaymentConnectorOrderByWithAggregationInput = {
   lastSyncError?: Prisma.SortOrderInput | Prisma.SortOrder
   verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   latestAllTimeRevenueCents?: Prisma.SortOrderInput | Prisma.SortOrder
-  latestMrrCents?: Prisma.SortOrderInput | Prisma.SortOrder
   latestCurrencyCode?: Prisma.SortOrderInput | Prisma.SortOrder
   latestPeriodStart?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -371,7 +356,6 @@ export type PaymentConnectorScalarWhereWithAggregatesInput = {
   lastSyncError?: Prisma.StringNullableWithAggregatesFilter<"PaymentConnector"> | string | null
   verifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PaymentConnector"> | Date | string | null
   latestAllTimeRevenueCents?: Prisma.IntNullableWithAggregatesFilter<"PaymentConnector"> | number | null
-  latestMrrCents?: Prisma.IntNullableWithAggregatesFilter<"PaymentConnector"> | number | null
   latestCurrencyCode?: Prisma.StringNullableWithAggregatesFilter<"PaymentConnector"> | string | null
   latestPeriodStart?: Prisma.DateTimeNullableWithAggregatesFilter<"PaymentConnector"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentConnector"> | Date | string
@@ -387,7 +371,6 @@ export type PaymentConnectorCreateInput = {
   lastSyncError?: string | null
   verifiedAt?: Date | string | null
   latestAllTimeRevenueCents?: number | null
-  latestMrrCents?: number | null
   latestCurrencyCode?: string | null
   latestPeriodStart?: Date | string | null
   createdAt?: Date | string
@@ -407,7 +390,6 @@ export type PaymentConnectorUncheckedCreateInput = {
   lastSyncError?: string | null
   verifiedAt?: Date | string | null
   latestAllTimeRevenueCents?: number | null
-  latestMrrCents?: number | null
   latestCurrencyCode?: string | null
   latestPeriodStart?: Date | string | null
   createdAt?: Date | string
@@ -425,7 +407,6 @@ export type PaymentConnectorUpdateInput = {
   lastSyncError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   latestAllTimeRevenueCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  latestMrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestCurrencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latestPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -445,7 +426,6 @@ export type PaymentConnectorUncheckedUpdateInput = {
   lastSyncError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   latestAllTimeRevenueCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  latestMrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestCurrencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latestPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -464,7 +444,6 @@ export type PaymentConnectorCreateManyInput = {
   lastSyncError?: string | null
   verifiedAt?: Date | string | null
   latestAllTimeRevenueCents?: number | null
-  latestMrrCents?: number | null
   latestCurrencyCode?: string | null
   latestPeriodStart?: Date | string | null
   createdAt?: Date | string
@@ -480,7 +459,6 @@ export type PaymentConnectorUpdateManyMutationInput = {
   lastSyncError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   latestAllTimeRevenueCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  latestMrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestCurrencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latestPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -497,7 +475,6 @@ export type PaymentConnectorUncheckedUpdateManyInput = {
   lastSyncError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   latestAllTimeRevenueCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  latestMrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestCurrencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latestPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -519,7 +496,6 @@ export type PaymentConnectorCountOrderByAggregateInput = {
   lastSyncError?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   latestAllTimeRevenueCents?: Prisma.SortOrder
-  latestMrrCents?: Prisma.SortOrder
   latestCurrencyCode?: Prisma.SortOrder
   latestPeriodStart?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -528,7 +504,6 @@ export type PaymentConnectorCountOrderByAggregateInput = {
 
 export type PaymentConnectorAvgOrderByAggregateInput = {
   latestAllTimeRevenueCents?: Prisma.SortOrder
-  latestMrrCents?: Prisma.SortOrder
 }
 
 export type PaymentConnectorMaxOrderByAggregateInput = {
@@ -540,7 +515,6 @@ export type PaymentConnectorMaxOrderByAggregateInput = {
   lastSyncError?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   latestAllTimeRevenueCents?: Prisma.SortOrder
-  latestMrrCents?: Prisma.SortOrder
   latestCurrencyCode?: Prisma.SortOrder
   latestPeriodStart?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -556,7 +530,6 @@ export type PaymentConnectorMinOrderByAggregateInput = {
   lastSyncError?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   latestAllTimeRevenueCents?: Prisma.SortOrder
-  latestMrrCents?: Prisma.SortOrder
   latestCurrencyCode?: Prisma.SortOrder
   latestPeriodStart?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -565,7 +538,6 @@ export type PaymentConnectorMinOrderByAggregateInput = {
 
 export type PaymentConnectorSumOrderByAggregateInput = {
   latestAllTimeRevenueCents?: Prisma.SortOrder
-  latestMrrCents?: Prisma.SortOrder
 }
 
 export type PaymentConnectorScalarRelationFilter = {
@@ -650,7 +622,6 @@ export type PaymentConnectorCreateWithoutProductInput = {
   lastSyncError?: string | null
   verifiedAt?: Date | string | null
   latestAllTimeRevenueCents?: number | null
-  latestMrrCents?: number | null
   latestCurrencyCode?: string | null
   latestPeriodStart?: Date | string | null
   createdAt?: Date | string
@@ -668,7 +639,6 @@ export type PaymentConnectorUncheckedCreateWithoutProductInput = {
   lastSyncError?: string | null
   verifiedAt?: Date | string | null
   latestAllTimeRevenueCents?: number | null
-  latestMrrCents?: number | null
   latestCurrencyCode?: string | null
   latestPeriodStart?: Date | string | null
   createdAt?: Date | string
@@ -702,7 +672,6 @@ export type PaymentConnectorUpdateWithoutProductInput = {
   lastSyncError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   latestAllTimeRevenueCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  latestMrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestCurrencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latestPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -720,7 +689,6 @@ export type PaymentConnectorUncheckedUpdateWithoutProductInput = {
   lastSyncError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   latestAllTimeRevenueCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  latestMrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestCurrencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latestPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -738,7 +706,6 @@ export type PaymentConnectorCreateWithoutCredentialsInput = {
   lastSyncError?: string | null
   verifiedAt?: Date | string | null
   latestAllTimeRevenueCents?: number | null
-  latestMrrCents?: number | null
   latestCurrencyCode?: string | null
   latestPeriodStart?: Date | string | null
   createdAt?: Date | string
@@ -757,7 +724,6 @@ export type PaymentConnectorUncheckedCreateWithoutCredentialsInput = {
   lastSyncError?: string | null
   verifiedAt?: Date | string | null
   latestAllTimeRevenueCents?: number | null
-  latestMrrCents?: number | null
   latestCurrencyCode?: string | null
   latestPeriodStart?: Date | string | null
   createdAt?: Date | string
@@ -790,7 +756,6 @@ export type PaymentConnectorUpdateWithoutCredentialsInput = {
   lastSyncError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   latestAllTimeRevenueCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  latestMrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestCurrencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latestPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -809,7 +774,6 @@ export type PaymentConnectorUncheckedUpdateWithoutCredentialsInput = {
   lastSyncError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   latestAllTimeRevenueCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  latestMrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestCurrencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latestPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -826,7 +790,6 @@ export type PaymentConnectorCreateWithoutRevenueHistoryInput = {
   lastSyncError?: string | null
   verifiedAt?: Date | string | null
   latestAllTimeRevenueCents?: number | null
-  latestMrrCents?: number | null
   latestCurrencyCode?: string | null
   latestPeriodStart?: Date | string | null
   createdAt?: Date | string
@@ -845,7 +808,6 @@ export type PaymentConnectorUncheckedCreateWithoutRevenueHistoryInput = {
   lastSyncError?: string | null
   verifiedAt?: Date | string | null
   latestAllTimeRevenueCents?: number | null
-  latestMrrCents?: number | null
   latestCurrencyCode?: string | null
   latestPeriodStart?: Date | string | null
   createdAt?: Date | string
@@ -878,7 +840,6 @@ export type PaymentConnectorUpdateWithoutRevenueHistoryInput = {
   lastSyncError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   latestAllTimeRevenueCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  latestMrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestCurrencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latestPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -897,7 +858,6 @@ export type PaymentConnectorUncheckedUpdateWithoutRevenueHistoryInput = {
   lastSyncError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   latestAllTimeRevenueCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  latestMrrCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestCurrencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latestPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -955,7 +915,6 @@ export type PaymentConnectorSelect<ExtArgs extends runtime.Types.Extensions.Inte
   lastSyncError?: boolean
   verifiedAt?: boolean
   latestAllTimeRevenueCents?: boolean
-  latestMrrCents?: boolean
   latestCurrencyCode?: boolean
   latestPeriodStart?: boolean
   createdAt?: boolean
@@ -976,7 +935,6 @@ export type PaymentConnectorSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   lastSyncError?: boolean
   verifiedAt?: boolean
   latestAllTimeRevenueCents?: boolean
-  latestMrrCents?: boolean
   latestCurrencyCode?: boolean
   latestPeriodStart?: boolean
   createdAt?: boolean
@@ -994,7 +952,6 @@ export type PaymentConnectorSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   lastSyncError?: boolean
   verifiedAt?: boolean
   latestAllTimeRevenueCents?: boolean
-  latestMrrCents?: boolean
   latestCurrencyCode?: boolean
   latestPeriodStart?: boolean
   createdAt?: boolean
@@ -1012,14 +969,13 @@ export type PaymentConnectorSelectScalar = {
   lastSyncError?: boolean
   verifiedAt?: boolean
   latestAllTimeRevenueCents?: boolean
-  latestMrrCents?: boolean
   latestCurrencyCode?: boolean
   latestPeriodStart?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PaymentConnectorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "provider" | "status" | "config" | "lastSyncedAt" | "lastSyncError" | "verifiedAt" | "latestAllTimeRevenueCents" | "latestMrrCents" | "latestCurrencyCode" | "latestPeriodStart" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentConnector"]>
+export type PaymentConnectorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "provider" | "status" | "config" | "lastSyncedAt" | "lastSyncError" | "verifiedAt" | "latestAllTimeRevenueCents" | "latestCurrencyCode" | "latestPeriodStart" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentConnector"]>
 export type PaymentConnectorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   credentials?: boolean | Prisma.PaymentConnector$credentialsArgs<ExtArgs>
@@ -1050,7 +1006,6 @@ export type $PaymentConnectorPayload<ExtArgs extends runtime.Types.Extensions.In
     lastSyncError: string | null
     verifiedAt: Date | null
     latestAllTimeRevenueCents: number | null
-    latestMrrCents: number | null
     latestCurrencyCode: string | null
     latestPeriodStart: Date | null
     createdAt: Date
@@ -1490,7 +1445,6 @@ export interface PaymentConnectorFieldRefs {
   readonly lastSyncError: Prisma.FieldRef<"PaymentConnector", 'String'>
   readonly verifiedAt: Prisma.FieldRef<"PaymentConnector", 'DateTime'>
   readonly latestAllTimeRevenueCents: Prisma.FieldRef<"PaymentConnector", 'Int'>
-  readonly latestMrrCents: Prisma.FieldRef<"PaymentConnector", 'Int'>
   readonly latestCurrencyCode: Prisma.FieldRef<"PaymentConnector", 'String'>
   readonly latestPeriodStart: Prisma.FieldRef<"PaymentConnector", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"PaymentConnector", 'DateTime'>

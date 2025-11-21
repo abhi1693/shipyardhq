@@ -85,26 +85,6 @@ function toDayKey(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
-function normalizeIntervalToMonthly(
-  amountCents: number,
-  interval: string | undefined,
-  count: number | undefined,
-): number {
-  const safeCount = count && count > 0 ? count : 1
-  const key = (interval || "").toLowerCase()
-  switch (key) {
-    case "day":
-      return Math.round((amountCents * 365) / (12 * safeCount))
-    case "week":
-      return Math.round((amountCents * 52) / (12 * safeCount))
-    case "year":
-      return Math.round(amountCents / (12 * safeCount))
-    case "month":
-    default:
-      return Math.round(amountCents / safeCount)
-  }
-}
-
 function pickNumber(obj: any, keys: string[]): number | null {
   for (const key of keys) {
     const value = obj?.[key]
@@ -201,12 +181,10 @@ export const polarProvider: PaymentProviderDefinition = {
     type DailyBucket = {
       periodRevenueCents: number
       allTimeRevenueCents: number
-      mrrCents: number | null
       day: string
       periodStart: Date
     }
     const byCurrency = new Map<string, Map<string, DailyBucket>>()
-    const mrrByCurrency = new Map<string, number>()
 
     for (const order of orders as any[]) {
       const amount =
@@ -239,7 +217,6 @@ export const polarProvider: PaymentProviderDefinition = {
         ({
           periodRevenueCents: 0,
           allTimeRevenueCents: 0,
-          mrrCents: null,
           day: dayKey,
           periodStart: dayStart,
         } satisfies DailyBucket)
@@ -248,38 +225,12 @@ export const polarProvider: PaymentProviderDefinition = {
       byCurrency.set(currency, currencyMap)
     }
 
-    for (const sub of subscriptions as any[]) {
-      const amount =
-        pickNumber(sub, [
-          "price_amount",
-          "price_amount_cents",
-          "amount",
-          "amount_cents",
-          "billing_amount",
-        ]) || 0
-      const interval =
-        ((sub as any)?.billing_interval || (sub as any)?.interval || "") + ""
-      const intervalCount =
-        pickNumber(sub, ["billing_interval_count", "interval_count"]) ?? 1
-      const currency = pickCurrency(sub) || "USD"
-      if (!Number.isFinite(amount) || amount <= 0) continue
-      const monthly = normalizeIntervalToMonthly(
-        amount,
-        interval,
-        intervalCount,
-      )
-      const prev = mrrByCurrency.get(currency) ?? 0
-      mrrByCurrency.set(currency, prev + monthly)
-    }
-
     const snapshots = Array.from(byCurrency.entries())
       .map(([currency, buckets]) => {
         const ordered = Array.from(buckets.values()).sort((a, b) =>
           a.periodStart.getTime() > b.periodStart.getTime() ? 1 : -1,
         )
         let runningAllTime = 0
-        const latest = ordered[ordered.length - 1]
-        const mrr = mrrByCurrency.get(currency) ?? null
 
         return ordered.map((bucket) => {
           runningAllTime += bucket.periodRevenueCents
@@ -288,7 +239,6 @@ export const polarProvider: PaymentProviderDefinition = {
             periodStart: bucket.periodStart,
             periodRevenueCents: bucket.periodRevenueCents,
             allTimeRevenueCents: runningAllTime,
-            mrrCents: bucket === latest ? mrr : null,
             data: { source: "polar", organizationIds },
           }
         })
@@ -303,7 +253,6 @@ export const polarProvider: PaymentProviderDefinition = {
         periodStart: today,
         periodRevenueCents: 0,
         allTimeRevenueCents: 0,
-        mrrCents: mrrByCurrency.get("USD") ?? null,
         data: { source: "polar", organizationIds },
       })
     }

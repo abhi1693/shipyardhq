@@ -14,7 +14,6 @@ type RevenueSnapshotInput = {
   currencyCode: string
   periodRevenueCents: number
   allTimeRevenueCents: number
-  mrrCents?: number | null
   data?: Prisma.JsonValue | Prisma.InputJsonValue
 }
 
@@ -22,14 +21,12 @@ export type NormalizedRevenueSnapshot = Omit<
   RevenueSnapshotInput,
   | "allTimeRevenueCents"
   | "periodRevenueCents"
-  | "mrrCents"
   | "currencyCode"
   | "data"
 > & {
   currencyCode: string | null
   allTimeRevenueCents: number | null
   periodRevenueCents: number | null
-  mrrCents: number | null
   data: Record<string, unknown>
 }
 
@@ -38,7 +35,6 @@ export type RevenuePoint = {
   label: string
   allTimeRevenueCents: number
   periodRevenueCents: number
-  mrrCents: number | null
 }
 
 export type RevenueSummary = {
@@ -49,7 +45,6 @@ export type RevenueSummary = {
   currencyCode: string
   lastSyncedAt: string | null
   latestAllTimeRevenueCents: number
-  latestMrrCents: number | null
   points: RevenuePoint[]
 }
 
@@ -62,7 +57,7 @@ const isObject = (
 
 /**
  * Normalize provider revenue snapshots so callers always get USD when rates are available
- * and a consistent mrr/all-time structure.
+ * and a consistent revenue structure.
  */
 export function normalizeRevenueHistory(
   history: RevenueSnapshotInput[],
@@ -72,12 +67,6 @@ export function normalizeRevenueHistory(
     const baseData = isObject(entry.data as Prisma.JsonValue)
       ? (entry.data as Prisma.JsonObject)
       : {}
-    const rawMrr =
-      typeof entry.mrrCents === "number"
-        ? entry.mrrCents
-        : typeof (baseData as any).mrrCents === "number"
-          ? Number((baseData as any).mrrCents)
-          : null
 
     const { usdCents: allTimeUsd, rateUsed } = convertToUsdCents(
       entry.allTimeRevenueCents ?? 0,
@@ -86,11 +75,6 @@ export function normalizeRevenueHistory(
     )
     const { usdCents: periodUsd } = convertToUsdCents(
       entry.periodRevenueCents ?? 0,
-      entry.currencyCode,
-      rates,
-    )
-    const { usdCents: mrrUsd, rateUsed: mrrRate } = convertToUsdCents(
-      typeof rawMrr === "number" ? rawMrr : 0,
       entry.currencyCode,
       rates,
     )
@@ -106,12 +90,6 @@ export function normalizeRevenueHistory(
       periodRevenueCents: rateUsed
         ? periodUsd
         : (entry.periodRevenueCents ?? null),
-      mrrCents:
-        rateUsed || mrrRate
-          ? mrrUsd
-          : typeof rawMrr === "number"
-            ? rawMrr
-            : null,
       data: {
         ...baseData,
         originalCurrencyCode: entry.currencyCode ?? null,
@@ -149,7 +127,6 @@ function aggregateByCurrency(
 
     const existing = buckets.get(dayKey)
     const periodRevenueCents = (entry.periodRevenueCents ?? 0) as number
-    const mrrCents = (entry.mrrCents ?? 0) as number
 
     const mergedData = {
       ...(isObject(existing?.data as Prisma.JsonValue)
@@ -173,8 +150,6 @@ function aggregateByCurrency(
       currencyCode: entry.currencyCode,
       periodRevenueCents:
         (existing?.periodRevenueCents ?? 0) + periodRevenueCents,
-      // MRR is point-in-time; use the latest non-zero value instead of summing.
-      mrrCents: mrrCents > 0 ? mrrCents : (existing?.mrrCents ?? 0),
       data: mergedData,
       allTimeRevenueCents: existing?.allTimeRevenueCents ?? null,
     })
@@ -217,20 +192,6 @@ export function selectDisplaySeries(
       : aggregatedSeries
 
   return { displayCurrency, series: limitedSeries }
-}
-
-export function findLatestMrr(
-  history: NormalizedRevenueSnapshot[],
-): number | null {
-  for (let i = history.length - 1; i >= 0; i -= 1) {
-    const value = history[i]?.mrrCents
-    if (typeof value === "number" && value > 0) return value
-  }
-  for (let i = history.length - 1; i >= 0; i -= 1) {
-    const value = history[i]?.mrrCents
-    if (typeof value === "number") return value
-  }
-  return null
 }
 
 function buildRevenueCacheKey(productId: string) {
@@ -291,7 +252,6 @@ export function buildRevenueSummary({
       label,
       allTimeRevenueCents: point.allTimeRevenueCents ?? 0,
       periodRevenueCents: point.periodRevenueCents ?? 0,
-      mrrCents: point.mrrCents ?? null,
     }
   })
 
@@ -307,7 +267,6 @@ export function buildRevenueSummary({
         ? lastSyncedAt
         : (lastSyncedAt?.toISOString() ?? null),
     latestAllTimeRevenueCents: latestPoint.allTimeRevenueCents ?? 0,
-    latestMrrCents: findLatestMrr(series),
     points,
   }
 }

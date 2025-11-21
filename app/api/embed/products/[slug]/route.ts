@@ -10,7 +10,7 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 type Theme = "light" | "dark"
-type BadgeType = "featured" | "revenue" | "mrr"
+type BadgeType = "featured" | "revenue"
 type Format = "svg" | "png"
 
 type RouteParams = Promise<{ slug: string }>
@@ -130,15 +130,11 @@ function buildBaseSvg(options: {
   const headingText =
     badgeType === "featured"
       ? "Featured On"
-      : badgeType === "revenue"
-        ? "Total Revenue"
-        : "MRR"
+      : "Total Revenue"
   const subheadingText =
     badgeType === "featured"
       ? siteConfig.name
-      : badgeType === "revenue"
-        ? metricValue
-        : metricValue
+      : metricValue
   const showVerification = badgeType !== "featured" && !!brandLogo
   const verifiedLogoSize = 20
   const subtextSize = 14
@@ -225,7 +221,7 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
   )
   const badgeType = parseParam<BadgeType>(
     url.searchParams.get("type"),
-    ["featured", "revenue", "mrr"],
+    ["featured", "revenue"],
     DEFAULT_TYPE,
   )
   const format = parseParam<Format>(
@@ -256,11 +252,7 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
         minimumFractionDigits: 0,
       }).format((cents ?? 0) / 100)
 
-    if (badgeType === "revenue") {
-      metricValue = formatCurrency(revenue?.latestAllTimeRevenueCents)
-    } else if (badgeType === "mrr") {
-      metricValue = formatCurrency(revenue?.latestMrrCents)
-    }
+    metricValue = formatCurrency(revenue?.latestAllTimeRevenueCents)
   }
 
   const svg = buildBaseSvg({
