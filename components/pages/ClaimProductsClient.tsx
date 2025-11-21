@@ -87,7 +87,11 @@ export function ClaimProductsClient({
         toast.error(res.error)
         return
       }
-      setOtpExpiresAt(res.expiresAt ?? null)
+      if ("expiresAt" in res) {
+        setOtpExpiresAt(res.expiresAt ?? null)
+      } else {
+        setOtpExpiresAt(null)
+      }
       toast.success("Verification code sent.")
     })
   }

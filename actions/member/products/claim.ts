@@ -78,7 +78,9 @@ async function getUserOrganizationIds(userId: string) {
     where: { userId },
     select: { organizationId: true },
   })
-  return memberships.map((m) => m.organizationId)
+  return memberships.map(
+    ({ organizationId }: { organizationId: string }) => organizationId,
+  )
 }
 
 async function getClaimableProductsForViewer(
@@ -120,7 +122,7 @@ async function getClaimableProductsForViewer(
   })
 
   return products
-    .map((product) => {
+    .map((product: ClaimableProduct) => {
       const domain = getRootDomain(product.websiteUrl)
       if (!domain) return null
       return {
@@ -193,7 +195,7 @@ async function reserveClaimAttempt(opts: {
   expiresAt?: Date | null
 }): Promise<{ attempt?: ProductClaimAttempt; error?: string }> {
   const now = new Date()
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const active = await tx.productClaimAttempt.findFirst({
       where: {
         productId: opts.productId,
@@ -373,7 +375,7 @@ export async function claimProductViaDnsAction(productId: string) {
     return { error: dnsResult.error ?? "DNS check failed." }
   }
 
-  const claimResult = await prisma.$transaction(async (tx) => {
+  const claimResult = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const claim = await finalizeClaim(
       target.product.id,
       viewer.id,
@@ -475,7 +477,7 @@ export async function verifyProductClaimOtpAction(
   const now = new Date()
   const hashed = hashOtp(trimmedCode)
 
-  const result = await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const attempt = await tx.productClaimAttempt.findFirst({
       where: {
         productId,
