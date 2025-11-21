@@ -164,16 +164,16 @@ async function fetchCustomers({
   let nextPath: string | null = firstPath
 
   while (nextPath) {
-    const url = nextPath.startsWith("http") ? nextPath : nextPath
-    const query =
+    const path: string = nextPath
+    const query: Record<string, string | number | undefined> | undefined =
       nextPath === firstPath && environment
         ? { environment, limit: 100 }
         : nextPath === firstPath
           ? { limit: 100 }
           : undefined
-    const payload = await revenueCatRequest<CustomersPage>({
+    const payload: CustomersPage = await revenueCatRequest<CustomersPage>({
       apiKey,
-      path: url,
+      path,
       query,
     })
     if (Array.isArray(payload?.items)) {
@@ -201,18 +201,19 @@ async function fetchSubscriptions({
   let nextPath: string | null = firstPath
 
   while (nextPath) {
-    const url = nextPath.startsWith("http") ? nextPath : nextPath
-    const query =
+    const path: string = nextPath
+    const query: Record<string, string | number | undefined> | undefined =
       nextPath === firstPath && environment
         ? { environment, limit: 100 }
         : nextPath === firstPath
           ? { limit: 100 }
           : undefined
-    const payload = await revenueCatRequest<SubscriptionsPage>({
-      apiKey,
-      path: url,
-      query,
-    })
+    const payload: SubscriptionsPage =
+      await revenueCatRequest<SubscriptionsPage>({
+        apiKey,
+        path,
+        query,
+      })
     if (Array.isArray(payload?.items)) {
       subscriptions.push(
         ...payload.items.filter((s): s is Subscription => !!s?.id),
