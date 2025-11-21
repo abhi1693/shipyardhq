@@ -2,6 +2,7 @@ import {
   PaymentConnectorProvider,
   type PaymentConnector,
 } from "@/lib/vendor/prisma/client"
+import { IS_PROD } from "@/lib/constants"
 
 import type {
   PaymentConnectorConfig,
@@ -12,12 +13,37 @@ import type {
 } from "./types"
 
 const DEFAULT_REVENUECAT_API_BASE = "https://api.revenuecat.com"
+const REVENUECAT_API_VERSION = "v2"
 
-type RevenueCatPoint = {
+type Customer = { id: string }
+
+type Subscription = {
+  id: string
+  starts_at?: number | null
+  current_period_starts_at?: number | null
+  total_revenue_in_usd?: {
+    currency?: string
+    gross?: number
+    proceeds?: number
+    commission?: number
+    tax?: number
+  }
+}
+
+type SubscriptionsPage = {
+  items?: Subscription[]
+  next_page?: string | null
+}
+
+type CustomersPage = {
+  items?: Customer[]
+  next_page?: string | null
+}
+
+type RevenueBucket = {
   periodStart: Date
-  currencyCode: string
   revenueCents: number
-  mrrCents?: number | null
+  charges: number
 }
 
 function getBaseUrl() {
@@ -37,10 +63,6 @@ function toDayKey(date: Date): string {
   const month = (date.getUTCMonth() + 1).toString().padStart(2, "0")
   const day = date.getUTCDate().toString().padStart(2, "0")
   return `${year}-${month}-${day}`
-}
-
-function formatDate(date: Date): string {
-  return date.toISOString().slice(0, 10)
 }
 
 function parseAmountToCents(
@@ -73,71 +95,18 @@ function parseAmountToCents(
   return null
 }
 
-function pickCurrency(entry: any, fallback?: string | null): string | null {
-  const candidates = [
-    entry?.currency,
-    entry?.currency_code,
-    entry?.currencyCode,
-    entry?.revenue?.currency,
-    entry?.amount?.currency,
-    entry?.metrics?.currency,
-    fallback,
-  ]
-  for (const value of candidates) {
-    if (typeof value === "string" && value.trim().length >= 3) {
-      return value.trim().toUpperCase()
-    }
-  }
-  return null
-}
-
-function pickAmountCents(entry: any): number | null {
-  const candidates: Array<[unknown, string | undefined]> = [
-    [entry?.revenue_cents, "revenue_cents"],
-    [entry?.revenueCents, "revenueCents"],
-    [entry?.revenue_in_cents, "revenue_in_cents"],
-    [entry?.amount_cents, "amount_cents"],
-    [entry?.amount, "amount"],
-    [entry?.revenue, "revenue"],
-    [entry?.value, "value"],
-    [entry?.total, "total"],
-    [entry?.gross, "gross"],
-    [entry?.net, "net"],
-    [entry?.metrics?.revenue, "metrics.revenue"],
-    [entry?.metrics?.value, "metrics.value"],
-  ]
-
-  for (const [value, hint] of candidates) {
-    const cents = parseAmountToCents(value, { hint })
-    if (typeof cents === "number" && cents > 0) return cents
-  }
-
-  return null
-}
-
-function pickMrrCents(entry: any): number | null {
-  const candidates: Array<[unknown, string | undefined]> = [
-    [entry?.mrr_cents, "mrr_cents"],
-    [entry?.mrrCents, "mrrCents"],
-    [entry?.mrr, "mrr"],
-    [entry?.recurring_revenue, "recurring_revenue"],
-    [entry?.metrics?.mrr, "metrics.mrr"],
-  ]
-
-  for (const [value, hint] of candidates) {
-    const cents = parseAmountToCents(value, { hint })
-    if (typeof cents === "number" && cents > 0) return cents
-  }
-
-  return null
-}
-
 function getProjectId(config?: PaymentConnectorConfig | null): string {
   const raw =
     (config as PaymentConnectorConfig | undefined)?.accountId ||
     (config as any)?.projectId
   if (typeof raw !== "string") return ""
   return raw.trim()
+}
+
+function getEnvironment(
+  _config?: PaymentConnectorConfig | null,
+): "production" | "sandbox" {
+  return IS_PROD ? "production" : "sandbox"
 }
 
 async function revenueCatRequest<T>({
@@ -181,46 +150,78 @@ async function revenueCatRequest<T>({
   return (await response.json()) as T
 }
 
-function collectSeriesFromPayload(payload: any): RevenueCatPoint[] {
-  const containers: any[] = []
-  if (Array.isArray(payload)) containers.push(payload)
-  if (Array.isArray(payload?.data)) containers.push(payload.data)
-  if (Array.isArray(payload?.series)) containers.push(payload.series)
-  if (Array.isArray(payload?.data?.series)) containers.push(payload.data.series)
-  if (Array.isArray(payload?.results)) containers.push(payload.results)
-  if (Array.isArray(payload?.points)) containers.push(payload.points)
+async function fetchCustomers({
+  apiKey,
+  projectId,
+  environment,
+}: {
+  apiKey: string
+  projectId: string
+  environment?: "production" | "sandbox"
+}): Promise<Customer[]> {
+  const customers: Customer[] = []
+  const firstPath = `/${REVENUECAT_API_VERSION}/projects/${encodeURIComponent(projectId)}/customers`
+  let nextPath: string | null = firstPath
 
-  const fallbackCurrency = pickCurrency(payload, "USD")
-  const points: RevenueCatPoint[] = []
-
-  for (const container of containers) {
-    if (!Array.isArray(container)) continue
-    for (const entry of container) {
-      const rawDate =
-        entry?.date ??
-        entry?.period_start ??
-        entry?.periodStart ??
-        entry?.timestamp ??
-        entry?.time ??
-        entry?.day
-      const periodStart = rawDate ? startOfUtcDay(new Date(rawDate)) : null
-      if (!periodStart || Number.isNaN(periodStart.getTime())) continue
-
-      const currency = pickCurrency(entry, fallbackCurrency)
-      const revenueCents = pickAmountCents(entry)
-      const mrrCents = pickMrrCents(entry)
-      if (!currency || !revenueCents) continue
-
-      points.push({
-        periodStart,
-        currencyCode: currency,
-        revenueCents,
-        mrrCents,
-      })
+  while (nextPath) {
+    const url = nextPath.startsWith("http") ? nextPath : nextPath
+    const query =
+      nextPath === firstPath && environment
+        ? { environment, limit: 100 }
+        : nextPath === firstPath
+          ? { limit: 100 }
+          : undefined
+    const payload = await revenueCatRequest<CustomersPage>({
+      apiKey,
+      path: url,
+      query,
+    })
+    if (Array.isArray(payload?.items)) {
+      customers.push(...payload.items.filter((c): c is Customer => !!c?.id))
     }
+    nextPath = payload?.next_page ?? null
   }
 
-  return points
+  return customers
+}
+
+async function fetchSubscriptions({
+  apiKey,
+  projectId,
+  customerId,
+  environment,
+}: {
+  apiKey: string
+  projectId: string
+  customerId: string
+  environment?: "production" | "sandbox"
+}): Promise<Subscription[]> {
+  const subscriptions: Subscription[] = []
+  const firstPath = `/${REVENUECAT_API_VERSION}/projects/${encodeURIComponent(projectId)}/customers/${encodeURIComponent(customerId)}/subscriptions`
+  let nextPath: string | null = firstPath
+
+  while (nextPath) {
+    const url = nextPath.startsWith("http") ? nextPath : nextPath
+    const query =
+      nextPath === firstPath && environment
+        ? { environment, limit: 100 }
+        : nextPath === firstPath
+          ? { limit: 100 }
+          : undefined
+    const payload = await revenueCatRequest<SubscriptionsPage>({
+      apiKey,
+      path: url,
+      query,
+    })
+    if (Array.isArray(payload?.items)) {
+      subscriptions.push(
+        ...payload.items.filter((s): s is Subscription => !!s?.id),
+      )
+    }
+    nextPath = payload?.next_page ?? null
+  }
+
+  return subscriptions
 }
 
 function buildBaseMaps(context: ProviderSyncContext): {
@@ -253,51 +254,7 @@ function buildBaseMaps(context: ProviderSyncContext): {
   return { baseByCurrency, latestStartByCurrency }
 }
 
-async function fetchRevenueCatSeries({
-  apiKey,
-  projectId,
-  start,
-  end,
-}: {
-  apiKey: string
-  projectId: string
-  start: Date
-  end: Date
-}) {
-  const query = {
-    start: formatDate(start),
-    end: formatDate(end),
-    granularity: "day",
-  }
-
-  const pathCandidates = [
-    `/v2/projects/${encodeURIComponent(projectId)}/charts/revenue`,
-    `/v2/projects/${encodeURIComponent(projectId)}/metrics/revenue`,
-    `/v1/projects/${encodeURIComponent(projectId)}/charts/revenue`,
-  ]
-
-  let lastError: Error | null = null
-  for (const path of pathCandidates) {
-    try {
-      const payload = await revenueCatRequest<any>({ apiKey, path, query })
-      const series = collectSeriesFromPayload(payload)
-      if (series.length) return series
-      lastError = new Error(
-        `RevenueCat response did not include revenue data for ${path}`,
-      )
-    } catch (error) {
-      lastError =
-        error instanceof Error
-          ? error
-          : new Error("RevenueCat request failed")
-    }
-  }
-
-  if (lastError) throw lastError
-  throw new Error("Unable to load RevenueCat revenue data")
-}
-
-export async function syncRevenueCatConnector({
+async function syncRevenueCatConnector({
   connector,
   apiKey,
   since,
@@ -314,45 +271,64 @@ export async function syncRevenueCatConnector({
   if (!projectId) {
     throw new Error("RevenueCat project ID is required")
   }
+  const environment = getEnvironment(config)
+
+  const currencyCode =
+    connector.latestCurrencyCode?.toUpperCase() || "USD"
+  const mrrCents = connector.latestMrrCents ?? null
+
+  const customers = await fetchCustomers({ apiKey, projectId, environment })
+  const subscriptions: Subscription[] = []
+  for (const customer of customers) {
+    const records = await fetchSubscriptions({
+      apiKey,
+      projectId,
+      customerId: customer.id,
+      environment,
+    })
+    subscriptions.push(...records)
+  }
 
   const lookbackStart = since ? startOfUtcDay(new Date(since)) : null
-  const start =
-    lookbackStart ??
-    startOfUtcDay(new Date(Date.now() - 90 * 24 * 60 * 60 * 1000))
-  const end = startOfUtcDay(new Date())
-
-  const series = await fetchRevenueCatSeries({ apiKey, projectId, start, end })
   const { baseByCurrency, latestStartByCurrency } = buildBaseMaps({
     currencyAllTimeBase,
     latestPeriodStartByCurrency,
   })
 
-  const revenueByCurrency = new Map<
-    string,
-    Map<string, { periodStart: Date; revenueCents: number; charges: number }>
-  >()
-  const mrrByCurrency = new Map<string, number>()
+  const revenueByCurrency = new Map<string, Map<string, RevenueBucket>>()
 
-  for (const point of series) {
-    const currency = point.currencyCode?.toUpperCase() || "USD"
-    const dayKey = toDayKey(point.periodStart)
+  for (const sub of subscriptions) {
+    const ts =
+      sub.starts_at ??
+      sub.current_period_starts_at ??
+      sub.current_period_starts_at
+    if (!ts) continue
+    const start = startOfUtcDay(new Date(ts))
+    if (Number.isNaN(start.getTime())) continue
+    if (lookbackStart && start < lookbackStart) continue
+
+    const amount = sub.total_revenue_in_usd
+    const currency = amount?.currency?.toUpperCase?.() || "USD"
+    const revenueValue =
+      amount?.gross ?? amount?.proceeds ?? amount?.tax ?? amount?.commission
+    const revenueCents = parseAmountToCents(revenueValue, {
+      hint: "subscription.total_revenue_in_usd",
+    })
+    if (revenueCents == null || revenueCents <= 0) continue
+
+    const dayKey = toDayKey(start)
     const currencyMap =
-      revenueByCurrency.get(currency) ||
-      new Map<string, { periodStart: Date; revenueCents: number; charges: number }>()
+      revenueByCurrency.get(currency) || new Map<string, RevenueBucket>()
     const bucket =
       currencyMap.get(dayKey) || {
-        periodStart: point.periodStart,
+        periodStart: start,
         revenueCents: 0,
         charges: 0,
       }
-    bucket.revenueCents += point.revenueCents
+    bucket.revenueCents += revenueCents
     bucket.charges += 1
     currencyMap.set(dayKey, bucket)
     revenueByCurrency.set(currency, currencyMap)
-
-    if (typeof point.mrrCents === "number") {
-      mrrByCurrency.set(currency, point.mrrCents)
-    }
   }
 
   const snapshots: RevenueSnapshotInput[] = []
@@ -361,19 +337,19 @@ export async function syncRevenueCatConnector({
       a.periodStart.getTime() > b.periodStart.getTime() ? 1 : -1,
     )
     let runningTotal = baseByCurrency.get(currency) ?? 0
-    const mrrCents = mrrByCurrency.get(currency) ?? null
+    const mrr = mrrCents ?? connector.latestMrrCents ?? null
     for (const bucket of ordered) {
-      if (lookbackStart && bucket.periodStart < lookbackStart) continue
       runningTotal += bucket.revenueCents
       snapshots.push({
         currencyCode: currency,
         periodStart: bucket.periodStart,
         periodRevenueCents: bucket.revenueCents,
         allTimeRevenueCents: runningTotal,
-        mrrCents,
+        mrrCents: mrr,
         data: {
           provider: "revenuecat",
           projectId,
+          metricSource: "subscriptions",
           charges: bucket.charges,
         },
       })
@@ -384,7 +360,7 @@ export async function syncRevenueCatConnector({
     const fallbackCurrency =
       connector.latestCurrencyCode?.toUpperCase() ||
       Array.from(baseByCurrency.keys())[0] ||
-      "USD"
+      currencyCode
     const fallbackStart =
       latestStartByCurrency.get(fallbackCurrency) || startOfUtcDay(new Date())
     const priorAllTime =

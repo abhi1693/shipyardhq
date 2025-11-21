@@ -65,7 +65,14 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
 
       // Payment connector (optional, saved with product)
       connectorProvider: z
-        .enum(["dodo", "polar", "stripe", "lemonsqueezy", "paddle"])
+        .enum([
+          "dodo",
+          "polar",
+          "revenuecat",
+          "stripe",
+          "lemonsqueezy",
+          "paddle",
+        ])
         .optional(),
       connectorApiKey: z.string().optional().or(z.literal("")),
       connectorAccountId: z.string().optional().or(z.literal("")),

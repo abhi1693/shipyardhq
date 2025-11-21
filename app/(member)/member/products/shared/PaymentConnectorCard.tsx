@@ -120,6 +120,8 @@ export function PaymentConnectorCard({
     selectedProvider === PaymentConnectorProviderEnum.stripe
   const showPolarPermissions =
     selectedProvider === PaymentConnectorProviderEnum.polar
+  const showRevenueCatPermissions =
+    selectedProvider === PaymentConnectorProviderEnum.revenuecat
   const showPolarOrganizationId =
     selectedProvider === PaymentConnectorProviderEnum.polar
   const showRevenueCatProject =
@@ -221,7 +223,7 @@ export function PaymentConnectorCard({
         ) : selectedProvider === PaymentConnectorProviderEnum.revenuecat ? (
           <p className="text-xs text-muted-foreground">
             Use a RevenueCat secret API key from Project Settings with access to
-            revenue charts.
+            revenue charts. Select the v2 API version in RevenueCat.
           </p>
         ) : selectedProvider === PaymentConnectorProviderEnum.polar ? (
           <p className="text-xs text-muted-foreground">
@@ -245,14 +247,19 @@ export function PaymentConnectorCard({
         ) : null}
       </div>
 
-      {showStripePermissions || showPolarPermissions || showLemonPermissions ? (
+      {showStripePermissions ||
+      showPolarPermissions ||
+      showRevenueCatPermissions ||
+      showLemonPermissions ? (
         <div className="rounded-md border border-dashed border-border bg-muted/40 p-3">
           <p className="text-xs font-semibold text-foreground">
             {showStripePermissions
               ? "Stripe key permissions needed"
               : showPolarPermissions
                 ? "Polar token permissions needed"
-                : "Lemon Squeezy key permissions needed"}
+                : showRevenueCatPermissions
+                  ? "RevenueCat key permissions needed"
+                  : "Lemon Squeezy key permissions needed"}
           </p>
           <ul className="mt-1 list-disc pl-4 text-xs text-muted-foreground">
             {showStripePermissions ? (
@@ -266,6 +273,13 @@ export function PaymentConnectorCard({
                 <li>Organizations: Read</li>
                 <li>Orders: Read</li>
                 <li>Subscriptions: Read</li>
+              </>
+            ) : null}
+            {showRevenueCatPermissions ? (
+              <>
+                <li>Scope: customer_information:customers:read</li>
+                <li>Scope: customer_information:subscriptions:read</li>
+                <li>Includes revenue and MRR (derived from subscriptions)</li>
               </>
             ) : null}
             {showLemonPermissions ? (
