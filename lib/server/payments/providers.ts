@@ -4,6 +4,7 @@ import { dodoProvider } from "./dodo"
 import { lemonSqueezyProvider } from "./lemonsqueezy"
 import { paddleProvider } from "./paddle"
 import { polarProvider } from "./polar"
+import { revenueCatProvider } from "./revenuecat"
 import { stripeProvider } from "./stripe"
 import type { PaymentProviderDefinition } from "./types"
 
@@ -14,6 +15,7 @@ const PROVIDERS: Partial<
   [PaymentConnectorProvider.lemonsqueezy]: lemonSqueezyProvider,
   [PaymentConnectorProvider.paddle]: paddleProvider,
   [PaymentConnectorProvider.polar]: polarProvider,
+  [PaymentConnectorProvider.revenuecat]: revenueCatProvider,
   [PaymentConnectorProvider.stripe]: stripeProvider,
 }
 

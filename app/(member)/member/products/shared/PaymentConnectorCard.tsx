@@ -53,6 +53,7 @@ const PROVIDER_OPTIONS: { value: PaymentConnectorProvider; label: string }[] = [
   { value: PaymentConnectorProviderEnum.dodo, label: "DodoPayments" },
   { value: PaymentConnectorProviderEnum.paddle, label: "Paddle" },
   { value: PaymentConnectorProviderEnum.polar, label: "Polar" },
+  { value: PaymentConnectorProviderEnum.revenuecat, label: "RevenueCat" },
   { value: PaymentConnectorProviderEnum.stripe, label: "Stripe" },
   { value: PaymentConnectorProviderEnum.lemonsqueezy, label: "Lemon Squeezy" },
 ]
@@ -104,21 +105,27 @@ export function PaymentConnectorCard({
   const apiKeyPlaceholder =
     selectedProvider === PaymentConnectorProviderEnum.stripe
       ? `${stripePrefix} restricted key`
-      : selectedProvider === PaymentConnectorProviderEnum.polar
-        ? "polar_oat_... organization access token"
-        : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
-          ? "Lemon Squeezy API key from Settings -> API"
-          : selectedProvider === PaymentConnectorProviderEnum.paddle
-            ? "Paddle API key from Developer Tools"
-            : "Enter API secret key"
+      : selectedProvider === PaymentConnectorProviderEnum.revenuecat
+        ? "RevenueCat secret API key"
+        : selectedProvider === PaymentConnectorProviderEnum.polar
+          ? "polar_oat_... organization access token"
+          : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
+            ? "Lemon Squeezy API key from Settings -> API"
+            : selectedProvider === PaymentConnectorProviderEnum.paddle
+              ? "Paddle API key from Developer Tools"
+              : "Enter API secret key"
   const showStripeAccount =
     selectedProvider === PaymentConnectorProviderEnum.stripe
   const showStripePermissions =
     selectedProvider === PaymentConnectorProviderEnum.stripe
   const showPolarPermissions =
     selectedProvider === PaymentConnectorProviderEnum.polar
+  const showRevenueCatPermissions =
+    selectedProvider === PaymentConnectorProviderEnum.revenuecat
   const showPolarOrganizationId =
     selectedProvider === PaymentConnectorProviderEnum.polar
+  const showRevenueCatProject =
+    selectedProvider === PaymentConnectorProviderEnum.revenuecat
   const showLemonStoreId =
     selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
   const showLemonPermissions =
@@ -126,9 +133,11 @@ export function PaymentConnectorCard({
   const accountPlaceholder =
     selectedProvider === PaymentConnectorProviderEnum.stripe
       ? "acct_123..."
-      : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
-        ? "Store ID (e.g. 123456)"
-        : "org_..."
+      : selectedProvider === PaymentConnectorProviderEnum.revenuecat
+        ? "Project ID (e.g. proj_abc123)"
+        : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
+          ? "Store ID (e.g. 123456)"
+          : "org_..."
 
   return (
     <div className="space-y-4">
@@ -211,6 +220,11 @@ export function PaymentConnectorCard({
             <span className="font-mono">{stripePrefix}</span> for this
             environment.
           </p>
+        ) : selectedProvider === PaymentConnectorProviderEnum.revenuecat ? (
+          <p className="text-xs text-muted-foreground">
+            Use a RevenueCat secret API key from Project Settings with access to
+            revenue charts. Select the v2 API version in RevenueCat.
+          </p>
         ) : selectedProvider === PaymentConnectorProviderEnum.polar ? (
           <p className="text-xs text-muted-foreground">
             Use a Polar organization access token starting with{" "}
@@ -233,14 +247,19 @@ export function PaymentConnectorCard({
         ) : null}
       </div>
 
-      {showStripePermissions || showPolarPermissions || showLemonPermissions ? (
+      {showStripePermissions ||
+      showPolarPermissions ||
+      showRevenueCatPermissions ||
+      showLemonPermissions ? (
         <div className="rounded-md border border-dashed border-border bg-muted/40 p-3">
           <p className="text-xs font-semibold text-foreground">
             {showStripePermissions
               ? "Stripe key permissions needed"
               : showPolarPermissions
                 ? "Polar token permissions needed"
-                : "Lemon Squeezy key permissions needed"}
+                : showRevenueCatPermissions
+                  ? "RevenueCat key permissions needed"
+                  : "Lemon Squeezy key permissions needed"}
           </p>
           <ul className="mt-1 list-disc pl-4 text-xs text-muted-foreground">
             {showStripePermissions ? (
@@ -256,6 +275,13 @@ export function PaymentConnectorCard({
                 <li>Subscriptions: Read</li>
               </>
             ) : null}
+            {showRevenueCatPermissions ? (
+              <>
+                <li>Scope: customer_information:customers:read</li>
+                <li>Scope: customer_information:subscriptions:read</li>
+                <li>Includes revenue and MRR (derived from subscriptions)</li>
+              </>
+            ) : null}
             {showLemonPermissions ? (
               <>
                 <li>Orders: Read</li>
@@ -266,14 +292,19 @@ export function PaymentConnectorCard({
         </div>
       ) : null}
 
-      {showStripeAccount || showPolarOrganizationId || showLemonStoreId ? (
+      {showStripeAccount ||
+      showPolarOrganizationId ||
+      showLemonStoreId ||
+      showRevenueCatProject ? (
         <div className="space-y-2">
           <Label htmlFor="connector-account">
             {showStripeAccount
               ? "Connected account ID (optional)"
-              : showLemonStoreId
-                ? "Lemon Squeezy store ID (required)"
-                : "Polar organization ID (required)"}
+              : showRevenueCatProject
+                ? "RevenueCat project ID (required)"
+                : showLemonStoreId
+                  ? "Lemon Squeezy store ID (required)"
+                  : "Polar organization ID (required)"}
           </Label>
           <Input
             id="connector-account"
@@ -294,6 +325,11 @@ export function PaymentConnectorCard({
             <p className="text-xs text-muted-foreground">
               Provide a Stripe connected account ID to pull revenue for that
               account. Leave blank to use the platform account only.
+            </p>
+          ) : showRevenueCatProject ? (
+            <p className="text-xs text-muted-foreground">
+              Required. Use the project ID from RevenueCat Project Settings to
+              scope revenue to a single project.
             </p>
           ) : showLemonStoreId ? (
             <p className="text-xs text-muted-foreground">

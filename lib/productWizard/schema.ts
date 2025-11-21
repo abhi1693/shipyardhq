@@ -65,7 +65,14 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
 
       // Payment connector (optional, saved with product)
       connectorProvider: z
-        .enum(["dodo", "polar", "stripe", "lemonsqueezy", "paddle"])
+        .enum([
+          "dodo",
+          "polar",
+          "revenuecat",
+          "stripe",
+          "lemonsqueezy",
+          "paddle",
+        ])
         .optional(),
       connectorApiKey: z.string().optional().or(z.literal("")),
       connectorAccountId: z.string().optional().or(z.literal("")),
@@ -165,6 +172,17 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
             path: ["connectorAccountId"],
             code: z.ZodIssueCode.custom,
             message: "Polar organization ID is required",
+          })
+        }
+      }
+
+      if (val.connectorProvider === "revenuecat") {
+        const projectId = val.connectorAccountId?.trim()
+        if (val.connectorApiKey && !projectId) {
+          ctx.addIssue({
+            path: ["connectorAccountId"],
+            code: z.ZodIssueCode.custom,
+            message: "RevenueCat project ID is required",
           })
         }
       }

@@ -314,6 +314,12 @@ export async function createProductAction(formData: FormData) {
         return { error: "Polar organization ID is required" }
       }
       if (
+        providerEnum === PaymentConnectorProvider.revenuecat &&
+        !connectorAccountId
+      ) {
+        return { error: "RevenueCat project ID is required" }
+      }
+      if (
         providerEnum === PaymentConnectorProvider.lemonsqueezy &&
         !connectorAccountId
       ) {
@@ -649,6 +655,12 @@ export async function updateProductAction(
           !connectorAccountId
         ) {
           return { error: "Polar organization ID is required" }
+        }
+        if (
+          providerEnum === PaymentConnectorProvider.revenuecat &&
+          !connectorAccountId
+        ) {
+          return { error: "RevenueCat project ID is required" }
         }
         if (
           providerEnum === PaymentConnectorProvider.lemonsqueezy &&
