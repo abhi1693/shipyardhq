@@ -43,6 +43,11 @@ const baseNavItems: NavItem[] = [
         icon: "conversions",
       },
       {
+        title: "Revenue",
+        url: adminPath("analytics", "revenue"),
+        icon: "analytics",
+      },
+      {
         title: "Leaderboard",
         url: adminPath("analytics", "leaderboard"),
         icon: "leaderboard",

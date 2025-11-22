@@ -1,6 +1,13 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react"
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { ColumnDef } from "@tanstack/react-table"
@@ -91,11 +98,11 @@ export function ClaimProductsClient({
   const start = (safePage - 1) * limit
   const pageData = filteredProducts.slice(start, start + limit)
 
-  useEffect(() => {
+  const resetVerificationFields = useCallback(() => {
     setEmail("")
     setCode("")
     setOtpExpiresAt(null)
-  }, [selectedId])
+  }, [])
 
   useEffect(() => {
     if (!selectedId) return
@@ -105,7 +112,6 @@ export function ClaimProductsClient({
   useEffect(() => {
     if (!selectedId) return
     if (!selected) {
-      setSelectedId(null)
       const nextParams = new URLSearchParams(searchParams ?? undefined)
       nextParams.delete("productId")
       router.replace(`?${nextParams.toString()}`, { scroll: false })
@@ -124,29 +130,30 @@ export function ClaimProductsClient({
   const nothingToClaim = products.length === 0
   const noMatches = filteredProducts.length === 0 && !nothingToClaim
 
-  const openVerification = (productId: string) => {
-    setSelectedId(productId)
-    const nextParams = new URLSearchParams(searchParams ?? undefined)
-    nextParams.set("productId", productId)
-    router.replace(`?${nextParams.toString()}`, { scroll: true })
-  }
+  const openVerification = useCallback(
+    (productId: string) => {
+      resetVerificationFields()
+      setSelectedId(productId)
+      const nextParams = new URLSearchParams(searchParams ?? undefined)
+      nextParams.set("productId", productId)
+      router.replace(`?${nextParams.toString()}`, { scroll: true })
+    },
+    [resetVerificationFields, router, searchParams],
+  )
 
   const pickNextProduct = (productId: string) => {
     setProducts((prev) => {
       const next = removeProduct(prev, productId)
+      const nextSelectedId = next[0]?.id ?? null
+      resetVerificationFields()
       setSelectedId((prevSelected) => {
         if (prevSelected && prevSelected !== productId) return prevSelected
-        return next[0]?.id ?? null
+        return nextSelectedId
       })
-      if (next.length === 0) {
-        const nextParams = new URLSearchParams(searchParams ?? undefined)
-        nextParams.delete("productId")
-        router.replace(`?${nextParams.toString()}`, { scroll: false })
-      } else {
-        const nextParams = new URLSearchParams(searchParams ?? undefined)
-        nextParams.set("productId", next[0].id)
-        router.replace(`?${nextParams.toString()}`, { scroll: false })
-      }
+      const nextParams = new URLSearchParams(searchParams ?? undefined)
+      if (nextSelectedId) nextParams.set("productId", nextSelectedId)
+      else nextParams.delete("productId")
+      router.replace(`?${nextParams.toString()}`, { scroll: false })
       return next
     })
   }
@@ -298,9 +305,9 @@ export function ClaimProductsClient({
             Nothing to claim right now
           </p>
           <p className="text-sm text-muted-foreground">
-            We couldn't find any unverified products you can claim today. If
+            We couldn&apos;t find any unverified products you can claim today. If
             something is missing, double-check the listing status or ping
-            support and we'll investigate.
+            support and we&apos;ll investigate.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <Badge
@@ -310,7 +317,7 @@ export function ClaimProductsClient({
               All products verified
             </Badge>
             <p className="text-xs text-muted-foreground">
-              You're up to date—come back when you launch a new product.
+              You&apos;re up to date—come back when you launch a new product.
             </p>
           </div>
         </CardContent>
@@ -393,6 +400,7 @@ export function ClaimProductsClient({
                       size="sm"
                       className="border border-slate-200 text-slate-700"
                       onClick={() => {
+                        resetVerificationFields()
                         setSelectedId(null)
                         const nextParams = new URLSearchParams(
                           searchParams ?? undefined,
