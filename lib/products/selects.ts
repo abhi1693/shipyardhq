@@ -1,5 +1,6 @@
 import { Prisma } from "@/lib/vendor/prisma/client"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { resolveProductRevenue } from "@/lib/products/revenue"
 
 const PRIORITY_PLACEMENT_FEATURE_KEY = "priorityPlacement"
 
@@ -42,6 +43,20 @@ export const productCardSelect = {
       },
     },
   },
+  paymentConnector: {
+    select: {
+      latestAllTimeRevenueCents: true,
+      latestCurrencyCode: true,
+      revenueHistory: {
+        orderBy: { periodStart: "desc" },
+        take: 1,
+        select: {
+          allTimeRevenueCents: true,
+          currencyCode: true,
+        },
+      },
+    },
+  },
 } satisfies Prisma.ProductSelect
 
 export type ProductCardSelect = typeof productCardSelect
@@ -69,18 +84,24 @@ const resolveBadges = (
 export const mapProductCardRecordToBase = (
   product: ProductCardRecord,
   now: Date = new Date(),
-): ProductCardBase => ({
-  id: product.id,
-  slug: product.slug,
-  name: product.name,
-  logo: product.logo,
-  tagline: product.tagline ?? "",
-  analytics: product.analytics,
-  category: product.category,
-  badges: resolveBadges(product, now),
-  sponsored: isPriorityPlacement(product),
-  createdAt: product.createdAt,
-  updatedAt: product.updatedAt,
-})
+): ProductCardBase => {
+  const revenue = resolveProductRevenue(product.paymentConnector)
+
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    logo: product.logo,
+    tagline: product.tagline ?? "",
+    analytics: product.analytics,
+    category: product.category,
+    badges: resolveBadges(product, now),
+    sponsored: isPriorityPlacement(product),
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
+    latestRevenueCents: revenue.latestRevenueCents,
+    revenueCurrencyCode: revenue.revenueCurrencyCode,
+  }
+}
 
 export const PRIORITY_FEATURE_KEY = PRIORITY_PLACEMENT_FEATURE_KEY

@@ -19,6 +19,7 @@ import {
   TRENDS_PATH,
 } from "@/lib/routes"
 import { getLeaderboardPagePayload } from "@/lib/leaderboard/cache"
+import { mapProductCardRecordToBase } from "@/lib/products/selects"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import { ProductUpdatesFeedSkeleton } from "@/components/molecules/ProductUpdatesFeed.skeleton"
 import HeroSkeleton from "@/components/organisms/directory/Hero.skeleton"
@@ -39,23 +40,10 @@ export async function LeaderboardPageContent({
   const { stats, products, latestProductUpdates } =
     await getLeaderboardPagePayload(filters)
 
-  const leaderboardItems = products.map((product) => {
-    const activeBadges = (product.ProductBadge ?? []).filter(
-      (badge) =>
-        !badge.expiresAt || new Date(badge.expiresAt).getTime() > Date.now(),
-    )
-
-    return {
-      id: product.id,
-      slug: product.slug,
-      name: product.name,
-      logo: product.logo,
-      tagline: product.tagline,
-      analytics: product.analytics ?? null,
-      category: product.category ?? undefined,
-      badges: activeBadges.map((badge) => badge.badge),
-    }
-  })
+  const now = new Date()
+  const leaderboardItems = products.map((product) =>
+    mapProductCardRecordToBase(product, now),
+  )
 
   const totalCount = products.length
   const hasProducts = totalCount > 0

@@ -2,6 +2,8 @@ import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getPublicUserProfile } from "@/actions/public/users/actions"
 import { getRewardsLeaderboardPositionForUser } from "@/actions/public/rewards/actions"
 import { format } from "date-fns"
+import { getUsdConversionRates } from "@/lib/server/payments/currency"
+import { resolveProductRevenue } from "@/lib/products/revenue"
 
 type PublicUserProfile = NonNullable<
   Awaited<ReturnType<typeof getPublicUserProfile>>
@@ -19,6 +21,8 @@ type DirectoryProductItem = {
   badges: string[]
   metaLabel?: string
   launchedAt: string | null
+  latestRevenueCents: number | null
+  revenueCurrencyCode: string | null
 }
 
 type BadgeSummary = {
@@ -94,7 +98,24 @@ export const getUserProfilePayload = cached(
     let earliestLaunchISO: string | null = null
     let earliestLaunchTime = Number.POSITIVE_INFINITY
 
+    const hasNonUsdRevenue = profile.products.some((product) => {
+      const currency =
+        product.paymentConnector?.latestCurrencyCode ??
+        product.paymentConnector?.revenueHistory?.[0]?.currencyCode
+      return currency && currency.toUpperCase() !== "USD"
+    })
+    const rates = hasNonUsdRevenue ? await getUsdConversionRates() : undefined
+
     for (const product of profile.products) {
+      const revenue = resolveProductRevenue(
+        product.paymentConnector,
+        rates
+          ? {
+              rates,
+              targetCurrency: "USD",
+            }
+          : {},
+      )
       const upvotes = product.analytics?.upvotes ?? 0
       totalUpvotes += upvotes
 
@@ -151,6 +172,8 @@ export const getUserProfilePayload = cached(
         badges: activeBadges,
         metaLabel,
         launchedAt: launchedAt?.toISOString() ?? null,
+        latestRevenueCents: revenue.latestRevenueCents,
+        revenueCurrencyCode: revenue.revenueCurrencyCode,
       }
 
       products.push(directoryItem)

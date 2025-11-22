@@ -144,6 +144,20 @@ export const getMonthlyTopRankedProducts = cached(
             analytics: true,
             ProductBadge: true,
             user: true,
+            paymentConnector: {
+              select: {
+                latestAllTimeRevenueCents: true,
+                latestCurrencyCode: true,
+                revenueHistory: {
+                  orderBy: { periodStart: "desc" },
+                  take: 1,
+                  select: {
+                    allTimeRevenueCents: true,
+                    currencyCode: true,
+                  },
+                },
+              },
+            },
           },
         },
       },

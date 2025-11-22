@@ -1,10 +1,12 @@
+import { Banknote } from "lucide-react"
+
 import { getStickyBannerProducts } from "@/actions/public/products/featured"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/atoms/badge"
 import { SquareImage } from "@/components/molecules/SquareImage"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
 import { ProductClickLink } from "@/components/molecules/ProductClickLink"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { cached, TAGS } from "@/lib/cache"
 
 interface StickyBannerProps {
   limit?: number
@@ -36,6 +38,17 @@ export async function StickyBanner({
   }
 
   const tagline = product.tagline?.trim()
+  const hasRevenue =
+    typeof product.latestRevenueCents === "number" &&
+    product.latestRevenueCents > 0
+  const revenueLabel = hasRevenue
+    ? new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: product.revenueCurrencyCode ?? "USD",
+        notation: "compact",
+        maximumFractionDigits: 1,
+      }).format(product.latestRevenueCents / 100)
+    : null
 
   return (
     <div className={cn("w-full", className)}>
@@ -65,12 +78,24 @@ export async function StickyBanner({
               ) : null}
             </div>
           </div>
-          <Badge
-            variant="outline"
-            className="shrink-0 rounded-full border-[#F97316]/40 bg-[#FDEADF] px-3 py-1 text-[11px] font-semibold text-[#A33105]"
-          >
-            Sponsored
-          </Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            {revenueLabel ? (
+              <span
+                className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-white/80 px-3 py-1 text-[11px] font-semibold text-[#0c4a6e] shadow-sm"
+                title="Verified revenue"
+              >
+                <Banknote className="h-3.5 w-3.5" aria-hidden="true" />
+                <span className="sr-only">Revenue</span>
+                <span className="whitespace-nowrap">{revenueLabel}</span>
+              </span>
+            ) : null}
+            <Badge
+              variant="outline"
+              className="shrink-0 rounded-full border-[#F97316]/40 bg-[#FDEADF] px-3 py-1 text-[11px] font-semibold text-[#A33105]"
+            >
+              Sponsored
+            </Badge>
+          </div>
         </ProductClickLink>
       </div>
 

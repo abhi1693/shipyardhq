@@ -23,6 +23,8 @@ import {
   IconUsersGroup,
 } from "@tabler/icons-react"
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
+import { getUsdConversionRates } from "@/lib/server/payments/currency"
+import { resolveProductRevenue } from "@/lib/products/revenue"
 
 const rankLabels = ["Top rank", "Second place", "Third place"]
 
@@ -75,6 +77,25 @@ export async function MonthlyLeaderboardView({
   const runnerUps: MonthlyRanking[] = topThree.slice(1)
   const rest: MonthlyRanking[] = leaderboard.rankings.slice(3)
   const hasRankings = leaderboard.rankings.length > 0
+
+  const hasNonUsdRevenue = leaderboard.rankings.some((entry) => {
+    const connector = entry.product.paymentConnector
+    const currency =
+      connector?.latestCurrencyCode ??
+      connector?.revenueHistory?.[0]?.currencyCode
+    return currency && currency.toUpperCase() !== "USD"
+  })
+  const rates = hasNonUsdRevenue ? await getUsdConversionRates() : undefined
+  const resolveEntryRevenue = (entry: MonthlyRanking) =>
+    resolveProductRevenue(
+      entry.product.paymentConnector,
+      rates
+        ? {
+            rates,
+            targetCurrency: "USD",
+          }
+        : {},
+    )
 
   return (
     <main className="relative isolate overflow-hidden bg-white">
@@ -200,21 +221,26 @@ export async function MonthlyLeaderboardView({
               <div className="mx-auto max-w-[84rem] px-4 md:px-8">
                 <div className="rounded-3xl border border-[color:var(--brand-1)/0.16] bg-background/90 px-5 py-6 shadow-[0px_28px_80px_-55px_rgba(7,58,104,0.6)] backdrop-blur">
                   <DirectoryProductList
-                    items={rest.map((entry) => ({
-                      id: entry.product.id,
-                      slug: entry.product.slug,
-                      name: entry.product.name,
-                      logo: entry.product.logo,
-                      tagline: entry.product.tagline,
-                      analytics: {
-                        upvotes:
-                          entry.upvotes ??
-                          entry.product.analytics?.upvotes ??
-                          0,
-                      },
-                      category: entry.product.category ?? undefined,
-                      metaLabel: `#${entry.rank}`,
-                    }))}
+                    items={rest.map((entry) => {
+                      const revenue = resolveEntryRevenue(entry)
+                      return {
+                        id: entry.product.id,
+                        slug: entry.product.slug,
+                        name: entry.product.name,
+                        logo: entry.product.logo,
+                        tagline: entry.product.tagline,
+                        analytics: {
+                          upvotes:
+                            entry.upvotes ??
+                            entry.product.analytics?.upvotes ??
+                            0,
+                        },
+                        category: entry.product.category ?? undefined,
+                        latestRevenueCents: revenue.latestRevenueCents,
+                        revenueCurrencyCode: revenue.revenueCurrencyCode,
+                        metaLabel: `#${entry.rank}`,
+                      }
+                    })}
                     columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                     className="gap-y-6"
                     pageSize={9}

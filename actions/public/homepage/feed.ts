@@ -5,15 +5,13 @@ import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { HOMEPAGE_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
-import {
-  convertToUsdCents,
-  getUsdConversionRates,
-} from "@/lib/server/payments/currency"
+import { getUsdConversionRates } from "@/lib/server/payments/currency"
 import {
   DEFAULT_HOMEPAGE_FEED_VIEW,
   type HomepageFeedView,
   normalizeHomepageFeedView,
 } from "@/lib/homepage/feed-views"
+import { resolveProductRevenue } from "@/lib/products/revenue"
 import type { ProductCardVariant } from "@/types/product-card"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
 
@@ -172,31 +170,10 @@ function mapProductToFeedItem(
       (assignment) => assignment.feature?.key === PRIORITY_FEATURE_KEY,
     ) ?? false
 
-  const latestRevenueCents =
-    product.paymentConnector?.latestAllTimeRevenueCents ?? null
-  const fallbackSnapshot = product.paymentConnector?.revenueHistory?.[0]
-
-  const normalizedLatestRevenueCents =
-    typeof latestRevenueCents === "number"
-      ? latestRevenueCents
-      : typeof fallbackSnapshot?.allTimeRevenueCents === "number"
-        ? fallbackSnapshot.allTimeRevenueCents
-        : null
-
-  const revenueCurrencyCode =
-    product.paymentConnector?.latestCurrencyCode ??
-    fallbackSnapshot?.currencyCode ??
-    null
-
-  const normalizedRevenueInUsd =
-    typeof normalizedLatestRevenueCents === "number"
-      ? convertToUsdCents(
-          normalizedLatestRevenueCents,
-          revenueCurrencyCode,
-          rates,
-        )
-          .usdCents
-      : null
+  const revenue = resolveProductRevenue(product.paymentConnector, {
+    rates,
+    targetCurrency: "USD",
+  })
 
   return {
     id: product.id,
@@ -213,8 +190,9 @@ function mapProductToFeedItem(
     isSponsored,
     isVoted: upvoted.has(product.id),
     variant: isSponsored ? "sponsored" : "default",
-    latestRevenueCents: normalizedRevenueInUsd,
-    revenueCurrencyCode: normalizedRevenueInUsd !== null ? "USD" : null,
+    latestRevenueCents: revenue.latestRevenueCents,
+    revenueCurrencyCode:
+      revenue.latestRevenueCents !== null ? revenue.revenueCurrencyCode : null,
     shuffleRank: Math.random(),
   }
 }

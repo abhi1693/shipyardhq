@@ -3,6 +3,8 @@ import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import type { FeaturedProduct } from "@/types"
 import { featuredProductSelect } from "@/types"
+import { getUsdConversionRates } from "@/lib/server/payments/currency"
+import { resolveProductRevenue } from "@/lib/products/revenue"
 
 type SponsoredProduct = Prisma.ProductGetPayload<{
   select: {
@@ -163,7 +165,33 @@ type StickyBannerProductResult = {
   name: string
   logo: string
   tagline: string | null
+  latestRevenueCents: number | null
+  revenueCurrencyCode: string | null
 }
+
+type StickyBannerProduct = Prisma.ProductGetPayload<{
+  select: {
+    id: true
+    slug: true
+    name: true
+    logo: true
+    tagline: true
+    paymentConnector: {
+      select: {
+        latestAllTimeRevenueCents: true
+        latestCurrencyCode: true
+        revenueHistory: {
+          orderBy: { periodStart: "desc" }
+          take: 1
+          select: {
+            allTimeRevenueCents: true
+            currencyCode: true
+          }
+        }
+      }
+    }
+  }
+}>
 
 export const getStickyBannerProducts = cached(
   async (limit = 100): Promise<StickyBannerProductResult | null> => {
@@ -236,7 +264,7 @@ export const getStickyBannerProducts = cached(
       return null
     }
 
-    const products: SponsoredProduct[] = await prisma.product.findMany({
+    const products: StickyBannerProduct[] = await prisma.product.findMany({
       where: {
         id: {
           in: combinedIds,
@@ -248,6 +276,20 @@ export const getStickyBannerProducts = cached(
         name: true,
         logo: true,
         tagline: true,
+        paymentConnector: {
+          select: {
+            latestAllTimeRevenueCents: true,
+            latestCurrencyCode: true,
+            revenueHistory: {
+              orderBy: { periodStart: "desc" },
+              take: 1,
+              select: {
+                allTimeRevenueCents: true,
+                currencyCode: true,
+              },
+            },
+          },
+        },
       },
     })
 
@@ -283,12 +325,33 @@ export const getStickyBannerProducts = cached(
       return null
     }
 
+    const connectorCurrency =
+      selected.paymentConnector?.latestCurrencyCode ??
+      selected.paymentConnector?.revenueHistory?.[0]?.currencyCode ??
+      null
+    const needsRates =
+      connectorCurrency && connectorCurrency.toUpperCase() !== "USD"
+    const rates = needsRates ? await getUsdConversionRates() : undefined
+    const revenue = resolveProductRevenue(
+      selected.paymentConnector,
+      rates
+        ? {
+            rates,
+            targetCurrency: "USD",
+          }
+        : {},
+    )
+
     return {
       id: selected.id,
       slug: selected.slug,
       name: selected.name,
       logo: selected.logo,
       tagline: selected.tagline ?? null,
+      latestRevenueCents: revenue.latestRevenueCents,
+      revenueCurrencyCode: revenue.latestRevenueCents
+        ? revenue.revenueCurrencyCode
+        : null,
     }
   },
   "products:sticky-banner",
