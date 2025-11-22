@@ -8,6 +8,7 @@ import {
   LEADERBOARD_REWARDS_PATH,
   PRICING_PATH,
   pricingModelPath,
+  VERIFIED_REVENUE_PATH,
   categoryPath,
   categoryPlatformPath,
   categoryPricingPath,
@@ -56,6 +57,7 @@ export async function GET() {
   const staticPaths = [
     "/",
     BROWSE_PATH,
+    VERIFIED_REVENUE_PATH,
     LEADERBOARD_PATH,
     PRICING_PATH,
     CATEGORIES_PATH,

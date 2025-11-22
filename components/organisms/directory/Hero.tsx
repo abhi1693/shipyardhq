@@ -41,6 +41,7 @@ interface HeroProps {
   secondaryAction?: HeaderActionConfig | null
   metrics?: readonly MetricConfig[]
   supportedProviders?: (string | ProviderDescriptor)[]
+  showDomainRatingBadge?: boolean
 }
 
 const HERO_PRIMARY_CLASSES =
@@ -58,6 +59,7 @@ export function Hero({
   secondaryAction,
   metrics = [],
   supportedProviders,
+  showDomainRatingBadge = true,
 }: HeroProps) {
   const resolvedEyebrow =
     typeof eyebrow === "string" && eyebrow.trim().length > 0
@@ -160,7 +162,9 @@ export function Hero({
             {resolvedSecondary ? renderAction(resolvedSecondary, 1) : null}
           </div>
         ) : null}
-        <DomainRatingBadge className="mx-auto" />
+        {showDomainRatingBadge ? (
+          <DomainRatingBadge className="mx-auto" />
+        ) : null}
         {hasProviders ? (
           <section
             aria-label="Supported payment providers"

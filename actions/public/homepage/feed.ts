@@ -11,6 +11,10 @@ import {
   type HomepageFeedView,
   normalizeHomepageFeedView,
 } from "@/lib/homepage/feed-views"
+import {
+  VERIFIED_REVENUE_ORDER_BY,
+  buildVerifiedRevenueWhere,
+} from "@/lib/products/verifiedRevenue"
 import { resolveProductRevenue } from "@/lib/products/revenue"
 import type { ProductCardVariant } from "@/types/product-card"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
@@ -132,25 +136,6 @@ function normalizePageSize(value: unknown, fallback: number) {
 function buildBaseWhere(): Prisma.ProductWhereInput {
   return {
     status: "published",
-  }
-}
-
-function buildVerifiedRevenueWhere(): Prisma.ProductWhereInput {
-  return {
-    paymentConnector: {
-      is: {
-        verifiedAt: { not: null },
-        status: "active",
-        OR: [
-          { latestAllTimeRevenueCents: { gt: 0 } },
-          {
-            revenueHistory: {
-              some: { allTimeRevenueCents: { gt: 0 } },
-            },
-          },
-        ],
-      },
-    },
   }
 }
 
@@ -317,11 +302,7 @@ export async function getHomepageVerifiedRevenueFeedPage(
     pageSize,
     clerkUserId,
     where: buildVerifiedRevenueWhere(),
-    orderBy: [
-      { paymentConnector: { latestAllTimeRevenueCents: "desc" } },
-      { analytics: { upvotes: "desc" } },
-      { createdAt: "desc" },
-    ],
+    orderBy: VERIFIED_REVENUE_ORDER_BY,
   })
 }
 
