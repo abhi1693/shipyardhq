@@ -4,6 +4,7 @@ import { Play, Rocket } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 import DomainRatingBadge from "@/components/molecules/DomainRatingBadge"
+import { SquareImage } from "@/components/molecules/SquareImage"
 
 type HeaderActionConfig = {
   label: string
@@ -26,6 +27,11 @@ type MetricConfig = {
   formatter?: (value: number) => string
 }
 
+type ProviderDescriptor = {
+  name: string
+  logoSrc?: string
+}
+
 interface HeroProps {
   stats: StatsShape
   eyebrow?: string
@@ -34,6 +40,7 @@ interface HeroProps {
   primaryAction?: HeaderActionConfig | null
   secondaryAction?: HeaderActionConfig | null
   metrics?: readonly MetricConfig[]
+  supportedProviders?: (string | ProviderDescriptor)[]
 }
 
 const HERO_PRIMARY_CLASSES =
@@ -50,6 +57,7 @@ export function Hero({
   primaryAction,
   secondaryAction,
   metrics = [],
+  supportedProviders,
 }: HeroProps) {
   const resolvedEyebrow =
     typeof eyebrow === "string" && eyebrow.trim().length > 0
@@ -77,6 +85,22 @@ export function Hero({
   const resolvedSecondary =
     secondaryAction === undefined ? defaultSecondary : secondaryAction
 
+  const providers =
+    supportedProviders
+      ?.map((provider): ProviderDescriptor | null => {
+        if (typeof provider === "string") {
+          const name = provider.trim()
+          return name.length > 0 ? { name } : null
+        }
+        const name = provider.name?.trim() ?? ""
+        const logoSrc = provider.logoSrc?.trim()
+        if (!name) return null
+        const normalizedLogo =
+          logoSrc && !logoSrc.startsWith("/") ? `/${logoSrc}` : logoSrc
+        return { name, logoSrc: normalizedLogo }
+      })
+      .filter((provider): provider is ProviderDescriptor => provider !== null) ??
+    []
   const renderAction = (action: HeaderActionConfig, index: number) => {
     const variant = action.variant ?? (index === 0 ? "default" : "outline")
     const baseClass =
@@ -93,6 +117,7 @@ export function Hero({
   }
 
   const isDefaultHeadline = title === undefined
+  const hasProviders = providers.length > 0
   const hasMetrics = metrics.length > 0
   return (
     <div className="space-y-6">
@@ -136,6 +161,37 @@ export function Hero({
           </div>
         ) : null}
         <DomainRatingBadge className="mx-auto" />
+        {hasProviders ? (
+          <section
+            aria-label="Supported payment providers"
+            className="flex flex-col items-center gap-3 px-4 py-3 sm:px-6"
+          >
+            <p className="text-center text-sm text-[#3B4256]">
+              We sync revenue directly from your payment stack.
+            </p>
+            <ul className="mt-3 flex flex-wrap items-center justify-center gap-3">
+              {providers.map((provider) => (
+                <li
+                  key={provider.name}
+                  className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-md"
+                >
+                  {provider.logoSrc ? (
+                    <SquareImage
+                      src={provider.logoSrc}
+                      alt={`${provider.name} logo`}
+                      size={44}
+                      className="h-10 w-10 object-contain"
+                    />
+                  ) : (
+                    <span className="sr-only">
+                      {provider.name} logo placeholder
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
         {hasMetrics ? (
           <dl className="grid gap-4 border-t border-border/60 pt-6 text-center sm:grid-cols-2 xl:grid-cols-4">
             {metrics.map((metric) => {

@@ -10,6 +10,7 @@ interface HeroSkeletonProps extends React.ComponentProps<"div"> {
   metricCount?: number
   showSecondary?: boolean
   showPrimary?: boolean
+  providerCount?: number
 }
 
 export function HeroSkeleton({
@@ -17,10 +18,13 @@ export function HeroSkeleton({
   metricCount = 4,
   showPrimary = true,
   showSecondary = true,
+  providerCount = 0,
   ...props
 }: HeroSkeletonProps) {
   const metrics = Array.from({ length: Math.max(0, metricCount) })
+  const providers = Array.from({ length: Math.max(0, providerCount) })
   const hasMetrics = metrics.length > 0
+  const hasProviders = providers.length > 0
 
   return (
     <div
@@ -64,6 +68,24 @@ export function HeroSkeleton({
             ) : null}
           </div>
         )}
+        {hasProviders ? (
+          <section className="flex flex-col items-center gap-3 px-4 py-3 sm:px-6">
+            <Skeleton className="h-3 w-72 rounded-full" tone="muted" />
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {providers.map((_, index) => (
+                <div
+                  key={index}
+                  className="flex h-12 w-12 items-center justify-center rounded-md"
+                >
+                  <Skeleton
+                    className="h-10 w-10 rounded-md border-0 bg-muted/60"
+                    tone="soft"
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
         {hasMetrics ? (
           <div className="grid gap-4 border-t border-border/60 pt-6 text-center sm:grid-cols-2 xl:grid-cols-4">
             {metrics.map((_, index) => (
