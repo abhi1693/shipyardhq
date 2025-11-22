@@ -162,11 +162,13 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
             message: "Brand ID is only supported for Dodo",
           })
         }
-        if (!brandId.startsWith("brnd_")) {
+        const hasValidPrefix =
+          brandId.startsWith("brnd_") || brandId.startsWith("bus_")
+        if (!hasValidPrefix) {
           ctx.addIssue({
             path: ["connectorBrandId"],
             code: z.ZodIssueCode.custom,
-            message: "Dodo brand IDs must start with brnd_",
+            message: "Dodo brand IDs must start with brnd_ or bus_",
           })
         }
       }

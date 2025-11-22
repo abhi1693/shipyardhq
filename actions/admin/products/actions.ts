@@ -309,8 +309,12 @@ export async function createProductAction(formData: FormData) {
       const providerEnum =
         (PaymentConnectorProvider as any)[connectorProvider] ??
         connectorProvider
-      if (connectorBrandId && !connectorBrandId.startsWith("brnd_")) {
-        return { error: "Dodo brand IDs must start with brnd_" }
+      if (
+        connectorBrandId &&
+        !connectorBrandId.startsWith("brnd_") &&
+        !connectorBrandId.startsWith("bus_")
+      ) {
+        return { error: "Dodo brand IDs must start with brnd_ or bus_" }
       }
 
       const connectorConfig =
@@ -676,8 +680,12 @@ export async function updateProductAction(
           ? (providerValue as PaymentConnectorProvider)
           : (PaymentConnectorProvider as any)[providerValue])
 
-      if (connectorBrandId && !connectorBrandId.startsWith("brnd_")) {
-        return { error: "Dodo brand IDs must start with brnd_" }
+      if (
+        connectorBrandId &&
+        !connectorBrandId.startsWith("brnd_") &&
+        !connectorBrandId.startsWith("bus_")
+      ) {
+        return { error: "Dodo brand IDs must start with brnd_ or bus_" }
       }
 
       const targetProvider = providerEnum || existingConnector?.provider

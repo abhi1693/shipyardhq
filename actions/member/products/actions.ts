@@ -560,8 +560,12 @@ export async function saveProductConnectorAction(input: {
   if (provider === PaymentConnectorProvider.lemonsqueezy && !accountId) {
     return { error: "Lemon Squeezy store ID is required" }
   }
-  if (brandId && !brandId.startsWith("brnd_")) {
-    return { error: "Dodo brand IDs must start with brnd_" }
+  if (
+    brandId &&
+    !brandId.startsWith("brnd_") &&
+    !brandId.startsWith("bus_")
+  ) {
+    return { error: "Dodo brand IDs must start with brnd_ or bus_" }
   }
   if (brandId && provider !== PaymentConnectorProvider.dodo) {
     return { error: "Brand ID is only supported for Dodo" }

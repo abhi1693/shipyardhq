@@ -310,7 +310,7 @@ export function PaymentConnectorCard({
               </Label>
               <Input
                 id="connector-brand"
-                placeholder="brnd_..."
+                placeholder="brnd_... or bus_..."
                 value={brandId || ""}
                 onChange={(e) =>
                   onChange?.({
@@ -326,7 +326,8 @@ export function PaymentConnectorCard({
               ) : null}
               <p className="text-xs text-muted-foreground">
                 Required when connecting Dodo. Scope revenue sync to a specific
-                brand. Must start with <span className="font-mono">brnd_</span>.
+                brand. Must start with <span className="font-mono">brnd_</span>
+                or <span className="font-mono">bus_</span>.
               </p>
             </div>
           ) : null}
