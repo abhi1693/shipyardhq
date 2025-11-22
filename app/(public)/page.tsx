@@ -22,10 +22,21 @@ import {
   normalizeHomepageFeedView,
 } from "@/lib/homepage/feed-views"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
+import { buildPageMetadata } from "@/lib/metadata"
 import { siteConfig } from "@/lib/siteConfig"
 import { HOME_PATH } from "@/lib/routes"
 
 export const revalidate = 60
+
+const HOMEPAGE_TITLE =
+  "Show your revenue and get a free backlink on Shipyard"
+
+export const metadata = buildPageMetadata({
+  title: HOMEPAGE_TITLE,
+  description:
+    "Showcase your revenue on Shipyard, earn a free backlink, and meet builders who care about real traction.",
+  canonical: HOME_PATH,
+})
 
 interface HomePageProps {
   searchParams: Promise<{ view?: string | string[] }>
