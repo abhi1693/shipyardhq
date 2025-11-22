@@ -11,6 +11,7 @@ import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import {
   BROWSE_PATH,
   LEADERBOARD_MONTHLY_PATH,
@@ -25,6 +26,11 @@ import { ProductUpdatesFeedSkeleton } from "@/components/molecules/ProductUpdate
 import HeroSkeleton from "@/components/organisms/directory/Hero.skeleton"
 import DirectoryProductListSkeleton from "@/components/organisms/directory/DirectoryProductList.skeleton"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+
+type LeaderboardListItem = ProductCardBase & {
+  badges?: string[]
+  metaLabel?: string
+}
 
 export async function LeaderboardPageContent({
   searchParams,
@@ -41,9 +47,10 @@ export async function LeaderboardPageContent({
     await getLeaderboardPagePayload(filters)
 
   const now = new Date()
-  const leaderboardItems = products.map((product) =>
-    mapProductCardRecordToBase(product, now),
-  )
+  const leaderboardItems: LeaderboardListItem[] = products.map((product) => {
+    const base = mapProductCardRecordToBase(product, now)
+    return { ...base, badges: base.badges ?? undefined }
+  })
 
   const totalCount = products.length
   const hasProducts = totalCount > 0

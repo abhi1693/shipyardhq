@@ -15,7 +15,7 @@ export function VerifiedRevenuePageSkeleton() {
           <>
             <CardSkeleton
               tone="soft"
-              radius="xl"
+              radius="lg"
               lines={6}
               className="border border-border/70 bg-white/90"
             />
