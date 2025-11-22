@@ -78,7 +78,7 @@ export async function MonthlyLeaderboardView({
   const rest: MonthlyRanking[] = leaderboard.rankings.slice(3)
   const hasRankings = leaderboard.rankings.length > 0
 
-  const hasNonUsdRevenue = leaderboard.rankings.some((entry) => {
+  const hasNonUsdRevenue = leaderboard.rankings.some((entry: MonthlyRanking) => {
     const connector = entry.product.paymentConnector
     const currency =
       connector?.latestCurrencyCode ??
