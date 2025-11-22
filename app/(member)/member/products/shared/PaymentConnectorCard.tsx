@@ -213,7 +213,7 @@ export function PaymentConnectorCard({
         <Label htmlFor="connector-key">
           API key{" "}
           <span className="text-xs text-muted-foreground">
-            (never stored in plain text)
+            (encrypted using AES-256-GCM)
           </span>
         </Label>
         <Input
