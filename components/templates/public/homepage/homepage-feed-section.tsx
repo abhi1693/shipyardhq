@@ -47,9 +47,9 @@ export async function HomepageFeedSection({ view }: HomepageFeedSectionProps) {
                 scroll={false}
                 className={cn(
                   "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition",
-                  "border-border/70 bg-white text-[#1C2333] hover:border-[color:var(--brand-1)]/60 hover:text-[color:var(--brand-1)]",
-                  isActive &&
-                    "border-[color:var(--brand-1)] bg-[color:var(--brand-1)] text-white shadow-[0_12px_32px_-18px_rgba(4,59,89,0.35)]",
+                  isActive
+                    ? "border-[color:var(--brand-1)] bg-[color:var(--brand-1)] text-white shadow-[0_12px_32px_-18px_rgba(4,59,89,0.35)] hover:border-[color:var(--brand-1)] hover:bg-[color:var(--brand-1)] hover:text-white"
+                    : "border-border/70 bg-white text-[#1C2333] hover:border-[color:var(--brand-1)]/60 hover:bg-[color:var(--brand-1)/0.06] hover:text-[color:var(--brand-1)]",
                 )}
                 aria-current={isActive ? "page" : undefined}
               >
