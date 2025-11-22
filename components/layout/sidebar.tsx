@@ -35,6 +35,8 @@ import {
   HOME_PATH,
   MEMBER_BASE_PATH,
   MEMBER_OVERVIEW_PATH,
+  MEMBER_PRODUCTS_CLAIM_PATH,
+  MEMBER_PRODUCTS_PATH,
 } from "@/lib/routes"
 
 interface SidebarProps {
@@ -70,6 +72,12 @@ export default function AppSidebar(props: SidebarProps) {
       }
       const normalized = normalize(url)
       const current = normalize(pathname)
+      if (
+        normalized === MEMBER_PRODUCTS_PATH &&
+        current.startsWith(MEMBER_PRODUCTS_CLAIM_PATH)
+      ) {
+        return false
+      }
       if (normalized === "/") return current === "/"
       return current === normalized || current.startsWith(`${normalized}/`)
     } catch {

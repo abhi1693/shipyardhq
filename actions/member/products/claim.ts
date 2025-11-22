@@ -110,7 +110,6 @@ async function getClaimableProductsForViewer(
 
   const products = await prisma.product.findMany({
     where,
-    take: 50,
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -375,24 +374,13 @@ export async function claimProductViaDnsAction(productId: string) {
     return { error: dnsResult.error ?? "DNS check failed." }
   }
 
-  const claimResult = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-    const claim = await finalizeClaim(
-      target.product.id,
-      viewer.id,
-      target.expectedTxt,
-      tx,
-    )
-    return claim
+  const lockExpiresAt = new Date(Date.now() + CLAIM_PENDING_WINDOW_MS)
+  await prisma.productClaimAttempt.updateMany({
+    where: { productId: target.product.id, userId: viewer.id, status: "pending" },
+    data: { otpExpiresAt: lockExpiresAt, method: "dns" },
   })
 
-  if ("error" in claimResult) return claimResult
-
-  revalidateAfterClaim(
-    claimResult.slug,
-    claimResult.previousOwnerId,
-    viewer.id,
-  )
-  return { success: true, slug: claimResult.slug }
+  return { success: true, lockExpiresAt: lockExpiresAt.toISOString() }
 }
 
 export async function sendProductClaimOtpAction(
@@ -419,6 +407,20 @@ export async function sendProductClaimOtpAction(
 
   const ownershipCheck = await ensureNotOwner(target.product, viewer.id)
   if ("error" in ownershipCheck) return ownershipCheck
+
+  const lock = await prisma.productClaimAttempt.findFirst({
+    where: {
+      productId,
+      userId: viewer.id,
+      method: "dns",
+      status: "pending",
+      otpExpiresAt: { gt: new Date() },
+    },
+    orderBy: { updatedAt: "desc" },
+  })
+  if (!lock) {
+    return { error: "Verify DNS first to lock this domain before emailing." }
+  }
 
   const code = generateOtpCode()
   const hashed = hashOtp(code)

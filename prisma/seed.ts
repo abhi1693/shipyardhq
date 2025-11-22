@@ -28,6 +28,7 @@ import {
   buildConnectorKeyHint,
   encryptConnectorSecret,
 } from "@/lib/server/payments/connectorSecrets"
+import { generateVerificationTxtFromWebsite } from "@/lib/products/verification"
 
 import { seedAlternatives } from "./seed.alternatives"
 import { seedCategories } from "./seed.categories"
@@ -69,6 +70,7 @@ type ProductSeed = {
   metadata?: Prisma.ProductMetadataCreateWithoutProductInput
   verification?: Prisma.ProductVerificationCreateWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateWithoutProductInput
+  isVerified?: boolean
 }
 
 type SeedContext = {
@@ -317,11 +319,35 @@ async function upsertProduct(
 ) {
   const existing = await prisma.product.findUnique({
     where: { slug: def.slug },
+    include: { verification: true },
   })
-  await prisma.product.upsert({
+
+  const upserted = await prisma.product.upsert({
     where: { slug: def.slug },
     create: buildProductCreateInput(def, ctx),
     update: buildProductUpdateInput(def, ctx, options),
+  })
+
+  const verificationTxt =
+    def.verification?.verificationTxt ??
+    generateVerificationTxtFromWebsite(def.websiteUrl)
+  await prisma.productVerification.upsert({
+    where: { productId: upserted.id },
+    create: {
+      productId: upserted.id,
+      verificationTxt,
+      isVerified:
+        typeof def.isVerified === "boolean"
+          ? def.isVerified
+          : def.verification?.isVerified ?? false,
+    },
+    update: {
+      verificationTxt,
+      isVerified:
+        typeof def.isVerified === "boolean"
+          ? def.isVerified
+          : def.verification?.isVerified ?? false,
+    },
   })
 
   return {
@@ -543,9 +569,8 @@ async function main() {
     ctaUrl: "https://shitposts.ai",
     keywords: ["memes", "social", "fun"],
     platforms: [Platform.web],
-    userClerkId: "clerk-001",
+    userClerkId: "clerk-002",
     categorySlug: "social-media-tools",
-    organizationName: "OpenStackers Inc",
     planSlug: "pro",
     planAssignedAt: addDays(primaryCreatedAt, 2),
     createdAt: primaryCreatedAt,
@@ -556,10 +581,7 @@ async function main() {
       demoUrl: "https://demo.deploykit.dev",
       contactEmail: "hello@deploykit.dev",
     },
-    verification: {
-      verificationTxt: "deploykit-verification=xyz123",
-      isVerified: false,
-    },
+    isVerified: false,
     analytics: {
       upvotes: 120,
       clicks: 700,

@@ -28,6 +28,7 @@ export const APP_EVENTS = {
   REWARDS_ADJUSTED: "rewards.adjusted",
   REWARDS_REFUNDED: "rewards.refunded",
   REWARDS_DAILY_LOGIN: "rewards.daily-login",
+  CLAIM_ATTEMPTS_CLEANUP: "claims.attempts.cleanup",
 } as const
 
 export type AppEventKey = (typeof APP_EVENTS)[keyof typeof APP_EVENTS]

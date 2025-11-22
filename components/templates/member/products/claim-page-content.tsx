@@ -19,6 +19,7 @@ export async function ClaimProductsPageContent({
   const params = await searchParams
   const qParam = toParamString(params?.q)
   const q = qParam?.trim()
+  const initialSelectedId = toParamString(params?.productId)
   const { products } = await getClaimableProducts({ q })
 
   return (
@@ -31,13 +32,16 @@ export async function ClaimProductsPageContent({
           Claim products
         </h1>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          Transfer ownership of any unverified product by proving control of its
-          domain. Use DNS for fastest confirmation, or verify via an email on
-          the product&apos;s domain.
+          Select a listing you own, lock it via DNS, then confirm via email.
+          Ownership moves to your org after both steps.
         </p>
       </div>
 
-      <ClaimProductsClient products={products} />
+      <ClaimProductsClient
+        products={products}
+        initialQuery={q ?? ""}
+        initialSelectedId={initialSelectedId ?? null}
+      />
     </div>
   )
 }

@@ -175,6 +175,8 @@ export type RewardsDailyLoginEvent = {
   awardedAt: string
 }
 
+export type ClaimAttemptsCleanupEvent = Record<string, never>
+
 type AppEvents = {
   [APP_EVENTS.PRODUCT_CREATED]: ProductCreatedEvent
   [APP_EVENTS.PRODUCT_UPDATED]: ProductUpdatedEvent
@@ -195,6 +197,7 @@ type AppEvents = {
   [APP_EVENTS.REWARDS_ADJUSTED]: RewardsAdjustedEvent
   [APP_EVENTS.REWARDS_REFUNDED]: RewardsRefundedEvent
   [APP_EVENTS.REWARDS_DAILY_LOGIN]: RewardsDailyLoginEvent
+  [APP_EVENTS.CLAIM_ATTEMPTS_CLEANUP]: ClaimAttemptsCleanupEvent
 }
 
 type Handler<K extends keyof AppEvents> = (
