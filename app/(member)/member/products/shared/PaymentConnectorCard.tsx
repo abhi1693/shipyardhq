@@ -41,6 +41,7 @@ type Props = {
   lastSyncError?: string | null
   onChange?: (draft: Draft) => void
   onSave?: (draft: Draft) => Promise<void>
+  onReset?: () => Promise<void>
   saveLabel?: string
   readOnlyMessage?: string
   showSaveButton?: boolean
@@ -94,12 +95,14 @@ export function PaymentConnectorCard({
   lastSyncError,
   onChange,
   onSave,
+  onReset,
   saveLabel = "Save connector",
   readOnlyMessage,
   showSaveButton = true,
   errors,
 }: Props) {
-  const [saving, startTransition] = useTransition()
+  const [saving, startSaving] = useTransition()
+  const [resetting, startReset] = useTransition()
   const selectedProvider =
     provider ??
     PROVIDER_OPTIONS.find(
@@ -142,7 +145,9 @@ export function PaymentConnectorCard({
         ? "Project ID (e.g. proj_abc123)"
         : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
           ? "Store ID (e.g. 123456)"
-          : "org_..."
+      : "org_..."
+
+  const statusBadge = renderStatus(status)
 
   return (
     <div className="space-y-4">
@@ -156,7 +161,25 @@ export function PaymentConnectorCard({
             your product page.
           </p>
         </div>
-        {renderStatus(status)}
+        <div className="flex items-center gap-2">
+          {statusBadge}
+          {onReset ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              className="h-8 px-2 text-xs"
+              disabled={resetting || saving}
+              onClick={() =>
+                startReset(async () => {
+                  await onReset()
+                })
+              }
+            >
+              {resetting ? "Clearing…" : "Remove config"}
+            </Button>
+          ) : null}
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -400,9 +423,9 @@ export function PaymentConnectorCard({
         <Button
           type="button"
           className="w-full"
-          disabled={saving}
+          disabled={saving || resetting}
           onClick={() =>
-            startTransition(async () => {
+            startSaving(async () => {
               await onSave({
                 provider: selectedProvider,
                 apiKey,

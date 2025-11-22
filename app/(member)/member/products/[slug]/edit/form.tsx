@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
   useForm,
@@ -11,7 +12,10 @@ import {
 } from "react-hook-form"
 import { toast } from "sonner"
 
-import { updateProductAction } from "@/actions/admin/products/actions"
+import {
+  resetProductConnectorAction,
+  updateProductAction,
+} from "@/actions/admin/products/actions"
 import { Card, CardContent } from "@/components/atoms/card"
 
 import WizardStepper from "@/components/molecules/WizardStepper"
@@ -39,6 +43,7 @@ import { PaymentConnectorCard } from "../../shared/PaymentConnectorCard"
 function ConnectorFields({
   form,
   connector,
+  productId,
 }: {
   form: UseFormReturn<ProductWizardInput>
   connector: {
@@ -48,6 +53,7 @@ function ConnectorFields({
     lastSyncError?: string | null
     keyHint?: string | null
   } | null
+  productId: string
 }) {
   const provider = useWatch({
     control: form.control,
@@ -70,20 +76,22 @@ function ConnectorFields({
       name: "connectorBrandId" as any,
     }) as string | undefined) ?? ""
 
+  const [connectorState, setConnectorState] = useState(connector)
+
   return (
     <PaymentConnectorCard
       provider={
         provider ??
-        connector?.provider ??
+        connectorState?.provider ??
         (PaymentConnectorProviderEnum.dodo as PaymentConnectorProvider)
       }
       apiKey={apiKey ?? ""}
       accountId={accountId ?? ""}
       brandId={brandId ?? ""}
-      keyHint={connector?.keyHint ?? null}
-      status={connector?.status ?? null}
-      lastSyncedAt={connector?.lastSyncedAt ?? null}
-      lastSyncError={connector?.lastSyncError ?? null}
+      keyHint={connectorState?.keyHint ?? null}
+      status={connectorState?.status ?? null}
+      lastSyncedAt={connectorState?.lastSyncedAt ?? null}
+      lastSyncError={connectorState?.lastSyncError ?? null}
       showSaveButton={false}
       onChange={(draft) => {
         if (draft.provider) {
@@ -123,6 +131,37 @@ function ConnectorFields({
           | string
           | undefined,
       }}
+      onReset={
+        connectorState
+          ? async () => {
+              const res = await resetProductConnectorAction(productId)
+              if ((res as any)?.error) {
+                toast.error((res as any).error)
+                return
+              }
+              form.setValue("connectorProvider" as any, undefined as any, {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+              form.setValue("connectorApiKey" as any, "", {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+              form.setValue("connectorAccountId" as any, "", {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+              form.setValue("connectorBrandId" as any, "", {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+              setConnectorState(null)
+              toast.success(
+                "Removed connector configuration. Enter new details to reconnect.",
+              )
+            }
+          : undefined
+      }
     />
   )
 }
@@ -206,7 +245,13 @@ export default function EditProductForm({
     autofillNotice:
       "AI Autofill replaces the fields on this step with new suggestions. Your current content will be overwritten.",
     alternatives,
-    pricingAside: <ConnectorFields form={form} connector={connector ?? null} />,
+    pricingAside: (
+      <ConnectorFields
+        form={form}
+        connector={connector ?? null}
+        productId={product.id}
+      />
+    ),
   })
 
   return (

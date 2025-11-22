@@ -38,6 +38,7 @@ import {
   validateConnectorApiKey,
   upsertPaymentConnector,
 } from "@/lib/server/payments/connectors"
+import { cacheRevenueSummary } from "@/lib/server/payments/revenue"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -855,6 +856,66 @@ export async function updateProductAction(
     const message = error instanceof Error ? error.message : null
     return { error: message || "Failed to update product" }
   }
+}
+
+export async function resetProductConnectorAction(productId: string) {
+  const isAdmin = await checkRole("admin")
+  let currentUser: Awaited<ReturnType<typeof getActiveUserByClerkId>> | null =
+    null
+  if (!isAdmin) {
+    const { userId: clerkId } = await auth()
+    if (!clerkId) return { error: "Unauthenticated" }
+    currentUser = await getActiveUserByClerkId(clerkId)
+    if (!currentUser) return { error: INACTIVE_ACCOUNT_MESSAGE }
+  }
+
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: {
+      id: true,
+      userId: true,
+      organizationId: true,
+      categoryId: true,
+    },
+  })
+  if (!product) {
+    return { error: "Product not found" }
+  }
+
+  if (!isAdmin && currentUser) {
+    const ownsProduct = product.userId === currentUser.id
+    let belongsToOrg = false
+    if (!ownsProduct && product.organizationId) {
+      const membership = await prisma.organizationMembership.findFirst({
+        where: {
+          organizationId: product.organizationId,
+          userId: currentUser.id,
+        },
+        select: { id: true },
+      })
+      belongsToOrg = Boolean(membership)
+    }
+    if (!ownsProduct && !belongsToOrg) {
+      return { error: "Not authorized to edit this product" }
+    }
+  }
+
+  await prisma.paymentConnector.deleteMany({ where: { productId } })
+  await cacheRevenueSummary({
+    productId,
+    connectorId: undefined,
+    provider: undefined,
+    status: undefined,
+    currencyCode: "USD",
+    lastSyncedAt: null,
+    latestAllTimeRevenueCents: 0,
+    points: [],
+  })
+  revalidateProduct(productId)
+  if (product.categoryId) revalidateCategory(product.categoryId)
+  revalidateLeaderboard()
+
+  return { ok: true }
 }
 
 export async function deleteProductAction(id: string) {
