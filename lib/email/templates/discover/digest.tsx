@@ -2,11 +2,13 @@ import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
 import { EMAIL_BRAND } from "@/lib/email/brand"
 
 export type DigestProduct = {
+  id: string
   name: string
   tagline: string
   url: string
   category?: string | null
   publishedAt?: Date | null
+  revenueLabel?: string | null
 }
 
 export type DiscoverDigestEmailProps = {
@@ -107,6 +109,7 @@ function renderProductList(items: DigestProduct[], emptyText: string) {
             <p style={taglineStyle}>{item.tagline}</p>
             <div style={metaStyle}>
               {item.category ? <span>{item.category}</span> : null}
+              {item.revenueLabel ? <span>{item.revenueLabel}</span> : null}
               {published ? <span>Launched {published}</span> : null}
             </div>
           </div>
