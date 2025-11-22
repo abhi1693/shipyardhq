@@ -37,17 +37,17 @@ export async function StickyBanner({
     return null
   }
 
+  const latestRevenueCents = product.latestRevenueCents
   const tagline = product.tagline?.trim()
   const hasRevenue =
-    typeof product.latestRevenueCents === "number" &&
-    product.latestRevenueCents > 0
+    typeof latestRevenueCents === "number" && latestRevenueCents > 0
   const revenueLabel = hasRevenue
     ? new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: product.revenueCurrencyCode ?? "USD",
         notation: "compact",
         maximumFractionDigits: 1,
-      }).format(product.latestRevenueCents / 100)
+      }).format(latestRevenueCents / 100)
     : null
 
   return (
