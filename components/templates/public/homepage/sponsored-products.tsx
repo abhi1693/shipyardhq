@@ -34,7 +34,7 @@ const PLACEHOLDER_CONTENT: Omit<SponsorListItem, "id">[] = Array.from(
   { length: SPONSOR_SLOT_COUNT },
   () => ({
     name: "Advertise here",
-    tagline: "Advertise here",
+    tagline: "",
     isPlaceholder: true,
   }),
 )
@@ -142,9 +142,11 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
         <p className="line-clamp-1 text-sm font-semibold text-foreground">
           {item.name}
         </p>
-        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-          {item.tagline}
-        </p>
+        {item.tagline ? (
+          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+            {item.tagline}
+          </p>
+        ) : null}
       </div>
     </div>
   )
