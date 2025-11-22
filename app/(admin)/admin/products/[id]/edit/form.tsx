@@ -3,7 +3,13 @@
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, FormProvider } from "react-hook-form"
+import {
+  useForm,
+  FormProvider,
+  useWatch,
+  type UseFormReturn,
+  useFormState,
+} from "react-hook-form"
 import { toast } from "sonner"
 
 import { updateProductAction } from "@/actions/admin/products/actions"
@@ -38,6 +44,103 @@ import {
 } from "@/components/atoms/select"
 import { Label } from "@/components/atoms/label"
 import { adminPath } from "@/lib/routes"
+import {
+  PaymentConnectorProvider,
+  PaymentConnectorProvider as PaymentConnectorProviderEnum,
+  PaymentConnectorStatus,
+} from "@/lib/vendor/prisma/client/enums"
+import { PaymentConnectorCard } from "@/app/(member)/member/products/shared/PaymentConnectorCard"
+
+function ConnectorFields({
+  form,
+  connector,
+}: {
+  form: UseFormReturn<ProductWizardInput>
+  connector: {
+    provider?: PaymentConnectorProvider
+    status?: PaymentConnectorStatus | null
+    lastSyncedAt?: Date | string | null
+    lastSyncError?: string | null
+    keyHint?: string | null
+    accountId?: string | null
+    brandId?: string | null
+  } | null
+}) {
+  const provider = useWatch({
+    control: form.control,
+    name: "connectorProvider" as any,
+  }) as PaymentConnectorProvider | undefined
+  const { errors } = useFormState({ control: form.control })
+  const apiKey =
+    (useWatch({
+      control: form.control,
+      name: "connectorApiKey" as any,
+    }) as string | undefined) ?? ""
+  const accountId =
+    (useWatch({
+      control: form.control,
+      name: "connectorAccountId" as any,
+    }) as string | undefined) ?? ""
+  const brandId =
+    (useWatch({
+      control: form.control,
+      name: "connectorBrandId" as any,
+    }) as string | undefined) ?? ""
+
+  return (
+    <PaymentConnectorCard
+      provider={
+        provider ??
+        connector?.provider ??
+        (PaymentConnectorProviderEnum.dodo as PaymentConnectorProvider)
+      }
+      apiKey={apiKey ?? ""}
+      accountId={accountId ?? ""}
+      brandId={brandId ?? ""}
+      keyHint={connector?.keyHint ?? null}
+      status={connector?.status ?? null}
+      lastSyncedAt={connector?.lastSyncedAt ?? null}
+      lastSyncError={connector?.lastSyncError ?? null}
+      showSaveButton={false}
+      onChange={(draft) => {
+        if (draft.provider) {
+          form.setValue("connectorProvider" as any, draft.provider, {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+        if (draft.apiKey !== undefined) {
+          form.setValue("connectorApiKey" as any, draft.apiKey ?? "", {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+        if (draft.accountId !== undefined) {
+          form.setValue("connectorAccountId" as any, draft.accountId ?? "", {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+        if (draft.brandId !== undefined) {
+          form.setValue("connectorBrandId" as any, draft.brandId ?? "", {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+      }}
+      errors={{
+        provider: (errors as any)?.connectorProvider?.message as
+          | string
+          | undefined,
+        apiKey: (errors as any)?.connectorApiKey?.message as string | undefined,
+        accountId: (errors as any)?.connectorAccountId?.message as
+          | string
+          | undefined,
+        brandId: (errors as any)?.connectorBrandId?.message as string | undefined,
+      }}
+    />
+  )
+}
 
 const schema = makeEditProductSchema()
 
@@ -48,18 +151,29 @@ export default function EditProductForm({
   categories,
   organizations,
   users,
+  connector,
 }: {
   product: any
   categories: { id: string; name: string }[]
   organizations: { id: string; name: string }[]
   users: { id: string; email: string }[]
+  connector?: {
+    id: string
+    provider: PaymentConnectorProvider
+    status: PaymentConnectorStatus | null
+    lastSyncedAt?: Date | string | null
+    lastSyncError?: string | null
+    keyHint?: string | null
+    accountId?: string | null
+    brandId?: string | null
+  } | null
 }) {
   const router = useRouter()
   const [ownerId, setOwnerId] = useState(product.userId as string)
 
   const form = useForm<ProductWizardInput>({
     resolver: zodResolver(schema) as any,
-    defaultValues: getInitialValuesFromProduct(product),
+    defaultValues: getInitialValuesFromProduct(product, connector || undefined),
     mode: "onBlur",
   })
 
@@ -117,8 +231,18 @@ export default function EditProductForm({
       persistOnVerify: true,
       canEditCTA: true,
       rightOfWebsite: ownerNode,
+      pricingAside: <ConnectorFields form={form} connector={connector ?? null} />,
     })
-  }, [wizard.step, categories, organizations, product.id, ownerId, users])
+  }, [
+    wizard.step,
+    categories,
+    organizations,
+    product.id,
+    ownerId,
+    users,
+    connector,
+    form,
+  ])
 
   return (
     <Card className="mx-auto w-full max-w-4xl">

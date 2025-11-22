@@ -3,7 +3,13 @@
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, FormProvider } from "react-hook-form"
+import {
+  useForm,
+  FormProvider,
+  useWatch,
+  type UseFormReturn,
+  useFormState,
+} from "react-hook-form"
 import { toast } from "sonner"
 
 import { createProductAction } from "@/actions/admin/products/actions"
@@ -39,6 +45,87 @@ import {
 } from "@/components/atoms/select"
 import { Label } from "@/components/atoms/label"
 import { adminPath, productPath } from "@/lib/routes"
+import {
+  PaymentConnectorProvider,
+  PaymentConnectorProvider as PaymentConnectorProviderEnum,
+} from "@/lib/vendor/prisma/client/enums"
+import { PaymentConnectorCard } from "@/app/(member)/member/products/shared/PaymentConnectorCard"
+
+function ConnectorFields({
+  form,
+}: {
+  form: UseFormReturn<ProductWizardInput>
+}) {
+  const { errors } = useFormState({ control: form.control })
+  const provider = useWatch({
+    control: form.control,
+    name: "connectorProvider" as any,
+  }) as PaymentConnectorProvider | undefined
+  const apiKey =
+    (useWatch({
+      control: form.control,
+      name: "connectorApiKey" as any,
+    }) as string | undefined) ?? ""
+  const accountId =
+    (useWatch({
+      control: form.control,
+      name: "connectorAccountId" as any,
+    }) as string | undefined) ?? ""
+  const brandId =
+    (useWatch({
+      control: form.control,
+      name: "connectorBrandId" as any,
+    }) as string | undefined) ?? ""
+
+  return (
+    <PaymentConnectorCard
+      provider={
+        provider ??
+        (PaymentConnectorProviderEnum.dodo as PaymentConnectorProvider)
+      }
+      apiKey={apiKey ?? ""}
+      accountId={accountId ?? ""}
+      brandId={brandId ?? ""}
+      showSaveButton={false}
+      onChange={(draft) => {
+        if (draft.provider) {
+          form.setValue("connectorProvider" as any, draft.provider, {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+        if (draft.apiKey !== undefined) {
+          form.setValue("connectorApiKey" as any, draft.apiKey ?? "", {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+        if (draft.accountId !== undefined) {
+          form.setValue("connectorAccountId" as any, draft.accountId ?? "", {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+        if (draft.brandId !== undefined) {
+          form.setValue("connectorBrandId" as any, draft.brandId ?? "", {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+      }}
+      errors={{
+        provider: (errors as any)?.connectorProvider?.message as
+          | string
+          | undefined,
+        apiKey: (errors as any)?.connectorApiKey?.message as string | undefined,
+        accountId: (errors as any)?.connectorAccountId?.message as
+          | string
+          | undefined,
+        brandId: (errors as any)?.connectorBrandId?.message as string | undefined,
+      }}
+    />
+  )
+}
 
 const schema = makeAddProductSchema()
 
@@ -144,8 +231,17 @@ export default function AddProductForm({
       canEditCTA: true,
       rightOfWebsite: ownerId ? ownerNode : ownerNode,
       enableAutofill: true,
+      pricingAside: <ConnectorFields form={form} />,
     })
-  }, [wizard.step, categories, organizations, newProductId, ownerId, users])
+  }, [
+    wizard.step,
+    categories,
+    organizations,
+    newProductId,
+    ownerId,
+    users,
+    form,
+  ])
 
   return (
     <>

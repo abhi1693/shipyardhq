@@ -18,6 +18,7 @@ import {
   PricingModel,
   Prisma,
   PaymentConnectorProvider,
+  PaymentCredentialStatus,
 } from "@/lib/vendor/prisma/client"
 import { slugify } from "@/lib/utils"
 import { checkRole } from "@/lib/roles"
@@ -125,6 +126,22 @@ export async function getProductById(id: string) {
         alternatives: {
           include: {
             categories: true,
+          },
+        },
+        paymentConnector: {
+          select: {
+            id: true,
+            provider: true,
+            status: true,
+            lastSyncedAt: true,
+            lastSyncError: true,
+            config: true,
+            credentials: {
+              where: { status: PaymentCredentialStatus.active },
+              select: { keyHint: true },
+              orderBy: { createdAt: "desc" },
+              take: 1,
+            },
           },
         },
       },

@@ -22,12 +22,35 @@ export default async function EditProductPage({
 
   if (!product) return notFound()
 
+  const connectorConfig = product.paymentConnector?.config as
+    | { accountId?: string; brandId?: string }
+    | undefined
+  const connector = product.paymentConnector
+    ? {
+        id: product.paymentConnector.id,
+        provider: product.paymentConnector.provider,
+        status: product.paymentConnector.status,
+        lastSyncedAt: product.paymentConnector.lastSyncedAt,
+        lastSyncError: product.paymentConnector.lastSyncError,
+        keyHint: product.paymentConnector.credentials?.[0]?.keyHint ?? null,
+        accountId:
+          typeof connectorConfig?.accountId === "string"
+            ? connectorConfig.accountId
+            : null,
+        brandId:
+          typeof connectorConfig?.brandId === "string"
+            ? connectorConfig.brandId
+            : null,
+      }
+    : null
+
   return (
     <EditProductForm
       product={product}
       categories={categories}
       users={users}
       organizations={organizations}
+      connector={connector}
     />
   )
 }
