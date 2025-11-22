@@ -42,16 +42,6 @@ function resolveEnvironment(
   return env === "test_mode" ? "test_mode" : "live_mode"
 }
 
-function requireConfiguredEnvironment(): "live_mode" | "test_mode" {
-  const env = (process.env.DODO_ENV || "").trim()
-  if (env !== "live_mode" && env !== "test_mode") {
-    throw new Error(
-      "DODO_ENV environment variable must be set to either 'live_mode' or 'test_mode'",
-    )
-  }
-  return env
-}
-
 export async function validateDodoApiKey({
   apiKey,
   config,
@@ -60,12 +50,6 @@ export async function validateDodoApiKey({
   config?: PaymentConnectorConfig
 }) {
   const environment = resolveEnvironment(config)
-  const expectedEnv = requireConfiguredEnvironment()
-  if (environment !== expectedEnv) {
-    throw new Error(
-      `Dodo environment must match DODO_ENV (${expectedEnv}); received ${environment}`,
-    )
-  }
 
   const client = new DodoPayments({
     bearerToken: apiKey.trim(),
@@ -75,10 +59,21 @@ export async function validateDodoApiKey({
   try {
     // Basic authentication check; will throw for invalid keys or env mismatch
     await client.brands.list({ page_size: 1 } as any)
+
+    const brandId = config?.brandId?.trim()
+    if (brandId) {
+      try {
+        await client.brands.retrieve(brandId as any)
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unknown brand lookup error"
+        throw new Error(message)
+      }
+    }
   } catch (error) {
     if (error instanceof AuthenticationError) {
       throw new Error(
-        `Dodo authentication failed for environment '${expectedEnv}'. Please use a key provisioned for this environment.`,
+        `Dodo authentication failed for environment '${environment}'. Please use a key provisioned for this environment.`,
       )
     }
     throw new Error(
@@ -97,6 +92,7 @@ export async function syncDodoConnector({
   config?: PaymentConnectorConfig
 }): Promise<ProviderSyncResult> {
   const environment = resolveEnvironment(config)
+  const brandId = config?.brandId?.trim()
   const client = new DodoPayments({
     bearerToken: apiKey,
     environment,
@@ -106,6 +102,7 @@ export async function syncDodoConnector({
   for await (const payment of client.payments.list({
     status: "succeeded",
     page_size: 100,
+    brand_id: brandId
   } as any)) {
     const currency = (payment as any)?.currency as string | undefined
     const amount = Number((payment as any)?.total_amount ?? 0)
@@ -146,7 +143,12 @@ export async function syncDodoConnector({
         periodStart: startOfDayFromKey(toDayKey(now)),
         periodRevenueCents: 0,
         allTimeRevenueCents: aggregates.allTime,
-        data: { provider: "dodo", environment, charges: 0 },
+        data: {
+          provider: "dodo",
+          environment,
+          charges: 0,
+          ...(brandId ? { brandId } : {}),
+        },
       })
       continue
     }
@@ -168,6 +170,7 @@ export async function syncDodoConnector({
           provider: "dodo",
           environment,
           charges: entry.charges,
+          ...(brandId ? { brandId } : {}),
         },
       })
     }

@@ -463,7 +463,8 @@ export async function getProductConnectorSummary(productId: string) {
   const config = connector.config as PaymentConnectorConfig | null
   const accountId =
     typeof config?.accountId === "string" ? config.accountId : undefined
-  return { ...rest, keyHint, accountId }
+  const brandId = typeof config?.brandId === "string" ? config.brandId : undefined
+  return { ...rest, keyHint, accountId, brandId }
 }
 
 export async function getProductConnectorRevenue(
@@ -534,6 +535,7 @@ export async function saveProductConnectorAction(input: {
   provider: PaymentConnectorProvider | string
   apiKey: string
   accountId?: string
+  brandId?: string
 }) {
   const guard = await requireOwnedProduct(input.productId)
   if ("error" in guard) return guard
@@ -548,6 +550,7 @@ export async function saveProductConnectorAction(input: {
   const apiKey = input.apiKey?.trim()
   if (!apiKey) return { error: "API key is required" }
   const accountId = input.accountId?.trim()
+  const brandId = input.brandId?.trim()
   if (provider === PaymentConnectorProvider.polar && !accountId) {
     return { error: "Polar organization ID is required" }
   }
@@ -557,18 +560,39 @@ export async function saveProductConnectorAction(input: {
   if (provider === PaymentConnectorProvider.lemonsqueezy && !accountId) {
     return { error: "Lemon Squeezy store ID is required" }
   }
+  if (brandId && !brandId.startsWith("brnd_")) {
+    return { error: "Dodo brand IDs must start with brnd_" }
+  }
+  if (brandId && provider !== PaymentConnectorProvider.dodo) {
+    return { error: "Brand ID is only supported for Dodo" }
+  }
+  if (provider === PaymentConnectorProvider.dodo && !brandId) {
+    return { error: "Brand ID is required for Dodo" }
+  }
 
   try {
     await validateConnectorApiKey({
       provider,
       apiKey,
-      config: { accountId },
+      config:
+        accountId || brandId
+          ? {
+              ...(accountId ? { accountId } : {}),
+              ...(brandId ? { brandId } : {}),
+            }
+          : undefined,
     })
     const result = await upsertPaymentConnector({
       productId: input.productId,
       provider,
       apiKey,
-      config: { accountId },
+      config:
+        accountId || brandId
+          ? {
+              ...(accountId ? { accountId } : {}),
+              ...(brandId ? { brandId } : {}),
+            }
+          : undefined,
     })
     await syncPaymentConnector(result.connector.id)
     const summary = await getProductConnectorSummary(input.productId)

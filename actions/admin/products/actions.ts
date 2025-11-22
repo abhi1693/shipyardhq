@@ -174,6 +174,8 @@ export async function createProductAction(formData: FormData) {
   const connectorApiKey = formData.get("connectorApiKey")?.toString().trim()
   const connectorAccountId =
     formData.get("connectorAccountId")?.toString().trim() || undefined
+  const connectorBrandId =
+    formData.get("connectorBrandId")?.toString().trim() || undefined
 
   const startingPriceCentsRaw = formData.get("startingPriceCents")?.toString()
   const startingPriceCents = startingPriceCentsRaw
@@ -307,6 +309,17 @@ export async function createProductAction(formData: FormData) {
       const providerEnum =
         (PaymentConnectorProvider as any)[connectorProvider] ??
         connectorProvider
+      if (connectorBrandId && !connectorBrandId.startsWith("brnd_")) {
+        return { error: "Dodo brand IDs must start with brnd_" }
+      }
+
+      const connectorConfig =
+        connectorAccountId || connectorBrandId
+          ? {
+              ...(connectorAccountId ? { accountId: connectorAccountId } : {}),
+              ...(connectorBrandId ? { brandId: connectorBrandId } : {}),
+            }
+          : undefined
       if (
         providerEnum === PaymentConnectorProvider.polar &&
         !connectorAccountId
@@ -322,24 +335,30 @@ export async function createProductAction(formData: FormData) {
       if (
         providerEnum === PaymentConnectorProvider.lemonsqueezy &&
         !connectorAccountId
-      ) {
-        return { error: "Lemon Squeezy store ID is required" }
-      }
+        ) {
+          return { error: "Lemon Squeezy store ID is required" }
+        }
       if (
         Object.values(PaymentConnectorProvider).includes(
           providerEnum as PaymentConnectorProvider,
         )
       ) {
+        if (connectorBrandId && providerEnum !== PaymentConnectorProvider.dodo) {
+          return { error: "Brand ID is only supported for Dodo" }
+        }
+        if (providerEnum === PaymentConnectorProvider.dodo && !connectorBrandId) {
+          return { error: "Brand ID is required for Dodo" }
+        }
         await validateConnectorApiKey({
           provider: providerEnum as PaymentConnectorProvider,
           apiKey: connectorApiKey,
-          config: { accountId: connectorAccountId },
+          config: connectorConfig,
         })
         const { connector } = await upsertPaymentConnector({
           productId: created.id,
           provider: providerEnum as PaymentConnectorProvider,
           apiKey: connectorApiKey,
-          config: { accountId: connectorAccountId },
+          config: connectorConfig,
         })
         await syncPaymentConnector(connector.id)
       }
@@ -449,6 +468,7 @@ export async function updateProductAction(
     connectorProvider?: string | null
     connectorApiKey?: string
     connectorAccountId?: string | null
+    connectorBrandId?: string | null
   },
 ) {
   // Determine role for permission-sensitive updates
@@ -479,6 +499,7 @@ export async function updateProductAction(
   } = data
   const connectorApiKey = data.connectorApiKey?.trim()
   const connectorAccountId = data.connectorAccountId?.trim() || undefined
+  const connectorBrandId = data.connectorBrandId?.trim() || undefined
 
   // Load current product for comparisons
   const current = await prisma.product.findUnique({
@@ -633,12 +654,18 @@ export async function updateProductAction(
     })
 
     const connectorInputProvided =
-      connectorApiKey || data.connectorProvider || connectorAccountId
+      connectorApiKey || data.connectorProvider || connectorAccountId || connectorBrandId
     if (connectorInputProvided) {
       const existingConnector = await prisma.paymentConnector.findUnique({
         where: { productId: id },
         select: { id: true, provider: true, config: true },
       })
+      const existingBrandId = (() => {
+        const cfg = existingConnector?.config as
+          | { brandId?: unknown }
+          | undefined
+        return typeof cfg?.brandId === "string" ? cfg.brandId : undefined
+      })()
       const providerValue =
         data.connectorProvider || existingConnector?.provider || undefined
       const providerEnum =
@@ -648,6 +675,25 @@ export async function updateProductAction(
         )
           ? (providerValue as PaymentConnectorProvider)
           : (PaymentConnectorProvider as any)[providerValue])
+
+      if (connectorBrandId && !connectorBrandId.startsWith("brnd_")) {
+        return { error: "Dodo brand IDs must start with brnd_" }
+      }
+
+      const targetProvider = providerEnum || existingConnector?.provider
+      if (
+        connectorBrandId &&
+        targetProvider &&
+        targetProvider !== PaymentConnectorProvider.dodo
+      ) {
+        return { error: "Brand ID is only supported for Dodo" }
+      }
+      if (
+        targetProvider === PaymentConnectorProvider.dodo &&
+        !(connectorBrandId || existingBrandId)
+      ) {
+        return { error: "Brand ID is required for Dodo" }
+      }
 
       if (providerEnum && connectorApiKey) {
         if (
@@ -668,23 +714,42 @@ export async function updateProductAction(
         ) {
           return { error: "Lemon Squeezy store ID is required" }
         }
+        if (providerEnum === PaymentConnectorProvider.dodo && !connectorBrandId) {
+          return { error: "Brand ID is required for Dodo" }
+        }
+        if (connectorBrandId && providerEnum !== PaymentConnectorProvider.dodo) {
+          return { error: "Brand ID is only supported for Dodo" }
+        }
+        const connectorConfig =
+          connectorAccountId || connectorBrandId
+            ? {
+                ...(connectorAccountId ? { accountId: connectorAccountId } : {}),
+                ...(connectorBrandId ? { brandId: connectorBrandId } : {}),
+              }
+            : undefined
         await validateConnectorApiKey({
           provider: providerEnum as PaymentConnectorProvider,
           apiKey: connectorApiKey,
-          config: { accountId: connectorAccountId },
+          config: connectorConfig,
         })
         const { connector } = await upsertPaymentConnector({
           productId: id,
           provider: providerEnum as PaymentConnectorProvider,
           apiKey: connectorApiKey,
-          config: { accountId: connectorAccountId },
+          config: connectorConfig,
         })
         await syncPaymentConnector(connector.id)
-      } else if (connectorAccountId && existingConnector?.id) {
-        // Update config to include the connected account without requiring a new key.
+      } else if (
+        (connectorAccountId !== undefined || connectorBrandId !== undefined) &&
+        existingConnector?.id
+      ) {
+        // Update config to include the connected account/brand without requiring a new key.
         const nextConfig = {
           ...(existingConnector.config ?? {}),
-          accountId: connectorAccountId,
+          ...(connectorAccountId !== undefined
+            ? { accountId: connectorAccountId }
+            : {}),
+          ...(connectorBrandId !== undefined ? { brandId: connectorBrandId } : {}),
         }
         await prisma.paymentConnector.update({
           where: { id: existingConnector.id },

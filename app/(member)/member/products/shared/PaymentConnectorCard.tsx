@@ -27,12 +27,14 @@ type Draft = {
   provider?: PaymentConnectorProvider
   apiKey?: string
   accountId?: string
+  brandId?: string
 }
 
 type Props = {
   provider?: PaymentConnectorProvider
   apiKey?: string
   accountId?: string
+  brandId?: string
   keyHint?: string | null
   status?: PaymentConnectorStatus | null
   lastSyncedAt?: Date | string | null
@@ -46,6 +48,7 @@ type Props = {
     provider?: string
     apiKey?: string
     accountId?: string
+    brandId?: string
   }
 }
 
@@ -84,6 +87,7 @@ export function PaymentConnectorCard({
   provider,
   apiKey,
   accountId,
+  brandId,
   keyHint,
   status,
   lastSyncedAt,
@@ -116,6 +120,7 @@ export function PaymentConnectorCard({
               : "Enter API secret key"
   const showStripeAccount =
     selectedProvider === PaymentConnectorProviderEnum.stripe
+  const showDodoBrandId = selectedProvider === PaymentConnectorProviderEnum.dodo
   const showStripePermissions =
     selectedProvider === PaymentConnectorProviderEnum.stripe
   const showPolarPermissions =
@@ -295,53 +300,89 @@ export function PaymentConnectorCard({
       {showStripeAccount ||
       showPolarOrganizationId ||
       showLemonStoreId ||
-      showRevenueCatProject ? (
+      showRevenueCatProject ||
+      showDodoBrandId ? (
         <div className="space-y-2">
-          <Label htmlFor="connector-account">
-            {showStripeAccount
-              ? "Connected account ID (optional)"
-              : showRevenueCatProject
-                ? "RevenueCat project ID (required)"
-                : showLemonStoreId
-                  ? "Lemon Squeezy store ID (required)"
-                  : "Polar organization ID (required)"}
-          </Label>
-          <Input
-            id="connector-account"
-            placeholder={accountPlaceholder}
-            value={accountId || ""}
-            onChange={(e) =>
-              onChange?.({
-                provider: selectedProvider,
-                apiKey,
-                accountId: e.target.value,
-              })
-            }
-          />
-          {errors?.accountId ? (
-            <p className="text-xs text-destructive">{errors.accountId}</p>
+          {showDodoBrandId ? (
+            <div className="space-y-2">
+              <Label htmlFor="connector-brand">
+                Dodo brand ID (required for Dodo)
+              </Label>
+              <Input
+                id="connector-brand"
+                placeholder="brnd_..."
+                value={brandId || ""}
+                onChange={(e) =>
+                  onChange?.({
+                    provider: selectedProvider,
+                    apiKey,
+                    accountId,
+                    brandId: e.target.value,
+                  })
+                }
+              />
+              {errors?.brandId ? (
+                <p className="text-xs text-destructive">{errors.brandId}</p>
+              ) : null}
+              <p className="text-xs text-muted-foreground">
+                Required when connecting Dodo. Scope revenue sync to a specific
+                brand. Must start with <span className="font-mono">brnd_</span>.
+              </p>
+            </div>
           ) : null}
-          {showStripeAccount ? (
-            <p className="text-xs text-muted-foreground">
-              Provide a Stripe connected account ID to pull revenue for that
-              account. Leave blank to use the platform account only.
-            </p>
-          ) : showRevenueCatProject ? (
-            <p className="text-xs text-muted-foreground">
-              Required. Use the project ID from RevenueCat Project Settings to
-              scope revenue to a single project.
-            </p>
-          ) : showLemonStoreId ? (
-            <p className="text-xs text-muted-foreground">
-              Required. Use the numeric store ID from Lemon Squeezy to scope
-              revenue to a single store.
-            </p>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              Required. We scope Polar API requests to this organization ID to
-              fetch revenue and subscriptions.
-            </p>
-          )}
+
+          {showStripeAccount ||
+          showPolarOrganizationId ||
+          showLemonStoreId ||
+          showRevenueCatProject ? (
+            <div className="space-y-2">
+              <Label htmlFor="connector-account">
+                {showStripeAccount
+                  ? "Connected account ID (optional)"
+                  : showRevenueCatProject
+                    ? "RevenueCat project ID (required)"
+                    : showLemonStoreId
+                      ? "Lemon Squeezy store ID (required)"
+                      : "Polar organization ID (required)"}
+              </Label>
+              <Input
+                id="connector-account"
+                placeholder={accountPlaceholder}
+                value={accountId || ""}
+                onChange={(e) =>
+                  onChange?.({
+                    provider: selectedProvider,
+                    apiKey,
+                    accountId: e.target.value,
+                  })
+                }
+              />
+              {errors?.accountId ? (
+                <p className="text-xs text-destructive">{errors.accountId}</p>
+              ) : null}
+              {showStripeAccount ? (
+                <p className="text-xs text-muted-foreground">
+                  Provide a Stripe connected account ID to pull revenue for that
+                  account. Leave blank to use the platform account only.
+                </p>
+              ) : showRevenueCatProject ? (
+                <p className="text-xs text-muted-foreground">
+                  Required. Use the project ID from RevenueCat Project Settings
+                  to scope revenue to a single project.
+                </p>
+              ) : showLemonStoreId ? (
+                <p className="text-xs text-muted-foreground">
+                  Required. Use the numeric store ID from Lemon Squeezy to scope
+                  revenue to a single store.
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Required. We scope Polar API requests to this organization ID
+                  to fetch revenue and subscriptions.
+                </p>
+              )}
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -365,6 +406,7 @@ export function PaymentConnectorCard({
                 provider: selectedProvider,
                 apiKey,
                 accountId,
+                brandId,
               })
             })
           }

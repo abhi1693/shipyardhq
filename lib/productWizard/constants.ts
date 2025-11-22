@@ -55,6 +55,7 @@ export const STEP_FIELDS: Record<number, readonly string[]> = {
     "connectorProvider",
     "connectorApiKey",
     "connectorAccountId",
+    "connectorBrandId",
   ],
   3: [],
   4: [

@@ -64,6 +64,11 @@ function ConnectorFields({
       control: form.control,
       name: "connectorAccountId" as any,
     }) as string | undefined) ?? ""
+  const brandId =
+    (useWatch({
+      control: form.control,
+      name: "connectorBrandId" as any,
+    }) as string | undefined) ?? ""
 
   return (
     <PaymentConnectorCard
@@ -74,6 +79,7 @@ function ConnectorFields({
       }
       apiKey={apiKey ?? ""}
       accountId={accountId ?? ""}
+      brandId={brandId ?? ""}
       keyHint={connector?.keyHint ?? null}
       status={connector?.status ?? null}
       lastSyncedAt={connector?.lastSyncedAt ?? null}
@@ -98,6 +104,12 @@ function ConnectorFields({
             shouldValidate: true,
           })
         }
+        if (draft.brandId !== undefined) {
+          form.setValue("connectorBrandId" as any, draft.brandId ?? "", {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
       }}
       errors={{
         provider: (errors as any)?.connectorProvider?.message as
@@ -105,6 +117,9 @@ function ConnectorFields({
           | undefined,
         apiKey: (errors as any)?.connectorApiKey?.message as string | undefined,
         accountId: (errors as any)?.connectorAccountId?.message as
+          | string
+          | undefined,
+        brandId: (errors as any)?.connectorBrandId?.message as
           | string
           | undefined,
       }}
@@ -142,6 +157,7 @@ export default function EditProductForm({
     lastSyncError?: string | null
     keyHint?: string | null
     accountId?: string | null
+    brandId?: string | null
   } | null
 }) {
   const router = useRouter()

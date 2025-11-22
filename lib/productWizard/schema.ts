@@ -76,6 +76,7 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
         .optional(),
       connectorApiKey: z.string().optional().or(z.literal("")),
       connectorAccountId: z.string().optional().or(z.literal("")),
+      connectorBrandId: z.string().optional().or(z.literal("")),
 
       // Verification (client-side check state)
       verificationExpectedTxt: z.string().optional(),
@@ -141,6 +142,33 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
           code: z.ZodIssueCode.custom,
           message: "Choose a provider when adding an API key",
         })
+      }
+
+      const brandId = val.connectorBrandId?.trim()
+      if (val.connectorProvider === "dodo" && val.connectorApiKey) {
+        if (!brandId) {
+          ctx.addIssue({
+            path: ["connectorBrandId"],
+            code: z.ZodIssueCode.custom,
+            message: "Brand ID is required for Dodo",
+          })
+        }
+      }
+      if (brandId) {
+        if (val.connectorProvider && val.connectorProvider !== "dodo") {
+          ctx.addIssue({
+            path: ["connectorProvider"],
+            code: z.ZodIssueCode.custom,
+            message: "Brand ID is only supported for Dodo",
+          })
+        }
+        if (!brandId.startsWith("brnd_")) {
+          ctx.addIssue({
+            path: ["connectorBrandId"],
+            code: z.ZodIssueCode.custom,
+            message: "Dodo brand IDs must start with brnd_",
+          })
+        }
       }
 
       if (val.connectorProvider === "stripe" && val.connectorApiKey) {
