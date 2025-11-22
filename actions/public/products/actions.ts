@@ -93,6 +93,11 @@ const publicProductMetaSelect = {
   websiteUrl: true,
   ctaLabel: true,
   ctaUrl: true,
+  verification: {
+    select: {
+      isVerified: true,
+    },
+  },
   category: { select: { name: true, slug: true } },
   user: { select: { id: true, firstName: true, lastName: true } },
   analytics: { select: { upvotes: true } },
@@ -245,6 +250,11 @@ const compactProductInclude = {
     select: {
       name: true,
       slug: true,
+    },
+  },
+  verification: {
+    select: {
+      isVerified: true,
     },
   },
 } satisfies Prisma.ProductInclude

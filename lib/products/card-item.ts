@@ -23,6 +23,7 @@ export const toProductCardItem = (
     variant: overrideVariant,
     latestRevenueCents: overrideLatestRevenueCents,
     revenueCurrencyCode: overrideRevenueCurrencyCode,
+    isVerified: overrideIsVerified,
     ...restOverrides
   } = overrides
 
@@ -63,6 +64,12 @@ export const toProductCardItem = (
         ? "sponsored"
         : "default"
 
+  const isVerified = Boolean(
+    typeof overrideIsVerified !== "undefined"
+      ? overrideIsVerified
+      : base.isVerified,
+  )
+
   const latestRevenueCents =
     typeof overrideLatestRevenueCents !== "undefined"
       ? overrideLatestRevenueCents
@@ -87,6 +94,7 @@ export const toProductCardItem = (
     updatedAt,
     isSponsored,
     variant,
+    isVerified,
     latestRevenueCents,
     revenueCurrencyCode,
     ...restOverrides,

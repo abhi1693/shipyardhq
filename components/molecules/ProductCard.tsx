@@ -15,6 +15,7 @@ export type ProductCardBase = {
   category?: { name?: string | null; slug?: string | null } | null
   badges?: string[] | null
   sponsored?: boolean
+  isVerified?: boolean
   createdAt?: string | Date | null
   updatedAt?: string | Date | null
   latestRevenueCents?: number | null
@@ -75,6 +76,7 @@ function toFeedItem(product: ProductCardItem): HomepageFeedItem {
         ? product.latestRevenueCents
         : null,
     revenueCurrencyCode: product.revenueCurrencyCode ?? null,
+    isVerified: Boolean(product.isVerified),
     shuffleRank: Math.random(),
   }
 }

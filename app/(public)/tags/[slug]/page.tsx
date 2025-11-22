@@ -115,6 +115,7 @@ function mapProductCardItemToFeedItem(
     updatesCount: product.updatesCount,
     isSponsored,
     isVoted: Boolean(product.isVoted),
+    isVerified: Boolean(product.isVerified),
     variant,
     latestRevenueCents:
       typeof product.latestRevenueCents === "number"

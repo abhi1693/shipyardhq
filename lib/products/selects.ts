@@ -17,6 +17,11 @@ export const productCardSelect = {
       upvotes: true,
     },
   },
+  verification: {
+    select: {
+      isVerified: true,
+    },
+  },
   category: {
     select: {
       name: true,
@@ -97,6 +102,7 @@ export const mapProductCardRecordToBase = (
     category: product.category,
     badges: resolveBadges(product, now),
     sponsored: isPriorityPlacement(product),
+    isVerified: Boolean(product.verification?.isVerified),
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,
     latestRevenueCents: revenue.latestRevenueCents,

@@ -141,6 +141,7 @@ export async function SimilarProductsServer({
             slug: item.category.slug ?? null,
           }
         : undefined,
+      isVerified: item.verification?.isVerified ?? false,
     }),
   )
 

@@ -32,6 +32,11 @@ const homepageFeedSelect = {
       upvotes: true,
     },
   },
+  verification: {
+    select: {
+      isVerified: true,
+    },
+  },
   category: {
     select: {
       name: true,
@@ -94,6 +99,7 @@ export interface HomepageFeedItem {
   updatesCount?: number
   isSponsored: boolean
   isVoted: boolean
+  isVerified: boolean
   variant?: ProductCardVariant
   latestRevenueCents?: number | null
   revenueCurrencyCode?: string | null
@@ -174,6 +180,7 @@ function mapProductToFeedItem(
     voteCount: product.analytics?.upvotes ?? 0,
     isSponsored,
     isVoted: upvoted.has(product.id),
+    isVerified: Boolean(product.verification?.isVerified),
     variant: isSponsored ? "sponsored" : "default",
     latestRevenueCents: revenue.latestRevenueCents,
     revenueCurrencyCode:

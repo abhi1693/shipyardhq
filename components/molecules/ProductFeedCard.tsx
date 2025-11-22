@@ -2,7 +2,7 @@
 
 import { type ReactNode } from "react"
 
-import { ArrowUpRight, Banknote, Flame } from "lucide-react"
+import { ArrowUpRight, BadgeCheck, Banknote, Flame } from "lucide-react"
 
 import { Badge } from "@/components/atoms/badge"
 import { SquareImage } from "@/components/molecules/SquareImage"
@@ -96,6 +96,21 @@ export function ProductFeedCard({
     }
   })()
 
+  const verifiedBadge = item.isVerified ? (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-800 shadow-sm dark:border-sky-900/50 dark:bg-sky-950/40 dark:text-sky-100">
+          <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
+          <span className="sr-only">Verified product</span>
+          <span className="hidden sm:inline">Verified</span>
+        </span>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" align="start" className="text-xs">
+        Domain ownership verified on Shipyard
+      </TooltipContent>
+    </Tooltip>
+  ) : null
+
   const tagline =
     item.tagline?.trim() ||
     "Discover launch-ready tools from indie makers worldwide."
@@ -172,6 +187,7 @@ export function ProductFeedCard({
               <h2 className="line-clamp-1 text-base font-semibold text-foreground">
                 {item.name}
               </h2>
+              {verifiedBadge}
               {badgePresentation ? (
                 <Badge className={badgePresentation.className}>
                   <badgePresentation.Icon

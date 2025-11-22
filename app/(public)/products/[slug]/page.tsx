@@ -20,6 +20,7 @@ import {
   Smartphone,
   Sparkles,
   Terminal,
+  BadgeCheck,
 } from "lucide-react"
 
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
@@ -289,6 +290,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         sidebarProduct.pricingModel as keyof typeof PRICING_MODEL_LABELS
       ] ?? formatLabel(sidebarProduct.pricingModel))
     : null
+  const isVerified = Boolean(
+    product.verification?.isVerified ?? sidebarProduct?.verification?.isVerified,
+  )
   const pricingModelSlug = pricingModelSlugFromValue(
     sidebarProduct?.pricingModel,
   )
@@ -701,9 +705,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     </div>
                   )}
                   <div className="space-y-2">
-                    <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-                      {product.name}
-                    </h1>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+                        {product.name}
+                      </h1>
+                      {isVerified ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-2.5 py-0.5 text-[11px] font-semibold text-sky-800 shadow-sm">
+                          <BadgeCheck className="h-3.5 w-3.5" aria-hidden />
+                          <span className="sr-only">Verified product</span>
+                          <span className="hidden sm:inline">Verified</span>
+                        </span>
+                      ) : null}
+                    </div>
                     {product.tagline ? (
                       <p className="text-lg text-muted-foreground">
                         {product.tagline}

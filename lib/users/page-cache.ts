@@ -21,6 +21,7 @@ type DirectoryProductItem = {
   badges: string[]
   metaLabel?: string
   launchedAt: string | null
+  isVerified: boolean
   latestRevenueCents: number | null
   revenueCurrencyCode: string | null
 }
@@ -123,6 +124,8 @@ export const getUserProfilePayload = cached(
         verifiedCount += 1
       }
 
+      const isVerified = Boolean(product.verification?.isVerified)
+
       const categoryName = product.category?.name
       if (categoryName) {
         categoryCounts.set(
@@ -172,6 +175,7 @@ export const getUserProfilePayload = cached(
         badges: activeBadges,
         metaLabel,
         launchedAt: launchedAt?.toISOString() ?? null,
+        isVerified,
         latestRevenueCents: revenue.latestRevenueCents,
         revenueCurrencyCode: revenue.revenueCurrencyCode,
       }
