@@ -57,8 +57,9 @@ export function Hero({
       : null
   const resolvedTitle = title ?? "Shipyard homepage"
   const resolvedDescription =
-    description ??
-    "Launch once, and we handle the distribution—your story hits the right builders, fast."
+    typeof description === "string" && description.trim().length > 0
+      ? description.trim()
+      : null
   const contentGapClass = resolvedEyebrow ? "gap-6" : "gap-5"
 
   const defaultPrimary: HeaderActionConfig = {
@@ -111,24 +112,22 @@ export function Hero({
           {isDefaultHeadline ? (
             <h1 className="text-4xl font-semibold tracking-tight text-[#1C2333] sm:text-[2.4rem]">
               <span className="bg-gradient-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] bg-clip-text text-transparent">
-                Secure
+                Verified revenue
               </span>{" "}
-              backlinks that rank fast.{" "}
-              <span className="text-[color:var(--brand-3)]">Ship</span> updates
-              in seconds.{" "}
-              <span className="text-[color:var(--brand-2-text,#0a5678)]">
-                Grow
-              </span>{" "}
-              with our builder community.
+              on display. Claim your{" "}
+              <span className="text-[color:var(--brand-3)]">free backlink</span>{" "}
+              on Shipyard.
             </h1>
           ) : (
             <h1 className="text-4xl font-semibold tracking-tight text-[#1C2333] sm:text-5xl">
               {resolvedTitle}
             </h1>
           )}
-          <p className="mx-auto max-w-xl text-base text-[#3B4256] sm:text-lg">
-            {resolvedDescription}
-          </p>
+          {resolvedDescription ? (
+            <p className="mx-auto max-w-xl text-base text-[#3B4256] sm:text-lg">
+              {resolvedDescription}
+            </p>
+          ) : null}
         </div>
         {(resolvedPrimary ?? resolvedSecondary) ? (
           <div className="flex flex-wrap items-center justify-center gap-3">
