@@ -8,6 +8,7 @@ import {
   PaymentCredentialStatus,
   type PaymentConnectorCredential,
 } from "@/lib/vendor/prisma/client"
+import { awardRewardsSafely, getProductOwnerId } from "@/lib/server/rewards/helpers"
 import {
   buildConnectorKeyHint,
   decryptConnectorSecret,
@@ -17,6 +18,8 @@ import { getProviderDefinition } from "./providers"
 import { getUsdConversionRates } from "./currency"
 import { type PaymentConnectorConfig, type RevenueSnapshotInput } from "./types"
 import { buildRevenueSummary, cacheRevenueSummary } from "./revenue"
+
+const PAYMENT_CONNECTOR_REWARD_RULE_KEY = "rewards.payment.connector"
 
 export async function validateConnectorApiKey({
   provider,
@@ -345,6 +348,55 @@ export async function syncPaymentConnector(connectorId: string) {
     })
     if (summary) {
       await cacheRevenueSummary(summary)
+    }
+
+    const revenueForReward =
+      summary?.latestAllTimeRevenueCents ??
+      primary?.allTimeRevenueCents ??
+      latestSnapshot?.allTimeRevenueCents ??
+      0
+
+    if (revenueForReward > 0) {
+      const existingReward = await prisma.rewardTransaction.findFirst({
+        where: {
+          ruleKey: PAYMENT_CONNECTOR_REWARD_RULE_KEY,
+          OR: [
+            { productId: connector.productId },
+            { targetId: connector.productId },
+          ],
+        },
+        select: { id: true },
+      })
+
+      if (!existingReward) {
+        const ownerId = await getProductOwnerId(connector.productId)
+        if (ownerId) {
+          await awardRewardsSafely(
+            ownerId,
+            PAYMENT_CONNECTOR_REWARD_RULE_KEY,
+            {
+              eventId: `payment-connector:${connector.productId}`,
+              productId: connector.productId,
+              sourceType: "payment.connector",
+              sourceId: connector.id,
+              targetType: "product",
+              targetId: connector.productId,
+              metadata: {
+                connectorId: connector.id,
+                provider: connector.provider,
+                latestAllTimeRevenueCents: revenueForReward,
+                currencyCode:
+                  summary?.currencyCode ??
+                  primary?.currencyCode ??
+                  latestSnapshot?.currencyCode ??
+                  connector.latestCurrencyCode ??
+                  null,
+              },
+            },
+            "award payment connector revenue reward",
+          )
+        }
+      }
     }
 
     return {
