@@ -103,11 +103,7 @@ export function PaymentConnectorCard({
 }: Props) {
   const [saving, startSaving] = useTransition()
   const [resetting, startReset] = useTransition()
-  const selectedProvider =
-    provider ??
-    PROVIDER_OPTIONS.find(
-      (opt) => opt.value === PaymentConnectorProviderEnum.dodo,
-    )?.value
+  const selectedProvider = provider
   const stripePrefix = IS_PROD ? "rk_live_" : "rk_test_"
   const apiKeyPlaceholder =
     selectedProvider === PaymentConnectorProviderEnum.stripe

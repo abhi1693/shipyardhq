@@ -70,10 +70,7 @@ function ConnectorFields({
 
   return (
     <PaymentConnectorCard
-      provider={
-        provider ??
-        (PaymentConnectorProvider.dodo as PaymentConnectorProviderType)
-      }
+      provider={provider}
       apiKey={apiKey ?? ""}
       accountId={accountId ?? ""}
       brandId={brandId ?? ""}

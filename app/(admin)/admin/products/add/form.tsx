@@ -79,10 +79,7 @@ function ConnectorFields({
 
   return (
     <PaymentConnectorCard
-      provider={
-        provider ??
-        (PaymentConnectorProviderEnum.dodo as PaymentConnectorProvider)
-      }
+      provider={provider}
       apiKey={apiKey ?? ""}
       accountId={accountId ?? ""}
       brandId={brandId ?? ""}
