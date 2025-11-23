@@ -114,6 +114,24 @@ export type LeaderboardMonthlyWinnersEvent = {
   }>
 }
 
+export type LeaderboardPeriodicWinnersEvent = {
+  period: "day" | "week" | "month"
+  periodKey: string
+  periodLabel: string
+  leaderboardUrl: string
+  window: {
+    start: string
+    end: string
+  }
+  winners: Array<{
+    productId: string
+    rank: number
+    name: string
+    slug: string
+    twitterHandle?: string | null
+  }>
+}
+
 export type RewardsAwardedEvent = {
   transactionId: string
   userId: string
@@ -192,6 +210,7 @@ type AppEvents = {
   [APP_EVENTS.BADGE_REMOVED]: BadgeRemovedEvent
   [APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC]: ProductTrafficRecordedEvent
   [APP_EVENTS.LEADERBOARD_MONTHLY_WINNERS]: LeaderboardMonthlyWinnersEvent
+  [APP_EVENTS.LEADERBOARD_PERIODIC_WINNERS]: LeaderboardPeriodicWinnersEvent
   [APP_EVENTS.REWARDS_AWARDED]: RewardsAwardedEvent
   [APP_EVENTS.REWARDS_REDEEMED]: RewardsRedeemedEvent
   [APP_EVENTS.REWARDS_ADJUSTED]: RewardsAdjustedEvent

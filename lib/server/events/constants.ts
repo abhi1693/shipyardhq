@@ -23,6 +23,7 @@ export const APP_EVENTS = {
   BADGE_REMOVED: "badge.removed",
   ANALYTICS_PRODUCT_TRAFFIC: "analytics.product-traffic",
   LEADERBOARD_MONTHLY_WINNERS: "leaderboard.monthly.winners",
+  LEADERBOARD_PERIODIC_WINNERS: "leaderboard.periodic.winners",
   REWARDS_AWARDED: "rewards.awarded",
   REWARDS_REDEEMED: "rewards.redeemed",
   REWARDS_ADJUSTED: "rewards.adjusted",

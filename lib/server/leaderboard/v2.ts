@@ -42,6 +42,8 @@ type ScoreRow = {
   rank?: number
 }
 
+export type LeaderboardScoreRow = ScoreRow & { rank: number }
+
 export async function createLeaderboardRun(input: {
   periodStart: Date
   periodEnd: Date
@@ -160,6 +162,34 @@ export async function getProductScoreForCurrentWindow(
       updatedAt: true,
     },
   })
+}
+
+export async function computeLeaderboardWindow(options: {
+  periodStart: Date
+  periodEnd: Date
+  weights?: LeaderboardWeights
+  asOf?: Date
+  productIds?: string[]
+  limit?: number
+}): Promise<LeaderboardScoreRow[]> {
+  const windowEnd = resolveWindowEnd(options.periodEnd, options.asOf)
+  const weights = options.weights ?? DEFAULT_WEIGHTS
+  const productIds = options.productIds?.filter(Boolean)
+
+  const metrics = productIds?.length
+    ? await collectMetricsForProducts(productIds, options.periodStart, windowEnd)
+    : await collectMetrics(options.periodStart, windowEnd)
+
+  const baseline = await collectBaselineMetrics(productIds)
+  mergeBaseline(metrics, baseline)
+
+  // Only rank products that have a non-zero score.
+  const rows = computeScores(metrics, weights, productIds ?? []).filter(
+    (row) => row.score > 0,
+  )
+
+  const ranked = applyRanks(rows) as LeaderboardScoreRow[]
+  return typeof options.limit === "number" ? ranked.slice(0, options.limit) : ranked
 }
 
 export async function updateLeaderboardScoresForProducts(options: {

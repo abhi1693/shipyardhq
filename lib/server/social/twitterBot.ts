@@ -183,6 +183,45 @@ async function handleLeaderboardWinners(
   }
 }
 
+async function handlePeriodicLeaderboardWinners(params: {
+  periodKey: string
+  periodLabel: string
+  leaderboardUrl: string
+  winners: Array<{ rank: number; name: string; twitterHandle?: string | null }>
+}) {
+  try {
+    if (!params.winners.length) {
+      return
+    }
+
+    const key = `leaderboard:${params.periodKey}`
+    if (!canPost(key)) {
+      return
+    }
+
+    const tweet = await buildLeaderboardTweet({
+      monthLabel: params.periodLabel,
+      leaderboardUrl: params.leaderboardUrl,
+      winners: params.winners.map((winner) => ({
+        rank: winner.rank,
+        name: winner.name,
+        twitterHandle: winner.twitterHandle,
+      })),
+    })
+
+    const result = await postTweet(tweet)
+    if (!result.posted) {
+      releaseThrottle(key)
+    }
+  } catch (error) {
+    console.error(
+      "[twitter] failed to handle leaderboard.periodic.winners event",
+      error,
+    )
+    releaseThrottle(`leaderboard:${params.periodKey}`)
+  }
+}
+
 function registerTwitterBotListeners() {
   if (!isTwitterBotActive()) {
     return
@@ -224,6 +263,37 @@ function registerTwitterBotListeners() {
           twitterHandle: winner.twitterHandle,
         })),
       ),
+  })
+
+  registerEventHandler({
+    event: "leaderboard.periodic.winners",
+    id: "twitter.leaderboard-periodic-winners",
+    mode: "async",
+    queue: "low",
+    handler: ({
+      periodKey,
+      periodLabel,
+      leaderboardUrl,
+      winners,
+    }) =>
+      handlePeriodicLeaderboardWinners({
+        periodKey,
+        periodLabel,
+        leaderboardUrl,
+        winners: winners.map(
+          (
+            winner: {
+              rank: number
+              name: string
+              twitterHandle?: string | null
+            },
+          ) => ({
+            rank: winner.rank,
+            name: winner.name,
+            twitterHandle: winner.twitterHandle,
+          }),
+        ),
+      }),
   })
 }
 

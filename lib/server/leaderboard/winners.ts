@@ -1,8 +1,17 @@
 import prisma from "@/lib/prisma"
 import MonthlyWinnerEmail from "@/lib/email/templates/leaderboard/monthlyWinner"
 import { getAppBaseUrl } from "@/lib/email/utils"
-import { monthlyLeaderboardArchivePath, productPath } from "@/lib/routes"
+import {
+  LEADERBOARD_PATH,
+  monthlyLeaderboardArchivePath,
+  productPath,
+} from "@/lib/routes"
+import { APP_EVENTS } from "@/lib/server/events/constants"
 import { dispatchEventAsync } from "@/lib/server/events"
+import {
+  computeLeaderboardWindow,
+  getCurrentLeaderboardWindow,
+} from "@/lib/server/leaderboard/v2"
 import {
   grantWinnerPerks,
   normalizeMonth,
@@ -16,6 +25,94 @@ const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
   timeZone: "UTC",
 })
+
+const dayLabelFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  day: "numeric",
+  timeZone: "UTC",
+})
+
+const shortDayLabelFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  timeZone: "UTC",
+})
+
+export type PeriodCadence = "day" | "week" | "month"
+
+function getPeriodWindow(
+  period: PeriodCadence,
+  now: Date = new Date(),
+): { periodStart: Date; periodEnd: Date } {
+  if (period === "day") {
+    const start = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        0,
+        0,
+        0,
+        0,
+      ),
+    )
+    const end = new Date(start)
+    end.setUTCDate(start.getUTCDate() + 1)
+    return { periodStart: start, periodEnd: end }
+  }
+
+  if (period === "week") {
+    const startOfDay = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        0,
+        0,
+        0,
+        0,
+      ),
+    )
+    const day = startOfDay.getUTCDay()
+    const diff = (day + 6) % 7 // Monday anchor
+    const start = new Date(startOfDay)
+    start.setUTCDate(startOfDay.getUTCDate() - diff)
+    const end = new Date(start)
+    end.setUTCDate(start.getUTCDate() + 7)
+    return { periodStart: start, periodEnd: end }
+  }
+
+  return getCurrentLeaderboardWindow(now)
+}
+
+function formatPeriodLabel(
+  period: PeriodCadence,
+  periodStart: Date,
+  periodEnd: Date,
+) {
+  if (period === "day") {
+    return dayLabelFormatter.format(periodStart)
+  }
+  if (period === "week") {
+    const end = new Date(periodEnd)
+    end.setUTCDate(end.getUTCDate() - 1)
+    return `${shortDayLabelFormatter.format(periodStart)} - ${shortDayLabelFormatter.format(end)}`
+  }
+  return monthLabelFormatter.format(periodStart)
+}
+
+function buildPeriodKey(period: PeriodCadence, periodStart: Date) {
+  const year = periodStart.getUTCFullYear()
+  const month = String(periodStart.getUTCMonth() + 1).padStart(2, "0")
+  const day = String(periodStart.getUTCDate()).padStart(2, "0")
+  if (period === "day") {
+    return `${year}-${month}-${day}`
+  }
+  if (period === "week") {
+    return `week:${year}-${month}-${day}`
+  }
+  return `month:${toMonthKey(normalizeMonth(periodStart))}`
+}
 
 function getLeaderboardUrl(monthKey: string): string {
   const base = getAppBaseUrl()
@@ -180,6 +277,121 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
   return {
     notified: recipients.length,
     recipients,
+    alreadyNotified: false,
+    skipped: false,
+  }
+}
+
+export async function announceLeaderboardPeriodWinners(options: {
+  period: PeriodCadence
+  limit?: number
+  now?: Date
+  leaderboardUrl?: string
+}) {
+  const period = options.period
+  const limit = options.limit ?? 3
+
+  if (period === "month") {
+    const { periodStart, periodEnd } = getCurrentLeaderboardWindow(
+      options.now ?? new Date(),
+    )
+    const run = await prisma.leaderboardRun.findUnique({
+      where: { periodStart_periodEnd: { periodStart, periodEnd } },
+      select: { id: true },
+    })
+    if (!run) {
+      return {
+        notified: 0,
+        winners: [],
+        alreadyNotified: false,
+        skipped: true,
+        reason: "no-run",
+      }
+    }
+    return announceLeaderboardWinnersForRun(run.id)
+  }
+
+  const now = options.now ?? new Date()
+  const { periodStart, periodEnd } = getPeriodWindow(period, now)
+  const periodLabel = formatPeriodLabel(period, periodStart, periodEnd)
+  const periodKey = buildPeriodKey(period, periodStart)
+
+  const rankedRows = await computeLeaderboardWindow({
+    periodStart,
+    periodEnd,
+    asOf: now,
+  })
+  const winners = rankedRows.slice(0, limit)
+  if (!winners.length) {
+    return {
+      notified: 0,
+      winners: [],
+      alreadyNotified: false,
+      skipped: true,
+      reason: "no-winners",
+    }
+  }
+
+  const productIds = winners.map((row) => row.productId)
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds }, status: "published" },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      metadata: { select: { twitterUrl: true } },
+    },
+  })
+  type MinimalProduct = (typeof products)[number]
+  const productMap = new Map<string, MinimalProduct>(
+    products.map((product: MinimalProduct) => [product.id, product]),
+  )
+
+  const winnersForEvent = winners
+    .map((row) => {
+      const product = productMap.get(row.productId)
+      if (!product) return null
+      return {
+        productId: product.id,
+        rank: row.rank ?? 0,
+        name: product.name,
+        slug: product.slug,
+        twitterHandle: extractTwitterHandle(product.metadata?.twitterUrl),
+      } as WinnerEvent
+    })
+    .filter((entry): entry is WinnerEvent => Boolean(entry))
+
+  if (!winnersForEvent.length) {
+    return {
+      notified: 0,
+      winners: [],
+      alreadyNotified: false,
+      skipped: true,
+      reason: "no-products",
+    }
+  }
+
+  await dispatchEventAsync(
+    APP_EVENTS.LEADERBOARD_PERIODIC_WINNERS,
+    {
+      period,
+      periodKey,
+      periodLabel,
+      leaderboardUrl:
+        options.leaderboardUrl ??
+        `${getAppBaseUrl()}${LEADERBOARD_PATH}`.replace(/\/+$/, ""),
+      window: {
+        start: periodStart.toISOString(),
+        end: periodEnd.toISOString(),
+      },
+      winners: winnersForEvent,
+    },
+    { context: { period, periodKey } },
+  )
+
+  return {
+    notified: winnersForEvent.length,
+    winners: winnersForEvent,
     alreadyNotified: false,
     skipped: false,
   }

@@ -1,27 +1,7 @@
-import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
-import { MonthlyLeaderboardSkeleton } from "@/components/templates/public/leaderboard/monthly/skeleton"
-import { MonthlyLeaderboardView } from "@/components/templates/public/leaderboard/monthly/view"
-import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
-import { buildPageMetadata } from "@/lib/metadata"
-import {
-  HOME_PATH,
-  LEADERBOARD_MONTHLY_PATH,
-  LEADERBOARD_PATH,
-  isMonthKey,
-  monthlyLeaderboardArchivePath,
-} from "@/lib/routes"
-
-export const revalidate = 120
-
-const PAGE_TITLE = "Monthly Product Winners"
-
-export const metadata = buildPageMetadata({
-  title: PAGE_TITLE,
-  description:
-    "Browse the top-ranked products for each month and celebrate the makers topping the leaderboard.",
-})
+import { parseMonthKey, toMonthKey } from "@/lib/server/monthlyLeaderboard"
+import { getCurrentLeaderboardWindow } from "@/lib/server/leaderboard/v2"
 
 export default async function MonthlyLeaderboardPage({
   searchParams,
@@ -32,26 +12,20 @@ export default async function MonthlyLeaderboardPage({
   const rawMonth = sp.month
   const monthParam = Array.isArray(rawMonth) ? rawMonth[0] : rawMonth
 
-  if (isMonthKey(monthParam)) {
-    redirect(monthlyLeaderboardArchivePath(monthParam))
+  if (monthParam) {
+    const parsed = parseMonthKey(monthParam)
+    if (parsed) {
+      const month = parsed.getUTCMonth() + 1
+      const year = parsed.getUTCFullYear()
+      redirect(`/leaderboard/monthly/${year}/${month}`)
+    }
   }
 
-  return (
-    <>
-      <CoreStructuredData
-        scriptKeyPrefix="leaderboard-monthly"
-        webPage={{ path: LEADERBOARD_MONTHLY_PATH, name: PAGE_TITLE }}
-        breadcrumbs={{
-          items: [
-            { name: "Home", path: HOME_PATH },
-            { name: "Leaderboard", path: LEADERBOARD_PATH },
-            { name: PAGE_TITLE, path: LEADERBOARD_MONTHLY_PATH },
-          ],
-        }}
-      />
-      <Suspense fallback={<MonthlyLeaderboardSkeleton />}>
-        <MonthlyLeaderboardView monthParam={monthParam ?? undefined} />
-      </Suspense>
-    </>
-  )
+  const { periodStart } = getCurrentLeaderboardWindow()
+  const monthKey = toMonthKey(periodStart)
+  const month = periodStart.getUTCMonth() + 1
+  const year = periodStart.getUTCFullYear()
+
+  // Redirect to the new monthly path; keep old month key redirect for compatibility.
+  redirect(`/leaderboard/monthly/${year}/${month}?from=${encodeURIComponent(monthKey)}`)
 }
