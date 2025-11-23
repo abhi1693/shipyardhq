@@ -235,7 +235,9 @@ async function createNotificationRecord(month: Date) {
   }
 }
 
-async function resolveWinnerBadgeExpiry(now: Date): Promise<Date | null> {
+export async function resolveWinnerBadgeExpiry(
+  now: Date,
+): Promise<Date | null> {
   const defaultPlan = await prisma.plan.findFirst({
     where: { isDefault: true },
     orderBy: { createdAt: "desc" },
@@ -253,7 +255,10 @@ async function resolveWinnerBadgeExpiry(now: Date): Promise<Date | null> {
   return new Date(now.getTime() + boostDays * DAY_MS)
 }
 
-async function upsertEditorPickBadge(productId: string, now: Date) {
+export async function upsertEditorPickBadge(
+  productId: string,
+  now: Date,
+) {
   const desiredExpiresAt = await resolveWinnerBadgeExpiry(now)
   const existing = await prisma.productBadge.findFirst({
     where: { productId, badge: WINNER_BADGE },
@@ -295,7 +300,10 @@ async function upsertEditorPickBadge(productId: string, now: Date) {
   }
 }
 
-async function assignWinnerBoostPlan(product: WinnerProduct, now: Date) {
+export async function assignWinnerBoostPlan(
+  product: WinnerProduct,
+  now: Date,
+) {
   const minimumExpiry = new Date(now.getTime() + WINNER_BOOST_DAYS * DAY_MS)
 
   if (product.plan && product.plan.boostForDays && product.planAssignedAt) {
@@ -340,7 +348,7 @@ async function assignWinnerBoostPlan(product: WinnerProduct, now: Date) {
   })
 }
 
-async function grantWinnerPerks(product: WinnerProduct, now: Date) {
+export async function grantWinnerPerks(product: WinnerProduct, now: Date) {
   await upsertEditorPickBadge(product.id, now)
   await assignWinnerBoostPlan(product, now)
 }

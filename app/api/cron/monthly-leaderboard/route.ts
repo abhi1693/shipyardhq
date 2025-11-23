@@ -3,10 +3,13 @@ import { NextResponse } from "next/server"
 import { revalidateMonthlyLeaderboard } from "@/lib/cache/revalidate"
 import { ensureCronAuthorized } from "@/lib/server/cronAuth"
 import {
-  generateMonthlyLeaderboard,
-  notifyMonthlyWinners,
+  getPreviousMonth,
   parseMonthKey,
+  normalizeMonth,
+  toMonthKey,
 } from "@/lib/server/monthlyLeaderboard"
+import { generateLeaderboardRun } from "@/lib/server/leaderboard/v2"
+import { announceLeaderboardWinnersForRun } from "@/lib/server/leaderboard/winners"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -19,32 +22,48 @@ export async function GET(request: Request) {
   const monthParam = url.searchParams.get("month") || undefined
   const limitParam = url.searchParams.get("limit") || undefined
 
-  const month = parseMonthKey(monthParam) ?? undefined
   const parsedLimit = limitParam ? Number.parseInt(limitParam, 10) : undefined
   const limit =
     typeof parsedLimit === "number" && !Number.isNaN(parsedLimit)
       ? parsedLimit
       : undefined
 
+  const targetMonth = parseMonthKey(monthParam) ?? getPreviousMonth(new Date())
+  const periodStart = normalizeMonth(targetMonth)
+  const periodEnd = new Date(
+    Date.UTC(
+      periodStart.getUTCFullYear(),
+      periodStart.getUTCMonth() + 1,
+      1,
+    ),
+  )
+
   try {
     console.info("[cron.monthly-leaderboard] run started", {
       monthParam,
       limit,
-      month: month?.toISOString(),
+      month: targetMonth?.toISOString(),
     })
-    const result = await generateMonthlyLeaderboard({ month, limit })
+    const result = await generateLeaderboardRun({
+      periodStart,
+      periodEnd,
+      asOf: new Date(),
+    })
+    const monthKey = toMonthKey(periodStart)
     console.info("[cron.monthly-leaderboard] leaderboard generated", {
-      monthKey: result.monthKey,
-      rankings: result.rankings.length,
-      persistedCount: result.count,
+      monthKey,
+      runId: result.runId,
+      scores: result.scores,
+      windowEnd: result.windowEnd.toISOString(),
     })
-    revalidateMonthlyLeaderboard(result.monthKey, "revalidate")
-    const notification = await notifyMonthlyWinners(result)
+    revalidateMonthlyLeaderboard(monthKey, "revalidate")
+    const notification = await announceLeaderboardWinnersForRun(result.runId)
     console.info("[cron.monthly-leaderboard] winner notification", {
-      monthKey: result.monthKey,
+      monthKey,
       notified: notification.notified,
       alreadyNotified: notification.alreadyNotified,
       recipientCount: notification.recipients.length,
+      skipped: notification.skipped,
     })
     return NextResponse.json({ success: true, notification, result })
   } catch (error: any) {

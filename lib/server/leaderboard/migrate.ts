@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
+import { getCurrentLeaderboardWindow } from "@/lib/server/leaderboard/v2"
 import { normalizeMonth } from "@/lib/server/monthlyLeaderboard"
 
 type MigrationOptions = {
@@ -152,6 +153,53 @@ export async function migrateLegacyMonthlyLeaderboard(
         data: { status: "finalized" },
       })
     })
+  }
+
+  if (!options.dryRun) {
+    const { periodStart, periodEnd } = getCurrentLeaderboardWindow()
+    const activeRun = await prisma.leaderboardRun.findUnique({
+      where: { periodStart_periodEnd: { periodStart, periodEnd } },
+      select: { id: true },
+    })
+    if (!activeRun) {
+      await prisma.leaderboardRun.create({
+        data: {
+          periodStart,
+          periodEnd,
+          status: "pending",
+        },
+      })
+      summary.runsCreated += 1
+    }
+
+    // Seed the upcoming window run so reads don't need to upsert at rollover.
+    const nextPeriodStart = periodEnd
+    const nextPeriodEnd = new Date(
+      Date.UTC(
+        nextPeriodStart.getUTCFullYear(),
+        nextPeriodStart.getUTCMonth() + 1,
+        1,
+      ),
+    )
+    const nextRun = await prisma.leaderboardRun.findUnique({
+      where: {
+        periodStart_periodEnd: {
+          periodStart: nextPeriodStart,
+          periodEnd: nextPeriodEnd,
+        },
+      },
+      select: { id: true },
+    })
+    if (!nextRun) {
+      await prisma.leaderboardRun.create({
+        data: {
+          periodStart: nextPeriodStart,
+          periodEnd: nextPeriodEnd,
+          status: "pending",
+        },
+      })
+      summary.runsCreated += 1
+    }
   }
 
   return summary
