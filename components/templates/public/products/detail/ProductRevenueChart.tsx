@@ -671,12 +671,14 @@ export function ProductRevenueChart({
                       <p className="text-base font-semibold text-slate-900">
                         <span className="inline-flex flex-wrap items-center gap-2">
                           {productLogoUrl ? (
-                            <Image
+                            <img
                               src={productLogoUrl}
                               alt={`${productName ?? "Product"} logo`}
                               width={28}
                               height={28}
-                              className="h-7 w-7 rounded-lg border border-slate-200 object-cover shadow-sm"
+                              crossOrigin="anonymous"
+                              className="h-7 w-7 rounded-lg border border-slate-200 bg-transparent object-cover shadow-sm"
+                              style={{ backgroundColor: "transparent" }}
                             />
                           ) : null}
                           <span>{previewTitle}</span>
@@ -702,12 +704,14 @@ export function ProductRevenueChart({
                     />
                   </div>
                   <div className="flex items-center justify-center gap-1.5 text-white">
-                    <Image
+                    <img
                       src="/brand-white.png"
                       alt={siteConfig.name}
                       width={56}
                       height={56}
+                      crossOrigin="anonymous"
                       className="drop-shadow-lg"
+                      style={{ backgroundColor: "transparent" }}
                     />
                     <span className="text-xl font-semibold tracking-wide">
                       {siteConfig.name}
