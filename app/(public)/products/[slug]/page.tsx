@@ -512,6 +512,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           provider: revenue.provider,
         }}
         productName={product.name}
+        productLogoUrl={product.logo}
       />
     ) : null
   const productDetailsCard = (

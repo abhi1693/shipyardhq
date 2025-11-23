@@ -90,10 +90,12 @@ export function ProductRevenueChart({
   points,
   summary,
   productName,
+  productLogoUrl,
 }: {
   points: RevenuePoint[]
   summary: RevenueSummary
   productName?: string
+  productLogoUrl?: string | null
 }) {
   const currency = summary.currencyCode || "USD"
   const [range, setRange] = useState<
@@ -486,7 +488,7 @@ export function ProductRevenueChart({
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={chartData}
-              margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+              margin={{ top: 10, right: 16, left: 8, bottom: 0 }}
             >
               <defs>
                 <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -522,7 +524,7 @@ export function ProductRevenueChart({
               <YAxis
                 tickFormatter={(value) => formatValue(Number(value))}
                 tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
-                width={80}
+                width={64}
               />
               <Tooltip
                 formatter={(value: any) => [
@@ -668,6 +670,15 @@ export function ProductRevenueChart({
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-left">
                       <p className="text-base font-semibold text-slate-900">
                         <span className="inline-flex flex-wrap items-center gap-2">
+                          {productLogoUrl ? (
+                            <Image
+                              src={productLogoUrl}
+                              alt={`${productName ?? "Product"} logo`}
+                              width={28}
+                              height={28}
+                              className="h-7 w-7 rounded-lg border border-slate-200 object-cover shadow-sm"
+                            />
+                          ) : null}
                           <span>{previewTitle}</span>
                           <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">
                             <ShieldCheckIcon className="h-3.5 w-3.5 text-emerald-500" aria-hidden />
