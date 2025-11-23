@@ -117,6 +117,8 @@ export function resolvePeriodWindowFromParts(args: {
 }): { periodStart: Date; periodEnd: Date; label: string } | null {
   const year = Number(args.year)
   if (!Number.isFinite(year) || year < 1970 || year > 3000) return null
+  const today = new Date()
+  today.setUTCHours(0, 0, 0, 0)
 
   if (args.period === "day") {
     const month = Number(args.month)
@@ -141,6 +143,9 @@ export function resolvePeriodWindowFromParts(args: {
     }
     const end = new Date(start)
     end.setUTCDate(start.getUTCDate() + 1)
+    if (start.getTime() > today.getTime()) {
+      return null
+    }
     return {
       periodStart: start,
       periodEnd: end,
@@ -154,6 +159,9 @@ export function resolvePeriodWindowFromParts(args: {
     if (!start) return null
     const end = new Date(start)
     end.setUTCDate(start.getUTCDate() + 7)
+    if (start.getTime() > today.getTime()) {
+      return null
+    }
     return {
       periodStart: start,
       periodEnd: end,
@@ -165,6 +173,9 @@ export function resolvePeriodWindowFromParts(args: {
   if (!Number.isFinite(month) || month < 1 || month > 12) return null
   const start = new Date(Date.UTC(year, month - 1, 1))
   const end = new Date(Date.UTC(year, month, 1))
+  if (start.getTime() > today.getTime()) {
+    return null
+  }
   return {
     periodStart: start,
     periodEnd: end,
