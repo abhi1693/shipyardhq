@@ -511,6 +511,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           lastSyncedAt: revenue.lastSyncedAt,
           provider: revenue.provider,
         }}
+        productName={product.name}
       />
     ) : null
   const productDetailsCard = (
