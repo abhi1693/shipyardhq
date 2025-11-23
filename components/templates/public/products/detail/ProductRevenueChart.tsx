@@ -602,49 +602,79 @@ export function ProductRevenueChart({
               <SelectItem value="all">All time</SelectItem>
             </SelectContent>
           </Select>
-          <Dialog open={exportOpen} onOpenChange={setExportOpen}>
-            <DialogTrigger asChild>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-10 min-w-[120px] justify-center"
-                disabled={!hasData}
+        </div>
+      </div>
+
+      <ChartFigure className="h-72" gradientId={chartGradientId} />
+
+      <div className="flex items-center justify-between gap-3">
+        {summary.lastSyncedAt ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <ShieldCheckIcon className="h-4 w-4 text-foreground/80" aria-hidden />
+            <span>
+              All revenue is verified through{" "}
+              <span className="font-semibold">
+                {summary.provider
+                  ? summary.provider.charAt(0).toUpperCase() +
+                    summary.provider.slice(1)
+                  : "Connected provider"}
+              </span>{" "}
+              API keys. Last updated:{" "}
+              {new Date(summary.lastSyncedAt).toLocaleString(undefined, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+          </div>
+        ) : (
+          <div />
+        )}
+        <Dialog open={exportOpen} onOpenChange={setExportOpen}>
+          <DialogTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-10 w-10 rounded-full bg-muted text-foreground shadow-sm shadow-black/10 transition hover:bg-muted/80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              disabled={!hasData}
+              aria-label="Export revenue chart"
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-5xl">
+            <DialogHeader className="space-y-1">
+              <DialogTitle>Export product revenue</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div
+                ref={previewRef}
+                className="relative overflow-hidden rounded-2xl border border-white/20 px-6 py-8 shadow-2xl"
+                style={{ backgroundImage: previewBackground }}
               >
-                <Download className="h-4 w-4" />
-                Export
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-5xl">
-              <DialogHeader className="space-y-1">
-                <DialogTitle>Export product revenue</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div
-                  ref={previewRef}
-                  className="relative overflow-hidden rounded-2xl border border-white/20 px-6 py-8 shadow-2xl"
-                  style={{ backgroundImage: previewBackground }}
-                >
-                  <div className="relative mx-auto flex max-w-4xl flex-col gap-6">
-                    <div className="rounded-2xl border border-white/20 bg-white p-4 shadow-lg">
-                      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-left">
-                        <p className="text-base font-semibold text-slate-900">
-                          {previewTitle}
-                        </p>
-                        {revenueDisplay ? (
-                          <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-900">
-                            <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
-                            {revenueDisplay}
-                            <span className="text-[11px] font-medium text-slate-500">
-                              verified
-                            </span>
+                <div className="relative mx-auto flex max-w-4xl flex-col gap-6">
+                  <div className="rounded-2xl border border-white/20 bg-white p-4 shadow-lg">
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-left">
+                      <p className="text-base font-semibold text-slate-900">
+                        {previewTitle}
+                      </p>
+                      {revenueDisplay ? (
+                        <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-900">
+                          <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
+                          {revenueDisplay}
+                          <span className="text-[11px] font-medium text-slate-500">
+                            verified
                           </span>
-                        ) : null}
-                      </div>
-                      <ChartFigure
-                        className="h-[320px]"
-                        gradientId={previewGradientId}
-                      />
+                        </span>
+                      ) : null}
                     </div>
+                    <ChartFigure
+                      className="h-[320px]"
+                      gradientId={previewGradientId}
+                    />
+                  </div>
                   <div className="flex items-center justify-center gap-1.5 text-white">
                     <Image
                       src="/brand-white.png"
@@ -657,75 +687,49 @@ export function ProductRevenueChart({
                       {siteConfig.name}
                     </span>
                   </div>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap gap-2">
-                      {gradientOptions.map((option) => (
-                        <button
-                          key={option.id}
-                          type="button"
-                          onClick={() => setGradientId(option.id)}
-                          className={cn(
-                            "group relative inline-flex size-10 items-center justify-center rounded-full border border-white/30 shadow-sm transition cursor-pointer",
-                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:scale-105",
-                            option.id === gradientId
-                              ? "ring-2 ring-white/70 ring-offset-2"
-                              : "opacity-80 hover:opacity-100",
-                          )}
-                          style={{
-                            backgroundImage: `linear-gradient(135deg, ${option.start}, ${option.end})`,
-                          }}
-                          aria-label={option.label}
-                          aria-pressed={option.id === gradientId}
-                        >
-                          <span className="sr-only">{option.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={handleDownload}
-                      disabled={!hasData || isExporting}
-                    >
-                      <Download className="h-4 w-4" />
-                      {isExporting ? "Preparing..." : "Download PNG"}
-                    </Button>
-                  </div>
                 </div>
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-2">
+                  <div className="flex flex-wrap gap-2">
+                    {gradientOptions.map((option) => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => setGradientId(option.id)}
+                        className={cn(
+                          "group relative inline-flex size-10 items-center justify-center rounded-full border border-white/30 shadow-sm transition cursor-pointer",
+                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:scale-105",
+                          option.id === gradientId
+                            ? "ring-2 ring-white/70 ring-offset-2"
+                            : "opacity-80 hover:opacity-100",
+                        )}
+                        style={{
+                          backgroundImage: `linear-gradient(135deg, ${option.start}, ${option.end})`,
+                        }}
+                        aria-label={option.label}
+                        aria-pressed={option.id === gradientId}
+                      >
+                        <span className="sr-only">{option.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={handleDownload}
+                    disabled={!hasData || isExporting}
+                  >
+                    <Download className="h-4 w-4" />
+                    {isExporting ? "Preparing..." : "Download PNG"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      <ChartFigure className="h-72" gradientId={chartGradientId} />
-
-      {summary.lastSyncedAt ? (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <ShieldCheckIcon className="h-4 w-4 text-foreground/80" aria-hidden />
-          <span>
-            All revenue is verified through{" "}
-            <span className="font-semibold">
-              {summary.provider
-                ? summary.provider.charAt(0).toUpperCase() +
-                  summary.provider.slice(1)
-                : "Connected provider"}
-            </span>{" "}
-            API keys. Last updated:{" "}
-            {new Date(summary.lastSyncedAt).toLocaleString(undefined, {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
-        </div>
-      ) : null}
     </section>
   )
 }
