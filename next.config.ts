@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
         destination: "/browse",
         permanent: true,
       },
+      // Legacy monthly archive keys like /leaderboard/30-11-2025 -> /leaderboard/monthly/2025/11
+      {
+        source: "/leaderboard/:day-:month-:year",
+        destination: "/leaderboard/monthly/:year/:month",
+        permanent: true,
+      },
     ]
   },
   async rewrites() {
