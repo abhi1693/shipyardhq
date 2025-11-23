@@ -75,6 +75,17 @@ function formatCurrency(amountCents: number, currency?: string) {
   }
 }
 
+function formatProviderLabel(provider?: string | null) {
+  if (!provider) return "Connected provider"
+  return provider
+    .trim()
+    .replace(/[_-]+/g, " ")
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ")
+}
+
 export function ProductRevenueChart({
   points,
   summary,
@@ -174,6 +185,7 @@ export function ProductRevenueChart({
     typeof summary.latestAllTimeRevenueCents === "number"
       ? formatCurrency(summary.latestAllTimeRevenueCents, currency)
       : null
+  const providerLabel = formatProviderLabel(summary.provider)
 
   const [exportOpen, setExportOpen] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
@@ -468,101 +480,103 @@ export function ProductRevenueChart({
     className?: string
     gradientId: string
   }) => (
-    <div className={`w-full ${className ?? "h-72"}`}>
-      {hasData ? (
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={chartData}
-            margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-          >
-            <defs>
-              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="hsl(221, 83%, 53%)"
-                  stopOpacity={0.25}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="hsl(221, 83%, 53%)"
-                  stopOpacity={0.03}
-                />
-              </linearGradient>
-            </defs>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="hsl(220, 13%, 90%)"
-              vertical={false}
-            />
-            <XAxis
-              dataKey="date"
-              tickFormatter={(value) =>
-                new Intl.DateTimeFormat("en-US", {
-                  month: "short",
-                  year: "numeric",
-                  day:
-                    range === "24h" || range === "7d" ? "numeric" : undefined,
-                }).format(new Date(value))
-              }
-              tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
-            />
-            <YAxis
-              tickFormatter={(value) => formatValue(Number(value))}
-              tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
-              width={80}
-            />
-            <Tooltip
-              formatter={(value: any) => [
-                formatValue(Number(value)),
-                "Revenue",
-              ]}
-              labelFormatter={(label) => {
-                const date = new Date(label)
-                const isWeekly =
-                  range === "1m" || range === "3m" || range === "6m"
-                const isMonthly = range === "all" || range === "1y"
+    <div className="w-full">
+      <div className={cn("relative", className ?? "h-72")}>
+        {hasData ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={chartData}
+              margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+            >
+              <defs>
+                <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="hsl(221, 83%, 53%)"
+                    stopOpacity={0.25}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="hsl(221, 83%, 53%)"
+                    stopOpacity={0.03}
+                  />
+                </linearGradient>
+              </defs>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="hsl(220, 13%, 90%)"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="date"
+                tickFormatter={(value) =>
+                  new Intl.DateTimeFormat("en-US", {
+                    month: "short",
+                    year: "numeric",
+                    day:
+                      range === "24h" || range === "7d" ? "numeric" : undefined,
+                  }).format(new Date(value))
+                }
+                tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
+              />
+              <YAxis
+                tickFormatter={(value) => formatValue(Number(value))}
+                tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
+                width={80}
+              />
+              <Tooltip
+                formatter={(value: any) => [
+                  formatValue(Number(value)),
+                  "Revenue",
+                ]}
+                labelFormatter={(label) => {
+                  const date = new Date(label)
+                  const isWeekly =
+                    range === "1m" || range === "3m" || range === "6m"
+                  const isMonthly = range === "all" || range === "1y"
 
-                if (isWeekly) {
+                  if (isWeekly) {
+                    const formatted = new Intl.DateTimeFormat("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    }).format(date)
+                    return `Week of ${formatted}`
+                  }
+
                   const formatted = new Intl.DateTimeFormat("en-US", {
                     month: "short",
-                    day: "numeric",
+                    year: "numeric",
+                    day: isMonthly ? undefined : "numeric",
                   }).format(date)
-                  return `Week of ${formatted}`
-                }
-
-                const formatted = new Intl.DateTimeFormat("en-US", {
-                  month: "short",
-                  year: "numeric",
-                  day: isMonthly ? undefined : "numeric",
-                }).format(date)
-                return formatted
-              }}
-              contentStyle={{
-                borderRadius: 10,
-                borderColor: "hsl(220, 13%, 85%)",
-                boxShadow: "0 8px 20px rgba(15, 23, 42, 0.15)",
-                fontSize: 12,
-              }}
-              itemStyle={{ fontWeight: 700, fontSize: 12, color: "#111" }}
-              labelStyle={{ fontWeight: 600, fontSize: 12, color: "#111" }}
-            />
-            <Area
-              type="monotone"
-              dataKey="value"
-              stroke="hsl(221, 83%, 53%)"
-              fillOpacity={1}
-              fill={`url(#${gradientId})`}
-              strokeWidth={2}
-              activeDot={{ r: 4 }}
-              isAnimationActive={false}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      ) : (
-        <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-          No revenue recorded for this range.
-        </div>
-      )}
+                  return formatted
+                }}
+                contentStyle={{
+                  borderRadius: 10,
+                  borderColor: "hsl(220, 13%, 85%)",
+                  boxShadow: "0 8px 20px rgba(15, 23, 42, 0.15)",
+                  fontSize: 12,
+                }}
+                itemStyle={{ fontWeight: 700, fontSize: 12, color: "#111" }}
+                labelStyle={{ fontWeight: 600, fontSize: 12, color: "#111" }}
+              />
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke="hsl(221, 83%, 53%)"
+                fillOpacity={1}
+                fill={`url(#${gradientId})`}
+                strokeWidth={2}
+                activeDot={{ r: 4 }}
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+            No revenue recorded for this range.
+          </div>
+        )}
+      </div>
     </div>
   )
 
@@ -613,12 +627,7 @@ export function ProductRevenueChart({
             <ShieldCheckIcon className="h-4 w-4 text-foreground/80" aria-hidden />
             <span>
               All revenue is verified through{" "}
-              <span className="font-semibold">
-                {summary.provider
-                  ? summary.provider.charAt(0).toUpperCase() +
-                    summary.provider.slice(1)
-                  : "Connected provider"}
-              </span>{" "}
+              <span className="font-semibold">{providerLabel}</span>{" "}
               API keys. Last updated:{" "}
               {new Date(summary.lastSyncedAt).toLocaleString(undefined, {
                 month: "short",
@@ -658,7 +667,13 @@ export function ProductRevenueChart({
                   <div className="rounded-2xl border border-white/20 bg-white p-4 shadow-lg">
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-left">
                       <p className="text-base font-semibold text-slate-900">
-                        {previewTitle}
+                        <span className="inline-flex flex-wrap items-center gap-2">
+                          <span>{previewTitle}</span>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">
+                            <ShieldCheckIcon className="h-3.5 w-3.5 text-emerald-500" aria-hidden />
+                            <span>Verified via {providerLabel}</span>
+                          </span>
+                        </span>
                       </p>
                       {revenueDisplay ? (
                         <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-900">
