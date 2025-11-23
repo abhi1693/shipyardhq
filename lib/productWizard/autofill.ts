@@ -19,6 +19,7 @@ export type ProductAutofillModelOutput = {
   contactEmail?: string | null
   ctaLabel?: string | null
   ctaUrl?: string | null
+  alternativeIds?: string[] | null
 }
 
 export type ProductAutofillSuggestion = {
@@ -37,6 +38,7 @@ export type ProductAutofillSuggestion = {
   twitterUrl?: string
   demoUrl?: string
   contactEmail?: string
+  alternativeIds?: string[]
 }
 
 export type ProductAutofillNormalizationResult = {
@@ -210,6 +212,16 @@ function normalizeEmail(value?: string | null) {
   return validateSingleEmail(str) ? str : undefined
 }
 
+function normalizeAlternativeIds(values?: string[] | null) {
+  if (!values?.length) return undefined
+  const ids = new Set<string>()
+  for (const raw of values) {
+    const str = normalizeString(raw)
+    if (str) ids.add(str)
+  }
+  return ids.size ? Array.from(ids) : undefined
+}
+
 export function normalizeProductAutofill(
   raw: ProductAutofillModelOutput,
 ): ProductAutofillNormalizationResult {
@@ -295,6 +307,11 @@ export function normalizeProductAutofill(
     suggestion.contactEmail = contactEmail
   } else if (raw.contactEmail) {
     warnings.push("contactEmail rejected: invalid email")
+  }
+
+  const alternativeIds = normalizeAlternativeIds(raw.alternativeIds)
+  if (alternativeIds) {
+    suggestion.alternativeIds = alternativeIds
   }
 
   return { suggestion, warnings }

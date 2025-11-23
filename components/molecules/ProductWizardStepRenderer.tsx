@@ -52,6 +52,7 @@ export function renderStep(
           rightOfWebsite={args.rightOfWebsite as any}
           enableAutofill={Boolean(args.enableAutofill)}
           autofillNotice={args.autofillNotice}
+          alternatives={args.alternatives}
         />
       )
     case 2:

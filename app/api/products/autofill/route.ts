@@ -19,6 +19,17 @@ const RequestSchema = z.object({
   url: z.string().url(),
   categories: z.array(z.string()).max(64).optional(),
   descriptionGuidance: z.string().max(600).optional(),
+  alternatives: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        slug: z.string().optional().nullable(),
+        websiteUrl: z.string().url().optional().nullable(),
+      }),
+    )
+    .max(64)
+    .optional(),
 })
 
 const ModelOutputSchema = z.object({
@@ -39,6 +50,7 @@ const ModelOutputSchema = z.object({
   contactEmail: z.string().optional().nullable(),
   ctaLabel: z.string().optional().nullable(),
   ctaUrl: z.string().optional().nullable(),
+  alternativeIds: z.array(z.string()).optional().nullable(),
 })
 
 type ModelOutput = z.infer<typeof ModelOutputSchema>
@@ -471,6 +483,22 @@ export async function POST(request: Request) {
   }
   const metaKeywords = Array.from(keywordSet)
 
+  const alternativeOptions = parsed.data.alternatives ?? []
+  const alternativeLookup = new Map(
+    alternativeOptions.map((alt) => [alt.id, alt]),
+  )
+  const alternativePrompt =
+    alternativeOptions.length > 0
+      ? `Available alternatives (return the best match id, or top 2-3 if clearly relevant):\n${alternativeOptions
+          .map((alt) => {
+            const parts = [alt.id, alt.name]
+            if (alt.slug) parts.push(`slug:${alt.slug}`)
+            if (alt.websiteUrl) parts.push(alt.websiteUrl)
+            return `- ${parts.join(" | ")}`
+          })
+          .join("\n")}\n`
+      : ""
+
   const supplementalDetails = [
     metaDescription ? `Meta description: ${metaDescription}` : "",
     ogDescription && ogDescription !== metaDescription
@@ -530,15 +558,16 @@ export async function POST(request: Request) {
     parsed.data.descriptionGuidance?.trim() ||
     "- Rewrite the description as a launch-ready overview using Markdown (bold, italics, bullet lists allowed, but never heading syntax like '#'). In this order, include: Product Overview (one-line elevator pitch plus brief plain-language summary and problem statement), Key Features (3–7 concise bullets highlighting differentiators or tiered plans if available), Target Audience / Use Cases (who it's for and typical workflows), and Benefits / Value Proposition (tangible outcomes and any proof points)."
 
-  const guidelines = [
-    descriptionInstruction,
-    "- Always populate 'name' with the product brand or title and 'tagline' with a short, memorable elevator pitch derived from the supplied content.",
-    "- Base all narrative details on the supplied meta descriptions, pricing context, primary copy snippet, and truncated website text.",
-    "- Always include a keywords array with 3 to 6 concise, lowercase SEO keywords directly supported by the source content.",
-    "- If pricing page context is provided, reference the actual plan names, price points, and differentiators; if pricing data is missing, explicitly note that pricing details are unavailable and do not guess.",
-    "- Use null for unknown values and omit fields entirely when information is not available.",
-    "- Never invent features or details not present in the provided content.",
-  ].join("\n")
+const guidelines = [
+  descriptionInstruction,
+  "- Always populate 'name' with the product brand or title and 'tagline' with a short, memorable elevator pitch derived from the supplied content.",
+  "- Base all narrative details on the supplied meta descriptions, pricing context, primary copy snippet, and truncated website text.",
+  "- Always include a keywords array with 3 to 6 concise, lowercase SEO keywords directly supported by the source content.",
+  "- If pricing page context is provided, reference the actual plan names, price points, and differentiators; if pricing data is missing, explicitly note that pricing details are unavailable and do not guess.",
+  "- When alternative options are provided, return 'alternativeIds' with the single best match (or up to 3 if clearly relevant), using ids from the provided list. Prefer the closest brand/domain match. Only return an empty array if absolutely no option matches. Never invent or guess ids outside the provided options.",
+  "- Use null for unknown values and omit fields entirely when information is not available.",
+  "- Never invent features or details not present in the provided content.",
+].join("\n")
 
   let modelOutput: ModelOutput
   try {
@@ -558,7 +587,7 @@ export async function POST(request: Request) {
             parsed.data.categories?.length
               ? `Known categories: ${parsed.data.categories.join(", ")}\n`
               : ""
-          }Allowed product types: ${PRODUCT_TYPES.join(", ")}\nAllowed pricing models: ${PRICING_MODELS.join(", ")}\nAvailable platforms: ${PLATFORMS.join(", ")}\n${
+          }${alternativePrompt}Allowed product types: ${PRODUCT_TYPES.join(", ")}\nAllowed pricing models: ${PRICING_MODELS.join(", ")}\nAvailable platforms: ${PLATFORMS.join(", ")}\n${
             title ? `Page title: ${title}\n` : ""
           }${supplementalDetails ? `${supplementalDetails}\n` : ""}${
             pricingDetails ? `${pricingDetails}\n` : ""
@@ -585,6 +614,7 @@ export async function POST(request: Request) {
               contactEmail: "string | null",
               ctaLabel: "string | null",
               ctaUrl: "string | null",
+              alternativeIds: "string[] | null",
             },
           )}\nGuidelines:\n${guidelines}`,
         },
@@ -648,6 +678,13 @@ export async function POST(request: Request) {
 
     if (!enrichedOutput.pricingModel && pricingFallback.pricingModel) {
       enrichedOutput.pricingModel = pricingFallback.pricingModel
+    }
+
+    if (Array.isArray(enrichedOutput.alternativeIds)) {
+      const allowed = new Set(alternativeLookup.keys())
+      enrichedOutput.alternativeIds = enrichedOutput.alternativeIds.filter(
+        (id) => allowed.has(id),
+      )
     }
 
     modelOutput = enrichedOutput
