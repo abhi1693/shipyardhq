@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+import { Prisma } from "@/lib/vendor/prisma/client"
 import { normalizeMonth } from "@/lib/server/monthlyLeaderboard"
 
 type MigrationOptions = {
@@ -56,14 +57,17 @@ export async function migrateLegacyMonthlyLeaderboard(
     return summary
   }
 
-  const groups = legacy.reduce<Map<string, LegacyRanking[]>>((acc, row) => {
-    const monthStart = normalizeMonth(row.month)
-    const key = monthStart.toISOString()
-    const existing = acc.get(key) ?? []
-    existing.push(row)
-    acc.set(key, existing)
-    return acc
-  }, new Map<string, LegacyRanking[]>())
+  const groups = legacy.reduce<Map<string, LegacyRanking[]>>(
+    (acc: Map<string, LegacyRanking[]>, row: LegacyRanking) => {
+      const monthStart = normalizeMonth(row.month)
+      const key = monthStart.toISOString()
+      const existing = acc.get(key) ?? []
+      existing.push(row)
+      acc.set(key, existing)
+      return acc
+    },
+    new Map<string, LegacyRanking[]>(),
+  )
 
   for (const [monthKey, rankings] of groups.entries()) {
     const periodStart = new Date(monthKey)
@@ -99,7 +103,7 @@ export async function migrateLegacyMonthlyLeaderboard(
       continue
     }
 
-    const rows = rankings.map((entry) => {
+    const rows = rankings.map((entry: LegacyRanking) => {
       const upvotes = entry.upvotes ?? 0
       const score = entry.score ?? upvotes
       return {
@@ -129,7 +133,7 @@ export async function migrateLegacyMonthlyLeaderboard(
 
     if (options.dryRun) continue
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       if (existingScores > 0) {
         await tx.productLeaderboardScore.deleteMany({
           where: { runId: run.id },
