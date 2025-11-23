@@ -57,6 +57,8 @@ export const ModelName = {
   PaymentRevenueSnapshot: 'PaymentRevenueSnapshot',
   AlternativeProduct: 'AlternativeProduct',
   MonthlyProductRanking: 'MonthlyProductRanking',
+  LeaderboardRun: 'LeaderboardRun',
+  ProductLeaderboardScore: 'ProductLeaderboardScore',
   MonthlyLeaderboardNotification: 'MonthlyLeaderboardNotification',
   Notification: 'Notification',
   ProductMedia: 'ProductMedia',
@@ -216,6 +218,38 @@ export const MonthlyProductRankingScalarFieldEnum = {
 } as const
 
 export type MonthlyProductRankingScalarFieldEnum = (typeof MonthlyProductRankingScalarFieldEnum)[keyof typeof MonthlyProductRankingScalarFieldEnum]
+
+
+export const LeaderboardRunScalarFieldEnum = {
+  id: 'id',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LeaderboardRunScalarFieldEnum = (typeof LeaderboardRunScalarFieldEnum)[keyof typeof LeaderboardRunScalarFieldEnum]
+
+
+export const ProductLeaderboardScoreScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  productId: 'productId',
+  views: 'views',
+  uniqueVisitors: 'uniqueVisitors',
+  clicks: 'clicks',
+  upvotes: 'upvotes',
+  reviewsCount: 'reviewsCount',
+  reviewsRatingSum: 'reviewsRatingSum',
+  score: 'score',
+  scoreComponents: 'scoreComponents',
+  rank: 'rank',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductLeaderboardScoreScalarFieldEnum = (typeof ProductLeaderboardScoreScalarFieldEnum)[keyof typeof ProductLeaderboardScoreScalarFieldEnum]
 
 
 export const MonthlyLeaderboardNotificationScalarFieldEnum = {

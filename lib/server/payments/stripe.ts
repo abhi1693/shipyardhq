@@ -198,16 +198,6 @@ async function collectCharges({
   return byCurrency
 }
 
-async function collectSubscriptions({
-  apiKey,
-  accountId,
-}: {
-  apiKey: string
-  accountId?: string
-}) {
-  return new Map<string, number>()
-}
-
 function buildSnapshots({
   chargesByCurrency,
   mode,

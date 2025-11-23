@@ -13,7 +13,7 @@ export const toProductCardItem = (
   overrides: Partial<ProductCardItem> = {},
 ): ProductCardItem => {
   const {
-    voteCount: overrideVoteCount,
+    scoreCount: overrideScoreCount,
     categoryName: overrideCategoryName,
     categorySlug: overrideCategorySlug,
     createdAt: overrideCreatedAt,
@@ -27,11 +27,12 @@ export const toProductCardItem = (
     ...restOverrides
   } = overrides
 
-  const voteCount =
-    overrideVoteCount ??
-    (typeof base.analytics?.upvotes === "number"
-      ? (base.analytics.upvotes ?? 0)
-      : 0)
+  const scoreCount =
+    typeof overrideScoreCount !== "undefined"
+      ? overrideScoreCount
+      : typeof base.scoreCount !== "undefined"
+        ? base.scoreCount
+        : undefined
 
   const categoryName =
     typeof overrideCategoryName !== "undefined"
@@ -87,7 +88,7 @@ export const toProductCardItem = (
   return {
     ...base,
     badges,
-    voteCount,
+    scoreCount,
     categoryName,
     categorySlug,
     createdAt,

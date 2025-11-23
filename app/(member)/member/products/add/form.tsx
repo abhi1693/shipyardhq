@@ -36,10 +36,7 @@ import {
 } from "@/lib/productWizard/mappers"
 import { useProductWizard } from "@/hooks/useProductWizard"
 import { renderStep } from "@/components/molecules/ProductWizardStepRenderer"
-import {
-  PaymentConnectorProvider,
-  type PaymentConnectorProvider as PaymentConnectorProviderType,
-} from "@/lib/vendor/prisma/client/enums"
+import type { PaymentConnectorProvider as PaymentConnectorProviderType } from "@/lib/vendor/prisma/client/enums"
 import { PaymentConnectorCard } from "../shared/PaymentConnectorCard"
 
 function ConnectorFields({

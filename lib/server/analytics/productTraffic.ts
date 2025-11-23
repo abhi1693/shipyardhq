@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma"
 import { dispatchEventAsync, registerEventHandler } from "@/lib/server/events"
 import { APP_EVENTS } from "@/lib/server/events/constants"
+import { refreshLeaderboardForProducts } from "@/lib/server/leaderboard/v2"
 import type { ProductTrafficPayload } from "@/types/analytics"
 
 // Registers a listener that persists product traffic payloads without blocking callers.
@@ -38,6 +39,16 @@ registerEventHandler({
           isBot: payload.isBot ?? false,
           createdAt,
         },
+      })
+
+      void refreshLeaderboardForProducts({
+        productIds: [payload.productId],
+        now: createdAt,
+      }).catch((error) => {
+        console.error("[leaderboard] traffic refresh failed", {
+          productId: payload.productId,
+          error,
+        })
       })
       console.debug("[analytics] product-traffic handler end", {
         productId: payload.productId,

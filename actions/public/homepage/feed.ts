@@ -17,6 +17,7 @@ import {
 } from "@/lib/products/verifiedRevenue"
 import { resolveProductRevenue } from "@/lib/products/revenue"
 import type { ProductCardVariant } from "@/types/product-card"
+import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
 
 const homepageFeedSelect = {
@@ -95,7 +96,7 @@ export interface HomepageFeedItem {
   badges: string[]
   category: string | null
   categorySlug: string | null
-  voteCount: number
+  scoreCount?: number
   updatesCount?: number
   isSponsored: boolean
   isVoted: boolean
@@ -150,6 +151,7 @@ function mapProductToFeedItem(
   upvoted: Set<string>,
   now: Date,
   rates: Map<string, number>,
+  scoreByProductId?: Map<string, number>,
 ): HomepageFeedItem {
   const activeBadges =
     product.ProductBadge?.filter(
@@ -165,6 +167,7 @@ function mapProductToFeedItem(
     rates,
     targetCurrency: "USD",
   })
+  const scoreCount = scoreByProductId?.get(product.id)
 
   return {
     id: product.id,
@@ -177,7 +180,7 @@ function mapProductToFeedItem(
     badges: activeBadges,
     category: product.category?.name ?? null,
     categorySlug: product.category?.slug ?? null,
-    voteCount: product.analytics?.upvotes ?? 0,
+    scoreCount: typeof scoreCount === "number" ? scoreCount : undefined,
     isSponsored,
     isVoted: upvoted.has(product.id),
     isVerified: Boolean(product.verification?.isVerified),
@@ -227,6 +230,7 @@ async function buildFeedItemsFromProducts(
   const productIds = products.map((product) => product.id)
   const upvoted = await resolveUpvotedProductIds(clerkUserId, productIds)
   const now = new Date()
+  const scoreMap = await getCurrentScoreMap(productIds)
   const needsRates = products.some((product) => {
     const code =
       product.paymentConnector?.latestCurrencyCode ??
@@ -239,7 +243,7 @@ async function buildFeedItemsFromProducts(
     : new Map<string, number>([["USD", 1]])
 
   return products.map((product) =>
-    mapProductToFeedItem(product, upvoted, now, rates),
+    mapProductToFeedItem(product, upvoted, now, rates, scoreMap),
   )
 }
 
@@ -377,8 +381,10 @@ export async function getHomepageFeedViewAll(
         return bRevenue - aRevenue
       }
 
-      if (b.voteCount !== a.voteCount) {
-        return b.voteCount - a.voteCount
+      const bScore = b.scoreCount ?? 0
+      const aScore = a.scoreCount ?? 0
+      if (bScore !== aScore) {
+        return bScore - aScore
       }
 
       const aCreated = new Date(a.createdAt).getTime() || 0

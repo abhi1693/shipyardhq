@@ -385,6 +385,7 @@ export type ProductWhereInput = {
   clickEvents?: Prisma.ProductClickEventListRelationFilter
   trafficEvents?: Prisma.ProductTrafficEventListRelationFilter
   MonthlyProductRanking?: Prisma.MonthlyProductRankingListRelationFilter
+  leaderboardScores?: Prisma.ProductLeaderboardScoreListRelationFilter
   rewardTransactions?: Prisma.RewardTransactionListRelationFilter
   redemptions?: Prisma.RedemptionListRelationFilter
   featureEntitlements?: Prisma.FeatureEntitlementListRelationFilter
@@ -436,6 +437,7 @@ export type ProductOrderByWithRelationInput = {
   clickEvents?: Prisma.ProductClickEventOrderByRelationAggregateInput
   trafficEvents?: Prisma.ProductTrafficEventOrderByRelationAggregateInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingOrderByRelationAggregateInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreOrderByRelationAggregateInput
   rewardTransactions?: Prisma.RewardTransactionOrderByRelationAggregateInput
   redemptions?: Prisma.RedemptionOrderByRelationAggregateInput
   featureEntitlements?: Prisma.FeatureEntitlementOrderByRelationAggregateInput
@@ -490,6 +492,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   clickEvents?: Prisma.ProductClickEventListRelationFilter
   trafficEvents?: Prisma.ProductTrafficEventListRelationFilter
   MonthlyProductRanking?: Prisma.MonthlyProductRankingListRelationFilter
+  leaderboardScores?: Prisma.ProductLeaderboardScoreListRelationFilter
   rewardTransactions?: Prisma.RewardTransactionListRelationFilter
   redemptions?: Prisma.RedemptionListRelationFilter
   featureEntitlements?: Prisma.FeatureEntitlementListRelationFilter
@@ -601,6 +604,7 @@ export type ProductCreateInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -648,6 +652,7 @@ export type ProductUncheckedCreateInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -695,6 +700,7 @@ export type ProductUpdateInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -742,6 +748,7 @@ export type ProductUncheckedUpdateInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -1072,6 +1079,20 @@ export type ProductUpdateOneRequiredWithoutMonthlyProductRankingNestedInput = {
   upsert?: Prisma.ProductUpsertWithoutMonthlyProductRankingInput
   connect?: Prisma.ProductWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutMonthlyProductRankingInput, Prisma.ProductUpdateWithoutMonthlyProductRankingInput>, Prisma.ProductUncheckedUpdateWithoutMonthlyProductRankingInput>
+}
+
+export type ProductCreateNestedOneWithoutLeaderboardScoresInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutLeaderboardScoresInput, Prisma.ProductUncheckedCreateWithoutLeaderboardScoresInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutLeaderboardScoresInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneRequiredWithoutLeaderboardScoresNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutLeaderboardScoresInput, Prisma.ProductUncheckedCreateWithoutLeaderboardScoresInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutLeaderboardScoresInput
+  upsert?: Prisma.ProductUpsertWithoutLeaderboardScoresInput
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutLeaderboardScoresInput, Prisma.ProductUpdateWithoutLeaderboardScoresInput>, Prisma.ProductUncheckedUpdateWithoutLeaderboardScoresInput>
 }
 
 export type ProductCreateNestedOneWithoutProductMediaInput = {
@@ -1511,6 +1532,7 @@ export type ProductCreateWithoutPaymentConnectorInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -1557,6 +1579,7 @@ export type ProductUncheckedCreateWithoutPaymentConnectorInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -1619,6 +1642,7 @@ export type ProductUpdateWithoutPaymentConnectorInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -1665,6 +1689,7 @@ export type ProductUncheckedUpdateWithoutPaymentConnectorInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -1711,6 +1736,7 @@ export type ProductCreateWithoutAlternativesInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -1757,6 +1783,7 @@ export type ProductUncheckedCreateWithoutAlternativesInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -1854,6 +1881,7 @@ export type ProductCreateWithoutMonthlyProductRankingInput = {
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -1900,6 +1928,7 @@ export type ProductUncheckedCreateWithoutMonthlyProductRankingInput = {
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -1962,6 +1991,7 @@ export type ProductUpdateWithoutMonthlyProductRankingInput = {
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -2008,6 +2038,211 @@ export type ProductUncheckedUpdateWithoutMonthlyProductRankingInput = {
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
+  rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
+  redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
+  featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
+  alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
+  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
+  claimAttempts?: Prisma.ProductClaimAttemptUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutLeaderboardScoresInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline: string
+  description: string
+  websiteUrl: string
+  logo: string
+  planAssignedAt?: Date | string | null
+  type: $Enums.ProductType
+  pricingModel: $Enums.PricingModel
+  status?: $Enums.ProductStatus
+  publishedAt?: Date | string | null
+  startingPriceCents?: number | null
+  currencyCode?: string | null
+  ctaLabel?: string | null
+  ctaUrl?: string | null
+  bannerImage?: string | null
+  keywords?: Prisma.ProductCreatekeywordsInput | string[]
+  platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutProductsInput
+  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
+  plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
+  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
+  metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
+  analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
+  verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
+  insightProfile?: Prisma.ProductInsightProfileCreateNestedOneWithoutProductInput
+  ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
+  ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
+  ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
+  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
+  ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
+  placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
+  clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
+  trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
+  MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
+  redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
+  featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
+  alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
+  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
+  claimAttempts?: Prisma.ProductClaimAttemptCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutLeaderboardScoresInput = {
+  id?: string
+  name: string
+  slug: string
+  tagline: string
+  description: string
+  websiteUrl: string
+  logo: string
+  userId: string
+  categoryId: string
+  planId?: string | null
+  planAssignedAt?: Date | string | null
+  type: $Enums.ProductType
+  pricingModel: $Enums.PricingModel
+  status?: $Enums.ProductStatus
+  publishedAt?: Date | string | null
+  organizationId?: string | null
+  startingPriceCents?: number | null
+  currencyCode?: string | null
+  ctaLabel?: string | null
+  ctaUrl?: string | null
+  bannerImage?: string | null
+  keywords?: Prisma.ProductCreatekeywordsInput | string[]
+  platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
+  analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
+  verification?: Prisma.ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+  insightProfile?: Prisma.ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
+  ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
+  ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
+  ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
+  ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
+  placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
+  clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
+  trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+  MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
+  redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
+  featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
+  alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
+  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
+  claimAttempts?: Prisma.ProductClaimAttemptUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutLeaderboardScoresInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutLeaderboardScoresInput, Prisma.ProductUncheckedCreateWithoutLeaderboardScoresInput>
+}
+
+export type ProductUpsertWithoutLeaderboardScoresInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutLeaderboardScoresInput, Prisma.ProductUncheckedUpdateWithoutLeaderboardScoresInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutLeaderboardScoresInput, Prisma.ProductUncheckedCreateWithoutLeaderboardScoresInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutLeaderboardScoresInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutLeaderboardScoresInput, Prisma.ProductUncheckedUpdateWithoutLeaderboardScoresInput>
+}
+
+export type ProductUpdateWithoutLeaderboardScoresInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.StringFieldUpdateOperationsInput | string
+  planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
+  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keywords?: Prisma.ProductUpdatekeywordsInput | string[]
+  platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
+  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
+  plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
+  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
+  metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
+  analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
+  verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
+  insightProfile?: Prisma.ProductInsightProfileUpdateOneWithoutProductNestedInput
+  ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
+  ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
+  ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
+  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
+  ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
+  placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
+  clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
+  trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
+  MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
+  redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
+  featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
+  alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
+  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
+  claimAttempts?: Prisma.ProductClaimAttemptUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutLeaderboardScoresInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
+  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keywords?: Prisma.ProductUpdatekeywordsInput | string[]
+  platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
+  analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
+  verification?: Prisma.ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+  insightProfile?: Prisma.ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
+  ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
+  ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
+  ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
+  ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
+  placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
+  clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
+  trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+  MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -2054,6 +2289,7 @@ export type ProductCreateWithoutProductMediaInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -2100,6 +2336,7 @@ export type ProductUncheckedCreateWithoutProductMediaInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -2162,6 +2399,7 @@ export type ProductUpdateWithoutProductMediaInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -2208,6 +2446,7 @@ export type ProductUncheckedUpdateWithoutProductMediaInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -2254,6 +2493,7 @@ export type ProductCreateWithoutProductUpdateInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -2300,6 +2540,7 @@ export type ProductUncheckedCreateWithoutProductUpdateInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -2362,6 +2603,7 @@ export type ProductUpdateWithoutProductUpdateInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -2408,6 +2650,7 @@ export type ProductUncheckedUpdateWithoutProductUpdateInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -2454,6 +2697,7 @@ export type ProductCreateWithoutVerificationInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -2500,6 +2744,7 @@ export type ProductUncheckedCreateWithoutVerificationInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -2562,6 +2807,7 @@ export type ProductUpdateWithoutVerificationInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -2608,6 +2854,7 @@ export type ProductUncheckedUpdateWithoutVerificationInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -2655,6 +2902,7 @@ export type ProductCreateWithoutClaimAttemptsInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -2701,6 +2949,7 @@ export type ProductUncheckedCreateWithoutClaimAttemptsInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -2763,6 +3012,7 @@ export type ProductUpdateWithoutClaimAttemptsInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -2809,6 +3059,7 @@ export type ProductUncheckedUpdateWithoutClaimAttemptsInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -2854,6 +3105,7 @@ export type ProductCreateWithoutMetadataInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -2900,6 +3152,7 @@ export type ProductUncheckedCreateWithoutMetadataInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -2962,6 +3215,7 @@ export type ProductUpdateWithoutMetadataInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -3008,6 +3262,7 @@ export type ProductUncheckedUpdateWithoutMetadataInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -3054,6 +3309,7 @@ export type ProductCreateWithoutAnalyticsInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -3100,6 +3356,7 @@ export type ProductUncheckedCreateWithoutAnalyticsInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -3162,6 +3419,7 @@ export type ProductUpdateWithoutAnalyticsInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -3208,6 +3466,7 @@ export type ProductUncheckedUpdateWithoutAnalyticsInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -3254,6 +3513,7 @@ export type ProductCreateWithoutClickEventsInput = {
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -3300,6 +3560,7 @@ export type ProductUncheckedCreateWithoutClickEventsInput = {
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -3362,6 +3623,7 @@ export type ProductUpdateWithoutClickEventsInput = {
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -3408,6 +3670,7 @@ export type ProductUncheckedUpdateWithoutClickEventsInput = {
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -3454,6 +3717,7 @@ export type ProductCreateWithoutTrafficEventsInput = {
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -3500,6 +3764,7 @@ export type ProductUncheckedCreateWithoutTrafficEventsInput = {
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -3562,6 +3827,7 @@ export type ProductUpdateWithoutTrafficEventsInput = {
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -3608,6 +3874,7 @@ export type ProductUncheckedUpdateWithoutTrafficEventsInput = {
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -3654,6 +3921,7 @@ export type ProductCreateWithoutInsightProfileInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -3700,6 +3968,7 @@ export type ProductUncheckedCreateWithoutInsightProfileInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -3762,6 +4031,7 @@ export type ProductUpdateWithoutInsightProfileInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -3808,6 +4078,7 @@ export type ProductUncheckedUpdateWithoutInsightProfileInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -3854,6 +4125,7 @@ export type ProductCreateWithoutProductUpvoteInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -3900,6 +4172,7 @@ export type ProductUncheckedCreateWithoutProductUpvoteInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -3962,6 +4235,7 @@ export type ProductUpdateWithoutProductUpvoteInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -4008,6 +4282,7 @@ export type ProductUncheckedUpdateWithoutProductUpvoteInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -4054,6 +4329,7 @@ export type ProductCreateWithoutOrganizationInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -4100,6 +4376,7 @@ export type ProductUncheckedCreateWithoutOrganizationInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -4172,6 +4449,7 @@ export type ProductCreateWithoutUserInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -4218,6 +4496,7 @@ export type ProductUncheckedCreateWithoutUserInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -4290,6 +4569,7 @@ export type ProductCreateWithoutProductReviewInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -4336,6 +4616,7 @@ export type ProductUncheckedCreateWithoutProductReviewInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -4398,6 +4679,7 @@ export type ProductUpdateWithoutProductReviewInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -4444,6 +4726,7 @@ export type ProductUncheckedUpdateWithoutProductReviewInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -4490,6 +4773,7 @@ export type ProductCreateWithoutCategoryInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -4536,6 +4820,7 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -4608,6 +4893,7 @@ export type ProductCreateWithoutPlanInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -4654,6 +4940,7 @@ export type ProductUncheckedCreateWithoutPlanInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -4726,6 +5013,7 @@ export type ProductCreateWithoutProductBadgeInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -4772,6 +5060,7 @@ export type ProductUncheckedCreateWithoutProductBadgeInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -4834,6 +5123,7 @@ export type ProductUpdateWithoutProductBadgeInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -4880,6 +5170,7 @@ export type ProductUncheckedUpdateWithoutProductBadgeInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -4927,6 +5218,7 @@ export type ProductCreateWithoutRewardTransactionsInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
@@ -4973,6 +5265,7 @@ export type ProductUncheckedCreateWithoutRewardTransactionsInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
@@ -5035,6 +5328,7 @@ export type ProductUpdateWithoutRewardTransactionsInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
@@ -5081,6 +5375,7 @@ export type ProductUncheckedUpdateWithoutRewardTransactionsInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
@@ -5127,6 +5422,7 @@ export type ProductCreateWithoutRedemptionsInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
@@ -5173,6 +5469,7 @@ export type ProductUncheckedCreateWithoutRedemptionsInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
@@ -5235,6 +5532,7 @@ export type ProductUpdateWithoutRedemptionsInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
@@ -5281,6 +5579,7 @@ export type ProductUncheckedUpdateWithoutRedemptionsInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
@@ -5327,6 +5626,7 @@ export type ProductCreateWithoutFeatureEntitlementsInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
@@ -5373,6 +5673,7 @@ export type ProductUncheckedCreateWithoutFeatureEntitlementsInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
@@ -5435,6 +5736,7 @@ export type ProductUpdateWithoutFeatureEntitlementsInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
@@ -5481,6 +5783,7 @@ export type ProductUncheckedUpdateWithoutFeatureEntitlementsInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
@@ -5526,6 +5829,7 @@ export type ProductCreateWithoutPlacementSchedulesInput = {
   clickEvents?: Prisma.ProductClickEventCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
@@ -5572,6 +5876,7 @@ export type ProductUncheckedCreateWithoutPlacementSchedulesInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
@@ -5634,6 +5939,7 @@ export type ProductUpdateWithoutPlacementSchedulesInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -5680,6 +5986,7 @@ export type ProductUncheckedUpdateWithoutPlacementSchedulesInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -5727,6 +6034,7 @@ export type ProductUpdateWithoutAlternativesInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -5773,6 +6081,7 @@ export type ProductUncheckedUpdateWithoutAlternativesInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -5873,6 +6182,7 @@ export type ProductUpdateWithoutOrganizationInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -5919,6 +6229,7 @@ export type ProductUncheckedUpdateWithoutOrganizationInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -6019,6 +6330,7 @@ export type ProductUpdateWithoutUserInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -6065,6 +6377,7 @@ export type ProductUncheckedUpdateWithoutUserInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -6165,6 +6478,7 @@ export type ProductUpdateWithoutCategoryInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -6211,6 +6525,7 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -6311,6 +6626,7 @@ export type ProductUpdateWithoutPlanInput = {
   clickEvents?: Prisma.ProductClickEventUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
@@ -6357,6 +6673,7 @@ export type ProductUncheckedUpdateWithoutPlanInput = {
   clickEvents?: Prisma.ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   MonthlyProductRanking?: Prisma.MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
@@ -6407,6 +6724,7 @@ export type ProductCountOutputType = {
   clickEvents: number
   trafficEvents: number
   MonthlyProductRanking: number
+  leaderboardScores: number
   rewardTransactions: number
   redemptions: number
   featureEntitlements: number
@@ -6424,6 +6742,7 @@ export type ProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   clickEvents?: boolean | ProductCountOutputTypeCountClickEventsArgs
   trafficEvents?: boolean | ProductCountOutputTypeCountTrafficEventsArgs
   MonthlyProductRanking?: boolean | ProductCountOutputTypeCountMonthlyProductRankingArgs
+  leaderboardScores?: boolean | ProductCountOutputTypeCountLeaderboardScoresArgs
   rewardTransactions?: boolean | ProductCountOutputTypeCountRewardTransactionsArgs
   redemptions?: boolean | ProductCountOutputTypeCountRedemptionsArgs
   featureEntitlements?: boolean | ProductCountOutputTypeCountFeatureEntitlementsArgs
@@ -6507,6 +6826,13 @@ export type ProductCountOutputTypeCountMonthlyProductRankingArgs<ExtArgs extends
 /**
  * ProductCountOutputType without action
  */
+export type ProductCountOutputTypeCountLeaderboardScoresArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductLeaderboardScoreWhereInput
+}
+
+/**
+ * ProductCountOutputType without action
+ */
 export type ProductCountOutputTypeCountRewardTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.RewardTransactionWhereInput
 }
@@ -6583,6 +6909,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   clickEvents?: boolean | Prisma.Product$clickEventsArgs<ExtArgs>
   trafficEvents?: boolean | Prisma.Product$trafficEventsArgs<ExtArgs>
   MonthlyProductRanking?: boolean | Prisma.Product$MonthlyProductRankingArgs<ExtArgs>
+  leaderboardScores?: boolean | Prisma.Product$leaderboardScoresArgs<ExtArgs>
   rewardTransactions?: boolean | Prisma.Product$rewardTransactionsArgs<ExtArgs>
   redemptions?: boolean | Prisma.Product$redemptionsArgs<ExtArgs>
   featureEntitlements?: boolean | Prisma.Product$featureEntitlementsArgs<ExtArgs>
@@ -6703,6 +7030,7 @@ export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   clickEvents?: boolean | Prisma.Product$clickEventsArgs<ExtArgs>
   trafficEvents?: boolean | Prisma.Product$trafficEventsArgs<ExtArgs>
   MonthlyProductRanking?: boolean | Prisma.Product$MonthlyProductRankingArgs<ExtArgs>
+  leaderboardScores?: boolean | Prisma.Product$leaderboardScoresArgs<ExtArgs>
   rewardTransactions?: boolean | Prisma.Product$rewardTransactionsArgs<ExtArgs>
   redemptions?: boolean | Prisma.Product$redemptionsArgs<ExtArgs>
   featureEntitlements?: boolean | Prisma.Product$featureEntitlementsArgs<ExtArgs>
@@ -6744,6 +7072,7 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     clickEvents: Prisma.$ProductClickEventPayload<ExtArgs>[]
     trafficEvents: Prisma.$ProductTrafficEventPayload<ExtArgs>[]
     MonthlyProductRanking: Prisma.$MonthlyProductRankingPayload<ExtArgs>[]
+    leaderboardScores: Prisma.$ProductLeaderboardScorePayload<ExtArgs>[]
     rewardTransactions: Prisma.$RewardTransactionPayload<ExtArgs>[]
     redemptions: Prisma.$RedemptionPayload<ExtArgs>[]
     featureEntitlements: Prisma.$FeatureEntitlementPayload<ExtArgs>[]
@@ -7188,6 +7517,7 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
   clickEvents<T extends Prisma.Product$clickEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$clickEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   trafficEvents<T extends Prisma.Product$trafficEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$trafficEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   MonthlyProductRanking<T extends Prisma.Product$MonthlyProductRankingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$MonthlyProductRankingArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MonthlyProductRankingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  leaderboardScores<T extends Prisma.Product$leaderboardScoresArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$leaderboardScoresArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductLeaderboardScorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   rewardTransactions<T extends Prisma.Product$rewardTransactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$rewardTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   redemptions<T extends Prisma.Product$redemptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$redemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   featureEntitlements<T extends Prisma.Product$featureEntitlementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$featureEntitlementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeatureEntitlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7971,6 +8301,30 @@ export type Product$MonthlyProductRankingArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   distinct?: Prisma.MonthlyProductRankingScalarFieldEnum | Prisma.MonthlyProductRankingScalarFieldEnum[]
+}
+
+/**
+ * Product.leaderboardScores
+ */
+export type Product$leaderboardScoresArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductLeaderboardScore
+   */
+  select?: Prisma.ProductLeaderboardScoreSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductLeaderboardScore
+   */
+  omit?: Prisma.ProductLeaderboardScoreOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductLeaderboardScoreInclude<ExtArgs> | null
+  where?: Prisma.ProductLeaderboardScoreWhereInput
+  orderBy?: Prisma.ProductLeaderboardScoreOrderByWithRelationInput | Prisma.ProductLeaderboardScoreOrderByWithRelationInput[]
+  cursor?: Prisma.ProductLeaderboardScoreWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductLeaderboardScoreScalarFieldEnum | Prisma.ProductLeaderboardScoreScalarFieldEnum[]
 }
 
 /**

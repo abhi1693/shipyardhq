@@ -49,7 +49,13 @@ export async function LeaderboardPageContent({
   const now = new Date()
   const leaderboardItems: LeaderboardListItem[] = products.map((product) => {
     const base = mapProductCardRecordToBase(product, now)
-    return { ...base, badges: base.badges ?? undefined }
+    const score = (product as any).scoreCount ?? null
+    return {
+      ...base,
+      badges: base.badges ?? undefined,
+      voteCount: undefined,
+      scoreCount: typeof score === "number" ? score : undefined,
+    }
   })
 
   const totalCount = products.length

@@ -4,6 +4,7 @@ import {
   registerEventHandler,
   type ProductClickMetadata,
 } from "@/lib/server/events"
+import { refreshLeaderboardForProducts } from "@/lib/server/leaderboard/v2"
 import type { DeviceCategory } from "@/types/analytics"
 
 // Register listeners related to product click analytics.
@@ -51,6 +52,16 @@ registerEventHandler({
           select: { productId: true },
         }),
       ])
+
+      void refreshLeaderboardForProducts({
+        productIds: [productId],
+        now: createData.createdAt ?? new Date(),
+      }).catch((error) => {
+        console.error("[leaderboard] click refresh failed", {
+          productId,
+          error,
+        })
+      })
       console.debug("[analytics] product.clicked handler completed", {
         productId,
       })

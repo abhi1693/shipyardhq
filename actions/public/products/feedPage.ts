@@ -17,6 +17,7 @@ import { getTopRankedProducts } from "@/actions/public/leaderboard/actions"
 import { getPlatformMeta } from "@/lib/platforms/config"
 import { productTypeValueFromSlug } from "@/lib/product-types/models"
 import { pricingModelValueFromSlug } from "@/lib/pricing/models"
+import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 
 export type ProductFeedPageRequest =
   | {
@@ -134,9 +135,13 @@ export async function getProductFeedPage(
       }
 
       const now = new Date()
+      const scoreMap = await getCurrentScoreMap(records.map((r) => r.id))
       const pager = createStaticProductPager(records, {
         pageSize,
-        mapItem: (record) => mapProductCardRecordToBase(record, now),
+        mapItem: (record) =>
+          mapProductCardRecordToBase(record, now, {
+            scoreByProductId: scoreMap,
+          }),
       })
 
       const { items, hasMore } = await pager.loadPage(page)

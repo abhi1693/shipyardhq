@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "prisma:migrate:reset": "prisma migrate reset --force",
-    "prisma:deploy": "prisma migrate deploy",
+    "prisma:deploy": "prisma migrate deploy && tsx scripts/migrate-legacy-leaderboard.ts",
     "prisma:generate": "prisma generate",
     "prisma:seed": "tsx prisma/seed.ts",
     "prisma:seed:categories": "tsx prisma/seed.categories.ts",

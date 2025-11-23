@@ -20,11 +20,9 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import { Button } from "@/components/atoms/button"
-import { Image } from "@/components/atoms/image"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -330,7 +328,6 @@ export function ProductRevenueChart({
 
     if (revenueDisplay) {
       const badgePaddingX = 12
-      const badgePaddingY = 8
       const badgeText = `${revenueDisplay} · verified`
       ctx.font = "600 14px 'Inter','Helvetica Neue',Arial,sans-serif"
       const textMetrics = ctx.measureText(badgeText)
@@ -451,7 +448,14 @@ export function ProductRevenueChart({
     return new Promise<Blob | null>((resolve) => {
       canvas.toBlob((blob) => resolve(blob), "image/png")
     })
-  }, [chartData, hasData, selectedGradient.end, selectedGradient.start])
+  }, [
+    chartData,
+    hasData,
+    previewTitle,
+    revenueDisplay,
+    selectedGradient.end,
+    selectedGradient.start,
+  ])
 
   const handleDownload = useCallback(async () => {
     if (isExporting) return
@@ -671,6 +675,7 @@ export function ProductRevenueChart({
                       <p className="text-base font-semibold text-slate-900">
                         <span className="inline-flex flex-wrap items-center gap-2">
                           {productLogoUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={productLogoUrl}
                               alt={`${productName ?? "Product"} logo`}
@@ -704,6 +709,7 @@ export function ProductRevenueChart({
                     />
                   </div>
                   <div className="flex items-center justify-center gap-1.5 text-white">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/brand-white.png"
                       alt={siteConfig.name}

@@ -66,14 +66,6 @@ const FALLBACK_TAGLINE =
 function mapProductCardItemToFeedItem(
   product: ProductCardItem,
 ): HomepageFeedItem {
-  const resolveVoteCount = () => {
-    if (typeof product.voteCount === "number") return product.voteCount
-    if (typeof product.analytics?.upvotes === "number") {
-      return product.analytics.upvotes ?? 0
-    }
-    return 0
-  }
-
   const resolveCategoryName = () => {
     if (typeof product.categoryName !== "undefined") {
       return product.categoryName ?? null
@@ -111,7 +103,8 @@ function mapProductCardItemToFeedItem(
     badges: product.badges ?? [],
     category: resolveCategoryName(),
     categorySlug: resolveCategorySlug(),
-    voteCount: resolveVoteCount(),
+    scoreCount:
+      typeof product.scoreCount === "number" ? product.scoreCount : undefined,
     updatesCount: product.updatesCount,
     isSponsored,
     isVoted: Boolean(product.isVoted),

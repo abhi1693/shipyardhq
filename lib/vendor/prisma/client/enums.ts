@@ -39,6 +39,15 @@ export const PaymentCredentialStatus = {
 export type PaymentCredentialStatus = (typeof PaymentCredentialStatus)[keyof typeof PaymentCredentialStatus]
 
 
+export const LeaderboardRunStatus = {
+  pending: 'pending',
+  processing: 'processing',
+  finalized: 'finalized'
+} as const
+
+export type LeaderboardRunStatus = (typeof LeaderboardRunStatus)[keyof typeof LeaderboardRunStatus]
+
+
 export const ProductType = {
   saas: 'saas',
   browser_extension: 'browser_extension',

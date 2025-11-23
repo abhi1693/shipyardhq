@@ -13,6 +13,7 @@ import {
   productCardSelect,
   type ProductCardRecord,
 } from "@/lib/products/selects"
+import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 
 export interface VerifiedRevenuePageResult {
   items: ProductCardBase[]
@@ -62,9 +63,14 @@ export async function getVerifiedRevenueProductsPage(
   ])
 
   const now = new Date()
+  const scoreMap = await getCurrentScoreMap(
+    products.map((p: ProductCardRecord) => p.id),
+  )
   const mappedProducts: ProductCardBase[] = (
     products as ProductCardRecord[]
-  ).map((product) => mapProductCardRecordToBase(product, now))
+  ).map((product) =>
+    mapProductCardRecordToBase(product, now, { scoreByProductId: scoreMap }),
+  )
   const hasMore = skip + mappedProducts.length < total
 
   return {

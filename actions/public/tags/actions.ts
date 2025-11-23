@@ -8,6 +8,7 @@ import {
   type ProductCardRecord,
 } from "@/lib/products/selects"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 
 const TAG_LIST_LIMIT = 200
 export const TAG_PRODUCTS_PAGE_SIZE = 24
@@ -292,6 +293,7 @@ export const getKeywordTagProducts = cached(
       where: { id: { in: productIds } },
       select: productCardSelect,
     })
+    const scoreMap = await getCurrentScoreMap(productIds)
 
     const productMap = new Map(
       products.map((product: ProductCardRecord) => [product.id, product]),
@@ -309,7 +311,9 @@ export const getKeywordTagProducts = cached(
     return {
       summary,
       products: orderedProducts.map((product: ProductCardRecord) =>
-        mapProductCardRecordToBase(product),
+        mapProductCardRecordToBase(product, new Date(), {
+          scoreByProductId: scoreMap,
+        }),
       ),
       total,
       hasMore,

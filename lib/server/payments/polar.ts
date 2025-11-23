@@ -63,15 +63,6 @@ async function listPolarOrders(apiKey: string, organizationId: string) {
   )
 }
 
-async function listPolarSubscriptions(apiKey: string, organizationId: string) {
-  return fetchPolarCollection(
-    apiKey,
-    `/v1/subscriptions/?sorting=created_at&status=active&organization_id=${encodeURIComponent(
-      organizationId,
-    )}`,
-  )
-}
-
 function startOfUtcDay(date: Date): Date {
   return new Date(
     Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
@@ -161,10 +152,9 @@ export const polarProvider: PaymentProviderDefinition = {
       throw new Error("Polar organization ID is required for sync")
     }
 
-    const [orgs, orders, subscriptions] = await Promise.all([
+    const [orgs, orders] = await Promise.all([
       listPolarOrganizations(apiKey),
       listPolarOrders(apiKey, orgId).catch(() => []),
-      listPolarSubscriptions(apiKey, orgId).catch(() => []),
     ])
 
     const orgIds = orgs

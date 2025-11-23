@@ -12,7 +12,6 @@ import {
 } from "@/lib/vendor/prisma/client"
 import { PRICING_PATH } from "@/lib/routes"
 import type { PrismaClient } from "@/lib/vendor/prisma/client"
-import { loadEnvConfig } from "@next/env"
 import {
   addDays,
   addHours,

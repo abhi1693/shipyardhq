@@ -342,6 +342,23 @@ export type IntWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedIntFilter<$PrismaModel>
 }
 
+export type EnumLeaderboardRunStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.LeaderboardRunStatus | Prisma.EnumLeaderboardRunStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.LeaderboardRunStatus[] | Prisma.ListEnumLeaderboardRunStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.LeaderboardRunStatus[] | Prisma.ListEnumLeaderboardRunStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumLeaderboardRunStatusFilter<$PrismaModel> | $Enums.LeaderboardRunStatus
+}
+
+export type EnumLeaderboardRunStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LeaderboardRunStatus | Prisma.EnumLeaderboardRunStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.LeaderboardRunStatus[] | Prisma.ListEnumLeaderboardRunStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.LeaderboardRunStatus[] | Prisma.ListEnumLeaderboardRunStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumLeaderboardRunStatusWithAggregatesFilter<$PrismaModel> | $Enums.LeaderboardRunStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLeaderboardRunStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLeaderboardRunStatusFilter<$PrismaModel>
+}
+
 export type EnumNotificationTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.NotificationType | Prisma.EnumNotificationTypeFieldRefInput<$PrismaModel>
   in?: $Enums.NotificationType[] | Prisma.ListEnumNotificationTypeFieldRefInput<$PrismaModel>
@@ -1068,6 +1085,23 @@ export type NestedFloatFilter<$PrismaModel = never> = {
   gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   not?: Prisma.NestedFloatFilter<$PrismaModel> | number
+}
+
+export type NestedEnumLeaderboardRunStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.LeaderboardRunStatus | Prisma.EnumLeaderboardRunStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.LeaderboardRunStatus[] | Prisma.ListEnumLeaderboardRunStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.LeaderboardRunStatus[] | Prisma.ListEnumLeaderboardRunStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumLeaderboardRunStatusFilter<$PrismaModel> | $Enums.LeaderboardRunStatus
+}
+
+export type NestedEnumLeaderboardRunStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LeaderboardRunStatus | Prisma.EnumLeaderboardRunStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.LeaderboardRunStatus[] | Prisma.ListEnumLeaderboardRunStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.LeaderboardRunStatus[] | Prisma.ListEnumLeaderboardRunStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumLeaderboardRunStatusWithAggregatesFilter<$PrismaModel> | $Enums.LeaderboardRunStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLeaderboardRunStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLeaderboardRunStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumNotificationTypeFilter<$PrismaModel = never> = {

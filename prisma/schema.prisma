@@ -58,6 +58,7 @@ model Product {
   clickEvents           ProductClickEvent[]
   trafficEvents         ProductTrafficEvent[]
   MonthlyProductRanking MonthlyProductRanking[]
+  leaderboardScores     ProductLeaderboardScore[]
   rewardTransactions    RewardTransaction[]
   redemptions           Redemption[]
   featureEntitlements   FeatureEntitlement[]
@@ -183,6 +184,54 @@ model MonthlyProductRanking {
   @@unique([month, rank])
   @@index([productId, month])
   @@index([month])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+enum LeaderboardRunStatus {
+  pending
+  processing
+  finalized
+}
+
+model LeaderboardRun {
+  id           String               @id @default(cuid())
+  periodStart  DateTime
+  periodEnd    DateTime
+  status       LeaderboardRunStatus @default(pending)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  scores ProductLeaderboardScore[]
+
+  @@unique([periodStart, periodEnd])
+  @@index([status])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model ProductLeaderboardScore {
+  id                String   @id @default(cuid())
+  runId             String
+  productId         String
+  views             Int      @default(0)
+  uniqueVisitors    Int      @default(0)
+  clicks            Int      @default(0)
+  upvotes           Int      @default(0)
+  reviewsCount      Int      @default(0)
+  reviewsRatingSum  Int      @default(0)
+  score             Int      @default(0)
+  scoreComponents   Json?
+  rank              Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  run     LeaderboardRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  product Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([runId, productId])
+  @@index([runId, rank])
+  @@index([runId, score])
   @@index([createdAt])
   @@index([updatedAt])
 }

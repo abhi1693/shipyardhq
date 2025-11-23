@@ -11,7 +11,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/atoms/tooltip"
-import { VoteCount } from "@/components/molecules/VoteCount"
+import { ProductScore } from "@/components/molecules/ProductScore"
 import { ProductClickLink } from "@/components/molecules/ProductClickLink"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { cn } from "@/lib/utils"
@@ -160,10 +160,11 @@ export function ProductFeedCard({
   })
   const hasBadges = resolvedBadges.length > 0
 
-  const voteCount =
-    typeof item.voteCount === "number" && Number.isFinite(item.voteCount)
-      ? item.voteCount
-      : 0
+  const scoreCount =
+    typeof item.scoreCount === "number" && Number.isFinite(item.scoreCount)
+      ? item.scoreCount
+      : null
+  const scoreLabel = "points"
   const cardContent = (
     <article className="flex flex-1 flex-col gap-4">
       <div className="flex w-full flex-wrap items-start gap-4">
@@ -208,12 +209,11 @@ export function ProductFeedCard({
             <span className="hidden sm:inline-flex">{revenueBadge}</span>
           ) : null}
           {meta ? <span className="shrink-0">{meta}</span> : null}
-          <VoteCount
-            count={voteCount}
-            title={`${voteCount} upvotes`}
+          <ProductScore
+            count={scoreCount ?? 0}
+            label={scoreLabel}
             compact
             className="border-border/50 bg-background px-3 py-1.5 text-xs shadow-none transition-colors"
-            active={Boolean(item.isVoted)}
           />
         </div>
       </div>

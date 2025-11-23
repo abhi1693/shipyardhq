@@ -20,10 +20,10 @@ export type ProductCardBase = {
   updatedAt?: string | Date | null
   latestRevenueCents?: number | null
   revenueCurrencyCode?: string | null
+  scoreCount?: number
 }
 
 export type ProductCardItem = ProductCardBase & {
-  voteCount?: number
   isVoted?: boolean
   updatesCount?: number
   categoryName?: string | null
@@ -37,14 +37,6 @@ export type ProductCardItem = ProductCardBase & {
 
 const FALLBACK_TAGLINE =
   "Discover launch-ready tools from indie makers worldwide."
-
-const resolveUpvotes = (product: ProductCardItem) => {
-  if (typeof product.voteCount === "number") return product.voteCount
-  if (typeof product.analytics?.upvotes === "number") {
-    return product.analytics.upvotes
-  }
-  return 0
-}
 
 const resolveCategoryName = (product: ProductCardItem) =>
   typeof product.categoryName !== "undefined"
@@ -66,7 +58,7 @@ function toFeedItem(product: ProductCardItem): HomepageFeedItem {
     badges: product.badges ?? [],
     category: categoryName,
     categorySlug: product.categorySlug ?? null,
-    voteCount: resolveUpvotes(product),
+    scoreCount: product.scoreCount,
     updatesCount: product.updatesCount,
     isSponsored,
     isVoted: Boolean(product.isVoted),

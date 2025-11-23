@@ -45,10 +45,7 @@ import {
 } from "@/components/atoms/select"
 import { Label } from "@/components/atoms/label"
 import { adminPath, productPath } from "@/lib/routes"
-import {
-  PaymentConnectorProvider,
-  PaymentConnectorProvider as PaymentConnectorProviderEnum,
-} from "@/lib/vendor/prisma/client/enums"
+import { PaymentConnectorProvider } from "@/lib/vendor/prisma/client/enums"
 import { PaymentConnectorCard } from "@/app/(member)/member/products/shared/PaymentConnectorCard"
 
 function ConnectorFields({

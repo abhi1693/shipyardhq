@@ -48,6 +48,16 @@ export type AlternativeProduct = Prisma.AlternativeProductModel
  */
 export type MonthlyProductRanking = Prisma.MonthlyProductRankingModel
 /**
+ * Model LeaderboardRun
+ * 
+ */
+export type LeaderboardRun = Prisma.LeaderboardRunModel
+/**
+ * Model ProductLeaderboardScore
+ * 
+ */
+export type ProductLeaderboardScore = Prisma.ProductLeaderboardScoreModel
+/**
  * Model MonthlyLeaderboardNotification
  * 
  */
