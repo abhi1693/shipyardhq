@@ -48,8 +48,6 @@ export type RevenueSummary = {
   points: RevenuePoint[]
 }
 
-const REVENUE_CACHE_TTL_SECONDS = 24 * 60 * 60 // 1 day
-
 const isObject = (
   value: Prisma.JsonValue | null | undefined,
 ): value is Prisma.JsonObject =>
@@ -213,7 +211,6 @@ export async function cacheRevenueSummary(
   await cacheMiss({
     key: buildRevenueCacheKey(summary.productId),
     value: summary,
-    ttlSeconds: REVENUE_CACHE_TTL_SECONDS,
     inProcessTtlMs: 5 * 60 * 1000,
   }).catch(() => null)
 }
