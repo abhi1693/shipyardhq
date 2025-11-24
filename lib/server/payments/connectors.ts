@@ -6,8 +6,10 @@ import {
   PaymentConnectorProvider,
   PaymentConnectorStatus,
   PaymentCredentialStatus,
+  type PaymentConnector,
   type PaymentConnectorCredential,
 } from "@/lib/vendor/prisma/client"
+import { sendPaymentConnectorSyncErrorEmail } from "@/lib/server/email/paymentConnectorSyncError"
 import { awardRewardsSafely, getProductOwnerId } from "@/lib/server/rewards/helpers"
 import {
   buildConnectorKeyHint,
@@ -20,6 +22,40 @@ import { type PaymentConnectorConfig, type RevenueSnapshotInput } from "./types"
 import { buildRevenueSummary, cacheRevenueSummary } from "./revenue"
 
 const PAYMENT_CONNECTOR_REWARD_RULE_KEY = "rewards.payment.connector"
+
+async function notifySyncErrorOnce(
+  connector: PaymentConnector,
+  message: string,
+) {
+  if (connector.status === PaymentConnectorStatus.error) return
+
+  try {
+    await sendPaymentConnectorSyncErrorEmail({
+      productId: connector.productId,
+      errorMessage: message,
+    })
+  } catch (notifyError) {
+    console.error("[payments.connector.sync] error notification failed", {
+      connectorId: connector.id,
+      error:
+        notifyError instanceof Error ? notifyError.message : String(notifyError),
+    })
+  }
+}
+
+async function markConnectorSyncError(
+  connector: PaymentConnector,
+  message: string,
+): Promise<{ error: string }> {
+  await prisma.paymentConnector.update({
+    where: { id: connector.id },
+    data: { status: PaymentConnectorStatus.error, lastSyncError: message },
+  })
+
+  await notifySyncErrorOnce(connector, message)
+
+  return { error: message }
+}
 
 export async function validateConnectorApiKey({
   provider,
@@ -234,26 +270,18 @@ export async function syncPaymentConnector(connectorId: string) {
 
   const credential = await getActiveCredential(connector.id)
   if (!credential) {
-    await prisma.paymentConnector.update({
-      where: { id: connector.id },
-      data: {
-        status: PaymentConnectorStatus.error,
-        lastSyncError: "No active credential configured",
-      },
-    })
-    return { error: "No active credential configured" }
+    return markConnectorSyncError(
+      connector,
+      "No active credential configured",
+    )
   }
 
   const providerDefinition = getProviderDefinition(connector.provider)
   if (!providerDefinition?.sync) {
-    await prisma.paymentConnector.update({
-      where: { id: connector.id },
-      data: {
-        status: PaymentConnectorStatus.error,
-        lastSyncError: `Provider ${connector.provider} is not supported yet`,
-      },
-    })
-    return { error: `Provider ${connector.provider} is not supported yet` }
+    return markConnectorSyncError(
+      connector,
+      `Provider ${connector.provider} is not supported yet`,
+    )
   }
 
   let apiKey: string
@@ -264,11 +292,7 @@ export async function syncPaymentConnector(connectorId: string) {
       error instanceof Error
         ? error.message
         : "Unable to decrypt connector secret"
-    await prisma.paymentConnector.update({
-      where: { id: connector.id },
-      data: { status: PaymentConnectorStatus.error, lastSyncError: message },
-    })
-    return { error: message }
+    return markConnectorSyncError(connector, message)
   }
 
   try {
@@ -413,11 +437,7 @@ export async function syncPaymentConnector(connectorId: string) {
       provider: connector.provider,
       error: message,
     })
-    await prisma.paymentConnector.update({
-      where: { id: connector.id },
-      data: { status: PaymentConnectorStatus.error, lastSyncError: message },
-    })
-    return { error: message }
+    return markConnectorSyncError(connector, message)
   }
 }
 
