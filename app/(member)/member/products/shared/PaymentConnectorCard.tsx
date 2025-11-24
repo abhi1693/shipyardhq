@@ -54,6 +54,7 @@ type Props = {
 }
 
 const PROVIDER_OPTIONS: { value: PaymentConnectorProvider; label: string }[] = [
+  { value: PaymentConnectorProviderEnum.abacatepay, label: "AbacatePay" },
   { value: PaymentConnectorProviderEnum.dodo, label: "DodoPayments" },
   { value: PaymentConnectorProviderEnum.paddle, label: "Paddle" },
   { value: PaymentConnectorProviderEnum.polar, label: "Polar" },
@@ -108,6 +109,8 @@ export function PaymentConnectorCard({
   const apiKeyPlaceholder =
     selectedProvider === PaymentConnectorProviderEnum.stripe
       ? `${stripePrefix} restricted key`
+      : selectedProvider === PaymentConnectorProviderEnum.abacatepay
+        ? "mrr_... AbacatePay revenue token"
       : selectedProvider === PaymentConnectorProviderEnum.revenuecat
         ? "RevenueCat secret API key"
         : selectedProvider === PaymentConnectorProviderEnum.polar
@@ -243,6 +246,11 @@ export function PaymentConnectorCard({
             Use a Stripe restricted key starting with{" "}
             <span className="font-mono">{stripePrefix}</span> for this
             environment.
+          </p>
+        ) : selectedProvider === PaymentConnectorProviderEnum.abacatepay ? (
+          <p className="text-xs text-muted-foreground">
+            Use the read-only token from AbacatePay Apps starting with{" "}
+            <span className="font-mono">mrr_</span>.
           </p>
         ) : selectedProvider === PaymentConnectorProviderEnum.revenuecat ? (
           <p className="text-xs text-muted-foreground">

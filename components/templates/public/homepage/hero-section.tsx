@@ -10,6 +10,7 @@ const SUPPORTED_PROVIDERS = [
   { name: "Dodo", logoSrc: "/providers/dodo.jpeg" },
   { name: "RevenueCat", logoSrc: "/providers/revenuecat.png" },
   { name: "Lemon Squeezy", logoSrc: "/providers/lemon.jpeg" },
+  { name: "AbacatePay", logoSrc: "/providers/abacatepay.jpeg" },
 ] as const
 
 export async function HeroSection() {

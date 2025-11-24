@@ -11,6 +11,7 @@
 
 export const PaymentConnectorProvider = {
   dodo: 'dodo',
+  abacatepay: 'abacatepay',
   polar: 'polar',
   stripe: 'stripe',
   lemonsqueezy: 'lemonsqueezy',

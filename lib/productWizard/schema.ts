@@ -67,6 +67,7 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       connectorProvider: z
         .enum([
           "dodo",
+          "abacatepay",
           "polar",
           "revenuecat",
           "stripe",
@@ -202,6 +203,17 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
             path: ["connectorAccountId"],
             code: z.ZodIssueCode.custom,
             message: "Polar organization ID is required",
+          })
+        }
+      }
+
+      if (val.connectorProvider === "abacatepay") {
+        const key = val.connectorApiKey?.trim() ?? ""
+        if (key && !key.startsWith("mrr_")) {
+          ctx.addIssue({
+            path: ["connectorApiKey"],
+            code: z.ZodIssueCode.custom,
+            message: "AbacatePay tokens must start with mrr_",
           })
         }
       }

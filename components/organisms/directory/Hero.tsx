@@ -177,7 +177,7 @@ export function Hero({
               {providers.map((provider) => (
                 <li
                   key={provider.name}
-                  className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-md"
+                  className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-white"
                 >
                   {provider.logoSrc ? (
                     <SquareImage
