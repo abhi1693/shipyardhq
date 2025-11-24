@@ -34,7 +34,6 @@ import {
   revalidateAlternativeProducts,
 } from "@/lib/cache/revalidate"
 import {
-  syncPaymentConnector,
   validateConnectorApiKey,
   upsertPaymentConnector,
 } from "@/lib/server/payments/connectors"
@@ -389,7 +388,11 @@ export async function createProductAction(formData: FormData) {
           apiKey: connectorApiKey,
           config: connectorConfig,
         })
-        await syncPaymentConnector(connector.id)
+        dispatchEventAsync(
+          APP_EVENTS.PAYMENTS_CONNECTOR_SYNC,
+          { connectorId: connector.id },
+          { context: { productId: created.id, connectorId: connector.id } },
+        )
       }
     }
     // Fire domain event for listeners (e.g., auto badges) without blocking the response
@@ -783,7 +786,11 @@ export async function updateProductAction(
           apiKey: connectorApiKey,
           config: connectorConfig,
         })
-        await syncPaymentConnector(connector.id)
+        dispatchEventAsync(
+          APP_EVENTS.PAYMENTS_CONNECTOR_SYNC,
+          { connectorId: connector.id },
+          { context: { productId: id, connectorId: connector.id } },
+        )
       } else if (
         (connectorAccountId !== undefined || connectorBrandId !== undefined) &&
         existingConnector?.id
@@ -804,7 +811,11 @@ export async function updateProductAction(
             config: nextConfig as Prisma.JsonValue,
           },
         })
-        await syncPaymentConnector(existingConnector.id)
+        dispatchEventAsync(
+          APP_EVENTS.PAYMENTS_CONNECTOR_SYNC,
+          { connectorId: existingConnector.id },
+          { context: { productId: id, connectorId: existingConnector.id } },
+        )
       }
     }
 

@@ -13,7 +13,6 @@ import {
   ProductStatus,
 } from "@/lib/vendor/prisma/client"
 import {
-  syncPaymentConnector,
   validateConnectorApiKey,
   upsertPaymentConnector,
 } from "@/lib/server/payments/connectors"
@@ -25,6 +24,8 @@ import {
 import { hasPlanFeature } from "@/lib/features"
 import { memberProductPath } from "@/lib/routes"
 import type { PaymentConnectorConfig } from "@/lib/server/payments/types"
+import { dispatchEventAsync } from "@/lib/server/events"
+import { APP_EVENTS } from "@/lib/server/events/constants"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -596,7 +597,16 @@ export async function saveProductConnectorAction(input: {
             }
           : undefined,
     })
-    await syncPaymentConnector(result.connector.id)
+    dispatchEventAsync(
+      APP_EVENTS.PAYMENTS_CONNECTOR_SYNC,
+      { connectorId: result.connector.id },
+      {
+        context: {
+          productId: input.productId,
+          connectorId: result.connector.id,
+        },
+      },
+    )
     const summary = await getProductConnectorSummary(input.productId)
     return { ok: true, connectorId: result.connector.id, connector: summary }
   } catch (e: any) {
