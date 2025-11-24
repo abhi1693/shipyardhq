@@ -576,6 +576,7 @@ export async function saveProductConnectorAction(input: {
 
   try {
     await validateConnectorApiKey({
+      productId: input.productId,
       provider,
       apiKey,
       config:

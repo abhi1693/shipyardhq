@@ -23,24 +23,34 @@ import { buildRevenueSummary, cacheRevenueSummary } from "./revenue"
 
 const PAYMENT_CONNECTOR_REWARD_RULE_KEY = "rewards.payment.connector"
 
-async function notifySyncErrorOnce(
-  connector: PaymentConnector,
-  message: string,
-) {
-  if (connector.status === PaymentConnectorStatus.error) return
-
+async function sendConnectorErrorEmail(params: {
+  productId: string
+  errorMessage: string
+}) {
   try {
-    await sendPaymentConnectorSyncErrorEmail({
-      productId: connector.productId,
-      errorMessage: message,
-    })
+    await sendPaymentConnectorSyncErrorEmail(params)
   } catch (notifyError) {
-    console.error("[payments.connector.sync] error notification failed", {
-      connectorId: connector.id,
+    console.error("[payments.connector.error] notification failed", {
+      productId: params.productId,
       error:
         notifyError instanceof Error ? notifyError.message : String(notifyError),
     })
   }
+}
+
+async function notifySyncErrorOnce(
+  connector: PaymentConnector,
+  message: string,
+) {
+  const alreadyNotified =
+    connector.status === PaymentConnectorStatus.error &&
+    (connector.lastSyncError ?? undefined) === message
+  if (alreadyNotified) return
+
+  await sendConnectorErrorEmail({
+    productId: connector.productId,
+    errorMessage: message,
+  })
 }
 
 async function markConnectorSyncError(
@@ -58,10 +68,12 @@ async function markConnectorSyncError(
 }
 
 export async function validateConnectorApiKey({
+  productId,
   provider,
   apiKey,
   config,
 }: {
+  productId?: string
   provider: PaymentConnectorProvider
   apiKey: string
   config?: PaymentConnectorConfig
@@ -69,7 +81,21 @@ export async function validateConnectorApiKey({
   const providerDefinition = getProviderDefinition(provider)
   if (!providerDefinition?.validateApiKey) return
 
-  await providerDefinition.validateApiKey({ apiKey, config })
+  try {
+    await providerDefinition.validateApiKey({ apiKey, config })
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Payment connector validation failed"
+    if (productId) {
+      await sendConnectorErrorEmail({
+        productId,
+        errorMessage: message,
+      })
+    }
+    throw error
+  }
 }
 
 async function getActiveCredential(

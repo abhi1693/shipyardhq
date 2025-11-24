@@ -372,6 +372,7 @@ export async function createProductAction(formData: FormData) {
           return { error: "Brand ID is required for Dodo" }
         }
         await validateConnectorApiKey({
+          productId: created.id,
           provider: providerEnum as PaymentConnectorProvider,
           apiKey: connectorApiKey,
           config: connectorConfig,
@@ -754,6 +755,7 @@ export async function updateProductAction(
               }
             : undefined
         await validateConnectorApiKey({
+          productId: id,
           provider: providerEnum as PaymentConnectorProvider,
           apiKey: connectorApiKey,
           config: connectorConfig,
