@@ -73,7 +73,6 @@ import {
 import { siteConfig } from "@/lib/siteConfig"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import { addUtmParams } from "@/lib/marketing/utm"
-import prisma from "@/lib/prisma"
 import { hasPlanFeature } from "@/lib/features"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { buildPageMetadata } from "@/lib/metadata"
@@ -96,22 +95,7 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>
 }
 
-export const revalidate = 60
-
-export async function generateStaticParams() {
-  const slugs = await prisma.product.findMany({
-    where: { status: "published" },
-    select: { slug: true },
-    orderBy: { updatedAt: "desc" },
-  })
-
-  return slugs
-    .map((entry: (typeof slugs)[number]) => entry.slug?.trim())
-    .filter((value: string | undefined | null): value is string =>
-      Boolean(value),
-    )
-    .map((slug: string) => ({ slug }))
-}
+export const revalidate = 300
 
 export async function generateMetadata(
   props: ProductPageProps,

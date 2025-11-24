@@ -30,14 +30,12 @@ import {
 import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { buildPageMetadata } from "@/lib/metadata"
-import { getTagDetailPayload, getTagStaticParams } from "@/lib/tags/page-cache"
+import { getTagDetailPayload } from "@/lib/tags/page-cache"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { toProductCardItem } from "@/lib/products/card-item"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
 
-export const dynamic = "force-static"
-export const revalidate = 300
-export const generateStaticParams = getTagStaticParams
+export const revalidate = 3600
 
 export async function generateMetadata({
   params,
