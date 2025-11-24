@@ -7,11 +7,20 @@ import {
 } from "@/lib/server/payments/currency"
 
 type ParsedArgs = {
-  slug: string
+  slug?: string
+  showHelp?: boolean
   databaseUrl?: string
   startDate?: string
   endDate?: string
   sort?: "asc" | "desc"
+}
+
+type RevenueSnapshot = {
+  currencyCode: string
+  periodStart: Date
+  periodRevenueCents: number | null
+  allTimeRevenueCents: number | null
+  createdAt: Date
 }
 
 function parseArgs(): ParsedArgs {
@@ -217,7 +226,7 @@ async function main() {
     }
 
     const { paymentConnector } = product
-    const { revenueHistory } = paymentConnector
+    const revenueHistory: RevenueSnapshot[] = paymentConnector.revenueHistory
 
     const filteredHistory = revenueHistory.filter((snapshot) => {
       const ts = snapshot.periodStart.getTime()
