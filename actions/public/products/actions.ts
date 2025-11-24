@@ -321,20 +321,16 @@ export async function hasUserUpvoted(productId: string, clerkId: string) {
 
 export async function getPublicProductRevenue(
   productId: string,
-  options?: { limit?: number },
 ) {
   const cached = await getCachedRevenueSummary(productId)
   if (!cached) return null
 
-  const limitedPoints = options?.limit
-    ? cached.points.slice(Math.max(cached.points.length - options.limit, 0))
-    : cached.points
   return {
     currencyCode: cached.currencyCode,
     lastSyncedAt: cached.lastSyncedAt,
     status: cached.status,
     provider: cached.provider,
     latestAllTimeRevenueCents: cached.latestAllTimeRevenueCents,
-    points: limitedPoints,
+    points: cached.points,
   }
 }

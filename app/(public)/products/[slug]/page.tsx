@@ -246,7 +246,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     getProductReviewSummary(product.id, 1),
     product.pricingModel === "free"
       ? Promise.resolve(null)
-      : getPublicProductRevenue(product.id, { limit: 24 }),
+      : getPublicProductRevenue(product.id),
   ])
   if (!sidebarProduct) return notFound()
 
