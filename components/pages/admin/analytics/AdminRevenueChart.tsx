@@ -51,26 +51,46 @@ export function AdminRevenueChart({
   return (
     <div className="h-72 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+        <AreaChart
+          data={chartData}
+          margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+        >
           <defs>
             <linearGradient id="adminRevenueFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="hsl(221, 83%, 53%)" stopOpacity={0.28} />
-              <stop offset="95%" stopColor="hsl(221, 83%, 53%)" stopOpacity={0.04} />
+              <stop
+                offset="5%"
+                stopColor="hsl(221, 83%, 53%)"
+                stopOpacity={0.28}
+              />
+              <stop
+                offset="95%"
+                stopColor="hsl(221, 83%, 53%)"
+                stopOpacity={0.04}
+              />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 13%, 90%)" vertical={false} />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="hsl(220, 13%, 90%)"
+            vertical={false}
+          />
           <XAxis
             dataKey="label"
             tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
             interval="preserveStartEnd"
           />
           <YAxis
-            tickFormatter={(value) => formatCurrency(Number(value) * 100, currency)}
+            tickFormatter={(value) =>
+              formatCurrency(Number(value) * 100, currency)
+            }
             tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
             width={90}
           />
           <Tooltip
-            formatter={(value: any) => [formatCurrency(Number(value) * 100, currency), "Revenue"]}
+            formatter={(value: any) => [
+              formatCurrency(Number(value) * 100, currency),
+              "Revenue",
+            ]}
             labelFormatter={(label) => label}
             contentStyle={{
               borderRadius: 10,

@@ -357,18 +357,24 @@ export async function createProductAction(formData: FormData) {
       if (
         providerEnum === PaymentConnectorProvider.lemonsqueezy &&
         !connectorAccountId
-        ) {
-          return { error: "Lemon Squeezy store ID is required" }
-        }
+      ) {
+        return { error: "Lemon Squeezy store ID is required" }
+      }
       if (
         Object.values(PaymentConnectorProvider).includes(
           providerEnum as PaymentConnectorProvider,
         )
       ) {
-        if (connectorBrandId && providerEnum !== PaymentConnectorProvider.dodo) {
+        if (
+          connectorBrandId &&
+          providerEnum !== PaymentConnectorProvider.dodo
+        ) {
           return { error: "Brand ID is only supported for Dodo" }
         }
-        if (providerEnum === PaymentConnectorProvider.dodo && !connectorBrandId) {
+        if (
+          providerEnum === PaymentConnectorProvider.dodo &&
+          !connectorBrandId
+        ) {
           return { error: "Brand ID is required for Dodo" }
         }
         await validateConnectorApiKey({
@@ -677,7 +683,10 @@ export async function updateProductAction(
     })
 
     const connectorInputProvided =
-      connectorApiKey || data.connectorProvider || connectorAccountId || connectorBrandId
+      connectorApiKey ||
+      data.connectorProvider ||
+      connectorAccountId ||
+      connectorBrandId
     if (connectorInputProvided) {
       const existingConnector = await prisma.paymentConnector.findUnique({
         where: { productId: id },
@@ -741,16 +750,24 @@ export async function updateProductAction(
         ) {
           return { error: "Lemon Squeezy store ID is required" }
         }
-        if (providerEnum === PaymentConnectorProvider.dodo && !connectorBrandId) {
+        if (
+          providerEnum === PaymentConnectorProvider.dodo &&
+          !connectorBrandId
+        ) {
           return { error: "Brand ID is required for Dodo" }
         }
-        if (connectorBrandId && providerEnum !== PaymentConnectorProvider.dodo) {
+        if (
+          connectorBrandId &&
+          providerEnum !== PaymentConnectorProvider.dodo
+        ) {
           return { error: "Brand ID is only supported for Dodo" }
         }
         const connectorConfig =
           connectorAccountId || connectorBrandId
             ? {
-                ...(connectorAccountId ? { accountId: connectorAccountId } : {}),
+                ...(connectorAccountId
+                  ? { accountId: connectorAccountId }
+                  : {}),
                 ...(connectorBrandId ? { brandId: connectorBrandId } : {}),
               }
             : undefined
@@ -777,7 +794,9 @@ export async function updateProductAction(
           ...(connectorAccountId !== undefined
             ? { accountId: connectorAccountId }
             : {}),
-          ...(connectorBrandId !== undefined ? { brandId: connectorBrandId } : {}),
+          ...(connectorBrandId !== undefined
+            ? { brandId: connectorBrandId }
+            : {}),
         }
         await prisma.paymentConnector.update({
           where: { id: existingConnector.id },

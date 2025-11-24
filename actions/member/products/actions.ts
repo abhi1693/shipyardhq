@@ -463,7 +463,8 @@ export async function getProductConnectorSummary(productId: string) {
   const config = connector.config as PaymentConnectorConfig | null
   const accountId =
     typeof config?.accountId === "string" ? config.accountId : undefined
-  const brandId = typeof config?.brandId === "string" ? config.brandId : undefined
+  const brandId =
+    typeof config?.brandId === "string" ? config.brandId : undefined
   return { ...rest, keyHint, accountId, brandId }
 }
 
@@ -560,11 +561,7 @@ export async function saveProductConnectorAction(input: {
   if (provider === PaymentConnectorProvider.lemonsqueezy && !accountId) {
     return { error: "Lemon Squeezy store ID is required" }
   }
-  if (
-    brandId &&
-    !brandId.startsWith("brnd_") &&
-    !brandId.startsWith("bus_")
-  ) {
+  if (brandId && !brandId.startsWith("brnd_") && !brandId.startsWith("bus_")) {
     return { error: "Dodo brand IDs must start with brnd_ or bus_" }
   }
   if (brandId && provider !== PaymentConnectorProvider.dodo) {

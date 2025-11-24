@@ -28,8 +28,7 @@ import { HOME_PATH } from "@/lib/routes"
 
 export const revalidate = 60
 
-const HOMEPAGE_TITLE =
-  "Show your revenue and get a free backlink on Shipyard"
+const HOMEPAGE_TITLE = "Show your revenue and get a free backlink on Shipyard"
 
 export const metadata = buildPageMetadata({
   title: HOMEPAGE_TITLE,

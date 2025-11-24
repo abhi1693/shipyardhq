@@ -291,7 +291,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       ] ?? formatLabel(sidebarProduct.pricingModel))
     : null
   const isVerified = Boolean(
-    product.verification?.isVerified ?? sidebarProduct?.verification?.isVerified,
+    product.verification?.isVerified ??
+      sidebarProduct?.verification?.isVerified,
   )
   const pricingModelSlug = pricingModelSlugFromValue(
     sidebarProduct?.pricingModel,

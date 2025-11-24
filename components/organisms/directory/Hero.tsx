@@ -101,8 +101,9 @@ export function Hero({
           logoSrc && !logoSrc.startsWith("/") ? `/${logoSrc}` : logoSrc
         return { name, logoSrc: normalizedLogo }
       })
-      .filter((provider): provider is ProviderDescriptor => provider !== null) ??
-    []
+      .filter(
+        (provider): provider is ProviderDescriptor => provider !== null,
+      ) ?? []
   const renderAction = (action: HeaderActionConfig, index: number) => {
     const variant = action.variant ?? (index === 0 ? "default" : "outline")
     const baseClass =

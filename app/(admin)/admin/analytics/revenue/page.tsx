@@ -89,7 +89,9 @@ function TrendBadge({ delta }: { delta?: number }) {
   const tone = delta > 0 ? "text-emerald-600" : "text-rose-600"
 
   return (
-    <span className={cn("text-xs font-medium", tone)}>{formatPercent(delta)}</span>
+    <span className={cn("text-xs font-medium", tone)}>
+      {formatPercent(delta)}
+    </span>
   )
 }
 
@@ -144,9 +146,10 @@ export default async function RevenueAnalyticsPage({
     ? analytics.trend.reduce((sum, p) => sum + p.valueCents, 0) /
       analytics.trend.length
     : 0
-  const bestDay = analytics.trend.reduce<
-    { label: string; valueCents: number } | null
-  >((best, point) => {
+  const bestDay = analytics.trend.reduce<{
+    label: string
+    valueCents: number
+  } | null>((best, point) => {
     if (!best || point.valueCents > best.valueCents) return point
     return best
   }, null)
@@ -169,7 +172,8 @@ export default async function RevenueAnalyticsPage({
         <div className="space-y-1">
           <h1 className="text-xl font-semibold text-slate-900">Revenue</h1>
           <p className="text-sm text-muted-foreground">
-            Verified revenue across all connected providers. Aggregated and safe to share.
+            Verified revenue across all connected providers. Aggregated and safe
+            to share.
           </p>
         </div>
         <RangeSelector
@@ -185,12 +189,18 @@ export default async function RevenueAnalyticsPage({
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricTile
           title="Verified revenue"
-          value={formatCurrency(analytics.totals.allTimeCents, analytics.currency)}
+          value={formatCurrency(
+            analytics.totals.allTimeCents,
+            analytics.currency,
+          )}
           helper="All-time, converted to USD when rates are available"
         />
         <MetricTile
           title={`Revenue (${rangeLabel})`}
-          value={formatCurrency(analytics.totals.rangeCents, analytics.currency)}
+          value={formatCurrency(
+            analytics.totals.rangeCents,
+            analytics.currency,
+          )}
           delta={rangeKey === "all" ? undefined : rangeChange}
           helper={
             rangeKey === "all"
@@ -200,7 +210,10 @@ export default async function RevenueAnalyticsPage({
         />
         <MetricTile
           title="Latest day"
-          value={formatCurrency(analytics.totals.latestDayCents, analytics.currency)}
+          value={formatCurrency(
+            analytics.totals.latestDayCents,
+            analytics.currency,
+          )}
           helper="Most recent complete day"
         />
         <MetricTile
@@ -218,26 +231,35 @@ export default async function RevenueAnalyticsPage({
                 Revenue trend
               </CardTitle>
               <CardDescription>
-                Daily revenue totals in {analytics.currency} for the selected window.
+                Daily revenue totals in {analytics.currency} for the selected
+                window.
               </CardDescription>
             </div>
             {analytics.unconvertedConnectorIds.length > 0 ? (
               <span className="text-xs font-medium text-amber-700">
-                {analytics.unconvertedConnectorIds.length} connector(s) missing FX rates
+                {analytics.unconvertedConnectorIds.length} connector(s) missing
+                FX rates
               </span>
             ) : null}
           </div>
         </CardHeader>
         <CardContent>
-          <AdminRevenueChart points={analytics.trend} currency={analytics.currency} />
+          <AdminRevenueChart
+            points={analytics.trend}
+            currency={analytics.currency}
+          />
         </CardContent>
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-4">
         <Card className="border-slate-200/70 bg-white/90 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base text-slate-900">Provider share</CardTitle>
-            <CardDescription>Share of verified revenue by provider.</CardDescription>
+            <CardTitle className="text-base text-slate-900">
+              Provider share
+            </CardTitle>
+            <CardDescription>
+              Share of verified revenue by provider.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {providerRows.length === 0 ? (
@@ -247,7 +269,10 @@ export default async function RevenueAnalyticsPage({
             ) : (
               <ul className="space-y-3 text-sm">
                 {providerRows.map((row) => (
-                  <li key={row.provider} className="flex items-center justify-between gap-3">
+                  <li
+                    key={row.provider}
+                    className="flex items-center justify-between gap-3"
+                  >
                     <div className="space-y-1">
                       <div className="font-medium text-slate-900">
                         {providerLabels[row.provider] ?? row.provider}
@@ -268,8 +293,12 @@ export default async function RevenueAnalyticsPage({
 
         <Card className="border-slate-200/70 bg-white/90 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base text-slate-900">Top products</CardTitle>
-            <CardDescription>Highest verified revenue (range when available).</CardDescription>
+            <CardTitle className="text-base text-slate-900">
+              Top products
+            </CardTitle>
+            <CardDescription>
+              Highest verified revenue (range when available).
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {productRows.length === 0 ? (
@@ -303,8 +332,12 @@ export default async function RevenueAnalyticsPage({
 
         <Card className="border-slate-200/70 bg-white/90 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base text-slate-900">Range insights</CardTitle>
-            <CardDescription>Quick highlights tied to this revenue window.</CardDescription>
+            <CardTitle className="text-base text-slate-900">
+              Range insights
+            </CardTitle>
+            <CardDescription>
+              Quick highlights tied to this revenue window.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
             <div className="flex items-center justify-between text-slate-900">
@@ -340,12 +373,18 @@ export default async function RevenueAnalyticsPage({
 
         <Card className="border-slate-200/70 bg-white/90 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base text-slate-900">Time to milestones</CardTitle>
-            <CardDescription>Average days across connectors (USD-convertible).</CardDescription>
+            <CardTitle className="text-base text-slate-900">
+              Time to milestones
+            </CardTitle>
+            <CardDescription>
+              Average days across connectors (USD-convertible).
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
             {analytics.pace.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No pacing data yet.</p>
+              <p className="text-sm text-muted-foreground">
+                No pacing data yet.
+              </p>
             ) : (
               <ul className="space-y-2">
                 {analytics.pace.map((row) => (
@@ -355,7 +394,8 @@ export default async function RevenueAnalyticsPage({
                   >
                     <span className="font-medium">{row.label}</span>
                     <span className="text-right text-xs text-muted-foreground">
-                      {formatDays(row.avgDays)} {row.samples > 0 ? `· ${row.samples} samples` : ""}
+                      {formatDays(row.avgDays)}{" "}
+                      {row.samples > 0 ? `· ${row.samples} samples` : ""}
                     </span>
                   </li>
                 ))}

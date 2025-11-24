@@ -31,9 +31,6 @@ export async function HeroSection() {
 
 export function HeroSectionSkeleton() {
   return (
-    <HeroSkeleton
-      metricCount={0}
-      providerCount={SUPPORTED_PROVIDERS.length}
-    />
+    <HeroSkeleton metricCount={0} providerCount={SUPPORTED_PROVIDERS.length} />
   )
 }

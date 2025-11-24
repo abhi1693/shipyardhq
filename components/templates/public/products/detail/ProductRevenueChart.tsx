@@ -49,12 +49,7 @@ type RevenueSummary = {
 }
 
 type GradientOption = {
-  id:
-    | "deep-sea"
-    | "sunset"
-    | "emerald-mist"
-    | "twilight"
-    | "carbon-blue"
+  id: "deep-sea" | "sunset" | "emerald-mist" | "twilight" | "carbon-blue"
   label: string
   start: string
   end: string
@@ -193,16 +188,19 @@ export function ProductRevenueChart({
   const [isExporting, setIsExporting] = useState(false)
 
   const hasData = chartData.length > 0
-  const filename = `${(productName ?? "product")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "") || "product"}-revenue.png`
-  const previewTitle = productName ? `${productName} revenue` : "Product revenue"
+  const filename = `${
+    (productName ?? "product")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "") || "product"
+  }-revenue.png`
+  const previewTitle = productName
+    ? `${productName} revenue`
+    : "Product revenue"
   const previewRef = useRef<HTMLDivElement>(null)
   const chartGradientId = useId()
   const previewGradientId = useId()
-  const [gradientId, setGradientId] =
-    useState<GradientOption["id"]>("deep-sea")
+  const [gradientId, setGradientId] = useState<GradientOption["id"]>("deep-sea")
 
   const gradientOptions: GradientOption[] = [
     {
@@ -586,12 +584,13 @@ export function ProductRevenueChart({
     <section className="space-y-4 rounded-2xl border border-border bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-          <p className="text-lg font-semibold leading-tight">
-            {previewTitle}
-          </p>
+          <p className="text-lg font-semibold leading-tight">{previewTitle}</p>
           {revenueDisplay ? (
             <span className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground shadow-sm shadow-black/5">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
+              <span
+                className="h-2 w-2 rounded-full bg-emerald-500"
+                aria-hidden
+              />
               {revenueDisplay} total verified
             </span>
           ) : null}
@@ -626,11 +625,14 @@ export function ProductRevenueChart({
       <div className="flex items-center justify-between gap-3">
         {summary.lastSyncedAt ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <ShieldCheckIcon className="h-4 w-4 text-foreground/80" aria-hidden />
+            <ShieldCheckIcon
+              className="h-4 w-4 text-foreground/80"
+              aria-hidden
+            />
             <span>
               All revenue is verified through{" "}
-              <span className="font-semibold">{providerLabel}</span>{" "}
-              API keys. Last updated:{" "}
+              <span className="font-semibold">{providerLabel}</span> API keys.
+              Last updated:{" "}
               {new Date(summary.lastSyncedAt).toLocaleString(undefined, {
                 month: "short",
                 day: "numeric",
@@ -683,14 +685,20 @@ export function ProductRevenueChart({
                           ) : null}
                           <span>{previewTitle}</span>
                           <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">
-                            <ShieldCheckIcon className="h-3.5 w-3.5 text-emerald-500" aria-hidden />
+                            <ShieldCheckIcon
+                              className="h-3.5 w-3.5 text-emerald-500"
+                              aria-hidden
+                            />
                             <span>Verified via {providerLabel}</span>
                           </span>
                         </span>
                       </p>
                       {revenueDisplay ? (
                         <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-900">
-                          <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
+                          <span
+                            className="h-2 w-2 rounded-full bg-emerald-500"
+                            aria-hidden
+                          />
                           {revenueDisplay}
                           <span className="text-[11px] font-medium text-slate-500">
                             verified

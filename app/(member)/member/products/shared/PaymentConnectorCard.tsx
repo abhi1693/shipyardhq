@@ -111,15 +111,15 @@ export function PaymentConnectorCard({
       ? `${stripePrefix} restricted key`
       : selectedProvider === PaymentConnectorProviderEnum.abacatepay
         ? "mrr_... AbacatePay revenue token"
-      : selectedProvider === PaymentConnectorProviderEnum.revenuecat
-        ? "RevenueCat secret API key"
-        : selectedProvider === PaymentConnectorProviderEnum.polar
-          ? "polar_oat_... organization access token"
-          : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
-            ? "Lemon Squeezy API key from Settings -> API"
-            : selectedProvider === PaymentConnectorProviderEnum.paddle
-              ? "Paddle API key from Developer Tools"
-              : "Enter API secret key"
+        : selectedProvider === PaymentConnectorProviderEnum.revenuecat
+          ? "RevenueCat secret API key"
+          : selectedProvider === PaymentConnectorProviderEnum.polar
+            ? "polar_oat_... organization access token"
+            : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
+              ? "Lemon Squeezy API key from Settings -> API"
+              : selectedProvider === PaymentConnectorProviderEnum.paddle
+                ? "Paddle API key from Developer Tools"
+                : "Enter API secret key"
   const showStripeAccount =
     selectedProvider === PaymentConnectorProviderEnum.stripe
   const showDodoBrandId = selectedProvider === PaymentConnectorProviderEnum.dodo
@@ -144,7 +144,7 @@ export function PaymentConnectorCard({
         ? "Project ID (e.g. proj_abc123)"
         : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
           ? "Store ID (e.g. 123456)"
-      : "org_..."
+          : "org_..."
 
   const statusBadge = renderStatus(status)
 

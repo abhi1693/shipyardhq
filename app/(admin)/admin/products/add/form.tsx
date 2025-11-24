@@ -118,7 +118,9 @@ function ConnectorFields({
         accountId: (errors as any)?.connectorAccountId?.message as
           | string
           | undefined,
-        brandId: (errors as any)?.connectorBrandId?.message as string | undefined,
+        brandId: (errors as any)?.connectorBrandId?.message as
+          | string
+          | undefined,
       }}
     />
   )
