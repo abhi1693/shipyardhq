@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma"
 import { registerEventHandler } from "@/lib/server/events"
 import { enqueueProductInsightPipelineJob } from "@/lib/server/productInsights/pipelineQueue"
+import { evaluateInsightsPipelineAccess } from "@/lib/server/productInsights/access"
 import type { ProductInsightStageSetId } from "@/types/product-insights"
 
 const INITIAL_STAGE_SET: ProductInsightStageSetId = "default"
@@ -27,6 +28,20 @@ registerEventHandler({
 
       if (!product) return
       if (product.insightProfile?.lastRunAt) return
+
+      const access = await evaluateInsightsPipelineAccess({
+        productId: product.id,
+        userId: product.userId,
+        lastRunAt: product.insightProfile?.lastRunAt ?? null,
+      })
+      if (!access.ok) {
+        console.info("[productInsights:autoRun] initial pipeline skipped", {
+          productId: product.id,
+          productSlug: product.slug,
+          reason: access.reason,
+        })
+        return
+      }
 
       const enqueueResult = await enqueueProductInsightPipelineJob({
         productId: product.id,
