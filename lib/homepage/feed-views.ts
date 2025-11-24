@@ -1,7 +1,4 @@
-export const HOMEPAGE_FEED_VIEWS = [
-  "new",
-  "verified-revenue",
-] as const
+export const HOMEPAGE_FEED_VIEWS = ["new", "verified-revenue"] as const
 
 export type HomepageFeedView = (typeof HOMEPAGE_FEED_VIEWS)[number]
 

@@ -19,10 +19,7 @@ type RevenueSnapshotInput = {
 
 export type NormalizedRevenueSnapshot = Omit<
   RevenueSnapshotInput,
-  | "allTimeRevenueCents"
-  | "periodRevenueCents"
-  | "currencyCode"
-  | "data"
+  "allTimeRevenueCents" | "periodRevenueCents" | "currencyCode" | "data"
 > & {
   currencyCode: string | null
   allTimeRevenueCents: number | null

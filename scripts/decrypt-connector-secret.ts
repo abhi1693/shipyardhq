@@ -37,9 +37,8 @@ async function main() {
   )
 }
 
-main()
-  .catch((error) => {
-    const message = error instanceof Error ? error.message : String(error)
-    console.error(`[decrypt-connector-secret] ${message}`)
-    process.exitCode = 1
-  })
+main().catch((error) => {
+  const message = error instanceof Error ? error.message : String(error)
+  console.error(`[decrypt-connector-secret] ${message}`)
+  process.exitCode = 1
+})

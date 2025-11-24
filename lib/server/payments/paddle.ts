@@ -17,7 +17,14 @@ const SANDBOX_PADDLE_API_BASE = "https://sandbox-api.paddle.com"
 
 type PaddleListResponse<T> = {
   data?: T[]
-  meta?: { pagination?: { per_page?: number; page?: number; has_more?: boolean; total?: number } }
+  meta?: {
+    pagination?: {
+      per_page?: number
+      page?: number
+      has_more?: boolean
+      total?: number
+    }
+  }
 }
 
 function resolveEnvironment(): "live_mode" | "test_mode" {
@@ -27,9 +34,10 @@ function resolveEnvironment(): "live_mode" | "test_mode" {
 function getPaddleBaseUrl(environment: "live_mode" | "test_mode") {
   const override = process.env.PADDLE_API_BASE_URL?.trim()
   if (override) return override.replace(/\/+$/, "")
-  return (environment === "test_mode"
-    ? SANDBOX_PADDLE_API_BASE
-    : DEFAULT_PADDLE_API_BASE
+  return (
+    environment === "test_mode"
+      ? SANDBOX_PADDLE_API_BASE
+      : DEFAULT_PADDLE_API_BASE
   ).replace(/\/+$/, "")
 }
 
@@ -42,9 +50,7 @@ function ensurePaddleKeyMatchesEnvironment({
 }) {
   const trimmed = apiKey.trim()
   const expectedPrefix =
-    environment === "test_mode"
-      ? "pdl_sdbx_apikey_"
-      : "pdl_live_apikey_"
+    environment === "test_mode" ? "pdl_sdbx_apikey_" : "pdl_live_apikey_"
 
   if (!trimmed.startsWith(expectedPrefix)) {
     throw new Error(
@@ -376,12 +382,11 @@ export async function syncPaddleConnector({
         string,
         { periodRevenueCents: number; charges: number; periodStart: Date }
       >()
-    const bucket =
-      currencyMap.get(dayKey) || {
-        periodRevenueCents: 0,
-        charges: 0,
-        periodStart,
-      }
+    const bucket = currencyMap.get(dayKey) || {
+      periodRevenueCents: 0,
+      charges: 0,
+      periodStart,
+    }
 
     bucket.periodRevenueCents += amountCents
     bucket.charges += 1

@@ -102,7 +102,7 @@ export async function syncDodoConnector({
   for await (const payment of client.payments.list({
     status: "succeeded",
     page_size: 100,
-    brand_id: brandId
+    brand_id: brandId,
   } as any)) {
     const currency = (payment as any)?.currency as string | undefined
     const amount = Number((payment as any)?.total_amount ?? 0)

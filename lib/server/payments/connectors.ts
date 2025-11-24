@@ -10,7 +10,10 @@ import {
   type PaymentConnectorCredential,
 } from "@/lib/vendor/prisma/client"
 import { sendPaymentConnectorSyncErrorEmail } from "@/lib/server/email/paymentConnectorSyncError"
-import { awardRewardsSafely, getProductOwnerId } from "@/lib/server/rewards/helpers"
+import {
+  awardRewardsSafely,
+  getProductOwnerId,
+} from "@/lib/server/rewards/helpers"
 import {
   buildConnectorKeyHint,
   decryptConnectorSecret,
@@ -33,7 +36,9 @@ async function sendConnectorErrorEmail(params: {
     console.error("[payments.connector.error] notification failed", {
       productId: params.productId,
       error:
-        notifyError instanceof Error ? notifyError.message : String(notifyError),
+        notifyError instanceof Error
+          ? notifyError.message
+          : String(notifyError),
     })
   }
 }
@@ -296,10 +301,7 @@ export async function syncPaymentConnector(connectorId: string) {
 
   const credential = await getActiveCredential(connector.id)
   if (!credential) {
-    return markConnectorSyncError(
-      connector,
-      "No active credential configured",
-    )
+    return markConnectorSyncError(connector, "No active credential configured")
   }
 
   const providerDefinition = getProviderDefinition(connector.provider)
@@ -390,10 +392,9 @@ export async function syncPaymentConnector(connectorId: string) {
           primary?.currencyCode ??
           latestSnapshot?.currencyCode ??
           "USD",
-        latestPeriodStart:
-          latestPoint?.periodStart
-            ? new Date(latestPoint.periodStart)
-            : primary?.periodStart ?? latestSnapshot?.periodStart,
+        latestPeriodStart: latestPoint?.periodStart
+          ? new Date(latestPoint.periodStart)
+          : (primary?.periodStart ?? latestSnapshot?.periodStart),
       },
     })
     if (summary) {

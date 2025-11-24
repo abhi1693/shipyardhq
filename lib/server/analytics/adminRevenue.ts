@@ -58,7 +58,9 @@ export type AdminRevenueAnalytics = {
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 
 function startOfUtcDay(date: Date) {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  )
 }
 
 function addDays(date: Date, days: number) {
@@ -116,7 +118,10 @@ export async function getAdminRevenueAnalytics({
   })
 
   const connectorLookup = new Map<string, (typeof connectors)[number]>(
-    connectors.map((connector: (typeof connectors)[number]) => [connector.id, connector]),
+    connectors.map((connector: (typeof connectors)[number]) => [
+      connector.id,
+      connector,
+    ]),
   )
 
   const productLookup = new Map<
@@ -228,7 +233,7 @@ export async function getAdminRevenueAnalytics({
     .sort((a, b) => a.date.localeCompare(b.date))
 
   const latestDayCents = trend.length
-    ? trend[trend.length - 1]?.valueCents ?? 0
+    ? (trend[trend.length - 1]?.valueCents ?? 0)
     : 0
 
   const providerShare: AdminRevenueProviderShare[] = Array.from(
@@ -244,15 +249,17 @@ export async function getAdminRevenueAnalytics({
   // Prefer range-based product ordering if available, otherwise fall back to all-time totals.
   const topProducts: AdminRevenueTopProduct[] = (
     rangeProductTotals.size > 0
-      ? Array.from(rangeProductTotals.entries()).map(([productId, revenueCents]) => {
-          const product = productLookup.get(productId)
-          return {
-            productId,
-            name: product?.name ?? null,
-            slug: product?.slug ?? null,
-            revenueCents,
-          }
-        })
+      ? Array.from(rangeProductTotals.entries()).map(
+          ([productId, revenueCents]) => {
+            const product = productLookup.get(productId)
+            return {
+              productId,
+              name: product?.name ?? null,
+              slug: product?.slug ?? null,
+              revenueCents,
+            }
+          },
+        )
       : Array.from(topProductTotals.values())
   ).sort((a, b) => b.revenueCents - a.revenueCents)
 
@@ -271,7 +278,7 @@ export async function getAdminRevenueAnalytics({
     allTimeRevenueCents: number | null
   }
 
-  const allSnapshots = await prisma.paymentRevenueSnapshot.findMany({
+  const allSnapshots = (await prisma.paymentRevenueSnapshot.findMany({
     select: {
       connectorId: true,
       periodStart: true,
@@ -279,7 +286,7 @@ export async function getAdminRevenueAnalytics({
       allTimeRevenueCents: true,
     },
     orderBy: { periodStart: "asc" },
-  }) as SnapshotRow[]
+  })) as SnapshotRow[]
 
   type PaceAccumulator = {
     totalDays: number
@@ -336,12 +343,15 @@ export async function getAdminRevenueAnalytics({
     for (const threshold of paceThresholds) {
       const hitDate = reached.get(threshold.toCents)
       if (!hitDate) continue
-      const fromReachedDate = threshold.fromCents === 0
-        ? segmentStartDate
-        : reached.get(threshold.fromCents) ?? segmentStartDate
+      const fromReachedDate =
+        threshold.fromCents === 0
+          ? segmentStartDate
+          : (reached.get(threshold.fromCents) ?? segmentStartDate)
       const days = Math.max(
         0,
-        Math.round((hitDate.getTime() - fromReachedDate.getTime()) / MS_PER_DAY),
+        Math.round(
+          (hitDate.getTime() - fromReachedDate.getTime()) / MS_PER_DAY,
+        ),
       )
       const acc = paceMap.get(threshold.toCents)
       if (acc) {
@@ -377,9 +387,9 @@ export async function getAdminRevenueAnalytics({
       convertibleConnectors,
       withRevenue: connectorsWithRevenue,
       errors: connectors.filter(
-        (c: (typeof connectors)[number]) => c.status === PaymentConnectorStatus.error,
-      )
-        .length,
+        (c: (typeof connectors)[number]) =>
+          c.status === PaymentConnectorStatus.error,
+      ).length,
       lastSyncedAt: lastSyncedAt ? lastSyncedAt.toISOString() : null,
     },
     providerShare,

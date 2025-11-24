@@ -339,14 +339,14 @@ async function upsertProduct(
       isVerified:
         typeof def.isVerified === "boolean"
           ? def.isVerified
-          : def.verification?.isVerified ?? false,
+          : (def.verification?.isVerified ?? false),
     },
     update: {
       verificationTxt,
       isVerified:
         typeof def.isVerified === "boolean"
           ? def.isVerified
-          : def.verification?.isVerified ?? false,
+          : (def.verification?.isVerified ?? false),
     },
   })
 

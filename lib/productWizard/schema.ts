@@ -242,9 +242,7 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
 
       if (val.connectorProvider === "paddle" && val.connectorApiKey) {
         const key = val.connectorApiKey.trim()
-        const expectedPrefix = IS_PROD
-          ? "pdl_live_apikey_"
-          : "pdl_sdbx_apikey_"
+        const expectedPrefix = IS_PROD ? "pdl_live_apikey_" : "pdl_sdbx_apikey_"
         if (!key.startsWith(expectedPrefix)) {
           ctx.addIssue({
             path: ["connectorApiKey"],

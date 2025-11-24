@@ -1,4 +1,7 @@
-import { PaymentConnectorProvider, type Prisma } from "@/lib/vendor/prisma/client"
+import {
+  PaymentConnectorProvider,
+  type Prisma,
+} from "@/lib/vendor/prisma/client"
 
 import type { PaymentProviderDefinition, RevenueSnapshotInput } from "./types"
 
@@ -66,9 +69,7 @@ async function abacateRequest<T>(
   query?: Record<string, string | number | undefined>,
 ): Promise<T> {
   const baseUrl = resolveApiBase()
-  const url = new URL(
-    `${baseUrl}${path.startsWith("/") ? path : `/${path}`}`,
-  )
+  const url = new URL(`${baseUrl}${path.startsWith("/") ? path : `/${path}`}`)
   if (query) {
     Object.entries(query).forEach(([key, value]) => {
       if (value === undefined) return
@@ -135,11 +136,7 @@ export const abacatePayProvider: PaymentProviderDefinition = {
     }
     await fetchMerchantInfo(trimmed)
   },
-  async sync({
-    apiKey,
-    currencyAllTimeBase,
-    latestPeriodStartByCurrency,
-  }) {
+  async sync({ apiKey, currencyAllTimeBase, latestPeriodStartByCurrency }) {
     const token = apiKey.trim()
     if (!token) {
       throw new Error("AbacatePay API key is required for sync")
