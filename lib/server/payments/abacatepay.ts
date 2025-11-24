@@ -48,6 +48,12 @@ function startOfUtcDay(date: Date): Date {
   )
 }
 
+function addUtcDays(date: Date, days: number): Date {
+  const next = new Date(date)
+  next.setUTCDate(next.getUTCDate() + days)
+  return startOfUtcDay(next)
+}
+
 function parseDay(dateStr: string): Date | null {
   if (!dateStr || typeof dateStr !== "string") return null
   const parsed = new Date(`${dateStr}T00:00:00Z`)
@@ -149,10 +155,28 @@ export const abacatePayProvider: PaymentProviderDefinition = {
       latestPeriodStartByCurrency?.get(defaultCurrency.toLowerCase()) ||
       null
     const thresholdDay = threshold ? startOfUtcDay(new Date(threshold)) : null
-    const startDate = (thresholdDay ?? new Date("1970-01-01T00:00:00Z"))
-      .toISOString()
-      .slice(0, 10)
-    const endDate = today.toISOString().slice(0, 10)
+    const endDay = addUtcDays(today, -1) // only sync through yesterday to avoid future dates
+    let startDay = thresholdDay
+      ? addUtcDays(thresholdDay, 1) // fetch only missing days after the last snapshot
+      : new Date("1970-01-01T00:00:00Z")
+
+    // If we've already synced yesterday (or later), step the window back one more day.
+    if (thresholdDay && thresholdDay >= endDay) {
+      startDay = addUtcDays(endDay, -1)
+    }
+
+    // Defensive: ensure endDay is after startDay.
+    if (endDay <= startDay) {
+      startDay = addUtcDays(endDay, -1)
+    }
+
+    // If start is still after end, there is nothing new to pull.
+    if (startDay >= endDay) {
+      return { snapshots: [] }
+    }
+
+    const startDate = startDay.toISOString().slice(0, 10)
+    const endDate = endDay.toISOString().slice(0, 10)
 
     const [merchantInfo, revenue] = await Promise.all([
       fetchMerchantInfo(token).catch((error) => {
