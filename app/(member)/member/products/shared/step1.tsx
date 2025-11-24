@@ -35,12 +35,6 @@ type Props = {
   rightOfWebsite?: ReactNode
   enableAutofill?: boolean
   autofillNotice?: ReactNode
-  alternatives?: {
-    id: string
-    name: string
-    slug?: string | null
-    websiteUrl?: string | null
-  }[]
 }
 
 export default function Step1({
@@ -51,7 +45,6 @@ export default function Step1({
   rightOfWebsite,
   enableAutofill,
   autofillNotice,
-  alternatives = [],
 }: Props) {
   const form = useFormContext()
   const [autofilling, setAutofilling] = useState(false)
@@ -78,12 +71,6 @@ export default function Step1({
         body: JSON.stringify({
           url: currentUrl,
           categories: categories.map((c) => c.name),
-          alternatives: alternatives.map((alt) => ({
-            id: alt.id,
-            name: alt.name,
-            slug: alt.slug,
-            websiteUrl: alt.websiteUrl,
-          })),
         }),
       })
       const payload = await response.json()
@@ -228,13 +215,6 @@ export default function Step1({
 
     if (suggestion.contactEmail) {
       form.setValue("contactEmail", suggestion.contactEmail, {
-        shouldDirty: true,
-        shouldValidate: true,
-      })
-    }
-
-    if (suggestion.alternativeIds?.length) {
-      form.setValue("alternativeIds", suggestion.alternativeIds, {
         shouldDirty: true,
         shouldValidate: true,
       })
