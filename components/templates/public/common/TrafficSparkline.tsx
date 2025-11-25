@@ -39,6 +39,24 @@ export function TrafficSparkline({
   }>({ label: "", value: 0, x: 0, y: 0, visible: false })
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
+  const updateHover = (clientX: number, clientY: number, svgBounds: DOMRect) => {
+    if (points.length === 0) return
+    const relativeX = clientX - svgBounds.left
+    const nearest = Math.round(relativeX / step)
+    const clampedIndex = Math.max(0, Math.min(points.length - 1, nearest))
+    const point = points[clampedIndex]
+    const x = step * clampedIndex
+    const y = height - ((point.value - min) / range) * height
+    setHoveredIndex(clampedIndex)
+    setTooltip({
+      label: point.label,
+      value: point.value,
+      x,
+      y,
+      visible: true,
+    })
+  }
+
   return (
     <div className="relative">
       <svg
@@ -46,6 +64,10 @@ export function TrafficSparkline({
         role="presentation"
         aria-hidden="true"
         className="h-10 w-full text-blue-600"
+        onMouseLeave={() => {
+          setHoveredIndex(null)
+          setTooltip((prev) => ({ ...prev, visible: false }))
+        }}
       >
         <path
           d={`${d} L ${width} ${height} L 0 ${height} Z`}
@@ -56,49 +78,29 @@ export function TrafficSparkline({
         {points.map((point, index) => {
           const x = step * index
           const y = height - ((point.value - min) / range) * height
-          return (
-            <g key={`${point.label}-${index}`}>
-              <circle
-                cx={x}
-                cy={y}
-                r={10}
-                fill="transparent"
-                stroke="transparent"
-                strokeWidth={1}
-                onMouseEnter={(event) => {
-                  const bounds = (
-                    event.currentTarget as SVGCircleElement
-                  ).getBoundingClientRect()
-                  const parentBounds =
-                    event.currentTarget.ownerSVGElement?.getBoundingClientRect() ??
-                    bounds
-                  setTooltip({
-                    label: point.label,
-                    value: point.value,
-                    x: bounds.left - parentBounds.left + bounds.width / 2,
-                    y: bounds.top - parentBounds.top,
-                    visible: true,
-                  })
-                  setHoveredIndex(index)
-                }}
-                onMouseLeave={() => {
-                  setTooltip((prev) => ({ ...prev, visible: false }))
-                  setHoveredIndex(null)
-                }}
-              />
-              {hoveredIndex === index ? (
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={4}
-                  fill={color}
-                  stroke="white"
-                  strokeWidth={1}
-                />
-              ) : null}
-            </g>
-          )
+          return hoveredIndex === index ? (
+            <circle
+              key={`${point.label}-${index}`}
+              cx={x}
+              cy={y}
+              r={4}
+              fill={color}
+              stroke="white"
+              strokeWidth={1}
+            />
+          ) : null
         })}
+        <rect
+          x={0}
+          y={0}
+          width={width}
+          height={height}
+          fill="transparent"
+          onMouseMove={(event) => {
+            const bounds = event.currentTarget.getBoundingClientRect()
+            updateHover(event.clientX, event.clientY, bounds)
+          }}
+        />
       </svg>
       {tooltip.visible ? (
         <div
