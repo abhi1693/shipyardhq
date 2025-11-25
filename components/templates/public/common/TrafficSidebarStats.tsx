@@ -51,7 +51,7 @@ export async function TrafficSidebarStats({
     day: "numeric",
   })
   const series =
-    stats.trafficSeries?.map((row) => {
+    stats.trafficSeries?.map((row: { date: string; pageViews: number; visitors: number }) => {
       const date = new Date(row.date)
       return {
         label: formatter.format(date),
@@ -61,11 +61,17 @@ export async function TrafficSidebarStats({
     }) ?? []
   const viewsPoints =
     series.length > 0
-      ? series.map((row) => ({ label: row.label, value: row.pageViews }))
+      ? series.map((row: { label: string; pageViews: number }) => ({
+          label: row.label,
+          value: row.pageViews,
+        }))
       : [{ label: "Last 30d", value: stats.pageViews30 ?? 0 }]
   const visitorsPoints =
     series.length > 0
-      ? series.map((row) => ({ label: row.label, value: row.visitors }))
+      ? series.map((row: { label: string; visitors: number }) => ({
+          label: row.label,
+          value: row.visitors,
+        }))
       : [{ label: "Last 30d", value: stats.visitors30 ?? 0 }]
 
   return (

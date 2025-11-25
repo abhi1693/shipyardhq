@@ -62,7 +62,7 @@ export const getLeaderboardStats = cached(
       pageViews30: trafficAgg._sum.pageViews ?? 0,
       visitors30: trafficAgg._sum.visitors ?? 0,
       trafficSeries:
-        trafficSeries?.map((row) => ({
+        trafficSeries?.map((row: { date: Date; pageViews: number; visitors: number }) => ({
           date: row.date.toISOString(),
           pageViews: row.pageViews,
           visitors: row.visitors,

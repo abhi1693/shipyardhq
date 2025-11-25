@@ -207,7 +207,13 @@ export function Hero({
         {hasMetrics ? (
           <dl className="grid gap-4 border-t border-border/60 pt-6 text-center sm:grid-cols-2 xl:grid-cols-4">
             {metrics.map((metric) => {
-              const rawValue = stats[metric.key] ?? 0
+              const rawValue = stats[metric.key]
+              const numericValue =
+                typeof rawValue === "number"
+                  ? rawValue
+                  : Array.isArray(rawValue)
+                    ? rawValue.length
+                    : 0
               return (
                 <div
                   key={metric.key}
@@ -220,7 +226,7 @@ export function Hero({
                     {(
                       metric.formatter ??
                       ((value: number) => value.toLocaleString())
-                    )(rawValue)}
+                    )(numericValue)}
                   </dd>
                 </div>
               )

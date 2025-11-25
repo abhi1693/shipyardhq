@@ -239,7 +239,13 @@ export async function getRevenueSummaryFromDb(
   if (!connector) return null
 
   const history: RevenueSnapshotInput[] = connector.revenueHistory.map(
-    (snapshot) => ({
+    (snapshot: {
+      periodStart: Date
+      currencyCode: string
+      periodRevenueCents: number
+      allTimeRevenueCents: number
+      data: Prisma.JsonValue | null
+    }) => ({
       periodStart: snapshot.periodStart,
       currencyCode: snapshot.currencyCode,
       periodRevenueCents: snapshot.periodRevenueCents,
