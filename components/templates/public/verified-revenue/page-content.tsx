@@ -45,7 +45,7 @@ export async function VerifiedRevenuePageContent() {
               <Hero
                 stats={stats}
                 supportedProviders={[...SUPPORTED_PROVIDERS]}
-                title="The verified revenue leaderboard for startups."
+                title="The verified revenue leaderboard for startups"
                 primaryAction={null}
                 secondaryAction={null}
                 showDomainRatingBadge={false}
