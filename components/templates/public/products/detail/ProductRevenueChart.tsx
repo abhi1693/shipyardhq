@@ -110,8 +110,21 @@ export function ProductRevenueChart({
 }) {
   const currency = summary.currencyCode || "USD"
   const [range, setRange] = useState<
-    "24h" | "7d" | "1m" | "3m" | "6m" | "1y" | "all"
+    "24h" | "7d" | "1m" | "3m" | "6m" | "1y" | "year" | "all"
   >("1m")
+  const availableYears = useMemo(() => {
+    const years = Array.from(
+      new Set(
+        points
+          .map((point) => new Date(point.periodStart).getUTCFullYear())
+          .filter((year) => !Number.isNaN(year)),
+      ),
+    ).sort((a, b) => b - a)
+    return years
+  }, [points])
+  const [selectedYear, setSelectedYear] = useState<number | null>(
+    availableYears[0] ?? null,
+  )
   const [viewMode, setViewMode] = useState<"blocks" | "line">("blocks")
   const autoAdjustedRange = useRef(false)
   const dayFormatter = useMemo(
@@ -132,6 +145,15 @@ export function ProductRevenueChart({
   )
 
   useEffect(() => {
+    if (range === "year") {
+      const fallbackYear = availableYears[0] ?? null
+      if (!selectedYear || !availableYears.includes(selectedYear)) {
+        setSelectedYear(fallbackYear)
+      }
+    }
+  }, [availableYears, range, selectedYear])
+
+  useEffect(() => {
     if (autoAdjustedRange.current || range !== "1m") return
     const now = new Date()
     const cutoff = new Date(now)
@@ -140,50 +162,133 @@ export function ProductRevenueChart({
       (point) => new Date(point.periodStart) >= cutoff,
     )
     autoAdjustedRange.current = true
-    if (!hasRecentData) setRange("all")
-  }, [points, range])
+    if (!hasRecentData && availableYears.length) {
+      setRange("year")
+      setSelectedYear(availableYears[0] ?? null)
+    }
+  }, [availableYears, points, range])
+
+  useEffect(() => {
+    if (viewMode === "blocks" && range === "all") {
+      setRange(availableYears.length ? "year" : "1y")
+    }
+  }, [availableYears, range, viewMode])
 
   const filtered = useMemo(() => {
+    if (range === "year" && (!selectedYear || !availableYears.length)) {
+      return []
+    }
     let cutoff: Date | null = null
-    if (range !== "all") {
+    let filterYear: number | null = null
+    if (range === "year") {
+      filterYear = selectedYear
+    } else {
       const now = new Date()
-      cutoff = new Date(now)
-      if (range === "24h") cutoff.setDate(now.getDate() - 1)
-      if (range === "7d") cutoff.setDate(now.getDate() - 7)
-      if (range === "1m") cutoff.setMonth(now.getMonth() - 1)
-      if (range === "3m") cutoff.setMonth(now.getMonth() - 3)
-      if (range === "6m") cutoff.setMonth(now.getMonth() - 6)
-      if (range === "1y") cutoff.setFullYear(now.getFullYear() - 1)
+      switch (range) {
+        case "24h": {
+          cutoff = new Date(now)
+          cutoff.setDate(now.getDate() - 1)
+          break
+        }
+        case "7d": {
+          cutoff = new Date(now)
+          cutoff.setDate(now.getDate() - 7)
+          break
+        }
+        case "1m": {
+          cutoff = new Date(now)
+          cutoff.setMonth(now.getMonth() - 1)
+          break
+        }
+        case "3m": {
+          cutoff = new Date(now)
+          cutoff.setMonth(now.getMonth() - 3)
+          break
+        }
+        case "6m": {
+          cutoff = new Date(now)
+          cutoff.setMonth(now.getMonth() - 6)
+          break
+        }
+        case "1y": {
+          cutoff = new Date(now)
+          cutoff.setFullYear(now.getFullYear() - 1)
+          break
+        }
+        default:
+          cutoff = null
+      }
     }
     return points
-      .filter((p) => (cutoff ? new Date(p.periodStart) >= cutoff : true))
+      .filter((p) => {
+        const date = new Date(p.periodStart)
+        if (filterYear !== null) {
+          return date.getUTCFullYear() === filterYear
+        }
+        return cutoff ? date >= cutoff : true
+      })
       .map((point) => ({
         date: new Date(point.periodStart),
         label: point.label,
         revenue: point.periodRevenueCents / 100,
       }))
       .sort((a, b) => a.date.getTime() - b.date.getTime())
-  }, [points, range])
+  }, [availableYears, points, range, selectedYear])
 
   const rangeRevenueCents = useMemo(() => {
+    if (range === "year" && (!selectedYear || !availableYears.length)) {
+      return 0
+    }
     let cutoff: Date | null = null
-    if (range !== "all") {
+    let filterYear: number | null = null
+    if (range === "year") {
+      filterYear = selectedYear
+    } else {
       const now = new Date()
-      cutoff = new Date(now)
-      if (range === "24h") cutoff.setDate(now.getDate() - 1)
-      if (range === "7d") cutoff.setDate(now.getDate() - 7)
-      if (range === "1m") cutoff.setMonth(now.getMonth() - 1)
-      if (range === "3m") cutoff.setMonth(now.getMonth() - 3)
-      if (range === "6m") cutoff.setMonth(now.getMonth() - 6)
-      if (range === "1y") cutoff.setFullYear(now.getFullYear() - 1)
+      switch (range) {
+        case "24h": {
+          cutoff = new Date(now)
+          cutoff.setDate(now.getDate() - 1)
+          break
+        }
+        case "7d": {
+          cutoff = new Date(now)
+          cutoff.setDate(now.getDate() - 7)
+          break
+        }
+        case "1m": {
+          cutoff = new Date(now)
+          cutoff.setMonth(now.getMonth() - 1)
+          break
+        }
+        case "3m": {
+          cutoff = new Date(now)
+          cutoff.setMonth(now.getMonth() - 3)
+          break
+        }
+        case "6m": {
+          cutoff = new Date(now)
+          cutoff.setMonth(now.getMonth() - 6)
+          break
+        }
+        case "1y": {
+          cutoff = new Date(now)
+          cutoff.setFullYear(now.getFullYear() - 1)
+          break
+        }
+        default:
+          cutoff = null
+      }
     }
 
     return points
-      .filter((point) =>
-        cutoff ? new Date(point.periodStart) >= cutoff : true,
-      )
+      .filter((point) => {
+        const date = new Date(point.periodStart)
+        if (filterYear !== null) return date.getUTCFullYear() === filterYear
+        return cutoff ? date >= cutoff : true
+      })
       .reduce((total, point) => total + point.periodRevenueCents, 0)
-  }, [points, range])
+  }, [availableYears, points, range, selectedYear])
 
   const aggregated = useMemo(() => {
     const bucketKey = (d: Date) => {
@@ -203,6 +308,7 @@ export function ProductRevenueChart({
           return `w-${weekStart.toISOString().slice(0, 10)}`
         }
         case "1y":
+        case "year":
         case "all":
         default:
           return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`
@@ -816,7 +922,8 @@ export function ProductRevenueChart({
                       const date = new Date(label)
                       const isWeekly =
                         range === "1m" || range === "3m" || range === "6m"
-                      const isMonthly = range === "all" || range === "1y"
+                      const isMonthly =
+                        range === "year" || range === "1y" || range === "all"
 
                       if (isWeekly) {
                         const formatted = new Intl.DateTimeFormat("en-US", {
@@ -911,7 +1018,15 @@ export function ProductRevenueChart({
             value={range}
             onValueChange={(value) =>
               setRange(
-                value as "24h" | "7d" | "1m" | "3m" | "6m" | "1y" | "all",
+                value as
+                  | "24h"
+                  | "7d"
+                  | "1m"
+                  | "3m"
+                  | "6m"
+                  | "1y"
+                  | "year"
+                  | "all",
               )
             }
           >
@@ -925,9 +1040,34 @@ export function ProductRevenueChart({
               <SelectItem value="3m">Last 3 months</SelectItem>
               <SelectItem value="6m">Last 6 months</SelectItem>
               <SelectItem value="1y">Last 1 year</SelectItem>
-              <SelectItem value="all">All time</SelectItem>
+              <SelectItem value="year">By calendar year</SelectItem>
+              {viewMode === "line" ? (
+                <SelectItem value="all">All time</SelectItem>
+              ) : null}
             </SelectContent>
           </Select>
+          {range === "year" ? (
+            <Select
+              value={
+                selectedYear?.toString() ??
+                availableYears[0]?.toString?.() ??
+                ""
+              }
+              onValueChange={(value) => setSelectedYear(Number(value))}
+              disabled={!availableYears.length}
+            >
+              <SelectTrigger className="h-10 min-w-[130px] px-3 text-sm font-medium">
+                <SelectValue placeholder="Select year" />
+              </SelectTrigger>
+              <SelectContent className="w-[160px] text-sm">
+                {availableYears.map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : null}
         </div>
       </div>
 
