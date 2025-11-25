@@ -45,6 +45,10 @@ export async function registerEventHandlers(): Promise<void> {
       load: () => import("@/lib/server/analytics/productTraffic"),
     },
     {
+      path: "@/lib/server/analytics/pageTraffic",
+      load: () => import("@/lib/server/analytics/pageTraffic"),
+    },
+    {
       path: "@/lib/server/payments/listeners",
       load: () => import("@/lib/server/payments/listeners"),
     },

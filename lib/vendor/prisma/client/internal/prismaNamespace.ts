@@ -400,6 +400,7 @@ export const ModelName = {
   ProductAnalytics: 'ProductAnalytics',
   ProductClickEvent: 'ProductClickEvent',
   ProductTrafficEvent: 'ProductTrafficEvent',
+  PageTrafficDaily: 'PageTrafficDaily',
   ProductInsightProfile: 'ProductInsightProfile',
   ProductInsightStageResult: 'ProductInsightStageResult',
   ProductUpvote: 'ProductUpvote',
@@ -441,7 +442,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "notification" | "productMedia" | "productUpdate" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "notification" | "productMedia" | "productUpdate" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "pageTrafficDaily" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1626,6 +1627,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductTrafficEventCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductTrafficEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    PageTrafficDaily: {
+      payload: Prisma.$PageTrafficDailyPayload<ExtArgs>
+      fields: Prisma.PageTrafficDailyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PageTrafficDailyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageTrafficDailyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PageTrafficDailyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageTrafficDailyPayload>
+        }
+        findFirst: {
+          args: Prisma.PageTrafficDailyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageTrafficDailyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PageTrafficDailyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageTrafficDailyPayload>
+        }
+        findMany: {
+          args: Prisma.PageTrafficDailyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageTrafficDailyPayload>[]
+        }
+        create: {
+          args: Prisma.PageTrafficDailyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageTrafficDailyPayload>
+        }
+        createMany: {
+          args: Prisma.PageTrafficDailyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PageTrafficDailyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageTrafficDailyPayload>[]
+        }
+        delete: {
+          args: Prisma.PageTrafficDailyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageTrafficDailyPayload>
+        }
+        update: {
+          args: Prisma.PageTrafficDailyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageTrafficDailyPayload>
+        }
+        deleteMany: {
+          args: Prisma.PageTrafficDailyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PageTrafficDailyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PageTrafficDailyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageTrafficDailyPayload>[]
+        }
+        upsert: {
+          args: Prisma.PageTrafficDailyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PageTrafficDailyPayload>
+        }
+        aggregate: {
+          args: Prisma.PageTrafficDailyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePageTrafficDaily>
+        }
+        groupBy: {
+          args: Prisma.PageTrafficDailyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PageTrafficDailyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PageTrafficDailyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PageTrafficDailyCountAggregateOutputType> | number
         }
       }
     }
@@ -3850,6 +3925,17 @@ export const ProductTrafficEventScalarFieldEnum = {
 export type ProductTrafficEventScalarFieldEnum = (typeof ProductTrafficEventScalarFieldEnum)[keyof typeof ProductTrafficEventScalarFieldEnum]
 
 
+export const PageTrafficDailyScalarFieldEnum = {
+  date: 'date',
+  pageViews: 'pageViews',
+  visitors: 'visitors',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PageTrafficDailyScalarFieldEnum = (typeof PageTrafficDailyScalarFieldEnum)[keyof typeof PageTrafficDailyScalarFieldEnum]
+
+
 export const ProductInsightProfileScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
@@ -4861,6 +4947,7 @@ export type GlobalOmitConfig = {
   productAnalytics?: Prisma.ProductAnalyticsOmit
   productClickEvent?: Prisma.ProductClickEventOmit
   productTrafficEvent?: Prisma.ProductTrafficEventOmit
+  pageTrafficDaily?: Prisma.PageTrafficDailyOmit
   productInsightProfile?: Prisma.ProductInsightProfileOmit
   productInsightStageResult?: Prisma.ProductInsightStageResultOmit
   productUpvote?: Prisma.ProductUpvoteOmit

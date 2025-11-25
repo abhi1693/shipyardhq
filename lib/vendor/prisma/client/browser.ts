@@ -98,6 +98,11 @@ export type ProductClickEvent = Prisma.ProductClickEventModel
  */
 export type ProductTrafficEvent = Prisma.ProductTrafficEventModel
 /**
+ * Model PageTrafficDaily
+ * 
+ */
+export type PageTrafficDaily = Prisma.PageTrafficDailyModel
+/**
  * Model ProductInsightProfile
  * 
  */

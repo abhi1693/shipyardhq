@@ -9,7 +9,11 @@ import {
   type EventQueueName,
 } from "@/lib/server/events/queues"
 import type { RedemptionStatus, Prisma } from "@/lib/vendor/prisma/client"
-import type { DeviceCategory, ProductTrafficPayload } from "@/types/analytics"
+import type {
+  DeviceCategory,
+  PageTrafficPayload,
+  ProductTrafficPayload,
+} from "@/types/analytics"
 import { IS_PROD } from "@/lib/constants"
 
 type HandlerMode = "sync" | "async"
@@ -84,6 +88,7 @@ export type ProductReviewCreatedEvent = {
   updatedAt: Date
 }
 export type ProductTrafficRecordedEvent = ProductTrafficPayload
+export type PageTrafficRecordedEvent = PageTrafficPayload
 
 export type ProductUpdatePublishedEvent = {
   productId: string
@@ -191,6 +196,7 @@ type AppEvents = {
   [APP_EVENTS.BADGE_ASSIGNED]: BadgeAssignedEvent
   [APP_EVENTS.BADGE_REMOVED]: BadgeRemovedEvent
   [APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC]: ProductTrafficRecordedEvent
+  [APP_EVENTS.ANALYTICS_PAGE_TRAFFIC]: PageTrafficRecordedEvent
   [APP_EVENTS.LEADERBOARD_MONTHLY_WINNERS]: LeaderboardMonthlyWinnersEvent
   [APP_EVENTS.REWARDS_AWARDED]: RewardsAwardedEvent
   [APP_EVENTS.REWARDS_REDEEMED]: RewardsRedeemedEvent

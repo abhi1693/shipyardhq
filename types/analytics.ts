@@ -17,6 +17,8 @@ export interface ProductTrafficPayload {
   isBot?: boolean
 }
 
+export type PageTrafficPayload = Record<string, never>
+
 export interface ProductTrafficSummaryPoint {
   date: string
   label: string
