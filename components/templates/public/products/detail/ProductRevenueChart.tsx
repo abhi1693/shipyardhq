@@ -103,15 +103,17 @@ export function ProductRevenueChart({
   const [range, setRange] = useState<
     "24h" | "7d" | "1m" | "3m" | "6m" | "1y" | "all"
   >("1m")
+  const autoAdjustedRange = useRef(false)
 
   useEffect(() => {
-    if (range !== "1m") return
+    if (autoAdjustedRange.current || range !== "1m") return
     const now = new Date()
     const cutoff = new Date(now)
     cutoff.setMonth(now.getMonth() - 1)
     const hasRecentData = points.some(
       (point) => new Date(point.periodStart) >= cutoff,
     )
+    autoAdjustedRange.current = true
     if (!hasRecentData) setRange("all")
   }, [points, range])
 
@@ -134,6 +136,24 @@ export function ProductRevenueChart({
         label: point.label,
         revenue: point.periodRevenueCents / 100,
       }))
+  }, [points, range])
+
+  const rangeRevenueCents = useMemo(() => {
+    let cutoff: Date | null = null
+    if (range !== "all") {
+      const now = new Date()
+      cutoff = new Date(now)
+      if (range === "24h") cutoff.setDate(now.getDate() - 1)
+      if (range === "7d") cutoff.setDate(now.getDate() - 7)
+      if (range === "1m") cutoff.setMonth(now.getMonth() - 1)
+      if (range === "3m") cutoff.setMonth(now.getMonth() - 3)
+      if (range === "6m") cutoff.setMonth(now.getMonth() - 6)
+      if (range === "1y") cutoff.setFullYear(now.getFullYear() - 1)
+    }
+
+    return points
+      .filter((point) => (cutoff ? new Date(point.periodStart) >= cutoff : true))
+      .reduce((total, point) => total + point.periodRevenueCents, 0)
   }, [points, range])
 
   const aggregated = useMemo(() => {
@@ -196,10 +216,7 @@ export function ProductRevenueChart({
     value: point.revenue,
   }))
 
-  const revenueDisplay =
-    typeof summary.latestAllTimeRevenueCents === "number"
-      ? formatCurrency(summary.latestAllTimeRevenueCents, currency)
-      : null
+  const revenueDisplay = formatCurrency(rangeRevenueCents, currency)
   const providerLabel = formatProviderLabel(summary.provider)
 
   const [exportOpen, setExportOpen] = useState(false)
