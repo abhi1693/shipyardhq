@@ -18,6 +18,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
+import {
+  Tooltip as UiTooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/atoms/tooltip"
 
 import {
   Select,
@@ -27,18 +32,16 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import { Button } from "@/components/atoms/button"
-import { Image } from "@/components/atoms/image"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/atoms/dialog"
 import { siteConfig } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
-import { Download, ShieldCheckIcon } from "lucide-react"
+import { Blocks, Download, LineChart, ShieldCheckIcon } from "lucide-react"
 import * as htmlToImage from "html-to-image"
 
 type RevenuePoint = {
@@ -64,16 +67,29 @@ type GradientOption = {
   previewAccent?: string
 }
 
-function formatCurrency(amountCents: number, currency?: string) {
+type HeatmapCell = {
+  date: Date | null
+  revenue: number
+  label: string
+  isPlaceholder?: boolean
+}
+
+function formatCurrency(
+  amountCents: number,
+  currency?: string,
+  fractionDigits = 0,
+) {
   const code = currency || "USD"
   try {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: code,
-      maximumFractionDigits: 0,
+      maximumFractionDigits: fractionDigits,
+      minimumFractionDigits: fractionDigits,
     }).format((amountCents || 0) / 100)
   } catch {
-    return `$${((amountCents || 0) / 100).toFixed(0)}`
+    const fallbackDigits = Math.max(0, Math.min(2, fractionDigits))
+    return `$${((amountCents || 0) / 100).toFixed(fallbackDigits)}`
   }
 }
 
@@ -103,7 +119,24 @@ export function ProductRevenueChart({
   const [range, setRange] = useState<
     "24h" | "7d" | "1m" | "3m" | "6m" | "1y" | "all"
   >("1m")
+  const [viewMode, setViewMode] = useState<"blocks" | "line">("blocks")
   const autoAdjustedRange = useRef(false)
+  const dayFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
+    [],
+  )
+  const monthFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat("en-US", {
+        month: "short",
+      }),
+    [],
+  )
 
   useEffect(() => {
     if (autoAdjustedRange.current || range !== "1m") return
@@ -136,6 +169,7 @@ export function ProductRevenueChart({
         label: point.label,
         revenue: point.periodRevenueCents / 100,
       }))
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
   }, [points, range])
 
   const rangeRevenueCents = useMemo(() => {
@@ -209,20 +243,125 @@ export function ProductRevenueChart({
     )
   }, [filtered, range])
 
-  const formatValue = (value: number) =>
-    formatCurrency(Math.round(value * 100), currency)
+  const heatmapDays = useMemo(() => {
+    if (!filtered.length) return []
+    const byDay = new Map<string, number>()
+    for (const point of filtered) {
+      const key = point.date.toISOString().slice(0, 10)
+      byDay.set(key, (byDay.get(key) ?? 0) + point.revenue)
+    }
+
+    const firstDate = filtered[0].date
+    const lastDate = filtered[filtered.length - 1].date
+    const start = new Date(
+      Date.UTC(
+        firstDate.getUTCFullYear(),
+        firstDate.getUTCMonth(),
+        firstDate.getUTCDate(),
+      ),
+    )
+    const startOffset = (start.getUTCDay() + 6) % 7 // Align to Monday
+    start.setUTCDate(start.getUTCDate() - startOffset)
+
+    const end = new Date(
+      Date.UTC(
+        lastDate.getUTCFullYear(),
+        lastDate.getUTCMonth(),
+        lastDate.getUTCDate(),
+      ),
+    )
+    const endOffset = 6 - ((end.getUTCDay() + 6) % 7) // Fill to Sunday
+    end.setUTCDate(end.getUTCDate() + endOffset)
+
+    const days: Array<{ date: Date; revenue: number }> = []
+    const cursor = new Date(start)
+    while (cursor <= end) {
+      const key = cursor.toISOString().slice(0, 10)
+      days.push({
+        date: new Date(cursor),
+        revenue: byDay.get(key) ?? 0,
+      })
+      cursor.setUTCDate(cursor.getUTCDate() + 1)
+    }
+    return days
+  }, [filtered])
+
+  const maxDayRevenue = useMemo(
+    () =>
+      heatmapDays.length
+        ? Math.max(...heatmapDays.map((day) => day.revenue), 0)
+        : 0,
+    [heatmapDays],
+  )
+
+  const heatmapWeeks = useMemo<HeatmapCell[][]>(() => {
+    if (!heatmapDays.length) return []
+    const weeks: HeatmapCell[][] = []
+    let current: HeatmapCell[] = []
+    for (const day of heatmapDays) {
+      current.push({
+        date: day.date,
+        revenue: day.revenue,
+        label: dayFormatter.format(day.date),
+      })
+      if (current.length === 7) {
+        weeks.push(current)
+        current = []
+      }
+    }
+    if (current.length) {
+      const lastKnown = [...current].reverse().find((cell) => cell.date) ?? null
+      while (current.length < 7) {
+        current.push({
+          date: lastKnown?.date ?? null,
+          revenue: 0,
+          label: lastKnown?.label ?? "",
+          isPlaceholder: true,
+        })
+      }
+      weeks.push(current)
+    }
+    return weeks
+  }, [dayFormatter, heatmapDays])
+
+  const heatmapMonthLabels = useMemo(() => {
+    return heatmapWeeks.map((week, index) => {
+      const firstRealDay =
+        week.find((cell) => cell.date && !cell.isPlaceholder)?.date ?? null
+      if (!firstRealDay) return ""
+      const prevWeek = heatmapWeeks[index - 1]
+      const prevDay =
+        prevWeek?.find((cell) => cell.date && !cell.isPlaceholder)?.date ?? null
+      const currentMonth = firstRealDay.getUTCMonth()
+      const prevMonth = prevDay?.getUTCMonth()
+      if (index === 0 || currentMonth !== prevMonth) {
+        return monthFormatter.format(firstRealDay)
+      }
+      return ""
+    })
+  }, [heatmapWeeks, monthFormatter])
+
+  const formatValue = (value: number, fractionDigits?: number) => {
+    const digits =
+      typeof fractionDigits === "number"
+        ? fractionDigits
+        : Math.abs(value) < 10
+          ? 2
+          : 0
+    return formatCurrency(Math.round(value * 100), currency, digits)
+  }
   const chartData = aggregated.map((point) => ({
     ...point,
     value: point.revenue,
   }))
 
-  const revenueDisplay = formatCurrency(rangeRevenueCents, currency)
+  const revenueDisplay = formatCurrency(rangeRevenueCents, currency, 2)
   const providerLabel = formatProviderLabel(summary.provider)
 
   const [exportOpen, setExportOpen] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
 
-  const hasData = chartData.length > 0
+  const hasData = filtered.length > 0
   const filename = `${
     (productName ?? "product")
       .toLowerCase()
@@ -511,109 +650,225 @@ export function ProductRevenueChart({
   const ChartFigure = ({
     className,
     gradientId,
+    mode,
   }: {
     className?: string
     gradientId: string
-  }) => (
-    <div className="w-full">
-      <div className={cn("relative", className ?? "h-72")}>
-        {hasData ? (
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={chartData}
-              margin={{ top: 10, right: 16, left: -25, bottom: 0 }}
-            >
-              <defs>
-                <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor="hsl(221, 83%, 53%)"
-                    stopOpacity={0.25}
+    mode: "blocks" | "line"
+  }) => {
+    const heatScale = [
+      "border-slate-200 bg-slate-100",
+      "border-emerald-100 bg-emerald-50",
+      "border-emerald-200 bg-emerald-100",
+      "border-emerald-300 bg-emerald-200",
+      "border-emerald-500 bg-emerald-400/90 text-emerald-50",
+    ]
+    const getHeatLevel = (value: number) => {
+      if (!maxDayRevenue || value <= 0.0001) return 0
+      const ratio = Math.max(0, value) / maxDayRevenue
+      if (ratio < 0.12) return 1
+      if (ratio < 0.3) return 2
+      if (ratio < 0.6) return 3
+      return 4
+    }
+
+    return (
+      <div className="w-full">
+        <div className={cn("relative", className ?? "h-72")}>
+          {hasData ? (
+            mode === "blocks" ? (
+              <div className="absolute inset-0 grid grid-rows-[auto,1fr,auto] gap-3">
+                <div className="flex items-center gap-3 overflow-x-auto pb-1">
+                  <div className="w-9 shrink-0" aria-hidden />
+                  <div className="flex gap-1">
+                    {heatmapMonthLabels.map((label, index) => (
+                      <div
+                        key={`month-${index}-${label || "blank"}`}
+                        className="flex h-4 min-w-[16px] items-center justify-center text-[10px] font-medium text-muted-foreground"
+                      >
+                        {label}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 overflow-hidden">
+                  <div className="grid h-full w-9 grid-rows-7 content-center gap-1 text-[11px] font-medium text-muted-foreground">
+                    <span className="row-start-1 self-center">Mon</span>
+                    <span className="row-start-3 self-center">Wed</span>
+                    <span className="row-start-5 self-center">Fri</span>
+                  </div>
+                  <div className="flex-1 overflow-x-auto pb-2">
+                    <div className="flex min-w-full gap-1">
+                      {heatmapWeeks.map((week, weekIndex) => (
+                        <div
+                          key={`week-${weekIndex}`}
+                          className="grid grid-rows-7 gap-1"
+                        >
+                          {week.map((day, dayIndex) => {
+                            const level =
+                              !day.date || day.isPlaceholder
+                                ? 0
+                                : getHeatLevel(day.revenue)
+                            const tooltipLabel =
+                              day.date && !day.isPlaceholder
+                                ? `${formatValue(day.revenue, 2)} on ${day.label}`
+                                : "No revenue recorded"
+                              return (
+                                <UiTooltip key={`${weekIndex}-${dayIndex}-${day.label}-${day.date?.toISOString?.() ?? "placeholder"}`}>
+                                  <TooltipTrigger asChild>
+                                    <div
+                                      aria-label={tooltipLabel}
+                                      className={cn(
+                                        "h-4 w-4 rounded-[6px] border transition hover:scale-105",
+                                        heatScale[level],
+                                        day.isPlaceholder
+                                          ? "opacity-60"
+                                          : level === 0
+                                            ? "shadow-none"
+                                            : "shadow-[0_1px_2px_rgba(15,23,42,0.08)]",
+                                      )}
+                                    />
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    side="top"
+                                    align="center"
+                                    sideOffset={6}
+                                    className="bg-slate-900 text-white shadow-lg"
+                                  >
+                                    {tooltipLabel}
+                                  </TooltipContent>
+                                </UiTooltip>
+                              )
+                            })}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3 text-[11px] text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <span className="hidden sm:inline">Less</span>
+                    <div className="flex items-center gap-1">
+                      {heatScale.map((value, idx) => (
+                        <span
+                          key={`${value}-${idx}`}
+                          className={cn(
+                            "h-3 w-3 rounded-[4px] border",
+                            value,
+                            idx === 0 ? "shadow-none" : "shadow-sm",
+                          )}
+                          aria-hidden
+                        />
+                      ))}
+                    </div>
+                    <span className="hidden sm:inline">More</span>
+                  </div>
+                  <span>
+                    Daily revenue grouped across {heatmapWeeks.length.toLocaleString()} weeks
+                  </span>
+                </div>
+              </div>
+            ) : (
+            <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={chartData}
+                  margin={{ top: 10, right: 16, left: -25, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                      <stop
+                        offset="5%"
+                        stopColor="hsl(221, 83%, 53%)"
+                        stopOpacity={0.25}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor="hsl(221, 83%, 53%)"
+                        stopOpacity={0.03}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="hsl(220, 13%, 90%)"
+                    vertical={false}
                   />
-                  <stop
-                    offset="95%"
-                    stopColor="hsl(221, 83%, 53%)"
-                    stopOpacity={0.03}
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={(value) =>
+                      new Intl.DateTimeFormat("en-US", {
+                        month: "short",
+                        year: "numeric",
+                        day:
+                          range === "24h" || range === "7d"
+                            ? "numeric"
+                            : undefined,
+                      }).format(new Date(value))
+                    }
+                    tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
                   />
-                </linearGradient>
-              </defs>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="hsl(220, 13%, 90%)"
-                vertical={false}
-              />
-              <XAxis
-                dataKey="date"
-                tickFormatter={(value) =>
-                  new Intl.DateTimeFormat("en-US", {
-                    month: "short",
-                    year: "numeric",
-                    day:
-                      range === "24h" || range === "7d" ? "numeric" : undefined,
-                  }).format(new Date(value))
-                }
-                tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
-              />
-              <YAxis
+                  <YAxis
                 tickFormatter={(value) => formatValue(Number(value))}
-                tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
-                width={64}
+                    tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
+                    width={64}
               />
               <Tooltip
                 formatter={(value: any) => [
-                  formatValue(Number(value)),
+                  formatValue(Number(value), 2),
                   "Revenue",
                 ]}
-                labelFormatter={(label) => {
-                  const date = new Date(label)
-                  const isWeekly =
-                    range === "1m" || range === "3m" || range === "6m"
-                  const isMonthly = range === "all" || range === "1y"
+                    labelFormatter={(label) => {
+                      const date = new Date(label)
+                      const isWeekly =
+                        range === "1m" || range === "3m" || range === "6m"
+                      const isMonthly = range === "all" || range === "1y"
 
-                  if (isWeekly) {
-                    const formatted = new Intl.DateTimeFormat("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    }).format(date)
-                    return `Week of ${formatted}`
-                  }
+                      if (isWeekly) {
+                        const formatted = new Intl.DateTimeFormat("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        }).format(date)
+                        return `Week of ${formatted}`
+                      }
 
-                  const formatted = new Intl.DateTimeFormat("en-US", {
-                    month: "short",
-                    year: "numeric",
-                    day: isMonthly ? undefined : "numeric",
-                  }).format(date)
-                  return formatted
-                }}
-                contentStyle={{
-                  borderRadius: 10,
-                  borderColor: "hsl(220, 13%, 85%)",
-                  boxShadow: "0 8px 20px rgba(15, 23, 42, 0.15)",
-                  fontSize: 12,
-                }}
-                itemStyle={{ fontWeight: 700, fontSize: 12, color: "#111" }}
-                labelStyle={{ fontWeight: 600, fontSize: 12, color: "#111" }}
-              />
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke="hsl(221, 83%, 53%)"
-                fillOpacity={1}
-                fill={`url(#${gradientId})`}
-                strokeWidth={2}
-                activeDot={{ r: 4 }}
-                isAnimationActive={false}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        ) : (
-          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-            No revenue recorded for this range.
-          </div>
-        )}
+                      const formatted = new Intl.DateTimeFormat("en-US", {
+                        month: "short",
+                        year: "numeric",
+                        day: isMonthly ? undefined : "numeric",
+                      }).format(date)
+                      return formatted
+                    }}
+                    contentStyle={{
+                      borderRadius: 10,
+                      borderColor: "hsl(220, 13%, 85%)",
+                      boxShadow: "0 8px 20px rgba(15, 23, 42, 0.15)",
+                      fontSize: 12,
+                    }}
+                    itemStyle={{ fontWeight: 700, fontSize: 12, color: "#111" }}
+                    labelStyle={{ fontWeight: 600, fontSize: 12, color: "#111" }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="hsl(221, 83%, 53%)"
+                    fillOpacity={1}
+                    fill={`url(#${gradientId})`}
+                    strokeWidth={2}
+                    activeDot={{ r: 4 }}
+                    isAnimationActive={false}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+              No revenue recorded for this range.
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <section className="space-y-4 rounded-2xl border border-border bg-white p-4 shadow-sm">
@@ -631,6 +886,28 @@ export function ProductRevenueChart({
           ) : null}
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
+          <div className="inline-flex items-center rounded-full bg-muted p-1 shadow-inner shadow-black/5">
+            {[
+              { id: "blocks", label: "Grid", icon: Blocks },
+              { id: "line", label: "Line", icon: LineChart },
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setViewMode(id as "blocks" | "line")}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  viewMode === id
+                    ? "bg-white text-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-white/70",
+                )}
+                aria-pressed={viewMode === id}
+              >
+                <Icon className="h-3.5 w-3.5" aria-hidden />
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
           <Select
             value={range}
             onValueChange={(value) =>
@@ -655,7 +932,11 @@ export function ProductRevenueChart({
         </div>
       </div>
 
-      <ChartFigure className="h-72" gradientId={chartGradientId} />
+      <ChartFigure
+        className="h-72"
+        gradientId={chartGradientId}
+        mode={viewMode}
+      />
 
       <div className="flex items-center justify-between gap-3">
         {summary.lastSyncedAt ? (
@@ -744,6 +1025,7 @@ export function ProductRevenueChart({
                     <ChartFigure
                       className="h-[320px]"
                       gradientId={previewGradientId}
+                      mode={viewMode}
                     />
                   </div>
                   <div className="flex items-center justify-center gap-1.5 text-white">
