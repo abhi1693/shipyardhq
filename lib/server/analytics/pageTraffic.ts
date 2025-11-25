@@ -12,7 +12,7 @@ registerEventHandler({
   event: APP_EVENTS.ANALYTICS_PAGE_TRAFFIC,
   id: "analytics.record-page-traffic",
   mode: "async",
-  queue: "default",
+  queue: "low",
   handler: async (payload: PageTrafficEventPayload) => {
     try {
       const createdAt = payload.__enqueuedAt
