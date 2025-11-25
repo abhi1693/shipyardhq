@@ -319,9 +319,7 @@ export async function hasUserUpvoted(productId: string, clerkId: string) {
   return currentState === "upvoted"
 }
 
-export async function getPublicProductRevenue(
-  productId: string,
-) {
+export async function getPublicProductRevenue(productId: string) {
   const cached = await getCachedRevenueSummary(productId)
   if (!cached) return null
 

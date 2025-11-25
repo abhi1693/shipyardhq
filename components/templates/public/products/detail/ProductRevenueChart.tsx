@@ -1,13 +1,6 @@
 "use client"
 
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from "react"
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 
 import {
   Area,
@@ -186,7 +179,9 @@ export function ProductRevenueChart({
     }
 
     return points
-      .filter((point) => (cutoff ? new Date(point.periodStart) >= cutoff : true))
+      .filter((point) =>
+        cutoff ? new Date(point.periodStart) >= cutoff : true,
+      )
       .reduce((total, point) => total + point.periodRevenueCents, 0)
   }, [points, range])
 
@@ -223,10 +218,7 @@ export function ProductRevenueChart({
       return new Date(key)
     }
 
-    const byBucket = new Map<
-      string,
-      { date: Date; revenue: number }
-    >()
+    const byBucket = new Map<string, { date: Date; revenue: number }>()
     for (const point of filtered) {
       const d = point.date
       const key = bucketKey(d)
@@ -713,37 +705,39 @@ export function ProductRevenueChart({
                               day.date && !day.isPlaceholder
                                 ? `${formatValue(day.revenue, 2)} on ${day.label}`
                                 : "No revenue recorded"
-                              return (
-                                <UiTooltip key={`${weekIndex}-${dayIndex}-${day.label}-${day.date?.toISOString?.() ?? "placeholder"}`}>
-                                  <TooltipTrigger asChild>
-                                    <div
-                                      aria-label={tooltipLabel}
-                                      className={cn(
-                                        "h-4 w-4 rounded-[6px] border transition hover:scale-105",
-                                        heatScale[level],
-                                        day.isPlaceholder
-                                          ? "opacity-60"
-                                          : level === 0
-                                            ? "shadow-none"
-                                            : "shadow-[0_1px_2px_rgba(15,23,42,0.08)]",
-                                      )}
-                                    />
-                                  </TooltipTrigger>
-                                  <TooltipContent
-                                    side="top"
-                                    align="center"
-                                    sideOffset={6}
-                                    className="bg-slate-900 text-white shadow-lg"
-                                  >
-                                    {tooltipLabel}
-                                  </TooltipContent>
-                                </UiTooltip>
-                              )
-                            })}
-                          </div>
-                        ))}
-                      </div>
+                            return (
+                              <UiTooltip
+                                key={`${weekIndex}-${dayIndex}-${day.label}-${day.date?.toISOString?.() ?? "placeholder"}`}
+                              >
+                                <TooltipTrigger asChild>
+                                  <div
+                                    aria-label={tooltipLabel}
+                                    className={cn(
+                                      "h-4 w-4 rounded-[6px] border transition hover:scale-105",
+                                      heatScale[level],
+                                      day.isPlaceholder
+                                        ? "opacity-60"
+                                        : level === 0
+                                          ? "shadow-none"
+                                          : "shadow-[0_1px_2px_rgba(15,23,42,0.08)]",
+                                    )}
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent
+                                  side="top"
+                                  align="center"
+                                  sideOffset={6}
+                                  className="bg-slate-900 text-white shadow-lg"
+                                >
+                                  {tooltipLabel}
+                                </TooltipContent>
+                              </UiTooltip>
+                            )
+                          })}
+                        </div>
+                      ))}
                     </div>
+                  </div>
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-3 text-[11px] text-muted-foreground">
                   <div className="flex items-center gap-2">
@@ -764,12 +758,13 @@ export function ProductRevenueChart({
                     <span className="hidden sm:inline">More</span>
                   </div>
                   <span>
-                    Daily revenue grouped across {heatmapWeeks.length.toLocaleString()} weeks
+                    Daily revenue grouped across{" "}
+                    {heatmapWeeks.length.toLocaleString()} weeks
                   </span>
                 </div>
               </div>
             ) : (
-            <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={chartData}
                   margin={{ top: 10, right: 16, left: -25, bottom: 0 }}
@@ -808,15 +803,15 @@ export function ProductRevenueChart({
                     tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
                   />
                   <YAxis
-                tickFormatter={(value) => formatValue(Number(value))}
+                    tickFormatter={(value) => formatValue(Number(value))}
                     tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
                     width={64}
-              />
-              <Tooltip
-                formatter={(value: any) => [
-                  formatValue(Number(value), 2),
-                  "Revenue",
-                ]}
+                  />
+                  <Tooltip
+                    formatter={(value: any) => [
+                      formatValue(Number(value), 2),
+                      "Revenue",
+                    ]}
                     labelFormatter={(label) => {
                       const date = new Date(label)
                       const isWeekly =
@@ -845,7 +840,11 @@ export function ProductRevenueChart({
                       fontSize: 12,
                     }}
                     itemStyle={{ fontWeight: 700, fontSize: 12, color: "#111" }}
-                    labelStyle={{ fontWeight: 600, fontSize: 12, color: "#111" }}
+                    labelStyle={{
+                      fontWeight: 600,
+                      fontSize: 12,
+                      color: "#111",
+                    }}
                   />
                   <Area
                     type="monotone"
