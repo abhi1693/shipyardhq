@@ -37,7 +37,6 @@ import type {
   PaymentConnectorProvider,
   PaymentConnectorStatus,
 } from "@/lib/vendor/prisma/client/enums"
-import { PaymentConnectorProvider as PaymentConnectorProviderEnum } from "@/lib/vendor/prisma/client/enums"
 import { PaymentConnectorCard } from "../../shared/PaymentConnectorCard"
 
 function ConnectorFields({

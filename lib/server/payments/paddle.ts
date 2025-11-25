@@ -5,7 +5,6 @@ import {
 } from "@/lib/vendor/prisma/client"
 
 import type {
-  PaymentConnectorConfig,
   PaymentProviderDefinition,
   ProviderSyncContext,
   ProviderSyncResult,
@@ -170,20 +169,6 @@ async function listPaddleTransactions({
   })
 }
 
-async function listPaddleSubscriptions({
-  apiKey,
-  environment,
-}: {
-  apiKey: string
-  environment: "live_mode" | "test_mode"
-}) {
-  return listPaddleCollection<any>({
-    apiKey,
-    path: "/subscriptions",
-    environment,
-  })
-}
-
 function startOfUtcDay(date: Date): Date {
   return new Date(
     Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
@@ -307,13 +292,7 @@ function isSuccessfulStatus(status?: string | null): boolean {
   )
 }
 
-export async function validatePaddleApiKey({
-  apiKey,
-  config,
-}: {
-  apiKey: string
-  config?: PaymentConnectorConfig
-}) {
+export async function validatePaddleApiKey({ apiKey }: { apiKey: string }) {
   const environment = resolveEnvironment()
   const trimmed = ensurePaddleKeyMatchesEnvironment({
     apiKey,
@@ -441,11 +420,7 @@ export async function syncPaddleConnector({
 
 export const paddleProvider: PaymentProviderDefinition = {
   provider: PaymentConnectorProvider.paddle,
-  validateApiKey: async ({ apiKey, config }) =>
-    validatePaddleApiKey({
-      apiKey,
-      config,
-    }),
+  validateApiKey: async ({ apiKey }) => validatePaddleApiKey({ apiKey }),
   sync: async ({
     connector,
     apiKey,

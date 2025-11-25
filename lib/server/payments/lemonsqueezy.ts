@@ -149,13 +149,6 @@ async function fetchLemonStore(apiKey: string, storeId: string) {
   })
 }
 
-async function listLemonSubscriptions(apiKey: string, storeId?: string) {
-  return listLemonCollection<LemonResource<{ [key: string]: any }>>({
-    apiKey,
-    path: `/stores/${encodeURIComponent(storeId ?? "")}/subscriptions`,
-  })
-}
-
 function parseAmountToCents(
   value: unknown,
   treatAsDollars = false,

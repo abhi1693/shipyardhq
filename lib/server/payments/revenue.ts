@@ -4,6 +4,7 @@ import type {
   PaymentConnectorStatus,
 } from "@/lib/vendor/prisma/client"
 
+import prisma from "@/lib/prisma"
 import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
 import { convertToUsdCents } from "./currency"
 
@@ -210,6 +211,66 @@ export async function cacheRevenueSummary(
     value: summary,
     inProcessTtlMs: 5 * 60 * 1000,
   }).catch(() => null)
+}
+
+export async function getRevenueSummaryFromDb(
+  productId: string,
+): Promise<RevenueSummary | null> {
+  const connector = await prisma.paymentConnector.findUnique({
+    where: { productId },
+    select: {
+      id: true,
+      provider: true,
+      status: true,
+      lastSyncedAt: true,
+      revenueHistory: {
+        orderBy: { periodStart: "asc" },
+        select: {
+          periodStart: true,
+          currencyCode: true,
+          periodRevenueCents: true,
+          allTimeRevenueCents: true,
+          data: true,
+        },
+      },
+    },
+  })
+
+  if (!connector) return null
+
+  const history: RevenueSnapshotInput[] = connector.revenueHistory.map(
+    (snapshot) => ({
+      periodStart: snapshot.periodStart,
+      currencyCode: snapshot.currencyCode,
+      periodRevenueCents: snapshot.periodRevenueCents,
+      allTimeRevenueCents: snapshot.allTimeRevenueCents,
+      data: snapshot.data ?? undefined,
+    }),
+  )
+
+  const rates = new Map<string, number>()
+  for (const entry of history) {
+    const rate = (entry.data as any)?.rateToUsd
+    if (typeof rate === "number" && rate > 0) {
+      rates.set(entry.currencyCode, rate)
+    }
+  }
+
+  const summary = buildRevenueSummary({
+    productId,
+    connectorId: connector.id,
+    provider: connector.provider,
+    status: connector.status,
+    lastSyncedAt: connector.lastSyncedAt,
+    history,
+    rates,
+  })
+
+  if (summary) {
+    await cacheRevenueSummary(summary)
+  }
+
+  return summary
 }
 
 export function buildRevenueSummary({

@@ -600,7 +600,6 @@ export function ProductRevenueChart({
 
     if (revenueDisplay) {
       const badgePaddingX = 12
-      const badgePaddingY = 8
       const badgeText = `${revenueDisplay} · verified`
       ctx.font = "600 14px 'Inter','Helvetica Neue',Arial,sans-serif"
       const textMetrics = ctx.measureText(badgeText)
@@ -721,7 +720,14 @@ export function ProductRevenueChart({
     return new Promise<Blob | null>((resolve) => {
       canvas.toBlob((blob) => resolve(blob), "image/png")
     })
-  }, [chartData, hasData, selectedGradient.end, selectedGradient.start])
+  }, [
+    chartData,
+    hasData,
+    previewTitle,
+    revenueDisplay,
+    selectedGradient.end,
+    selectedGradient.start,
+  ])
 
   const handleDownload = useCallback(async () => {
     if (isExporting) return
@@ -1128,15 +1134,18 @@ export function ProductRevenueChart({
                       <p className="text-base font-semibold text-slate-900">
                         <span className="inline-flex flex-wrap items-center gap-2">
                           {productLogoUrl ? (
-                            <img
-                              src={productLogoUrl}
-                              alt={`${productName ?? "Product"} logo`}
-                              width={28}
-                              height={28}
-                              crossOrigin="anonymous"
-                              className="h-7 w-7 rounded-lg border border-slate-200 bg-transparent object-cover shadow-sm"
-                              style={{ backgroundColor: "transparent" }}
-                            />
+                            <>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={productLogoUrl}
+                                alt={`${productName ?? "Product"} logo`}
+                                width={28}
+                                height={28}
+                                crossOrigin="anonymous"
+                                className="h-7 w-7 rounded-lg border border-slate-200 bg-transparent object-cover shadow-sm"
+                                style={{ backgroundColor: "transparent" }}
+                              />
+                            </>
                           ) : null}
                           <span>{previewTitle}</span>
                           <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">
@@ -1168,6 +1177,7 @@ export function ProductRevenueChart({
                     />
                   </div>
                   <div className="flex items-center justify-center gap-1.5 text-white">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/brand-white.png"
                       alt={siteConfig.name}

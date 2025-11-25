@@ -104,9 +104,7 @@ function getProjectId(config?: PaymentConnectorConfig | null): string {
   return raw.trim()
 }
 
-function getEnvironment(
-  _config?: PaymentConnectorConfig | null,
-): "production" | "sandbox" {
+function getEnvironment(): "production" | "sandbox" {
   return IS_PROD ? "production" : "sandbox"
 }
 
@@ -273,7 +271,7 @@ async function syncRevenueCatConnector({
   if (!projectId) {
     throw new Error("RevenueCat project ID is required")
   }
-  const environment = getEnvironment(config)
+  const environment = getEnvironment()
 
   const currencyCode = connector.latestCurrencyCode?.toUpperCase() || "USD"
 
