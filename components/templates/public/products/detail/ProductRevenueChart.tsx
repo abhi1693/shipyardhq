@@ -1,6 +1,13 @@
 "use client"
 
-import { useCallback, useId, useMemo, useRef, useState } from "react"
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 
 import {
   Area,
@@ -95,7 +102,18 @@ export function ProductRevenueChart({
   const currency = summary.currencyCode || "USD"
   const [range, setRange] = useState<
     "24h" | "7d" | "1m" | "3m" | "6m" | "1y" | "all"
-  >("all")
+  >("1m")
+
+  useEffect(() => {
+    if (range !== "1m") return
+    const now = new Date()
+    const cutoff = new Date(now)
+    cutoff.setMonth(now.getMonth() - 1)
+    const hasRecentData = points.some(
+      (point) => new Date(point.periodStart) >= cutoff,
+    )
+    if (!hasRecentData) setRange("all")
+  }, [points, range])
 
   const filtered = useMemo(() => {
     let cutoff: Date | null = null
