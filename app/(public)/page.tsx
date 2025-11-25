@@ -16,6 +16,7 @@ import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
+import { TrafficSidebarStats } from "@/components/templates/public/common/TrafficSidebarStats"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
   DEFAULT_HOMEPAGE_FEED_VIEW,
@@ -83,6 +84,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         }
         sidebar={
           <>
+            <Suspense fallback={null}>
+              <TrafficSidebarStats />
+            </Suspense>
             <Suspense
               fallback={
                 <div className="hidden lg:block">

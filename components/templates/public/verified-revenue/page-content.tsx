@@ -12,6 +12,7 @@ import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
+import { TrafficSidebarStats } from "@/components/templates/public/common/TrafficSidebarStats"
 import { VerifiedRevenueGridClient } from "@/components/templates/public/verified-revenue/VerifiedRevenueGridClient"
 import { VERIFIED_REVENUE_PAGE_SIZE } from "@/lib/products/verifiedRevenue"
 
@@ -67,6 +68,9 @@ export async function VerifiedRevenuePageContent() {
         }
         sidebar={
           <>
+            <Suspense fallback={null}>
+              <TrafficSidebarStats />
+            </Suspense>
             <Suspense
               fallback={
                 <div className="hidden lg:block">

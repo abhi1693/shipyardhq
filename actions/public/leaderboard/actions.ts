@@ -1,3 +1,5 @@
+import { startOfDay, subDays } from "date-fns"
+
 import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
@@ -18,21 +20,38 @@ const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
 
 export const getLeaderboardStats = cached(
   async () => {
-    const [totalProducts, totalCreators, upvoteAgg, topProduct, insightsAgg] =
-      await Promise.all([
-        prisma.product.count({}),
-        prisma.user.count({}),
-        prisma.productAnalytics.aggregate({
-          _sum: { upvotes: true },
-        }),
-        prisma.productAnalytics.findFirst({
-          orderBy: { upvotes: "desc" },
-          select: { upvotes: true },
-        }),
-        prisma.productInsightProfile.aggregate({
-          _sum: { insightsGeneratedCount: true },
-        }),
-      ])
+    const rangeStart = startOfDay(subDays(new Date(), 29))
+    const [
+      totalProducts,
+      totalCreators,
+      upvoteAgg,
+      topProduct,
+      insightsAgg,
+      trafficAgg,
+      trafficSeries,
+    ] = await Promise.all([
+      prisma.product.count({}),
+      prisma.user.count({}),
+      prisma.productAnalytics.aggregate({
+        _sum: { upvotes: true },
+      }),
+      prisma.productAnalytics.findFirst({
+        orderBy: { upvotes: "desc" },
+        select: { upvotes: true },
+      }),
+      prisma.productInsightProfile.aggregate({
+        _sum: { insightsGeneratedCount: true },
+      }),
+      prisma.pageTrafficDaily.aggregate({
+        where: { date: { gte: rangeStart } },
+        _sum: { pageViews: true, visitors: true },
+      }),
+      prisma.pageTrafficDaily.findMany({
+        where: { date: { gte: rangeStart } },
+        orderBy: { date: "asc" },
+        select: { date: true, pageViews: true, visitors: true },
+      }),
+    ])
 
     return {
       totalProducts,
@@ -40,6 +59,14 @@ export const getLeaderboardStats = cached(
       totalUpvotes: upvoteAgg._sum.upvotes ?? 0,
       topScore: topProduct?.upvotes ?? 0,
       totalInsights: insightsAgg._sum.insightsGeneratedCount ?? 0,
+      pageViews30: trafficAgg._sum.pageViews ?? 0,
+      visitors30: trafficAgg._sum.visitors ?? 0,
+      trafficSeries:
+        trafficSeries?.map((row) => ({
+          date: row.date.toISOString(),
+          pageViews: row.pageViews,
+          visitors: row.visitors,
+        })) ?? [],
     }
   },
   "leaderboard:stats",

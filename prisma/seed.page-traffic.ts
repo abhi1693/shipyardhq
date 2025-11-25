@@ -16,7 +16,8 @@ export async function seedPageTraffic(prisma: PrismaClient) {
     const trend = Math.max(0, Math.round((days - i) * 12))
     const noise = (i % 5) * 7
     const pageViews = baseViews + trend + noise
-    const visitors = baseVisitors + Math.round(trend * 0.4) + Math.round(noise * 0.6)
+    const visitors =
+      baseVisitors + Math.round(trend * 0.4) + Math.round(noise * 0.6)
 
     return {
       date,

@@ -19,6 +19,13 @@ type StatsShape = {
   totalUpvotes: number
   topScore: number
   totalInsights: number
+  pageViews30?: number
+  visitors30?: number
+  trafficSeries?: Array<{
+    date: string
+    pageViews: number
+    visitors: number
+  }>
 }
 
 type MetricConfig = {
@@ -200,7 +207,7 @@ export function Hero({
         {hasMetrics ? (
           <dl className="grid gap-4 border-t border-border/60 pt-6 text-center sm:grid-cols-2 xl:grid-cols-4">
             {metrics.map((metric) => {
-              const rawValue = stats[metric.key]
+              const rawValue = stats[metric.key] ?? 0
               return (
                 <div
                   key={metric.key}
