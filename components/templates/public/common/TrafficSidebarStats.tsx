@@ -3,6 +3,7 @@ import { BarChart2, Users } from "lucide-react"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { cn } from "@/lib/utils"
 import { TrafficSparkline, type SparklinePoint } from "./TrafficSparkline"
+import { RealtimeVisitorsCard } from "./RealtimeVisitorsCard"
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("en-US").format(value)
@@ -127,20 +128,7 @@ export async function TrafficSidebarStats({
         icon={Users}
         points={visitorsPoints}
       />
-      <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-white p-4 shadow-sm">
-        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <span className="relative flex h-3 w-3">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-            <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500" />
-          </span>
-          <span>Live visitors</span>
-        </div>
-        <div className="text-right">
-          <p className="text-lg font-semibold text-foreground">
-            {formatNumber(stats.realtimeVisitors ?? 0)}
-          </p>
-        </div>
-      </div>
+      <RealtimeVisitorsCard initialValue={stats.realtimeVisitors ?? 0} />
       <p className="text-xs text-muted-foreground text-center">
         Powered by Google Analytics
       </p>
