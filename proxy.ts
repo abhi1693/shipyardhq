@@ -10,7 +10,6 @@ const DISALLOWED_PREFIXES = [
   "/auth",
   "/embed",
 ]
-const PAGEVIEW_ENDPOINT = "/api/analytics/pageview"
 
 export default clerkMiddleware(async (auth, req) => {
   // Rewrite sitemap chunk URLs ending with .xml to existing handler
@@ -37,23 +36,6 @@ export default clerkMiddleware(async (auth, req) => {
 
   if (isMemberRoute(req)) {
     await auth.protect()
-  }
-
-  // Increment public page views server-side (no client beacons). Skip admin/member/api/auth/embed and assets.
-  const cronSecret = process.env.CRON_SECRET?.trim()
-  const isPublicRoute =
-    Boolean(cronSecret) &&
-    !url.pathname.startsWith(PAGEVIEW_ENDPOINT) &&
-    !DISALLOWED_PREFIXES.some((prefix) => url.pathname.startsWith(prefix)) &&
-    !url.pathname.includes(".")
-
-  if (isPublicRoute && cronSecret) {
-    fetch(`${url.origin}${PAGEVIEW_ENDPOINT}`, {
-      method: "POST",
-      headers: { authorization: `Bearer ${cronSecret}` },
-      body: "{}",
-      cache: "no-store",
-    }).catch(() => null)
   }
 
   return NextResponse.next()
