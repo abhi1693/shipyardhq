@@ -24,6 +24,10 @@ import {
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
 import {
+  TrafficSidebarStats,
+  TrafficSidebarStatsSkeleton,
+} from "@/components/templates/public/common/TrafficSidebarStats"
+import {
   HERO_PRIMARY_BUTTON_CLASSES,
   HERO_SECONDARY_BUTTON_CLASSES,
 } from "@/components/templates/public/categories/hero-button-classes"
@@ -274,6 +278,9 @@ export default async function TagDetailPage({ params }: TagPageProps) {
         }
         sidebar={
           <>
+            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
+              <TrafficSidebarStats />
+            </Suspense>
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>

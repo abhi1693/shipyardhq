@@ -15,6 +15,10 @@ import {
   ProductUpdatesSection,
   ProductUpdatesSkeleton,
 } from "@/components/templates/public/homepage/product-updates"
+import {
+  TrafficSidebarStats,
+  TrafficSidebarStatsSkeleton,
+} from "@/components/templates/public/common/TrafficSidebarStats"
 import { getCategoryDetailPayload } from "@/lib/categories/page-cache"
 import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
@@ -115,6 +119,9 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
         }
         sidebar={
           <>
+            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
+              <TrafficSidebarStats />
+            </Suspense>
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>

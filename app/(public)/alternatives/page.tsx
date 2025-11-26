@@ -12,6 +12,10 @@ import {
   HERO_PRIMARY_BUTTON_CLASSES,
   HERO_SECONDARY_BUTTON_CLASSES,
 } from "@/components/templates/public/categories/hero-button-classes"
+import {
+  TrafficSidebarStats,
+  TrafficSidebarStatsSkeleton,
+} from "@/components/templates/public/common/TrafficSidebarStats"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { getAlternativesIndexPayload } from "@/lib/alternatives/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
@@ -110,6 +114,9 @@ export default async function AlternativesPage() {
         }
         sidebar={
           <>
+            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
+              <TrafficSidebarStats />
+            </Suspense>
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>

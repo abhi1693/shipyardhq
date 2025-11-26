@@ -432,16 +432,6 @@ model ProductTrafficEvent {
   @@index([isBot])
 }
 
-model PageTrafficDaily {
-  date      DateTime @id
-  pageViews Int      @default(0)
-  visitors  Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([updatedAt])
-}
-
 model ProductInsightProfile {
   id                     String               @id @default(cuid())
   productId              String               @unique

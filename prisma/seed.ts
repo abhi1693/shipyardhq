@@ -34,7 +34,6 @@ import { seedCategories } from "./seed.categories"
 import { seedPlanFeatures } from "./seed.plan-features"
 import { seedPlans } from "./seed.plans"
 import { seedRewards } from "./seed.rewards"
-import { seedPageTraffic } from "./seed.page-traffic"
 import { seedUseCases } from "./seed.use-cases"
 
 const prismaPromise = import("@/lib/prisma").then(
@@ -363,7 +362,6 @@ async function main() {
   await seedPlanFeatures(prisma)
   await seedPlans(prisma)
   await seedRewards(prisma)
-  await seedPageTraffic(prisma)
 
   const userSeeds = [
     {

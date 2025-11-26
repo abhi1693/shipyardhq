@@ -1,5 +1,3 @@
-import { startOfDay, subDays } from "date-fns"
-
 import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
@@ -7,6 +5,10 @@ import {
   parseMonthKey,
   toMonthKey,
 } from "@/lib/server/monthlyLeaderboard"
+import {
+  getHomepageTrafficFromGa,
+  getRealtimeVisitorsFromGa,
+} from "@/lib/server/analytics/googleAnalytics"
 import {
   productCardSelect,
   type ProductCardRecord,
@@ -20,15 +22,14 @@ const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
 
 export const getLeaderboardStats = cached(
   async () => {
-    const rangeStart = startOfDay(subDays(new Date(), 29))
     const [
       totalProducts,
       totalCreators,
       upvoteAgg,
       topProduct,
       insightsAgg,
-      trafficAgg,
-      trafficSeries,
+      homepageTraffic,
+      realtimeVisitors,
     ] = await Promise.all([
       prisma.product.count({}),
       prisma.user.count({}),
@@ -42,15 +43,8 @@ export const getLeaderboardStats = cached(
       prisma.productInsightProfile.aggregate({
         _sum: { insightsGeneratedCount: true },
       }),
-      prisma.pageTrafficDaily.aggregate({
-        where: { date: { gte: rangeStart } },
-        _sum: { pageViews: true, visitors: true },
-      }),
-      prisma.pageTrafficDaily.findMany({
-        where: { date: { gte: rangeStart } },
-        orderBy: { date: "asc" },
-        select: { date: true, pageViews: true, visitors: true },
-      }),
+      getHomepageTrafficFromGa(),
+      getRealtimeVisitorsFromGa(),
     ])
 
     return {
@@ -59,14 +53,10 @@ export const getLeaderboardStats = cached(
       totalUpvotes: upvoteAgg._sum.upvotes ?? 0,
       topScore: topProduct?.upvotes ?? 0,
       totalInsights: insightsAgg._sum.insightsGeneratedCount ?? 0,
-      pageViews30: trafficAgg._sum.pageViews ?? 0,
-      visitors30: trafficAgg._sum.visitors ?? 0,
-      trafficSeries:
-        trafficSeries?.map((row: { date: Date; pageViews: number; visitors: number }) => ({
-          date: row.date.toISOString(),
-          pageViews: row.pageViews,
-          visitors: row.visitors,
-        })) ?? [],
+      pageViews30: homepageTraffic.pageViews30,
+      visitors30: homepageTraffic.visitors30,
+      trafficSeries: homepageTraffic.trafficSeries,
+      realtimeVisitors,
     }
   },
   "leaderboard:stats",
