@@ -6,6 +6,7 @@ export type ProductPublishedEmailProps = {
   productName: string
   productUrl: string
   dashboardUrl: string
+  productSlug: string
   publishedAt?: Date
   shareUrl?: string
   planName?: string | null
@@ -97,15 +98,31 @@ export function ProductPublishedEmail({
   productName,
   productUrl,
   dashboardUrl,
+  productSlug,
   publishedAt,
   shareUrl,
   planName,
 }: ProductPublishedEmailProps) {
+  const badgeType: "featured" | "revenue" = "revenue"
   const publishedTimestamp = formatDate(publishedAt)
   const assetBaseUrl = EMAIL_BRAND.homeUrl.replace(/\/$/, "")
-  const badgeLightUrl = `${assetBaseUrl}/featured-on-light.png`
-  const badgeDarkUrl = `${assetBaseUrl}/featured-on-dark.png`
-  const badgeSnippet = `<a href="${productUrl}" target="_blank" rel="noopener">\n  <img src="${badgeLightUrl}" alt="Featured on ${EMAIL_BRAND.name}" width="240" />\n</a>`
+  const buildBadgeUrl = (
+    theme: "light" | "dark",
+    format: "svg" | "png" = "svg",
+  ) => {
+    const url = new URL(`/api/embed/products/${productSlug}`, assetBaseUrl)
+    url.searchParams.set("type", badgeType)
+    url.searchParams.set("theme", theme)
+    if (format === "png") {
+      url.searchParams.set("format", "png")
+    }
+    return url.toString()
+  }
+
+  const badgeLightUrl = buildBadgeUrl("light", "png")
+  const badgeDarkUrl = buildBadgeUrl("dark", "png")
+  const badgeEmbedUrl = buildBadgeUrl("light")
+  const badgeSnippet = `<a href="${productUrl}" target="_blank" rel="noopener">\n  <img src="${badgeEmbedUrl}" alt="${EMAIL_BRAND.name} badge" style="max-width: 500px;" />\n</a>`
 
   return (
     <BaseEmailTemplate
@@ -141,10 +158,14 @@ export function ProductPublishedEmail({
 
       <div style={badgeSectionStyle}>
         <p style={paragraphStyle}>
-          Add a backlink boost by placing our{" "}
-          <strong>Featured on Shipyard</strong>
-          badge on your homepage or press page. Link it to your product so
-          visitors can discover you on {EMAIL_BRAND.name}.
+          Add the live <strong>Shipyard badge</strong> from our embed API so it
+          stays in sync with your stats. Link it to your product so visitors can
+          discover you on {EMAIL_BRAND.name}.
+        </p>
+        <p style={paragraphStyle}>
+          The previews below render directly from the API (no static assets). Use
+          whichever theme fits your site; the embed stays up to date
+          automatically.
         </p>
         <table style={badgeTableStyle} cellPadding={0} cellSpacing={0}>
           <tbody>
@@ -153,7 +174,7 @@ export function ProductPublishedEmail({
                 <a href={badgeLightUrl} style={linkStyle}>
                   <img
                     src={badgeLightUrl}
-                    alt="Featured on Shipyard HQ badge for light backgrounds"
+                    alt="Shipyard badge API preview for light backgrounds"
                     style={badgeImageStyle}
                     width={220}
                     height={71}
@@ -165,7 +186,7 @@ export function ProductPublishedEmail({
                 <a href={badgeDarkUrl} style={linkStyle}>
                   <img
                     src={badgeDarkUrl}
-                    alt="Featured on Shipyard HQ badge for dark backgrounds"
+                    alt="Shipyard badge API preview for dark backgrounds"
                     style={badgeImageStyle}
                     width={220}
                     height={71}

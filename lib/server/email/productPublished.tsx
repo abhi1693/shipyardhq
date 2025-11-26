@@ -39,6 +39,7 @@ export async function sendProductPublishedEmail(productId: string) {
         productName={product.name}
         productUrl={getProductUrl(product.slug)}
         dashboardUrl={getDashboardUrl(product.slug)}
+        productSlug={product.slug}
         publishedAt={product.publishedAt ?? undefined}
         planName={product.plan?.name ?? undefined}
       />
