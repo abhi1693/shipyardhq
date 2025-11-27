@@ -1,4 +1,5 @@
 import { BetaAnalyticsDataClient, protos } from "@google-analytics/data"
+import { format } from "date-fns"
 
 import { getRedisClient } from "@/lib/server/redis"
 
@@ -14,6 +15,60 @@ const REALTIME_CACHE_KEY = "analytics:homepage:realtime:v1"
 const REALTIME_CACHE_TTL_SECONDS = 30
 
 let clientPromise: Promise<BetaAnalyticsDataClient> | null = null
+
+export type GaDateRange = {
+  startDate: string
+  endDate: string
+}
+
+export type GaProductTrafficSummary = {
+  pageViews: number
+  uniqueVisitors: number
+  sessions: number
+  bounceRate: number
+  averageSessionDuration: number
+  referrers: Array<{
+    referrer: string
+    views: number
+    share: number
+  }>
+  referrerCategories: Array<{
+    category: string
+    views: number
+    share: number
+  }>
+  browsers: Array<{
+    browser: string
+    visitors: number
+  }>
+  operatingSystems: Array<{
+    os: string
+    visitors: number
+  }>
+  countries: Array<{
+    country: string
+    code?: string | null
+    visitors: number
+    share: number
+  }>
+  cities: Array<{
+    city: string
+    region?: string | null
+    country?: string | null
+    code?: string | null
+    visitors: number
+  }>
+  devices: Array<{
+    deviceCategory: string
+    visitors: number
+  }>
+  timeseries: Array<{
+    date: string
+    label: string
+    pageViews: number
+    uniqueVisitors: number
+  }>
+}
 
 function parseCredentials(): Record<string, any> | null {
   const raw = process.env.GA_CREDENTIALS_JSON?.trim()
@@ -87,6 +142,465 @@ function parseDateString(value: string | null | undefined): string | null {
     return null
   }
   return new Date(Date.UTC(year, month - 1, day)).toISOString()
+}
+
+function buildPagePathFilter(
+  pagePaths: string[],
+): protos.google.analytics.data.v1beta.IFilterExpression {
+  if (pagePaths.length === 0) {
+    throw new Error("No page paths provided for GA product traffic")
+  }
+
+  if (pagePaths.length === 1) {
+    return {
+      filter: {
+        fieldName: "pagePath",
+        stringFilter: {
+          matchType:
+            protos.google.analytics.data.v1beta.Filter.StringFilter.MatchType
+              .EXACT,
+          value: pagePaths[0],
+        },
+      },
+    }
+  }
+
+  return {
+    orGroup: {
+      expressions: pagePaths.map((path) => ({
+        filter: {
+          fieldName: "pagePath",
+          stringFilter: {
+            matchType:
+              protos.google.analytics.data.v1beta.Filter.StringFilter.MatchType
+                .EXACT,
+            value: path,
+          },
+        },
+      })),
+    },
+  }
+}
+
+function parseMetricValue(value?: string | null) {
+  const numeric = Number(value ?? 0)
+  return Number.isFinite(numeric) ? numeric : 0
+}
+
+function resolveMetricValue(
+  totals: protos.google.analytics.data.v1beta.IMetricValue[] | undefined,
+  index: number,
+  rows:
+    | protos.google.analytics.data.v1beta.IRow[]
+    | null
+    | undefined = undefined,
+  mode: "sum" | "avg" = "sum",
+) {
+  const totalEntry = totals?.[index]
+  const totalValue =
+    totalEntry && "value" in totalEntry
+      ? parseMetricValue(totalEntry.value)
+      : null
+
+  if (totalValue !== null) {
+    return totalValue
+  }
+
+  if (!rows?.length) return 0
+
+  if (mode === "avg") {
+    const values = rows.map((row) =>
+      parseMetricValue(row.metricValues?.[index]?.value),
+    )
+    const sum = values.reduce((acc, val) => acc + val, 0)
+    return values.length ? sum / values.length : 0
+  }
+
+  return rows.reduce(
+    (acc, row) => acc + parseMetricValue(row.metricValues?.[index]?.value),
+    0,
+  )
+}
+
+async function fetchProductTrafficFromGa({
+  pagePaths,
+  dateRange,
+  includeAdvanced = true,
+}: {
+  pagePaths: string[]
+  dateRange: GaDateRange
+  includeAdvanced?: boolean
+}): Promise<GaProductTrafficSummary> {
+  const client = await getClient()
+  const property = resolveProperty()
+  if (!property) {
+    throw new Error("GA_PROPERTY_ID is missing")
+  }
+
+  const dimensionFilter = buildPagePathFilter(pagePaths)
+  const metrics = [
+    { name: "screenPageViews" },
+    { name: "activeUsers" },
+    { name: "sessions" },
+    { name: "bounceRate" },
+    { name: "averageSessionDuration" },
+  ]
+
+  let trendReport:
+    | protos.google.analytics.data.v1beta.IRunReportResponse
+    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
+  let referrerReport:
+    | protos.google.analytics.data.v1beta.IRunReportResponse
+    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
+  let referrerCategoryReport:
+    | protos.google.analytics.data.v1beta.IRunReportResponse
+    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
+  let browserReport:
+    | protos.google.analytics.data.v1beta.IRunReportResponse
+    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
+  let osReport:
+    | protos.google.analytics.data.v1beta.IRunReportResponse
+    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
+  let countryReport:
+    | protos.google.analytics.data.v1beta.IRunReportResponse
+    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
+  let cityReport:
+    | protos.google.analytics.data.v1beta.IRunReportResponse
+    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
+  let deviceReport:
+    | protos.google.analytics.data.v1beta.IRunReportResponse
+    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
+
+  if (includeAdvanced) {
+    ;[
+      trendReport,
+      referrerReport,
+      referrerCategoryReport,
+      browserReport,
+      osReport,
+      countryReport,
+      cityReport,
+      deviceReport,
+    ] = await Promise.all([
+      client.runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics,
+        dimensions: [{ name: "date" }],
+        dimensionFilter,
+        metricAggregations: [
+          protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
+        ],
+        orderBys: [{ dimension: { dimensionName: "date" } }],
+      }),
+      client.runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "screenPageViews" }],
+        dimensions: [{ name: "pageReferrer" }],
+        dimensionFilter,
+        limit: 8,
+        orderBys: [
+          {
+            metric: {
+              metricName: "screenPageViews",
+            },
+          },
+        ],
+      }),
+      client.runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "screenPageViews" }],
+        dimensions: [{ name: "sessionDefaultChannelGrouping" }],
+        dimensionFilter,
+        limit: 8,
+        orderBys: [
+          {
+            metric: {
+              metricName: "screenPageViews",
+            },
+          },
+        ],
+      }),
+      client.runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [{ name: "browser" }],
+        dimensionFilter,
+        limit: 8,
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+          },
+        ],
+      }),
+      client.runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [{ name: "operatingSystem" }],
+        dimensionFilter,
+        limit: 8,
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+          },
+        ],
+      }),
+      client.runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [{ name: "country" }, { name: "countryId" }],
+        dimensionFilter,
+        limit: 8,
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+          },
+        ],
+      }),
+      client.runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [
+          { name: "city" },
+          { name: "region" },
+          { name: "country" },
+          { name: "countryId" },
+        ],
+        dimensionFilter,
+        limit: 8,
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+          },
+        ],
+      }),
+      client.runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [{ name: "deviceCategory" }],
+        dimensionFilter,
+        limit: 8,
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+          },
+        ],
+      }),
+    ])
+  } else {
+    trendReport = await client.runReport({
+      property,
+      dateRanges: [dateRange],
+      metrics,
+      dimensions: [{ name: "date" }],
+      dimensionFilter,
+      metricAggregations: [
+        protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
+      ],
+      orderBys: [{ dimension: { dimensionName: "date" } }],
+    })
+  }
+
+  const trendResponse =
+    Array.isArray(trendReport) && trendReport.length > 0
+      ? trendReport[0]
+      : (trendReport as protos.google.analytics.data.v1beta.IRunReportResponse)
+
+  const referrerResponseParsed =
+    Array.isArray(referrerReport) && referrerReport.length > 0
+      ? referrerReport[0]
+      : (referrerReport as protos.google.analytics.data.v1beta.IRunReportResponse)
+  const referrerCategoryResponseParsed =
+    Array.isArray(referrerCategoryReport) && referrerCategoryReport.length > 0
+      ? referrerCategoryReport[0]
+      : (referrerCategoryReport as protos.google.analytics.data.v1beta.IRunReportResponse)
+  const browserResponseParsed =
+    Array.isArray(browserReport) && browserReport.length > 0
+      ? browserReport[0]
+      : (browserReport as protos.google.analytics.data.v1beta.IRunReportResponse)
+  const osResponseParsed =
+    Array.isArray(osReport) && osReport.length > 0
+      ? osReport[0]
+      : (osReport as protos.google.analytics.data.v1beta.IRunReportResponse)
+  const cityResponseParsed =
+    Array.isArray(cityReport) && cityReport.length > 0
+      ? cityReport[0]
+      : (cityReport as protos.google.analytics.data.v1beta.IRunReportResponse)
+  const countryResponseParsed =
+    Array.isArray(countryReport) && countryReport.length > 0
+      ? countryReport[0]
+      : (countryReport as protos.google.analytics.data.v1beta.IRunReportResponse)
+  const deviceResponseParsed =
+    Array.isArray(deviceReport) && deviceReport.length > 0
+      ? deviceReport[0]
+      : (deviceReport as protos.google.analytics.data.v1beta.IRunReportResponse)
+
+  const totals = trendResponse.totals?.[0]?.metricValues
+  const rows = trendResponse.rows ?? []
+  const referrerRows = includeAdvanced ? referrerResponseParsed.rows ?? [] : []
+  const referrerCategoryRows = includeAdvanced
+    ? referrerCategoryResponseParsed.rows ?? []
+    : []
+  const browserRows = includeAdvanced ? browserResponseParsed.rows ?? [] : []
+  const osRows = includeAdvanced ? osResponseParsed.rows ?? [] : []
+  const cityRows = includeAdvanced ? cityResponseParsed.rows ?? [] : []
+  const countryRows = includeAdvanced ? countryResponseParsed.rows ?? [] : []
+  const deviceRows = includeAdvanced ? deviceResponseParsed.rows ?? [] : []
+
+  const pageViews = resolveMetricValue(totals, 0, rows, "sum")
+  const uniqueVisitors = resolveMetricValue(totals, 1, rows, "sum")
+  const sessions = resolveMetricValue(totals, 2, rows, "sum")
+  const rawBounceRate = resolveMetricValue(totals, 3, rows, "avg")
+  const bounceRate =
+    rawBounceRate > 0 && rawBounceRate <= 1
+      ? rawBounceRate * 100
+      : rawBounceRate
+  const averageSessionDuration = resolveMetricValue(totals, 4, rows, "avg")
+
+  const timeseries =
+    (rows ?? [])
+      .map((row) => {
+        const dateIso = parseDateString(row.dimensionValues?.[0]?.value)
+        if (!dateIso) return null
+        const date = new Date(dateIso)
+        return {
+          date: dateIso,
+          label: format(date, "MMM d"),
+          pageViews: parseMetricValue(row.metricValues?.[0]?.value),
+          uniqueVisitors: parseMetricValue(row.metricValues?.[1]?.value),
+        }
+      })
+      .filter(
+        (
+          entry,
+        ): entry is {
+          date: string
+          label: string
+          pageViews: number
+          uniqueVisitors: number
+        } => Boolean(entry),
+      ) ?? []
+
+  const referrers =
+    (referrerRows ?? []).map((row) => {
+      const rawLabel = row.dimensionValues?.[0]?.value?.trim()
+      const referrer =
+        rawLabel && rawLabel.length > 0 ? rawLabel : "Direct / none"
+      const views = parseMetricValue(row.metricValues?.[0]?.value)
+      const share = pageViews > 0 ? (views / pageViews) * 100 : 0
+      return { referrer, views, share }
+    }) ?? []
+
+  const referrerCategories =
+    (referrerCategoryRows ?? []).map((row) => {
+      const rawLabel = row.dimensionValues?.[0]?.value?.trim()
+      const category = rawLabel && rawLabel.length > 0 ? rawLabel : "Other"
+      const views = parseMetricValue(row.metricValues?.[0]?.value)
+      const share = pageViews > 0 ? (views / pageViews) * 100 : 0
+      return { category, views, share }
+    }) ?? []
+
+  const browsers =
+    (browserRows ?? []).map((row) => {
+      const browserLabel = row.dimensionValues?.[0]?.value?.trim() || "Unknown"
+      const visitors = parseMetricValue(row.metricValues?.[0]?.value)
+      return { browser: browserLabel, visitors }
+    }) ?? []
+
+  const operatingSystems =
+    (osRows ?? []).map((row) => {
+      const osLabel = row.dimensionValues?.[0]?.value?.trim() || "Unknown"
+      const visitors = parseMetricValue(row.metricValues?.[0]?.value)
+      return { os: osLabel, visitors }
+    }) ?? []
+
+  const devices =
+    (deviceRows ?? []).map((row) => {
+      const deviceLabel =
+        row.dimensionValues?.[0]?.value?.trim().toLowerCase() || "unknown"
+      const visitors = parseMetricValue(row.metricValues?.[0]?.value)
+      return { deviceCategory: deviceLabel, visitors }
+    }) ?? []
+
+  const countries =
+    (countryRows ?? []).map((row) => {
+      const countryLabel = row.dimensionValues?.[0]?.value?.trim() || "Unknown"
+      const countryCode = row.dimensionValues?.[1]?.value?.trim() || null
+      const visitors = parseMetricValue(row.metricValues?.[0]?.value)
+      const share =
+        uniqueVisitors > 0 ? (visitors / uniqueVisitors) * 100 : 0
+      return { country: countryLabel, code: countryCode, visitors, share }
+    }) ?? []
+
+  const cities =
+    (cityRows ?? []).map((row) => {
+      const cityLabel = row.dimensionValues?.[0]?.value?.trim() || "Unknown"
+      const regionLabel = row.dimensionValues?.[1]?.value?.trim() || null
+      const countryLabel = row.dimensionValues?.[2]?.value?.trim() || null
+      const countryCode = row.dimensionValues?.[3]?.value?.trim() || null
+      const visitors = parseMetricValue(row.metricValues?.[0]?.value)
+      return {
+        city: cityLabel,
+        region: regionLabel,
+        country: countryLabel,
+        code: countryCode,
+        visitors,
+      }
+    }) ?? []
+
+  return {
+    pageViews,
+    uniqueVisitors,
+    sessions,
+    bounceRate,
+    averageSessionDuration,
+    referrers,
+    referrerCategories,
+    browsers,
+    operatingSystems,
+    cities,
+    countries,
+    devices,
+    timeseries,
+  }
+}
+
+export async function getProductTrafficFromGa(args: {
+  pagePaths: string[]
+  dateRange: GaDateRange
+  includeAdvanced?: boolean
+}): Promise<GaProductTrafficSummary> {
+  try {
+    return await fetchProductTrafficFromGa(args)
+  } catch (error) {
+    console.error("[analytics] failed to fetch GA product traffic", {
+      pagePaths: args.pagePaths,
+      dateRange: args.dateRange,
+      error,
+    })
+    return {
+      pageViews: 0,
+      uniqueVisitors: 0,
+      sessions: 0,
+      bounceRate: 0,
+      averageSessionDuration: 0,
+      referrers: [],
+      referrerCategories: [],
+      browsers: [],
+      operatingSystems: [],
+      cities: [],
+      countries: [],
+      devices: [],
+      timeseries: [],
+    }
+  }
 }
 
 async function fetchHomepageTrafficFromGa(): Promise<HomepageTraffic> {
