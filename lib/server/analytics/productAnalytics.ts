@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma"
 import { hasPlanFeature } from "@/lib/features"
 import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
+import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
 
 export const productAnalyticsSelect = {
   id: true,
@@ -17,6 +18,7 @@ export const productAnalyticsSelect = {
     select: {
       name: true,
       price: true,
+      isDefault: true,
       assignments: {
         select: {
           enabled: true,
@@ -43,7 +45,8 @@ export type ProductAnalyticsRecord = Prisma.ProductGetPayload<{
 }>
 
 export async function getProductAnalyticsRecord(id: string) {
-  const cacheKey = buildCacheKey("analytics", "productAnalytics", id)
+  // v2 to bust older cache entries that lacked plan defaults
+  const cacheKey = buildCacheKey("analytics", "productAnalytics", "v2", id)
   const cacheTtlSeconds = resolveCacheTtl("fast")
 
   const cachedRecord = await cacheHit<ProductAnalyticsRecord | null>({
@@ -61,10 +64,17 @@ export async function getProductAnalyticsRecord(id: string) {
     return cachedRecord
   }
 
-  const record = await prisma.product.findUnique({
+  let record = await prisma.product.findUnique({
     where: { id },
     select: productAnalyticsSelect,
   })
+
+  if (record && !record.plan) {
+    const defaultPlan = await getDefaultPlanWithFeatures()
+    if (defaultPlan) {
+      record = { ...record, plan: defaultPlan }
+    }
+  }
 
   if (record) {
     await cacheMiss({

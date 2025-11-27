@@ -16,6 +16,7 @@ import {
   validateConnectorApiKey,
   upsertPaymentConnector,
 } from "@/lib/server/payments/connectors"
+import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
 import { getCachedRevenueSummary } from "@/lib/server/payments/revenue"
 import {
   getActiveUserByClerkId,
@@ -43,6 +44,7 @@ type ProductListItem = Prisma.ProductGetPayload<{
       select: {
         id: true
         name: true
+        isDefault: true
         assignments: {
           select: {
             enabled: true
@@ -54,6 +56,14 @@ type ProductListItem = Prisma.ProductGetPayload<{
     verification: { select: { isVerified: true } }
     analytics: { select: { clicks: true; upvotes: true } }
     featureEntitlements: {
+      where: {
+        status: {
+          in: [
+            FeatureEntitlementStatus.active,
+            FeatureEntitlementStatus.pending,
+          ],
+        },
+      },
       select: { featureKey: true; status: true }
     }
   }
@@ -159,6 +169,7 @@ export async function getUserProducts(params?: ListParams) {
           select: {
             id: true,
             name: true,
+            isDefault: true,
             assignments: {
               select: {
                 enabled: true,
@@ -188,25 +199,33 @@ export async function getUserProducts(params?: ListParams) {
     prisma.product.count({ where }),
   ])) as [ProductListItem[], number]
 
+  // Fallback to the default plan's features when a product has no plan attached
+  const defaultPlan = products.some((product) => !product.plan)
+    ? await getDefaultPlanWithFeatures()
+    : null
+
   const productsWithPermissions = products.map((product: ProductListItem) => {
     const entitlementFeatures = new Set(
       (product.featureEntitlements ?? []).map((ent) => ent.featureKey),
     )
 
+    const planForAccess = product.plan ?? defaultPlan
+
     const hasAdvancedAnalytics =
-      hasPlanFeature(product.plan ?? null, "analytics.advanced") ||
+      hasPlanFeature(planForAccess ?? null, "analytics.advanced") ||
       entitlementFeatures.has("analytics.advanced")
     const canViewAnalytics =
       hasAdvancedAnalytics ||
-      hasPlanFeature(product.plan ?? null, "analytics.basic") ||
+      hasPlanFeature(planForAccess ?? null, "analytics.basic") ||
       entitlementFeatures.has("analytics.basic")
 
     const { plan, featureEntitlements: _featureEntitlements, ...rest } = product
     void _featureEntitlements
-    const planSummary = plan
+    const planForDisplay = plan ?? defaultPlan
+    const planSummary = planForDisplay
       ? {
-          id: plan.id,
-          name: plan.name,
+          id: planForDisplay.id,
+          name: planForDisplay.name,
         }
       : undefined
 

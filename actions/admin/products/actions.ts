@@ -14,11 +14,12 @@ import "@/lib/server/rewards/listeners"
 import { sendProductPublishedEmail } from "@/lib/server/email/productPublished"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import {
-  ProductType,
-  PricingModel,
-  Prisma,
+  FeatureEntitlementStatus,
   PaymentConnectorProvider,
   PaymentCredentialStatus,
+  Prisma,
+  PricingModel,
+  ProductType,
 } from "@/lib/vendor/prisma/client"
 import { slugify } from "@/lib/utils"
 import { checkRole } from "@/lib/roles"
@@ -37,6 +38,7 @@ import {
   validateConnectorApiKey,
   upsertPaymentConnector,
 } from "@/lib/server/payments/connectors"
+import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
 import { cacheRevenueSummary } from "@/lib/server/payments/revenue"
 import {
   getActiveUserByClerkId,
@@ -103,7 +105,7 @@ export async function getProductsCount(args: Prisma.ProductCountArgs = {}) {
 
 export async function getProductById(id: string) {
   try {
-    return await prisma.product.findUnique({
+    let product = await prisma.product.findUnique({
       where: { id },
       include: {
         category: true,
@@ -114,8 +116,23 @@ export async function getProductById(id: string) {
         verification: true,
         ProductMedia: true,
         ProductBadge: true,
+        featureEntitlements: {
+          where: {
+            status: {
+              in: [
+                FeatureEntitlementStatus.active,
+                FeatureEntitlementStatus.pending,
+              ],
+            },
+          },
+          select: { featureKey: true, status: true },
+        },
         plan: {
-          include: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            isDefault: true,
             assignments: {
               include: {
                 feature: true,
@@ -146,6 +163,13 @@ export async function getProductById(id: string) {
         },
       },
     })
+    if (product && !product.plan) {
+      const defaultPlan = await getDefaultPlanWithFeatures()
+      if (defaultPlan) {
+        product = { ...product, plan: defaultPlan }
+      }
+    }
+    return product
   } catch (error) {
     console.error("Error fetching product by ID:", error)
     throw new Error("Failed to fetch product")

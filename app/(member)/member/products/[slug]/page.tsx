@@ -59,6 +59,7 @@ import { getPublicPlans } from "@/actions/public/plans/actions"
 import { PlanType } from "@/lib/vendor/prisma/client"
 // startPlanCheckoutAction and setProductPlanAction are used inside choosePlanAction
 import { hasPlanFeature } from "@/lib/features"
+import { resolveProductAnalyticsAccess } from "@/lib/server/analytics/productAnalytics"
 import PurchasePlanToast from "@/components/molecules/PurchasePlanToast"
 import ProductBadgeCelebrationGate from "@/components/molecules/ProductBadgeCelebrationGate"
 import ProductBadgeCelebrationTrigger from "@/components/molecules/ProductBadgeCelebrationTrigger"
@@ -126,13 +127,12 @@ export default async function ViewUserProductPage({
   const analyticsPath = memberProductAnalyticsPath(productSlug)
   const insightsPath = memberProductInsightsPath(productSlug)
   const updatesPath = memberProductUpdatesPath(productSlug)
-  const hasAdvancedAnalytics = hasPlanFeature(
-    product.plan ?? null,
-    "analytics.advanced",
-  )
-  const canViewAnalytics =
-    hasAdvancedAnalytics ||
-    hasPlanFeature(product.plan ?? null, "analytics.basic")
+  const { hasAdvancedAnalytics, hasBasicAnalytics } =
+    resolveProductAnalyticsAccess({
+      plan: product.plan,
+      featureEntitlements: product.featureEntitlements ?? [],
+    })
+  const canViewAnalytics = hasBasicAnalytics
   const upvoters = await getRecentProductUpvoters(productId, 8).catch(() => [])
   const reviewSummary = await getProductReviewSummary(productId, 6)
 
