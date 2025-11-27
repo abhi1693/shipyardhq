@@ -27,6 +27,7 @@ const SUPPORTED_PROVIDERS = [
   { name: "RevenueCat", logoSrc: "/providers/revenuecat.png" },
   { name: "Lemon Squeezy", logoSrc: "/providers/lemon.jpeg" },
   { name: "AbacatePay", logoSrc: "/providers/abacatepay.jpeg" },
+  { name: "Creem", logoSrc: "/providers/creem.svg" },
 ] as const
 
 export async function VerifiedRevenuePageContent() {

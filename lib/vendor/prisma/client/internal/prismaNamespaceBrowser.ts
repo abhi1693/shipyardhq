@@ -67,7 +67,6 @@ export const ModelName = {
   ProductAnalytics: 'ProductAnalytics',
   ProductClickEvent: 'ProductClickEvent',
   ProductTrafficEvent: 'ProductTrafficEvent',
-  PageTrafficDaily: 'PageTrafficDaily',
   ProductInsightProfile: 'ProductInsightProfile',
   ProductInsightStageResult: 'ProductInsightStageResult',
   ProductUpvote: 'ProductUpvote',
@@ -368,17 +367,6 @@ export const ProductTrafficEventScalarFieldEnum = {
 } as const
 
 export type ProductTrafficEventScalarFieldEnum = (typeof ProductTrafficEventScalarFieldEnum)[keyof typeof ProductTrafficEventScalarFieldEnum]
-
-
-export const PageTrafficDailyScalarFieldEnum = {
-  date: 'date',
-  pageViews: 'pageViews',
-  visitors: 'visitors',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type PageTrafficDailyScalarFieldEnum = (typeof PageTrafficDailyScalarFieldEnum)[keyof typeof PageTrafficDailyScalarFieldEnum]
 
 
 export const ProductInsightProfileScalarFieldEnum = {

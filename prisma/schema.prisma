@@ -79,6 +79,7 @@ enum PaymentConnectorProvider {
   lemonsqueezy
   paddle
   revenuecat
+  creem
 }
 
 enum PaymentConnectorStatus {

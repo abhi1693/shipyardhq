@@ -55,6 +55,7 @@ type Props = {
 
 const PROVIDER_OPTIONS: { value: PaymentConnectorProvider; label: string }[] = [
   { value: PaymentConnectorProviderEnum.abacatepay, label: "AbacatePay" },
+  { value: PaymentConnectorProviderEnum.creem, label: "Creem" },
   { value: PaymentConnectorProviderEnum.dodo, label: "DodoPayments" },
   { value: PaymentConnectorProviderEnum.paddle, label: "Paddle" },
   { value: PaymentConnectorProviderEnum.polar, label: "Polar" },
@@ -111,6 +112,8 @@ export function PaymentConnectorCard({
       ? `${stripePrefix} restricted key`
       : selectedProvider === PaymentConnectorProviderEnum.abacatepay
         ? "mrr_... AbacatePay revenue token"
+        : selectedProvider === PaymentConnectorProviderEnum.creem
+          ? "creem_... Creem API key"
         : selectedProvider === PaymentConnectorProviderEnum.revenuecat
           ? "RevenueCat secret API key"
           : selectedProvider === PaymentConnectorProviderEnum.polar
@@ -129,6 +132,8 @@ export function PaymentConnectorCard({
     selectedProvider === PaymentConnectorProviderEnum.polar
   const showRevenueCatPermissions =
     selectedProvider === PaymentConnectorProviderEnum.revenuecat
+  const showCreemPermissions =
+    selectedProvider === PaymentConnectorProviderEnum.creem
   const showPolarOrganizationId =
     selectedProvider === PaymentConnectorProviderEnum.polar
   const showRevenueCatProject =
@@ -252,6 +257,10 @@ export function PaymentConnectorCard({
             Use the read-only token from AbacatePay Apps starting with{" "}
             <span className="font-mono">mrr_</span>.
           </p>
+        ) : selectedProvider === PaymentConnectorProviderEnum.creem ? (
+          <p className="text-xs text-muted-foreground">
+            Use a Creem API key (x-api-key) from Developers
+          </p>
         ) : selectedProvider === PaymentConnectorProviderEnum.revenuecat ? (
           <p className="text-xs text-muted-foreground">
             Use a RevenueCat secret API key from Project Settings with access to
@@ -282,6 +291,7 @@ export function PaymentConnectorCard({
       {showStripePermissions ||
       showPolarPermissions ||
       showRevenueCatPermissions ||
+      showCreemPermissions ||
       showLemonPermissions ? (
         <div className="rounded-md border border-dashed border-border bg-muted/40 p-3">
           <p className="text-xs font-semibold text-foreground">
@@ -291,7 +301,9 @@ export function PaymentConnectorCard({
                 ? "Polar token permissions needed"
                 : showRevenueCatPermissions
                   ? "RevenueCat key permissions needed"
-                  : "Lemon Squeezy key permissions needed"}
+                  : showCreemPermissions
+                    ? "Creem key permissions needed"
+                    : "Lemon Squeezy key permissions needed"}
           </p>
           <ul className="mt-1 list-disc pl-4 text-xs text-muted-foreground">
             {showStripePermissions ? (
@@ -312,6 +324,11 @@ export function PaymentConnectorCard({
                 <li>Scope: customer_information:customers:read</li>
                 <li>Scope: customer_information:subscriptions:read</li>
                 <li>Includes verified revenue derived from subscriptions</li>
+              </>
+            ) : null}
+            {showCreemPermissions ? (
+              <>
+                <li>Transactions: Read</li>
               </>
             ) : null}
             {showLemonPermissions ? (

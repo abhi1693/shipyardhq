@@ -68,6 +68,7 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
         .enum([
           "dodo",
           "abacatepay",
+          "creem",
           "polar",
           "revenuecat",
           "stripe",
@@ -214,6 +215,17 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
             path: ["connectorApiKey"],
             code: z.ZodIssueCode.custom,
             message: "AbacatePay tokens must start with mrr_",
+          })
+        }
+      }
+
+      if (val.connectorProvider === "creem") {
+        const key = val.connectorApiKey?.trim() ?? ""
+        if (key && !key.startsWith("creem_")) {
+          ctx.addIssue({
+            path: ["connectorApiKey"],
+            code: z.ZodIssueCode.custom,
+            message: "Creem API keys must start with creem_",
           })
         }
       }

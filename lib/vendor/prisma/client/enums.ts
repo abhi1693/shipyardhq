@@ -16,7 +16,8 @@ export const PaymentConnectorProvider = {
   stripe: 'stripe',
   lemonsqueezy: 'lemonsqueezy',
   paddle: 'paddle',
-  revenuecat: 'revenuecat'
+  revenuecat: 'revenuecat',
+  creem: 'creem'
 } as const
 
 export type PaymentConnectorProvider = (typeof PaymentConnectorProvider)[keyof typeof PaymentConnectorProvider]

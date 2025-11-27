@@ -1,6 +1,7 @@
 import { PaymentConnectorProvider } from "@/lib/vendor/prisma/client"
 
 import { abacatePayProvider } from "./abacatepay"
+import { creemProvider } from "./creem"
 import { dodoProvider } from "./dodo"
 import { lemonSqueezyProvider } from "./lemonsqueezy"
 import { paddleProvider } from "./paddle"
@@ -13,6 +14,7 @@ const PROVIDERS: Partial<
   Record<PaymentConnectorProvider, PaymentProviderDefinition>
 > = {
   [PaymentConnectorProvider.abacatepay]: abacatePayProvider,
+  [PaymentConnectorProvider.creem]: creemProvider,
   [PaymentConnectorProvider.dodo]: dodoProvider,
   [PaymentConnectorProvider.lemonsqueezy]: lemonSqueezyProvider,
   [PaymentConnectorProvider.paddle]: paddleProvider,
