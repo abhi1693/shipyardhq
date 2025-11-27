@@ -22,6 +22,7 @@ const providerLabels = {
   dodo: "DoDo",
   revenuecat: "RevenueCat",
   abacatepay: "AbacatePay",
+  creem: "Creem",
 } as const
 
 function rangeToKey(range?: string): number | "all" {

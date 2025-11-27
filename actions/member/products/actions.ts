@@ -6,12 +6,12 @@ import { dodoClient } from "@/lib/dodo"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import { createPlanCheckout } from "@/lib/server/dodoCheckout"
 import {
-  FeatureEntitlementStatus,
   PaymentConnectorProvider,
   PaymentCredentialStatus,
   Prisma,
   ProductStatus,
 } from "@/lib/vendor/prisma/client"
+import type { FeatureEntitlementStatus } from "@/lib/vendor/prisma/client"
 import {
   validateConnectorApiKey,
   upsertPaymentConnector,
@@ -37,6 +37,11 @@ type OrgMembershipRef = Prisma.OrganizationMembershipGetPayload<{
   select: { organizationId: true }
 }>
 
+const ACTIVE_ENTITLEMENT_STATUSES: FeatureEntitlementStatus[] = [
+  "active",
+  "pending",
+]
+
 type ProductListItem = Prisma.ProductGetPayload<{
   include: {
     category: { select: { id: true; name: true; slug: true } }
@@ -57,12 +62,7 @@ type ProductListItem = Prisma.ProductGetPayload<{
     analytics: { select: { clicks: true; upvotes: true } }
     featureEntitlements: {
       where: {
-        status: {
-          in: [
-            FeatureEntitlementStatus.active,
-            FeatureEntitlementStatus.pending,
-          ],
-        },
+        status: { in: FeatureEntitlementStatus[] },
       },
       select: { featureKey: true; status: true }
     }
@@ -182,12 +182,7 @@ export async function getUserProducts(params?: ListParams) {
         analytics: { select: { clicks: true, upvotes: true } },
         featureEntitlements: {
           where: {
-            status: {
-              in: [
-                FeatureEntitlementStatus.active,
-                FeatureEntitlementStatus.pending,
-              ],
-            },
+            status: { in: ACTIVE_ENTITLEMENT_STATUSES },
           },
           select: {
             featureKey: true,

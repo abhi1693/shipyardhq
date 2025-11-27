@@ -1,15 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import { ADMIN_BASE_PATH, MEMBER_BASE_PATH } from "@/lib/routes"
+import { MEMBER_BASE_PATH } from "@/lib/routes"
 const isMemberRoute = createRouteMatcher([`${MEMBER_BASE_PATH}(.*)`])
-
-const DISALLOWED_PREFIXES = [
-  ADMIN_BASE_PATH,
-  MEMBER_BASE_PATH,
-  "/api",
-  "/auth",
-  "/embed",
-]
 
 export default clerkMiddleware(async (auth, req) => {
   // Rewrite sitemap chunk URLs ending with .xml to existing handler

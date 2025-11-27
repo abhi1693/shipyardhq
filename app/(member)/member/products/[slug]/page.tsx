@@ -127,11 +127,10 @@ export default async function ViewUserProductPage({
   const analyticsPath = memberProductAnalyticsPath(productSlug)
   const insightsPath = memberProductInsightsPath(productSlug)
   const updatesPath = memberProductUpdatesPath(productSlug)
-  const { hasAdvancedAnalytics, hasBasicAnalytics } =
-    resolveProductAnalyticsAccess({
-      plan: product.plan,
-      featureEntitlements: product.featureEntitlements ?? [],
-    })
+  const { hasBasicAnalytics } = resolveProductAnalyticsAccess({
+    plan: product.plan,
+    featureEntitlements: product.featureEntitlements ?? [],
+  })
   const canViewAnalytics = hasBasicAnalytics
   const upvoters = await getRecentProductUpvoters(productId, 8).catch(() => [])
   const reviewSummary = await getProductReviewSummary(productId, 6)
