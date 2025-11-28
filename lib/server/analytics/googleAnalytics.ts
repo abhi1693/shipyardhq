@@ -339,7 +339,6 @@ async function fetchProductTrafficFromGa({
     { name: "engagementRate" },
     { name: "screenPageViewsPerSession" },
     { name: "engagedSessions" },
-    { name: "newUsers" },
   ]
 
   const runReport = async (
