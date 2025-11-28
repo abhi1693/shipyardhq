@@ -151,7 +151,7 @@ export function ProductPublishedEmail({
         </li>
         <li>Ask early adopters to upvote and leave feedback on Shipyard HQ.</li>
         <li>
-          Monitor analytics in your dashboard to watch clicks and upvotes roll
+          Monitor analytics in your dashboard to watch traffic and upvotes roll
           in.
         </li>
       </ol>

@@ -29,13 +29,7 @@ const COUNTRY_COLORS = ["#2563eb", "#f97316", "#16a34a", "#6366f1", "#ef4444"]
 const TREND_COLORS = {
   views: "#2563eb",
   uniqueVisitors: "#0ea5e9",
-  clicks: "#f97316",
   upvotes: "#22c55e",
-}
-
-const ENGAGEMENT_COLORS = {
-  clicks: TREND_COLORS.clicks,
-  upvotes: TREND_COLORS.upvotes,
 }
 
 function formatPercent(value: number) {
@@ -79,7 +73,7 @@ export function ProductAnalyticsCharts({
     (point) => point.uniqueVisitors > 0,
   )
   const hasEngagementSeries = summary.engagementOverTime.some(
-    (point) => point.clicks > 0 || point.upvotes > 0,
+    (point) => point.upvotes > 0,
   )
 
   const getDeviceColor = (device?: string | null) =>
@@ -198,20 +192,17 @@ export function ProductAnalyticsCharts({
     </AnalyticsChartCard>
   )
 
-  const renderClicksCard = (className?: string) => {
+  const renderEngagementCard = (className?: string) => {
     const lineDefinitions: AnalyticsLineDefinition<
       (typeof summary.engagementOverTime)[number]
-    >[] = [
-      { dataKey: "clicks" },
-      { dataKey: "upvotes", strokeDasharray: "4 4" },
-    ]
+    >[] = [{ dataKey: "upvotes" }]
 
     return (
       <AnalyticsChartCard
         className={className}
-        title="Clicks & upvotes"
+        title="Upvotes"
         description={`Last ${summary.rangeDays} days of product interactions`}
-        tooltip="Daily Shipyard engagement—CTA clicks and new upvotes collected during the selected window."
+        tooltip="Daily Shipyard engagement—new upvotes collected during the selected window."
         infoLabel="View engagement chart description"
         headerClassName="px-4 pb-0"
         contentClassName="px-4 pb-5 pt-4"
@@ -221,18 +212,17 @@ export function ProductAnalyticsCharts({
             className="min-h-[280px]"
             data={summary.engagementOverTime}
             config={{
-              clicks: { label: "Clicks", color: ENGAGEMENT_COLORS.clicks },
-              upvotes: { label: "Upvotes", color: ENGAGEMENT_COLORS.upvotes },
+              upvotes: { label: "Upvotes", color: TREND_COLORS.upvotes },
             }}
             lines={lineDefinitions}
             yTickFormatter={formatNumber}
             tooltipFormatter={formatNumber}
-            cursorStroke="var(--chart-clicks)"
+            cursorStroke="var(--chart-views)"
           />
         ) : (
           <p className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-3 py-10 text-center text-base text-muted-foreground">
-            Engagement lines will appear once Shipyard records fresh clicks or
-            upvotes for this product.
+            Engagement lines will appear once Shipyard records fresh upvotes
+            for this product.
           </p>
         )}
       </AnalyticsChartCard>
@@ -415,7 +405,7 @@ export function ProductAnalyticsCharts({
     <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-12">
       {renderViewsCard("md:col-span-2 xl:col-span-7")}
       {renderDeviceCard("md:col-span-1 xl:col-span-5")}
-      {renderClicksCard("md:col-span-2 xl:col-span-7")}
+      {renderEngagementCard("md:col-span-2 xl:col-span-7")}
       {renderBrowserCard("md:col-span-1 xl:col-span-5")}
       {showUserAgents
         ? renderUserAgentCard("md:col-span-1 xl:col-span-5")

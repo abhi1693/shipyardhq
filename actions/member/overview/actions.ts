@@ -18,7 +18,6 @@ type MemberTrafficOverview = {
   rangeDays: number
   totalViews: number
   uniqueVisitors: number
-  clicksInRange: number
   upvotesInRange: number
   viewsOverTime: ProductTrafficSummaryPoint[]
   engagementOverTime: ProductEngagementSummaryPoint[]
@@ -85,26 +84,17 @@ function buildViewsOverTime({
 function buildEngagementOverTime({
   windowDays,
   today,
-  clicks,
   upvotes,
 }: {
   windowDays: number
   today: Date
-  clicks: Date[]
   upvotes: Date[]
 }): ProductEngagementSummaryPoint[] {
-  const counts = new Map<string, { clicks: number; upvotes: number }>()
-
-  for (const createdAt of clicks) {
-    const key = formatISO(startOfDay(createdAt), { representation: "date" })
-    const entry = counts.get(key) ?? { clicks: 0, upvotes: 0 }
-    entry.clicks += 1
-    counts.set(key, entry)
-  }
+  const counts = new Map<string, { upvotes: number }>()
 
   for (const createdAt of upvotes) {
     const key = formatISO(startOfDay(createdAt), { representation: "date" })
-    const entry = counts.get(key) ?? { clicks: 0, upvotes: 0 }
+    const entry = counts.get(key) ?? { upvotes: 0 }
     entry.upvotes += 1
     counts.set(key, entry)
   }
@@ -116,7 +106,6 @@ function buildEngagementOverTime({
     return {
       date: key,
       label: format(date, "MMM d"),
-      clicks: entry?.clicks ?? 0,
       upvotes: entry?.upvotes ?? 0,
     }
   })
@@ -140,7 +129,6 @@ function buildEmptySummary(
   const engagementOverTime = viewsOverTime.map(({ date, label }) => ({
     date,
     label,
-    clicks: 0,
     upvotes: 0,
   }))
 
@@ -148,7 +136,6 @@ function buildEmptySummary(
     rangeDays: windowDays,
     totalViews: 0,
     uniqueVisitors: 0,
-    clicksInRange: 0,
     upvotesInRange: 0,
     viewsOverTime,
     engagementOverTime,
@@ -164,18 +151,15 @@ async function getEngagementSummary({
   windowDays: number
   today: Date
 }): Promise<{
-  clicks: number
   upvotes: number
   timeline: ProductEngagementSummaryPoint[]
 }> {
   if (productIds.length === 0) {
     return {
-      clicks: 0,
       upvotes: 0,
       timeline: buildEngagementOverTime({
         windowDays,
         today,
-        clicks: [],
         upvotes: [],
       }),
     }
@@ -184,34 +168,23 @@ async function getEngagementSummary({
   const rangeStart = subDays(today, windowDays - 1)
   const rangeEnd = addDays(today, 1)
 
-  const [clickEvents, upvoteEvents] = await Promise.all([
-    prisma.productClickEvent.findMany({
-      where: {
-        productId: { in: productIds },
-        createdAt: { gte: rangeStart, lt: rangeEnd },
-      },
-      select: { createdAt: true },
-    }),
-    prisma.productUpvote.findMany({
-      where: {
-        productId: { in: productIds },
-        createdAt: { gte: rangeStart, lt: rangeEnd },
-      },
-      select: { createdAt: true },
-    }),
-  ])
+  const upvoteEvents = await prisma.productUpvote.findMany({
+    where: {
+      productId: { in: productIds },
+      createdAt: { gte: rangeStart, lt: rangeEnd },
+    },
+    select: { createdAt: true },
+  })
 
   const timeline = buildEngagementOverTime({
     windowDays,
     today,
-    clicks: clickEvents.map((event: { createdAt: Date }) => event.createdAt),
     upvotes: upvoteEvents.map(
       (event: { createdAt: Date }) => event.createdAt,
     ),
   })
 
   return {
-    clicks: clickEvents.length,
     upvotes: upvoteEvents.length,
     timeline,
   }
@@ -264,7 +237,6 @@ export async function getMemberTrafficOverview(
     rangeDays: windowDays,
     totalViews: gaTraffic?.pageViews ?? 0,
     uniqueVisitors: gaTraffic?.uniqueVisitors ?? 0,
-    clicksInRange: engagement.clicks,
     upvotesInRange: engagement.upvotes,
     viewsOverTime,
     engagementOverTime: engagement.timeline,

@@ -58,7 +58,6 @@ async function MemberOverviewAnalyticsSection() {
       label: "Unique visitors",
       value: summary.uniqueVisitors,
     },
-    { id: "clicks", label: "Clicks", value: summary.clicksInRange },
     { id: "upvotes", label: "Upvotes", value: summary.upvotesInRange },
   ]
 
@@ -69,17 +68,8 @@ async function MemberOverviewAnalyticsSection() {
     uniqueVisitors: point.uniqueVisitors,
   }))
 
-  const engagementData = summary.engagementOverTime.map((point) => ({
-    date: point.date,
-    label: point.label,
-    clicks: point.clicks,
-    upvotes: point.upvotes,
-  }))
-
   const hasTrafficActivity =
     summary.totalViews > 0 || summary.uniqueVisitors > 0
-  const hasEngagementActivity =
-    summary.clicksInRange > 0 || summary.upvotesInRange > 0
 
   return (
     <>
@@ -87,9 +77,7 @@ async function MemberOverviewAnalyticsSection() {
 
       <MemberAnalyticsCharts
         trafficData={trafficData}
-        engagementData={engagementData}
         hasTrafficActivity={hasTrafficActivity}
-        hasEngagementActivity={hasEngagementActivity}
       />
     </>
   )

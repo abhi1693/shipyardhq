@@ -720,7 +720,6 @@ export default async function ViewUserProductPage({
             <div className="col-span-12 md:col-span-4">
               <PerformanceCard
                 upvotes={product.analytics?.upvotes ?? 0}
-                clicks={product.analytics?.clicks ?? 0}
                 upvoters={upvoters as any}
                 badges={(product.ProductBadge || []) as any}
                 productName={product.name}

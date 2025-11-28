@@ -114,7 +114,7 @@ async function mutateVote({
       const analyticsUpdate = await tx.productAnalytics.upsert({
         where: { productId },
         update: { upvotes: { increment: 1 } },
-        create: { productId, upvotes: baseCount + 1, clicks: 0 },
+        create: { productId, upvotes: baseCount + 1 },
         select: { upvotes: true },
       })
 

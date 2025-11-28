@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma"
 import type { Prisma } from "@/lib/vendor/prisma/client"
-import { addDays, startOfDay, subDays } from "date-fns"
+import { addDays, format, startOfDay, subDays } from "date-fns"
+import { getSiteAnalyticsSnapshot } from "@/lib/server/analytics/googleAnalytics"
 
 export interface DashboardStats {
   totalProducts: number
@@ -27,7 +28,6 @@ export interface DashboardStats {
   viewsInRange: number
   previousViews: number
   viewsDelta: number
-  totalClicks: number
   totalUpvotes: number
   upvotesInRange: number
   previousUpvotes: number
@@ -206,34 +206,31 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
     totalProducts > 0 ? Math.round((verifiedProducts / totalProducts) * 100) : 0
   const usedFeatureAssignments = usedFeatures._count ?? 0
 
-  const [
-    analyticsAggregate,
-    viewsInRange,
-    previousViews,
-    totalViews,
-    upvotesInRange,
-    previousUpvotes,
-  ] = await Promise.all([
-    prisma.productAnalytics.aggregate({
-      _sum: { clicks: true, upvotes: true },
-    }),
-    prisma.productTrafficEvent.count({
-      where: { createdAt: { gte: since } },
-    }),
-    prisma.productTrafficEvent.count({
-      where: { createdAt: { gte: prevSince, lt: since } },
-    }),
-    prisma.productTrafficEvent.count(),
-    prisma.productUpvote.count({
-      where: { createdAt: { gte: since } },
-    }),
-    prisma.productUpvote.count({
-      where: { createdAt: { gte: prevSince, lt: since } },
-    }),
-  ])
+  const currentRange = {
+    startDate: format(since, "yyyy-MM-dd"),
+    endDate: format(now, "yyyy-MM-dd"),
+  }
+  const previousRange = {
+    startDate: format(prevSince, "yyyy-MM-dd"),
+    endDate: format(subDays(since, 1), "yyyy-MM-dd"),
+  }
 
-  const totalClicks = analyticsAggregate._sum.clicks ?? 0
-  const totalUpvotes = analyticsAggregate._sum.upvotes ?? 0
+  const [currentSnapshot, previousSnapshot, upvotesInRange, previousUpvotes, totalUpvotes] =
+    await Promise.all([
+      getSiteAnalyticsSnapshot({ dateRange: currentRange }),
+      getSiteAnalyticsSnapshot({ dateRange: previousRange }),
+      prisma.productUpvote.count({
+        where: { createdAt: { gte: since } },
+      }),
+      prisma.productUpvote.count({
+        where: { createdAt: { gte: prevSince, lt: since } },
+      }),
+      prisma.productUpvote.count(),
+    ])
+
+  const totalViews = currentSnapshot.pageViews
+  const viewsInRange = currentSnapshot.pageViews
+  const previousViews = previousSnapshot.pageViews
   const viewsDelta = viewsInRange - previousViews
   const upvotesDelta = upvotesInRange - previousUpvotes
 
@@ -292,7 +289,6 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
     viewsInRange,
     previousViews,
     viewsDelta,
-    totalClicks,
     totalUpvotes,
     upvotesInRange,
     previousUpvotes,

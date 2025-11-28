@@ -20,18 +20,9 @@ type TrafficPoint = {
   uniqueVisitors: number
 }
 
-type EngagementPoint = {
-  date: string
-  label: string
-  clicks: number
-  upvotes: number
-}
-
 interface MemberAnalyticsChartsProps {
   trafficData: TrafficPoint[]
-  engagementData: EngagementPoint[]
   hasTrafficActivity?: boolean
-  hasEngagementActivity?: boolean
 }
 
 const trafficChartConfig: ChartConfig = {
@@ -39,19 +30,9 @@ const trafficChartConfig: ChartConfig = {
   uniqueVisitors: { label: "Unique visitors", color: "#0ea5e9" },
 }
 
-const engagementChartConfig: ChartConfig = {
-  clicks: { label: "Clicks", color: "#f97316" },
-  upvotes: { label: "Upvotes", color: "#22c55e" },
-}
-
 const trafficLines: AnalyticsLineDefinition<TrafficPoint>[] = [
   { dataKey: "views" },
   { dataKey: "uniqueVisitors", strokeDasharray: "4 4" },
-]
-
-const engagementLines: AnalyticsLineDefinition<EngagementPoint>[] = [
-  { dataKey: "clicks" },
-  { dataKey: "upvotes", strokeDasharray: "4 4" },
 ]
 
 const numberFormatter = new Intl.NumberFormat("en-US", {
@@ -60,21 +41,15 @@ const numberFormatter = new Intl.NumberFormat("en-US", {
 
 export function MemberAnalyticsCharts({
   trafficData,
-  engagementData,
   hasTrafficActivity,
-  hasEngagementActivity,
 }: MemberAnalyticsChartsProps) {
   const hasTrafficPoints =
     typeof hasTrafficActivity === "boolean"
       ? hasTrafficActivity
       : trafficData.some((point) => point.views > 0 || point.uniqueVisitors > 0)
-  const hasEngagementPoints =
-    typeof hasEngagementActivity === "boolean"
-      ? hasEngagementActivity
-      : engagementData.some((point) => point.clicks > 0 || point.upvotes > 0)
 
   return (
-    <section className="grid gap-4 lg:grid-cols-2">
+    <section className="grid gap-4">
       <Card className="border border-slate-200 bg-white">
         <CardHeader>
           <CardTitle>Traffic</CardTitle>
@@ -93,28 +68,6 @@ export function MemberAnalyticsCharts({
             />
           ) : (
             <ChartPlaceholder message="No traffic events recorded in the past 7 days." />
-          )}
-        </CardContent>
-      </Card>
-
-      <Card className="border border-slate-200 bg-white">
-        <CardHeader>
-          <CardTitle>Engagement</CardTitle>
-          <CardDescription>Clicks vs. upvotes</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {hasEngagementPoints ? (
-            <AnalyticsLineChart
-              className="min-h-[280px]"
-              data={engagementData}
-              config={engagementChartConfig}
-              lines={engagementLines}
-              yTickFormatter={(value) => numberFormatter.format(value)}
-              tooltipFormatter={(value) => numberFormatter.format(value)}
-              cursorStroke="#f97316"
-            />
-          ) : (
-            <ChartPlaceholder message="No clicks or upvotes were captured in the past 7 days." />
           )}
         </CardContent>
       </Card>

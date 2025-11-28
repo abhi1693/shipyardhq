@@ -8,7 +8,7 @@ import {
 } from "@/components/atoms/card"
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import Link from "next/link"
-import { MousePointerClick, ThumbsUp, Star, Sparkles } from "lucide-react"
+import { ThumbsUp, Star, Sparkles } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
@@ -28,7 +28,6 @@ type BadgeItem = { id: string; badge: string; expiresAt: string | Date | null }
 
 export default function PerformanceCard({
   upvotes = 0,
-  clicks = 0,
   upvoters = [],
   badges = [],
   productName,
@@ -42,7 +41,6 @@ export default function PerformanceCard({
   recentReviews = [],
 }: {
   upvotes?: number
-  clicks?: number
   upvoters?: Upvoter[]
   badges?: BadgeItem[]
   productName: string
@@ -108,12 +106,6 @@ export default function PerformanceCard({
               <ThumbsUp className="h-3.5 w-3.5" /> Upvotes
             </div>
             <div className={statValueClass}>{upvotes}</div>
-          </div>
-          <div className={statTileClass}>
-            <div className={statLabelClass}>
-              <MousePointerClick className="h-3.5 w-3.5" /> Clicks
-            </div>
-            <div className={statValueClass}>{clicks}</div>
           </div>
           {hasReviewStats && (
             <div className={statTileClass}>

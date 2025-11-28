@@ -194,12 +194,6 @@ export default async function OverviewPage({
       helper: `${formatNumber(stats.defaultPlanProductCount)} products on default plan`,
       href: adminPath("plans"),
     },
-    {
-      title: "Total clicks",
-      value: formatNumber(stats.totalClicks),
-      helper: "Aggregated product CTAs",
-      href: adminPath("analytics", "growth"),
-    },
   ]
 
   const verificationGap = Math.max(stats.unverifiedProducts, 0)
@@ -312,7 +306,7 @@ export default async function OverviewPage({
                   {upvoteRateDisplay}% conversion from view → upvote
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {formatNumber(stats.totalClicks)} lifetime clicks across all
+                  {formatNumber(stats.totalUpvotes)} lifetime upvotes across all
                   CTAs.
                 </p>
               </div>

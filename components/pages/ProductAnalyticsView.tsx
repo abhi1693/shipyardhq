@@ -16,15 +16,10 @@ import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import RangeSelector from "@/components/molecules/RangeSelector"
 import { ProductAnalyticsCharts } from "@/components/pages/ProductAnalyticsCharts"
 import { cn } from "@/lib/utils"
-import type {
-  ProductAnalyticsNarrative,
-  ProductTrafficSummary,
-} from "@/types/analytics"
+import type { ProductTrafficSummary } from "@/types/analytics"
 import type { ProductAnalytics } from "@/lib/vendor/prisma/client"
 import { ArrowLeft, ExternalLink, Info } from "lucide-react"
 import { PRICING_PATH } from "@/lib/routes"
-import AnalyticsFeedbackPrompt from "@/components/molecules/AnalyticsFeedbackPrompt"
-import { AnalyticsNarrativeCard } from "@/components/molecules/AnalyticsNarrativeCard"
 import { formatCountryName } from "@/lib/geo"
 
 const actionGroupClass =
@@ -67,12 +62,10 @@ function SummaryCards({
 }: {
   summary: ProductTrafficSummary
   accessLevel: "basic" | "advanced"
-  analytics?: Pick<ProductAnalytics, "upvotes" | "clicks"> | null
+  analytics?: Pick<ProductAnalytics, "upvotes"> | null
 }) {
   const formatter = new Intl.NumberFormat("en-US")
   const upvotes = analytics?.upvotes ?? 0
-  const clicks = analytics?.clicks ?? 0
-  const clicksInRange = summary.clicksInRange
   const upvotesInRange = summary.upvotesInRange
   const formatRate = (value: number) =>
     Number.isFinite(value) ? `${value.toFixed(1)}%` : "—"
@@ -92,13 +85,6 @@ function SummaryCards({
         "All-time Shipyard upvotes for this product, combining public and member activity.",
     },
     {
-      title: "Lifetime clicks",
-      value: formatter.format(clicks),
-      helper: "Tracked CTA clicks from your Shipyard product page.",
-      tooltip:
-        "Total clicks captured on Shipyard call-to-action buttons since tracking began.",
-    },
-    {
       title: `Total views (last ${summary.rangeDays}d)`,
       value: formatter.format(summary.totalViews),
       delta: summary.totalViewsChange,
@@ -108,14 +94,6 @@ function SummaryCards({
   ]
 
   const advancedOnlyCards: typeof cards = [
-    {
-      title: `CTA clicks (${summary.rangeDays}d)`,
-      value: formatter.format(clicksInRange),
-      delta: summary.clicksChange,
-      helper: `${formatRate(summary.clickThroughRate)} CTR`,
-      tooltip:
-        "CTA clicks captured during this window compared with the previous period.",
-    },
     {
       title: `New upvotes (${summary.rangeDays}d)`,
       value: formatter.format(upvotesInRange),
@@ -263,67 +241,6 @@ function BreakdownCard({
   )
 }
 
-type ConversionEntry = {
-  label: string
-  views: number
-  clicks: number
-  rate: number
-}
-
-function ConversionCard({
-  title,
-  subtitle,
-  items,
-  empty,
-}: {
-  title: string
-  subtitle: string
-  items: ConversionEntry[]
-  empty: string
-}) {
-  const formatter = new Intl.NumberFormat("en-US")
-
-  return (
-    <Card className="rounded-2xl border border-slate-200 bg-white/95 shadow-sm">
-      <CardHeader className="px-4 pb-0">
-        <CardTitle className="text-base text-slate-900">{title}</CardTitle>
-        <CardDescription className="text-xs text-muted-foreground">
-          {subtitle}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="px-4 pb-5 pt-4">
-        {items.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-3 py-4 text-xs text-muted-foreground">
-            {empty}
-          </p>
-        ) : (
-          <ul className="space-y-3">
-            {items.map((item) => (
-              <li
-                key={item.label}
-                className="flex items-start justify-between gap-3 text-sm"
-              >
-                <div>
-                  <div className="font-medium text-slate-900">{item.label}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {formatter.format(item.views)} views ·{" "}
-                    {formatter.format(item.clicks)} clicks
-                  </div>
-                </div>
-                <div className="shrink-0 text-xs font-semibold text-slate-700">
-                  {Number.isFinite(item.rate)
-                    ? `${item.rate.toFixed(1)}% CTR`
-                    : "—"}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
 function VisitorLoyaltyCard({
   data,
 }: {
@@ -418,10 +335,9 @@ export interface ProductAnalyticsViewProps {
     name: string
     createdAt: Date
     updatedAt: Date
-    analytics?: Pick<ProductAnalytics, "upvotes" | "clicks"> | null
+    analytics?: Pick<ProductAnalytics, "upvotes"> | null
   }
   summary: ProductTrafficSummary
-  narrative?: ProductAnalyticsNarrative | null
   basePath: string
   backHref: string
   publicHref?: string
@@ -435,7 +351,6 @@ export interface ProductAnalyticsViewProps {
 export function ProductAnalyticsView({
   product,
   summary,
-  narrative,
   basePath,
   backHref,
   publicHref,
@@ -472,65 +387,6 @@ export function ProductAnalyticsView({
   const trafficCategoryItems = advanced.referrerCategoryBreakdown
     .map((item) => ({ label: item.label, views: item.views }))
     .slice(0, 5)
-  const referrerConversionItems: ConversionEntry[] =
-    summary.referrerConversionBreakdown
-      .filter((item) => (item.views ?? 0) > 0 || (item.clicks ?? 0) > 0)
-      .slice(0, 6)
-      .map((item) => ({
-        label: item.referrer || "Direct",
-        views: item.views,
-        clicks: item.clicks,
-        rate: item.clickThroughRate,
-      }))
-  const deviceConversionItems: ConversionEntry[] =
-    summary.deviceConversionBreakdown
-      .filter((item) => item.views > 0 || item.clicks > 0)
-      .map((item) => ({
-        label: item.label,
-        views: item.views,
-        clicks: item.clicks,
-        rate: item.clickThroughRate,
-      }))
-  const browserConversionItems: ConversionEntry[] =
-    summary.browserConversionBreakdown
-      .filter((item) => item.views > 0 || item.clicks > 0)
-      .slice(0, 6)
-      .map((item) => ({
-        label: item.browser || "Unknown",
-        views: item.views,
-        clicks: item.clicks,
-        rate: item.clickThroughRate,
-      }))
-  const hasConversionInsights =
-    referrerConversionItems.length > 0 ||
-    deviceConversionItems.length > 0 ||
-    browserConversionItems.length > 0
-
-  const narrativeExtras =
-    isAdvanced && narrative
-      ? [
-          <section key="ai-brief" className="space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                  Action playbook
-                </span>
-                <p className="text-sm text-muted-foreground">
-                  AI-curated next steps across traffic, engagement, and
-                  anomalies.
-                </p>
-              </div>
-              <RangeSelector className="shrink-0" />
-            </div>
-            <AnalyticsNarrativeCard
-              narrative={narrative}
-              summary={summary}
-              rangeLabel={rangeLabel}
-              variant="embedded"
-            />
-          </section>,
-        ]
-      : undefined
 
   return (
     <ObjectPageLayout
@@ -543,7 +399,6 @@ export function ProductAnalyticsView({
       }}
       overview={[]}
       basePath={basePath}
-      topRowExtras={narrativeExtras}
       headingActionsLeft={
         <div className="flex flex-wrap items-center gap-3">
           <div className={actionGroupClass}>
@@ -565,16 +420,6 @@ export function ProductAnalyticsView({
               </Button>
             ) : null}
           </div>
-          <AnalyticsFeedbackPrompt
-            className="justify-start"
-            storageKey="shipyardhq:feedback-nudge:product-analytics"
-            buttonLabel="Share analytics feedback"
-            title="Need deeper analytics?"
-            description="Tell us which charts or metrics would help you act faster."
-            body="Call out missing funnels, filters, or signals you rely on when reporting to your crew."
-            primaryLabel="Open feedback form"
-            secondaryLabel="Not now"
-          />
         </div>
       }
       relationships={
@@ -657,35 +502,6 @@ export function ProductAnalyticsView({
                   />
                 </div>
               </section>
-              {hasConversionInsights ? (
-                <section className="space-y-4">
-                  <div>
-                    <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                      Conversion insights
-                    </span>
-                  </div>
-                  <div className="grid gap-4 lg:grid-cols-3">
-                    <ConversionCard
-                      title="Top referrers"
-                      subtitle="CTA clicks by source"
-                      items={referrerConversionItems}
-                      empty="Clicks will appear here once visitors engage."
-                    />
-                    <ConversionCard
-                      title="Devices"
-                      subtitle="Click-through by device"
-                      items={deviceConversionItems}
-                      empty="We need more traffic to compute device-level engagement."
-                    />
-                    <ConversionCard
-                      title="Browsers"
-                      subtitle="Click-through by browser"
-                      items={browserConversionItems}
-                      empty="Browser insights will populate with additional clicks."
-                    />
-                  </div>
-                </section>
-              ) : null}
             </>
           ) : (
             <>
@@ -703,8 +519,8 @@ export function ProductAnalyticsView({
                     Unlock deeper analytics
                   </CardTitle>
                   <CardDescription className="text-sm text-muted-foreground">
-                    Upgrade to advanced analytics for loyalty signals, channel
-                    mix, and conversion insights tailored to every campaign.
+                    Upgrade to advanced analytics for loyalty signals and richer
+                    channel insights tailored to every campaign.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="px-5 pb-6">
@@ -716,10 +532,7 @@ export function ProductAnalyticsView({
                       Break down channels, cities, and browsers with richer
                       drilldowns.
                     </li>
-                    <li>
-                      Compare click-through performance with device and browser
-                      conversion insights.
-                    </li>
+                    <li>Compare engagement across device and browser overlays.</li>
                   </ul>
                   <div className="mt-4">
                     <Button asChild>

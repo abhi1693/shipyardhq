@@ -59,7 +59,7 @@ type ProductListItem = Prisma.ProductGetPayload<{
       }
     }
     verification: { select: { isVerified: true } }
-    analytics: { select: { clicks: true; upvotes: true } }
+    analytics: { select: { upvotes: true } }
     featureEntitlements: {
       where: {
         status: { in: FeatureEntitlementStatus[] },
@@ -146,9 +146,6 @@ export async function getUserProducts(params?: ListParams) {
     case "az":
       orderBy = { name: "asc" }
       break
-    case "clicks":
-      orderBy = { analytics: { clicks: "desc" } }
-      break
     case "upvotes":
       orderBy = { analytics: { upvotes: "desc" } }
       break
@@ -179,7 +176,7 @@ export async function getUserProducts(params?: ListParams) {
           },
         },
         verification: { select: { isVerified: true } },
-        analytics: { select: { clicks: true, upvotes: true } },
+        analytics: { select: { upvotes: true } },
         featureEntitlements: {
           where: {
             status: { in: ACTIVE_ENTITLEMENT_STATUSES },
