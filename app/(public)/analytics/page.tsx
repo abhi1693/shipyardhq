@@ -2,18 +2,22 @@ import type { ReactNode } from "react"
 import { format, subDays } from "date-fns"
 import {
   Activity,
-  Globe2,
   Clock3,
-  Laptop,
-  Monitor,
   MousePointer2,
-  MapPin,
-  Smartphone,
-  Tablet,
   TrendingUp,
   Users,
 } from "lucide-react"
 
+import {
+  BrowserIcon,
+  deviceIcon,
+  FlagIcon,
+  formatDuration,
+  formatPercent,
+  OsIcon,
+  ValueBarRow,
+} from "@/components/molecules/AnalyticsShared"
+import { AnalyticsValueList } from "@/components/molecules/AnalyticsValueList"
 import { AnalyticsLineChart } from "@/components/molecules/AnalyticsLineChart"
 import {
   Card,
@@ -36,172 +40,11 @@ const PAGE_TITLE = "Analytics"
 export const revalidate = 300
 
 const numberFormatter = new Intl.NumberFormat("en-US")
-const percentFormatter = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 1,
-})
-
-function formatDuration(seconds: number) {
-  if (!Number.isFinite(seconds) || seconds <= 0) return "—"
-  const total = Math.round(seconds)
-  const hours = Math.floor(total / 3600)
-  const minutes = Math.floor((total % 3600) / 60)
-  const secs = total % 60
-  if (hours > 0) return `${hours}h ${minutes.toString().padStart(2, "0")}m`
-  if (minutes > 0) return `${minutes}m ${secs.toString().padStart(2, "0")}s`
-  return `${secs}s`
-}
-
-function formatPercent(value: number) {
-  if (!Number.isFinite(value)) return "—"
-  return `${percentFormatter.format(value)}%`
-}
 
 function computeDelta(current: number, previous: number) {
   if (!Number.isFinite(previous) || previous === 0) return null
   const delta = ((current - previous) / previous) * 100
   return delta
-}
-
-function flagEmoji(code?: string | null) {
-  if (!code || code.length !== 2) return "🌐"
-  const upper = code.toUpperCase()
-  const first = upper.codePointAt(0)
-  const second = upper.codePointAt(1)
-  if (!first || !second) return "🌐"
-  return String.fromCodePoint(0x1f1e6 + (first - 65), 0x1f1e6 + (second - 65))
-}
-
-function FlagIcon({ code, name }: { code?: string | null; name: string }) {
-  const emoji = flagEmoji(code)
-  return (
-    <span className="text-lg" title={name} aria-label={name}>
-      {emoji}
-    </span>
-  )
-}
-
-function BrowserIcon({ name }: { name: string }) {
-  const key = name.toLowerCase()
-  if (key.includes("chrome")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <circle cx="12" cy="12" r="10" fill="#ea4335" />
-        <path d="M12 12 6 6a10 10 0 0 1 12 2" fill="#fbbc04" />
-        <path d="M12 12 6 18a10 10 0 0 1-1-12" fill="#34a853" />
-        <circle cx="12" cy="12" r="4" fill="#fff" />
-        <circle cx="12" cy="12" r="2.6" fill="#4285f4" />
-      </svg>
-    )
-  }
-  if (key.includes("safari")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <circle cx="12" cy="12" r="10" fill="#0ea5e9" />
-        <polygon points="12,5 9,15 12,12 15,9" fill="#fff" />
-        <polygon points="12,19 15,9 12,12 9,15" fill="#f43f5e" />
-      </svg>
-    )
-  }
-  if (key.includes("firefox")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <path
-          d="M12 2c5.5 0 9.5 4.3 9 9.5-.5 5.2-5 8.5-9.7 8.5-5 0-8.9-3.7-8.9-8.5C2.4 8.2 5 5 8 4c-.2.7-.2 1.7.4 2.5 1.2-1.3 2.8-1.9 4.8-1.9Z"
-          fill="#f97316"
-        />
-        <path d="M9 7c-.4 1.4.3 2.6 1.6 3 1.7.6 3.5-.6 3.6-2.4" fill="#fbbf24" />
-      </svg>
-    )
-  }
-  if (key.includes("edge")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <path
-          d="M4 15c0-5.5 6.5-9.5 12-6.6-.7-.2-1.6-.2-2.5.3C11 10.5 10.2 14 12 16c-3 0-5-.5-5-3Z"
-          fill="#0ea5e9"
-        />
-        <path d="M12 16c0 2.5 2.2 4 4.5 4 2.3 0 3.8-1.3 4.5-3.5" fill="#22c55e" />
-      </svg>
-    )
-  }
-  if (key.includes("opera")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <circle cx="12" cy="12" r="10" fill="#e60023" />
-        <ellipse cx="12" cy="12" rx="4" ry="7" fill="#fff" />
-      </svg>
-    )
-  }
-  if (key.includes("brave")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <path
-          d="M6 4 4 7l2 9 6 4 6-4 2-9-2-3H6Z"
-          fill="#f97316"
-          stroke="#ea580c"
-          strokeWidth="0.5"
-        />
-      </svg>
-    )
-  }
-  return <Globe2 className="h-4 w-4 text-slate-400" />
-}
-
-function OsIcon({ name }: { name: string }) {
-  const key = name.toLowerCase()
-  if (key.includes("mac") || key.includes("ios")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <path
-          d="M16 2s-1.5.1-2.6 1.6C12.4 5 12.7 6 13 6.5c.4.4 1.2 1.2 2.4 1 0 0 .1-1.5 1.2-2.7C17.7 3.6 18.7 3 19.4 3c0 0-.4-1-1.8-1-.9 0-1.6.4-1.6.4Z"
-          fill="#0f172a"
-        />
-        <path
-          d="M12.5 7.8C11 7 9.4 7.2 8.2 7.8 6.6 8.6 6 10.4 6 11.6c0 1.6.6 3 1.2 4 .8 1.4 1.6 2.4 2.8 2.4 1 0 1.5-.6 2.6-.6 1.2 0 1.5.6 2.6.6 1.2 0 2-.9 2.8-2.3.6-1.1 1-2.3 1-3.2a4.4 4.4 0 0 0-2.2-3.7c-1.4-.8-3-.7-3.7-.3-.3.2-.7.4-1.1.4-.3 0-.7-.2-1-.4Z"
-          fill="#0f172a"
-        />
-      </svg>
-    )
-  }
-  if (key.includes("windows")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <path d="M3 4.5 11 3v8H3v-6.5Z" fill="#2563eb" />
-        <path d="M3 12.5h8v8l-8-1.1v-6.9Z" fill="#2563eb" />
-        <path d="M13 3.2 21 2v9h-8V3.2Z" fill="#2563eb" />
-        <path d="M13 12.8h8V22l-8-1.2v-8Z" fill="#2563eb" />
-      </svg>
-    )
-  }
-  if (key.includes("android")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <rect x="6" y="7" width="12" height="10" rx="2" fill="#16a34a" />
-        <circle cx="10" cy="10" r="0.8" fill="#fff" />
-        <circle cx="14" cy="10" r="0.8" fill="#fff" />
-      </svg>
-    )
-  }
-  if (key.includes("linux")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <path
-          d="M9 5c0-1.1.9-2 2-2h2c1.1 0 2 .9 2 2v10H9V5Z"
-          fill="#0f172a"
-        />
-        <path d="M8 15h8l-1 3H9l-1-3Z" fill="#f59e0b" />
-      </svg>
-    )
-  }
-  return <Laptop className="h-4 w-4 text-slate-400" />
-}
-
-function deviceIcon(deviceCategory: string) {
-  const key = deviceCategory.toLowerCase()
-  if (key.includes("desktop")) return <Monitor className="h-4 w-4 text-slate-400" />
-  if (key.includes("mobile")) return <Smartphone className="h-4 w-4 text-slate-400" />
-  if (key.includes("tablet")) return <Tablet className="h-4 w-4 text-slate-400" />
-  return <MousePointer2 className="h-4 w-4 text-slate-400" />
 }
 
 function referrerLabel(value: string) {
@@ -272,12 +115,6 @@ export default async function AnalyticsPage() {
   const totalProductViews = topProducts.reduce((sum, p) => sum + p.pageViews, 0)
   const newVisitorShare = snapshot.uniqueVisitors > 0 ? (snapshot.newUsers / snapshot.uniqueVisitors) * 100 : 0
   const returningVisitorShare = Math.max(0, 100 - newVisitorShare)
-  const maxRefViews = Math.max(0, ...snapshot.referrers.map((ref) => ref.views))
-  const maxCountryVisitors = Math.max(0, ...snapshot.countries.map((c) => c.visitors))
-  const maxCityVisitors = Math.max(0, ...snapshot.cities.map((c) => c.visitors))
-  const maxBrowserVisitors = Math.max(0, ...snapshot.browsers.map((b) => b.visitors))
-  const maxOsVisitors = Math.max(0, ...snapshot.operatingSystems.map((o) => o.visitors))
-  const maxDeviceVisitors = Math.max(0, ...snapshot.devices.map((d) => d.visitors))
   const hasTimeseries = snapshot.timeseries.length > 0
 
   const deltas = {
@@ -303,6 +140,7 @@ export default async function AnalyticsPage() {
     pageViews: { label: "Page views", color: "#0ea5e9" },
     uniqueVisitors: { label: "Visitors", color: "#a855f7" },
   }
+  const valueBarRowClassName = "border border-slate-200 bg-white px-3 py-2 shadow-sm"
 
   return (
     <>
@@ -355,7 +193,7 @@ export default async function AnalyticsPage() {
             />
             <MetricCard
               label="Visit duration"
-              value={formatDuration(snapshot.averageSessionDuration)}
+              value={formatDuration(snapshot.averageSessionDuration, { padMinutes: true })}
               delta={deltas.duration}
               icon={<Clock3 className="h-4 w-4" aria-hidden />}
             />
@@ -382,6 +220,7 @@ export default async function AnalyticsPage() {
               <ValueBarRow
                 value={newVisitorShare}
                 max={100}
+                className={valueBarRowClassName}
                 left={
                   <div className="flex items-center gap-2 truncate">
                     <span className="h-2 w-2 rounded-full bg-sky-400" />
@@ -398,6 +237,7 @@ export default async function AnalyticsPage() {
               <ValueBarRow
                 value={returningVisitorShare}
                 max={100}
+                className={valueBarRowClassName}
                 left={
                   <div className="flex items-center gap-2 truncate">
                     <span className="h-2 w-2 rounded-full bg-indigo-400" />
@@ -448,46 +288,39 @@ export default async function AnalyticsPage() {
                 <CardTitle className="text-lg font-semibold">Product Pages</CardTitle>
               </CardHeader>
               <CardContent className="pt-3">
-                {topProducts.length === 0 ? (
-                  <div className="flex h-24 items-center justify-center text-sm text-slate-500">
-                    No product traffic recorded in this window yet.
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {topProducts.map((product) => (
-                      <ValueBarRow
-                        key={`${product.slug}-${product.path}`}
-                        value={
-                          totalProductViews > 0
-                            ? (product.pageViews / totalProductViews) * 100
-                            : 0
-                        }
-                        max={100}
-                        left={
-                          <div className="min-w-0">
-                            <div className="truncate font-semibold text-slate-900">{product.name}</div>
-                            <div className="truncate text-xs text-slate-500">{product.path}</div>
+                <AnalyticsValueList
+                  items={topProducts.map((product) => {
+                    const share =
+                      totalProductViews > 0
+                        ? (product.pageViews / totalProductViews) * 100
+                        : 0
+                    return {
+                      key: product.path,
+                      value: share,
+                      tone: "indigo",
+                      left: (
+                        <div className="min-w-0">
+                          <div className="truncate font-semibold text-slate-900">{product.name}</div>
+                          <div className="truncate text-xs text-slate-500">{product.path}</div>
+                        </div>
+                      ),
+                      right: (
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-slate-700">
+                            {formatPercent(share)}
                           </div>
-                        }
-                        right={
-                          <div className="text-right">
-                            <div className="text-sm font-semibold text-slate-700">
-                              {formatPercent(
-                                totalProductViews > 0
-                                  ? (product.pageViews / totalProductViews) * 100
-                                  : 0,
-                              )}
-                            </div>
-                            <div className="text-xs text-slate-500">
-                              {numberFormatter.format(product.pageViews)} views
-                            </div>
+                          <div className="text-xs text-slate-500">
+                            {numberFormatter.format(product.pageViews)} views
                           </div>
-                        }
-                        tone="indigo"
-                      />
-                    ))}
-                  </div>
-                )}
+                        </div>
+                      ),
+                    }
+                  })}
+                  max={100}
+                  className="space-y-4"
+                  emptyLabel="No product traffic recorded in this window yet."
+                  valueBarRowProps={{ className: valueBarRowClassName }}
+                />
               </CardContent>
             </Card>
 
@@ -496,31 +329,25 @@ export default async function AnalyticsPage() {
                 <CardTitle className="text-lg font-semibold">Referrers</CardTitle>
               </CardHeader>
               <CardContent className="pt-3">
-                {snapshot.referrers.length === 0 ? (
-                  <div className="flex h-24 items-center justify-center text-sm text-slate-500">
-                    Waiting for referral data.
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {snapshot.referrers.map((referrer) => (
-                      <ValueBarRow
-                        key={referrer.referrer}
-                        value={referrer.views}
-                        max={maxRefViews}
-                        left={
-                          <span className="truncate font-medium text-slate-900">
-                            {referrerLabel(referrer.referrer)}
-                          </span>
-                        }
-                        right={
-                          <span className="text-sm font-semibold text-slate-700">
-                            {formatPercent(referrer.share)}
-                          </span>
-                        }
-                      />
-                    ))}
-                  </div>
-                )}
+                <AnalyticsValueList
+                  items={snapshot.referrers.map((referrer) => ({
+                    key: referrer.referrer,
+                    value: referrer.views,
+                    left: (
+                      <span className="truncate font-medium text-slate-900">
+                        {referrerLabel(referrer.referrer)}
+                      </span>
+                    ),
+                    right: (
+                      <span className="text-sm font-semibold text-slate-700">
+                        {formatPercent(referrer.share)}
+                      </span>
+                    ),
+                  }))}
+                  className="space-y-3"
+                  emptyLabel="Waiting for referral data."
+                  valueBarRowProps={{ className: valueBarRowClassName }}
+                />
               </CardContent>
             </Card>
           </div>
@@ -531,33 +358,27 @@ export default async function AnalyticsPage() {
                 <CardTitle className="text-lg font-semibold">Countries</CardTitle>
               </CardHeader>
               <CardContent className="pt-3">
-                {snapshot.countries.length === 0 ? (
-                  <div className="flex h-24 items-center justify-center text-sm text-slate-500">
-                    No country data yet.
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {snapshot.countries.map((country) => (
-                      <ValueBarRow
-                        key={country.country}
-                        value={country.visitors}
-                        max={maxCountryVisitors}
-                        left={
-                          <div className="flex items-center gap-2 truncate">
-                            <FlagIcon code={country.code} name={country.country} />
-                            <span className="truncate font-medium text-slate-900">{country.country}</span>
-                          </div>
-                        }
-                        right={
-                          <span className="text-sm font-semibold text-slate-700">
-                            {formatPercent(country.share)}
-                          </span>
-                        }
-                        tone="blue"
-                      />
-                    ))}
-                  </div>
-                )}
+                <AnalyticsValueList
+                  items={snapshot.countries.map((country) => ({
+                    key: country.country,
+                    value: country.visitors,
+                    tone: "blue",
+                    left: (
+                      <div className="flex items-center gap-2 truncate">
+                        <FlagIcon code={country.code} name={country.country} />
+                        <span className="truncate font-medium text-slate-900">{country.country}</span>
+                      </div>
+                    ),
+                    right: (
+                      <span className="text-sm font-semibold text-slate-700">
+                        {formatPercent(country.share)}
+                      </span>
+                    ),
+                  }))}
+                  className="space-y-3"
+                  emptyLabel="No country data yet."
+                  valueBarRowProps={{ className: valueBarRowClassName }}
+                />
               </CardContent>
             </Card>
 
@@ -566,38 +387,32 @@ export default async function AnalyticsPage() {
                 <CardTitle className="text-lg font-semibold">Cities</CardTitle>
               </CardHeader>
               <CardContent className="pt-3">
-                {snapshot.cities.length === 0 ? (
-                  <div className="flex h-24 items-center justify-center text-sm text-slate-500">
-                    No city data yet.
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {snapshot.cities.map((city) => (
-                      <ValueBarRow
-                        key={`${city.city}-${city.region ?? ""}-${city.country ?? ""}`}
-                        value={city.visitors}
-                        max={maxCityVisitors}
-                        left={
-                          <div className="flex items-center gap-2 truncate">
-                            <FlagIcon code={city.code} name={city.city} />
-                            <div className="min-w-0 truncate">
-                              <div className="truncate font-medium text-slate-900">{city.city}</div>
-                              <div className="truncate text-xs text-slate-500">
-                                {[city.region, city.country].filter(Boolean).join(" · ")}
-                              </div>
-                            </div>
+                <AnalyticsValueList
+                  items={snapshot.cities.map((city) => ({
+                    key: `${city.city}-${city.region ?? ""}-${city.country ?? ""}`,
+                    value: city.visitors,
+                    tone: "blue",
+                    left: (
+                      <div className="flex items-center gap-2 truncate">
+                        <FlagIcon code={city.code} name={city.city} />
+                        <div className="min-w-0 truncate">
+                          <div className="truncate font-medium text-slate-900">{city.city}</div>
+                          <div className="truncate text-xs text-slate-500">
+                            {[city.region, city.country].filter(Boolean).join(" · ")}
                           </div>
-                        }
-                        right={
-                          <span className="text-sm font-semibold text-slate-700">
-                            {formatPercent(city.share)}
-                          </span>
-                        }
-                        tone="blue"
-                      />
-                    ))}
-                  </div>
-                )}
+                        </div>
+                      </div>
+                    ),
+                    right: (
+                      <span className="text-sm font-semibold text-slate-700">
+                        {formatPercent(city.share)}
+                      </span>
+                    ),
+                  }))}
+                  className="space-y-3"
+                  emptyLabel="No city data yet."
+                  valueBarRowProps={{ className: valueBarRowClassName }}
+                />
               </CardContent>
             </Card>
           </div>
@@ -608,33 +423,27 @@ export default async function AnalyticsPage() {
                 <CardTitle className="text-lg font-semibold">Browsers</CardTitle>
               </CardHeader>
               <CardContent className="pt-3">
-                {snapshot.browsers.length === 0 ? (
-                  <div className="flex h-24 items-center justify-center text-sm text-slate-500">
-                    No browser data yet.
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {snapshot.browsers.map((browser) => (
-                      <ValueBarRow
-                        key={browser.browser}
-                        value={browser.visitors}
-                        max={maxBrowserVisitors}
-                        left={
-                          <div className="flex items-center gap-2 truncate">
-                            <BrowserIcon name={browser.browser} />
-                            <span className="truncate font-medium text-slate-900">{browser.browser}</span>
-                          </div>
-                        }
-                        right={
-                          <span className="text-sm font-semibold text-slate-700">
-                            {formatPercent(browser.share)}
-                          </span>
-                        }
-                        tone="indigo"
-                      />
-                    ))}
-                  </div>
-                )}
+                <AnalyticsValueList
+                  items={snapshot.browsers.map((browser) => ({
+                    key: browser.browser,
+                    value: browser.visitors,
+                    tone: "indigo",
+                    left: (
+                      <div className="flex items-center gap-2 truncate">
+                        <BrowserIcon name={browser.browser} />
+                        <span className="truncate font-medium text-slate-900">{browser.browser}</span>
+                      </div>
+                    ),
+                    right: (
+                      <span className="text-sm font-semibold text-slate-700">
+                        {formatPercent(browser.share)}
+                      </span>
+                    ),
+                  }))}
+                  className="space-y-3"
+                  emptyLabel="No browser data yet."
+                  valueBarRowProps={{ className: valueBarRowClassName }}
+                />
               </CardContent>
             </Card>
 
@@ -643,33 +452,27 @@ export default async function AnalyticsPage() {
                 <CardTitle className="text-lg font-semibold">Operating systems</CardTitle>
               </CardHeader>
               <CardContent className="pt-3">
-                {snapshot.operatingSystems.length === 0 ? (
-                  <div className="flex h-24 items-center justify-center text-sm text-slate-500">
-                    No OS data yet.
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {snapshot.operatingSystems.map((os) => (
-                      <ValueBarRow
-                        key={os.os}
-                        value={os.visitors}
-                        max={maxOsVisitors}
-                        left={
-                          <div className="flex items-center gap-2 truncate">
-                            <OsIcon name={os.os} />
-                            <span className="truncate font-medium text-slate-900">{os.os}</span>
-                          </div>
-                        }
-                        right={
-                          <span className="text-sm font-semibold text-slate-700">
-                            {formatPercent(os.share)}
-                          </span>
-                        }
-                        tone="blue"
-                      />
-                    ))}
-                  </div>
-                )}
+                <AnalyticsValueList
+                  items={snapshot.operatingSystems.map((os) => ({
+                    key: os.os,
+                    value: os.visitors,
+                    tone: "blue",
+                    left: (
+                      <div className="flex items-center gap-2 truncate">
+                        <OsIcon name={os.os} />
+                        <span className="truncate font-medium text-slate-900">{os.os}</span>
+                      </div>
+                    ),
+                    right: (
+                      <span className="text-sm font-semibold text-slate-700">
+                        {formatPercent(os.share)}
+                      </span>
+                    ),
+                  }))}
+                  className="space-y-3"
+                  emptyLabel="No OS data yet."
+                  valueBarRowProps={{ className: valueBarRowClassName }}
+                />
               </CardContent>
             </Card>
 
@@ -678,35 +481,29 @@ export default async function AnalyticsPage() {
                 <CardTitle className="text-lg font-semibold">Devices</CardTitle>
               </CardHeader>
               <CardContent className="pt-3">
-                {snapshot.devices.length === 0 ? (
-                  <div className="flex h-24 items-center justify-center text-sm text-slate-500">
-                    No device data yet.
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {snapshot.devices.map((device) => (
-                      <ValueBarRow
-                        key={device.deviceCategory}
-                        value={device.visitors}
-                        max={maxDeviceVisitors}
-                        left={
-                          <div className="flex items-center gap-2 truncate capitalize">
-                            {deviceIcon(device.deviceCategory)}
-                            <span className="truncate font-medium text-slate-900">
-                              {device.deviceCategory}
-                            </span>
-                          </div>
-                        }
-                        right={
-                          <span className="text-sm font-semibold text-slate-700">
-                            {formatPercent(device.share)}
-                          </span>
-                        }
-                        tone="indigo"
-                      />
-                    ))}
-                  </div>
-                )}
+                <AnalyticsValueList
+                  items={snapshot.devices.map((device) => ({
+                    key: device.deviceCategory,
+                    value: device.visitors,
+                    tone: "indigo",
+                    left: (
+                      <div className="flex items-center gap-2 truncate capitalize">
+                        {deviceIcon(device.deviceCategory)}
+                        <span className="truncate font-medium text-slate-900">
+                          {device.deviceCategory}
+                        </span>
+                      </div>
+                    ),
+                    right: (
+                      <span className="text-sm font-semibold text-slate-700">
+                        {formatPercent(device.share)}
+                      </span>
+                    ),
+                  }))}
+                  className="space-y-3"
+                  emptyLabel="No device data yet."
+                  valueBarRowProps={{ className: valueBarRowClassName }}
+                />
               </CardContent>
             </Card>
           </div>
@@ -763,38 +560,6 @@ function MetricCard({
             {icon}
           </div>
         ) : null}
-      </div>
-    </div>
-  )
-}
-
-function ValueBarRow({
-  value,
-  max,
-  left,
-  right,
-  tone = "blue",
-}: {
-  value: number
-  max: number
-  left: ReactNode
-  right?: ReactNode
-  tone?: "blue" | "indigo"
-}) {
-  const safeMax = max > 0 ? max : value || 1
-  const pct = Math.min(100, Math.max(0, (value / safeMax) * 100))
-  const barColor = tone === "indigo" ? "bg-indigo-200" : "bg-sky-200"
-
-  return (
-    <div className="relative overflow-hidden rounded-md border border-slate-200 bg-white px-3 py-2 shadow-sm">
-      <div
-        className={`absolute inset-y-0 left-0 ${barColor}`}
-        style={{ width: `${pct}%` }}
-        aria-hidden
-      />
-      <div className="relative flex items-center justify-between gap-3 text-sm">
-        <div className="flex items-center gap-2 truncate">{left}</div>
-        {right ? <div className="shrink-0 text-right">{right}</div> : null}
       </div>
     </div>
   )
