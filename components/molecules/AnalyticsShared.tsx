@@ -1,18 +1,134 @@
 import type { ReactNode } from "react"
-import {
-  Globe2,
-  Laptop,
-  Monitor,
-  MousePointer2,
-  Smartphone,
-  Tablet,
-} from "lucide-react"
+import { Laptop, Monitor, MousePointer2, Smartphone, Tablet } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
 const percentFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 1,
 })
+
+const BROWSER_LOGO_VERSION = "75.0.1"
+const BROWSER_LOGO_BASE = `https://cdnjs.cloudflare.com/ajax/libs/browser-logos/${BROWSER_LOGO_VERSION}`
+const OS_LOGO_VERSION = "1.0.0"
+const OS_LOGO_BASE = `https://cdn.jsdelivr.net/npm/operating-system-logos@${OS_LOGO_VERSION}/src/48x48`
+
+type BrowserLogoDefinition = {
+  slug: string
+  label: string
+  matchers: RegExp[]
+  assetPath?: string
+  assetFile?: string
+}
+
+type OsLogoDefinition = {
+  label: string
+  file: string
+  matchers: RegExp[]
+}
+
+const BROWSER_LOGOS: BrowserLogoDefinition[] = [
+  {
+    slug: "chrome",
+    label: "Chrome",
+    matchers: [/chrome/i, /chromium/i],
+  },
+  {
+    slug: "safari",
+    label: "Safari",
+    matchers: [/safari/i],
+  },
+  {
+    slug: "firefox",
+    label: "Firefox",
+    matchers: [/firefox/i],
+  },
+  {
+    slug: "edge",
+    label: "Edge",
+    matchers: [/edge/i],
+  },
+  {
+    slug: "opera",
+    label: "Opera",
+    matchers: [/opera/i, /\bopr\b/i],
+  },
+  {
+    slug: "brave",
+    label: "Brave",
+    matchers: [/brave/i],
+  },
+  {
+    slug: "samsung-internet",
+    label: "Samsung Internet",
+    matchers: [/samsung/i],
+  },
+  {
+    slug: "internet-explorer",
+    label: "Internet Explorer",
+    matchers: [/internet explorer/i, /\bie\b/i],
+    assetPath:
+      "archive/internet-explorer_9-11/internet-explorer_9-11_48x48.png",
+  },
+  {
+    slug: "android-webview",
+    label: "Android WebView",
+    matchers: [/webview/i],
+    assetFile: "android-webview_48x48.png",
+  },
+]
+
+const OS_LOGOS: OsLogoDefinition[] = [
+  {
+    label: "macOS",
+    file: "mac.png",
+    matchers: [/mac/i, /os x/i],
+  },
+  {
+    label: "iOS",
+    file: "IOS.png",
+    matchers: [/ios/i, /ipad/i, /iphone/i],
+  },
+  {
+    label: "Windows",
+    file: "windows.png",
+    matchers: [/win/i],
+  },
+  {
+    label: "Android",
+    file: "android.png",
+    matchers: [/android/i],
+  },
+  {
+    label: "Chrome OS",
+    file: "chrome-os.png",
+    matchers: [/chrome os/i, /cros/i],
+  },
+  {
+    label: "Linux",
+    file: "linux.png",
+    matchers: [/linux/i, /ubuntu/i, /debian/i, /fedora/i],
+  },
+]
+
+function resolveBrowserLogo(name: string): BrowserLogoDefinition | null {
+  const normalized = name.trim()
+  if (!normalized) return null
+  return (
+    BROWSER_LOGOS.find((entry) =>
+      entry.matchers.some((matcher) => matcher.test(normalized)),
+    ) ?? null
+  )
+}
+
+function resolveOsLogo(name: string): OsLogoDefinition | null {
+  const normalized = name.trim()
+  if (!normalized) return null
+  return (
+    OS_LOGOS.find((entry) =>
+      entry.matchers.some((matcher) => matcher.test(normalized)),
+    ) ?? null
+  )
+}
 
 export function formatDuration(
   seconds: number,
@@ -104,119 +220,46 @@ export function FlagIcon({
 }
 
 export function BrowserIcon({ name }: { name: string }) {
-  const key = name.toLowerCase()
-  if (key.includes("chrome")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <circle cx="12" cy="12" r="10" fill="#ea4335" />
-        <path d="M12 12 6 6a10 10 0 0 1 12 2" fill="#fbbc04" />
-        <path d="M12 12 6 18a10 10 0 0 1-1-12" fill="#34a853" />
-        <circle cx="12" cy="12" r="4" fill="#fff" />
-        <circle cx="12" cy="12" r="2.6" fill="#4285f4" />
-      </svg>
-    )
-  }
-  if (key.includes("safari")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <circle cx="12" cy="12" r="10" fill="#0ea5e9" />
-        <polygon points="12,5 9,15 12,12 15,9" fill="#fff" />
-        <polygon points="12,19 15,9 12,12 9,15" fill="#f43f5e" />
-      </svg>
-    )
-  }
-  if (key.includes("firefox")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <path
-          d="M12 2c5.5 0 9.5 4.3 9 9.5-.5 5.2-5 8.5-9.7 8.5-5 0-8.9-3.7-8.9-8.5C2.4 8.2 5 5 8 4c-.2.7-.2 1.7.4 2.5 1.2-1.3 2.8-1.9 4.8-1.9Z"
-          fill="#f97316"
-        />
-        <path d="M9 7c-.4 1.4.3 2.6 1.6 3 1.7.6 3.5-.6 3.6-2.4" fill="#fbbf24" />
-      </svg>
-    )
-  }
-  if (key.includes("edge")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <path
-          d="M4 15c0-5.5 6.5-9.5 12-6.6-.7-.2-1.6-.2-2.5.3C11 10.5 10.2 14 12 16c-3 0-5-.5-5-3Z"
-          fill="#0ea5e9"
-        />
-        <path d="M12 16c0 2.5 2.2 4 4.5 4 2.3 0 3.8-1.3 4.5-3.5" fill="#22c55e" />
-      </svg>
-    )
-  }
-  if (key.includes("opera")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <circle cx="12" cy="12" r="10" fill="#e60023" />
-        <ellipse cx="12" cy="12" rx="4" ry="7" fill="#fff" />
-      </svg>
-    )
-  }
-  if (key.includes("brave")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <path
-          d="M6 4 4 7l2 9 6 4 6-4 2-9-2-3H6Z"
-          fill="#f97316"
-          stroke="#ea580c"
-          strokeWidth="0.5"
-        />
-      </svg>
-    )
-  }
-  return <Globe2 className="h-4 w-4 text-slate-400" />
+  const logo = resolveBrowserLogo(name)
+  if (!logo) return null
+
+  const relativePath =
+    logo.assetPath ??
+    `${logo.slug}/${logo.assetFile ? logo.assetFile : `${logo.slug}.svg`}`
+  const src = `${BROWSER_LOGO_BASE}/${relativePath}`
+
+  return (
+    <span className="inline-flex h-4 w-4 items-center justify-center overflow-hidden">
+      <img
+        src={src}
+        alt={`${logo.label} logo`}
+        className="h-4 w-4 object-contain"
+        loading="lazy"
+        decoding="async"
+        referrerPolicy="no-referrer"
+      />
+    </span>
+  )
 }
 
 export function OsIcon({ name }: { name: string }) {
-  const key = name.toLowerCase()
-  if (key.includes("mac") || key.includes("ios")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <path
-          d="M16 2s-1.5.1-2.6 1.6C12.4 5 12.7 6 13 6.5c.4.4 1.2 1.2 2.4 1 0 0 .1-1.5 1.2-2.7C17.7 3.6 18.7 3 19.4 3c0 0-.4-1-1.8-1-.9 0-1.6.4-1.6.4Z"
-          fill="#0f172a"
-        />
-        <path
-          d="M12.5 7.8C11 7 9.4 7.2 8.2 7.8 6.6 8.6 6 10.4 6 11.6c0 1.6.6 3 1.2 4 .8 1.4 1.6 2.4 2.8 2.4 1 0 1.5-.6 2.6-.6 1.2 0 1.5.6 2.6.6 1.2 0 2-.9 2.8-2.3.6-1.1 1-2.3 1-3.2a4.4 4.4 0 0 0-2.2-3.7c-1.4-.8-3-.7-3.7-.3-.3.2-.7.4-1.1.4-.3 0-.7-.2-1-.4Z"
-          fill="#0f172a"
-        />
-      </svg>
-    )
-  }
-  if (key.includes("windows")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <path d="M3 4.5 11 3v8H3v-6.5Z" fill="#2563eb" />
-        <path d="M3 12.5h8v8l-8-1.1v-6.9Z" fill="#2563eb" />
-        <path d="M13 3.2 21 2v9h-8V3.2Z" fill="#2563eb" />
-        <path d="M13 12.8h8V22l-8-1.2v-8Z" fill="#2563eb" />
-      </svg>
-    )
-  }
-  if (key.includes("android")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <rect x="6" y="7" width="12" height="10" rx="2" fill="#16a34a" />
-        <circle cx="10" cy="10" r="0.8" fill="#fff" />
-        <circle cx="14" cy="10" r="0.8" fill="#fff" />
-      </svg>
-    )
-  }
-  if (key.includes("linux")) {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4">
-        <path
-          d="M9 5c0-1.1.9-2 2-2h2c1.1 0 2 .9 2 2v10H9V5Z"
-          fill="#0f172a"
-        />
-        <path d="M8 15h8l-1 3H9l-1-3Z" fill="#f59e0b" />
-      </svg>
-    )
-  }
-  return <Laptop className="h-4 w-4 text-slate-400" />
+  const logo = resolveOsLogo(name)
+  if (!logo) return null
+
+  const src = `${OS_LOGO_BASE}/${logo.file}`
+
+  return (
+    <span className="inline-flex h-4 w-4 items-center justify-center overflow-hidden">
+      <img
+        src={src}
+        alt={`${logo.label} logo`}
+        className="h-4 w-4 object-contain"
+        loading="lazy"
+        decoding="async"
+        referrerPolicy="no-referrer"
+      />
+    </span>
+  )
 }
 
 export function deviceIcon(deviceCategory: string) {
