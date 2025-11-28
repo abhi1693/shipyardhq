@@ -489,11 +489,14 @@ export default async function ProductAnalyticsPage({
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-4">
-                {upvotes > 0 ? (
+                {upvotes > 0 || reviewSummary.totalReviews > 0 ? (
                   <AnalyticsPieChart
                     data={[
                       { label: "Upvotes", value: upvotes },
-                      { label: "Reviews", value: 0 },
+                      {
+                        label: "Reviews",
+                        value: reviewSummary.totalReviews,
+                      },
                     ]}
                     dataKey="value"
                     nameKey="label"

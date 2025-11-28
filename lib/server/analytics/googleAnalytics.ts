@@ -398,6 +398,7 @@ async function fetchProductTrafficFromGa({
             metric: {
               metricName: "screenPageViews",
             },
+            desc: true,
           },
         ],
       }),
@@ -413,6 +414,7 @@ async function fetchProductTrafficFromGa({
             metric: {
               metricName: "screenPageViews",
             },
+            desc: true,
           },
         ],
       }),
@@ -426,6 +428,7 @@ async function fetchProductTrafficFromGa({
         orderBys: [
           {
             metric: { metricName: "activeUsers" },
+            desc: true,
           },
         ],
       }),
@@ -439,6 +442,7 @@ async function fetchProductTrafficFromGa({
         orderBys: [
           {
             metric: { metricName: "activeUsers" },
+            desc: true,
           },
         ],
       }),
@@ -452,6 +456,7 @@ async function fetchProductTrafficFromGa({
         orderBys: [
           {
             metric: { metricName: "activeUsers" },
+            desc: true,
           },
         ],
       }),
@@ -470,6 +475,7 @@ async function fetchProductTrafficFromGa({
         orderBys: [
           {
             metric: { metricName: "activeUsers" },
+            desc: true,
           },
         ],
       }),
@@ -483,6 +489,7 @@ async function fetchProductTrafficFromGa({
         orderBys: [
           {
             metric: { metricName: "activeUsers" },
+            desc: true,
           },
         ],
       }),

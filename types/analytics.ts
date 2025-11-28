@@ -2,23 +2,6 @@ import type { ProductUpdateStatusValue } from "./product-updates"
 
 export type DeviceCategory = "desktop" | "mobile" | "tablet" | "unknown"
 
-export interface ProductTrafficPayload {
-  productId: string
-  path: string
-  referrer?: string | null
-  userAgent?: string | null
-  device: DeviceCategory
-  browser?: string | null
-  os?: string | null
-  country?: string | null
-  region?: string | null
-  city?: string | null
-  ipHash?: string | null
-  isBot?: boolean
-}
-
-export type PageTrafficPayload = Record<string, never>
-
 export interface ProductTrafficSummaryPoint {
   date: string
   label: string
