@@ -1,6 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
+
 const isMemberRoute = createRouteMatcher([`${MEMBER_BASE_PATH}(.*)`])
 
 export default clerkMiddleware(async (auth, req) => {

@@ -13,28 +13,6 @@ export function slugify(text: string): string {
   })
 }
 
-export const TAILWIND_COLORS = [
-  "blue",
-  "green",
-  "yellow",
-  "red",
-  "purple",
-  "orange",
-  "pink",
-  "teal",
-  "cyan",
-  "gray",
-] as const
-
-export type TailwindColor = (typeof TAILWIND_COLORS)[number]
-
-export const badgeColorMap: Record<TailwindColor, string> = Object.fromEntries(
-  TAILWIND_COLORS.map((color) => [
-    color,
-    `bg-${color}-100 text-${color}-800 border-${color}-300`,
-  ]),
-) as Record<TailwindColor, string>
-
 export function ensureUrlHasSchema(
   url: string,
   fallbackScheme: string = "https",

@@ -480,69 +480,6 @@ export async function getProductConnectorSummary(productId: string) {
   return { ...rest, keyHint, accountId, brandId }
 }
 
-export async function getProductConnectorRevenue(
-  productId: string,
-  options?: { limit?: number },
-) {
-  const { error } = await requireOwnedProduct(productId)
-  if (error) return null
-
-  const summary = await getCachedRevenueSummary(productId)
-  if (!summary) return null
-
-  const connector = await prisma.paymentConnector.findUnique({
-    where: { productId },
-    select: {
-      id: true,
-      provider: true,
-      status: true,
-      lastSyncedAt: true,
-      lastSyncError: true,
-      latestPeriodStart: true,
-    },
-  })
-
-  const limitedPoints = options?.limit
-    ? summary.points.slice(Math.max(summary.points.length - options.limit, 0))
-    : summary.points
-
-  return {
-    connector: connector
-      ? {
-          id: connector.id,
-          provider: connector.provider,
-          status: connector.status,
-          lastSyncedAt: connector.lastSyncedAt,
-          lastSyncError: connector.lastSyncError,
-          latestAllTimeRevenueCents: summary.latestAllTimeRevenueCents,
-          latestCurrencyCode: summary.currencyCode,
-          latestPeriodStart: connector.latestPeriodStart,
-        }
-      : null,
-    revenueHistory: limitedPoints.map((point) => ({
-      id: point.periodStart,
-      periodStart: new Date(point.periodStart),
-      currencyCode: summary.currencyCode,
-      periodRevenueCents: point.periodRevenueCents,
-      allTimeRevenueCents: point.allTimeRevenueCents,
-      data: {},
-      createdAt: new Date(point.periodStart),
-    })),
-    totals: {
-      byCurrency: [
-        {
-          currencyCode: summary.currencyCode,
-          allTimeRevenueCents: summary.latestAllTimeRevenueCents,
-        },
-      ],
-      primary: {
-        currencyCode: summary.currencyCode,
-        allTimeRevenueCents: summary.latestAllTimeRevenueCents,
-      },
-    },
-  }
-}
-
 export async function saveProductConnectorAction(input: {
   productId: string
   provider: PaymentConnectorProvider | string
