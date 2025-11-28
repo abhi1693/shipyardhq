@@ -1,4 +1,3 @@
-import type { ReactNode } from "react"
 import { format, subDays } from "date-fns"
 import {
   Activity,
@@ -19,6 +18,7 @@ import {
 } from "@/components/molecules/AnalyticsShared"
 import { TrafficTimeseriesChart } from "@/components/molecules/TrafficTimeseriesChart"
 import { AnalyticsListCard } from "@/components/molecules/AnalyticsListCard"
+import { AnalyticsMetricCard } from "@/components/molecules/AnalyticsMetricCard"
 import { LiveVisitorsPill } from "@/components/molecules/LiveVisitorsPill"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import prisma from "@/lib/prisma"
@@ -156,31 +156,31 @@ export default async function AnalyticsPage() {
           </header>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            <MetricCard
+            <AnalyticsMetricCard
               label="Views"
               value={numberFormatter.format(snapshot.pageViews)}
               delta={deltas.views}
               icon={<TrendingUp className="h-4 w-4" aria-hidden />}
             />
-            <MetricCard
+            <AnalyticsMetricCard
               label="Visits"
               value={numberFormatter.format(snapshot.sessions)}
               delta={deltas.sessions}
               icon={<MousePointer2 className="h-4 w-4" aria-hidden />}
             />
-            <MetricCard
+            <AnalyticsMetricCard
               label="Visitors"
               value={numberFormatter.format(snapshot.uniqueVisitors)}
               delta={deltas.visitors}
               icon={<Users className="h-4 w-4" aria-hidden />}
             />
-            <MetricCard
+            <AnalyticsMetricCard
               label="Bounce rate"
               value={formatPercent(snapshot.bounceRate)}
               delta={deltas.bounce}
               icon={<Activity className="h-4 w-4" aria-hidden />}
             />
-            <MetricCard
+            <AnalyticsMetricCard
               label="Visit duration"
               value={formatDuration(snapshot.averageSessionDuration, { padMinutes: true })}
               delta={deltas.duration}
@@ -189,13 +189,13 @@ export default async function AnalyticsPage() {
           </div>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <MetricCard
+            <AnalyticsMetricCard
               label="Pages per session"
               value={snapshot.pagesPerSession.toFixed(2)}
               delta={deltas.pagesPerSession}
               icon={<MousePointer2 className="h-4 w-4" aria-hidden />}
             />
-            <MetricCard
+            <AnalyticsMetricCard
               label="Engaged session rate"
               value={formatPercent(snapshot.engagementRate)}
               delta={deltas.engagementRate}
@@ -460,44 +460,5 @@ export default async function AnalyticsPage() {
         </div>
       </main>
     </>
-  )
-}
-
-function MetricCard({
-  label,
-  value,
-  delta,
-  icon,
-}: {
-  label: string
-  value: string
-  delta?: number | null
-  icon?: ReactNode
-}) {
-  const trendLabel =
-    delta != null ? `${delta > 0 ? "+" : ""}${delta.toFixed(1)}%` : null
-  const isPositive = delta != null ? delta >= 0 : null
-  const trendColor = isPositive != null ? (isPositive ? "text-emerald-700" : "text-rose-700") : "text-slate-600"
-  const trendBg = isPositive != null ? (isPositive ? "bg-emerald-50" : "bg-rose-50") : "bg-slate-50"
-
-  return (
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-sm font-semibold text-slate-600">{label}</div>
-          <div className="mt-2 text-3xl font-semibold text-slate-900">{value}</div>
-          {trendLabel ? (
-            <div className={`mt-2 inline-flex items-center gap-2 rounded-md px-2.5 py-1 ${trendBg}`}>
-              <span className={`text-xs font-semibold ${trendColor}`}>{trendLabel}</span>
-            </div>
-          ) : null}
-        </div>
-        {icon ? (
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-800">
-            {icon}
-          </div>
-        ) : null}
-      </div>
-    </div>
   )
 }
