@@ -30,6 +30,7 @@ import {
   getRealtimeVisitorsFromGa,
   getSiteAnalyticsSnapshot,
 } from "@/lib/server/analytics/googleAnalytics"
+import { siteConfig } from "@/lib/siteConfig"
 
 const PAGE_TITLE = "Analytics"
 export const revalidate = 300
@@ -319,7 +320,9 @@ export default async function AnalyticsPage() {
         <div className="mx-auto max-w-7xl px-4 pb-16 pt-10 sm:px-6 lg:px-8">
           <header className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-3">
-              <h1 className="text-3xl font-semibold sm:text-4xl">Shipyard traffic snapshot</h1>
+              <h1 className="text-3xl font-semibold sm:text-4xl">
+                {siteConfig.name} Traffic Snapshot
+              </h1>
               <LiveVisitorsPill initialVisitors={realtimeVisitors} />
             </div>
             <p className="text-sm text-slate-600">{rangeLabel}</p>
@@ -432,6 +435,11 @@ export default async function AnalyticsPage() {
                 className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
               />
             )}
+            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+              <span>Source: Google Analytics</span>
+              <span className="h-1 w-1 rounded-full bg-slate-300" aria-hidden />
+              <span>Updated {new Date().toLocaleString()}</span>
+            </div>
           </section>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
@@ -701,6 +709,19 @@ export default async function AnalyticsPage() {
                 )}
               </CardContent>
             </Card>
+          </div>
+
+          <div className="mt-10 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
+            <div>
+              Data is aggregated/anonymized and excludes PII. Admin/internal traffic is filtered out. See our{" "}
+              <a
+                href="/legal/privacy-policy"
+                className="font-semibold text-slate-900 underline-offset-4 hover:underline"
+              >
+                Privacy Policy
+              </a>
+              .
+            </div>
           </div>
         </div>
       </main>
