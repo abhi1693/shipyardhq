@@ -13,6 +13,21 @@ export function slugify(text: string): string {
   })
 }
 
+export const TAILWIND_COLORS = [
+  "blue",
+  "green",
+  "yellow",
+  "red",
+  "purple",
+  "orange",
+  "pink",
+  "teal",
+  "cyan",
+  "gray",
+] as const
+
+export type TailwindColor = (typeof TAILWIND_COLORS)[number]
+
 export function ensureUrlHasSchema(
   url: string,
   fallbackScheme: string = "https",
