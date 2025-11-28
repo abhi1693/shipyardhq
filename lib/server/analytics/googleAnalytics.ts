@@ -1,6 +1,7 @@
 import { BetaAnalyticsDataClient, protos } from "@google-analytics/data"
 import { format, subDays } from "date-fns"
 
+import { buildCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 
 type HomepageTraffic = {
@@ -61,9 +62,9 @@ export type SiteAnalyticsSnapshot = {
   }>
 }
 
-const CACHE_KEY = "analytics:homepage:traffic:v1"
+const CACHE_KEY = buildCacheKey("analytics:homepage:traffic:v1")
 const CACHE_TTL_SECONDS = 300
-const REALTIME_CACHE_KEY = "analytics:homepage:realtime:v1"
+const REALTIME_CACHE_KEY = buildCacheKey("analytics:homepage:realtime:v1")
 const REALTIME_CACHE_TTL_SECONDS = 30
 const SITE_SNAPSHOT_CACHE_PREFIX = "analytics:site:snapshot:v2"
 const SITE_SNAPSHOT_CACHE_TTL_SECONDS = 300
@@ -1174,7 +1175,12 @@ export async function getSiteAnalyticsSnapshot(args?: {
 }): Promise<SiteAnalyticsSnapshot> {
   const dateRange = args?.dateRange ?? defaultSiteDateRange()
   const topProductLimit = Math.max(1, args?.topProductLimit ?? 6)
-  const cacheKey = `${SITE_SNAPSHOT_CACHE_PREFIX}:${dateRange.startDate}:${dateRange.endDate}:top${topProductLimit}`
+  const cacheKey = buildCacheKey(
+    SITE_SNAPSHOT_CACHE_PREFIX,
+    dateRange.startDate,
+    dateRange.endDate,
+    `top${topProductLimit}`,
+  )
 
   const redis = await getRedisClient().catch(() => null)
   let cachedPayload: SiteAnalyticsSnapshot | null = null
