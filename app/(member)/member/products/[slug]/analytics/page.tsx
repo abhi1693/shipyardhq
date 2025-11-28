@@ -269,13 +269,6 @@ export default async function ProductAnalyticsPage({
       }
       relationships={
         <div className="space-y-6">
-          <div className="flex justify-end">
-            <ProductAnalyticsRangeDropdown
-              options={RANGE_OPTIONS}
-              value={resolvedRange.key}
-              defaultValue={DEFAULT_RANGE}
-            />
-          </div>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <StatCard
               title="Page views"
