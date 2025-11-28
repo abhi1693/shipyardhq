@@ -1,5 +1,4 @@
 import {
-  DeviceCategory,
   Platform,
   Prisma,
   ProductStatus,
@@ -10,7 +9,6 @@ import {
   PaymentConnectorStatus,
   PaymentCredentialStatus,
 } from "@/lib/vendor/prisma/client"
-import { PRICING_PATH } from "@/lib/routes"
 import type { PrismaClient } from "@/lib/vendor/prisma/client"
 import {
   addDays,
@@ -583,7 +581,6 @@ async function main() {
     isVerified: false,
     analytics: {
       upvotes: 120,
-      clicks: 700,
     },
   }
 
@@ -725,7 +722,6 @@ async function main() {
       },
       analytics: {
         upvotes: 40 + (((index + 1) * 7) % 500),
-        clicks: 150 + (((index + 3) * 13) % 2500),
       },
     }
   })
@@ -1182,248 +1178,6 @@ async function main() {
   }
 
   console.table(monthlyRankingRows)
-
-  const baseDate = new Date()
-  baseDate.setUTCHours(12, 0, 0, 0)
-  const trafficTimestamp = (daysAgo: number, hourOffset = 0) => {
-    const date = new Date(baseDate)
-    date.setUTCDate(date.getUTCDate() - daysAgo)
-    date.setUTCHours(date.getUTCHours() + hourOffset, 0, 0, 0)
-    return date
-  }
-
-  const trafficSeeds: {
-    slug: string
-    events: Array<
-      Omit<Prisma.ProductTrafficEventCreateManyInput, "id" | "productId">
-    >
-  }[] = [
-    {
-      slug: "shitposts",
-      events: [
-        {
-          path: "/",
-          referrer: "https://twitter.com/shipyardhq/status/123",
-          device: DeviceCategory.mobile,
-          browser: "Mobile Safari",
-          os: "iOS",
-          country: "United States",
-          region: "California",
-          city: "Los Angeles",
-          ipHash: "sp-evt-01",
-          createdAt: trafficTimestamp(0, -3),
-        },
-        {
-          path: PRICING_PATH,
-          referrer: "https://www.google.com/search?q=shitposts+ai",
-          device: DeviceCategory.desktop,
-          browser: "Chrome",
-          os: "macOS",
-          country: "United States",
-          region: "New York",
-          city: "New York",
-          ipHash: "sp-evt-02",
-          createdAt: trafficTimestamp(1, -2),
-        },
-        {
-          path: "/launch",
-          device: DeviceCategory.tablet,
-          browser: "Safari",
-          os: "iPadOS",
-          country: "Canada",
-          region: "Ontario",
-          city: "Toronto",
-          ipHash: "sp-evt-03",
-          createdAt: trafficTimestamp(2, 1),
-        },
-        {
-          path: "/",
-          referrer: "https://www.producthunt.com/posts/shitposts-ai",
-          device: DeviceCategory.desktop,
-          browser: "Firefox",
-          os: "Windows",
-          country: "Germany",
-          region: "Berlin",
-          city: "Berlin",
-          ipHash: "sp-evt-04",
-          createdAt: trafficTimestamp(3, -5),
-        },
-        {
-          path: PRICING_PATH,
-          referrer: "https://mail.google.com/mail/u/0/#newsletter",
-          device: DeviceCategory.desktop,
-          browser: "Chrome",
-          os: "macOS",
-          country: "United States",
-          region: "Texas",
-          city: "Austin",
-          ipHash: "sp-evt-05",
-          createdAt: trafficTimestamp(4, 2),
-        },
-        {
-          path: "/",
-          referrer: "https://www.reddit.com/r/startups/comments/xyz",
-          device: DeviceCategory.mobile,
-          browser: "Chrome Mobile",
-          os: "Android",
-          country: "Australia",
-          region: "New South Wales",
-          city: "Sydney",
-          ipHash: "sp-evt-06",
-          createdAt: trafficTimestamp(5, -1),
-        },
-        {
-          path: "/launch",
-          referrer: "https://www.linkedin.com/posts/shipyardhq",
-          device: DeviceCategory.desktop,
-          browser: "Edge",
-          os: "Windows",
-          country: "United Kingdom",
-          region: "England",
-          city: "London",
-          ipHash: "sp-evt-07",
-          createdAt: trafficTimestamp(6, 4),
-        },
-        {
-          path: PRICING_PATH,
-          device: DeviceCategory.mobile,
-          browser: "Mobile Safari",
-          os: "iOS",
-          country: "United States",
-          region: "Illinois",
-          city: "Chicago",
-          ipHash: "sp-evt-08",
-          createdAt: trafficTimestamp(7, -2),
-        },
-        {
-          path: "/community",
-          referrer: "https://news.ycombinator.com/item?id=424242",
-          device: DeviceCategory.desktop,
-          browser: "Chrome",
-          os: "Linux",
-          country: "India",
-          region: "Karnataka",
-          city: "Bengaluru",
-          ipHash: "sp-evt-09",
-          createdAt: trafficTimestamp(8, 3),
-        },
-        {
-          path: "/",
-          device: DeviceCategory.desktop,
-          browser: "Safari",
-          os: "macOS",
-          country: "United States",
-          region: "Washington",
-          city: "Seattle",
-          ipHash: "sp-evt-10",
-          createdAt: trafficTimestamp(9, -4),
-        },
-      ],
-    },
-    {
-      slug: "launchify",
-      events: [
-        {
-          path: "/",
-          referrer: "https://www.google.com/search?q=launchify+product",
-          device: DeviceCategory.desktop,
-          browser: "Chrome",
-          os: "Windows",
-          country: "United States",
-          region: "Colorado",
-          city: "Denver",
-          ipHash: "launchify-evt-01",
-          createdAt: trafficTimestamp(0, -1),
-        },
-        {
-          path: "/features",
-          referrer: "https://twitter.com/productled/status/555",
-          device: DeviceCategory.mobile,
-          browser: "Mobile Safari",
-          os: "iOS",
-          country: "United States",
-          region: "California",
-          city: "San Francisco",
-          ipHash: "launchify-evt-02",
-          createdAt: trafficTimestamp(1, 2),
-        },
-        {
-          path: PRICING_PATH,
-          device: DeviceCategory.desktop,
-          browser: "Firefox",
-          os: "Linux",
-          country: "Netherlands",
-          region: "North Holland",
-          city: "Amsterdam",
-          ipHash: "launchify-evt-03",
-          createdAt: trafficTimestamp(3, -3),
-        },
-        {
-          path: "/blog/launch-checklist",
-          referrer: "https://news.ycombinator.com/item?id=515151",
-          device: DeviceCategory.desktop,
-          browser: "Chrome",
-          os: "Windows",
-          country: "United States",
-          region: "Massachusetts",
-          city: "Boston",
-          ipHash: "launchify-evt-04",
-          createdAt: trafficTimestamp(4, 1),
-        },
-        {
-          path: "/integrations",
-          referrer: "https://mailchi.mp/launchify-update",
-          device: DeviceCategory.tablet,
-          browser: "Safari",
-          os: "iPadOS",
-          country: "United States",
-          region: "Utah",
-          city: "Salt Lake City",
-          ipHash: "launchify-evt-05",
-          createdAt: trafficTimestamp(5, -2),
-        },
-        {
-          path: "/",
-          referrer: "https://www.bing.com/search?q=launchify",
-          device: DeviceCategory.mobile,
-          browser: "Chrome Mobile",
-          os: "Android",
-          country: "Singapore",
-          region: "Central Region",
-          city: "Singapore",
-          ipHash: "launchify-evt-06",
-          createdAt: trafficTimestamp(6, 3),
-        },
-      ],
-    },
-  ]
-
-  const trafficRows: { slug: string; events: number }[] = []
-  for (const traffic of trafficSeeds) {
-    const productId = productIdBySlug.get(traffic.slug)
-    if (!productId) {
-      console.warn(
-        `Missing product for slug '${traffic.slug}', skipping traffic seeding`,
-      )
-      continue
-    }
-    await prisma.productTrafficEvent.deleteMany({ where: { productId } })
-    if (!traffic.events.length) {
-      trafficRows.push({ slug: traffic.slug, events: 0 })
-      continue
-    }
-
-    await prisma.productTrafficEvent.createMany({
-      data: traffic.events.map((event) => ({
-        ...event,
-        productId,
-      })),
-    })
-
-    trafficRows.push({ slug: traffic.slug, events: traffic.events.length })
-  }
-
-  console.table(trafficRows)
 }
 
 main()

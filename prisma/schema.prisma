@@ -55,8 +55,6 @@ model Product {
   ProductReview         ProductReview[]
   ProductUpdate         ProductUpdate[]
   placementSchedules    PlacementSchedule[]
-  clickEvents           ProductClickEvent[]
-  trafficEvents         ProductTrafficEvent[]
   MonthlyProductRanking MonthlyProductRanking[]
   rewardTransactions    RewardTransaction[]
   redemptions           Redemption[]
@@ -370,7 +368,6 @@ model ProductAnalytics {
   id        String   @id @default(cuid())
   productId String   @unique
   upvotes   Int      @default(0)
-  clicks    Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -379,58 +376,6 @@ model ProductAnalytics {
   @@index([upvotes])
   @@index([createdAt])
   @@index([updatedAt])
-}
-
-model ProductClickEvent {
-  id        String         @id @default(cuid())
-  productId String
-  referrer  String?
-  userAgent String?
-  device    DeviceCategory @default(unknown)
-  browser   String?
-  os        String?
-  country   String?
-  region    String?
-  city      String?
-  ipHash    String?
-  createdAt DateTime       @default(now())
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@index([productId, createdAt])
-  @@index([createdAt])
-}
-
-enum DeviceCategory {
-  desktop
-  mobile
-  tablet
-  unknown
-}
-
-model ProductTrafficEvent {
-  id        String         @id @default(cuid())
-  productId String
-  path      String
-  referrer  String?
-  userAgent String?
-  device    DeviceCategory @default(unknown)
-  browser   String?
-  os        String?
-  country   String?
-  region    String?
-  city      String?
-  ipHash    String?
-  isBot     Boolean        @default(false)
-  createdAt DateTime       @default(now())
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@index([productId, createdAt])
-  @@index([createdAt])
-  @@index([country])
-  @@index([device])
-  @@index([isBot])
 }
 
 model ProductInsightProfile {

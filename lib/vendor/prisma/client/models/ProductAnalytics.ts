@@ -28,19 +28,16 @@ export type AggregateProductAnalytics = {
 
 export type ProductAnalyticsAvgAggregateOutputType = {
   upvotes: number | null
-  clicks: number | null
 }
 
 export type ProductAnalyticsSumAggregateOutputType = {
   upvotes: number | null
-  clicks: number | null
 }
 
 export type ProductAnalyticsMinAggregateOutputType = {
   id: string | null
   productId: string | null
   upvotes: number | null
-  clicks: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -49,7 +46,6 @@ export type ProductAnalyticsMaxAggregateOutputType = {
   id: string | null
   productId: string | null
   upvotes: number | null
-  clicks: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -58,7 +54,6 @@ export type ProductAnalyticsCountAggregateOutputType = {
   id: number
   productId: number
   upvotes: number
-  clicks: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -67,19 +62,16 @@ export type ProductAnalyticsCountAggregateOutputType = {
 
 export type ProductAnalyticsAvgAggregateInputType = {
   upvotes?: true
-  clicks?: true
 }
 
 export type ProductAnalyticsSumAggregateInputType = {
   upvotes?: true
-  clicks?: true
 }
 
 export type ProductAnalyticsMinAggregateInputType = {
   id?: true
   productId?: true
   upvotes?: true
-  clicks?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,7 +80,6 @@ export type ProductAnalyticsMaxAggregateInputType = {
   id?: true
   productId?: true
   upvotes?: true
-  clicks?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -97,7 +88,6 @@ export type ProductAnalyticsCountAggregateInputType = {
   id?: true
   productId?: true
   upvotes?: true
-  clicks?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -193,7 +183,6 @@ export type ProductAnalyticsGroupByOutputType = {
   id: string
   productId: string
   upvotes: number
-  clicks: number
   createdAt: Date
   updatedAt: Date
   _count: ProductAnalyticsCountAggregateOutputType | null
@@ -225,7 +214,6 @@ export type ProductAnalyticsWhereInput = {
   id?: Prisma.StringFilter<"ProductAnalytics"> | string
   productId?: Prisma.StringFilter<"ProductAnalytics"> | string
   upvotes?: Prisma.IntFilter<"ProductAnalytics"> | number
-  clicks?: Prisma.IntFilter<"ProductAnalytics"> | number
   createdAt?: Prisma.DateTimeFilter<"ProductAnalytics"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductAnalytics"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
@@ -235,7 +223,6 @@ export type ProductAnalyticsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   productId?: Prisma.SortOrder
   upvotes?: Prisma.SortOrder
-  clicks?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   product?: Prisma.ProductOrderByWithRelationInput
@@ -248,7 +235,6 @@ export type ProductAnalyticsWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ProductAnalyticsWhereInput[]
   NOT?: Prisma.ProductAnalyticsWhereInput | Prisma.ProductAnalyticsWhereInput[]
   upvotes?: Prisma.IntFilter<"ProductAnalytics"> | number
-  clicks?: Prisma.IntFilter<"ProductAnalytics"> | number
   createdAt?: Prisma.DateTimeFilter<"ProductAnalytics"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductAnalytics"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
@@ -258,7 +244,6 @@ export type ProductAnalyticsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   productId?: Prisma.SortOrder
   upvotes?: Prisma.SortOrder
-  clicks?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductAnalyticsCountOrderByAggregateInput
@@ -275,7 +260,6 @@ export type ProductAnalyticsScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"ProductAnalytics"> | string
   productId?: Prisma.StringWithAggregatesFilter<"ProductAnalytics"> | string
   upvotes?: Prisma.IntWithAggregatesFilter<"ProductAnalytics"> | number
-  clicks?: Prisma.IntWithAggregatesFilter<"ProductAnalytics"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductAnalytics"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductAnalytics"> | Date | string
 }
@@ -283,7 +267,6 @@ export type ProductAnalyticsScalarWhereWithAggregatesInput = {
 export type ProductAnalyticsCreateInput = {
   id?: string
   upvotes?: number
-  clicks?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutAnalyticsInput
@@ -293,7 +276,6 @@ export type ProductAnalyticsUncheckedCreateInput = {
   id?: string
   productId: string
   upvotes?: number
-  clicks?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -301,7 +283,6 @@ export type ProductAnalyticsUncheckedCreateInput = {
 export type ProductAnalyticsUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  clicks?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutAnalyticsNestedInput
@@ -311,7 +292,6 @@ export type ProductAnalyticsUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  clicks?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -320,7 +300,6 @@ export type ProductAnalyticsCreateManyInput = {
   id?: string
   productId: string
   upvotes?: number
-  clicks?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -328,7 +307,6 @@ export type ProductAnalyticsCreateManyInput = {
 export type ProductAnalyticsUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  clicks?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -337,7 +315,6 @@ export type ProductAnalyticsUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  clicks?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -351,21 +328,18 @@ export type ProductAnalyticsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   productId?: Prisma.SortOrder
   upvotes?: Prisma.SortOrder
-  clicks?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type ProductAnalyticsAvgOrderByAggregateInput = {
   upvotes?: Prisma.SortOrder
-  clicks?: Prisma.SortOrder
 }
 
 export type ProductAnalyticsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   productId?: Prisma.SortOrder
   upvotes?: Prisma.SortOrder
-  clicks?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -374,14 +348,12 @@ export type ProductAnalyticsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   productId?: Prisma.SortOrder
   upvotes?: Prisma.SortOrder
-  clicks?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type ProductAnalyticsSumOrderByAggregateInput = {
   upvotes?: Prisma.SortOrder
-  clicks?: Prisma.SortOrder
 }
 
 export type ProductAnalyticsCreateNestedOneWithoutProductInput = {
@@ -419,7 +391,6 @@ export type ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput = {
 export type ProductAnalyticsCreateWithoutProductInput = {
   id?: string
   upvotes?: number
-  clicks?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -427,7 +398,6 @@ export type ProductAnalyticsCreateWithoutProductInput = {
 export type ProductAnalyticsUncheckedCreateWithoutProductInput = {
   id?: string
   upvotes?: number
-  clicks?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -451,7 +421,6 @@ export type ProductAnalyticsUpdateToOneWithWhereWithoutProductInput = {
 export type ProductAnalyticsUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  clicks?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -459,7 +428,6 @@ export type ProductAnalyticsUpdateWithoutProductInput = {
 export type ProductAnalyticsUncheckedUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  clicks?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -470,7 +438,6 @@ export type ProductAnalyticsSelect<ExtArgs extends runtime.Types.Extensions.Inte
   id?: boolean
   productId?: boolean
   upvotes?: boolean
-  clicks?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -480,7 +447,6 @@ export type ProductAnalyticsSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   id?: boolean
   productId?: boolean
   upvotes?: boolean
-  clicks?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -490,7 +456,6 @@ export type ProductAnalyticsSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   id?: boolean
   productId?: boolean
   upvotes?: boolean
-  clicks?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -500,12 +465,11 @@ export type ProductAnalyticsSelectScalar = {
   id?: boolean
   productId?: boolean
   upvotes?: boolean
-  clicks?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductAnalyticsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "upvotes" | "clicks" | "createdAt" | "updatedAt", ExtArgs["result"]["productAnalytics"]>
+export type ProductAnalyticsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "upvotes" | "createdAt" | "updatedAt", ExtArgs["result"]["productAnalytics"]>
 export type ProductAnalyticsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
 }
@@ -525,7 +489,6 @@ export type $ProductAnalyticsPayload<ExtArgs extends runtime.Types.Extensions.In
     id: string
     productId: string
     upvotes: number
-    clicks: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["productAnalytics"]>
@@ -955,7 +918,6 @@ export interface ProductAnalyticsFieldRefs {
   readonly id: Prisma.FieldRef<"ProductAnalytics", 'String'>
   readonly productId: Prisma.FieldRef<"ProductAnalytics", 'String'>
   readonly upvotes: Prisma.FieldRef<"ProductAnalytics", 'Int'>
-  readonly clicks: Prisma.FieldRef<"ProductAnalytics", 'Int'>
   readonly createdAt: Prisma.FieldRef<"ProductAnalytics", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ProductAnalytics", 'DateTime'>
 }

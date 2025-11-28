@@ -10,6 +10,7 @@ interface ObjectHeadingProps {
   createdAt: Date | string
   updatedAt: Date | string
   slug?: string | null
+  subtitle?: string
   onDelete?: () => void
   onEdit?: () => void
   extraActions?: React.ReactNode
@@ -21,6 +22,7 @@ export function ObjectHeading({
   createdAt,
   updatedAt,
   slug,
+  subtitle,
   onDelete,
   onEdit,
   extraActions,
@@ -32,6 +34,9 @@ export function ObjectHeading({
           <h1 className="text-2xl font-bold leading-tight tracking-tight">
             {title}
           </h1>
+          {subtitle ? (
+            <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+          ) : null}
           <p className="mt-1 text-sm text-muted-foreground">
             Created {format(new Date(createdAt), "yyyy-MM-dd HH:mm")} • Updated{" "}
             {format(new Date(updatedAt), "yyyy-MM-dd HH:mm")}

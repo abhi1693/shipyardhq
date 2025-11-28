@@ -130,7 +130,13 @@ export async function TrafficSidebarStats({
       />
       <RealtimeVisitorsCard initialValue={stats.realtimeVisitors ?? 0} />
       <p className="text-xs text-muted-foreground text-center">
-        Powered by Google Analytics
+        Powered by{" "}
+        <a
+          href="/analytics"
+          className="font-semibold text-slate-700 underline-offset-4 hover:underline"
+        >
+          Google Analytics
+        </a>
       </p>
     </div>
   )

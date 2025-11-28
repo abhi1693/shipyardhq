@@ -65,8 +65,6 @@ export const ModelName = {
   ProductClaimAttempt: 'ProductClaimAttempt',
   ProductMetadata: 'ProductMetadata',
   ProductAnalytics: 'ProductAnalytics',
-  ProductClickEvent: 'ProductClickEvent',
-  ProductTrafficEvent: 'ProductTrafficEvent',
   ProductInsightProfile: 'ProductInsightProfile',
   ProductInsightStageResult: 'ProductInsightStageResult',
   ProductUpvote: 'ProductUpvote',
@@ -323,50 +321,11 @@ export const ProductAnalyticsScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
   upvotes: 'upvotes',
-  clicks: 'clicks',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ProductAnalyticsScalarFieldEnum = (typeof ProductAnalyticsScalarFieldEnum)[keyof typeof ProductAnalyticsScalarFieldEnum]
-
-
-export const ProductClickEventScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  referrer: 'referrer',
-  userAgent: 'userAgent',
-  device: 'device',
-  browser: 'browser',
-  os: 'os',
-  country: 'country',
-  region: 'region',
-  city: 'city',
-  ipHash: 'ipHash',
-  createdAt: 'createdAt'
-} as const
-
-export type ProductClickEventScalarFieldEnum = (typeof ProductClickEventScalarFieldEnum)[keyof typeof ProductClickEventScalarFieldEnum]
-
-
-export const ProductTrafficEventScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  path: 'path',
-  referrer: 'referrer',
-  userAgent: 'userAgent',
-  device: 'device',
-  browser: 'browser',
-  os: 'os',
-  country: 'country',
-  region: 'region',
-  city: 'city',
-  ipHash: 'ipHash',
-  isBot: 'isBot',
-  createdAt: 'createdAt'
-} as const
-
-export type ProductTrafficEventScalarFieldEnum = (typeof ProductTrafficEventScalarFieldEnum)[keyof typeof ProductTrafficEventScalarFieldEnum]
 
 
 export const ProductInsightProfileScalarFieldEnum = {

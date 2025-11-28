@@ -13,6 +13,7 @@ interface ObjectPageLayoutProps {
     createdAt: string | Date
     updatedAt: string | Date
     slug?: string | null
+    subtitle?: string
   }
   overview: { label: string; value: React.ReactNode }[]
   basePath: string
@@ -22,6 +23,7 @@ interface ObjectPageLayoutProps {
   sidebar?: React.ReactNode
   topRowExtras?: React.ReactNode[]
   headingActionsLeft?: React.ReactNode
+  headingActionsRight?: React.ReactNode
   surfaceClassName?: string
   overviewCardClassName?: string
 }
@@ -36,6 +38,7 @@ export function ObjectPageLayout({
   sidebar = null,
   topRowExtras = undefined,
   headingActionsLeft = null,
+  headingActionsRight = null,
   surfaceClassName,
   overviewCardClassName,
 }: ObjectPageLayoutProps) {
@@ -43,6 +46,15 @@ export function ObjectPageLayout({
   const extrasList = (
     Array.isArray(topRowExtras) ? topRowExtras : sidebar ? [sidebar] : []
   ).filter((node): node is ReactNode => node !== null && node !== undefined)
+  const headingActions =
+    headingActionsRight !== null && headingActionsRight !== undefined ? (
+      <div className="flex flex-wrap items-center gap-2">
+        {headingActionsLeft}
+        {headingActionsRight}
+      </div>
+    ) : (
+      headingActionsLeft
+    )
   return (
     <>
       <ClientObjectHeading
@@ -50,7 +62,7 @@ export function ObjectPageLayout({
         basePath={basePath}
         deletable={deletable}
         editable={editable}
-        extraActions={headingActionsLeft}
+        extraActions={headingActions}
       />
 
       <div className={cn("w-full bg-muted py-6", surfaceClassName)}>

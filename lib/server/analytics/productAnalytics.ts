@@ -13,7 +13,7 @@ export const productAnalyticsSelect = {
   status: true,
   createdAt: true,
   updatedAt: true,
-  analytics: { select: { upvotes: true, clicks: true } },
+  analytics: { select: { upvotes: true } },
   plan: {
     select: {
       name: true,

@@ -48,7 +48,7 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 
 ## Analytics Instrumentation
 
-- Product detail pages now emit client-side beacons to `/api/analytics/ingest`, capturing geo, device, and browser context without blocking rendering.
+- Product detail pages rely on GA-based reporting; the legacy `/api/analytics/ingest` beacon has been removed.
 - Events are stored in the `ProductTrafficEvent` table; use Prisma to aggregate per-device or per-country insights for customers.
 - Set `ANALYTICS_HASH_SALT` in `.env.local` to control the HMAC salt used when hashing IP addresses before persistence.
 - Members can review per-product charts at `/member/products/[slug]/analytics` (owner access only) to explore views, devices, geo, referrers, and browser breakdowns.

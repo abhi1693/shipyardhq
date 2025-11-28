@@ -9,7 +9,7 @@ const categoryProductSelect = {
   logo: true,
   tagline: true,
   createdAt: true,
-  analytics: { select: { upvotes: true, clicks: true } },
+  analytics: { select: { upvotes: true } },
   category: { select: { name: true } },
   ProductBadge: {
     select: {

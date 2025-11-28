@@ -36,11 +36,6 @@ type StageAccumulator = {
 
 const RETENTION_THRESHOLDS = [30, 60, 90] as const
 
-type TrafficEvent = {
-  createdAt: Date
-  product: { userId: string }
-}
-
 type UpvoteEvent = {
   userId: string
   createdAt: Date
@@ -341,7 +336,6 @@ export async function getIntentOutcomeAnalytics(
   let upvoteRows: StageRow[] = []
   let feedbackRows: StageRow[] = []
   let purchaseRows: StageRow[] = []
-  let trafficEvents: TrafficEvent[] = []
   let upvoteEvents: UpvoteEvent[] = []
   let purchaseEvents: PurchaseEvent[] = []
 
@@ -352,7 +346,6 @@ export async function getIntentOutcomeAnalytics(
       upvoteRows,
       feedbackRows,
       purchaseRows,
-      trafficEvents,
       upvoteEvents,
       purchaseEvents,
     ] = await Promise.all([
@@ -396,18 +389,6 @@ export async function getIntentOutcomeAnalytics(
         _count: { _all: true },
         _min: { createdAt: true },
       }) as unknown as StageRow[],
-      prisma.productTrafficEvent.findMany({
-        where: {
-          createdAt: { gte: rangeStart },
-          product: {
-            userId: { in: userIds },
-          },
-        },
-        select: {
-          createdAt: true,
-          product: { select: { userId: true } },
-        },
-      }) as unknown as TrafficEvent[],
       prisma.productUpvote.findMany({
         where: {
           userId: { in: userIds },
@@ -484,10 +465,6 @@ export async function getIntentOutcomeAnalytics(
         bucket.add(threshold)
       }
     }
-  }
-
-  for (const event of trafficEvents) {
-    markRetention(event.product.userId, event.createdAt)
   }
 
   for (const event of upvoteEvents) {

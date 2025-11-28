@@ -2,23 +2,6 @@ import type { ProductUpdateStatusValue } from "./product-updates"
 
 export type DeviceCategory = "desktop" | "mobile" | "tablet" | "unknown"
 
-export interface ProductTrafficPayload {
-  productId: string
-  path: string
-  referrer?: string | null
-  userAgent?: string | null
-  device: DeviceCategory
-  browser?: string | null
-  os?: string | null
-  country?: string | null
-  region?: string | null
-  city?: string | null
-  ipHash?: string | null
-  isBot?: boolean
-}
-
-export type PageTrafficPayload = Record<string, never>
-
 export interface ProductTrafficSummaryPoint {
   date: string
   label: string
@@ -29,7 +12,6 @@ export interface ProductTrafficSummaryPoint {
 export interface ProductEngagementSummaryPoint {
   date: string
   label: string
-  clicks: number
   upvotes: number
 }
 
@@ -58,37 +40,6 @@ export interface ProductTrafficUserAgentBreakdownItem
   browser: string | null
   os: string | null
   device: DeviceCategory
-}
-
-export interface ProductTrafficDeviceConversionItem {
-  device: DeviceCategory
-  label: string
-  views: number
-  clicks: number
-  clickThroughRate: number
-}
-
-export interface ProductTrafficBrowserConversionItem {
-  browser: string
-  views: number
-  clicks: number
-  clickThroughRate: number
-}
-
-export interface ProductTrafficOsConversionItem {
-  os: string
-  views: number
-  clicks: number
-  clickThroughRate: number
-}
-
-export interface ProductTrafficReferrerConversionItem {
-  referrer: string
-  views: number
-  clicks: number
-  clickThroughRate: number
-  assistedUpvotes: number
-  assistedConversionRate: number
 }
 
 export interface ProductTrafficReferrerBreakdownItem
@@ -195,11 +146,6 @@ export interface ProductTrafficSummary {
   averageViewsPerDay: number
   viewsToday: number
   viewsSevenDays: number
-  clicksInRange: number
-  previousClicks: number
-  clicksChange: number
-  clickThroughRate: number
-  clickThroughRateChange: number
   upvotesInRange: number
   previousUpvotes: number
   upvotesChange: number
@@ -211,30 +157,15 @@ export interface ProductTrafficSummary {
   topReferrer?: { referrer: string; views: number }
   viewsOverTime: ProductTrafficSummaryPoint[]
   deviceBreakdown: ProductTrafficDeviceBreakdownItem[]
-  deviceConversionBreakdown: ProductTrafficDeviceConversionItem[]
   countryBreakdown: ProductTrafficCountryBreakdownItem[]
   browserBreakdown: ProductTrafficBrowserBreakdownItem[]
   userAgentBreakdown: ProductTrafficUserAgentBreakdownItem[]
-  browserConversionBreakdown: ProductTrafficBrowserConversionItem[]
   referrerBreakdown: ProductTrafficReferrerBreakdownItem[]
-  referrerConversionBreakdown: ProductTrafficReferrerConversionItem[]
-  osConversionBreakdown: ProductTrafficOsConversionItem[]
   engagementOverTime: ProductEngagementSummaryPoint[]
   advanced: ProductTrafficAdvancedInsights
   filters: {
     includeBots: boolean
   }
-}
-
-export type ProductAnalyticsNarrativeConfidence = "low" | "medium" | "high"
-
-export interface ProductAnalyticsNarrative {
-  source: "ai" | "fallback"
-  headline: string
-  highlights: string[]
-  watchouts?: string[]
-  confidence: ProductAnalyticsNarrativeConfidence
-  generatedAt: string
 }
 
 export interface OnboardingAnswerBreakdownItem {
