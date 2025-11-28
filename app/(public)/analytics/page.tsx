@@ -17,14 +17,8 @@ import {
   OsIcon,
   ValueBarRow,
 } from "@/components/molecules/AnalyticsShared"
-import { AnalyticsValueList } from "@/components/molecules/AnalyticsValueList"
 import { TrafficTimeseriesChart } from "@/components/molecules/TrafficTimeseriesChart"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/atoms/card"
+import { AnalyticsListCard } from "@/components/molecules/AnalyticsListCard"
 import { LiveVisitorsPill } from "@/components/molecules/LiveVisitorsPill"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import prisma from "@/lib/prisma"
@@ -268,229 +262,187 @@ export default async function AnalyticsPage() {
           </section>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            <Card className="border-slate-200 bg-white shadow-sm">
-              <CardHeader className="pb-1">
-                <CardTitle className="text-lg font-semibold">Product Pages</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-3">
-                <AnalyticsValueList
-                  items={topProducts.map((product) => {
-                    const share =
-                      totalProductViews > 0
-                        ? (product.pageViews / totalProductViews) * 100
-                        : 0
-                    return {
-                      key: product.path,
-                      value: share,
-                      tone: "indigo",
-                      left: (
-                        <div className="min-w-0">
-                          <div className="truncate font-semibold text-slate-900">{product.name}</div>
-                          <div className="truncate text-xs text-slate-500">{product.path}</div>
-                        </div>
-                      ),
-                      right: (
-                        <div className="text-right">
-                          <div className="text-sm font-semibold text-slate-700">
-                            {formatPercent(share)}
-                          </div>
-                          <div className="text-xs text-slate-500">
-                            {numberFormatter.format(product.pageViews)} views
-                          </div>
-                        </div>
-                      ),
-                    }
-                  })}
-                  max={100}
-                  className="space-y-4"
-                  emptyLabel="No product traffic recorded in this window yet."
-                  valueBarRowProps={{ className: valueBarRowClassName }}
-                />
-              </CardContent>
-            </Card>
+            <AnalyticsListCard
+              title="Product Pages"
+              items={topProducts.map((product) => {
+                const share =
+                  totalProductViews > 0
+                    ? (product.pageViews / totalProductViews) * 100
+                    : 0
+                return {
+                  key: product.path,
+                  value: share,
+                  tone: "indigo",
+                  left: (
+                    <div className="min-w-0">
+                      <div className="truncate font-semibold text-slate-900">{product.name}</div>
+                      <div className="truncate text-xs text-slate-500">{product.path}</div>
+                    </div>
+                  ),
+                  right: (
+                    <div className="text-right">
+                      <div className="text-sm font-semibold text-slate-700">
+                        {formatPercent(share)}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {numberFormatter.format(product.pageViews)} views
+                      </div>
+                    </div>
+                  ),
+                }
+              })}
+              max={100}
+              listClassName="space-y-4"
+              emptyLabel="No product traffic recorded in this window yet."
+              valueBarRowProps={{ className: valueBarRowClassName }}
+            />
 
-            <Card className="border-slate-200 bg-white shadow-sm">
-              <CardHeader className="pb-1">
-                <CardTitle className="text-lg font-semibold">Referrers</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-3">
-                <AnalyticsValueList
-                  items={snapshot.referrers.map((referrer) => ({
-                    key: referrer.referrer,
-                    value: referrer.views,
-                    left: (
-                      <span className="truncate font-medium text-slate-900">
-                        {referrerLabel(referrer.referrer)}
-                      </span>
-                    ),
-                    right: (
-                      <span className="text-sm font-semibold text-slate-700">
-                        {formatPercent(referrer.share)}
-                      </span>
-                    ),
-                  }))}
-                  className="space-y-3"
-                  emptyLabel="Waiting for referral data."
-                  valueBarRowProps={{ className: valueBarRowClassName }}
-                />
-              </CardContent>
-            </Card>
+            <AnalyticsListCard
+              title="Referrers"
+              items={snapshot.referrers.map((referrer) => ({
+                key: referrer.referrer,
+                value: referrer.views,
+                left: (
+                  <span className="truncate font-medium text-slate-900">
+                    {referrerLabel(referrer.referrer)}
+                  </span>
+                ),
+                right: (
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(referrer.share)}
+                  </span>
+                ),
+              }))}
+              listClassName="space-y-3"
+              emptyLabel="Waiting for referral data."
+              valueBarRowProps={{ className: valueBarRowClassName }}
+            />
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            <Card className="border-slate-200 bg-white shadow-sm">
-              <CardHeader className="pb-1">
-                <CardTitle className="text-lg font-semibold">Countries</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-3">
-                <AnalyticsValueList
-                  items={snapshot.countries.map((country) => ({
-                    key: country.country,
-                    value: country.visitors,
-                    tone: "blue",
-                    left: (
-                      <div className="flex items-center gap-2 truncate">
-                        <FlagIcon code={country.code} name={country.country} />
-                        <span className="truncate font-medium text-slate-900">{country.country}</span>
-                      </div>
-                    ),
-                    right: (
-                      <span className="text-sm font-semibold text-slate-700">
-                        {formatPercent(country.share)}
-                      </span>
-                    ),
-                  }))}
-                  className="space-y-3"
-                  emptyLabel="No country data yet."
-                  valueBarRowProps={{ className: valueBarRowClassName }}
-                />
-              </CardContent>
-            </Card>
+            <AnalyticsListCard
+              title="Countries"
+              items={snapshot.countries.map((country) => ({
+                key: country.country,
+                value: country.visitors,
+                tone: "blue",
+                left: (
+                  <div className="flex items-center gap-2 truncate">
+                    <FlagIcon code={country.code} name={country.country} />
+                    <span className="truncate font-medium text-slate-900">{country.country}</span>
+                  </div>
+                ),
+                right: (
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(country.share)}
+                  </span>
+                ),
+              }))}
+              listClassName="space-y-3"
+              emptyLabel="No country data yet."
+              valueBarRowProps={{ className: valueBarRowClassName }}
+            />
 
-            <Card className="border-slate-200 bg-white shadow-sm">
-              <CardHeader className="pb-1">
-                <CardTitle className="text-lg font-semibold">Cities</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-3">
-                <AnalyticsValueList
-                  items={snapshot.cities.map((city) => ({
-                    key: `${city.city}-${city.region ?? ""}-${city.country ?? ""}`,
-                    value: city.visitors,
-                    tone: "blue",
-                    left: (
-                      <div className="flex items-center gap-2 truncate">
-                        <FlagIcon code={city.code} name={city.city} />
-                        <div className="min-w-0 truncate">
-                          <div className="truncate font-medium text-slate-900">{city.city}</div>
-                          <div className="truncate text-xs text-slate-500">
-                            {[city.region, city.country].filter(Boolean).join(" · ")}
-                          </div>
-                        </div>
+            <AnalyticsListCard
+              title="Cities"
+              items={snapshot.cities.map((city) => ({
+                key: `${city.city}-${city.region ?? ""}-${city.country ?? ""}`,
+                value: city.visitors,
+                tone: "blue",
+                left: (
+                  <div className="flex items-center gap-2 truncate">
+                    <FlagIcon code={city.code} name={city.city} />
+                    <div className="min-w-0 truncate">
+                      <div className="truncate font-medium text-slate-900">{city.city}</div>
+                      <div className="truncate text-xs text-slate-500">
+                        {[city.region, city.country].filter(Boolean).join(" · ")}
                       </div>
-                    ),
-                    right: (
-                      <span className="text-sm font-semibold text-slate-700">
-                        {formatPercent(city.share)}
-                      </span>
-                    ),
-                  }))}
-                  className="space-y-3"
-                  emptyLabel="No city data yet."
-                  valueBarRowProps={{ className: valueBarRowClassName }}
-                />
-              </CardContent>
-            </Card>
+                    </div>
+                  </div>
+                ),
+                right: (
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(city.share)}
+                  </span>
+                ),
+              }))}
+              listClassName="space-y-3"
+              emptyLabel="No city data yet."
+              valueBarRowProps={{ className: valueBarRowClassName }}
+            />
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-3">
-            <Card className="border-slate-200 bg-white shadow-sm">
-              <CardHeader className="pb-1">
-                <CardTitle className="text-lg font-semibold">Browsers</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-3">
-                <AnalyticsValueList
-                  items={snapshot.browsers.map((browser) => ({
-                    key: browser.browser,
-                    value: browser.visitors,
-                    tone: "indigo",
-                    left: (
-                      <div className="flex items-center gap-2 truncate">
-                        <BrowserIcon name={browser.browser} />
-                        <span className="truncate font-medium text-slate-900">{browser.browser}</span>
-                      </div>
-                    ),
-                    right: (
-                      <span className="text-sm font-semibold text-slate-700">
-                        {formatPercent(browser.share)}
-                      </span>
-                    ),
-                  }))}
-                  className="space-y-3"
-                  emptyLabel="No browser data yet."
-                  valueBarRowProps={{ className: valueBarRowClassName }}
-                />
-              </CardContent>
-            </Card>
+            <AnalyticsListCard
+              title="Browsers"
+              items={snapshot.browsers.map((browser) => ({
+                key: browser.browser,
+                value: browser.visitors,
+                tone: "indigo",
+                left: (
+                  <div className="flex items-center gap-2 truncate">
+                    <BrowserIcon name={browser.browser} />
+                    <span className="truncate font-medium text-slate-900">{browser.browser}</span>
+                  </div>
+                ),
+                right: (
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(browser.share)}
+                  </span>
+                ),
+              }))}
+              listClassName="space-y-3"
+              emptyLabel="No browser data yet."
+              valueBarRowProps={{ className: valueBarRowClassName }}
+            />
 
-            <Card className="border-slate-200 bg-white shadow-sm">
-              <CardHeader className="pb-1">
-                <CardTitle className="text-lg font-semibold">Operating systems</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-3">
-                <AnalyticsValueList
-                  items={snapshot.operatingSystems.map((os) => ({
-                    key: os.os,
-                    value: os.visitors,
-                    tone: "blue",
-                    left: (
-                      <div className="flex items-center gap-2 truncate">
-                        <OsIcon name={os.os} />
-                        <span className="truncate font-medium text-slate-900">{os.os}</span>
-                      </div>
-                    ),
-                    right: (
-                      <span className="text-sm font-semibold text-slate-700">
-                        {formatPercent(os.share)}
-                      </span>
-                    ),
-                  }))}
-                  className="space-y-3"
-                  emptyLabel="No OS data yet."
-                  valueBarRowProps={{ className: valueBarRowClassName }}
-                />
-              </CardContent>
-            </Card>
+            <AnalyticsListCard
+              title="Operating systems"
+              items={snapshot.operatingSystems.map((os) => ({
+                key: os.os,
+                value: os.visitors,
+                tone: "blue",
+                left: (
+                  <div className="flex items-center gap-2 truncate">
+                    <OsIcon name={os.os} />
+                    <span className="truncate font-medium text-slate-900">{os.os}</span>
+                  </div>
+                ),
+                right: (
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(os.share)}
+                  </span>
+                ),
+              }))}
+              listClassName="space-y-3"
+              emptyLabel="No OS data yet."
+              valueBarRowProps={{ className: valueBarRowClassName }}
+            />
 
-            <Card className="border-slate-200 bg-white shadow-sm">
-              <CardHeader className="pb-1">
-                <CardTitle className="text-lg font-semibold">Devices</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-3">
-                <AnalyticsValueList
-                  items={snapshot.devices.map((device) => ({
-                    key: device.deviceCategory,
-                    value: device.visitors,
-                    tone: "indigo",
-                    left: (
-                      <div className="flex items-center gap-2 truncate capitalize">
-                        {deviceIcon(device.deviceCategory)}
-                        <span className="truncate font-medium text-slate-900">
-                          {device.deviceCategory}
-                        </span>
-                      </div>
-                    ),
-                    right: (
-                      <span className="text-sm font-semibold text-slate-700">
-                        {formatPercent(device.share)}
-                      </span>
-                    ),
-                  }))}
-                  className="space-y-3"
-                  emptyLabel="No device data yet."
-                  valueBarRowProps={{ className: valueBarRowClassName }}
-                />
-              </CardContent>
-            </Card>
+            <AnalyticsListCard
+              title="Devices"
+              items={snapshot.devices.map((device) => ({
+                key: device.deviceCategory,
+                value: device.visitors,
+                tone: "indigo",
+                left: (
+                  <div className="flex items-center gap-2 truncate capitalize">
+                    {deviceIcon(device.deviceCategory)}
+                    <span className="truncate font-medium text-slate-900">
+                      {device.deviceCategory}
+                    </span>
+                  </div>
+                ),
+                right: (
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(device.share)}
+                  </span>
+                ),
+              }))}
+              listClassName="space-y-3"
+              emptyLabel="No device data yet."
+              valueBarRowProps={{ className: valueBarRowClassName }}
+            />
           </div>
 
           <div className="mt-10 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">

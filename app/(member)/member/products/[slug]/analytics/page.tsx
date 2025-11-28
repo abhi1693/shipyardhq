@@ -41,6 +41,7 @@ import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { ProductAnalyticsRangeDropdown } from "@/components/molecules/ProductAnalyticsRangeDropdown"
 import { AnalyticsPieChart } from "@/components/molecules/AnalyticsPieChart"
 import { AnalyticsValueList } from "@/components/molecules/AnalyticsValueList"
+import { AnalyticsListCard } from "@/components/molecules/AnalyticsListCard"
 import { TrafficTimeseriesChart } from "@/components/molecules/TrafficTimeseriesChart"
 import { Link2 } from "lucide-react"
 
@@ -355,198 +356,171 @@ export default async function ProductAnalyticsPage({
           {showAdvanced ? (
             <>
               <div className="grid gap-4 lg:grid-cols-2">
-                <Card className="rounded-xl border border-slate-200 bg-white/90 shadow-sm">
-                  <CardHeader className="pb-2 px-4">
-                    <CardTitle className="text-base text-slate-900">
-                      Top referrers
-                    </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground">
-                      Most viewed sources this range
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-2">
-                    <AnalyticsValueList
-                      items={referrersSorted.map((ref) => ({
-                        key: ref.referrer,
-                        value: ref.views,
-                        left: (
-                          <span className="font-medium text-slate-900 truncate">
-                            {ref.referrer}
-                          </span>
-                        ),
-                        right: (
-                          <div className="flex items-center gap-3 text-xs text-slate-700">
-                            <span className="font-semibold">
-                              {formatPercentOneDecimal(ref.share)}
-                            </span>
-                          </div>
-                        ),
-                      }))}
-                      className="space-y-2"
-                      emptyLabel="Not enough data for this range."
-                      emptyClassName="flex h-24 items-center justify-center text-sm text-muted-foreground"
-                      valueBarRowProps={valueBarRowProps}
-                    />
-                  </CardContent>
-                </Card>
-                <Card className="rounded-xl border border-slate-200 bg-white/90 shadow-sm">
-                  <CardHeader className="pb-2 px-4">
-                    <CardTitle className="text-base text-slate-900">
-                      Traffic channels
-                    </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground">
-                      Channel mix for this range
-                    </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pt-2">
-                      <AnalyticsValueList
-                        items={channelSorted.map((channel) => ({
-                          key: channel.category,
-                          value: channel.views,
-                          left: (
-                            <div className="flex items-center gap-2 truncate">
-                              <Link2 className="h-4 w-4 text-slate-400" />
-                              <span className="font-medium text-slate-900 truncate capitalize">
-                                {channel.category}
-                              </span>
-                            </div>
-                          ),
-                          right: (
-                            <div className="flex items-center gap-3 text-xs text-slate-700">
-                              <span className="font-semibold">
-                                {formatPercentOneDecimal(channel.share)}
-                              </span>
-                            </div>
-                          ),
-                        }))}
-                        className="space-y-2"
-                        emptyLabel="Not enough data for this range."
-                        emptyClassName="flex h-24 items-center justify-center text-sm text-muted-foreground"
-                        valueBarRowProps={valueBarRowProps}
-                      />
-                    </CardContent>
-                  </Card>
-                </div>
+                <AnalyticsListCard
+                  title="Top referrers"
+                  description="Most viewed sources this range"
+                  items={referrersSorted.map((ref) => ({
+                    key: ref.referrer,
+                    value: ref.views,
+                    left: (
+                      <span className="font-medium text-slate-900 truncate">
+                        {ref.referrer}
+                      </span>
+                    ),
+                    right: (
+                      <div className="flex items-center gap-3 text-xs text-slate-700">
+                        <span className="font-semibold">
+                          {formatPercentOneDecimal(ref.share)}
+                        </span>
+                      </div>
+                    ),
+                  }))}
+                  listClassName="space-y-2"
+                  emptyLabel="Not enough data for this range."
+                  emptyClassName="flex h-24 items-center justify-center text-sm text-muted-foreground"
+                  valueBarRowProps={valueBarRowProps}
+                  cardClassName="rounded-xl border border-slate-200 bg-white/90 shadow-sm"
+                  headerClassName="pb-2 px-4"
+                  contentClassName="pt-2"
+                  titleClassName="text-base text-slate-900"
+                  descriptionClassName="text-sm text-muted-foreground"
+                />
+                <AnalyticsListCard
+                  title="Traffic channels"
+                  description="Channel mix for this range"
+                  items={channelSorted.map((channel) => ({
+                    key: channel.category,
+                    value: channel.views,
+                    left: (
+                      <div className="flex items-center gap-2 truncate">
+                        <Link2 className="h-4 w-4 text-slate-400" />
+                        <span className="font-medium text-slate-900 truncate capitalize">
+                          {channel.category}
+                        </span>
+                      </div>
+                    ),
+                    right: (
+                      <div className="flex items-center gap-3 text-xs text-slate-700">
+                        <span className="font-semibold">
+                          {formatPercentOneDecimal(channel.share)}
+                        </span>
+                      </div>
+                    ),
+                  }))}
+                  listClassName="space-y-2"
+                  emptyLabel="Not enough data for this range."
+                  emptyClassName="flex h-24 items-center justify-center text-sm text-muted-foreground"
+                  valueBarRowProps={valueBarRowProps}
+                  cardClassName="rounded-xl border border-slate-200 bg-white/90 shadow-sm"
+                  headerClassName="pb-2 px-4"
+                  contentClassName="pt-2"
+                  titleClassName="text-base text-slate-900"
+                  descriptionClassName="text-sm text-muted-foreground"
+                />
+              </div>
               <div className="grid gap-4 xl:grid-cols-3">
-                <Card className="rounded-xl border border-slate-200 bg-white/90 shadow-sm">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base text-slate-900">
-                      Top operating systems
-                    </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground">
-                      Most used OS by visitors
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-2">
-                    <AnalyticsValueList
-                      items={osSorted.map((os) => ({
-                        key: os.os,
-                        value: os.visitors,
-                        left: (
-                          <>
-                            <OsIcon name={os.os} />
-                            <span className="font-medium text-slate-900 truncate">
-                              {os.os}
-                            </span>
-                          </>
-                        ),
-                        right: (
-                          <span className="text-xs font-semibold text-slate-700">
-                            {formatPercentOneDecimal(
-                              gaTraffic.uniqueVisitors > 0
-                                ? (os.visitors / gaTraffic.uniqueVisitors) * 100
-                                : 0,
-                            )}
-                          </span>
-                        ),
-                      }))}
-                      className="space-y-2"
-                      emptyLabel="Not enough data for this range."
-                      emptyClassName="flex h-24 items-center justify-center text-sm text-muted-foreground"
-                      valueBarRowProps={valueBarRowProps}
-                    />
-                  </CardContent>
-                </Card>
-                <Card className="rounded-xl border border-slate-200 bg-white/90 shadow-sm">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base text-slate-900">
-                        Top devices
-                      </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground">
-                      Most used devices by visitors
-                    </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pt-2">
-                      <AnalyticsValueList
-                        items={devicesSorted.map((device) => ({
-                          key: device.deviceCategory,
-                          value: device.visitors,
-                          left: (
-                            <>
-                              {deviceIcon(device.deviceCategory)}
-                              <span className="font-medium text-slate-900 truncate capitalize">
-                                {device.deviceCategory}
-                              </span>
-                            </>
-                          ),
-                          right: (
-                            <span className="text-xs font-semibold text-slate-700">
-                              {formatPercentOneDecimal(
-                                gaTraffic.uniqueVisitors > 0
-                                  ? (device.visitors / gaTraffic.uniqueVisitors) *
-                                    100
-                                  : 0,
-                              )}
-                            </span>
-                          ),
-                        }))}
-                        className="space-y-2"
-                        emptyLabel="Not enough data for this range."
-                        emptyClassName="flex h-24 items-center justify-center text-sm text-muted-foreground"
-                        valueBarRowProps={valueBarRowProps}
-                      />
-                  </CardContent>
-                </Card>
-                <Card className="rounded-xl border border-slate-200 bg-white/90 shadow-sm">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base text-slate-900">
-                        Top browsers
-                      </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground">
-                      Most used browsers by visitors
-                    </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pt-2">
-                      <AnalyticsValueList
-                        items={browsersSorted.map((browser) => ({
-                          key: browser.browser,
-                          value: browser.visitors,
-                          left: (
-                            <>
-                              <BrowserIcon name={browser.browser} />
-                              <span className="font-medium text-slate-900 truncate">
-                                {browser.browser}
-                              </span>
-                            </>
-                          ),
-                          right: (
-                            <span className="text-xs font-semibold text-slate-700">
-                              {formatPercentOneDecimal(
-                                gaTraffic.uniqueVisitors > 0
-                                  ? (browser.visitors / gaTraffic.uniqueVisitors) *
-                                    100
-                                  : 0,
-                              )}
-                            </span>
-                          ),
-                        }))}
-                        className="space-y-2"
-                        emptyLabel="Not enough data for this range."
-                        emptyClassName="flex h-24 items-center justify-center text-sm text-muted-foreground"
-                        valueBarRowProps={valueBarRowProps}
-                      />
-                  </CardContent>
-                </Card>
+                <AnalyticsListCard
+                  title="Top operating systems"
+                  description="Most used OS by visitors"
+                  items={osSorted.map((os) => ({
+                    key: os.os,
+                    value: os.visitors,
+                    left: (
+                      <>
+                        <OsIcon name={os.os} />
+                        <span className="font-medium text-slate-900 truncate">
+                          {os.os}
+                        </span>
+                      </>
+                    ),
+                    right: (
+                      <span className="text-xs font-semibold text-slate-700">
+                        {formatPercentOneDecimal(
+                          gaTraffic.uniqueVisitors > 0
+                            ? (os.visitors / gaTraffic.uniqueVisitors) * 100
+                            : 0,
+                        )}
+                      </span>
+                    ),
+                  }))}
+                  listClassName="space-y-2"
+                  emptyLabel="Not enough data for this range."
+                  emptyClassName="flex h-24 items-center justify-center text-sm text-muted-foreground"
+                  valueBarRowProps={valueBarRowProps}
+                  cardClassName="rounded-xl border border-slate-200 bg-white/90 shadow-sm"
+                  headerClassName="pb-2"
+                  contentClassName="pt-2"
+                  titleClassName="text-base text-slate-900"
+                  descriptionClassName="text-sm text-muted-foreground"
+                />
+                <AnalyticsListCard
+                  title="Top devices"
+                  description="Most used devices by visitors"
+                  items={devicesSorted.map((device) => ({
+                    key: device.deviceCategory,
+                    value: device.visitors,
+                    left: (
+                      <>
+                        {deviceIcon(device.deviceCategory)}
+                        <span className="font-medium text-slate-900 truncate capitalize">
+                          {device.deviceCategory}
+                        </span>
+                      </>
+                    ),
+                    right: (
+                      <span className="text-xs font-semibold text-slate-700">
+                        {formatPercentOneDecimal(
+                          gaTraffic.uniqueVisitors > 0
+                            ? (device.visitors / gaTraffic.uniqueVisitors) * 100
+                            : 0,
+                        )}
+                      </span>
+                    ),
+                  }))}
+                  listClassName="space-y-2"
+                  emptyLabel="Not enough data for this range."
+                  emptyClassName="flex h-24 items-center justify-center text-sm text-muted-foreground"
+                  valueBarRowProps={valueBarRowProps}
+                  cardClassName="rounded-xl border border-slate-200 bg-white/90 shadow-sm"
+                  headerClassName="pb-2"
+                  contentClassName="pt-2"
+                  titleClassName="text-base text-slate-900"
+                  descriptionClassName="text-sm text-muted-foreground"
+                />
+                <AnalyticsListCard
+                  title="Top browsers"
+                  description="Most used browsers by visitors"
+                  items={browsersSorted.map((browser) => ({
+                    key: browser.browser,
+                    value: browser.visitors,
+                    left: (
+                      <>
+                        <BrowserIcon name={browser.browser} />
+                        <span className="font-medium text-slate-900 truncate">
+                          {browser.browser}
+                        </span>
+                      </>
+                    ),
+                    right: (
+                      <span className="text-xs font-semibold text-slate-700">
+                        {formatPercentOneDecimal(
+                          gaTraffic.uniqueVisitors > 0
+                            ? (browser.visitors / gaTraffic.uniqueVisitors) * 100
+                            : 0,
+                        )}
+                      </span>
+                    ),
+                  }))}
+                  listClassName="space-y-2"
+                  emptyLabel="Not enough data for this range."
+                  emptyClassName="flex h-24 items-center justify-center text-sm text-muted-foreground"
+                  valueBarRowProps={valueBarRowProps}
+                  cardClassName="rounded-xl border border-slate-200 bg-white/90 shadow-sm"
+                  headerClassName="pb-2"
+                  contentClassName="pt-2"
+                  titleClassName="text-base text-slate-900"
+                  descriptionClassName="text-sm text-muted-foreground"
+                />
               </div>
               <Card className="rounded-xl border border-slate-200 bg-white/90 shadow-sm">
                 <div className="grid gap-px lg:grid-cols-2 lg:divide-x lg:divide-slate-200">

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 
 import { ValueBarRow } from "./AnalyticsShared"
 
-type ValueBarRowProps = Omit<
+export type ValueBarRowProps = Omit<
   ComponentProps<typeof ValueBarRow>,
   "value" | "max" | "left" | "right" | "tone"
 >
@@ -17,6 +17,17 @@ export type AnalyticsValueListItem = {
   tone?: "blue" | "indigo"
 }
 
+export type AnalyticsValueListProps = {
+  items: AnalyticsValueListItem[]
+  max?: number
+  emptyLabel: string
+  emptyClassName?: string
+  className?: string
+  itemClassName?: string
+  tone?: "blue" | "indigo"
+  valueBarRowProps?: ValueBarRowProps
+}
+
 export function AnalyticsValueList({
   items,
   max,
@@ -26,16 +37,7 @@ export function AnalyticsValueList({
   itemClassName,
   tone,
   valueBarRowProps,
-}: {
-  items: AnalyticsValueListItem[]
-  max?: number
-  emptyLabel: string
-  emptyClassName?: string
-  className?: string
-  itemClassName?: string
-  tone?: "blue" | "indigo"
-  valueBarRowProps?: ValueBarRowProps
-}) {
+}: AnalyticsValueListProps) {
   if (items.length === 0) {
     return (
       <div
