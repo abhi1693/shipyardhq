@@ -1,160 +1,299 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Sparkles } from "lucide-react"
-import { JsonLdScript } from "next-seo"
-
+import type { ReactNode } from "react"
+import { format, subDays } from "date-fns"
 import {
-  FaqSection,
-  FAQ_JSON_LD_ENTRIES,
-} from "@/components/organisms/FaqSection"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/atoms/dialog"
+  Activity,
+  Globe2,
+  Clock3,
+  Laptop,
+  Monitor,
+  MousePointer2,
+  MapPin,
+  Smartphone,
+  Tablet,
+  TrendingUp,
+  Users,
+} from "lucide-react"
+
+import { AnalyticsLineChart } from "@/components/molecules/AnalyticsLineChart"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
+import { LiveVisitorsPill } from "@/components/molecules/LiveVisitorsPill"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
+import prisma from "@/lib/prisma"
 import { buildPageMetadata } from "@/lib/metadata"
+import { ANALYTICS_PATH, HOME_PATH } from "@/lib/routes"
 import {
-  ANALYTICS_PATH,
-  HOME_PATH,
-  MEMBER_BASE_PATH,
-  MEMBER_PRODUCTS_PATH,
-  PRICING_PATH,
-} from "@/lib/routes"
-import { buildFaqStructuredData } from "@/lib/seo/faq"
-import { cn } from "@/lib/utils"
-import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
-import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
-import { brandGradient, gradientTint } from "@/lib/ui/tints"
-
-const PLAN_HIGHLIGHTS = [
-  {
-    tier: "Free plan",
-    headline: "Understand your baseline",
-    blurb:
-      "Keep a pulse on launches without paying a cent. The core dashboard tracks the signals that matter most when you are just getting started.",
-    metrics: [
-      "Lifetime vote and click totals",
-      "Overall page views across your launch window",
-      "Views over time chart with 7–90 day ranges",
-      "Weekly Insights run to capture a full competitive and community report",
-    ],
-  },
-  {
-    tier: "Paid plans",
-    headline: "Pinpoint what drives conversions",
-    blurb:
-      "Upgrade for deeper context around growth campaigns. Identify which audiences convert, what devices they use, and where to double down.",
-    metrics: [
-      "Click-through rates split by referrer, device, and browser",
-      "Visitor loyalty and retention cohorts to spot repeat fans",
-      "Operating system and traffic channel breakdowns",
-      "Extra Insights credits so you can rerun the pipeline whenever signal shifts",
-    ],
-  },
-  {
-    tier: "Organization plan",
-    headline: "Run analytics across every product",
-    blurb:
-      "Give every organization a shared workspace. These dashboards centralize analytics for all products so teams can compare launches at a glance.",
-    metrics: [
-      "Organization-level rollups across every product",
-      "Cross-team comparisons without switching accounts",
-      "Shared context for planning the next release",
-      "Organization-wide Insights credits that benchmark every product in your lineup",
-    ],
-  },
-]
-
-const MOMENTUM_POINTS = [
-  {
-    title: "Spot trends early",
-    body: "Overlay views, votes, and clicks to understand how experiments perform in the first critical days of a launch.",
-  },
-  {
-    title: "Measure channel health",
-    body: "Use referrer, device, and browser splits to see which campaigns bring high intent visitors versus casual traffic.",
-  },
-  {
-    title: "Plan the next iteration",
-    body: "Pair retention signals with Insights recommendations to prioritize onboarding tweaks, pricing experiments, and outreach work.",
-  },
-]
-
-const HOW_IT_WORKS_STEPS = [
-  {
-    title: "Start from Member View",
-    detail:
-      "Open the member dashboard and head to Products to see your live and draft listings.",
-  },
-  {
-    title: "Pick a product",
-    detail:
-      "Choose the row you want, then select Analytics to open the detailed view—an AI summary now highlights the biggest shifts for you.",
-  },
-  {
-    title: "Share with your team",
-    detail:
-      "Invite collaborators on eligible plans so everyone can review performance, plan experiments, and celebrate wins together.",
-  },
-  {
-    title: "Request an Insights run",
-    detail:
-      "Use the Insights action to generate competitive research, community intelligence, and prioritized recommendations in a single report—free plans include one run each week.",
-  },
-]
-
-type GalleryItem = {
-  src: string
-  alt: string
-  caption: string
-  width: number
-  height: number
-  layoutClass?: string
-  containerClass?: string
-  priority?: boolean
-}
-
-const ANALYTICS_GALLERY: GalleryItem[] = [
-  {
-    src: "/analytics-1.png",
-    alt: "Screenshot of Shipyard analytics overview with core product metrics",
-    caption:
-      "Track votes, clicks, and total views for every launch at a glance.",
-    width: 1600,
-    height: 860,
-    containerClass: "aspect-video",
-    priority: true,
-  },
-  {
-    src: "/analytics-2.png",
-    alt: "Screenshot of Shipyard analytics referrer and device breakdown",
-    caption:
-      "Understand which channels, devices, and browsers drive conversions.",
-    width: 1600,
-    height: 929,
-    containerClass: "aspect-video",
-  },
-  {
-    src: "/analytics-3.png",
-    alt: "Screenshot of Shipyard analytics retention dashboard",
-    caption: "Monitor loyalty and repeat visits to guide onboarding tweaks.",
-    width: 1600,
-    height: 911,
-    layoutClass: "lg:col-span-2 lg:mx-auto lg:max-w-4xl",
-    containerClass: "aspect-video lg:aspect-[21/10]",
-  },
-]
+  getRealtimeVisitorsFromGa,
+  getSiteAnalyticsSnapshot,
+} from "@/lib/server/analytics/googleAnalytics"
 
 const PAGE_TITLE = "Analytics"
+export const revalidate = 300
+
+const numberFormatter = new Intl.NumberFormat("en-US")
+const percentFormatter = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 1,
+})
+
+function formatDuration(seconds: number) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return "—"
+  const total = Math.round(seconds)
+  const hours = Math.floor(total / 3600)
+  const minutes = Math.floor((total % 3600) / 60)
+  const secs = total % 60
+  if (hours > 0) return `${hours}h ${minutes.toString().padStart(2, "0")}m`
+  if (minutes > 0) return `${minutes}m ${secs.toString().padStart(2, "0")}s`
+  return `${secs}s`
+}
+
+function formatPercent(value: number) {
+  if (!Number.isFinite(value)) return "—"
+  return `${percentFormatter.format(value)}%`
+}
+
+function computeDelta(current: number, previous: number) {
+  if (!Number.isFinite(previous) || previous === 0) return null
+  const delta = ((current - previous) / previous) * 100
+  return delta
+}
+
+function flagEmoji(code?: string | null) {
+  if (!code || code.length !== 2) return "🌐"
+  const upper = code.toUpperCase()
+  const first = upper.codePointAt(0)
+  const second = upper.codePointAt(1)
+  if (!first || !second) return "🌐"
+  return String.fromCodePoint(0x1f1e6 + (first - 65), 0x1f1e6 + (second - 65))
+}
+
+function FlagIcon({ code, name }: { code?: string | null; name: string }) {
+  const emoji = flagEmoji(code)
+  return (
+    <span className="text-lg" title={name} aria-label={name}>
+      {emoji}
+    </span>
+  )
+}
+
+function BrowserIcon({ name }: { name: string }) {
+  const key = name.toLowerCase()
+  if (key.includes("chrome")) {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4">
+        <circle cx="12" cy="12" r="10" fill="#ea4335" />
+        <path d="M12 12 6 6a10 10 0 0 1 12 2" fill="#fbbc04" />
+        <path d="M12 12 6 18a10 10 0 0 1-1-12" fill="#34a853" />
+        <circle cx="12" cy="12" r="4" fill="#fff" />
+        <circle cx="12" cy="12" r="2.6" fill="#4285f4" />
+      </svg>
+    )
+  }
+  if (key.includes("safari")) {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4">
+        <circle cx="12" cy="12" r="10" fill="#0ea5e9" />
+        <polygon points="12,5 9,15 12,12 15,9" fill="#fff" />
+        <polygon points="12,19 15,9 12,12 9,15" fill="#f43f5e" />
+      </svg>
+    )
+  }
+  if (key.includes("firefox")) {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4">
+        <path
+          d="M12 2c5.5 0 9.5 4.3 9 9.5-.5 5.2-5 8.5-9.7 8.5-5 0-8.9-3.7-8.9-8.5C2.4 8.2 5 5 8 4c-.2.7-.2 1.7.4 2.5 1.2-1.3 2.8-1.9 4.8-1.9Z"
+          fill="#f97316"
+        />
+        <path d="M9 7c-.4 1.4.3 2.6 1.6 3 1.7.6 3.5-.6 3.6-2.4" fill="#fbbf24" />
+      </svg>
+    )
+  }
+  if (key.includes("edge")) {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4">
+        <path
+          d="M4 15c0-5.5 6.5-9.5 12-6.6-.7-.2-1.6-.2-2.5.3C11 10.5 10.2 14 12 16c-3 0-5-.5-5-3Z"
+          fill="#0ea5e9"
+        />
+        <path d="M12 16c0 2.5 2.2 4 4.5 4 2.3 0 3.8-1.3 4.5-3.5" fill="#22c55e" />
+      </svg>
+    )
+  }
+  if (key.includes("opera")) {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4">
+        <circle cx="12" cy="12" r="10" fill="#e60023" />
+        <ellipse cx="12" cy="12" rx="4" ry="7" fill="#fff" />
+      </svg>
+    )
+  }
+  if (key.includes("brave")) {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4">
+        <path
+          d="M6 4 4 7l2 9 6 4 6-4 2-9-2-3H6Z"
+          fill="#f97316"
+          stroke="#ea580c"
+          strokeWidth="0.5"
+        />
+      </svg>
+    )
+  }
+  return <Globe2 className="h-4 w-4 text-slate-400" />
+}
+
+function OsIcon({ name }: { name: string }) {
+  const key = name.toLowerCase()
+  if (key.includes("mac") || key.includes("ios")) {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4">
+        <path
+          d="M16 2s-1.5.1-2.6 1.6C12.4 5 12.7 6 13 6.5c.4.4 1.2 1.2 2.4 1 0 0 .1-1.5 1.2-2.7C17.7 3.6 18.7 3 19.4 3c0 0-.4-1-1.8-1-.9 0-1.6.4-1.6.4Z"
+          fill="#0f172a"
+        />
+        <path
+          d="M12.5 7.8C11 7 9.4 7.2 8.2 7.8 6.6 8.6 6 10.4 6 11.6c0 1.6.6 3 1.2 4 .8 1.4 1.6 2.4 2.8 2.4 1 0 1.5-.6 2.6-.6 1.2 0 1.5.6 2.6.6 1.2 0 2-.9 2.8-2.3.6-1.1 1-2.3 1-3.2a4.4 4.4 0 0 0-2.2-3.7c-1.4-.8-3-.7-3.7-.3-.3.2-.7.4-1.1.4-.3 0-.7-.2-1-.4Z"
+          fill="#0f172a"
+        />
+      </svg>
+    )
+  }
+  if (key.includes("windows")) {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4">
+        <path d="M3 4.5 11 3v8H3v-6.5Z" fill="#2563eb" />
+        <path d="M3 12.5h8v8l-8-1.1v-6.9Z" fill="#2563eb" />
+        <path d="M13 3.2 21 2v9h-8V3.2Z" fill="#2563eb" />
+        <path d="M13 12.8h8V22l-8-1.2v-8Z" fill="#2563eb" />
+      </svg>
+    )
+  }
+  if (key.includes("android")) {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4">
+        <rect x="6" y="7" width="12" height="10" rx="2" fill="#16a34a" />
+        <circle cx="10" cy="10" r="0.8" fill="#fff" />
+        <circle cx="14" cy="10" r="0.8" fill="#fff" />
+      </svg>
+    )
+  }
+  if (key.includes("linux")) {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4">
+        <path
+          d="M9 5c0-1.1.9-2 2-2h2c1.1 0 2 .9 2 2v10H9V5Z"
+          fill="#0f172a"
+        />
+        <path d="M8 15h8l-1 3H9l-1-3Z" fill="#f59e0b" />
+      </svg>
+    )
+  }
+  return <Laptop className="h-4 w-4 text-slate-400" />
+}
+
+function deviceIcon(deviceCategory: string) {
+  const key = deviceCategory.toLowerCase()
+  if (key.includes("desktop")) return <Monitor className="h-4 w-4 text-slate-400" />
+  if (key.includes("mobile")) return <Smartphone className="h-4 w-4 text-slate-400" />
+  if (key.includes("tablet")) return <Tablet className="h-4 w-4 text-slate-400" />
+  return <MousePointer2 className="h-4 w-4 text-slate-400" />
+}
+
+function referrerLabel(value: string) {
+  if (value === "direct" || value === "Direct / none") return "Direct"
+  const cleaned = value
+    .replace(/^https?:\/\//i, "")
+    .replace(/^www\./i, "")
+    .trim()
+  const domain = cleaned.split(/[/#?]/)[0]
+  return domain || value
+}
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description:
-    "Understand how builders engage with your products. Shipyard analytics now includes plan-specific dashboards for free, paid, and team members.",
+    "Live Shipyard performance for the past 30 days—pulled directly from Google Analytics with top products, referrers, and engagement signals.",
 })
 
-export default function AnalyticsPage() {
-  const faqStructuredData = buildFaqStructuredData(FAQ_JSON_LD_ENTRIES, {
-    pageUrl: ANALYTICS_PATH,
+export default async function AnalyticsPage() {
+  const rangeEnd = subDays(new Date(), 0)
+  const rangeStart = subDays(rangeEnd, 29)
+  const prevRangeEnd = subDays(rangeStart, 1)
+  const prevRangeStart = subDays(prevRangeEnd, 29)
+
+  const [snapshot, previousSnapshot, realtimeVisitors] = await Promise.all([
+    getSiteAnalyticsSnapshot({ topProductLimit: 8 }),
+    getSiteAnalyticsSnapshot({
+      topProductLimit: 8,
+      dateRange: {
+        startDate: format(prevRangeStart, "yyyy-MM-dd"),
+        endDate: format(prevRangeEnd, "yyyy-MM-dd"),
+      },
+    }),
+    getRealtimeVisitorsFromGa(),
+  ])
+
+  const productSlugs = snapshot.topProductPages
+    .map((page) => page.slug?.toLowerCase())
+    .filter((slug): slug is string => Boolean(slug))
+
+  const products =
+    productSlugs.length > 0
+      ? await prisma.product.findMany({
+          where: { slug: { in: productSlugs } },
+          select: {
+            slug: true,
+            name: true,
+            analytics: { select: { upvotes: true } },
+          },
+        })
+      : []
+
+  const productMap = new Map(
+    products.map((product) => [product.slug.toLowerCase(), product]),
+  )
+
+  const topProducts = snapshot.topProductPages.map((page) => {
+    const slug = page.slug?.toLowerCase()
+    const product = slug ? productMap.get(slug) : null
+    return {
+      ...page,
+      name: product?.name ?? slug ?? page.path,
+      upvotes: product?.analytics?.upvotes ?? null,
+    }
   })
-  const hasFaqStructuredData = faqStructuredData.mainEntity.length > 0
+
+  const rangeLabel = `${format(rangeStart, "MMM d")} – ${format(rangeEnd, "MMM d")}`
+  const maxProductViews = Math.max(0, ...topProducts.map((p) => p.pageViews))
+  const totalProductViews = topProducts.reduce((sum, p) => sum + p.pageViews, 0)
+  const maxRefViews = Math.max(0, ...snapshot.referrers.map((ref) => ref.views))
+  const maxCountryVisitors = Math.max(0, ...snapshot.countries.map((c) => c.visitors))
+  const maxRegionVisitors = Math.max(0, ...snapshot.regions.map((c) => c.visitors))
+  const maxCityVisitors = Math.max(0, ...snapshot.cities.map((c) => c.visitors))
+  const maxBrowserVisitors = Math.max(0, ...snapshot.browsers.map((b) => b.visitors))
+  const maxOsVisitors = Math.max(0, ...snapshot.operatingSystems.map((o) => o.visitors))
+  const maxDeviceVisitors = Math.max(0, ...snapshot.devices.map((d) => d.visitors))
+  const hasTimeseries = snapshot.timeseries.length > 0
+
+  const deltas = {
+    views: computeDelta(snapshot.pageViews, previousSnapshot.pageViews),
+    sessions: computeDelta(snapshot.sessions, previousSnapshot.sessions),
+    visitors: computeDelta(snapshot.uniqueVisitors, previousSnapshot.uniqueVisitors),
+    bounce: computeDelta(snapshot.bounceRate, previousSnapshot.bounceRate),
+    duration: computeDelta(
+      snapshot.averageSessionDuration,
+      previousSnapshot.averageSessionDuration,
+    ),
+  }
+
+  const chartConfig = {
+    pageViews: { label: "Page views", color: "#0ea5e9" },
+    uniqueVisitors: { label: "Visitors", color: "#a855f7" },
+  }
 
   return (
     <>
@@ -168,248 +307,413 @@ export default function AnalyticsPage() {
           ],
         }}
       />
-      {hasFaqStructuredData ? (
-        <JsonLdScript
-          data={faqStructuredData}
-          scriptKey="analytics-faq-jsonld"
-        />
-      ) : null}
-      <main className="relative isolate overflow-hidden bg-white">
-        <section
-          className={brandGradient(
-            "relative overflow-hidden border border-[color:var(--brand-1)/0.18] py-24 shadow-[0px_60px_140px_-60px_rgba(18,66,112,0.7)]",
-          )}
-        >
-          <div className="relative mx-auto flex max-w-[84rem] flex-col items-center gap-10 px-4 text-center text-white md:px-8">
-            <span
-              className={gradientTint(
-                "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
-              )}
-            >
-              Analytics
-            </span>
-            <div className="mx-auto max-w-3xl space-y-6">
-              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-                Analytics built for every Shipyard builder
-              </h1>
-              <p className="text-lg text-white/85">
-                Whether you are launching your first product or managing an
-                entire portfolio, the dashboards pair with Insights so you can
-                understand traction, surface opportunities, and capture every
-                conversation around your brand—starting with a weekly run on the
-                free plan.
-              </p>
+      <main className="bg-gradient-to-b from-slate-50 via-white to-white text-slate-900">
+        <div className="mx-auto max-w-7xl px-4 pb-16 pt-10 sm:px-6 lg:px-8">
+          <header className="flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <h1 className="text-3xl font-semibold sm:text-4xl">Shipyard traffic snapshot</h1>
+              <LiveVisitorsPill initialVisitors={realtimeVisitors} />
             </div>
-            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link
-                href={MEMBER_BASE_PATH}
-                className={launchPrimaryButton({ size: "lg" })}
-              >
-                View your dashboard
-              </Link>
-              <Link
-                href={PRICING_PATH}
-                className={launchSecondaryButton({
-                  size: "lg",
-                  className: "text-white/90 hover:text-white",
-                })}
-              >
-                Compare plans
-              </Link>
-            </div>
-            <p className="mt-4 flex items-center justify-center gap-2 text-sm text-white/80">
-              <Sparkles className="size-4 text-white/80" aria-hidden />
-              Every analytics page now opens with an AI-crafted recap.
-              <Link
-                href={MEMBER_PRODUCTS_PATH}
-                className="inline-flex items-center gap-1 font-semibold text-white hover:text-white/90 underline-offset-4 hover:underline"
-              >
-                See your AI summary
-              </Link>
-            </p>
+            <p className="text-sm text-slate-600">{rangeLabel}</p>
+          </header>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+            <MetricCard
+              label="Views"
+              value={numberFormatter.format(snapshot.pageViews)}
+              delta={deltas.views}
+              icon={<TrendingUp className="h-4 w-4" aria-hidden />}
+            />
+            <MetricCard
+              label="Visits"
+              value={numberFormatter.format(snapshot.sessions)}
+              delta={deltas.sessions}
+              icon={<MousePointer2 className="h-4 w-4" aria-hidden />}
+            />
+            <MetricCard
+              label="Visitors"
+              value={numberFormatter.format(snapshot.uniqueVisitors)}
+              delta={deltas.visitors}
+              icon={<Users className="h-4 w-4" aria-hidden />}
+            />
+            <MetricCard
+              label="Bounce rate"
+              value={formatPercent(snapshot.bounceRate)}
+              delta={deltas.bounce}
+              icon={<Activity className="h-4 w-4" aria-hidden />}
+            />
+            <MetricCard
+              label="Visit duration"
+              value={formatDuration(snapshot.averageSessionDuration)}
+              delta={deltas.duration}
+              icon={<Clock3 className="h-4 w-4" aria-hidden />}
+            />
           </div>
-        </section>
 
-        <InsightsShowcase
-          eyebrow="Insights + Analytics"
-          title="Insights extends every Shipyard dashboard"
-          description="Activate the pipeline to pair your analytics with competitive research, community sentiment, and prioritized recommendations—free plans include a weekly run and upgrades add more credits."
-          primaryCta={{
-            label: "Request insights from your dashboard",
-            href: MEMBER_BASE_PATH,
-          }}
-          secondaryCta={{
-            label: "See plan coverage",
-            href: PRICING_PATH,
-          }}
-        />
+          <section className="mt-8 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Visitors vs page views</h2>
+            </div>
+            {!hasTimeseries ? (
+              <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-white text-sm text-slate-500">
+                Not enough data yet.
+              </div>
+            ) : (
+              <AnalyticsLineChart
+                data={snapshot.timeseries}
+                config={chartConfig}
+                lines={[
+                  { dataKey: "pageViews", strokeWidth: 2 },
+                  { dataKey: "uniqueVisitors", strokeWidth: 2 },
+                ]}
+                height={280}
+                showLegend
+                className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+              />
+            )}
+          </section>
 
-        <section className="relative py-16">
-          <div className="mx-auto max-w-[84rem] px-4 md:px-8 space-y-10">
-            <div className="space-y-4 text-center">
-              <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-                See your dashboards in action
-              </h2>
-              <p className="mx-auto max-w-3xl text-base text-muted-foreground">
-                Each view is designed to surface the questions builders ask
-                most—from high-level traction to channel attribution and
-                team-wide rollups.
-              </p>
-            </div>
-            <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
-              {ANALYTICS_GALLERY.map((shot) => (
-                <div
-                  key={shot.src}
-                  className={cn("w-full lg:col-span-1", shot.layoutClass)}
-                >
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <button
-                        type="button"
-                        className="group flex w-full flex-col overflow-hidden rounded-[28px] border border-[color:var(--brand-1)/0.15] bg-background/85 text-left shadow-[0px_25px_55px_-35px_rgba(7,58,104,0.55)] backdrop-blur transition hover:border-[color:var(--brand-1)/0.3] hover:shadow-[0px_30px_60px_-30px_rgba(7,58,104,0.6)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[color:var(--brand-2)] focus-visible:ring-offset-2 focus-visible:ring-offset-background cursor-zoom-in"
-                        aria-label={`View larger analytics preview: ${shot.caption}`}
-                      >
-                        <span
-                          className={cn(
-                            "relative block bg-background",
-                            shot.containerClass ?? "aspect-video",
-                          )}
-                        >
-                          <Image
-                            src={shot.src}
-                            alt={shot.alt}
-                            fill
-                            className="object-contain"
-                            sizes="(min-width: 1280px) 600px, (min-width: 768px) 50vw, 100vw"
-                            loading={shot.priority ? "eager" : "lazy"}
-                            fetchPriority={shot.priority ? "high" : "auto"}
-                          />
-                        </span>
-                        <span className="block px-6 py-5 text-sm text-muted-foreground">
-                          {shot.caption}
-                        </span>
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent
-                      className="sm:max-w-5xl border-none bg-background/95 p-0 shadow-2xl rounded-none"
-                      showCloseButton={false}
-                    >
-                      <div className="relative overflow-hidden border border-[color:var(--brand-1)/0.2] bg-background">
-                        <Image
-                          src={shot.src}
-                          alt={shot.alt}
-                          width={shot.width}
-                          height={shot.height}
-                          className="h-auto w-full object-contain bg-background"
-                          sizes="(min-width: 1280px) 960px, 100vw"
-                        />
-                      </div>
-                      <p className="px-6 pb-6 pt-4 text-center text-sm text-muted-foreground">
-                        {shot.caption}
-                      </p>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="relative py-20">
-          <div className="mx-auto max-w-[84rem] px-4 md:px-8 space-y-12">
-            <div className="space-y-4 text-center">
-              <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-                Choose the visibility that fits your team
-              </h2>
-              <p className="mx-auto max-w-3xl text-base text-muted-foreground">
-                Every plan now includes tailored analytics. Start free, upgrade
-                when you need granular attribution, and bring your entire
-                organization along when you scale.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              {PLAN_HIGHLIGHTS.map((plan) => (
-                <article
-                  key={plan.tier}
-                  className="flex h-full flex-col justify-between rounded-3xl border border-[color:var(--brand-1)/0.15] bg-background/80 p-8 text-left shadow-[0px_25px_60px_-35px_rgba(7,58,104,0.6)] backdrop-blur"
-                >
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <Card className="border-slate-200 bg-white shadow-sm">
+              <CardHeader className="pb-1">
+                <CardTitle className="text-lg font-semibold">Product Pages</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-3">
+                {topProducts.length === 0 ? (
+                  <div className="flex h-24 items-center justify-center text-sm text-slate-500">
+                    No product traffic recorded in this window yet.
+                  </div>
+                ) : (
                   <div className="space-y-4">
-                    <div className="text-xs font-semibold uppercase tracking-[0.34em] text-[color:var(--brand-2-text,#0a5678)]">
-                      {plan.tier}
-                    </div>
-                    <h3 className="text-2xl font-semibold text-foreground">
-                      {plan.headline}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {plan.blurb}
-                    </p>
-                  </div>
-                  <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
-                    {plan.metrics.map((metric) => (
-                      <li key={metric} className="flex items-start gap-2">
-                        <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--brand-1)]" />
-                        <span>{metric}</span>
-                      </li>
+                    {topProducts.map((product) => (
+                      <ValueBarRow
+                        key={`${product.slug}-${product.path}`}
+                        value={
+                          totalProductViews > 0
+                            ? (product.pageViews / totalProductViews) * 100
+                            : 0
+                        }
+                        max={100}
+                        left={
+                          <div className="min-w-0">
+                            <div className="truncate font-semibold text-slate-900">{product.name}</div>
+                            <div className="truncate text-xs text-slate-500">{product.path}</div>
+                          </div>
+                        }
+                        right={
+                          <div className="text-right">
+                            <div className="text-sm font-semibold text-slate-700">
+                              {formatPercent(
+                                totalProductViews > 0
+                                  ? (product.pageViews / totalProductViews) * 100
+                                  : 0,
+                              )}
+                            </div>
+                            <div className="text-xs text-slate-500">
+                              {numberFormatter.format(product.pageViews)} views
+                            </div>
+                          </div>
+                        }
+                        tone="indigo"
+                      />
                     ))}
-                  </ul>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="relative py-16">
-          <div className="mx-auto grid max-w-[84rem] gap-12 px-4 md:px-8 lg:grid-cols-[1.2fr_minmax(0,1fr)]">
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-                  Turn signal into momentum
-                </h2>
-                <p className="text-base text-muted-foreground">
-                  Use the analytics suite to understand which experiments land
-                  and where to steer next.
-                </p>
-              </div>
-              <div className="space-y-5">
-                {MOMENTUM_POINTS.map((point) => (
-                  <div
-                    key={point.title}
-                    className="rounded-2xl border border-[color:var(--brand-1)/0.15] bg-background/80 p-5 shadow-[0px_20px_40px_-36px_rgba(7,58,104,0.65)] backdrop-blur"
-                  >
-                    <h3 className="text-lg font-semibold text-foreground">
-                      {point.title}
-                    </h3>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {point.body}
-                    </p>
                   </div>
-                ))}
-              </div>
-            </div>
-            <div className="space-y-6 rounded-3xl border border-[color:var(--brand-1)/0.15] bg-background/90 p-8 shadow-[0px_30px_50px_-35px_rgba(7,58,104,0.55)] backdrop-blur">
-              <h2 className="text-2xl font-semibold text-foreground">
-                How to open your analytics dashboard
-              </h2>
-              <ol className="space-y-4 text-sm text-muted-foreground list-decimal pl-5">
-                {HOW_IT_WORKS_STEPS.map((step) => (
-                  <li key={step.title} className="space-y-1">
-                    <span className="font-semibold text-foreground">
-                      {step.title}
-                    </span>
-                    <p>{step.detail}</p>
-                  </li>
-                ))}
-              </ol>
-              <p className="text-sm text-muted-foreground">
-                Dashboards update continuously—refresh after a campaign push and
-                share highlights with your team to keep momentum rolling.
-              </p>
-            </div>
-          </div>
-        </section>
+                )}
+              </CardContent>
+            </Card>
 
-        <FaqSection />
+            <Card className="border-slate-200 bg-white shadow-sm">
+              <CardHeader className="pb-1">
+                <CardTitle className="text-lg font-semibold">Referrers</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-3">
+                {snapshot.referrers.length === 0 ? (
+                  <div className="flex h-24 items-center justify-center text-sm text-slate-500">
+                    Waiting for referral data.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {snapshot.referrers.map((referrer) => (
+                      <ValueBarRow
+                        key={referrer.referrer}
+                        value={referrer.views}
+                        max={maxRefViews}
+                        left={
+                          <span className="truncate font-medium text-slate-900">
+                            {referrerLabel(referrer.referrer)}
+                          </span>
+                        }
+                        right={
+                          <span className="text-sm font-semibold text-slate-700">
+                            {formatPercent(referrer.share)}
+                          </span>
+                        }
+                      />
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <Card className="border-slate-200 bg-white shadow-sm">
+              <CardHeader className="pb-1">
+                <CardTitle className="text-lg font-semibold">Countries</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-3">
+                {snapshot.countries.length === 0 ? (
+                  <div className="flex h-24 items-center justify-center text-sm text-slate-500">
+                    No country data yet.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {snapshot.countries.map((country) => (
+                      <ValueBarRow
+                        key={country.country}
+                        value={country.visitors}
+                        max={maxCountryVisitors}
+                        left={
+                          <div className="flex items-center gap-2 truncate">
+                            <FlagIcon code={country.code} name={country.country} />
+                            <span className="truncate font-medium text-slate-900">{country.country}</span>
+                          </div>
+                        }
+                        right={
+                          <span className="text-sm font-semibold text-slate-700">
+                            {formatPercent(country.share)}
+                          </span>
+                        }
+                        tone="blue"
+                      />
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-200 bg-white shadow-sm">
+              <CardHeader className="pb-1">
+                <CardTitle className="text-lg font-semibold">Cities</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-3">
+                {snapshot.cities.length === 0 ? (
+                  <div className="flex h-24 items-center justify-center text-sm text-slate-500">
+                    No city data yet.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {snapshot.cities.map((city) => (
+                      <ValueBarRow
+                        key={`${city.city}-${city.region ?? ""}-${city.country ?? ""}`}
+                        value={city.visitors}
+                        max={maxCityVisitors}
+                        left={
+                          <div className="flex items-center gap-2 truncate">
+                            <FlagIcon code={city.code} name={city.city} />
+                            <div className="min-w-0 truncate">
+                              <div className="truncate font-medium text-slate-900">{city.city}</div>
+                              <div className="truncate text-xs text-slate-500">
+                                {[city.region, city.country].filter(Boolean).join(" · ")}
+                              </div>
+                            </div>
+                          </div>
+                        }
+                        right={
+                          <span className="text-sm font-semibold text-slate-700">
+                            {formatPercent(city.share)}
+                          </span>
+                        }
+                        tone="blue"
+                      />
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-3">
+            <Card className="border-slate-200 bg-white shadow-sm">
+              <CardHeader className="pb-1">
+                <CardTitle className="text-lg font-semibold">Browsers</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-3">
+                {snapshot.browsers.length === 0 ? (
+                  <div className="flex h-24 items-center justify-center text-sm text-slate-500">
+                    No browser data yet.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {snapshot.browsers.map((browser) => (
+                      <ValueBarRow
+                        key={browser.browser}
+                        value={browser.visitors}
+                        max={maxBrowserVisitors}
+                        left={
+                          <div className="flex items-center gap-2 truncate">
+                            <BrowserIcon name={browser.browser} />
+                            <span className="truncate font-medium text-slate-900">{browser.browser}</span>
+                          </div>
+                        }
+                        right={
+                          <span className="text-sm font-semibold text-slate-700">
+                            {formatPercent(browser.share)}
+                          </span>
+                        }
+                        tone="indigo"
+                      />
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-200 bg-white shadow-sm">
+              <CardHeader className="pb-1">
+                <CardTitle className="text-lg font-semibold">Operating systems</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-3">
+                {snapshot.operatingSystems.length === 0 ? (
+                  <div className="flex h-24 items-center justify-center text-sm text-slate-500">
+                    No OS data yet.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {snapshot.operatingSystems.map((os) => (
+                      <ValueBarRow
+                        key={os.os}
+                        value={os.visitors}
+                        max={maxOsVisitors}
+                        left={
+                          <div className="flex items-center gap-2 truncate">
+                            <OsIcon name={os.os} />
+                            <span className="truncate font-medium text-slate-900">{os.os}</span>
+                          </div>
+                        }
+                        right={
+                          <span className="text-sm font-semibold text-slate-700">
+                            {formatPercent(os.share)}
+                          </span>
+                        }
+                        tone="blue"
+                      />
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-200 bg-white shadow-sm">
+              <CardHeader className="pb-1">
+                <CardTitle className="text-lg font-semibold">Devices</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-3">
+                {snapshot.devices.length === 0 ? (
+                  <div className="flex h-24 items-center justify-center text-sm text-slate-500">
+                    No device data yet.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {snapshot.devices.map((device) => (
+                      <ValueBarRow
+                        key={device.deviceCategory}
+                        value={device.visitors}
+                        max={maxDeviceVisitors}
+                        left={
+                          <div className="flex items-center gap-2 truncate capitalize">
+                            {deviceIcon(device.deviceCategory)}
+                            <span className="truncate font-medium text-slate-900">
+                              {device.deviceCategory}
+                            </span>
+                          </div>
+                        }
+                        right={
+                          <span className="text-sm font-semibold text-slate-700">
+                            {formatPercent(device.share)}
+                          </span>
+                        }
+                        tone="indigo"
+                      />
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </main>
     </>
+  )
+}
+
+function MetricCard({
+  label,
+  value,
+  delta,
+  icon,
+}: {
+  label: string
+  value: string
+  delta?: number | null
+  icon?: ReactNode
+}) {
+  const trendLabel =
+    delta != null ? `${delta > 0 ? "+" : ""}${delta.toFixed(1)}%` : null
+  const isPositive = delta != null ? delta >= 0 : null
+  const trendColor = isPositive != null ? (isPositive ? "text-emerald-700" : "text-rose-700") : "text-slate-600"
+  const trendBg = isPositive != null ? (isPositive ? "bg-emerald-50" : "bg-rose-50") : "bg-slate-50"
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-sm font-semibold text-slate-600">{label}</div>
+          <div className="mt-2 text-3xl font-semibold text-slate-900">{value}</div>
+          {trendLabel ? (
+            <div className={`mt-2 inline-flex items-center gap-2 rounded-md px-2.5 py-1 ${trendBg}`}>
+              <span className={`text-xs font-semibold ${trendColor}`}>{trendLabel}</span>
+            </div>
+          ) : null}
+        </div>
+        {icon ? (
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-800">
+            {icon}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
+function ValueBarRow({
+  value,
+  max,
+  left,
+  right,
+  tone = "blue",
+}: {
+  value: number
+  max: number
+  left: ReactNode
+  right?: ReactNode
+  tone?: "blue" | "indigo"
+}) {
+  const safeMax = max > 0 ? max : value || 1
+  const pct = Math.min(100, Math.max(0, (value / safeMax) * 100))
+  const barColor = tone === "indigo" ? "bg-indigo-200" : "bg-sky-200"
+
+  return (
+    <div className="relative overflow-hidden rounded-md border border-slate-200 bg-white px-3 py-2 shadow-sm">
+      <div
+        className={`absolute inset-y-0 left-0 ${barColor}`}
+        style={{ width: `${pct}%` }}
+        aria-hidden
+      />
+      <div className="relative flex items-center justify-between gap-3 text-sm">
+        <div className="flex items-center gap-2 truncate">{left}</div>
+        {right ? <div className="shrink-0 text-right">{right}</div> : null}
+      </div>
+    </div>
   )
 }

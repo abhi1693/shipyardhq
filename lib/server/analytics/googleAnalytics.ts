@@ -1,5 +1,5 @@
 import { BetaAnalyticsDataClient, protos } from "@google-analytics/data"
-import { format } from "date-fns"
+import { format, subDays } from "date-fns"
 
 import { getRedisClient } from "@/lib/server/redis"
 
@@ -9,10 +9,61 @@ type HomepageTraffic = {
   trafficSeries: Array<{ date: string; pageViews: number; visitors: number }>
 }
 
+export type SiteAnalyticsSnapshot = {
+  pageViews: number
+  uniqueVisitors: number
+  sessions: number
+  bounceRate: number
+  averageSessionDuration: number
+  referrers: Array<{ referrer: string; views: number; share: number }>
+  timeseries: Array<{
+    date: string
+    label: string
+    pageViews: number
+    uniqueVisitors: number
+  }>
+  browsers: Array<{ browser: string; visitors: number; share: number }>
+  operatingSystems: Array<{ os: string; visitors: number; share: number }>
+  devices: Array<{ deviceCategory: string; visitors: number; share: number }>
+  countries: Array<{
+    country: string
+    code?: string | null
+    visitors: number
+    share: number
+  }>
+  regions: Array<{
+    region: string
+    country?: string | null
+    code?: string | null
+    visitors: number
+    share: number
+  }>
+  cities: Array<{
+    city: string
+    region?: string | null
+    country?: string | null
+    code?: string | null
+    visitors: number
+    share: number
+  }>
+  topProductPages: Array<{
+    path: string
+    slug: string | null
+    pageViews: number
+    uniqueVisitors: number
+    sessions: number
+    bounceRate: number
+    averageSessionDuration: number
+    shareOfViews: number
+  }>
+}
+
 const CACHE_KEY = "analytics:homepage:traffic:v1"
 const CACHE_TTL_SECONDS = 300
 const REALTIME_CACHE_KEY = "analytics:homepage:realtime:v1"
 const REALTIME_CACHE_TTL_SECONDS = 30
+const SITE_SNAPSHOT_CACHE_PREFIX = "analytics:site:snapshot:v3"
+const SITE_SNAPSHOT_CACHE_TTL_SECONDS = 300
 
 let clientPromise: Promise<BetaAnalyticsDataClient> | null = null
 
@@ -142,6 +193,43 @@ function parseDateString(value: string | null | undefined): string | null {
     return null
   }
   return new Date(Date.UTC(year, month - 1, day)).toISOString()
+}
+
+function normalizeBounceRate(raw: number) {
+  if (!Number.isFinite(raw)) return 0
+  return raw > 0 && raw <= 1 ? raw * 100 : raw
+}
+
+function normalizePath(value: string | undefined | null) {
+  if (!value) return "/"
+  const base = value.split(/[?#]/)[0] || "/"
+  if (base !== "/" && base.endsWith("/")) {
+    return base.slice(0, -1)
+  }
+  return base
+}
+
+function resolveReferrerDomain(value?: string | null) {
+  const raw = value?.trim()
+  if (!raw || raw === "(direct)") return "direct"
+
+  const cleaned = raw
+    .replace(/^https?:\/\//i, "")
+    .replace(/^www\./i, "")
+    .trim()
+    .toLowerCase()
+
+  const domain = cleaned.split(/[/#?]/)[0]
+  if (domain) return domain
+
+  return "direct"
+}
+
+function extractProductSlug(path: string | null | undefined) {
+  if (!path) return null
+  const normalized = normalizePath(path)
+  const match = normalized.match(/^\/products\/([^/]+)/)
+  return match ? match[1].toLowerCase() : null
 }
 
 function buildPagePathFilter(
@@ -459,15 +547,28 @@ async function fetchProductTrafficFromGa({
         } => Boolean(entry),
       ) ?? []
 
-  const referrers =
+  const referrersRaw =
     (referrerRows ?? []).map((row) => {
       const rawLabel = row.dimensionValues?.[0]?.value?.trim()
-      const referrer =
-        rawLabel && rawLabel.length > 0 ? rawLabel : "Direct / none"
+      const referrer = resolveReferrerDomain(rawLabel)
       const views = parseMetricValue(row.metricValues?.[0]?.value)
-      const share = pageViews > 0 ? (views / pageViews) * 100 : 0
-      return { referrer, views, share }
+      return { referrer, views }
     }) ?? []
+
+  const referrerTotals = referrersRaw.reduce((acc, entry) => {
+    const key = entry.referrer || "Direct / none"
+    const current = acc.get(key) ?? 0
+    acc.set(key, current + entry.views)
+    return acc
+  }, new Map<string, number>())
+
+  const referrers = Array.from(referrerTotals.entries())
+    .map(([referrer, views]) => ({
+      referrer,
+      views,
+      share: pageViews > 0 ? (views / pageViews) * 100 : 0,
+    }))
+    .sort((a, b) => b.views - a.views)
 
   const referrerCategories =
     (referrerCategoryRows ?? []).map((row) => {
@@ -571,6 +672,490 @@ export async function getProductTrafficFromGa(args: {
       devices: [],
       timeseries: [],
     }
+  }
+}
+
+function defaultSiteDateRange(): GaDateRange {
+  const end = subDays(new Date(), 0)
+  const start = subDays(end, 29)
+  return {
+    startDate: format(start, "yyyy-MM-dd"),
+    endDate: format(end, "yyyy-MM-dd"),
+  }
+}
+
+const EMPTY_SITE_SNAPSHOT: SiteAnalyticsSnapshot = {
+  pageViews: 0,
+  uniqueVisitors: 0,
+  sessions: 0,
+  bounceRate: 0,
+  averageSessionDuration: 0,
+  referrers: [],
+  timeseries: [],
+  browsers: [],
+  operatingSystems: [],
+  devices: [],
+  countries: [],
+  regions: [],
+  cities: [],
+  topProductPages: [],
+}
+
+async function fetchSiteAnalyticsSnapshot({
+  dateRange,
+  topProductLimit,
+}: {
+  dateRange: GaDateRange
+  topProductLimit: number
+}): Promise<SiteAnalyticsSnapshot> {
+  const client = await getClient()
+  const property = resolveProperty()
+  if (!property) {
+    throw new Error("GA_PROPERTY_ID is missing")
+  }
+
+  const metrics = [
+    { name: "screenPageViews" },
+    { name: "activeUsers" },
+    { name: "sessions" },
+    { name: "bounceRate" },
+    { name: "averageSessionDuration" },
+  ]
+
+  const [
+    trendResponse,
+    referrerResponse,
+    productPagesResponse,
+    countryResponse,
+    regionResponse,
+    cityResponse,
+    browserResponse,
+    osResponse,
+    deviceResponse,
+  ] = await Promise.all([
+    client
+      .runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics,
+        dimensions: [{ name: "date" }],
+        metricAggregations: [
+          protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
+        ],
+        orderBys: [{ dimension: { dimensionName: "date" } }],
+      })
+      .then((res) => res[0]),
+    client
+      .runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "screenPageViews" }],
+        dimensions: [{ name: "sessionSource" }],
+        orderBys: [
+          {
+            metric: { metricName: "screenPageViews" },
+            desc: true,
+          },
+        ],
+        limit: 12,
+      })
+      .then((res) => res[0]),
+    client
+      .runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics,
+        dimensions: [{ name: "pagePath" }],
+        dimensionFilter: {
+          andGroup: {
+            expressions: [
+              {
+                filter: {
+                  fieldName: "pagePath",
+                  stringFilter: {
+                    matchType:
+                      protos.google.analytics.data.v1beta.Filter.StringFilter
+                        .MatchType.BEGINS_WITH,
+                    value: "/products/",
+                  },
+                },
+              },
+              {
+                notExpression: {
+                  filter: {
+                    fieldName: "pagePath",
+                    stringFilter: {
+                      matchType:
+                        protos.google.analytics.data.v1beta.Filter.StringFilter
+                          .MatchType.BEGINS_WITH,
+                      value: "/admin",
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+        orderBys: [
+          {
+            metric: { metricName: "screenPageViews" },
+            desc: true,
+          },
+        ],
+        limit: Math.max(10, topProductLimit * 4),
+      })
+      .then((res) => res[0]),
+    client
+      .runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [{ name: "country" }, { name: "countryId" }],
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+            desc: true,
+          },
+        ],
+        limit: 10,
+      })
+      .then((res) => res[0]),
+    client
+      .runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [
+          { name: "region" },
+          { name: "country" },
+          { name: "countryId" },
+        ],
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+            desc: true,
+          },
+        ],
+        limit: 10,
+      })
+      .then((res) => res[0]),
+    client
+      .runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [
+          { name: "city" },
+          { name: "region" },
+          { name: "country" },
+          { name: "countryId" },
+        ],
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+            desc: true,
+          },
+        ],
+        limit: 10,
+      })
+      .then((res) => res[0]),
+    client
+      .runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [{ name: "browser" }],
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+            desc: true,
+          },
+        ],
+        limit: 8,
+      })
+      .then((res) => res[0]),
+    client
+      .runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [{ name: "operatingSystem" }],
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+            desc: true,
+          },
+        ],
+        limit: 8,
+      })
+      .then((res) => res[0]),
+    client
+      .runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [{ name: "deviceCategory" }],
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+            desc: true,
+          },
+        ],
+        limit: 5,
+      })
+      .then((res) => res[0]),
+  ])
+  const totals = trendResponse.totals?.[0]?.metricValues ?? undefined
+  const rows = trendResponse.rows ?? []
+  const referrerRows = referrerResponse.rows ?? []
+  const productRows = productPagesResponse.rows ?? []
+  const countryRows = countryResponse.rows ?? []
+  const regionRows = regionResponse.rows ?? []
+  const cityRows = cityResponse.rows ?? []
+  const browserRows = browserResponse.rows ?? []
+  const osRows = osResponse.rows ?? []
+  const deviceRows = deviceResponse.rows ?? []
+
+  const pageViews = resolveMetricValue(totals, 0, rows, "sum")
+  const uniqueVisitors = resolveMetricValue(totals, 1, rows, "sum")
+  const sessions = resolveMetricValue(totals, 2, rows, "sum")
+  const bounceRate = normalizeBounceRate(
+    resolveMetricValue(totals, 3, rows, "avg"),
+  )
+  const averageSessionDuration = resolveMetricValue(
+    totals,
+    4,
+    rows,
+    "avg",
+  )
+
+  const timeseries =
+    (rows ?? [])
+      .map((row) => {
+        const dateIso = parseDateString(row.dimensionValues?.[0]?.value)
+        if (!dateIso) return null
+        const date = new Date(dateIso)
+        return {
+          date: dateIso,
+          label: format(date, "MMM d"),
+          pageViews: parseMetricValue(row.metricValues?.[0]?.value),
+          uniqueVisitors: parseMetricValue(row.metricValues?.[1]?.value),
+        }
+      })
+      .filter(
+        (
+          entry,
+        ): entry is {
+          date: string
+          label: string
+          pageViews: number
+          uniqueVisitors: number
+        } => Boolean(entry),
+      ) ?? []
+
+  const referrers =
+    (referrerRows ?? []).map((row) => {
+      const rawLabel = row.dimensionValues?.[0]?.value?.trim()
+      const referrer =
+        rawLabel && rawLabel.length > 0 ? rawLabel : "Direct / none"
+      const views = parseMetricValue(row.metricValues?.[0]?.value)
+      const share = pageViews > 0 ? (views / pageViews) * 100 : 0
+      return { referrer, views, share }
+    }) ?? []
+
+  type AggregatedProduct = {
+    path: string
+    slug: string | null
+    pageViews: number
+    uniqueVisitors: number
+    sessions: number
+    bounceWeighted: number
+    durationTotal: number
+  }
+
+  const aggregatedProducts = new Map<string, AggregatedProduct>()
+
+  for (const row of productRows) {
+    const path = normalizePath(row.dimensionValues?.[0]?.value?.trim())
+    const slug = extractProductSlug(path)
+    const views = parseMetricValue(row.metricValues?.[0]?.value)
+    const visitors = parseMetricValue(row.metricValues?.[1]?.value)
+    const rowSessions = parseMetricValue(row.metricValues?.[2]?.value)
+    const rowBounce = normalizeBounceRate(
+      parseMetricValue(row.metricValues?.[3]?.value),
+    )
+    const avgSessionDuration = parseMetricValue(row.metricValues?.[4]?.value)
+    const key = slug ?? path
+
+    const current = aggregatedProducts.get(key) ?? {
+      path,
+      slug,
+      pageViews: 0,
+      uniqueVisitors: 0,
+      sessions: 0,
+      bounceWeighted: 0,
+      durationTotal: 0,
+    }
+
+    current.pageViews += views
+    current.uniqueVisitors += visitors
+    current.sessions += rowSessions
+    current.bounceWeighted +=
+      rowSessions > 0 ? (rowBounce / 100) * rowSessions : 0
+    current.durationTotal += avgSessionDuration * rowSessions
+
+    if (!current.path) current.path = path
+    if (!current.slug) current.slug = slug
+
+    aggregatedProducts.set(key, current)
+  }
+
+  const topProductPages = Array.from(aggregatedProducts.values())
+    .filter((entry) => entry.slug)
+    .map((entry) => {
+      const bounceRateValue =
+        entry.sessions > 0 ? (entry.bounceWeighted / entry.sessions) * 100 : 0
+      const avgSessionDuration =
+        entry.sessions > 0 ? entry.durationTotal / entry.sessions : 0
+      return {
+        path: entry.path,
+        slug: entry.slug,
+        pageViews: entry.pageViews,
+        uniqueVisitors: entry.uniqueVisitors,
+        sessions: entry.sessions,
+        bounceRate: bounceRateValue,
+        averageSessionDuration: avgSessionDuration,
+        shareOfViews:
+          pageViews > 0 ? (entry.pageViews / pageViews) * 100 : 0,
+      }
+    })
+    .sort((a, b) => b.pageViews - a.pageViews)
+    .slice(0, topProductLimit)
+
+  const browsers =
+    (browserRows ?? []).map((row) => {
+      const browser = row.dimensionValues?.[0]?.value?.trim() || "Unknown"
+      const visitors = parseMetricValue(row.metricValues?.[0]?.value)
+      const share = uniqueVisitors > 0 ? (visitors / uniqueVisitors) * 100 : 0
+      return { browser, visitors, share }
+    }) ?? []
+
+  const operatingSystems =
+    (osRows ?? []).map((row) => {
+      const os = row.dimensionValues?.[0]?.value?.trim() || "Unknown"
+      const visitors = parseMetricValue(row.metricValues?.[0]?.value)
+      const share = uniqueVisitors > 0 ? (visitors / uniqueVisitors) * 100 : 0
+      return { os, visitors, share }
+    }) ?? []
+
+  const devices =
+    (deviceRows ?? []).map((row) => {
+      const deviceCategory =
+        row.dimensionValues?.[0]?.value?.trim().toLowerCase() || "unknown"
+      const visitors = parseMetricValue(row.metricValues?.[0]?.value)
+      const share = uniqueVisitors > 0 ? (visitors / uniqueVisitors) * 100 : 0
+      return { deviceCategory, visitors, share }
+    }) ?? []
+
+  const countries =
+    (countryRows ?? []).map((row) => {
+      const countryLabel = row.dimensionValues?.[0]?.value?.trim() || "Unknown"
+      const code = row.dimensionValues?.[1]?.value?.trim() || null
+      const visitors = parseMetricValue(row.metricValues?.[0]?.value)
+      const share = uniqueVisitors > 0 ? (visitors / uniqueVisitors) * 100 : 0
+      return { country: countryLabel, code, visitors, share }
+    }) ?? []
+
+  const regions =
+    (regionRows ?? []).map((row) => {
+      const regionLabel = row.dimensionValues?.[0]?.value?.trim() || "Unknown"
+      const countryLabel = row.dimensionValues?.[1]?.value?.trim() || null
+      const code = row.dimensionValues?.[2]?.value?.trim() || null
+      const visitors = parseMetricValue(row.metricValues?.[0]?.value)
+      const share = uniqueVisitors > 0 ? (visitors / uniqueVisitors) * 100 : 0
+      return { region: regionLabel, country: countryLabel, code, visitors, share }
+    }) ?? []
+
+  const cities =
+    (cityRows ?? []).map((row) => {
+      const cityLabel = row.dimensionValues?.[0]?.value?.trim() || "Unknown"
+      const regionLabel = row.dimensionValues?.[1]?.value?.trim() || null
+      const countryLabel = row.dimensionValues?.[2]?.value?.trim() || null
+      const code = row.dimensionValues?.[3]?.value?.trim() || null
+      const visitors = parseMetricValue(row.metricValues?.[0]?.value)
+      const share = uniqueVisitors > 0 ? (visitors / uniqueVisitors) * 100 : 0
+      return {
+        city: cityLabel,
+        region: regionLabel,
+        country: countryLabel,
+        code,
+        visitors,
+        share,
+      }
+    }) ?? []
+
+  return {
+    pageViews,
+    uniqueVisitors,
+    sessions,
+    bounceRate,
+    averageSessionDuration,
+    referrers,
+    timeseries,
+    browsers,
+    operatingSystems,
+    devices,
+    countries,
+    regions,
+    cities,
+    topProductPages,
+  }
+}
+
+export async function getSiteAnalyticsSnapshot(args?: {
+  dateRange?: GaDateRange
+  topProductLimit?: number
+}): Promise<SiteAnalyticsSnapshot> {
+  const dateRange = args?.dateRange ?? defaultSiteDateRange()
+  const topProductLimit = Math.max(1, args?.topProductLimit ?? 6)
+  const cacheKey = `${SITE_SNAPSHOT_CACHE_PREFIX}:${dateRange.startDate}:${dateRange.endDate}:top${topProductLimit}`
+
+  const redis = await getRedisClient().catch(() => null)
+  let cachedPayload: SiteAnalyticsSnapshot | null = null
+
+  if (redis) {
+    const cached = await redis.get(cacheKey)
+    if (cached) {
+      try {
+        cachedPayload = JSON.parse(cached) as SiteAnalyticsSnapshot
+      } catch (error) {
+        console.error("[analytics] failed to parse cached site snapshot", {
+          error,
+        })
+      }
+    }
+  }
+
+  try {
+    const fresh = await fetchSiteAnalyticsSnapshot({
+      dateRange,
+      topProductLimit,
+    })
+    if (redis) {
+      await redis.set(cacheKey, JSON.stringify(fresh), {
+        EX: SITE_SNAPSHOT_CACHE_TTL_SECONDS,
+      })
+    }
+    return fresh
+  } catch (error) {
+    console.error("[analytics] failed to fetch GA site snapshot", {
+      dateRange,
+      error,
+    })
+    if (cachedPayload) {
+      return cachedPayload
+    }
+    return EMPTY_SITE_SNAPSHOT
   }
 }
 
