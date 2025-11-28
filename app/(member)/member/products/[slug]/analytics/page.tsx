@@ -39,9 +39,9 @@ import {
 } from "@/components/atoms/card"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { ProductAnalyticsRangeDropdown } from "@/components/molecules/ProductAnalyticsRangeDropdown"
-import { ProductTrafficChart } from "@/components/molecules/ProductTrafficChart"
 import { AnalyticsPieChart } from "@/components/molecules/AnalyticsPieChart"
 import { AnalyticsValueList } from "@/components/molecules/AnalyticsValueList"
+import { TrafficTimeseriesChart } from "@/components/molecules/TrafficTimeseriesChart"
 import { Link2 } from "lucide-react"
 
 type RangeKey =
@@ -240,9 +240,6 @@ export default async function ProductAnalyticsPage({
     (a, b) => b.views - a.views,
   )
   const showAdvanced = hasAdvancedAnalytics
-  const hasTrafficData = gaTraffic.timeseries.some(
-    (point) => point.pageViews > 0 || point.uniqueVisitors > 0,
-  )
   const valueBarRowProps = {
     className: "bg-slate-50",
     barClassName: "bg-blue-200",
@@ -313,13 +310,13 @@ export default async function ProductAnalyticsPage({
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-2">
-                {!hasTrafficData ? (
-                  <div className="flex h-80 items-center justify-center text-sm text-muted-foreground">
-                    Not enough data for this range.
-                  </div>
-                ) : (
-                  <ProductTrafficChart points={gaTraffic.timeseries} />
-                )}
+                <TrafficTimeseriesChart
+                  points={gaTraffic.timeseries}
+                  height={320}
+                  emptyLabel="Not enough data for this range."
+                  emptyClassName="flex h-80 items-center justify-center text-sm text-muted-foreground"
+                  className="rounded-lg border border-slate-100 bg-white"
+                />
               </CardContent>
             </Card>
             <Card className="rounded-xl border border-slate-200 bg-white/90 shadow-sm">

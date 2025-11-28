@@ -15,10 +15,9 @@ import {
   formatDuration,
   formatPercent,
   OsIcon,
-  ValueBarRow,
 } from "@/components/molecules/AnalyticsShared"
 import { AnalyticsValueList } from "@/components/molecules/AnalyticsValueList"
-import { AnalyticsLineChart } from "@/components/molecules/AnalyticsLineChart"
+import { TrafficTimeseriesChart } from "@/components/molecules/TrafficTimeseriesChart"
 import {
   Card,
   CardContent,
@@ -115,7 +114,6 @@ export default async function AnalyticsPage() {
   const totalProductViews = topProducts.reduce((sum, p) => sum + p.pageViews, 0)
   const newVisitorShare = snapshot.uniqueVisitors > 0 ? (snapshot.newUsers / snapshot.uniqueVisitors) * 100 : 0
   const returningVisitorShare = Math.max(0, 100 - newVisitorShare)
-  const hasTimeseries = snapshot.timeseries.length > 0
 
   const deltas = {
     views: computeDelta(snapshot.pageViews, previousSnapshot.pageViews),
@@ -136,10 +134,6 @@ export default async function AnalyticsPage() {
     ),
   }
 
-  const chartConfig = {
-    pageViews: { label: "Page views", color: "#0ea5e9" },
-    uniqueVisitors: { label: "Visitors", color: "#a855f7" },
-  }
   const valueBarRowClassName = "border border-slate-200 bg-white px-3 py-2 shadow-sm"
 
   return (
@@ -258,23 +252,13 @@ export default async function AnalyticsPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Visitors vs page views</h2>
             </div>
-            {!hasTimeseries ? (
-              <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-white text-sm text-slate-500">
-                Not enough data yet.
-              </div>
-            ) : (
-              <AnalyticsLineChart
-                data={snapshot.timeseries}
-                config={chartConfig}
-                lines={[
-                  { dataKey: "pageViews", strokeWidth: 2 },
-                  { dataKey: "uniqueVisitors", strokeWidth: 2 },
-                ]}
-                height={280}
-                showLegend
-                className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-              />
-            )}
+            <TrafficTimeseriesChart
+              points={snapshot.timeseries}
+              height={280}
+              className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+              emptyClassName="flex h-64 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-white text-sm text-slate-500"
+              emptyLabel="Not enough data yet."
+            />
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
               <span>Source: Google Analytics</span>
               <span className="h-1 w-1 rounded-full bg-slate-300" aria-hidden />
