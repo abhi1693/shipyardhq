@@ -1178,7 +1178,6 @@ async function main() {
   }
 
   console.table(monthlyRankingRows)
-
 }
 
 main()

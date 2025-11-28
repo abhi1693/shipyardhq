@@ -62,8 +62,8 @@ type ProductListItem = Prisma.ProductGetPayload<{
     analytics: { select: { upvotes: true } }
     featureEntitlements: {
       where: {
-        status: { in: FeatureEntitlementStatus[] },
-      },
+        status: { in: FeatureEntitlementStatus[] }
+      }
       select: { featureKey: true; status: true }
     }
   }

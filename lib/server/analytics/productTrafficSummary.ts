@@ -191,10 +191,7 @@ function buildSummary({
     upvotesChange: calcChange(upvotesInRange, previousUpvotes),
     upvoteConversionRate:
       totalViews > 0 ? (upvotesInRange / totalViews) * 100 : 0,
-    upvoteConversionRateChange: calcChange(
-      upvotesInRange,
-      previousUpvotes,
-    ),
+    upvoteConversionRateChange: calcChange(upvotesInRange, previousUpvotes),
     botViews: 0,
     previousBotViews: 0,
     topCountry: ga.countries[0]
@@ -234,7 +231,10 @@ async function countUpvotes(
   const end = startOfDay(new Date(range.endDate))
   const rangeEnd = subDays(end, -1)
   return prisma.productUpvote.count({
-    where: { productId: { in: productIds }, createdAt: { gte: start, lt: rangeEnd } },
+    where: {
+      productId: { in: productIds },
+      createdAt: { gte: start, lt: rangeEnd },
+    },
   })
 }
 
@@ -252,7 +252,8 @@ export async function getProductTrafficSummary(
 
   const rangeDays = Math.max(options.rangeDays ?? 7, 1)
   const dateRange = buildDateRange(rangeDays)
-  const prevRange = options.previousComparison === false ? null : previousRange(dateRange)
+  const prevRange =
+    options.previousComparison === false ? null : previousRange(dateRange)
 
   const pagePaths = [productPath(product.slug), `${productPath(product.slug)}/`]
 
@@ -300,7 +301,8 @@ export async function getOrganizationTrafficSummary(
 
   const rangeDays = Math.max(options.rangeDays ?? 7, 1)
   const dateRange = buildDateRange(rangeDays)
-  const prevRange = options.previousComparison === false ? null : previousRange(dateRange)
+  const prevRange =
+    options.previousComparison === false ? null : previousRange(dateRange)
 
   if (pagePaths.length === 0) {
     const ga = emptyGaSummary()

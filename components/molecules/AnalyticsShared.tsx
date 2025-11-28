@@ -175,10 +175,7 @@ export function flagEmoji(code?: string | null) {
   const first = upper.codePointAt(0)
   const second = upper.codePointAt(1)
   if (!first || !second) return "🌐"
-  return String.fromCodePoint(
-    0x1f1e6 + (first - 65),
-    0x1f1e6 + (second - 65),
-  )
+  return String.fromCodePoint(0x1f1e6 + (first - 65), 0x1f1e6 + (second - 65))
 }
 
 export function FlagIcon({
@@ -271,9 +268,12 @@ export function OsIcon({ name }: { name: string }) {
 
 export function deviceIcon(deviceCategory: string) {
   const key = deviceCategory.toLowerCase()
-  if (key.includes("desktop")) return <Monitor className="h-4 w-4 text-slate-400" />
-  if (key.includes("mobile")) return <Smartphone className="h-4 w-4 text-slate-400" />
-  if (key.includes("tablet")) return <Tablet className="h-4 w-4 text-slate-400" />
+  if (key.includes("desktop"))
+    return <Monitor className="h-4 w-4 text-slate-400" />
+  if (key.includes("mobile"))
+    return <Smartphone className="h-4 w-4 text-slate-400" />
+  if (key.includes("tablet"))
+    return <Tablet className="h-4 w-4 text-slate-400" />
   return <MousePointer2 className="h-4 w-4 text-slate-400" />
 }
 

@@ -9,7 +9,7 @@ export interface ClientObjectHeadingProps {
   createdAt: Date | string
   updatedAt: Date | string
   slug?: string | null
-   subtitle?: string
+  subtitle?: string
   deletable?: boolean
   editable?: boolean
   basePath: string

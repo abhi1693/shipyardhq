@@ -532,7 +532,9 @@ export function ProductAnalyticsView({
                       Break down channels, cities, and browsers with richer
                       drilldowns.
                     </li>
-                    <li>Compare engagement across device and browser overlays.</li>
+                    <li>
+                      Compare engagement across device and browser overlays.
+                    </li>
                   </ul>
                   <div className="mt-4">
                     <Button asChild>

@@ -144,10 +144,7 @@ function normalizeCurrency(code?: string | null) {
 }
 
 function netRevenueCents(tx: CreemTransaction) {
-  const paid =
-    toNumber(tx.amount_paid) ??
-    toNumber(tx.amount) ??
-    0
+  const paid = toNumber(tx.amount_paid) ?? toNumber(tx.amount) ?? 0
   const refunded = toNumber(tx.refunded_amount) ?? 0
   const net = Math.round(paid - refunded)
   return Number.isFinite(net) && net > 0 ? net : 0
@@ -225,7 +222,9 @@ async function fetchTransactionsWithFallback({
     } catch (error) {
       lastError = error
       const authFailed =
-        error instanceof CreemApiError && error.isAuthError && !config?.environment
+        error instanceof CreemApiError &&
+        error.isAuthError &&
+        !config?.environment
       if (!authFailed) {
         break
       }
@@ -265,11 +264,7 @@ function buildSnapshots({
 
     const dayStart = startOfUtcDay(createdAt)
     const currencyThreshold = thresholds.get(currency)
-    if (
-      baseThreshold &&
-      dayStart < baseThreshold &&
-      !currencyThreshold
-    ) {
+    if (baseThreshold && dayStart < baseThreshold && !currencyThreshold) {
       continue
     }
     if (currencyThreshold && dayStart < startOfUtcDay(currencyThreshold)) {

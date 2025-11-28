@@ -519,15 +519,17 @@ async function fetchProductTrafficFromGa({
 
   const totals = trendResponse.totals?.[0]?.metricValues ?? undefined
   const rows = trendResponse.rows ?? []
-  const referrerRows = includeAdvanced ? referrerResponseParsed.rows ?? [] : []
-  const referrerCategoryRows = includeAdvanced
-    ? referrerCategoryResponseParsed.rows ?? []
+  const referrerRows = includeAdvanced
+    ? (referrerResponseParsed.rows ?? [])
     : []
-  const browserRows = includeAdvanced ? browserResponseParsed.rows ?? [] : []
-  const osRows = includeAdvanced ? osResponseParsed.rows ?? [] : []
-  const cityRows = includeAdvanced ? cityResponseParsed.rows ?? [] : []
-  const countryRows = includeAdvanced ? countryResponseParsed.rows ?? [] : []
-  const deviceRows = includeAdvanced ? deviceResponseParsed.rows ?? [] : []
+  const referrerCategoryRows = includeAdvanced
+    ? (referrerCategoryResponseParsed.rows ?? [])
+    : []
+  const browserRows = includeAdvanced ? (browserResponseParsed.rows ?? []) : []
+  const osRows = includeAdvanced ? (osResponseParsed.rows ?? []) : []
+  const cityRows = includeAdvanced ? (cityResponseParsed.rows ?? []) : []
+  const countryRows = includeAdvanced ? (countryResponseParsed.rows ?? []) : []
+  const deviceRows = includeAdvanced ? (deviceResponseParsed.rows ?? []) : []
 
   const pageViews = resolveMetricValue(totals, 0, rows, "sum")
   const uniqueVisitors = resolveMetricValue(totals, 1, rows, "sum")
@@ -624,8 +626,7 @@ async function fetchProductTrafficFromGa({
       const countryLabel = row.dimensionValues?.[0]?.value?.trim() || "Unknown"
       const countryCode = row.dimensionValues?.[1]?.value?.trim() || null
       const visitors = parseMetricValue(row.metricValues?.[0]?.value)
-      const share =
-        uniqueVisitors > 0 ? (visitors / uniqueVisitors) * 100 : 0
+      const share = uniqueVisitors > 0 ? (visitors / uniqueVisitors) * 100 : 0
       return { country: countryLabel, code: countryCode, visitors, share }
     }) ?? []
 
@@ -951,12 +952,7 @@ async function fetchSiteAnalyticsSnapshot({
   const bounceRate = normalizeBounceRate(
     resolveMetricValue(totals, 3, rows, "avg"),
   )
-  const averageSessionDuration = resolveMetricValue(
-    totals,
-    4,
-    rows,
-    "avg",
-  )
+  const averageSessionDuration = resolveMetricValue(totals, 4, rows, "avg")
   const newUsersRaw = resolveMetricValue(totals, 5, rows, "sum")
   const rawEngagementRate = resolveMetricValue(totals, 6, rows, "avg")
   const pagesPerSessionMetric = resolveMetricValue(totals, 7, rows, "avg")
@@ -967,9 +963,12 @@ async function fetchSiteAnalyticsSnapshot({
   const engagementRateFallback =
     sessions > 0 ? (engagedSessions / sessions) * 100 : 0
   const engagementRate =
-    engagementRateFromMetric > 0 ? engagementRateFromMetric : engagementRateFallback
+    engagementRateFromMetric > 0
+      ? engagementRateFromMetric
+      : engagementRateFallback
 
-  const newUsers = newUsersRaw > 0 ? newUsersRaw : Math.min(uniqueVisitors, sessions)
+  const newUsers =
+    newUsersRaw > 0 ? newUsersRaw : Math.min(uniqueVisitors, sessions)
 
   const pagesPerSession =
     pagesPerSessionMetric > 0
@@ -1074,8 +1073,7 @@ async function fetchSiteAnalyticsSnapshot({
         sessions: entry.sessions,
         bounceRate: bounceRateValue,
         averageSessionDuration: avgSessionDuration,
-        shareOfViews:
-          pageViews > 0 ? (entry.pageViews / pageViews) * 100 : 0,
+        shareOfViews: pageViews > 0 ? (entry.pageViews / pageViews) * 100 : 0,
       }
     })
     .sort((a, b) => b.pageViews - a.pageViews)
@@ -1122,7 +1120,13 @@ async function fetchSiteAnalyticsSnapshot({
       const code = row.dimensionValues?.[2]?.value?.trim() || null
       const visitors = parseMetricValue(row.metricValues?.[0]?.value)
       const share = uniqueVisitors > 0 ? (visitors / uniqueVisitors) * 100 : 0
-      return { region: regionLabel, country: countryLabel, code, visitors, share }
+      return {
+        region: regionLabel,
+        country: countryLabel,
+        code,
+        visitors,
+        share,
+      }
     }) ?? []
 
   const cities =

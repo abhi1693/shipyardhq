@@ -12,9 +12,7 @@ type PlanFeatureSummary = {
  * Fetch the default plan with feature assignments.
  * We keep it small and sync to avoid bringing in full client types.
  */
-export async function getDefaultPlanWithFeatures(): Promise<
-  PlanFeatureSummary | null
-> {
+export async function getDefaultPlanWithFeatures(): Promise<PlanFeatureSummary | null> {
   try {
     const plan = await prisma.plan.findFirst({
       where: { isDefault: true },

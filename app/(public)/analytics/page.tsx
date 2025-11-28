@@ -92,7 +92,10 @@ export default async function AnalyticsPage() {
       : []
 
   const productMap = new Map<string, (typeof products)[number]>(
-    products.map((product: (typeof products)[number]) => [product.slug.toLowerCase(), product]),
+    products.map((product: (typeof products)[number]) => [
+      product.slug.toLowerCase(),
+      product,
+    ]),
   )
 
   const topProducts = snapshot.topProductPages.map((page) => {
@@ -107,13 +110,19 @@ export default async function AnalyticsPage() {
 
   const rangeLabel = `${format(rangeStart, "MMM d")} – ${format(rangeEnd, "MMM d")}`
   const totalProductViews = topProducts.reduce((sum, p) => sum + p.pageViews, 0)
-  const newVisitorShare = snapshot.uniqueVisitors > 0 ? (snapshot.newUsers / snapshot.uniqueVisitors) * 100 : 0
+  const newVisitorShare =
+    snapshot.uniqueVisitors > 0
+      ? (snapshot.newUsers / snapshot.uniqueVisitors) * 100
+      : 0
   const returningVisitorShare = Math.max(0, 100 - newVisitorShare)
 
   const deltas = {
     views: computeDelta(snapshot.pageViews, previousSnapshot.pageViews),
     sessions: computeDelta(snapshot.sessions, previousSnapshot.sessions),
-    visitors: computeDelta(snapshot.uniqueVisitors, previousSnapshot.uniqueVisitors),
+    visitors: computeDelta(
+      snapshot.uniqueVisitors,
+      previousSnapshot.uniqueVisitors,
+    ),
     bounce: computeDelta(snapshot.bounceRate, previousSnapshot.bounceRate),
     duration: computeDelta(
       snapshot.averageSessionDuration,
@@ -129,7 +138,8 @@ export default async function AnalyticsPage() {
     ),
   }
 
-  const valueBarRowClassName = "border border-slate-200 bg-white px-3 py-2 shadow-sm"
+  const valueBarRowClassName =
+    "border border-slate-200 bg-white px-3 py-2 shadow-sm"
 
   return (
     <>
@@ -182,7 +192,9 @@ export default async function AnalyticsPage() {
             />
             <AnalyticsMetricCard
               label="Visit duration"
-              value={formatDuration(snapshot.averageSessionDuration, { padMinutes: true })}
+              value={formatDuration(snapshot.averageSessionDuration, {
+                padMinutes: true,
+              })}
               delta={deltas.duration}
               icon={<Clock3 className="h-4 w-4" aria-hidden />}
             />
@@ -203,7 +215,9 @@ export default async function AnalyticsPage() {
             />
             <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <div className="flex items-center justify-between">
-                <div className="text-sm font-semibold text-slate-600">New vs returning</div>
+                <div className="text-sm font-semibold text-slate-600">
+                  New vs returning
+                </div>
                 <div className="text-xs text-slate-500">Visitors</div>
               </div>
               <ValueBarRow
@@ -213,7 +227,9 @@ export default async function AnalyticsPage() {
                 left={
                   <div className="flex items-center gap-2 truncate">
                     <span className="h-2 w-2 rounded-full bg-sky-400" />
-                    <span className="text-sm font-medium text-slate-900">New</span>
+                    <span className="text-sm font-medium text-slate-900">
+                      New
+                    </span>
                   </div>
                 }
                 right={
@@ -230,7 +246,9 @@ export default async function AnalyticsPage() {
                 left={
                   <div className="flex items-center gap-2 truncate">
                     <span className="h-2 w-2 rounded-full bg-indigo-400" />
-                    <span className="text-sm font-medium text-slate-900">Returning</span>
+                    <span className="text-sm font-medium text-slate-900">
+                      Returning
+                    </span>
                   </div>
                 }
                 right={
@@ -275,8 +293,12 @@ export default async function AnalyticsPage() {
                   tone: "indigo",
                   left: (
                     <div className="min-w-0">
-                      <div className="truncate font-semibold text-slate-900">{product.name}</div>
-                      <div className="truncate text-xs text-slate-500">{product.path}</div>
+                      <div className="truncate font-semibold text-slate-900">
+                        {product.name}
+                      </div>
+                      <div className="truncate text-xs text-slate-500">
+                        {product.path}
+                      </div>
                     </div>
                   ),
                   right: (
@@ -334,7 +356,9 @@ export default async function AnalyticsPage() {
                       variant="image"
                       className="shrink-0"
                     />
-                    <span className="truncate font-medium text-slate-900">{country.country}</span>
+                    <span className="truncate font-medium text-slate-900">
+                      {country.country}
+                    </span>
                   </div>
                 ),
                 right: (
@@ -363,9 +387,13 @@ export default async function AnalyticsPage() {
                       className="shrink-0"
                     />
                     <div className="min-w-0 truncate">
-                      <div className="truncate font-medium text-slate-900">{city.city}</div>
+                      <div className="truncate font-medium text-slate-900">
+                        {city.city}
+                      </div>
                       <div className="truncate text-xs text-slate-500">
-                        {[city.region, city.country].filter(Boolean).join(" · ")}
+                        {[city.region, city.country]
+                          .filter(Boolean)
+                          .join(" · ")}
                       </div>
                     </div>
                   </div>
@@ -392,7 +420,9 @@ export default async function AnalyticsPage() {
                 left: (
                   <div className="flex items-center gap-2 truncate">
                     <BrowserIcon name={browser.browser} />
-                    <span className="truncate font-medium text-slate-900">{browser.browser}</span>
+                    <span className="truncate font-medium text-slate-900">
+                      {browser.browser}
+                    </span>
                   </div>
                 ),
                 right: (
@@ -415,7 +445,9 @@ export default async function AnalyticsPage() {
                 left: (
                   <div className="flex items-center gap-2 truncate">
                     <OsIcon name={os.os} />
-                    <span className="truncate font-medium text-slate-900">{os.os}</span>
+                    <span className="truncate font-medium text-slate-900">
+                      {os.os}
+                    </span>
                   </div>
                 ),
                 right: (
@@ -457,7 +489,8 @@ export default async function AnalyticsPage() {
 
           <div className="mt-10 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
             <div>
-              Data is aggregated/anonymized and excludes PII. Admin/internal traffic is filtered out. See our{" "}
+              Data is aggregated/anonymized and excludes PII. Admin/internal
+              traffic is filtered out. See our{" "}
               <a
                 href="/legal/privacy-policy"
                 className="font-semibold text-slate-900 underline-offset-4 hover:underline"

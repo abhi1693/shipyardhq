@@ -387,11 +387,11 @@ export default async function ViewProductPage({
               </CardContent>
             </Card>
 
-              <PerformanceCard
-                upvotes={product.analytics?.upvotes ?? 0}
-                upvoters={recentUpvoters as any}
-                badges={(product.ProductBadge || []) as any}
-                productName={product.name}
+            <PerformanceCard
+              upvotes={product.analytics?.upvotes ?? 0}
+              upvoters={recentUpvoters as any}
+              badges={(product.ProductBadge || []) as any}
+              productName={product.name}
               tagline={product.tagline}
               hasBanner={Boolean(product.bannerImage)}
               ogImageUrl={product.bannerImage || product.logo}

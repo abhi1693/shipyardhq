@@ -163,8 +163,8 @@ export function ProductPublishedEmail({
           discover you on {EMAIL_BRAND.name}.
         </p>
         <p style={paragraphStyle}>
-          The previews below render directly from the API (no static assets). Use
-          whichever theme fits your site; the embed stays up to date
+          The previews below render directly from the API (no static assets).
+          Use whichever theme fits your site; the embed stays up to date
           automatically.
         </p>
         <table style={badgeTableStyle} cellPadding={0} cellSpacing={0}>

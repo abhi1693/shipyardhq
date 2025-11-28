@@ -1,7 +1,10 @@
 "use client"
 
 import type { ChartConfig } from "@/components/atoms/chart"
-import { AnalyticsLineChart, type AnalyticsLineDefinition } from "./AnalyticsLineChart"
+import {
+  AnalyticsLineChart,
+  type AnalyticsLineDefinition,
+} from "./AnalyticsLineChart"
 import { cn } from "@/lib/utils"
 
 type TrafficTimeseriesPoint = {

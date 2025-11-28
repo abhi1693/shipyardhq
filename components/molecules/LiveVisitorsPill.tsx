@@ -4,7 +4,11 @@ import { useEffect, useState } from "react"
 
 const formatter = new Intl.NumberFormat("en-US")
 
-export function LiveVisitorsPill({ initialVisitors }: { initialVisitors: number }) {
+export function LiveVisitorsPill({
+  initialVisitors,
+}: {
+  initialVisitors: number
+}) {
   const [count, setCount] = useState(initialVisitors)
 
   useEffect(() => {
@@ -13,11 +17,16 @@ export function LiveVisitorsPill({ initialVisitors }: { initialVisitors: number 
 
     const fetchCount = async () => {
       try {
-        const res = await fetch("/api/analytics/realtime", { cache: "no-store" })
+        const res = await fetch("/api/analytics/realtime", {
+          cache: "no-store",
+        })
         if (!res.ok) return
         const data = (await res.json()) as { visitors?: number }
         if (aborted) return
-        if (typeof data.visitors === "number" && Number.isFinite(data.visitors)) {
+        if (
+          typeof data.visitors === "number" &&
+          Number.isFinite(data.visitors)
+        ) {
           setCount(data.visitors)
         }
       } catch {

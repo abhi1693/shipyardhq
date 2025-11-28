@@ -1,4 +1,7 @@
-import type { AnalyticsValueListItem, AnalyticsValueListProps } from "@/components/molecules/AnalyticsValueList"
+import type {
+  AnalyticsValueListItem,
+  AnalyticsValueListProps,
+} from "@/components/molecules/AnalyticsValueList"
 import { AnalyticsValueList } from "@/components/molecules/AnalyticsValueList"
 import {
   Card,
@@ -50,7 +53,10 @@ export function AnalyticsListCard({
         </CardTitle>
         {description ? (
           <CardDescription
-            className={cn("text-sm text-muted-foreground", descriptionClassName)}
+            className={cn(
+              "text-sm text-muted-foreground",
+              descriptionClassName,
+            )}
           >
             {description}
           </CardDescription>

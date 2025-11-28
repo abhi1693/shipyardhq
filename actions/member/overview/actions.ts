@@ -179,9 +179,7 @@ async function getEngagementSummary({
   const timeline = buildEngagementOverTime({
     windowDays,
     today,
-    upvotes: upvoteEvents.map(
-      (event: { createdAt: Date }) => event.createdAt,
-    ),
+    upvotes: upvoteEvents.map((event: { createdAt: Date }) => event.createdAt),
   })
 
   return {

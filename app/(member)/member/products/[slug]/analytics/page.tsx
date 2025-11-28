@@ -130,8 +130,7 @@ function UpgradeRequiredCard({
   href: string
   className?: string
 }) {
-  const baseClass =
-    "rounded-xl border border-slate-200 bg-white/90 shadow-sm"
+  const baseClass = "rounded-xl border border-slate-200 bg-white/90 shadow-sm"
   return (
     <Card className={className ? `${baseClass} ${className}` : baseClass}>
       <CardHeader className="pb-2">
@@ -403,7 +402,9 @@ export default async function ProductAnalyticsPage({
                 <div className="text-sm font-semibold text-slate-600">
                   New vs returning
                 </div>
-                <div className="text-xs text-slate-500">{resolvedRange.label}</div>
+                <div className="text-xs text-slate-500">
+                  {resolvedRange.label}
+                </div>
               </div>
               <ValueBarRow
                 value={newVisitorShare}
@@ -490,10 +491,7 @@ export default async function ProductAnalyticsPage({
                       upvotes: { label: "Upvotes", color: "#0ea5e9" },
                       reviews: { label: "Reviews", color: "#6366f1" },
                     }}
-                    cells={[
-                      { fill: "#0ea5e9" },
-                      { fill: "#6366f1" },
-                    ]}
+                    cells={[{ fill: "#0ea5e9" }, { fill: "#6366f1" }]}
                     innerRadius={60}
                     outerRadius={80}
                     showLegend
@@ -747,7 +745,8 @@ export default async function ProductAnalyticsPage({
                           <span className="text-xs font-semibold text-slate-700">
                             {formatPercentOneDecimal(
                               totalCountryVisitors > 0
-                                ? (country.visitors / totalCountryVisitors) * 100
+                                ? (country.visitors / totalCountryVisitors) *
+                                    100
                                 : 0,
                             )}
                           </span>
@@ -786,7 +785,9 @@ export default async function ProductAnalyticsPage({
                                 {city.city}
                               </span>
                               <span className="text-xs text-slate-500 truncate">
-                                {[city.region, city.country].filter(Boolean).join(", ")}
+                                {[city.region, city.country]
+                                  .filter(Boolean)
+                                  .join(", ")}
                               </span>
                             </div>
                           </>

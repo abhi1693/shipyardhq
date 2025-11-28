@@ -221,8 +221,8 @@ export function ProductAnalyticsCharts({
           />
         ) : (
           <p className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-3 py-10 text-center text-base text-muted-foreground">
-            Engagement lines will appear once Shipyard records fresh upvotes
-            for this product.
+            Engagement lines will appear once Shipyard records fresh upvotes for
+            this product.
           </p>
         )}
       </AnalyticsChartCard>

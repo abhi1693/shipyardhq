@@ -215,18 +215,23 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
     endDate: format(subDays(since, 1), "yyyy-MM-dd"),
   }
 
-  const [currentSnapshot, previousSnapshot, upvotesInRange, previousUpvotes, totalUpvotes] =
-    await Promise.all([
-      getSiteAnalyticsSnapshot({ dateRange: currentRange }),
-      getSiteAnalyticsSnapshot({ dateRange: previousRange }),
-      prisma.productUpvote.count({
-        where: { createdAt: { gte: since } },
-      }),
-      prisma.productUpvote.count({
-        where: { createdAt: { gte: prevSince, lt: since } },
-      }),
-      prisma.productUpvote.count(),
-    ])
+  const [
+    currentSnapshot,
+    previousSnapshot,
+    upvotesInRange,
+    previousUpvotes,
+    totalUpvotes,
+  ] = await Promise.all([
+    getSiteAnalyticsSnapshot({ dateRange: currentRange }),
+    getSiteAnalyticsSnapshot({ dateRange: previousRange }),
+    prisma.productUpvote.count({
+      where: { createdAt: { gte: since } },
+    }),
+    prisma.productUpvote.count({
+      where: { createdAt: { gte: prevSince, lt: since } },
+    }),
+    prisma.productUpvote.count(),
+  ])
 
   const totalViews = currentSnapshot.pageViews
   const viewsInRange = currentSnapshot.pageViews
