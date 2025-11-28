@@ -12,6 +12,7 @@ type AnalyticsMetricCardProps = {
   value: string
   delta?: number | null
   icon?: ReactNode
+  helper?: string
 }
 
 export function AnalyticsMetricCard({
@@ -19,6 +20,7 @@ export function AnalyticsMetricCard({
   value,
   delta,
   icon,
+  helper,
 }: AnalyticsMetricCardProps) {
   const trendLabel =
     delta != null ? `${delta > 0 ? "+" : ""}${delta.toFixed(1)}%` : null
@@ -55,6 +57,9 @@ export function AnalyticsMetricCard({
                   {trendLabel}
                 </span>
               </div>
+            ) : null}
+            {helper ? (
+              <div className="mt-1 text-xs text-slate-500">{helper}</div>
             ) : null}
           </div>
           {icon ? (

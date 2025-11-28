@@ -38,10 +38,13 @@ import {
   CardTitle,
 } from "@/components/atoms/card"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
+import { Activity, Clock3, MousePointer2, TrendingUp, Users } from "lucide-react"
+
 import { ProductAnalyticsRangeDropdown } from "@/components/molecules/ProductAnalyticsRangeDropdown"
 import { AnalyticsPieChart } from "@/components/molecules/AnalyticsPieChart"
-import { AnalyticsValueList } from "@/components/molecules/AnalyticsValueList"
 import { AnalyticsListCard } from "@/components/molecules/AnalyticsListCard"
+import { AnalyticsMetricCard } from "@/components/molecules/AnalyticsMetricCard"
+import { AnalyticsValueList } from "@/components/molecules/AnalyticsValueList"
 import { TrafficTimeseriesChart } from "@/components/molecules/TrafficTimeseriesChart"
 import { Link2 } from "lucide-react"
 
@@ -155,32 +158,6 @@ function buildProductPagePaths(slug: string) {
   return [base, `${base}/`]
 }
 
-function StatCard({
-  title,
-  value,
-  helper,
-}: {
-  title: string
-  value: string
-  helper?: string
-}) {
-  return (
-    <Card className="rounded-xl border border-slate-200 bg-white/90 shadow-sm">
-      <CardHeader className="pb-2">
-        <CardDescription className="text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-          {title}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="text-2xl font-semibold text-slate-900">{value}</div>
-        {helper ? (
-          <p className="mt-1 text-xs text-muted-foreground">{helper}</p>
-        ) : null}
-      </CardContent>
-    </Card>
-  )
-}
-
 export default async function ProductAnalyticsPage({
   params,
   searchParams,
@@ -270,28 +247,36 @@ export default async function ProductAnalyticsPage({
       relationships={
         <div className="space-y-6">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            <StatCard
-              title="Page views"
+            <AnalyticsMetricCard
+              label="Page views"
               value={formatter.format(gaTraffic.pageViews)}
               helper={resolvedRange.label}
+              icon={<TrendingUp className="h-4 w-4" aria-hidden />}
             />
-            <StatCard
-              title="Unique visitors"
+            <AnalyticsMetricCard
+              label="Unique visitors"
               value={formatter.format(gaTraffic.uniqueVisitors)}
+              icon={<Users className="h-4 w-4" aria-hidden />}
             />
-            <StatCard
-              title="Total sessions"
+            <AnalyticsMetricCard
+              label="Total sessions"
               value={formatter.format(gaTraffic.sessions)}
+              icon={<MousePointer2 className="h-4 w-4" aria-hidden />}
             />
-            <StatCard
-              title="Bounce rate"
+            <AnalyticsMetricCard
+              label="Bounce rate"
               value={formatPercentOneDecimal(gaTraffic.bounceRate)}
+              icon={<Activity className="h-4 w-4" aria-hidden />}
             />
-            <StatCard
-              title="Avg. session duration"
+            <AnalyticsMetricCard
+              label="Avg. session duration"
               value={formatDuration(gaTraffic.averageSessionDuration)}
+              icon={<Clock3 className="h-4 w-4" aria-hidden />}
             />
-            <StatCard title="Upvotes" value={formatter.format(upvotes)} />
+            <AnalyticsMetricCard
+              label="Upvotes"
+              value={formatter.format(upvotes)}
+            />
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             <Card className="rounded-xl border border-slate-200 bg-white/90 shadow-sm">
