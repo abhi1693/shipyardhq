@@ -246,30 +246,26 @@ async function fetchProductTrafficFromGa({
     { name: "averageSessionDuration" },
   ]
 
-  let trendReport:
-    | protos.google.analytics.data.v1beta.IRunReportResponse
-    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
-  let referrerReport:
-    | protos.google.analytics.data.v1beta.IRunReportResponse
-    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
-  let referrerCategoryReport:
-    | protos.google.analytics.data.v1beta.IRunReportResponse
-    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
-  let browserReport:
-    | protos.google.analytics.data.v1beta.IRunReportResponse
-    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
-  let osReport:
-    | protos.google.analytics.data.v1beta.IRunReportResponse
-    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
-  let countryReport:
-    | protos.google.analytics.data.v1beta.IRunReportResponse
-    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
-  let cityReport:
-    | protos.google.analytics.data.v1beta.IRunReportResponse
-    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
-  let deviceReport:
-    | protos.google.analytics.data.v1beta.IRunReportResponse
-    | protos.google.analytics.data.v1beta.IRunReportResponse[] = []
+  const runReport = async (
+    request: Parameters<typeof client.runReport>[0],
+  ): Promise<protos.google.analytics.data.v1beta.IRunReportResponse> => {
+    const [response] = await client.runReport(request)
+    return response
+  }
+
+  const emptyReport: protos.google.analytics.data.v1beta.IRunReportResponse = {
+    rows: [],
+    totals: [],
+  }
+
+  let trendReport = emptyReport
+  let referrerReport = emptyReport
+  let referrerCategoryReport = emptyReport
+  let browserReport = emptyReport
+  let osReport = emptyReport
+  let countryReport = emptyReport
+  let cityReport = emptyReport
+  let deviceReport = emptyReport
 
   if (includeAdvanced) {
     ;[
@@ -282,7 +278,7 @@ async function fetchProductTrafficFromGa({
       cityReport,
       deviceReport,
     ] = await Promise.all([
-      client.runReport({
+      runReport({
         property,
         dateRanges: [dateRange],
         metrics,
@@ -293,7 +289,7 @@ async function fetchProductTrafficFromGa({
         ],
         orderBys: [{ dimension: { dimensionName: "date" } }],
       }),
-      client.runReport({
+      runReport({
         property,
         dateRanges: [dateRange],
         metrics: [{ name: "screenPageViews" }],
@@ -308,7 +304,7 @@ async function fetchProductTrafficFromGa({
           },
         ],
       }),
-      client.runReport({
+      runReport({
         property,
         dateRanges: [dateRange],
         metrics: [{ name: "screenPageViews" }],
@@ -323,7 +319,7 @@ async function fetchProductTrafficFromGa({
           },
         ],
       }),
-      client.runReport({
+      runReport({
         property,
         dateRanges: [dateRange],
         metrics: [{ name: "activeUsers" }],
@@ -336,7 +332,7 @@ async function fetchProductTrafficFromGa({
           },
         ],
       }),
-      client.runReport({
+      runReport({
         property,
         dateRanges: [dateRange],
         metrics: [{ name: "activeUsers" }],
@@ -349,7 +345,7 @@ async function fetchProductTrafficFromGa({
           },
         ],
       }),
-      client.runReport({
+      runReport({
         property,
         dateRanges: [dateRange],
         metrics: [{ name: "activeUsers" }],
@@ -362,7 +358,7 @@ async function fetchProductTrafficFromGa({
           },
         ],
       }),
-      client.runReport({
+      runReport({
         property,
         dateRanges: [dateRange],
         metrics: [{ name: "activeUsers" }],
@@ -380,7 +376,7 @@ async function fetchProductTrafficFromGa({
           },
         ],
       }),
-      client.runReport({
+      runReport({
         property,
         dateRanges: [dateRange],
         metrics: [{ name: "activeUsers" }],
@@ -395,7 +391,7 @@ async function fetchProductTrafficFromGa({
       }),
     ])
   } else {
-    trendReport = await client.runReport({
+    trendReport = await runReport({
       property,
       dateRanges: [dateRange],
       metrics,
@@ -408,41 +404,16 @@ async function fetchProductTrafficFromGa({
     })
   }
 
-  const trendResponse =
-    Array.isArray(trendReport) && trendReport.length > 0
-      ? trendReport[0]
-      : (trendReport as protos.google.analytics.data.v1beta.IRunReportResponse)
+  const trendResponse = trendReport
+  const referrerResponseParsed = referrerReport
+  const referrerCategoryResponseParsed = referrerCategoryReport
+  const browserResponseParsed = browserReport
+  const osResponseParsed = osReport
+  const cityResponseParsed = cityReport
+  const countryResponseParsed = countryReport
+  const deviceResponseParsed = deviceReport
 
-  const referrerResponseParsed =
-    Array.isArray(referrerReport) && referrerReport.length > 0
-      ? referrerReport[0]
-      : (referrerReport as protos.google.analytics.data.v1beta.IRunReportResponse)
-  const referrerCategoryResponseParsed =
-    Array.isArray(referrerCategoryReport) && referrerCategoryReport.length > 0
-      ? referrerCategoryReport[0]
-      : (referrerCategoryReport as protos.google.analytics.data.v1beta.IRunReportResponse)
-  const browserResponseParsed =
-    Array.isArray(browserReport) && browserReport.length > 0
-      ? browserReport[0]
-      : (browserReport as protos.google.analytics.data.v1beta.IRunReportResponse)
-  const osResponseParsed =
-    Array.isArray(osReport) && osReport.length > 0
-      ? osReport[0]
-      : (osReport as protos.google.analytics.data.v1beta.IRunReportResponse)
-  const cityResponseParsed =
-    Array.isArray(cityReport) && cityReport.length > 0
-      ? cityReport[0]
-      : (cityReport as protos.google.analytics.data.v1beta.IRunReportResponse)
-  const countryResponseParsed =
-    Array.isArray(countryReport) && countryReport.length > 0
-      ? countryReport[0]
-      : (countryReport as protos.google.analytics.data.v1beta.IRunReportResponse)
-  const deviceResponseParsed =
-    Array.isArray(deviceReport) && deviceReport.length > 0
-      ? deviceReport[0]
-      : (deviceReport as protos.google.analytics.data.v1beta.IRunReportResponse)
-
-  const totals = trendResponse.totals?.[0]?.metricValues
+  const totals = trendResponse.totals?.[0]?.metricValues ?? undefined
   const rows = trendResponse.rows ?? []
   const referrerRows = includeAdvanced ? referrerResponseParsed.rows ?? [] : []
   const referrerCategoryRows = includeAdvanced
