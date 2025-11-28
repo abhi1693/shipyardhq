@@ -13,7 +13,6 @@ import {
   TooltipTrigger,
 } from "@/components/atoms/tooltip"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
-import RangeSelector from "@/components/molecules/RangeSelector"
 import { ProductAnalyticsCharts } from "@/components/pages/ProductAnalyticsCharts"
 import { cn } from "@/lib/utils"
 import type { ProductTrafficSummary } from "@/types/analytics"

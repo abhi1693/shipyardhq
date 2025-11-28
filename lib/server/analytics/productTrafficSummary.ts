@@ -8,6 +8,7 @@ import {
 } from "@/lib/server/analytics/googleAnalytics"
 import type {
   ProductTrafficAdvancedInsights,
+  ProductTrafficReferrerCategory,
   ProductTrafficSummary,
   ProductTrafficSummaryPoint,
 } from "@/types/analytics"
@@ -84,8 +85,31 @@ function toSummaryPoints(timeseries: GaSummary["timeseries"]) {
 
 function buildAdvanced(
   ga: GaSummary,
-  rangeDays: number,
 ): ProductTrafficAdvancedInsights {
+  const normalizeReferrerCategory = (
+    category: string,
+  ): ProductTrafficReferrerCategory => {
+    const normalized = category.toLowerCase()
+    if (normalized === "direct") return "direct"
+    if (normalized.includes("search")) return "search"
+    if (normalized.includes("social")) return "social"
+    if (normalized.includes("email")) return "email"
+    return "other"
+  }
+
+  const regionTotals = ga.cities.reduce(
+    (acc, entry) => {
+      const region = entry.region || "Unknown region"
+      const country = entry.country ?? null
+      const key = `${country ?? "unknown"}|${region}`
+      const current = acc.get(key) ?? { region, country, views: 0 }
+      current.views += entry.visitors
+      acc.set(key, current)
+      return acc
+    },
+    new Map<string, { region: string; country: string | null; views: number }>(),
+  )
+
   return {
     uniqueVisitorsOverTime: toSummaryPoints(ga.timeseries),
     pathBreakdown: [],
@@ -93,11 +117,9 @@ function buildAdvanced(
       os: os.os,
       views: os.visitors,
     })),
-    regionBreakdown: ga.regions.map((region) => ({
-      country: region.country ?? null,
-      region: region.region,
-      views: region.visitors,
-    })),
+    regionBreakdown: Array.from(regionTotals.values()).sort(
+      (a, b) => b.views - a.views,
+    ),
     cityBreakdown: ga.cities.map((city) => ({
       country: city.country ?? null,
       region: city.region ?? null,
@@ -105,7 +127,7 @@ function buildAdvanced(
       views: city.visitors,
     })),
     referrerCategoryBreakdown: ga.referrerCategories.map((entry) => ({
-      category: entry.category,
+      category: normalizeReferrerCategory(entry.category),
       label: entry.category,
       views: entry.views,
     })),
@@ -216,7 +238,7 @@ function buildSummary({
       views: referrer.views,
     })),
     engagementOverTime: engagementsOverTime,
-    advanced: buildAdvanced(ga, rangeDays),
+    advanced: buildAdvanced(ga),
     filters: { includeBots: false },
   }
 
@@ -287,10 +309,11 @@ export async function getOrganizationTrafficSummary(
   organizationId: string,
   options: SummaryOptions = {},
 ): Promise<ProductTrafficSummary> {
-  const products = await prisma.product.findMany({
-    where: { organizationId },
-    select: { id: true, slug: true },
-  })
+  const products: Array<{ id: string; slug: string }> =
+    await prisma.product.findMany({
+      where: { organizationId },
+      select: { id: true, slug: true },
+    })
   const productIds = options.productIds ?? products.map((p) => p.id)
   const pagePaths = products
     .filter((p) => productIds.includes(p.id))
