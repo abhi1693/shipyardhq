@@ -15,6 +15,7 @@ import {
   formatDuration,
   formatPercent,
   OsIcon,
+  ValueBarRow,
 } from "@/components/molecules/AnalyticsShared"
 import { AnalyticsValueList } from "@/components/molecules/AnalyticsValueList"
 import { TrafficTimeseriesChart } from "@/components/molecules/TrafficTimeseriesChart"
