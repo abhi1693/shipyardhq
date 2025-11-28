@@ -204,8 +204,10 @@ async function getEngagementSummary({
   const timeline = buildEngagementOverTime({
     windowDays,
     today,
-    clicks: clickEvents.map((event) => event.createdAt),
-    upvotes: upvoteEvents.map((event) => event.createdAt),
+    clicks: clickEvents.map((event: { createdAt: Date }) => event.createdAt),
+    upvotes: upvoteEvents.map(
+      (event: { createdAt: Date }) => event.createdAt,
+    ),
   })
 
   return {
@@ -231,10 +233,10 @@ export async function getMemberTrafficOverview(
     return buildEmptySummary(windowDays, today)
   }
 
-  const productIds = products.map((product) => product.id)
-  const pagePaths = Array.from(
-    new Set(
-      products.flatMap(({ slug }) => {
+  const productIds = products.map((product: { id: string }) => product.id)
+  const pagePaths = Array.from<string>(
+    new Set<string>(
+      products.flatMap(({ slug }: { slug: string }) => {
         const base = productPath(slug)
         return [base, `${base}/`]
       }),

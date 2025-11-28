@@ -55,12 +55,20 @@ export function ProductAnalyticsRangeDropdown({
       disabled={isPending}
       name="analytics-range"
     >
-      <SelectTrigger size="sm" aria-label="Select analytics range">
+      <SelectTrigger
+        size="sm"
+        aria-label="Select analytics range"
+        className="cursor-pointer"
+      >
         <SelectValue placeholder="Select range" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="cursor-pointer">
         {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
+          <SelectItem
+            key={option.value}
+            value={option.value}
+            className="cursor-pointer"
+          >
             {option.label}
           </SelectItem>
         ))}

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
-import { Laptop, Monitor, MousePointer2, Smartphone, Tablet } from "lucide-react"
+import Image from "next/image"
+import { Monitor, MousePointer2, Smartphone, Tablet } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -200,9 +201,11 @@ export function FlagIcon({
           className,
         )}
       >
-        <img
+        <Image
           src={`https://flagcdn.com/w40/${lower}.png`}
           alt={`${name} flag`}
+          width={24}
+          height={16}
           className="h-full w-full object-cover"
           loading="lazy"
           decoding="async"
@@ -230,9 +233,11 @@ export function BrowserIcon({ name }: { name: string }) {
 
   return (
     <span className="inline-flex h-4 w-4 items-center justify-center overflow-hidden">
-      <img
+      <Image
         src={src}
         alt={`${logo.label} logo`}
+        width={16}
+        height={16}
         className="h-4 w-4 object-contain"
         loading="lazy"
         decoding="async"
@@ -250,9 +255,11 @@ export function OsIcon({ name }: { name: string }) {
 
   return (
     <span className="inline-flex h-4 w-4 items-center justify-center overflow-hidden">
-      <img
+      <Image
         src={src}
         alt={`${logo.label} logo`}
+        width={16}
+        height={16}
         className="h-4 w-4 object-contain"
         loading="lazy"
         decoding="async"
