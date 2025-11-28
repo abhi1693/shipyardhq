@@ -292,24 +292,12 @@ export default async function ProductAnalyticsPage({
     newShare: computeDelta(newVisitorShare, newVisitorSharePrev),
   }
 
-  const referrersSorted = [...gaTraffic.referrers].sort(
-    (a, b) => b.views - a.views,
-  )
-  const browsersSorted = [...gaTraffic.browsers].sort(
-    (a, b) => b.visitors - a.visitors,
-  )
-  const osSorted = [...gaTraffic.operatingSystems].sort(
-    (a, b) => b.visitors - a.visitors,
-  )
-  const devicesSorted = [...gaTraffic.devices].sort(
-    (a, b) => b.visitors - a.visitors,
-  )
-  const countriesSorted = [...gaTraffic.countries].sort(
-    (a, b) => b.visitors - a.visitors,
-  )
-  const citiesSorted = [...gaTraffic.cities].sort(
-    (a, b) => b.visitors - a.visitors,
-  )
+  const referrersSorted = gaTraffic.referrers
+  const browsersSorted = gaTraffic.browsers
+  const osSorted = gaTraffic.operatingSystems
+  const devicesSorted = gaTraffic.devices
+  const countriesSorted = gaTraffic.countries
+  const citiesSorted = gaTraffic.cities
   const totalCountryVisitors =
     gaTraffic.uniqueVisitors > 0
       ? gaTraffic.uniqueVisitors
@@ -318,9 +306,7 @@ export default async function ProductAnalyticsPage({
     gaTraffic.uniqueVisitors > 0
       ? gaTraffic.uniqueVisitors
       : citiesSorted.reduce((sum, city) => sum + city.visitors, 0)
-  const channelSorted = [...gaTraffic.referrerCategories].sort(
-    (a, b) => b.views - a.views,
-  )
+  const channelSorted = gaTraffic.referrerCategories
   const showAdvanced = hasAdvancedAnalytics
   const upgradeHref = memberProductUpgradePath(product.slug)
   const valueBarRowProps = {
