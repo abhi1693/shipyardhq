@@ -268,11 +268,11 @@ export default async function AnalyticsPage() {
   })
 
   const rangeLabel = `${format(rangeStart, "MMM d")} – ${format(rangeEnd, "MMM d")}`
-  const maxProductViews = Math.max(0, ...topProducts.map((p) => p.pageViews))
   const totalProductViews = topProducts.reduce((sum, p) => sum + p.pageViews, 0)
+  const newVisitorShare = snapshot.uniqueVisitors > 0 ? (snapshot.newUsers / snapshot.uniqueVisitors) * 100 : 0
+  const returningVisitorShare = Math.max(0, 100 - newVisitorShare)
   const maxRefViews = Math.max(0, ...snapshot.referrers.map((ref) => ref.views))
   const maxCountryVisitors = Math.max(0, ...snapshot.countries.map((c) => c.visitors))
-  const maxRegionVisitors = Math.max(0, ...snapshot.regions.map((c) => c.visitors))
   const maxCityVisitors = Math.max(0, ...snapshot.cities.map((c) => c.visitors))
   const maxBrowserVisitors = Math.max(0, ...snapshot.browsers.map((b) => b.visitors))
   const maxOsVisitors = Math.max(0, ...snapshot.operatingSystems.map((o) => o.visitors))
@@ -287,6 +287,14 @@ export default async function AnalyticsPage() {
     duration: computeDelta(
       snapshot.averageSessionDuration,
       previousSnapshot.averageSessionDuration,
+    ),
+    pagesPerSession: computeDelta(
+      snapshot.pagesPerSession,
+      previousSnapshot.pagesPerSession,
+    ),
+    engagementRate: computeDelta(
+      snapshot.engagementRate,
+      previousSnapshot.engagementRate,
     ),
   }
 
@@ -317,7 +325,7 @@ export default async function AnalyticsPage() {
             <p className="text-sm text-slate-600">{rangeLabel}</p>
           </header>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
             <MetricCard
               label="Views"
               value={numberFormatter.format(snapshot.pageViews)}
@@ -348,6 +356,59 @@ export default async function AnalyticsPage() {
               delta={deltas.duration}
               icon={<Clock3 className="h-4 w-4" aria-hidden />}
             />
+          </div>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <MetricCard
+              label="Pages per session"
+              value={snapshot.pagesPerSession.toFixed(2)}
+              delta={deltas.pagesPerSession}
+              icon={<MousePointer2 className="h-4 w-4" aria-hidden />}
+            />
+            <MetricCard
+              label="Engaged session rate"
+              value={formatPercent(snapshot.engagementRate)}
+              delta={deltas.engagementRate}
+              icon={<Activity className="h-4 w-4" aria-hidden />}
+            />
+            <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-semibold text-slate-600">New vs returning</div>
+                <div className="text-xs text-slate-500">Visitors</div>
+              </div>
+              <ValueBarRow
+                value={newVisitorShare}
+                max={100}
+                left={
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="h-2 w-2 rounded-full bg-sky-400" />
+                    <span className="text-sm font-medium text-slate-900">New</span>
+                  </div>
+                }
+                right={
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(newVisitorShare)}
+                  </span>
+                }
+                tone="blue"
+              />
+              <ValueBarRow
+                value={returningVisitorShare}
+                max={100}
+                left={
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="h-2 w-2 rounded-full bg-indigo-400" />
+                    <span className="text-sm font-medium text-slate-900">Returning</span>
+                  </div>
+                }
+                right={
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(returningVisitorShare)}
+                  </span>
+                }
+                tone="indigo"
+              />
+            </div>
           </div>
 
           <section className="mt-8 space-y-3">

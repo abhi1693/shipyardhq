@@ -15,6 +15,9 @@ export type SiteAnalyticsSnapshot = {
   sessions: number
   bounceRate: number
   averageSessionDuration: number
+  newUsers: number
+  engagementRate: number
+  pagesPerSession: number
   referrers: Array<{ referrer: string; views: number; share: number }>
   timeseries: Array<{
     date: string
@@ -62,7 +65,7 @@ const CACHE_KEY = "analytics:homepage:traffic:v1"
 const CACHE_TTL_SECONDS = 300
 const REALTIME_CACHE_KEY = "analytics:homepage:realtime:v1"
 const REALTIME_CACHE_TTL_SECONDS = 30
-const SITE_SNAPSHOT_CACHE_PREFIX = "analytics:site:snapshot:v3"
+const SITE_SNAPSHOT_CACHE_PREFIX = "analytics:site:snapshot:v2"
 const SITE_SNAPSHOT_CACHE_TTL_SECONDS = 300
 
 let clientPromise: Promise<BetaAnalyticsDataClient> | null = null
@@ -332,6 +335,11 @@ async function fetchProductTrafficFromGa({
     { name: "sessions" },
     { name: "bounceRate" },
     { name: "averageSessionDuration" },
+    { name: "newUsers" },
+    { name: "engagementRate" },
+    { name: "screenPageViewsPerSession" },
+    { name: "engagedSessions" },
+    { name: "newUsers" },
   ]
 
   const runReport = async (
@@ -690,6 +698,9 @@ const EMPTY_SITE_SNAPSHOT: SiteAnalyticsSnapshot = {
   sessions: 0,
   bounceRate: 0,
   averageSessionDuration: 0,
+  newUsers: 0,
+  engagementRate: 0,
+  pagesPerSession: 0,
   referrers: [],
   timeseries: [],
   browsers: [],
@@ -720,6 +731,10 @@ async function fetchSiteAnalyticsSnapshot({
     { name: "sessions" },
     { name: "bounceRate" },
     { name: "averageSessionDuration" },
+    { name: "newUsers" },
+    { name: "engagementRate" },
+    { name: "screenPageViewsPerSession" },
+    { name: "engagedSessions" },
   ]
 
   const [
@@ -928,6 +943,26 @@ async function fetchSiteAnalyticsSnapshot({
     rows,
     "avg",
   )
+  const newUsersRaw = resolveMetricValue(totals, 5, rows, "sum")
+  const rawEngagementRate = resolveMetricValue(totals, 6, rows, "avg")
+  const pagesPerSessionMetric = resolveMetricValue(totals, 7, rows, "avg")
+  const engagedSessions = resolveMetricValue(totals, 8, rows, "sum")
+
+  const engagementRateFromMetric =
+    rawEngagementRate <= 1 ? rawEngagementRate * 100 : rawEngagementRate
+  const engagementRateFallback =
+    sessions > 0 ? (engagedSessions / sessions) * 100 : 0
+  const engagementRate =
+    engagementRateFromMetric > 0 ? engagementRateFromMetric : engagementRateFallback
+
+  const newUsers = newUsersRaw > 0 ? newUsersRaw : Math.min(uniqueVisitors, sessions)
+
+  const pagesPerSession =
+    pagesPerSessionMetric > 0
+      ? pagesPerSessionMetric
+      : sessions > 0
+        ? pageViews / sessions
+        : 0
 
   const timeseries =
     (rows ?? [])
@@ -1100,6 +1135,9 @@ async function fetchSiteAnalyticsSnapshot({
     sessions,
     bounceRate,
     averageSessionDuration,
+    newUsers,
+    engagementRate,
+    pagesPerSession,
     referrers,
     timeseries,
     browsers,
