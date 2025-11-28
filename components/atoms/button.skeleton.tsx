@@ -34,7 +34,8 @@ const toneByVariant: Record<ButtonVariant, SkeletonProps["tone"]> = {
 }
 
 interface ButtonSkeletonProps
-  extends Omit<React.ComponentProps<typeof Skeleton>, "children">,
+  extends
+    Omit<React.ComponentProps<typeof Skeleton>, "children">,
     VariantProps<typeof buttonVariants> {
   labelWidth?: number | string
   icon?: boolean

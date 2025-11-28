@@ -275,7 +275,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     : null
   const isVerified = Boolean(
     product.verification?.isVerified ??
-      sidebarProduct?.verification?.isVerified,
+    sidebarProduct?.verification?.isVerified,
   )
   const pricingModelSlug = pricingModelSlugFromValue(
     sidebarProduct?.pricingModel,

@@ -76,8 +76,8 @@ export const getPlatformPagePayload = cached(
       browseSortLabelMap[filters.sort] ?? browseSortLabelMap["new"]
     const hasActiveFilters = Boolean(
       filters.verified ||
-        (filters.query && filters.query.length > 0) ||
-        filters.sort !== "new",
+      (filters.query && filters.query.length > 0) ||
+      filters.sort !== "new",
     )
 
     const resultCount =

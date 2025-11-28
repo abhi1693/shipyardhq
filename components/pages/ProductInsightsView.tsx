@@ -760,8 +760,8 @@ export function ProductInsightsView({
     !hasCompetitorResults && !isRunningPipeline
   const shouldSurfaceCompetitorNotices = Boolean(
     competitorProgress ||
-      profile?.competitorErrorMessage ||
-      shouldShowCompetitorEmptyState,
+    profile?.competitorErrorMessage ||
+    shouldShowCompetitorEmptyState,
   )
 
   const shouldOpenCompetitorStage =
@@ -1151,8 +1151,8 @@ export function ProductInsightsView({
 
   const shouldSurfaceHackerNewsNotices = Boolean(
     hackerNewsProgress ||
-      profile?.hackerNewsErrorMessage ||
-      shouldShowHackerNewsEmptyState,
+    profile?.hackerNewsErrorMessage ||
+    shouldShowHackerNewsEmptyState,
   )
 
   const shouldOpenHackerNewsStage =
@@ -1219,9 +1219,9 @@ export function ProductInsightsView({
     !hasSubredditResults && !isRunningPipeline
   const shouldSurfaceSubredditNotices = Boolean(
     subredditProgress ||
-      profile?.subredditErrorMessage ||
-      shouldShowSubredditEmptyState ||
-      coverageNeedsAttention,
+    profile?.subredditErrorMessage ||
+    shouldShowSubredditEmptyState ||
+    coverageNeedsAttention,
   )
 
   const subredditStatus = profile?.subredditStatus ?? null
@@ -1431,8 +1431,8 @@ export function ProductInsightsView({
     !hasDiscussionThreads && !isRunningPipeline
   const shouldSurfaceDiscussionNotices = Boolean(
     discussionProgress ||
-      profile?.redditErrorMessage ||
-      shouldShowDiscussionEmptyState,
+    profile?.redditErrorMessage ||
+    shouldShowDiscussionEmptyState,
   )
 
   const successfulPages = Math.max(pageCount - erroredPages.length, 0)
@@ -1477,8 +1477,8 @@ export function ProductInsightsView({
 
   const hasCrawlerNotices = Boolean(
     progressMessage ||
-      profile?.errorMessage ||
-      (!profile && !isRunningPipeline),
+    profile?.errorMessage ||
+    (!profile && !isRunningPipeline),
   )
 
   const pipelineJobState: ProductInsightPipelineJobState =
@@ -1712,8 +1712,8 @@ export function ProductInsightsView({
   const shouldShowReportEmptyState = !hasFinalReport && !isRunningPipeline
   const shouldSurfaceReportNotices = Boolean(
     reportProgress ||
-      profile?.finalReportErrorMessage ||
-      shouldShowReportEmptyState,
+    profile?.finalReportErrorMessage ||
+    shouldShowReportEmptyState,
   )
 
   const snapshotMetrics: Array<{

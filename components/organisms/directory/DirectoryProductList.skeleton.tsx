@@ -4,8 +4,7 @@ import { cn } from "@/lib/utils"
 
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
 
-interface DirectoryProductListSkeletonProps
-  extends React.ComponentProps<"div"> {
+interface DirectoryProductListSkeletonProps extends React.ComponentProps<"div"> {
   count?: number
   columns?: string
   showCategory?: boolean

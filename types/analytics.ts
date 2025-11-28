@@ -19,31 +19,26 @@ export interface ProductTrafficBreakdownItem {
   views: number
 }
 
-export interface ProductTrafficDeviceBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficDeviceBreakdownItem extends ProductTrafficBreakdownItem {
   device: DeviceCategory
   label: string
 }
 
-export interface ProductTrafficCountryBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficCountryBreakdownItem extends ProductTrafficBreakdownItem {
   country: string
 }
 
-export interface ProductTrafficBrowserBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficBrowserBreakdownItem extends ProductTrafficBreakdownItem {
   browser: string
 }
 
-export interface ProductTrafficUserAgentBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficUserAgentBreakdownItem extends ProductTrafficBreakdownItem {
   browser: string | null
   os: string | null
   device: DeviceCategory
 }
 
-export interface ProductTrafficReferrerBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficReferrerBreakdownItem extends ProductTrafficBreakdownItem {
   referrer: string
 }
 
@@ -54,33 +49,28 @@ export type ProductTrafficReferrerCategory =
   | "email"
   | "other"
 
-export interface ProductTrafficPathBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficPathBreakdownItem extends ProductTrafficBreakdownItem {
   path: string
   previousViews: number
   viewsChange: number
 }
 
-export interface ProductTrafficOsBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficOsBreakdownItem extends ProductTrafficBreakdownItem {
   os: string
 }
 
-export interface ProductTrafficRegionBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficRegionBreakdownItem extends ProductTrafficBreakdownItem {
   country: string | null
   region: string
 }
 
-export interface ProductTrafficCityBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficCityBreakdownItem extends ProductTrafficBreakdownItem {
   country: string | null
   region: string | null
   city: string
 }
 
-export interface ProductTrafficReferrerCategoryBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficReferrerCategoryBreakdownItem extends ProductTrafficBreakdownItem {
   category: ProductTrafficReferrerCategory
   label: string
 }

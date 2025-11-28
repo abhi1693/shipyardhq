@@ -83,9 +83,7 @@ function toSummaryPoints(timeseries: GaSummary["timeseries"]) {
   }))
 }
 
-function buildAdvanced(
-  ga: GaSummary,
-): ProductTrafficAdvancedInsights {
+function buildAdvanced(ga: GaSummary): ProductTrafficAdvancedInsights {
   const normalizeReferrerCategory = (
     category: string,
   ): ProductTrafficReferrerCategory => {
@@ -97,18 +95,15 @@ function buildAdvanced(
     return "other"
   }
 
-  const regionTotals = ga.cities.reduce(
-    (acc, entry) => {
-      const region = entry.region || "Unknown region"
-      const country = entry.country ?? null
-      const key = `${country ?? "unknown"}|${region}`
-      const current = acc.get(key) ?? { region, country, views: 0 }
-      current.views += entry.visitors
-      acc.set(key, current)
-      return acc
-    },
-    new Map<string, { region: string; country: string | null; views: number }>(),
-  )
+  const regionTotals = ga.cities.reduce((acc, entry) => {
+    const region = entry.region || "Unknown region"
+    const country = entry.country ?? null
+    const key = `${country ?? "unknown"}|${region}`
+    const current = acc.get(key) ?? { region, country, views: 0 }
+    current.views += entry.visitors
+    acc.set(key, current)
+    return acc
+  }, new Map<string, { region: string; country: string | null; views: number }>())
 
   return {
     uniqueVisitorsOverTime: toSummaryPoints(ga.timeseries),
