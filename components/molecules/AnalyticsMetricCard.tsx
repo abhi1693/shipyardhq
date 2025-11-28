@@ -39,14 +39,14 @@ export function AnalyticsMetricCard({
       : "bg-slate-50"
 
   return (
-    <Card className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <Card className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
       <CardHeader className="p-0">
         <div className="flex items-start justify-between gap-3">
-          <div>
+          <div className="flex flex-col">
             <CardTitle className="text-sm font-semibold text-slate-600">
               {label}
             </CardTitle>
-            <div className="mt-2 text-3xl font-semibold text-slate-900">
+            <div className="mt-1 text-3xl font-semibold text-slate-900">
               {value}
             </div>
             {trendLabel ? (
@@ -58,9 +58,6 @@ export function AnalyticsMetricCard({
                 </span>
               </div>
             ) : null}
-            {helper ? (
-              <div className="mt-1 text-xs text-slate-500">{helper}</div>
-            ) : null}
           </div>
           {icon ? (
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-800">
@@ -69,7 +66,9 @@ export function AnalyticsMetricCard({
           ) : null}
         </div>
       </CardHeader>
-      <CardContent className="p-0" />
+      <CardContent className="mt-auto p-0 pt-2">
+        {helper ? <div className="text-xs text-slate-500">{helper}</div> : null}
+      </CardContent>
     </Card>
   )
 }

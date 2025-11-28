@@ -8,6 +8,7 @@ import {
   startOfYear,
   subDays,
   subMonths,
+  differenceInCalendarDays,
 } from "date-fns"
 import {
   BrowserIcon,
@@ -16,6 +17,7 @@ import {
   formatDuration,
   formatPercent,
   OsIcon,
+  ValueBarRow,
 } from "@/components/molecules/AnalyticsShared"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import {
@@ -32,6 +34,7 @@ import {
   type GaDateRange,
   getProductTrafficFromGa,
 } from "@/lib/server/analytics/googleAnalytics"
+import { getProductReviewSummary } from "@/lib/server/productReviews"
 import {
   Card,
   CardContent,
@@ -40,7 +43,14 @@ import {
   CardTitle,
 } from "@/components/atoms/card"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
-import { Activity, Clock3, MousePointer2, TrendingUp, Users } from "lucide-react"
+import {
+  Activity,
+  Clock3,
+  MousePointer2,
+  TrendingUp,
+  Users,
+  Star,
+} from "lucide-react"
 
 import { ProductAnalyticsRangeDropdown } from "@/components/molecules/ProductAnalyticsRangeDropdown"
 import { AnalyticsPieChart } from "@/components/molecules/AnalyticsPieChart"
@@ -93,6 +103,20 @@ const RANGE_OPTIONS: RangeOption[] = [
 
 function formatGaDate(date: Date) {
   return format(date, "yyyy-MM-dd")
+}
+
+function resolvePreviousRange(dateRange: GaDateRange): GaDateRange {
+  const start = startOfDay(new Date(dateRange.startDate))
+  const end = startOfDay(new Date(dateRange.endDate))
+  const spanDays = Math.max(1, differenceInCalendarDays(end, start) + 1)
+  const prevEnd = subDays(start, 1)
+  const prevStart = subDays(prevEnd, spanDays - 1)
+  return { startDate: formatGaDate(prevStart), endDate: formatGaDate(prevEnd) }
+}
+
+function computeDelta(current: number, previous: number) {
+  if (!Number.isFinite(previous) || previous === 0) return null
+  return ((current - previous) / previous) * 100
 }
 
 function UpgradeRequiredCard({
@@ -224,15 +248,49 @@ export default async function ProductAnalyticsPage({
   }
 
   const resolvedRange = resolveRange(sp?.range, product.createdAt)
-  const gaTraffic = await getProductTrafficFromGa({
-    pagePaths: buildProductPagePaths(product.slug),
-    dateRange: resolvedRange.dateRange,
-    includeAdvanced: hasAdvancedAnalytics,
-  })
+  const previousRange = resolvePreviousRange(resolvedRange.dateRange)
+  const [gaTraffic, gaTrafficPrevious, reviewSummary] = await Promise.all([
+    getProductTrafficFromGa({
+      pagePaths: buildProductPagePaths(product.slug),
+      dateRange: resolvedRange.dateRange,
+      includeAdvanced: hasAdvancedAnalytics,
+    }),
+    getProductTrafficFromGa({
+      pagePaths: buildProductPagePaths(product.slug),
+      dateRange: previousRange,
+      includeAdvanced: hasAdvancedAnalytics,
+    }),
+    getProductReviewSummary(product.id, 1),
+  ])
   const upvotes = product.analytics?.upvotes ?? 0
   const formatter = new Intl.NumberFormat("en-US")
   const formatPercentOneDecimal = (value: number) =>
     formatPercent(value, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+  const newVisitorShare =
+    gaTraffic.uniqueVisitors > 0
+      ? (gaTraffic.newUsers / gaTraffic.uniqueVisitors) * 100
+      : 0
+  const returningVisitorShare = Math.max(100 - newVisitorShare, 0)
+  const newVisitorSharePrev =
+    gaTrafficPrevious.uniqueVisitors > 0
+      ? (gaTrafficPrevious.newUsers / gaTrafficPrevious.uniqueVisitors) * 100
+      : 0
+  const valueBarRowClassName =
+    "border border-slate-200 bg-white px-3 py-2 shadow-sm"
+  const metricDeltas = {
+    views: computeDelta(gaTraffic.pageViews, gaTrafficPrevious.pageViews),
+    visits: computeDelta(gaTraffic.sessions, gaTrafficPrevious.sessions),
+    visitors: computeDelta(
+      gaTraffic.uniqueVisitors,
+      gaTrafficPrevious.uniqueVisitors,
+    ),
+    bounce: computeDelta(gaTraffic.bounceRate, gaTrafficPrevious.bounceRate),
+    duration: computeDelta(
+      gaTraffic.averageSessionDuration,
+      gaTrafficPrevious.averageSessionDuration,
+    ),
+    newShare: computeDelta(newVisitorShare, newVisitorSharePrev),
+  }
 
   const referrersSorted = [...gaTraffic.referrers].sort(
     (a, b) => b.views - a.views,
@@ -252,14 +310,14 @@ export default async function ProductAnalyticsPage({
   const citiesSorted = [...gaTraffic.cities].sort(
     (a, b) => b.visitors - a.visitors,
   )
-  const totalCountryVisitors = countriesSorted.reduce(
-    (sum, country) => sum + country.visitors,
-    0,
-  )
-  const totalCityVisitors = citiesSorted.reduce(
-    (sum, city) => sum + city.visitors,
-    0,
-  )
+  const totalCountryVisitors =
+    gaTraffic.uniqueVisitors > 0
+      ? gaTraffic.uniqueVisitors
+      : countriesSorted.reduce((sum, country) => sum + country.visitors, 0)
+  const totalCityVisitors =
+    gaTraffic.uniqueVisitors > 0
+      ? gaTraffic.uniqueVisitors
+      : citiesSorted.reduce((sum, city) => sum + city.visitors, 0)
   const channelSorted = [...gaTraffic.referrerCategories].sort(
     (a, b) => b.views - a.views,
   )
@@ -293,37 +351,113 @@ export default async function ProductAnalyticsPage({
       }
       relationships={
         <div className="space-y-6">
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
             <AnalyticsMetricCard
-              label="Page views"
+              label="Views"
               value={formatter.format(gaTraffic.pageViews)}
-              helper={resolvedRange.label}
+              helper="Page views for the selected range"
+              delta={metricDeltas.views}
               icon={<TrendingUp className="h-4 w-4" aria-hidden />}
             />
             <AnalyticsMetricCard
-              label="Unique visitors"
-              value={formatter.format(gaTraffic.uniqueVisitors)}
-              icon={<Users className="h-4 w-4" aria-hidden />}
-            />
-            <AnalyticsMetricCard
-              label="Total sessions"
+              label="Visits"
               value={formatter.format(gaTraffic.sessions)}
+              helper="Sessions"
+              delta={metricDeltas.visits}
               icon={<MousePointer2 className="h-4 w-4" aria-hidden />}
             />
             <AnalyticsMetricCard
+              label="Visitors"
+              value={formatter.format(gaTraffic.uniqueVisitors)}
+              helper="Unique visitors"
+              delta={metricDeltas.visitors}
+              icon={<Users className="h-4 w-4" aria-hidden />}
+            />
+            <AnalyticsMetricCard
               label="Bounce rate"
-              value={formatPercentOneDecimal(gaTraffic.bounceRate)}
+              value={formatPercent(gaTraffic.bounceRate)}
+              helper="Bounce rate for the selected range"
+              delta={metricDeltas.bounce}
               icon={<Activity className="h-4 w-4" aria-hidden />}
             />
             <AnalyticsMetricCard
-              label="Avg. session duration"
-              value={formatDuration(gaTraffic.averageSessionDuration)}
+              label="Visit duration"
+              value={formatDuration(gaTraffic.averageSessionDuration, {
+                padMinutes: true,
+              })}
+              helper="Average session duration"
+              delta={metricDeltas.duration}
               icon={<Clock3 className="h-4 w-4" aria-hidden />}
             />
+          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <AnalyticsMetricCard
               label="Upvotes"
               value={formatter.format(upvotes)}
+              helper="All time"
             />
+            <AnalyticsMetricCard
+              label="Avg. review rating"
+              value={
+                reviewSummary.averageRating > 0
+                  ? `${reviewSummary.averageRating.toFixed(1)} / 5`
+                  : "—"
+              }
+              helper={
+                reviewSummary.totalReviews > 0
+                  ? `${reviewSummary.totalReviews} review${
+                      reviewSummary.totalReviews === 1 ? "" : "s"
+                    }`
+                  : "No reviews yet"
+              }
+              icon={<Star className="h-4 w-4" aria-hidden />}
+            />
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-semibold text-slate-600">
+                  New vs returning
+                </div>
+                <div className="text-xs text-slate-500">{resolvedRange.label}</div>
+              </div>
+              <ValueBarRow
+                value={newVisitorShare}
+                max={100}
+                className={valueBarRowClassName}
+                left={
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="h-2 w-2 rounded-full bg-sky-400" />
+                    <span className="text-sm font-medium text-slate-900">
+                      New
+                    </span>
+                  </div>
+                }
+                right={
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercentOneDecimal(newVisitorShare)}
+                  </span>
+                }
+                tone="blue"
+              />
+              <ValueBarRow
+                value={returningVisitorShare}
+                max={100}
+                className={valueBarRowClassName}
+                left={
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="h-2 w-2 rounded-full bg-indigo-400" />
+                    <span className="text-sm font-medium text-slate-900">
+                      Returning
+                    </span>
+                  </div>
+                }
+                right={
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercentOneDecimal(returningVisitorShare)}
+                  </span>
+                }
+                tone="indigo"
+              />
+            </div>
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             <Card className="rounded-xl border border-slate-200 bg-white/90 shadow-sm">

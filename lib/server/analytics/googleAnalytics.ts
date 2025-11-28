@@ -78,6 +78,8 @@ export type GaDateRange = {
 export type GaProductTrafficSummary = {
   pageViews: number
   uniqueVisitors: number
+  newUsers: number
+  returningVisitors: number
   sessions: number
   bounceRate: number
   averageSessionDuration: number
@@ -529,6 +531,8 @@ async function fetchProductTrafficFromGa({
       ? rawBounceRate * 100
       : rawBounceRate
   const averageSessionDuration = resolveMetricValue(totals, 4, rows, "avg")
+  const newUsers = resolveMetricValue(totals, 5, rows, "sum")
+  const returningVisitors = Math.max(uniqueVisitors - newUsers, 0)
 
   const timeseries =
     (rows ?? [])
@@ -641,6 +645,8 @@ async function fetchProductTrafficFromGa({
     bounceRate,
     averageSessionDuration,
     referrers,
+    newUsers,
+    returningVisitors,
     referrerCategories,
     browsers,
     operatingSystems,
@@ -667,6 +673,8 @@ export async function getProductTrafficFromGa(args: {
     return {
       pageViews: 0,
       uniqueVisitors: 0,
+      newUsers: 0,
+      returningVisitors: 0,
       sessions: 0,
       bounceRate: 0,
       averageSessionDuration: 0,
