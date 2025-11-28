@@ -254,8 +254,8 @@ export default async function AnalyticsPage() {
         })
       : []
 
-  const productMap = new Map(
-    products.map((product) => [product.slug.toLowerCase(), product]),
+  const productMap = new Map<string, (typeof products)[number]>(
+    products.map((product: (typeof products)[number]) => [product.slug.toLowerCase(), product]),
   )
 
   const topProducts = snapshot.topProductPages.map((page) => {
