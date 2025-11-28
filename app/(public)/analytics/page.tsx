@@ -278,24 +278,28 @@ export default async function AnalyticsPage() {
               value={numberFormatter.format(snapshot.pageViews)}
               delta={deltas.views}
               icon={<TrendingUp className="h-4 w-4" aria-hidden />}
+              helper="Pageviews across the site."
             />
             <AnalyticsMetricCard
               label="Visits"
               value={numberFormatter.format(snapshot.sessions)}
               delta={deltas.sessions}
               icon={<MousePointer2 className="h-4 w-4" aria-hidden />}
+              helper="Sessions started on the site."
             />
             <AnalyticsMetricCard
               label="Visitors"
               value={numberFormatter.format(snapshot.uniqueVisitors)}
               delta={deltas.visitors}
               icon={<Users className="h-4 w-4" aria-hidden />}
+              helper="Estimated unique people visiting the site."
             />
             <AnalyticsMetricCard
               label="Bounce rate"
               value={formatPercent(snapshot.bounceRate)}
               delta={deltas.bounce}
               icon={<Activity className="h-4 w-4" aria-hidden />}
+              helper="Share of visits with a single pageview before exit."
             />
             <AnalyticsMetricCard
               label="Visit duration"
@@ -304,6 +308,7 @@ export default async function AnalyticsPage() {
               })}
               delta={deltas.duration}
               icon={<Clock3 className="h-4 w-4" aria-hidden />}
+              helper="Average time spent on site during a visit."
             />
           </div>
 
@@ -313,12 +318,14 @@ export default async function AnalyticsPage() {
               value={snapshot.pagesPerSession.toFixed(2)}
               delta={deltas.pagesPerSession}
               icon={<MousePointer2 className="h-4 w-4" aria-hidden />}
+              helper="Average number of pages viewed during a visit."
             />
             <AnalyticsMetricCard
               label="Engaged session rate"
               value={formatPercent(snapshot.engagementRate)}
               delta={deltas.engagementRate}
               icon={<Activity className="h-4 w-4" aria-hidden />}
+              helper="Share of visits marked engaged (10s+, 2+ views, or a conversion)."
             />
             <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <div className="flex items-center justify-between">
@@ -374,7 +381,7 @@ export default async function AnalyticsPage() {
               )}
               delta={deltas.revenue}
               icon={<DollarSign className="h-4 w-4" aria-hidden />}
-              helper="Connected providers, last 30 days"
+              helper="Revenue from connected providers with verified payouts."
             />
           </div>
 
