@@ -6,7 +6,6 @@ import { getProductTrafficMapFromGa } from "@/lib/server/analytics/googleAnalyti
 type MetricMaps = {
   views: Map<string, number>
   uniqueVisitors: Map<string, number>
-  clicks: Map<string, number>
   upvotes: Map<string, number>
   reviewsCount: Map<string, number>
   reviewsRatingSum: Map<string, number>
@@ -15,7 +14,6 @@ type MetricMaps = {
 export type LeaderboardWeights = {
   views: number
   uniqueVisitors: number
-  clicks: number
   upvotes: number
   reviewsCount: number
   reviewsRatingSum: number
@@ -24,7 +22,6 @@ export type LeaderboardWeights = {
 const DEFAULT_WEIGHTS: LeaderboardWeights = {
   views: 1,
   uniqueVisitors: 3,
-  clicks: 5,
   upvotes: 10,
   reviewsCount: 8,
   reviewsRatingSum: 4,
@@ -34,7 +31,6 @@ type ScoreRow = {
   productId: string
   views: number
   uniqueVisitors: number
-  clicks: number
   upvotes: number
   reviewsCount: number
   reviewsRatingSum: number
@@ -49,7 +45,6 @@ function metricsHaveActivity(metrics: MetricMaps): boolean {
   return [
     metrics.views,
     metrics.uniqueVisitors,
-    metrics.clicks,
     metrics.upvotes,
     metrics.reviewsCount,
     metrics.reviewsRatingSum,
@@ -177,7 +172,6 @@ export async function getProductScoreForCurrentWindow(
       rank: true,
       views: true,
       uniqueVisitors: true,
-      clicks: true,
       upvotes: true,
       reviewsCount: true,
       reviewsRatingSum: true,
@@ -264,7 +258,6 @@ export async function updateLeaderboardScoresForProducts(options: {
       score: row.score,
       views: row.views,
       uniqueVisitors: row.uniqueVisitors,
-      clicks: row.clicks,
       upvotes: row.upvotes,
       reviewsCount: row.reviewsCount,
     })
@@ -281,7 +274,6 @@ export async function updateLeaderboardScoresForProducts(options: {
         productId: row.productId,
         views: row.views,
         uniqueVisitors: row.uniqueVisitors,
-        clicks: row.clicks,
         upvotes: row.upvotes,
         reviewsCount: row.reviewsCount,
         reviewsRatingSum: row.reviewsRatingSum,
@@ -291,7 +283,6 @@ export async function updateLeaderboardScoresForProducts(options: {
       update: {
         views: row.views,
         uniqueVisitors: row.uniqueVisitors,
-        clicks: row.clicks,
         upvotes: row.upvotes,
         reviewsCount: row.reviewsCount,
         reviewsRatingSum: row.reviewsRatingSum,
@@ -340,7 +331,6 @@ async function collectMetrics(
   const metrics: MetricMaps = {
     views: new Map(),
     uniqueVisitors: new Map(),
-    clicks: new Map(),
     upvotes: new Map(),
     reviewsCount: new Map(),
     reviewsRatingSum: new Map(),
@@ -349,7 +339,6 @@ async function collectMetrics(
   for (const [productId, values] of gaMap.entries()) {
     metrics.views.set(productId, values.pageViews)
     metrics.uniqueVisitors.set(productId, values.uniqueVisitors)
-    metrics.clicks.set(productId, values.sessions)
   }
 
   const productIds = products.map((product: { id: string }) => product.id)
@@ -410,7 +399,6 @@ async function collectMetricsForProducts(
   const metrics: MetricMaps = {
     views: new Map(),
     uniqueVisitors: new Map(),
-    clicks: new Map(),
     upvotes: new Map(),
     reviewsCount: new Map(),
     reviewsRatingSum: new Map(),
@@ -419,7 +407,6 @@ async function collectMetricsForProducts(
   for (const [productId, values] of gaMap.entries()) {
     metrics.views.set(productId, values.pageViews)
     metrics.uniqueVisitors.set(productId, values.uniqueVisitors)
-    metrics.clicks.set(productId, values.sessions)
   }
 
   const [upvotes, reviews] = await Promise.all([
@@ -480,7 +467,6 @@ function computeScores(
     ...seedProductIds,
     ...metrics.views.keys(),
     ...metrics.uniqueVisitors.keys(),
-    ...metrics.clicks.keys(),
     ...metrics.upvotes.keys(),
     ...metrics.reviewsCount.keys(),
     ...metrics.reviewsRatingSum.keys(),
@@ -491,7 +477,6 @@ function computeScores(
   for (const productId of productIds) {
     const views = metrics.views.get(productId) ?? 0
     const uniqueVisitors = metrics.uniqueVisitors.get(productId) ?? 0
-    const clicks = metrics.clicks.get(productId) ?? 0
     const upvotes = metrics.upvotes.get(productId) ?? 0
     const reviewsCount = metrics.reviewsCount.get(productId) ?? 0
     const reviewsRatingSum = metrics.reviewsRatingSum.get(productId) ?? 0
@@ -499,7 +484,6 @@ function computeScores(
     const scoreComponents = {
       views: views * weights.views,
       uniqueVisitors: uniqueVisitors * weights.uniqueVisitors,
-      clicks: clicks * weights.clicks,
       upvotes: upvotes * weights.upvotes,
       reviewsCount: reviewsCount * weights.reviewsCount,
       reviewsRatingSum: reviewsRatingSum * weights.reviewsRatingSum,
@@ -514,7 +498,6 @@ function computeScores(
       productId,
       views,
       uniqueVisitors,
-      clicks,
       upvotes,
       reviewsCount,
       reviewsRatingSum,
@@ -546,7 +529,6 @@ function applyRanks(rows: ScoreRow[]): ScoreRow[] {
   const sorted = [...rows].sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score
     if (b.upvotes !== a.upvotes) return b.upvotes - a.upvotes
-    if (b.clicks !== a.clicks) return b.clicks - a.clicks
     return a.productId.localeCompare(b.productId)
   })
 
@@ -573,7 +555,6 @@ async function persistScores(runId: string, rows: ScoreRow[]) {
         productId: row.productId,
         views: row.views,
         uniqueVisitors: row.uniqueVisitors,
-        clicks: row.clicks,
         upvotes: row.upvotes,
         reviewsCount: row.reviewsCount,
         reviewsRatingSum: row.reviewsRatingSum,
@@ -606,7 +587,7 @@ async function refreshRanksForRun(runId: string) {
       SELECT
         id,
         ROW_NUMBER() OVER (
-          ORDER BY "score" DESC, "upvotes" DESC, "clicks" DESC, "productId" ASC
+          ORDER BY "score" DESC, "upvotes" DESC, "productId" ASC
         ) AS rank_value
       FROM "ProductLeaderboardScore"
       WHERE "runId" = ${runId}

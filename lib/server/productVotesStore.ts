@@ -70,7 +70,6 @@ async function mutateVote({
   userId: string
 }): Promise<VoteMutationResult> {
   let createdEvent: ProductUpvotedEvent | null = null
-  let analyticsUpdated = false
 
   const mutation = await prisma.$transaction(
     async (tx: Prisma.TransactionClient) => {
@@ -80,15 +79,9 @@ async function mutateVote({
       })
 
       const previousState: VoteState = existing ? "upvoted" : "not_upvoted"
-      const analytics = await tx.productAnalytics.findUnique({
+      const baseCount = await tx.productUpvote.count({
         where: { productId },
-        select: { upvotes: true },
       })
-      const baseCount =
-        analytics?.upvotes ??
-        (await tx.productUpvote.count({
-          where: { productId },
-        }))
 
       if (previousState === "upvoted") {
         // Upvotes are permanent; once a user upvotes we keep the record.
@@ -104,14 +97,6 @@ async function mutateVote({
         select: { id: true, createdAt: true },
       })
 
-      const analyticsUpdate = await tx.productAnalytics.upsert({
-        where: { productId },
-        update: { upvotes: { increment: 1 } },
-        create: { productId, upvotes: baseCount + 1 },
-        select: { upvotes: true },
-      })
-
-      analyticsUpdated = true
       createdEvent = {
         productId,
         userId,
@@ -122,10 +107,7 @@ async function mutateVote({
       return {
         previousState,
         newState: "upvoted" as VoteState,
-        upvotes:
-          typeof analyticsUpdate.upvotes === "number"
-            ? analyticsUpdate.upvotes
-            : baseCount + 1,
+        upvotes: baseCount + 1,
       }
     },
   )
@@ -148,16 +130,14 @@ async function mutateVote({
       })
     })
 
-    if (analyticsUpdated) {
-      try {
-        revalidateProduct(productId, "revalidate")
-        revalidateLeaderboard("revalidate")
-      } catch (error) {
-        console.error("[analytics] upvote revalidation failed", {
-          productId,
-          error,
-        })
-      }
+    try {
+      revalidateProduct(productId, "revalidate")
+      revalidateLeaderboard("revalidate")
+    } catch (error) {
+      console.error("[analytics] upvote revalidation failed", {
+        productId,
+        error,
+      })
     }
   }
 
