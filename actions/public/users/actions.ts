@@ -12,11 +12,15 @@ type PublicUserProfile = Prisma.UserGetPayload<{
       where: { status: "published" }
       orderBy: { createdAt: "desc" }
       include: {
-        analytics: true
-        verification: true
-        category: true
-        user: true
-        ProductBadge: true
+        analytics: {
+          select: {
+            upvotes: true,
+          },
+        },
+        verification: true,
+        category: true,
+        user: true,
+        ProductBadge: true,
         paymentConnector: {
           select: {
             latestAllTimeRevenueCents: true
@@ -86,7 +90,11 @@ export const getPublicUserProfile = cached(
           where: { status: "published" as any },
           orderBy: { createdAt: "desc" },
           include: {
-            analytics: true,
+            analytics: {
+              select: {
+                upvotes: true,
+              },
+            },
             verification: true,
             category: true,
             user: true,
