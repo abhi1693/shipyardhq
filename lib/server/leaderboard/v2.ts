@@ -85,6 +85,13 @@ export async function generateLeaderboardRun(options: {
 }): Promise<{ runId: string; scores: number; windowEnd: Date }> {
   const run = await createLeaderboardRun(options)
 
+  console.info("[leaderboard] generate run start", {
+    runId: run.id,
+    periodStart: options.periodStart.toISOString(),
+    periodEnd: options.periodEnd.toISOString(),
+    asOf: options.asOf?.toISOString(),
+  })
+
   await prisma.leaderboardRun.update({
     where: { id: run.id },
     data: { status: "processing" },
@@ -101,6 +108,12 @@ export async function generateLeaderboardRun(options: {
   await prisma.leaderboardRun.update({
     where: { id: run.id },
     data: { status: "finalized" },
+  })
+
+  console.info("[leaderboard] generate run complete", {
+    runId: run.id,
+    rows: rankedRows.length,
+    windowEnd: windowEnd.toISOString(),
   })
 
   return { runId: run.id, scores: rankedRows.length, windowEnd }
@@ -235,8 +248,27 @@ export async function updateLeaderboardScoresForProducts(options: {
     return { runId, updated: 0, windowEnd }
   }
 
+  console.info("[leaderboard] update scores for products", {
+    runId: run.id,
+    products: rows.length,
+  })
+
   // Upsert scores for the affected products first.
+  const slugsById = await fetchProductSlugs(rows.map((row) => row.productId))
+
   for (const row of rows) {
+    const slug = slugsById.get(row.productId) ?? "unknown"
+    console.info("[leaderboard] upsert score", {
+      runId: run.id,
+      productSlug: slug,
+      score: row.score,
+      views: row.views,
+      uniqueVisitors: row.uniqueVisitors,
+      clicks: row.clicks,
+      upvotes: row.upvotes,
+      reviewsCount: row.reviewsCount,
+    })
+
     await prisma.productLeaderboardScore.upsert({
       where: {
         runId_productId: {
@@ -494,6 +526,22 @@ function computeScores(
   return rows
 }
 
+async function fetchProductSlugs(
+  productIds: string[],
+): Promise<Map<string, string>> {
+  if (!productIds.length) return new Map()
+
+  const rows = await prisma.product.findMany({
+    where: { id: { in: Array.from(new Set(productIds)) } },
+    select: { id: true, slug: true },
+  })
+
+  return rows.reduce((acc, row) => {
+    acc.set(row.id, row.slug)
+    return acc
+  }, new Map<string, string>())
+}
+
 function applyRanks(rows: ScoreRow[]): ScoreRow[] {
   const sorted = [...rows].sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score
@@ -510,6 +558,10 @@ async function persistScores(runId: string, rows: ScoreRow[]) {
   await prisma.productLeaderboardScore.deleteMany({ where: { runId } })
 
   if (!rows.length) return
+
+  console.info("[leaderboard] persist scores", { runId, rows: rows.length })
+
+  const slugsById = await fetchProductSlugs(rows.map((row) => row.productId))
 
   // Insert in small batches to keep each transaction short and avoid timeouts.
   const BATCH_SIZE = 200
@@ -530,12 +582,24 @@ async function persistScores(runId: string, rows: ScoreRow[]) {
         rank: row.rank,
       })),
     })
+
+    console.info("[leaderboard] persisted batch", {
+      runId,
+      batchSize: batch.length,
+      sample: batch.slice(0, 3).map((row) => ({
+        productSlug: slugsById.get(row.productId) ?? "unknown",
+        score: row.score,
+      })),
+    })
   }
 
   await refreshRanksForRun(runId)
 }
 
 async function refreshRanksForRun(runId: string) {
+  const total = await prisma.productLeaderboardScore.count({ where: { runId } })
+  console.info("[leaderboard] refresh ranks start", { runId, total })
+
   // One pass ranking to keep operations short; uses window function.
   await prisma.$executeRaw`
     WITH ranked AS (
@@ -552,4 +616,24 @@ async function refreshRanksForRun(runId: string) {
     FROM ranked
     WHERE pls.id = ranked.id;
   `
+
+  const sample = await prisma.productLeaderboardScore.findMany({
+    where: { runId },
+    orderBy: { rank: "asc" },
+    take: 3,
+    select: {
+      rank: true,
+      productId: true,
+    },
+  })
+  const slugs = await fetchProductSlugs(sample.map((row) => row.productId))
+
+  console.info("[leaderboard] refresh ranks complete", {
+    runId,
+    total,
+    sample: sample.map((row) => ({
+      rank: row.rank,
+      productSlug: slugs.get(row.productId) ?? "unknown",
+    })),
+  })
 }
