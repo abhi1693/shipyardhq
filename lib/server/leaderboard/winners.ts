@@ -6,6 +6,7 @@ import {
   monthlyLeaderboardArchivePath,
   productPath,
 } from "@/lib/routes"
+import { revalidateBadges, revalidateProduct } from "@/lib/cache/revalidate"
 import { APP_EVENTS } from "@/lib/server/events/constants"
 import { dispatchEventAsync } from "@/lib/server/events"
 import {
@@ -39,6 +40,99 @@ const shortDayLabelFormatter = new Intl.DateTimeFormat("en-US", {
 })
 
 export type PeriodCadence = "day" | "week" | "month"
+
+const PERIOD_BADGE_PREFIX: Record<PeriodCadence, string> = {
+  day: "product-of-day",
+  week: "product-of-week",
+  month: "product-of-month",
+}
+
+const MAX_WINNER_BADGE_RANK = 3
+
+type WinnerBadgeAssignment = {
+  productId: string
+  rank: number
+}
+
+type WinnerBadgeRecord = {
+  productId: string
+  badge: string
+  expiresAt: Date
+}
+
+function buildWinnerBadgeValue(
+  period: PeriodCadence,
+  rank: number,
+): string | null {
+  if (rank < 1 || rank > MAX_WINNER_BADGE_RANK) return null
+  const prefix = PERIOD_BADGE_PREFIX[period]
+  if (!prefix) return null
+  return `${prefix}-${rank}`
+}
+
+async function assignWinnerBadges(options: {
+  period: PeriodCadence
+  periodStart: Date
+  periodEnd: Date
+  winners: WinnerBadgeAssignment[]
+}): Promise<{ assigned: number; products: string[] }> {
+  if (!options.winners.length) {
+    return { assigned: 0, products: [] }
+  }
+
+  const now = new Date()
+  const currentWindow = getPeriodWindow(options.period, now)
+  const expiresAt =
+    options.periodEnd > now ? options.periodEnd : currentWindow.periodEnd
+
+  const assignments = options.winners
+    .map((winner: WinnerBadgeAssignment) => {
+      const badge = buildWinnerBadgeValue(options.period, winner.rank)
+      if (!badge) return null
+      return {
+        productId: winner.productId,
+        badge,
+        expiresAt,
+      }
+    })
+    .filter((assignment): assignment is WinnerBadgeRecord => Boolean(assignment))
+
+  if (!assignments.length) {
+    return { assigned: 0, products: [] }
+  }
+
+  const touchedProducts = new Set<string>()
+
+  for (const assignment of assignments) {
+    const existing = await prisma.productBadge.findFirst({
+      where: {
+        productId: assignment.productId,
+        badge: assignment.badge,
+      },
+      select: { id: true },
+    })
+
+    if (existing) {
+      await prisma.productBadge.update({
+        where: { id: existing.id },
+        data: { expiresAt: assignment.expiresAt },
+      })
+    } else {
+      await prisma.productBadge.create({
+        data: assignment,
+      })
+    }
+
+    touchedProducts.add(assignment.productId)
+  }
+
+  if (touchedProducts.size) {
+    touchedProducts.forEach((productId) => revalidateProduct(productId))
+    revalidateBadges()
+  }
+
+  return { assigned: assignments.length, products: Array.from(touchedProducts) }
+}
 
 function getPeriodWindow(
   period: PeriodCadence,
@@ -258,6 +352,16 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
     .filter((entry: WinnerEvent | null): entry is WinnerEvent => Boolean(entry))
 
   if (winnersForEvent.length) {
+    await assignWinnerBadges({
+      period: "month",
+      periodStart: run.periodStart,
+      periodEnd: run.periodEnd,
+      winners: winnersForEvent.map((winner: WinnerEvent) => ({
+        productId: winner.productId,
+        rank: winner.rank,
+      })),
+    })
+
     await dispatchEventAsync(
       "leaderboard.monthly.winners",
       {
@@ -370,6 +474,16 @@ export async function announceLeaderboardPeriodWinners(options: {
       reason: "no-products",
     }
   }
+
+  await assignWinnerBadges({
+    period,
+    periodStart,
+    periodEnd,
+    winners: winnersForEvent.map((winner: WinnerEvent) => ({
+      productId: winner.productId,
+      rank: winner.rank,
+    })),
+  })
 
   await dispatchEventAsync(
     APP_EVENTS.LEADERBOARD_PERIODIC_WINNERS,

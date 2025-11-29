@@ -36,16 +36,17 @@ function getAdjacentStart(period: PeriodicLeaderboardPayload["period"], start: D
 }
 
 export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: PeriodicLeaderboardPayload }) {
+  const archive = leaderboard.archive ?? { months: [], weeks: [] }
   const start = new Date(leaderboard.periodStart)
   const now = new Date()
   const todayUtc = new Date()
   todayUtc.setUTCHours(0, 0, 0, 0)
   const isFutureDate = (date: Date) => date.getTime() > todayUtc.getTime()
   const availableMonthKeys = new Set(
-    leaderboard.archive.months.map((entry) => `${entry.year}-${entry.month}`),
+    archive.months.map((entry) => `${entry.year}-${entry.month}`),
   )
   const availableWeekKeys = new Set(
-    leaderboard.archive.weeks.map((entry) => `${entry.year}-${entry.week}`),
+    archive.weeks.map((entry) => `${entry.year}-${entry.week}`),
   )
   const shouldFilterMonths = availableMonthKeys.size > 0
   const shouldFilterWeeks = availableWeekKeys.size > 0

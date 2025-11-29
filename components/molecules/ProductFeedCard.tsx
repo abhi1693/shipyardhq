@@ -129,6 +129,15 @@ export function ProductFeedCard({
     trending: "This product is currently trending with high engagement",
     new: "Recently launched and gaining its first wave of traction",
     "editor-pick": "Curated by the editors for its craftsmanship and polish",
+    "product-of-day-1": "Ranked #1 on the daily leaderboard",
+    "product-of-day-2": "Ranked #2 on the daily leaderboard",
+    "product-of-day-3": "Ranked #3 on the daily leaderboard",
+    "product-of-week-1": "Ranked #1 on the weekly leaderboard",
+    "product-of-week-2": "Ranked #2 on the weekly leaderboard",
+    "product-of-week-3": "Ranked #3 on the weekly leaderboard",
+    "product-of-month-1": "Ranked #1 on the monthly leaderboard",
+    "product-of-month-2": "Ranked #2 on the monthly leaderboard",
+    "product-of-month-3": "Ranked #3 on the monthly leaderboard",
   }
 
   const revenueBadge = revenueLabel ? (
