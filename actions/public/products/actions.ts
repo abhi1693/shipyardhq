@@ -69,7 +69,6 @@ const publicProductSelect = {
   analytics: {
     select: {
       upvotes: true,
-      clicks: true,
     },
   },
   verification: {
@@ -223,7 +222,11 @@ export const getPublicProductMetaBySlug = cached(
 )
 
 const compactProductInclude = {
-  analytics: true,
+  analytics: {
+    select: {
+      upvotes: true,
+    },
+  },
   category: {
     select: {
       name: true,
