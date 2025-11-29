@@ -266,7 +266,7 @@ const getPeriodicArchive = cached(
       orderBy: { periodStart: "desc" },
     })
 
-    runsWithScores.forEach((run) => {
+    runsWithScores.forEach((run: { periodStart: Date; periodEnd: Date }) => {
       const durationDays = Math.round(
         (run.periodEnd.getTime() - run.periodStart.getTime()) / DAY_MS,
       )
@@ -296,8 +296,8 @@ const getPeriodicArchive = cached(
       }),
     ])
 
-    upvotes.forEach(({ createdAt }) => addWeek(createdAt))
-    reviews.forEach(({ createdAt }) => addWeek(createdAt))
+    upvotes.forEach(({ createdAt }: { createdAt: Date }) => addWeek(createdAt))
+    reviews.forEach(({ createdAt }: { createdAt: Date }) => addWeek(createdAt))
 
     return {
       months: Array.from(months.values()).sort(sortMonthsDesc),
