@@ -8,74 +8,111 @@ import {
   getRevenueSummaryFromDb,
 } from "@/lib/server/payments/revenue"
 
+const publicProductSelect = {
+  id: true,
+  slug: true,
+  name: true,
+  tagline: true,
+  description: true,
+  websiteUrl: true,
+  logo: true,
+  bannerImage: true,
+  pricingModel: true,
+  startingPriceCents: true,
+  currencyCode: true,
+  platforms: true,
+  status: true,
+  type: true,
+  publishedAt: true,
+  createdAt: true,
+  updatedAt: true,
+  category: {
+    include: {
+      useCases: {
+        include: {
+          useCase: {
+            select: {
+              slug: true,
+              label: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  alternatives: {
+    orderBy: { name: "asc" },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      websiteUrl: true,
+      logoUrl: true,
+    },
+  },
+  user: {
+    select: {
+      id: true,
+      clerkId: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      role: true,
+    },
+  },
+  metadata: {
+    select: {
+      demoUrl: true,
+      utmCampaign: true,
+    },
+  },
+  analytics: {
+    select: {
+      upvotes: true,
+      clicks: true,
+    },
+  },
+  verification: {
+    select: {
+      isVerified: true,
+    },
+  },
+  ProductMedia: {
+    orderBy: {
+      createdAt: "asc",
+    },
+    select: {
+      id: true,
+      imageUrl: true,
+      altText: true,
+    },
+  },
+  ProductBadge: {
+    select: {
+      badge: true,
+      expiresAt: true,
+    },
+  },
+  plan: {
+    select: {
+      assignments: {
+        select: {
+          enabled: true,
+          feature: { select: { key: true } },
+        },
+      },
+    },
+  },
+  featureEntitlements: {
+    where: {
+      status: { in: ["active", "pending"] },
+    },
+    select: { featureKey: true },
+  },
+} satisfies Prisma.ProductSelect
+
 type PublicProduct = Prisma.ProductGetPayload<{
-  include: {
-    category: {
-      include: {
-        useCases: {
-          include: { useCase: true }
-        }
-      }
-    }
-    alternatives: {
-      orderBy: { name: "asc" }
-      select: {
-        id: true
-        slug: true
-        name: true
-        websiteUrl: true
-        logoUrl: true
-      }
-    }
-    user: {
-      select: {
-        id: true
-        clerkId: true
-        firstName: true
-        lastName: true
-        email: true
-        role: true
-      }
-    }
-    metadata: true
-    analytics: true
-    verification: true
-    ProductMedia: {
-      orderBy: {
-        createdAt: "asc"
-      }
-    }
-    ProductBadge: true
-    plan: {
-      include: {
-        assignments: {
-          include: { feature: true }
-        }
-      }
-    }
-    organization: {
-      include: {
-        memberships: {
-          include: {
-            user: {
-              select: {
-                id: true
-                firstName: true
-                lastName: true
-                email: true
-              }
-            }
-          }
-        }
-      }
-    }
-    featureEntitlements: {
-      where: {
-        status: { in: ["active", "pending"] }
-      }
-      select: { featureKey: true }
-    }
-  }
+  select: typeof publicProductSelect
 }>
 
 const publicProductMetaSelect = {
@@ -132,69 +169,7 @@ const publicProductMetaSelect = {
 async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
   const product = await prisma.product.findUnique({
     where,
-    include: {
-      category: {
-        include: {
-          useCases: {
-            include: { useCase: true },
-          },
-        },
-      },
-      alternatives: {
-        orderBy: { name: "asc" },
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          websiteUrl: true,
-          logoUrl: true,
-        },
-      },
-      user: {
-        select: {
-          id: true,
-          clerkId: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          role: true,
-        },
-      },
-      metadata: true,
-      analytics: true,
-      verification: true,
-      ProductMedia: { orderBy: { createdAt: "asc" } },
-      ProductBadge: true,
-      plan: {
-        include: {
-          assignments: {
-            include: { feature: true },
-          },
-        },
-      },
-      organization: {
-        include: {
-          memberships: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  email: true,
-                },
-              },
-            },
-          },
-        },
-      },
-      featureEntitlements: {
-        where: {
-          status: { in: ["active", "pending"] },
-        },
-        select: { featureKey: true },
-      },
-    },
+    select: publicProductSelect,
   })
 
   if (!product || product.status !== "published") return null
