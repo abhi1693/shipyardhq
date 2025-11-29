@@ -2,14 +2,10 @@
 
 import Link from "next/link"
 import {
-  useCallback,
-  useRef,
   type ComponentPropsWithoutRef,
-  type MouseEvent,
   type ReactNode,
 } from "react"
 
-import { clickProductCardAction } from "@/actions/public/products/analytics"
 import { productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
@@ -18,14 +14,12 @@ type DataAttributes = Partial<
   Record<`data-${string}`, string | number | boolean | undefined>
 >
 
-type FormElementProps = Omit<ComponentPropsWithoutRef<"form">, "action"> &
-  DataAttributes
+type FormElementProps = DataAttributes & { className?: string }
 
 interface ProductClickLinkProps extends Omit<
   NextLinkProps,
   "href" | "children" | "onClick"
 > {
-  productId: string
   productSlug: string
   children: ReactNode
   href?: NextLinkProps["href"]
@@ -34,7 +28,6 @@ interface ProductClickLinkProps extends Omit<
 }
 
 export function ProductClickLink({
-  productId,
   productSlug,
   children,
   href,
@@ -42,32 +35,16 @@ export function ProductClickLink({
   formProps,
   ...linkProps
 }: ProductClickLinkProps) {
-  const formRef = useRef<HTMLFormElement | null>(null)
-
-  const handleClick = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1)
-      return
-    if (event.defaultPrevented) return
-    event.preventDefault()
-    formRef.current?.requestSubmit()
-  }, [])
+  const { className: formPropsClassName, ...formDataAttrs } = formProps ?? {}
 
   return (
-    <form
-      ref={formRef}
-      action={clickProductCardAction}
-      {...formProps}
-      className={cn(formProps?.className, formClassName)}
+    <Link
+      {...linkProps}
+      {...formDataAttrs}
+      href={href ?? productPath(productSlug)}
+      className={cn(linkProps.className, formPropsClassName, formClassName)}
     >
-      <input type="hidden" name="productId" value={productId} />
-      <input type="hidden" name="productSlug" value={productSlug} />
-      <Link
-        {...linkProps}
-        href={href ?? productPath(productSlug)}
-        onClick={handleClick}
-      >
-        {children}
-      </Link>
-    </form>
+      {children}
+    </Link>
   )
 }

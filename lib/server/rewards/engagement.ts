@@ -3,7 +3,6 @@ import { APP_EVENTS } from "@/lib/server/events/constants"
 import { awardRewardsSafely } from "@/lib/server/rewards/helpers"
 
 export const PRODUCT_VIEW_RULE_KEY = "rewards.product.view"
-export const PRODUCT_VISIT_RULE_KEY = "rewards.product.visit"
 
 function makeEventId(
   kind: "view" | "visit",
@@ -36,34 +35,6 @@ export function queueProductViewReward({
       rewardEventId,
     },
     { context: { productId, userId, slug: productSlug } },
-  )
-}
-
-type ProductVisitRewardOptions = {
-  userId: string
-  productId: string
-  destination?: string
-}
-
-export async function awardProductVisitReward({
-  userId,
-  productId,
-  destination,
-}: ProductVisitRewardOptions) {
-  await awardRewardsSafely(
-    userId,
-    PRODUCT_VISIT_RULE_KEY,
-    {
-      eventId: makeEventId("visit", productId, userId),
-      productId,
-      sourceType: "product.visit",
-      sourceId: productId,
-      targetType: "product",
-      targetId: productId,
-      actorUserId: userId,
-      metadata: destination ? { destination } : undefined,
-    },
-    "award product CTA click rewards",
   )
 }
 

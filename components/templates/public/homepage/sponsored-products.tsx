@@ -164,7 +164,6 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
 
   return (
     <ProductClickLink
-      productId={item.id}
       productSlug={item.slug}
       prefetch={false}
       className="group block w-full px-2 py-4 text-sm transition hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"

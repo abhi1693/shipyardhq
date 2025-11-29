@@ -276,7 +276,6 @@ export function ProductFeedCard({
 
   return (
     <ProductClickLink
-      productId={item.id}
       productSlug={item.slug}
       className={cardClasses}
       data-testid="homepage-feed-card"

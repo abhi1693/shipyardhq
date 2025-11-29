@@ -59,7 +59,6 @@ export function ProductUpdatesFeed({
           return (
             <ProductClickLink
               key={update.id}
-              productId={update.product.id}
               productSlug={update.product.slug}
               href={productUrl}
               formClassName="block"
