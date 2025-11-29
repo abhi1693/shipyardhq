@@ -45,6 +45,17 @@ type ScoreRow = {
 
 export type LeaderboardScoreRow = ScoreRow & { rank: number }
 
+function metricsHaveActivity(metrics: MetricMaps): boolean {
+  return [
+    metrics.views,
+    metrics.uniqueVisitors,
+    metrics.clicks,
+    metrics.upvotes,
+    metrics.reviewsCount,
+    metrics.reviewsRatingSum,
+  ].some((map) => Array.from(map.values()).some((value) => value > 0))
+}
+
 export async function createLeaderboardRun(input: {
   periodStart: Date
   periodEnd: Date
@@ -82,10 +93,12 @@ export async function generateLeaderboardRun(options: {
   const weights = options.weights ?? DEFAULT_WEIGHTS
   const windowEnd = resolveWindowEnd(options.periodEnd, options.asOf)
   const metrics = await collectMetrics(options.periodStart, windowEnd)
-  const baseline = await collectBaselineMetrics()
-  mergeBaseline(metrics, baseline)
-  const rows = computeScores(metrics, weights)
-  const rankedRows = applyRanks(rows)
+  const hasActivity = metricsHaveActivity(metrics)
+  if (hasActivity) {
+    const baseline = await collectBaselineMetrics()
+    mergeBaseline(metrics, baseline)
+  }
+  const rankedRows = hasActivity ? applyRanks(computeScores(metrics, weights)) : []
 
   await persistScores(run.id, rankedRows)
 
@@ -180,6 +193,9 @@ export async function computeLeaderboardWindow(options: {
   const metrics = productIds?.length
     ? await collectMetricsForProducts(productIds, options.periodStart, windowEnd)
     : await collectMetrics(options.periodStart, windowEnd)
+
+  const hasActivity = metricsHaveActivity(metrics)
+  if (!hasActivity) return []
 
   const baseline = await collectBaselineMetrics(productIds)
   mergeBaseline(metrics, baseline)
