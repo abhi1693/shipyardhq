@@ -529,6 +529,8 @@ function applyRanks(rows: ScoreRow[]): ScoreRow[] {
   const sorted = [...rows].sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score
     if (b.upvotes !== a.upvotes) return b.upvotes - a.upvotes
+    if (b.uniqueVisitors !== a.uniqueVisitors) return b.uniqueVisitors - a.uniqueVisitors
+    if (b.views !== a.views) return b.views - a.views
     return a.productId.localeCompare(b.productId)
   })
 
@@ -587,7 +589,12 @@ async function refreshRanksForRun(runId: string) {
       SELECT
         id,
         ROW_NUMBER() OVER (
-          ORDER BY "score" DESC, "upvotes" DESC, "productId" ASC
+          ORDER BY
+            "score" DESC,
+            "upvotes" DESC,
+            "uniqueVisitors" DESC,
+            "views" DESC,
+            "productId" ASC
         ) AS rank_value
       FROM "ProductLeaderboardScore"
       WHERE "runId" = ${runId}
