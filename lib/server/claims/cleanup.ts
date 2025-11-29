@@ -14,8 +14,8 @@ async function scheduleNextRun(notBefore: Date) {
     where: {
       event: APP_EVENTS.CLAIM_ATTEMPTS_CLEANUP,
       queue: QUEUE,
+      // If any envelope is still pending/processing/retrying (even overdue), don't enqueue another.
       status: { in: ["pending", "processing", "retrying"] },
-      nextRunAt: { gte: new Date() },
     },
   })
   if (existing) return
