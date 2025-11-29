@@ -18,7 +18,6 @@ import {
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import {
   BROWSE_PATH,
-  LEADERBOARD_MONTHLY_PATH,
   LEADERBOARD_GUIDE_PATH,
   MEMBER_PRODUCTS_PATH,
   TRENDS_PATH,
@@ -51,6 +50,9 @@ export async function LeaderboardPageContent({
     await getLeaderboardPagePayload(filters)
 
   const now = new Date()
+  const dailyArchivePath = `/leaderboard/daily/${now.getUTCFullYear()}/${
+    now.getUTCMonth() + 1
+  }/${now.getUTCDate()}`
   const leaderboardItems: LeaderboardListItem[] = products.map((product) => {
     const base = mapProductCardRecordToBase(product, now)
     const score = (product as any).scoreCount ?? null
@@ -82,8 +84,8 @@ export async function LeaderboardPageContent({
                 href: MEMBER_PRODUCTS_PATH,
               }}
               secondaryAction={{
-                label: "View monthly champions",
-                href: LEADERBOARD_MONTHLY_PATH,
+                label: "Launch Archives",
+                href: dailyArchivePath,
                 variant: "ghost",
               }}
             />
