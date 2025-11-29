@@ -508,13 +508,17 @@ function applyRanks(rows: ScoreRow[]): ScoreRow[] {
 }
 
 async function persistScores(runId: string, rows: ScoreRow[]) {
-  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-    await tx.productLeaderboardScore.deleteMany({ where: { runId } })
+  // Clear existing rows for the run first to avoid long-lived transactions.
+  await prisma.productLeaderboardScore.deleteMany({ where: { runId } })
 
-    if (!rows.length) return
+  if (!rows.length) return
 
-    await tx.productLeaderboardScore.createMany({
-      data: rows.map((row) => ({
+  // Insert in small batches to keep each transaction short and avoid timeouts.
+  const BATCH_SIZE = 200
+  for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+    const batch = rows.slice(i, i + BATCH_SIZE)
+    await prisma.productLeaderboardScore.createMany({
+      data: batch.map((row) => ({
         runId,
         productId: row.productId,
         views: row.views,
@@ -528,7 +532,7 @@ async function persistScores(runId: string, rows: ScoreRow[]) {
         rank: row.rank,
       })),
     })
-  })
+  }
 
   await refreshRanksForRun(runId)
 }
@@ -545,17 +549,16 @@ async function refreshRanksForRun(runId: string) {
     select: { id: true },
   })
 
-  const BATCH_SIZE = 200
+  // Short, per-row updates to avoid long transactions on large datasets.
+  const BATCH_SIZE = 50
   for (let i = 0; i < rankedRows.length; i += BATCH_SIZE) {
     const batch = rankedRows.slice(i, i + BATCH_SIZE)
-    await prisma.$transaction(
-      batch.map(
-        (row: (typeof rankedRows)[number], batchIndex: number) =>
-          prisma.productLeaderboardScore.update({
-            where: { id: row.id },
-            data: { rank: i + batchIndex + 1 },
-          }),
-      ),
-    )
+    for (let batchIndex = 0; batchIndex < batch.length; batchIndex += 1) {
+      const row = batch[batchIndex]
+      await prisma.productLeaderboardScore.update({
+        where: { id: row.id },
+        data: { rank: i + batchIndex + 1 },
+      })
+    }
   }
 }
