@@ -557,6 +557,10 @@ export type ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput = {
   deleteMany?: Prisma.ProductTrafficEventScalarWhereInput | Prisma.ProductTrafficEventScalarWhereInput[]
 }
 
+export type EnumDeviceCategoryFieldUpdateOperationsInput = {
+  set?: $Enums.DeviceCategory
+}
+
 export type ProductTrafficEventCreateWithoutProductInput = {
   id?: string
   path: string

@@ -399,7 +399,6 @@ export const ModelName = {
   ProductClaimAttempt: 'ProductClaimAttempt',
   ProductMetadata: 'ProductMetadata',
   ProductAnalytics: 'ProductAnalytics',
-  ProductClickEvent: 'ProductClickEvent',
   ProductTrafficEvent: 'ProductTrafficEvent',
   ProductInsightProfile: 'ProductInsightProfile',
   ProductInsightStageResult: 'ProductInsightStageResult',
@@ -442,7 +441,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "monthlyLeaderboardNotification" | "notification" | "productMedia" | "productUpdate" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "monthlyLeaderboardNotification" | "notification" | "productMedia" | "productUpdate" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1553,80 +1552,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductAnalyticsCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductAnalyticsCountAggregateOutputType> | number
-        }
-      }
-    }
-    ProductClickEvent: {
-      payload: Prisma.$ProductClickEventPayload<ExtArgs>
-      fields: Prisma.ProductClickEventFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ProductClickEventFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ProductClickEventFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
-        }
-        findFirst: {
-          args: Prisma.ProductClickEventFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ProductClickEventFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
-        }
-        findMany: {
-          args: Prisma.ProductClickEventFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>[]
-        }
-        create: {
-          args: Prisma.ProductClickEventCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
-        }
-        createMany: {
-          args: Prisma.ProductClickEventCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ProductClickEventCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>[]
-        }
-        delete: {
-          args: Prisma.ProductClickEventDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
-        }
-        update: {
-          args: Prisma.ProductClickEventUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
-        }
-        deleteMany: {
-          args: Prisma.ProductClickEventDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ProductClickEventUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ProductClickEventUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>[]
-        }
-        upsert: {
-          args: Prisma.ProductClickEventUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
-        }
-        aggregate: {
-          args: Prisma.ProductClickEventAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProductClickEvent>
-        }
-        groupBy: {
-          args: Prisma.ProductClickEventGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductClickEventGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ProductClickEventCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductClickEventCountAggregateOutputType> | number
         }
       }
     }
@@ -3776,7 +3701,6 @@ export const ProductLeaderboardScoreScalarFieldEnum = {
   productId: 'productId',
   views: 'views',
   uniqueVisitors: 'uniqueVisitors',
-  clicks: 'clicks',
   upvotes: 'upvotes',
   reviewsCount: 'reviewsCount',
   reviewsRatingSum: 'reviewsRatingSum',
@@ -3895,30 +3819,11 @@ export const ProductAnalyticsScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
   upvotes: 'upvotes',
-  clicks: 'clicks',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ProductAnalyticsScalarFieldEnum = (typeof ProductAnalyticsScalarFieldEnum)[keyof typeof ProductAnalyticsScalarFieldEnum]
-
-
-export const ProductClickEventScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  referrer: 'referrer',
-  userAgent: 'userAgent',
-  device: 'device',
-  browser: 'browser',
-  os: 'os',
-  country: 'country',
-  region: 'region',
-  city: 'city',
-  ipHash: 'ipHash',
-  createdAt: 'createdAt'
-} as const
-
-export type ProductClickEventScalarFieldEnum = (typeof ProductClickEventScalarFieldEnum)[keyof typeof ProductClickEventScalarFieldEnum]
 
 
 export const ProductTrafficEventScalarFieldEnum = {
@@ -4965,7 +4870,6 @@ export type GlobalOmitConfig = {
   productClaimAttempt?: Prisma.ProductClaimAttemptOmit
   productMetadata?: Prisma.ProductMetadataOmit
   productAnalytics?: Prisma.ProductAnalyticsOmit
-  productClickEvent?: Prisma.ProductClickEventOmit
   productTrafficEvent?: Prisma.ProductTrafficEventOmit
   productInsightProfile?: Prisma.ProductInsightProfileOmit
   productInsightStageResult?: Prisma.ProductInsightStageResultOmit
