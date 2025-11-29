@@ -125,7 +125,7 @@ export function ProductRevenueChart({
   const [selectedYear, setSelectedYear] = useState<number | null>(
     availableYears[0] ?? null,
   )
-  const [viewMode, setViewMode] = useState<"blocks" | "line">("blocks")
+  const [viewMode, setViewMode] = useState<"blocks" | "line">("line")
   const autoAdjustedRange = useRef(false)
   const dayFormatter = useMemo(
     () =>
