@@ -1,19 +1,8 @@
-import Hero from "@/components/organisms/directory/Hero"
-import HeroSkeleton from "@/components/organisms/directory/Hero.skeleton"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { LEADERBOARD_PATH } from "@/lib/routes"
-
-const SUPPORTED_PROVIDERS = [
-  { name: "Stripe", logoSrc: "/providers/stripe.jpeg" },
-  { name: "Polar", logoSrc: "/providers/polar.png" },
-  { name: "Paddle", logoSrc: "/providers/paddle.png" },
-  { name: "Paystack", logoSrc: "/providers/paystack.png" },
-  { name: "Dodo Payments", logoSrc: "/providers/dodo.jpeg" },
-  { name: "RevenueCat", logoSrc: "/providers/revenuecat.png" },
-  { name: "Lemon Squeezy", logoSrc: "/providers/lemon.jpeg" },
-  { name: "AbacatePay", logoSrc: "/providers/abacatepay.jpeg" },
-  { name: "Creem", logoSrc: "/providers/creem.svg" },
-] as const
+import Hero from "@/components/organisms/directory/Hero"
+import HeroSkeleton from "@/components/organisms/directory/Hero.skeleton"
+import { PAYMENT_PROVIDERS } from "@/lib/paymentProviders"
 
 export async function HeroSection() {
   const stats = await getLeaderboardStats()
@@ -21,7 +10,10 @@ export async function HeroSection() {
   return (
     <Hero
       stats={stats}
-      supportedProviders={[...SUPPORTED_PROVIDERS]}
+      supportedProviders={PAYMENT_PROVIDERS.map(({ name, logoSrc }) => ({
+        name,
+        logoSrc,
+      }))}
       secondaryAction={{
         label: "View the leaderboard",
         href: LEADERBOARD_PATH,
@@ -33,6 +25,6 @@ export async function HeroSection() {
 
 export function HeroSectionSkeleton() {
   return (
-    <HeroSkeleton metricCount={0} providerCount={SUPPORTED_PROVIDERS.length} />
+    <HeroSkeleton metricCount={0} providerCount={PAYMENT_PROVIDERS.length} />
   )
 }

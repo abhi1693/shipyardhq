@@ -22,6 +22,7 @@ import { Label } from "@/components/atoms/label"
 import { Button } from "@/components/atoms/button"
 import { Badge } from "@/components/atoms/badge"
 import { cn } from "@/lib/utils"
+import { PAYMENT_PROVIDERS } from "@/lib/paymentProviders"
 
 type Draft = {
   provider?: PaymentConnectorProvider
@@ -53,17 +54,11 @@ type Props = {
   }
 }
 
-const PROVIDER_OPTIONS: { value: PaymentConnectorProvider; label: string }[] = [
-  { value: PaymentConnectorProviderEnum.abacatepay, label: "AbacatePay" },
-  { value: PaymentConnectorProviderEnum.creem, label: "Creem" },
-  { value: PaymentConnectorProviderEnum.dodo, label: "DodoPayments" },
-  { value: PaymentConnectorProviderEnum.paddle, label: "Paddle" },
-  { value: PaymentConnectorProviderEnum.paystack, label: "Paystack" },
-  { value: PaymentConnectorProviderEnum.polar, label: "Polar" },
-  { value: PaymentConnectorProviderEnum.revenuecat, label: "RevenueCat" },
-  { value: PaymentConnectorProviderEnum.stripe, label: "Stripe" },
-  { value: PaymentConnectorProviderEnum.lemonsqueezy, label: "Lemon Squeezy" },
-]
+const PROVIDER_OPTIONS: { value: PaymentConnectorProvider; label: string }[] =
+  PAYMENT_PROVIDERS.map(({ id, name }) => ({
+    value: id,
+    label: name,
+  }))
 
 function renderStatus(status?: PaymentConnectorStatus | null) {
   if (!status) return null

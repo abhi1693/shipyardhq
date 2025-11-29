@@ -17,19 +17,8 @@ import {
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
 import { VerifiedRevenueGridClient } from "@/components/templates/public/verified-revenue/VerifiedRevenueGridClient"
+import { PAYMENT_PROVIDERS } from "@/lib/paymentProviders"
 import { VERIFIED_REVENUE_PAGE_SIZE } from "@/lib/products/verifiedRevenue"
-
-const SUPPORTED_PROVIDERS = [
-  { name: "Stripe", logoSrc: "/providers/stripe.jpeg" },
-  { name: "Polar", logoSrc: "/providers/polar.png" },
-  { name: "Paddle", logoSrc: "/providers/paddle.png" },
-  { name: "Paystack", logoSrc: "/providers/paystack.png" },
-  { name: "Dodo", logoSrc: "/providers/dodo.jpeg" },
-  { name: "RevenueCat", logoSrc: "/providers/revenuecat.png" },
-  { name: "Lemon Squeezy", logoSrc: "/providers/lemon.jpeg" },
-  { name: "AbacatePay", logoSrc: "/providers/abacatepay.jpeg" },
-  { name: "Creem", logoSrc: "/providers/creem.svg" },
-] as const
 
 export async function VerifiedRevenuePageContent() {
   const stats = await getLeaderboardStats()
@@ -49,7 +38,10 @@ export async function VerifiedRevenuePageContent() {
             <div className="space-y-6">
               <Hero
                 stats={stats}
-                supportedProviders={[...SUPPORTED_PROVIDERS]}
+                supportedProviders={PAYMENT_PROVIDERS.map(({ name, logoSrc }) => ({
+                  name,
+                  logoSrc,
+                }))}
                 title="The verified revenue leaderboard for startups"
                 primaryAction={null}
                 secondaryAction={null}
