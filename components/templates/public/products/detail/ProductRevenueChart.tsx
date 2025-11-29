@@ -295,8 +295,8 @@ export function ProductRevenueChart({
       switch (range) {
         case "24h":
         case "7d":
-          return d.toISOString().slice(0, 10) // daily
         case "1m":
+          return d.toISOString().slice(0, 10) // daily
         case "3m":
         case "6m": {
           const weekStart = new Date(
@@ -902,18 +902,18 @@ export function ProductRevenueChart({
                   />
                   <XAxis
                     dataKey="date"
-                    tickFormatter={(value) =>
-                      new Intl.DateTimeFormat("en-US", {
-                        month: "short",
-                        year: "numeric",
-                        day:
-                          range === "24h" || range === "7d"
-                            ? "numeric"
-                            : undefined,
-                      }).format(new Date(value))
-                    }
-                    tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
-                  />
+                  tickFormatter={(value) =>
+                    new Intl.DateTimeFormat("en-US", {
+                      month: "short",
+                      year: "numeric",
+                      day:
+                        range === "24h" || range === "7d" || range === "1m"
+                          ? "numeric"
+                          : undefined,
+                    }).format(new Date(value))
+                  }
+                  tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
+                />
                   <YAxis
                     tickFormatter={(value) => formatValue(Number(value))}
                     tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
@@ -926,8 +926,7 @@ export function ProductRevenueChart({
                     ]}
                     labelFormatter={(label) => {
                       const date = new Date(label)
-                      const isWeekly =
-                        range === "1m" || range === "3m" || range === "6m"
+                      const isWeekly = range === "3m" || range === "6m"
                       const isMonthly =
                         range === "year" || range === "1y" || range === "all"
 
