@@ -1,6 +1,7 @@
 import type { Prisma } from "@/lib/vendor/prisma/client"
 
 import prisma from "@/lib/prisma"
+import { getProductTrafficMapFromGa } from "@/lib/server/analytics/googleAnalytics"
 
 type MetricMaps = {
   views: Map<string, number>
@@ -288,143 +289,39 @@ async function collectMetrics(
   periodStart: Date,
   periodEnd: Date,
 ): Promise<MetricMaps> {
-  const [views, uniqueVisitors, clicks, upvotes, reviews] = await collectRawMetrics(
-    undefined,
-    periodStart,
-    periodEnd,
-  )
+  const products: Array<{ id: string; slug: string }> = await prisma.product.findMany({
+    where: { status: "published" },
+    select: { id: true, slug: true },
+  })
 
-  const viewsMap = new Map<string, number>()
-  for (const entry of views) {
-    viewsMap.set(entry.productId, Number(entry._count?._all ?? 0))
+  const dateRange = buildDateRange(periodStart, periodEnd)
+  const gaMap = await getProductTrafficMapFromGa({
+    products,
+    dateRange,
+  })
+
+  const metrics: MetricMaps = {
+    views: new Map(),
+    uniqueVisitors: new Map(),
+    clicks: new Map(),
+    upvotes: new Map(),
+    reviewsCount: new Map(),
+    reviewsRatingSum: new Map(),
   }
 
-  const uniqueVisitorsMap = new Map<string, number>()
-  for (const entry of uniqueVisitors) {
-    const current = uniqueVisitorsMap.get(entry.productId) ?? 0
-    uniqueVisitorsMap.set(entry.productId, current + 1)
+  for (const [productId, values] of gaMap.entries()) {
+    metrics.views.set(productId, values.pageViews)
+    metrics.uniqueVisitors.set(productId, values.uniqueVisitors)
+    metrics.clicks.set(productId, values.sessions)
   }
 
-  const clicksMap = new Map<string, number>()
-  for (const entry of clicks) {
-    clicksMap.set(entry.productId, Number(entry._count?._all ?? 0))
-  }
+  const productIds = products.map((product: { id: string }) => product.id)
 
-  const upvotesMap = new Map<string, number>()
-  for (const entry of upvotes) {
-    upvotesMap.set(entry.productId, Number(entry._count?.productId ?? 0))
-  }
-
-  const reviewsCountMap = new Map<string, number>()
-  const reviewsRatingSumMap = new Map<string, number>()
-  for (const entry of reviews) {
-    reviewsCountMap.set(entry.productId, Number(entry._count?.productId ?? 0))
-    reviewsRatingSumMap.set(entry.productId, Number(entry._sum?.rating ?? 0))
-  }
-
-  return {
-    views: viewsMap,
-    uniqueVisitors: uniqueVisitorsMap,
-    clicks: clicksMap,
-    upvotes: upvotesMap,
-    reviewsCount: reviewsCountMap,
-    reviewsRatingSum: reviewsRatingSumMap,
-  }
-}
-
-async function collectMetricsForProducts(
-  productIds: string[],
-  periodStart: Date,
-  periodEnd: Date,
-): Promise<MetricMaps> {
-  const [views, uniqueVisitors, clicks, upvotes, reviews] = await collectRawMetrics(
-    productIds,
-    periodStart,
-    periodEnd,
-  )
-
-  const viewsMap = new Map<string, number>()
-  for (const entry of views) {
-    viewsMap.set(entry.productId, Number(entry._count?._all ?? 0))
-  }
-
-  const uniqueVisitorsMap = new Map<string, number>()
-  for (const entry of uniqueVisitors) {
-    const current = uniqueVisitorsMap.get(entry.productId) ?? 0
-    uniqueVisitorsMap.set(entry.productId, current + 1)
-  }
-
-  const clicksMap = new Map<string, number>()
-  for (const entry of clicks) {
-    clicksMap.set(entry.productId, Number(entry._count?._all ?? 0))
-  }
-
-  const upvotesMap = new Map<string, number>()
-  for (const entry of upvotes) {
-    upvotesMap.set(entry.productId, Number(entry._count?.productId ?? 0))
-  }
-
-  const reviewsCountMap = new Map<string, number>()
-  const reviewsRatingSumMap = new Map<string, number>()
-  for (const entry of reviews) {
-    reviewsCountMap.set(entry.productId, Number(entry._count?.productId ?? 0))
-    reviewsRatingSumMap.set(entry.productId, Number(entry._sum?.rating ?? 0))
-  }
-
-  return {
-    views: viewsMap,
-    uniqueVisitors: uniqueVisitorsMap,
-    clicks: clicksMap,
-    upvotes: upvotesMap,
-    reviewsCount: reviewsCountMap,
-    reviewsRatingSum: reviewsRatingSumMap,
-  }
-}
-
-function collectRawMetrics(
-  productIds: string[] | undefined,
-  periodStart: Date,
-  periodEnd: Date,
-) {
-  const productFilter = productIds?.length
-    ? { productId: { in: productIds } }
-    : undefined
-
-  return Promise.all([
-    prisma.productTrafficEvent.groupBy({
-      by: ["productId"],
-      where: {
-        ...productFilter,
-        createdAt: { gte: periodStart, lt: periodEnd },
-        isBot: false,
-        product: { status: "published" },
-      },
-      _count: { _all: true },
-    }),
-    prisma.productTrafficEvent.groupBy({
-      by: ["productId", "ipHash"],
-      where: {
-        ...productFilter,
-        createdAt: { gte: periodStart, lt: periodEnd },
-        isBot: false,
-        NOT: { ipHash: null },
-        product: { status: "published" },
-      },
-      _count: { ipHash: true },
-    }),
-    prisma.productClickEvent.groupBy({
-      by: ["productId"],
-      where: {
-        ...productFilter,
-        createdAt: { gte: periodStart, lt: periodEnd },
-        product: { status: "published" },
-      },
-      _count: { _all: true },
-    }),
+  const [upvotes, reviews] = await Promise.all([
     prisma.productUpvote.groupBy({
       by: ["productId"],
       where: {
-        ...productFilter,
+        productId: { in: productIds },
         createdAt: { gte: periodStart, lt: periodEnd },
         product: { status: "published" },
       },
@@ -433,7 +330,7 @@ function collectRawMetrics(
     prisma.productReview.groupBy({
       by: ["productId"],
       where: {
-        ...productFilter,
+        productId: { in: productIds },
         createdAt: { gte: periodStart, lt: periodEnd },
         product: { status: "published" },
       },
@@ -441,6 +338,100 @@ function collectRawMetrics(
       _sum: { rating: true },
     }),
   ])
+
+  for (const entry of upvotes) {
+    metrics.upvotes.set(entry.productId, Number(entry._count?.productId ?? 0))
+  }
+
+  for (const entry of reviews) {
+    metrics.reviewsCount.set(entry.productId, Number(entry._count?.productId ?? 0))
+    metrics.reviewsRatingSum.set(
+      entry.productId,
+      Number(entry._sum?.rating ?? 0),
+    )
+  }
+
+  return metrics
+}
+
+async function collectMetricsForProducts(
+  productIds: string[],
+  periodStart: Date,
+  periodEnd: Date,
+): Promise<MetricMaps> {
+  const products: Array<{ id: string; slug: string }> = await prisma.product.findMany({
+    where: { id: { in: productIds }, status: "published" },
+    select: { id: true, slug: true },
+  })
+
+  const dateRange = buildDateRange(periodStart, periodEnd)
+  const gaMap = await getProductTrafficMapFromGa({
+    products,
+    dateRange,
+  })
+
+  const metrics: MetricMaps = {
+    views: new Map(),
+    uniqueVisitors: new Map(),
+    clicks: new Map(),
+    upvotes: new Map(),
+    reviewsCount: new Map(),
+    reviewsRatingSum: new Map(),
+  }
+
+  for (const [productId, values] of gaMap.entries()) {
+    metrics.views.set(productId, values.pageViews)
+    metrics.uniqueVisitors.set(productId, values.uniqueVisitors)
+    metrics.clicks.set(productId, values.sessions)
+  }
+
+  const [upvotes, reviews] = await Promise.all([
+    prisma.productUpvote.groupBy({
+      by: ["productId"],
+      where: {
+        productId: { in: productIds },
+        createdAt: { gte: periodStart, lt: periodEnd },
+        product: { status: "published" },
+      },
+      _count: { productId: true },
+    }),
+    prisma.productReview.groupBy({
+      by: ["productId"],
+      where: {
+        productId: { in: productIds },
+        createdAt: { gte: periodStart, lt: periodEnd },
+        product: { status: "published" },
+      },
+      _count: { productId: true },
+      _sum: { rating: true },
+    }),
+  ])
+
+  for (const entry of upvotes) {
+    metrics.upvotes.set(entry.productId, Number(entry._count?.productId ?? 0))
+  }
+
+  for (const entry of reviews) {
+    metrics.reviewsCount.set(entry.productId, Number(entry._count?.productId ?? 0))
+    metrics.reviewsRatingSum.set(
+      entry.productId,
+      Number(entry._sum?.rating ?? 0),
+    )
+  }
+
+  return metrics
+}
+
+function buildDateRange(periodStart: Date, periodEnd: Date) {
+  const start = formatDate(periodStart)
+  const endDate = new Date(periodEnd)
+  endDate.setUTCDate(endDate.getUTCDate() - 1)
+  const end = formatDate(endDate < periodStart ? periodStart : endDate)
+  return { startDate: start, endDate: end }
+}
+
+function formatDate(date: Date): string {
+  return date.toISOString().slice(0, 10)
 }
 
 async function collectBaselineMetrics(productIds?: string[]) {

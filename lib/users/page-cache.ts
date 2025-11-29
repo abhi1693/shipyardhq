@@ -4,6 +4,7 @@ import { getRewardsLeaderboardPositionForUser } from "@/actions/public/rewards/a
 import { format } from "date-fns"
 import { getUsdConversionRates } from "@/lib/server/payments/currency"
 import { resolveProductRevenue } from "@/lib/products/revenue"
+import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 
 type PublicUserProfile = NonNullable<
   Awaited<ReturnType<typeof getPublicUserProfile>>
@@ -24,6 +25,7 @@ type DirectoryProductItem = {
   isVerified: boolean
   latestRevenueCents: number | null
   revenueCurrencyCode: string | null
+  scoreCount?: number
 }
 
 type BadgeSummary = {
@@ -106,6 +108,9 @@ export const getUserProfilePayload = cached(
       return currency && currency.toUpperCase() !== "USD"
     })
     const rates = hasNonUsdRevenue ? await getUsdConversionRates() : undefined
+    const scoreMap = await getCurrentScoreMap(
+      profile.products.map((product) => product.id),
+    )
 
     for (const product of profile.products) {
       const revenue = resolveProductRevenue(
@@ -178,6 +183,7 @@ export const getUserProfilePayload = cached(
         isVerified,
         latestRevenueCents: revenue.latestRevenueCents,
         revenueCurrencyCode: revenue.revenueCurrencyCode,
+        scoreCount: scoreMap.get(product.id) ?? undefined,
       }
 
       products.push(directoryItem)

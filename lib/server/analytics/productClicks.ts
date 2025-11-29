@@ -1,11 +1,7 @@
 import prisma from "@/lib/prisma"
-import {
-  dispatchEventAsync,
-  registerEventHandler,
-  type ProductClickMetadata,
-} from "@/lib/server/events"
+import { dispatchEventAsync, registerEventHandler } from "@/lib/server/events"
 import { refreshLeaderboardForProducts } from "@/lib/server/leaderboard/v2"
-import type { DeviceCategory } from "@/types/analytics"
+import type { DeviceCategory, ProductClickMetadata } from "@/types/analytics"
 
 // Register listeners related to product click analytics.
 // Import this module anywhere server-side to ensure handlers are active.
