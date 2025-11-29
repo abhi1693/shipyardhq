@@ -519,10 +519,13 @@ async function fetchProductSlugs(
     select: { id: true, slug: true },
   })
 
-  return rows.reduce((acc, row) => {
-    acc.set(row.id, row.slug)
-    return acc
-  }, new Map<string, string>())
+  return rows.reduce<Map<string, string>>(
+    (acc: Map<string, string>, row: { id: string; slug: string }) => {
+      acc.set(row.id, row.slug)
+      return acc
+    },
+    new Map<string, string>(),
+  )
 }
 
 function applyRanks(rows: ScoreRow[]): ScoreRow[] {
@@ -614,12 +617,14 @@ async function refreshRanksForRun(runId: string) {
       productId: true,
     },
   })
-  const slugs = await fetchProductSlugs(sample.map((row) => row.productId))
+  const slugs = await fetchProductSlugs(
+    sample.map((row: { productId: string }) => row.productId),
+  )
 
   console.info("[leaderboard] refresh ranks complete", {
     runId,
     total,
-    sample: sample.map((row) => ({
+    sample: sample.map((row: { rank: number | null; productId: string }) => ({
       rank: row.rank,
       productSlug: slugs.get(row.productId) ?? "unknown",
     })),
