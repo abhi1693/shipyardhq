@@ -116,12 +116,12 @@ export function PaymentConnectorCard({
         : selectedProvider === PaymentConnectorProviderEnum.creem
           ? "creem_... Creem API key"
           : selectedProvider === PaymentConnectorProviderEnum.revenuecat
-              ? "RevenueCat secret API key"
-              : selectedProvider === PaymentConnectorProviderEnum.polar
-                ? "polar_oat_... organization access token"
+            ? "RevenueCat secret API key"
+            : selectedProvider === PaymentConnectorProviderEnum.polar
+              ? "polar_oat_... organization access token"
               : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
                 ? "Lemon Squeezy API key from Settings -> API"
-              : selectedProvider === PaymentConnectorProviderEnum.paddle
+                : selectedProvider === PaymentConnectorProviderEnum.paddle
                   ? "Paddle API key from Developer Tools"
                   : selectedProvider === PaymentConnectorProviderEnum.paystack
                     ? `${IS_PROD ? "sk_live_" : "sk_test_"} Paystack secret key`
@@ -296,8 +296,7 @@ export function PaymentConnectorCard({
           </p>
         ) : selectedProvider === PaymentConnectorProviderEnum.paystack ? (
           <p className="text-xs text-muted-foreground">
-            Use a Paystack {IS_PROD ? "live" : "test"} secret key starting
-            with{" "}
+            Use a Paystack {IS_PROD ? "live" : "test"} secret key starting with{" "}
             <span className="font-mono">
               {IS_PROD ? "sk_live_" : "sk_test_"}
             </span>
@@ -453,8 +452,8 @@ export function PaymentConnectorCard({
               ) : showPaystackSubaccount ? (
                 <p className="text-xs text-muted-foreground">
                   Optional. Provide a subaccount code starting with
-                  <span className="font-mono"> ACCT_</span> to scope revenue
-                  to that Paystack subaccount.
+                  <span className="font-mono"> ACCT_</span> to scope revenue to
+                  that Paystack subaccount.
                 </p>
               ) : (
                 <p className="text-xs text-muted-foreground">

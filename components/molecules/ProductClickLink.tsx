@@ -1,10 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import {
-  type ComponentPropsWithoutRef,
-  type ReactNode,
-} from "react"
+import { type ComponentPropsWithoutRef, type ReactNode } from "react"
 
 import { productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"

@@ -177,9 +177,15 @@ function buildBaseMaps(context: ProviderSyncContext): {
   }
 
   if (context.latestPeriodStartByCurrency) {
-    for (const [currency, date] of context.latestPeriodStartByCurrency.entries()) {
+    for (const [
+      currency,
+      date,
+    ] of context.latestPeriodStartByCurrency.entries()) {
       if (!currency || !date) continue
-      latestStartByCurrency.set(currency.toUpperCase(), startOfUtcDay(new Date(date)))
+      latestStartByCurrency.set(
+        currency.toUpperCase(),
+        startOfUtcDay(new Date(date)),
+      )
     }
   }
 
@@ -200,7 +206,9 @@ async function listPaystackTransactions({
   const fromDate = since ? toDayKey(startOfUtcDay(new Date(since))) : undefined
 
   while (page <= maxPages) {
-    const body = await paystackRequest<PaystackListResponse<PaystackTransaction>>({
+    const body = await paystackRequest<
+      PaystackListResponse<PaystackTransaction>
+    >({
       apiKey,
       path: "/transaction",
       query: {
@@ -215,8 +223,10 @@ async function listPaystackTransactions({
     transactions.push(...data)
 
     const meta = body?.meta || {}
-    const pageCount = typeof meta.pageCount === "number" ? meta.pageCount : undefined
-    const perPageMeta = typeof meta.perPage === "number" ? meta.perPage : perPage
+    const pageCount =
+      typeof meta.pageCount === "number" ? meta.pageCount : undefined
+    const perPageMeta =
+      typeof meta.perPage === "number" ? meta.perPage : perPage
 
     if (pageCount && page >= pageCount) break
     if (data.length < perPageMeta) break
@@ -283,7 +293,10 @@ export async function syncPaystackConnector({
 
   const revenueByCurrency = new Map<
     string,
-    Map<string, { periodRevenueCents: number; charges: number; periodStart: Date }>
+    Map<
+      string,
+      { periodRevenueCents: number; charges: number; periodStart: Date }
+    >
   >()
 
   for (const tx of transactions) {
@@ -293,7 +306,8 @@ export async function syncPaystackConnector({
     const currency = (tx.currency || "USD").toUpperCase()
     const amountCents = parseAmountToCents(tx.amount)
     const paidAt = pickPaidAt(tx)
-    const txSubaccount = typeof tx.subaccount === "string" ? tx.subaccount.trim() : undefined
+    const txSubaccount =
+      typeof tx.subaccount === "string" ? tx.subaccount.trim() : undefined
 
     if (!amountCents || amountCents <= 0) continue
     if (!paidAt) continue
@@ -304,7 +318,10 @@ export async function syncPaystackConnector({
     const dayKey = toDayKey(periodStart)
     const currencyMap =
       revenueByCurrency.get(currency) ||
-      new Map<string, { periodRevenueCents: number; charges: number; periodStart: Date }>()
+      new Map<
+        string,
+        { periodRevenueCents: number; charges: number; periodStart: Date }
+      >()
     const bucket =
       currencyMap.get(dayKey) ||
       ({

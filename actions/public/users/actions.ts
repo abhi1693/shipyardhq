@@ -14,13 +14,13 @@ type PublicUserProfile = Prisma.UserGetPayload<{
       include: {
         analytics: {
           select: {
-            upvotes: true,
-          },
-        },
-        verification: true,
-        category: true,
-        user: true,
-        ProductBadge: true,
+            upvotes: true
+          }
+        }
+        verification: true
+        category: true
+        user: true
+        ProductBadge: true
         paymentConnector: {
           select: {
             latestAllTimeRevenueCents: true

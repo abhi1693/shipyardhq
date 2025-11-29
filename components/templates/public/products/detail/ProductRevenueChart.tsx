@@ -902,18 +902,18 @@ export function ProductRevenueChart({
                   />
                   <XAxis
                     dataKey="date"
-                  tickFormatter={(value) =>
-                    new Intl.DateTimeFormat("en-US", {
-                      month: "short",
-                      year: "numeric",
-                      day:
-                        range === "24h" || range === "7d" || range === "1m"
-                          ? "numeric"
-                          : undefined,
-                    }).format(new Date(value))
-                  }
-                  tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
-                />
+                    tickFormatter={(value) =>
+                      new Intl.DateTimeFormat("en-US", {
+                        month: "short",
+                        year: "numeric",
+                        day:
+                          range === "24h" || range === "7d" || range === "1m"
+                            ? "numeric"
+                            : undefined,
+                      }).format(new Date(value))
+                    }
+                    tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
+                  />
                   <YAxis
                     tickFormatter={(value) => formatValue(Number(value))}
                     tick={{ fontSize: 11, fill: "hsl(215, 16%, 40%)" }}
