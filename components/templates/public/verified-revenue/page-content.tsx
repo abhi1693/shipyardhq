@@ -38,10 +38,12 @@ export async function VerifiedRevenuePageContent() {
             <div className="space-y-6">
               <Hero
                 stats={stats}
-                supportedProviders={PAYMENT_PROVIDERS.map(({ name, logoSrc }) => ({
-                  name,
-                  logoSrc,
-                }))}
+                supportedProviders={PAYMENT_PROVIDERS.map(
+                  ({ name, logoSrc }) => ({
+                    name,
+                    logoSrc,
+                  }),
+                )}
                 title="The verified revenue leaderboard for startups"
                 primaryAction={null}
                 secondaryAction={null}

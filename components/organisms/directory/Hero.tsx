@@ -5,7 +5,11 @@ import { cn } from "@/lib/utils"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 import DomainRatingBadge from "@/components/molecules/DomainRatingBadge"
 import { SquareImage } from "@/components/molecules/SquareImage"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/atoms/tooltip"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/atoms/tooltip"
 
 type HeaderActionConfig = {
   label: string
@@ -201,7 +205,10 @@ export function Hero({
                       )}
                     </li>
                   </TooltipTrigger>
-                  <TooltipContent sideOffset={6} className="text-xs font-semibold">
+                  <TooltipContent
+                    sideOffset={6}
+                    className="text-xs font-semibold"
+                  >
                     {provider.name}
                   </TooltipContent>
                 </Tooltip>
