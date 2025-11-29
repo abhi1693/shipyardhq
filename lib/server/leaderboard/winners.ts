@@ -13,10 +13,7 @@ import {
   computeLeaderboardWindow,
   getCurrentLeaderboardWindow,
 } from "@/lib/server/leaderboard/v2"
-import {
-  normalizeMonth,
-  toMonthKey,
-} from "@/lib/server/leaderboard/months"
+import { normalizeMonth, toMonthKey } from "@/lib/server/leaderboard/months"
 import { extractTwitterHandle } from "@/lib/server/social/twitterMessages"
 import { sendEmail } from "@/lib/email/resend"
 
@@ -248,9 +245,7 @@ type WinnerEvent = {
   twitterHandle?: string | null
 }
 
-async function resolveWinnerBadgeExpiry(
-  now: Date,
-): Promise<Date | null> {
+async function resolveWinnerBadgeExpiry(now: Date): Promise<Date | null> {
   const defaultPlan = await prisma.plan.findFirst({
     where: { isDefault: true },
     orderBy: { createdAt: "desc" },

@@ -952,7 +952,6 @@ async function main() {
     categoryIdBySlug,
     productIdBySlug,
   })
-
 }
 
 main()

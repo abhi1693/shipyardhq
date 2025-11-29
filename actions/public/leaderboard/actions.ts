@@ -756,11 +756,12 @@ export async function getPeriodicLeaderboardByParams(args: {
 
 export const getMonthlyLeaderboardMonths = cached(
   async () => {
-    const runs: Array<{ periodStart: Date }> = await prisma.leaderboardRun.findMany({
-      distinct: ["periodStart"],
-      orderBy: { periodStart: "desc" },
-      select: { periodStart: true },
-    })
+    const runs: Array<{ periodStart: Date }> =
+      await prisma.leaderboardRun.findMany({
+        distinct: ["periodStart"],
+        orderBy: { periodStart: "desc" },
+        select: { periodStart: true },
+      })
 
     return runs
       .map(({ periodStart }) => ({
@@ -769,7 +770,10 @@ export const getMonthlyLeaderboardMonths = cached(
         date: periodStart,
       }))
       .sort((a, b) => b.date.getTime() - a.date.getTime())
-      .map(({ month, label }) => ({ month, label })) satisfies MonthlyLeaderboardMonth[]
+      .map(({ month, label }) => ({
+        month,
+        label,
+      })) satisfies MonthlyLeaderboardMonth[]
   },
   "leaderboard:monthly:months",
   {

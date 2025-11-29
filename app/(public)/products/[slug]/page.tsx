@@ -450,8 +450,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const demoHref = normalizedDemoUrl
     ? withReferralParams(normalizedDemoUrl, "demo")
     : null
-  const quickLinkCount =
-    (websiteHref ? 1 : 0) + (demoHref ? 1 : 0)
+  const quickLinkCount = (websiteHref ? 1 : 0) + (demoHref ? 1 : 0)
   const quickLinkGridClass =
     quickLinkCount === 2 ? "grid-cols-2" : "grid-cols-1"
   const quickLinkClass =

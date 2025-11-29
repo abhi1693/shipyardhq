@@ -17,12 +17,7 @@ export function sanitizeTextFields<T extends Record<string, any>>(
   values: T,
 ): T {
   const clone: any = { ...values }
-  for (const k of [
-    "name",
-    "tagline",
-    "websiteUrl",
-    "logo",
-  ]) {
+  for (const k of ["name", "tagline", "websiteUrl", "logo"]) {
     if (typeof clone[k] === "string") clone[k] = clone[k].trim()
   }
   if (typeof clone.websiteUrl === "string") {
