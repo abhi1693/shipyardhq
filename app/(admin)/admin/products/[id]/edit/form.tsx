@@ -92,6 +92,7 @@ function ConnectorFields({
     }) as string | undefined) ?? ""
 
   const [connectorState, setConnectorState] = useState(connector)
+  const lockedProvider = connectorState?.provider
 
   return (
     <PaymentConnectorCard
@@ -104,6 +105,7 @@ function ConnectorFields({
       lastSyncedAt={connectorState?.lastSyncedAt ?? null}
       lastSyncError={connectorState?.lastSyncError ?? null}
       showSaveButton={false}
+      lockedProvider={lockedProvider}
       onChange={(draft) => {
         if (draft.provider) {
           form.setValue("connectorProvider" as any, draft.provider, {

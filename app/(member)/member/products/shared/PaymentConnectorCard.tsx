@@ -52,6 +52,7 @@ type Props = {
     accountId?: string
     brandId?: string
   }
+  lockedProvider?: PaymentConnectorProvider
 }
 
 const PROVIDER_OPTIONS: { value: PaymentConnectorProvider; label: string }[] =
@@ -98,10 +99,13 @@ export function PaymentConnectorCard({
   readOnlyMessage,
   showSaveButton = true,
   errors,
+  lockedProvider,
 }: Props) {
   const [saving, startSaving] = useTransition()
   const [resetting, startReset] = useTransition()
-  const selectedProvider = provider
+  const selectedProvider = lockedProvider ?? provider
+  const isProviderLocked =
+    lockedProvider !== undefined && lockedProvider !== null
   const stripePrefix = IS_PROD ? "rk_live_" : "rk_test_"
   const apiKeyPlaceholder =
     selectedProvider === PaymentConnectorProviderEnum.stripe
@@ -193,15 +197,17 @@ export function PaymentConnectorCard({
       <div className="space-y-2">
         <Label>Provider</Label>
         <Select
+          disabled={isProviderLocked}
           value={selectedProvider}
           onValueChange={(value) =>
+            !isProviderLocked &&
             onChange?.({
               provider: value as PaymentConnectorProvider,
               apiKey,
             })
           }
         >
-          <SelectTrigger>
+          <SelectTrigger disabled={isProviderLocked}>
             <SelectValue placeholder="Choose provider" />
           </SelectTrigger>
           <SelectContent>
@@ -212,6 +218,11 @@ export function PaymentConnectorCard({
             ))}
           </SelectContent>
         </Select>
+        {isProviderLocked ? (
+          <p className="text-xs text-muted-foreground">
+            Remove the connector configuration to switch providers.
+          </p>
+        ) : null}
         {errors?.provider ? (
           <p className="text-xs text-destructive">{errors.provider}</p>
         ) : null}
