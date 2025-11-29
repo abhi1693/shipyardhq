@@ -6,6 +6,10 @@ import {
   toMonthKey,
 } from "@/lib/server/monthlyLeaderboard"
 import {
+  getIsoWeekKey,
+  getIsoWeekYearAndNumber,
+} from "@/lib/server/leaderboard/weeks"
+import {
   generateLeaderboardRun,
   computeLeaderboardWindow,
   getCurrentLeaderboardWindow,
@@ -37,8 +41,27 @@ const shortDayLabelFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
 })
 
+const DAY_MS = 86_400_000
+const MONTH_LOOKBACK = 12
+const MIN_MONTH_DAYS = 28
+const MAX_MONTH_DAYS = 32
+
 export type LeaderboardHighlightPeriod = "day" | "week" | "month"
 export type PeriodLeaderboardKind = LeaderboardHighlightPeriod
+
+type PeriodicLeaderboardArchive = {
+  months: Array<{ year: number; month: number }>
+  weeks: Array<{ year: number; week: number }>
+}
+
+export type PeriodicLeaderboardPayload = {
+  period: LeaderboardHighlightPeriod
+  periodLabel: string
+  periodStart: Date
+  periodEnd: Date
+  products: ProductCardRecord[]
+  archive: PeriodicLeaderboardArchive
+}
 
 function getPeriodWindow(
   period: LeaderboardHighlightPeriod,
@@ -186,6 +209,107 @@ export function resolvePeriodWindowFromParts(args: {
     label: formatPeriodLabel("month", start, end),
   }
 }
+
+const monthKeyFromParts = (year: number, month: number) => `${year}-${month}`
+
+const sortMonthsDesc = (
+  a: { year: number; month: number },
+  b: { year: number; month: number },
+) => {
+  if (a.year !== b.year) return b.year - a.year
+  return b.month - a.month
+}
+
+const sortWeeksDesc = (
+  a: { year: number; week: number },
+  b: { year: number; week: number },
+) => {
+  const aStart = startOfIsoWeek(a.year, a.week)?.getTime() ?? 0
+  const bStart = startOfIsoWeek(b.year, b.week)?.getTime() ?? 0
+  return bStart - aStart
+}
+
+const getPeriodicArchive = cached(
+  async (): Promise<PeriodicLeaderboardArchive> => {
+    const now = new Date()
+    const earliestMonth = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (MONTH_LOOKBACK - 1), 1),
+    )
+
+    const months = new Map<string, { year: number; month: number }>()
+    const weeks = new Map<string, { year: number; week: number }>()
+
+    const addMonth = (date: Date) => {
+      const year = date.getUTCFullYear()
+      const month = date.getUTCMonth() + 1
+      const key = monthKeyFromParts(year, month)
+      if (!months.has(key)) {
+        months.set(key, { year, month })
+      }
+    }
+
+    const addWeek = (date: Date) => {
+      const { year, week } = getIsoWeekYearAndNumber(date)
+      const key = getIsoWeekKey(date)
+      if (!weeks.has(key)) {
+        weeks.set(key, { year, week })
+      }
+      addMonth(date)
+    }
+
+    const runsWithScores = await prisma.leaderboardRun.findMany({
+      where: {
+        periodStart: { gte: earliestMonth },
+        scores: { some: { score: { gt: 0 } } },
+      },
+      select: { periodStart: true, periodEnd: true },
+      orderBy: { periodStart: "desc" },
+    })
+
+    runsWithScores.forEach((run) => {
+      const durationDays = Math.round(
+        (run.periodEnd.getTime() - run.periodStart.getTime()) / DAY_MS,
+      )
+      if (durationDays === 7) {
+        addWeek(run.periodStart)
+      } else if (durationDays >= MIN_MONTH_DAYS && durationDays <= MAX_MONTH_DAYS) {
+        addMonth(run.periodStart)
+      } else if (durationDays === 1) {
+        addWeek(run.periodStart)
+      }
+    })
+
+    const [upvotes, reviews] = await Promise.all([
+      prisma.productUpvote.findMany({
+        where: {
+          createdAt: { gte: earliestMonth, lt: now },
+          product: { status: "published" },
+        },
+        select: { createdAt: true },
+      }),
+      prisma.productReview.findMany({
+        where: {
+          createdAt: { gte: earliestMonth, lt: now },
+          product: { status: "published" },
+        },
+        select: { createdAt: true },
+      }),
+    ])
+
+    upvotes.forEach(({ createdAt }) => addWeek(createdAt))
+    reviews.forEach(({ createdAt }) => addWeek(createdAt))
+
+    return {
+      months: Array.from(months.values()).sort(sortMonthsDesc),
+      weeks: Array.from(weeks.values()).sort(sortWeeksDesc),
+    }
+  },
+  "leaderboard:periodic:archive",
+  {
+    ttl: DEFAULT_TTL.slow,
+    tags: () => [TAGS.leaderboard],
+  },
+)
 
 export const getLeaderboardStats = cached(
   async () => {
@@ -472,14 +596,6 @@ export type MonthlyLeaderboardMonth = {
   label: string
 }
 
-export type PeriodicLeaderboardPayload = {
-  period: LeaderboardHighlightPeriod
-  periodLabel: string
-  periodStart: Date
-  periodEnd: Date
-  products: ProductCardRecord[]
-}
-
 async function mapRowsToProducts(
   rows: Awaited<ReturnType<typeof computeLeaderboardWindow>>,
   limit?: number,
@@ -560,6 +676,7 @@ export const getPeriodicLeaderboard = cached(
     const periodLabel =
       args.label ??
       formatPeriodLabel(args.period, args.periodStart, args.periodEnd)
+    const archive = await getPeriodicArchive()
 
     if (args.period === "month") {
       const runProducts = await mapRunRowsToProducts({
@@ -574,6 +691,7 @@ export const getPeriodicLeaderboard = cached(
           periodStart: args.periodStart,
           periodEnd: args.periodEnd,
           products: runProducts,
+          archive,
         }
       }
     }
@@ -591,6 +709,7 @@ export const getPeriodicLeaderboard = cached(
       periodStart: args.periodStart,
       periodEnd: args.periodEnd,
       products,
+      archive,
     }
   },
   "leaderboard:periodic",

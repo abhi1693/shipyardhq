@@ -6,20 +6,8 @@ import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLay
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 import { mapProductCardRecordToBase } from "@/lib/products/selects"
 import { BROWSE_PATH, LEADERBOARD_PATH } from "@/lib/routes"
+import { getIsoWeekKey, getIsoWeekYearAndNumber } from "@/lib/server/leaderboard/weeks"
 import { IconArrowLeft, IconArrowRight, IconSparkles } from "@tabler/icons-react"
-
-function getIsoWeekYearAndNumber(date: Date): { year: number; week: number } {
-  const target = new Date(date.valueOf())
-  target.setUTCHours(0, 0, 0, 0)
-  target.setUTCDate(target.getUTCDate() + 3 - ((target.getUTCDay() + 6) % 7))
-  const week1 = new Date(Date.UTC(target.getUTCFullYear(), 0, 4))
-  const weekNumber =
-    1 +
-    Math.round(
-      ((target.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getUTCDay() + 6) % 7)) / 7,
-    )
-  return { year: target.getUTCFullYear(), week: weekNumber }
-}
 
 function buildPath(period: PeriodicLeaderboardPayload["period"], start: Date): string {
   if (period === "day") {
@@ -53,6 +41,14 @@ export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: Periodic
   const todayUtc = new Date()
   todayUtc.setUTCHours(0, 0, 0, 0)
   const isFutureDate = (date: Date) => date.getTime() > todayUtc.getTime()
+  const availableMonthKeys = new Set(
+    leaderboard.archive.months.map((entry) => `${entry.year}-${entry.month}`),
+  )
+  const availableWeekKeys = new Set(
+    leaderboard.archive.weeks.map((entry) => `${entry.year}-${entry.week}`),
+  )
+  const shouldFilterMonths = availableMonthKeys.size > 0
+  const shouldFilterWeeks = availableWeekKeys.size > 0
 
   const items = leaderboard.products.map((product) => {
     const base = mapProductCardRecordToBase(product, now)
@@ -89,18 +85,27 @@ export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: Periodic
 
   const weeklyFilters =
     leaderboard.period === "week"
-      ? [-2, -1, 0, 1, 2].map((delta) => {
-          const slotStart = new Date(start)
-          slotStart.setUTCDate(start.getUTCDate() + delta * 7)
-          const slotEnd = new Date(slotStart)
-          slotEnd.setUTCDate(slotStart.getUTCDate() + 6)
-          return {
-            path: buildPath("week", slotStart),
-            label: `${shortRangeFormatter.format(slotStart)} - ${shortRangeFormatter.format(slotEnd)}`,
-            active: delta === 0,
-            disabled: isFutureDate(slotStart),
-          }
-        })
+      ? [-2, -1, 0, 1, 2]
+          .map((delta) => {
+            const slotStart = new Date(start)
+            slotStart.setUTCDate(start.getUTCDate() + delta * 7)
+            const slotEnd = new Date(slotStart)
+            slotEnd.setUTCDate(slotStart.getUTCDate() + 6)
+            return {
+              path: buildPath("week", slotStart),
+              label: `${shortRangeFormatter.format(slotStart)} - ${shortRangeFormatter.format(slotEnd)}`,
+              active: delta === 0,
+              disabled: isFutureDate(slotStart),
+              weekKey: getIsoWeekKey(slotStart),
+            }
+          })
+          .filter(
+            (week) =>
+              !shouldFilterWeeks ||
+              week.active ||
+              availableWeekKeys.has(week.weekKey),
+          )
+          .map(({ weekKey, ...week }) => week)
       : []
 
   const monthArchive: Array<{
@@ -134,12 +139,18 @@ export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: Periodic
     })
   }
 
+  const filteredMonthArchive = monthArchive.filter((entry) => {
+    if (!shouldFilterMonths) return true
+    const key = `${entry.year}-${entry.month}`
+    return entry.active || availableMonthKeys.has(key)
+  })
+
   const groupedArchive: Array<{
     year: number
     months: Array<(typeof monthArchive)[number]>
   }> = []
   const archiveMap = new Map<number, (typeof groupedArchive)[number]>()
-  monthArchive.forEach((entry) => {
+  filteredMonthArchive.forEach((entry) => {
     const group = archiveMap.get(entry.year)
     if (group) {
       group.months.push(entry)
