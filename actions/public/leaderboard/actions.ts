@@ -686,7 +686,7 @@ export const getPeriodicLeaderboard = cached(
         periodEnd: args.periodEnd,
         limit,
       })
-      if (runProducts) {
+      if (runProducts?.length) {
         return {
           period: args.period,
           periodLabel,
