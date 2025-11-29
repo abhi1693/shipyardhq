@@ -270,24 +270,17 @@ function registerTwitterBotListeners() {
     id: "twitter.leaderboard-periodic-winners",
     mode: "async",
     queue: "low",
-    handler: ({
-      periodKey,
-      periodLabel,
-      leaderboardUrl,
-      winners,
-    }) =>
+    handler: ({ periodKey, periodLabel, leaderboardUrl, winners }) =>
       handlePeriodicLeaderboardWinners({
         periodKey,
         periodLabel,
         leaderboardUrl,
         winners: winners.map(
-          (
-            winner: {
-              rank: number
-              name: string
-              twitterHandle?: string | null
-            },
-          ) => ({
+          (winner: {
+            rank: number
+            name: string
+            twitterHandle?: string | null
+          }) => ({
             rank: winner.rank,
             name: winner.name,
             twitterHandle: winner.twitterHandle,

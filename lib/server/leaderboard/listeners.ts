@@ -4,7 +4,10 @@ import {
   generateLeaderboardRun,
   getCurrentLeaderboardWindow,
 } from "@/lib/server/leaderboard/v2"
-import { revalidateLeaderboard, revalidateMonthlyLeaderboard } from "@/lib/cache/revalidate"
+import {
+  revalidateLeaderboard,
+  revalidateMonthlyLeaderboard,
+} from "@/lib/cache/revalidate"
 import { toMonthKey } from "@/lib/server/monthlyLeaderboard"
 
 registerEventHandler({

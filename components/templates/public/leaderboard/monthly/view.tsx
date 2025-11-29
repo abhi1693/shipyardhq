@@ -232,7 +232,9 @@ export async function MonthlyLeaderboardView({
                         logo: entry.product.logo,
                         tagline: entry.product.tagline,
                         scoreCount:
-                          typeof entry.score === "number" ? entry.score : undefined,
+                          typeof entry.score === "number"
+                            ? entry.score
+                            : undefined,
                         analytics: {
                           upvotes:
                             entry.upvotes ??

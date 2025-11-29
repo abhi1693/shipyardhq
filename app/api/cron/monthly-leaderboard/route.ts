@@ -31,11 +31,7 @@ export async function GET(request: Request) {
   const targetMonth = parseMonthKey(monthParam) ?? getPreviousMonth(new Date())
   const periodStart = normalizeMonth(targetMonth)
   const periodEnd = new Date(
-    Date.UTC(
-      periodStart.getUTCFullYear(),
-      periodStart.getUTCMonth() + 1,
-      1,
-    ),
+    Date.UTC(periodStart.getUTCFullYear(), periodStart.getUTCMonth() + 1, 1),
   )
 
   try {

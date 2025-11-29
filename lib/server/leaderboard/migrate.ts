@@ -73,11 +73,7 @@ export async function migrateLegacyMonthlyLeaderboard(
   for (const [monthKey, rankings] of groups.entries()) {
     const periodStart = new Date(monthKey)
     const periodEnd = new Date(
-      Date.UTC(
-        periodStart.getUTCFullYear(),
-        periodStart.getUTCMonth() + 1,
-        1,
-      ),
+      Date.UTC(periodStart.getUTCFullYear(), periodStart.getUTCMonth() + 1, 1),
     )
 
     summary.months += 1

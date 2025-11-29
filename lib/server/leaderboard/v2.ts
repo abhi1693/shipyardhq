@@ -96,7 +96,9 @@ export async function generateLeaderboardRun(options: {
   const windowEnd = resolveWindowEnd(options.periodEnd, options.asOf)
   const metrics = await collectMetrics(options.periodStart, windowEnd)
   const hasActivity = metricsHaveActivity(metrics)
-  const rankedRows = hasActivity ? applyRanks(computeScores(metrics, weights)) : []
+  const rankedRows = hasActivity
+    ? applyRanks(computeScores(metrics, weights))
+    : []
 
   await persistScores(run.id, rankedRows)
 
@@ -194,7 +196,11 @@ export async function computeLeaderboardWindow(options: {
   const productIds = options.productIds?.filter(Boolean)
 
   const metrics = productIds?.length
-    ? await collectMetricsForProducts(productIds, options.periodStart, windowEnd)
+    ? await collectMetricsForProducts(
+        productIds,
+        options.periodStart,
+        windowEnd,
+      )
     : await collectMetrics(options.periodStart, windowEnd)
 
   const hasActivity = metricsHaveActivity(metrics)
@@ -206,7 +212,9 @@ export async function computeLeaderboardWindow(options: {
   )
 
   const ranked = applyRanks(rows) as LeaderboardScoreRow[]
-  return typeof options.limit === "number" ? ranked.slice(0, options.limit) : ranked
+  return typeof options.limit === "number"
+    ? ranked.slice(0, options.limit)
+    : ranked
 }
 
 export async function updateLeaderboardScoresForProducts(options: {
@@ -317,10 +325,11 @@ async function collectMetrics(
   periodStart: Date,
   periodEnd: Date,
 ): Promise<MetricMaps> {
-  const products: Array<{ id: string; slug: string }> = await prisma.product.findMany({
-    where: { status: "published" },
-    select: { id: true, slug: true },
-  })
+  const products: Array<{ id: string; slug: string }> =
+    await prisma.product.findMany({
+      where: { status: "published" },
+      select: { id: true, slug: true },
+    })
 
   const dateRange = buildDateRange(periodStart, periodEnd)
   const gaMap = await getProductTrafficMapFromGa({
@@ -370,7 +379,10 @@ async function collectMetrics(
   }
 
   for (const entry of reviews) {
-    metrics.reviewsCount.set(entry.productId, Number(entry._count?.productId ?? 0))
+    metrics.reviewsCount.set(
+      entry.productId,
+      Number(entry._count?.productId ?? 0),
+    )
     metrics.reviewsRatingSum.set(
       entry.productId,
       Number(entry._sum?.rating ?? 0),
@@ -385,10 +397,11 @@ async function collectMetricsForProducts(
   periodStart: Date,
   periodEnd: Date,
 ): Promise<MetricMaps> {
-  const products: Array<{ id: string; slug: string }> = await prisma.product.findMany({
-    where: { id: { in: productIds }, status: "published" },
-    select: { id: true, slug: true },
-  })
+  const products: Array<{ id: string; slug: string }> =
+    await prisma.product.findMany({
+      where: { id: { in: productIds }, status: "published" },
+      select: { id: true, slug: true },
+    })
 
   const dateRange = buildDateRange(periodStart, periodEnd)
   const gaMap = await getProductTrafficMapFromGa({
@@ -436,7 +449,10 @@ async function collectMetricsForProducts(
   }
 
   for (const entry of reviews) {
-    metrics.reviewsCount.set(entry.productId, Number(entry._count?.productId ?? 0))
+    metrics.reviewsCount.set(
+      entry.productId,
+      Number(entry._count?.productId ?? 0),
+    )
     metrics.reviewsRatingSum.set(
       entry.productId,
       Number(entry._sum?.rating ?? 0),
@@ -532,7 +548,8 @@ function applyRanks(rows: ScoreRow[]): ScoreRow[] {
   const sorted = [...rows].sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score
     if (b.upvotes !== a.upvotes) return b.upvotes - a.upvotes
-    if (b.uniqueVisitors !== a.uniqueVisitors) return b.uniqueVisitors - a.uniqueVisitors
+    if (b.uniqueVisitors !== a.uniqueVisitors)
+      return b.uniqueVisitors - a.uniqueVisitors
     if (b.views !== a.views) return b.views - a.views
     return a.productId.localeCompare(b.productId)
   })

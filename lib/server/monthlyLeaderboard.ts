@@ -255,10 +255,7 @@ export async function resolveWinnerBadgeExpiry(
   return new Date(now.getTime() + boostDays * DAY_MS)
 }
 
-export async function upsertEditorPickBadge(
-  productId: string,
-  now: Date,
-) {
+export async function upsertEditorPickBadge(productId: string, now: Date) {
   const desiredExpiresAt = await resolveWinnerBadgeExpiry(now)
   const existing = await prisma.productBadge.findFirst({
     where: { productId, badge: WINNER_BADGE },
@@ -300,10 +297,7 @@ export async function upsertEditorPickBadge(
   }
 }
 
-export async function assignWinnerBoostPlan(
-  product: WinnerProduct,
-  now: Date,
-) {
+export async function assignWinnerBoostPlan(product: WinnerProduct, now: Date) {
   const minimumExpiry = new Date(now.getTime() + WINNER_BOOST_DAYS * DAY_MS)
 
   if (product.plan && product.plan.boostForDays && product.planAssignedAt) {

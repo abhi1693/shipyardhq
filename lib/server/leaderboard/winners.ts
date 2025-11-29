@@ -95,7 +95,9 @@ async function assignWinnerBadges(options: {
         expiresAt,
       }
     })
-    .filter((assignment): assignment is WinnerBadgeRecord => Boolean(assignment))
+    .filter((assignment): assignment is WinnerBadgeRecord =>
+      Boolean(assignment),
+    )
 
   if (!assignments.length) {
     return { assigned: 0, products: [] }
@@ -248,12 +250,22 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
     select: { id: true, periodStart: true, periodEnd: true },
   })
   if (!run) {
-    return { notified: 0, recipients: [], alreadyNotified: false, skipped: true }
+    return {
+      notified: 0,
+      recipients: [],
+      alreadyNotified: false,
+      skipped: true,
+    }
   }
 
   const now = new Date()
   if (run.periodEnd > now) {
-    return { notified: 0, recipients: [], alreadyNotified: false, skipped: true }
+    return {
+      notified: 0,
+      recipients: [],
+      alreadyNotified: false,
+      skipped: true,
+    }
   }
 
   const month = normalizeMonth(run.periodStart)
@@ -265,16 +277,17 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
       where: { month },
     })
   if (existingNotification) {
-    return { notified: 0, recipients: [], alreadyNotified: true, skipped: false }
+    return {
+      notified: 0,
+      recipients: [],
+      alreadyNotified: true,
+      skipped: false,
+    }
   }
 
   const topThree = await prisma.productLeaderboardScore.findMany({
     where: { runId: run.id },
-    orderBy: [
-      { rank: "asc" },
-      { score: "desc" },
-      { upvotes: "desc" },
-    ],
+    orderBy: [{ rank: "asc" }, { score: "desc" }, { upvotes: "desc" }],
     take: 3,
     include: {
       product: {
@@ -308,7 +321,12 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
   })
 
   if (!topThree.length) {
-    return { notified: 0, recipients: [], alreadyNotified: false, skipped: false }
+    return {
+      notified: 0,
+      recipients: [],
+      alreadyNotified: false,
+      skipped: false,
+    }
   }
 
   const recipients: string[] = []

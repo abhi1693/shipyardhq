@@ -844,7 +844,8 @@ async function main() {
       productSlug: "shipyardhq",
       authorClerkId: "seed-admin-abhimanyu",
       title: "New launch playbooks",
-      summary: "Added ready-to-run launch playbooks and a refreshed listing editor.",
+      summary:
+        "Added ready-to-run launch playbooks and a refreshed listing editor.",
       content: [
         "### What's new",
         "- Launch playbooks with tasks and assets you can clone.",

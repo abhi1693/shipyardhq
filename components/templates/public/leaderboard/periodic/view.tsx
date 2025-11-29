@@ -6,10 +6,20 @@ import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLay
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 import { mapProductCardRecordToBase } from "@/lib/products/selects"
 import { BROWSE_PATH, LEADERBOARD_PATH } from "@/lib/routes"
-import { getIsoWeekKey, getIsoWeekYearAndNumber } from "@/lib/server/leaderboard/weeks"
-import { IconArrowLeft, IconArrowRight, IconSparkles } from "@tabler/icons-react"
+import {
+  getIsoWeekKey,
+  getIsoWeekYearAndNumber,
+} from "@/lib/server/leaderboard/weeks"
+import {
+  IconArrowLeft,
+  IconArrowRight,
+  IconSparkles,
+} from "@tabler/icons-react"
 
-function buildPath(period: PeriodicLeaderboardPayload["period"], start: Date): string {
+function buildPath(
+  period: PeriodicLeaderboardPayload["period"],
+  start: Date,
+): string {
   if (period === "day") {
     const month = start.getUTCMonth() + 1
     const day = start.getUTCDate()
@@ -23,7 +33,11 @@ function buildPath(period: PeriodicLeaderboardPayload["period"], start: Date): s
   return `/leaderboard/monthly/${start.getUTCFullYear()}/${month}`
 }
 
-function getAdjacentStart(period: PeriodicLeaderboardPayload["period"], start: Date, delta = 1) {
+function getAdjacentStart(
+  period: PeriodicLeaderboardPayload["period"],
+  start: Date,
+  delta = 1,
+) {
   const next = new Date(start)
   if (period === "day") {
     next.setUTCDate(start.getUTCDate() + delta)
@@ -35,7 +49,11 @@ function getAdjacentStart(period: PeriodicLeaderboardPayload["period"], start: D
   return next
 }
 
-export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: PeriodicLeaderboardPayload }) {
+export function PeriodicLeaderboardView({
+  leaderboard,
+}: {
+  leaderboard: PeriodicLeaderboardPayload
+}) {
   const archive = leaderboard.archive ?? { months: [], weeks: [] }
   const start = new Date(leaderboard.periodStart)
   const now = new Date()
@@ -60,14 +78,18 @@ export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: Periodic
   })
   const hasProducts = items.length > 0
 
-  const daysInMonth = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 0)).getUTCDate()
+  const daysInMonth = new Date(
+    Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 0),
+  ).getUTCDate()
   const activeDay = start.getUTCDate()
   const dayLinks =
     leaderboard.period === "day"
       ? Array.from({ length: daysInMonth }, (_, index) => {
           const day = index + 1
           const disabled = isFutureDate(
-            new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), day)),
+            new Date(
+              Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), day),
+            ),
           )
           return {
             day,
@@ -131,7 +153,9 @@ export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: Periodic
     timeZone: "UTC",
   })
   for (let i = 0; i < 12; i++) {
-    const date = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1))
+    const date = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1),
+    )
     const year = date.getUTCFullYear()
     const month = date.getUTCMonth() + 1
     monthArchive.push({
@@ -140,7 +164,8 @@ export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: Periodic
       path: `/leaderboard/monthly/${year}/${month}`,
       year,
       month,
-      active: year === start.getUTCFullYear() && month === start.getUTCMonth() + 1,
+      active:
+        year === start.getUTCFullYear() && month === start.getUTCMonth() + 1,
     })
   }
 
@@ -280,7 +305,7 @@ export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: Periodic
                     )
                   })()}
                   <div className="flex flex-nowrap items-center gap-0.5">
-                    {dayLinks.map((entry) => (
+                    {dayLinks.map((entry) =>
                       entry.disabled ? (
                         <span
                           key={entry.day}
@@ -301,8 +326,8 @@ export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: Periodic
                         >
                           {entry.day}
                         </Link>
-                      )
-                    ))}
+                      ),
+                    )}
                   </div>
                   {(() => {
                     const nextDay = getAdjacentStart("day", start, 1)
@@ -356,7 +381,7 @@ export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: Periodic
                     )
                   })()}
                   <div className="grid w-full grid-cols-1 gap-1 sm:grid-cols-3 lg:grid-cols-5">
-                    {weeklyFilters.map((week) => (
+                    {weeklyFilters.map((week) =>
                       week.disabled ? (
                         <span
                           key={week.path}
@@ -377,8 +402,8 @@ export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: Periodic
                         >
                           {week.label}
                         </Link>
-                      )
-                    ))}
+                      ),
+                    )}
                   </div>
                   {(() => {
                     const nextWeek = getAdjacentStart("week", start, 1)
@@ -423,7 +448,8 @@ export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: Periodic
                     No ranked products yet.
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    As soon as products earn points in this window, they will appear here.
+                    As soon as products earn points in this window, they will
+                    appear here.
                   </p>
                 </div>
                 <div className="flex flex-wrap justify-center gap-2">
@@ -468,7 +494,9 @@ export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: Periodic
                           <span>{month.displayLabel}</span>
                           <IconArrowRight
                             className={`h-4 w-4 ${
-                              month.active ? "text-[color:var(--brand-1)]" : "text-muted-foreground"
+                              month.active
+                                ? "text-[color:var(--brand-1)]"
+                                : "text-muted-foreground"
                             }`}
                           />
                         </Link>

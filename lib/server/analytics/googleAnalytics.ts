@@ -703,14 +703,21 @@ export async function getProductTrafficFromGa(args: {
 export async function getProductTrafficMapFromGa(args: {
   products: Array<{ id: string; slug: string }>
   dateRange: GaDateRange
-}): Promise<Map<string, { pageViews: number; uniqueVisitors: number; sessions: number }>> {
-  const results = new Map<string, { pageViews: number; uniqueVisitors: number; sessions: number }>()
+}): Promise<
+  Map<string, { pageViews: number; uniqueVisitors: number; sessions: number }>
+> {
+  const results = new Map<
+    string,
+    { pageViews: number; uniqueVisitors: number; sessions: number }
+  >()
   if (!args.products.length) return results
 
   const client = await getClient()
   const property = resolveProperty()
   if (!property) {
-    console.error("[analytics] GA_PROPERTY_ID is missing; product traffic map unavailable")
+    console.error(
+      "[analytics] GA_PROPERTY_ID is missing; product traffic map unavailable",
+    )
     return results
   }
 
@@ -730,7 +737,8 @@ export async function getProductTrafficMapFromGa(args: {
     { name: "sessions" },
   ]
 
-  const parseValue = (value: string | null | undefined) => Number(value ?? 0) || 0
+  const parseValue = (value: string | null | undefined) =>
+    Number(value ?? 0) || 0
 
   for (let i = 0; i < allPaths.length; i += CHUNK_SIZE) {
     const chunk = allPaths.slice(i, i + CHUNK_SIZE)

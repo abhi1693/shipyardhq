@@ -27,5 +27,7 @@ export default async function MonthlyLeaderboardPage({
   const year = periodStart.getUTCFullYear()
 
   // Redirect to the new monthly path; keep old month key redirect for compatibility.
-  redirect(`/leaderboard/monthly/${year}/${month}?from=${encodeURIComponent(monthKey)}`)
+  redirect(
+    `/leaderboard/monthly/${year}/${month}?from=${encodeURIComponent(monthKey)}`,
+  )
 }

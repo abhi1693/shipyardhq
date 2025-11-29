@@ -14,7 +14,9 @@ export async function GET(request: Request) {
   const now = new Date()
 
   try {
-    await dispatchEvent(APP_EVENTS.LEADERBOARD_REFRESH, { asOf: now.toISOString() })
+    await dispatchEvent(APP_EVENTS.LEADERBOARD_REFRESH, {
+      asOf: now.toISOString(),
+    })
 
     return NextResponse.json({ success: true, enqueued: true, asOf: now })
   } catch (error: any) {

@@ -125,7 +125,12 @@ function formatPeriodLabel(
 }
 
 function startOfIsoWeek(year: number, week: number): Date | null {
-  if (!Number.isFinite(year) || !Number.isFinite(week) || week < 1 || week > 53) {
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(week) ||
+    week < 1 ||
+    week > 53
+  ) {
     return null
   }
   const jan4 = new Date(Date.UTC(year, 0, 4))
@@ -233,7 +238,11 @@ const getPeriodicArchive = cached(
   async (): Promise<PeriodicLeaderboardArchive> => {
     const now = new Date()
     const earliestMonth = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (MONTH_LOOKBACK - 1), 1),
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth() - (MONTH_LOOKBACK - 1),
+        1,
+      ),
     )
 
     const months = new Map<string, { year: number; month: number }>()
@@ -272,7 +281,10 @@ const getPeriodicArchive = cached(
       )
       if (durationDays === 7) {
         addWeek(run.periodStart)
-      } else if (durationDays >= MIN_MONTH_DAYS && durationDays <= MAX_MONTH_DAYS) {
+      } else if (
+        durationDays >= MIN_MONTH_DAYS &&
+        durationDays <= MAX_MONTH_DAYS
+      ) {
         addMonth(run.periodStart)
       } else if (durationDays === 1) {
         addWeek(run.periodStart)
@@ -485,11 +497,7 @@ async function resolveProductOfThePeriod(
     const run = await getOrCreateActiveLeaderboardRun()
     const rows = await prisma.productLeaderboardScore.findMany({
       where: { runId: run.id, score: { gt: 0 } },
-      orderBy: [
-        { score: "desc" },
-        { upvotes: "desc" },
-        { productId: "asc" },
-      ],
+      orderBy: [{ score: "desc" }, { upvotes: "desc" }, { productId: "asc" }],
       include: {
         product: {
           select: productCardSelect,
@@ -628,9 +636,11 @@ async function mapRowsToProducts(
     .filter(Boolean) as unknown as ProductCardRecord[]
 }
 
-async function mapRunRowsToProducts(
-  params: { periodStart: Date; periodEnd: Date; limit?: number },
-): Promise<ProductCardRecord[] | null> {
+async function mapRunRowsToProducts(params: {
+  periodStart: Date
+  periodEnd: Date
+  limit?: number
+}): Promise<ProductCardRecord[] | null> {
   const run = await prisma.leaderboardRun.findUnique({
     where: {
       periodStart_periodEnd: {
@@ -644,11 +654,7 @@ async function mapRunRowsToProducts(
 
   const rows = await prisma.productLeaderboardScore.findMany({
     where: { runId: run.id, score: { gt: 0 } },
-    orderBy: [
-      { rank: "asc" },
-      { score: "desc" },
-      { upvotes: "desc" },
-    ],
+    orderBy: [{ rank: "asc" }, { score: "desc" }, { upvotes: "desc" }],
     take: params.limit ?? undefined,
     include: {
       product: {
@@ -781,7 +787,10 @@ export const getMonthlyLeaderboardMonths = cached(
         date,
       }))
       .sort((a, b) => b.date.getTime() - a.date.getTime())
-      .map(({ month, label }) => ({ month, label })) satisfies MonthlyLeaderboardMonth[]
+      .map(({ month, label }) => ({
+        month,
+        label,
+      })) satisfies MonthlyLeaderboardMonth[]
   },
   "leaderboard:monthly:months",
   {
@@ -831,11 +840,7 @@ export const getMonthlyTopRankedProducts = cached(
       ? await prisma.productLeaderboardScore.findMany({
           take: limit,
           where: { runId: run.id },
-          orderBy: [
-            { rank: "asc" },
-            { score: "desc" },
-            { upvotes: "desc" },
-          ],
+          orderBy: [{ rank: "asc" }, { score: "desc" }, { upvotes: "desc" }],
           include: {
             product: {
               include: {

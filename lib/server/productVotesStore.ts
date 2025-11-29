@@ -116,7 +116,9 @@ async function mutateVote({
     scheduleEvent("product.upvoted", createdEvent)
 
     const occurredAt =
-      createdEvent && typeof createdEvent === "object" && "occurredAt" in createdEvent
+      createdEvent &&
+      typeof createdEvent === "object" &&
+      "occurredAt" in createdEvent
         ? (createdEvent as ProductUpvotedEvent).occurredAt
         : new Date()
 
