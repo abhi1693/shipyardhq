@@ -236,40 +236,38 @@ export async function updateLeaderboardScoresForProducts(options: {
   }
 
   // Upsert scores for the affected products first.
-  await prisma.$transaction(
-    rows.map((row) =>
-      prisma.productLeaderboardScore.upsert({
-        where: {
-          runId_productId: {
-            runId: run.id,
-            productId: row.productId,
-          },
-        },
-        create: {
+  for (const row of rows) {
+    await prisma.productLeaderboardScore.upsert({
+      where: {
+        runId_productId: {
           runId: run.id,
           productId: row.productId,
-          views: row.views,
-          uniqueVisitors: row.uniqueVisitors,
-          clicks: row.clicks,
-          upvotes: row.upvotes,
-          reviewsCount: row.reviewsCount,
-          reviewsRatingSum: row.reviewsRatingSum,
-          score: row.score,
-          scoreComponents: row.scoreComponents,
         },
-        update: {
-          views: row.views,
-          uniqueVisitors: row.uniqueVisitors,
-          clicks: row.clicks,
-          upvotes: row.upvotes,
-          reviewsCount: row.reviewsCount,
-          reviewsRatingSum: row.reviewsRatingSum,
-          score: row.score,
-          scoreComponents: row.scoreComponents,
-        },
-      }),
-    ),
-  )
+      },
+      create: {
+        runId: run.id,
+        productId: row.productId,
+        views: row.views,
+        uniqueVisitors: row.uniqueVisitors,
+        clicks: row.clicks,
+        upvotes: row.upvotes,
+        reviewsCount: row.reviewsCount,
+        reviewsRatingSum: row.reviewsRatingSum,
+        score: row.score,
+        scoreComponents: row.scoreComponents,
+      },
+      update: {
+        views: row.views,
+        uniqueVisitors: row.uniqueVisitors,
+        clicks: row.clicks,
+        upvotes: row.upvotes,
+        reviewsCount: row.reviewsCount,
+        reviewsRatingSum: row.reviewsRatingSum,
+        score: row.score,
+        scoreComponents: row.scoreComponents,
+      },
+    })
+  }
 
   // Re-rank the full run outside the upsert transaction to avoid timeouts.
   await refreshRanksForRun(run.id)
@@ -538,27 +536,20 @@ async function persistScores(runId: string, rows: ScoreRow[]) {
 }
 
 async function refreshRanksForRun(runId: string) {
-  const rankedRows = await prisma.productLeaderboardScore.findMany({
-    where: { runId },
-    orderBy: [
-      { score: "desc" },
-      { upvotes: "desc" },
-      { clicks: "desc" },
-      { productId: "asc" },
-    ],
-    select: { id: true },
-  })
-
-  // Short, per-row updates to avoid long transactions on large datasets.
-  const BATCH_SIZE = 50
-  for (let i = 0; i < rankedRows.length; i += BATCH_SIZE) {
-    const batch = rankedRows.slice(i, i + BATCH_SIZE)
-    for (let batchIndex = 0; batchIndex < batch.length; batchIndex += 1) {
-      const row = batch[batchIndex]
-      await prisma.productLeaderboardScore.update({
-        where: { id: row.id },
-        data: { rank: i + batchIndex + 1 },
-      })
-    }
-  }
+  // One pass ranking to keep operations short; uses window function.
+  await prisma.$executeRaw`
+    WITH ranked AS (
+      SELECT
+        id,
+        ROW_NUMBER() OVER (
+          ORDER BY "score" DESC, "upvotes" DESC, "clicks" DESC, "productId" ASC
+        ) AS rank_value
+      FROM "ProductLeaderboardScore"
+      WHERE "runId" = ${runId}
+    )
+    UPDATE "ProductLeaderboardScore" pls
+    SET "rank" = ranked.rank_value
+    FROM ranked
+    WHERE pls.id = ranked.id;
+  `
 }
