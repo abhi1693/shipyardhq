@@ -5,6 +5,7 @@ import {
   type AppEvents,
   type ProductUpvotedEvent,
 } from "@/lib/server/events"
+import { refreshLeaderboardForProducts } from "@/lib/server/leaderboard/v2"
 import {
   revalidateLeaderboard,
   revalidateProduct,
@@ -131,6 +132,21 @@ async function mutateVote({
 
   if (createdEvent) {
     scheduleEvent("product.upvoted", createdEvent)
+
+    const occurredAt =
+      createdEvent && typeof createdEvent === "object" && "occurredAt" in createdEvent
+        ? (createdEvent as ProductUpvotedEvent).occurredAt
+        : new Date()
+
+    void refreshLeaderboardForProducts({
+      productIds: [productId],
+      now: occurredAt,
+    }).catch((error) => {
+      console.error("[leaderboard] upvote refresh failed", {
+        productId,
+        error,
+      })
+    })
 
     if (analyticsUpdated) {
       try {

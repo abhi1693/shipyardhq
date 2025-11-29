@@ -89,8 +89,16 @@ const resolveBadges = (
 export const mapProductCardRecordToBase = (
   product: ProductCardRecord,
   now: Date = new Date(),
+  options?: { scoreByProductId?: Map<string, number> },
 ): ProductCardBase => {
   const revenue = resolveProductRevenue(product.paymentConnector)
+  const scoreOverride = options?.scoreByProductId?.get(product.id)
+  const scoreCount =
+    typeof scoreOverride === "number"
+      ? scoreOverride
+      : typeof (product as any).scoreCount === "number"
+        ? (product as any).scoreCount
+        : undefined
 
   return {
     id: product.id,
@@ -107,6 +115,7 @@ export const mapProductCardRecordToBase = (
     updatedAt: product.updatedAt,
     latestRevenueCents: revenue.latestRevenueCents,
     revenueCurrencyCode: revenue.revenueCurrencyCode,
+    scoreCount,
   }
 }
 

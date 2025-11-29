@@ -41,6 +41,15 @@ export const PaymentCredentialStatus = {
 export type PaymentCredentialStatus = (typeof PaymentCredentialStatus)[keyof typeof PaymentCredentialStatus]
 
 
+export const LeaderboardRunStatus = {
+  pending: 'pending',
+  processing: 'processing',
+  finalized: 'finalized'
+} as const
+
+export type LeaderboardRunStatus = (typeof LeaderboardRunStatus)[keyof typeof LeaderboardRunStatus]
+
+
 export const ProductType = {
   saas: 'saas',
   browser_extension: 'browser_extension',
@@ -122,6 +131,16 @@ export const ProductClaimStatus = {
 } as const
 
 export type ProductClaimStatus = (typeof ProductClaimStatus)[keyof typeof ProductClaimStatus]
+
+
+export const DeviceCategory = {
+  desktop: 'desktop',
+  mobile: 'mobile',
+  tablet: 'tablet',
+  unknown: 'unknown'
+} as const
+
+export type DeviceCategory = (typeof DeviceCategory)[keyof typeof DeviceCategory]
 
 
 export const NotificationType = {

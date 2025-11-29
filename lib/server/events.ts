@@ -10,6 +10,7 @@ import {
 } from "@/lib/server/events/queues"
 import type { RedemptionStatus, Prisma } from "@/lib/vendor/prisma/client"
 import { IS_PROD } from "@/lib/constants"
+import type { ProductClickMetadata, ProductTrafficPayload } from "@/types/analytics"
 
 type HandlerMode = "sync" | "async"
 
@@ -37,6 +38,17 @@ export type ProductCreatedEvent = { productId: string }
 export type ProductUpdatedEvent = { productId: string }
 export type ProductDeletedEvent = { productId: string }
 export type ProductPublishedEvent = { productId: string }
+export type ProductClickedEvent = {
+  productId: string
+  metadata?: ProductClickMetadata
+  __enqueuedAt?: Date
+}
+export type ProductTrafficEvent = ProductTrafficPayload & {
+  __enqueuedAt?: Date
+}
+export type LeaderboardRefreshEvent = {
+  asOf?: string
+}
 export type ProductViewedEvent = {
   productId: string
   viewerUserId: string
@@ -87,6 +99,24 @@ export type LeaderboardMonthlyWinnersEvent = {
   monthKey: string
   monthLabel: string
   leaderboardUrl: string
+  winners: Array<{
+    productId: string
+    rank: number
+    name: string
+    slug: string
+    twitterHandle?: string | null
+  }>
+}
+
+export type LeaderboardPeriodicWinnersEvent = {
+  period: "day" | "week" | "month"
+  periodKey: string
+  periodLabel: string
+  leaderboardUrl: string
+  window: {
+    start: string
+    end: string
+  }
   winners: Array<{
     productId: string
     rank: number
@@ -163,15 +193,19 @@ type AppEvents = {
   [APP_EVENTS.PRODUCT_CREATED]: ProductCreatedEvent
   [APP_EVENTS.PRODUCT_UPDATED]: ProductUpdatedEvent
   [APP_EVENTS.PRODUCT_PUBLISHED]: ProductPublishedEvent
+  [APP_EVENTS.PRODUCT_CLICKED]: ProductClickedEvent
   [APP_EVENTS.PRODUCT_DELETED]: ProductDeletedEvent
   [APP_EVENTS.PRODUCT_VIEWED]: ProductViewedEvent
   [APP_EVENTS.PRODUCT_UPVOTED]: ProductUpvotedEvent
   [APP_EVENTS.PRODUCT_REVIEWED]: ProductReviewCreatedEvent
   [APP_EVENTS.PRODUCT_UPDATE_PUBLISHED]: ProductUpdatePublishedEvent
+  [APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC]: ProductTrafficEvent
+  [APP_EVENTS.LEADERBOARD_REFRESH]: LeaderboardRefreshEvent
   [APP_EVENTS.PAYMENTS_CONNECTOR_SYNC]: PaymentConnectorSyncEvent
   [APP_EVENTS.BADGE_ASSIGNED]: BadgeAssignedEvent
   [APP_EVENTS.BADGE_REMOVED]: BadgeRemovedEvent
   [APP_EVENTS.LEADERBOARD_MONTHLY_WINNERS]: LeaderboardMonthlyWinnersEvent
+  [APP_EVENTS.LEADERBOARD_PERIODIC_WINNERS]: LeaderboardPeriodicWinnersEvent
   [APP_EVENTS.REWARDS_AWARDED]: RewardsAwardedEvent
   [APP_EVENTS.REWARDS_REDEEMED]: RewardsRedeemedEvent
   [APP_EVENTS.REWARDS_ADJUSTED]: RewardsAdjustedEvent

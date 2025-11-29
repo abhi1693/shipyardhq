@@ -70,6 +70,16 @@ export type AlternativeProduct = Prisma.AlternativeProductModel
  */
 export type MonthlyProductRanking = Prisma.MonthlyProductRankingModel
 /**
+ * Model LeaderboardRun
+ * 
+ */
+export type LeaderboardRun = Prisma.LeaderboardRunModel
+/**
+ * Model ProductLeaderboardScore
+ * 
+ */
+export type ProductLeaderboardScore = Prisma.ProductLeaderboardScoreModel
+/**
  * Model MonthlyLeaderboardNotification
  * 
  */
@@ -109,6 +119,16 @@ export type ProductMetadata = Prisma.ProductMetadataModel
  * 
  */
 export type ProductAnalytics = Prisma.ProductAnalyticsModel
+/**
+ * Model ProductClickEvent
+ * 
+ */
+export type ProductClickEvent = Prisma.ProductClickEventModel
+/**
+ * Model ProductTrafficEvent
+ * 
+ */
+export type ProductTrafficEvent = Prisma.ProductTrafficEventModel
 /**
  * Model ProductInsightProfile
  * 

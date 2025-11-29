@@ -11,7 +11,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/atoms/tooltip"
-import { VoteCount } from "@/components/molecules/VoteCount"
+import { ProductScore } from "@/components/molecules/ProductScore"
 import { ProductClickLink } from "@/components/molecules/ProductClickLink"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { cn } from "@/lib/utils"
@@ -129,6 +129,15 @@ export function ProductFeedCard({
     trending: "This product is currently trending with high engagement",
     new: "Recently launched and gaining its first wave of traction",
     "editor-pick": "Curated by the editors for its craftsmanship and polish",
+    "product-of-day-1": "Ranked #1 on the daily leaderboard",
+    "product-of-day-2": "Ranked #2 on the daily leaderboard",
+    "product-of-day-3": "Ranked #3 on the daily leaderboard",
+    "product-of-week-1": "Ranked #1 on the weekly leaderboard",
+    "product-of-week-2": "Ranked #2 on the weekly leaderboard",
+    "product-of-week-3": "Ranked #3 on the weekly leaderboard",
+    "product-of-month-1": "Ranked #1 on the monthly leaderboard",
+    "product-of-month-2": "Ranked #2 on the monthly leaderboard",
+    "product-of-month-3": "Ranked #3 on the monthly leaderboard",
   }
 
   const revenueBadge = revenueLabel ? (
@@ -160,10 +169,11 @@ export function ProductFeedCard({
   })
   const hasBadges = resolvedBadges.length > 0
 
-  const voteCount =
-    typeof item.voteCount === "number" && Number.isFinite(item.voteCount)
-      ? item.voteCount
-      : 0
+  const scoreCount =
+    typeof item.scoreCount === "number" && Number.isFinite(item.scoreCount)
+      ? item.scoreCount
+      : null
+  const scoreLabel = "points"
   const cardContent = (
     <article className="flex flex-1 flex-col gap-4">
       <div className="flex w-full flex-wrap items-start gap-4">
@@ -208,12 +218,11 @@ export function ProductFeedCard({
             <span className="hidden sm:inline-flex">{revenueBadge}</span>
           ) : null}
           {meta ? <span className="shrink-0">{meta}</span> : null}
-          <VoteCount
-            count={voteCount}
-            title={`${voteCount} upvotes`}
+          <ProductScore
+            count={scoreCount ?? 0}
+            label={scoreLabel}
             compact
             className="border-border/50 bg-background px-3 py-1.5 text-xs shadow-none transition-colors"
-            active={Boolean(item.isVoted)}
           />
         </div>
       </div>

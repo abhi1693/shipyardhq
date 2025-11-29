@@ -1134,18 +1134,16 @@ export function ProductRevenueChart({
                       <p className="text-base font-semibold text-slate-900">
                         <span className="inline-flex flex-wrap items-center gap-2">
                           {productLogoUrl ? (
-                            <>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={productLogoUrl}
-                                alt={`${productName ?? "Product"} logo`}
-                                width={28}
-                                height={28}
-                                crossOrigin="anonymous"
-                                className="h-7 w-7 rounded-lg border border-slate-200 bg-transparent object-cover shadow-sm"
-                                style={{ backgroundColor: "transparent" }}
-                              />
-                            </>
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={productLogoUrl}
+                              alt={`${productName ?? "Product"} logo`}
+                              width={28}
+                              height={28}
+                              crossOrigin="anonymous"
+                              className="h-7 w-7 rounded-lg border border-slate-200 bg-transparent object-cover shadow-sm"
+                              style={{ backgroundColor: "transparent" }}
+                            />
                           ) : null}
                           <span>{previewTitle}</span>
                           <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700">

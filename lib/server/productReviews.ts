@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { refreshLeaderboardForProducts } from "@/lib/server/leaderboard/v2"
 
 const reviewSelection = {
   id: true,
@@ -107,12 +108,14 @@ export async function getUserProductReview(productId: string, userId: string) {
   })
 }
 
-export async function upsertProductReview(options: {
+type UpsertProductReviewInput = {
   productId: string
   userId: string
   rating: number
   message: string
-}) {
+}
+
+export async function upsertProductReview(options: UpsertProductReviewInput) {
   const { productId, userId, rating, message } = options
   if (!productId) throw new Error("Missing productId")
   if (!userId) throw new Error("Missing userId")
@@ -126,7 +129,7 @@ export async function upsertProductReview(options: {
     throw new Error("Message is required")
   }
 
-  return prisma.productReview.upsert({
+  const review = await prisma.productReview.upsert({
     where: { productId_userId: { productId, userId } },
     update: { rating: Math.round(rating), message: trimmedMessage },
     create: {
@@ -136,6 +139,21 @@ export async function upsertProductReview(options: {
       message: trimmedMessage,
     },
   })
+
+  // Ensure leaderboard aggregates incorporate this review.
+  try {
+    await refreshLeaderboardForProducts({
+      productIds: [productId],
+      now: review.updatedAt,
+    })
+  } catch (error) {
+    console.error("[leaderboard] review refresh failed", {
+      productId,
+      error,
+    })
+  }
+
+  return review
 }
 
 export async function getProductReviewsForDigest(since: Date, until: Date) {

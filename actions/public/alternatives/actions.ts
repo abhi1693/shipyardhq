@@ -8,6 +8,7 @@ import {
   type ProductCardRecord,
 } from "@/lib/products/selects"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 
 const ALTERNATIVE_CARD_INCLUDE = {
   _count: {
@@ -230,8 +231,10 @@ export const getAlternativeProductsPage = cached(
     ])
 
     const now = new Date()
-    const items = [...priorityProducts, ...regularProducts].map((product) =>
-      mapProductCardRecordToBase(product, now),
+    const allProducts = [...priorityProducts, ...regularProducts]
+    const scoreMap = await getCurrentScoreMap(allProducts.map((p) => p.id))
+    const items = allProducts.map((product) =>
+      mapProductCardRecordToBase(product, now, { scoreByProductId: scoreMap }),
     )
 
     const hasMore = skip + items.length < total

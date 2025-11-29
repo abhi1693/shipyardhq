@@ -12,6 +12,7 @@ import {
   productCardSelect,
   type ProductCardRecord,
 } from "@/lib/products/selects"
+import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 
 interface GetBrowseProductsOptions {
   useCaseSlug?: string
@@ -213,8 +214,10 @@ export const getBrowseProducts = cached(
     ])
 
     const now = new Date()
-    const products = [...priorityProducts, ...regularProducts].map((product) =>
-      mapProductCardRecordToBase(product, now),
+    const allProducts = [...priorityProducts, ...regularProducts]
+    const scoreMap = await getCurrentScoreMap(allProducts.map((p) => p.id))
+    const products = allProducts.map((product) =>
+      mapProductCardRecordToBase(product, now, { scoreByProductId: scoreMap }),
     )
     const total = totalPriority + totalRegular
     const hasMore = skip + products.length < total

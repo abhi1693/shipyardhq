@@ -390,6 +390,8 @@ export const ModelName = {
   PaymentRevenueSnapshot: 'PaymentRevenueSnapshot',
   AlternativeProduct: 'AlternativeProduct',
   MonthlyProductRanking: 'MonthlyProductRanking',
+  LeaderboardRun: 'LeaderboardRun',
+  ProductLeaderboardScore: 'ProductLeaderboardScore',
   MonthlyLeaderboardNotification: 'MonthlyLeaderboardNotification',
   Notification: 'Notification',
   ProductMedia: 'ProductMedia',
@@ -398,6 +400,8 @@ export const ModelName = {
   ProductClaimAttempt: 'ProductClaimAttempt',
   ProductMetadata: 'ProductMetadata',
   ProductAnalytics: 'ProductAnalytics',
+  ProductClickEvent: 'ProductClickEvent',
+  ProductTrafficEvent: 'ProductTrafficEvent',
   ProductInsightProfile: 'ProductInsightProfile',
   ProductInsightStageResult: 'ProductInsightStageResult',
   ProductUpvote: 'ProductUpvote',
@@ -439,7 +443,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "notification" | "productMedia" | "productUpdate" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "monthlyProductRanking" | "leaderboardRun" | "productLeaderboardScore" | "monthlyLeaderboardNotification" | "notification" | "productMedia" | "productUpdate" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -884,6 +888,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.MonthlyProductRankingCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.MonthlyProductRankingCountAggregateOutputType> | number
+        }
+      }
+    }
+    LeaderboardRun: {
+      payload: Prisma.$LeaderboardRunPayload<ExtArgs>
+      fields: Prisma.LeaderboardRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LeaderboardRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LeaderboardRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardRunPayload>
+        }
+        findFirst: {
+          args: Prisma.LeaderboardRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LeaderboardRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardRunPayload>
+        }
+        findMany: {
+          args: Prisma.LeaderboardRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardRunPayload>[]
+        }
+        create: {
+          args: Prisma.LeaderboardRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardRunPayload>
+        }
+        createMany: {
+          args: Prisma.LeaderboardRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LeaderboardRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardRunPayload>[]
+        }
+        delete: {
+          args: Prisma.LeaderboardRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardRunPayload>
+        }
+        update: {
+          args: Prisma.LeaderboardRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.LeaderboardRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LeaderboardRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LeaderboardRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.LeaderboardRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardRunPayload>
+        }
+        aggregate: {
+          args: Prisma.LeaderboardRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLeaderboardRun>
+        }
+        groupBy: {
+          args: Prisma.LeaderboardRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LeaderboardRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LeaderboardRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LeaderboardRunCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductLeaderboardScore: {
+      payload: Prisma.$ProductLeaderboardScorePayload<ExtArgs>
+      fields: Prisma.ProductLeaderboardScoreFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductLeaderboardScoreFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductLeaderboardScorePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductLeaderboardScoreFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductLeaderboardScorePayload>
+        }
+        findFirst: {
+          args: Prisma.ProductLeaderboardScoreFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductLeaderboardScorePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductLeaderboardScoreFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductLeaderboardScorePayload>
+        }
+        findMany: {
+          args: Prisma.ProductLeaderboardScoreFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductLeaderboardScorePayload>[]
+        }
+        create: {
+          args: Prisma.ProductLeaderboardScoreCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductLeaderboardScorePayload>
+        }
+        createMany: {
+          args: Prisma.ProductLeaderboardScoreCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductLeaderboardScoreCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductLeaderboardScorePayload>[]
+        }
+        delete: {
+          args: Prisma.ProductLeaderboardScoreDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductLeaderboardScorePayload>
+        }
+        update: {
+          args: Prisma.ProductLeaderboardScoreUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductLeaderboardScorePayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductLeaderboardScoreDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductLeaderboardScoreUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductLeaderboardScoreUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductLeaderboardScorePayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductLeaderboardScoreUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductLeaderboardScorePayload>
+        }
+        aggregate: {
+          args: Prisma.ProductLeaderboardScoreAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductLeaderboardScore>
+        }
+        groupBy: {
+          args: Prisma.ProductLeaderboardScoreGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductLeaderboardScoreGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductLeaderboardScoreCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductLeaderboardScoreCountAggregateOutputType> | number
         }
       }
     }
@@ -1476,6 +1628,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductAnalyticsCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductAnalyticsCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductClickEvent: {
+      payload: Prisma.$ProductClickEventPayload<ExtArgs>
+      fields: Prisma.ProductClickEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductClickEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductClickEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductClickEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductClickEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
+        }
+        findMany: {
+          args: Prisma.ProductClickEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>[]
+        }
+        create: {
+          args: Prisma.ProductClickEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
+        }
+        createMany: {
+          args: Prisma.ProductClickEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductClickEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>[]
+        }
+        delete: {
+          args: Prisma.ProductClickEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
+        }
+        update: {
+          args: Prisma.ProductClickEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductClickEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductClickEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductClickEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductClickEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductClickEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductClickEvent>
+        }
+        groupBy: {
+          args: Prisma.ProductClickEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductClickEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductClickEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductClickEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductTrafficEvent: {
+      payload: Prisma.$ProductTrafficEventPayload<ExtArgs>
+      fields: Prisma.ProductTrafficEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductTrafficEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductTrafficEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductTrafficEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductTrafficEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>
+        }
+        findMany: {
+          args: Prisma.ProductTrafficEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>[]
+        }
+        create: {
+          args: Prisma.ProductTrafficEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>
+        }
+        createMany: {
+          args: Prisma.ProductTrafficEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductTrafficEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>[]
+        }
+        delete: {
+          args: Prisma.ProductTrafficEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>
+        }
+        update: {
+          args: Prisma.ProductTrafficEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductTrafficEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductTrafficEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductTrafficEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductTrafficEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductTrafficEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductTrafficEvent>
+        }
+        groupBy: {
+          args: Prisma.ProductTrafficEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductTrafficEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductTrafficEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductTrafficEventCountAggregateOutputType> | number
         }
       }
     }
@@ -3549,6 +3849,38 @@ export const MonthlyProductRankingScalarFieldEnum = {
 export type MonthlyProductRankingScalarFieldEnum = (typeof MonthlyProductRankingScalarFieldEnum)[keyof typeof MonthlyProductRankingScalarFieldEnum]
 
 
+export const LeaderboardRunScalarFieldEnum = {
+  id: 'id',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LeaderboardRunScalarFieldEnum = (typeof LeaderboardRunScalarFieldEnum)[keyof typeof LeaderboardRunScalarFieldEnum]
+
+
+export const ProductLeaderboardScoreScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  productId: 'productId',
+  views: 'views',
+  uniqueVisitors: 'uniqueVisitors',
+  clicks: 'clicks',
+  upvotes: 'upvotes',
+  reviewsCount: 'reviewsCount',
+  reviewsRatingSum: 'reviewsRatingSum',
+  score: 'score',
+  scoreComponents: 'scoreComponents',
+  rank: 'rank',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductLeaderboardScoreScalarFieldEnum = (typeof ProductLeaderboardScoreScalarFieldEnum)[keyof typeof ProductLeaderboardScoreScalarFieldEnum]
+
+
 export const MonthlyLeaderboardNotificationScalarFieldEnum = {
   id: 'id',
   month: 'month',
@@ -3654,11 +3986,50 @@ export const ProductAnalyticsScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
   upvotes: 'upvotes',
+  clicks: 'clicks',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ProductAnalyticsScalarFieldEnum = (typeof ProductAnalyticsScalarFieldEnum)[keyof typeof ProductAnalyticsScalarFieldEnum]
+
+
+export const ProductClickEventScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  referrer: 'referrer',
+  userAgent: 'userAgent',
+  device: 'device',
+  browser: 'browser',
+  os: 'os',
+  country: 'country',
+  region: 'region',
+  city: 'city',
+  ipHash: 'ipHash',
+  createdAt: 'createdAt'
+} as const
+
+export type ProductClickEventScalarFieldEnum = (typeof ProductClickEventScalarFieldEnum)[keyof typeof ProductClickEventScalarFieldEnum]
+
+
+export const ProductTrafficEventScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  path: 'path',
+  referrer: 'referrer',
+  userAgent: 'userAgent',
+  device: 'device',
+  browser: 'browser',
+  os: 'os',
+  country: 'country',
+  region: 'region',
+  city: 'city',
+  ipHash: 'ipHash',
+  isBot: 'isBot',
+  createdAt: 'createdAt'
+} as const
+
+export type ProductTrafficEventScalarFieldEnum = (typeof ProductTrafficEventScalarFieldEnum)[keyof typeof ProductTrafficEventScalarFieldEnum]
 
 
 export const ProductInsightProfileScalarFieldEnum = {
@@ -4292,6 +4663,20 @@ export type ListEnumPaymentCredentialStatusFieldRefInput<$PrismaModel> = FieldRe
 
 
 /**
+ * Reference to a field of type 'LeaderboardRunStatus'
+ */
+export type EnumLeaderboardRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeaderboardRunStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'LeaderboardRunStatus[]'
+ */
+export type ListEnumLeaderboardRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeaderboardRunStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'NotificationType'
  */
 export type EnumNotificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationType'>
@@ -4351,6 +4736,20 @@ export type EnumProductClaimStatusFieldRefInput<$PrismaModel> = FieldRefInputTyp
  * Reference to a field of type 'ProductClaimStatus[]'
  */
 export type ListEnumProductClaimStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductClaimStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DeviceCategory'
+ */
+export type EnumDeviceCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeviceCategory'>
+    
+
+
+/**
+ * Reference to a field of type 'DeviceCategory[]'
+ */
+export type ListEnumDeviceCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeviceCategory[]'>
     
 
 
@@ -4648,6 +5047,8 @@ export type GlobalOmitConfig = {
   paymentRevenueSnapshot?: Prisma.PaymentRevenueSnapshotOmit
   alternativeProduct?: Prisma.AlternativeProductOmit
   monthlyProductRanking?: Prisma.MonthlyProductRankingOmit
+  leaderboardRun?: Prisma.LeaderboardRunOmit
+  productLeaderboardScore?: Prisma.ProductLeaderboardScoreOmit
   monthlyLeaderboardNotification?: Prisma.MonthlyLeaderboardNotificationOmit
   notification?: Prisma.NotificationOmit
   productMedia?: Prisma.ProductMediaOmit
@@ -4656,6 +5057,8 @@ export type GlobalOmitConfig = {
   productClaimAttempt?: Prisma.ProductClaimAttemptOmit
   productMetadata?: Prisma.ProductMetadataOmit
   productAnalytics?: Prisma.ProductAnalyticsOmit
+  productClickEvent?: Prisma.ProductClickEventOmit
+  productTrafficEvent?: Prisma.ProductTrafficEventOmit
   productInsightProfile?: Prisma.ProductInsightProfileOmit
   productInsightStageResult?: Prisma.ProductInsightStageResultOmit
   productUpvote?: Prisma.ProductUpvoteOmit

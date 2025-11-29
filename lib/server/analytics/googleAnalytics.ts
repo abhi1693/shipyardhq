@@ -3,6 +3,7 @@ import { format, subDays } from "date-fns"
 
 import { buildCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
+import { productPath } from "@/lib/routes"
 
 type HomepageTraffic = {
   pageViews30: number
@@ -697,6 +698,90 @@ export async function getProductTrafficFromGa(args: {
       timeseries: [],
     }
   }
+}
+
+export async function getProductTrafficMapFromGa(args: {
+  products: Array<{ id: string; slug: string }>
+  dateRange: GaDateRange
+}): Promise<Map<string, { pageViews: number; uniqueVisitors: number; sessions: number }>> {
+  const results = new Map<string, { pageViews: number; uniqueVisitors: number; sessions: number }>()
+  if (!args.products.length) return results
+
+  const client = await getClient()
+  const property = resolveProperty()
+  if (!property) {
+    console.error("[analytics] GA_PROPERTY_ID is missing; product traffic map unavailable")
+    return results
+  }
+
+  const pathToProductId = new Map<string, string>()
+  for (const product of args.products) {
+    const base = productPath(product.slug)
+    pathToProductId.set(base, product.id)
+    pathToProductId.set(`${base}/`, product.id)
+  }
+
+  const allPaths = Array.from(pathToProductId.keys())
+  const CHUNK_SIZE = 150
+
+  const metrics = [
+    { name: "screenPageViews" },
+    { name: "activeUsers" },
+    { name: "sessions" },
+  ]
+
+  const parseValue = (value: string | null | undefined) => Number(value ?? 0) || 0
+
+  for (let i = 0; i < allPaths.length; i += CHUNK_SIZE) {
+    const chunk = allPaths.slice(i, i + CHUNK_SIZE)
+    if (!chunk.length) continue
+
+    try {
+      const response = await client.runReport({
+        property,
+        dateRanges: [args.dateRange],
+        dimensions: [{ name: "pagePath" }],
+        metrics,
+        dimensionFilter: {
+          filter: {
+            fieldName: "pagePath",
+            inListFilter: {
+              values: chunk,
+            },
+          },
+        },
+      })
+
+      const rows = response?.[0]?.rows ?? []
+      for (const row of rows) {
+        const path = row.dimensionValues?.[0]?.value ?? ""
+        const productId = pathToProductId.get(path)
+        if (!productId) continue
+
+        const pageViews = parseValue(row.metricValues?.[0]?.value)
+        const uniqueVisitors = parseValue(row.metricValues?.[1]?.value)
+        const sessions = parseValue(row.metricValues?.[2]?.value)
+
+        const current = results.get(productId) ?? {
+          pageViews: 0,
+          uniqueVisitors: 0,
+          sessions: 0,
+        }
+        results.set(productId, {
+          pageViews: current.pageViews + pageViews,
+          uniqueVisitors: current.uniqueVisitors + uniqueVisitors,
+          sessions: current.sessions + sessions,
+        })
+      }
+    } catch (error) {
+      console.error("[analytics] failed to fetch GA traffic map for products", {
+        chunkSize: chunk.length,
+        error,
+      })
+    }
+  }
+
+  return results
 }
 
 function defaultSiteDateRange(): GaDateRange {

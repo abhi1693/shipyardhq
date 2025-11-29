@@ -41,6 +41,10 @@ export async function registerEventHandlers(): Promise<void> {
       load: () => import("@/lib/server/payments/listeners"),
     },
     {
+      path: "@/lib/server/leaderboard/listeners",
+      load: () => import("@/lib/server/leaderboard/listeners"),
+    },
+    {
       path: "@/lib/server/claims/cleanup",
       load: () => import("@/lib/server/claims/cleanup"),
     },
