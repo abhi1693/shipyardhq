@@ -14,10 +14,9 @@ import {
   getCurrentLeaderboardWindow,
 } from "@/lib/server/leaderboard/v2"
 import {
-  grantWinnerPerks,
   normalizeMonth,
   toMonthKey,
-} from "@/lib/server/monthlyLeaderboard"
+} from "@/lib/server/leaderboard/months"
 import { extractTwitterHandle } from "@/lib/server/social/twitterMessages"
 import { sendEmail } from "@/lib/email/resend"
 
@@ -38,6 +37,11 @@ const shortDayLabelFormatter = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
   timeZone: "UTC",
 })
+
+const DAY_MS = 24 * 60 * 60 * 1000
+const WINNER_BADGE = "editor-pick"
+const WINNER_PLAN_SLUG = process.env.MONTHLY_WINNER_PLAN_SLUG ?? "featured"
+const WINNER_BOOST_DAYS = 3
 
 export type PeriodCadence = "day" | "week" | "month"
 
@@ -242,6 +246,118 @@ type WinnerEvent = {
   name: string
   slug: string
   twitterHandle?: string | null
+}
+
+async function resolveWinnerBadgeExpiry(
+  now: Date,
+): Promise<Date | null> {
+  const defaultPlan = await prisma.plan.findFirst({
+    where: { isDefault: true },
+    orderBy: { createdAt: "desc" },
+    select: { boostForDays: true },
+  })
+
+  const boostDays = defaultPlan?.boostForDays
+  if (boostDays == null) {
+    return new Date(now.getTime() + WINNER_BOOST_DAYS * DAY_MS)
+  }
+  if (boostDays <= 0) {
+    return null
+  }
+
+  return new Date(now.getTime() + boostDays * DAY_MS)
+}
+
+async function upsertEditorPickBadge(productId: string, now: Date) {
+  const desiredExpiresAt = await resolveWinnerBadgeExpiry(now)
+  const existing = await prisma.productBadge.findFirst({
+    where: { productId, badge: WINNER_BADGE },
+    select: { id: true, expiresAt: true },
+  })
+
+  if (existing) {
+    const currentExpiresAt = existing.expiresAt
+    let nextExpiresAt = desiredExpiresAt
+
+    if (
+      desiredExpiresAt &&
+      currentExpiresAt &&
+      currentExpiresAt > desiredExpiresAt
+    ) {
+      nextExpiresAt = currentExpiresAt
+    }
+
+    const hasChanged =
+      (nextExpiresAt == null && currentExpiresAt != null) ||
+      (nextExpiresAt != null &&
+        (!currentExpiresAt ||
+          currentExpiresAt.getTime() !== nextExpiresAt.getTime()))
+
+    if (hasChanged) {
+      await prisma.productBadge.update({
+        where: { id: existing.id },
+        data: { expiresAt: nextExpiresAt },
+      })
+    }
+  } else {
+    await prisma.productBadge.create({
+      data: {
+        productId,
+        badge: WINNER_BADGE,
+        expiresAt: desiredExpiresAt,
+      },
+    })
+  }
+}
+
+async function assignWinnerBoostPlan(product: WinnerProduct, now: Date) {
+  const minimumExpiry = new Date(now.getTime() + WINNER_BOOST_DAYS * DAY_MS)
+
+  if (product.plan && product.plan.boostForDays && product.planAssignedAt) {
+    const currentExpiry = new Date(
+      product.planAssignedAt.getTime() + product.plan.boostForDays * DAY_MS,
+    )
+    if (currentExpiry >= minimumExpiry && !product.plan.isDefault) {
+      return
+    }
+  }
+
+  let planId = product.planId
+  let planBoostDays = product.plan?.boostForDays ?? null
+  let isDefaultPlan = product.plan?.isDefault ?? true
+
+  if (!planId || isDefaultPlan) {
+    const fallbackPlan = await prisma.plan.findUnique({
+      where: { slug: WINNER_PLAN_SLUG },
+      select: { id: true, boostForDays: true },
+    })
+    if (!fallbackPlan) return
+    planId = fallbackPlan.id
+    planBoostDays = fallbackPlan.boostForDays ?? WINNER_BOOST_DAYS
+    isDefaultPlan = false
+  }
+
+  if (!planId) return
+
+  const boostDays = Math.max(
+    planBoostDays ?? WINNER_BOOST_DAYS,
+    WINNER_BOOST_DAYS,
+  )
+  const offsetDays = Math.max(boostDays - WINNER_BOOST_DAYS, 0)
+  const planAssignedAt = new Date(now.getTime() - offsetDays * DAY_MS)
+
+  await prisma.product.update({
+    where: { id: product.id },
+    data: {
+      planId,
+      planAssignedAt,
+    },
+  })
+}
+
+async function grantWinnerPerks(product: WinnerProduct, now: Date) {
+  await upsertEditorPickBadge(product.id, now)
+  await assignWinnerBoostPlan(product, now)
 }
 
 export async function announceLeaderboardWinnersForRun(runId: string) {

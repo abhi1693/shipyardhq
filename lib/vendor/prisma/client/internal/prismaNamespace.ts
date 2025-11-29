@@ -389,7 +389,6 @@ export const ModelName = {
   PaymentConnectorCredential: 'PaymentConnectorCredential',
   PaymentRevenueSnapshot: 'PaymentRevenueSnapshot',
   AlternativeProduct: 'AlternativeProduct',
-  MonthlyProductRanking: 'MonthlyProductRanking',
   LeaderboardRun: 'LeaderboardRun',
   ProductLeaderboardScore: 'ProductLeaderboardScore',
   MonthlyLeaderboardNotification: 'MonthlyLeaderboardNotification',
@@ -443,7 +442,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "monthlyProductRanking" | "leaderboardRun" | "productLeaderboardScore" | "monthlyLeaderboardNotification" | "notification" | "productMedia" | "productUpdate" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "monthlyLeaderboardNotification" | "notification" | "productMedia" | "productUpdate" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -814,80 +813,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AlternativeProductCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AlternativeProductCountAggregateOutputType> | number
-        }
-      }
-    }
-    MonthlyProductRanking: {
-      payload: Prisma.$MonthlyProductRankingPayload<ExtArgs>
-      fields: Prisma.MonthlyProductRankingFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.MonthlyProductRankingFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.MonthlyProductRankingFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>
-        }
-        findFirst: {
-          args: Prisma.MonthlyProductRankingFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.MonthlyProductRankingFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>
-        }
-        findMany: {
-          args: Prisma.MonthlyProductRankingFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>[]
-        }
-        create: {
-          args: Prisma.MonthlyProductRankingCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>
-        }
-        createMany: {
-          args: Prisma.MonthlyProductRankingCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.MonthlyProductRankingCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>[]
-        }
-        delete: {
-          args: Prisma.MonthlyProductRankingDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>
-        }
-        update: {
-          args: Prisma.MonthlyProductRankingUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>
-        }
-        deleteMany: {
-          args: Prisma.MonthlyProductRankingDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.MonthlyProductRankingUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.MonthlyProductRankingUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>[]
-        }
-        upsert: {
-          args: Prisma.MonthlyProductRankingUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>
-        }
-        aggregate: {
-          args: Prisma.MonthlyProductRankingAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateMonthlyProductRanking>
-        }
-        groupBy: {
-          args: Prisma.MonthlyProductRankingGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MonthlyProductRankingGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.MonthlyProductRankingCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MonthlyProductRankingCountAggregateOutputType> | number
         }
       }
     }
@@ -3833,20 +3758,6 @@ export const AlternativeProductScalarFieldEnum = {
 export type AlternativeProductScalarFieldEnum = (typeof AlternativeProductScalarFieldEnum)[keyof typeof AlternativeProductScalarFieldEnum]
 
 
-export const MonthlyProductRankingScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  month: 'month',
-  rank: 'rank',
-  score: 'score',
-  upvotes: 'upvotes',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type MonthlyProductRankingScalarFieldEnum = (typeof MonthlyProductRankingScalarFieldEnum)[keyof typeof MonthlyProductRankingScalarFieldEnum]
-
-
 export const LeaderboardRunScalarFieldEnum = {
   id: 'id',
   periodStart: 'periodStart',
@@ -5044,7 +4955,6 @@ export type GlobalOmitConfig = {
   paymentConnectorCredential?: Prisma.PaymentConnectorCredentialOmit
   paymentRevenueSnapshot?: Prisma.PaymentRevenueSnapshotOmit
   alternativeProduct?: Prisma.AlternativeProductOmit
-  monthlyProductRanking?: Prisma.MonthlyProductRankingOmit
   leaderboardRun?: Prisma.LeaderboardRunOmit
   productLeaderboardScore?: Prisma.ProductLeaderboardScoreOmit
   monthlyLeaderboardNotification?: Prisma.MonthlyLeaderboardNotificationOmit

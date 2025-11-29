@@ -55,7 +55,6 @@ model Product {
   placementSchedules    PlacementSchedule[]
   clickEvents           ProductClickEvent[]
   trafficEvents         ProductTrafficEvent[]
-  MonthlyProductRanking MonthlyProductRanking[]
   leaderboardScores     ProductLeaderboardScore[]
   rewardTransactions    RewardTransaction[]
   redemptions           Redemption[]
@@ -164,26 +163,6 @@ model AlternativeProduct {
   products   Product[] @relation("ProductAlternativeProducts")
   categories Category[] @relation("AlternativeProductCategories")
 
-  @@index([createdAt])
-  @@index([updatedAt])
-}
-
-model MonthlyProductRanking {
-  id        String   @id @default(cuid())
-  productId String
-  month     DateTime // Normalized to the first day of the month in UTC
-  rank      Int
-  score     Int?
-  upvotes   Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@unique([month, productId])
-  @@unique([month, rank])
-  @@index([productId, month])
-  @@index([month])
   @@index([createdAt])
   @@index([updatedAt])
 }

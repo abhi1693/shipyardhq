@@ -4,7 +4,7 @@ import {
   normalizeMonth,
   parseMonthKey,
   toMonthKey,
-} from "@/lib/server/monthlyLeaderboard"
+} from "@/lib/server/leaderboard/months"
 import {
   getIsoWeekKey,
   getIsoWeekYearAndNumber,
@@ -756,41 +756,20 @@ export async function getPeriodicLeaderboardByParams(args: {
 
 export const getMonthlyLeaderboardMonths = cached(
   async () => {
-    const [runs, legacyMonths] = await Promise.all([
-      prisma.leaderboardRun.findMany({
-        distinct: ["periodStart"],
-        orderBy: { periodStart: "desc" },
-        select: { periodStart: true },
-      }),
-      prisma.monthlyProductRanking.findMany({
-        distinct: ["month"],
-        orderBy: { month: "desc" },
-        select: { month: true },
-      }),
-    ])
-
-    const monthSet = new Map<string, Date>()
-    runs.forEach((run: { periodStart: Date }) => {
-      monthSet.set(toMonthKey(run.periodStart), run.periodStart)
-    })
-    legacyMonths.forEach((legacy: { month: Date }) => {
-      const key = toMonthKey(legacy.month)
-      if (!monthSet.has(key)) {
-        monthSet.set(key, legacy.month)
-      }
+    const runs: Array<{ periodStart: Date }> = await prisma.leaderboardRun.findMany({
+      distinct: ["periodStart"],
+      orderBy: { periodStart: "desc" },
+      select: { periodStart: true },
     })
 
-    return Array.from(monthSet.entries())
-      .map(([monthKey, date]) => ({
-        month: monthKey,
-        label: monthLabelFormatter.format(date),
-        date,
+    return runs
+      .map(({ periodStart }) => ({
+        month: toMonthKey(periodStart),
+        label: monthLabelFormatter.format(periodStart),
+        date: periodStart,
       }))
       .sort((a, b) => b.date.getTime() - a.date.getTime())
-      .map(({ month, label }) => ({
-        month,
-        label,
-      })) satisfies MonthlyLeaderboardMonth[]
+      .map(({ month, label }) => ({ month, label })) satisfies MonthlyLeaderboardMonth[]
   },
   "leaderboard:monthly:months",
   {

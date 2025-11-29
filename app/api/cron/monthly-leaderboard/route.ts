@@ -7,7 +7,7 @@ import {
   parseMonthKey,
   normalizeMonth,
   toMonthKey,
-} from "@/lib/server/monthlyLeaderboard"
+} from "@/lib/server/leaderboard/months"
 import { generateLeaderboardRun } from "@/lib/server/leaderboard/v2"
 import { announceLeaderboardWinnersForRun } from "@/lib/server/leaderboard/winners"
 

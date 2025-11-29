@@ -8,7 +8,7 @@ import {
   revalidateLeaderboard,
   revalidateMonthlyLeaderboard,
 } from "@/lib/cache/revalidate"
-import { toMonthKey } from "@/lib/server/monthlyLeaderboard"
+import { toMonthKey } from "@/lib/server/leaderboard/months"
 
 registerEventHandler({
   event: APP_EVENTS.LEADERBOARD_REFRESH,

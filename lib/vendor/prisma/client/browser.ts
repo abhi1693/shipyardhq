@@ -43,11 +43,6 @@ export type PaymentRevenueSnapshot = Prisma.PaymentRevenueSnapshotModel
  */
 export type AlternativeProduct = Prisma.AlternativeProductModel
 /**
- * Model MonthlyProductRanking
- * 
- */
-export type MonthlyProductRanking = Prisma.MonthlyProductRankingModel
-/**
  * Model LeaderboardRun
  * 
  */
