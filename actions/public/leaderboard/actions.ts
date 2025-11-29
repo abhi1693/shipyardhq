@@ -448,7 +448,9 @@ export const getTopRankedProducts = cached(
   {
     ttl: DEFAULT_TTL.fast,
     keyParts: ([args]) => {
+      const limit = args?.limit ?? 50
       const parts = [
+        `limit:${limit}`,
         args?.categorySlug ? `category:${args.categorySlug}` : null,
       ].filter((value): value is string => Boolean(value))
       return parts
