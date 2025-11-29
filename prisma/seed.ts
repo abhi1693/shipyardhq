@@ -53,8 +53,6 @@ type ProductSeed = {
   pricingModel: PricingModel
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   keywords: string[]
   platforms: Platform[]
   planSlug?: string
@@ -167,8 +165,6 @@ function buildProductCreateInput(
     pricingModel: def.pricingModel,
     startingPriceCents: def.startingPriceCents ?? null,
     currencyCode: def.currencyCode ?? null,
-    ctaLabel: def.ctaLabel ?? null,
-    ctaUrl: def.ctaUrl ?? null,
     keywords: def.keywords,
     platforms: def.platforms,
     user: { connect: { id: userId } },
@@ -247,8 +243,6 @@ function buildProductUpdateInput(
     pricingModel: def.pricingModel,
     startingPriceCents: def.startingPriceCents ?? null,
     currencyCode: def.currencyCode ?? null,
-    ctaLabel: def.ctaLabel ?? null,
-    ctaUrl: def.ctaUrl ?? null,
     keywords: { set: def.keywords },
     platforms: { set: def.platforms },
     user: { connect: { id: userId } },
@@ -654,8 +648,6 @@ async function main() {
       pricingModel: product.pricingModel,
       startingPriceCents: product.startingPriceCents,
       currencyCode: "USD",
-      ctaLabel: "Visit website",
-      ctaUrl: product.websiteUrl,
       keywords: [...product.keywords],
       platforms: [Platform.web],
       userEmail: product.userEmail,

@@ -3761,8 +3761,6 @@ export const ProductScalarFieldEnum = {
   organizationId: 'organizationId',
   startingPriceCents: 'startingPriceCents',
   currencyCode: 'currencyCode',
-  ctaLabel: 'ctaLabel',
-  ctaUrl: 'ctaUrl',
   bannerImage: 'bannerImage',
   keywords: 'keywords',
   platforms: 'platforms',

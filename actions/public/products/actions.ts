@@ -130,8 +130,6 @@ const publicProductMetaSelect = {
   pricingModel: true,
   platforms: true,
   websiteUrl: true,
-  ctaLabel: true,
-  ctaUrl: true,
   verification: {
     select: {
       isVerified: true,

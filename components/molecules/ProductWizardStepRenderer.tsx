@@ -34,7 +34,6 @@ export function renderStep(
     productId?: string
     persistOnVerify?: boolean
     lockWebsiteUrl?: boolean
-    canEditCTA?: boolean
     rightOfWebsite?: ReactNode
     enableAutofill?: boolean
     autofillNotice?: ReactNode
@@ -68,7 +67,6 @@ export function renderStep(
         <Step4
           organizations={args.organizations}
           productId={args.productId}
-          canEditCTA={args.canEditCTA}
           alternatives={args.alternatives ?? []}
         />
       )

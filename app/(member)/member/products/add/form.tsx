@@ -122,13 +122,11 @@ export default function AddProductForm({
   categories,
   organizations,
   userId,
-  canEditCTA,
   alternatives,
 }: {
   categories: { id: string; name: string }[]
   organizations: { id: string; name: string }[]
   userId: string
-  canEditCTA: boolean
   alternatives: {
     id: string
     slug?: string | null
@@ -198,7 +196,6 @@ export default function AddProductForm({
     organizations,
     productId: newProductId,
     persistOnVerify: false,
-    canEditCTA,
     enableAutofill: true,
     alternatives,
     pricingAside: <ConnectorFields form={form} />,

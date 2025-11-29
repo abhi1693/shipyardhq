@@ -60,8 +60,6 @@ export const STEP_FIELDS: Record<number, readonly string[]> = {
   3: [],
   4: [
     "organizationId",
-    "ctaLabel",
-    "ctaUrl",
     "bannerImage",
     "githubUrl",
     "twitterUrl",

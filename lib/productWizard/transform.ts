@@ -22,8 +22,6 @@ export function sanitizeTextFields<T extends Record<string, any>>(
     "tagline",
     "websiteUrl",
     "logo",
-    "ctaLabel",
-    "ctaUrl",
   ]) {
     if (typeof clone[k] === "string") clone[k] = clone[k].trim()
   }

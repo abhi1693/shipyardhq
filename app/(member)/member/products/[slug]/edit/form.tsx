@@ -169,14 +169,12 @@ export default function EditProductForm({
   product,
   categories,
   organizations,
-  canEditCTA,
   alternatives,
   connector,
 }: {
   product: any
   categories: { id: string; name: string }[]
   organizations: { id: string; name: string }[]
-  canEditCTA: boolean
   alternatives: {
     id: string
     slug?: string | null
@@ -235,7 +233,6 @@ export default function EditProductForm({
     productId: product.id,
     lockWebsiteUrl: true,
     persistOnVerify: true,
-    canEditCTA,
     enableAutofill: true,
     autofillNotice:
       "AI Autofill replaces the fields on this step with new suggestions. Your current content will be overwritten.",

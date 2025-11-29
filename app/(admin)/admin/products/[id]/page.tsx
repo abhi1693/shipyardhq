@@ -301,22 +301,6 @@ export default async function ViewProductPage({
                     isExternal: true,
                   })}
                 />
-                <OverviewRow
-                  label="CTA Label"
-                  value={product.ctaLabel || placeholder()}
-                />
-                <OverviewRow
-                  label="CTA URL"
-                  value={
-                    product.ctaUrl
-                      ? linkify({
-                          href: product.ctaUrl,
-                          label: product.ctaUrl,
-                          isExternal: true,
-                        })
-                      : placeholder()
-                  }
-                />
                 {product.metadata?.githubUrl && (
                   <OverviewRow
                     label="GitHub"

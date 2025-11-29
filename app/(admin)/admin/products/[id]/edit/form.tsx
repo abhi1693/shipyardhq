@@ -264,7 +264,6 @@ export default function EditProductForm({
       productId: product.id,
       lockWebsiteUrl: false,
       persistOnVerify: true,
-      canEditCTA: true,
       rightOfWebsite: ownerNode,
       pricingAside: (
         <ConnectorFields

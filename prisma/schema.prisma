@@ -32,8 +32,6 @@ model Product {
   organizationId     String?
   startingPriceCents Int?
   currencyCode       String? // ISO 4217, e.g. "USD"
-  ctaLabel           String?
-  ctaUrl             String?
   bannerImage        String?
   keywords           String[]
   platforms          Platform[]

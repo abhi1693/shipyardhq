@@ -48,7 +48,6 @@ import {
   Github as GithubIcon,
   Globe,
   Mail,
-  MousePointerClick,
   Tag,
   Target,
   Twitter as TwitterIcon,
@@ -259,18 +258,6 @@ export default async function ViewUserProductPage({
   const organizationUrl = product.organization?.url ?? ""
   const organizationHost = organizationUrl ? formatHost(organizationUrl) : null
   const websiteHost = formatHost(product.websiteUrl) ?? product.websiteUrl
-  const ctaLabel = product.ctaLabel ?? ""
-  const ctaUrl = product.ctaUrl ?? ""
-  const ctaHost = (() => {
-    if (!ctaUrl) return ""
-    try {
-      const host = new URL(ctaUrl).hostname.replace(/^www\./, "")
-      return host || ctaUrl
-    } catch {
-      return ctaUrl
-    }
-  })()
-  const hasCtaPair = Boolean(ctaLabel && ctaUrl)
   const metadata = product.metadata
 
   const extraLinks: Array<{
@@ -903,39 +890,6 @@ export default async function ViewUserProductPage({
                     <span className={placeholderTextClass}>
                       {placeholder()}
                     </span>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <span className={sectionLabelClass}>Primary CTA</span>
-                  {hasCtaPair ? (
-                    <div className="space-y-1">
-                      <span className={infoChipClass}>
-                        <MousePointerClick className={chipIconClass} /> CTA
-                        label
-                      </span>
-                      <Link
-                        href={ctaUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`${accentChipClass} max-w-full`}
-                      >
-                        <span className="truncate max-w-[18rem]">
-                          {ctaHost ?? ctaUrl}
-                        </span>
-                      </Link>
-                    </div>
-                  ) : (
-                    <div className="space-y-1">
-                      <span className={placeholderTextClass}>
-                        {placeholder()}
-                      </span>
-                      {(ctaLabel && !ctaUrl) || (!ctaLabel && ctaUrl) ? (
-                        <p className="text-xs text-destructive">
-                          Tip: Provide both CTA label and URL for a complete
-                          call-to-action.
-                        </p>
-                      ) : null}
-                    </div>
                   )}
                 </div>
                 <div className="space-y-2">

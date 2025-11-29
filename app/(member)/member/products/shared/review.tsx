@@ -245,9 +245,9 @@ export default function Review({
         </div>
       </section>
 
-      {/* CTA & Organization */}
+      {/* Organization */}
       <section className="space-y-2">
-        <h3 className="text-lg font-semibold">CTA & Organization</h3>
+        <h3 className="text-lg font-semibold">Organization</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
           <Info
             label="Organization"
@@ -256,8 +256,6 @@ export default function Review({
               (v.organizationId ? v.organizationId : "Personal")
             }
           />
-          <Info label="CTA Label" value={v.ctaLabel} />
-          <Info label="CTA URL" value={v.ctaUrl} />
         </div>
       </section>
 

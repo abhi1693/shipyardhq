@@ -23,7 +23,6 @@ import {
 } from "@/lib/vendor/prisma/client"
 import { slugify } from "@/lib/utils"
 import { checkRole } from "@/lib/roles"
-import { memberHasFeature } from "@/lib/memberFeatures"
 import { generateVerificationTxtFromWebsite } from "@/lib/products/verification"
 import {
   revalidateCategory,
@@ -224,8 +223,6 @@ export async function createProductAction(formData: FormData) {
     : undefined
   const currencyCode =
     formData.get("currencyCode")?.toString().trim() || undefined
-  let ctaLabel = formData.get("ctaLabel")?.toString().trim() || undefined
-  let ctaUrl = formData.get("ctaUrl")?.toString().trim() || undefined
   const bannerImage =
     formData.get("bannerImage")?.toString().trim() || undefined
 
@@ -285,14 +282,6 @@ export async function createProductAction(formData: FormData) {
       // Ignore DNS errors during creation; user can verify later
     }
 
-    // Gate CTA fields by feature for non-admins
-    const isAdmin = await checkRole("admin")
-    const canEditCTA = isAdmin || (await memberHasFeature("customCTA"))
-    if (!canEditCTA) {
-      ctaLabel = undefined
-      ctaUrl = undefined
-    }
-
     const uniqueAlternativeIds = Array.from(new Set(alternativeIds))
 
     const created = await prisma.product.create({
@@ -315,8 +304,6 @@ export async function createProductAction(formData: FormData) {
           (status === "published" ? new Date() : null) ?? publishedAt ?? null,
         startingPriceCents,
         currencyCode,
-        ctaLabel,
-        ctaUrl,
         bannerImage,
         keywords,
         platforms: (platforms as any) ?? undefined,
@@ -500,8 +487,6 @@ export async function updateProductAction(
     publishedAt?: string | null
     startingPriceCents?: number | null
     currencyCode?: string | null
-    ctaLabel?: string | null
-    ctaUrl?: string | null
     bannerImage?: string | null
     keywords?: string[]
     platforms?: (
@@ -626,9 +611,6 @@ export async function updateProductAction(
       select: { logo: true, bannerImage: true },
     })
 
-    // Gate CTA fields by feature for non-admins: ignore incoming changes if not allowed
-    const canEditCTA = isAdmin || (await memberHasFeature("customCTA"))
-
     let planUpdate: { planId?: string | null; planAssignedAt?: Date | null } =
       {}
     if (data.planId !== undefined) {
@@ -694,8 +676,6 @@ export async function updateProductAction(
         publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
         startingPriceCents: data.startingPriceCents ?? undefined,
         currencyCode: data.currencyCode ?? undefined,
-        ctaLabel: canEditCTA ? (data.ctaLabel ?? undefined) : undefined,
-        ctaUrl: canEditCTA ? (data.ctaUrl ?? undefined) : undefined,
         bannerImage: data.bannerImage ?? undefined,
         keywords: data.keywords as any,
         platforms: data.platforms as any,

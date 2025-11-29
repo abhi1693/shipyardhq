@@ -3,7 +3,6 @@ import { getCategories } from "@/actions/admin/categories/actions"
 import EditProductForm from "./form"
 import { getProductById } from "@/actions/admin/products/actions"
 import { getMyOrganizations } from "@/actions/member/organizations/actions"
-import { memberHasFeature } from "@/lib/memberFeatures"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import { getAlternativeProducts } from "@/actions/admin/alternative-products/actions"
 import { getProductConnectorSummary } from "@/actions/member/products/actions"
@@ -33,14 +32,11 @@ export default async function EditProductPage({
       getProductConnectorSummary(product.id).catch(() => null),
     ])
 
-  const canEditCTA = await memberHasFeature("customCTA")
-
   return (
     <EditProductForm
       product={product}
       categories={categories}
       organizations={organizations}
-      canEditCTA={canEditCTA}
       alternatives={alternatives}
       connector={connector}
     />

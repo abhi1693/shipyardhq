@@ -53,8 +53,6 @@ export type ProductMinAggregateOutputType = {
   organizationId: string | null
   startingPriceCents: number | null
   currencyCode: string | null
-  ctaLabel: string | null
-  ctaUrl: string | null
   bannerImage: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -79,8 +77,6 @@ export type ProductMaxAggregateOutputType = {
   organizationId: string | null
   startingPriceCents: number | null
   currencyCode: string | null
-  ctaLabel: string | null
-  ctaUrl: string | null
   bannerImage: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -105,8 +101,6 @@ export type ProductCountAggregateOutputType = {
   organizationId: number
   startingPriceCents: number
   currencyCode: number
-  ctaLabel: number
-  ctaUrl: number
   bannerImage: number
   keywords: number
   platforms: number
@@ -143,8 +137,6 @@ export type ProductMinAggregateInputType = {
   organizationId?: true
   startingPriceCents?: true
   currencyCode?: true
-  ctaLabel?: true
-  ctaUrl?: true
   bannerImage?: true
   createdAt?: true
   updatedAt?: true
@@ -169,8 +161,6 @@ export type ProductMaxAggregateInputType = {
   organizationId?: true
   startingPriceCents?: true
   currencyCode?: true
-  ctaLabel?: true
-  ctaUrl?: true
   bannerImage?: true
   createdAt?: true
   updatedAt?: true
@@ -195,8 +185,6 @@ export type ProductCountAggregateInputType = {
   organizationId?: true
   startingPriceCents?: true
   currencyCode?: true
-  ctaLabel?: true
-  ctaUrl?: true
   bannerImage?: true
   keywords?: true
   platforms?: true
@@ -310,8 +298,6 @@ export type ProductGroupByOutputType = {
   organizationId: string | null
   startingPriceCents: number | null
   currencyCode: string | null
-  ctaLabel: string | null
-  ctaUrl: string | null
   bannerImage: string | null
   keywords: string[]
   platforms: $Enums.Platform[]
@@ -361,8 +347,6 @@ export type ProductWhereInput = {
   organizationId?: Prisma.StringNullableFilter<"Product"> | string | null
   startingPriceCents?: Prisma.IntNullableFilter<"Product"> | number | null
   currencyCode?: Prisma.StringNullableFilter<"Product"> | string | null
-  ctaLabel?: Prisma.StringNullableFilter<"Product"> | string | null
-  ctaUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   bannerImage?: Prisma.StringNullableFilter<"Product"> | string | null
   keywords?: Prisma.StringNullableListFilter<"Product">
   platforms?: Prisma.EnumPlatformNullableListFilter<"Product">
@@ -413,8 +397,6 @@ export type ProductOrderByWithRelationInput = {
   organizationId?: Prisma.SortOrderInput | Prisma.SortOrder
   startingPriceCents?: Prisma.SortOrderInput | Prisma.SortOrder
   currencyCode?: Prisma.SortOrderInput | Prisma.SortOrder
-  ctaLabel?: Prisma.SortOrderInput | Prisma.SortOrder
-  ctaUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   bannerImage?: Prisma.SortOrderInput | Prisma.SortOrder
   keywords?: Prisma.SortOrder
   platforms?: Prisma.SortOrder
@@ -468,8 +450,6 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   organizationId?: Prisma.StringNullableFilter<"Product"> | string | null
   startingPriceCents?: Prisma.IntNullableFilter<"Product"> | number | null
   currencyCode?: Prisma.StringNullableFilter<"Product"> | string | null
-  ctaLabel?: Prisma.StringNullableFilter<"Product"> | string | null
-  ctaUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   bannerImage?: Prisma.StringNullableFilter<"Product"> | string | null
   keywords?: Prisma.StringNullableListFilter<"Product">
   platforms?: Prisma.EnumPlatformNullableListFilter<"Product">
@@ -520,8 +500,6 @@ export type ProductOrderByWithAggregationInput = {
   organizationId?: Prisma.SortOrderInput | Prisma.SortOrder
   startingPriceCents?: Prisma.SortOrderInput | Prisma.SortOrder
   currencyCode?: Prisma.SortOrderInput | Prisma.SortOrder
-  ctaLabel?: Prisma.SortOrderInput | Prisma.SortOrder
-  ctaUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   bannerImage?: Prisma.SortOrderInput | Prisma.SortOrder
   keywords?: Prisma.SortOrder
   platforms?: Prisma.SortOrder
@@ -556,8 +534,6 @@ export type ProductScalarWhereWithAggregatesInput = {
   organizationId?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   startingPriceCents?: Prisma.IntNullableWithAggregatesFilter<"Product"> | number | null
   currencyCode?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
-  ctaLabel?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
-  ctaUrl?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   bannerImage?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   keywords?: Prisma.StringNullableListFilter<"Product">
   platforms?: Prisma.EnumPlatformNullableListFilter<"Product">
@@ -580,8 +556,6 @@ export type ProductCreateInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -632,8 +606,6 @@ export type ProductUncheckedCreateInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -676,8 +648,6 @@ export type ProductUpdateInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -728,8 +698,6 @@ export type ProductUncheckedUpdateInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -776,8 +744,6 @@ export type ProductCreateManyInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -800,8 +766,6 @@ export type ProductUpdateManyMutationInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -828,8 +792,6 @@ export type ProductUncheckedUpdateManyInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -872,8 +834,6 @@ export type ProductCountOrderByAggregateInput = {
   organizationId?: Prisma.SortOrder
   startingPriceCents?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
-  ctaLabel?: Prisma.SortOrder
-  ctaUrl?: Prisma.SortOrder
   bannerImage?: Prisma.SortOrder
   keywords?: Prisma.SortOrder
   platforms?: Prisma.SortOrder
@@ -904,8 +864,6 @@ export type ProductMaxOrderByAggregateInput = {
   organizationId?: Prisma.SortOrder
   startingPriceCents?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
-  ctaLabel?: Prisma.SortOrder
-  ctaUrl?: Prisma.SortOrder
   bannerImage?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -930,8 +888,6 @@ export type ProductMinOrderByAggregateInput = {
   organizationId?: Prisma.SortOrder
   startingPriceCents?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
-  ctaLabel?: Prisma.SortOrder
-  ctaUrl?: Prisma.SortOrder
   bannerImage?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -1508,8 +1464,6 @@ export type ProductCreateWithoutPaymentConnectorInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -1559,8 +1513,6 @@ export type ProductUncheckedCreateWithoutPaymentConnectorInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -1618,8 +1570,6 @@ export type ProductUpdateWithoutPaymentConnectorInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -1669,8 +1619,6 @@ export type ProductUncheckedUpdateWithoutPaymentConnectorInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -1712,8 +1660,6 @@ export type ProductCreateWithoutAlternativesInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -1763,8 +1709,6 @@ export type ProductUncheckedCreateWithoutAlternativesInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -1834,8 +1778,6 @@ export type ProductScalarWhereInput = {
   organizationId?: Prisma.StringNullableFilter<"Product"> | string | null
   startingPriceCents?: Prisma.IntNullableFilter<"Product"> | number | null
   currencyCode?: Prisma.StringNullableFilter<"Product"> | string | null
-  ctaLabel?: Prisma.StringNullableFilter<"Product"> | string | null
-  ctaUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   bannerImage?: Prisma.StringNullableFilter<"Product"> | string | null
   keywords?: Prisma.StringNullableListFilter<"Product">
   platforms?: Prisma.EnumPlatformNullableListFilter<"Product">
@@ -1858,8 +1800,6 @@ export type ProductCreateWithoutMonthlyProductRankingInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -1909,8 +1849,6 @@ export type ProductUncheckedCreateWithoutMonthlyProductRankingInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -1968,8 +1906,6 @@ export type ProductUpdateWithoutMonthlyProductRankingInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -2019,8 +1955,6 @@ export type ProductUncheckedUpdateWithoutMonthlyProductRankingInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -2062,8 +1996,6 @@ export type ProductCreateWithoutLeaderboardScoresInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -2113,8 +2045,6 @@ export type ProductUncheckedCreateWithoutLeaderboardScoresInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -2172,8 +2102,6 @@ export type ProductUpdateWithoutLeaderboardScoresInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -2223,8 +2151,6 @@ export type ProductUncheckedUpdateWithoutLeaderboardScoresInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -2266,8 +2192,6 @@ export type ProductCreateWithoutProductMediaInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -2317,8 +2241,6 @@ export type ProductUncheckedCreateWithoutProductMediaInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -2376,8 +2298,6 @@ export type ProductUpdateWithoutProductMediaInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -2427,8 +2347,6 @@ export type ProductUncheckedUpdateWithoutProductMediaInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -2470,8 +2388,6 @@ export type ProductCreateWithoutProductUpdateInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -2521,8 +2437,6 @@ export type ProductUncheckedCreateWithoutProductUpdateInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -2580,8 +2494,6 @@ export type ProductUpdateWithoutProductUpdateInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -2631,8 +2543,6 @@ export type ProductUncheckedUpdateWithoutProductUpdateInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -2674,8 +2584,6 @@ export type ProductCreateWithoutVerificationInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -2725,8 +2633,6 @@ export type ProductUncheckedCreateWithoutVerificationInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -2784,8 +2690,6 @@ export type ProductUpdateWithoutVerificationInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -2835,8 +2739,6 @@ export type ProductUncheckedUpdateWithoutVerificationInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -2878,8 +2780,6 @@ export type ProductCreateWithoutClaimAttemptsInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -2929,8 +2829,6 @@ export type ProductUncheckedCreateWithoutClaimAttemptsInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -2988,8 +2886,6 @@ export type ProductUpdateWithoutClaimAttemptsInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -3039,8 +2935,6 @@ export type ProductUncheckedUpdateWithoutClaimAttemptsInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -3082,8 +2976,6 @@ export type ProductCreateWithoutMetadataInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -3133,8 +3025,6 @@ export type ProductUncheckedCreateWithoutMetadataInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -3192,8 +3082,6 @@ export type ProductUpdateWithoutMetadataInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -3243,8 +3131,6 @@ export type ProductUncheckedUpdateWithoutMetadataInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -3286,8 +3172,6 @@ export type ProductCreateWithoutAnalyticsInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -3337,8 +3221,6 @@ export type ProductUncheckedCreateWithoutAnalyticsInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -3396,8 +3278,6 @@ export type ProductUpdateWithoutAnalyticsInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -3447,8 +3327,6 @@ export type ProductUncheckedUpdateWithoutAnalyticsInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -3490,8 +3368,6 @@ export type ProductCreateWithoutClickEventsInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -3541,8 +3417,6 @@ export type ProductUncheckedCreateWithoutClickEventsInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -3600,8 +3474,6 @@ export type ProductUpdateWithoutClickEventsInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -3651,8 +3523,6 @@ export type ProductUncheckedUpdateWithoutClickEventsInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -3694,8 +3564,6 @@ export type ProductCreateWithoutTrafficEventsInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -3745,8 +3613,6 @@ export type ProductUncheckedCreateWithoutTrafficEventsInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -3804,8 +3670,6 @@ export type ProductUpdateWithoutTrafficEventsInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -3855,8 +3719,6 @@ export type ProductUncheckedUpdateWithoutTrafficEventsInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -3898,8 +3760,6 @@ export type ProductCreateWithoutInsightProfileInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -3949,8 +3809,6 @@ export type ProductUncheckedCreateWithoutInsightProfileInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -4008,8 +3866,6 @@ export type ProductUpdateWithoutInsightProfileInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -4059,8 +3915,6 @@ export type ProductUncheckedUpdateWithoutInsightProfileInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -4102,8 +3956,6 @@ export type ProductCreateWithoutProductUpvoteInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -4153,8 +4005,6 @@ export type ProductUncheckedCreateWithoutProductUpvoteInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -4212,8 +4062,6 @@ export type ProductUpdateWithoutProductUpvoteInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -4263,8 +4111,6 @@ export type ProductUncheckedUpdateWithoutProductUpvoteInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -4306,8 +4152,6 @@ export type ProductCreateWithoutOrganizationInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -4356,8 +4200,6 @@ export type ProductUncheckedCreateWithoutOrganizationInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -4426,8 +4268,6 @@ export type ProductCreateWithoutUserInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -4476,8 +4316,6 @@ export type ProductUncheckedCreateWithoutUserInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -4546,8 +4384,6 @@ export type ProductCreateWithoutProductReviewInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -4597,8 +4433,6 @@ export type ProductUncheckedCreateWithoutProductReviewInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -4656,8 +4490,6 @@ export type ProductUpdateWithoutProductReviewInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -4707,8 +4539,6 @@ export type ProductUncheckedUpdateWithoutProductReviewInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -4750,8 +4580,6 @@ export type ProductCreateWithoutCategoryInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -4800,8 +4628,6 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -4870,8 +4696,6 @@ export type ProductCreateWithoutPlanInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -4920,8 +4744,6 @@ export type ProductUncheckedCreateWithoutPlanInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -4990,8 +4812,6 @@ export type ProductCreateWithoutProductBadgeInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -5041,8 +4861,6 @@ export type ProductUncheckedCreateWithoutProductBadgeInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -5100,8 +4918,6 @@ export type ProductUpdateWithoutProductBadgeInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -5151,8 +4967,6 @@ export type ProductUncheckedUpdateWithoutProductBadgeInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -5194,8 +5008,6 @@ export type ProductCreateWithoutRewardTransactionsInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -5245,8 +5057,6 @@ export type ProductUncheckedCreateWithoutRewardTransactionsInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -5304,8 +5114,6 @@ export type ProductUpdateWithoutRewardTransactionsInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -5355,8 +5163,6 @@ export type ProductUncheckedUpdateWithoutRewardTransactionsInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -5398,8 +5204,6 @@ export type ProductCreateWithoutRedemptionsInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -5449,8 +5253,6 @@ export type ProductUncheckedCreateWithoutRedemptionsInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -5508,8 +5310,6 @@ export type ProductUpdateWithoutRedemptionsInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -5559,8 +5359,6 @@ export type ProductUncheckedUpdateWithoutRedemptionsInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -5602,8 +5400,6 @@ export type ProductCreateWithoutFeatureEntitlementsInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -5653,8 +5449,6 @@ export type ProductUncheckedCreateWithoutFeatureEntitlementsInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -5712,8 +5506,6 @@ export type ProductUpdateWithoutFeatureEntitlementsInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -5763,8 +5555,6 @@ export type ProductUncheckedUpdateWithoutFeatureEntitlementsInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -5806,8 +5596,6 @@ export type ProductCreateWithoutPlacementSchedulesInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -5857,8 +5645,6 @@ export type ProductUncheckedCreateWithoutPlacementSchedulesInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -5916,8 +5702,6 @@ export type ProductUpdateWithoutPlacementSchedulesInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -5967,8 +5751,6 @@ export type ProductUncheckedUpdateWithoutPlacementSchedulesInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6010,8 +5792,6 @@ export type ProductUpdateWithoutAlternativesInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6061,8 +5841,6 @@ export type ProductUncheckedUpdateWithoutAlternativesInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6108,8 +5886,6 @@ export type ProductUncheckedUpdateManyWithoutAlternativesInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6135,8 +5911,6 @@ export type ProductCreateManyOrganizationInput = {
   publishedAt?: Date | string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -6159,8 +5933,6 @@ export type ProductUpdateWithoutOrganizationInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6209,8 +5981,6 @@ export type ProductUncheckedUpdateWithoutOrganizationInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6256,8 +6026,6 @@ export type ProductUncheckedUpdateManyWithoutOrganizationInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6283,8 +6051,6 @@ export type ProductCreateManyUserInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -6307,8 +6073,6 @@ export type ProductUpdateWithoutUserInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6357,8 +6121,6 @@ export type ProductUncheckedUpdateWithoutUserInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6404,8 +6166,6 @@ export type ProductUncheckedUpdateManyWithoutUserInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6431,8 +6191,6 @@ export type ProductCreateManyCategoryInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -6455,8 +6213,6 @@ export type ProductUpdateWithoutCategoryInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6505,8 +6261,6 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6552,8 +6306,6 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6579,8 +6331,6 @@ export type ProductCreateManyPlanInput = {
   organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   bannerImage?: string | null
   keywords?: Prisma.ProductCreatekeywordsInput | string[]
   platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
@@ -6603,8 +6353,6 @@ export type ProductUpdateWithoutPlanInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6653,8 +6401,6 @@ export type ProductUncheckedUpdateWithoutPlanInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6700,8 +6446,6 @@ export type ProductUncheckedUpdateManyWithoutPlanInput = {
   organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ctaUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.ProductUpdatekeywordsInput | string[]
   platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
@@ -6885,8 +6629,6 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   organizationId?: boolean
   startingPriceCents?: boolean
   currencyCode?: boolean
-  ctaLabel?: boolean
-  ctaUrl?: boolean
   bannerImage?: boolean
   keywords?: boolean
   platforms?: boolean
@@ -6938,8 +6680,6 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   organizationId?: boolean
   startingPriceCents?: boolean
   currencyCode?: boolean
-  ctaLabel?: boolean
-  ctaUrl?: boolean
   bannerImage?: boolean
   keywords?: boolean
   platforms?: boolean
@@ -6970,8 +6710,6 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   organizationId?: boolean
   startingPriceCents?: boolean
   currencyCode?: boolean
-  ctaLabel?: boolean
-  ctaUrl?: boolean
   bannerImage?: boolean
   keywords?: boolean
   platforms?: boolean
@@ -7002,8 +6740,6 @@ export type ProductSelectScalar = {
   organizationId?: boolean
   startingPriceCents?: boolean
   currencyCode?: boolean
-  ctaLabel?: boolean
-  ctaUrl?: boolean
   bannerImage?: boolean
   keywords?: boolean
   platforms?: boolean
@@ -7011,7 +6747,7 @@ export type ProductSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "tagline" | "description" | "websiteUrl" | "logo" | "userId" | "categoryId" | "planId" | "planAssignedAt" | "type" | "pricingModel" | "status" | "publishedAt" | "organizationId" | "startingPriceCents" | "currencyCode" | "ctaLabel" | "ctaUrl" | "bannerImage" | "keywords" | "platforms" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "tagline" | "description" | "websiteUrl" | "logo" | "userId" | "categoryId" | "planId" | "planAssignedAt" | "type" | "pricingModel" | "status" | "publishedAt" | "organizationId" | "startingPriceCents" | "currencyCode" | "bannerImage" | "keywords" | "platforms" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
@@ -7099,8 +6835,6 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     organizationId: string | null
     startingPriceCents: number | null
     currencyCode: string | null
-    ctaLabel: string | null
-    ctaUrl: string | null
     bannerImage: string | null
     keywords: string[]
     platforms: $Enums.Platform[]
@@ -7571,8 +7305,6 @@ export interface ProductFieldRefs {
   readonly organizationId: Prisma.FieldRef<"Product", 'String'>
   readonly startingPriceCents: Prisma.FieldRef<"Product", 'Int'>
   readonly currencyCode: Prisma.FieldRef<"Product", 'String'>
-  readonly ctaLabel: Prisma.FieldRef<"Product", 'String'>
-  readonly ctaUrl: Prisma.FieldRef<"Product", 'String'>
   readonly bannerImage: Prisma.FieldRef<"Product", 'String'>
   readonly keywords: Prisma.FieldRef<"Product", 'String[]'>
   readonly platforms: Prisma.FieldRef<"Product", 'Platform[]'>

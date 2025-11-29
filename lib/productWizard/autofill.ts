@@ -17,8 +17,6 @@ export type ProductAutofillModelOutput = {
   twitterUrl?: string | null
   demoUrl?: string | null
   contactEmail?: string | null
-  ctaLabel?: string | null
-  ctaUrl?: string | null
   alternativeIds?: string[] | null
 }
 

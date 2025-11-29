@@ -50,8 +50,6 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
 
       // Optional marketing/org
       organizationId: z.string().optional(),
-      ctaLabel: z.string().optional(),
-      ctaUrl: z.url().optional().or(z.literal("")),
       bannerImage: z.url().optional().or(z.literal("")),
       alternativeIds: z.array(z.string()).default([]),
 
@@ -92,7 +90,6 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
           websiteOk: z.boolean().optional(),
           logoOk: z.boolean().optional(),
           bannerOk: z.boolean().optional(),
-          ctaOk: z.boolean().optional(),
           githubOk: z.boolean().optional(),
           twitterOk: z.boolean().optional(),
           demoOk: z.boolean().optional(),

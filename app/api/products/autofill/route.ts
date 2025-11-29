@@ -48,8 +48,6 @@ const ModelOutputSchema = z.object({
   twitterUrl: z.string().optional().nullable(),
   demoUrl: z.string().optional().nullable(),
   contactEmail: z.string().optional().nullable(),
-  ctaLabel: z.string().optional().nullable(),
-  ctaUrl: z.string().optional().nullable(),
   alternativeIds: z.array(z.string()).optional().nullable(),
 })
 
@@ -612,8 +610,6 @@ export async function POST(request: Request) {
               twitterUrl: "string | null",
               demoUrl: "string | null",
               contactEmail: "string | null",
-              ctaLabel: "string | null",
-              ctaUrl: "string | null",
               alternativeIds: "string[] | null",
             },
           )}\nGuidelines:\n${guidelines}`,

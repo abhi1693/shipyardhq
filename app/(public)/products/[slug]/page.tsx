@@ -18,7 +18,6 @@ import {
   Monitor,
   PlayCircle,
   Smartphone,
-  Sparkles,
   Terminal,
   BadgeCheck,
 } from "lucide-react"
@@ -72,7 +71,6 @@ import {
 import { siteConfig } from "@/lib/siteConfig"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import { addUtmParams } from "@/lib/marketing/utm"
-import { hasPlanFeature } from "@/lib/features"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { buildPageMetadata } from "@/lib/metadata"
 import { keywordToSlug } from "@/lib/tags"
@@ -433,28 +431,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       label: formattedLabel || keyword,
     }
   })
-  const entitlementFeatures = new Set(
-    (product.featureEntitlements ?? [])
-      .map(
-        (feature: (typeof product.featureEntitlements)[number]) =>
-          feature.featureKey,
-      )
-      .filter((value: string | undefined | null): value is string =>
-        Boolean(value),
-      ),
-  )
-  const hasCustomCtaFeature =
-    hasPlanFeature(product.plan, "customCTA") ||
-    entitlementFeatures.has("customCTA")
   const normalizedWebsiteUrl = product.websiteUrl?.trim()
     ? ensureUrlHasSchema(product.websiteUrl.trim())
     : null
   const normalizedDemoUrl = product.metadata?.demoUrl?.trim()
     ? ensureUrlHasSchema(product.metadata.demoUrl.trim())
     : null
-  const ctaLabel = product.ctaLabel?.trim() ?? ""
-  const rawCtaUrl = product.ctaUrl?.trim() ?? ""
-  const normalizedCtaUrl = rawCtaUrl ? ensureUrlHasSchema(rawCtaUrl) : null
   const withReferralParams = (url: string, content: string) =>
     addUtmParams(url, {
       source: "shipyard",
@@ -468,23 +450,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const demoHref = normalizedDemoUrl
     ? withReferralParams(normalizedDemoUrl, "demo")
     : null
-  const ctaHref =
-    hasCustomCtaFeature && normalizedCtaUrl
-      ? withReferralParams(normalizedCtaUrl, "cta")
-      : null
-  const effectiveCtaLabel = ctaLabel || `Get started with ${product.name}`
   const quickLinkCount =
-    (websiteHref ? 1 : 0) + (demoHref ? 1 : 0) + (ctaHref ? 1 : 0)
+    (websiteHref ? 1 : 0) + (demoHref ? 1 : 0)
   const quickLinkGridClass =
-    quickLinkCount === 3
-      ? "grid-cols-3"
-      : quickLinkCount === 2
-        ? "grid-cols-2"
-        : "grid-cols-1"
+    quickLinkCount === 2 ? "grid-cols-2" : "grid-cols-1"
   const quickLinkClass =
     "inline-flex w-full items-center gap-1.5 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-sm shadow-black/5 transition-colors hover:bg-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto"
-  const primaryQuickLinkClass =
-    "inline-flex w-full items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background shadow-sm shadow-black/10 transition-colors hover:bg-foreground/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto"
   const revenueSection =
     revenue && revenue.points.length ? (
       <ProductRevenueChart
@@ -766,7 +737,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   className="self-start sm:ml-auto sm:self-center"
                 />
               </div>
-              {(websiteHref || demoHref || ctaHref) && (
+              {(websiteHref || demoHref) && (
                 <div
                   className={`grid w-full gap-2 text-sm ${quickLinkGridClass} sm:flex sm:flex-wrap sm:items-center`}
                 >
@@ -792,18 +763,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     >
                       <PlayCircle className="h-3.5 w-3.5" aria-hidden />
                       <span>Visit demo</span>
-                    </a>
-                  ) : null}
-                  {ctaHref ? (
-                    <a
-                      key="cta"
-                      href={ctaHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={primaryQuickLinkClass}
-                    >
-                      <Sparkles className="h-3.5 w-3.5" aria-hidden />
-                      <span>{effectiveCtaLabel}</span>
                     </a>
                   ) : null}
                 </div>

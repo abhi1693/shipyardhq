@@ -224,7 +224,6 @@ export default function AddProductForm({
       organizations,
       productId: newProductId,
       persistOnVerify: false,
-      canEditCTA: true,
       rightOfWebsite: ownerId ? ownerNode : ownerNode,
       enableAutofill: true,
       pricingAside: <ConnectorFields form={form} />,

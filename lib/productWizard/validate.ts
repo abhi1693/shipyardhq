@@ -79,7 +79,6 @@ export async function validateExternalResources(
 
   // Optional links
   const linkPairs: [key: string, label: string, field: string][] = [
-    ["ctaUrl", "CTA URL", "ctaOk"],
     ["githubUrl", "GitHub URL", "githubOk"],
     ["twitterUrl", "Twitter URL", "twitterOk"],
     ["demoUrl", "Demo URL", "demoOk"],

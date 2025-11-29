@@ -23,8 +23,6 @@ export function getInitialValuesForAdd(): BaseValues {
     platforms: [],
     keywordsText: "",
     organizationId: "",
-    ctaLabel: "",
-    ctaUrl: "",
     bannerImage: "",
     githubUrl: "",
     twitterUrl: "",
@@ -66,8 +64,6 @@ export function getInitialValuesFromProduct(
     platforms: product.platforms ?? [],
     keywordsText: (product.keywords ?? []).join(", "),
     organizationId: product.organizationId ?? "",
-    ctaLabel: product.ctaLabel ?? "",
-    ctaUrl: product.ctaUrl ?? "",
     bannerImage: product.bannerImage ?? "",
     githubUrl: product.metadata?.githubUrl ?? "",
     twitterUrl: product.metadata?.twitterUrl ?? "",
@@ -121,8 +117,6 @@ export function toCreateFormData(
 
   // Optional
   if (v.organizationId) fd.append("organizationId", v.organizationId)
-  if (v.ctaLabel) fd.append("ctaLabel", v.ctaLabel)
-  if (v.ctaUrl) fd.append("ctaUrl", normalizeUrl(v.ctaUrl)!)
   if (v.bannerImage) fd.append("bannerImage", normalizeUrl(v.bannerImage)!)
 
   if (v.githubUrl) fd.append("githubUrl", normalizeUrl(v.githubUrl)!)
@@ -165,8 +159,6 @@ export function toUpdatePayload(values: BaseValues, product: any) {
     startingPriceCents:
       v.startingPriceCents != null ? Number(v.startingPriceCents) : undefined,
     currencyCode: uppercaseCurrency(v.currencyCode),
-    ctaLabel: v.ctaLabel || null,
-    ctaUrl: v.ctaUrl ? normalizeUrl(v.ctaUrl) : null,
     bannerImage: v.bannerImage ? normalizeUrl(v.bannerImage) : null,
     keywords,
     platforms: v.platforms as any,
