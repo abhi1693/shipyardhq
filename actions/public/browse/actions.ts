@@ -114,7 +114,7 @@ export const getBrowseProducts = cached(
       sort === "votes"
         ? { analytics: { upvotes: "desc" } }
         : sort === "trending"
-          ? { analytics: { clicks: "desc" } }
+          ? { analytics: { upvotes: "desc" } }
           : sort === "az"
             ? { name: "asc" }
             : { createdAt: "desc" }

@@ -78,13 +78,15 @@ export async function MonthlyLeaderboardView({
   const rest: MonthlyRanking[] = leaderboard.rankings.slice(3)
   const hasRankings = leaderboard.rankings.length > 0
 
-  const hasNonUsdRevenue = leaderboard.rankings.some((entry: MonthlyRanking) => {
-    const connector = entry.product.paymentConnector
-    const currency =
-      connector?.latestCurrencyCode ??
-      connector?.revenueHistory?.[0]?.currencyCode
-    return currency && currency.toUpperCase() !== "USD"
-  })
+  const hasNonUsdRevenue = leaderboard.rankings.some(
+    (entry: MonthlyRanking) => {
+      const connector = entry.product.paymentConnector
+      const currency =
+        connector?.latestCurrencyCode ??
+        connector?.revenueHistory?.[0]?.currencyCode
+      return currency && currency.toUpperCase() !== "USD"
+    },
+  )
   const rates = hasNonUsdRevenue ? await getUsdConversionRates() : undefined
   const resolveEntryRevenue = (entry: MonthlyRanking) =>
     resolveProductRevenue(

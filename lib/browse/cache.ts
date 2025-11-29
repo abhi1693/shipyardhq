@@ -120,10 +120,10 @@ export const getBrowsePagePayload = async (
 
   const hasActiveFilters = Boolean(
     filters.useCase ||
-      filters.category ||
-      filters.verified ||
-      (filters.query && filters.query.length > 0) ||
-      filters.sort !== "new",
+    filters.category ||
+    filters.verified ||
+    (filters.query && filters.query.length > 0) ||
+    filters.sort !== "new",
   )
 
   const filterSummary: string[] = [

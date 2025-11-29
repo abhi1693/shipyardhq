@@ -17,7 +17,8 @@ const toneByVariant: Record<BadgeVariant, SkeletonProps["tone"]> = {
 }
 
 interface BadgeSkeletonProps
-  extends Omit<React.ComponentProps<typeof Skeleton>, "children">,
+  extends
+    Omit<React.ComponentProps<typeof Skeleton>, "children">,
     VariantProps<typeof badgeVariants> {
   labelWidth?: number | string
   leadingIcon?: boolean

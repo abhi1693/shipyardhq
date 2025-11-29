@@ -15,6 +15,10 @@ import {
   ProductUpdatesSkeleton,
 } from "@/components/templates/public/homepage/product-updates"
 import {
+  TrafficSidebarStats,
+  TrafficSidebarStatsSkeleton,
+} from "@/components/templates/public/common/TrafficSidebarStats"
+import {
   BROWSE_PATH,
   LEADERBOARD_PATH,
   MEMBER_PRODUCTS_PATH,
@@ -196,6 +200,9 @@ export async function BrowsePageContent({
         }
         sidebar={
           <>
+            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
+              <TrafficSidebarStats />
+            </Suspense>
             <Suspense
               fallback={
                 <div className="hidden lg:block">

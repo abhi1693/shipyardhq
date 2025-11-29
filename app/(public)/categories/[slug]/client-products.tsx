@@ -17,7 +17,7 @@ type ProductForCard = {
   // whether product should be pinned first based on plan feature
   priority?: boolean
   badges?: string[]
-  analytics?: { upvotes: number; clicks: number } | null
+  analytics?: { upvotes: number } | null
   user?: { firstName: string | null; lastName: string | null } | null
   category?: { name: string } | null
 }
@@ -29,14 +29,14 @@ type Props = {
   className?: string
 }
 
-type SortKey = "newest" | "upvotes" | "clicks" | "name"
+type SortKey = "newest" | "upvotes" | "name"
 
 const CATEGORY_GRID_PAGE_SIZE = 12
 
 export function CategoryProductsClient({
   products,
   title = "Products",
-  description = "Sort to surface fresh launches, rising favorites, or the most clicks.",
+  description = "Sort to surface fresh launches or rising favorites.",
   className,
 }: Props) {
   const [sort, setSort] = useState<SortKey>("newest")
@@ -59,8 +59,6 @@ export function CategoryProductsClient({
           return a.name.localeCompare(b.name)
         case "upvotes":
           return (b.analytics?.upvotes || 0) - (a.analytics?.upvotes || 0)
-        case "clicks":
-          return (b.analytics?.clicks || 0) - (a.analytics?.clicks || 0)
         case "newest":
         default:
           return (
@@ -106,7 +104,6 @@ export function CategoryProductsClient({
             options={[
               { value: "newest", label: "Newest" },
               { value: "upvotes", label: "Most Upvoted" },
-              { value: "clicks", label: "Most Clicked" },
               { value: "name", label: "Name (A–Z)" },
             ]}
             triggerClassName="h-9 w-[180px] cursor-pointer rounded-full border border-border/60 bg-background/95 text-sm font-medium text-muted-foreground shadow-sm transition hover:border-border hover:bg-muted/60 hover:text-foreground dark:border-border/40 dark:bg-slate-950/60"

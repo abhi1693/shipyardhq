@@ -49,8 +49,7 @@ export function ClaimProductsClient({
   initialQuery?: string
   initialSelectedId?: string | null
 }) {
-  const [products, setProducts] =
-    useState<ClaimableProduct[]>(initialProducts)
+  const [products, setProducts] = useState<ClaimableProduct[]>(initialProducts)
   const [filter, setFilter] = useState(initialQuery)
   const [selectedId, setSelectedId] = useState<string | null>(
     initialSelectedId ?? null,
@@ -71,7 +70,8 @@ export function ClaimProductsClient({
     const term = filter.trim().toLowerCase()
     if (!term) return products
     return products.filter((product) => {
-      const haystack = `${product.name} ${product.domain} ${product.websiteUrl}`.toLowerCase()
+      const haystack =
+        `${product.name} ${product.domain} ${product.websiteUrl}`.toLowerCase()
       return haystack.includes(term)
     })
   }, [filter, products])
@@ -81,7 +81,7 @@ export function ClaimProductsClient({
     return products.find((p) => p.id === selectedId) ?? null
   }, [products, selectedId])
 
-  const lockExpiresAt = selected ? dnsLocks[selected.id] ?? null : null
+  const lockExpiresAt = selected ? (dnsLocks[selected.id] ?? null) : null
   const isLocked = Boolean(lockExpiresAt)
 
   const limitOptions = [10, 20, 30, 40, 50] as const
@@ -225,7 +225,11 @@ export function ClaimProductsClient({
         ),
         meta: { headerClassName: "text-right", cellClassName: "text-right" },
         cell: ({ row }) => (
-          <Button size="sm" variant="outline" onClick={() => openVerification(row.original.id)}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => openVerification(row.original.id)}
+          >
             Claim
           </Button>
         ),
@@ -243,9 +247,7 @@ export function ClaimProductsClient({
         return
       }
       const lockTime =
-        "lockExpiresAt" in res && res.lockExpiresAt
-          ? res.lockExpiresAt
-          : null
+        "lockExpiresAt" in res && res.lockExpiresAt ? res.lockExpiresAt : null
       setDnsLocks((prev) => ({ ...prev, [selected.id]: lockTime }))
       toast.success("DNS verified and locked. Continue with email to transfer.")
     })
@@ -305,8 +307,8 @@ export function ClaimProductsClient({
             Nothing to claim right now
           </p>
           <p className="text-sm text-muted-foreground">
-            We couldn&apos;t find any unverified products you can claim today. If
-            something is missing, double-check the listing status or ping
+            We couldn&apos;t find any unverified products you can claim today.
+            If something is missing, double-check the listing status or ping
             support and we&apos;ll investigate.
           </p>
           <div className="flex flex-wrap items-center gap-3">
@@ -354,8 +356,8 @@ export function ClaimProductsClient({
 
             {noMatches ? (
               <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-500">
-                No listings match that filter. Clear search to see everything you
-                can claim.
+                No listings match that filter. Clear search to see everything
+                you can claim.
               </div>
             ) : (
               <DataTable
@@ -475,7 +477,8 @@ export function ClaimProductsClient({
                   </div>
                   {isLocked && lockExpiresAt ? (
                     <p className="text-xs text-emerald-700">
-                      Locked until {new Date(lockExpiresAt).toLocaleTimeString()}. Finish
+                      Locked until{" "}
+                      {new Date(lockExpiresAt).toLocaleTimeString()}. Finish
                       email verification before it expires.
                     </p>
                   ) : null}
@@ -540,7 +543,8 @@ export function ClaimProductsClient({
                   {isLocked ? (
                     otpExpiresAt ? (
                       <p className="text-xs text-muted-foreground">
-                        Code expires at {new Date(otpExpiresAt).toLocaleTimeString()}. You can
+                        Code expires at{" "}
+                        {new Date(otpExpiresAt).toLocaleTimeString()}. You can
                         resend if it expires.
                       </p>
                     ) : (
@@ -570,7 +574,9 @@ export function ClaimProductsClient({
           ) : (
             <Card className="border border-slate-200 bg-white/90 shadow-none">
               <CardContent className="flex flex-wrap items-center justify-between gap-3 p-6 text-sm text-muted-foreground">
-                <span>Select a product in Step 1 to open the verification workspace.</span>
+                <span>
+                  Select a product in Step 1 to open the verification workspace.
+                </span>
                 <Button
                   variant="outline"
                   size="sm"

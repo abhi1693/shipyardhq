@@ -74,11 +74,13 @@ model Product {
 
 enum PaymentConnectorProvider {
   dodo
+  abacatepay
   polar
   stripe
   lemonsqueezy
   paddle
   revenuecat
+  creem
 }
 
 enum PaymentConnectorStatus {

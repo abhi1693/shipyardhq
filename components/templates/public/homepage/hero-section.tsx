@@ -10,6 +10,8 @@ const SUPPORTED_PROVIDERS = [
   { name: "Dodo", logoSrc: "/providers/dodo.jpeg" },
   { name: "RevenueCat", logoSrc: "/providers/revenuecat.png" },
   { name: "Lemon Squeezy", logoSrc: "/providers/lemon.jpeg" },
+  { name: "AbacatePay", logoSrc: "/providers/abacatepay.jpeg" },
+  { name: "Creem", logoSrc: "/providers/creem.svg" },
 ] as const
 
 export async function HeroSection() {
@@ -30,9 +32,6 @@ export async function HeroSection() {
 
 export function HeroSectionSkeleton() {
   return (
-    <HeroSkeleton
-      metricCount={0}
-      providerCount={SUPPORTED_PROVIDERS.length}
-    />
+    <HeroSkeleton metricCount={0} providerCount={SUPPORTED_PROVIDERS.length} />
   )
 }

@@ -11,6 +11,10 @@ import {
   getCurrentLeaderboardWindow,
 } from "@/lib/server/leaderboard/v2"
 import {
+  getHomepageTrafficFromGa,
+  getRealtimeVisitorsFromGa,
+} from "@/lib/server/analytics/googleAnalytics"
+import {
   productCardSelect,
   type ProductCardRecord,
 } from "@/lib/products/selects"
@@ -185,21 +189,30 @@ export function resolvePeriodWindowFromParts(args: {
 
 export const getLeaderboardStats = cached(
   async () => {
-    const [totalProducts, totalCreators, upvoteAgg, topProduct, insightsAgg] =
-      await Promise.all([
-        prisma.product.count({}),
-        prisma.user.count({}),
-        prisma.productAnalytics.aggregate({
-          _sum: { upvotes: true },
-        }),
-        prisma.productAnalytics.findFirst({
-          orderBy: { upvotes: "desc" },
-          select: { upvotes: true },
-        }),
-        prisma.productInsightProfile.aggregate({
-          _sum: { insightsGeneratedCount: true },
-        }),
-      ])
+    const [
+      totalProducts,
+      totalCreators,
+      upvoteAgg,
+      topProduct,
+      insightsAgg,
+      homepageTraffic,
+      realtimeVisitors,
+    ] = await Promise.all([
+      prisma.product.count({}),
+      prisma.user.count({}),
+      prisma.productAnalytics.aggregate({
+        _sum: { upvotes: true },
+      }),
+      prisma.productAnalytics.findFirst({
+        orderBy: { upvotes: "desc" },
+        select: { upvotes: true },
+      }),
+      prisma.productInsightProfile.aggregate({
+        _sum: { insightsGeneratedCount: true },
+      }),
+      getHomepageTrafficFromGa(),
+      getRealtimeVisitorsFromGa(),
+    ])
 
     return {
       totalProducts,
@@ -207,6 +220,10 @@ export const getLeaderboardStats = cached(
       totalUpvotes: upvoteAgg._sum.upvotes ?? 0,
       topScore: topProduct?.upvotes ?? 0,
       totalInsights: insightsAgg._sum.insightsGeneratedCount ?? 0,
+      pageViews30: homepageTraffic.pageViews30,
+      visitors30: homepageTraffic.visitors30,
+      trafficSeries: homepageTraffic.trafficSeries,
+      realtimeVisitors,
     }
   },
   "leaderboard:stats",

@@ -1,160 +1,252 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Sparkles } from "lucide-react"
-import { JsonLdScript } from "next-seo"
+import { format, subDays } from "date-fns"
+import {
+  Activity,
+  Clock3,
+  DollarSign,
+  MousePointer2,
+  TrendingUp,
+  Users,
+} from "lucide-react"
 
 import {
-  FaqSection,
-  FAQ_JSON_LD_ENTRIES,
-} from "@/components/organisms/FaqSection"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/atoms/dialog"
+  BrowserIcon,
+  deviceIcon,
+  FlagIcon,
+  formatDuration,
+  formatPercent,
+  OsIcon,
+  ValueBarRow,
+} from "@/components/molecules/AnalyticsShared"
+import { TrafficTimeseriesChart } from "@/components/molecules/TrafficTimeseriesChart"
+import { AnalyticsListCard } from "@/components/molecules/AnalyticsListCard"
+import { AnalyticsMetricCard } from "@/components/molecules/AnalyticsMetricCard"
+import { LiveVisitorsPill } from "@/components/molecules/LiveVisitorsPill"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
+import prisma from "@/lib/prisma"
 import { buildPageMetadata } from "@/lib/metadata"
+import { ANALYTICS_PATH, HOME_PATH } from "@/lib/routes"
 import {
-  ANALYTICS_PATH,
-  HOME_PATH,
-  MEMBER_BASE_PATH,
-  MEMBER_PRODUCTS_PATH,
-  PRICING_PATH,
-} from "@/lib/routes"
-import { buildFaqStructuredData } from "@/lib/seo/faq"
-import { cn } from "@/lib/utils"
-import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
-import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
-import { brandGradient, gradientTint } from "@/lib/ui/tints"
-
-const PLAN_HIGHLIGHTS = [
-  {
-    tier: "Free plan",
-    headline: "Understand your baseline",
-    blurb:
-      "Keep a pulse on launches without paying a cent. The core dashboard tracks the signals that matter most when you are just getting started.",
-    metrics: [
-      "Lifetime vote and click totals",
-      "Overall page views across your launch window",
-      "Views over time chart with 7–90 day ranges",
-      "Weekly Insights run to capture a full competitive and community report",
-    ],
-  },
-  {
-    tier: "Paid plans",
-    headline: "Pinpoint what drives conversions",
-    blurb:
-      "Upgrade for deeper context around growth campaigns. Identify which audiences convert, what devices they use, and where to double down.",
-    metrics: [
-      "Click-through rates split by referrer, device, and browser",
-      "Visitor loyalty and retention cohorts to spot repeat fans",
-      "Operating system and traffic channel breakdowns",
-      "Extra Insights credits so you can rerun the pipeline whenever signal shifts",
-    ],
-  },
-  {
-    tier: "Organization plan",
-    headline: "Run analytics across every product",
-    blurb:
-      "Give every organization a shared workspace. These dashboards centralize analytics for all products so teams can compare launches at a glance.",
-    metrics: [
-      "Organization-level rollups across every product",
-      "Cross-team comparisons without switching accounts",
-      "Shared context for planning the next release",
-      "Organization-wide Insights credits that benchmark every product in your lineup",
-    ],
-  },
-]
-
-const MOMENTUM_POINTS = [
-  {
-    title: "Spot trends early",
-    body: "Overlay views, votes, and clicks to understand how experiments perform in the first critical days of a launch.",
-  },
-  {
-    title: "Measure channel health",
-    body: "Use referrer, device, and browser splits to see which campaigns bring high intent visitors versus casual traffic.",
-  },
-  {
-    title: "Plan the next iteration",
-    body: "Pair retention signals with Insights recommendations to prioritize onboarding tweaks, pricing experiments, and outreach work.",
-  },
-]
-
-const HOW_IT_WORKS_STEPS = [
-  {
-    title: "Start from Member View",
-    detail:
-      "Open the member dashboard and head to Products to see your live and draft listings.",
-  },
-  {
-    title: "Pick a product",
-    detail:
-      "Choose the row you want, then select Analytics to open the detailed view—an AI summary now highlights the biggest shifts for you.",
-  },
-  {
-    title: "Share with your team",
-    detail:
-      "Invite collaborators on eligible plans so everyone can review performance, plan experiments, and celebrate wins together.",
-  },
-  {
-    title: "Request an Insights run",
-    detail:
-      "Use the Insights action to generate competitive research, community intelligence, and prioritized recommendations in a single report—free plans include one run each week.",
-  },
-]
-
-type GalleryItem = {
-  src: string
-  alt: string
-  caption: string
-  width: number
-  height: number
-  layoutClass?: string
-  containerClass?: string
-  priority?: boolean
-}
-
-const ANALYTICS_GALLERY: GalleryItem[] = [
-  {
-    src: "/analytics-1.png",
-    alt: "Screenshot of Shipyard analytics overview with core product metrics",
-    caption:
-      "Track votes, clicks, and total views for every launch at a glance.",
-    width: 1600,
-    height: 860,
-    containerClass: "aspect-video",
-    priority: true,
-  },
-  {
-    src: "/analytics-2.png",
-    alt: "Screenshot of Shipyard analytics referrer and device breakdown",
-    caption:
-      "Understand which channels, devices, and browsers drive conversions.",
-    width: 1600,
-    height: 929,
-    containerClass: "aspect-video",
-  },
-  {
-    src: "/analytics-3.png",
-    alt: "Screenshot of Shipyard analytics retention dashboard",
-    caption: "Monitor loyalty and repeat visits to guide onboarding tweaks.",
-    width: 1600,
-    height: 911,
-    layoutClass: "lg:col-span-2 lg:mx-auto lg:max-w-4xl",
-    containerClass: "aspect-video lg:aspect-[21/10]",
-  },
-]
+  getRealtimeVisitorsFromGa,
+  getSiteAnalyticsSnapshot,
+} from "@/lib/server/analytics/googleAnalytics"
+import {
+  convertToUsdCents,
+  getUsdConversionRates,
+} from "@/lib/server/payments/currency"
+import { siteConfig } from "@/lib/siteConfig"
+import { PaymentConnectorStatus } from "@/lib/vendor/prisma/client"
 
 const PAGE_TITLE = "Analytics"
+export const revalidate = 300
+
+const numberFormatter = new Intl.NumberFormat("en-US")
+
+function formatCurrency(amountCents: number, currency: string) {
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format((amountCents || 0) / 100)
+  } catch {
+    return `$${((amountCents || 0) / 100).toFixed(0)}`
+  }
+}
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000
+
+function startOfUtcDay(date: Date) {
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  )
+}
+
+function addDays(date: Date, days: number) {
+  return new Date(date.getTime() + days * MS_PER_DAY)
+}
+
+function computeDelta(current: number, previous: number) {
+  if (!Number.isFinite(previous) || previous === 0) return null
+  const delta = ((current - previous) / previous) * 100
+  return delta
+}
+
+function referrerLabel(value: string) {
+  if (value === "direct" || value === "Direct / none") return "Direct"
+  const cleaned = value
+    .replace(/^https?:\/\//i, "")
+    .replace(/^www\./i, "")
+    .trim()
+  const domain = cleaned.split(/[/#?]/)[0]
+  return domain || value
+}
+
+async function getVerifiedRevenueTotals({
+  rangeStart,
+  rangeEnd,
+  previousRangeStart,
+  previousRangeEnd,
+}: {
+  rangeStart: Date
+  rangeEnd: Date
+  previousRangeStart: Date
+  previousRangeEnd: Date
+}) {
+  const ratesPromise = getUsdConversionRates()
+
+  const whereBase = {
+    connector: {
+      verifiedAt: { not: null },
+      status: PaymentConnectorStatus.active,
+    },
+  } as const
+
+  const [currentSnapshots, previousSnapshots, rates] = await Promise.all([
+    prisma.paymentRevenueSnapshot.findMany({
+      where: {
+        ...whereBase,
+        periodStart: { gte: rangeStart, lt: addDays(rangeEnd, 1) },
+      },
+      select: { periodRevenueCents: true, currencyCode: true },
+    }),
+    prisma.paymentRevenueSnapshot.findMany({
+      where: {
+        ...whereBase,
+        periodStart: {
+          gte: previousRangeStart,
+          lt: addDays(previousRangeEnd, 1),
+        },
+      },
+      select: { periodRevenueCents: true, currencyCode: true },
+    }),
+    ratesPromise,
+  ])
+
+  const sumUsd = (
+    snapshots: { periodRevenueCents: number | null; currencyCode: string }[],
+  ) =>
+    snapshots.reduce((total, snapshot) => {
+      const { usdCents, rateUsed } = convertToUsdCents(
+        snapshot.periodRevenueCents ?? 0,
+        snapshot.currencyCode,
+        rates,
+      )
+      const currency = (snapshot.currencyCode || "USD").toUpperCase()
+      const convertible = currency === "USD" || rateUsed !== null
+      return convertible ? total + usdCents : total
+    }, 0)
+
+  return {
+    currency: "USD",
+    rangeCents: sumUsd(currentSnapshots),
+    previousRangeCents: sumUsd(previousSnapshots),
+  }
+}
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description:
-    "Understand how builders engage with your products. Shipyard analytics now includes plan-specific dashboards for free, paid, and team members.",
+    "Live Shipyard performance for the past 30 days—pulled directly from Google Analytics with top products, referrers, and engagement signals.",
 })
 
-export default function AnalyticsPage() {
-  const faqStructuredData = buildFaqStructuredData(FAQ_JSON_LD_ENTRIES, {
-    pageUrl: ANALYTICS_PATH,
+export default async function AnalyticsPage() {
+  const rangeEnd = subDays(new Date(), 0)
+  const rangeStart = subDays(rangeEnd, 29)
+  const prevRangeEnd = subDays(rangeStart, 1)
+  const prevRangeStart = subDays(prevRangeEnd, 29)
+  const rangeStartUtc = startOfUtcDay(rangeStart)
+  const rangeEndUtc = startOfUtcDay(rangeEnd)
+  const prevRangeStartUtc = startOfUtcDay(prevRangeStart)
+  const prevRangeEndUtc = startOfUtcDay(prevRangeEnd)
+
+  const [snapshot, previousSnapshot, realtimeVisitors, verifiedRevenue] =
+    await Promise.all([
+      getSiteAnalyticsSnapshot({ topProductLimit: 8 }),
+      getSiteAnalyticsSnapshot({
+        topProductLimit: 8,
+        dateRange: {
+          startDate: format(prevRangeStart, "yyyy-MM-dd"),
+          endDate: format(prevRangeEnd, "yyyy-MM-dd"),
+        },
+      }),
+      getRealtimeVisitorsFromGa(),
+      getVerifiedRevenueTotals({
+        rangeStart: rangeStartUtc,
+        rangeEnd: rangeEndUtc,
+        previousRangeStart: prevRangeStartUtc,
+        previousRangeEnd: prevRangeEndUtc,
+      }),
+    ])
+
+  const productSlugs = snapshot.topProductPages
+    .map((page) => page.slug?.toLowerCase())
+    .filter((slug): slug is string => Boolean(slug))
+
+  const products =
+    productSlugs.length > 0
+      ? await prisma.product.findMany({
+          where: { slug: { in: productSlugs } },
+          select: {
+            slug: true,
+            name: true,
+            analytics: { select: { upvotes: true } },
+          },
+        })
+      : []
+
+  const productMap = new Map<string, (typeof products)[number]>(
+    products.map((product: (typeof products)[number]) => [
+      product.slug.toLowerCase(),
+      product,
+    ]),
+  )
+
+  const topProducts = snapshot.topProductPages.map((page) => {
+    const slug = page.slug?.toLowerCase()
+    const product = slug ? productMap.get(slug) : null
+    return {
+      ...page,
+      name: product?.name ?? slug ?? page.path,
+      upvotes: product?.analytics?.upvotes ?? null,
+    }
   })
-  const hasFaqStructuredData = faqStructuredData.mainEntity.length > 0
+
+  const rangeLabel = `${format(rangeStart, "MMM d")} – ${format(rangeEnd, "MMM d")}`
+  const totalProductViews = topProducts.reduce((sum, p) => sum + p.pageViews, 0)
+  const newVisitorShare =
+    snapshot.uniqueVisitors > 0
+      ? (snapshot.newUsers / snapshot.uniqueVisitors) * 100
+      : 0
+  const returningVisitorShare = Math.max(0, 100 - newVisitorShare)
+
+  const deltas = {
+    views: computeDelta(snapshot.pageViews, previousSnapshot.pageViews),
+    sessions: computeDelta(snapshot.sessions, previousSnapshot.sessions),
+    visitors: computeDelta(
+      snapshot.uniqueVisitors,
+      previousSnapshot.uniqueVisitors,
+    ),
+    bounce: computeDelta(snapshot.bounceRate, previousSnapshot.bounceRate),
+    duration: computeDelta(
+      snapshot.averageSessionDuration,
+      previousSnapshot.averageSessionDuration,
+    ),
+    pagesPerSession: computeDelta(
+      snapshot.pagesPerSession,
+      previousSnapshot.pagesPerSession,
+    ),
+    engagementRate: computeDelta(
+      snapshot.engagementRate,
+      previousSnapshot.engagementRate,
+    ),
+    revenue: computeDelta(
+      verifiedRevenue.rangeCents,
+      verifiedRevenue.previousRangeCents,
+    ),
+  }
+
+  const valueBarRowClassName =
+    "border border-slate-200 bg-white px-3 py-2 shadow-sm"
 
   return (
     <>
@@ -168,247 +260,371 @@ export default function AnalyticsPage() {
           ],
         }}
       />
-      {hasFaqStructuredData ? (
-        <JsonLdScript
-          data={faqStructuredData}
-          scriptKey="analytics-faq-jsonld"
-        />
-      ) : null}
-      <main className="relative isolate overflow-hidden bg-white">
-        <section
-          className={brandGradient(
-            "relative overflow-hidden border border-[color:var(--brand-1)/0.18] py-24 shadow-[0px_60px_140px_-60px_rgba(18,66,112,0.7)]",
-          )}
-        >
-          <div className="relative mx-auto flex max-w-[84rem] flex-col items-center gap-10 px-4 text-center text-white md:px-8">
-            <span
-              className={gradientTint(
-                "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
-              )}
-            >
-              Analytics
-            </span>
-            <div className="mx-auto max-w-3xl space-y-6">
-              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-                Analytics built for every Shipyard builder
+      <main className="bg-gradient-to-b from-slate-50 via-white to-white text-slate-900">
+        <div className="mx-auto max-w-7xl px-4 pb-16 pt-10 sm:px-6 lg:px-8">
+          <header className="flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <h1 className="text-3xl font-semibold sm:text-4xl">
+                {siteConfig.name} Traffic Snapshot
               </h1>
-              <p className="text-lg text-white/85">
-                Whether you are launching your first product or managing an
-                entire portfolio, the dashboards pair with Insights so you can
-                understand traction, surface opportunities, and capture every
-                conversation around your brand—starting with a weekly run on the
-                free plan.
-              </p>
+              <LiveVisitorsPill initialVisitors={realtimeVisitors} />
             </div>
-            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link
-                href={MEMBER_BASE_PATH}
-                className={launchPrimaryButton({ size: "lg" })}
-              >
-                View your dashboard
-              </Link>
-              <Link
-                href={PRICING_PATH}
-                className={launchSecondaryButton({
-                  size: "lg",
-                  className: "text-white/90 hover:text-white",
-                })}
-              >
-                Compare plans
-              </Link>
-            </div>
-            <p className="mt-4 flex items-center justify-center gap-2 text-sm text-white/80">
-              <Sparkles className="size-4 text-white/80" aria-hidden />
-              Every analytics page now opens with an AI-crafted recap.
-              <Link
-                href={MEMBER_PRODUCTS_PATH}
-                className="inline-flex items-center gap-1 font-semibold text-white hover:text-white/90 underline-offset-4 hover:underline"
-              >
-                See your AI summary
-              </Link>
-            </p>
+            <p className="text-sm text-slate-600">{rangeLabel}</p>
+          </header>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+            <AnalyticsMetricCard
+              label="Views"
+              value={numberFormatter.format(snapshot.pageViews)}
+              delta={deltas.views}
+              icon={<TrendingUp className="h-4 w-4" aria-hidden />}
+              helper="Pageviews across the site."
+            />
+            <AnalyticsMetricCard
+              label="Visits"
+              value={numberFormatter.format(snapshot.sessions)}
+              delta={deltas.sessions}
+              icon={<MousePointer2 className="h-4 w-4" aria-hidden />}
+              helper="Sessions started on the site."
+            />
+            <AnalyticsMetricCard
+              label="Visitors"
+              value={numberFormatter.format(snapshot.uniqueVisitors)}
+              delta={deltas.visitors}
+              icon={<Users className="h-4 w-4" aria-hidden />}
+              helper="Estimated unique people visiting the site."
+            />
+            <AnalyticsMetricCard
+              label="Bounce rate"
+              value={formatPercent(snapshot.bounceRate)}
+              delta={deltas.bounce}
+              icon={<Activity className="h-4 w-4" aria-hidden />}
+              helper="Share of visits with a single pageview before exit."
+            />
+            <AnalyticsMetricCard
+              label="Visit duration"
+              value={formatDuration(snapshot.averageSessionDuration, {
+                padMinutes: true,
+              })}
+              delta={deltas.duration}
+              icon={<Clock3 className="h-4 w-4" aria-hidden />}
+              helper="Average time spent on site during a visit."
+            />
           </div>
-        </section>
 
-        <InsightsShowcase
-          eyebrow="Insights + Analytics"
-          title="Insights extends every Shipyard dashboard"
-          description="Activate the pipeline to pair your analytics with competitive research, community sentiment, and prioritized recommendations—free plans include a weekly run and upgrades add more credits."
-          primaryCta={{
-            label: "Request insights from your dashboard",
-            href: MEMBER_BASE_PATH,
-          }}
-          secondaryCta={{
-            label: "See plan coverage",
-            href: PRICING_PATH,
-          }}
-        />
-
-        <section className="relative py-16">
-          <div className="mx-auto max-w-[84rem] px-4 md:px-8 space-y-10">
-            <div className="space-y-4 text-center">
-              <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-                See your dashboards in action
-              </h2>
-              <p className="mx-auto max-w-3xl text-base text-muted-foreground">
-                Each view is designed to surface the questions builders ask
-                most—from high-level traction to channel attribution and
-                team-wide rollups.
-              </p>
-            </div>
-            <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
-              {ANALYTICS_GALLERY.map((shot) => (
-                <div
-                  key={shot.src}
-                  className={cn("w-full lg:col-span-1", shot.layoutClass)}
-                >
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <button
-                        type="button"
-                        className="group flex w-full flex-col overflow-hidden rounded-[28px] border border-[color:var(--brand-1)/0.15] bg-background/85 text-left shadow-[0px_25px_55px_-35px_rgba(7,58,104,0.55)] backdrop-blur transition hover:border-[color:var(--brand-1)/0.3] hover:shadow-[0px_30px_60px_-30px_rgba(7,58,104,0.6)] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[color:var(--brand-2)] focus-visible:ring-offset-2 focus-visible:ring-offset-background cursor-zoom-in"
-                        aria-label={`View larger analytics preview: ${shot.caption}`}
-                      >
-                        <span
-                          className={cn(
-                            "relative block bg-background",
-                            shot.containerClass ?? "aspect-video",
-                          )}
-                        >
-                          <Image
-                            src={shot.src}
-                            alt={shot.alt}
-                            fill
-                            className="object-contain"
-                            sizes="(min-width: 1280px) 600px, (min-width: 768px) 50vw, 100vw"
-                            loading={shot.priority ? "eager" : "lazy"}
-                            fetchPriority={shot.priority ? "high" : "auto"}
-                          />
-                        </span>
-                        <span className="block px-6 py-5 text-sm text-muted-foreground">
-                          {shot.caption}
-                        </span>
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent
-                      className="sm:max-w-5xl border-none bg-background/95 p-0 shadow-2xl rounded-none"
-                      showCloseButton={false}
-                    >
-                      <div className="relative overflow-hidden border border-[color:var(--brand-1)/0.2] bg-background">
-                        <Image
-                          src={shot.src}
-                          alt={shot.alt}
-                          width={shot.width}
-                          height={shot.height}
-                          className="h-auto w-full object-contain bg-background"
-                          sizes="(min-width: 1280px) 960px, 100vw"
-                        />
-                      </div>
-                      <p className="px-6 pb-6 pt-4 text-center text-sm text-muted-foreground">
-                        {shot.caption}
-                      </p>
-                    </DialogContent>
-                  </Dialog>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <AnalyticsMetricCard
+              label="Pages per session"
+              value={snapshot.pagesPerSession.toFixed(2)}
+              delta={deltas.pagesPerSession}
+              icon={<MousePointer2 className="h-4 w-4" aria-hidden />}
+              helper="Average number of pages viewed during a visit."
+            />
+            <AnalyticsMetricCard
+              label="Engaged session rate"
+              value={formatPercent(snapshot.engagementRate)}
+              delta={deltas.engagementRate}
+              icon={<Activity className="h-4 w-4" aria-hidden />}
+              helper="Share of visits marked engaged (10s+, 2+ views, or a conversion)."
+            />
+            <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-semibold text-slate-600">
+                  New vs returning
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="relative py-20">
-          <div className="mx-auto max-w-[84rem] px-4 md:px-8 space-y-12">
-            <div className="space-y-4 text-center">
-              <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-                Choose the visibility that fits your team
-              </h2>
-              <p className="mx-auto max-w-3xl text-base text-muted-foreground">
-                Every plan now includes tailored analytics. Start free, upgrade
-                when you need granular attribution, and bring your entire
-                organization along when you scale.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              {PLAN_HIGHLIGHTS.map((plan) => (
-                <article
-                  key={plan.tier}
-                  className="flex h-full flex-col justify-between rounded-3xl border border-[color:var(--brand-1)/0.15] bg-background/80 p-8 text-left shadow-[0px_25px_60px_-35px_rgba(7,58,104,0.6)] backdrop-blur"
-                >
-                  <div className="space-y-4">
-                    <div className="text-xs font-semibold uppercase tracking-[0.34em] text-[color:var(--brand-2-text,#0a5678)]">
-                      {plan.tier}
-                    </div>
-                    <h3 className="text-2xl font-semibold text-foreground">
-                      {plan.headline}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {plan.blurb}
-                    </p>
-                  </div>
-                  <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
-                    {plan.metrics.map((metric) => (
-                      <li key={metric} className="flex items-start gap-2">
-                        <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--brand-1)]" />
-                        <span>{metric}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="relative py-16">
-          <div className="mx-auto grid max-w-[84rem] gap-12 px-4 md:px-8 lg:grid-cols-[1.2fr_minmax(0,1fr)]">
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-                  Turn signal into momentum
-                </h2>
-                <p className="text-base text-muted-foreground">
-                  Use the analytics suite to understand which experiments land
-                  and where to steer next.
-                </p>
+                <div className="text-xs text-slate-500">Visitors</div>
               </div>
-              <div className="space-y-5">
-                {MOMENTUM_POINTS.map((point) => (
-                  <div
-                    key={point.title}
-                    className="rounded-2xl border border-[color:var(--brand-1)/0.15] bg-background/80 p-5 shadow-[0px_20px_40px_-36px_rgba(7,58,104,0.65)] backdrop-blur"
-                  >
-                    <h3 className="text-lg font-semibold text-foreground">
-                      {point.title}
-                    </h3>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {point.body}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="space-y-6 rounded-3xl border border-[color:var(--brand-1)/0.15] bg-background/90 p-8 shadow-[0px_30px_50px_-35px_rgba(7,58,104,0.55)] backdrop-blur">
-              <h2 className="text-2xl font-semibold text-foreground">
-                How to open your analytics dashboard
-              </h2>
-              <ol className="space-y-4 text-sm text-muted-foreground list-decimal pl-5">
-                {HOW_IT_WORKS_STEPS.map((step) => (
-                  <li key={step.title} className="space-y-1">
-                    <span className="font-semibold text-foreground">
-                      {step.title}
+              <ValueBarRow
+                value={newVisitorShare}
+                max={100}
+                className={valueBarRowClassName}
+                left={
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="h-2 w-2 rounded-full bg-sky-400" />
+                    <span className="text-sm font-medium text-slate-900">
+                      New
                     </span>
-                    <p>{step.detail}</p>
-                  </li>
-                ))}
-              </ol>
-              <p className="text-sm text-muted-foreground">
-                Dashboards update continuously—refresh after a campaign push and
-                share highlights with your team to keep momentum rolling.
-              </p>
+                  </div>
+                }
+                right={
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(newVisitorShare)}
+                  </span>
+                }
+                tone="blue"
+              />
+              <ValueBarRow
+                value={returningVisitorShare}
+                max={100}
+                className={valueBarRowClassName}
+                left={
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="h-2 w-2 rounded-full bg-indigo-400" />
+                    <span className="text-sm font-medium text-slate-900">
+                      Returning
+                    </span>
+                  </div>
+                }
+                right={
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(returningVisitorShare)}
+                  </span>
+                }
+                tone="indigo"
+              />
+            </div>
+            <AnalyticsMetricCard
+              label="Verified revenue"
+              value={formatCurrency(
+                verifiedRevenue.rangeCents,
+                verifiedRevenue.currency,
+              )}
+              delta={deltas.revenue}
+              icon={<DollarSign className="h-4 w-4" aria-hidden />}
+              helper="Revenue from connected providers with verified payouts."
+            />
+          </div>
+
+          <section className="mt-8 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Visitors vs page views</h2>
+            </div>
+            <TrafficTimeseriesChart
+              points={snapshot.timeseries}
+              height={280}
+              className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+              emptyClassName="flex h-64 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-white text-sm text-slate-500"
+              emptyLabel="Not enough data yet."
+            />
+            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+              <span>Source: Google Analytics</span>
+              <span className="h-1 w-1 rounded-full bg-slate-300" aria-hidden />
+              <span>Updated {new Date().toLocaleString()}</span>
+            </div>
+          </section>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <AnalyticsListCard
+              title="Product Pages"
+              items={topProducts.map((product) => {
+                const share =
+                  totalProductViews > 0
+                    ? (product.pageViews / totalProductViews) * 100
+                    : 0
+                return {
+                  key: product.path,
+                  value: share,
+                  tone: "indigo",
+                  left: (
+                    <div className="min-w-0">
+                      <div className="truncate font-semibold text-slate-900">
+                        {product.name}
+                      </div>
+                      <div className="truncate text-xs text-slate-500">
+                        {product.path}
+                      </div>
+                    </div>
+                  ),
+                  right: (
+                    <div className="text-right">
+                      <div className="text-sm font-semibold text-slate-700">
+                        {formatPercent(share)}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {numberFormatter.format(product.pageViews)} views
+                      </div>
+                    </div>
+                  ),
+                }
+              })}
+              max={100}
+              listClassName="space-y-4"
+              emptyLabel="No product traffic recorded in this window yet."
+              valueBarRowProps={{ className: valueBarRowClassName }}
+            />
+
+            <AnalyticsListCard
+              title="Referrers"
+              items={snapshot.referrers.map((referrer) => ({
+                key: referrer.referrer,
+                value: referrer.views,
+                left: (
+                  <span className="truncate font-medium text-slate-900">
+                    {referrerLabel(referrer.referrer)}
+                  </span>
+                ),
+                right: (
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(referrer.share)}
+                  </span>
+                ),
+              }))}
+              listClassName="space-y-3"
+              emptyLabel="Waiting for referral data."
+              valueBarRowProps={{ className: valueBarRowClassName }}
+            />
+          </div>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <AnalyticsListCard
+              title="Countries"
+              items={snapshot.countries.map((country) => ({
+                key: country.country,
+                value: country.visitors,
+                tone: "blue",
+                left: (
+                  <div className="flex items-center gap-2 truncate">
+                    <FlagIcon
+                      code={country.code}
+                      name={country.country}
+                      variant="image"
+                      className="shrink-0"
+                    />
+                    <span className="truncate font-medium text-slate-900">
+                      {country.country}
+                    </span>
+                  </div>
+                ),
+                right: (
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(country.share)}
+                  </span>
+                ),
+              }))}
+              listClassName="space-y-3"
+              emptyLabel="No country data yet."
+              valueBarRowProps={{ className: valueBarRowClassName }}
+            />
+
+            <AnalyticsListCard
+              title="Cities"
+              items={snapshot.cities.map((city) => ({
+                key: `${city.city}-${city.region ?? ""}-${city.country ?? ""}`,
+                value: city.visitors,
+                tone: "blue",
+                left: (
+                  <div className="flex items-center gap-2 truncate">
+                    <FlagIcon
+                      code={city.code}
+                      name={city.city}
+                      variant="image"
+                      className="shrink-0"
+                    />
+                    <div className="min-w-0 truncate">
+                      <div className="truncate font-medium text-slate-900">
+                        {city.city}
+                      </div>
+                      <div className="truncate text-xs text-slate-500">
+                        {[city.region, city.country]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </div>
+                    </div>
+                  </div>
+                ),
+                right: (
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(city.share)}
+                  </span>
+                ),
+              }))}
+              listClassName="space-y-3"
+              emptyLabel="No city data yet."
+              valueBarRowProps={{ className: valueBarRowClassName }}
+            />
+          </div>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-3">
+            <AnalyticsListCard
+              title="Browsers"
+              items={snapshot.browsers.map((browser) => ({
+                key: browser.browser,
+                value: browser.visitors,
+                tone: "indigo",
+                left: (
+                  <div className="flex items-center gap-2 truncate">
+                    <BrowserIcon name={browser.browser} />
+                    <span className="truncate font-medium text-slate-900">
+                      {browser.browser}
+                    </span>
+                  </div>
+                ),
+                right: (
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(browser.share)}
+                  </span>
+                ),
+              }))}
+              listClassName="space-y-3"
+              emptyLabel="No browser data yet."
+              valueBarRowProps={{ className: valueBarRowClassName }}
+            />
+
+            <AnalyticsListCard
+              title="Operating systems"
+              items={snapshot.operatingSystems.map((os) => ({
+                key: os.os,
+                value: os.visitors,
+                tone: "blue",
+                left: (
+                  <div className="flex items-center gap-2 truncate">
+                    <OsIcon name={os.os} />
+                    <span className="truncate font-medium text-slate-900">
+                      {os.os}
+                    </span>
+                  </div>
+                ),
+                right: (
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(os.share)}
+                  </span>
+                ),
+              }))}
+              listClassName="space-y-3"
+              emptyLabel="No OS data yet."
+              valueBarRowProps={{ className: valueBarRowClassName }}
+            />
+
+            <AnalyticsListCard
+              title="Devices"
+              items={snapshot.devices.map((device) => ({
+                key: device.deviceCategory,
+                value: device.visitors,
+                tone: "indigo",
+                left: (
+                  <div className="flex items-center gap-2 truncate capitalize">
+                    {deviceIcon(device.deviceCategory)}
+                    <span className="truncate font-medium text-slate-900">
+                      {device.deviceCategory}
+                    </span>
+                  </div>
+                ),
+                right: (
+                  <span className="text-sm font-semibold text-slate-700">
+                    {formatPercent(device.share)}
+                  </span>
+                ),
+              }))}
+              listClassName="space-y-3"
+              emptyLabel="No device data yet."
+              valueBarRowProps={{ className: valueBarRowClassName }}
+            />
+          </div>
+
+          <div className="mt-10 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
+            <div>
+              Data is aggregated/anonymized and excludes PII. Admin/internal
+              traffic is filtered out. See our{" "}
+              <a
+                href="/legal/privacy-policy"
+                className="font-semibold text-slate-900 underline-offset-4 hover:underline"
+              >
+                Privacy Policy
+              </a>
+              .
             </div>
           </div>
-        </section>
-
-        <FaqSection />
+        </div>
       </main>
     </>
   )

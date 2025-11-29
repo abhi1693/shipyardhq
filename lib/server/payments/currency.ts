@@ -1,5 +1,4 @@
 import { cacheHit, cacheMiss, buildCacheKey } from "@/lib/server/cache"
-
 const RATES_TTL_SECONDS = 24 * 60 * 60 // 1 day
 const RATES_ENDPOINT =
   process.env.USD_RATES_URL || "https://open.er-api.com/v6/latest/USD"

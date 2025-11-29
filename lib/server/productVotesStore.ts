@@ -51,14 +51,6 @@ export async function toggleVoteState({
   return mutateVote({ productId, userId })
 }
 
-export async function getLiveUpvoteCount(productId: string): Promise<number> {
-  const record = await prisma.productAnalytics.findUnique({
-    where: { productId },
-    select: { upvotes: true },
-  })
-  return record?.upvotes ?? 0
-}
-
 function scheduleEvent<K extends keyof AppEvents>(
   event: K,
   payload: AppEvents[K],
@@ -115,7 +107,7 @@ async function mutateVote({
       const analyticsUpdate = await tx.productAnalytics.upsert({
         where: { productId },
         update: { upvotes: { increment: 1 } },
-        create: { productId, upvotes: baseCount + 1, clicks: 0 },
+        create: { productId, upvotes: baseCount + 1 },
         select: { upvotes: true },
       })
 

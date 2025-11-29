@@ -22,7 +22,9 @@ export function VerifiedRevenuePageSkeleton() {
             <section className="space-y-4 rounded-2xl border border-border/60 bg-white p-5 shadow-sm sm:p-6">
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, index) => (
-                  <ProductFeedCardSkeleton key={`verified-revenue-skel-${index}`} />
+                  <ProductFeedCardSkeleton
+                    key={`verified-revenue-skel-${index}`}
+                  />
                 ))}
               </div>
             </section>

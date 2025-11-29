@@ -67,6 +67,8 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       connectorProvider: z
         .enum([
           "dodo",
+          "abacatepay",
+          "creem",
           "polar",
           "revenuecat",
           "stripe",
@@ -206,6 +208,28 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
         }
       }
 
+      if (val.connectorProvider === "abacatepay") {
+        const key = val.connectorApiKey?.trim() ?? ""
+        if (key && !key.startsWith("mrr_")) {
+          ctx.addIssue({
+            path: ["connectorApiKey"],
+            code: z.ZodIssueCode.custom,
+            message: "AbacatePay tokens must start with mrr_",
+          })
+        }
+      }
+
+      if (val.connectorProvider === "creem") {
+        const key = val.connectorApiKey?.trim() ?? ""
+        if (key && !key.startsWith("creem_")) {
+          ctx.addIssue({
+            path: ["connectorApiKey"],
+            code: z.ZodIssueCode.custom,
+            message: "Creem API keys must start with creem_",
+          })
+        }
+      }
+
       if (val.connectorProvider === "revenuecat") {
         const projectId = val.connectorAccountId?.trim()
         if (val.connectorApiKey && !projectId) {
@@ -230,9 +254,7 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
 
       if (val.connectorProvider === "paddle" && val.connectorApiKey) {
         const key = val.connectorApiKey.trim()
-        const expectedPrefix = IS_PROD
-          ? "pdl_live_apikey_"
-          : "pdl_sdbx_apikey_"
+        const expectedPrefix = IS_PROD ? "pdl_live_apikey_" : "pdl_sdbx_apikey_"
         if (!key.startsWith(expectedPrefix)) {
           ctx.addIssue({
             path: ["connectorApiKey"],

@@ -4,6 +4,7 @@ import type {
   PaymentConnectorStatus,
 } from "@/lib/vendor/prisma/client"
 
+import prisma from "@/lib/prisma"
 import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
 import { convertToUsdCents } from "./currency"
 
@@ -19,10 +20,7 @@ type RevenueSnapshotInput = {
 
 export type NormalizedRevenueSnapshot = Omit<
   RevenueSnapshotInput,
-  | "allTimeRevenueCents"
-  | "periodRevenueCents"
-  | "currencyCode"
-  | "data"
+  "allTimeRevenueCents" | "periodRevenueCents" | "currencyCode" | "data"
 > & {
   currencyCode: string | null
   allTimeRevenueCents: number | null
@@ -47,8 +45,6 @@ export type RevenueSummary = {
   latestAllTimeRevenueCents: number
   points: RevenuePoint[]
 }
-
-const REVENUE_CACHE_TTL_SECONDS = 24 * 60 * 60 // 1 day
 
 const isObject = (
   value: Prisma.JsonValue | null | undefined,
@@ -213,9 +209,74 @@ export async function cacheRevenueSummary(
   await cacheMiss({
     key: buildRevenueCacheKey(summary.productId),
     value: summary,
-    ttlSeconds: REVENUE_CACHE_TTL_SECONDS,
     inProcessTtlMs: 5 * 60 * 1000,
   }).catch(() => null)
+}
+
+export async function getRevenueSummaryFromDb(
+  productId: string,
+): Promise<RevenueSummary | null> {
+  const connector = await prisma.paymentConnector.findUnique({
+    where: { productId },
+    select: {
+      id: true,
+      provider: true,
+      status: true,
+      lastSyncedAt: true,
+      revenueHistory: {
+        orderBy: { periodStart: "asc" },
+        select: {
+          periodStart: true,
+          currencyCode: true,
+          periodRevenueCents: true,
+          allTimeRevenueCents: true,
+          data: true,
+        },
+      },
+    },
+  })
+
+  if (!connector) return null
+
+  const history: RevenueSnapshotInput[] = connector.revenueHistory.map(
+    (snapshot: {
+      periodStart: Date
+      currencyCode: string
+      periodRevenueCents: number
+      allTimeRevenueCents: number
+      data: Prisma.JsonValue | null
+    }) => ({
+      periodStart: snapshot.periodStart,
+      currencyCode: snapshot.currencyCode,
+      periodRevenueCents: snapshot.periodRevenueCents,
+      allTimeRevenueCents: snapshot.allTimeRevenueCents,
+      data: snapshot.data ?? undefined,
+    }),
+  )
+
+  const rates = new Map<string, number>()
+  for (const entry of history) {
+    const rate = (entry.data as any)?.rateToUsd
+    if (typeof rate === "number" && rate > 0) {
+      rates.set(entry.currencyCode, rate)
+    }
+  }
+
+  const summary = buildRevenueSummary({
+    productId,
+    connectorId: connector.id,
+    provider: connector.provider,
+    status: connector.status,
+    lastSyncedAt: connector.lastSyncedAt,
+    history,
+    rates,
+  })
+
+  if (summary) {
+    await cacheRevenueSummary(summary)
+  }
+
+  return summary
 }
 
 export function buildRevenueSummary({

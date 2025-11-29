@@ -3,7 +3,10 @@ import { Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { resolveVoteState } from "@/lib/server/productVotesStore"
-import { getCachedRevenueSummary } from "@/lib/server/payments/revenue"
+import {
+  getCachedRevenueSummary,
+  getRevenueSummaryFromDb,
+} from "@/lib/server/payments/revenue"
 
 type PublicProduct = Prisma.ProductGetPayload<{
   include: {
@@ -319,22 +322,17 @@ export async function hasUserUpvoted(productId: string, clerkId: string) {
   return currentState === "upvoted"
 }
 
-export async function getPublicProductRevenue(
-  productId: string,
-  options?: { limit?: number },
-) {
+export async function getPublicProductRevenue(productId: string) {
   const cached = await getCachedRevenueSummary(productId)
-  if (!cached) return null
+  const summary = cached ?? (await getRevenueSummaryFromDb(productId))
+  if (!summary) return null
 
-  const limitedPoints = options?.limit
-    ? cached.points.slice(Math.max(cached.points.length - options.limit, 0))
-    : cached.points
   return {
-    currencyCode: cached.currencyCode,
-    lastSyncedAt: cached.lastSyncedAt,
-    status: cached.status,
-    provider: cached.provider,
-    latestAllTimeRevenueCents: cached.latestAllTimeRevenueCents,
-    points: limitedPoints,
+    currencyCode: summary.currencyCode,
+    lastSyncedAt: summary.lastSyncedAt,
+    status: summary.status,
+    provider: summary.provider,
+    latestAllTimeRevenueCents: summary.latestAllTimeRevenueCents,
+    points: summary.points,
   }
 }

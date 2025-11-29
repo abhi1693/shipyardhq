@@ -6,17 +6,17 @@ import { dodoClient } from "@/lib/dodo"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import { createPlanCheckout } from "@/lib/server/dodoCheckout"
 import {
-  FeatureEntitlementStatus,
   PaymentConnectorProvider,
   PaymentCredentialStatus,
   Prisma,
   ProductStatus,
 } from "@/lib/vendor/prisma/client"
+import type { FeatureEntitlementStatus } from "@/lib/vendor/prisma/client"
 import {
-  syncPaymentConnector,
   validateConnectorApiKey,
   upsertPaymentConnector,
 } from "@/lib/server/payments/connectors"
+import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
 import { getCachedRevenueSummary } from "@/lib/server/payments/revenue"
 import {
   getActiveUserByClerkId,
@@ -25,6 +25,8 @@ import {
 import { hasPlanFeature } from "@/lib/features"
 import { memberProductPath } from "@/lib/routes"
 import type { PaymentConnectorConfig } from "@/lib/server/payments/types"
+import { dispatchEventAsync } from "@/lib/server/events"
+import { APP_EVENTS } from "@/lib/server/events/constants"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -35,6 +37,11 @@ type OrgMembershipRef = Prisma.OrganizationMembershipGetPayload<{
   select: { organizationId: true }
 }>
 
+const ACTIVE_ENTITLEMENT_STATUSES: FeatureEntitlementStatus[] = [
+  "active",
+  "pending",
+]
+
 type ProductListItem = Prisma.ProductGetPayload<{
   include: {
     category: { select: { id: true; name: true; slug: true } }
@@ -42,6 +49,7 @@ type ProductListItem = Prisma.ProductGetPayload<{
       select: {
         id: true
         name: true
+        isDefault: true
         assignments: {
           select: {
             enabled: true
@@ -51,8 +59,11 @@ type ProductListItem = Prisma.ProductGetPayload<{
       }
     }
     verification: { select: { isVerified: true } }
-    analytics: { select: { clicks: true; upvotes: true } }
+    analytics: { select: { upvotes: true } }
     featureEntitlements: {
+      where: {
+        status: { in: FeatureEntitlementStatus[] }
+      }
       select: { featureKey: true; status: true }
     }
   }
@@ -135,9 +146,6 @@ export async function getUserProducts(params?: ListParams) {
     case "az":
       orderBy = { name: "asc" }
       break
-    case "clicks":
-      orderBy = { analytics: { clicks: "desc" } }
-      break
     case "upvotes":
       orderBy = { analytics: { upvotes: "desc" } }
       break
@@ -158,6 +166,7 @@ export async function getUserProducts(params?: ListParams) {
           select: {
             id: true,
             name: true,
+            isDefault: true,
             assignments: {
               select: {
                 enabled: true,
@@ -167,15 +176,10 @@ export async function getUserProducts(params?: ListParams) {
           },
         },
         verification: { select: { isVerified: true } },
-        analytics: { select: { clicks: true, upvotes: true } },
+        analytics: { select: { upvotes: true } },
         featureEntitlements: {
           where: {
-            status: {
-              in: [
-                FeatureEntitlementStatus.active,
-                FeatureEntitlementStatus.pending,
-              ],
-            },
+            status: { in: ACTIVE_ENTITLEMENT_STATUSES },
           },
           select: {
             featureKey: true,
@@ -187,25 +191,33 @@ export async function getUserProducts(params?: ListParams) {
     prisma.product.count({ where }),
   ])) as [ProductListItem[], number]
 
+  // Fallback to the default plan's features when a product has no plan attached
+  const defaultPlan = products.some((product) => !product.plan)
+    ? await getDefaultPlanWithFeatures()
+    : null
+
   const productsWithPermissions = products.map((product: ProductListItem) => {
     const entitlementFeatures = new Set(
       (product.featureEntitlements ?? []).map((ent) => ent.featureKey),
     )
 
+    const planForAccess = product.plan ?? defaultPlan
+
     const hasAdvancedAnalytics =
-      hasPlanFeature(product.plan ?? null, "analytics.advanced") ||
+      hasPlanFeature(planForAccess ?? null, "analytics.advanced") ||
       entitlementFeatures.has("analytics.advanced")
     const canViewAnalytics =
       hasAdvancedAnalytics ||
-      hasPlanFeature(product.plan ?? null, "analytics.basic") ||
+      hasPlanFeature(planForAccess ?? null, "analytics.basic") ||
       entitlementFeatures.has("analytics.basic")
 
     const { plan, featureEntitlements: _featureEntitlements, ...rest } = product
     void _featureEntitlements
-    const planSummary = plan
+    const planForDisplay = plan ?? defaultPlan
+    const planSummary = planForDisplay
       ? {
-          id: plan.id,
-          name: plan.name,
+          id: planForDisplay.id,
+          name: planForDisplay.name,
         }
       : undefined
 
@@ -463,71 +475,9 @@ export async function getProductConnectorSummary(productId: string) {
   const config = connector.config as PaymentConnectorConfig | null
   const accountId =
     typeof config?.accountId === "string" ? config.accountId : undefined
-  const brandId = typeof config?.brandId === "string" ? config.brandId : undefined
+  const brandId =
+    typeof config?.brandId === "string" ? config.brandId : undefined
   return { ...rest, keyHint, accountId, brandId }
-}
-
-export async function getProductConnectorRevenue(
-  productId: string,
-  options?: { limit?: number },
-) {
-  const { error } = await requireOwnedProduct(productId)
-  if (error) return null
-
-  const summary = await getCachedRevenueSummary(productId)
-  if (!summary) return null
-
-  const connector = await prisma.paymentConnector.findUnique({
-    where: { productId },
-    select: {
-      id: true,
-      provider: true,
-      status: true,
-      lastSyncedAt: true,
-      lastSyncError: true,
-      latestPeriodStart: true,
-    },
-  })
-
-  const limitedPoints = options?.limit
-    ? summary.points.slice(Math.max(summary.points.length - options.limit, 0))
-    : summary.points
-
-  return {
-    connector: connector
-      ? {
-          id: connector.id,
-          provider: connector.provider,
-          status: connector.status,
-          lastSyncedAt: connector.lastSyncedAt,
-          lastSyncError: connector.lastSyncError,
-          latestAllTimeRevenueCents: summary.latestAllTimeRevenueCents,
-          latestCurrencyCode: summary.currencyCode,
-          latestPeriodStart: connector.latestPeriodStart,
-        }
-      : null,
-    revenueHistory: limitedPoints.map((point) => ({
-      id: point.periodStart,
-      periodStart: new Date(point.periodStart),
-      currencyCode: summary.currencyCode,
-      periodRevenueCents: point.periodRevenueCents,
-      allTimeRevenueCents: point.allTimeRevenueCents,
-      data: {},
-      createdAt: new Date(point.periodStart),
-    })),
-    totals: {
-      byCurrency: [
-        {
-          currencyCode: summary.currencyCode,
-          allTimeRevenueCents: summary.latestAllTimeRevenueCents,
-        },
-      ],
-      primary: {
-        currencyCode: summary.currencyCode,
-        allTimeRevenueCents: summary.latestAllTimeRevenueCents,
-      },
-    },
-  }
 }
 
 export async function saveProductConnectorAction(input: {
@@ -560,11 +510,7 @@ export async function saveProductConnectorAction(input: {
   if (provider === PaymentConnectorProvider.lemonsqueezy && !accountId) {
     return { error: "Lemon Squeezy store ID is required" }
   }
-  if (
-    brandId &&
-    !brandId.startsWith("brnd_") &&
-    !brandId.startsWith("bus_")
-  ) {
+  if (brandId && !brandId.startsWith("brnd_") && !brandId.startsWith("bus_")) {
     return { error: "Dodo brand IDs must start with brnd_ or bus_" }
   }
   if (brandId && provider !== PaymentConnectorProvider.dodo) {
@@ -576,6 +522,7 @@ export async function saveProductConnectorAction(input: {
 
   try {
     await validateConnectorApiKey({
+      productId: input.productId,
       provider,
       apiKey,
       config:
@@ -598,7 +545,16 @@ export async function saveProductConnectorAction(input: {
             }
           : undefined,
     })
-    await syncPaymentConnector(result.connector.id)
+    dispatchEventAsync(
+      APP_EVENTS.PAYMENTS_CONNECTOR_SYNC,
+      { connectorId: result.connector.id },
+      {
+        context: {
+          productId: input.productId,
+          connectorId: result.connector.id,
+        },
+      },
+    )
     const summary = await getProductConnectorSummary(input.productId)
     return { ok: true, connectorId: result.connector.id, connector: summary }
   } catch (e: any) {

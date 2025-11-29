@@ -9,7 +9,6 @@ import {
   type EventQueueName,
 } from "@/lib/server/events/queues"
 import type { RedemptionStatus, Prisma } from "@/lib/vendor/prisma/client"
-import type { DeviceCategory, ProductTrafficPayload } from "@/types/analytics"
 import { IS_PROD } from "@/lib/constants"
 
 type HandlerMode = "sync" | "async"
@@ -34,26 +33,10 @@ void registerEventHandlers().catch((error) => {
 const DEFAULT_DEAD_LETTER_MESSAGE =
   "Event envelope moved to dead letter because enqueue failed"
 
-export type ProductClickMetadata = {
-  referrer?: string | null
-  userAgent?: string | null
-  device?: DeviceCategory | null
-  browser?: string | null
-  os?: string | null
-  country?: string | null
-  region?: string | null
-  city?: string | null
-  ipHash?: string | null
-}
-
 export type ProductCreatedEvent = { productId: string }
 export type ProductUpdatedEvent = { productId: string }
 export type ProductDeletedEvent = { productId: string }
 export type ProductPublishedEvent = { productId: string }
-export type ProductClickedEvent = {
-  productId: string
-  metadata?: ProductClickMetadata
-}
 export type ProductViewedEvent = {
   productId: string
   viewerUserId: string
@@ -83,7 +66,6 @@ export type ProductReviewCreatedEvent = {
   createdAt: Date
   updatedAt: Date
 }
-export type ProductTrafficRecordedEvent = ProductTrafficPayload
 
 export type ProductUpdatePublishedEvent = {
   productId: string
@@ -200,7 +182,6 @@ type AppEvents = {
   [APP_EVENTS.PRODUCT_UPDATED]: ProductUpdatedEvent
   [APP_EVENTS.PRODUCT_PUBLISHED]: ProductPublishedEvent
   [APP_EVENTS.PRODUCT_DELETED]: ProductDeletedEvent
-  [APP_EVENTS.PRODUCT_CLICKED]: ProductClickedEvent
   [APP_EVENTS.PRODUCT_VIEWED]: ProductViewedEvent
   [APP_EVENTS.PRODUCT_UPVOTED]: ProductUpvotedEvent
   [APP_EVENTS.PRODUCT_REVIEWED]: ProductReviewCreatedEvent
@@ -208,7 +189,6 @@ type AppEvents = {
   [APP_EVENTS.PAYMENTS_CONNECTOR_SYNC]: PaymentConnectorSyncEvent
   [APP_EVENTS.BADGE_ASSIGNED]: BadgeAssignedEvent
   [APP_EVENTS.BADGE_REMOVED]: BadgeRemovedEvent
-  [APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC]: ProductTrafficRecordedEvent
   [APP_EVENTS.LEADERBOARD_MONTHLY_WINNERS]: LeaderboardMonthlyWinnersEvent
   [APP_EVENTS.LEADERBOARD_PERIODIC_WINNERS]: LeaderboardPeriodicWinnersEvent
   [APP_EVENTS.REWARDS_AWARDED]: RewardsAwardedEvent

@@ -21,8 +21,10 @@ type DataAttributes = Partial<
 type FormElementProps = Omit<ComponentPropsWithoutRef<"form">, "action"> &
   DataAttributes
 
-interface ProductClickLinkProps
-  extends Omit<NextLinkProps, "href" | "children" | "onClick"> {
+interface ProductClickLinkProps extends Omit<
+  NextLinkProps,
+  "href" | "children" | "onClick"
+> {
   productId: string
   productSlug: string
   children: ReactNode

@@ -13,6 +13,10 @@ import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
+import {
+  TrafficSidebarStats,
+  TrafficSidebarStatsSkeleton,
+} from "@/components/templates/public/common/TrafficSidebarStats"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import {
   BROWSE_PATH,
@@ -120,9 +124,14 @@ export default async function TagsIndexPage({
           </>
         }
         sidebar={
-          <Suspense fallback={<SponsoredProductsSkeleton />}>
-            <SponsoredProductsSection />
-          </Suspense>
+          <>
+            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
+              <TrafficSidebarStats />
+            </Suspense>
+            <Suspense fallback={<SponsoredProductsSkeleton />}>
+              <SponsoredProductsSection />
+            </Suspense>
+          </>
         }
       />
     </main>

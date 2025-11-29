@@ -54,7 +54,7 @@ export default async function OrganizationAnalyticsPage({
       where: { organizationId: id },
       select: {
         id: true,
-        analytics: { select: { upvotes: true, clicks: true } },
+        analytics: { select: { upvotes: true } },
       },
     }),
     organizationHasAdvancedAnalytics(id),
@@ -71,15 +71,11 @@ export default async function OrganizationAnalyticsPage({
   type OrganizationProduct = (typeof products)[number]
   const productIds = products.map((product: OrganizationProduct) => product.id)
   const aggregatedAnalytics = products.reduce(
-    (
-      acc: { upvotes: number; clicks: number },
-      product: OrganizationProduct,
-    ) => {
+    (acc: { upvotes: number }, product: OrganizationProduct) => {
       acc.upvotes += product.analytics?.upvotes ?? 0
-      acc.clicks += product.analytics?.clicks ?? 0
       return acc
     },
-    { upvotes: 0, clicks: 0 },
+    { upvotes: 0 },
   )
 
   const summary = await getOrganizationTrafficSummary(id, {

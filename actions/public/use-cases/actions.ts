@@ -9,7 +9,7 @@ const useCaseProductSelect = {
   logo: true,
   tagline: true,
   createdAt: true,
-  analytics: { select: { upvotes: true, clicks: true } },
+  analytics: { select: { upvotes: true } },
   category: { select: { id: true, name: true, slug: true } },
   ProductBadge: {
     select: {

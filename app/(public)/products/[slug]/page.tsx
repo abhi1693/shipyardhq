@@ -33,7 +33,6 @@ import {
 import ProductShareBar from "@/components/molecules/ProductShareBar"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
-import ProductMetricsTracker from "@/components/pages/ProductMetricsTracker"
 import {
   Tooltip,
   TooltipContent,
@@ -73,7 +72,6 @@ import {
 import { siteConfig } from "@/lib/siteConfig"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import { addUtmParams } from "@/lib/marketing/utm"
-import prisma from "@/lib/prisma"
 import { hasPlanFeature } from "@/lib/features"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { buildPageMetadata } from "@/lib/metadata"
@@ -96,22 +94,7 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>
 }
 
-export const revalidate = 60
-
-export async function generateStaticParams() {
-  const slugs = await prisma.product.findMany({
-    where: { status: "published" },
-    select: { slug: true },
-    orderBy: { updatedAt: "desc" },
-  })
-
-  return slugs
-    .map((entry: (typeof slugs)[number]) => entry.slug?.trim())
-    .filter((value: string | undefined | null): value is string =>
-      Boolean(value),
-    )
-    .map((slug: string) => ({ slug }))
-}
+export const revalidate = 300
 
 export async function generateMetadata(
   props: ProductPageProps,
@@ -246,7 +229,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     getProductReviewSummary(product.id, 1),
     product.pricingModel === "free"
       ? Promise.resolve(null)
-      : getPublicProductRevenue(product.id, { limit: 24 }),
+      : getPublicProductRevenue(product.id),
   ])
   if (!sidebarProduct) return notFound()
 
@@ -291,7 +274,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       ] ?? formatLabel(sidebarProduct.pricingModel))
     : null
   const isVerified = Boolean(
-    product.verification?.isVerified ?? sidebarProduct?.verification?.isVerified,
+    product.verification?.isVerified ??
+    sidebarProduct?.verification?.isVerified,
   )
   const pricingModelSlug = pricingModelSlugFromValue(
     sidebarProduct?.pricingModel,
@@ -680,7 +664,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         />
       ) : null}
       <ScrollReset triggerKey={product.slug} />
-      <ProductMetricsTracker productId={product.id} />
       <PublicTwoColumnLayout
         mainClassName="gap-8"
         sidebarClassName="lg:sticky lg:top-24"

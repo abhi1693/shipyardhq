@@ -19,6 +19,13 @@ type StatsShape = {
   totalUpvotes: number
   topScore: number
   totalInsights: number
+  pageViews30?: number
+  visitors30?: number
+  trafficSeries?: Array<{
+    date: string
+    pageViews: number
+    visitors: number
+  }>
 }
 
 type MetricConfig = {
@@ -101,8 +108,9 @@ export function Hero({
           logoSrc && !logoSrc.startsWith("/") ? `/${logoSrc}` : logoSrc
         return { name, logoSrc: normalizedLogo }
       })
-      .filter((provider): provider is ProviderDescriptor => provider !== null) ??
-    []
+      .filter(
+        (provider): provider is ProviderDescriptor => provider !== null,
+      ) ?? []
   const renderAction = (action: HeaderActionConfig, index: number) => {
     const variant = action.variant ?? (index === 0 ? "default" : "outline")
     const baseClass =
@@ -177,7 +185,7 @@ export function Hero({
               {providers.map((provider) => (
                 <li
                   key={provider.name}
-                  className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-md"
+                  className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-white"
                 >
                   {provider.logoSrc ? (
                     <SquareImage
@@ -200,6 +208,12 @@ export function Hero({
           <dl className="grid gap-4 border-t border-border/60 pt-6 text-center sm:grid-cols-2 xl:grid-cols-4">
             {metrics.map((metric) => {
               const rawValue = stats[metric.key]
+              const numericValue =
+                typeof rawValue === "number"
+                  ? rawValue
+                  : Array.isArray(rawValue)
+                    ? rawValue.length
+                    : 0
               return (
                 <div
                   key={metric.key}
@@ -212,7 +226,7 @@ export function Hero({
                     {(
                       metric.formatter ??
                       ((value: number) => value.toLocaleString())
-                    )(rawValue)}
+                    )(numericValue)}
                   </dd>
                 </div>
               )

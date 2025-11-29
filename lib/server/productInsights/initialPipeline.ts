@@ -34,7 +34,6 @@ registerEventHandler({
         userId: product.userId,
         lastRunAt: product.insightProfile?.lastRunAt ?? null,
       })
-
       if (!access.ok) {
         console.info("[productInsights:autoRun] initial pipeline skipped", {
           productId: product.id,

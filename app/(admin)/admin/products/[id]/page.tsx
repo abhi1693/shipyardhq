@@ -389,7 +389,6 @@ export default async function ViewProductPage({
 
             <PerformanceCard
               upvotes={product.analytics?.upvotes ?? 0}
-              clicks={product.analytics?.clicks ?? 0}
               upvoters={recentUpvoters as any}
               badges={(product.ProductBadge || []) as any}
               productName={product.name}

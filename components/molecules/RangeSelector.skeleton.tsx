@@ -4,8 +4,9 @@ import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { cn } from "@/lib/utils"
 
-interface RangeSelectorSkeletonProps
-  extends React.ComponentProps<typeof Skeleton> {
+interface RangeSelectorSkeletonProps extends React.ComponentProps<
+  typeof Skeleton
+> {
   options?: number
 }
 

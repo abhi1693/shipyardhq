@@ -116,17 +116,6 @@ export const columns: ColumnDef<MemberProductRow>[] = [
     ),
   },
   {
-    accessorKey: "analytics.clicks",
-    header: () => (
-      <span className="text-xs font-medium text-muted-foreground">Clicks</span>
-    ),
-    cell: ({ row }) => (
-      <span className="text-sm text-slate-700">
-        {row.original.analytics?.clicks ?? 0}
-      </span>
-    ),
-  },
-  {
     accessorKey: "status",
     header: () => (
       <span className="text-xs font-medium text-muted-foreground">Status</span>

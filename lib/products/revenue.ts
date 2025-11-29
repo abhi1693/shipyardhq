@@ -17,7 +17,10 @@ interface ResolveRevenueOptions {
 export const resolveProductRevenue = (
   connector?: RevenueSnapshot | null,
   options: ResolveRevenueOptions = {},
-): { latestRevenueCents: number | null; revenueCurrencyCode: string | null } => {
+): {
+  latestRevenueCents: number | null
+  revenueCurrencyCode: string | null
+} => {
   if (!connector) {
     return { latestRevenueCents: null, revenueCurrencyCode: null }
   }

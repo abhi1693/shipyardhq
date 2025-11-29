@@ -68,9 +68,3 @@ export const pricingModelSlugFromValue = (
   value?: PricingModel | null,
 ): PricingModelSlug | undefined =>
   PRICING_MODELS.find((entry) => entry.value === value)?.slug
-
-export const pricingModelLabelFromSlug = (slug?: string | null) =>
-  getPricingModelMeta(slug ?? undefined)?.label
-
-export const pricingModelDescriptionFromSlug = (slug?: string | null) =>
-  getPricingModelMeta(slug ?? undefined)?.description

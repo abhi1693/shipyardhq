@@ -2,21 +2,6 @@ import type { ProductUpdateStatusValue } from "./product-updates"
 
 export type DeviceCategory = "desktop" | "mobile" | "tablet" | "unknown"
 
-export interface ProductTrafficPayload {
-  productId: string
-  path: string
-  referrer?: string | null
-  userAgent?: string | null
-  device: DeviceCategory
-  browser?: string | null
-  os?: string | null
-  country?: string | null
-  region?: string | null
-  city?: string | null
-  ipHash?: string | null
-  isBot?: boolean
-}
-
 export interface ProductTrafficSummaryPoint {
   date: string
   label: string
@@ -27,7 +12,6 @@ export interface ProductTrafficSummaryPoint {
 export interface ProductEngagementSummaryPoint {
   date: string
   label: string
-  clicks: number
   upvotes: number
 }
 
@@ -35,62 +19,26 @@ export interface ProductTrafficBreakdownItem {
   views: number
 }
 
-export interface ProductTrafficDeviceBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficDeviceBreakdownItem extends ProductTrafficBreakdownItem {
   device: DeviceCategory
   label: string
 }
 
-export interface ProductTrafficCountryBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficCountryBreakdownItem extends ProductTrafficBreakdownItem {
   country: string
 }
 
-export interface ProductTrafficBrowserBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficBrowserBreakdownItem extends ProductTrafficBreakdownItem {
   browser: string
 }
 
-export interface ProductTrafficUserAgentBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficUserAgentBreakdownItem extends ProductTrafficBreakdownItem {
   browser: string | null
   os: string | null
   device: DeviceCategory
 }
 
-export interface ProductTrafficDeviceConversionItem {
-  device: DeviceCategory
-  label: string
-  views: number
-  clicks: number
-  clickThroughRate: number
-}
-
-export interface ProductTrafficBrowserConversionItem {
-  browser: string
-  views: number
-  clicks: number
-  clickThroughRate: number
-}
-
-export interface ProductTrafficOsConversionItem {
-  os: string
-  views: number
-  clicks: number
-  clickThroughRate: number
-}
-
-export interface ProductTrafficReferrerConversionItem {
-  referrer: string
-  views: number
-  clicks: number
-  clickThroughRate: number
-  assistedUpvotes: number
-  assistedConversionRate: number
-}
-
-export interface ProductTrafficReferrerBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficReferrerBreakdownItem extends ProductTrafficBreakdownItem {
   referrer: string
 }
 
@@ -101,33 +49,28 @@ export type ProductTrafficReferrerCategory =
   | "email"
   | "other"
 
-export interface ProductTrafficPathBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficPathBreakdownItem extends ProductTrafficBreakdownItem {
   path: string
   previousViews: number
   viewsChange: number
 }
 
-export interface ProductTrafficOsBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficOsBreakdownItem extends ProductTrafficBreakdownItem {
   os: string
 }
 
-export interface ProductTrafficRegionBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficRegionBreakdownItem extends ProductTrafficBreakdownItem {
   country: string | null
   region: string
 }
 
-export interface ProductTrafficCityBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficCityBreakdownItem extends ProductTrafficBreakdownItem {
   country: string | null
   region: string | null
   city: string
 }
 
-export interface ProductTrafficReferrerCategoryBreakdownItem
-  extends ProductTrafficBreakdownItem {
+export interface ProductTrafficReferrerCategoryBreakdownItem extends ProductTrafficBreakdownItem {
   category: ProductTrafficReferrerCategory
   label: string
 }
@@ -193,11 +136,6 @@ export interface ProductTrafficSummary {
   averageViewsPerDay: number
   viewsToday: number
   viewsSevenDays: number
-  clicksInRange: number
-  previousClicks: number
-  clicksChange: number
-  clickThroughRate: number
-  clickThroughRateChange: number
   upvotesInRange: number
   previousUpvotes: number
   upvotesChange: number
@@ -209,30 +147,15 @@ export interface ProductTrafficSummary {
   topReferrer?: { referrer: string; views: number }
   viewsOverTime: ProductTrafficSummaryPoint[]
   deviceBreakdown: ProductTrafficDeviceBreakdownItem[]
-  deviceConversionBreakdown: ProductTrafficDeviceConversionItem[]
   countryBreakdown: ProductTrafficCountryBreakdownItem[]
   browserBreakdown: ProductTrafficBrowserBreakdownItem[]
   userAgentBreakdown: ProductTrafficUserAgentBreakdownItem[]
-  browserConversionBreakdown: ProductTrafficBrowserConversionItem[]
   referrerBreakdown: ProductTrafficReferrerBreakdownItem[]
-  referrerConversionBreakdown: ProductTrafficReferrerConversionItem[]
-  osConversionBreakdown: ProductTrafficOsConversionItem[]
   engagementOverTime: ProductEngagementSummaryPoint[]
   advanced: ProductTrafficAdvancedInsights
   filters: {
     includeBots: boolean
   }
-}
-
-export type ProductAnalyticsNarrativeConfidence = "low" | "medium" | "high"
-
-export interface ProductAnalyticsNarrative {
-  source: "ai" | "fallback"
-  headline: string
-  highlights: string[]
-  watchouts?: string[]
-  confidence: ProductAnalyticsNarrativeConfidence
-  generatedAt: string
 }
 
 export interface OnboardingAnswerBreakdownItem {

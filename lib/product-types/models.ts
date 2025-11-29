@@ -86,9 +86,3 @@ export const productTypeSlugFromValue = (
   value?: ProductType | null,
 ): ProductTypeSlug | undefined =>
   PRODUCT_TYPES.find((entry) => entry.value === value)?.slug
-
-export const productTypeLabelFromSlug = (slug?: string | null) =>
-  getProductTypeMeta(slug ?? undefined)?.label
-
-export const productTypeDescriptionFromSlug = (slug?: string | null) =>
-  getProductTypeMeta(slug ?? undefined)?.description

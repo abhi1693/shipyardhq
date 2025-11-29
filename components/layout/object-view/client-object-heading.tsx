@@ -9,6 +9,7 @@ export interface ClientObjectHeadingProps {
   createdAt: Date | string
   updatedAt: Date | string
   slug?: string | null
+  subtitle?: string
   deletable?: boolean
   editable?: boolean
   basePath: string
@@ -21,6 +22,7 @@ export function ClientObjectHeading({
   createdAt,
   updatedAt,
   slug,
+  subtitle,
   deletable,
   editable,
   basePath,
@@ -43,6 +45,7 @@ export function ClientObjectHeading({
       createdAt={createdAt}
       updatedAt={updatedAt}
       slug={slug}
+      subtitle={subtitle}
       onDelete={deletable ? handleDelete : undefined}
       onEdit={editable ? handleEdit : undefined}
       extraActions={extraActions}

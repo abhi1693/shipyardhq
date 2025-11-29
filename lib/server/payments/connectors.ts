@@ -6,9 +6,14 @@ import {
   PaymentConnectorProvider,
   PaymentConnectorStatus,
   PaymentCredentialStatus,
+  type PaymentConnector,
   type PaymentConnectorCredential,
 } from "@/lib/vendor/prisma/client"
-import { awardRewardsSafely, getProductOwnerId } from "@/lib/server/rewards/helpers"
+import { sendPaymentConnectorSyncErrorEmail } from "@/lib/server/email/paymentConnectorSyncError"
+import {
+  awardRewardsSafely,
+  getProductOwnerId,
+} from "@/lib/server/rewards/helpers"
 import {
   buildConnectorKeyHint,
   decryptConnectorSecret,
@@ -21,11 +26,59 @@ import { buildRevenueSummary, cacheRevenueSummary } from "./revenue"
 
 const PAYMENT_CONNECTOR_REWARD_RULE_KEY = "rewards.payment.connector"
 
+async function sendConnectorErrorEmail(params: {
+  productId: string
+  errorMessage: string
+}) {
+  try {
+    await sendPaymentConnectorSyncErrorEmail(params)
+  } catch (notifyError) {
+    console.error("[payments.connector.error] notification failed", {
+      productId: params.productId,
+      error:
+        notifyError instanceof Error
+          ? notifyError.message
+          : String(notifyError),
+    })
+  }
+}
+
+async function notifySyncErrorOnce(
+  connector: PaymentConnector,
+  message: string,
+) {
+  const alreadyNotified =
+    connector.status === PaymentConnectorStatus.error &&
+    (connector.lastSyncError ?? undefined) === message
+  if (alreadyNotified) return
+
+  await sendConnectorErrorEmail({
+    productId: connector.productId,
+    errorMessage: message,
+  })
+}
+
+async function markConnectorSyncError(
+  connector: PaymentConnector,
+  message: string,
+): Promise<{ error: string }> {
+  await prisma.paymentConnector.update({
+    where: { id: connector.id },
+    data: { status: PaymentConnectorStatus.error, lastSyncError: message },
+  })
+
+  await notifySyncErrorOnce(connector, message)
+
+  return { error: message }
+}
+
 export async function validateConnectorApiKey({
+  productId,
   provider,
   apiKey,
   config,
 }: {
+  productId?: string
   provider: PaymentConnectorProvider
   apiKey: string
   config?: PaymentConnectorConfig
@@ -33,7 +86,21 @@ export async function validateConnectorApiKey({
   const providerDefinition = getProviderDefinition(provider)
   if (!providerDefinition?.validateApiKey) return
 
-  await providerDefinition.validateApiKey({ apiKey, config })
+  try {
+    await providerDefinition.validateApiKey({ apiKey, config })
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Payment connector validation failed"
+    if (productId) {
+      await sendConnectorErrorEmail({
+        productId,
+        errorMessage: message,
+      })
+    }
+    throw error
+  }
 }
 
 async function getActiveCredential(
@@ -234,26 +301,15 @@ export async function syncPaymentConnector(connectorId: string) {
 
   const credential = await getActiveCredential(connector.id)
   if (!credential) {
-    await prisma.paymentConnector.update({
-      where: { id: connector.id },
-      data: {
-        status: PaymentConnectorStatus.error,
-        lastSyncError: "No active credential configured",
-      },
-    })
-    return { error: "No active credential configured" }
+    return markConnectorSyncError(connector, "No active credential configured")
   }
 
   const providerDefinition = getProviderDefinition(connector.provider)
   if (!providerDefinition?.sync) {
-    await prisma.paymentConnector.update({
-      where: { id: connector.id },
-      data: {
-        status: PaymentConnectorStatus.error,
-        lastSyncError: `Provider ${connector.provider} is not supported yet`,
-      },
-    })
-    return { error: `Provider ${connector.provider} is not supported yet` }
+    return markConnectorSyncError(
+      connector,
+      `Provider ${connector.provider} is not supported yet`,
+    )
   }
 
   let apiKey: string
@@ -264,11 +320,7 @@ export async function syncPaymentConnector(connectorId: string) {
       error instanceof Error
         ? error.message
         : "Unable to decrypt connector secret"
-    await prisma.paymentConnector.update({
-      where: { id: connector.id },
-      data: { status: PaymentConnectorStatus.error, lastSyncError: message },
-    })
-    return { error: message }
+    return markConnectorSyncError(connector, message)
   }
 
   try {
@@ -340,10 +392,9 @@ export async function syncPaymentConnector(connectorId: string) {
           primary?.currencyCode ??
           latestSnapshot?.currencyCode ??
           "USD",
-        latestPeriodStart:
-          latestPoint?.periodStart
-            ? new Date(latestPoint.periodStart)
-            : primary?.periodStart ?? latestSnapshot?.periodStart,
+        latestPeriodStart: latestPoint?.periodStart
+          ? new Date(latestPoint.periodStart)
+          : (primary?.periodStart ?? latestSnapshot?.periodStart),
       },
     })
     if (summary) {
@@ -413,62 +464,6 @@ export async function syncPaymentConnector(connectorId: string) {
       provider: connector.provider,
       error: message,
     })
-    await prisma.paymentConnector.update({
-      where: { id: connector.id },
-      data: { status: PaymentConnectorStatus.error, lastSyncError: message },
-    })
-    return { error: message }
+    return markConnectorSyncError(connector, message)
   }
-}
-
-export async function getConnectorRevenueHistory({
-  productId,
-  provider,
-  limit,
-}: {
-  productId: string
-  provider?: PaymentConnectorProvider
-  limit?: number
-}) {
-  const where = { productId, ...(provider ? { provider } : {}) }
-  const historyOrder = limit
-    ? { periodStart: "desc" as const }
-    : { periodStart: "asc" as const }
-
-  const connector = await prisma.paymentConnector.findFirst({
-    where,
-    orderBy: { updatedAt: "desc" },
-    select: {
-      id: true,
-      provider: true,
-      status: true,
-      lastSyncedAt: true,
-      lastSyncError: true,
-      latestAllTimeRevenueCents: true,
-      latestCurrencyCode: true,
-      latestPeriodStart: true,
-      revenueHistory: {
-        orderBy: historyOrder,
-        take: limit,
-        select: {
-          id: true,
-          currencyCode: true,
-          periodStart: true,
-          periodRevenueCents: true,
-          allTimeRevenueCents: true,
-          data: true,
-          createdAt: true,
-        },
-      },
-    },
-  })
-
-  if (!connector) return null
-
-  const sortedHistory = [...(connector.revenueHistory ?? [])].sort(
-    (a, b) =>
-      new Date(a.periodStart).getTime() - new Date(b.periodStart).getTime(),
-  )
-
-  return { ...connector, revenueHistory: sortedHistory }
 }

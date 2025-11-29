@@ -278,10 +278,7 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
 
   const featuredWithRevenue = applyRevenueLabel(featured, revenueMap)
   const trendingWithRevenue = applyRevenueLabel(trending, revenueMap)
-  const freshLaunchesWithRevenue = applyRevenueLabel(
-    freshLaunches,
-    revenueMap,
-  )
+  const freshLaunchesWithRevenue = applyRevenueLabel(freshLaunches, revenueMap)
 
   let sent = 0
   let skipped = 0

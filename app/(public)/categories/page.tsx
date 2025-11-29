@@ -14,6 +14,10 @@ import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import {
+  TrafficSidebarStats,
+  TrafficSidebarStatsSkeleton,
+} from "@/components/templates/public/common/TrafficSidebarStats"
+import {
   BROWSE_PATH,
   CATEGORIES_PATH,
   HOME_PATH,
@@ -123,6 +127,9 @@ export default async function CategoriesPage() {
         }
         sidebar={
           <>
+            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
+              <TrafficSidebarStats />
+            </Suspense>
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               {/* reuse homepage sponsors to surface promoted directory listings */}
               <SponsoredProductsSection />

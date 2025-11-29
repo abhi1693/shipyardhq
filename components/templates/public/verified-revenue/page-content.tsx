@@ -12,6 +12,10 @@ import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
+import {
+  TrafficSidebarStats,
+  TrafficSidebarStatsSkeleton,
+} from "@/components/templates/public/common/TrafficSidebarStats"
 import { VerifiedRevenueGridClient } from "@/components/templates/public/verified-revenue/VerifiedRevenueGridClient"
 import { VERIFIED_REVENUE_PAGE_SIZE } from "@/lib/products/verifiedRevenue"
 
@@ -22,6 +26,8 @@ const SUPPORTED_PROVIDERS = [
   { name: "Dodo", logoSrc: "/providers/dodo.jpeg" },
   { name: "RevenueCat", logoSrc: "/providers/revenuecat.png" },
   { name: "Lemon Squeezy", logoSrc: "/providers/lemon.jpeg" },
+  { name: "AbacatePay", logoSrc: "/providers/abacatepay.jpeg" },
+  { name: "Creem", logoSrc: "/providers/creem.svg" },
 ] as const
 
 export async function VerifiedRevenuePageContent() {
@@ -43,7 +49,7 @@ export async function VerifiedRevenuePageContent() {
               <Hero
                 stats={stats}
                 supportedProviders={[...SUPPORTED_PROVIDERS]}
-                title="The verified revenue leaderboard for startups."
+                title="The verified revenue leaderboard for startups"
                 primaryAction={null}
                 secondaryAction={null}
                 showDomainRatingBadge={false}
@@ -66,6 +72,9 @@ export async function VerifiedRevenuePageContent() {
         }
         sidebar={
           <>
+            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
+              <TrafficSidebarStats />
+            </Suspense>
             <Suspense
               fallback={
                 <div className="hidden lg:block">

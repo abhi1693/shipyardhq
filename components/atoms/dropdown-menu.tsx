@@ -181,8 +181,10 @@ function DropdownMenuSeparator({
   )
 }
 
-interface DropdownMenuSearchProps
-  extends Omit<React.ComponentProps<"input">, "type"> {
+interface DropdownMenuSearchProps extends Omit<
+  React.ComponentProps<"input">,
+  "type"
+> {
   value?: string
   defaultValue?: string
   onValueChange?: (value: string) => void

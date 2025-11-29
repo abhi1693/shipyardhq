@@ -330,9 +330,7 @@ function revalidateAfterClaim(
   revalidateUser(claimantId)
 }
 
-export async function getClaimableProducts(params?: {
-  q?: string | string[]
-}) {
+export async function getClaimableProducts(params?: { q?: string | string[] }) {
   const { userId: clerkId } = await auth()
   if (!clerkId) throw new Error("Unauthenticated")
   const user = await getActiveUserByClerkId(clerkId)
@@ -376,7 +374,11 @@ export async function claimProductViaDnsAction(productId: string) {
 
   const lockExpiresAt = new Date(Date.now() + CLAIM_PENDING_WINDOW_MS)
   await prisma.productClaimAttempt.updateMany({
-    where: { productId: target.product.id, userId: viewer.id, status: "pending" },
+    where: {
+      productId: target.product.id,
+      userId: viewer.id,
+      status: "pending",
+    },
     data: { otpExpiresAt: lockExpiresAt, method: "dns" },
   })
 
@@ -479,48 +481,54 @@ export async function verifyProductClaimOtpAction(
   const now = new Date()
   const hashed = hashOtp(trimmedCode)
 
-  const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-    const attempt = await tx.productClaimAttempt.findFirst({
-      where: {
-        productId,
-        userId: viewer.id,
-        method: "email_otp",
-        status: "pending",
-      },
-      orderBy: { updatedAt: "desc" },
-    })
+  const result = await prisma.$transaction(
+    async (tx: Prisma.TransactionClient) => {
+      const attempt = await tx.productClaimAttempt.findFirst({
+        where: {
+          productId,
+          userId: viewer.id,
+          method: "email_otp",
+          status: "pending",
+        },
+        orderBy: { updatedAt: "desc" },
+      })
 
-    if (!attempt) {
-      return { error: "No active email verification found. Send a new code." }
-    }
+      if (!attempt) {
+        return { error: "No active email verification found. Send a new code." }
+      }
 
-    if (attempt.otpExpiresAt && attempt.otpExpiresAt < now) {
+      if (attempt.otpExpiresAt && attempt.otpExpiresAt < now) {
+        await tx.productClaimAttempt.update({
+          where: { id: attempt.id },
+          data: { status: "expired" as ProductClaimStatus },
+        })
+        return { error: "That code has expired. Send a new code." }
+      }
+
+      if (attempt.otpHash !== hashed) {
+        return { error: "Invalid code. Double-check and try again." }
+      }
+
+      const claim = await finalizeClaim(
+        target.product.id,
+        viewer.id,
+        target.expectedTxt,
+        tx,
+      )
+      if ("error" in claim) return claim
+
       await tx.productClaimAttempt.update({
         where: { id: attempt.id },
-        data: { status: "expired" as ProductClaimStatus },
+        data: { status: "fulfilled" as ProductClaimStatus, otpHash: null },
       })
-      return { error: "That code has expired. Send a new code." }
-    }
 
-    if (attempt.otpHash !== hashed) {
-      return { error: "Invalid code. Double-check and try again." }
-    }
-
-    const claim = await finalizeClaim(
-      target.product.id,
-      viewer.id,
-      target.expectedTxt,
-      tx,
-    )
-    if ("error" in claim) return claim
-
-    await tx.productClaimAttempt.update({
-      where: { id: attempt.id },
-      data: { status: "fulfilled" as ProductClaimStatus, otpHash: null },
-    })
-
-    return { success: true, slug: claim.slug, previousOwnerId: claim.previousOwnerId }
-  })
+      return {
+        success: true,
+        slug: claim.slug,
+        previousOwnerId: claim.previousOwnerId,
+      }
+    },
+  )
 
   if ("error" in result) return result
 

@@ -127,14 +127,9 @@ function buildBaseSvg(options: {
   const headingSize = 16
   const subheadingSize = 46
   const gap = 26
-  const headingText =
-    badgeType === "featured"
-      ? "Featured On"
-      : "Total Revenue"
+  const headingText = badgeType === "featured" ? "Featured On" : "Total Revenue"
   const subheadingText =
-    badgeType === "featured"
-      ? siteConfig.name
-      : metricValue
+    badgeType === "featured" ? siteConfig.name : metricValue
   const showVerification = badgeType !== "featured" && !!brandLogo
   const verifiedLogoSize = 20
   const subtextSize = 14

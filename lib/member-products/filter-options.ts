@@ -22,7 +22,6 @@ export const memberProductSortOptions: MemberProductFilterOption[] = [
   { value: "new", label: "Newest" },
   { value: "updated", label: "Recently updated" },
   { value: "az", label: "A–Z" },
-  { value: "clicks", label: "Most clicks" },
   { value: "upvotes", label: "Most upvotes" },
 ]
 

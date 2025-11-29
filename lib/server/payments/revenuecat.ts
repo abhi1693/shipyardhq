@@ -48,7 +48,8 @@ type RevenueBucket = {
 
 function getBaseUrl() {
   const override = process.env.REVENUECAT_API_BASE_URL?.trim()
-  const base = override && override.length ? override : DEFAULT_REVENUECAT_API_BASE
+  const base =
+    override && override.length ? override : DEFAULT_REVENUECAT_API_BASE
   return base.replace(/\/+$/, "")
 }
 
@@ -316,12 +317,11 @@ async function syncRevenueCatConnector({
     const dayKey = toDayKey(start)
     const currencyMap =
       revenueByCurrency.get(currency) || new Map<string, RevenueBucket>()
-    const bucket =
-      currencyMap.get(dayKey) || {
-        periodStart: start,
-        revenueCents: 0,
-        charges: 0,
-      }
+    const bucket = currencyMap.get(dayKey) || {
+      periodStart: start,
+      revenueCents: 0,
+      charges: 0,
+    }
     bucket.revenueCents += revenueCents
     bucket.charges += 1
     currencyMap.set(dayKey, bucket)

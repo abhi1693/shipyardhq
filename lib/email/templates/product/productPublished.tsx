@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
 import { EMAIL_BRAND } from "@/lib/email/brand"
 
@@ -32,52 +31,6 @@ const linkStyle = {
   fontWeight: 500,
 } as const
 
-const badgeSectionStyle = {
-  border: "1px solid #e5e7eb",
-  borderRadius: "12px",
-  padding: "20px",
-  margin: "24px 0",
-  backgroundColor: "#f9fafb",
-} as const
-
-const badgeTableStyle = {
-  width: "100%",
-} as const
-
-const badgeCellStyle = {
-  textAlign: "center",
-  padding: "8px",
-} as const
-
-const badgeImageStyle = {
-  display: "block",
-  width: "100%",
-  maxWidth: "220px",
-  height: "auto",
-  borderRadius: "8px",
-  margin: "0 auto",
-} as const
-
-const badgeLabelStyle = {
-  marginTop: "8px",
-  fontSize: "13px",
-  color: "#4b5563",
-} as const
-
-const codeBlockStyle = {
-  backgroundColor: "#111827",
-  color: "#f9fafb",
-  fontSize: "12px",
-  lineHeight: "18px",
-  padding: "12px",
-  borderRadius: "8px",
-  margin: "12px 0 0",
-  fontFamily:
-    "'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace",
-  whiteSpace: "pre-wrap",
-  wordBreak: "break-word",
-} as const
-
 function formatDate(value?: Date) {
   if (!value) return ""
   try {
@@ -102,10 +55,6 @@ export function ProductPublishedEmail({
   planName,
 }: ProductPublishedEmailProps) {
   const publishedTimestamp = formatDate(publishedAt)
-  const assetBaseUrl = EMAIL_BRAND.homeUrl.replace(/\/$/, "")
-  const badgeLightUrl = `${assetBaseUrl}/featured-on-light.png`
-  const badgeDarkUrl = `${assetBaseUrl}/featured-on-dark.png`
-  const badgeSnippet = `<a href="${productUrl}" target="_blank" rel="noopener">\n  <img src="${badgeLightUrl}" alt="Featured on ${EMAIL_BRAND.name}" width="240" />\n</a>`
 
   return (
     <BaseEmailTemplate
@@ -134,53 +83,10 @@ export function ProductPublishedEmail({
         </li>
         <li>Ask early adopters to upvote and leave feedback on Shipyard HQ.</li>
         <li>
-          Monitor analytics in your dashboard to watch clicks and upvotes roll
+          Monitor analytics in your dashboard to watch traffic and upvotes roll
           in.
         </li>
       </ol>
-
-      <div style={badgeSectionStyle}>
-        <p style={paragraphStyle}>
-          Add a backlink boost by placing our{" "}
-          <strong>Featured on Shipyard</strong>
-          badge on your homepage or press page. Link it to your product so
-          visitors can discover you on {EMAIL_BRAND.name}.
-        </p>
-        <table style={badgeTableStyle} cellPadding={0} cellSpacing={0}>
-          <tbody>
-            <tr>
-              <td style={badgeCellStyle}>
-                <a href={badgeLightUrl} style={linkStyle}>
-                  <img
-                    src={badgeLightUrl}
-                    alt="Featured on Shipyard HQ badge for light backgrounds"
-                    style={badgeImageStyle}
-                    width={220}
-                    height={71}
-                  />
-                </a>
-                <div style={badgeLabelStyle}>Light backgrounds</div>
-              </td>
-              <td style={badgeCellStyle}>
-                <a href={badgeDarkUrl} style={linkStyle}>
-                  <img
-                    src={badgeDarkUrl}
-                    alt="Featured on Shipyard HQ badge for dark backgrounds"
-                    style={badgeImageStyle}
-                    width={220}
-                    height={71}
-                  />
-                </a>
-                <div style={badgeLabelStyle}>Dark backgrounds</div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p style={paragraphStyle}>
-          Paste this snippet wherever you want the badge to appear:
-        </p>
-        <pre style={codeBlockStyle}>{badgeSnippet}</pre>
-      </div>
 
       {Boolean(planName) && (
         <p style={paragraphStyle}>

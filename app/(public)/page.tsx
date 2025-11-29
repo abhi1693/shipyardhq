@@ -16,6 +16,10 @@ import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
+import {
+  TrafficSidebarStats,
+  TrafficSidebarStatsSkeleton,
+} from "@/components/templates/public/common/TrafficSidebarStats"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
   DEFAULT_HOMEPAGE_FEED_VIEW,
@@ -28,8 +32,7 @@ import { HOME_PATH } from "@/lib/routes"
 
 export const revalidate = 60
 
-const HOMEPAGE_TITLE =
-  "Show your revenue and get a free backlink on Shipyard"
+const HOMEPAGE_TITLE = "Show your revenue and get a free backlink on Shipyard"
 
 export const metadata = buildPageMetadata({
   title: HOMEPAGE_TITLE,
@@ -84,6 +87,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         }
         sidebar={
           <>
+            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
+              <TrafficSidebarStats />
+            </Suspense>
             <Suspense
               fallback={
                 <div className="hidden lg:block">
