@@ -72,6 +72,7 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
           "stripe",
           "lemonsqueezy",
           "paddle",
+          "paystack",
         ])
         .optional(),
       connectorApiKey: z.string().optional().or(z.literal("")),
@@ -259,6 +260,29 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
             message: IS_PROD
               ? "Use a Paddle live key starting with pdl_live_apikey_"
               : "Use a Paddle sandbox key starting with pdl_sdbx_apikey_",
+          })
+        }
+      }
+
+      if (val.connectorProvider === "paystack" && val.connectorApiKey) {
+        const key = val.connectorApiKey.trim()
+        const expectedPrefix = IS_PROD ? "sk_live_" : "sk_test_"
+        if (!key.startsWith(expectedPrefix)) {
+          ctx.addIssue({
+            path: ["connectorApiKey"],
+            code: z.ZodIssueCode.custom,
+            message: IS_PROD
+              ? "Use a Paystack live secret key starting with sk_live_"
+              : "Use a Paystack test secret key starting with sk_test_",
+          })
+        }
+
+        const subaccount = val.connectorAccountId?.trim()
+        if (subaccount && !/^ACCT_/i.test(subaccount)) {
+          ctx.addIssue({
+            path: ["connectorAccountId"],
+            code: z.ZodIssueCode.custom,
+            message: "Paystack subaccount codes start with ACCT_",
           })
         }
       }

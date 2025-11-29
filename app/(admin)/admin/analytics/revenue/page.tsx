@@ -17,6 +17,7 @@ type SearchParams = { range?: string }
 const providerLabels = {
   stripe: "Stripe",
   paddle: "Paddle",
+  paystack: "Paystack",
   lemonsqueezy: "Lemon Squeezy",
   polar: "Polar",
   dodo: "DoDo",

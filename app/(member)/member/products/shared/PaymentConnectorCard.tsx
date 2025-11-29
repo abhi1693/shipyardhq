@@ -58,6 +58,7 @@ const PROVIDER_OPTIONS: { value: PaymentConnectorProvider; label: string }[] = [
   { value: PaymentConnectorProviderEnum.creem, label: "Creem" },
   { value: PaymentConnectorProviderEnum.dodo, label: "DodoPayments" },
   { value: PaymentConnectorProviderEnum.paddle, label: "Paddle" },
+  { value: PaymentConnectorProviderEnum.paystack, label: "Paystack" },
   { value: PaymentConnectorProviderEnum.polar, label: "Polar" },
   { value: PaymentConnectorProviderEnum.revenuecat, label: "RevenueCat" },
   { value: PaymentConnectorProviderEnum.stripe, label: "Stripe" },
@@ -115,14 +116,16 @@ export function PaymentConnectorCard({
         : selectedProvider === PaymentConnectorProviderEnum.creem
           ? "creem_... Creem API key"
           : selectedProvider === PaymentConnectorProviderEnum.revenuecat
-            ? "RevenueCat secret API key"
-            : selectedProvider === PaymentConnectorProviderEnum.polar
-              ? "polar_oat_... organization access token"
+              ? "RevenueCat secret API key"
+              : selectedProvider === PaymentConnectorProviderEnum.polar
+                ? "polar_oat_... organization access token"
               : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
                 ? "Lemon Squeezy API key from Settings -> API"
-                : selectedProvider === PaymentConnectorProviderEnum.paddle
+              : selectedProvider === PaymentConnectorProviderEnum.paddle
                   ? "Paddle API key from Developer Tools"
-                  : "Enter API secret key"
+                  : selectedProvider === PaymentConnectorProviderEnum.paystack
+                    ? `${IS_PROD ? "sk_live_" : "sk_test_"} Paystack secret key`
+                    : "Enter API secret key"
   const showStripeAccount =
     selectedProvider === PaymentConnectorProviderEnum.stripe
   const showDodoBrandId = selectedProvider === PaymentConnectorProviderEnum.dodo
@@ -134,12 +137,16 @@ export function PaymentConnectorCard({
     selectedProvider === PaymentConnectorProviderEnum.revenuecat
   const showCreemPermissions =
     selectedProvider === PaymentConnectorProviderEnum.creem
+  const showPaystackPermissions =
+    selectedProvider === PaymentConnectorProviderEnum.paystack
   const showPolarOrganizationId =
     selectedProvider === PaymentConnectorProviderEnum.polar
   const showRevenueCatProject =
     selectedProvider === PaymentConnectorProviderEnum.revenuecat
   const showLemonStoreId =
     selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
+  const showPaystackSubaccount =
+    selectedProvider === PaymentConnectorProviderEnum.paystack
   const showLemonPermissions =
     selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
   const accountPlaceholder =
@@ -149,7 +156,9 @@ export function PaymentConnectorCard({
         ? "Project ID (e.g. proj_abc123)"
         : selectedProvider === PaymentConnectorProviderEnum.lemonsqueezy
           ? "Store ID (e.g. 123456)"
-          : "org_..."
+          : selectedProvider === PaymentConnectorProviderEnum.paystack
+            ? "ACCT_... subaccount"
+            : "org_..."
 
   const statusBadge = renderStatus(status)
 
@@ -285,6 +294,15 @@ export function PaymentConnectorCard({
             </span>{" "}
             from Developer Tools.
           </p>
+        ) : selectedProvider === PaymentConnectorProviderEnum.paystack ? (
+          <p className="text-xs text-muted-foreground">
+            Use a Paystack {IS_PROD ? "live" : "test"} secret key starting
+            with{" "}
+            <span className="font-mono">
+              {IS_PROD ? "sk_live_" : "sk_test_"}
+            </span>
+            .
+          </p>
         ) : null}
       </div>
 
@@ -292,6 +310,7 @@ export function PaymentConnectorCard({
       showPolarPermissions ||
       showRevenueCatPermissions ||
       showCreemPermissions ||
+      showPaystackPermissions ||
       showLemonPermissions ? (
         <div className="rounded-md border border-dashed border-border bg-muted/40 p-3">
           <p className="text-xs font-semibold text-foreground">
@@ -303,7 +322,9 @@ export function PaymentConnectorCard({
                   ? "RevenueCat key permissions needed"
                   : showCreemPermissions
                     ? "Creem key permissions needed"
-                    : "Lemon Squeezy key permissions needed"}
+                    : showPaystackPermissions
+                      ? "Paystack key permissions needed"
+                      : "Lemon Squeezy key permissions needed"}
           </p>
           <ul className="mt-1 list-disc pl-4 text-xs text-muted-foreground">
             {showStripePermissions ? (
@@ -331,6 +352,11 @@ export function PaymentConnectorCard({
                 <li>Transactions: Read</li>
               </>
             ) : null}
+            {showPaystackPermissions ? (
+              <>
+                <li>Transactions: Read</li>
+              </>
+            ) : null}
             {showLemonPermissions ? (
               <>
                 <li>Orders: Read</li>
@@ -345,6 +371,7 @@ export function PaymentConnectorCard({
       showPolarOrganizationId ||
       showLemonStoreId ||
       showRevenueCatProject ||
+      showPaystackSubaccount ||
       showDodoBrandId ? (
         <div className="space-y-2">
           {showDodoBrandId ? (
@@ -379,7 +406,8 @@ export function PaymentConnectorCard({
           {showStripeAccount ||
           showPolarOrganizationId ||
           showLemonStoreId ||
-          showRevenueCatProject ? (
+          showRevenueCatProject ||
+          showPaystackSubaccount ? (
             <div className="space-y-2">
               <Label htmlFor="connector-account">
                 {showStripeAccount
@@ -388,7 +416,9 @@ export function PaymentConnectorCard({
                     ? "RevenueCat project ID (required)"
                     : showLemonStoreId
                       ? "Lemon Squeezy store ID (required)"
-                      : "Polar organization ID (required)"}
+                      : showPaystackSubaccount
+                        ? "Paystack subaccount code (optional)"
+                        : "Polar organization ID (required)"}
               </Label>
               <Input
                 id="connector-account"
@@ -419,6 +449,12 @@ export function PaymentConnectorCard({
                 <p className="text-xs text-muted-foreground">
                   Required. Use the numeric store ID from Lemon Squeezy to scope
                   revenue to a single store.
+                </p>
+              ) : showPaystackSubaccount ? (
+                <p className="text-xs text-muted-foreground">
+                  Optional. Provide a subaccount code starting with
+                  <span className="font-mono"> ACCT_</span> to scope revenue
+                  to that Paystack subaccount.
                 </p>
               ) : (
                 <p className="text-xs text-muted-foreground">

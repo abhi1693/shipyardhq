@@ -16,6 +16,7 @@ export const PaymentConnectorProvider = {
   stripe: 'stripe',
   lemonsqueezy: 'lemonsqueezy',
   paddle: 'paddle',
+  paystack: 'paystack',
   revenuecat: 'revenuecat',
   creem: 'creem'
 } as const

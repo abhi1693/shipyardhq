@@ -75,6 +75,7 @@ enum PaymentConnectorProvider {
   stripe
   lemonsqueezy
   paddle
+  paystack
   revenuecat
   creem
 }
