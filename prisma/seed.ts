@@ -543,7 +543,7 @@ async function main() {
 
   const productRows: { slug: string; action: "create" | "update" }[] = []
 
-  const placeholderLogo = "https://placehold.co/600x400"
+  const placeholderLogo = "https://placehold.co/600x400.png"
 
   const baseProducts = [
     {
