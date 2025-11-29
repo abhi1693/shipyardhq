@@ -157,7 +157,9 @@ export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: Periodic
       return buildPath("day", new Date(Date.UTC(year, month - 1, day)))
     }
     if (leaderboard.period === "week") {
-      const anchor = new Date(Date.UTC(year, month - 1, start.getUTCDate()))
+      const daysInTargetMonth = new Date(Date.UTC(year, month, 0)).getUTCDate()
+      const day = Math.min(start.getUTCDate(), daysInTargetMonth)
+      const anchor = new Date(Date.UTC(year, month - 1, day))
       const { year: weekYear, week } = getIsoWeekYearAndNumber(anchor)
       return `/leaderboard/weekly/${weekYear}/${week}`
     }

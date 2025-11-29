@@ -94,10 +94,6 @@ export async function generateLeaderboardRun(options: {
   const windowEnd = resolveWindowEnd(options.periodEnd, options.asOf)
   const metrics = await collectMetrics(options.periodStart, windowEnd)
   const hasActivity = metricsHaveActivity(metrics)
-  if (hasActivity) {
-    const baseline = await collectBaselineMetrics()
-    mergeBaseline(metrics, baseline)
-  }
   const rankedRows = hasActivity ? applyRanks(computeScores(metrics, weights)) : []
 
   await persistScores(run.id, rankedRows)
@@ -197,9 +193,6 @@ export async function computeLeaderboardWindow(options: {
   const hasActivity = metricsHaveActivity(metrics)
   if (!hasActivity) return []
 
-  const baseline = await collectBaselineMetrics(productIds)
-  mergeBaseline(metrics, baseline)
-
   // Only rank products that have a non-zero score.
   const rows = computeScores(metrics, weights, productIds ?? []).filter(
     (row) => row.score > 0,
@@ -230,8 +223,6 @@ export async function updateLeaderboardScoresForProducts(options: {
     options.periodStart,
     windowEnd,
   )
-  const baseline = await collectBaselineMetrics(productIds)
-  mergeBaseline(metrics, baseline)
   const rows = computeScores(metrics, weights, productIds)
 
   if (!rows.length) {
@@ -448,94 +439,6 @@ function buildDateRange(periodStart: Date, periodEnd: Date) {
 
 function formatDate(date: Date): string {
   return date.toISOString().slice(0, 10)
-}
-
-async function collectBaselineMetrics(productIds?: string[]) {
-  const whereProduct = productIds?.length
-    ? { productId: { in: productIds } }
-    : undefined
-
-  const [analytics, upvoteCounts, reviews] = await Promise.all([
-    prisma.productAnalytics.findMany({
-      where: whereProduct ? { productId: whereProduct.productId } : {},
-      select: { productId: true, upvotes: true, clicks: true },
-    }),
-    prisma.productUpvote.groupBy({
-      by: ["productId"],
-      where: whereProduct
-        ? {
-            productId: whereProduct.productId,
-            product: { status: "published" },
-          }
-        : {
-            product: { status: "published" },
-          },
-      _count: { productId: true },
-    }),
-    prisma.productReview.groupBy({
-      by: ["productId"],
-      where: {
-        ...(whereProduct ? { productId: whereProduct.productId } : {}),
-        product: { status: "published" },
-      },
-      _count: { productId: true },
-      _sum: { rating: true },
-    }),
-  ])
-
-  const baseline: MetricMaps = {
-    views: new Map(),
-    uniqueVisitors: new Map(),
-    clicks: new Map(),
-    upvotes: new Map(),
-    reviewsCount: new Map(),
-    reviewsRatingSum: new Map(),
-  }
-
-  for (const entry of analytics) {
-    baseline.upvotes.set(entry.productId, entry.upvotes ?? 0)
-    baseline.clicks.set(entry.productId, entry.clicks ?? 0)
-  }
-
-  for (const entry of upvoteCounts) {
-    const count = Number(entry._count?.productId ?? 0)
-    if (!baseline.upvotes.has(entry.productId)) {
-      baseline.upvotes.set(entry.productId, count)
-    } else {
-      const existing = baseline.upvotes.get(entry.productId) ?? 0
-      baseline.upvotes.set(entry.productId, Math.max(existing, count))
-    }
-  }
-
-  for (const entry of reviews) {
-    baseline.reviewsCount.set(entry.productId, Number(entry._count?.productId ?? 0))
-    baseline.reviewsRatingSum.set(entry.productId, Number(entry._sum?.rating ?? 0))
-  }
-
-  return baseline
-}
-
-function mergeBaseline(target: MetricMaps, baseline: MetricMaps) {
-  for (const [productId, value] of baseline.upvotes.entries()) {
-    if (!target.upvotes.has(productId)) {
-      target.upvotes.set(productId, value)
-    }
-  }
-  for (const [productId, value] of baseline.clicks.entries()) {
-    if (!target.clicks.has(productId)) {
-      target.clicks.set(productId, value)
-    }
-  }
-  for (const [productId, value] of baseline.reviewsCount.entries()) {
-    if (!target.reviewsCount.has(productId)) {
-      target.reviewsCount.set(productId, value)
-    }
-  }
-  for (const [productId, value] of baseline.reviewsRatingSum.entries()) {
-    if (!target.reviewsRatingSum.has(productId)) {
-      target.reviewsRatingSum.set(productId, value)
-    }
-  }
 }
 
 function computeScores(
