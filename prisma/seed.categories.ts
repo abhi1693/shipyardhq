@@ -145,6 +145,7 @@ export const CATEGORIES: SeedCategory[] = [
     name: "SEO & Growth",
     icon: "target",
     description: "Search optimization, keywording, and growth tools.",
+    slug: "seo-growth",
   },
   {
     name: "Social Media Tools",
@@ -256,16 +257,17 @@ export async function seedCategories(prisma: PrismaClient) {
       description: item.description,
     }
 
-    const existing = await prisma.category.findUnique({ where: { slug } })
+    // Make seeding resilient to slug changes by matching on slug OR name
+    // and updating slug when it drifts from the current value.
+    const existing = await prisma.category.findFirst({
+      where: { OR: [{ slug }, { name: data.name }] },
+      select: { id: true },
+    })
     const action = existing ? "update" : "create"
 
     await prisma.category.upsert({
-      where: { slug },
-      update: {
-        name: data.name,
-        icon: data.icon,
-        description: data.description,
-      },
+      where: existing ? { id: existing.id } : { slug },
+      update: data,
       create: data,
     })
     results.push({ name: item.name, slug, action })

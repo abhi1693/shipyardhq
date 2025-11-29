@@ -59,7 +59,7 @@ type ProductSeed = {
   platforms: Platform[]
   planSlug?: string
   planAssignedAt?: Date | null
-  userClerkId: string
+  userEmail: string
   categorySlug: string
   organizationName?: string
   createdAt?: Date
@@ -71,6 +71,7 @@ type ProductSeed = {
 }
 
 type SeedContext = {
+  userIdByEmail: Map<string, string>
   userIdByClerkId: Map<string, string>
   organizationIdByName: Map<string, string>
   categoryIdBySlug: Map<string, string>
@@ -139,9 +140,9 @@ function buildProductCreateInput(
   def: ProductSeed,
   ctx: SeedContext,
 ): Prisma.ProductCreateInput {
-  const userId = ctx.userIdByClerkId.get(def.userClerkId)
+  const userId = ctx.userIdByEmail.get(def.userEmail)
   if (!userId) {
-    throw new Error(`Missing user for clerkId '${def.userClerkId}'`)
+    throw new Error(`Missing user for email '${def.userEmail}'`)
   }
 
   const categoryId = ctx.categoryIdBySlug.get(def.categorySlug)
@@ -220,9 +221,9 @@ function buildProductUpdateInput(
   ctx: SeedContext,
   options?: { preserveAnalytics?: boolean },
 ): Prisma.ProductUpdateInput {
-  const userId = ctx.userIdByClerkId.get(def.userClerkId)
+  const userId = ctx.userIdByEmail.get(def.userEmail)
   if (!userId) {
-    throw new Error(`Missing user for clerkId '${def.userClerkId}'`)
+    throw new Error(`Missing user for email '${def.userEmail}'`)
   }
 
   const categoryId = ctx.categoryIdBySlug.get(def.categorySlug)
@@ -378,9 +379,18 @@ async function main() {
       role: "member",
       roleIntent: "Developer",
     },
+    {
+      clerkId: "seed-admin-abhimanyu",
+      email: "desk.abhimanyu@gmail.com",
+      firstName: "Abhimanyu",
+      lastName: "Saharan",
+      role: "admin",
+      roleIntent: "Admin",
+    },
   ] satisfies Prisma.UserCreateInput[]
 
   const userIdByClerkId = new Map<string, string>()
+  const userIdByEmail = new Map<string, string>()
   const userRows: { clerkId: string; action: "create" | "update" }[] = []
   for (const user of userSeeds) {
     const existing = await prisma.user.findUnique({
@@ -398,6 +408,7 @@ async function main() {
       create: user,
     })
     userIdByClerkId.set(user.clerkId, record.id)
+    userIdByEmail.set(user.email, record.id)
     userRows.push({
       clerkId: user.clerkId,
       action: existing ? "update" : "create",
@@ -498,6 +509,7 @@ async function main() {
   const planIdBySlug = new Map(planRows.map((row) => [row.slug, row.id]))
 
   const ctx: SeedContext = {
+    userIdByEmail,
     userIdByClerkId,
     organizationIdByName,
     categoryIdBySlug,
@@ -540,193 +552,138 @@ async function main() {
 
   const productRows: { slug: string; action: "create" | "update" }[] = []
 
-  const primaryCreatedAt = addMinutes(createdCycle[5], 5)
-  const primaryUpdatedCandidate = addMinutes(updatedCycle[3], 7)
-  const primaryUpdatedAt =
-    primaryUpdatedCandidate.getTime() >= primaryCreatedAt.getTime()
-      ? primaryUpdatedCandidate
-      : addHours(primaryCreatedAt, 6)
+  const placeholderLogo = "https://placehold.co/600x400"
 
-  const primaryProduct: ProductSeed = {
-    slug: "shitposts",
-    name: "ShitPosts",
-    tagline: "Build and share your shitposts",
-    description:
-      "A platform to create, share, and discover the best shitposts.",
-    websiteUrl: "https://shitposts.ai",
-    logo: "https://shitposts.ai/brand.png",
-    bannerImage: "https://shitposts.ai/banner.png",
-    status: ProductStatus.published,
-    publishedAt: primaryCreatedAt,
-    type: ProductType.saas,
-    pricingModel: PricingModel.freemium,
-    startingPriceCents: 0,
-    currencyCode: "USD",
-    ctaLabel: "Visit Website",
-    ctaUrl: "https://shitposts.ai",
-    keywords: ["memes", "social", "fun"],
-    platforms: [Platform.web],
-    userClerkId: "clerk-002",
-    categorySlug: "social-media-tools",
-    planSlug: "pro",
-    planAssignedAt: addDays(primaryCreatedAt, 2),
-    createdAt: primaryCreatedAt,
-    updatedAt: primaryUpdatedAt,
-    metadata: {
-      githubUrl: "https://github.com/deploykit/app",
-      twitterUrl: "https://twitter.com/deploykit",
-      demoUrl: "https://demo.deploykit.dev",
-      contactEmail: "hello@deploykit.dev",
+  const baseProducts = [
+    {
+      slug: "shipyardhq",
+      name: "Shipyard HQ",
+      websiteUrl: "https://shipyardhq.dev",
+      userEmail: "desk.abhimanyu@gmail.com",
+      categorySlug: "developer-tools",
+      tagline: "Launch, grow, and showcase your SaaS.",
+      description:
+        "A curated hub for shipping updates, demos, and growth experiments.",
+      keywords: ["developer tools", "launches", "growth"],
+      pricingModel: PricingModel.subscription,
+      startingPriceCents: 4900,
+      planSlug: "pro",
     },
-    isVerified: false,
-    analytics: {
-      upvotes: 120,
+    {
+      slug: "shitposts",
+      name: "ShitPosts",
+      websiteUrl: "https://shitposts.ai",
+      userEmail: "desk.abhimanyu@gmail.com",
+      categorySlug: "social-media-tools",
+      tagline: "Build and share your best shitposts.",
+      description: "Create, remix, and ship viral posts with AI helpers.",
+      keywords: ["social", "memes", "ai"],
+      pricingModel: PricingModel.freemium,
+      startingPriceCents: 0,
+      planSlug: "featured",
     },
-  }
+    {
+      slug: "indexly",
+      name: "Indexly",
+      websiteUrl: "https://indexly.cc",
+      userEmail: "desk.abhimanyu@gmail.com",
+      categorySlug: "seo-growth",
+      tagline: "Track and improve your search visibility.",
+      description: "Monitor indexation health and SEO signals automatically.",
+      keywords: ["seo", "monitoring", "analytics"],
+      pricingModel: PricingModel.subscription,
+      startingPriceCents: 2900,
+      planSlug: "pro",
+    },
+    {
+      slug: "askusers",
+      name: "AskUsers",
+      websiteUrl: "https://askusers.org",
+      userEmail: "user1@example.com",
+      categorySlug: "marketing",
+      tagline: "Collect user feedback fast.",
+      description: "Survey and interview real users to validate features.",
+      keywords: ["research", "feedback", "marketing"],
+      pricingModel: PricingModel.subscription,
+      startingPriceCents: 1900,
+      planSlug: "free",
+    },
+    {
+      slug: "ai-seo-web-checker",
+      name: "AI SEO Web Checker",
+      websiteUrl: "https://ai.seowebchecker.com",
+      userEmail: "user2@example.com",
+      categorySlug: "seo-growth",
+      tagline: "AI-powered SEO audits.",
+      description:
+        "Automated site checks with AI suggestions for faster fixes.",
+      keywords: ["seo", "ai", "optimization"],
+      pricingModel: PricingModel.subscription,
+      startingPriceCents: 2500,
+      planSlug: "free",
+    },
+    {
+      slug: "unshift",
+      name: "Unshift",
+      websiteUrl: "https://unshift.ai",
+      userEmail: "user1@example.com",
+      categorySlug: "developer-tools",
+      tagline: "AI workflows for engineers.",
+      description: "Automate engineering workflows with AI-powered tooling.",
+      keywords: ["developer tools", "automation", "ai"],
+      pricingModel: PricingModel.subscription,
+      startingPriceCents: 4900,
+      planSlug: "featured",
+    },
+  ] as const
 
-  productRows.push(
-    await upsertProduct(primaryProduct, ctx, { preserveAnalytics: true }),
-  )
-
-  const productNames = [
-    "PostPilot",
-    "Launchify",
-    "GrowthForge",
-    "ZapSync",
-    "InsightIQ",
-    "PixelPush",
-    "MetricFlow",
-    "AdNexus",
-    "SaaSify",
-    "ClickPilot",
-    "AutoTweet",
-    "CodePulse",
-    "BugSmasher",
-    "PlanStack",
-    "FormFrenzy",
-    "Promptify",
-    "LeadLoop",
-    "PromptCraft",
-    "AIDeck",
-    "ShareSpark",
-    "QueryNest",
-    "FormJuggler",
-    "MicroStack",
-    "TaskTrove",
-    "CloudCue",
-    "DeployFlow",
-    "SubmitEase",
-    "ByteBoard",
-    "StatHero",
-    "TaskDock",
-    "UIStitch",
-    "GrowthHop",
-    "FunnelBeam",
-    "StackHatch",
-    "LinkDrip",
-    "PromoWiz",
-    "TagPulse",
-    "ViewBooster",
-    "PostTrail",
-    "LaunchDock",
-    "CrowdMagnet",
-    "HypeNest",
-    "PromptForge",
-    "ReactVerse",
-    "BugBoard",
-    "SyncLy",
-    "AutoPromo",
-    "CodeCrest",
-    "ShipJet",
-    "BoostMate",
-  ]
-
-  const productIndexBySlug = new Map<string, number>()
-  productNames.forEach((name, index) => {
-    productIndexBySlug.set(toSlug(name), index)
-  })
-
-  const resolveUpdateAnchor = (slug: string) => {
-    const index = productIndexBySlug.get(slug)
-    if (index == null) {
-      return ensurePast(addDays(startToday, -10), 14)
-    }
-    const cycleBase = updatedCycle[index % updatedCycle.length]
-    const offset = (index % 5) * 7
-    return ensurePast(addMinutes(cycleBase, offset), 14)
-  }
-
-  const taglines = [
-    "Streamline your workflow",
-    "Grow your audience fast",
-    "Automate your launches",
-    "Intelligence for your next move",
-    "Beautiful posts, zero hassle",
-    "Get your product discovered",
-    "From idea to launch in minutes",
-    "Build trust with users",
-    "Insights that drive growth",
-    "Tools for SaaS founders",
-  ]
-
-  const bulkSeeds: ProductSeed[] = productNames.map((name, index) => {
-    const slug = toSlug(name)
-    const domain = `https://${slug}.dev`
-    const tagline = taglines[index % taglines.length]
-    const createdBase = createdCycle[index % createdCycle.length]
-    const createdAt = addMinutes(createdBase, (index % 6) * 5)
-    const updatedBase = updatedCycle[index % updatedCycle.length]
-    let updatedAt = addMinutes(updatedBase, (index % 5) * 7)
-    if (updatedAt.getTime() < createdAt.getTime()) {
-      updatedAt = addHours(createdAt, 6)
-    }
-    const planSlug = index % 5 === 0 ? "featured" : "free"
+  const productSeeds: ProductSeed[] = baseProducts.map((product, index) => {
+    const createdAt = ensurePast(
+      addMinutes(createdCycle[index % createdCycle.length], index * 5),
+      index,
+    )
+    const updatedAt = ensurePast(
+      addMinutes(updatedCycle[index % updatedCycle.length], index * 7),
+      index + 1,
+    )
 
     return {
-      slug,
-      name,
-      tagline,
-      description: `${name} helps you ${tagline.toLowerCase()}.`,
-      websiteUrl: domain,
-      logo: `${domain}/logo.png`,
-      bannerImage: `${domain}/banner.png`,
+      slug: product.slug,
+      name: product.name,
+      tagline: product.tagline,
+      description: product.description,
+      websiteUrl: product.websiteUrl,
+      logo: placeholderLogo,
+      bannerImage: placeholderLogo,
       status: ProductStatus.published,
       publishedAt: createdAt,
       createdAt,
       updatedAt,
       type: ProductType.saas,
-      pricingModel: PricingModel.subscription,
-      startingPriceCents: [0, 900, 1900, 2900, 4900][index % 5],
+      pricingModel: product.pricingModel,
+      startingPriceCents: product.startingPriceCents,
       currencyCode: "USD",
-      ctaLabel: "Try for free",
-      ctaUrl: domain,
-      keywords: ["saas", "productivity", "launch"],
+      ctaLabel: "Visit website",
+      ctaUrl: product.websiteUrl,
+      keywords: [...product.keywords],
       platforms: [Platform.web],
-      userClerkId: index % 2 === 0 ? "clerk-001" : "clerk-002",
-      categorySlug: index % 3 === 0 ? "developer-tools" : "productivity",
-      organizationName: index % 2 === 0 ? "OpenStackers Inc" : "DevBoost Labs",
-      planSlug,
-      planAssignedAt:
-        planSlug === "featured"
-          ? ensurePast(addDays(createdAt, 2), 2)
-          : ensurePast(addDays(createdAt, 5), 7),
+      userEmail: product.userEmail,
+      categorySlug: product.categorySlug,
+      planSlug: product.planSlug,
+      planAssignedAt: product.planSlug
+        ? ensurePast(addDays(createdAt, 2), index + 2)
+        : undefined,
       metadata: {
-        githubUrl: `https://github.com/${slug}`,
-        twitterUrl: `https://twitter.com/${slug}`,
-        demoUrl: `${domain}/demo`,
-        contactEmail: `contact@${slug}.dev`,
-      },
-      verification: {
-        verificationTxt: `${slug}-verification=${(index + 1000).toString()}`,
-        isVerified: false,
+        demoUrl: `${product.websiteUrl}/demo`,
+        contactEmail: `hello@${product.slug}.dev`,
       },
       analytics: {
-        upvotes: 40 + (((index + 1) * 7) % 500),
+        upvotes: 40 + index * 15,
       },
     }
   })
 
-  for (const seed of bulkSeeds) {
+  for (const seed of productSeeds) {
     productRows.push(
       await upsertProduct(seed, ctx, { preserveAnalytics: true }),
     )
@@ -754,25 +711,25 @@ async function main() {
 
     const connectorSeeds = [
       {
-        productSlug: "shitposts",
-        provider: PaymentConnectorProvider.dodo,
-        currencyCode: "USD",
-        days: 180,
-        baseDailyCents: 18000,
-      },
-      {
-        productSlug: "launchify",
-        provider: PaymentConnectorProvider.dodo,
-        currencyCode: "USD",
-        days: 120,
-        baseDailyCents: 26000,
-      },
-      {
-        productSlug: "growthforge",
+        productSlug: "shipyardhq",
         provider: PaymentConnectorProvider.dodo,
         currencyCode: "USD",
         days: 150,
         baseDailyCents: 32000,
+      },
+      {
+        productSlug: "shitposts",
+        provider: PaymentConnectorProvider.dodo,
+        currencyCode: "USD",
+        days: 120,
+        baseDailyCents: 18000,
+      },
+      {
+        productSlug: "indexly",
+        provider: PaymentConnectorProvider.dodo,
+        currencyCode: "USD",
+        days: 120,
+        baseDailyCents: 24000,
       },
     ] as const
 
@@ -886,129 +843,62 @@ async function main() {
     title: string
     summary: string
     content: string
-    createdOffsetMinutes: number
-    publishedOffsetMinutes: number
-    fallbackDaysAgo: number
-  }
-
-  type ResolvedProductUpdateSeed = {
-    id: string
-    productSlug: string
-    authorClerkId?: string
-    title: string
-    summary: string
-    content: string
     createdAt: Date
     publishedAt: Date
   }
 
-  const buildProductUpdateSeed = (
-    seed: ProductUpdateSeed,
-  ): ResolvedProductUpdateSeed => {
-    const {
-      createdOffsetMinutes,
-      publishedOffsetMinutes,
-      fallbackDaysAgo,
-      ...rest
-    } = seed
-    const anchor = resolveUpdateAnchor(seed.productSlug)
-    const createdAt = ensurePast(
-      addMinutes(anchor, createdOffsetMinutes),
-      fallbackDaysAgo,
-    )
-    const publishedCandidate = ensurePast(
-      addMinutes(anchor, publishedOffsetMinutes),
-      fallbackDaysAgo,
-    )
-    const publishedAt =
-      publishedCandidate.getTime() >= createdAt.getTime()
-        ? publishedCandidate
-        : addMinutes(createdAt, 30)
-
-    return {
-      ...rest,
-      createdAt,
-      publishedAt,
-    }
-  }
-
-  const productUpdateSeeds: ResolvedProductUpdateSeed[] = [
-    buildProductUpdateSeed({
-      id: "seed-update-postpilot-daily-workflow",
-      productSlug: "postpilot",
-      authorClerkId: "clerk-001",
-      title: "Daily workflow board",
-      summary:
-        "We added collaborative drafts and task tracking to keep launches on schedule.",
+  const productUpdateSeeds: ProductUpdateSeed[] = [
+    {
+      id: "seed-update-shipyardhq-playbooks",
+      productSlug: "shipyardhq",
+      authorClerkId: "seed-admin-abhimanyu",
+      title: "New launch playbooks",
+      summary: "Added ready-to-run launch playbooks and a refreshed listing editor.",
       content: [
         "### What's new",
-        "- Introduced a shared workflow board so teams can co-edit launch tasks in real time.",
-        "- Added inline comments and suggestions while drafting announcements.",
-        "",
-        "### Fixes",
-        "- Resolved an issue with reminders firing twice in certain timezones.",
-      ].join("\n"),
-      createdOffsetMinutes: -120,
-      publishedOffsetMinutes: -75,
-      fallbackDaysAgo: 0,
-    }),
-    buildProductUpdateSeed({
-      id: "seed-update-launchify-auto-messages",
-      productSlug: "launchify",
-      authorClerkId: "clerk-001",
-      title: "Auto message suggestions",
-      summary:
-        "Launchify can now draft launch copy based on your latest changelog.",
-      content: [
-        "### Highlights",
-        "- AI-powered suggestions for email and social copy seeded from your changelog entries.",
-        "- One-click publishing to your connected channels with approval flows.",
-        "",
-        "### Improvements",
-        "- Faster asset uploads and better image optimization for launch pages.",
-      ].join("\n"),
-      createdOffsetMinutes: -160,
-      publishedOffsetMinutes: -110,
-      fallbackDaysAgo: 1,
-    }),
-    buildProductUpdateSeed({
-      id: "seed-update-growthforge-growth-canvas",
-      productSlug: "growthforge",
-      authorClerkId: "clerk-002",
-      title: "Growth canvas templates",
-      summary:
-        "We shipped reusable experiment templates and deeper analytics filters.",
-      content: [
-        "### Experiments",
-        "- Template gallery for repeatable growth experiments with pre-filled metrics.",
-        "- Added comparison mode to review experiment performance across cohorts.",
+        "- Launch playbooks with tasks and assets you can clone.",
+        "- Listing editor now has live previews and guardrails for metadata.",
         "",
         "### Quality",
-        "- Improved CSV export reliability and clarified status badges.",
+        "- Faster screenshot processing and steadier analytics pulls.",
       ].join("\n"),
-      createdOffsetMinutes: -210,
-      publishedOffsetMinutes: -165,
-      fallbackDaysAgo: 5,
-    }),
-    buildProductUpdateSeed({
-      id: "seed-update-zapsync-automation",
-      productSlug: "zapsync",
-      authorClerkId: "clerk-002",
-      title: "Automation insights dashboard",
-      summary:
-        "ZapSync now tracks automation health and surfaces failed jobs proactively.",
+      createdAt: ensurePast(addMinutes(startToday, -240), 1),
+      publishedAt: ensurePast(addMinutes(startToday, -200), 1),
+    },
+    {
+      id: "seed-update-indexly-audits",
+      productSlug: "indexly",
+      authorClerkId: "seed-admin-abhimanyu",
+      title: "Index coverage alerts",
+      summary: "Automatic alerts when index coverage drops or spikes.",
       content: [
-        "### Dashboard",
-        "- Centralized automation health overview with trend charts and failure alerts.",
-        "- Bulk retry options and new filters for mission-critical workflows.",
+        "### Highlights",
+        "- Email and Slack alerts for coverage changes.",
+        "- URL inspector with AI suggestions to fix crawls.",
+        "",
+        "### Fixes",
+        "- Better handling for international domains.",
+      ].join("\n"),
+      createdAt: ensurePast(addMinutes(startToday, -320), 2),
+      publishedAt: ensurePast(addMinutes(startToday, -280), 2),
+    },
+    {
+      id: "seed-update-shitposts-editor",
+      productSlug: "shitposts",
+      authorClerkId: "seed-admin-abhimanyu",
+      title: "Faster meme editor",
+      summary: "Inline templates, scheduled posts, and sturdier uploads.",
+      content: [
+        "### Editor",
+        "- Template picker with trending formats.",
+        "- Scheduled posts with auto-expiring links.",
         "",
         "### Reliability",
-        "- Hardened webhook retries and improved logging around third-party rate limits.",
+        "- Fixed occasional upload timeouts.",
       ].join("\n"),
-      createdOffsetMinutes: -260,
-      publishedOffsetMinutes: -200,
-      fallbackDaysAgo: 14,
-    }),
+      createdAt: ensurePast(addMinutes(startToday, -180), 1),
+      publishedAt: ensurePast(addMinutes(startToday, -140), 1),
+    },
   ]
 
   const productUpdateRows: { id: string; action: "create" | "update" }[] = []
@@ -1089,48 +979,25 @@ async function main() {
     }[]
   }[] = [
     {
-      month: new Date(Date.UTC(2024, 3, 1)),
+      month: startOfCurrentMonth,
       rankings: [
-        { slug: "shitposts", rank: 1, score: 98, upvotes: 640 },
-        { slug: "launchify", rank: 2, score: 93, upvotes: 590 },
-        { slug: "growthforge", rank: 3, score: 89, upvotes: 560 },
-        { slug: "promptify", rank: 4, score: 86, upvotes: 540 },
-        { slug: "stackhatch", rank: 5, score: 82, upvotes: 520 },
-        { slug: "zapsync", rank: 6, score: 79, upvotes: 505 },
-        { slug: "metricflow", rank: 7, score: 77, upvotes: 492 },
-        { slug: "sharespark", rank: 8, score: 74, upvotes: 476 },
-        { slug: "deployflow", rank: 9, score: 72, upvotes: 463 },
-        { slug: "crowdmagnet", rank: 10, score: 70, upvotes: 451 },
+        { slug: "shipyardhq", rank: 1, score: 96, upvotes: 620 },
+        { slug: "shitposts", rank: 2, score: 92, upvotes: 590 },
+        { slug: "indexly", rank: 3, score: 89, upvotes: 560 },
+        { slug: "ai-seo-web-checker", rank: 4, score: 85, upvotes: 530 },
+        { slug: "askusers", rank: 5, score: 82, upvotes: 510 },
+        { slug: "unshift", rank: 6, score: 80, upvotes: 495 },
       ],
     },
     {
-      month: new Date(Date.UTC(2024, 2, 1)),
+      month: startOfPreviousMonth,
       rankings: [
-        { slug: "launchify", rank: 1, score: 95, upvotes: 610 },
-        { slug: "shitposts", rank: 2, score: 92, upvotes: 580 },
-        { slug: "growthforge", rank: 3, score: 88, upvotes: 552 },
-        { slug: "promowiz", rank: 4, score: 84, upvotes: 530 },
-        { slug: "tasktrove", rank: 5, score: 81, upvotes: 498 },
-        { slug: "promptforge", rank: 6, score: 79, upvotes: 480 },
-        { slug: "stathero", rank: 7, score: 77, upvotes: 468 },
-        { slug: "byteboard", rank: 8, score: 74, upvotes: 455 },
-        { slug: "autotweet", rank: 9, score: 72, upvotes: 440 },
-        { slug: "planstack", rank: 10, score: 70, upvotes: 428 },
-      ],
-    },
-    {
-      month: new Date(Date.UTC(2024, 1, 1)),
-      rankings: [
-        { slug: "growthforge", rank: 1, score: 92, upvotes: 580 },
-        { slug: "launchify", rank: 2, score: 90, upvotes: 560 },
-        { slug: "shitposts", rank: 3, score: 87, upvotes: 540 },
-        { slug: "metricflow", rank: 4, score: 84, upvotes: 520 },
-        { slug: "promptify", rank: 5, score: 82, upvotes: 505 },
-        { slug: "formfrenzy", rank: 6, score: 79, upvotes: 488 },
-        { slug: "stackhatch", rank: 7, score: 77, upvotes: 470 },
-        { slug: "leadloop", rank: 8, score: 75, upvotes: 455 },
-        { slug: "deployflow", rank: 9, score: 73, upvotes: 440 },
-        { slug: "funnelbeam", rank: 10, score: 71, upvotes: 428 },
+        { slug: "shitposts", rank: 1, score: 94, upvotes: 580 },
+        { slug: "shipyardhq", rank: 2, score: 91, upvotes: 550 },
+        { slug: "indexly", rank: 3, score: 88, upvotes: 530 },
+        { slug: "unshift", rank: 4, score: 84, upvotes: 500 },
+        { slug: "askusers", rank: 5, score: 81, upvotes: 482 },
+        { slug: "ai-seo-web-checker", rank: 6, score: 79, upvotes: 470 },
       ],
     },
   ]
