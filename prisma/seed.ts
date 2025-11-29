@@ -127,15 +127,6 @@ function buildRevenueSnapshots(options: {
   return { snapshots }
 }
 
-function toSlug(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-}
-
 function buildProductCreateInput(
   def: ProductSeed,
   ctx: SeedContext,

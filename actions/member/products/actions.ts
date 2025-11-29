@@ -17,7 +17,6 @@ import {
   upsertPaymentConnector,
 } from "@/lib/server/payments/connectors"
 import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
-import { getCachedRevenueSummary } from "@/lib/server/payments/revenue"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,

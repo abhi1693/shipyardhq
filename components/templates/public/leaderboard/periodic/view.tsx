@@ -106,7 +106,11 @@ export function PeriodicLeaderboardView({ leaderboard }: { leaderboard: Periodic
               week.active ||
               availableWeekKeys.has(week.weekKey),
           )
-          .map(({ weekKey, ...week }) => week)
+          .map((week) => {
+            const { weekKey, ...rest } = week
+            void weekKey
+            return rest
+          })
       : []
 
   const monthArchive: Array<{
