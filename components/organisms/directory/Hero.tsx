@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 import DomainRatingBadge from "@/components/molecules/DomainRatingBadge"
 import { SquareImage } from "@/components/molecules/SquareImage"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/atoms/tooltip"
 
 type HeaderActionConfig = {
   label: string
@@ -183,23 +184,27 @@ export function Hero({
             </p>
             <ul className="mt-3 flex flex-wrap items-center justify-center gap-3">
               {providers.map((provider) => (
-                <li
-                  key={provider.name}
-                  className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-white"
-                >
-                  {provider.logoSrc ? (
-                    <SquareImage
-                      src={provider.logoSrc}
-                      alt={`${provider.name} logo`}
-                      size={44}
-                      className="h-10 w-10 object-contain"
-                    />
-                  ) : (
-                    <span className="sr-only">
-                      {provider.name} logo placeholder
-                    </span>
-                  )}
-                </li>
+                <Tooltip key={provider.name}>
+                  <TooltipTrigger asChild>
+                    <li className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-white">
+                      {provider.logoSrc ? (
+                        <SquareImage
+                          src={provider.logoSrc}
+                          alt={`${provider.name} logo`}
+                          size={44}
+                          className="h-10 w-10 object-contain"
+                        />
+                      ) : (
+                        <span className="sr-only">
+                          {provider.name} logo placeholder
+                        </span>
+                      )}
+                    </li>
+                  </TooltipTrigger>
+                  <TooltipContent sideOffset={6} className="text-xs font-semibold">
+                    {provider.name}
+                  </TooltipContent>
+                </Tooltip>
               ))}
             </ul>
           </section>

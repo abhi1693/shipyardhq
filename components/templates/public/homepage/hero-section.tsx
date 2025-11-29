@@ -8,7 +8,7 @@ const SUPPORTED_PROVIDERS = [
   { name: "Polar", logoSrc: "/providers/polar.png" },
   { name: "Paddle", logoSrc: "/providers/paddle.png" },
   { name: "Paystack", logoSrc: "/providers/paystack.png" },
-  { name: "Dodo", logoSrc: "/providers/dodo.jpeg" },
+  { name: "Dodo Payments", logoSrc: "/providers/dodo.jpeg" },
   { name: "RevenueCat", logoSrc: "/providers/revenuecat.png" },
   { name: "Lemon Squeezy", logoSrc: "/providers/lemon.jpeg" },
   { name: "AbacatePay", logoSrc: "/providers/abacatepay.jpeg" },
