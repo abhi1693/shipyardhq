@@ -8,6 +8,7 @@ import {
   LEADERBOARD_REWARDS_PATH,
   PRICING_PATH,
   pricingModelPath,
+  USE_CASES_PATH,
   VERIFIED_REVENUE_PATH,
   categoryPath,
   categoryPlatformPath,
@@ -61,6 +62,7 @@ export async function GET() {
     LEADERBOARD_PATH,
     PRICING_PATH,
     CATEGORIES_PATH,
+    USE_CASES_PATH,
     "/alternatives",
     "/legal/terms",
     "/legal/privacy-policy",
@@ -261,6 +263,10 @@ export async function GET() {
         case CATEGORIES_PATH:
           changefreq = "weekly"
           priority = "0.7"
+          break
+        case USE_CASES_PATH:
+          changefreq = "weekly"
+          priority = "0.65"
           break
         case "/alternatives":
           changefreq = "weekly"

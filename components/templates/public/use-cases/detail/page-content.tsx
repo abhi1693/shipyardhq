@@ -1,32 +1,46 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { CategoryCard } from "@/components/molecules/CategoryCard"
-import { CategoryProductsClient as UseCaseProductsClient } from "@/app/(public)/categories/[slug]/client-products"
+import { Suspense } from "react"
+
+import { CategoryIcon } from "@/components/molecules/CategoryIcons"
+import {
+  SponsoredProductsSection,
+  SponsoredProductsSkeleton,
+} from "@/components/templates/public/homepage/sponsored-products"
+import {
+  HERO_PRIMARY_BUTTON_CLASSES,
+  HERO_SECONDARY_BUTTON_CLASSES,
+} from "@/components/templates/public/categories/hero-button-classes"
+import { StickyBanner } from "@/components/organisms/StickyBanner"
+import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
+import {
+  TrafficSidebarStats,
+  TrafficSidebarStatsSkeleton,
+} from "@/components/templates/public/common/TrafficSidebarStats"
+import {
+  ProductUpdatesSection,
+  ProductUpdatesSkeleton,
+} from "@/components/templates/public/homepage/product-updates"
+import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
+import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
+import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { pluralize } from "@/lib/pluralize"
 import {
   BROWSE_PATH,
+  HOME_PATH,
   MEMBER_PRODUCTS_PATH,
+  USE_CASES_PATH,
   categoryPath,
   productPath,
   usecasePath,
 } from "@/lib/routes"
-import { productHasFeature } from "@/lib/features"
-import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
-import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
-import { brandGradient, gradientTint } from "@/lib/ui/tints"
-import {
-  getUseCasePagePayload,
-  type UseCasePagePayload,
-} from "@/lib/useCases/page-cache"
+import { getUseCasePagePayload } from "@/lib/useCases/page-cache"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 
 interface UseCasePageProps {
   params: Promise<{ slug: string }>
 }
-
-type UseCaseProduct = NonNullable<UseCasePagePayload>["products"][number]
-
-type UseCaseCategory = NonNullable<UseCasePagePayload>["categories"][number]
 
 export async function UseCasePageContent({ params }: UseCasePageProps) {
   const { slug } = await params
@@ -34,11 +48,36 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
 
   if (!data) notFound()
 
-  const { useCase, categories, products, productCount } = data
+  const { useCase, categories, productCount } = data
+  const homepageFeedItems = await getHomepageFeedViewAll({
+    view: DEFAULT_HOMEPAGE_FEED_VIEW,
+  })
+  const categorySlugs = new Set(categories.map((c) => c.slug.toLowerCase()))
+  const categoryNames = new Set(
+    categories
+      .map((c) => c.name?.toLowerCase())
+      .filter(Boolean) as string[],
+  )
+  const useCaseFeedItems = homepageFeedItems.filter((item) => {
+    const slugValue = item.categorySlug?.toLowerCase()
+    const nameValue = item.category?.toLowerCase()
+    if (slugValue && categorySlugs.has(slugValue)) return true
+    if (nameValue && categoryNames.has(nameValue)) return true
+    return false
+  })
 
-  const heroHighlight = categories[0]
   const baseUrl = resolveSiteUrl()
-  const pageUrl = `${baseUrl}${usecasePath(useCase.slug)}`
+  const path = usecasePath(useCase.slug)
+  const pageUrl = `${baseUrl}${path}`
+  const breadcrumbs = [
+    { name: "Home", path: HOME_PATH },
+    { name: "Use Cases", path: USE_CASES_PATH },
+    { name: useCase.label, path },
+  ]
+  const description = `Explore ${productCount} ${pluralize(
+    productCount,
+    "product",
+  )} built for ${useCase.label}.`
   const toAbsoluteUrl = (input?: string | null) => {
     if (!input) return undefined
     if (input.startsWith("http://") || input.startsWith("https://")) {
@@ -46,7 +85,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
     }
     return `${baseUrl}${input.startsWith("/") ? input : `/${input}`}`
   }
-  const productList = products.slice(0, 20).map((product, index) => ({
+  const productList = useCaseFeedItems.slice(0, 20).map((product, index) => ({
     "@type": "ListItem",
     position: index + 1,
     url: `${baseUrl}${productPath(product.slug)}`,
@@ -56,7 +95,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
       description: product.tagline,
       image: toAbsoluteUrl(product.logo),
       url: `${baseUrl}${productPath(product.slug)}`,
-      category: product.category?.name,
+      category: product.category,
     },
   }))
   const categoryMentions = categories.map((category) => ({
@@ -68,7 +107,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: `${useCase.label} Use Case`,
-    description: `Explore ${productCount} ${pluralize(productCount, "product")} built for ${useCase.label}.`,
+    description,
     url: pageUrl,
     mainEntity: {
       "@type": "ItemList",
@@ -90,154 +129,77 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
   }
 
   return (
-    <main className="relative isolate overflow-hidden bg-white">
+    <main className="relative isolate bg-[#f5f7fb]">
       <script
         type="application/ld+json"
         suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <CoreStructuredData
+        scriptKeyPrefix={`use-case-${slug}`}
+        webPage={{ path, name: `${useCase.label} Use Case` }}
+        breadcrumbs={{ items: breadcrumbs }}
+      />
 
-      <section
-        className={brandGradient(
-          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] py-20 shadow-[0px_70px_160px_-70px_rgba(18,66,112,0.75)]",
-        )}
-      >
-        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <div className="mx-auto flex max-w-5xl flex-col items-center gap-8 px-4 text-center text-white">
-            <div className="space-y-4">
-              <span
-                className={gradientTint(
-                  "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/80",
-                )}
-              >
-                Use Case
-              </span>
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                {useCase.label}
-              </h1>
-              <p className="text-base text-white/85 sm:text-lg">
-                A curated collection of tools designed for makers tackling{" "}
-                {useCase.label}. Explore what’s shipping, discover related
-                categories, and find the best fit for your workflow.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.28em] text-white/80">
-              <span
-                className={gradientTint(
-                  "inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold",
-                )}
-              >
-                {productCount} {pluralize(productCount, "product")}
-              </span>
-              {categories.length > 0 && (
-                <span>
-                  {categories.length} {pluralize(categories.length, "category")}
+      <PublicTwoColumnLayout
+        className="pb-24 pt-12"
+        mainClassName="gap-10"
+        sidebarClassName="lg:sticky lg:top-24"
+        main={
+          <>
+            <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
+              <div className="mx-auto flex max-w-2xl flex-col items-center gap-6">
+                <span className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-border/40 bg-muted/40 text-[color:var(--brand-1)] shadow-[0_18px_42px_-28px_rgba(7,68,134,0.35)]">
+                  <CategoryIcon icon={categories[0]?.icon ?? "target"} size={28} />
                 </span>
-              )}
-              {heroHighlight ? (
-                <span>Trending in {heroHighlight.name}</span>
-              ) : null}
-            </div>
-
-            <div className="flex w-full flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-              <Link
-                href={`${BROWSE_PATH}?useCase=${slug}`}
-                className={launchPrimaryButton({
-                  size: "lg",
-                  className: "w-full min-w-[200px] sm:w-auto",
-                })}
-              >
-                Explore in browse
-              </Link>
-              <Link
-                href={MEMBER_PRODUCTS_PATH}
-                className={launchSecondaryButton({
-                  size: "lg",
-                  className:
-                    "w-full min-w-[200px] text-white/90 hover:text-white sm:w-auto",
-                })}
-              >
-                Submit your launch
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {categories.length > 0 && (
-        <section className="relative py-16">
-          <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-            <div className="mx-auto max-w-5xl space-y-8 text-center">
-              <div className="space-y-3">
-                <h2 className="text-3xl font-semibold text-foreground">
-                  Related categories
-                </h2>
-                <p className="text-muted-foreground">
-                  Explore the categories fueling this use case and see where to
-                  build next.
-                </p>
+                <div className="space-y-4">
+                  <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+                    {useCase.label}
+                  </h1>
+                  <p className="text-base text-muted-foreground">{description}</p>
+                </div>
+                <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
+                  <Link
+                    href={`${BROWSE_PATH}?useCase=${useCase.slug}`}
+                    className={`${HERO_PRIMARY_BUTTON_CLASSES} w-full justify-center sm:w-auto`}
+                  >
+                    Launch for this use case
+                  </Link>
+                  <Link
+                    href={MEMBER_PRODUCTS_PATH}
+                    className={`${HERO_SECONDARY_BUTTON_CLASSES} w-full justify-center sm:w-auto`}
+                  >
+                    Explore promotion tiers
+                  </Link>
+                </div>
               </div>
-              <div className="flex flex-wrap justify-center gap-4">
-                {categories.map((category: UseCaseCategory) => (
-                  <CategoryCard
-                    key={category.id}
-                    href={categoryPath(category.slug)}
-                    name={category.name}
-                    icon={category.icon}
-                    description={category.description}
-                    count={category.productCount}
-                    className="w-full max-w-xs"
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+            </section>
 
-      <section className="relative py-16">
-        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <UseCaseProductsClient
-            className="border-[color:var(--brand-1)/0.18]"
-            products={products.map((product: UseCaseProduct) => ({
-              ...product,
-              priority: productHasFeature(product, "priorityPlacement"),
-              badges:
-                product.ProductBadge?.filter(
-                  (badge) =>
-                    !badge.expiresAt || new Date(badge.expiresAt) > new Date(),
-                ).map((badge) => badge.badge) ?? [],
-            }))}
-          />
-        </div>
-      </section>
+            <StickyBanner className="mx-auto w-full rounded-2xl" />
 
-      <section className="relative py-16">
-        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 rounded-3xl border border-[color:var(--brand-1)/0.18] bg-background/82 px-8 py-12 text-center shadow-[0px_32px_90px_-60px_rgba(7,58,104,0.55)] backdrop-blur">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground">
-              Building for {useCase.label}?
-            </h2>
-            <p className="text-muted-foreground">
-              Share your launch with the community and reach makers who need
-              exactly what you’re crafting.
-            </p>
-            <Link
-              href={MEMBER_PRODUCTS_PATH}
-              className={launchPrimaryButton({ size: "lg" })}
-            >
-              Add your product
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative py-16">
-        <div className="mx-auto max-w-[84rem] overflow-hidden rounded-[46px] border border-primary/15 px-0 md:px-0 dark:border-slate-800/60">
-          <NewsletterSignupSection />
-        </div>
-      </section>
+            <section className="space-y-6" data-testid="use-case-feed-section">
+              <ProductFeedList
+                activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
+                items={useCaseFeedItems}
+                showRemaining
+              />
+            </section>
+          </>
+        }
+        sidebar={
+          <>
+            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
+              <TrafficSidebarStats />
+            </Suspense>
+            <Suspense fallback={<SponsoredProductsSkeleton />}>
+              <SponsoredProductsSection />
+            </Suspense>
+            <Suspense fallback={<ProductUpdatesSkeleton />}>
+              <ProductUpdatesSection />
+            </Suspense>
+          </>
+        }
+      />
     </main>
   )
 }

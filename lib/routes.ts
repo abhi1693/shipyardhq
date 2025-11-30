@@ -96,7 +96,7 @@ export const PRODUCT_TYPES_PATH = "/product-types" as const
 export const productTypePath = (slug: string) => `${PRODUCT_TYPES_PATH}/${slug}`
 export const WHY_SHIPYARD_PATH = "/why-shipyard" as const
 export const ANALYTICS_PATH = "/analytics" as const
-const USE_CASES_PATH = "/use-cases" as const
+export const USE_CASES_PATH = "/use-cases" as const
 export const CATEGORIES_PATH = "/categories" as const
 export const USERS_PATH = "/users" as const
 export const TAGS_PATH = "/tags" as const
