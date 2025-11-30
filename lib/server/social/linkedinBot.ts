@@ -1,7 +1,9 @@
 import prisma from "@/lib/prisma"
 import { getAppBaseUrl } from "@/lib/email/utils"
 import { productPath } from "@/lib/routes"
+import { buildCacheKey } from "@/lib/server/cache"
 import { registerEventHandler } from "@/lib/server/events"
+import { getRedisClient } from "@/lib/server/redis"
 
 import {
   isLinkedInBotDryRun,
@@ -16,7 +18,8 @@ import {
 } from "./linkedinMessages"
 
 const POST_TTL_MS = 6 * 60 * 60 * 1000 // 6 hours
-const recentPosts = new Map<string, number>()
+const POST_TTL_SECONDS = Math.ceil(POST_TTL_MS / 1000)
+const recentPosts = new Map<string, number>() // in-process fallback
 
 function prune(now: number) {
   for (const [key, timestamp] of recentPosts) {
@@ -26,7 +29,24 @@ function prune(now: number) {
   }
 }
 
-function canPost(key: string, now = Date.now()): boolean {
+async function canPost(key: string, now = Date.now()): Promise<boolean> {
+  const cacheKey = buildCacheKey("linkedin", "post-throttle", key)
+  const redis = await getRedisClient().catch(() => null)
+  if (redis) {
+    try {
+      const result = await redis.set(cacheKey, `${now}`, {
+        NX: true,
+        EX: POST_TTL_SECONDS,
+      })
+      if (result === null) {
+        return false
+      }
+      return true
+    } catch (error) {
+      console.warn("[linkedin] failed to persist throttle key", { error })
+    }
+  }
+
   prune(now)
   const previous = recentPosts.get(key)
   if (previous && now - previous < POST_TTL_MS) {
@@ -36,7 +56,16 @@ function canPost(key: string, now = Date.now()): boolean {
   return true
 }
 
-function releaseThrottle(key: string) {
+async function releaseThrottle(key: string) {
+  const cacheKey = buildCacheKey("linkedin", "post-throttle", key)
+  const redis = await getRedisClient().catch(() => null)
+  if (redis) {
+    try {
+      await redis.del(cacheKey)
+    } catch (error) {
+      console.warn("[linkedin] failed to clear throttle key", { error })
+    }
+  }
   recentPosts.delete(key)
 }
 
@@ -69,7 +98,7 @@ async function handleProductPublished(productId: string) {
     }
 
     const key = `launch:${product.id}`
-    if (!canPost(key)) {
+    if (!(await canPost(key))) {
       return
     }
 
@@ -89,11 +118,11 @@ async function handleProductPublished(productId: string) {
         reason: result.reason,
         detail: result.detail,
       })
-      releaseThrottle(key)
+      await releaseThrottle(key)
     }
   } catch (error) {
     console.error("[linkedin] failed to handle product.published event", error)
-    releaseThrottle(`launch:${productId}`)
+    await releaseThrottle(`launch:${productId}`)
   }
 }
 
@@ -125,7 +154,7 @@ async function handleBadgeAssigned(productId: string, badge: string) {
     }
 
     const key = `${badge}:${product.id}`
-    if (!canPost(key)) {
+    if (!(await canPost(key))) {
       return
     }
 
@@ -139,7 +168,7 @@ async function handleBadgeAssigned(productId: string, badge: string) {
     })
 
     if (!post) {
-      releaseThrottle(key)
+      await releaseThrottle(key)
       return
     }
 
@@ -152,11 +181,11 @@ async function handleBadgeAssigned(productId: string, badge: string) {
         reason: result.reason,
         detail: result.detail,
       })
-      releaseThrottle(key)
+      await releaseThrottle(key)
     }
   } catch (error) {
     console.error("[linkedin] failed to handle badge.assigned event", error)
-    releaseThrottle(`${badge}:${productId}`)
+    await releaseThrottle(`${badge}:${productId}`)
   }
 }
 
@@ -172,7 +201,7 @@ async function handleLeaderboardWinners(
     }
 
     const key = `leaderboard:${monthKey}`
-    if (!canPost(key)) {
+    if (!(await canPost(key))) {
       return
     }
 
@@ -190,14 +219,14 @@ async function handleLeaderboardWinners(
         reason: result.reason,
         detail: result.detail,
       })
-      releaseThrottle(key)
+      await releaseThrottle(key)
     }
   } catch (error) {
     console.error(
       "[linkedin] failed to handle leaderboard.monthly.winners event",
       error,
     )
-    releaseThrottle(`leaderboard:${monthKey}`)
+    await releaseThrottle(`leaderboard:${monthKey}`)
   }
 }
 
@@ -213,7 +242,7 @@ async function handlePeriodicLeaderboardWinners(params: {
     }
 
     const key = `leaderboard:${params.periodKey}`
-    if (!canPost(key)) {
+    if (!(await canPost(key))) {
       return
     }
 
@@ -235,14 +264,14 @@ async function handlePeriodicLeaderboardWinners(params: {
         reason: result.reason,
         detail: result.detail,
       })
-      releaseThrottle(key)
+      await releaseThrottle(key)
     }
   } catch (error) {
     console.error(
       "[linkedin] failed to handle leaderboard.periodic.winners event",
       error,
     )
-    releaseThrottle(`leaderboard:${params.periodKey}`)
+    await releaseThrottle(`leaderboard:${params.periodKey}`)
   }
 }
 

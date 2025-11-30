@@ -6,10 +6,16 @@ import { getAppBaseUrl } from "@/lib/email/utils"
 
 const ACCESS_TOKEN_CACHE_KEY = buildCacheKey("linkedin", "access_token")
 const DEFAULT_TOKEN_TTL_SECONDS = 55 * 24 * 60 * 60 // ~55 days
-const COMPANY_PAGE_URL = "https://www.linkedin.com/company/shipyard-hq/"
+const DEFAULT_COMPANY_PAGE_URL =
+  "https://www.linkedin.com/company/shipyard-hq/"
+const COMPANY_PAGE_URL =
+  process.env.LINKEDIN_COMPANY_PAGE_URL?.trim() || DEFAULT_COMPANY_PAGE_URL
+const CONFIGURED_ORGANIZATION_URN =
+  process.env.LINKEDIN_ORGANIZATION_URN?.trim() || null
 const OAUTH_STATE_TTL_SECONDS = 10 * 60
 const STATE_SEPARATOR = "."
 const MIN_SIGNING_KEY_LENGTH = 16
+const STATE_REPLAY_FALLBACK: Map<string, number> = new Map()
 
 type TokenExchangeResult = {
   accessToken: string
@@ -103,7 +109,42 @@ export async function consumeLinkedInStateToken(
     Buffer.from(expectedSignature),
   )
 
-  return signaturesMatch
+  if (!signaturesMatch) {
+    return false
+  }
+
+  const ttlSeconds = Math.max(
+    issuedAtSeconds + OAUTH_STATE_TTL_SECONDS - nowSeconds,
+    1,
+  )
+
+  // Replay protection with Redis; fall back to in-process memory when Redis
+  // isn't available (e.g., local dev without Redis configured).
+  const replayKey = buildCacheKey("linkedin", "state-replay", nonce)
+  const redis = await getRedisClient().catch(() => null)
+  if (redis) {
+    try {
+      const setResult = await redis.set(replayKey, "1", {
+        EX: ttlSeconds,
+        NX: true,
+      })
+      if (setResult === null) {
+        return false
+      }
+      return true
+    } catch (error) {
+      console.warn("[linkedin] failed to store oauth state replay key", {
+        error,
+      })
+    }
+  }
+
+  const existing = STATE_REPLAY_FALLBACK.get(replayKey)
+  if (existing && existing > nowSeconds) {
+    return false
+  }
+  STATE_REPLAY_FALLBACK.set(replayKey, nowSeconds + ttlSeconds)
+  return true
 }
 
 export function buildLinkedInAuthUrl(params: {
@@ -191,6 +232,10 @@ function parseTokenResponse(payload: unknown): TokenExchangeResult | null {
 let cachedOrgUrn: string | null | undefined
 
 export async function resolveOrganizationUrn(): Promise<string | null> {
+  if (CONFIGURED_ORGANIZATION_URN) {
+    return CONFIGURED_ORGANIZATION_URN
+  }
+
   if (cachedOrgUrn !== undefined) return cachedOrgUrn
 
   try {
