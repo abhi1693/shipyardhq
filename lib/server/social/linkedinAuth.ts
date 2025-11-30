@@ -6,8 +6,7 @@ import { getAppBaseUrl } from "@/lib/email/utils"
 
 const ACCESS_TOKEN_CACHE_KEY = buildCacheKey("linkedin", "access_token")
 const DEFAULT_TOKEN_TTL_SECONDS = 55 * 24 * 60 * 60 // ~55 days
-const DEFAULT_COMPANY_PAGE_URL =
-  "https://www.linkedin.com/company/shipyard-hq/"
+const DEFAULT_COMPANY_PAGE_URL = "https://www.linkedin.com/company/shipyard-hq/"
 const COMPANY_PAGE_URL =
   process.env.LINKEDIN_COMPANY_PAGE_URL?.trim() || DEFAULT_COMPANY_PAGE_URL
 const CONFIGURED_ORGANIZATION_URN =

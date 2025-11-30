@@ -44,9 +44,7 @@ export async function buildLinkedInProductLaunchPost(args: {
     `Take a look: ${args.url}`,
   ]
 
-  return lines
-    .filter((line): line is string => Boolean(line))
-    .join("\n\n")
+  return lines.filter((line): line is string => Boolean(line)).join("\n\n")
 }
 
 const BADGE_COPY: Record<
@@ -54,7 +52,8 @@ const BADGE_COPY: Record<
   { headline: (name: string) => string; note?: string }
 > = {
   featured: {
-    headline: (name) => `${name} just earned a Featured spotlight on Shipyard HQ.`,
+    headline: (name) =>
+      `${name} just earned a Featured spotlight on Shipyard HQ.`,
     note: "We highlight the most compelling launches for our community.",
   },
   trending: {
@@ -62,7 +61,8 @@ const BADGE_COPY: Record<
     note: "Momentum is building fast—check out why the community is excited.",
   },
   "editor-pick": {
-    headline: (name) => `${name} was selected as an editor's pick on Shipyard HQ.`,
+    headline: (name) =>
+      `${name} was selected as an editor's pick on Shipyard HQ.`,
   },
 }
 
@@ -89,9 +89,7 @@ export async function buildLinkedInBadgePost(args: {
     `See more: ${args.url}`,
   ]
 
-  return lines
-    .filter((line): line is string => Boolean(line))
-    .join("\n\n")
+  return lines.filter((line): line is string => Boolean(line)).join("\n\n")
 }
 
 export async function buildLinkedInLeaderboardPost(args: {
@@ -118,7 +116,5 @@ export async function buildLinkedInLeaderboardPost(args: {
     `Full board: ${args.leaderboardUrl}`,
   ]
 
-  return lines
-    .filter((line): line is string => Boolean(line))
-    .join("\n\n")
+  return lines.filter((line): line is string => Boolean(line)).join("\n\n")
 }
