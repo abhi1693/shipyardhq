@@ -1,3 +1,5 @@
+'use server'
+
 import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
@@ -10,7 +12,13 @@ import {
 import {
   normalizeRewardsLeaderboardLimit,
   REWARDS_LEADERBOARD_DEFAULT_LIMIT,
+  normalizeRewardsLeaderboardPage,
+  normalizeRewardsLeaderboardPageSize,
 } from "@/lib/rewards/leaderboard"
+import {
+  hydrateRewardsLeaderboardEntries,
+  type RewardsLeaderboardDisplayEntry,
+} from "@/lib/rewards/display"
 
 type RuleUsageGroup = {
   ruleId: string | null
@@ -135,6 +143,44 @@ export type RewardsLeaderboardEntry = Prisma.RewardBalanceGetPayload<{
   }
 }>
 
+export type RewardsLeaderboardPageResult = {
+  items: RewardsLeaderboardDisplayEntry[]
+  page: number
+  pageSize: number
+  hasMore: boolean
+  nextPage: number | null
+  total: number
+}
+
+const leaderboardSelect = {
+  userId: true,
+  balance: true,
+  lifetimeEarned: true,
+  lifetimeSpent: true,
+  lifetimeAdjusted: true,
+  lifetimeRefunded: true,
+  updatedAt: true,
+  currentStreakCount: true,
+  longestStreakCount: true,
+  lastEarnedAt: true,
+  lastRedeemedAt: true,
+  user: {
+    select: {
+      id: true,
+      clerkId: true,
+      firstName: true,
+      lastName: true,
+      _count: {
+        select: {
+          products: {
+            where: { status: "published" },
+          },
+        },
+      },
+    },
+  },
+} satisfies Prisma.RewardBalanceSelect
+
 export const getRewardsLeaderboardEntries = cached(
   async (limit = REWARDS_LEADERBOARD_DEFAULT_LIMIT) => {
     const normalizedLimit = normalizeRewardsLeaderboardLimit(limit)
@@ -146,34 +192,7 @@ export const getRewardsLeaderboardEntries = cached(
         user: { status: "active" },
       },
       orderBy: [{ lifetimeEarned: "desc" }, { updatedAt: "desc" }],
-      select: {
-        userId: true,
-        balance: true,
-        lifetimeEarned: true,
-        lifetimeSpent: true,
-        lifetimeAdjusted: true,
-        lifetimeRefunded: true,
-        updatedAt: true,
-        currentStreakCount: true,
-        longestStreakCount: true,
-        lastEarnedAt: true,
-        lastRedeemedAt: true,
-        user: {
-          select: {
-            id: true,
-            clerkId: true,
-            firstName: true,
-            lastName: true,
-            _count: {
-              select: {
-                products: {
-                  where: { status: "published" },
-                },
-              },
-            },
-          },
-        },
-      },
+      select: leaderboardSelect,
     })
 
     return rows as unknown as RewardsLeaderboardEntry[]
@@ -193,6 +212,55 @@ export const getRewardsLeaderboardEntries = cached(
         typeof limit === "number" ? limit : REWARDS_LEADERBOARD_DEFAULT_LIMIT,
       )}`,
     ],
+  },
+)
+
+export const getRewardsLeaderboardPage = cached(
+  async (
+    params: { page?: number; pageSize?: number } = {},
+  ): Promise<RewardsLeaderboardPageResult> => {
+    const page = normalizeRewardsLeaderboardPage(params.page)
+    const pageSize = normalizeRewardsLeaderboardPageSize(params.pageSize)
+    const skip = (page - 1) * pageSize
+
+    const [rows, total] = await Promise.all([
+      prisma.rewardBalance.findMany({
+        skip,
+        take: pageSize,
+        where: {
+          lifetimeEarned: { gt: 0 },
+          user: { status: "active" },
+        },
+        orderBy: [{ lifetimeEarned: "desc" }, { updatedAt: "desc" }],
+        select: leaderboardSelect,
+      }),
+      prisma.rewardBalance.count({
+        where: { lifetimeEarned: { gt: 0 }, user: { status: "active" } },
+      }),
+    ])
+
+    const items = await hydrateRewardsLeaderboardEntries(
+      rows as unknown as RewardsLeaderboardEntry[],
+    )
+    const hasMore = skip + items.length < total
+
+    return {
+      items,
+      page,
+      pageSize,
+      hasMore,
+      nextPage: hasMore ? page + 1 : null,
+      total,
+    }
+  },
+  "rewards:leaderboard:page",
+  {
+    keyParts: ([params]) => [
+      `page:${normalizeRewardsLeaderboardPage(params?.page)}`,
+      `size:${normalizeRewardsLeaderboardPageSize(params?.pageSize)}`,
+    ],
+    ttl: DEFAULT_TTL.fast,
+    tags: () => [TAGS.rewards, TAGS.rewardsLeaderboard],
   },
 )
 
