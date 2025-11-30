@@ -9,7 +9,51 @@
  * This exchanges the code for an access token and stores it in Redis.
  */
 
-import { exchangeLinkedInAuthCode, buildLinkedInRedirectUri } from "@/lib/server/social/linkedinAuth"
+import {
+  exchangeLinkedInAuthCode,
+  buildLinkedInRedirectUri,
+  createLinkedInStateToken,
+  buildLinkedInAuthUrl,
+} from "@/lib/server/social/linkedinAuth"
+import { spawn } from "child_process"
+
+function trySpawn(command: string, args: string[]) {
+  return new Promise<void>((resolve, reject) => {
+    const child = spawn(command, args, {
+      stdio: "ignore",
+      detached: true,
+    })
+    child.on("error", reject)
+    child.unref()
+    resolve()
+  })
+}
+
+async function openInChrome(url: string) {
+  const attempts: Array<[string, string[]]> = []
+
+  if (process.platform === "darwin") {
+    attempts.push(["open", ["-a", "Google Chrome", url]])
+  } else if (process.platform === "win32") {
+    attempts.push(["cmd", ["/c", "start", "chrome", url]])
+  } else {
+    attempts.push(["google-chrome", [url]])
+    attempts.push(["chromium-browser", [url]])
+    attempts.push(["chrome", [url]])
+    attempts.push(["xdg-open", [url]])
+  }
+
+  for (const [command, args] of attempts) {
+    try {
+      await trySpawn(command, args)
+      return true
+    } catch {
+      continue
+    }
+  }
+
+  return false
+}
 
 async function main() {
   const [, , command, arg] = process.argv
@@ -24,25 +68,28 @@ async function main() {
 
   if (command === "url") {
     const clientId = process.env.LINKEDIN_CLIENT_ID
-    const secret = process.env.CRON_SECRET
-    if (!clientId || !secret) {
-      console.error("Missing LINKEDIN_CLIENT_ID or CRON_SECRET in env.")
+    const clientSecret = process.env.LINKEDIN_CLIENT_SECRET
+    if (!clientId || !clientSecret) {
+      console.error("Missing LINKEDIN_CLIENT_ID or LINKEDIN_CLIENT_SECRET in env.")
       process.exit(1)
     }
     const redirectUri = buildLinkedInRedirectUri()
-    const scopes = [
-      "w_organization_social",
-      "r_organization_social",
-      "openid",
-      "profile",
-    ]
-    const url = new URL("https://www.linkedin.com/oauth/v2/authorization")
-    url.searchParams.set("response_type", "code")
-    url.searchParams.set("client_id", clientId)
-    url.searchParams.set("redirect_uri", redirectUri)
-    url.searchParams.set("scope", scopes.join(" "))
-    url.searchParams.set("state", secret)
-    console.log(url.toString())
+    try {
+      const state = await createLinkedInStateToken()
+      const url = buildLinkedInAuthUrl({ redirectUri, state })
+      const opened = await openInChrome(url.toString())
+      console.log(
+        opened
+          ? "Opened auth URL in Google Chrome."
+          : "Chrome not found; copy/paste this URL manually:\n" + url.toString(),
+      )
+    } catch (error) {
+      console.error(
+        "Failed to create OAuth state token:",
+        error instanceof Error ? error.message : error,
+      )
+      process.exit(1)
+    }
     return
   }
 

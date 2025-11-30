@@ -68,8 +68,8 @@ Questions or feedback? Email `support@shipyardhq.dev` or say hi on X: https://x.
 ## LinkedIn Bot
 
 - Automation: Mirrors the Twitter bot for launches, featured/trending/editor's pick badges, and leaderboard wins. It is always on; add credentials to start posting.
-- Credentials: Supply `LINKEDIN_CLIENT_ID` and `LINKEDIN_CLIENT_SECRET` in `.env.local`. Optional: `LINKEDIN_REDIRECT_URI` (defaults to `/api/linkedin/oauth` on the app host). The org URN is auto-detected from the company page HTML at runtime.
-- Token bootstrap: Hit `/api/linkedin/oauth` to get the authorization URL; after approving, the handler exchanges the `code`, caches the access token in Redis (55-day TTL), and returns a simple JSON status. The bot automatically reads the cached token and resolves the org URN.
+- Credentials: Supply `LINKEDIN_CLIENT_ID` and `LINKEDIN_CLIENT_SECRET` in `.env.local`. Optional: `LINKEDIN_STATE_SECRET` (uses `LINKEDIN_CLIENT_SECRET` as a fallback) and `LINKEDIN_REDIRECT_URI` (defaults to `/api/linkedin/oauth` on the app host). The org URN is auto-detected from the company page HTML at runtime.
+- Token bootstrap: Hit `/api/linkedin/oauth` to mint a signed, short-lived `state` and log the authorization URL. The response is empty (204); read the server logs to copy the URL. After approving, LinkedIn redirects back with the `code` and `state`, the handler exchanges the token if the signature/TTL check passes, and logs status. The bot automatically reads the cached token and resolves the org URN.
 - Safety: Add `LINKEDIN_BOT_DRY_RUN=true` to log outbound posts without publishing—useful for staging checks.
 - Cooldown: Shares reuse the same 6-hour per-event throttle to avoid duplicate announcements.
 

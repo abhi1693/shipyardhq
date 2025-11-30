@@ -4,6 +4,7 @@ import {
   buildLinkedInRedirectUri,
   exchangeLinkedInAuthCode,
   getLinkedInAuthStatus,
+  createLinkedInStateToken,
 } from "@/lib/server/social/linkedinAuth"
 
 export async function GET(request: NextRequest) {
@@ -13,13 +14,29 @@ export async function GET(request: NextRequest) {
   const redirectUri = buildLinkedInRedirectUri(request.nextUrl.origin)
 
   if (!code) {
-    const status = await getLinkedInAuthStatus({
-      baseUrl: request.nextUrl.origin,
-    })
-    return NextResponse.json(
-      { ok: true, ...status },
-      { status: 200, headers: { "cache-control": "no-store" } },
-    )
+    try {
+      const issuedState = await createLinkedInStateToken()
+      const status = await getLinkedInAuthStatus({
+        baseUrl: request.nextUrl.origin,
+        state: issuedState,
+      })
+      console.info("[linkedin] OAuth status requested", {
+        ...status,
+        state: issuedState,
+      })
+      return new NextResponse(null, {
+        status: 204,
+        headers: { "cache-control": "no-store" },
+      })
+    } catch (error) {
+      console.error("[linkedin] failed to prepare OAuth state", error)
+      return new NextResponse(null, { status: 500 })
+    }
+  }
+
+  if (!state) {
+    console.warn("[linkedin] missing state on OAuth callback")
+    return new NextResponse(null, { status: 401 })
   }
 
   try {
@@ -31,24 +48,19 @@ export async function GET(request: NextRequest) {
     const status = await getLinkedInAuthStatus({
       baseUrl: request.nextUrl.origin,
     })
-    return NextResponse.json(
-      {
-        ok: true,
-        exchanged: true,
-        expiresIn: exchangeResult.expiresIn,
-        ...status,
-      },
-      { status: 200, headers: { "cache-control": "no-store" } },
-    )
+    console.info("[linkedin] OAuth exchange completed", {
+      expiresIn: exchangeResult.expiresIn,
+      hasAccessToken: status.hasAccessToken,
+      hasOrgUrn: status.hasOrgUrn,
+      redirectUri: status.redirectUri,
+      state,
+    })
+    return new NextResponse(null, {
+      status: 204,
+      headers: { "cache-control": "no-store" },
+    })
   } catch (error) {
     console.error("[linkedin] oauth exchange failed", error)
-    return NextResponse.json(
-      {
-        ok: false,
-        exchanged: false,
-        error: error instanceof Error ? error.message : "LinkedIn OAuth failed",
-      },
-      { status: 400 },
-    )
+    return new NextResponse(null, { status: 400 })
   }
 }
