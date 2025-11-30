@@ -198,7 +198,6 @@ export async function resolveOrganizationUrn(): Promise<string | null> {
       console.warn(
         `[linkedin] failed to fetch company page (status ${response.status})`,
       )
-      cachedOrgUrn = null
       return null
     }
 
@@ -218,11 +217,9 @@ export async function resolveOrganizationUrn(): Promise<string | null> {
     }
 
     console.warn("[linkedin] could not extract organization id from page HTML")
-    cachedOrgUrn = null
     return null
   } catch (error) {
     console.warn("[linkedin] failed to resolve organization urn", { error })
-    cachedOrgUrn = null
     return null
   }
 }
