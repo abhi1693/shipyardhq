@@ -8,9 +8,14 @@ import type { PublicPlan } from "@/actions/public/plans/actions"
 type PricingTableProps = {
   plans: PublicPlan[]
   renderPlanCTA?: (plan: PublicPlan) => ReactNode
+  disableSectionWrapper?: boolean
 }
 
-export function PricingTable({ plans, renderPlanCTA }: PricingTableProps) {
+export function PricingTable({
+  plans,
+  renderPlanCTA,
+  disableSectionWrapper = false,
+}: PricingTableProps) {
   const paidPlans = plans.filter((p) => p.price > 0)
   const maxCount = paidPlans.length
     ? Math.max(...paidPlans.map((p) => p.productCount || 0))
@@ -22,43 +27,47 @@ export function PricingTable({ plans, renderPlanCTA }: PricingTableProps) {
     plans.length >= 3 && "xl:grid-cols-3",
   )
 
-  return (
-    <section className="py-12">
-      <div className="mx-auto max-w-6xl px-4">
-        <div className={gridClassName}>
-          {plans.map((p) => {
-            const recurringSuffix = (p as any).priceSuffix as string | undefined
-            const priceSuffix =
-              p.price > 0
-                ? recurringSuffix
-                  ? `${recurringSuffix} / product`
-                  : "per product"
-                : undefined
+  const content = (
+    <div className="mx-auto max-w-6xl px-4">
+      <div className={gridClassName}>
+        {plans.map((p) => {
+          const recurringSuffix = (p as any).priceSuffix as string | undefined
+          const priceSuffix =
+            p.price > 0
+              ? recurringSuffix
+                ? `${recurringSuffix} / product`
+                : "per product"
+              : undefined
 
-            return (
-              <CardWrapper key={p.id}>
-                <PricingCard
-                  name={p.name}
-                  description={p.description}
-                  price={p.price}
-                  priceSuffix={priceSuffix}
-                  discount={p.discount}
-                  isPopular={
-                    p.price > 0 &&
-                    (p.productCount || 0) === maxCount &&
-                    maxCount > 0
-                  }
-                  features={p.features}
-                  boostForDays={p.boostForDays}
-                  ctaSlot={renderPlanCTA?.(p)}
-                />
-              </CardWrapper>
-            )
-          })}
-        </div>
+          return (
+            <CardWrapper key={p.id}>
+              <PricingCard
+                name={p.name}
+                description={p.description}
+                price={p.price}
+                priceSuffix={priceSuffix}
+                discount={p.discount}
+                isPopular={
+                  p.price > 0 &&
+                  (p.productCount || 0) === maxCount &&
+                  maxCount > 0
+                }
+                features={p.features}
+                boostForDays={p.boostForDays}
+                ctaSlot={renderPlanCTA?.(p)}
+              />
+            </CardWrapper>
+          )
+        })}
       </div>
-    </section>
+    </div>
   )
+
+  if (disableSectionWrapper) {
+    return content
+  }
+
+  return <section className="py-12">{content}</section>
 }
 
 function CardWrapper({ children }: { children: React.ReactNode }) {

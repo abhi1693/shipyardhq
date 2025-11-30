@@ -58,9 +58,16 @@ export const PRICING_FAQS = [
   },
 ]
 
-export async function PricingPlansList() {
+export async function PricingPlansList({
+  disableSectionWrapper = false,
+}: { disableSectionWrapper?: boolean } = {}) {
   const plans = await getPublicPlans({ type: PlanType.one_time_price })
-  return <PricingTable plans={plans} />
+  return (
+    <PricingTable
+      plans={plans}
+      disableSectionWrapper={disableSectionWrapper}
+    />
+  )
 }
 
 export async function SubscriptionPlansList() {
@@ -96,16 +103,28 @@ export async function FeaturedProductsList() {
   return <FeaturedProductGrid items={featured.slice(0, 6)} />
 }
 
-export function PricingPlansSkeleton() {
+export function PricingPlansSkeleton({
+  withSectionWrapper = true,
+}: { withSectionWrapper?: boolean } = {}) {
+  const grid = (
+    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+      {[0, 1, 2].map((index) => (
+        <PricingPlanSkeletonCard key={index} highlight={index === 1} />
+      ))}
+    </div>
+  )
+
+  if (!withSectionWrapper) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-2">
+        {grid}
+      </div>
+    )
+  }
+
   return (
     <section className="py-12">
-      <div className="mx-auto max-w-6xl px-4">
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {[0, 1, 2].map((index) => (
-            <PricingPlanSkeletonCard key={index} highlight={index === 1} />
-          ))}
-        </div>
-      </div>
+      <div className="mx-auto max-w-6xl px-4">{grid}</div>
     </section>
   )
 }
