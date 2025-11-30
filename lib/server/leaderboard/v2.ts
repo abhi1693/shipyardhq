@@ -1,5 +1,3 @@
-import type { Prisma } from "@/lib/vendor/prisma/client"
-
 import prisma from "@/lib/prisma"
 import { getProductTrafficMapFromGa } from "@/lib/server/analytics/googleAnalytics"
 
