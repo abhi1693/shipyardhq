@@ -22,12 +22,6 @@ export function extractLinkedInHandle(value?: string | null): string | null {
   return direct.length ? direct : null
 }
 
-function formatHandle(handle?: string | null) {
-  const normalized = handle?.trim()
-  if (!normalized) return null
-  return normalized.startsWith("@") ? normalized.slice(1) : normalized
-}
-
 export async function buildLinkedInProductLaunchPost(args: {
   name: string
   tagline?: string | null
@@ -35,12 +29,10 @@ export async function buildLinkedInProductLaunchPost(args: {
   url: string
   twitterHandle?: string | null
 }) {
-  const handle = formatHandle(args.twitterHandle)
   const lines: Array<string | null | undefined> = [
     `${args.name} just launched on Shipyard HQ.`,
     args.tagline?.trim(),
     args.description ? truncate(args.description.trim()) : null,
-    handle ? `Connect with the team: ${handle}` : null,
     `Take a look: ${args.url}`,
   ]
 
@@ -79,13 +71,11 @@ export async function buildLinkedInBadgePost(args: {
   }
 
   const copy = BADGE_COPY[args.badge as keyof typeof BADGE_COPY]
-  const handle = formatHandle(args.twitterHandle)
 
   const lines: Array<string | null | undefined> = [
     copy.headline(args.name),
     args.tagline?.trim(),
     copy.note,
-    handle ? `Connect with the team: ${handle}` : null,
     `See more: ${args.url}`,
   ]
 
@@ -103,12 +93,9 @@ export async function buildLinkedInLeaderboardPost(args: {
       ? `Celebrating the ${args.monthLabel} Shipyard HQ leaderboard winners.`
       : `Celebrating builders from ${args.monthLabel} on Shipyard HQ.`
 
-  const topWinners = sorted.slice(0, 5).map((winner) => {
-    const handle = formatHandle(winner.twitterHandle)
-    return handle
-      ? `${winner.rank}. ${winner.name} (${handle})`
-      : `${winner.rank}. ${winner.name}`
-  })
+  const topWinners = sorted
+    .slice(0, 5)
+    .map((winner) => `${winner.rank}. ${winner.name}`)
 
   const lines: Array<string | null | undefined> = [
     intro,
