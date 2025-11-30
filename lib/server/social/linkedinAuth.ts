@@ -128,6 +128,13 @@ export function buildLinkedInAuthUrl(params: {
   return url.toString()
 }
 
+export async function buildLinkedInAuthRequest(baseOverride?: string) {
+  const redirectUri = buildLinkedInRedirectUri(baseOverride)
+  const state = await createLinkedInStateToken()
+  const authUrl = buildLinkedInAuthUrl({ redirectUri, state })
+  return { authUrl }
+}
+
 async function storeAccessToken(
   accessToken: string,
   expiresIn: number | null,

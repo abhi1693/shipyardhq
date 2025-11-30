@@ -1,3 +1,4 @@
+import { notifyLinkedInAuthNeeded } from "./linkedinNotify"
 import { getLinkedInAccessToken, resolveOrganizationUrn } from "./linkedinAuth"
 
 function parseBoolean(value: string | undefined): boolean {
@@ -87,6 +88,16 @@ export async function postLinkedInUpdate(
   const authorUrn = await resolveOrganizationUrn()
 
   if (!config.isEnabled || !accessToken || !authorUrn) {
+    if (!accessToken) {
+      notifyLinkedInAuthNeeded({
+        trigger: "missing-access-token",
+      }).catch((error) =>
+        console.warn("[linkedin] failed to notify admin about missing token", {
+          error: error instanceof Error ? error.message : error,
+        }),
+      )
+    }
+
     return { posted: false, reason: "missing-configuration" }
   }
 

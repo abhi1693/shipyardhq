@@ -12,6 +12,7 @@ const computeSiteUrl = () => {
 }
 
 const SITE_URL = computeSiteUrl()
+const ADMIN_EMAIL = "support@shipyardhq.dev"
 
 export const resolveSiteUrl = () => SITE_URL
 
@@ -24,6 +25,7 @@ export const siteConfig = {
   ogImage: "/opengraph.png",
   logo: "/brand.png",
   icon: "/favicon.ico",
+  adminEmail: ADMIN_EMAIL,
 }
 
 export const absoluteOgImageUrl = new URL(

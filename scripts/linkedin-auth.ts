@@ -12,8 +12,7 @@
 import {
   exchangeLinkedInAuthCode,
   buildLinkedInRedirectUri,
-  createLinkedInStateToken,
-  buildLinkedInAuthUrl,
+  buildLinkedInAuthRequest,
 } from "@/lib/server/social/linkedinAuth"
 import { spawn } from "child_process"
 
@@ -23,9 +22,55 @@ function trySpawn(command: string, args: string[]) {
       stdio: "ignore",
       detached: true,
     })
-    child.on("error", reject)
-    child.unref()
-    resolve()
+
+    let settled = false
+    let spawnTimer: NodeJS.Timeout | null = null
+
+    const cleanup = () => {
+      child.removeListener("error", onError)
+      child.removeListener("spawn", onSpawn)
+      child.removeListener("exit", onExit)
+      if (spawnTimer) {
+        clearTimeout(spawnTimer)
+      }
+    }
+
+    const onError = (error: Error) => {
+      if (settled) return
+      settled = true
+      cleanup()
+      reject(error)
+    }
+
+    const onSpawn = () => {
+      // Resolve after a short delay to allow immediate exit codes to propagate.
+      spawnTimer = setTimeout(() => {
+        if (settled) return
+        settled = true
+        cleanup()
+        child.unref()
+        resolve()
+      }, 300)
+    }
+
+    const onExit = (code: number | null) => {
+      if (settled) return
+      if (code === 0 && spawnTimer) {
+        settled = true
+        cleanup()
+        child.unref()
+        resolve()
+        return
+      }
+
+      settled = true
+      cleanup()
+      reject(new Error(`Process exited with code ${code ?? "unknown"}`))
+    }
+
+    child.once("error", onError)
+    child.once("spawn", onSpawn)
+    child.once("exit", onExit)
   })
 }
 
@@ -75,16 +120,14 @@ async function main() {
       )
       process.exit(1)
     }
-    const redirectUri = buildLinkedInRedirectUri()
     try {
-      const state = await createLinkedInStateToken()
-      const url = buildLinkedInAuthUrl({ redirectUri, state })
-      const opened = await openInChrome(url.toString())
+      const { authUrl } = await buildLinkedInAuthRequest()
+      const opened = await openInChrome(authUrl)
+
       console.log(
         opened
           ? "Opened auth URL in Google Chrome."
-          : "Chrome not found; copy/paste this URL manually:\n" +
-              url.toString(),
+          : "Chrome not found; copy/paste this URL manually:\n" + authUrl,
       )
     } catch (error) {
       console.error(
