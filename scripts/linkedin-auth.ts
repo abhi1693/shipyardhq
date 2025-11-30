@@ -70,7 +70,9 @@ async function main() {
     const clientId = process.env.LINKEDIN_CLIENT_ID
     const clientSecret = process.env.LINKEDIN_CLIENT_SECRET
     if (!clientId || !clientSecret) {
-      console.error("Missing LINKEDIN_CLIENT_ID or LINKEDIN_CLIENT_SECRET in env.")
+      console.error(
+        "Missing LINKEDIN_CLIENT_ID or LINKEDIN_CLIENT_SECRET in env.",
+      )
       process.exit(1)
     }
     const redirectUri = buildLinkedInRedirectUri()
@@ -81,7 +83,8 @@ async function main() {
       console.log(
         opened
           ? "Opened auth URL in Google Chrome."
-          : "Chrome not found; copy/paste this URL manually:\n" + url.toString(),
+          : "Chrome not found; copy/paste this URL manually:\n" +
+              url.toString(),
       )
     } catch (error) {
       console.error(
@@ -115,7 +118,10 @@ async function main() {
         redirectUri,
         state,
       })
-      console.log("Access token stored in Redis. Expires in (s):", result.expiresIn)
+      console.log(
+        "Access token stored in Redis. Expires in (s):",
+        result.expiresIn,
+      )
     } catch (error) {
       console.error(
         "Failed to exchange code:",

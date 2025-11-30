@@ -5,9 +5,7 @@ import {
   extractTwitterHandle,
 } from "./twitterMessages"
 
-export function extractLinkedInHandle(
-  value?: string | null,
-): string | null {
+export function extractLinkedInHandle(value?: string | null): string | null {
   return extractTwitterHandle(value)
 }
 

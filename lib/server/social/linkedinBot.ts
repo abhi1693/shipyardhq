@@ -92,10 +92,7 @@ async function handleProductPublished(productId: string) {
       releaseThrottle(key)
     }
   } catch (error) {
-    console.error(
-      "[linkedin] failed to handle product.published event",
-      error,
-    )
+    console.error("[linkedin] failed to handle product.published event", error)
     releaseThrottle(`launch:${productId}`)
   }
 }

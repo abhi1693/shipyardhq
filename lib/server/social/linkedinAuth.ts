@@ -45,7 +45,9 @@ function generateStateToken(): string {
 export async function createLinkedInStateToken(): Promise<string> {
   const signingKey = getStateSigningKey()
   if (!signingKey) {
-    throw new Error("Missing LINKEDIN_STATE_SECRET or LINKEDIN_CLIENT_SECRET for state signing")
+    throw new Error(
+      "Missing LINKEDIN_STATE_SECRET or LINKEDIN_CLIENT_SECRET for state signing",
+    )
   }
 
   const nonce = generateStateToken()
@@ -249,11 +251,14 @@ export async function exchangeLinkedInAuthCode(params: {
     client_secret: clientSecret,
   })
 
-  const response = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: payload,
-  })
+  const response = await fetch(
+    "https://www.linkedin.com/oauth/v2/accessToken",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: payload,
+    },
+  )
 
   const json = await response.json().catch(() => null)
   const parsed = parseTokenResponse(json)

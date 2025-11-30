@@ -1,7 +1,4 @@
-import {
-  getLinkedInAccessToken,
-  resolveOrganizationUrn,
-} from "./linkedinAuth"
+import { getLinkedInAccessToken, resolveOrganizationUrn } from "./linkedinAuth"
 
 function parseBoolean(value: string | undefined): boolean {
   if (!value) return false
