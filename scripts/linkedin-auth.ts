@@ -145,7 +145,15 @@ async function main() {
       process.exit(1)
     }
 
-    const url = new URL(arg)
+    let url: URL
+    try {
+      url = new URL(arg)
+    } catch (error) {
+      console.error(
+        "Malformed URL provided. Please paste the full redirect URL containing code and state.",
+      )
+      process.exit(1)
+    }
     const code = url.searchParams.get("code")
     const state = url.searchParams.get("state")
     const redirectUri = buildLinkedInRedirectUri()
