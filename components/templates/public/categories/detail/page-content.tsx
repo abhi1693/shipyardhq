@@ -20,9 +20,7 @@ import {
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
 import { getCategoryDetailPayload } from "@/lib/categories/page-cache"
-import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
-import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
-import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
+import { CategoryFeedClient } from "@/components/templates/public/categories/detail/CategoryFeedClient"
 import {
   HERO_PRIMARY_BUTTON_CLASSES,
   HERO_SECONDARY_BUTTON_CLASSES,
@@ -40,25 +38,9 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
     notFound()
   }
 
-  const { category } = data
-
-  const homepageFeedItems = await getHomepageFeedViewAll({
-    view: DEFAULT_HOMEPAGE_FEED_VIEW,
-  })
-
-  const categorySlug = category.slug?.toLowerCase()
-  const categoryName = category.name?.toLowerCase()
-  const categoryFeedItems = homepageFeedItems.filter((item) => {
-    if (item.isSponsored) return true
-    const itemSlug = item.categorySlug?.toLowerCase()
-    if (itemSlug && categorySlug && itemSlug === categorySlug) {
-      return true
-    }
-    const itemCategory = item.category?.toLowerCase()
-    return Boolean(
-      itemCategory && categoryName && itemCategory === categoryName,
-    )
-  })
+  const { category, productsPage } = data
+  const initialPage = productsPage.nextPage ?? productsPage.page + 1
+  const categorySlug = category.slug ?? slug
 
   return (
     <main className="relative isolate bg-[#f5f7fb]">
@@ -109,10 +91,12 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
             <StickyBanner className="mx-auto w-full rounded-2xl" />
 
             <section className="space-y-6" data-testid="category-feed-section">
-              <ProductFeedList
-                activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
-                items={categoryFeedItems}
-                showRemaining
+              <CategoryFeedClient
+                slug={categorySlug}
+                initialProducts={productsPage.products}
+                initialPage={initialPage}
+                pageSize={productsPage.pageSize}
+                initialHasMore={productsPage.hasMore}
               />
             </section>
           </>

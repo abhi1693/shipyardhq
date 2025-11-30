@@ -1,83 +1,112 @@
+import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   getCategoriesWithCounts,
   getCategoryWithProducts,
 } from "@/actions/public/categories/actions"
 import { getFeaturedByCategorySlug } from "@/actions/public/products/featured"
-import { productHasFeature } from "@/lib/features"
+import { PRIORITY_FEATURE_KEY } from "@/lib/products/selects"
 import type { FeaturedProduct } from "@/types"
 
-type CategoryFull = NonNullable<
+type CategoryPageResult = NonNullable<
   Awaited<ReturnType<typeof getCategoryWithProducts>>
 >
 
-type CategoryProduct = CategoryFull["products"][number]
-
-export type CategoryDetailPayload = {
-  category: CategoryFull["category"]
-  products: Array<
-    CategoryProduct & {
-      priority: boolean
-      badges: string[]
-    }
-  >
-  featured: FeaturedProduct[]
-  metrics: {
-    totalProducts: number
-    totalFeatured: number
-    totalPriority: number
-    totalUpvotes: number
-    averageUpvotes: number
-    latestLaunchName: string | null
-    latestLaunchDate: string | null
-  }
+type CategoryProductsPage = {
+  products: CategoryPageResult["products"]
+  total: number
+  page: number
+  pageSize: number
+  hasMore: boolean
+  nextPage: number | null
 }
 
-const serializeBadges = (product: CategoryProduct): string[] =>
-  product.ProductBadge?.filter(
-    (badge: CategoryProduct["ProductBadge"][number]) =>
-      !badge.expiresAt || new Date(badge.expiresAt) > new Date(),
-  ).map((badge: CategoryProduct["ProductBadge"][number]) => badge.badge) ?? []
+type CategoryMetrics = {
+  totalProducts: number
+  totalFeatured: number
+  totalPriority: number
+  totalUpvotes: number
+  averageUpvotes: number
+  latestLaunchName: string | null
+  latestLaunchDate: string | null
+}
 
-const serializeProduct = (product: CategoryProduct) => ({
-  ...product,
-  priority: productHasFeature(product, "priorityPlacement"),
-  badges: serializeBadges(product),
-})
+export type CategoryDetailPayload = {
+  category: CategoryPageResult["category"]
+  productsPage: CategoryProductsPage
+  featured: FeaturedProduct[]
+  metrics: CategoryMetrics
+}
 
-const computeMetrics = (
-  products: ReturnType<typeof serializeProduct>[],
+const formatLatestLaunchDate = (value?: string) => {
+  if (!value) return null
+  const createdAt = new Date(value)
+  if (Number.isNaN(createdAt.getTime())) return null
+
+  return createdAt.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
+}
+
+const buildCategoryMetrics = async (
+  slug: string,
+  page: CategoryPageResult,
   featuredCount: number,
-) => {
-  const totalProducts = products.length
-  const totalFeatured = featuredCount
-  const totalPriority = products.filter((product) => product.priority).length
-  const totalUpvotes = products.reduce(
-    (sum, product) => sum + (product.analytics?.upvotes ?? 0),
-    0,
-  )
+): Promise<CategoryMetrics> => {
+  const totalProducts = page.total
+  const latestLaunch = page.products.at(0)
+  const latestLaunchDate = formatLatestLaunchDate(latestLaunch?.createdAt)
+
+  if (!totalProducts) {
+    return {
+      totalProducts: 0,
+      totalFeatured: featuredCount,
+      totalPriority: 0,
+      totalUpvotes: 0,
+      averageUpvotes: 0,
+      latestLaunchName: latestLaunch?.name ?? null,
+      latestLaunchDate,
+    }
+  }
+
+  const [priorityCount, upvotes] = await Promise.all([
+    prisma.product.count({
+      where: {
+        status: "published",
+        category: { slug },
+        plan: {
+          is: {
+            assignments: {
+              some: {
+                enabled: true,
+                feature: { key: PRIORITY_FEATURE_KEY },
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.productAnalytics.aggregate({
+      _sum: { upvotes: true },
+      where: {
+        product: {
+          status: "published",
+          category: { slug },
+        },
+      },
+    }),
+  ])
+
+  const totalUpvotes = Number(upvotes._sum?.upvotes ?? 0)
   const averageUpvotes =
     totalProducts > 0 ? Math.round(totalUpvotes / totalProducts) : 0
 
-  const latestLaunch = [...products]
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    )
-    .at(0)
-
-  const latestLaunchDate = latestLaunch
-    ? new Date(latestLaunch.createdAt).toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-    : null
-
   return {
     totalProducts,
-    totalFeatured,
-    totalPriority,
+    totalFeatured: featuredCount,
+    totalPriority: priorityCount,
     totalUpvotes,
     averageUpvotes,
     latestLaunchName: latestLaunch?.name ?? null,
@@ -96,13 +125,24 @@ export const getCategoryDetailPayload = cached(
       return null
     }
 
-    const serializedProducts = categoryData.products.map(serializeProduct)
+    const metrics = await buildCategoryMetrics(
+      slug,
+      categoryData,
+      featured.length,
+    )
 
     return {
       category: categoryData.category,
-      products: serializedProducts,
+      productsPage: {
+        products: categoryData.products,
+        total: categoryData.total,
+        page: categoryData.page,
+        pageSize: categoryData.pageSize,
+        hasMore: categoryData.hasMore,
+        nextPage: categoryData.nextPage,
+      },
       featured,
-      metrics: computeMetrics(serializedProducts, featured.length),
+      metrics,
     }
   },
   "category:detail:payload",
