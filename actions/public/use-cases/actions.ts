@@ -64,6 +64,26 @@ type UseCaseWithProducts = {
   productCount: number
 }
 
+const getPublishedProductCountsByUseCase = async () => {
+  const counts = await prisma.$queryRaw<
+    { useCaseId: string; productCount: number }[]
+  >(Prisma.sql`
+    SELECT uc."useCaseId" AS "useCaseId",
+           COUNT(*)::int AS "productCount"
+    FROM "Product" p
+    JOIN "UseCaseCategory" uc ON uc."categoryId" = p."categoryId"
+    WHERE p."status" = ${"published"}
+    GROUP BY uc."useCaseId"
+  `)
+
+  return new Map(
+    counts.map(
+      ({ useCaseId, productCount }: { useCaseId: string; productCount: number }) =>
+        [useCaseId, productCount],
+    ),
+  )
+}
+
 export const getPublicUseCasesWithCounts = cached(
   async (): Promise<UseCaseSummary[]> => {
     const useCases = await prisma.useCase.findMany({
@@ -78,29 +98,14 @@ export const getPublicUseCasesWithCounts = cached(
 
     if (useCases.length === 0) return []
 
-    type UseCaseSummary = (typeof useCases)[number]
-    const results = await Promise.all(
-      useCases.map(async (useCase: UseCaseSummary) => {
-        const productCount = await prisma.product.count({
-          where: {
-            status: "published",
-            category: {
-              useCases: {
-                some: { useCaseId: useCase.id },
-              },
-            },
-          },
-        })
-
-        return {
-          id: useCase.id,
-          slug: useCase.slug,
-          label: useCase.label,
-          updatedAt: useCase.updatedAt,
-          productCount,
-        }
-      }),
-    )
+    const productCountsByUseCase = await getPublishedProductCountsByUseCase()
+    const results = useCases.map((useCase: UseCaseSummary) => ({
+      id: useCase.id,
+      slug: useCase.slug,
+      label: useCase.label,
+      updatedAt: useCase.updatedAt,
+      productCount: productCountsByUseCase.get(useCase.id) ?? 0,
+    }))
 
     return results
   },
@@ -126,16 +131,8 @@ export const getPublicUseCaseMeta = cached(
 
     if (!useCase) return null
 
-    const productCount = await prisma.product.count({
-      where: {
-        status: "published",
-        category: {
-          useCases: {
-            some: { useCaseId: useCase.id },
-          },
-        },
-      },
-    })
+    const productCountsByUseCase = await getPublishedProductCountsByUseCase()
+    const productCount = productCountsByUseCase.get(useCase.id) ?? 0
 
     return { ...useCase, productCount }
   },
