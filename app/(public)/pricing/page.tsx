@@ -70,7 +70,7 @@ export default function PricingPage() {
         <section className="py-14">
           <div className="mx-auto max-w-[76rem] px-4 md:px-8">
             <div className="space-y-6 text-center">
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-1)] shadow-sm">
+              <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/90 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-1)] shadow-sm">
                 Pricing
               </span>
               <div className="space-y-4 text-balance">
@@ -90,7 +90,7 @@ export default function PricingPage() {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="min-w-[12rem] border-border bg-white text-foreground shadow-sm"
+                  className="min-w-[12rem] bg-white text-foreground shadow-sm"
                 >
                   <Link href={REWARDS_PATH}>Explore rewards</Link>
                 </Button>
@@ -100,7 +100,7 @@ export default function PricingPage() {
               {HERO_POINTS.map((point) => (
                 <div
                   key={point.title}
-                  className="flex gap-3 rounded-2xl border border-border/80 bg-white p-4 shadow-[0_18px_42px_-32px_rgba(15,23,42,0.32)]"
+                  className="flex gap-3 rounded-2xl bg-white p-4 shadow-[0_18px_42px_-32px_rgba(15,23,42,0.32)]"
                 >
                   <span className="mt-1 inline-flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--brand-1)/0.08] text-[color:var(--brand-1)]">
                     <CheckCircle2 className="h-5 w-5" />

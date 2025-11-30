@@ -54,9 +54,9 @@ export function SubscriptionPlanCard({ plan }: { plan: PublicPlan }) {
   )
 
   return (
-    <article className="flex h-full flex-col gap-5 rounded-2xl border border-[color:var(--brand-1)/0.22] bg-background/90 p-6 shadow-[0_22px_60px_-45px_rgba(7,58,104,0.6)] backdrop-blur">
+    <article className="flex h-full flex-col gap-5 rounded-2xl bg-white p-6 shadow-[0_22px_60px_-45px_rgba(15,23,42,0.45)]">
       <header className="space-y-2">
-        <span className="inline-flex items-center rounded-full border border-[color:var(--brand-1)/0.28] bg-[color:var(--brand-1)/0.1] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
+        <span className="inline-flex items-center rounded-full bg-[color:var(--brand-1)/0.12] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
           Subscription
         </span>
         <div className="space-y-1">
@@ -99,9 +99,9 @@ export function SubscriptionPlanCard({ plan }: { plan: PublicPlan }) {
             {prioritizedFeatures.map((feature) => (
               <li
                 key={feature.id}
-                className="flex items-start gap-3 rounded-xl border border-[color:var(--brand-1)/0.12] bg-background/70 px-3 py-2"
+                className="flex items-start gap-3 rounded-xl bg-background/70 px-3 py-2"
               >
-                <span className="mt-0.5 inline-flex h-6 w-6 flex-none items-center justify-center rounded-full border border-[color:var(--brand-1)/0.3] bg-[color:var(--brand-1)/0.1] text-[color:var(--brand-1)]">
+                <span className="mt-0.5 inline-flex h-6 w-6 flex-none items-center justify-center rounded-full bg-[color:var(--brand-1)/0.1] text-[color:var(--brand-1)]">
                   <IconCheck className="h-3.5 w-3.5" aria-hidden />
                 </span>
                 <div className="space-y-0.5 leading-tight">
@@ -116,7 +116,7 @@ export function SubscriptionPlanCard({ plan }: { plan: PublicPlan }) {
             ))}
           </ul>
         ) : (
-          <p className="rounded-xl border border-dashed border-[color:var(--brand-1)/0.16] bg-background/60 px-3 py-3 text-sm text-muted-foreground">
+          <p className="rounded-xl bg-background/60 px-3 py-3 text-sm text-muted-foreground">
             Reach out to our team for the full subscription lineup.
           </p>
         )}

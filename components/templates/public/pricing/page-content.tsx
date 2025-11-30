@@ -63,10 +63,7 @@ export async function PricingPlansList({
 }: { disableSectionWrapper?: boolean } = {}) {
   const plans = await getPublicPlans({ type: PlanType.one_time_price })
   return (
-    <PricingTable
-      plans={plans}
-      disableSectionWrapper={disableSectionWrapper}
-    />
+    <PricingTable plans={plans} disableSectionWrapper={disableSectionWrapper} />
   )
 }
 
@@ -115,11 +112,7 @@ export function PricingPlansSkeleton({
   )
 
   if (!withSectionWrapper) {
-    return (
-      <div className="mx-auto max-w-6xl px-4 py-2">
-        {grid}
-      </div>
-    )
+    return <div className="mx-auto max-w-6xl px-4 py-2">{grid}</div>
   }
 
   return (

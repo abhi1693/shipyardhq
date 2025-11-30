@@ -80,9 +80,8 @@ export function PricingCard({
   return (
     <Card
       className={clsx(
-        "flex h-full min-h-[34rem] flex-col overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.18] bg-background/95 shadow-[0px_22px_55px_-38px_rgba(7,58,104,0.6)] transition-transform duration-200 ease-out",
-        isPopular &&
-          "border-[color:var(--brand-2)/0.45] shadow-[0px_28px_65px_-30px_rgba(7,78,134,0.45)]",
+        "flex h-full min-h-[34rem] flex-col overflow-hidden rounded-2xl border-none bg-white shadow-[0px_22px_55px_-38px_rgba(15,23,42,0.45)] transition-transform duration-200 ease-out",
+        isPopular && "shadow-[0px_28px_70px_-34px_rgba(15,23,42,0.48)]",
       )}
     >
       <CardHeader className="space-y-6">
@@ -124,12 +123,12 @@ export function PricingCard({
             </span>
           ) : null}
           {isFree && (
-            <span className="inline-flex w-fit items-center rounded-full border border-[color:var(--brand-1)/0.3] bg-[color:var(--brand-1)/0.12] px-2 py-0.5 text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
+            <span className="inline-flex w-fit items-center rounded-full bg-[color:var(--brand-1)/0.12] px-2 py-0.5 text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
               Starter
             </span>
           )}
           {boostLabel ? (
-            <div className="flex items-center gap-2 rounded-xl border border-[color:var(--brand-1)/0.25] bg-[color:var(--brand-1)/0.1] px-3 py-2 text-sm font-medium text-[color:var(--brand-1)]">
+            <div className="flex items-center gap-2 rounded-xl bg-[color:var(--brand-1)/0.06] px-3 py-2 text-sm font-medium text-[color:var(--brand-1)]">
               <IconBolt aria-hidden className="h-4 w-4" />
               <span className="leading-tight">{boostLabel}</span>
             </div>
