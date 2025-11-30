@@ -37,6 +37,10 @@ export async function registerEventHandlers(): Promise<void> {
       load: () => import("@/lib/server/social/twitterBot"),
     },
     {
+      path: "@/lib/server/social/linkedinBot",
+      load: () => import("@/lib/server/social/linkedinBot"),
+    },
+    {
       path: "@/lib/server/payments/listeners",
       load: () => import("@/lib/server/payments/listeners"),
     },

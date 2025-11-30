@@ -65,6 +65,14 @@ Questions or feedback? Email `support@shipyardhq.dev` or say hi on X: https://x.
 - Safety: Add `TWITTER_BOT_DRY_RUN=true` to log outbound tweets without publishing—handy for staging checks.
 - The bot respects a per-event cooldown, so the same product will not be tweeted repeatedly within a short window even if badges are reassigned.
 
+## LinkedIn Bot
+
+- Automation: Mirrors the Twitter bot for launches, featured/trending/editor's pick badges, and leaderboard wins. It is always on; add credentials to start posting.
+- Credentials: Supply `LINKEDIN_CLIENT_ID` and `LINKEDIN_CLIENT_SECRET` in `.env.local`. Optional: `LINKEDIN_REDIRECT_URI` (defaults to `/api/linkedin/oauth` on the app host). The org URN is auto-detected from the company page HTML at runtime.
+- Token bootstrap: Hit `/api/linkedin/oauth` to get the authorization URL; after approving, the handler exchanges the `code`, caches the access token in Redis (55-day TTL), and returns a simple JSON status. The bot automatically reads the cached token and resolves the org URN.
+- Safety: Add `LINKEDIN_BOT_DRY_RUN=true` to log outbound posts without publishing—useful for staging checks.
+- Cooldown: Shares reuse the same 6-hour per-event throttle to avoid duplicate announcements.
+
 ## Feature Gating
 
 - Organizations: Access to member Organizations is gated by the plan feature key `organization`. Entitlement is determined server-side: a user is entitled if they (a) own any product whose attached plan has the `organization` feature enabled, or (b) have purchased any plan that includes the `organization` feature. See `lib/memberFeatures.ts`.
