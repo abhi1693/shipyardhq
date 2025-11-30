@@ -204,7 +204,7 @@ function resolveMakerMeta(maker: MakerWithAvatar) {
       .map((segment) => segment.charAt(0).toUpperCase())
       .join("")
       .slice(0, 2) || "SY"
-  const launches = maker.products.length
+  const launches = maker._count.products
 
   return { name, initials, launches, avatarUrl: maker.avatarUrl }
 }

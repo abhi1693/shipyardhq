@@ -1,32 +1,20 @@
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
-import { getPublicUserProfile } from "@/actions/public/users/actions"
+import {
+  getPublicUserProfile,
+  getUserProductsPage,
+  type UserProductsPageResult,
+} from "@/actions/public/users/actions"
 import { getRewardsLeaderboardPositionForUser } from "@/actions/public/rewards/actions"
-import { format } from "date-fns"
-import { getUsdConversionRates } from "@/lib/server/payments/currency"
-import { resolveProductRevenue } from "@/lib/products/revenue"
-import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
+import prisma from "@/lib/prisma"
+import { Prisma } from "@/lib/vendor/prisma/client"
+import {
+  convertToUsdCents,
+  getUsdConversionRates,
+} from "@/lib/server/payments/currency"
 
 type PublicUserProfile = NonNullable<
   Awaited<ReturnType<typeof getPublicUserProfile>>
 >
-
-type DirectoryProductItem = {
-  id: string
-  slug: string
-  name: string
-  logo: string
-  tagline: string
-  analytics: PublicUserProfile["products"][number]["analytics"] | null
-  category?: { name?: string | null }
-  verification?: PublicUserProfile["products"][number]["verification"] | null
-  badges: string[]
-  metaLabel?: string
-  launchedAt: string | null
-  isVerified: boolean
-  latestRevenueCents: number | null
-  revenueCurrencyCode: string | null
-  scoreCount?: number
-}
 
 type BadgeSummary = {
   showcase: string[]
@@ -43,19 +31,20 @@ export type UserProfilePayload = {
   leaderboardPosition: Awaited<
     ReturnType<typeof getRewardsLeaderboardPositionForUser>
   >
-  products: DirectoryProductItem[]
+  productsPage: UserProductsPageResult
   totalProducts: number
   totalUpvotes: number
+  totalVerifiedRevenueCents: number
+  totalVerifiedRevenueCurrency: string | null
+  rewardPoints: number
   verifiedCount: number
   categories: CategoryEntry[]
   focusCategories: string[]
   extraCategoryCount: number
   badges: BadgeSummary
-  recentLaunches: DirectoryProductItem[]
   earliestLaunch: string | null
 }
 
-const RECENT_LIMIT = 5
 const BADGE_SHOWCASE_LIMIT = 6
 const FOCUS_CATEGORY_LIMIT = 4
 
@@ -66,134 +55,109 @@ export const getUserProfilePayload = cached(
       return null
     }
 
-    const leaderboardPosition = await getRewardsLeaderboardPositionForUser(
-      profile.id,
-    )
-
-    const now = new Date()
-    let totalUpvotes = 0
-    let verifiedCount = 0
-
-    const categoryCounts = new Map<string, number>()
-    const seenBadges = new Set<string>()
-    const badgeShowcase: string[] = []
-    let badgeOverflow = 0
-
-    const recentLaunchCandidates: Array<{
-      time: number
-      item: DirectoryProductItem
-    }> = []
-    const insertRecentLaunch = (item: DirectoryProductItem, time: number) => {
-      let index = 0
-      while (
-        index < recentLaunchCandidates.length &&
-        recentLaunchCandidates[index].time >= time
-      ) {
-        index += 1
-      }
-      recentLaunchCandidates.splice(index, 0, { time, item })
-      if (recentLaunchCandidates.length > RECENT_LIMIT) {
-        recentLaunchCandidates.pop()
-      }
+    const publishedProductWhere: Prisma.ProductWhereInput = {
+      userId: profile.id,
+      status: "published",
     }
 
-    const products: DirectoryProductItem[] = []
-    let earliestLaunchISO: string | null = null
-    let earliestLaunchTime = Number.POSITIVE_INFINITY
+    const [
+      leaderboardPosition,
+      upvoteAggregate,
+      verifiedCount,
+      categoryCounts,
+      activeBadges,
+      earliestLaunchRow,
+      productsPage,
+      verifiedRevenueConnectors,
+      rewardBalance,
+    ] = await Promise.all([
+      getRewardsLeaderboardPositionForUser(profile.id),
+      prisma.productAnalytics.aggregate({
+        where: { product: { is: publishedProductWhere } },
+        _sum: { upvotes: true },
+      }),
+      prisma.product.count({
+        where: {
+          ...publishedProductWhere,
+          verification: { is: { isVerified: true } },
+        },
+      }),
+      prisma.category.findMany({
+        where: {
+          products: { some: publishedProductWhere },
+        },
+        select: {
+          name: true,
+          _count: {
+            select: {
+              products: {
+                where: publishedProductWhere,
+              },
+            },
+          },
+        },
+      }),
+      prisma.productBadge.findMany({
+        where: {
+          product: { is: publishedProductWhere },
+          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+        },
+        select: {
+          badge: true,
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.$queryRaw<{ earliest: Date | null }[]>`
+        SELECT MIN(COALESCE("publishedAt", "createdAt")) as "earliest"
+        FROM "Product"
+        WHERE "userId" = ${profile.id} AND "status" = 'published'
+      `,
+      getUserProductsPage({ userId: profile.id }),
+      prisma.paymentConnector.findMany({
+        where: {
+          product: {
+            userId: profile.id,
+            status: "published",
+          },
+          status: "active",
+          verifiedAt: { not: null },
+        },
+        select: {
+          latestAllTimeRevenueCents: true,
+          latestCurrencyCode: true,
+          revenueHistory: {
+            orderBy: { periodStart: "desc" },
+            take: 1,
+            select: {
+              allTimeRevenueCents: true,
+              currencyCode: true,
+            },
+          },
+        },
+      }),
+      prisma.rewardBalance.findUnique({
+        where: { userId: profile.id },
+        select: { balance: true },
+      }),
+    ])
 
-    const hasNonUsdRevenue = profile.products.some((product) => {
-      const currency =
-        product.paymentConnector?.latestCurrencyCode ??
-        product.paymentConnector?.revenueHistory?.[0]?.currencyCode
-      return currency && currency.toUpperCase() !== "USD"
-    })
-    const rates = hasNonUsdRevenue ? await getUsdConversionRates() : undefined
-    const scoreMap = await getCurrentScoreMap(
-      profile.products.map((product) => product.id),
+    const totalUpvotes = upvoteAggregate._sum.upvotes ?? 0
+    const totalProducts = Math.max(
+      profile._count?.products ?? 0,
+      productsPage.total ?? 0,
     )
 
-    for (const product of profile.products) {
-      const revenue = resolveProductRevenue(
-        product.paymentConnector,
-        rates
-          ? {
-              rates,
-              targetCurrency: "USD",
-            }
-          : {},
+    const categoryEntries = categoryCounts
+      .map((category: { name: string; _count: { products: number } }) => ({
+        name: category.name,
+        count: category._count.products,
+      }))
+      .sort(
+        (
+          a: { name: string; count: number },
+          b: { name: string; count: number },
+        ) => b.count - a.count,
       )
-      const upvotes = product.analytics?.upvotes ?? 0
-      totalUpvotes += upvotes
-
-      if (product.verification?.isVerified) {
-        verifiedCount += 1
-      }
-
-      const isVerified = Boolean(product.verification?.isVerified)
-
-      const categoryName = product.category?.name
-      if (categoryName) {
-        categoryCounts.set(
-          categoryName,
-          (categoryCounts.get(categoryName) ?? 0) + 1,
-        )
-      }
-
-      const activeBadges: string[] = []
-      for (const badge of product.ProductBadge ?? []) {
-        if (badge.expiresAt && new Date(badge.expiresAt) <= now) {
-          continue
-        }
-        const badgeName = badge.badge
-        if (!seenBadges.has(badgeName)) {
-          seenBadges.add(badgeName)
-          if (badgeShowcase.length < BADGE_SHOWCASE_LIMIT) {
-            badgeShowcase.push(badgeName)
-          } else {
-            badgeOverflow += 1
-          }
-        }
-        activeBadges.push(badgeName)
-      }
-
-      const launchedAtRaw = product.publishedAt ?? product.createdAt ?? null
-      const launchedAt = launchedAtRaw ? new Date(launchedAtRaw) : null
-      const launchTime = launchedAt ? launchedAt.getTime() : 0
-      if (launchTime <= earliestLaunchTime) {
-        earliestLaunchTime = launchTime
-        earliestLaunchISO = launchedAt ? launchedAt.toISOString() : null
-      }
-      const metaLabel = launchedAt
-        ? format(launchedAt, "MMM d, yyyy")
-        : undefined
-      const directoryItem: DirectoryProductItem = {
-        id: product.id,
-        slug: product.slug,
-        name: product.name,
-        logo: product.logo ?? "",
-        tagline: product.tagline ?? "",
-        analytics: product.analytics ?? null,
-        category: product.category
-          ? { name: product.category.name }
-          : undefined,
-        verification: product.verification ?? undefined,
-        badges: activeBadges,
-        metaLabel,
-        launchedAt: launchedAt?.toISOString() ?? null,
-        isVerified,
-        latestRevenueCents: revenue.latestRevenueCents,
-        revenueCurrencyCode: revenue.revenueCurrencyCode,
-        scoreCount: scoreMap.get(product.id) ?? undefined,
-      }
-
-      products.push(directoryItem)
-      insertRecentLaunch(directoryItem, launchTime)
-    }
-
-    const totalProducts = products.length
-    const categoryEntries = Array.from(categoryCounts.entries())
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
 
     const focusCategories: string[] = []
     for (const entry of categoryEntries) {
@@ -207,13 +171,95 @@ export const getUserProfilePayload = cached(
       0,
     )
 
-    const recentLaunches = recentLaunchCandidates.map(({ item }) => item)
+    const badgeShowcase: string[] = []
+    let badgeOverflow = 0
+    const seenBadges = new Set<string>()
+    for (const badge of activeBadges) {
+      if (seenBadges.has(badge.badge)) {
+        continue
+      }
+      seenBadges.add(badge.badge)
+      if (badgeShowcase.length < BADGE_SHOWCASE_LIMIT) {
+        badgeShowcase.push(badge.badge)
+      } else {
+        badgeOverflow += 1
+      }
+    }
+
+    const earliestLaunchValue = earliestLaunchRow[0]?.earliest ?? null
+    const earliestLaunch = earliestLaunchValue
+      ? new Date(earliestLaunchValue).toISOString()
+      : null
+
+    const needsRates = verifiedRevenueConnectors.some(
+      (connector: {
+        latestCurrencyCode?: string | null
+        revenueHistory?: Array<{ currencyCode?: string | null }> | null
+      }) => {
+        const code =
+          connector.latestCurrencyCode ??
+          connector.revenueHistory?.[0]?.currencyCode ??
+          "USD"
+        return code && code.toUpperCase() !== "USD"
+      },
+    )
+    const rates = needsRates
+      ? await getUsdConversionRates()
+      : new Map<string, number>([["USD", 1]])
+
+    let totalVerifiedRevenueCents = 0
+    for (const connector of verifiedRevenueConnectors as Array<{
+      latestAllTimeRevenueCents?: number | null
+      latestCurrencyCode?: string | null
+      revenueHistory?: Array<{
+        allTimeRevenueCents?: number | null
+        currencyCode?: string | null
+      }> | null
+    }>) {
+      const snapshot = connector.revenueHistory?.[0]
+      const amount =
+        typeof connector.latestAllTimeRevenueCents === "number"
+          ? connector.latestAllTimeRevenueCents
+          : typeof snapshot?.allTimeRevenueCents === "number"
+            ? snapshot.allTimeRevenueCents
+            : null
+
+      if (amount === null) continue
+
+      const currency =
+        connector.latestCurrencyCode ?? snapshot?.currencyCode ?? "USD"
+      const currencyCode = currency?.toUpperCase?.() ?? "USD"
+
+      if (currencyCode === "USD") {
+        totalVerifiedRevenueCents += amount
+        continue
+      }
+
+      const { usdCents, rateUsed } = convertToUsdCents(
+        amount,
+        currencyCode,
+        rates,
+      )
+
+      if (rateUsed === null) {
+        continue
+      }
+
+      totalVerifiedRevenueCents += usdCents
+    }
+
+    const totalVerifiedRevenueCurrency =
+      totalVerifiedRevenueCents > 0 ? "USD" : null
+
     return {
       profile,
       leaderboardPosition,
-      products,
+      productsPage,
       totalProducts,
       totalUpvotes,
+      totalVerifiedRevenueCents,
+      totalVerifiedRevenueCurrency,
+      rewardPoints: rewardBalance?.balance ?? 0,
       verifiedCount,
       categories: categoryEntries,
       focusCategories,
@@ -222,8 +268,7 @@ export const getUserProfilePayload = cached(
         showcase: badgeShowcase,
         overflow: badgeOverflow,
       },
-      recentLaunches,
-      earliestLaunch: earliestLaunchISO,
+      earliestLaunch,
     }
   },
   "users:profile:payload",

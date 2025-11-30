@@ -1,25 +1,31 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 import { format } from "date-fns"
 
 import CopyButton from "@/components/molecules/CopyButton"
 import ShareProfileButton from "@/components/molecules/ShareProfileButton"
-import { EmptyState } from "@/components/molecules/empty-state"
-import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
-import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
-import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
-import { Badge } from "@/components/atoms/badge"
-import { Rocket } from "lucide-react"
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
+import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+import { StickyBanner } from "@/components/organisms/StickyBanner"
 import {
-  BROWSE_PATH,
-  LEADERBOARD_PATH,
-  LEADERBOARD_REWARDS_PATH,
-  MEMBER_PRODUCTS_PATH,
-  productPath,
-  userPath,
-} from "@/lib/routes"
+  TrafficSidebarStats,
+  TrafficSidebarStatsSkeleton,
+} from "@/components/templates/public/common/TrafficSidebarStats"
+import {
+  SponsoredProductsSection,
+  SponsoredProductsSkeleton,
+} from "@/components/templates/public/homepage/sponsored-products"
+import {
+  ProductUpdatesSection,
+  ProductUpdatesSkeleton,
+} from "@/components/templates/public/homepage/product-updates"
+import { UserFeedClient } from "@/components/templates/public/users/detail/UserFeedClient"
+import {
+  HERO_PRIMARY_BUTTON_CLASSES,
+  HERO_SECONDARY_BUTTON_CLASSES,
+} from "@/components/templates/public/categories/hero-button-classes"
+import { LEADERBOARD_REWARDS_PATH, userPath } from "@/lib/routes"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { getUserProfilePayload } from "@/lib/users/page-cache"
 
@@ -36,15 +42,16 @@ export async function UserProfilePageContent({ params }: PageProps) {
   const {
     profile,
     leaderboardPosition,
-    products,
+    productsPage,
     totalProducts,
     totalUpvotes,
-    verifiedCount,
+    totalVerifiedRevenueCents,
+    totalVerifiedRevenueCurrency,
+    rewardPoints,
     categories,
     focusCategories,
     extraCategoryCount,
     badges,
-    recentLaunches,
     earliestLaunch,
   } = payload
 
@@ -71,21 +78,20 @@ export async function UserProfilePageContent({ params }: PageProps) {
     }
   }
 
-  const directoryItems = products.map((product) => ({
-    ...product,
-    launchedAt: product.launchedAt ? new Date(product.launchedAt) : null,
-  }))
+  const profilePath = userPath(profile.id)
 
-  const recentLaunchItems = recentLaunches.map((product) => ({
-    ...product,
-    launchedAt: product.launchedAt ? new Date(product.launchedAt) : null,
-  }))
+  const verifiedRevenueDisplay = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: totalVerifiedRevenueCurrency ?? "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format((totalVerifiedRevenueCents ?? 0) / 100)
 
-  const stats = [
+  const stats: Array<{ label: string; value?: number; display?: string }> = [
     { label: "Published launches", value: totalProducts },
     { label: "Community upvotes", value: totalUpvotes },
-    { label: "Verified wins", value: verifiedCount },
-    { label: "Focus areas", value: categories.length },
+    { label: "Verified revenue", display: verifiedRevenueDisplay },
+    { label: "Reward points", value: rewardPoints },
   ]
   const statFormatter = new Intl.NumberFormat("en-US", {
     notation: "compact",
@@ -130,103 +136,82 @@ export async function UserProfilePageContent({ params }: PageProps) {
       .join("")
       .slice(0, 2) || "SY"
 
-  const profilePath = userPath(profile.id)
+  const initialFeedPage = productsPage.nextPage ?? productsPage.page + 1
 
   return (
-    <main className="relative isolate bg-white">
-      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-14 md:px-8">
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
-          <div className="flex flex-col gap-10">
-            <section className="relative overflow-hidden rounded-3xl border border-border bg-white p-6 shadow-sm md:p-10">
-              <div className="flex flex-col gap-8">
-                <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-                  <div className="flex items-start gap-5 md:items-center">
-                    <Avatar className="h-16 w-16 shrink-0 rounded-3xl bg-muted shadow-sm md:h-20 md:w-20">
-                      {avatarUrl ? (
-                        <AvatarImage
-                          src={avatarUrl}
-                          alt={fullName}
-                          width={80}
-                          height={80}
-                          className="object-cover"
-                        />
-                      ) : null}
-                      <AvatarFallback className="flex h-full w-full items-center justify-center rounded-[inherit] bg-muted text-2xl font-semibold text-muted-foreground md:text-3xl">
-                        {initials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="space-y-3 md:pt-1">
-                      <h1 className="bg-[linear-gradient(95deg,var(--brand-1),var(--brand-2),var(--brand-3))] bg-clip-text text-3xl font-semibold leading-tight text-transparent sm:text-4xl md:text-5xl">
-                        {fullName}
-                      </h1>
-                      <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
-                        {profileSummary}
-                      </p>
-                      <Link
-                        href={LEADERBOARD_REWARDS_PATH}
-                        className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--brand-1)] hover:underline"
-                        title={leaderboardTitle}
-                      >
-                        {leaderboardPosition
-                          ? `Ranked #${leaderboardPosition.rank.toLocaleString(
-                              "en-US",
-                            )} on the User Leaderboard`
-                          : "View the User Leaderboard"}
-                      </Link>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <CopyButton
-                      text={profilePath}
-                      resolveAbsolute
-                      size="sm"
-                      variant="outline"
-                      className="border-border bg-white text-muted-foreground"
-                    >
-                      Copy profile link
-                    </CopyButton>
-                    <ShareProfileButton
-                      path={profilePath}
-                      fullName={fullName}
-                      productCount={totalProducts}
-                      className="border-border bg-white text-muted-foreground"
+    <main className="relative isolate bg-[#f5f7fb]">
+      <PublicTwoColumnLayout
+        className="pb-24 pt-12"
+        mainClassName="gap-10"
+        sidebarClassName="lg:sticky lg:top-24"
+        main={
+          <>
+            <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
+              <div className="mx-auto flex max-w-4xl flex-col items-center gap-6">
+                <Avatar className="h-20 w-20 rounded-[1.5rem] bg-muted shadow-sm">
+                  {avatarUrl ? (
+                    <AvatarImage
+                      src={avatarUrl}
+                      alt={fullName}
+                      width={80}
+                      height={80}
+                      className="object-cover"
                     />
-                  </div>
+                  ) : null}
+                  <AvatarFallback className="flex h-full w-full items-center justify-center rounded-[inherit] bg-muted text-3xl font-semibold text-muted-foreground">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+
+                <div className="space-y-4">
+                  <h1 className="bg-[linear-gradient(95deg,var(--brand-1),var(--brand-2),var(--brand-3))] bg-clip-text text-4xl font-semibold leading-tight text-transparent sm:text-5xl">
+                    {fullName}
+                  </h1>
+                  <p className="mx-auto max-w-2xl text-base text-muted-foreground">
+                    {profileSummary}
+                  </p>
+                  <Link
+                    href={LEADERBOARD_REWARDS_PATH}
+                    className="inline-flex items-center justify-center gap-1 text-sm font-semibold text-[color:var(--brand-1)] hover:underline"
+                    title={leaderboardTitle}
+                  >
+                    {leaderboardPosition
+                      ? `Ranked #${leaderboardPosition.rank.toLocaleString(
+                          "en-US",
+                        )} on the User Leaderboard`
+                      : "View the User Leaderboard"}
+                  </Link>
                 </div>
 
-                {focusCategories.length ? (
-                  <div className="flex flex-wrap items-center gap-2">
-                    {focusCategories.map((category) => (
-                      <Badge
-                        key={category}
-                        variant="outline"
-                        className="rounded-full border-border bg-white px-3 py-1 text-[11px] font-medium uppercase tracking-[0.26em] text-muted-foreground"
-                      >
-                        {category}
-                      </Badge>
-                    ))}
-                    {extraCategoryCount > 0 ? (
-                      <Badge
-                        variant="outline"
-                        className="rounded-full border-border bg-white px-3 py-1 text-[11px] font-medium uppercase tracking-[0.26em] text-muted-foreground"
-                      >
-                        +{extraCategoryCount} more
-                      </Badge>
-                    ) : null}
-                  </div>
-                ) : null}
+                <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
+                  <ShareProfileButton
+                    path={profilePath}
+                    fullName={fullName}
+                    productCount={totalProducts}
+                    className={HERO_PRIMARY_BUTTON_CLASSES}
+                  />
+                  <CopyButton
+                    text={profilePath}
+                    resolveAbsolute
+                    size="sm"
+                    variant="outline"
+                    className={HERO_SECONDARY_BUTTON_CLASSES}
+                  >
+                    Copy profile link
+                  </CopyButton>
+                </div>
 
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {stats.map((stat) => (
                     <div
                       key={stat.label}
-                      className="rounded-2xl border border-border bg-white px-5 py-6 shadow-sm"
+                      className="rounded-2xl border border-border/70 bg-background/90 px-5 py-6 text-left shadow-sm shadow-black/5"
                     >
                       <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
                         {stat.label}
                       </p>
                       <p className="mt-3 text-3xl font-semibold leading-tight text-foreground">
-                        {statFormatter.format(stat.value)}
+                        {stat.display ?? statFormatter.format(stat.value ?? 0)}
                       </p>
                     </div>
                   ))}
@@ -234,153 +219,33 @@ export async function UserProfilePageContent({ params }: PageProps) {
               </div>
             </section>
 
-            <section className="rounded-3xl border border-border/80 bg-background/88 p-6 shadow-sm shadow-black/5 md:p-8">
-              <DirectorySectionHeader
-                kicker="Launch roster"
-                title="Published products"
-                description={
-                  totalProducts
-                    ? `Showing ${totalProducts.toLocaleString()} launch${
-                        totalProducts === 1 ? "" : "es"
-                      } from ${fullName}.`
-                    : `${fullName} hasn’t published any launches yet.`
-                }
+            <StickyBanner className="mx-auto w-full rounded-2xl" />
+
+            <section className="space-y-6" data-testid="user-feed-section">
+              <UserFeedClient
+                userId={profile.id}
+                initialItems={productsPage.items}
+                initialPage={initialFeedPage}
+                pageSize={productsPage.pageSize}
+                initialHasMore={productsPage.hasMore}
               />
-
-              {totalProducts ? (
-                <div className="mt-8">
-                  <DirectoryProductList
-                    items={directoryItems}
-                    columns="grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
-                    metaConfig={{
-                      type: "badge",
-                      badgeClassName:
-                        "border-border/60 bg-muted/60 text-muted-foreground",
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="mt-10">
-                  <EmptyState
-                    title="No published products"
-                    description="This maker hasn’t shipped a product yet. Check back soon."
-                  />
-                </div>
-              )}
             </section>
+          </>
+        }
+        sidebar={
+          <div className="flex flex-col gap-8">
+            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
+              <TrafficSidebarStats />
+            </Suspense>
+            <Suspense fallback={<SponsoredProductsSkeleton />}>
+              <SponsoredProductsSection />
+            </Suspense>
+            <Suspense fallback={<ProductUpdatesSkeleton />}>
+              <ProductUpdatesSection />
+            </Suspense>
           </div>
-
-          <aside className="flex flex-col gap-8">
-            <section className="rounded-3xl border border-border/70 bg-background/90 p-6 shadow-sm shadow-black/5">
-              <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                Launch cadence
-              </h2>
-              {recentLaunchItems.length ? (
-                <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-                  {recentLaunchItems.map((launch) => (
-                    <li key={launch.id} className="flex justify-between gap-3">
-                      <Link
-                        href={productPath(launch.slug)}
-                        className="truncate font-medium text-foreground hover:text-foreground"
-                      >
-                        {launch.name}
-                      </Link>
-                      <span className="shrink-0 text-xs uppercase tracking-[0.28em] text-muted-foreground">
-                        {launch.launchedAt
-                          ? format(launch.launchedAt, "MMM d, yyyy")
-                          : "—"}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="mt-4 text-sm text-muted-foreground">
-                  No launches yet — follow this maker to see their first drop.
-                </p>
-              )}
-            </section>
-
-            <section className="rounded-3xl border border-border/70 bg-background/90 p-6 shadow-sm shadow-black/5">
-              <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                Focus categories
-              </h2>
-              {categories.length ? (
-                <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                  {categories.map(({ name, count }) => (
-                    <li key={name} className="flex justify-between gap-3">
-                      <span className="text-foreground">{name}</span>
-                      <span className="text-xs uppercase tracking-[0.28em]">
-                        {count}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="mt-4 text-sm text-muted-foreground">
-                  No categories recorded yet.
-                </p>
-              )}
-            </section>
-
-            <section className="rounded-3xl border border-border/70 bg-background/90 p-6 shadow-sm shadow-black/5">
-              <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                Badges earned
-              </h2>
-              {badges.showcase.length ? (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {badges.showcase.map((badge) => (
-                    <Badge
-                      key={badge}
-                      variant="outline"
-                      className="rounded-full border-border bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground"
-                    >
-                      {badge}
-                    </Badge>
-                  ))}
-                  {badges.overflow > 0 ? (
-                    <Badge
-                      variant="outline"
-                      className="rounded-full border-border/60 bg-background/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground"
-                    >
-                      +{badges.overflow} more
-                    </Badge>
-                  ) : null}
-                </div>
-              ) : (
-                <p className="mt-4 text-sm text-muted-foreground">
-                  No badges unlocked yet.
-                </p>
-              )}
-            </section>
-
-            <DirectoryPromoCard
-              eyebrow="Launch with Shipyard"
-              title="Ready to publish your own product?"
-              description="Join Shipyard to unlock sponsored placements, leaderboard visibility, and analytics that help your next launch go further."
-              cta={{
-                label: "Submit your launch",
-                href: MEMBER_PRODUCTS_PATH,
-                icon: <Rocket className="h-4 w-4" aria-hidden="true" />,
-              }}
-              subtleCta={{
-                label: "Browse the product directory",
-                href: BROWSE_PATH,
-              }}
-            />
-
-            <DirectoryPromoCard
-              eyebrow="Track the momentum"
-              title="Watch makers climb the leaderboard"
-              description="Head back to the live leaderboard to see which launches are earning upvotes right now across every category."
-              cta={{
-                label: "View the leaderboard",
-                href: LEADERBOARD_PATH,
-                variant: "ghost",
-              }}
-            />
-          </aside>
-        </div>
-      </div>
+        }
+      />
     </main>
   )
 }

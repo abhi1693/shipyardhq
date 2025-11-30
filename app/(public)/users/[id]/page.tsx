@@ -90,7 +90,9 @@ async function ProfileStructuredData({
     fullName,
     profilePath,
     avatarUrl,
-    products: payload.products.map((product) => ({ slug: product.slug })),
+    products: payload.productsPage.items.map((product) => ({
+      slug: product.slug,
+    })),
     breadcrumbs: baseBreadcrumbs,
   })
 
