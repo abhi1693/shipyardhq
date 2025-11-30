@@ -10,6 +10,11 @@ import {
   type ProductCardRecord,
 } from "@/lib/products/selects"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
+import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
+import {
+  convertToUsdCents,
+  getUsdConversionRates,
+} from "@/lib/server/payments/currency"
 
 const publishedProductWhere: Prisma.ProductWhereInput = {
   status: "published",
@@ -18,6 +23,18 @@ const publishedProductWhere: Prisma.ProductWhereInput = {
 const PROFILE_PRODUCTS_PAGE_SIZE = 60
 const USER_PRODUCTS_PAGE_SIZE = 20
 const USER_PRODUCTS_MAX_PAGE_SIZE = 50
+const USERS_PAGE_SIZE = 20
+
+type PublicUserListItem = {
+  id: string
+  firstName: string | null
+  lastName: string | null
+  clerkId: string | null
+  _count: { products: number }
+  avatarUrl: string | null
+  latestRevenueCents: number | null
+  revenueCurrencyCode: string | null
+}
 
 const FALLBACK_TAGLINE =
   "Discover launch-ready tools from indie makers worldwide."
@@ -182,6 +199,169 @@ export async function getUserProductsPage(params: {
   return getUserProductsWithPaging(params.userId, safePage, safePageSize)
 }
 
+const getPublicUsersPageCached = cached(
+  async (
+    page: number = 1,
+    pageSize: number = USERS_PAGE_SIZE,
+  ): Promise<PublicUsersPageResult> => {
+    const safePage = normalizePage(page, 1)
+    const safePageSize = normalizePageSize(pageSize, USERS_PAGE_SIZE)
+    const skip = (safePage - 1) * safePageSize
+
+    const where: Prisma.UserWhereInput = {
+      products: { some: publishedProductWhere },
+    }
+
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          clerkId: true,
+          _count: {
+            select: {
+              products: { where: publishedProductWhere },
+            },
+          },
+        },
+        orderBy: { products: { _count: "desc" } },
+        skip,
+        take: safePageSize,
+      }),
+      prisma.user.count({ where }),
+    ])
+
+    const userIds = users.map((user: { id: string }) => user.id)
+    type RevenueConnector = {
+      product: { userId: string } | null
+      latestAllTimeRevenueCents: number | null
+      latestCurrencyCode: string | null
+      revenueHistory: Array<{
+        allTimeRevenueCents: number | null
+        currencyCode: string | null
+      }>
+    }
+
+    const connectors: RevenueConnector[] = userIds.length
+      ? await prisma.paymentConnector.findMany({
+          where: {
+            product: {
+              userId: { in: userIds },
+              status: "published",
+            },
+            status: "active",
+            verifiedAt: { not: null },
+          },
+          select: {
+            product: { select: { userId: true } },
+            latestAllTimeRevenueCents: true,
+            latestCurrencyCode: true,
+            revenueHistory: {
+              orderBy: { periodStart: "desc" },
+              take: 1,
+              select: {
+                allTimeRevenueCents: true,
+                currencyCode: true,
+              },
+            },
+          },
+        })
+      : []
+
+    const needsRates = connectors.some((connector: RevenueConnector) => {
+      const code =
+        connector.latestCurrencyCode ??
+        connector.revenueHistory?.[0]?.currencyCode ??
+        "USD"
+      return code && code.toUpperCase() !== "USD"
+    })
+    const rates = needsRates
+      ? await getUsdConversionRates()
+      : new Map<string, number>([["USD", 1]])
+
+    const revenueByUser = new Map<
+      string,
+      { cents: number; currencyCode: string | null }
+    >()
+
+    for (const connector of connectors) {
+      const userId = connector.product?.userId
+      if (!userId) continue
+
+      const snapshot = connector.revenueHistory?.[0]
+      let amount =
+        typeof connector.latestAllTimeRevenueCents === "number"
+          ? connector.latestAllTimeRevenueCents
+          : typeof snapshot?.allTimeRevenueCents === "number"
+            ? snapshot.allTimeRevenueCents
+            : null
+
+      if (amount === null) continue
+
+      let currencyCode =
+        (connector.latestCurrencyCode ?? snapshot?.currencyCode ?? "USD")
+          ?.toUpperCase?.() ?? "USD"
+
+      if (currencyCode !== "USD") {
+        const { usdCents, rateUsed } = convertToUsdCents(
+          amount,
+          currencyCode,
+          rates,
+        )
+
+        if (rateUsed !== null) {
+          amount = usdCents
+          currencyCode = "USD"
+        }
+      }
+
+      const existing = revenueByUser.get(userId)
+      const nextCents = (existing?.cents ?? 0) + amount
+      revenueByUser.set(userId, {
+        cents: nextCents,
+        currencyCode: currencyCode ?? existing?.currencyCode ?? "USD",
+      })
+    }
+
+    const items = await Promise.all(
+      users.map((user: PublicUserProfile) =>
+        mapUserSummaryToListItem(user, revenueByUser.get(user.id)),
+      ),
+    )
+    const hasMore = skip + items.length < total
+
+    return {
+      items,
+      total,
+      page: safePage,
+      pageSize: safePageSize,
+      hasMore,
+      nextPage: hasMore ? safePage + 1 : null,
+    }
+  },
+  "users:public:page",
+  {
+    ttl: DEFAULT_TTL.slow,
+    keyParts: ([page, pageSize]) => [
+      `page:${normalizePage(page, 1)}`,
+      `pageSize:${normalizePageSize(pageSize, USERS_PAGE_SIZE)}`,
+    ],
+    tags: () => [TAGS.users, TAGS.products],
+  },
+)
+
+export async function getPublicUsersPage(params: {
+  page?: number
+  pageSize?: number
+} = {}): Promise<PublicUsersPageResult> {
+  const safePage = normalizePage(params.page, 1)
+  const safePageSize = normalizePageSize(params.pageSize, USERS_PAGE_SIZE)
+
+  return getPublicUsersPageCached(safePage, safePageSize)
+}
+
 const mapUserProductToFeedItem = (
   product: ReturnType<typeof mapProductCardRecordToBase>,
 ): HomepageFeedItem => {
@@ -224,8 +404,45 @@ const mapUserProductToFeedItem = (
   }
 }
 
+const mapUserSummaryToListItem = async (
+  user: {
+    id: string
+    firstName: string | null
+    lastName: string | null
+    clerkId: string | null
+    _count: { products: number }
+  },
+  revenue?: { cents: number; currencyCode: string | null },
+): Promise<PublicUserListItem> => {
+  let avatarUrl: string | null = null
+  if (user.clerkId) {
+    try {
+      const clerkUser = await getClerkUserByIdCached(user.clerkId)
+      avatarUrl = clerkUser.imageUrl ?? null
+    } catch {
+      avatarUrl = null
+    }
+  }
+
+  return {
+    ...user,
+    avatarUrl,
+    latestRevenueCents: revenue?.cents ?? null,
+    revenueCurrencyCode: revenue?.currencyCode ?? null,
+  }
+}
+
 export type UserProductsPageResult = {
   items: HomepageFeedItem[]
+  total: number
+  page: number
+  pageSize: number
+  hasMore: boolean
+  nextPage: number | null
+}
+
+export type PublicUsersPageResult = {
+  items: PublicUserListItem[]
   total: number
   page: number
   pageSize: number
