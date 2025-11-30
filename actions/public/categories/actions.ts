@@ -31,12 +31,12 @@ type CategoryWithCount = Prisma.CategoryGetPayload<{
       select: {
         products: {
           where: {
-            status: "published",
-          },
-        },
-      },
-    },
-  },
+            status: "published"
+          }
+        }
+      }
+    }
+  }
 }>
 
 type CategoryProductsPage = {
@@ -162,7 +162,10 @@ export const getCategoryWithProducts = cached(
     pageSize: number = CATEGORY_PRODUCTS_PAGE_SIZE,
   ): Promise<CategoryProductsPage | null> => {
     const safePage = normalizePage(page, 1)
-    const safePageSize = normalizePageSize(pageSize, CATEGORY_PRODUCTS_PAGE_SIZE)
+    const safePageSize = normalizePageSize(
+      pageSize,
+      CATEGORY_PRODUCTS_PAGE_SIZE,
+    )
     const skip = (safePage - 1) * safePageSize
 
     const category = await prisma.category.findUnique({
@@ -195,7 +198,9 @@ export const getCategoryWithProducts = cached(
     ])
 
     const typedProducts = products as unknown as ProductCardRecord[]
-    const productIds = typedProducts.map((product: ProductCardRecord) => product.id)
+    const productIds = typedProducts.map(
+      (product: ProductCardRecord) => product.id,
+    )
     const scoreMap = productIds.length
       ? await getCurrentScoreMap(productIds)
       : new Map<string, number>()

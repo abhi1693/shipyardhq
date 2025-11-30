@@ -54,9 +54,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
   })
   const categorySlugs = new Set(categories.map((c) => c.slug.toLowerCase()))
   const categoryNames = new Set(
-    categories
-      .map((c) => c.name?.toLowerCase())
-      .filter(Boolean) as string[],
+    categories.map((c) => c.name?.toLowerCase()).filter(Boolean) as string[],
   )
   const useCaseFeedItems = homepageFeedItems.filter((item) => {
     const slugValue = item.categorySlug?.toLowerCase()
@@ -150,13 +148,18 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
             <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
               <div className="mx-auto flex max-w-2xl flex-col items-center gap-6">
                 <span className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-border/40 bg-muted/40 text-[color:var(--brand-1)] shadow-[0_18px_42px_-28px_rgba(7,68,134,0.35)]">
-                  <CategoryIcon icon={categories[0]?.icon ?? "target"} size={28} />
+                  <CategoryIcon
+                    icon={categories[0]?.icon ?? "target"}
+                    size={28}
+                  />
                 </span>
                 <div className="space-y-4">
                   <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
                     {useCase.label}
                   </h1>
-                  <p className="text-base text-muted-foreground">{description}</p>
+                  <p className="text-base text-muted-foreground">
+                    {description}
+                  </p>
                 </div>
                 <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
                   <Link

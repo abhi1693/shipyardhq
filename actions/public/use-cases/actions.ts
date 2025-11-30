@@ -63,8 +63,13 @@ const getPublishedProductCountsByUseCase = async () => {
 
   return new Map(
     counts.map(
-      ({ useCaseId, productCount }: { useCaseId: string; productCount: number }) =>
-        [useCaseId, productCount],
+      ({
+        useCaseId,
+        productCount,
+      }: {
+        useCaseId: string
+        productCount: number
+      }) => [useCaseId, productCount],
     ),
   )
 }

@@ -62,14 +62,27 @@ export function RewardsLeaderboardClient({
         total,
         initialEntries.map((entry) => entry.userId).join("|"),
       ].join(":"),
-    [initialEntries, initialHasMore, initialNextPage, initialPage, pageSize, total],
+    [
+      initialEntries,
+      initialHasMore,
+      initialNextPage,
+      initialPage,
+      pageSize,
+      total,
+    ],
   )
 
   useEffect(() => {
     setEntries(toRankedEntries(initialEntries, initialRankStart))
     setHasMore(initialHasMore)
     setNextPage(initialNextPage)
-  }, [initialEntries, initialHasMore, initialNextPage, initialRankStart, resetKey])
+  }, [
+    initialEntries,
+    initialHasMore,
+    initialNextPage,
+    initialRankStart,
+    resetKey,
+  ])
 
   const loadMore = useCallback(async () => {
     if (!nextPage || isLoading) return

@@ -34,7 +34,8 @@ const PAGE_TITLE = "Use Cases"
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description: "Browse Shipyard by use case and discover the products built for your workflow.",
+  description:
+    "Browse Shipyard by use case and discover the products built for your workflow.",
 })
 
 const USE_CASE_CARD_CLASSES =
@@ -122,7 +123,8 @@ export default async function UseCasesPage() {
                 </div>
               ) : (
                 <div className="rounded-2xl border border-dashed border-border/70 bg-muted/10 px-6 py-10 text-center text-sm text-muted-foreground">
-                  No use cases are available yet. Check back soon for the latest workflows.
+                  No use cases are available yet. Check back soon for the latest
+                  workflows.
                 </div>
               )}
             </section>

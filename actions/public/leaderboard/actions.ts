@@ -48,7 +48,9 @@ const MIN_MONTH_DAYS = 28
 const MAX_MONTH_DAYS = 32
 
 const startOfUtcDay = (date: Date) =>
-  new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+  new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  )
 
 const GA_MIN_LEADERBOARD_DATE = startOfUtcDay(
   new Date(`${GA_MIN_START_DATE}T00:00:00Z`),

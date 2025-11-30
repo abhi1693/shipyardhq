@@ -301,8 +301,11 @@ const getPublicUsersPageCached = cached(
       if (amount === null) continue
 
       let currencyCode =
-        (connector.latestCurrencyCode ?? snapshot?.currencyCode ?? "USD")
-          ?.toUpperCase?.() ?? "USD"
+        (
+          connector.latestCurrencyCode ??
+          snapshot?.currencyCode ??
+          "USD"
+        )?.toUpperCase?.() ?? "USD"
 
       if (currencyCode !== "USD") {
         const { usdCents, rateUsed } = convertToUsdCents(
@@ -352,10 +355,12 @@ const getPublicUsersPageCached = cached(
   },
 )
 
-export async function getPublicUsersPage(params: {
-  page?: number
-  pageSize?: number
-} = {}): Promise<PublicUsersPageResult> {
+export async function getPublicUsersPage(
+  params: {
+    page?: number
+    pageSize?: number
+  } = {},
+): Promise<PublicUsersPageResult> {
   const safePage = normalizePage(params.page, 1)
   const safePageSize = normalizePageSize(params.pageSize, USERS_PAGE_SIZE)
 
@@ -385,7 +390,9 @@ const mapUserProductToFeedItem = (
     logo: product.logo,
     tagline: product.tagline || FALLBACK_TAGLINE,
     createdAt: coerceDateString(product.createdAt),
-    updatedAt: coerceDateString((product as any).updatedAt ?? product.createdAt),
+    updatedAt: coerceDateString(
+      (product as any).updatedAt ?? product.createdAt,
+    ),
     badges: product.badges ?? [],
     category: categoryName,
     categorySlug,
@@ -523,10 +530,7 @@ export const getPublicUserProfile = cached(
             ProductBadge: {
               ...publicUserProductSelectFields.ProductBadge,
               where: {
-                OR: [
-                  { expiresAt: null },
-                  { expiresAt: { gt: new Date() } },
-                ],
+                OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
               },
             },
           },

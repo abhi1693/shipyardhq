@@ -5,7 +5,9 @@ import {
   type UseCaseCategoriesWithCounts,
 } from "@/actions/public/use-cases/actions"
 
-type UseCasesWithCounts = Awaited<ReturnType<typeof getPublicUseCasesWithCounts>>
+type UseCasesWithCounts = Awaited<
+  ReturnType<typeof getPublicUseCasesWithCounts>
+>
 
 export type UseCasePagePayload =
   | (UseCaseCategoriesWithCounts & {

@@ -23,9 +23,7 @@ export function normalizeRewardsLeaderboardPage(page?: number): number {
   return Math.floor(page)
 }
 
-export function normalizeRewardsLeaderboardPageSize(
-  pageSize?: number,
-): number {
+export function normalizeRewardsLeaderboardPageSize(pageSize?: number): number {
   if (typeof pageSize !== "number" || !Number.isFinite(pageSize)) {
     return REWARDS_LEADERBOARD_PAGE_SIZE
   }

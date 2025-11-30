@@ -41,12 +41,7 @@ export function CategoryFeedClient({
         normalizedInitialPage,
         initialProducts.map((item) => item.id).join("|"),
       ].join(":"),
-    [
-      initialProducts,
-      normalizedInitialPage,
-      normalizedPageSize,
-      slug,
-    ],
+    [initialProducts, normalizedInitialPage, normalizedPageSize, slug],
   )
 
   useEffect(() => {

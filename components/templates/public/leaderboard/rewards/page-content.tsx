@@ -25,10 +25,7 @@ import {
   TrafficSidebarStats,
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
-import {
-  LEADERBOARD_PATH,
-  MEMBER_REWARDS_PATH,
-} from "@/lib/routes"
+import { LEADERBOARD_PATH, MEMBER_REWARDS_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { formatNumber, formatRewards } from "@/lib/rewards/format"
 
@@ -75,13 +72,15 @@ export async function RewardsLeaderboardPageContent({
     total,
   } = leaderboardPage
 
-  const headerStats: Record<(typeof leaderboardMetrics)[number]["key"], number> =
-    {
-      totalProducts: stats.membersWithRewards,
-      totalCreators: stats.activeBalances,
-      totalUpvotes: stats.earnedLast30d.rewardAmount,
-      totalInsights: stats.spentLast30d.rewardAmount,
-    }
+  const headerStats: Record<
+    (typeof leaderboardMetrics)[number]["key"],
+    number
+  > = {
+    totalProducts: stats.membersWithRewards,
+    totalCreators: stats.activeBalances,
+    totalUpvotes: stats.earnedLast30d.rewardAmount,
+    totalInsights: stats.spentLast30d.rewardAmount,
+  }
 
   return (
     <main className="relative isolate bg-[#f5f7fb]">

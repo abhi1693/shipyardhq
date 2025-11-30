@@ -46,7 +46,8 @@ export async function UsersIndexPageContent() {
                     Meet the people powering Shipyard
                   </h1>
                   <p className="text-base text-muted-foreground">
-                    Explore Shipyard makers, follow their work, and see who is building momentum right now.
+                    Explore Shipyard makers, follow their work, and see who is
+                    building momentum right now.
                   </p>
                 </div>
                 <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
