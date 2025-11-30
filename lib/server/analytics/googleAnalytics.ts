@@ -77,6 +77,8 @@ export type GaDateRange = {
   endDate: string
 }
 
+export const GA_MIN_START_DATE = "2025-07-20"
+
 export type GaProductTrafficSummary = {
   pageViews: number
   uniqueVisitors: number
@@ -126,6 +128,27 @@ export type GaProductTrafficSummary = {
     pageViews: number
     uniqueVisitors: number
   }>
+}
+
+function normalizeGaDateRange(range: GaDateRange): GaDateRange {
+  const minStart = new Date(GA_MIN_START_DATE)
+  const parsedStart = new Date(range.startDate)
+  const parsedEnd = new Date(range.endDate)
+
+  const validStart = Number.isFinite(parsedStart.getTime())
+  const validEnd = Number.isFinite(parsedEnd.getTime())
+
+  let start = validStart ? parsedStart : minStart
+  let end = validEnd ? parsedEnd : start
+
+  if (start < minStart) start = minStart
+  if (end < minStart) end = minStart
+  if (end < start) end = start
+
+  return {
+    startDate: start.toISOString().slice(0, 10),
+    endDate: end.toISOString().slice(0, 10),
+  }
 }
 
 function parseCredentials(): Record<string, any> | null {
@@ -319,7 +342,7 @@ function resolveMetricValue(
 
 async function fetchProductTrafficFromGa({
   pagePaths,
-  dateRange,
+  dateRange: rawDateRange,
   includeAdvanced = true,
 }: {
   pagePaths: string[]
@@ -331,6 +354,8 @@ async function fetchProductTrafficFromGa({
   if (!property) {
     throw new Error("GA_PROPERTY_ID is missing")
   }
+
+  const dateRange = normalizeGaDateRange(rawDateRange)
 
   const dimensionFilter = buildPagePathFilter(pagePaths)
   const metrics = [
@@ -721,6 +746,8 @@ export async function getProductTrafficMapFromGa(args: {
     return results
   }
 
+  const dateRange = normalizeGaDateRange(args.dateRange)
+
   const pathToProductId = new Map<string, string>()
   for (const product of args.products) {
     const base = productPath(product.slug)
@@ -747,7 +774,7 @@ export async function getProductTrafficMapFromGa(args: {
     try {
       const response = await client.runReport({
         property,
-        dateRanges: [args.dateRange],
+        dateRanges: [dateRange],
         dimensions: [{ name: "pagePath" }],
         metrics,
         dimensionFilter: {
@@ -822,7 +849,7 @@ const EMPTY_SITE_SNAPSHOT: SiteAnalyticsSnapshot = {
 }
 
 async function fetchSiteAnalyticsSnapshot({
-  dateRange,
+  dateRange: rawDateRange,
   topProductLimit,
 }: {
   dateRange: GaDateRange
@@ -833,6 +860,8 @@ async function fetchSiteAnalyticsSnapshot({
   if (!property) {
     throw new Error("GA_PROPERTY_ID is missing")
   }
+
+  const dateRange = normalizeGaDateRange(rawDateRange)
 
   const metrics = [
     { name: "screenPageViews" },
@@ -1266,7 +1295,8 @@ export async function getSiteAnalyticsSnapshot(args?: {
   dateRange?: GaDateRange
   topProductLimit?: number
 }): Promise<SiteAnalyticsSnapshot> {
-  const dateRange = args?.dateRange ?? defaultSiteDateRange()
+  const requestedDateRange = args?.dateRange ?? defaultSiteDateRange()
+  const dateRange = normalizeGaDateRange(requestedDateRange)
   const topProductLimit = Math.max(1, args?.topProductLimit ?? 6)
   const cacheKey = buildCacheKey(
     SITE_SNAPSHOT_CACHE_PREFIX,

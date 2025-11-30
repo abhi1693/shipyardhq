@@ -21,7 +21,7 @@ export async function generateMetadata({
   params: Promise<PageParams>
 }): Promise<Metadata> {
   const { year, month, day } = await params
-  const window = resolvePeriodWindowFromParts({
+  const window = await resolvePeriodWindowFromParts({
     period: "day",
     year: Number(year),
     month: Number(month),

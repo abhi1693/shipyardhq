@@ -17,6 +17,7 @@ import {
 import {
   getHomepageTrafficFromGa,
   getRealtimeVisitorsFromGa,
+  GA_MIN_START_DATE,
 } from "@/lib/server/analytics/googleAnalytics"
 import {
   productCardSelect,
@@ -45,6 +46,13 @@ const DAY_MS = 86_400_000
 const MONTH_LOOKBACK = 12
 const MIN_MONTH_DAYS = 28
 const MAX_MONTH_DAYS = 32
+
+const startOfUtcDay = (date: Date) =>
+  new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+
+const GA_MIN_LEADERBOARD_DATE = startOfUtcDay(
+  new Date(`${GA_MIN_START_DATE}T00:00:00Z`),
+)
 
 export type LeaderboardHighlightPeriod = "day" | "week" | "month"
 export type PeriodLeaderboardKind = LeaderboardHighlightPeriod
@@ -140,15 +148,16 @@ function startOfIsoWeek(year: number, week: number): Date | null {
   return start
 }
 
-export function resolvePeriodWindowFromParts(args: {
+export async function resolvePeriodWindowFromParts(args: {
   period: LeaderboardHighlightPeriod
   year: number
   month?: number
   day?: number
   week?: number
-}): { periodStart: Date; periodEnd: Date; label: string } | null {
+}): Promise<{ periodStart: Date; periodEnd: Date; label: string } | null> {
   const year = Number(args.year)
   if (!Number.isFinite(year) || year < 1970 || year > 3000) return null
+  const earliestAllowedMs = GA_MIN_LEADERBOARD_DATE.getTime()
   const today = new Date()
   today.setUTCHours(0, 0, 0, 0)
 
@@ -175,6 +184,9 @@ export function resolvePeriodWindowFromParts(args: {
     }
     const end = new Date(start)
     end.setUTCDate(start.getUTCDate() + 1)
+    if (start.getTime() < earliestAllowedMs) {
+      return null
+    }
     if (start.getTime() > today.getTime()) {
       return null
     }
@@ -191,6 +203,9 @@ export function resolvePeriodWindowFromParts(args: {
     if (!start) return null
     const end = new Date(start)
     end.setUTCDate(start.getUTCDate() + 7)
+    if (start.getTime() < earliestAllowedMs) {
+      return null
+    }
     if (start.getTime() > today.getTime()) {
       return null
     }
@@ -205,6 +220,9 @@ export function resolvePeriodWindowFromParts(args: {
   if (!Number.isFinite(month) || month < 1 || month > 12) return null
   const start = new Date(Date.UTC(year, month - 1, 1))
   const end = new Date(Date.UTC(year, month, 1))
+  if (start.getTime() < earliestAllowedMs) {
+    return null
+  }
   if (start.getTime() > today.getTime()) {
     return null
   }
@@ -742,7 +760,7 @@ export async function getPeriodicLeaderboardByParams(args: {
   week?: number
   limit?: number
 }): Promise<PeriodicLeaderboardPayload | null> {
-  const window = resolvePeriodWindowFromParts(args)
+  const window = await resolvePeriodWindowFromParts(args)
   if (!window) return null
 
   return getPeriodicLeaderboard({
