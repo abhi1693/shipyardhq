@@ -23,11 +23,11 @@ function getLinkedInSecret(): string | null {
   return secret
 }
 
-export function buildLinkedInRedirectUri(): string {
+export function buildLinkedInRedirectUri(baseOverride?: string): string {
   const envRedirect = process.env.LINKEDIN_REDIRECT_URI?.trim()
   if (envRedirect) return envRedirect
 
-  const base = getAppBaseUrl()
+  const base = (baseOverride ?? getAppBaseUrl()).replace(/\/$/, "")
   return `${base}/api/linkedin/oauth`
 }
 
@@ -207,11 +207,13 @@ export async function exchangeLinkedInAuthCode(params: {
   return parsed
 }
 
-export async function getLinkedInAuthStatus() {
+export async function getLinkedInAuthStatus(options?: {
+  baseUrl?: string
+}) {
   const clientId = process.env.LINKEDIN_CLIENT_ID
   const clientSecret = process.env.LINKEDIN_CLIENT_SECRET
   const orgUrn = await resolveOrganizationUrn()
-  const redirectUri = buildLinkedInRedirectUri()
+  const redirectUri = buildLinkedInRedirectUri(options?.baseUrl)
   const dryRun = parseBoolean(process.env.LINKEDIN_BOT_DRY_RUN)
   const token = await getLinkedInAccessToken()
   const secretPresent = Boolean(getLinkedInSecret())
