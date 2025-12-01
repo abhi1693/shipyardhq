@@ -30,6 +30,7 @@ export type ProductNotificationPayload = {
     member?: string | null
     public?: string | null
   }
+  tags?: string[]
 }
 
 export async function sendProductNotificationToNovu(
@@ -49,38 +50,39 @@ export async function sendProductNotificationToNovu(
       await ensureNovuSubscriber(actor)
     }
 
-    await triggerNovuWorkflow({
-      workflowId: NOVU_PRODUCT_WORKFLOW_ID,
-      subscriber: recipient,
-      actor: actor ?? undefined,
-      transactionId: payload.transactionId,
-      payload: {
-        notification: {
-          kind: rest.kind,
-          message: rest.message,
-          timestamp: new Date().toISOString(),
-          transactionId: payload.transactionId ?? null,
-          subject: rest.subject ?? null,
+      await triggerNovuWorkflow({
+        workflowId: NOVU_PRODUCT_WORKFLOW_ID,
+        subscriber: recipient,
+        actor: actor ?? undefined,
+        transactionId: payload.transactionId,
+        payload: {
+          notification: {
+            kind: rest.kind,
+            message: rest.message,
+            timestamp: new Date().toISOString(),
+            transactionId: payload.transactionId ?? null,
+            subject: rest.subject ?? null,
+          },
+          product: rest.product,
+          actor: actor
+            ? {
+                id: actor.subscriberId,
+                firstName: normalizeString(actor.firstName) ?? undefined,
+                lastName: normalizeString(actor.lastName) ?? undefined,
+                email: normalizeString(actor.email),
+              }
+            : null,
+          links: {
+            member: normalizeString(rest.links?.member) ?? null,
+            public:
+              normalizeString(rest.links?.public) ??
+              normalizeString(rest.links?.member) ??
+              null,
+          },
+          context: rest.context ?? {},
+          tags: rest.tags ?? ["product-notifications"],
         },
-        product: rest.product,
-        actor: actor
-          ? {
-              id: actor.subscriberId,
-              firstName: normalizeString(actor.firstName) ?? undefined,
-              lastName: normalizeString(actor.lastName) ?? undefined,
-              email: normalizeString(actor.email),
-            }
-          : null,
-        links: {
-          member: normalizeString(rest.links?.member) ?? null,
-          public:
-            normalizeString(rest.links?.public) ??
-            normalizeString(rest.links?.member) ??
-            null,
-        },
-        context: rest.context ?? {},
-      },
-    })
+      })
   } catch (error) {
     console.error("[novu] failed to send product notification", {
       error,
