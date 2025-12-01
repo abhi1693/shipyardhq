@@ -61,11 +61,14 @@ registerEventHandler({
       const recipientId = owner?.clerkId ?? null
       const actorId = actor.clerkId ?? null
       if (!recipientId || !actorId) {
-        console.warn("[novu] skip product.upvote notification due to missing clerkId", {
-          productId: product.id,
-          recipientId,
-          actorId,
-        })
+        console.warn(
+          "[novu] skip product.upvote notification due to missing clerkId",
+          {
+            productId: product.id,
+            recipientId,
+            actorId,
+          },
+        )
         return
       }
 
@@ -141,11 +144,14 @@ registerEventHandler({
       const recipientId = owner?.clerkId ?? null
       const actorId = reviewer.clerkId ?? null
       if (!recipientId || !actorId) {
-        console.warn("[novu] skip product.review notification due to missing clerkId", {
-          productId: product.id,
-          recipientId,
-          actorId,
-        })
+        console.warn(
+          "[novu] skip product.review notification due to missing clerkId",
+          {
+            productId: product.id,
+            recipientId,
+            actorId,
+          },
+        )
         return
       }
 
@@ -406,7 +412,11 @@ registerEventHandler({
             ? { userId, clerkId: recipient.clerkId, user: recipient }
             : null
         })
-        .filter(Boolean) as Array<{ userId: string; clerkId: string; user: BasicUser }>
+        .filter(Boolean) as Array<{
+        userId: string
+        clerkId: string
+        user: BasicUser
+      }>
 
       if (recipients.length === 0) {
         console.warn("[novu] no recipients with clerkId for product update", {

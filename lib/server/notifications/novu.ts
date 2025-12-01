@@ -6,8 +6,7 @@ import type {
   TriggerEventRequestDto,
 } from "@novu/api/models/components"
 
-const NOVU_SECRET_KEY =
-  process.env.NOVU_SECRET_KEY?.trim() ?? null
+const NOVU_SECRET_KEY = process.env.NOVU_SECRET_KEY?.trim() ?? null
 
 let cachedClient: Novu | null = null
 type TriggerResponse = Awaited<ReturnType<Novu["trigger"]>>

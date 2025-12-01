@@ -93,9 +93,9 @@ export async function sendProductNotificationToNovu(
           public: publicLink,
         },
         context: rest.context ?? {},
-          tags: rest.tags ?? ["product-notifications"],
-        },
-      })
+        tags: rest.tags ?? ["product-notifications"],
+      },
+    })
   } catch (error) {
     console.error("[novu] failed to send product notification", {
       error,
