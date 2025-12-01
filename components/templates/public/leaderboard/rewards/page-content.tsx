@@ -54,7 +54,7 @@ const leaderboardMetrics = [
 
 export async function RewardsLeaderboardPageContent({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  searchParams,
+  searchParams: _searchParams,
 }: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {

@@ -39,11 +39,7 @@ export function TrafficSparkline({
   }>({ label: "", value: 0, x: 0, y: 0, visible: false })
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
-  const updateHover = (
-    clientX: number,
-    clientY: number,
-    svgBounds: DOMRect,
-  ) => {
+  const updateHover = (clientX: number, svgBounds: DOMRect) => {
     if (points.length === 0) return
     const relativeX = clientX - svgBounds.left
     const nearest = Math.round(relativeX / step)
@@ -102,7 +98,7 @@ export function TrafficSparkline({
           fill="transparent"
           onMouseMove={(event) => {
             const bounds = event.currentTarget.getBoundingClientRect()
-            updateHover(event.clientX, event.clientY, bounds)
+            updateHover(event.clientX, bounds)
           }}
         />
       </svg>
