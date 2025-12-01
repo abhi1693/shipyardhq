@@ -148,7 +148,7 @@ async function main() {
     let url: URL
     try {
       url = new URL(arg)
-    } catch (error) {
+    } catch {
       console.error(
         "Malformed URL provided. Please paste the full redirect URL containing code and state.",
       )

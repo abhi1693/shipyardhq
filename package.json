@@ -28,6 +28,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@next/env": "^16.0.5",
     "@next/third-parties": "^16.0.5",
+    "@novu/api": "^3.11.0",
     "@novu/nextjs": "^3.11.0",
     "@prisma/adapter-pg": "^7.0.1",
     "@prisma/client": "^7.0.1",

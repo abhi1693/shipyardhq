@@ -46,6 +46,13 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 - Defaults align with Resend's 2 requests/sec ceiling; adjust only if your account is provisioned for a higher burst.
 - Tune throughput with optional env vars: `RESEND_RATE_LIMIT_MAX_REQUESTS` or `RESEND_RATE_LIMIT_RPS` (per interval) and `RESEND_RATE_LIMIT_INTERVAL_MS` (window duration in ms).
 
+## Novu Inbox
+
+- In-app notifications render via `<Inbox />` from `components/molecules/NovuInbox.tsx` with `NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER`.
+- Server triggers live in `lib/server/notifications/novu.ts`; call `triggerNovuWorkflow` with the Novu workflow id and subscriber id to send directly (no event bus hop).
+- Configure `NOVU_SECRET_KEY` for access. Set `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` to the workflow id for product-related Novu notifications (upvotes, reviews, product updates).
+- Use `ensureNovuSubscriber` when you need to upsert subscriber profile data before triggering.
+
 ## Analytics Instrumentation
 
 - Product detail pages rely on GA-based reporting; the legacy `/api/analytics/ingest` beacon has been removed.

@@ -7,22 +7,17 @@ import {
   productPath,
 } from "@/lib/routes"
 import { createNotification } from "@/lib/server/notifications/service"
+import { sendProductNotificationToNovu } from "@/lib/server/notifications/novuProduct"
 import { NotificationType, type Prisma } from "@/lib/vendor/prisma/client"
 
 const USER_NAME_FALLBACK = "Shipyard member"
 
-const PRODUCT_UPDATE_NOTIFICATION_TYPE =
-  (
-    NotificationType as Record<
-      string,
-      (typeof NotificationType)[keyof typeof NotificationType] | undefined
-    >
-  ).product_update ?? NotificationType.system
-
 type BasicUser = {
   id: string
+  clerkId: string | null
   firstName: string | null
   lastName: string | null
+  email: string | null
 }
 
 type BasicProduct = {
@@ -41,13 +36,16 @@ const productSelector = {
 
 const userSelector = {
   id: true,
+  clerkId: true,
   firstName: true,
   lastName: true,
+  email: true,
 } satisfies Prisma.UserSelect
 
 registerEventHandler({
   event: APP_EVENTS.PRODUCT_UPVOTED,
   id: "notifications.product-upvote",
+  mode: "sync",
   queue: "low",
   handler: async (event) => {
     try {
@@ -59,24 +57,51 @@ registerEventHandler({
       if (!actor) return
       if (product.userId === actor.id) return
 
+      const owner = await loadUser(product.userId)
+      const recipientId = owner?.clerkId ?? null
+      const actorId = actor.clerkId ?? null
+      if (!recipientId || !actorId) return
+
       const actorName = formatUserName(actor)
       const productName = formatProductName(product)
       const message = `${actorName} upvoted ${productName}`
+      const subject = `New upvote on ${productName}`
 
-      await createNotification({
-        userId: product.userId,
-        type: NotificationType.product_upvote,
+      await sendProductNotificationToNovu({
+        kind: "product_upvote",
         message,
-        metadata: {
-          actorUserId: actor.id,
-          actorName,
-          productId: product.id,
-          productSlug: product.slug,
-          productName,
-          upvoteId: event.upvoteId,
-          occurredAt: event.occurredAt.toISOString(),
-          href: memberProductPath(product.slug),
+        subject,
+        recipient: {
+          subscriberId: recipientId,
+          firstName: owner?.firstName ?? null,
+          lastName: owner?.lastName ?? null,
+          email: owner?.email ?? null,
         },
+        actor: {
+          subscriberId: actorId,
+          firstName: actor.firstName,
+          lastName: actor.lastName,
+        },
+        product: {
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+        },
+        links: {
+          member: memberProductPath(product.slug),
+          public: productPath(product.slug),
+        },
+        context: {
+          upvote: {
+            id: event.upvoteId,
+            occurredAt: event.occurredAt.toISOString(),
+            actor: {
+              id: actor.id,
+              name: actorName,
+            },
+          },
+        },
+        transactionId: `product_upvote:${event.upvoteId}`,
       })
     } catch (error) {
       console.error("[notifications] failed to handle product.upvoted", {
@@ -90,6 +115,7 @@ registerEventHandler({
 registerEventHandler({
   event: APP_EVENTS.PRODUCT_REVIEWED,
   id: "notifications.product-reviewed",
+  mode: "sync",
   queue: "low",
   handler: async (event) => {
     try {
@@ -104,28 +130,55 @@ registerEventHandler({
       const ownerUserId = event.productOwnerId ?? product.userId
       if (!ownerUserId) return
       if (ownerUserId === reviewer.id) return
+      const owner = await loadUser(ownerUserId)
+      const recipientId = owner?.clerkId ?? null
+      const actorId = reviewer.clerkId ?? null
+      if (!recipientId || !actorId) return
 
       const reviewerName = formatUserName(reviewer)
       const productName = formatProductName(product)
       const message = `New review on ${productName} by ${reviewerName}`
+      const subject = `New review on ${productName}`
 
-      await createNotification({
-        userId: ownerUserId,
-        type: NotificationType.product_review,
+      await sendProductNotificationToNovu({
+        kind: "product_review",
         message,
-        metadata: {
-          productId: product.id,
-          productSlug: product.slug,
-          productName,
-          reviewerUserId: reviewer.id,
-          reviewerName,
-          reviewId: event.reviewId,
-          rating: event.rating,
-          messageLength: event.messageLength,
-          createdAt: event.createdAt.toISOString(),
-          updatedAt: event.updatedAt.toISOString(),
-          href: memberProductPath(product.slug),
+        subject,
+        recipient: {
+          subscriberId: recipientId,
+          firstName: owner?.firstName ?? null,
+          lastName: owner?.lastName ?? null,
+          email: owner?.email ?? null,
         },
+        actor: {
+          subscriberId: actorId,
+          firstName: reviewer.firstName,
+          lastName: reviewer.lastName,
+          email: reviewer.email,
+        },
+        product: {
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+        },
+        links: {
+          member: memberProductPath(product.slug),
+          public: productPath(product.slug),
+        },
+        context: {
+          review: {
+            id: event.reviewId,
+            rating: event.rating,
+            messageLength: event.messageLength,
+            createdAt: event.createdAt.toISOString(),
+            updatedAt: event.updatedAt.toISOString(),
+            reviewer: {
+              id: reviewer.id,
+              name: reviewerName,
+            },
+          },
+        },
+        transactionId: `product_review:${event.reviewId}`,
       })
     } catch (error) {
       console.error("[notifications] failed to handle product.reviewed", {
@@ -275,6 +328,7 @@ registerEventHandler({
 registerEventHandler({
   event: APP_EVENTS.PRODUCT_UPDATE_PUBLISHED,
   id: "notifications.product-update-published",
+  mode: "sync",
   queue: "low",
   handler: async (event) => {
     try {
@@ -301,6 +355,14 @@ registerEventHandler({
 
       if (userIds.size === 0) return
 
+      const subscribers = await prisma.user.findMany({
+        where: { id: { in: Array.from(userIds) } },
+        select: userSelector,
+      })
+      const subscriberById = new Map<string, BasicUser>(
+        subscribers.map((user: BasicUser) => [user.id, user] as const),
+      )
+
       const rawProductName = event.productName?.trim()
       const productName =
         rawProductName && rawProductName.length > 0
@@ -321,29 +383,45 @@ registerEventHandler({
         ? new Date().toISOString()
         : publishedAtDate.toISOString()
       const message = `New update on ${productName}: ${updateTitle}`
-
-      const metadataBase: Prisma.InputJsonValue = {
-        productId: event.productId,
-        productSlug: event.productSlug ?? null,
-        productName: event.productName ?? null,
-        updateId: event.updateId,
-        updateTitle: event.updateTitle,
-        updateSummary: event.updateSummary ?? null,
-        publishedAt: publishedAtIso,
-        href,
-        publicHref: href,
-        notificationKind: "product_update",
-      }
+      const subject = `Product update: ${productName}`
 
       await Promise.all(
-        Array.from(userIds).map((userId) =>
-          createNotification({
-            userId,
-            type: PRODUCT_UPDATE_NOTIFICATION_TYPE,
+        Array.from(userIds).map((userId) => {
+          const recipient = subscriberById.get(userId)
+          const recipientId = recipient?.clerkId ?? null
+          if (!recipientId) return null
+          return sendProductNotificationToNovu({
+            kind: "product_update",
             message,
-            metadata: metadataBase,
-          }),
-        ),
+            subject,
+            recipient: {
+              subscriberId: recipientId,
+              firstName: recipient?.firstName ?? null,
+              lastName: recipient?.lastName ?? null,
+              email: recipient?.email ?? null,
+            },
+            product: {
+              id: event.productId,
+              slug: event.productSlug ?? null,
+              name: event.productName ?? null,
+            },
+            links: {
+              member: href,
+              public: href,
+            },
+            context: {
+              update: {
+                id: event.updateId,
+                title: event.updateTitle,
+                summary: event.updateSummary ?? null,
+                publishedAt: publishedAtIso,
+                ownerId: event.productOwnerId,
+                authorId: event.authorId,
+              },
+            },
+            transactionId: `product_update:${event.updateId}:${userId}`,
+          })
+        }),
       )
     } catch (error) {
       console.error(
