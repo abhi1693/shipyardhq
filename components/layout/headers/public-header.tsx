@@ -7,7 +7,7 @@ import { Button } from "@/components/atoms/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/atoms/sheet"
 import { Menu, LayoutDashboard, LogOut, UserRound, Rocket } from "lucide-react"
 import SignInCtaButton from "@/components/molecules/SignInCtaButton"
-import NotificationBell from "@/components/molecules/NotificationBell"
+import NovuInbox from "@/components/molecules/NovuInbox"
 import clsx from "clsx"
 import { SignOutButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs"
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
@@ -169,7 +169,7 @@ export default function PublicHeader() {
           </SignedOut>
           <SignedIn>
             <div className="flex items-center gap-2">
-              <NotificationBell />
+              <NovuInbox />
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
