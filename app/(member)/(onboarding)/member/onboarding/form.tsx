@@ -17,10 +17,8 @@ import {
   IconBrandX,
   IconCompass,
   IconDots,
-  IconMessage,
   IconNews,
   IconRocket,
-  IconTargetArrow,
   IconUsers,
   IconUsersGroup,
 } from "@tabler/icons-react"
@@ -29,7 +27,6 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
   CardFooter,
 } from "@/components/atoms/card"
