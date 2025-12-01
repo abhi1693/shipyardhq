@@ -62,35 +62,37 @@ export async function sendProductNotificationToNovu(
 
     const publicLink = rawPublicLink
       ? new URL(rawPublicLink, `${siteUrl}/`).toString()
-      : null
+      : siteUrl
+
+    const actorPayload = actor
+      ? {
+          id: actor.subscriberId,
+          firstName: normalizeString(actor.firstName) ?? undefined,
+          lastName: normalizeString(actor.lastName) ?? undefined,
+          email: normalizeString(actor.email),
+        }
+      : undefined
 
     await triggerNovuWorkflow({
       workflowId: NOVU_PRODUCT_WORKFLOW_ID,
       subscriber: recipient,
       actor: actor ?? undefined,
       transactionId: payload.transactionId,
-        payload: {
-          notification: {
-            kind: rest.kind,
-            message: rest.message,
-            timestamp: new Date().toISOString(),
-            transactionId: payload.transactionId ?? null,
-            subject: rest.subject ?? null,
-          },
-          product: rest.product,
-          actor: actor
-            ? {
-                id: actor.subscriberId,
-                firstName: normalizeString(actor.firstName) ?? undefined,
-                lastName: normalizeString(actor.lastName) ?? undefined,
-                email: normalizeString(actor.email),
-              }
-            : null,
-          links: {
-            member: memberLink,
-            public: publicLink,
-          },
-          context: rest.context ?? {},
+      payload: {
+        notification: {
+          kind: rest.kind,
+          message: rest.message,
+          timestamp: new Date().toISOString(),
+          transactionId: payload.transactionId ?? null,
+          subject: rest.subject ?? null,
+        },
+        product: rest.product,
+        ...(actorPayload ? { actor: actorPayload } : {}),
+        links: {
+          member: memberLink,
+          public: publicLink,
+        },
+        context: rest.context ?? {},
           tags: rest.tags ?? ["product-notifications"],
         },
       })

@@ -60,7 +60,14 @@ registerEventHandler({
       const owner = await loadUser(product.userId)
       const recipientId = owner?.clerkId ?? null
       const actorId = actor.clerkId ?? null
-      if (!recipientId || !actorId) return
+      if (!recipientId || !actorId) {
+        console.warn("[novu] skip product.upvote notification due to missing clerkId", {
+          productId: product.id,
+          recipientId,
+          actorId,
+        })
+        return
+      }
 
       const actorName = formatUserName(actor)
       const productName = formatProductName(product)
@@ -133,7 +140,14 @@ registerEventHandler({
       const owner = await loadUser(ownerUserId)
       const recipientId = owner?.clerkId ?? null
       const actorId = reviewer.clerkId ?? null
-      if (!recipientId || !actorId) return
+      if (!recipientId || !actorId) {
+        console.warn("[novu] skip product.review notification due to missing clerkId", {
+          productId: product.id,
+          recipientId,
+          actorId,
+        })
+        return
+      }
 
       const reviewerName = formatUserName(reviewer)
       const productName = formatProductName(product)
@@ -385,20 +399,35 @@ registerEventHandler({
       const message = `New update on ${productName}: ${updateTitle}`
       const subject = `Product update: ${productName}`
 
-      await Promise.all(
-        Array.from(userIds).map((userId) => {
+      const recipients = Array.from(userIds)
+        .map((userId) => {
           const recipient = subscriberById.get(userId)
-          const recipientId = recipient?.clerkId ?? null
-          if (!recipientId) return null
-          return sendProductNotificationToNovu({
+          return recipient?.clerkId
+            ? { userId, clerkId: recipient.clerkId, user: recipient }
+            : null
+        })
+        .filter(Boolean) as Array<{ userId: string; clerkId: string; user: BasicUser }>
+
+      if (recipients.length === 0) {
+        console.warn("[novu] no recipients with clerkId for product update", {
+          productId: event.productId,
+          updateId: event.updateId,
+          candidateCount: userIds.size,
+        })
+        return
+      }
+
+      await Promise.all(
+        recipients.map(({ userId, clerkId, user }) =>
+          sendProductNotificationToNovu({
             kind: "product_update",
             message,
             subject,
             recipient: {
-              subscriberId: recipientId,
-              firstName: recipient?.firstName ?? null,
-              lastName: recipient?.lastName ?? null,
-              email: recipient?.email ?? null,
+              subscriberId: clerkId,
+              firstName: user.firstName ?? null,
+              lastName: user.lastName ?? null,
+              email: user.email ?? null,
             },
             product: {
               id: event.productId,
@@ -420,8 +449,8 @@ registerEventHandler({
               },
             },
             transactionId: `product_update:${event.updateId}:${userId}`,
-          })
-        }),
+          }),
+        ),
       )
     } catch (error) {
       console.error(
