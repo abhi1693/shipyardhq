@@ -10,6 +10,7 @@ const NOVU_APPLICATION_IDENTIFIER =
 const INBOX_TABS: Tab[] = [
   { label: "All", filter: { tags: [] } },
   { label: "Products", filter: { tags: ["product-notifications"] } },
+  { label: "Rewards", filter: { tags: ["rewards"] } },
 ]
 
 export default function NovuInbox() {

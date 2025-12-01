@@ -6,9 +6,9 @@ import {
   MEMBER_REWARDS_PATH,
   productPath,
 } from "@/lib/routes"
-import { createNotification } from "@/lib/server/notifications/service"
 import { sendProductNotificationToNovu } from "@/lib/server/notifications/novuProduct"
-import { NotificationType, type Prisma } from "@/lib/vendor/prisma/client"
+import { sendRewardsNotificationToNovu } from "@/lib/server/notifications/novuRewards"
+import type { Prisma } from "@/lib/vendor/prisma/client"
 
 const USER_NAME_FALLBACK = "Shipyard member"
 
@@ -212,9 +212,20 @@ registerEventHandler({
 registerEventHandler({
   event: APP_EVENTS.REWARDS_AWARDED,
   id: "notifications.rewards-awarded",
-  queue: "low",
+  mode: "sync",
   handler: async (event) => {
     try {
+      const recipientUser = await loadUser(event.userId)
+      if (!recipientUser?.clerkId) {
+        console.warn(
+          "[novu] skip rewards.awarded notification due to missing clerkId",
+          {
+            userId: event.userId,
+          },
+        )
+        return
+      }
+
       const metadataRecord = toMetadataRecord(event.metadata)
       const resolvedProductId =
         event.productId ??
@@ -241,30 +252,45 @@ registerEventHandler({
         productName && !reasonIncludesProduct ? ` on ${productName}` : ""
       }.`
 
-      const metadata: Prisma.InputJsonValue = {
-        transactionId: event.transactionId,
-        ruleKey: event.ruleKey,
-        ruleName: event.ruleName,
-        ruleDisplayName: reason,
-        rewardAmount: event.rewardAmount,
-        balanceAfter: event.balanceAfter,
-        sourceType: event.sourceType ?? null,
-        sourceId: event.sourceId ?? null,
-        targetType: event.targetType ?? null,
-        targetId: event.targetId ?? null,
-        productId: resolvedProductId ?? null,
-        productName,
-        productSlug: product?.slug ?? null,
-        href: MEMBER_REWARDS_PATH,
-        eventMetadata: event.metadata ?? null,
-        awardedAt: event.createdAt.toISOString(),
-      }
-
-      await createNotification({
-        userId: event.userId,
-        type: NotificationType.reward_awarded,
+      await sendRewardsNotificationToNovu({
+        kind: "reward_awarded",
         message,
-        metadata,
+        subject: `You earned ${pointsLabel}`,
+        recipient: {
+          subscriberId: recipientUser.clerkId,
+          firstName: recipientUser.firstName ?? null,
+          lastName: recipientUser.lastName ?? null,
+          email: recipientUser.email ?? null,
+        },
+        reward: {
+          amount: event.rewardAmount,
+          balanceAfter: event.balanceAfter,
+          ruleKey: event.ruleKey,
+          ruleName: event.ruleName,
+          reason,
+          transactionId: event.transactionId,
+          awardedAt: event.createdAt.toISOString(),
+          sourceType: event.sourceType ?? null,
+          sourceId: event.sourceId ?? null,
+          targetType: event.targetType ?? null,
+          targetId: event.targetId ?? null,
+          productId: resolvedProductId ?? null,
+        },
+        links: {
+          member: MEMBER_REWARDS_PATH,
+        },
+        context: {
+          metadata: metadataRecord,
+          product: product
+            ? {
+                id: product.id,
+                slug: product.slug,
+                name: product.name,
+              }
+            : null,
+        },
+        transactionId: `reward_awarded:${event.transactionId}`,
+        tags: ["rewards"],
       })
     } catch (error) {
       console.error("[notifications] failed to handle rewards.awarded", {
@@ -278,10 +304,25 @@ registerEventHandler({
 registerEventHandler({
   event: APP_EVENTS.REWARDS_ADJUSTED,
   id: "notifications.rewards-adjusted-grant",
-  queue: "low",
+  mode: "sync",
   handler: async (event) => {
     try {
       if (event.amount <= 0) {
+        return
+      }
+
+      const [recipientUser, actorUser] = await Promise.all([
+        loadUser(event.userId),
+        event.actorUserId ? loadUser(event.actorUserId) : Promise.resolve(null),
+      ])
+
+      if (!recipientUser?.clerkId) {
+        console.warn(
+          "[novu] skip rewards.adjusted notification due to missing clerkId",
+          {
+            userId: event.userId,
+          },
+        )
         return
       }
 
@@ -313,28 +354,46 @@ registerEventHandler({
         message += "."
       }
 
-      const metadata: Prisma.InputJsonValue = {
-        transactionId: event.transactionId,
-        rewardAmount: event.amount,
-        balanceAfter: event.balanceAfter,
-        actorUserId: event.actorUserId ?? null,
-        reason: hasReason ? rawReason : null,
-        reference,
-        initiatedBy,
-        notificationKind: "admin_reward_grant",
-        source:
-          metadataRecord && typeof metadataRecord.source === "string"
-            ? metadataRecord.source
-            : "admin.adjustment",
-        href: MEMBER_REWARDS_PATH,
-        grantedAt: event.createdAt.toISOString(),
-      }
-
-      await createNotification({
-        userId: event.userId,
-        type: NotificationType.reward_awarded,
+      await sendRewardsNotificationToNovu({
+        kind: "reward_adjusted",
         message,
-        metadata,
+        subject: `Shipyard team granted ${pointsLabel}`,
+        recipient: {
+          subscriberId: recipientUser.clerkId,
+          firstName: recipientUser.firstName ?? null,
+          lastName: recipientUser.lastName ?? null,
+          email: recipientUser.email ?? null,
+        },
+        actor: actorUser?.clerkId
+          ? {
+              subscriberId: actorUser.clerkId,
+              firstName: actorUser.firstName ?? null,
+              lastName: actorUser.lastName ?? null,
+              email: actorUser.email ?? null,
+            }
+          : null,
+        reward: {
+          amount: event.amount,
+          balanceAfter: event.balanceAfter,
+          reason: hasReason ? rawReason : null,
+          transactionId: event.transactionId,
+        },
+        links: {
+          member: MEMBER_REWARDS_PATH,
+        },
+        context: {
+          reference,
+          initiatedBy,
+          metadata: metadataRecord,
+          source:
+            metadataRecord && typeof metadataRecord.source === "string"
+              ? metadataRecord.source
+              : "admin.adjustment",
+          grantedAt: event.createdAt.toISOString(),
+          actorUserId: event.actorUserId ?? null,
+        },
+        transactionId: `reward_adjusted:${event.transactionId}`,
+        tags: ["rewards"],
       })
     } catch (error) {
       console.error("[notifications] failed to handle rewards.adjusted", {

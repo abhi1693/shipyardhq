@@ -51,6 +51,7 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 - In-app notifications render via `<Inbox />` from `components/molecules/NovuInbox.tsx` with `NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER`.
 - Server triggers live in `lib/server/notifications/novu.ts`; call `triggerNovuWorkflow` with the Novu workflow id and subscriber id to send directly (no event bus hop).
 - Configure `NOVU_SECRET_KEY` for access. Set `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` to the workflow id for product-related Novu notifications (upvotes, reviews, product updates).
+- Rewards notifications route through Novu as well; set `NOVU_WORKFLOW_REWARDS_NOTIFICATIONS` and they will appear under the Rewards inbox tab (tagged `rewards`).
 - Use `ensureNovuSubscriber` when you need to upsert subscriber profile data before triggering.
 
 ## Analytics Instrumentation
