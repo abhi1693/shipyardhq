@@ -3,10 +3,6 @@
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import {
-  subscribeToNewsletterAction,
-  unsubscribeFromNewsletterAction,
-} from "@/actions/public/newsletter/actions"
-import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
   invalidateActiveUserCache,
@@ -39,18 +35,6 @@ export async function completeOnboarding(formData: FormData) {
 
   const roleIntent = formData.get("roleIntent")?.toString()
   const heardFrom = formData.get("heardFrom")?.toString()
-  const newsletterOptInRaw = formData.get("newsletterOptIn")
-  const normalizedNewsletterOptIn = newsletterOptInRaw
-    ?.toString()
-    .trim()
-    .toLowerCase()
-  const newsletterOptIn =
-    normalizedNewsletterOptIn == null
-      ? true
-      : normalizedNewsletterOptIn === "true" ||
-        normalizedNewsletterOptIn === "on" ||
-        normalizedNewsletterOptIn === "1"
-
   try {
     const clerkUser = await getClerkUserByIdCached(userId)
 
@@ -88,24 +72,6 @@ export async function completeOnboarding(formData: FormData) {
     }
 
     if (user.email && firstTimeOnboarding) {
-      if (newsletterOptIn) {
-        const result = await subscribeToNewsletterAction(user.email)
-        if (result.error) {
-          console.error(
-            "Failed to auto-opt user into newsletter:",
-            result.error,
-          )
-        }
-      } else {
-        const result = await unsubscribeFromNewsletterAction(user.email)
-        if (result.error) {
-          console.error(
-            "Failed to respect newsletter opt-out during onboarding:",
-            result.error,
-          )
-        }
-      }
-
       const isBuilderIntent = roleIntent
         ? BUILDER_INTENTS.has(roleIntent)
         : false
