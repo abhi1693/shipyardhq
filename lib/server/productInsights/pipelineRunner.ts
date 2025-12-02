@@ -694,9 +694,11 @@ export async function runProductInsightPipeline(job: {
               : null,
         },
         context: {
-          profileId: profileRef.id,
-          productId: productRecord.id,
-          completedAt: new Date().toISOString(),
+          product_insights_ready: {
+            profileId: profileRef.id,
+            productId: productRecord.id,
+            completedAt: new Date().toISOString(),
+          },
         },
         transactionId,
         tags: ["product-notifications", "insights"],
