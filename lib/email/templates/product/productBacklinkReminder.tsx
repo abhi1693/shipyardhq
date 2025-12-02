@@ -4,6 +4,7 @@ export type ProductBacklinkReminderEmailProps = {
   ownerName: string
   productName: string
   dashboardUrl: string
+  rewardPoints: number
 }
 
 const paragraph = {
@@ -63,6 +64,7 @@ export default function ProductBacklinkReminderEmail({
   ownerName,
   productName,
   dashboardUrl,
+  rewardPoints,
 }: ProductBacklinkReminderEmailProps) {
   return (
     <BaseEmailTemplate
@@ -77,8 +79,8 @@ export default function ProductBacklinkReminderEmail({
 
       <ul style={list}>
         <li style={listItem}>
-          <strong>Instant rewards</strong> you can redeem for placement boosts
-          and promotional spots.
+          <strong>{rewardPoints} rewards</strong> you can redeem for placement
+          boosts and promotional spots.
         </li>
         <li style={listItem}>
           <strong>Higher listing trust</strong> that keeps {productName} visible

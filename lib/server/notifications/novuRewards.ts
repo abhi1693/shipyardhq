@@ -9,7 +9,10 @@ import { resolveSiteUrl } from "@/lib/siteConfig"
 const NOVU_REWARDS_WORKFLOW_ID =
   process.env.NOVU_WORKFLOW_REWARDS_NOTIFICATIONS?.trim() ?? null
 
-export type RewardsNotificationKind = "reward_awarded" | "reward_adjusted"
+export type RewardsNotificationKind =
+  | "reward_awarded"
+  | "reward_adjusted"
+  | "reward_backlink_reminder"
 
 export type RewardsNotificationPayload = {
   kind: RewardsNotificationKind
