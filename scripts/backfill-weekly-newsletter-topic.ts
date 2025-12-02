@@ -11,7 +11,8 @@ type TopicDefinition = {
 
 const DEFAULT_TOPICS: TopicDefinition[] = [
   {
-    key: process.env.NOVU_TOPIC_WEEKLY_NEWSLETTER?.trim() || "weekly-newsletter",
+    key:
+      process.env.NOVU_TOPIC_WEEKLY_NEWSLETTER?.trim() || "weekly-newsletter",
     name: "Weekly Newsletter",
   },
   {
