@@ -1,6 +1,5 @@
 import {
-  ensureNovuSubscriber,
-  isNovuEnabled,
+  guardNovuWorkflow,
   triggerNovuWorkflow,
 } from "@/lib/server/notifications/novu"
 
@@ -27,11 +26,11 @@ export async function sendClaimOtpNotification(input: {
   payload: ClaimOtpPayload
   transactionId?: string
 }): Promise<void> {
-  if (!isNovuEnabled()) return
-  if (!NOVU_PRODUCT_CLAIM_OTP_WORKFLOW_ID) {
-    console.warn("[novu] product claim OTP workflow id missing")
-    return
-  }
+  const workflow = guardNovuWorkflow(NOVU_PRODUCT_CLAIM_OTP_WORKFLOW_ID, {
+    label: "product claim otp",
+    missingMessage: "[novu] product claim OTP workflow id missing",
+  })
+  if (!workflow.ready) return
 
   const subscriberId = input.recipient.subscriberId.trim()
   if (!subscriberId) {
@@ -47,9 +46,8 @@ export async function sendClaimOtpNotification(input: {
   }
 
   try {
-    await ensureNovuSubscriber(subscriber)
     await triggerNovuWorkflow({
-      workflowId: NOVU_PRODUCT_CLAIM_OTP_WORKFLOW_ID,
+      workflowId: workflow.workflowId,
       subscriber,
       payload: {
         notification: {

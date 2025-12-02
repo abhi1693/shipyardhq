@@ -1,6 +1,5 @@
 import {
-  ensureNovuSubscriber,
-  isNovuEnabled,
+  guardNovuWorkflow,
   triggerNovuWorkflow,
 } from "@/lib/server/notifications/novu"
 
@@ -33,14 +32,12 @@ export async function sendAdminBroadcastNotification(input: {
   payload: AdminBroadcastPayload
   transactionId?: string
 }): Promise<AdminBroadcastResult> {
-  if (!isNovuEnabled()) {
-    return { sent: false, reason: "novu-disabled" }
-  }
-
-  const workflowId = NOVU_ADMIN_BROADCAST_WORKFLOW_ID
-  if (!workflowId) {
-    console.warn("[novu] admin broadcast workflow id missing")
-    return { sent: false, reason: "missing-workflow" }
+  const workflow = guardNovuWorkflow(NOVU_ADMIN_BROADCAST_WORKFLOW_ID, {
+    label: "admin broadcast",
+    missingMessage: "[novu] admin broadcast workflow id missing",
+  })
+  if (!workflow.ready) {
+    return { sent: false, reason: workflow.reason }
   }
 
   const subscriber = {
@@ -55,10 +52,8 @@ export async function sendAdminBroadcastNotification(input: {
     : ["admin", "broadcast"]
 
   try {
-    await ensureNovuSubscriber(subscriber)
-
     await triggerNovuWorkflow({
-      workflowId,
+      workflowId: workflow.workflowId,
       subscriber,
       payload: {
         notification: {

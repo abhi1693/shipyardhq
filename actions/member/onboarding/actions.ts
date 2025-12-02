@@ -20,7 +20,7 @@ import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { revalidateUser } from "@/lib/cache/revalidate"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import {
-  isNovuEnabled,
+  guardNovuWorkflow,
   triggerNovuWorkflow,
 } from "@/lib/server/notifications/novu"
 
@@ -76,10 +76,17 @@ export async function completeOnboarding(formData: FormData) {
         ? BUILDER_INTENTS.has(roleIntent)
         : false
 
-      if (!isNovuEnabled()) {
-        console.info(
-          "Skipping onboarding welcome workflow; Novu not configured.",
-        )
+      const workflow = guardNovuWorkflow(NOVU_WELCOME_WORKFLOW_ID, {
+        label: "welcome user",
+        missingMessage: "[novu] welcome workflow id missing",
+      })
+
+      if (!workflow.ready) {
+        if (workflow.reason === "novu-disabled") {
+          console.info(
+            "Skipping onboarding welcome workflow; Novu not configured.",
+          )
+        }
       } else {
         try {
           const baseUrl = resolveSiteUrl()
@@ -115,7 +122,7 @@ export async function completeOnboarding(formData: FormData) {
           }
 
           await triggerNovuWorkflow({
-            workflowId: NOVU_WELCOME_WORKFLOW_ID,
+            workflowId: workflow.workflowId,
             subscriber,
             payload,
           })

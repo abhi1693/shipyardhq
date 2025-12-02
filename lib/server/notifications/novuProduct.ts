@@ -1,6 +1,6 @@
 import {
-  ensureNovuSubscriber,
-  isNovuEnabled,
+  guardNovuWorkflow,
+  normalizeNovuString,
   triggerNovuWorkflow,
   type NovuSubscriberInput,
 } from "@/lib/server/notifications/novu"
@@ -39,24 +39,21 @@ export type ProductNotificationPayload = {
 export async function sendProductNotificationToNovu(
   payload: ProductNotificationPayload,
 ): Promise<void> {
-  if (!isNovuEnabled()) return
-  if (!NOVU_PRODUCT_WORKFLOW_ID) {
-    console.warn("[novu] NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS is not set")
-    return
-  }
+  const workflow = guardNovuWorkflow(NOVU_PRODUCT_WORKFLOW_ID, {
+    label: "product notifications",
+    missingMessage: "[novu] NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS is not set",
+  })
+  if (!workflow.ready) return
 
   const { recipient, actor, ...rest } = payload
 
   try {
     const siteUrl = resolveSiteUrl()
-    await ensureNovuSubscriber(recipient)
-    if (actor) {
-      await ensureNovuSubscriber(actor)
-    }
 
-    const rawMemberLink = normalizeString(rest.links?.member)
+    const rawMemberLink = normalizeNovuString(rest.links?.member)
     const rawPublicLink =
-      normalizeString(rest.links?.public) ?? normalizeString(rest.links?.member)
+      normalizeNovuString(rest.links?.public) ??
+      normalizeNovuString(rest.links?.member)
 
     const memberLink = rawMemberLink
       ? new URL(rawMemberLink, `${siteUrl}/`).toString()
@@ -69,17 +66,18 @@ export async function sendProductNotificationToNovu(
     const actorPayload = actor
       ? {
           id: actor.subscriberId,
-          firstName: normalizeString(actor.firstName) ?? undefined,
-          lastName: normalizeString(actor.lastName) ?? undefined,
-          email: normalizeString(actor.email),
+          firstName: normalizeNovuString(actor.firstName) ?? undefined,
+          lastName: normalizeNovuString(actor.lastName) ?? undefined,
+          email: normalizeNovuString(actor.email),
         }
       : undefined
 
     await triggerNovuWorkflow({
-      workflowId: NOVU_PRODUCT_WORKFLOW_ID,
+      workflowId: workflow.workflowId,
       subscriber: recipient,
       actor: actor ?? undefined,
       transactionId: payload.transactionId,
+      ensureActor: Boolean(actor),
       payload: {
         notification: {
           kind: rest.kind,
@@ -105,10 +103,4 @@ export async function sendProductNotificationToNovu(
       recipientId: recipient.subscriberId,
     })
   }
-}
-
-function normalizeString(value: string | null | undefined): string | undefined {
-  if (typeof value !== "string") return undefined
-  const trimmed = value.trim()
-  return trimmed.length > 0 ? trimmed : undefined
 }

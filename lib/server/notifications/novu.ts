@@ -10,6 +10,9 @@ const NOVU_SECRET_KEY = process.env.NOVU_SECRET_KEY?.trim() ?? null
 
 let cachedClient: Novu | null = null
 type TriggerResponse = Awaited<ReturnType<Novu["trigger"]>>
+export type NovuWorkflowGuardResult =
+  | { ready: true; workflowId: string }
+  | { ready: false; reason: "novu-disabled" | "missing-workflow" }
 
 export type NovuSubscriberInput = {
   subscriberId: string
@@ -33,10 +36,31 @@ export type TriggerNovuWorkflowInput = {
   context?: TriggerEventRequestDto["context"]
   tenant?: TriggerEventRequestDto["tenant"]
   ensureSubscriber?: boolean
+  ensureActor?: boolean
 }
 
 export function isNovuEnabled(): boolean {
   return Boolean(NOVU_SECRET_KEY)
+}
+
+export function guardNovuWorkflow(
+  workflowId: string | null | undefined,
+  options: { label: string; missingMessage?: string },
+): NovuWorkflowGuardResult {
+  if (!isNovuEnabled()) {
+    return { ready: false, reason: "novu-disabled" }
+  }
+
+  const trimmed = workflowId?.trim()
+  if (!trimmed) {
+    const warning =
+      options.missingMessage ||
+      `[novu] ${options.label} workflow id is not configured`
+    console.warn(warning)
+    return { ready: false, reason: "missing-workflow" }
+  }
+
+  return { ready: true, workflowId: trimmed }
 }
 
 export function getNovuClient(): Novu {
@@ -78,6 +102,7 @@ export async function triggerNovuWorkflow(
     context,
     tenant,
     ensureSubscriber = true,
+    ensureActor = false,
   } = input
 
   const trimmedWorkflowId = workflowId.trim()
@@ -93,6 +118,15 @@ export async function triggerNovuWorkflow(
 
   if (ensureSubscriber) {
     await client.subscribers.create(subscriberPayload)
+  }
+
+  const actorSubscriberPayload =
+    ensureActor && actor && typeof actor !== "string"
+      ? toSubscriberPayload(actor)
+      : null
+
+  if (actorSubscriberPayload) {
+    await client.subscribers.create(actorSubscriberPayload)
   }
 
   return client.trigger({
@@ -133,6 +167,14 @@ function omitUndefined<T extends Record<string, unknown>>(value: T): T {
   return Object.fromEntries(
     Object.entries(value).filter(([, entry]) => entry !== undefined),
   ) as T
+}
+
+export function normalizeNovuString(
+  value?: string | null,
+): string | undefined {
+  if (typeof value !== "string") return undefined
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : undefined
 }
 
 export async function deleteNovuSubscriber(subscriberId: string): Promise<void> {

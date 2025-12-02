@@ -1,6 +1,5 @@
 import {
-  ensureNovuSubscriber,
-  isNovuEnabled,
+  guardNovuWorkflow,
   triggerNovuWorkflow,
 } from "@/lib/server/notifications/novu"
 
@@ -32,11 +31,11 @@ export async function sendWeeklyNewsletterNotification(input: {
   email: string
   payload: WeeklyNewsletterPayload
 }): Promise<void> {
-  if (!isNovuEnabled()) return
-  if (!NOVU_WEEKLY_NEWSLETTER_WORKFLOW_ID) {
-    console.warn("[novu] weekly newsletter workflow id missing")
-    return
-  }
+  const workflow = guardNovuWorkflow(NOVU_WEEKLY_NEWSLETTER_WORKFLOW_ID, {
+    label: "weekly newsletter",
+    missingMessage: "[novu] weekly newsletter workflow id missing",
+  })
+  if (!workflow.ready) return
 
   const subscriberId = input.email?.trim().toLowerCase()
   if (!subscriberId) {
@@ -50,7 +49,6 @@ export async function sendWeeklyNewsletterNotification(input: {
   }
 
   try {
-    await ensureNovuSubscriber(subscriber)
     const timestamp = new Date().toISOString()
     const subject = "This week on Shipyard HQ"
     const message =
@@ -60,7 +58,7 @@ export async function sendWeeklyNewsletterNotification(input: {
       input.payload
 
     await triggerNovuWorkflow({
-      workflowId: NOVU_WEEKLY_NEWSLETTER_WORKFLOW_ID,
+      workflowId: workflow.workflowId,
       subscriber,
       payload: {
         notification: {

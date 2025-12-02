@@ -1,8 +1,6 @@
-import prisma from "@/lib/prisma"
-import { memberProductEditPath, memberOrganizationPath } from "@/lib/routes"
+import { memberOrganizationPath } from "@/lib/routes"
 import {
-  ensureNovuSubscriber,
-  isNovuEnabled,
+  guardNovuWorkflow,
   triggerNovuWorkflow,
   type NovuSubscriberInput,
 } from "@/lib/server/notifications/novu"
@@ -24,11 +22,12 @@ type OrganizationInviteInput = {
 export async function sendOrganizationInviteNotification(
   input: OrganizationInviteInput,
 ): Promise<void> {
-  if (!isNovuEnabled()) return
-  if (!NOVU_ORG_WORKFLOW_ID) {
-    console.warn("[novu] NOVU_WORKFLOW_ORGANIZATION_NOTIFICATIONS is not set")
-    return
-  }
+  const workflow = guardNovuWorkflow(NOVU_ORG_WORKFLOW_ID, {
+    label: "organization notifications",
+    missingMessage:
+      "[novu] NOVU_WORKFLOW_ORGANIZATION_NOTIFICATIONS is not set",
+  })
+  if (!workflow.ready) return
 
   const { organizationId, organizationName, inviterName, invitee } = input
   if (!invitee.subscriberId?.trim()) {
@@ -45,7 +44,6 @@ export async function sendOrganizationInviteNotification(
 
   try {
     const siteUrl = resolveSiteUrl()
-    await ensureNovuSubscriber(subscriber)
 
     const memberLink = new URL(
       memberOrganizationPath(organizationId),
@@ -56,7 +54,7 @@ export async function sendOrganizationInviteNotification(
     const message = `You were added to ${organizationName}. Open the organization to get started.`
 
     await triggerNovuWorkflow({
-      workflowId: NOVU_ORG_WORKFLOW_ID,
+      workflowId: workflow.workflowId,
       subscriber,
       payload: {
         notification: {

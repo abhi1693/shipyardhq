@@ -1,7 +1,6 @@
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import {
-  ensureNovuSubscriber,
-  isNovuEnabled,
+  guardNovuWorkflow,
   triggerNovuWorkflow,
   type NovuSubscriberInput,
 } from "@/lib/server/notifications/novu"
@@ -43,11 +42,11 @@ export async function sendMonthlyLeaderboardWinnerNotification(input: {
   leaderboardUrl?: string
   productUrl?: string
 }): Promise<void> {
-  if (!isNovuEnabled()) return
-  if (!NOVU_LEADERBOARD_WORKFLOW_ID) {
-    console.warn("[novu] leaderboard workflow id not configured")
-    return
-  }
+  const workflow = guardNovuWorkflow(NOVU_LEADERBOARD_WORKFLOW_ID, {
+    label: "leaderboard notifications",
+    missingMessage: "[novu] leaderboard workflow id not configured",
+  })
+  if (!workflow.ready) return
 
   const subscriberId = input.recipient.subscriberId?.trim()
   if (!subscriberId) {
@@ -79,10 +78,9 @@ export async function sendMonthlyLeaderboardWinnerNotification(input: {
 
   try {
     const subscriber = { ...input.recipient, subscriberId }
-    await ensureNovuSubscriber(subscriber)
 
     await triggerNovuWorkflow({
-      workflowId: NOVU_LEADERBOARD_WORKFLOW_ID,
+      workflowId: workflow.workflowId,
       subscriber,
       payload: {
         notification: {
@@ -94,7 +92,7 @@ export async function sendMonthlyLeaderboardWinnerNotification(input: {
         links: {
           member: productUrl,
           public: productUrl,
-    },
+        },
         context: {
           leaderboard_monthly_winner: {
             monthKey: payload.monthKey,
