@@ -6,7 +6,7 @@ import {
 } from "@/lib/server/social/linkedinAuth"
 import { buildCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
-import { sendAdminBroadcastNotification } from "@/lib/server/notifications/novuAdmin"
+import { sendSystemUpdateNotification } from "@/lib/server/notifications/novuAdmin"
 
 const MIN_NOTIFY_INTERVAL_MS = 30 * 60 * 1000 // 30 minutes
 const NOTIFY_THROTTLE_KEY = buildCacheKey("linkedin", "auth-notify", "last")
@@ -99,7 +99,7 @@ export async function notifyLinkedInAuthNeeded(
   ].filter(Boolean) as string[]
 
   try {
-    await sendAdminBroadcastNotification({
+    await sendSystemUpdateNotification({
       recipient: {
         subscriberId: adminEmail,
         email: adminEmail,
@@ -110,9 +110,9 @@ export async function notifyLinkedInAuthNeeded(
           .map((line) => `<p style="margin:0 0 12px">${line}</p>`)
           .join(""),
         segment: "ops",
-        tags: ["admin", "broadcast", "ops", "linkedin"],
+        tags: ["system-updates", "ops", "linkedin"],
       },
-      transactionId: `linkedin_auth_alert:${options.trigger ?? "unknown"}`,
+      transactionId: `system_update:linkedin_auth_alert:${options.trigger ?? "unknown"}`,
     })
     await recordNotificationTimestamp()
     return { sent: true, adminEmail, authUrl }

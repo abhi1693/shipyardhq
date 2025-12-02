@@ -10,7 +10,11 @@ import {
   fetchAllNovuSubscriberEmails,
   isNovuEnabled,
 } from "@/lib/server/notifications/novu"
-import { sendAdminBroadcastNotification } from "@/lib/server/notifications/novuAdmin"
+import {
+  sendSystemUpdateNotification,
+  sendSystemUpdateTopicNotification,
+} from "@/lib/server/notifications/novuAdmin"
+import { NOVU_SYSTEM_UPDATES_TOPIC_KEY } from "@/lib/server/notifications/novuSystemUpdates"
 
 export type NotificationSegment = "all" | "selected"
 
@@ -223,7 +227,7 @@ export async function sendNotificationEmailsAction(
   const message = formData.get("message")?.toString() ?? ""
 
   if (!isNovuEnabled()) {
-    return { error: "Novu is not configured. Cannot send broadcast." }
+    return { error: "Novu is not configured. Cannot send system update." }
   }
 
   const segments: NotificationSegment[] = ["all", "selected"]
@@ -243,6 +247,45 @@ export async function sendNotificationEmailsAction(
 
   const selectedUserIds =
     segment === "selected" ? formData.getAll("selectedUserIds").map(String) : []
+
+  const html = await buildBroadcastHtml(message)
+  const timestamp = new Date().toISOString()
+
+  if (segment === "all") {
+    const result = await sendSystemUpdateTopicNotification({
+      topicKey: NOVU_SYSTEM_UPDATES_TOPIC_KEY,
+      payload: {
+        subject,
+        html,
+        segment,
+        tags: ["system-updates", "broadcast"],
+      },
+      transactionId: `system_update_topic:${segment}:${timestamp}`,
+    })
+
+    if (!result.sent) {
+      if (result.reason === "novu-disabled") {
+        return { error: "Novu is not configured. Cannot send system update." }
+      }
+      if (result.reason === "missing-workflow") {
+        return { error: "System updates workflow not configured" }
+      }
+      return { error: "Failed to send notification via topic" }
+    }
+
+    return {
+      success: true,
+      summary: {
+        totalRecipients: 1,
+        attempted: 1,
+        sent: 1,
+        failed: [],
+        invalidEmails: [],
+        sentPercentage: 100,
+        failedPercentage: 0,
+      },
+    }
+  }
 
   let recipients: ResolvedRecipient[] = []
   let invalidEmails: string[] = []
@@ -277,19 +320,16 @@ export async function sendNotificationEmailsAction(
   const failed: { email: string; error: string }[] = []
   let sent = 0
 
-  const timestamp = new Date().toISOString()
-
   for (const [index, recipient] of uniqueRecipients.entries()) {
     try {
-      const html = await buildBroadcastHtml(message)
-      const transactionId = `admin_broadcast:${segment}:${recipient.subscriberId}:${index}`
-      const result = await sendAdminBroadcastNotification({
+      const transactionId = `system_update:${segment}:${recipient.subscriberId}:${index}`
+      const result = await sendSystemUpdateNotification({
         recipient,
         payload: {
           subject,
           html,
           segment,
-          tags: ["admin", "broadcast"],
+          tags: ["system-updates", "broadcast"],
         },
         transactionId: `${transactionId}:${timestamp}`,
       })
