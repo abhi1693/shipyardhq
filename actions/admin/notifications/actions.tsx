@@ -1,18 +1,9 @@
 "use server"
 
-import { render } from "@react-email/render"
-
 import prisma from "@/lib/prisma"
 import { sendEmail } from "@/lib/email/resend"
 import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
 import { deriveFirstNameFromEmail } from "@/lib/email/personalization"
-import { parseEmailList } from "@/lib/email/list-parser"
-import {
-  BUILDER_OUTREACH_SUBJECT,
-  BuilderOutreachEmail,
-  buildBuilderOutreachTextBody,
-  pickBuilderOutreachSubject,
-} from "@/lib/email/templates/outreach/builderOutreach"
 import { checkRole } from "@/lib/roles"
 import {
   EMAIL_PARAGRAPH_STYLE,
@@ -20,6 +11,10 @@ import {
   markdownToPlainText,
   renderEmailMarkdown,
 } from "@/lib/email/markdown"
+import {
+  fetchAllNovuSubscriberEmails,
+  isNovuEnabled,
+} from "@/lib/server/notifications/novu"
 
 const BUILDER_INTENTS = ["launch-product", "manage-team"] as const
 const EXPLORER_INTENT = "explore" as const
@@ -34,17 +29,6 @@ export type NotificationSegment =
   | "buildersWithoutProducts"
   | "explorersWithoutProducts"
   | "selected"
-
-export type SegmentCounts = {
-  registered: number
-  builders: number
-  explorers: number
-  withProducts: number
-  withoutProducts: number
-  buildersWithProducts: number
-  buildersWithoutProducts: number
-  explorersWithoutProducts: number
-}
 
 type SendNotificationError = {
   error: string
@@ -68,10 +52,6 @@ export type SendNotificationResponse =
   | SendNotificationError
   | SendNotificationSuccess
 
-export type SendBuilderOutreachResponse =
-  | SendNotificationError
-  | { success: true; summary: SendNotificationSuccess["summary"] }
-
 const DEFAULT_GREETING = "shipmate"
 const RATE_LIMIT_REQUESTS_PER_SECOND = 2
 const RATE_LIMIT_INTERVAL_MS = Math.ceil(1000 / RATE_LIMIT_REQUESTS_PER_SECOND)
@@ -82,88 +62,16 @@ type ResolvedRecipient = {
 }
 
 async function getSubscribedNewsletterEmails(): Promise<string[]> {
-  const subscriptions = await prisma.newsletterSubscription.findMany({
-    select: { email: true },
-  })
-
-  if (!subscriptions.length) {
+  if (!isNovuEnabled()) {
     return []
   }
 
-  const normalized = new Set<string>()
-  for (const entry of subscriptions) {
-    const email = entry.email?.trim().toLowerCase()
-    if (email) {
-      normalized.add(email)
-    }
+  try {
+    return await fetchAllNovuSubscriberEmails()
+  } catch (error) {
+    console.error("Failed to load Novu subscribers", error)
+    return []
   }
-
-  return Array.from(normalized)
-}
-
-async function subscribeSentOutreachRecipients(emails: string[]) {
-  if (!emails.length) {
-    return
-  }
-
-  const normalized = Array.from(
-    new Set(
-      emails
-        .map((email) => email.trim().toLowerCase())
-        .filter((email) => email.length > 0),
-    ),
-  )
-
-  if (!normalized.length) {
-    return
-  }
-
-  const emailWhereClauses = normalized.map((email) => ({
-    email: { equals: email, mode: "insensitive" as const },
-  }))
-
-  const [existingUsers, existingSubscriptions] = await Promise.all([
-    prisma.user.findMany({
-      where: { OR: emailWhereClauses },
-      select: { email: true },
-    }),
-    prisma.newsletterSubscription.findMany({
-      where: { OR: emailWhereClauses },
-      select: { email: true },
-    }),
-  ])
-
-  type NotificationUser = (typeof existingUsers)[number]
-  const registeredEmails = new Set(
-    existingUsers
-      .map((user: NotificationUser) => user.email?.trim().toLowerCase())
-      .filter((email: string | undefined | null): email is string =>
-        Boolean(email),
-      ),
-  )
-
-  const subscribedEmails = new Set(
-    existingSubscriptions
-      .map((entry: (typeof existingSubscriptions)[number]) =>
-        entry.email?.trim().toLowerCase(),
-      )
-      .filter((email: string | undefined | null): email is string =>
-        Boolean(email),
-      ),
-  )
-
-  const emailsToSubscribe = normalized.filter(
-    (email) => !registeredEmails.has(email) && !subscribedEmails.has(email),
-  )
-
-  if (!emailsToSubscribe.length) {
-    return
-  }
-
-  await prisma.newsletterSubscription.createMany({
-    data: emailsToSubscribe.map((email) => ({ email })),
-    skipDuplicates: true,
-  })
 }
 
 function getGreetingName(recipient: ResolvedRecipient): string {
@@ -219,113 +127,6 @@ async function requireAdmin() {
   const isAdmin = await checkRole("admin")
   if (!isAdmin) {
     throw new Error("Unauthorized")
-  }
-}
-
-export async function getNotificationSegmentCounts(): Promise<SegmentCounts> {
-  await requireAdmin()
-
-  const subscribedEmails = await getSubscribedNewsletterEmails()
-
-  if (subscribedEmails.length === 0) {
-    return {
-      registered: 0,
-      builders: 0,
-      explorers: 0,
-      withProducts: 0,
-      withoutProducts: 0,
-      buildersWithProducts: 0,
-      buildersWithoutProducts: 0,
-      explorersWithoutProducts: 0,
-    }
-  }
-
-  const emailFilter = {
-    email: { in: subscribedEmails, mode: "insensitive" as const },
-  }
-
-  const activeMemberWhere = {
-    status: "active" as const,
-    role: { not: "admin" },
-    ...emailFilter,
-  }
-
-  const builderIntentWhere = {
-    ...activeMemberWhere,
-    roleIntent: { in: [...BUILDER_INTENTS] },
-  }
-
-  const explorerIntentWhere = {
-    ...activeMemberWhere,
-    roleIntent: EXPLORER_INTENT,
-  }
-
-  const [
-    registered,
-    builders,
-    explorers,
-    withProducts,
-    withoutProducts,
-    buildersWithProducts,
-    buildersWithoutProducts,
-    explorersWithoutProducts,
-  ] = await Promise.all([
-    prisma.user.count({
-      where: {
-        ...activeMemberWhere,
-      },
-    }),
-    prisma.user.count({
-      where: {
-        ...builderIntentWhere,
-      },
-    }),
-    prisma.user.count({
-      where: {
-        ...explorerIntentWhere,
-      },
-    }),
-    prisma.user.count({
-      where: {
-        ...activeMemberWhere,
-        products: { some: {} },
-      },
-    }),
-    prisma.user.count({
-      where: {
-        ...activeMemberWhere,
-        products: { none: {} },
-      },
-    }),
-    prisma.user.count({
-      where: {
-        ...builderIntentWhere,
-        products: { some: {} },
-      },
-    }),
-    prisma.user.count({
-      where: {
-        ...builderIntentWhere,
-        products: { none: {} },
-      },
-    }),
-    prisma.user.count({
-      where: {
-        ...explorerIntentWhere,
-        products: { none: {} },
-      },
-    }),
-  ])
-
-  return {
-    registered,
-    builders,
-    explorers,
-    withProducts,
-    withoutProducts,
-    buildersWithProducts,
-    buildersWithoutProducts,
-    explorersWithoutProducts,
   }
 }
 
@@ -648,121 +449,6 @@ export async function sendNotificationEmailsAction(
     },
   }
 }
-
-export async function sendBuilderOutreachEmailsAction(
-  formData: FormData,
-): Promise<SendBuilderOutreachResponse> {
-  try {
-    await requireAdmin()
-  } catch {
-    return { error: "Unauthorized" }
-  }
-
-  const emailsRaw = formData.get("emails")?.toString() ?? ""
-
-  if (!emailsRaw.trim()) {
-    return { error: "Enter at least one email address" }
-  }
-
-  const parsed = parseEmailList(emailsRaw)
-  const recipients = parsed.valid
-  const invalid = parsed.invalid
-
-  if (recipients.length === 0) {
-    return {
-      error: "We couldn't find any valid email addresses",
-      invalidEmails: invalid,
-    }
-  }
-
-  const failed: { email: string; error: string }[] = []
-  let sent = 0
-  const successfullySent: string[] = []
-  const subject = pickBuilderOutreachSubject()
-
-  for (const [index, email] of recipients.entries()) {
-    if (index > 0) {
-      await wait(RATE_LIMIT_INTERVAL_MS)
-    }
-
-    const firstName = deriveFirstNameFromEmail(email)
-
-    try {
-      await sendEmail({
-        to: email,
-        subject,
-        text: buildBuilderOutreachTextBody(firstName),
-        react: <BuilderOutreachEmail firstName={firstName} subject={subject} />,
-      })
-      sent += 1
-      successfullySent.push(email)
-    } catch (error: any) {
-      console.error(`Failed to send builder outreach email to ${email}`, error)
-      failed.push({
-        email,
-        error: error?.message ?? "Unknown error",
-      })
-    }
-  }
-
-  try {
-    await subscribeSentOutreachRecipients(successfullySent)
-  } catch (error) {
-    console.error("Failed to subscribe builder outreach recipients", error)
-  }
-
-  if (sent === 0) {
-    return {
-      error: "Failed to send builder outreach emails",
-      invalidEmails: invalid.length > 0 ? invalid : undefined,
-    }
-  }
-
-  const totalRecipients = recipients.length
-
-  return {
-    success: true,
-    summary: {
-      totalRecipients,
-      attempted: totalRecipients,
-      sent,
-      failed,
-      invalidEmails: invalid,
-      sentPercentage: calculatePercentage(sent, totalRecipients),
-      failedPercentage: calculatePercentage(failed.length, totalRecipients),
-    },
-  }
-}
-
-export async function renderBuilderOutreachEmailPreviewAction(params?: {
-  firstName?: string | null
-  email?: string | null
-}): Promise<string | null> {
-  try {
-    await requireAdmin()
-  } catch {
-    return null
-  }
-
-  const normalizedFirstName = params?.firstName?.trim()
-  const fallbackName = params?.email
-    ? (deriveFirstNameFromEmail(params.email) ?? null)
-    : null
-  const resolvedFirstName = normalizedFirstName || fallbackName || undefined
-
-  try {
-    return await render(
-      <BuilderOutreachEmail
-        firstName={resolvedFirstName}
-        subject={BUILDER_OUTREACH_SUBJECT}
-      />,
-    )
-  } catch (error) {
-    console.error("Failed to render builder outreach email preview", error)
-    return null
-  }
-}
-
 export async function getSegmentPreviewRecipient(params: {
   segment: NotificationSegment
   selectedUserIds?: string[]

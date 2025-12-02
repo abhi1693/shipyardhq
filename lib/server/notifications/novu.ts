@@ -134,3 +134,41 @@ function omitUndefined<T extends Record<string, unknown>>(value: T): T {
     Object.entries(value).filter(([, entry]) => entry !== undefined),
   ) as T
 }
+
+export async function deleteNovuSubscriber(subscriberId: string): Promise<void> {
+  const client = getNovuClient()
+  const trimmed = subscriberId.trim()
+  if (!trimmed) {
+    throw new Error("Novu subscriberId is required for deletion")
+  }
+  await client.subscribers.delete(trimmed)
+}
+
+export async function fetchAllNovuSubscriberEmails(
+  limit = 100,
+): Promise<string[]> {
+  if (!isNovuEnabled()) return []
+
+  const client = getNovuClient()
+  const emails = new Set<string>()
+
+  let cursor: string | undefined
+  do {
+    const response = await client.subscribers.search({
+      limit,
+      after: cursor,
+    })
+
+    const page = response.result?.data ?? []
+    for (const subscriber of page) {
+      const email = subscriber.email?.trim().toLowerCase()
+      if (email) {
+        emails.add(email)
+      }
+    }
+
+    cursor = response.result?.next ?? undefined
+  } while (cursor)
+
+  return Array.from(emails)
+}

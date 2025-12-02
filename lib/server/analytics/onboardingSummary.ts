@@ -11,6 +11,7 @@ import type {
   OnboardingSignupPoint,
 } from "@/types/analytics"
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
+import { fetchAllNovuSubscriberEmails } from "@/lib/server/notifications/novu"
 
 const ROLE_INTENT_LABELS: Record<string, string> = {
   "launch-product": "Launch a product",
@@ -91,10 +92,6 @@ type CompletedMember = Prisma.UserGetPayload<{
     roleIntent: true
     heardFrom: true
   }
-}>
-
-type NewsletterSubscriptionEmail = Prisma.NewsletterSubscriptionGetPayload<{
-  select: { email: true }
 }>
 
 type RegisteredUserEmail = Prisma.UserGetPayload<{
@@ -262,7 +259,7 @@ export async function getOnboardingAnswersSummary(
     pendingInRange,
     latestCompleted,
     completedMembers,
-    allNewsletterSubscriptions,
+    newsletterSubscriberEmails,
     registeredUsers,
     signupRecords,
   ] = await Promise.all([
@@ -301,9 +298,7 @@ export async function getOnboardingAnswersSummary(
         heardFrom: true,
       },
     }) as Promise<CompletedMember[]>,
-    prisma.newsletterSubscription.findMany({
-      select: { email: true },
-    }) as Promise<NewsletterSubscriptionEmail[]>,
+    fetchAllNovuSubscriberEmails(),
     prisma.user.findMany({
       select: { email: true },
     }) as Promise<RegisteredUserEmail[]>,
@@ -367,9 +362,7 @@ export async function getOnboardingAnswersSummary(
   const lastResponseAt = latestCompleted?.updatedAt?.toISOString() ?? null
 
   const newsletterEmailSet = new Set(
-    allNewsletterSubscriptions
-      .map((entry: NewsletterSubscriptionEmail) => entry.email?.toLowerCase())
-      .filter(Boolean) as string[],
+    newsletterSubscriberEmails.map((email) => email.toLowerCase()),
   )
 
   const registeredEmailSet = new Set(

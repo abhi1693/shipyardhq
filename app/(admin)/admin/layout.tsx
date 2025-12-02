@@ -94,16 +94,6 @@ const baseNavItems: NavItem[] = [
         url: adminPath("notifications"),
         icon: "bell",
       },
-      {
-        title: "Newsletter subscribers",
-        url: adminPath("notifications", "newsletter"),
-        icon: "member",
-      },
-      {
-        title: "Builder outreach",
-        url: adminPath("notifications", "outreach"),
-        icon: "link",
-      },
     ],
   },
   {

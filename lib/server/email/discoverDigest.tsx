@@ -3,6 +3,10 @@ import { getCachedRevenueSummary } from "@/lib/server/payments/revenue"
 import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import { sendWeeklyNewsletterNotification } from "@/lib/server/notifications/novuNewsletter"
+import {
+  fetchAllNovuSubscriberEmails,
+  isNovuEnabled,
+} from "@/lib/server/notifications/novu"
 
 const LOOKBACK_DAYS = 7
 const FEATURED_LIMIT = 6
@@ -250,6 +254,10 @@ function collectUniqueProducts<T>(
 }
 
 export async function sendDiscoverDigestEmails(now: Date = new Date()) {
+  if (!isNovuEnabled()) {
+    return { sent: 0, skipped: 0 }
+  }
+
   const weekEnd = now
   const weekStart = subtractDays(now, LOOKBACK_DAYS - 1)
 
@@ -338,9 +346,7 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
     },
   })
 
-  const subscribers = await prisma.newsletterSubscription.findMany({
-    select: { email: true },
-  })
+  const subscriberEmails = await fetchAllNovuSubscriberEmails()
 
   const seenUrls = new Set<string>()
 
@@ -371,7 +377,7 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
     seenUrls,
   )
 
-  if (!subscribers.length) {
+  if (!subscriberEmails.length) {
     return { sent: 0, skipped: 0 }
   }
 
@@ -406,12 +412,7 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
   let sent = 0
   let skipped = 0
 
-  for (const subscriber of subscribers) {
-    const email = subscriber.email?.trim()
-    if (!email) {
-      skipped += 1
-      continue
-    }
+  for (const email of subscriberEmails) {
     try {
       await sendWeeklyNewsletterNotification({
         email,
