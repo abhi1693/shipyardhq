@@ -77,9 +77,7 @@ type NotificationCenterProps = {
   users: NotificationUser[]
 }
 
-export default function NotificationCenter({
-  users,
-}: NotificationCenterProps) {
+export default function NotificationCenter({ users }: NotificationCenterProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [invalidEmails, setInvalidEmails] = useState<string[]>([])
   const [failedRecipients, setFailedRecipients] = useState<

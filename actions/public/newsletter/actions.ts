@@ -25,7 +25,8 @@ export async function subscribeToNewsletterAction(rawEmail: string) {
 
   if (!isNovuEnabled()) {
     return {
-      error: "Newsletter signups are unavailable right now. Please try again soon.",
+      error:
+        "Newsletter signups are unavailable right now. Please try again soon.",
     }
   }
 

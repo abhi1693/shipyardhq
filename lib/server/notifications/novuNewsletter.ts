@@ -54,8 +54,11 @@ export async function sendWeeklyNewsletterNotification(input: {
     const message =
       "Featured launches, fresh listings, and trending products from Shipyard HQ."
 
-    const { html: contentHtml, text: contentText, ...restPayload } =
-      input.payload
+    const {
+      html: contentHtml,
+      text: contentText,
+      ...restPayload
+    } = input.payload
 
     await triggerNovuWorkflow({
       workflowId: workflow.workflowId,

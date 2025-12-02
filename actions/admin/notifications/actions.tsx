@@ -2,7 +2,10 @@
 
 import prisma from "@/lib/prisma"
 import { checkRole } from "@/lib/roles"
-import { EMAIL_PARAGRAPH_STYLE, renderEmailMarkdown } from "@/lib/email/markdown"
+import {
+  EMAIL_PARAGRAPH_STYLE,
+  renderEmailMarkdown,
+} from "@/lib/email/markdown"
 import {
   fetchAllNovuSubscriberEmails,
   isNovuEnabled,
@@ -71,7 +74,10 @@ async function buildBroadcastHtml(message: string): Promise<string> {
   )
 
   const html = renderToStaticMarkup(element)
-  return html.replace(/\snode="[^"]*"/g, "").replace(/>\s+</g, "><").trim()
+  return html
+    .replace(/\snode="[^"]*"/g, "")
+    .replace(/>\s+</g, "><")
+    .trim()
 }
 
 async function requireAdmin() {
@@ -201,9 +207,7 @@ async function resolveSegmentRecipients(
   })
 
   const recipients = users
-    .map((user: (typeof users)[number]) =>
-      toRecipient(user, subscribedEmails),
-    )
+    .map((user: (typeof users)[number]) => toRecipient(user, subscribedEmails))
     .filter(Boolean) as ResolvedRecipient[]
 
   return { recipients, invalidEmails: [] }
@@ -238,18 +242,13 @@ export async function sendNotificationEmailsAction(
   }
 
   const selectedUserIds =
-    segment === "selected"
-      ? formData.getAll("selectedUserIds").map(String)
-      : []
+    segment === "selected" ? formData.getAll("selectedUserIds").map(String) : []
 
   let recipients: ResolvedRecipient[] = []
   let invalidEmails: string[] = []
 
   try {
-    const resolution = await resolveSegmentRecipients(
-      segment,
-      selectedUserIds,
-    )
+    const resolution = await resolveSegmentRecipients(segment, selectedUserIds)
     recipients = resolution.recipients
     invalidEmails = resolution.invalidEmails
   } catch (error) {

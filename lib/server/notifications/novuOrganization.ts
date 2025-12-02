@@ -9,8 +9,7 @@ import { resolveSiteUrl } from "@/lib/siteConfig"
 const NOVU_ORG_WORKFLOW_ID =
   process.env.NOVU_WORKFLOW_ORGANIZATION_NOTIFICATIONS?.trim() ?? null
 
-export type OrganizationNotificationKind =
-  | "organization_member_invite"
+export type OrganizationNotificationKind = "organization_member_invite"
 
 type OrganizationInviteInput = {
   organizationId: string

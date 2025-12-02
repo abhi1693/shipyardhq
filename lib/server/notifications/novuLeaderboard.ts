@@ -59,8 +59,10 @@ export async function sendMonthlyLeaderboardWinnerNotification(input: {
   const siteUrl = resolveSiteUrl()
   const leaderboardUrl =
     input.leaderboardUrl ||
-    new URL(monthlyLeaderboardArchivePath(input.monthKey), `${siteUrl}/`)
-      .toString()
+    new URL(
+      monthlyLeaderboardArchivePath(input.monthKey),
+      `${siteUrl}/`,
+    ).toString()
   const productUrl =
     input.productUrl ||
     new URL(productPath(input.productSlug), `${siteUrl}/`).toString()

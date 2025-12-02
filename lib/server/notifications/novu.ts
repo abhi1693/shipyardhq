@@ -169,15 +169,15 @@ function omitUndefined<T extends Record<string, unknown>>(value: T): T {
   ) as T
 }
 
-export function normalizeNovuString(
-  value?: string | null,
-): string | undefined {
+export function normalizeNovuString(value?: string | null): string | undefined {
   if (typeof value !== "string") return undefined
   const trimmed = value.trim()
   return trimmed.length > 0 ? trimmed : undefined
 }
 
-export async function deleteNovuSubscriber(subscriberId: string): Promise<void> {
+export async function deleteNovuSubscriber(
+  subscriberId: string,
+): Promise<void> {
   const client = getNovuClient()
   const trimmed = subscriberId.trim()
   if (!trimmed) {

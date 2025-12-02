@@ -67,10 +67,9 @@ async function sendConnectorErrorNotification(params: {
   const timestamp = new Date().toISOString()
 
   const subject = `Action needed: fix ${product.name} revenue sync`
-  const message =
-    params.errorMessage?.trim()?.length
-      ? params.errorMessage
-      : "Payment connector sync failed. Open the product to reconnect or update credentials."
+  const message = params.errorMessage?.trim()?.length
+    ? params.errorMessage
+    : "Payment connector sync failed. Open the product to reconnect or update credentials."
 
   await sendProductNotificationToNovu({
     kind: "product_payment_sync_error",
