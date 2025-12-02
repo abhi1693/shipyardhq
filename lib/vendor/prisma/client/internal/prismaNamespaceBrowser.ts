@@ -59,7 +59,6 @@ export const ModelName = {
   LeaderboardRun: 'LeaderboardRun',
   ProductLeaderboardScore: 'ProductLeaderboardScore',
   MonthlyLeaderboardNotification: 'MonthlyLeaderboardNotification',
-  Notification: 'Notification',
   ProductMedia: 'ProductMedia',
   ProductUpdate: 'ProductUpdate',
   ProductVerification: 'ProductVerification',
@@ -241,20 +240,6 @@ export const MonthlyLeaderboardNotificationScalarFieldEnum = {
 } as const
 
 export type MonthlyLeaderboardNotificationScalarFieldEnum = (typeof MonthlyLeaderboardNotificationScalarFieldEnum)[keyof typeof MonthlyLeaderboardNotificationScalarFieldEnum]
-
-
-export const NotificationScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  type: 'type',
-  message: 'message',
-  metadata: 'metadata',
-  readAt: 'readAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
 export const ProductMediaScalarFieldEnum = {

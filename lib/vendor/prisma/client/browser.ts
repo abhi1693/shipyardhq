@@ -58,11 +58,6 @@ export type ProductLeaderboardScore = Prisma.ProductLeaderboardScoreModel
  */
 export type MonthlyLeaderboardNotification = Prisma.MonthlyLeaderboardNotificationModel
 /**
- * Model Notification
- * 
- */
-export type Notification = Prisma.NotificationModel
-/**
  * Model ProductMedia
  * 
  */
