@@ -8,12 +8,6 @@ import {
   invalidateActiveUserCache,
 } from "@/lib/server/userStatus"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
-import { sendEmail } from "@/lib/email/resend"
-import {
-  buildWelcomeTextBody,
-  WelcomeEmail,
-} from "@/lib/email/templates/onboarding/welcome"
-import { getAppBaseUrl } from "@/lib/email/utils"
 import {
   LEADERBOARD_GUIDE_PATH,
   LEADERBOARD_MONTHLY_PATH,
@@ -22,12 +16,18 @@ import {
   MEMBER_OVERVIEW_PATH,
   REWARDS_PATH,
 } from "@/lib/routes"
-import { IS_PROD } from "@/lib/constants"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { revalidateUser } from "@/lib/cache/revalidate"
+import { resolveSiteUrl } from "@/lib/siteConfig"
+import {
+  isNovuEnabled,
+  triggerNovuWorkflow,
+} from "@/lib/server/notifications/novu"
 
 const BUILDER_INTENTS = new Set(["launch-product", "manage-team"])
-const WELCOME_EMAIL_SUBJECT = "Welcome aboard ShipYardHQ"
+const WELCOME_SUBJECT = "Welcome aboard ShipYardHQ"
+const NOVU_WELCOME_WORKFLOW_ID =
+  process.env.NOVU_WORKFLOW_WELCOME_USER?.trim() || "welcome-user"
 
 export async function completeOnboarding(formData: FormData) {
   const { userId } = await auth()
@@ -76,33 +76,49 @@ export async function completeOnboarding(formData: FormData) {
         ? BUILDER_INTENTS.has(roleIntent)
         : false
 
-      const shouldSendWelcomeEmail = IS_PROD || process.env.NODE_ENV === "test"
-      const configuredBaseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim()
-
-      if (!shouldSendWelcomeEmail || !configuredBaseUrl) {
-        console.info("Skipping onboarding welcome email.")
+      if (!isNovuEnabled()) {
+        console.info("Skipping onboarding welcome workflow; Novu not configured.")
       } else {
         try {
-          const baseUrl = getAppBaseUrl()
-          const emailProps = {
+          const baseUrl = resolveSiteUrl()
+          const subscriber = {
+            subscriberId: userId,
+            email: user.email,
             firstName: user.firstName,
-            dashboardUrl: `${baseUrl}${MEMBER_OVERVIEW_PATH}`,
-            isBuilder: isBuilderIntent,
-            leaderboardUrl: `${baseUrl}${LEADERBOARD_PATH}`,
-            monthlyUrl: `${baseUrl}${LEADERBOARD_MONTHLY_PATH}`,
-            guideUrl: `${baseUrl}${LEADERBOARD_GUIDE_PATH}`,
-            feedbackUrl: `${baseUrl}${MEMBER_FEEDBACK_PATH}`,
-            rewardsUrl: `${baseUrl}${REWARDS_PATH}`,
+            lastName: user.lastName,
+            avatar: clerkUser.imageUrl ?? null,
+          }
+          const links = {
+            dashboard: `${baseUrl}${MEMBER_OVERVIEW_PATH}`,
+            leaderboard: `${baseUrl}${LEADERBOARD_PATH}`,
+            monthly: `${baseUrl}${LEADERBOARD_MONTHLY_PATH}`,
+            guide: `${baseUrl}${LEADERBOARD_GUIDE_PATH}`,
+            feedback: `${baseUrl}${MEMBER_FEEDBACK_PATH}`,
+            rewards: `${baseUrl}${REWARDS_PATH}`,
+          }
+          const payload = {
+            notification: {
+              kind: "welcome_user",
+              subject: WELCOME_SUBJECT,
+              message:
+                "Welcome aboard—open your dashboard to start your ShipYardHQ workspace.",
+              timestamp: new Date().toISOString(),
+            },
+            onboarding: {
+              firstName: user.firstName ?? null,
+              isBuilder: isBuilderIntent,
+            },
+            links,
+            tags: ["welcome"],
           }
 
-          await sendEmail({
-            to: user.email,
-            subject: WELCOME_EMAIL_SUBJECT,
-            react: WelcomeEmail(emailProps),
-            text: buildWelcomeTextBody(emailProps),
+          await triggerNovuWorkflow({
+            workflowId: NOVU_WELCOME_WORKFLOW_ID,
+            subscriber,
+            payload,
           })
         } catch (error) {
-          console.error("Failed to send onboarding welcome email:", error)
+          console.error("Failed to trigger onboarding welcome workflow:", error)
         }
       }
     }
