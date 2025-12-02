@@ -77,112 +77,6 @@ type DigestProduct = ReturnType<typeof toDigestProduct> & {
   revenueLabel?: string | null
 }
 
-type NewsletterTemplateInput = {
-  weekStart: Date
-  weekEnd: Date
-  featured: DigestProduct[]
-  trending: DigestProduct[]
-  fresh: DigestProduct[]
-  ctaUrl: string
-}
-
-function formatDateRange(start: Date, end: Date) {
-  const opts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" }
-  const startStr = start.toLocaleDateString("en-US", opts)
-  const endStr = end.toLocaleDateString("en-US", opts)
-  return `${startStr} – ${endStr}`
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;")
-}
-
-function renderSection(title: string, products: DigestProduct[]) {
-  if (!products.length) return ""
-  const items = products
-    .map((product) => {
-      const name = escapeHtml(product.name)
-      const tagline = escapeHtml(product.tagline)
-      const url = escapeHtml(product.url)
-      const revenue = product.revenueLabel
-        ? `<div style="font-size:13px;color:#065f46;margin-top:4px;">${escapeHtml(product.revenueLabel)}</div>`
-        : ""
-      const category = product.category
-        ? `<div style="font-size:13px;color:#6b7280;margin-top:2px;">${escapeHtml(product.category)}</div>`
-        : ""
-      return `<li style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #e5e7eb;">
-        <a href="${url}" style="color:#111827;font-weight:700;font-size:16px;text-decoration:none;">${name}</a>
-        <div style="color:#374151;font-size:14px;margin-top:4px;line-height:1.5;">${tagline}</div>
-        ${category}
-        ${revenue}
-      </li>`
-    })
-    .join("\n")
-
-  return `
-    <h3 style="font-size:18px;font-weight:700;color:#111827;margin:16px 0 8px;">${escapeHtml(
-      title,
-    )}</h3>
-    <ul style="list-style:none;padding:0;margin:0;">${items}</ul>
-  `
-}
-
-function buildNewsletterHtml(input: NewsletterTemplateInput) {
-  const range = formatDateRange(input.weekStart, input.weekEnd)
-  return `
-    <h1 style="margin:0 0 8px;font-size:22px;font-weight:800;color:#111827;">This week on Shipyard HQ</h1>
-    <div style="color:#6b7280;font-size:14px;margin-bottom:16px;">${range}</div>
-    <div style="color:#374151;font-size:15px;line-height:1.6;margin-bottom:20px;">
-      Featured launches, fresh listings, and trending products from the last week.
-    </div>
-    <div style="margin-bottom:20px;">
-      <a href="${escapeHtml(
-        input.ctaUrl,
-      )}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:700;font-size:15px;">Browse products</a>
-    </div>
-    ${renderSection("Featured", input.featured)}
-    ${renderSection("Trending", input.trending)}
-    ${renderSection("Fresh launches", input.fresh)}
-    <div style="margin-top:20px;">
-      <a href="${escapeHtml(
-        input.ctaUrl,
-      )}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:700;font-size:15px;">See more on Shipyard</a>
-    </div>
-  `
-}
-
-function buildNewsletterText(input: NewsletterTemplateInput) {
-  const range = formatDateRange(input.weekStart, input.weekEnd)
-  const lines: string[] = []
-  lines.push("This week on Shipyard HQ")
-  lines.push(range, "")
-
-  const append = (title: string, list: DigestProduct[]) => {
-    if (!list.length) return
-    lines.push(title + ":")
-    for (const item of list) {
-      const revenue = item.revenueLabel ? ` — ${item.revenueLabel}` : ""
-      const category = item.category ? ` [${item.category}]` : ""
-      lines.push(`• ${item.name}${category}${revenue}`)
-      lines.push(`  ${item.tagline}`)
-      lines.push(`  ${item.url}`)
-    }
-    lines.push("")
-  }
-
-  append("Featured", input.featured)
-  append("Trending", input.trending)
-  append("Fresh launches", input.fresh)
-  lines.push("Browse more:")
-  lines.push(input.ctaUrl)
-
-  return lines.join("\n")
-}
 function formatRevenueLabel(
   amountCents: number,
   currencyCode: string | null | undefined,
@@ -382,24 +276,6 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
   const trendingWithRevenue = applyRevenueLabel(trending, revenueMap)
   const freshLaunchesWithRevenue = applyRevenueLabel(freshLaunches, revenueMap)
 
-  const htmlTemplate = buildNewsletterHtml({
-    weekStart,
-    weekEnd,
-    featured: featuredWithRevenue,
-    trending: trendingWithRevenue,
-    fresh: freshLaunchesWithRevenue,
-    ctaUrl: buildBrowseUrl(),
-  })
-
-  const textTemplate = buildNewsletterText({
-    weekStart,
-    weekEnd,
-    featured: featuredWithRevenue,
-    trending: trendingWithRevenue,
-    fresh: freshLaunchesWithRevenue,
-    ctaUrl: buildBrowseUrl(),
-  })
-
   const newsletterPayload = {
     weekStart: weekStart.toISOString(),
     weekEnd: weekEnd.toISOString(),
@@ -416,8 +292,6 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
       publishedAt: item.publishedAt ? item.publishedAt.toISOString() : null,
     })),
     ctaUrl: buildBrowseUrl(),
-    html: htmlTemplate,
-    text: textTemplate,
   }
 
   const topicSent = await sendWeeklyNewsletterTopicNotification(

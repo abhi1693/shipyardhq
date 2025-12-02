@@ -38,8 +38,6 @@ type WeeklyNewsletterPayload = {
   trending: DigestProduct[]
   fresh: DigestProduct[]
   ctaUrl: string
-  html?: string
-  text?: string
 }
 
 export async function sendWeeklyNewsletterNotification(input: {
@@ -69,12 +67,6 @@ export async function sendWeeklyNewsletterNotification(input: {
     const message =
       "Featured launches, fresh listings, and trending products from Shipyard HQ."
 
-    const {
-      html: contentHtml,
-      text: contentText,
-      ...restPayload
-    } = input.payload
-
     await triggerNovuWorkflow({
       workflowId: workflow.workflowId,
       subscriber,
@@ -86,9 +78,7 @@ export async function sendWeeklyNewsletterNotification(input: {
           timestamp,
         },
         newsletter: {
-          ...restPayload,
-          html: contentHtml,
-          text: contentText,
+          ...input.payload,
         },
         links: {
           browse: input.payload.ctaUrl,
@@ -129,12 +119,6 @@ export async function sendWeeklyNewsletterTopicNotification(
     const message =
       "Featured launches, fresh listings, and trending products from Shipyard HQ."
 
-    const {
-      html: contentHtml,
-      text: contentText,
-      ...restPayload
-    } = payload
-
     await client.trigger({
       workflowId: workflow.workflowId,
       to: {
@@ -149,9 +133,7 @@ export async function sendWeeklyNewsletterTopicNotification(
           timestamp,
         },
         newsletter: {
-          ...restPayload,
-          html: contentHtml,
-          text: contentText,
+          ...payload,
         },
         links: {
           browse: payload.ctaUrl,
