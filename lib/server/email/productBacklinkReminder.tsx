@@ -1,6 +1,4 @@
 import prisma from "@/lib/prisma"
-import { sendEmail } from "@/lib/email/resend"
-import ProductBacklinkReminderEmail from "@/lib/email/templates/product/productBacklinkReminder"
 import { memberProductEditPath } from "@/lib/routes"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import { sendRewardsNotificationToNovu } from "@/lib/server/notifications/novuRewards"
@@ -15,12 +13,6 @@ type BacklinkReminderContext = {
 }
 
 const BACKLINK_REWARD_POINTS = 30
-
-function formatName(firstName?: string | null, lastName?: string | null) {
-  const parts = [firstName?.trim(), lastName?.trim()].filter(Boolean)
-  if (!parts.length) return "there"
-  return parts.join(" ")
-}
 
 function buildAbsoluteUrl(path: string) {
   const base = resolveSiteUrl()
@@ -57,7 +49,6 @@ export async function sendBacklinkReminderEmail({
   productName,
   productSlug,
 }: BacklinkReminderContext): Promise<void> {
-  const ownerName = formatName(ownerFirstName, ownerLastName)
   const dashboardUrl = buildAbsoluteUrl(memberProductEditPath(productSlug))
 
   const subject = `${productName} can earn ${BACKLINK_REWARD_POINTS} rewards with a Shipyard backlink`
@@ -104,17 +95,4 @@ export async function sendBacklinkReminderEmail({
       productSlug,
     })
   }
-
-  await sendEmail({
-    to: ownerEmail,
-    subject,
-    react: (
-      <ProductBacklinkReminderEmail
-        ownerName={ownerName}
-        productName={productName}
-        dashboardUrl={dashboardUrl}
-        rewardPoints={BACKLINK_REWARD_POINTS}
-      />
-    ),
-  })
 }
