@@ -1,6 +1,4 @@
 import prisma from "@/lib/prisma"
-import MonthlyWinnerEmail from "@/lib/email/templates/leaderboard/monthlyWinner"
-import { getAppBaseUrl } from "@/lib/email/utils"
 import {
   LEADERBOARD_PATH,
   monthlyLeaderboardArchivePath,
@@ -15,7 +13,8 @@ import {
 } from "@/lib/server/leaderboard/v2"
 import { normalizeMonth, toMonthKey } from "@/lib/server/leaderboard/months"
 import { extractTwitterHandle } from "@/lib/server/social/twitterMessages"
-import { sendEmail } from "@/lib/email/resend"
+import { sendMonthlyLeaderboardWinnerNotification } from "@/lib/server/notifications/novuLeaderboard"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -212,13 +211,13 @@ function buildPeriodKey(period: PeriodCadence, periodStart: Date) {
 }
 
 function getLeaderboardUrl(monthKey: string): string {
-  const base = getAppBaseUrl()
-  return `${base}${monthlyLeaderboardArchivePath(monthKey)}`
+  const siteUrl = resolveSiteUrl()
+  return `${siteUrl}${monthlyLeaderboardArchivePath(monthKey)}`
 }
 
 function getProductUrl(slug: string): string {
-  const base = getAppBaseUrl()
-  return `${base}${productPath(slug)}`
+  const siteUrl = resolveSiteUrl()
+  return `${siteUrl}${productPath(slug)}`
 }
 
 type WinnerProduct = {
@@ -447,18 +446,35 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
     const email = product?.user?.email
     if (!product || !email) continue
 
-    await sendEmail({
-      to: email,
-      subject: `${product.name} ranked #${entry.rank} in ${monthLabel}`,
-      react: MonthlyWinnerEmail({
+    try {
+      await sendMonthlyLeaderboardWinnerNotification({
+        recipient: {
+          subscriberId: product.user?.email?.toLowerCase() ?? email,
+          email,
+        },
+        productId: product.id,
+        productSlug: product.slug,
         productName: product.name,
+        monthKey,
         monthLabel,
         rank: entry.rank,
-        productUrl: getProductUrl(product.slug),
+        topThree: topThree.map((winner) => ({
+          rank: winner.rank,
+          productId: (winner.product as WinnerProduct).id,
+          productSlug: (winner.product as WinnerProduct).slug,
+          productName: (winner.product as WinnerProduct).name,
+        })),
         leaderboardUrl: getLeaderboardUrl(monthKey),
-      }),
-    })
-    recipients.push(email)
+        productUrl: getProductUrl(product.slug),
+      })
+      recipients.push(email)
+    } catch (error) {
+      console.error("[novu] leaderboard winner notification failed", {
+        email,
+        productId: product.id,
+        error,
+      })
+    }
   }
 
   const winnerProduct = topThree[0]?.product as WinnerProduct | undefined
@@ -622,7 +638,7 @@ export async function announceLeaderboardPeriodWinners(options: {
       periodLabel,
       leaderboardUrl:
         options.leaderboardUrl ??
-        `${getAppBaseUrl()}${LEADERBOARD_PATH}`.replace(/\/+$/, ""),
+        `${resolveSiteUrl()}${LEADERBOARD_PATH}`.replace(/\/+$/, ""),
       window: {
         start: periodStart.toISOString(),
         end: periodEnd.toISOString(),
