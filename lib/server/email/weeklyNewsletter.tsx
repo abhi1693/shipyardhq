@@ -363,9 +363,8 @@ export async function sendWeeklyNewsletterEmails(now: Date = new Date()) {
         publishedAt: formatPublishedDate(update.publishedAt),
       }
     })
-    .filter(
-      (update): update is ProductUpdateDigest =>
-        Boolean(update?.productId && update?.title),
+    .filter((update): update is ProductUpdateDigest =>
+      Boolean(update?.productId && update?.title),
     )
 
   const revenueIds = new Set<string>()

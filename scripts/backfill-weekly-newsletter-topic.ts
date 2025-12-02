@@ -141,10 +141,7 @@ async function subscribeToTopic(
 ) {
   let processed = 0
   for (const batch of chunk(subscriberIds, SUBSCRIPTION_BATCH_SIZE)) {
-    await client.topics.subscriptions.create(
-      { subscriberIds: batch },
-      topicKey,
-    )
+    await client.topics.subscriptions.create({ subscriberIds: batch }, topicKey)
     processed += batch.length
     console.info(
       `[novu] subscribed ${processed}/${subscriberIds.length} to ${topicKey}`,

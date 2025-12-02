@@ -224,9 +224,7 @@ export async function subscribeNovuTopic(
   const trimmedKey = topicKey.trim()
   if (!trimmedKey) return
 
-  const ids = Array.isArray(subscriberIds)
-    ? subscriberIds
-    : [subscriberIds]
+  const ids = Array.isArray(subscriberIds) ? subscriberIds : [subscriberIds]
   const normalized = ids
     .map((id) => id?.toString().trim())
     .filter((id): id is string => Boolean(id))
