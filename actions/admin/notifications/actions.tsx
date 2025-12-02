@@ -3,7 +3,6 @@
 import { render } from "@react-email/render"
 
 import prisma from "@/lib/prisma"
-import type { NotificationType, Prisma } from "@/lib/vendor/prisma/client"
 import { sendEmail } from "@/lib/email/resend"
 import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
 import { deriveFirstNameFromEmail } from "@/lib/email/personalization"
@@ -21,11 +20,6 @@ import {
   markdownToPlainText,
   renderEmailMarkdown,
 } from "@/lib/email/markdown"
-import type { NotificationMetadata } from "@/types/notifications"
-import type {
-  AdminNotificationStatusFilter,
-  AdminNotificationTypeFilter,
-} from "@/lib/notifications/admin"
 
 const BUILDER_INTENTS = ["launch-product", "manage-team"] as const
 const EXPLORER_INTENT = "explore" as const
@@ -352,151 +346,6 @@ export async function getNotificationUsers(): Promise<NotificationUser[]> {
   })
 
   return users
-}
-
-export type AdminNotificationRecord = {
-  id: string
-  userId: string
-  userName: string | null
-  userEmail: string | null
-  type: NotificationType
-  message: string
-  metadata: NotificationMetadata
-  readAt: string | null
-  createdAt: string
-  updatedAt: string
-}
-
-export type GetAdminNotificationsOptions = {
-  skip?: number
-  take?: number
-  status?: AdminNotificationStatusFilter
-  type?: AdminNotificationTypeFilter
-}
-
-const DEFAULT_ADMIN_NOTIFICATION_TAKE = 25
-const MAX_ADMIN_NOTIFICATION_TAKE = 100
-
-function buildAdminNotificationWhere(
-  status: AdminNotificationStatusFilter,
-  type: AdminNotificationTypeFilter,
-): Prisma.NotificationWhereInput {
-  const where: Prisma.NotificationWhereInput = {}
-
-  if (status === "read") {
-    where.readAt = { not: null }
-  } else if (status === "unread") {
-    where.readAt = null
-  }
-
-  if (type !== "all") {
-    where.type = type
-  }
-
-  return where
-}
-
-export async function getAdminNotifications(
-  options: GetAdminNotificationsOptions = {},
-): Promise<AdminNotificationRecord[]> {
-  await requireAdmin()
-
-  const skip = Math.max(0, Math.trunc(options.skip ?? 0))
-  const rawTake = Math.trunc(options.take ?? DEFAULT_ADMIN_NOTIFICATION_TAKE)
-  const take = Math.max(
-    1,
-    Math.min(
-      rawTake > 0 ? rawTake : DEFAULT_ADMIN_NOTIFICATION_TAKE,
-      MAX_ADMIN_NOTIFICATION_TAKE,
-    ),
-  )
-  const statusFilter = options.status ?? "all"
-  const typeFilter = options.type ?? "all"
-  const where = buildAdminNotificationWhere(statusFilter, typeFilter)
-
-  const notifications = await prisma.notification.findMany({
-    where: Object.keys(where).length ? where : undefined,
-    orderBy: { createdAt: "desc" },
-    skip,
-    take,
-    select: {
-      id: true,
-      type: true,
-      message: true,
-      metadata: true,
-      readAt: true,
-      createdAt: true,
-      updatedAt: true,
-      userId: true,
-      user: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-        },
-      },
-    },
-  })
-
-  type NotificationRecord = (typeof notifications)[number]
-  return notifications.map((notification: NotificationRecord) => {
-    const user = notification.user
-    return {
-      id: notification.id,
-      userId: notification.userId,
-      userName: user
-        ? buildUserDisplayName(user.firstName, user.lastName)
-        : null,
-      userEmail: user?.email ?? null,
-      type: notification.type,
-      message: notification.message,
-      metadata: cloneNotificationMetadata(notification.metadata),
-      readAt: notification.readAt ? notification.readAt.toISOString() : null,
-      createdAt: notification.createdAt.toISOString(),
-      updatedAt: notification.updatedAt.toISOString(),
-    }
-  })
-}
-
-export async function getAdminNotificationCount(
-  options: Pick<GetAdminNotificationsOptions, "status" | "type"> = {},
-): Promise<number> {
-  await requireAdmin()
-  const statusFilter = options.status ?? "all"
-  const typeFilter = options.type ?? "all"
-  const where = buildAdminNotificationWhere(statusFilter, typeFilter)
-
-  return prisma.notification.count({
-    where: Object.keys(where).length ? where : undefined,
-  })
-}
-
-function buildUserDisplayName(
-  firstName: string | null | undefined,
-  lastName: string | null | undefined,
-): string | null {
-  const parts = [firstName?.trim(), lastName?.trim()].filter(
-    (part): part is string => Boolean(part && part.length > 0),
-  )
-  if (parts.length === 0) return null
-  return parts.join(" ")
-}
-
-function cloneNotificationMetadata(value: unknown): NotificationMetadata {
-  if (value === null || value === undefined) {
-    return null
-  }
-
-  try {
-    return JSON.parse(JSON.stringify(value)) as NotificationMetadata
-  } catch (error) {
-    console.error("[notifications] Failed to serialize metadata", {
-      error,
-      value,
-    })
-    return null
-  }
 }
 
 async function resolveSegmentRecipients(
