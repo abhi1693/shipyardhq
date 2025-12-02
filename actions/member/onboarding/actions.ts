@@ -24,6 +24,7 @@ import {
   triggerNovuWorkflow,
 } from "@/lib/server/notifications/novu"
 import { subscribeToWeeklyNewsletterTopic } from "@/lib/server/notifications/novuNewsletter"
+import { subscribeToSystemUpdatesTopic } from "@/lib/server/notifications/novuSystemUpdates"
 
 const BUILDER_INTENTS = new Set(["launch-product", "manage-team"])
 const WELCOME_SUBJECT = "Welcome aboard ShipYardHQ"
@@ -133,6 +134,7 @@ export async function completeOnboarding(formData: FormData) {
         }
       }
 
+      await subscribeToSystemUpdatesTopic(subscriber.subscriberId)
       await subscribeToWeeklyNewsletterTopic(subscriber.subscriberId)
     }
 

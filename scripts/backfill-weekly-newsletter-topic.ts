@@ -4,24 +4,36 @@ import { Novu } from "@novu/api"
 
 import { getNovuClient, isNovuEnabled } from "@/lib/server/notifications/novu"
 
-const DEFAULT_TOPIC_KEY =
-  process.env.NOVU_TOPIC_WEEKLY_NEWSLETTER?.trim() || "weekly-newsletter"
-const DEFAULT_TOPIC_NAME = "Weekly Newsletter"
+type TopicDefinition = {
+  key: string
+  name: string
+}
+
+const DEFAULT_TOPICS: TopicDefinition[] = [
+  {
+    key: process.env.NOVU_TOPIC_WEEKLY_NEWSLETTER?.trim() || "weekly-newsletter",
+    name: "Weekly Newsletter",
+  },
+  {
+    key: process.env.NOVU_TOPIC_SYSTEM_UPDATES?.trim() || "system-updates",
+    name: "System Updates",
+  },
+]
 const SEARCH_PAGE_SIZE = 100
 const SUBSCRIPTION_BATCH_SIZE = 100 // Novu caps topic subscription payloads at 100 subscriberIds
 
 type CliArgs = {
-  topicKey: string
-  topicName: string
+  topics: TopicDefinition[]
   pageSize: number
 }
 
 function parseArgs(): CliArgs {
   const [, , ...rawArgs] = process.argv
 
-  let topicKey = DEFAULT_TOPIC_KEY
-  let topicName = DEFAULT_TOPIC_NAME
+  let topicKey = DEFAULT_TOPICS[0]?.key ?? "weekly-newsletter"
+  let topicName = DEFAULT_TOPICS[0]?.name ?? "Weekly Newsletter"
   let pageSize = SEARCH_PAGE_SIZE
+  let hasCustomTopic = false
 
   for (let i = 0; i < rawArgs.length; i += 1) {
     const current = rawArgs[i]
@@ -29,23 +41,27 @@ function parseArgs(): CliArgs {
 
     if ((current === "--topic" || current === "--key") && next) {
       topicKey = next
+      hasCustomTopic = true
       i += 1
       continue
     }
 
     if (current.startsWith("--topic=") || current.startsWith("--key=")) {
       topicKey = current.split("=", 2)[1] ?? topicKey
+      hasCustomTopic = true
       continue
     }
 
     if ((current === "--name" || current === "-n") && next) {
       topicName = next
+      hasCustomTopic = true
       i += 1
       continue
     }
 
     if (current.startsWith("--name=")) {
       topicName = current.split("=", 2)[1] ?? topicName
+      hasCustomTopic = true
       continue
     }
 
@@ -67,13 +83,15 @@ function parseArgs(): CliArgs {
     }
   }
 
-  const normalizedKey = topicKey.trim() || DEFAULT_TOPIC_KEY
-  const normalizedName = topicName.trim() || DEFAULT_TOPIC_NAME
+  const normalizedKey = topicKey.trim() || DEFAULT_TOPICS[0].key
+  const normalizedName = topicName.trim() || DEFAULT_TOPICS[0].name
   const normalizedPageSize = Math.min(Math.max(pageSize, 1), 500)
+  const topics = hasCustomTopic
+    ? [{ key: normalizedKey, name: normalizedName }]
+    : DEFAULT_TOPICS
 
   return {
-    topicKey: normalizedKey,
-    topicName: normalizedName,
+    topics,
     pageSize: normalizedPageSize,
   }
 }
@@ -154,10 +172,12 @@ async function main() {
     throw new Error("NOVU_SECRET_KEY is required to create topics")
   }
 
-  const { topicKey, topicName, pageSize } = parseArgs()
+  const { topics, pageSize } = parseArgs()
   const client = getNovuClient()
 
-  await upsertTopic(client, topicKey, topicName)
+  for (const topic of topics) {
+    await upsertTopic(client, topic.key, topic.name)
+  }
 
   const { subscriberIds, missingEmail, deleted } = await fetchSubscriberIds(
     client,
@@ -170,7 +190,9 @@ async function main() {
   }
 
   console.info(
-    `[novu] subscribing ${subscriberIds.length} subscribers to ${topicKey}`,
+    `[novu] subscribing ${subscriberIds.length} subscribers to topics: ${topics
+      .map((topic) => topic.key)
+      .join(", ")}`,
   )
   if (missingEmail > 0) {
     console.info(`[novu] ${missingEmail} subscribers are missing email values`)
@@ -179,12 +201,17 @@ async function main() {
     console.info(`[novu] skipped ${deleted} deleted subscribers`)
   }
 
-  await subscribeToTopic(client, topicKey, subscriberIds)
+  for (const topic of topics) {
+    console.info(
+      `[novu] subscribing ${subscriberIds.length} subscribers to ${topic.key}`,
+    )
+    await subscribeToTopic(client, topic.key, subscriberIds)
+  }
 
   console.info("[novu] topic backfill complete")
 }
 
 main().catch((error) => {
-  console.error("[novu] weekly newsletter topic backfill failed", error)
+  console.error("[novu] topic backfill failed", error)
   process.exitCode = 1
 })
