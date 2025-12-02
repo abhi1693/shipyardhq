@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma"
 import { memberProductEditPath } from "@/lib/routes"
-import { resolveSiteUrl } from "@/lib/siteConfig"
 import { sendRewardsNotificationToNovu } from "@/lib/server/notifications/novuRewards"
 
 type BacklinkReminderContext = {
@@ -13,11 +12,6 @@ type BacklinkReminderContext = {
 }
 
 const BACKLINK_REWARD_POINTS = 30
-
-function buildAbsoluteUrl(path: string) {
-  const base = resolveSiteUrl()
-  return new URL(path, `${base}/`).toString()
-}
 
 async function resolveRecipient(
   productSlug: string,
@@ -49,8 +43,6 @@ export async function sendBacklinkReminderEmail({
   productName,
   productSlug,
 }: BacklinkReminderContext): Promise<void> {
-  const dashboardUrl = buildAbsoluteUrl(memberProductEditPath(productSlug))
-
   const subject = `${productName} can earn ${BACKLINK_REWARD_POINTS} rewards with a Shipyard backlink`
 
   try {
