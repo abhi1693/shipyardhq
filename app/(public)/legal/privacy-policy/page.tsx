@@ -76,8 +76,9 @@ export default function PrivacyPolicyPage() {
                   </li>
                   <li>
                     <strong>Community interactions:</strong> Reviews, upvotes,
-                    feedback messages, support requests, surveys, and newsletter
-                    subscriptions routed through Resend.
+                    feedback messages, support requests, surveys, and
+                    newsletter subscriptions and notifications routed through
+                    Novu.
                   </li>
                 </ul>
               </div>
@@ -194,8 +195,8 @@ export default function PrivacyPolicyPage() {
                 support hosting, authentication, email delivery, analytics, AI
                 processing, file storage, and payments. Key providers include
                 Vercel (infrastructure and storage), Clerk (identity
-                management), Resend (email), OpenAI (AI features), and Dodo
-                Payments (billing).
+                management), Novu (notifications and email delivery), OpenAI
+                (AI features), and Dodo Payments (billing).
               </li>
               <li>
                 <strong>Teams and community:</strong> Content you publish—such
