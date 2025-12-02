@@ -40,12 +40,6 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 - Lint: `npm run lint`
 - Format: `npm run format`
 
-## Email Delivery
-
-- Transactional mail runs through `lib/email/resend.ts`, which now serializes messages through a shared rate-limited queue so Resend caps are respected across the app.
-- Defaults align with Resend's 2 requests/sec ceiling; adjust only if your account is provisioned for a higher burst.
-- Tune throughput with optional env vars: `RESEND_RATE_LIMIT_MAX_REQUESTS` or `RESEND_RATE_LIMIT_RPS` (per interval) and `RESEND_RATE_LIMIT_INTERVAL_MS` (window duration in ms).
-
 ## Novu Inbox
 
 - In-app notifications render via `<Inbox />` from `components/molecules/NovuInbox.tsx` with `NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER`.
