@@ -13,6 +13,7 @@ export type ProductNotificationKind =
   | "product_upvote"
   | "product_review"
   | "product_update"
+  | "product_insights_ready"
 
 export type ProductNotificationPayload = {
   kind: ProductNotificationKind

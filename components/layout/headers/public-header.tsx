@@ -20,7 +20,6 @@ import {
   MEMBER_BASE_PATH,
   MEMBER_ACCOUNT_PROFILE_PATH,
   MEMBER_REWARDS_PATH,
-  MEMBER_NOTIFICATIONS_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
   REWARDS_PATH,
@@ -308,13 +307,6 @@ export default function PublicHeader() {
                   </SignedOut>
                   <SignedIn>
                     <div className="flex flex-col gap-2">
-                      <Link
-                        href={MEMBER_NOTIFICATIONS_PATH}
-                        onClick={() => setOpen(false)}
-                        className="inline-flex w-full items-center justify-between rounded-xl border border-border/60 bg-white/80 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted/60"
-                      >
-                        Notifications
-                      </Link>
                       <Link
                         href={MEMBER_REWARDS_PATH}
                         onClick={() => setOpen(false)}

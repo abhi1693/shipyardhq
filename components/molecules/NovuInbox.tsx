@@ -5,7 +5,7 @@ import type { Tab } from "@novu/nextjs"
 import { useUser } from "@clerk/nextjs"
 
 const NOVU_APPLICATION_IDENTIFIER =
-  process.env.NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER ?? ""
+  process.env.NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER?.trim() ?? ""
 
 const INBOX_TABS: Tab[] = [
   { label: "All", filter: { tags: [] } },
@@ -14,11 +14,12 @@ const INBOX_TABS: Tab[] = [
 ]
 
 export default function NovuInbox() {
-  const { user, isLoaded } = useUser()
-  const subscriberId = user?.id ?? null
+  const { user, isLoaded, isSignedIn } = useUser()
+  const subscriberId = user?.id?.trim() ?? null
 
-  if (!isLoaded) return null
+  if (!isLoaded || !isSignedIn) return null
   if (!subscriberId) return null
+  if (!NOVU_APPLICATION_IDENTIFIER) return null
 
   return (
     <Inbox
