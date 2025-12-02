@@ -144,7 +144,7 @@ function collectUniqueProducts<T>(
   return results
 }
 
-export async function sendDiscoverDigestEmails(now: Date = new Date()) {
+export async function sendWeeklyNewsletterEmails(now: Date = new Date()) {
   if (!isNovuEnabled()) {
     return { sent: 0, skipped: 0 }
   }

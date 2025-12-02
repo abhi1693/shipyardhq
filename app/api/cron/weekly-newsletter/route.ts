@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { ensureCronAuthorized } from "@/lib/server/cronAuth"
-import { sendDiscoverDigestEmails } from "@/lib/server/email/discoverDigest"
+import { sendWeeklyNewsletterEmails } from "@/lib/server/email/weeklyNewsletter"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -11,15 +11,15 @@ export async function GET(request: Request) {
   if (authResponse) return authResponse
 
   try {
-    console.info("[cron.discover-digest] run started")
-    const result = await sendDiscoverDigestEmails()
-    console.info("[cron.discover-digest] run completed", {
+    console.info("[cron.weekly-newsletter] run started")
+    const result = await sendWeeklyNewsletterEmails()
+    console.info("[cron.weekly-newsletter] run completed", {
       sent: result.sent,
       skipped: result.skipped,
     })
     return NextResponse.json({ success: true, ...result })
   } catch (error: any) {
-    console.error("[cron.discover-digest] run failed", error)
+    console.error("[cron.weekly-newsletter] run failed", error)
     return NextResponse.json(
       {
         success: false,
