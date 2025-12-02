@@ -13,10 +13,6 @@ type LeaderboardWinnerNotification = {
   monthKey: string
   monthLabel: string
   leaderboardUrl: string
-  rank: number
-  productId: string
-  productName: string
-  productSlug: string
   topThree?: Array<{
     rank: number
     productId: string

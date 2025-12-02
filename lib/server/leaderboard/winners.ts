@@ -458,7 +458,7 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
         monthKey,
         monthLabel,
         rank: entry.rank,
-        topThree: topThree.map((winner) => ({
+        topThree: topThree.map((winner: (typeof topThree)[number]) => ({
           rank: winner.rank,
           productId: (winner.product as WinnerProduct).id,
           productSlug: (winner.product as WinnerProduct).slug,

@@ -362,7 +362,7 @@ export async function getOnboardingAnswersSummary(
   const lastResponseAt = latestCompleted?.updatedAt?.toISOString() ?? null
 
   const newsletterEmailSet = new Set(
-    newsletterSubscriberEmails.map((email) => email.toLowerCase()),
+    newsletterSubscriberEmails.map((email: string) => email.toLowerCase()),
   )
 
   const registeredEmailSet = new Set(

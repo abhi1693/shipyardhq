@@ -135,7 +135,7 @@ function renderSection(title: string, products: DigestProduct[]) {
   `
 }
 
-function buildNewsletterHtmlContent(input: NewsletterTemplateInput) {
+function buildNewsletterHtml(input: NewsletterTemplateInput) {
   const range = formatDateRange(input.weekStart, input.weekEnd)
   return `
     <h1 style="margin:0 0 8px;font-size:22px;font-weight:800;color:#111827;">This week on Shipyard HQ</h1>
