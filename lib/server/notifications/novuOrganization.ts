@@ -1,3 +1,5 @@
+import prisma from "@/lib/prisma"
+import { memberProductEditPath, memberOrganizationPath } from "@/lib/routes"
 import {
   ensureNovuSubscriber,
   isNovuEnabled,
@@ -5,12 +7,12 @@ import {
   type NovuSubscriberInput,
 } from "@/lib/server/notifications/novu"
 import { resolveSiteUrl } from "@/lib/siteConfig"
-import { memberOrganizationPath } from "@/lib/routes"
 
 const NOVU_ORG_WORKFLOW_ID =
   process.env.NOVU_WORKFLOW_ORGANIZATION_NOTIFICATIONS?.trim() ?? null
 
-export type OrganizationNotificationKind = "organization_member_invite"
+export type OrganizationNotificationKind =
+  | "organization_member_invite"
 
 type OrganizationInviteInput = {
   organizationId: string

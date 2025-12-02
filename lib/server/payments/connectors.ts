@@ -9,7 +9,6 @@ import {
   type PaymentConnector,
   type PaymentConnectorCredential,
 } from "@/lib/vendor/prisma/client"
-import { sendPaymentConnectorSyncErrorEmail } from "@/lib/server/email/paymentConnectorSyncError"
 import {
   awardRewardsSafely,
   getProductOwnerId,
@@ -23,24 +22,85 @@ import { getProviderDefinition } from "./providers"
 import { getUsdConversionRates } from "./currency"
 import { type PaymentConnectorConfig, type RevenueSnapshotInput } from "./types"
 import { buildRevenueSummary, cacheRevenueSummary } from "./revenue"
+import { sendProductNotificationToNovu } from "@/lib/server/notifications/novuProduct"
+import { memberProductEditPath } from "@/lib/routes"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 
 const PAYMENT_CONNECTOR_REWARD_RULE_KEY = "rewards.payment.connector"
 
-async function sendConnectorErrorEmail(params: {
+async function sendConnectorErrorNotification(params: {
   productId: string
   errorMessage: string
 }) {
-  try {
-    await sendPaymentConnectorSyncErrorEmail(params)
-  } catch (notifyError) {
-    console.error("[payments.connector.error] notification failed", {
+  const product = await prisma.product.findUnique({
+    where: { id: params.productId },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      user: {
+        select: {
+          clerkId: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+  })
+
+  const subscriberId = product?.user?.clerkId?.trim()
+  if (!product || !product.slug || !subscriberId) {
+    console.warn("[novu] skip connector sync error; missing context", {
       productId: params.productId,
-      error:
-        notifyError instanceof Error
-          ? notifyError.message
-          : String(notifyError),
+      slug: product?.slug,
+      subscriberId,
     })
+    return
   }
+
+  const siteUrl = resolveSiteUrl()
+  const memberLink = new URL(
+    memberProductEditPath(product.slug),
+    `${siteUrl}/`,
+  ).toString()
+  const timestamp = new Date().toISOString()
+
+  const subject = `Action needed: fix ${product.name} revenue sync`
+  const message =
+    params.errorMessage?.trim()?.length
+      ? params.errorMessage
+      : "Payment connector sync failed. Open the product to reconnect or update credentials."
+
+  await sendProductNotificationToNovu({
+    kind: "product_payment_sync_error",
+    message,
+    subject,
+    recipient: {
+      subscriberId,
+      email: product.user?.email ?? null,
+      firstName: product.user?.firstName ?? null,
+      lastName: product.user?.lastName ?? null,
+    },
+    product: {
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+    },
+    links: {
+      member: memberLink,
+      public: null,
+    },
+    context: {
+      product_payment_sync_error: {
+        productId: product.id,
+        productSlug: product.slug,
+        errorMessage: params.errorMessage ?? null,
+      },
+    },
+    transactionId: `product_payment_sync_error:${product.id}:${timestamp}`,
+    tags: ["product-notifications", "payments", "connector", "error"],
+  })
 }
 
 async function notifySyncErrorOnce(
@@ -52,7 +112,7 @@ async function notifySyncErrorOnce(
     (connector.lastSyncError ?? undefined) === message
   if (alreadyNotified) return
 
-  await sendConnectorErrorEmail({
+  await sendConnectorErrorNotification({
     productId: connector.productId,
     errorMessage: message,
   })
@@ -94,7 +154,7 @@ export async function validateConnectorApiKey({
         ? error.message
         : "Payment connector validation failed"
     if (productId) {
-      await sendConnectorErrorEmail({
+      await sendConnectorErrorNotification({
         productId,
         errorMessage: message,
       })

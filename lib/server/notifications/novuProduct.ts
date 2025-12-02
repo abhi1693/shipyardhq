@@ -14,6 +14,7 @@ export type ProductNotificationKind =
   | "product_review"
   | "product_published"
   | "product_insights_ready"
+  | "product_payment_sync_error"
 
 export type ProductNotificationPayload = {
   kind: ProductNotificationKind

@@ -54,6 +54,7 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 - Product publish confirmations also flow through `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` (kind `product_published`) so they render in inbox and email.
 - Rewards notifications route through Novu as well; set `NOVU_WORKFLOW_REWARDS_NOTIFICATIONS` and they will appear under the Rewards inbox tab (tagged `rewards`).
 - Organization invites send via `NOVU_WORKFLOW_ORGANIZATION_NOTIFICATIONS` (kind `organization_member_invite`).
+- Payment connector sync errors send via `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` with kind `product_payment_sync_error`.
 - New member onboarding uses the Novu workflow id `welcome-user`; override with `NOVU_WORKFLOW_WELCOME_USER` if your workflow id differs.
 - Backlink reminders now send through the rewards workflow with kind `reward_backlink_reminder` and tag `backlink`.
 - Use `ensureNovuSubscriber` when you need to upsert subscriber profile data before triggering.
