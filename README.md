@@ -53,7 +53,7 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 - Weekly newsletter now sends via Novu workflow `weekly-newsletter` (override with `NOVU_WORKFLOW_WEEKLY_NEWSLETTER`); kind `weekly_newsletter`, email-only.
 - New member onboarding uses the Novu workflow id `welcome-user`; override with `NOVU_WORKFLOW_WELCOME_USER` if your workflow id differs.
 - Backlink reminders now send through the rewards workflow with kind `reward_backlink_reminder` and tag `backlink`.
-- Admin broadcasts from the Notification Center use the Novu workflow id `admin-broadcast`; override with `NOVU_WORKFLOW_ADMIN_BROADCAST` if you customize the workflow name.
+- System updates from the Notification Center use the Novu workflow id `system-updates`; override with `NOVU_WORKFLOW_SYSTEM_UPDATES` (falls back to `NOVU_WORKFLOW_ADMIN_BROADCAST` for legacy setups).
 - Use `ensureNovuSubscriber` when you need to upsert subscriber profile data before triggering.
 
 ## Analytics Instrumentation
