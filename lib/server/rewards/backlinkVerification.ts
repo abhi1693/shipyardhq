@@ -11,7 +11,6 @@ import { getAppBaseUrl } from "@/lib/email/utils"
 import { productPath } from "@/lib/routes"
 import prisma from "@/lib/prisma"
 import { ProductStatus, type Prisma } from "@/lib/vendor/prisma/client"
-import "@/lib/server/email/backlinkVerifiedReward"
 
 export const BACKLINK_CRON_LOG_PREFIX = "[cron.rewards.backlinks]" as const
 
