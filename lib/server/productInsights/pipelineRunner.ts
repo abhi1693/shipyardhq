@@ -15,7 +15,6 @@ import {
   PRODUCT_INSIGHT_STAGE_MAP,
   PRODUCT_INSIGHT_STAGE_SET_MAP,
 } from "@/lib/server/productInsights/stages"
-import { sendProductInsightInsightsReadyEmail } from "@/lib/server/email/productInsightsReady"
 import { memberProductInsightsPath, productPath } from "@/lib/routes"
 import type {
   ProductInsightProductContext,
@@ -647,19 +646,6 @@ export async function runProductInsightPipeline(job: {
   }
 
   if (job.notifyOnCompletion !== false) {
-    await sendProductInsightInsightsReadyEmail({
-      productId: productRecord.id,
-      productSlug: productRecord.slug,
-      productName: productRecord.name,
-      recipientEmail: productRecord.user!.email!,
-      profile: finalProfile,
-    })
-
-    console.info("[productInsights:pipeline] insights email dispatched", {
-      productId: productRecord.id,
-      recipient: productRecord.user!.email,
-    })
-
     const subscriberId = productRecord.user?.clerkId?.trim()
     if (subscriberId) {
       const memberInsightsLink =
