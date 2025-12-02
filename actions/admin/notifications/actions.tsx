@@ -1,34 +1,15 @@
 "use server"
 
 import prisma from "@/lib/prisma"
-import { sendEmail } from "@/lib/email/resend"
-import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
-import { deriveFirstNameFromEmail } from "@/lib/email/personalization"
 import { checkRole } from "@/lib/roles"
-import {
-  EMAIL_PARAGRAPH_STYLE,
-  getEmailPreviewText,
-  markdownToPlainText,
-  renderEmailMarkdown,
-} from "@/lib/email/markdown"
+import { EMAIL_PARAGRAPH_STYLE, renderEmailMarkdown } from "@/lib/email/markdown"
 import {
   fetchAllNovuSubscriberEmails,
   isNovuEnabled,
 } from "@/lib/server/notifications/novu"
+import { sendAdminBroadcastNotification } from "@/lib/server/notifications/novuAdmin"
 
-const BUILDER_INTENTS = ["launch-product", "manage-team"] as const
-const EXPLORER_INTENT = "explore" as const
-
-export type NotificationSegment =
-  | "registered"
-  | "builders"
-  | "explorers"
-  | "withProducts"
-  | "withoutProducts"
-  | "buildersWithProducts"
-  | "buildersWithoutProducts"
-  | "explorersWithoutProducts"
-  | "selected"
+export type NotificationSegment = "all" | "selected"
 
 type SendNotificationError = {
   error: string
@@ -52,75 +33,45 @@ export type SendNotificationResponse =
   | SendNotificationError
   | SendNotificationSuccess
 
-const DEFAULT_GREETING = "shipmate"
-const RATE_LIMIT_REQUESTS_PER_SECOND = 2
-const RATE_LIMIT_INTERVAL_MS = Math.ceil(1000 / RATE_LIMIT_REQUESTS_PER_SECOND)
-
 type ResolvedRecipient = {
+  subscriberId: string
   email: string
   firstName?: string | null
+  lastName?: string | null
 }
 
-async function getSubscribedNewsletterEmails(): Promise<string[]> {
+async function getSubscribedNewsletterEmails(): Promise<Set<string>> {
   if (!isNovuEnabled()) {
-    return []
+    return new Set()
   }
 
   try {
-    return await fetchAllNovuSubscriberEmails()
+    const emails = await fetchAllNovuSubscriberEmails()
+    return new Set(emails.map((email) => email.toLowerCase()))
   } catch (error) {
     console.error("Failed to load Novu subscribers", error)
-    return []
+    return new Set()
   }
 }
 
-function getGreetingName(recipient: ResolvedRecipient): string {
-  const explicit = recipient.firstName?.trim()
-  if (explicit) {
-    return explicit
-  }
-  return deriveFirstNameFromEmail(recipient.email) ?? DEFAULT_GREETING
-}
+async function buildBroadcastHtml(message: string): Promise<string> {
+  const content = renderEmailMarkdown(message)
+  const { renderToStaticMarkup } = await import("react-dom/server")
 
-function buildNotificationEmail(
-  subject: string,
-  message: string,
-  recipient: ResolvedRecipient,
-) {
-  const trimmed = message.trim()
-  const previewText = getEmailPreviewText(trimmed)
-  const markdownContent = renderEmailMarkdown(trimmed)
-  const greetingName = getGreetingName(recipient)
-
-  return (
-    <BaseEmailTemplate
-      previewText={previewText}
-      title={subject || "Shipyard HQ"}
-      footerNote={<Signature />}
-    >
-      <p style={EMAIL_PARAGRAPH_STYLE}>Dear {greetingName},</p>
-      {markdownContent}
-    </BaseEmailTemplate>
-  )
-}
-
-function buildTextBody(message: string, recipient: ResolvedRecipient) {
-  const greetingName = getGreetingName(recipient)
-  const trimmed = markdownToPlainText(message)
-  const lines = [`Dear ${greetingName},`]
-
-  if (trimmed) {
-    lines.push("", trimmed)
-  }
-
-  lines.push(
-    "",
-    "Wishing you fair winds,",
-    "Shipyard Crew",
-    "https://shipyardhq.dev",
+  const element = (
+    <>
+      {content ? (
+        content
+      ) : (
+        <p style={EMAIL_PARAGRAPH_STYLE}>
+          Start typing a message to see the preview.
+        </p>
+      )}
+    </>
   )
 
-  return lines.join("\n")
+  const html = renderToStaticMarkup(element)
+  return html.replace(/\snode="[^"]*"/g, "").replace(/>\s+</g, "><").trim()
 }
 
 async function requireAdmin() {
@@ -135,6 +86,7 @@ export type NotificationUser = {
   email: string
   firstName: string | null
   lastName: string | null
+  clerkId: string | null
 }
 
 export async function getNotificationUsers(): Promise<NotificationUser[]> {
@@ -142,245 +94,164 @@ export async function getNotificationUsers(): Promise<NotificationUser[]> {
 
   const users = await prisma.user.findMany({
     where: { status: "active" },
-    select: { id: true, email: true, firstName: true, lastName: true },
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      clerkId: true,
+    },
     orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
   })
 
   return users
 }
 
+function toRecipient(
+  user: {
+    email: string | null
+    firstName: string | null
+    lastName: string | null
+    clerkId: string | null
+  },
+  subscribedEmails: Set<string> | null,
+): ResolvedRecipient | null {
+  const email = user.email?.trim().toLowerCase()
+  if (!email) {
+    return null
+  }
+
+  if (subscribedEmails && !subscribedEmails.has(email)) {
+    return null
+  }
+
+  const subscriberId = user.clerkId?.trim() || email
+  if (!subscriberId) {
+    return null
+  }
+
+  return {
+    subscriberId,
+    email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+  }
+}
+
 async function resolveSegmentRecipients(
   segment: NotificationSegment,
   selectedUserIds: string[],
   limit?: number,
-): Promise<ResolvedRecipient[]> {
+): Promise<{ recipients: ResolvedRecipient[]; invalidEmails: string[] }> {
   const take = typeof limit === "number" ? limit : undefined
 
   if (segment === "selected") {
     if (selectedUserIds.length === 0) {
-      return []
+      return { recipients: [], invalidEmails: [] }
     }
+
     const users = await prisma.user.findMany({
       where: {
         id: { in: selectedUserIds },
         status: "active",
       },
-      select: { email: true, firstName: true },
+      select: { email: true, firstName: true, lastName: true, clerkId: true },
       take,
     })
-    return users.map((user: (typeof users)[number]) => ({
-      email: user.email,
-      firstName: user.firstName,
-    }))
+
+    const recipients: ResolvedRecipient[] = []
+    const invalidEmails: string[] = []
+
+    for (const user of users) {
+      const recipient = toRecipient(user, null)
+      if (recipient) {
+        recipients.push(recipient)
+      } else if (user.email) {
+        invalidEmails.push(user.email)
+      }
+    }
+
+    return { recipients, invalidEmails }
   }
 
   const subscribedEmails = await getSubscribedNewsletterEmails()
 
-  if (subscribedEmails.length === 0) {
-    return []
+  if (subscribedEmails.size === 0) {
+    return { recipients: [], invalidEmails: [] }
   }
 
   const emailFilter = {
-    email: { in: subscribedEmails, mode: "insensitive" as const },
+    email: {
+      in: Array.from(subscribedEmails),
+      mode: "insensitive" as const,
+    },
   }
 
-  switch (segment) {
-    case "registered": {
-      const users = await prisma.user.findMany({
-        where: { status: "active", role: { not: "admin" }, ...emailFilter },
-        select: { email: true, firstName: true },
-        orderBy: { createdAt: "asc" },
-        take,
-      })
-      return users.map((user: (typeof users)[number]) => ({
-        email: user.email,
-        firstName: user.firstName,
-      }))
-    }
-    case "builders": {
-      const users = await prisma.user.findMany({
-        where: {
-          status: "active",
-          role: { not: "admin" },
-          roleIntent: { in: [...BUILDER_INTENTS] },
-          ...emailFilter,
-        },
-        select: { email: true, firstName: true },
-        orderBy: { createdAt: "asc" },
-        take,
-      })
-      return users.map((user: (typeof users)[number]) => ({
-        email: user.email,
-        firstName: user.firstName,
-      }))
-    }
-    case "buildersWithProducts": {
-      const users = await prisma.user.findMany({
-        where: {
-          status: "active",
-          role: { not: "admin" },
-          roleIntent: { in: [...BUILDER_INTENTS] },
-          products: { some: {} },
-          ...emailFilter,
-        },
-        select: { email: true, firstName: true },
-        orderBy: { createdAt: "asc" },
-        take,
-      })
-      return users.map((user: (typeof users)[number]) => ({
-        email: user.email,
-        firstName: user.firstName,
-      }))
-    }
-    case "buildersWithoutProducts": {
-      const users = await prisma.user.findMany({
-        where: {
-          status: "active",
-          role: { not: "admin" },
-          roleIntent: { in: [...BUILDER_INTENTS] },
-          products: { none: {} },
-          ...emailFilter,
-        },
-        select: { email: true, firstName: true },
-        orderBy: { createdAt: "asc" },
-        take,
-      })
-      return users.map((user: (typeof users)[number]) => ({
-        email: user.email,
-        firstName: user.firstName,
-      }))
-    }
-    case "explorers": {
-      const users = await prisma.user.findMany({
-        where: {
-          status: "active",
-          role: { not: "admin" },
-          roleIntent: EXPLORER_INTENT,
-          ...emailFilter,
-        },
-        select: { email: true, firstName: true },
-        orderBy: { createdAt: "asc" },
-        take,
-      })
-      return users.map((user: (typeof users)[number]) => ({
-        email: user.email,
-        firstName: user.firstName,
-      }))
-    }
-    case "explorersWithoutProducts": {
-      const users = await prisma.user.findMany({
-        where: {
-          status: "active",
-          role: { not: "admin" },
-          roleIntent: EXPLORER_INTENT,
-          products: { none: {} },
-          ...emailFilter,
-        },
-        select: { email: true, firstName: true },
-        orderBy: { createdAt: "asc" },
-        take,
-      })
-      return users.map((user: (typeof users)[number]) => ({
-        email: user.email,
-        firstName: user.firstName,
-      }))
-    }
-    case "withProducts": {
-      const users = await prisma.user.findMany({
-        where: {
-          status: "active",
-          role: { not: "admin" },
-          products: { some: {} },
-          ...emailFilter,
-        },
-        select: { email: true, firstName: true },
-        orderBy: { createdAt: "asc" },
-        take,
-      })
-      return users.map((user: (typeof users)[number]) => ({
-        email: user.email,
-        firstName: user.firstName,
-      }))
-    }
-    case "withoutProducts": {
-      const users = await prisma.user.findMany({
-        where: {
-          status: "active",
-          role: { not: "admin" },
-          products: { none: {} },
-          ...emailFilter,
-        },
-        select: { email: true, firstName: true },
-        orderBy: { createdAt: "asc" },
-        take,
-      })
-      return users.map((user: (typeof users)[number]) => ({
-        email: user.email,
-        firstName: user.firstName,
-      }))
-    }
-    default: {
-      return []
-    }
+  const where = {
+    status: "active",
+    role: { not: "admin" as const },
+    ...emailFilter,
   }
+
+  const users = await prisma.user.findMany({
+    where,
+    select: { email: true, firstName: true, lastName: true, clerkId: true },
+    orderBy: { createdAt: "asc" },
+    take,
+  })
+
+  const recipients = users
+    .map((user: (typeof users)[number]) =>
+      toRecipient(user, subscribedEmails),
+    )
+    .filter(Boolean) as ResolvedRecipient[]
+
+  return { recipients, invalidEmails: [] }
 }
 
 export async function sendNotificationEmailsAction(
   formData: FormData,
 ): Promise<SendNotificationResponse> {
-  try {
-    await requireAdmin()
-  } catch {
-    return { error: "Unauthorized" }
+  await requireAdmin()
+
+  const segment = formData.get("segment") as NotificationSegment
+  const subject = formData.get("subject")?.toString() ?? ""
+  const message = formData.get("message")?.toString() ?? ""
+
+  if (!isNovuEnabled()) {
+    return { error: "Novu is not configured. Cannot send broadcast." }
   }
 
-  const segment = formData.get("segment")?.toString() as
-    | NotificationSegment
-    | undefined
-  const subject = formData.get("subject")?.toString().trim()
-  const message = formData.get("message")?.toString().trim()
-  const selectedUserIds = formData
-    .getAll("selectedUserIds")
-    .map((value) => value.toString())
-
-  if (!segment) {
-    return { error: "Please select a recipient segment" }
-  }
-
-  if (!subject) {
-    return { error: "Subject is required" }
-  }
-
-  if (!message) {
-    return { error: "Message is required" }
-  }
-
-  const segments: NotificationSegment[] = [
-    "registered",
-    "builders",
-    "explorers",
-    "withProducts",
-    "withoutProducts",
-    "buildersWithProducts",
-    "buildersWithoutProducts",
-    "explorersWithoutProducts",
-    "selected",
-  ]
+  const segments: NotificationSegment[] = ["all", "selected"]
 
   if (!segments.includes(segment)) {
     return { error: "Invalid segment selected" }
   }
 
-  if (segment === "selected" && selectedUserIds.length === 0) {
-    return {
-      error: "Choose at least one member",
+  if (segment === "selected") {
+    const userIds = formData.getAll("selectedUserIds").map(String)
+    if (userIds.length === 0) {
+      return {
+        error: "Choose at least one member",
+      }
     }
   }
 
+  const selectedUserIds =
+    segment === "selected"
+      ? formData.getAll("selectedUserIds").map(String)
+      : []
+
   let recipients: ResolvedRecipient[] = []
+  let invalidEmails: string[] = []
 
   try {
-    recipients = await resolveSegmentRecipients(segment, selectedUserIds)
+    const resolution = await resolveSegmentRecipients(
+      segment,
+      selectedUserIds,
+    )
+    recipients = resolution.recipients
+    invalidEmails = resolution.invalidEmails
   } catch (error) {
     console.error("Failed to resolve recipients", error)
     return { error: "Failed to resolve recipients for the selected segment" }
@@ -388,7 +259,8 @@ export async function sendNotificationEmailsAction(
 
   const uniqueRecipientsMap = new Map<string, ResolvedRecipient>()
   for (const recipient of recipients) {
-    const key = recipient.email.toLowerCase()
+    const key =
+      recipient.subscriberId?.toLowerCase() ?? recipient.email.toLowerCase()
     if (!uniqueRecipientsMap.has(key)) {
       uniqueRecipientsMap.set(key, recipient)
     }
@@ -397,24 +269,45 @@ export async function sendNotificationEmailsAction(
   const uniqueRecipients = Array.from(uniqueRecipientsMap.values())
 
   if (uniqueRecipients.length === 0) {
-    return { error: "No recipients found for the selected segment" }
+    return {
+      error: "No recipients found for the selected segment",
+      invalidEmails,
+    }
   }
 
   const failed: { email: string; error: string }[] = []
   let sent = 0
 
+  const timestamp = new Date().toISOString()
+
   for (const [index, recipient] of uniqueRecipients.entries()) {
-    if (index > 0) {
-      await wait(RATE_LIMIT_INTERVAL_MS)
-    }
     try {
-      await sendEmail({
-        to: recipient.email,
-        subject,
-        text: buildTextBody(message, recipient),
-        react: buildNotificationEmail(subject, message, recipient),
+      const html = await buildBroadcastHtml(message)
+      const transactionId = `admin_broadcast:${segment}:${recipient.subscriberId}:${index}`
+      const result = await sendAdminBroadcastNotification({
+        recipient,
+        payload: {
+          subject,
+          html,
+          segment,
+          tags: ["admin", "broadcast"],
+        },
+        transactionId: `${transactionId}:${timestamp}`,
       })
-      sent += 1
+
+      if (result.sent) {
+        sent += 1
+      } else {
+        failed.push({
+          email: recipient.email,
+          error:
+            result.reason === "novu-disabled"
+              ? "Novu disabled"
+              : result.reason === "missing-workflow"
+                ? "Admin broadcast workflow not configured"
+                : "Failed to trigger Novu workflow",
+        })
+      }
     } catch (error: any) {
       console.error(
         `Failed to send admin notification to ${recipient.email}`,
@@ -430,6 +323,7 @@ export async function sendNotificationEmailsAction(
   if (sent === 0) {
     return {
       error: "Failed to send notification emails",
+      invalidEmails,
     }
   }
 
@@ -440,7 +334,7 @@ export async function sendNotificationEmailsAction(
       attempted: uniqueRecipients.length,
       sent,
       failed,
-      invalidEmails: [],
+      invalidEmails,
       sentPercentage: calculatePercentage(sent, uniqueRecipients.length),
       failedPercentage: calculatePercentage(
         failed.length,
@@ -467,7 +361,7 @@ export async function getSegmentPreviewRecipient(params: {
       return null
     }
     const recipients = await resolveSegmentRecipients(segment, ids, 1)
-    const recipient = recipients[0]
+    const recipient = recipients.recipients[0]
     if (!recipient) {
       return null
     }
@@ -479,7 +373,7 @@ export async function getSegmentPreviewRecipient(params: {
 
   const recipients = await resolveSegmentRecipients(segment, [], 1)
 
-  const recipient = recipients[0]
+  const recipient = recipients.recipients[0]
   if (!recipient) {
     return null
   }
@@ -488,28 +382,6 @@ export async function getSegmentPreviewRecipient(params: {
     email: recipient.email,
     firstName: recipient.firstName ?? null,
   }
-}
-
-function Signature() {
-  return (
-    <div style={{ marginTop: "24px" }}>
-      <p style={EMAIL_PARAGRAPH_STYLE}>Wishing you fair winds,</p>
-      <p style={EMAIL_PARAGRAPH_STYLE}>
-        Shipyard Crew
-        <br />
-        <a
-          href="https://shipyardhq.dev"
-          style={{ color: "#2563eb", textDecoration: "none" }}
-        >
-          shipyardhq.dev
-        </a>
-      </p>
-    </div>
-  )
-}
-
-function wait(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 function calculatePercentage(part: number, total: number): number {

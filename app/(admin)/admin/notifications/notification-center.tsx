@@ -40,17 +40,7 @@ import { deriveFirstNameFromEmail } from "@/lib/email/personalization"
 import AdminEmailPreview from "./preview"
 import PreviewSkeleton from "./preview-skeleton"
 
-const SEGMENT_SCHEMA = z.enum([
-  "registered",
-  "builders",
-  "explorers",
-  "withProducts",
-  "withoutProducts",
-  "buildersWithProducts",
-  "buildersWithoutProducts",
-  "explorersWithoutProducts",
-  "selected",
-])
+const SEGMENT_SCHEMA = z.enum(["all", "selected"])
 
 const formSchema = z
   .object({
@@ -104,7 +94,7 @@ export default function NotificationCenter({
   const form = useForm<NotificationFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      segment: "registered",
+      segment: "all",
       subject: "",
       message: "",
       selectedUserIds: [],
@@ -114,45 +104,9 @@ export default function NotificationCenter({
   const segmentOptions = useMemo<SegmentOption[]>(
     () => [
       {
-        value: "registered",
-        label: "All registered users",
-        blurb: "Reach every active member in the Harbor.",
-      },
-      {
-        value: "builders",
-        label: "Builders",
-        blurb: "People who joined to launch or manage products.",
-      },
-      {
-        value: "buildersWithProducts",
-        label: "Builders with products",
-        blurb:
-          "Builders who already shipped something and can handle advanced updates.",
-      },
-      {
-        value: "buildersWithoutProducts",
-        label: "Builders without products",
-        blurb: "Builders still gearing up for their first launch.",
-      },
-      {
-        value: "explorers",
-        label: "Explorers",
-        blurb: "Members browsing the community for inspiration.",
-      },
-      {
-        value: "explorersWithoutProducts",
-        label: "Explorers without products",
-        blurb: "Explorers who have yet to list anything in the Harbor.",
-      },
-      {
-        value: "withProducts",
-        label: "With products",
-        blurb: "Makers who already listed at least one product.",
-      },
-      {
-        value: "withoutProducts",
-        label: "Without products",
-        blurb: "Members who have not shipped anything yet.",
+        value: "all",
+        label: "All subscribers",
+        blurb: "Everyone opted in to Shipyard updates.",
       },
       {
         value: "selected",
@@ -167,7 +121,7 @@ export default function NotificationCenter({
     useWatch<NotificationFormValues, "segment">({
       control: form.control,
       name: "segment",
-    }) ?? "registered"
+    }) ?? "all"
   const selectedUserIds =
     useWatch<NotificationFormValues, "selectedUserIds">({
       control: form.control,
@@ -288,7 +242,7 @@ export default function NotificationCenter({
     const failCount = summary.failed.length
 
     if (successCount > 0) {
-      const suffix = successCount === 1 ? "email" : "emails"
+      const suffix = successCount === 1 ? "notification" : "notifications"
       toast.success(
         `Sent ${successCount} ${suffix}. ${summary.sentPercentage}% success.`,
       )
@@ -296,8 +250,8 @@ export default function NotificationCenter({
     if (failCount > 0) {
       toast.warning(
         failCount === 1
-          ? "One email failed to send. Check the delivery details below."
-          : `${failCount} emails failed to send. Check the delivery details below.`,
+          ? "One notification failed to send. Check the delivery details below."
+          : `${failCount} notifications failed to send. Check the delivery details below.`,
       )
     }
   }
@@ -318,7 +272,7 @@ export default function NotificationCenter({
               <CardTitle>Compose message</CardTitle>
               <CardDescription>
                 Pick a recipient group, craft your note, and Shipyard will
-                deliver it via Resend.
+                deliver it via Novu (in-app + email).
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -508,7 +462,7 @@ export default function NotificationCenter({
                       disabled={isSubmitting}
                       className="min-w-[150px]"
                     >
-                      {isSubmitting ? "Sending..." : "Send email"}
+                      {isSubmitting ? "Sending..." : "Send notification"}
                     </Button>
                   </div>
                 </form>
@@ -521,7 +475,8 @@ export default function NotificationCenter({
               <CardHeader>
                 <CardTitle>Email preview</CardTitle>
                 <CardDescription>
-                  Live rendering of the Resend template with your content.
+                  Live rendering of the broadcast email template with your
+                  content.
                 </CardDescription>
               </CardHeader>
               <CardContent className="max-h-[32rem] overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-0">
