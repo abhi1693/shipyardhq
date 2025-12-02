@@ -2,11 +2,8 @@ import prisma from "@/lib/prisma"
 import { getCachedRevenueSummary } from "@/lib/server/payments/revenue"
 import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
 import { resolveSiteUrl } from "@/lib/siteConfig"
-import { sendWeeklyNewsletterNotification } from "@/lib/server/notifications/novuNewsletter"
-import {
-  fetchAllNovuSubscriberEmails,
-  isNovuEnabled,
-} from "@/lib/server/notifications/novu"
+import { sendWeeklyNewsletterTopicNotification } from "@/lib/server/notifications/novuNewsletter"
+import { isNovuEnabled } from "@/lib/server/notifications/novu"
 
 const LOOKBACK_DAYS = 7
 const FEATURED_LIMIT = 6
@@ -346,8 +343,6 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
     },
   })
 
-  const subscriberEmails = await fetchAllNovuSubscriberEmails()
-
   const seenUrls = new Set<string>()
 
   const newsletterFeatures = collectUniqueProducts(
@@ -377,10 +372,6 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
     seenUrls,
   )
 
-  if (!subscriberEmails.length) {
-    return { sent: 0, skipped: 0 }
-  }
-
   const revenueMap = await loadRevenueLabels([
     ...featured,
     ...trending,
@@ -409,48 +400,32 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
     ctaUrl: buildBrowseUrl(),
   })
 
-  let sent = 0
-  let skipped = 0
-
-  for (const email of subscriberEmails) {
-    try {
-      await sendWeeklyNewsletterNotification({
-        email,
-        payload: {
-          weekStart: weekStart.toISOString(),
-          weekEnd: weekEnd.toISOString(),
-          featured: featuredWithRevenue.map((item) => ({
-            ...item,
-            publishedAt: item.publishedAt
-              ? item.publishedAt.toISOString()
-              : null,
-          })),
-          trending: trendingWithRevenue.map((item) => ({
-            ...item,
-            publishedAt: item.publishedAt
-              ? item.publishedAt.toISOString()
-              : null,
-          })),
-          fresh: freshLaunchesWithRevenue.map((item) => ({
-            ...item,
-            publishedAt: item.publishedAt
-              ? item.publishedAt.toISOString()
-              : null,
-          })),
-          ctaUrl: buildBrowseUrl(),
-          html: htmlTemplate,
-          text: textTemplate,
-        },
-      })
-      sent += 1
-    } catch (error) {
-      skipped += 1
-      console.error("[email] discover digest send failed", {
-        email,
-        error,
-      })
-    }
+  const newsletterPayload = {
+    weekStart: weekStart.toISOString(),
+    weekEnd: weekEnd.toISOString(),
+    featured: featuredWithRevenue.map((item) => ({
+      ...item,
+      publishedAt: item.publishedAt ? item.publishedAt.toISOString() : null,
+    })),
+    trending: trendingWithRevenue.map((item) => ({
+      ...item,
+      publishedAt: item.publishedAt ? item.publishedAt.toISOString() : null,
+    })),
+    fresh: freshLaunchesWithRevenue.map((item) => ({
+      ...item,
+      publishedAt: item.publishedAt ? item.publishedAt.toISOString() : null,
+    })),
+    ctaUrl: buildBrowseUrl(),
+    html: htmlTemplate,
+    text: textTemplate,
   }
 
-  return { sent, skipped }
+  const topicSent = await sendWeeklyNewsletterTopicNotification(
+    newsletterPayload,
+  )
+
+  return {
+    sent: topicSent ? 1 : 0,
+    skipped: topicSent ? 0 : 1,
+  }
 }

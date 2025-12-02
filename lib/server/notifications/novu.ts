@@ -214,3 +214,36 @@ export async function fetchAllNovuSubscriberEmails(
 
   return Array.from(emails)
 }
+
+export async function subscribeNovuTopic(
+  topicKey: string,
+  subscriberIds: string | string[],
+): Promise<void> {
+  if (!isNovuEnabled()) return
+
+  const trimmedKey = topicKey.trim()
+  if (!trimmedKey) return
+
+  const ids = Array.isArray(subscriberIds)
+    ? subscriberIds
+    : [subscriberIds]
+  const normalized = ids
+    .map((id) => id?.toString().trim())
+    .filter((id): id is string => Boolean(id))
+
+  if (!normalized.length) return
+
+  try {
+    const client = getNovuClient()
+    await client.topics.subscriptions.create(
+      { subscriberIds: normalized },
+      trimmedKey,
+    )
+  } catch (error) {
+    console.error("[novu] failed to subscribe to topic", {
+      topicKey: trimmedKey,
+      subscriberCount: normalized.length,
+      error,
+    })
+  }
+}

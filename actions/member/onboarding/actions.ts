@@ -23,6 +23,7 @@ import {
   guardNovuWorkflow,
   triggerNovuWorkflow,
 } from "@/lib/server/notifications/novu"
+import { subscribeToWeeklyNewsletterTopic } from "@/lib/server/notifications/novuNewsletter"
 
 const BUILDER_INTENTS = new Set(["launch-product", "manage-team"])
 const WELCOME_SUBJECT = "Welcome aboard ShipYardHQ"
@@ -76,6 +77,14 @@ export async function completeOnboarding(formData: FormData) {
         ? BUILDER_INTENTS.has(roleIntent)
         : false
 
+      const subscriber = {
+        subscriberId: userId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avatar: clerkUser.imageUrl ?? null,
+      }
+
       const workflow = guardNovuWorkflow(NOVU_WELCOME_WORKFLOW_ID, {
         label: "welcome user",
         missingMessage: "[novu] welcome workflow id missing",
@@ -90,13 +99,6 @@ export async function completeOnboarding(formData: FormData) {
       } else {
         try {
           const baseUrl = resolveSiteUrl()
-          const subscriber = {
-            subscriberId: userId,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            avatar: clerkUser.imageUrl ?? null,
-          }
           const links = {
             dashboard: `${baseUrl}${MEMBER_OVERVIEW_PATH}`,
             leaderboard: `${baseUrl}${LEADERBOARD_PATH}`,
@@ -130,6 +132,8 @@ export async function completeOnboarding(formData: FormData) {
           console.error("Failed to trigger onboarding welcome workflow:", error)
         }
       }
+
+      await subscribeToWeeklyNewsletterTopic(subscriber.subscriberId)
     }
 
     if (firstTimeOnboarding) {
