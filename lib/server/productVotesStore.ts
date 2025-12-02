@@ -11,7 +11,6 @@ import {
   revalidateProduct,
 } from "@/lib/cache/revalidate"
 import "@/lib/server/rewards/listeners"
-import "@/lib/server/email/productVoteMilestone"
 
 export type VoteState = "upvoted" | "not_upvoted"
 
