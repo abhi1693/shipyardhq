@@ -12,7 +12,7 @@ const NOVU_WEEKLY_NEWSLETTER_WORKFLOW_ID =
 export const NOVU_WEEKLY_NEWSLETTER_TOPIC_KEY =
   process.env.NOVU_TOPIC_WEEKLY_NEWSLETTER?.trim() || "weekly-newsletter"
 
-type DigestProduct = {
+type SponsoredProduct = {
   id: string
   name: string
   tagline: string
@@ -20,6 +20,43 @@ type DigestProduct = {
   category: string | null
   publishedAt: string | null
   revenueLabel?: string | null
+}
+
+type ProductOfTheWeek = {
+  id: string
+  name: string
+  tagline: string
+  url: string
+  category: string | null
+  publishedAt: string | null
+  ownerName: string | null
+  ownerUrl: string | null
+  upvotes: number
+  points: number
+  revenueLabel?: string | null
+}
+
+type TrendingProduct = ProductOfTheWeek & { rank: number }
+
+type ProductUpdateDigest = {
+  id: string
+  productId: string
+  productName: string
+  productUrl: string
+  title: string
+  summary: string
+  description: string
+  publishedAt: string | null
+}
+
+type WeeklyNewsletterPayload = {
+  weekRange: string
+  issueNumber: number
+  ctaUrl: string
+  sponsoredProducts: SponsoredProduct[]
+  productOfTheWeek: ProductOfTheWeek | null
+  trending: TrendingProduct[]
+  productUpdates: ProductUpdateDigest[]
 }
 
 export async function subscribeToWeeklyNewsletterTopic(
@@ -31,18 +68,10 @@ export async function subscribeToWeeklyNewsletterTopic(
   await subscribeNovuTopic(NOVU_WEEKLY_NEWSLETTER_TOPIC_KEY, normalized)
 }
 
-type WeeklyNewsletterPayload = {
-  weekStart: string
-  weekEnd: string
-  featured: DigestProduct[]
-  trending: DigestProduct[]
-  fresh: DigestProduct[]
-  ctaUrl: string
-}
-
 export async function sendWeeklyNewsletterNotification(input: {
   email: string
   payload: WeeklyNewsletterPayload
+  weekKey: string
 }): Promise<boolean> {
   const workflow = guardNovuWorkflow(NOVU_WEEKLY_NEWSLETTER_WORKFLOW_ID, {
     label: "weekly newsletter",
@@ -65,7 +94,7 @@ export async function sendWeeklyNewsletterNotification(input: {
     const timestamp = new Date().toISOString()
     const subject = "This week on Shipyard HQ"
     const message =
-      "Featured launches, fresh listings, and trending products from Shipyard HQ."
+      "Product of the week, trending launches, and fresh updates from the Shipyard community."
 
     await triggerNovuWorkflow({
       workflowId: workflow.workflowId,
@@ -85,7 +114,7 @@ export async function sendWeeklyNewsletterNotification(input: {
         },
         tags: ["newsletter", "discover"],
       },
-      transactionId: `weekly_newsletter:${subscriberId}:${input.payload.weekEnd}`,
+      transactionId: `weekly_newsletter:${subscriberId}:${input.weekKey}`,
     })
     return true
   } catch (error) {
@@ -99,6 +128,7 @@ export async function sendWeeklyNewsletterNotification(input: {
 
 export async function sendWeeklyNewsletterTopicNotification(
   payload: WeeklyNewsletterPayload,
+  weekKey: string,
 ): Promise<boolean> {
   const workflow = guardNovuWorkflow(NOVU_WEEKLY_NEWSLETTER_WORKFLOW_ID, {
     label: "weekly newsletter",
@@ -117,7 +147,7 @@ export async function sendWeeklyNewsletterTopicNotification(
     const timestamp = new Date().toISOString()
     const subject = "This week on Shipyard HQ"
     const message =
-      "Featured launches, fresh listings, and trending products from Shipyard HQ."
+      "Product of the week, trending launches, and fresh updates from the Shipyard community."
 
     await client.trigger({
       workflowId: workflow.workflowId,
@@ -140,7 +170,7 @@ export async function sendWeeklyNewsletterTopicNotification(
         },
         tags: ["newsletter", "discover"],
       },
-      transactionId: `weekly_newsletter_topic:${topicKey}:${payload.weekEnd}`,
+      transactionId: `weekly_newsletter_topic:${topicKey}:${weekKey}`,
     })
     return true
   } catch (error) {
