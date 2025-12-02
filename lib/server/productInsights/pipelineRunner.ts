@@ -16,10 +16,7 @@ import {
   PRODUCT_INSIGHT_STAGE_SET_MAP,
 } from "@/lib/server/productInsights/stages"
 import { sendProductInsightInsightsReadyEmail } from "@/lib/server/email/productInsightsReady"
-import {
-  memberProductInsightsPath,
-  productPath,
-} from "@/lib/routes"
+import { memberProductInsightsPath, productPath } from "@/lib/routes"
 import type {
   ProductInsightProductContext,
   ProductInsightSummary,
@@ -704,13 +701,10 @@ export async function runProductInsightPipeline(job: {
         tags: ["product-notifications", "insights"],
       })
     } else {
-      console.warn(
-        "[novu] skip insights notification due to missing clerkId",
-        {
-          productId: productRecord.id,
-          userId: productRecord.user?.id,
-        },
-      )
+      console.warn("[novu] skip insights notification due to missing clerkId", {
+        productId: productRecord.id,
+        userId: productRecord.user?.id,
+      })
     }
   }
 

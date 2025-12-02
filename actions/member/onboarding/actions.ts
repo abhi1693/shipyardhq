@@ -77,7 +77,9 @@ export async function completeOnboarding(formData: FormData) {
         : false
 
       if (!isNovuEnabled()) {
-        console.info("Skipping onboarding welcome workflow; Novu not configured.")
+        console.info(
+          "Skipping onboarding welcome workflow; Novu not configured.",
+        )
       } else {
         try {
           const baseUrl = resolveSiteUrl()

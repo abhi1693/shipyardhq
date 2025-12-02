@@ -63,8 +63,8 @@ export default function OnboardingMarketingPanel() {
                 A calmer runway to ship faster
               </h1>
               <p className="text-sm leading-relaxed text-slate-200/90">
-                Pick how you operate and we&apos;ll pre-build dashboards, rituals,
-                and alerts so your workspace feels ready on day one.
+                Pick how you operate and we&apos;ll pre-build dashboards,
+                rituals, and alerts so your workspace feels ready on day one.
               </p>
             </div>
 
@@ -87,7 +87,9 @@ export default function OnboardingMarketingPanel() {
               <span>Workspace</span>
             </div>
             <div className="space-y-3 rounded-2xl border border-white/10 bg-slate-900/50 p-3">
-              <p className="text-xs text-slate-200/90">You&apos;ll start with</p>
+              <p className="text-xs text-slate-200/90">
+                You&apos;ll start with
+              </p>
               <div className="flex flex-col gap-2 text-sm font-semibold">
                 <span className="text-white">Launch checklist</span>
                 <span className="text-white">Signal radar</span>
@@ -103,7 +105,9 @@ export default function OnboardingMarketingPanel() {
                   <p className="text-[11px] uppercase tracking-[0.16em] text-slate-200/80">
                     {fact.label}
                   </p>
-                  <p className="text-sm font-semibold text-white">{fact.value}</p>
+                  <p className="text-sm font-semibold text-white">
+                    {fact.value}
+                  </p>
                   <p className="text-[11px] text-slate-200/80">{fact.hint}</p>
                 </div>
               ))}
@@ -124,7 +128,9 @@ export default function OnboardingMarketingPanel() {
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-200/80">
                   {label}
                 </p>
-                <p className="leading-relaxed text-slate-100/90">{description}</p>
+                <p className="leading-relaxed text-slate-100/90">
+                  {description}
+                </p>
               </div>
             </div>
           ))}

@@ -33,10 +33,6 @@
       "schedule": "*/30 * * * *"
     },
     {
-      "path": "/api/cron/product-review-milestones",
-      "schedule": "30 7 * * *"
-    },
-    {
       "path": "/api/cron/rewards/placements",
       "schedule": "*/5 * * * *"
     },

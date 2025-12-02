@@ -166,7 +166,9 @@ export function OnboardingForm({
         <CardHeader className="space-y-3 border-b border-slate-100 px-8 pb-6 pt-8">
           <CardTitle className="flex items-center gap-2 text-3xl font-semibold tracking-tight text-slate-900">
             <span aria-hidden>⛵️</span>
-            <span>{firstName ? `Welcome, ${firstName}` : "Set up your workspace"}</span>
+            <span>
+              {firstName ? `Welcome, ${firstName}` : "Set up your workspace"}
+            </span>
           </CardTitle>
         </CardHeader>
 
@@ -199,7 +201,9 @@ export function OnboardingForm({
                         <span
                           className={cn(
                             "flex size-8 items-center justify-center rounded-full",
-                            active ? "bg-sky-100 text-sky-800" : "bg-slate-100 text-slate-700",
+                            active
+                              ? "bg-sky-100 text-sky-800"
+                              : "bg-slate-100 text-slate-700",
                           )}
                         >
                           <Icon className="size-4" aria-hidden />
@@ -244,7 +248,9 @@ export function OnboardingForm({
                         <span
                           className={cn(
                             "flex size-7 items-center justify-center rounded-full",
-                            active ? "bg-sky-100 text-sky-800" : "bg-slate-100 text-slate-700",
+                            active
+                              ? "bg-sky-100 text-sky-800"
+                              : "bg-slate-100 text-slate-700",
                           )}
                         >
                           <Icon className="size-4" aria-hidden />
@@ -261,7 +267,6 @@ export function OnboardingForm({
                 </p>
               ) : null}
             </fieldset>
-
           </CardContent>
 
           <CardFooter className="flex flex-col gap-2 px-8 pb-8 pt-2">
