@@ -8,11 +8,11 @@ import prisma from "@/lib/prisma"
 import { getRootDomain } from "@/lib/domain"
 import { generateVerificationTxtFromWebsite } from "@/lib/products/verification"
 import { revalidateProduct, revalidateUser } from "@/lib/cache/revalidate"
-import { sendEmail } from "@/lib/email/resend"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
+import { sendClaimOtpNotification } from "@/lib/server/notifications/novuClaim"
 import type {
   Prisma,
   ProductClaimAttempt,
@@ -439,15 +439,24 @@ export async function sendProductClaimOtpAction(
   if ("error" in reserve) return reserve
 
   try {
-    await sendEmail({
-      to: normalizedEmail,
-      subject: `Verify ${target.domain} ownership`,
-      text: [
-        `Use this code to claim ${target.product.name} on Shipyard: ${code}`,
-        "",
-        "This code expires in 15 minutes.",
-        "If you did not request this, you can ignore the email.",
-      ].join("\n"),
+    const subscriberId = viewer.clerkId?.trim() || normalizedEmail
+    await sendClaimOtpNotification({
+      recipient: {
+        subscriberId,
+        email: normalizedEmail,
+        firstName: viewer.firstName,
+        lastName: viewer.lastName,
+      },
+      payload: {
+        code,
+        productName: target.product.name,
+        domain: target.domain,
+        expiresAt: expiresAt.toISOString(),
+        method: "email_otp",
+      },
+      transactionId: `product_claim_otp:${productId}:${viewer.id}:${
+        reserve.attempt?.id ?? "new"
+      }`,
     })
   } catch (error) {
     console.error("Failed to send claim OTP email", { error })
