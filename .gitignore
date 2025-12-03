@@ -48,4 +48,5 @@ scripts/service-account.json
 cypress/screenshots
 .env*.local
 bot/venv
-bot/env.sh
+bot/*.sh
+bot/*.json
