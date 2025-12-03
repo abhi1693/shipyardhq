@@ -83,8 +83,8 @@ export async function trackRefundInGa(input: {
 
   const measurementId = MEASUREMENT_ID!
   const apiSecret = API_SECRET!
-  let currency = (input.currency || "USD").toUpperCase()
-  let valueCents =
+  const currency = (input.currency || "USD").toUpperCase()
+  const valueCents =
     typeof input.amountCents === "number" && input.amountCents > 0
       ? input.amountCents
       : undefined
