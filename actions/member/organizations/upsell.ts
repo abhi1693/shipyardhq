@@ -120,14 +120,11 @@ export async function validateOrgPaymentAction(paymentId: string) {
 
       const plan = await prisma.plan.findFirst({
         where: { externalId: productId },
-        select: {
-          id: true,
-        },
+        select: { id: true },
       })
       if (!plan) return { error: "No plan found for product" }
       planId = plan.id
     }
-
     const u = await getActiveUserByClerkId(userId)
     if (!u) return { error: INACTIVE_ACCOUNT_MESSAGE }
 
