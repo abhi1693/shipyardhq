@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
 import type { WebhookEvent } from "@clerk/nextjs/server"
-import { clerkClient } from "@clerk/nextjs/server"
 import { verifyWebhook } from "@clerk/backend/webhooks"
 
 import {
@@ -41,13 +40,13 @@ export async function POST(req: Request) {
 async function handleSessionCreated(event: WebhookEvent) {
   if (event.type !== "session.created") return
 
-  const session = event.data as SessionCreatedPayload
+  const session = event.data as SessionPayload
   const user = session.user
 
-  const method = await resolveAuthenticationMethod(session, user)
+  const method = pickMethodFromUser(user)
   if (!method) {
     console.info("[clerk-webhook] no supported auth method resolved", {
-      userId: session.user_id ?? null,
+      userId: user?.id ?? null,
     })
     return
   }
@@ -72,108 +71,42 @@ async function handleUserCreated(event: WebhookEvent) {
 }
 
 type SessionPayload = {
-  client_id?: string | null
-  user_id?: string | null
-}
-
-type SessionCreatedPayload = SessionPayload & {
   user?: SessionUserPayload
 }
 
 type SessionUserPayload = {
   id?: string
-  external_accounts?: { provider?: string | null }[]
   email_addresses?: {
-    verification?: { strategy?: string | null; object?: string | null } | null
+    linked_to?: { type?: string | null }[] | null
   }[]
-  password_enabled?: boolean
-}
-
-const OAUTH_METHOD_MAP: Record<string, string> = {
-  oauth_google: "Google",
-  oauth_twitter: "Twitter",
-  oauth_github: "GitHub",
-}
-
-const EMAIL_STRATEGIES = new Set([
-  "email_code",
-  "email_link",
-  "password",
-  "verification_email_code",
-  "verification_email_link",
-])
-
-async function resolveAuthenticationMethod(
-  session: SessionPayload,
-  user?: SessionUserPayload,
-) {
-  const userMethod = pickMethodFromUser(user)
-  if (userMethod) return userMethod
-
-  const clientId =
-    typeof session.client_id === "string" && session.client_id.trim()
-      ? session.client_id
-      : null
-
-  if (!clientId) {
-    return undefined
-  }
-
-  try {
-    const client = await clerkClient()
-    const clientDetails = await client.clients.getClient(clientId)
-    const strategy = normalizeStrategy(
-      (clientDetails as any)?.last_authentication_strategy,
-    )
-
-    if (!strategy) return undefined
-
-    const mapped = OAUTH_METHOD_MAP[strategy]
-    if (mapped) return mapped
-    if (EMAIL_STRATEGIES.has(strategy)) return "Email"
-  } catch (error) {
-    console.error("[clerk-webhook] failed to resolve auth strategy", {
-      clientId,
-      error,
-    })
-  }
-
-  return undefined
 }
 
 function pickMethodFromUser(user?: SessionUserPayload) {
-  const externalAccounts: { provider?: string | null }[] = Array.isArray(
-    user?.external_accounts,
-  )
-    ? user.external_accounts || []
-    : []
+  const emails: { linked_to?: { type?: string | null }[] | null }[] =
+    Array.isArray(user?.email_addresses) ? user.email_addresses || [] : []
 
-  for (const account of externalAccounts) {
-    const provider = normalizeStrategy(account?.provider)
-    const mapped = OAUTH_METHOD_MAP[provider]
-    if (mapped) return mapped
-  }
+  const email = emails[0]
+  if (!email) return undefined
 
-  const emails: {
-    verification?: { strategy?: string | null; object?: string | null } | null
-  }[] = Array.isArray(user?.email_addresses) ? user.email_addresses || [] : []
+  const linkedTo = Array.isArray(email?.linked_to) ? email?.linked_to || [] : []
+  if (linkedTo.length === 0) return "Email"
 
-  for (const email of emails) {
-    const strategy = normalizeStrategy(email?.verification?.strategy)
-    const object = normalizeStrategy(email?.verification?.object)
-
-    if (EMAIL_STRATEGIES.has(strategy) || EMAIL_STRATEGIES.has(object)) {
-      return "Email"
-    }
-  }
-
-  if (user?.password_enabled || emails.length > 0) {
-    return "Email"
+  for (const link of linkedTo) {
+    const sanitizedType = sanitizeLinkedType(link?.type)
+    if (sanitizedType) return sanitizedType
   }
 
   return undefined
 }
 
-function normalizeStrategy(strategy: unknown) {
-  return typeof strategy === "string" ? strategy.trim().toLowerCase() : ""
+function sanitizeLinkedType(value: unknown) {
+  const raw = typeof value === "string" ? value.trim() : ""
+  if (!raw) return undefined
+
+  const parts = raw.split("_").filter(Boolean)
+  const provider = parts[1] ?? parts[0]
+  if (!provider) return undefined
+
+  const lower = provider.toLowerCase()
+  return `${lower.charAt(0).toUpperCase()}${lower.slice(1)}`
 }
