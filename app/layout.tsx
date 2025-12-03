@@ -5,7 +5,7 @@ import { Toaster } from "@/components/atoms/sonner"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import Providers from "@/components/layout/providers"
 import "./globals.css"
-import { HAS_APP_URL, IS_PROD } from "@/lib/constants"
+import { IS_PROD } from "@/lib/constants"
 import "./theme.css"
 import { buildSiteSeo, siteConfig } from "@/lib/siteConfig"
 
