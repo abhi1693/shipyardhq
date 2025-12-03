@@ -2,7 +2,10 @@ import crypto from "node:crypto"
 
 import { revalidateRewardsLeaderboard } from "@/lib/cache/revalidate"
 import prisma from "@/lib/prisma"
-import { dispatchEvent } from "@/lib/server/events"
+import {
+  notifyNovuRewardAdjusted,
+  notifyNovuRewardAwarded,
+} from "@/lib/server/notifications/novuEvents"
 import {
   FeatureEntitlementStatus,
   PlacementStatus,
@@ -210,7 +213,7 @@ export async function awardRewards(
     )
 
     if (result.created) {
-      await dispatchEvent("rewards.awarded", {
+      const awardedEvent = {
         transactionId: result.transaction.id,
         userId,
         rewardAmount: result.transaction.rewardAmount,
@@ -224,7 +227,9 @@ export async function awardRewards(
         targetType: result.transaction.targetType,
         targetId: result.transaction.targetId,
         productId: result.transaction.productId,
-      })
+      }
+
+      await notifyNovuRewardAwarded(awardedEvent)
       revalidateRewardsLeaderboard("revalidate")
     }
 
@@ -470,19 +475,6 @@ export async function redeem(
   )
 
   if (result.created) {
-    await dispatchEvent("rewards.redeemed", {
-      transactionId: result.transaction.id,
-      userId,
-      featureKey,
-      redemptionId: result.redemption.id,
-      cost: result.transaction.rewardAmount,
-      balanceAfter: result.transaction.balanceAfter,
-      status: result.redemption.status,
-      createdAt: result.transaction.createdAt,
-      productId: result.redemption.productId,
-      autoActivated: result.redemption.status === RedemptionStatus.active,
-      placementScheduleId: result.placementSchedule?.id ?? null,
-    })
     revalidateRewardsLeaderboard("revalidate")
   }
 
@@ -638,18 +630,6 @@ export async function refundRedemption(
     },
   )
 
-  await dispatchEvent("rewards.refunded", {
-    transactionId: result.transaction.id,
-    redemptionId,
-    userId: result.transaction.userId,
-    featureKey: result.transaction.rewardKey ?? null,
-    amount: result.transaction.rewardAmount,
-    balanceAfter: result.transaction.balanceAfter,
-    createdAt: result.transaction.createdAt,
-    fullyRefunded: result.fullyRefunded,
-    productId: result.transaction.productId ?? null,
-    actorUserId: result.transaction.actedByUserId ?? null,
-  })
   revalidateRewardsLeaderboard("revalidate")
 
   return result
@@ -745,7 +725,7 @@ export async function adjustRewards(
   )
 
   if (result.created) {
-    await dispatchEvent("rewards.adjusted", {
+    const adjustedEvent = {
       transactionId: result.transaction.id,
       userId,
       amount,
@@ -754,7 +734,9 @@ export async function adjustRewards(
       actorUserId: result.transaction.actedByUserId,
       metadata: result.transaction.metadata,
       notes: result.transaction.notes,
-    })
+    }
+
+    await notifyNovuRewardAdjusted(adjustedEvent)
     revalidateRewardsLeaderboard("revalidate")
   }
 

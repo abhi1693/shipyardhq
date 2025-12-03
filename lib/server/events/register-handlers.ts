@@ -21,10 +21,6 @@ export async function registerEventHandlers(): Promise<void> {
       load: () => import("@/lib/server/rewards/engagement"),
     },
     {
-      path: "@/lib/server/notifications/listeners",
-      load: () => import("@/lib/server/notifications/listeners"),
-    },
-    {
       path: "@/lib/server/social/twitterBot",
       load: () => import("@/lib/server/social/twitterBot"),
     },

@@ -10,6 +10,7 @@ import {
   revalidateLeaderboard,
   revalidateProduct,
 } from "@/lib/cache/revalidate"
+import { notifyNovuProductUpvote } from "@/lib/server/notifications/novuEvents"
 import "@/lib/server/rewards/listeners"
 
 export type VoteState = "upvoted" | "not_upvoted"
@@ -113,6 +114,8 @@ async function mutateVote({
 
   if (createdEvent) {
     scheduleEvent("product.upvoted", createdEvent)
+
+    await notifyNovuProductUpvote(createdEvent)
 
     const occurredAt =
       createdEvent &&

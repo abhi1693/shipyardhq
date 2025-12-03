@@ -24,7 +24,6 @@
 - Idempotency is achieved by hashing `eventId` with the user/rule to form `eventHash`; duplicates return the existing transaction without mutating state (`lib/rewards/engine.ts:121`).
 - Caps aggregate prior transactions at the rule scope (`lib/rewards/engine.ts:756`). Cooldowns can be global or target-specific if a `targetId` is supplied (`lib/rewards/engine.ts:780`).
 - Streak metadata in `RewardBalance` can be updated atomically by passing `payload.streak` to `awardRewards`, allowing external streak calculators to set counts/tiers (`lib/rewards/engine.ts:862`).
-- Transactions publish `rewards.awarded` events for downstream consumers once commits succeed (`lib/rewards/engine.ts:200`).
 - To grant custom amounts, provide `payload.amount`; otherwise the rule's `baseRewardAmount` is used with an optional multiplier (`lib/rewards/engine.ts:872`).
 
 ### Automated earn sources
@@ -39,13 +38,12 @@
 - `redeem` performs transactional debits, checks balance sufficiency, and enforces per-user active/pending limits before creating redemption, entitlement, and optional placement schedule records (`lib/rewards/engine.ts:233`).
 - Placement-like catalog items require scheduling; helper `requiresPlacementSchedule` inspects category/metadata to determine whether an activation window & slot key must be supplied (`lib/rewards/engine.ts:86`).
 - Reservation metadata (slot key, schedule bounds) is merged into both redemption and entitlement records for auditing (`lib/rewards/engine.ts:372`).
-- Successful redemptions emit `rewards.redeemed` events containing cost, balance-after, activation state, and placement IDs to fan out updates (`lib/rewards/engine.ts:455`).
 - Member UI derives eligibility reasons, counts, and availability via `getMemberRewardsSnapshot`, which hydrates balance summary, recent transactions, catalog items, active entitlements, and redemptions in one request (`actions/member/rewards/actions.ts:90`).
 - The client-side redemption modal submits to `redeemCatalogItemAction`, which guards access control, ensures product selection for product-scoped perks, and seeds default placement reservations when needed (`actions/member/rewards/actions.ts:292`).
 
 ## Refunds & adjustments
 
-- `refundRedemption` returns unused rewards, optionally reverting entitlements/placements when the perk should be canceled (`lib/rewards/engine.ts:473`). The call is idempotent via `eventHash` and publishes `rewards.refunded` with refund metadata.
+- `refundRedemption` returns unused rewards, optionally reverting entitlements/placements when the perk should be canceled (`lib/rewards/engine.ts:473`). The call is idempotent via `eventHash` and logs refund metadata.
 - Partial refunds accumulate in `redemption.refundedRewards`; once the refunded total reaches the original cost the redemption transitions to `refunded` status automatically (`lib/rewards/engine.ts:508`).
 - Admins issue refunds through `refundRedemptionAction`, which validates reason/reference input before invoking the engine (`actions/admin/rewards/actions.ts:544`).
 - Manual adjustments (positive or negative) rely on `adjustRewards`, which inserts synthetic transactions with actor metadata and safeguards against overdrafting (`lib/rewards/engine.ts:604`). Admin UI wraps the helper in `adjustUserRewardsAction`, capturing reason/reference data for audit trails (`actions/admin/rewards/actions.ts:458`).
@@ -81,7 +79,6 @@
 1. **Add a new earn rule:** Seed or insert a `RewardRule`, then trigger `awardRewards` from either an event listener or a direct call with a stable `eventId` to keep grants idempotent. Populate metadata with contextual fields consumers might need (`lib/rewards/engine.ts:146`).
 2. **Introduce a new perk:** Create a `RewardCatalogItem` with pricing, limits, and metadata tags. If the perk should schedule automatically, ensure `requiresPlacementSchedule` recognizes it either via category or metadata (`lib/rewards/engine.ts:86`). Update member/admin UIs as needed to surface descriptive copy.
 3. **Launch automated jobs:** Build a worker that queries eligible subjects, call the appropriate engine helper inside a transaction, and wrap the endpoint in `ensureCronAuthorized`/`CRON_SECRET` patterns for safety (`app/api/cron/rewards/backlinks/route.ts:1`).
-4. **Consume reward events:** Subscribe to `rewards.*` topics via the event bus for notifications, analytics, or additional automation (`lib/server/events.ts:80`).
 
 ## Operational tips
 

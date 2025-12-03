@@ -26,6 +26,31 @@ export type NovuSubscriberInput = {
   data?: Record<string, unknown> | null
 }
 
+export type NovuSubscriberSource = {
+  subscriberId?: string | null
+} & Partial<Omit<NovuSubscriberInput, "subscriberId">>
+
+export function toNovuSubscriberInput(
+  source?: NovuSubscriberSource | null,
+): NovuSubscriberInput | null {
+  if (!source) return null
+
+  const subscriberId = source.subscriberId?.trim()
+  if (!subscriberId) return null
+
+  return omitUndefined({
+    subscriberId,
+    email: normalizeNovuString(source.email),
+    phone: normalizeNovuString(source.phone),
+    firstName: normalizeNovuString(source.firstName),
+    lastName: normalizeNovuString(source.lastName),
+    avatar: normalizeNovuString(source.avatar),
+    locale: normalizeNovuString(source.locale),
+    timezone: normalizeNovuString(source.timezone),
+    data: source.data ?? undefined,
+  })
+}
+
 export type TriggerNovuWorkflowInput = {
   workflowId: string
   subscriber: NovuSubscriberInput

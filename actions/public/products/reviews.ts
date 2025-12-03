@@ -15,6 +15,7 @@ import { upsertProductReview } from "@/lib/server/productReviews"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { dispatchEventAsync } from "@/lib/server/events"
+import { notifyNovuProductReview } from "@/lib/server/notifications/novuEvents"
 import "@/lib/server/rewards/listeners"
 
 export type SubmitReviewState = {
@@ -127,6 +128,8 @@ export async function submitProductReviewAction(
     dispatchEventAsync("product.reviewed", eventPayload, {
       context: { productId: product.id, reviewId: review.id },
     })
+
+    await notifyNovuProductReview(eventPayload)
   } catch (error: any) {
     return {
       status: "error",
