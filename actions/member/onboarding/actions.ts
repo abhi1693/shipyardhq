@@ -18,7 +18,7 @@ import {
 } from "@/lib/routes"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { revalidateUser } from "@/lib/cache/revalidate"
-import { resolveSiteUrl } from "@/lib/siteConfig"
+import { resolveSiteUrl, siteConfig } from "@/lib/siteConfig"
 import {
   guardNovuWorkflow,
   triggerNovuWorkflow,
@@ -27,7 +27,7 @@ import { subscribeToWeeklyNewsletterTopic } from "@/lib/server/notifications/nov
 import { subscribeToSystemUpdatesTopic } from "@/lib/server/notifications/novuSystemUpdates"
 
 const BUILDER_INTENTS = new Set(["launch-product", "manage-team"])
-const WELCOME_SUBJECT = "Welcome aboard ShipYardHQ"
+const WELCOME_SUBJECT = `Welcome to ${siteConfig.name}`
 const NOVU_WELCOME_WORKFLOW_ID =
   process.env.NOVU_WORKFLOW_WELCOME_USER?.trim() || "welcome-user"
 
@@ -113,7 +113,7 @@ export async function completeOnboarding(formData: FormData) {
               kind: "welcome_user",
               subject: WELCOME_SUBJECT,
               message:
-                "Welcome aboard—open your dashboard to start your ShipYardHQ workspace.",
+                `You’re in. Set up your product, publish when ready, and start getting discovered on ${siteConfig.name}.`,
               timestamp: new Date().toISOString(),
             },
             onboarding: {
