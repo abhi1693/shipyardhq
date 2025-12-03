@@ -76,25 +76,30 @@ type SessionPayload = {
 
 type SessionUserPayload = {
   id?: string
-  external_accounts?: {
-    verification?: { strategy?: string | null } | null
+  email_addresses?: {
+    linked_to?: { type?: string | null }[] | null
   }[]
 }
 
 function pickMethodFromUser(user?: SessionUserPayload) {
-  const accounts: { verification?: { strategy?: string | null } | null }[] =
-    Array.isArray(user?.external_accounts) ? user.external_accounts || [] : []
+  const emails: { linked_to?: { type?: string | null }[] | null }[] =
+    Array.isArray(user?.email_addresses) ? user.email_addresses || [] : []
 
-  if (!user?.external_accounts || accounts.length === 0) return "Email"
+  const email = emails[0]
+  if (!email) return undefined
 
-  const account = accounts[0]
-  const strategy = sanitizeStrategy(account?.verification?.strategy)
-  if (strategy) return strategy
+  const linkedTo = Array.isArray(email?.linked_to) ? email?.linked_to || [] : []
+  if (linkedTo.length === 0) return "Email"
+
+  for (const link of linkedTo) {
+    const sanitizedType = sanitizeLinkedType(link?.type)
+    if (sanitizedType) return sanitizedType
+  }
 
   return undefined
 }
 
-function sanitizeStrategy(value: unknown) {
+function sanitizeLinkedType(value: unknown) {
   const raw = typeof value === "string" ? value.trim() : ""
   if (!raw) return undefined
 
