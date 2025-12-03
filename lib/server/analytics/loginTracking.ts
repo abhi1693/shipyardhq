@@ -32,7 +32,10 @@ export async function trackLoginInGa(input: TrackLoginInput) {
     ],
   }
 
-  console.info("[analytics] GA login request body", JSON.stringify(body, null, 2))
+  console.info(
+    "[analytics] GA login request body",
+    JSON.stringify(body, null, 2),
+  )
 
   try {
     const response = await fetch(
