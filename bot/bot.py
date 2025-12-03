@@ -257,7 +257,7 @@ def rate_limit_sleep(resp: requests.Response, default_seconds: int = 60, max_sec
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Twitter helper bot for Shipyard mentions and tips.")
     parser.add_argument("keywords", nargs="+", help="One or more keywords to search for.")
-    parser.add_argument("--yes", action="store_true", help="Auto-approve all generated replies.")
+    parser.add_argument("--auto", action="store_true", help="Auto-approve all generated replies.")
     parser.add_argument("--debug", action="store_true", help="Enable verbose logging.")
     parser.add_argument(
         "--max-replies-per-hour",
@@ -296,7 +296,7 @@ def handle_tweet(
     twitter: TwitterClient,
     ai_client: OpenAI,
     tweet: Tweet,
-    auto_yes: bool,
+    auto_approve: bool,
     reply_times: Deque[float],
     replied_cache: Deque[str],
     max_replies_per_hour: int,
@@ -305,7 +305,7 @@ def handle_tweet(
     if tweet.id in replied_cache:
         logging.info("Already replied to tweet %s (from cache); skipping.", tweet.id)
         return
-    if auto_yes and max_replies_per_hour > 0:
+    if auto_approve and max_replies_per_hour > 0:
         # Drop entries older than 1 hour.
         cutoff = now - 3600
         while reply_times and reply_times[0] < cutoff:
@@ -315,9 +315,9 @@ def handle_tweet(
             return
 
     reply_text = draft_reply(ai_client, tweet)
-    approved = auto_yes
+    approved = auto_approve
 
-    if not auto_yes:
+    if not auto_approve:
         while True:
             print("\n--- Tweet ------------------------------------")
             print(tweet.text)
@@ -398,7 +398,7 @@ def main() -> None:
                         twitter_client,
                         ai_client,
                         tweet,
-                        auto_yes=args.yes,
+                        auto_approve=args.auto,
                         reply_times=reply_times,
                         replied_cache=replied_cache,
                         max_replies_per_hour=args.max_replies_per_hour,
