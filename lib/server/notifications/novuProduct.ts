@@ -4,7 +4,7 @@ import {
   triggerNovuWorkflow,
   type NovuSubscriberInput,
 } from "@/lib/server/notifications/novu"
-import { resolveSiteUrl } from "@/lib/siteConfig"
+import { resolveSiteUrl, siteConfig } from "@/lib/siteConfig"
 
 const NOVU_PRODUCT_WORKFLOW_ID =
   process.env.NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS?.trim() ?? null
@@ -49,6 +49,13 @@ export async function sendProductNotificationToNovu(
 
   try {
     const siteUrl = resolveSiteUrl()
+    const transactionId =
+      payload.transactionId ??
+      `${payload.kind}:${payload.product.id}:${Date.now()}`
+    const subject =
+      normalizeNovuString(rest.subject) ??
+      normalizeNovuString(rest.message) ??
+      `${siteConfig.name} update`
 
     const rawMemberLink = normalizeNovuString(rest.links?.member)
     const rawPublicLink =
@@ -76,15 +83,15 @@ export async function sendProductNotificationToNovu(
       workflowId: workflow.workflowId,
       subscriber: recipient,
       actor: actor ?? undefined,
-      transactionId: payload.transactionId,
+      transactionId,
       ensureActor: Boolean(actor),
       payload: {
         notification: {
           kind: rest.kind,
           message: rest.message,
           timestamp: new Date().toISOString(),
-          transactionId: payload.transactionId ?? null,
-          subject: rest.subject ?? null,
+          transactionId,
+          subject,
         },
         product: rest.product,
         ...(actorPayload ? { actor: actorPayload } : {}),

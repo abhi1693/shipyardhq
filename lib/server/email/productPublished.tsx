@@ -59,8 +59,8 @@ export async function sendProductPublishedEmail(productId: string) {
 
   const context = {
     product_published: {
-      planName: product.plan?.name ?? null,
-      publishedAt: product.publishedAt?.toISOString() ?? null,
+      publishedAt:
+        product.publishedAt?.toISOString() ?? new Date().toISOString(),
     },
   }
 
@@ -68,7 +68,7 @@ export async function sendProductPublishedEmail(productId: string) {
     kind: "product_published",
     message:
       product.name && product.name.length > 0
-        ? `${product.name} is live on ShipYardHQ.`
+        ? `${product.name} just launched—share your public page and track momentum.`
         : PRODUCT_PUBLISHED_MESSAGE,
     subject:
       product.name && product.name.length > 0
