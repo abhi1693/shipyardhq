@@ -114,7 +114,10 @@ export async function trackRefundInGa(input: {
     ],
   }
 
-  console.info("[analytics] GA refund request body", JSON.stringify(body, null, 2))
+  console.info(
+    "[analytics] GA refund request body",
+    JSON.stringify(body, null, 2),
+  )
 
   try {
     const response = await fetch(
@@ -202,13 +205,17 @@ async function buildFromPayment(input: TrackInput) {
 
   for (let i = 0; i < itemCount; i++) {
     const cart = cartItems[i]
-    const line = lineItemsList[i] as (Payments.PaymentRetrieveLineItemsResponse.Item & {
-      items_id?: string
-    }) | undefined
+    const line = lineItemsList[i] as
+      | (Payments.PaymentRetrieveLineItemsResponse.Item & {
+          items_id?: string
+        })
+      | undefined
 
     const quantity = cart?.quantity && cart.quantity > 0 ? cart.quantity : 1
     const basePriceCents =
-      typeof line?.amount === "number" ? Math.max(0, Math.round(line.amount)) : undefined
+      typeof line?.amount === "number"
+        ? Math.max(0, Math.round(line.amount))
+        : undefined
     const itemSubtotal =
       typeof basePriceCents === "number" ? basePriceCents * quantity : undefined
     if (typeof itemSubtotal === "number") subtotalCents += itemSubtotal
@@ -220,10 +227,7 @@ async function buildFromPayment(input: TrackInput) {
         payment.metadata?.planId ||
         payment.metadata?.productId ||
         `item_${i + 1}`,
-      name:
-        line?.name ||
-        line?.description ||
-        "Unknown item",
+      name: line?.name || line?.description || "Unknown item",
       productId: cart?.product_id || line?.items_id,
       quantity,
       basePriceCents,
@@ -241,7 +245,9 @@ async function buildFromPayment(input: TrackInput) {
   }
 
   const discountTotalCents =
-    subtotalCents > 0 && totalAmountCents > 0 && subtotalCents > totalAmountCents
+    subtotalCents > 0 &&
+    totalAmountCents > 0 &&
+    subtotalCents > totalAmountCents
       ? subtotalCents - totalAmountCents
       : 0
 
@@ -287,7 +293,9 @@ async function buildFromPayment(input: TrackInput) {
     currency,
     value: valueCents > 0 ? valueCents / 100 : undefined,
     ...(typeof taxCents === "number" ? { tax: taxCents / 100 } : {}),
-    ...(typeof shippingCents === "number" ? { shipping: shippingCents / 100 } : {}),
+    ...(typeof shippingCents === "number"
+      ? { shipping: shippingCents / 100 }
+      : {}),
     ...(coupon ? { coupon } : {}),
     items,
   }
@@ -299,7 +307,9 @@ async function buildFromSubscription(input: TrackInput) {
   let subscription = input.subscription
   if (!subscription && input.subscriptionId) {
     try {
-      subscription = await dodoClient.subscriptions.retrieve(input.subscriptionId)
+      subscription = await dodoClient.subscriptions.retrieve(
+        input.subscriptionId,
+      )
     } catch {
       subscription = undefined
     }
@@ -319,7 +329,9 @@ async function buildFromSubscription(input: TrackInput) {
   let productName: string | undefined
   if (subscription.product_id) {
     try {
-      const product = await dodoClient.products.retrieve(subscription.product_id)
+      const product = await dodoClient.products.retrieve(
+        subscription.product_id,
+      )
       productName = product?.name || undefined
     } catch {}
   }

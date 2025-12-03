@@ -13,7 +13,10 @@ export const dynamic = "force-dynamic"
 export async function POST(req: Request) {
   if (!WEBHOOK_SECRET) {
     console.error("[dodo-webhook] missing DODO_WEBHOOK_SECRET")
-    return NextResponse.json({ error: "webhook secret missing" }, { status: 400 })
+    return NextResponse.json(
+      { error: "webhook secret missing" },
+      { status: 400 },
+    )
   }
 
   const rawBody = await req.text()
@@ -40,7 +43,10 @@ export async function POST(req: Request) {
         const userId = payment.customer?.customer_id
         if (!userId) {
           console.error("[dodo-webhook] payment missing customer_id")
-          return NextResponse.json({ error: "missing customer_id" }, { status: 400 })
+          return NextResponse.json(
+            { error: "missing customer_id" },
+            { status: 400 },
+          )
         }
 
         await trackPlanPurchaseInGa({
@@ -55,7 +61,10 @@ export async function POST(req: Request) {
         const userId = refund.customer?.customer_id
         if (!userId) {
           console.error("[dodo-webhook] refund missing customer_id")
-          return NextResponse.json({ error: "missing customer_id" }, { status: 400 })
+          return NextResponse.json(
+            { error: "missing customer_id" },
+            { status: 400 },
+          )
         }
 
         await trackRefundInGa({

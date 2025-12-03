@@ -76,7 +76,10 @@ export default function RootLayout({
         )}
       </body>
       {process.env.GOOGLE_ANALYTICS_ID && (
-        <GoogleAnalytics gaId={process.env.GOOGLE_ANALYTICS_ID} debugMode={!IS_PROD}/>
+        <GoogleAnalytics
+          gaId={process.env.GOOGLE_ANALYTICS_ID}
+          debugMode={!IS_PROD}
+        />
       )}
     </html>
   )

@@ -97,11 +97,9 @@ export async function validateOrgPaymentAction(paymentId: string) {
     // Preferred: metadata specifies the feature and plan
     let planId: string | undefined = (meta as any).planId
     const feature = (meta as any).feature
-    let plan:
-      | {
-          id: string
-        }
-      | null = null
+    let plan: {
+      id: string
+    } | null = null
 
     if (!planId || feature !== "organization") {
       // Fallback for overlay checkout without metadata: infer plan by product_id
@@ -179,11 +177,9 @@ export async function validateOrgSubscriptionAction(
   try {
     // Try to map the subscription's product_id to a local plan via externalId
     let mappedPlanId: string | undefined
-    let plan:
-      | {
-          id: string
-        }
-      | null = null
+    let plan: {
+      id: string
+    } | null = null
     try {
       const sub = await dodoClient.subscriptions.retrieve(subscriptionId)
       const pid = (sub as any)?.product_id as string | undefined
