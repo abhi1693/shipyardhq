@@ -11,7 +11,6 @@ import {
 } from "@/lib/server/userStatus"
 import { MEMBER_ORGANIZATIONS_PATH } from "@/lib/routes"
 import { createPlanCheckout } from "@/lib/server/dodoCheckout"
-import { trackPlanPurchaseInGa } from "@/lib/server/analytics/planPurchaseTracking"
 
 // Start a user-level checkout for a plan that includes the organization feature
 export async function startOrgCheckoutAction(formData: FormData) {
@@ -156,11 +155,6 @@ export async function validateOrgPaymentAction(paymentId: string) {
       update: { externalId: paymentId },
       create: { userId: u.id, planId, externalId: paymentId },
     })
-    await trackPlanPurchaseInGa({
-      userId: u.id,
-      paymentId,
-      source: "organization",
-    })
     return { success: true }
   } catch (e) {
     console.error("validateOrgPaymentAction failed", e)
@@ -233,11 +227,6 @@ export async function validateOrgSubscriptionAction(
         planId: mappedPlanId,
         externalId: subscriptionId,
       },
-    })
-    await trackPlanPurchaseInGa({
-      userId: u.id,
-      subscriptionId,
-      source: "subscription",
     })
     return { success: true }
   } catch (e) {

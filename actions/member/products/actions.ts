@@ -16,7 +16,6 @@ import {
   validateConnectorApiKey,
   upsertPaymentConnector,
 } from "@/lib/server/payments/connectors"
-import { trackPlanPurchaseInGa } from "@/lib/server/analytics/planPurchaseTracking"
 import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
 import {
   getActiveUserByClerkId,
@@ -389,11 +388,6 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
     await prisma.product.update({
       where: { id: productId },
       data: { planId, planAssignedAt },
-    })
-    await trackPlanPurchaseInGa({
-      userId: user.id,
-      paymentId,
-      source: "product",
     })
     return { success: true }
   } catch (e) {
