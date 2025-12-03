@@ -101,7 +101,6 @@ export async function runGaPlanPurchaseBackfill() {
       await trackPlanPurchaseInGa({
         userId: payment.customer?.customer_id || "unknown",
         paymentId,
-        source,
       })
       console.log(
         `[ga-backfill] emitted purchase: payment=${paymentId} product=${productId} source=${source}`,
