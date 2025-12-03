@@ -358,14 +358,9 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
       where: { id: productId, userId: user.id },
       select: {
         id: true,
+        userId: true,
         planAssignedAt: true,
-        plan: {
-          select: {
-            id: true,
-            boostForDays: true,
-            isDefault: true,
-          },
-        },
+        plan: { select: { boostForDays: true, isDefault: true } },
       },
     })
     if (!product) return { error: "Product not found or not owned" }
@@ -373,11 +368,7 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
     // Attach plan
     const plan = await prisma.plan.findUnique({
       where: { id: planId },
-      select: {
-        id: true,
-        boostForDays: true,
-        isDefault: true,
-      },
+      select: { boostForDays: true, isDefault: true },
     })
     if (!plan) return { error: "Plan not found" }
     const planAssignedAt = resolvePlanAssignedAt({
