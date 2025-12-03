@@ -10,11 +10,7 @@ import {
   fetchAllNovuSubscriberEmails,
   isNovuEnabled,
 } from "@/lib/server/notifications/novu"
-import {
-  sendSystemUpdateNotification,
-  sendSystemUpdateTopicNotification,
-} from "@/lib/server/notifications/novuAdmin"
-import { NOVU_SYSTEM_UPDATES_TOPIC_KEY } from "@/lib/server/notifications/novuSystemUpdates"
+import { sendSystemUpdateNotification } from "@/lib/server/notifications/novuAdmin"
 
 export type NotificationSegment = "all" | "selected"
 
@@ -45,6 +41,29 @@ type ResolvedRecipient = {
   email: string
   firstName?: string | null
   lastName?: string | null
+}
+
+const RESEND_RATE_LIMIT_PER_SECOND = 2
+const RESEND_WINDOW_MS = 1000
+
+async function throttleResendRate(state: {
+  count: number
+  windowStart: number
+}): Promise<{ count: number; windowStart: number }> {
+  const now = Date.now()
+  const elapsed = now - state.windowStart
+
+  if (elapsed >= RESEND_WINDOW_MS) {
+    return { count: 1, windowStart: now }
+  }
+
+  if (state.count >= RESEND_RATE_LIMIT_PER_SECOND) {
+    const waitMs = RESEND_WINDOW_MS - elapsed
+    await new Promise((resolve) => setTimeout(resolve, waitMs))
+    return { count: 1, windowStart: Date.now() }
+  }
+
+  return { count: state.count + 1, windowStart: state.windowStart }
 }
 
 async function getSubscribedNewsletterEmails(): Promise<Set<string>> {
@@ -251,42 +270,6 @@ export async function sendNotificationEmailsAction(
   const html = await buildBroadcastHtml(message)
   const timestamp = new Date().toISOString()
 
-  if (segment === "all") {
-    const result = await sendSystemUpdateTopicNotification({
-      topicKey: NOVU_SYSTEM_UPDATES_TOPIC_KEY,
-      payload: {
-        subject,
-        html,
-        segment,
-        tags: ["system-updates", "broadcast"],
-      },
-      transactionId: `system_update_topic:${segment}:${timestamp}`,
-    })
-
-    if (!result.sent) {
-      if (result.reason === "novu-disabled") {
-        return { error: "Novu is not configured. Cannot send system update." }
-      }
-      if (result.reason === "missing-workflow") {
-        return { error: "System updates workflow not configured" }
-      }
-      return { error: "Failed to send notification via topic" }
-    }
-
-    return {
-      success: true,
-      summary: {
-        totalRecipients: 1,
-        attempted: 1,
-        sent: 1,
-        failed: [],
-        invalidEmails: [],
-        sentPercentage: 100,
-        failedPercentage: 0,
-      },
-    }
-  }
-
   let recipients: ResolvedRecipient[] = []
   let invalidEmails: string[] = []
 
@@ -319,9 +302,11 @@ export async function sendNotificationEmailsAction(
 
   const failed: { email: string; error: string }[] = []
   let sent = 0
+  let rateLimitState = { count: 0, windowStart: Date.now() }
 
   for (const [index, recipient] of uniqueRecipients.entries()) {
     try {
+      rateLimitState = await throttleResendRate(rateLimitState)
       const transactionId = `system_update:${segment}:${recipient.subscriberId}:${index}`
       const result = await sendSystemUpdateNotification({
         recipient,

@@ -1,11 +1,12 @@
-import { TriggerRecipientsTypeEnum } from "@novu/api/models/components/triggerrecipientstypeenum"
-
 import {
+  fetchAllNovuSubscriberEmails,
   guardNovuWorkflow,
   subscribeNovuTopic,
   triggerNovuWorkflow,
-  getNovuClient,
 } from "@/lib/server/notifications/novu"
+
+const RESEND_RATE_LIMIT_PER_SECOND = 2
+const RESEND_WINDOW_MS = 1000
 
 const NOVU_WEEKLY_NEWSLETTER_WORKFLOW_ID =
   process.env.NOVU_WORKFLOW_WEEKLY_NEWSLETTER?.trim() || "weekly-newsletter"
@@ -126,7 +127,7 @@ export async function sendWeeklyNewsletterNotification(input: {
   }
 }
 
-export async function sendWeeklyNewsletterTopicNotification(
+export async function sendWeeklyNewsletterToSubscribers(
   payload: WeeklyNewsletterPayload,
   weekKey: string,
 ): Promise<boolean> {
@@ -136,48 +137,72 @@ export async function sendWeeklyNewsletterTopicNotification(
   })
   if (!workflow.ready) return false
 
-  const topicKey = NOVU_WEEKLY_NEWSLETTER_TOPIC_KEY?.trim()
-  if (!topicKey) {
-    console.warn("[novu] weekly newsletter topic key missing")
+  const subscriberEmails = await fetchAllNovuSubscriberEmails()
+  if (!subscriberEmails.length) {
+    console.warn("[novu] weekly newsletter has no subscribers to notify")
     return false
   }
 
   try {
-    const client = getNovuClient()
     const timestamp = new Date().toISOString()
     const subject = "This week on Shipyard HQ"
     const message =
       "Product of the week, trending launches, and fresh updates from the Shipyard community."
 
-    await client.trigger({
-      workflowId: workflow.workflowId,
-      to: {
-        type: TriggerRecipientsTypeEnum.Topic,
-        topicKey,
-      },
-      payload: {
-        notification: {
-          kind: "weekly_newsletter",
-          subject,
-          message,
-          timestamp,
+    let rateState = { count: 0, windowStart: Date.now() }
+    for (const [index, email] of subscriberEmails.entries()) {
+      rateState = await throttleResendRate(rateState)
+
+      await triggerNovuWorkflow({
+        workflowId: workflow.workflowId,
+        subscriber: {
+          subscriberId: email,
+          email,
         },
-        newsletter: {
-          ...payload,
+        payload: {
+          notification: {
+            kind: "weekly_newsletter",
+            subject,
+            message,
+            timestamp,
+          },
+          newsletter: {
+            ...payload,
+          },
+          links: {
+            browse: payload.ctaUrl,
+          },
+          tags: ["newsletter", "discover"],
         },
-        links: {
-          browse: payload.ctaUrl,
-        },
-        tags: ["newsletter", "discover"],
-      },
-      transactionId: `weekly_newsletter_topic:${topicKey}:${weekKey}`,
-    })
+        transactionId: `weekly_newsletter:${email}:${weekKey}:${index}`,
+      })
+    }
+
     return true
   } catch (error) {
-    console.error("[novu] failed to send weekly newsletter to topic", {
+    console.error("[novu] failed to send weekly newsletter to subscribers", {
       error,
-      topicKey,
     })
     return false
   }
+}
+
+async function throttleResendRate(state: {
+  count: number
+  windowStart: number
+}): Promise<{ count: number; windowStart: number }> {
+  const now = Date.now()
+  const elapsed = now - state.windowStart
+
+  if (elapsed >= RESEND_WINDOW_MS) {
+    return { count: 1, windowStart: now }
+  }
+
+  if (state.count >= RESEND_RATE_LIMIT_PER_SECOND) {
+    const waitMs = RESEND_WINDOW_MS - elapsed
+    await new Promise((resolve) => setTimeout(resolve, waitMs))
+    return { count: 1, windowStart: Date.now() }
+  }
+
+  return { count: state.count + 1, windowStart: state.windowStart }
 }

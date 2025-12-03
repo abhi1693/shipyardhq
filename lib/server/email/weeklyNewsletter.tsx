@@ -3,7 +3,7 @@ import { getCachedRevenueSummary } from "@/lib/server/payments/revenue"
 import { computeLeaderboardWindow } from "@/lib/server/leaderboard/v2"
 import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
 import { resolveSiteUrl } from "@/lib/siteConfig"
-import { sendWeeklyNewsletterTopicNotification } from "@/lib/server/notifications/novuNewsletter"
+import { sendWeeklyNewsletterToSubscribers } from "@/lib/server/notifications/novuNewsletter"
 import { isNovuEnabled } from "@/lib/server/notifications/novu"
 import { userPath } from "@/lib/routes"
 
@@ -405,7 +405,7 @@ export async function sendWeeklyNewsletterEmails(now: Date = new Date()) {
     productUpdates,
   }
 
-  const topicSent = await sendWeeklyNewsletterTopicNotification(
+  const topicSent = await sendWeeklyNewsletterToSubscribers(
     newsletterPayload,
     weekKey,
   )
