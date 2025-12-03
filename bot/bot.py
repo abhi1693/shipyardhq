@@ -19,6 +19,7 @@ import logging
 import os
 import sys
 import time
+import random
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
@@ -154,8 +155,10 @@ def draft_reply(client: OpenAI, tweet: Tweet) -> str:
     system = (
         "You craft concise, kind replies to tweets. "
         "Each reply must be under 200 characters. "
-        "Reply types: curious question, helpful tip, or a suggestion to list their app on https://shipyardhq.dev. "
-        "When you suggest Shipyard, include the URL https://shipyardhq.dev and tie it to their post with a short reason. "
+        "Reply types: curious question or a helpful tip. "
+        "ONLY suggest listing on https://shipyardhq.dev if the tweet clearly mentions building/launching/running an app, product, tool, service, platform, or startup. "
+        "If you do suggest Shipyard, state a short reason tied to their text and include the URL https://shipyardhq.dev. "
+        "Do NOT force a Shipyard mention when the tweet is just sharing links, lists, news, or asks with no product mentioned. "
         "No hashtags or emojis. Keep it human and specific."
     )
     user_prompt = (
@@ -251,11 +254,11 @@ def handle_tweet(
             print(tweet.text)
             print("-----------------------------------------------")
             print(f"Draft reply: {reply_text}")
-            choice = input("Reply? (yes/regenerate): ").strip().lower()
-            if choice.startswith("y"):
+            choice = input("Reply? (y/yes/r/regenerate): ").strip().lower()
+            if choice in {"y", "yes"}:
                 approved = True
                 break
-            if choice.startswith("r"):
+            if choice in {"r", "regenerate"}:
                 reply_text = draft_reply(ai_client, tweet)
                 continue
             approved = False
@@ -268,6 +271,11 @@ def handle_tweet(
     success = twitter.reply(tweet.id, reply_text)
     if not success:
         logging.warning("Did not post reply to tweet %s", tweet.id)
+        return
+
+    random_delay = random.uniform(10, 60)
+    logging.info("Sleeping %.1f seconds after reply to look human", random_delay)
+    time.sleep(random_delay)
 
 
 def main() -> None:
