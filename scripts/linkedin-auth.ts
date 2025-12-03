@@ -151,6 +151,7 @@ async function main() {
     } catch (error) {
       console.error(
         "Malformed URL provided. Please paste the full redirect URL containing code and state.",
+        error instanceof Error ? error.message : error,
       )
       process.exit(1)
     }

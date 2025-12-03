@@ -48,7 +48,6 @@ export async function UserProfilePageContent({ params }: PageProps) {
     totalVerifiedRevenueCents,
     totalVerifiedRevenueCurrency,
     rewardPoints,
-    categories,
     focusCategories,
     extraCategoryCount,
     badges,
