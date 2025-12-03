@@ -16,6 +16,7 @@ import {
   validateConnectorApiKey,
   upsertPaymentConnector,
 } from "@/lib/server/payments/connectors"
+import { trackPlanPurchaseInGa } from "@/lib/server/analytics/planPurchaseTracking"
 import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
 import {
   getActiveUserByClerkId,
@@ -359,8 +360,20 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
       select: {
         id: true,
         userId: true,
+        slug: true,
+        name: true,
         planAssignedAt: true,
-        plan: { select: { boostForDays: true, isDefault: true } },
+        plan: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            price: true,
+            type: true,
+            boostForDays: true,
+            isDefault: true,
+          },
+        },
       },
     })
     if (!product) return { error: "Product not found or not owned" }
@@ -368,7 +381,15 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
     // Attach plan
     const plan = await prisma.plan.findUnique({
       where: { id: planId },
-      select: { boostForDays: true, isDefault: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        type: true,
+        boostForDays: true,
+        isDefault: true,
+      },
     })
     if (!plan) return { error: "Plan not found" }
     const planAssignedAt = resolvePlanAssignedAt({
@@ -379,6 +400,18 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
     await prisma.product.update({
       where: { id: productId },
       data: { planId, planAssignedAt },
+    })
+    await trackPlanPurchaseInGa({
+      userId: user.id,
+      transactionId: paymentId,
+      plan,
+      product: {
+        id: product.id,
+        slug: product.slug,
+        name: product.name,
+      },
+      priceCents: plan.price ?? undefined,
+      source: "product",
     })
     return { success: true }
   } catch (e) {

@@ -11,6 +11,7 @@ import {
 } from "@/lib/server/userStatus"
 import { MEMBER_ORGANIZATIONS_PATH } from "@/lib/routes"
 import { createPlanCheckout } from "@/lib/server/dodoCheckout"
+import { trackPlanPurchaseInGa } from "@/lib/server/analytics/planPurchaseTracking"
 
 // Start a user-level checkout for a plan that includes the organization feature
 export async function startOrgCheckoutAction(formData: FormData) {
@@ -92,6 +93,15 @@ export async function validateOrgPaymentAction(paymentId: string) {
     // Preferred: metadata specifies the feature and plan
     let planId: string | undefined = (meta as any).planId
     const feature = (meta as any).feature
+    let plan:
+      | {
+          id: string
+          name: string
+          slug: string
+          price: number | null
+          type: string | null
+        }
+      | null = null
 
     if (!planId || feature !== "organization") {
       // Fallback for overlay checkout without metadata: infer plan by product_id
@@ -118,13 +128,32 @@ export async function validateOrgPaymentAction(paymentId: string) {
         return { error: "Unable to infer purchased product" }
       }
 
-      const plan = await prisma.plan.findFirst({
+      plan = await prisma.plan.findFirst({
         where: { externalId: productId },
-        select: { id: true },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          price: true,
+          type: true,
+        },
       })
       if (!plan) return { error: "No plan found for product" }
       planId = plan.id
     }
+    if (!plan && planId) {
+      plan = await prisma.plan.findUnique({
+        where: { id: planId },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          price: true,
+          type: true,
+        },
+      })
+    }
+    if (!plan) return { error: "Plan not found" }
     const u = await getActiveUserByClerkId(userId)
     if (!u) return { error: INACTIVE_ACCOUNT_MESSAGE }
 
@@ -133,6 +162,13 @@ export async function validateOrgPaymentAction(paymentId: string) {
       where: { userId_planId: { userId: u.id, planId } },
       update: { externalId: paymentId },
       create: { userId: u.id, planId, externalId: paymentId },
+    })
+    await trackPlanPurchaseInGa({
+      userId: u.id,
+      transactionId: paymentId,
+      plan,
+      priceCents: plan.price ?? undefined,
+      source: "organization",
     })
     return { success: true }
   } catch (e) {
@@ -158,21 +194,52 @@ export async function validateOrgSubscriptionAction(
   try {
     // Try to map the subscription's product_id to a local plan via externalId
     let mappedPlanId: string | undefined
+    let plan:
+      | {
+          id: string
+          name: string
+          slug: string
+          price: number | null
+          type: string | null
+        }
+      | null = null
     try {
       const sub = await dodoClient.subscriptions.retrieve(subscriptionId)
       const pid = (sub as any)?.product_id as string | undefined
       if (pid) {
         const mapped = await prisma.plan.findFirst({
           where: { externalId: pid },
-          select: { id: true },
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            price: true,
+            type: true,
+          },
         })
-        mappedPlanId = mapped?.id
+        if (mapped) {
+          mappedPlanId = mapped.id
+          plan = mapped
+        }
       }
     } catch {}
 
     // Require a mapped plan for entitlement; do not upsert with undefined
     if (!mappedPlanId) {
       return { error: "Unable to map subscription to a plan" }
+    }
+    if (!plan) {
+      plan = await prisma.plan.findUnique({
+        where: { id: mappedPlanId },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          price: true,
+          type: true,
+        },
+      })
+      if (!plan) return { error: "Plan not found" }
     }
 
     const u = await getActiveUserByClerkId(userId)
@@ -187,6 +254,13 @@ export async function validateOrgSubscriptionAction(
         planId: mappedPlanId,
         externalId: subscriptionId,
       },
+    })
+    await trackPlanPurchaseInGa({
+      userId: u.id,
+      transactionId: subscriptionId,
+      plan,
+      priceCents: plan.price ?? undefined,
+      source: "subscription",
     })
     return { success: true }
   } catch (e) {

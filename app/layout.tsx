@@ -75,8 +75,8 @@ export default function RootLayout({
         `}</Script>
         )}
       </body>
-      {IS_PROD && HAS_APP_URL && process.env.GOOGLE_ANALYTICS_ID && (
-        <GoogleAnalytics gaId={process.env.GOOGLE_ANALYTICS_ID} />
+      {process.env.GOOGLE_ANALYTICS_ID && (
+        <GoogleAnalytics gaId={process.env.GOOGLE_ANALYTICS_ID} debugMode={!IS_PROD}/>
       )}
     </html>
   )
