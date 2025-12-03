@@ -251,10 +251,35 @@ async function buildFromPayment(input: TrackInput) {
       ? subtotalCents - totalAmountCents
       : 0
 
+  const lookupIds = Array.from(
+    new Set(
+      tempItems
+        .map((item) => item.productId || item.id)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  )
+
+  const productNameById = new Map<string, string | undefined>()
+  if (lookupIds.length) {
+    await Promise.all(
+      lookupIds.map(async (id) => {
+        try {
+          const product = await dodoClient.products.retrieve(id)
+          productNameById.set(id, product?.name || undefined)
+        } catch (error) {
+          console.error(
+            `[analytics] failed to lookup product ${id} for GA`,
+            error,
+          )
+          productNameById.set(id, undefined)
+        }
+      }),
+    )
+  }
+
   let valueCents = 0
 
-  const items = []
-  for (const item of tempItems) {
+  const items = tempItems.map((item) => {
     const priceCents =
       typeof item.basePriceCents === "number" ? item.basePriceCents : 0
     const itemSubtotal = priceCents * item.quantity
@@ -268,16 +293,10 @@ async function buildFromPayment(input: TrackInput) {
     )
     valueCents += finalPricePerUnitCents * item.quantity
 
-    let productName: string | undefined
     const lookupId = item.productId || item.id
-    if (lookupId) {
-      try {
-        const product = await dodoClient.products.retrieve(lookupId)
-        productName = product?.name || undefined
-      } catch {}
-    }
+    const productName = lookupId ? productNameById.get(lookupId) : undefined
 
-    items.push({
+    return {
       item_id: item.id,
       item_name: productName || item.name || "Unknown item",
       quantity: item.quantity,
@@ -285,8 +304,8 @@ async function buildFromPayment(input: TrackInput) {
       ...(itemDiscountCents > 0 ? { discount: itemDiscountCents / 100 } : {}),
       ...(item.affiliation ? { affiliation: item.affiliation } : {}),
       ...(item.variant ? { item_variant: item.variant } : {}),
-    })
-  }
+    }
+  })
 
   const params: Record<string, any> = {
     transaction_id: payment.payment_id || input.paymentId,
@@ -333,7 +352,12 @@ async function buildFromSubscription(input: TrackInput) {
         subscription.product_id,
       )
       productName = product?.name || undefined
-    } catch {}
+    } catch (error) {
+      console.error(
+        `[analytics] failed to retrieve product ${subscription.product_id} for GA`,
+        error,
+      )
+    }
   }
 
   const params: Record<string, any> = {
