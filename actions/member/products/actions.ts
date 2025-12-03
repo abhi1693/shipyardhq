@@ -359,17 +359,10 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
       where: { id: productId, userId: user.id },
       select: {
         id: true,
-        userId: true,
-        slug: true,
-        name: true,
         planAssignedAt: true,
         plan: {
           select: {
             id: true,
-            name: true,
-            slug: true,
-            price: true,
-            type: true,
             boostForDays: true,
             isDefault: true,
           },
@@ -383,10 +376,6 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
       where: { id: planId },
       select: {
         id: true,
-        name: true,
-        slug: true,
-        price: true,
-        type: true,
         boostForDays: true,
         isDefault: true,
       },
@@ -403,14 +392,7 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
     })
     await trackPlanPurchaseInGa({
       userId: user.id,
-      transactionId: paymentId,
-      plan,
-      product: {
-        id: product.id,
-        slug: product.slug,
-        name: product.name,
-      },
-      priceCents: plan.price ?? undefined,
+      paymentId,
       source: "product",
     })
     return { success: true }

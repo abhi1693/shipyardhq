@@ -97,29 +97,14 @@ export async function runGaPlanPurchaseBackfill() {
     }
 
     for (const productId of productIds) {
-      const priceCents =
-        productIds.length === 1 && typeof paymentRecord.total_amount === "number"
-          ? paymentRecord.total_amount
-          : undefined
-      const currency = (paymentRecord.currency || "USD").toString().toUpperCase()
-      const planRef = {
-        id: productId,
-        name: paymentRecord.metadata?.planName || productId,
-        slug: productId,
-        price: priceCents ?? null,
-        type: paymentRecord.subscription_id ? "recurring_price" : null,
-      }
       const source = paymentRecord.subscription_id ? "subscription" : "product"
       await trackPlanPurchaseInGa({
         userId: payment.customer?.customer_id || "unknown",
-        transactionId: paymentId,
-        plan: planRef,
-        priceCents,
-        currency,
+        paymentId,
         source,
       })
       console.log(
-        `[ga-backfill] emitted purchase: payment=${paymentId} product=${productId} price=${priceCents ?? "n/a"} currency=${currency} source=${source}`,
+        `[ga-backfill] emitted purchase: payment=${paymentId} product=${productId} source=${source}`,
       )
       sent += 1
     }

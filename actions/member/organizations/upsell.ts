@@ -26,7 +26,12 @@ export async function startOrgCheckoutAction(formData: FormData) {
 
   const plan = await prisma.plan.findUnique({
     where: { id: planId },
-    select: { id: true, externalId: true, price: true, type: true },
+    select: {
+      id: true,
+      externalId: true,
+      price: true,
+      type: true,
+    },
   })
   if (!plan) return
 
@@ -96,10 +101,6 @@ export async function validateOrgPaymentAction(paymentId: string) {
     let plan:
       | {
           id: string
-          name: string
-          slug: string
-          price: number | null
-          type: string | null
         }
       | null = null
 
@@ -132,10 +133,6 @@ export async function validateOrgPaymentAction(paymentId: string) {
         where: { externalId: productId },
         select: {
           id: true,
-          name: true,
-          slug: true,
-          price: true,
-          type: true,
         },
       })
       if (!plan) return { error: "No plan found for product" }
@@ -146,10 +143,6 @@ export async function validateOrgPaymentAction(paymentId: string) {
         where: { id: planId },
         select: {
           id: true,
-          name: true,
-          slug: true,
-          price: true,
-          type: true,
         },
       })
     }
@@ -165,9 +158,7 @@ export async function validateOrgPaymentAction(paymentId: string) {
     })
     await trackPlanPurchaseInGa({
       userId: u.id,
-      transactionId: paymentId,
-      plan,
-      priceCents: plan.price ?? undefined,
+      paymentId,
       source: "organization",
     })
     return { success: true }
@@ -197,10 +188,6 @@ export async function validateOrgSubscriptionAction(
     let plan:
       | {
           id: string
-          name: string
-          slug: string
-          price: number | null
-          type: string | null
         }
       | null = null
     try {
@@ -211,10 +198,6 @@ export async function validateOrgSubscriptionAction(
           where: { externalId: pid },
           select: {
             id: true,
-            name: true,
-            slug: true,
-            price: true,
-            type: true,
           },
         })
         if (mapped) {
@@ -233,10 +216,6 @@ export async function validateOrgSubscriptionAction(
         where: { id: mappedPlanId },
         select: {
           id: true,
-          name: true,
-          slug: true,
-          price: true,
-          type: true,
         },
       })
       if (!plan) return { error: "Plan not found" }
@@ -257,9 +236,7 @@ export async function validateOrgSubscriptionAction(
     })
     await trackPlanPurchaseInGa({
       userId: u.id,
-      transactionId: subscriptionId,
-      plan,
-      priceCents: plan.price ?? undefined,
+      subscriptionId,
       source: "subscription",
     })
     return { success: true }
