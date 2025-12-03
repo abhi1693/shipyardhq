@@ -344,7 +344,7 @@ def handle_tweet(
 
     reply_times.append(now)
     replied_cache.append(tweet.id)
-    random_delay = random.uniform(10, 60)
+    random_delay = random.uniform(60, 600)
     logging.info("Sleeping %.1f seconds after reply to look human", random_delay)
     time.sleep(random_delay)
 
