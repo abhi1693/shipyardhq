@@ -291,7 +291,7 @@ async function buildFromPayment(input: TrackInput) {
   const params: Record<string, any> = {
     transaction_id: payment.payment_id || input.paymentId,
     currency,
-    value: valueCents > 0 ? valueCents / 100 : undefined,
+    ...(valueCents > 0 ? { value: valueCents / 100 } : {}),
     ...(typeof taxCents === "number" ? { tax: taxCents / 100 } : {}),
     ...(typeof shippingCents === "number"
       ? { shipping: shippingCents / 100 }
@@ -339,7 +339,7 @@ async function buildFromSubscription(input: TrackInput) {
   const params: Record<string, any> = {
     transaction_id: subscription.subscription_id || input.subscriptionId,
     currency,
-    value: totalAmountCents > 0 ? totalAmountCents / 100 : undefined,
+    ...(totalAmountCents > 0 ? { value: totalAmountCents / 100 } : {}),
     ...(coupon ? { coupon } : {}),
     items: [
       {
