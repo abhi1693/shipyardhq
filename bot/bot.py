@@ -15,13 +15,15 @@ Features:
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import os
+import random
 import sys
 import time
-import random
+from collections import deque
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import Deque, List, Optional, Tuple
 
 import requests
 from openai import OpenAI
@@ -201,6 +203,39 @@ def first_env(*names: str) -> Optional[str]:
     return None
 
 
+def load_state(path: str) -> Tuple[Optional[str], List[str]]:
+    if not path or not os.path.exists(path):
+        return None, []
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        since_id = data.get("since_id")
+        replied_ids = data.get("replied_ids") or []
+        if not isinstance(replied_ids, list):
+            replied_ids = []
+        replied_ids = [str(x) for x in replied_ids if x]
+        return since_id, replied_ids
+    except Exception as exc:
+        logging.warning("Could not load state from %s: %s", path, exc)
+        return None, []
+
+
+def save_state(path: str, since_id: Optional[str], replied_cache: Deque[str]) -> None:
+    if not path:
+        return
+    try:
+        directory = os.path.dirname(path)
+        if directory:
+            os.makedirs(directory, exist_ok=True)
+        payload = {"since_id": since_id, "replied_ids": list(replied_cache)}
+        tmp_path = f"{path}.tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(payload, f)
+        os.replace(tmp_path, path)
+    except Exception as exc:
+        logging.warning("Could not save state to %s: %s", path, exc)
+
+
 def rate_limit_sleep(resp: requests.Response, default_seconds: int = 60, max_seconds: int = 900) -> int:
     """
     Calculate a sleep duration using Twitter's x-rate-limit-reset header.
@@ -225,10 +260,28 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--yes", action="store_true", help="Auto-approve all generated replies.")
     parser.add_argument("--debug", action="store_true", help="Enable verbose logging.")
     parser.add_argument(
+        "--max-replies-per-hour",
+        type=int,
+        default=10,
+        help="Cap replies per rolling hour (0 = no cap). Applies only when --yes is used.",
+    )
+    parser.add_argument(
         "--interval",
         type=int,
         default=90,
         help="Seconds to sleep between search polls (default: 90).",
+    )
+    parser.add_argument(
+        "--state-file",
+        type=str,
+        default=".bot_state.json",
+        help="Path to persist since_id and replied cache for dedupe across restarts.",
+    )
+    parser.add_argument(
+        "--jitter",
+        type=int,
+        default=15,
+        help="Random jitter (+/- seconds) added to the poll interval to look human (default: 15).",
     )
     parser.add_argument(
         "--pause",
@@ -244,7 +297,23 @@ def handle_tweet(
     ai_client: OpenAI,
     tweet: Tweet,
     auto_yes: bool,
+    reply_times: Deque[float],
+    replied_cache: Deque[str],
+    max_replies_per_hour: int,
 ) -> None:
+    now = time.time()
+    if tweet.id in replied_cache:
+        logging.info("Already replied to tweet %s (from cache); skipping.", tweet.id)
+        return
+    if auto_yes and max_replies_per_hour > 0:
+        # Drop entries older than 1 hour.
+        cutoff = now - 3600
+        while reply_times and reply_times[0] < cutoff:
+            reply_times.popleft()
+        if len(reply_times) >= max_replies_per_hour:
+            logging.info("Hourly reply cap reached (%s); skipping tweet %s", max_replies_per_hour, tweet.id)
+            return
+
     reply_text = draft_reply(ai_client, tweet)
     approved = auto_yes
 
@@ -273,6 +342,8 @@ def handle_tweet(
         logging.warning("Did not post reply to tweet %s", tweet.id)
         return
 
+    reply_times.append(now)
+    replied_cache.append(tweet.id)
     random_delay = random.uniform(10, 60)
     logging.info("Sleeping %.1f seconds after reply to look human", random_delay)
     time.sleep(random_delay)
@@ -304,10 +375,18 @@ def main() -> None:
     )
     ai_client = OpenAI(api_key=openai_key)
 
+    state_since_id, replied_ids = load_state(args.state_file)
+    reply_times: Deque[float] = deque()
+    replied_cache: Deque[str] = deque(replied_ids, maxlen=500)
+    if state_since_id:
+        logging.info("Loaded state from %s (since_id=%s, replied_cache=%s)", args.state_file, state_since_id, len(replied_cache))
+    else:
+        logging.info("Starting fresh state (no since_id, replied_cache=%s)", len(replied_cache))
+
     query = build_query(args.keywords)
     logging.info("Watching for tweets matching: %s", query)
 
-    since_id: Optional[str] = None
+    since_id: Optional[str] = state_since_id
     try:
         while True:
             tweets, rate_limited = twitter_client.search_recent(query, since_id=since_id)
@@ -315,14 +394,25 @@ def main() -> None:
                 tweets = sorted(tweets, key=lambda t: int(t.id))
                 for tweet in tweets:
                     since_id = tweet.id if since_id is None else str(max(int(since_id), int(tweet.id)))
-                    handle_tweet(twitter_client, ai_client, tweet, auto_yes=args.yes)
+                    handle_tweet(
+                        twitter_client,
+                        ai_client,
+                        tweet,
+                        auto_yes=args.yes,
+                        reply_times=reply_times,
+                        replied_cache=replied_cache,
+                        max_replies_per_hour=args.max_replies_per_hour,
+                    )
+                    save_state(args.state_file, since_id, replied_cache)
                     logging.debug("Sleeping %s seconds between tweets", args.pause)
                     time.sleep(args.pause)
             else:
                 logging.debug("No new tweets this round.")
 
-            sleep_for = 30 if rate_limited else args.interval
-            logging.info("Sleeping %s seconds before next poll", sleep_for)
+            base_sleep = 30 if rate_limited else args.interval
+            jitter = random.uniform(-args.jitter, args.jitter) if args.jitter else 0
+            sleep_for = max(5, base_sleep + jitter)
+            logging.info("Sleeping %.1f seconds before next poll", sleep_for)
             time.sleep(sleep_for)
     except KeyboardInterrupt:
         logging.info("Bot stopped by user.")
