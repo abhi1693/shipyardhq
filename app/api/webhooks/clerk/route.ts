@@ -18,6 +18,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "invalid signature" }, { status: 400 })
   }
 
+  console.log(
+    "[clerk-webhook] received event",
+      JSON.stringify(event, null, 2),
+  )
+
   try {
     switch (event.type) {
       case "session.created":
