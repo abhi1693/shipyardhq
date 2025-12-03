@@ -3,7 +3,10 @@ import type { WebhookEvent } from "@clerk/nextjs/server"
 import { clerkClient } from "@clerk/nextjs/server"
 import { verifyWebhook } from "@clerk/backend/webhooks"
 
-import { trackLoginInGa } from "@/lib/server/analytics/loginTracking"
+import {
+  trackLoginInGa,
+  trackSignupInGa,
+} from "@/lib/server/analytics/loginTracking"
 
 export const dynamic = "force-dynamic"
 
@@ -20,6 +23,9 @@ export async function POST(req: Request) {
     switch (event.type) {
       case "session.created":
         await handleSessionCreated(event)
+        break
+      case "user.created":
+        await handleUserCreated(event)
         break
       default:
         console.info("[clerk-webhook] ignored event", event.type)
@@ -49,6 +55,22 @@ async function handleSessionCreated(event: WebhookEvent) {
   await trackLoginInGa({ method })
 }
 
+async function handleUserCreated(event: WebhookEvent) {
+  if (event.type !== "user.created") return
+
+  const user = event.data as SessionUserPayload
+  const method = pickMethodFromUser(user)
+
+  if (!method) {
+    console.info("[clerk-webhook] no supported sign up method resolved", {
+      userId: user?.id ?? null,
+    })
+    return
+  }
+
+  await trackSignupInGa({ method })
+}
+
 type SessionPayload = {
   client_id?: string | null
   user_id?: string | null
@@ -59,6 +81,7 @@ type SessionCreatedPayload = SessionPayload & {
 }
 
 type SessionUserPayload = {
+  id?: string
   external_accounts?: { provider?: string | null }[]
   email_addresses?: {
     verification?: { strategy?: string | null; object?: string | null } | null

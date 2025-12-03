@@ -14,9 +14,21 @@ type TrackLoginInput = {
   method?: string | null
 }
 
+type TrackSignupInput = {
+  method?: string | null
+}
+
 export async function trackLoginInGa(input: TrackLoginInput) {
+  await sendGaAuthEvent("login", input.method)
+}
+
+export async function trackSignupInGa(input: TrackSignupInput) {
+  await sendGaAuthEvent("sign_up", input.method)
+}
+
+async function sendGaAuthEvent(eventName: string, method?: string | null) {
   if (!hasGaConfig()) return
-  const trimmedMethod = input.method?.trim()
+  const trimmedMethod = method?.trim()
   if (!trimmedMethod) return
 
   const measurementId = MEASUREMENT_ID!
