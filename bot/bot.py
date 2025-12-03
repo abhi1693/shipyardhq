@@ -9,6 +9,7 @@ Features:
   to list their app on https://shipyardhq.dev.
 - Interactive approval per tweet (yes/regenerate/skip) unless --yes is supplied.
 - Processes one tweet at a time and sleeps between polls to avoid rate limits.
+- Skips tweets that already have a reply from the authenticated user (checked via search).
 - Twitter auth: OAuth2 user bearer token with tweet.write OR OAuth1.0a user tokens.
 """
 
@@ -29,6 +30,7 @@ from requests_oauthlib import OAuth1
 
 SEARCH_URL = "https://api.twitter.com/2/tweets/search/recent"
 POST_URL = "https://api.twitter.com/2/tweets"
+ME_URL = "https://api.twitter.com/2/users/me"
 
 
 def build_query(keywords: List[str]) -> str:
@@ -42,8 +44,8 @@ def build_query(keywords: List[str]) -> str:
 class Tweet:
     id: str
     text: str
-    author_id: Optional[str] = None
     created_at: Optional[str] = None
+    conversation_id: Optional[str] = None
 
 
 class TwitterClient:
@@ -60,6 +62,8 @@ class TwitterClient:
         self.debug = debug
 
         self.auth: Optional[OAuth1] = None
+        self.me_id: Optional[str] = None
+        self.me_username: Optional[str] = None
         if consumer_key and consumer_secret and access_token and access_token_secret:
             # OAuth1 user-context
             self.auth = OAuth1(
@@ -82,10 +86,12 @@ class TwitterClient:
             )
             sys.exit(1)
 
+        self._load_identity()
+
     def search_recent(self, query: str, since_id: Optional[str]) -> List[Tweet]:
         params = {
             "query": query,
-            "tweet.fields": "author_id,created_at",
+            "tweet.fields": "author_id,created_at,conversation_id",
             "max_results": 10,
         }
         if since_id:
@@ -111,8 +117,8 @@ class TwitterClient:
                 Tweet(
                     id=item["id"],
                     text=item.get("text", ""),
-                    author_id=item.get("author_id"),
                     created_at=item.get("created_at"),
+                    conversation_id=item.get("conversation_id"),
                 )
             )
         return tweets
@@ -149,6 +155,49 @@ class TwitterClient:
 
         logging.info("Replied successfully to tweet %s", tweet_id)
         return True
+
+    def _load_identity(self) -> None:
+        try:
+            resp = self.session.get(ME_URL, timeout=30, auth=self.auth)
+            if resp.status_code == 429:
+                reset_after = rate_limit_sleep(resp)
+                logging.warning("Rate limited loading identity, sleeping %s seconds", reset_after)
+                time.sleep(reset_after)
+                return
+            resp.raise_for_status()
+            data = resp.json().get("data", {})
+            self.me_id = data.get("id")
+            self.me_username = data.get("username")
+            if self.me_username:
+                logging.info("Authenticated as @%s (id %s)", self.me_username, self.me_id)
+        except Exception as exc:
+            logging.warning("Could not load Twitter identity: %s", exc)
+
+    def has_replied(self, tweet: Tweet) -> bool:
+        if not tweet.conversation_id or not self.me_username:
+            return False
+        query = f"conversation_id:{tweet.conversation_id} from:{self.me_username}"
+        params = {
+            "query": query,
+            "tweet.fields": "author_id,conversation_id",
+            "max_results": 10,
+        }
+        resp = self.session.get(SEARCH_URL, params=params, timeout=30, auth=self.auth)
+        if self.debug:
+            logging.debug("Reply-check params: %s", params)
+            logging.debug("Reply-check status: %s", resp.status_code)
+            logging.debug("Reply-check body: %s", resp.text)
+        if resp.status_code == 429:
+            reset_after = rate_limit_sleep(resp, default_seconds=30, max_seconds=300)
+            logging.warning("Hit rate limit checking replies, sleeping %s seconds", reset_after)
+            time.sleep(reset_after)
+            return False
+        if resp.status_code == 403:
+            logging.warning("Missing permission to check replies; continuing without skip.")
+            return False
+        resp.raise_for_status()
+        data = resp.json().get("data", [])
+        return len(data) > 0
 
 
 def draft_reply(client: OpenAI, tweet: Tweet) -> str:
@@ -244,6 +293,10 @@ def handle_tweet(
     tweet: Tweet,
     auto_yes: bool,
 ) -> None:
+    if twitter.has_replied(tweet):
+        logging.info("Already replied to tweet %s; skipping.", tweet.id)
+        return
+
     reply_text = draft_reply(ai_client, tweet)
     approved = auto_yes
 
