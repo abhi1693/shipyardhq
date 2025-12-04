@@ -31,6 +31,7 @@ export type ProductNotificationKind =
   | "product_published"
   | "product_insights_ready"
   | "product_payment_sync_error"
+  | "product_featured"
   | "product_of_day"
   | "product_of_week"
   | "product_of_month"
@@ -139,6 +140,10 @@ type PeriodicWinnerBroadcastInput = {
   product: { id: string; slug: string; name: string; tagline: string }
 }
 
+type FeaturedProductBroadcastInput = {
+  product: { id: string; slug: string; name: string; tagline?: string | null }
+}
+
 async function broadcastPeriodicWinnerToNovu(
   input: PeriodicWinnerBroadcastInput,
 ): Promise<ProductOfPeriodBroadcastResult> {
@@ -216,6 +221,75 @@ async function broadcastPeriodicWinnerToNovu(
       topicKey: NOVU_BROADCAST_TOPIC_KEY,
       productId: input.product.id,
       periodKey: input.periodKey,
+    })
+
+    return { sent: 0, total: 0, reason: "send-failed" }
+  }
+}
+
+export async function broadcastFeaturedProductActivationToNovu(
+  input: FeaturedProductBroadcastInput,
+): Promise<ProductOfPeriodBroadcastResult> {
+  const workflow = guardNovuWorkflow(NOVU_RECOMMENDATIONS_WORKFLOW_ID, {
+    label: "recommendations notifications",
+    missingMessage: "[novu] NOVU_WORKFLOW_RECOMMENDATIONS is not set",
+  })
+  if (!workflow.ready) {
+    return { sent: 0, total: 0, reason: workflow.reason }
+  }
+
+  const siteUrl = resolveSiteUrl()
+  const productUrl = new URL(
+    productPath(input.product.slug),
+    `${siteUrl}/`,
+  ).toString()
+
+  const timestamp = new Date().toISOString()
+  const transactionId = `product_featured:${input.product.id}:${timestamp}`
+  const subject = `Featured spotlight: ${input.product.name}`
+  const message =
+    normalizeNovuString(input.product.tagline ?? "")
+
+  try {
+    const client = getNovuClient()
+    await client.trigger({
+      workflowId: workflow.workflowId,
+      to: {
+        type: TriggerRecipientsTypeEnum.Topic,
+        topicKey: NOVU_BROADCAST_TOPIC_KEY,
+      },
+      payload: {
+        notification: {
+          kind: "product_featured",
+          message,
+          subject,
+          timestamp,
+          transactionId,
+        },
+        product: {
+          id: input.product.id,
+          slug: input.product.slug,
+          name: input.product.name,
+        },
+        links: {
+          member: productUrl,
+          public: productUrl,
+        },
+        context: {
+          featured_product: {
+            productId: input.product.id,
+          },
+        },
+        tags: ["discover"],
+      },
+    })
+
+    return { sent: 1, total: 1, reason: null }
+  } catch (error) {
+    console.error("[novu] failed to broadcast featured product", {
+      error,
+      topicKey: NOVU_BROADCAST_TOPIC_KEY,
+      productId: input.product.id,
     })
 
     return { sent: 0, total: 0, reason: "send-failed" }

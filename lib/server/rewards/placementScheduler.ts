@@ -4,6 +4,7 @@ import {
   revalidatePlacement,
   revalidateProduct,
 } from "@/lib/cache/revalidate"
+import { broadcastFeaturedProductActivationToNovu } from "@/lib/server/notifications/novuProduct"
 import {
   FeatureEntitlementStatus,
   PlacementStatus,
@@ -29,6 +30,7 @@ export async function runPlacementScheduler(
 ): Promise<PlacementSchedulerResult> {
   const activatedProductIds = new Set<string>()
   const expiredProductIds = new Set<string>()
+  const featuredActivationIds = new Set<string>()
   let activated = 0
   let expired = 0
   let badgesActivated = 0
@@ -171,6 +173,10 @@ export async function runPlacementScheduler(
         badgesTouched = true
       }
 
+      if (schedule.featureKey === "featured") {
+        featuredActivationIds.add(schedule.productId)
+      }
+
       activatedProductIds.add(schedule.productId)
       activated += 1
       touchedFeatures.add(schedule.featureKey)
@@ -257,6 +263,39 @@ export async function runPlacementScheduler(
   }
   for (const featureKey of touchedFeatures) {
     revalidatePlacement(featureKey, "revalidate")
+  }
+
+  if (featuredActivationIds.size) {
+    const featuredProducts = await prisma.product.findMany({
+      where: {
+        id: { in: Array.from(featuredActivationIds) },
+      },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        tagline: true,
+      },
+    })
+
+    for (const product of featuredProducts) {
+      if (!product.slug) continue
+      try {
+        await broadcastFeaturedProductActivationToNovu({
+          product: {
+            id: product.id,
+            slug: product.slug,
+            name: product.name,
+            tagline: product.tagline ?? null,
+          },
+        })
+      } catch (error) {
+        console.error("[placementScheduler] featured broadcast failed", {
+          productId: product.id,
+          error,
+        })
+      }
+    }
   }
 
   return {
