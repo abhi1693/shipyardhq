@@ -240,6 +240,33 @@ export async function fetchAllNovuSubscriberEmails(
   return Array.from(emails)
 }
 
+export async function fetchNovuSubscriberIds(limit = 100): Promise<string[]> {
+  if (!isNovuEnabled()) return []
+
+  const client = getNovuClient()
+  const ids: string[] = []
+  let cursor: string | undefined
+
+  do {
+    const response = await client.subscribers.search({
+      limit,
+      after: cursor,
+    })
+
+    const page = response.result?.data ?? []
+    for (const subscriber of page) {
+      const id = subscriber.subscriberId?.trim()
+      if (id) {
+        ids.push(id)
+      }
+    }
+
+    cursor = response.result?.next ?? undefined
+  } while (cursor)
+
+  return ids
+}
+
 export async function subscribeNovuTopic(
   topicKey: string,
   subscriberIds: string | string[],

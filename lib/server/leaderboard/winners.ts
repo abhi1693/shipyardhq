@@ -14,6 +14,7 @@ import {
 import { normalizeMonth, toMonthKey } from "@/lib/server/leaderboard/months"
 import { extractTwitterHandle } from "@/lib/server/social/twitterMessages"
 import { sendMonthlyLeaderboardWinnerNotification } from "@/lib/server/notifications/novuLeaderboard"
+import { broadcastProductOfDayWinnerToNovu } from "@/lib/server/notifications/novuProduct"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
@@ -588,10 +589,11 @@ export async function announceLeaderboardPeriodWinners(options: {
       id: true,
       name: true,
       slug: true,
+      tagline: true,
       metadata: { select: { twitterUrl: true } },
     },
   })
-  type MinimalProduct = (typeof products)[number]
+  type MinimalProduct = (typeof products)[number] & { tagline: string }
   const productMap = new Map<string, MinimalProduct>(
     products.map((product: MinimalProduct) => [product.id, product]),
   )
@@ -620,6 +622,10 @@ export async function announceLeaderboardPeriodWinners(options: {
     }
   }
 
+  const leaderboardUrl =
+    options.leaderboardUrl ??
+    `${resolveSiteUrl()}${LEADERBOARD_PATH}`.replace(/\/+$/, "")
+
   await assignWinnerBadges({
     period,
     periodStart,
@@ -636,9 +642,7 @@ export async function announceLeaderboardPeriodWinners(options: {
       period,
       periodKey,
       periodLabel,
-      leaderboardUrl:
-        options.leaderboardUrl ??
-        `${resolveSiteUrl()}${LEADERBOARD_PATH}`.replace(/\/+$/, ""),
+      leaderboardUrl,
       window: {
         start: periodStart.toISOString(),
         end: periodEnd.toISOString(),
@@ -647,6 +651,30 @@ export async function announceLeaderboardPeriodWinners(options: {
     },
     { context: { period, periodKey } },
   )
+
+  if (period === "day") {
+    const productOfDay = winnersForEvent.find((winner) => winner.rank === 1)
+    if (productOfDay) {
+      const productDetails = productMap.get(productOfDay.productId)
+      const broadcast = await broadcastProductOfDayWinnerToNovu({
+        periodKey,
+        periodLabel,
+        leaderboardUrl,
+        product: {
+          id: productOfDay.productId,
+          slug: productOfDay.slug,
+          name: productOfDay.name,
+          tagline: productDetails?.tagline as string,
+        },
+      })
+      console.info("[novu] product of the day broadcast", {
+        periodKey,
+        sent: broadcast.sent,
+        total: broadcast.total,
+        reason: broadcast.reason,
+      })
+    }
+  }
 
   return {
     notified: winnersForEvent.length,
