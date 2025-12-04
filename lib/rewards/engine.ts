@@ -795,6 +795,7 @@ async function enforceCooldowns(
       now.getTime() - rule.globalCooldownSeconds * 1000,
     )
     const recent = await tx.rewardTransaction.findFirst({
+      select: { id: true },
       where: {
         userId,
         ruleKey: rule.key,
@@ -813,6 +814,7 @@ async function enforceCooldowns(
       now.getTime() - rule.perTargetCooldownSeconds * 1000,
     )
     const recentTarget = await tx.rewardTransaction.findFirst({
+      select: { id: true },
       where: {
         userId,
         ruleKey: rule.key,

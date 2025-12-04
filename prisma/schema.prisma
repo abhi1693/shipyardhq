@@ -911,6 +911,8 @@ model RewardTransaction {
   @@index([userId, createdAt])
   @@index([type])
   @@index([ruleKey])
+  @@index([userId, ruleKey, type, createdAt])
+  @@index([userId, ruleKey, targetId, type, createdAt])
   @@index([rewardKey])
   @@index([productId])
   @@index([eventId])
