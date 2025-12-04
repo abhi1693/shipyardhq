@@ -237,6 +237,18 @@ export async function notifyNovuRewardAwarded(
       productName && !reasonIncludesProduct ? ` on ${productName}` : ""
     }.`
 
+    const context: Record<string, unknown> = {}
+    if (metadataRecord) {
+      context.metadata = metadataRecord
+    }
+    if (product) {
+      context.product = {
+        id: product.id,
+        slug: product.slug,
+        name: product.name,
+      }
+    }
+
     await sendRewardsNotificationToNovu({
       kind: "reward_awarded",
       message,
@@ -259,16 +271,7 @@ export async function notifyNovuRewardAwarded(
       links: {
         member: MEMBER_REWARDS_PATH,
       },
-      context: {
-        metadata: metadataRecord,
-        product: product
-          ? {
-              id: product.id,
-              slug: product.slug,
-              name: product.name,
-            }
-          : null,
-      },
+      context,
       transactionId: `reward_awarded:${event.transactionId}`,
       tags: ["rewards"],
     })
@@ -307,15 +310,6 @@ export async function notifyNovuRewardAdjusted(
     }
 
     const metadataRecord = toMetadataRecord(event.metadata)
-    const reference =
-      metadataRecord && typeof metadataRecord.reference === "string"
-        ? metadataRecord.reference
-        : null
-    const initiatedBy =
-      metadataRecord && typeof metadataRecord.initiatedBy === "object"
-        ? metadataRecord.initiatedBy
-        : null
-
     const pointsLabel =
       event.amount === 1 ? "1 point" : `${event.amount} points`
     const rawReason =
@@ -334,6 +328,14 @@ export async function notifyNovuRewardAdjusted(
       message += "."
     }
 
+    const context: Record<string, unknown> = {
+      source:
+        metadataRecord && typeof metadataRecord.source === "string"
+          ? metadataRecord.source
+          : "admin.adjustment",
+      grantedAt: event.createdAt.toISOString(),
+    }
+
     await sendRewardsNotificationToNovu({
       kind: "reward_adjusted",
       message,
@@ -349,17 +351,7 @@ export async function notifyNovuRewardAdjusted(
       links: {
         member: MEMBER_REWARDS_PATH,
       },
-      context: {
-        reference,
-        initiatedBy,
-        metadata: metadataRecord,
-        source:
-          metadataRecord && typeof metadataRecord.source === "string"
-            ? metadataRecord.source
-            : "admin.adjustment",
-        grantedAt: event.createdAt.toISOString(),
-        actorUserId: event.actorUserId ?? null,
-      },
+      context,
       transactionId: `reward_adjusted:${event.transactionId}`,
       tags: ["rewards"],
     })
