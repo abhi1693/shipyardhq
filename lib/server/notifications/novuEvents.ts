@@ -262,11 +262,6 @@ export async function notifyNovuRewardAwarded(
         reason,
         transactionId: event.transactionId,
         awardedAt: event.createdAt.toISOString(),
-        sourceType: event.sourceType ?? null,
-        sourceId: event.sourceId ?? null,
-        targetType: event.targetType ?? null,
-        targetId: event.targetId ?? null,
-        productId: resolvedProductId ?? null,
       },
       links: {
         member: MEMBER_REWARDS_PATH,
