@@ -1,11 +1,14 @@
+import { TriggerRecipientsTypeEnum } from "@novu/api/models/components/triggerrecipientstypeenum"
+
 import { productPath } from "@/lib/routes"
 import {
-  fetchNovuSubscriberIds,
+  getNovuClient,
   guardNovuWorkflow,
   normalizeNovuString,
   triggerNovuWorkflow,
   type NovuSubscriberInput,
 } from "@/lib/server/notifications/novu"
+import { NOVU_BROADCAST_TOPIC_KEY } from "@/lib/server/notifications/novuBroadcast"
 import { resolveSiteUrl, siteConfig } from "@/lib/siteConfig"
 
 const NOVU_RECOMMENDATIONS_WORKFLOW_ID =
@@ -14,7 +17,6 @@ const NOVU_RECOMMENDATIONS_WORKFLOW_ID =
 type ProductOfPeriodBroadcastReason =
   | "novu-disabled"
   | "missing-workflow"
-  | "no-subscribers"
   | "send-failed"
 
 type ProductOfPeriodBroadcastResult = {
@@ -129,37 +131,6 @@ export async function sendProductNotificationToNovu(
   }
 }
 
-const PRODUCT_OF_PERIOD_RATE_LIMIT_PER_SECOND = 3
-const PRODUCT_OF_PERIOD_WINDOW_MS = 1000
-
-type ThrottleState = { count: number; windowStart: number }
-
-async function fetchExistingNovuSubscriberIds(): Promise<string[]> {
-  const ids = await fetchNovuSubscriberIds()
-  return ids
-    .map((id) => id?.trim())
-    .filter((id): id is string => Boolean(id))
-}
-
-async function throttleProductOfPeriodRate(
-  state: ThrottleState,
-): Promise<ThrottleState> {
-  const now = Date.now()
-  const elapsed = now - state.windowStart
-
-  if (elapsed >= PRODUCT_OF_PERIOD_WINDOW_MS) {
-    return { count: 1, windowStart: now }
-  }
-
-  if (state.count >= PRODUCT_OF_PERIOD_RATE_LIMIT_PER_SECOND) {
-    const waitMs = PRODUCT_OF_PERIOD_WINDOW_MS - elapsed
-    await new Promise((resolve) => setTimeout(resolve, waitMs))
-    return { count: 1, windowStart: Date.now() }
-  }
-
-  return { count: state.count + 1, windowStart: state.windowStart }
-}
-
 type PeriodicWinnerBroadcastInput = {
   period: "day" | "week" | "month"
   periodKey: string
@@ -179,16 +150,6 @@ async function broadcastPeriodicWinnerToNovu(
     return { sent: 0, total: 0, reason: workflow.reason }
   }
 
-  // We assume subscribers already exist in Novu and subscriberId === userId.
-  // Provide a minimal list here (e.g., seeded externally) to avoid creating new ones.
-  const subscriberIds = await fetchExistingNovuSubscriberIds()
-  if (!subscriberIds.length) {
-    console.warn(
-      `[novu] product of the ${input.period} broadcast has no subscribers`,
-    )
-    return { sent: 0, total: 0, reason: "no-subscribers" }
-  }
-
   const siteUrl = resolveSiteUrl()
   const productUrl = new URL(
     productPath(input.product.slug),
@@ -205,74 +166,59 @@ async function broadcastPeriodicWinnerToNovu(
   const message =
     normalizeNovuString(input.product.tagline) ?? input.product.tagline
 
-  let sent = 0
-  let failures = 0
-  let throttleState: ThrottleState = { count: 0, windowStart: Date.now() }
-
-  for (const subscriberId of subscriberIds) {
-    throttleState = await throttleProductOfPeriodRate(throttleState)
-
-    try {
-      await triggerNovuWorkflow({
-        workflowId: workflow.workflowId,
-        subscriber: {
-          subscriberId,
-          email: undefined, // subscriberId is the userId; email is managed in Novu already
+  try {
+    const client = getNovuClient()
+    await client.trigger({
+      workflowId: workflow.workflowId,
+      to: {
+        type: TriggerRecipientsTypeEnum.Topic,
+        topicKey: NOVU_BROADCAST_TOPIC_KEY,
+      },
+      payload: {
+        notification: {
+          kind:
+            input.period === "week"
+              ? "product_of_week"
+              : input.period === "month"
+                ? "product_of_month"
+                : "product_of_day",
+          message,
+          subject,
+          timestamp,
+          transactionId: transactionPrefix,
         },
-        ensureSubscriber: false,
-        payload: {
-          notification: {
-            kind:
-              input.period === "week"
-                ? "product_of_week"
-                : input.period === "month"
-                  ? "product_of_month"
-                  : "product_of_day",
-            message,
-            subject,
-            timestamp,
-            transactionId: `${transactionPrefix}:${subscriberId}`,
-          },
-          product: {
-            id: input.product.id,
-            slug: input.product.slug,
-            name: input.product.name,
-          },
-          links: {
-            member: productUrl,
-            public: productUrl,
-          },
-          context: {
-            leaderboard_periodic_winner: {
-              period: input.period,
-              periodKey: input.periodKey,
-              periodLabel: input.periodLabel,
-              rank: 1,
-              leaderboardUrl: input.leaderboardUrl,
-            },
-          },
-          tags: ["newsletter", "discover"],
+        product: {
+          id: input.product.id,
+          slug: input.product.slug,
+          name: input.product.name,
         },
-      })
-      sent += 1
-    } catch (error) {
-      failures += 1
-      console.error(
-        `[novu] failed to broadcast product of the ${input.period}`,
-        {
-          error,
-          subscriberId,
-          productId: input.product.id,
-          periodKey: input.periodKey,
+        links: {
+          member: productUrl,
+          public: productUrl,
         },
-      )
-    }
-  }
+        context: {
+          leaderboard_periodic_winner: {
+            period: input.period,
+            periodKey: input.periodKey,
+            periodLabel: input.periodLabel,
+            rank: 1,
+            leaderboardUrl: input.leaderboardUrl,
+          },
+        },
+        tags: ["discover"],
+      },
+    })
 
-  return {
-    sent,
-    total: subscriberIds.length,
-    reason: failures ? "send-failed" : null,
+    return { sent: 1, total: 1, reason: null }
+  } catch (error) {
+    console.error(`[novu] failed to broadcast product of the ${input.period}`, {
+      error,
+      topicKey: NOVU_BROADCAST_TOPIC_KEY,
+      productId: input.product.id,
+      periodKey: input.periodKey,
+    })
+
+    return { sent: 0, total: 0, reason: "send-failed" }
   }
 }
 
