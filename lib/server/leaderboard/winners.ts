@@ -14,7 +14,11 @@ import {
 import { normalizeMonth, toMonthKey } from "@/lib/server/leaderboard/months"
 import { extractTwitterHandle } from "@/lib/server/social/twitterMessages"
 import { sendMonthlyLeaderboardWinnerNotification } from "@/lib/server/notifications/novuLeaderboard"
-import { broadcastProductOfDayWinnerToNovu } from "@/lib/server/notifications/novuProduct"
+import {
+  broadcastProductOfDayWinnerToNovu,
+  broadcastProductOfWeekWinnerToNovu,
+  broadcastProductOfMonthWinnerToNovu,
+} from "@/lib/server/notifications/novuProduct"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
@@ -225,6 +229,7 @@ type WinnerProduct = {
   id: string
   name: string
   slug: string
+  tagline: string | null
   planId: string | null
   planAssignedAt: Date | null
   plan: {
@@ -406,6 +411,7 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
           id: true,
           name: true,
           slug: true,
+          tagline: true,
           planId: true,
           planAssignedAt: true,
           plan: {
@@ -518,6 +524,28 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
       },
       { context: { monthKey } },
     )
+
+    const topWinner = topThree[0]?.product as WinnerProduct | undefined
+    if (topWinner) {
+      const broadcast = await broadcastProductOfMonthWinnerToNovu({
+        periodKey: monthKey,
+        periodLabel: monthLabel,
+        leaderboardUrl: getLeaderboardUrl(monthKey),
+        product: {
+          id: topWinner.id,
+          slug: topWinner.slug,
+          name: topWinner.name,
+          tagline: topWinner.tagline ?? "",
+        },
+      })
+
+      console.info("[novu] product of the month broadcast", {
+        periodKey: monthKey,
+        sent: broadcast.sent,
+        total: broadcast.total,
+        reason: broadcast.reason,
+      })
+    }
   }
 
   await prisma.monthlyLeaderboardNotification.create({
@@ -593,7 +621,7 @@ export async function announceLeaderboardPeriodWinners(options: {
       metadata: { select: { twitterUrl: true } },
     },
   })
-  type MinimalProduct = (typeof products)[number] & { tagline: string }
+  type MinimalProduct = (typeof products)[number]
   const productMap = new Map<string, MinimalProduct>(
     products.map((product: MinimalProduct) => [product.id, product]),
   )
@@ -664,10 +692,34 @@ export async function announceLeaderboardPeriodWinners(options: {
           id: productOfDay.productId,
           slug: productOfDay.slug,
           name: productOfDay.name,
-          tagline: productDetails?.tagline as string,
+          tagline: productDetails?.tagline ?? "",
         },
       })
       console.info("[novu] product of the day broadcast", {
+        periodKey,
+        sent: broadcast.sent,
+        total: broadcast.total,
+        reason: broadcast.reason,
+      })
+    }
+  }
+
+  if (period === "week") {
+    const productOfWeek = winnersForEvent.find((winner) => winner.rank === 1)
+    if (productOfWeek) {
+      const productDetails = productMap.get(productOfWeek.productId)
+      const broadcast = await broadcastProductOfWeekWinnerToNovu({
+        periodKey,
+        periodLabel,
+        leaderboardUrl,
+        product: {
+          id: productOfWeek.productId,
+          slug: productOfWeek.slug,
+          name: productOfWeek.name,
+          tagline: productDetails?.tagline ?? "",
+        },
+      })
+      console.info("[novu] product of the week broadcast", {
         periodKey,
         sent: broadcast.sent,
         total: broadcast.total,

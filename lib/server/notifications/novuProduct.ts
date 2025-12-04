@@ -11,16 +11,16 @@ import { resolveSiteUrl, siteConfig } from "@/lib/siteConfig"
 const NOVU_RECOMMENDATIONS_WORKFLOW_ID =
   process.env.NOVU_WORKFLOW_RECOMMENDATIONS?.trim() ?? null
 
-type ProductOfDayBroadcastReason =
+type ProductOfPeriodBroadcastReason =
   | "novu-disabled"
   | "missing-workflow"
   | "no-subscribers"
   | "send-failed"
 
-type ProductOfDayBroadcastResult = {
+type ProductOfPeriodBroadcastResult = {
   sent: number
   total: number
-  reason: ProductOfDayBroadcastReason | null
+  reason: ProductOfPeriodBroadcastReason | null
 }
 
 export type ProductNotificationKind =
@@ -30,6 +30,8 @@ export type ProductNotificationKind =
   | "product_insights_ready"
   | "product_payment_sync_error"
   | "product_of_day"
+  | "product_of_week"
+  | "product_of_month"
 
 export type ProductNotificationPayload = {
   kind: ProductNotificationKind
@@ -127,8 +129,8 @@ export async function sendProductNotificationToNovu(
   }
 }
 
-const PRODUCT_OF_DAY_RATE_LIMIT_PER_SECOND = 3
-const PRODUCT_OF_DAY_WINDOW_MS = 1000
+const PRODUCT_OF_PERIOD_RATE_LIMIT_PER_SECOND = 3
+const PRODUCT_OF_PERIOD_WINDOW_MS = 1000
 
 type ThrottleState = { count: number; windowStart: number }
 
@@ -139,18 +141,18 @@ async function fetchExistingNovuSubscriberIds(): Promise<string[]> {
     .filter((id): id is string => Boolean(id))
 }
 
-async function throttleProductOfDayRate(
+async function throttleProductOfPeriodRate(
   state: ThrottleState,
 ): Promise<ThrottleState> {
   const now = Date.now()
   const elapsed = now - state.windowStart
 
-  if (elapsed >= PRODUCT_OF_DAY_WINDOW_MS) {
+  if (elapsed >= PRODUCT_OF_PERIOD_WINDOW_MS) {
     return { count: 1, windowStart: now }
   }
 
-  if (state.count >= PRODUCT_OF_DAY_RATE_LIMIT_PER_SECOND) {
-    const waitMs = PRODUCT_OF_DAY_WINDOW_MS - elapsed
+  if (state.count >= PRODUCT_OF_PERIOD_RATE_LIMIT_PER_SECOND) {
+    const waitMs = PRODUCT_OF_PERIOD_WINDOW_MS - elapsed
     await new Promise((resolve) => setTimeout(resolve, waitMs))
     return { count: 1, windowStart: Date.now() }
   }
@@ -158,12 +160,17 @@ async function throttleProductOfDayRate(
   return { count: state.count + 1, windowStart: state.windowStart }
 }
 
-export async function broadcastProductOfDayWinnerToNovu(input: {
+type PeriodicWinnerBroadcastInput = {
+  period: "day" | "week" | "month"
   periodKey: string
   periodLabel: string
   leaderboardUrl: string
   product: { id: string; slug: string; name: string; tagline: string }
-}): Promise<ProductOfDayBroadcastResult> {
+}
+
+async function broadcastPeriodicWinnerToNovu(
+  input: PeriodicWinnerBroadcastInput,
+): Promise<ProductOfPeriodBroadcastResult> {
   const workflow = guardNovuWorkflow(NOVU_RECOMMENDATIONS_WORKFLOW_ID, {
     label: "recommendations notifications",
     missingMessage: "[novu] NOVU_WORKFLOW_RECOMMENDATIONS is not set",
@@ -176,7 +183,9 @@ export async function broadcastProductOfDayWinnerToNovu(input: {
   // Provide a minimal list here (e.g., seeded externally) to avoid creating new ones.
   const subscriberIds = await fetchExistingNovuSubscriberIds()
   if (!subscriberIds.length) {
-    console.warn("[novu] product of the day broadcast has no subscribers")
+    console.warn(
+      `[novu] product of the ${input.period} broadcast has no subscribers`,
+    )
     return { sent: 0, total: 0, reason: "no-subscribers" }
   }
 
@@ -185,9 +194,14 @@ export async function broadcastProductOfDayWinnerToNovu(input: {
     productPath(input.product.slug),
     `${siteUrl}/`,
   ).toString()
-  const transactionPrefix = `product_of_day:${input.product.id}:${input.periodKey}`
+  const transactionPrefix = `product_of_${input.period}:${input.product.id}:${input.periodKey}`
   const timestamp = new Date().toISOString()
-  const subject = `Product of the Day: ${input.product.name}`
+  const subject =
+    input.period === "week"
+      ? `Product of the Week: ${input.product.name}`
+      : input.period === "month"
+        ? `Product of the Month: ${input.product.name}`
+        : `Product of the Day: ${input.product.name}`
   const message =
     normalizeNovuString(input.product.tagline) ?? input.product.tagline
 
@@ -196,7 +210,7 @@ export async function broadcastProductOfDayWinnerToNovu(input: {
   let throttleState: ThrottleState = { count: 0, windowStart: Date.now() }
 
   for (const subscriberId of subscriberIds) {
-    throttleState = await throttleProductOfDayRate(throttleState)
+    throttleState = await throttleProductOfPeriodRate(throttleState)
 
     try {
       await triggerNovuWorkflow({
@@ -208,7 +222,12 @@ export async function broadcastProductOfDayWinnerToNovu(input: {
         ensureSubscriber: false,
         payload: {
           notification: {
-            kind: "product_of_day",
+            kind:
+              input.period === "week"
+                ? "product_of_week"
+                : input.period === "month"
+                  ? "product_of_month"
+                  : "product_of_day",
             message,
             subject,
             timestamp,
@@ -225,7 +244,7 @@ export async function broadcastProductOfDayWinnerToNovu(input: {
           },
           context: {
             leaderboard_periodic_winner: {
-              period: "day",
+              period: input.period,
               periodKey: input.periodKey,
               periodLabel: input.periodLabel,
               rank: 1,
@@ -238,12 +257,15 @@ export async function broadcastProductOfDayWinnerToNovu(input: {
       sent += 1
     } catch (error) {
       failures += 1
-      console.error("[novu] failed to broadcast product of the day", {
-        error,
-        subscriberId,
-        productId: input.product.id,
-        periodKey: input.periodKey,
-      })
+      console.error(
+        `[novu] failed to broadcast product of the ${input.period}`,
+        {
+          error,
+          subscriberId,
+          productId: input.product.id,
+          periodKey: input.periodKey,
+        },
+      )
     }
   }
 
@@ -252,4 +274,31 @@ export async function broadcastProductOfDayWinnerToNovu(input: {
     total: subscriberIds.length,
     reason: failures ? "send-failed" : null,
   }
+}
+
+export async function broadcastProductOfDayWinnerToNovu(input: {
+  periodKey: string
+  periodLabel: string
+  leaderboardUrl: string
+  product: { id: string; slug: string; name: string; tagline: string }
+}): Promise<ProductOfPeriodBroadcastResult> {
+  return broadcastPeriodicWinnerToNovu({ ...input, period: "day" })
+}
+
+export async function broadcastProductOfWeekWinnerToNovu(input: {
+  periodKey: string
+  periodLabel: string
+  leaderboardUrl: string
+  product: { id: string; slug: string; name: string; tagline: string }
+}): Promise<ProductOfPeriodBroadcastResult> {
+  return broadcastPeriodicWinnerToNovu({ ...input, period: "week" })
+}
+
+export async function broadcastProductOfMonthWinnerToNovu(input: {
+  periodKey: string
+  periodLabel: string
+  leaderboardUrl: string
+  product: { id: string; slug: string; name: string; tagline: string }
+}): Promise<ProductOfPeriodBroadcastResult> {
+  return broadcastPeriodicWinnerToNovu({ ...input, period: "month" })
 }

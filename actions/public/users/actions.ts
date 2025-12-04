@@ -122,6 +122,19 @@ type PublicUserProfile = Prisma.UserGetPayload<{
   select: PublicUserProfileSelect
 }>
 
+const publicUserProfileSelect: PublicUserProfileSelect = {
+  id: true,
+  clerkId: true,
+  firstName: true,
+  lastName: true,
+  _count: {
+    select: {
+      products: { where: publishedProductWhere },
+    },
+  },
+  products: publicUserProductsSelect,
+}
+
 const getUserProductsWithPaging = cached(
   async (
     userId: string,
