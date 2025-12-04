@@ -509,33 +509,27 @@ export const getPublicUserProfile = cached(
     const page = Math.max(options.page ?? 1, 1)
     const skip = (page - 1) * pageSize
 
-    return prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        clerkId: true,
-        _count: {
-          select: {
-            products: { where: publishedProductWhere },
-          },
-        },
-        products: {
-          ...publicUserProductsSelect,
-          skip,
-          take: pageSize,
-          select: {
-            ...publicUserProductSelectFields,
-            ProductBadge: {
-              ...publicUserProductSelectFields.ProductBadge,
-              where: {
-                OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-              },
+    const select: Prisma.UserSelect = {
+      ...publicUserProfileSelect,
+      products: {
+        ...publicUserProductsSelect,
+        skip,
+        take: pageSize,
+        select: {
+          ...publicUserProductSelectFields,
+          ProductBadge: {
+            ...publicUserProductSelectFields.ProductBadge,
+            where: {
+              OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
             },
           },
         },
       },
+    }
+
+    return prisma.user.findUnique({
+      where: { id },
+      select,
     }) as Promise<PublicUserProfile | null>
   },
   "user:public-profile",
