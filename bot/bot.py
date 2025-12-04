@@ -296,7 +296,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--max-results",
         type=int,
-        default=5,
+        default=10,
         help="max_results for search_recent (Twitter caps at 100).",
     )
     parser.add_argument(
