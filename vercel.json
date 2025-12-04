@@ -13,6 +13,14 @@
       "schedule": "0 8 1 * *"
     },
     {
+      "path": "/api/cron/leaderboard-highlights?period=day",
+      "schedule": "55 23 * * *"
+    },
+    {
+      "path": "/api/cron/leaderboard-highlights?period=week",
+      "schedule": "55 23 * * 0"
+    },
+    {
       "path": "/api/cron/product-insight-pipeline",
       "schedule": "*/15 * * * *"
     },
