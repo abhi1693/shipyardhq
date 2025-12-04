@@ -3,6 +3,7 @@ import "dotenv/config"
 import { Novu } from "@novu/api"
 
 import { getNovuClient, isNovuEnabled } from "@/lib/server/notifications/novu"
+import { NOVU_BROADCAST_TOPIC_KEY } from "@/lib/server/notifications/novuBroadcast"
 
 type TopicDefinition = {
   key: string
@@ -11,13 +12,8 @@ type TopicDefinition = {
 
 const DEFAULT_TOPICS: TopicDefinition[] = [
   {
-    key:
-      process.env.NOVU_TOPIC_WEEKLY_NEWSLETTER?.trim() || "weekly-newsletter",
-    name: "Weekly Newsletter",
-  },
-  {
-    key: process.env.NOVU_TOPIC_SYSTEM_UPDATES?.trim() || "system-updates",
-    name: "System Updates",
+    key: NOVU_BROADCAST_TOPIC_KEY,
+    name: "Broadcast",
   },
 ]
 const SEARCH_PAGE_SIZE = 100
@@ -31,8 +27,8 @@ type CliArgs = {
 function parseArgs(): CliArgs {
   const [, , ...rawArgs] = process.argv
 
-  let topicKey = DEFAULT_TOPICS[0]?.key ?? "weekly-newsletter"
-  let topicName = DEFAULT_TOPICS[0]?.name ?? "Weekly Newsletter"
+  let topicKey = DEFAULT_TOPICS[0]?.key ?? NOVU_BROADCAST_TOPIC_KEY
+  let topicName = DEFAULT_TOPICS[0]?.name ?? "Broadcast"
   let pageSize = SEARCH_PAGE_SIZE
   let hasCustomTopic = false
 
