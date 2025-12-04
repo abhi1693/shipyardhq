@@ -7,7 +7,7 @@ Features:
 - Drafts short replies with OpenAI (<=200 chars).
 - Replies can be a question, a helpful tip, or—preferably—a reasoned suggestion
   to list their app on https://shipyardhq.dev.
-- Interactive approval per tweet (yes/regenerate/skip) unless --yes is supplied.
+- Interactive approval per tweet (yes/regenerate/skip) unless --auto is supplied.
 - Processes one tweet at a time and sleeps between polls to avoid rate limits.
 - Twitter auth: OAuth2 user bearer token with tweet.write OR OAuth1.0a user tokens.
 """
@@ -23,7 +23,7 @@ import sys
 import time
 from collections import deque
 from dataclasses import dataclass
-from typing import Deque, List, Optional, Tuple
+from typing import Any, Deque, Dict, List, Optional, Tuple
 
 import requests
 from openai import OpenAI
@@ -84,11 +84,13 @@ class TwitterClient:
             )
             sys.exit(1)
 
-    def search_recent(self, query: str, since_id: Optional[str]) -> Tuple[List[Tweet], bool]:
+    def search_recent(
+        self, query: str, since_id: Optional[str], max_results: int = 10
+    ) -> Tuple[List[Tweet], bool, Dict[str, Any]]:
         params = {
             "query": query,
             "tweet.fields": "created_at",
-            "max_results": 10,
+            "max_results": max(1, min(max_results, 100)),
         }
         if since_id:
             params["since_id"] = since_id
@@ -103,20 +105,40 @@ class TwitterClient:
             reset_after = rate_limit_sleep(resp)
             logging.warning("Hit search rate limit, sleeping %s seconds", reset_after)
             time.sleep(reset_after)
-            return [], True
+            return [], True, {}
 
-        resp.raise_for_status()
-        data = resp.json().get("data", [])
-        tweets: List[Tweet] = []
-        for item in data:
-            tweets.append(
-                Tweet(
-                    id=item["id"],
-                    text=item.get("text", ""),
-                    created_at=item.get("created_at"),
-                )
+        try:
+            resp.raise_for_status()
+        except requests.HTTPError:
+            try:
+                error_body = resp.json()
+            except ValueError:
+                error_body = resp.text
+            logging.error(
+                "Search failed (%s): params=%s body=%s",
+                resp.status_code,
+                params,
+                error_body,
             )
-        return tweets, False
+            return [], False, {}
+
+        body = resp.json()
+        data = body.get("data", [])
+        tweets: List[Tweet] = [
+            Tweet(
+                id=item["id"],
+                text=item.get("text", ""),
+                created_at=item.get("created_at"),
+            )
+            for item in data
+        ]
+
+        rate_info = {
+            "limit": resp.headers.get("x-rate-limit-limit"),
+            "remaining": resp.headers.get("x-rate-limit-remaining"),
+            "reset": resp.headers.get("x-rate-limit-reset"),
+        }
+        return tweets, False, rate_info
 
     def reply(self, tweet_id: str, text: str) -> bool:
         payload = {"text": text, "reply": {"in_reply_to_tweet_id": tweet_id}}
@@ -263,13 +285,19 @@ def parse_args() -> argparse.Namespace:
         "--max-replies-per-hour",
         type=int,
         default=10,
-        help="Cap replies per rolling hour (0 = no cap). Applies only when --yes is used.",
+        help="Cap replies per rolling hour (0 = no cap). Applies only when --auto is used.",
     )
     parser.add_argument(
         "--interval",
         type=int,
-        default=90,
-        help="Seconds to sleep between search polls (default: 90).",
+        default=180,
+        help="Seconds to sleep between search polls (default: 180).",
+    )
+    parser.add_argument(
+        "--max-results",
+        type=int,
+        default=5,
+        help="max_results for search_recent (Twitter caps at 100).",
     )
     parser.add_argument(
         "--state-file",
@@ -387,10 +415,14 @@ def main() -> None:
     logging.info("Watching for tweets matching: %s", query)
 
     since_id: Optional[str] = state_since_id
+    empty_rounds = 0
     try:
         while True:
-            tweets, rate_limited = twitter_client.search_recent(query, since_id=since_id)
+            tweets, rate_limited, rate_info = twitter_client.search_recent(
+                query, since_id=since_id, max_results=args.max_results
+            )
             if tweets:
+                empty_rounds = 0
                 tweets = sorted(tweets, key=lambda t: int(t.id))
                 for tweet in tweets:
                     since_id = tweet.id if since_id is None else str(max(int(since_id), int(tweet.id)))
@@ -408,10 +440,31 @@ def main() -> None:
                     time.sleep(args.pause)
             else:
                 logging.debug("No new tweets this round.")
+                empty_rounds = min(empty_rounds + 1, 5)
 
-            base_sleep = 30 if rate_limited else args.interval
+            base_sleep = args.interval
+            if rate_limited:
+                base_sleep = 60  # already slept inside search_recent
+            else:
+                try:
+                    limit = int(rate_info.get("limit") or 0)
+                    remaining = int(rate_info.get("remaining") or 0)
+                    reset_ts = float(rate_info.get("reset") or 0)
+                    now = time.time()
+
+                    if limit > 0 and reset_ts > now:
+                        used_fraction = (limit - remaining) / float(limit)
+                        if used_fraction > 0.7:
+                            seconds_left = max(1, int(reset_ts - now))
+                            ideal_interval = seconds_left / max(1, remaining or 1)
+                            base_sleep = max(base_sleep, int(ideal_interval))
+                except Exception as exc:
+                    if args.debug:
+                        logging.debug("Failed to compute dynamic backoff: %s", exc)
+
+            backoff_factor = 1 + empty_rounds
             jitter = random.uniform(-args.jitter, args.jitter) if args.jitter else 0
-            sleep_for = max(5, base_sleep + jitter)
+            sleep_for = max(5, (base_sleep * backoff_factor) + jitter)
             logging.info("Sleeping %.1f seconds before next poll", sleep_for)
             time.sleep(sleep_for)
     except KeyboardInterrupt:
