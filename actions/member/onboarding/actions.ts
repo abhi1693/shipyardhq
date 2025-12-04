@@ -23,8 +23,6 @@ import {
   guardNovuWorkflow,
   triggerNovuWorkflow,
 } from "@/lib/server/notifications/novu"
-import { subscribeToWeeklyNewsletterTopic } from "@/lib/server/notifications/novuNewsletter"
-import { subscribeToSystemUpdatesTopic } from "@/lib/server/notifications/novuSystemUpdates"
 
 const BUILDER_INTENTS = new Set(["launch-product", "manage-team"])
 const WELCOME_SUBJECT = `Welcome to ${siteConfig.name}`
@@ -133,9 +131,6 @@ export async function completeOnboarding(formData: FormData) {
           console.error("Failed to trigger onboarding welcome workflow:", error)
         }
       }
-
-      await subscribeToSystemUpdatesTopic(subscriber.subscriberId)
-      await subscribeToWeeklyNewsletterTopic(subscriber.subscriberId)
     }
 
     if (firstTimeOnboarding) {
