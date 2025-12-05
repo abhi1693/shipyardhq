@@ -10,8 +10,14 @@ const NOVU_APPLICATION_IDENTIFIER =
 
 const CATEGORY_TAGS = {
   activity: ["product-notifications"],
-  recommendations: ["newsletter","discover"],
-  updates: ["system-updates", "organization", "leaderboard", "invite", "winner"],
+  recommendations: ["newsletter", "discover"],
+  updates: [
+    "system-updates",
+    "organization",
+    "leaderboard",
+    "invite",
+    "winner",
+  ],
   rewards: ["rewards"],
 }
 

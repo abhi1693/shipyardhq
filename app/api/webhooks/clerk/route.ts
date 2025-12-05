@@ -159,9 +159,7 @@ function getPrimaryEmailFromUser(
   const primaryId = sanitizeClerkString(user?.primary_email_address_id)
   const primary =
     (primaryId &&
-      emails.find(
-        (email) => sanitizeClerkString(email?.id) === primaryId,
-      )) ||
+      emails.find((email) => sanitizeClerkString(email?.id) === primaryId)) ||
     emails[0]
 
   const email = sanitizeClerkString(primary?.email_address)

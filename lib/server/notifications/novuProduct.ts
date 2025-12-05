@@ -247,8 +247,7 @@ export async function broadcastFeaturedProductActivationToNovu(
   const timestamp = new Date().toISOString()
   const transactionId = `product_featured:${input.product.id}:${timestamp}`
   const subject = `Featured spotlight: ${input.product.name}`
-  const message =
-    normalizeNovuString(input.product.tagline ?? "")
+  const message = normalizeNovuString(input.product.tagline ?? "")
 
   try {
     const client = getNovuClient()

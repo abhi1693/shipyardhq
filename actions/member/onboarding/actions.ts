@@ -110,8 +110,7 @@ export async function completeOnboarding(formData: FormData) {
             notification: {
               kind: "welcome_user",
               subject: WELCOME_SUBJECT,
-              message:
-                `You’re in. Set up your product, publish when ready, and start getting discovered on ${siteConfig.name}.`,
+              message: `You’re in. Set up your product, publish when ready, and start getting discovered on ${siteConfig.name}.`,
               timestamp: new Date().toISOString(),
             },
             onboarding: {
