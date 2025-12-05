@@ -1,3 +1,5 @@
+import { rankEmoji } from "@/lib/server/social/shared"
+
 const MAX_SNIPPET_LENGTH = 480
 
 function truncate(value: string, limit = MAX_SNIPPET_LENGTH) {
@@ -20,18 +22,6 @@ export function extractLinkedInHandle(value?: string | null): string | null {
 
   const direct = trimmed.replace(/^@/, "")
   return direct.length ? direct : null
-}
-
-function formatHandle(handle?: string | null): string | null {
-  if (!handle) return null
-  const trimmed = handle.trim()
-  if (!trimmed.length) return null
-  return trimmed.startsWith("@") ? trimmed : `@${trimmed}`
-}
-
-function formatDisplayName(name: string, handle?: string | null): string {
-  const normalizedHandle = formatHandle(handle)
-  return normalizedHandle ? `${name} (${normalizedHandle})` : name
 }
 
 export async function buildLinkedInProductLaunchPost(args: {
@@ -81,10 +71,8 @@ export async function buildLinkedInBadgePost(args: {
   }
 
   const copy = BADGE_COPY[args.badge as keyof typeof BADGE_COPY]
-  const displayName = formatDisplayName(args.name, args.twitterHandle)
-
   const lines: Array<string | null | undefined> = [
-    copy.headline(displayName),
+    copy.headline(args.name),
     copy.note,
     `See more: ${args.url}`,
   ]
@@ -99,22 +87,13 @@ export async function buildLinkedInLeaderboardPost(args: {
 }) {
   const sorted = [...args.winners].sort((a, b) => a.rank - b.rank)
 
-  const rankEmoji = (rank: number): string => {
-    if (rank === 1) return "🥇"
-    if (rank === 2) return "🥈"
-    if (rank === 3) return "🥉"
-    return `#${rank}`
-  }
-
   const intro =
     sorted.length > 0
       ? `Celebrating the ${args.monthLabel} Shipyard HQ leaderboard winners.`
       : `Celebrating builders from ${args.monthLabel} on Shipyard HQ.`
 
   const topWinners = sorted.map((winner) => {
-    const handle = formatHandle(winner.twitterHandle)
-    const displayName = handle ? `${winner.name} (${handle})` : winner.name
-    return `${rankEmoji(winner.rank)} ${displayName}`
+    return `${rankEmoji(winner.rank)} ${winner.name}`
   })
 
   const lines: Array<string | null | undefined> = [

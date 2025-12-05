@@ -1,18 +1,15 @@
 import prisma from "@/lib/prisma"
 import MonthlyWinnerEmail from "@/lib/email/templates/leaderboard/monthlyWinner"
-import { getAppBaseUrl } from "@/lib/email/utils"
-import { monthlyLeaderboardArchivePath, productPath } from "@/lib/routes"
-import { revalidateBadges, revalidateProduct } from "@/lib/cache/revalidate"
-import { APP_EVENTS } from "@/lib/server/events/constants"
-import { dispatchEventAsync } from "@/lib/server/events"
-import {
-  computeLeaderboardWindow,
-  getCurrentLeaderboardWindow,
-} from "@/lib/server/leaderboard/v2"
-import { normalizeMonth, toMonthKey } from "@/lib/server/leaderboard/months"
-import { getIsoWeekYearAndNumber } from "@/lib/server/leaderboard/weeks"
-import { extractTwitterHandle } from "@/lib/server/social/twitterMessages"
-import { sendEmail } from "@/lib/email/resend"
+import {getAppBaseUrl} from "@/lib/email/utils"
+import {monthlyLeaderboardArchivePath, productPath} from "@/lib/routes"
+import {revalidateBadges, revalidateProduct} from "@/lib/cache/revalidate"
+import {APP_EVENTS} from "@/lib/server/events/constants"
+import {dispatchEventAsync} from "@/lib/server/events"
+import {computeLeaderboardWindow, getCurrentLeaderboardWindow,} from "@/lib/server/leaderboard/v2"
+import {normalizeMonth, toMonthKey} from "@/lib/server/leaderboard/months"
+import {getIsoWeekYearAndNumber} from "@/lib/server/leaderboard/weeks"
+import {extractTwitterHandle} from "@/lib/server/social/twitterMessages"
+import {sendEmail} from "@/lib/email/resend"
 
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -567,12 +564,12 @@ export async function announceLeaderboardPeriodWinners(options: {
   const periodLabel = formatPeriodLabel(period, periodStart, periodEnd)
   const periodKey = buildPeriodKey(period, periodStart)
 
-  const rankedRows = await computeLeaderboardWindow({
-    periodStart,
-    periodEnd,
-    asOf: now,
+  const winners = await computeLeaderboardWindow({
+      periodStart,
+      periodEnd,
+      asOf: now,
+      limit,
   })
-  const winners = rankedRows.slice(0, limit)
   if (!winners.length) {
     return {
       notified: 0,

@@ -1,9 +1,11 @@
-import prisma from "@/lib/prisma"
-import { getAppBaseUrl } from "@/lib/email/utils"
-import { productPath } from "@/lib/routes"
 import { buildCacheKey } from "@/lib/server/cache"
 import { registerEventHandler } from "@/lib/server/events"
 import { getRedisClient } from "@/lib/server/redis"
+import {
+  buildProductUrl,
+  loadPublishedProductForSocial,
+  normalizeWinners,
+} from "@/lib/server/social/shared"
 
 import {
   isLinkedInBotDryRun,
@@ -14,7 +16,6 @@ import {
   buildLinkedInBadgePost,
   buildLinkedInLeaderboardPost,
   buildLinkedInProductLaunchPost,
-  extractLinkedInHandle,
 } from "./linkedinMessages"
 
 const POST_TTL_MS = 6 * 60 * 60 * 1000 // 6 hours
@@ -69,31 +70,10 @@ async function releaseThrottle(key: string) {
   recentPosts.delete(key)
 }
 
-function getProductUrl(slug: string): string {
-  const base = getAppBaseUrl()
-  return `${base}${productPath(slug)}`
-}
-
 async function handleProductPublished(productId: string) {
   try {
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        tagline: true,
-        description: true,
-        status: true,
-        metadata: {
-          select: {
-            twitterUrl: true,
-          },
-        },
-      },
-    })
-
-    if (!product || product.status !== "published") {
+    const product = await loadPublishedProductForSocial(productId)
+    if (!product) {
       return
     }
 
@@ -106,8 +86,8 @@ async function handleProductPublished(productId: string) {
       name: product.name,
       tagline: product.tagline,
       description: product.description,
-      url: getProductUrl(product.slug),
-      twitterHandle: extractLinkedInHandle(product.metadata?.twitterUrl),
+      url: buildProductUrl(product.slug),
+      twitterHandle: product.twitterHandle,
     })
 
     const result = await postLinkedInUpdate(post)
@@ -132,22 +112,8 @@ async function handleBadgeAssigned(productId: string, badge: string) {
   }
 
   try {
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        status: true,
-        metadata: {
-          select: {
-            twitterUrl: true,
-          },
-        },
-      },
-    })
-
-    if (!product || product.status !== "published") {
+    const product = await loadPublishedProductForSocial(productId)
+    if (!product) {
       return
     }
 
@@ -159,8 +125,8 @@ async function handleBadgeAssigned(productId: string, badge: string) {
     const post = await buildLinkedInBadgePost({
       badge,
       name: product.name,
-      url: getProductUrl(product.slug),
-      twitterHandle: extractLinkedInHandle(product.metadata?.twitterUrl),
+      url: buildProductUrl(product.slug),
+      twitterHandle: product.twitterHandle,
     })
 
     if (!post) {
@@ -192,7 +158,8 @@ async function handleLeaderboardWinners(
   winners: Array<{ rank: number; name: string; twitterHandle?: string | null }>,
 ) {
   try {
-    if (!winners.length) {
+    const normalized = normalizeWinners(winners)
+    if (!normalized.length) {
       return
     }
 
@@ -204,7 +171,7 @@ async function handleLeaderboardWinners(
     const post = await buildLinkedInLeaderboardPost({
       monthLabel,
       leaderboardUrl,
-      winners,
+      winners: normalized,
     })
 
     const result = await postLinkedInUpdate(post)
@@ -233,7 +200,8 @@ async function handlePeriodicLeaderboardWinners(params: {
   winners: Array<{ rank: number; name: string; twitterHandle?: string | null }>
 }) {
   try {
-    if (!params.winners.length) {
+    const normalized = normalizeWinners(params.winners)
+    if (!normalized.length) {
       return
     }
 
@@ -245,11 +213,7 @@ async function handlePeriodicLeaderboardWinners(params: {
     const post = await buildLinkedInLeaderboardPost({
       monthLabel: params.periodLabel,
       leaderboardUrl: params.leaderboardUrl,
-      winners: params.winners.map((winner) => ({
-        rank: winner.rank,
-        name: winner.name,
-        twitterHandle: winner.twitterHandle,
-      })),
+      winners: normalized,
     })
 
     const result = await postLinkedInUpdate(post)
@@ -329,10 +293,3 @@ function registerLinkedInBotListeners() {
 }
 
 registerLinkedInBotListeners()
-
-export function _internalLinkedInThrottle() {
-  return {
-    canPost,
-    recentPosts,
-  }
-}

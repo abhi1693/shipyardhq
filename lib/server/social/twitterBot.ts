@@ -1,7 +1,9 @@
-import prisma from "@/lib/prisma"
-import { getAppBaseUrl } from "@/lib/email/utils"
-import { productPath } from "@/lib/routes"
 import { registerEventHandler } from "@/lib/server/events"
+import {
+  buildProductUrl,
+  loadPublishedProductForSocial,
+  normalizeWinners,
+} from "@/lib/server/social/shared"
 
 import {
   isTwitterBotActive,
@@ -13,7 +15,6 @@ import {
   buildBadgeTweet,
   buildLeaderboardTweet,
   buildProductLaunchTweet,
-  extractTwitterHandle,
 } from "./twitterMessages"
 
 const POST_TTL_MS = 6 * 60 * 60 * 1000 // 6 hours
@@ -41,31 +42,10 @@ function releaseThrottle(key: string) {
   recentPosts.delete(key)
 }
 
-function getProductUrl(slug: string): string {
-  const base = getAppBaseUrl()
-  return `${base}${productPath(slug)}`
-}
-
 async function handleProductPublished(productId: string) {
   try {
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        tagline: true,
-        description: true,
-        status: true,
-        metadata: {
-          select: {
-            twitterUrl: true,
-          },
-        },
-      },
-    })
-
-    if (!product || product.status !== "published") {
+    const product = await loadPublishedProductForSocial(productId)
+    if (!product) {
       return
     }
 
@@ -78,8 +58,8 @@ async function handleProductPublished(productId: string) {
       name: product.name,
       tagline: product.tagline,
       description: product.description,
-      url: getProductUrl(product.slug),
-      twitterHandle: extractTwitterHandle(product.metadata?.twitterUrl),
+      url: buildProductUrl(product.slug),
+      twitterHandle: product.twitterHandle,
     })
 
     const result = await postTweet(tweet)
@@ -98,22 +78,8 @@ async function handleBadgeAssigned(productId: string, badge: string) {
   }
 
   try {
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        status: true,
-        metadata: {
-          select: {
-            twitterUrl: true,
-          },
-        },
-      },
-    })
-
-    if (!product || product.status !== "published") {
+    const product = await loadPublishedProductForSocial(productId)
+    if (!product) {
       return
     }
 
@@ -125,8 +91,8 @@ async function handleBadgeAssigned(productId: string, badge: string) {
     const tweet = await buildBadgeTweet({
       badge,
       name: product.name,
-      url: getProductUrl(product.slug),
-      twitterHandle: extractTwitterHandle(product.metadata?.twitterUrl),
+      url: buildProductUrl(product.slug),
+      twitterHandle: product.twitterHandle,
     })
 
     if (!tweet) {
@@ -151,7 +117,8 @@ async function handleLeaderboardWinners(
   winners: Array<{ rank: number; name: string; twitterHandle?: string | null }>,
 ) {
   try {
-    if (!winners.length) {
+    const normalized = normalizeWinners(winners)
+    if (!normalized.length) {
       return
     }
 
@@ -163,7 +130,7 @@ async function handleLeaderboardWinners(
     const tweet = await buildLeaderboardTweet({
       monthLabel,
       leaderboardUrl,
-      winners,
+      winners: normalized,
     })
 
     const result = await postTweet(tweet)
@@ -186,7 +153,8 @@ async function handlePeriodicLeaderboardWinners(params: {
   winners: Array<{ rank: number; name: string; twitterHandle?: string | null }>
 }) {
   try {
-    if (!params.winners.length) {
+    const normalized = normalizeWinners(params.winners)
+    if (!normalized.length) {
       return
     }
 
@@ -198,11 +166,7 @@ async function handlePeriodicLeaderboardWinners(params: {
     const tweet = await buildLeaderboardTweet({
       monthLabel: params.periodLabel,
       leaderboardUrl: params.leaderboardUrl,
-      winners: params.winners.map((winner) => ({
-        rank: winner.rank,
-        name: winner.name,
-        twitterHandle: winner.twitterHandle,
-      })),
+      winners: normalized,
     })
 
     const result = await postTweet(tweet)

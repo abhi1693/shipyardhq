@@ -3,6 +3,12 @@ import {
   coerceJsonText,
   extractAssistantJson,
 } from "@/lib/server/openaiResponse"
+import {
+  formatHandle,
+  formatDisplayName,
+  normalizeTwitterHandle,
+  rankEmoji,
+} from "@/lib/server/social/shared"
 
 const MAX_TWEET_LENGTH = 280
 const DEFAULT_HASHTAGS = ["ShipyardHQ"]
@@ -357,12 +363,8 @@ export async function buildBadgeTweet(args: {
   }
 
   const copy = BADGE_COPY[args.badge as keyof typeof BADGE_COPY]
-  const handle = args.twitterHandle?.startsWith("@")
-    ? args.twitterHandle
-    : args.twitterHandle?.length
-      ? `@${args.twitterHandle}`
-      : null
-  const displayName = handle ? `${args.name} (${handle})` : args.name
+  const handle = formatHandle(args.twitterHandle)
+  const displayName = formatDisplayName(args.name, handle)
   const headline = copy.headline(displayName)
 
   const sections = ensureHandlePresence(
@@ -386,28 +388,13 @@ export async function buildLeaderboardTweet(args: {
   const sorted = [...args.winners].sort((a, b) => a.rank - b.rank)
   const leader = sorted[0]
   const leaderName = leader?.name ?? "Shipyard builders"
-  const leaderHandle = leader?.twitterHandle
-    ? leader.twitterHandle.startsWith("@")
-      ? leader.twitterHandle
-      : `@${leader.twitterHandle}`
-    : null
+  const leaderHandle = formatHandle(leader?.twitterHandle)
   const headline = leaderHandle
     ? `${leaderName} (${leaderHandle}) leads the ${args.monthLabel} leaderboard!`
     : `${leaderName} leads the ${args.monthLabel} leaderboard!`
 
-  const rankEmoji = (rank: number): string => {
-    if (rank === 1) return "🥇"
-    if (rank === 2) return "🥈"
-    if (rank === 3) return "🥉"
-    return `#${rank}`
-  }
-
-  const topEntries = sorted.slice(0, 3).map((entry) => {
-    const handle = entry.twitterHandle
-      ? entry.twitterHandle.startsWith("@")
-        ? entry.twitterHandle
-        : `@${entry.twitterHandle}`
-      : null
+  const topEntries = sorted.map((entry) => {
+    const handle = formatHandle(entry.twitterHandle)
     const emoji = rankEmoji(entry.rank)
     return handle
       ? `${emoji} ${entry.name} (${handle})`
@@ -431,24 +418,6 @@ export async function buildLeaderboardTweet(args: {
   })
 }
 
-const HANDLE_REGEX = /^[A-Za-z0-9_]{1,15}$/
-
 export function extractTwitterHandle(value?: string | null): string | null {
-  if (!value) return null
-  const trimmed = value.trim()
-  if (!trimmed.length) return null
-
-  const direct = trimmed.startsWith("@") ? trimmed.slice(1) : trimmed
-  if (HANDLE_REGEX.test(direct)) {
-    return `@${direct}`
-  }
-
-  const match = trimmed.match(
-    /(?:https?:\/\/)?(?:www\.)?(?:twitter\.com|x\.com)\/@?([A-Za-z0-9_]{1,15})/i,
-  )
-  if (match && match[1]) {
-    return `@${match[1]}`
-  }
-
-  return null
+  return normalizeTwitterHandle(value)
 }
