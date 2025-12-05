@@ -1,5 +1,4 @@
 import prisma from "@/lib/prisma"
-import MonthlyWinnerEmail from "@/lib/email/templates/leaderboard/monthlyWinner"
 import { getAppBaseUrl } from "@/lib/email/utils"
 import { monthlyLeaderboardArchivePath, productPath } from "@/lib/routes"
 import { revalidateBadges, revalidateProduct } from "@/lib/cache/revalidate"
@@ -12,7 +11,6 @@ import {
 import { normalizeMonth, toMonthKey } from "@/lib/server/leaderboard/months"
 import { getIsoWeekYearAndNumber } from "@/lib/server/leaderboard/weeks"
 import { normalizeTwitterHandle } from "@/lib/server/social/shared"
-import { sendEmail } from "@/lib/email/resend"
 import { sendMonthlyLeaderboardWinnerNotification } from "@/lib/server/notifications/novuLeaderboard"
 import {
   broadcastProductOfDayWinnerToNovu,
@@ -502,27 +500,6 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
       delivered = true
     } catch (error) {
       console.error("[novu] leaderboard winner notification failed", {
-        email,
-        productId: product.id,
-        error,
-      })
-    }
-
-    try {
-      await sendEmail({
-        to: email,
-        subject: `${product.name} ranked #${entry.rank} in ${monthLabel}`,
-        react: MonthlyWinnerEmail({
-          productName: product.name,
-          monthLabel,
-          rank: entry.rank,
-          productUrl,
-          leaderboardUrl,
-        }),
-      })
-      delivered = true
-    } catch (error) {
-      console.error("[email] leaderboard winner email failed", {
         email,
         productId: product.id,
         error,
