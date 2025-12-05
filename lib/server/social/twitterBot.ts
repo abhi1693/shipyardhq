@@ -57,7 +57,6 @@ async function handleProductPublished(productId: string) {
     const tweet = await buildProductLaunchTweet({
       name: product.name,
       tagline: product.tagline,
-      description: product.description,
       url: buildProductUrl(product.slug),
       twitterHandle: product.twitterHandle,
     })

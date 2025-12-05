@@ -1,15 +1,18 @@
 import prisma from "@/lib/prisma"
 import MonthlyWinnerEmail from "@/lib/email/templates/leaderboard/monthlyWinner"
-import {getAppBaseUrl} from "@/lib/email/utils"
-import {monthlyLeaderboardArchivePath, productPath} from "@/lib/routes"
-import {revalidateBadges, revalidateProduct} from "@/lib/cache/revalidate"
-import {APP_EVENTS} from "@/lib/server/events/constants"
-import {dispatchEventAsync} from "@/lib/server/events"
-import {computeLeaderboardWindow, getCurrentLeaderboardWindow,} from "@/lib/server/leaderboard/v2"
-import {normalizeMonth, toMonthKey} from "@/lib/server/leaderboard/months"
-import {getIsoWeekYearAndNumber} from "@/lib/server/leaderboard/weeks"
-import {extractTwitterHandle} from "@/lib/server/social/twitterMessages"
-import {sendEmail} from "@/lib/email/resend"
+import { getAppBaseUrl } from "@/lib/email/utils"
+import { monthlyLeaderboardArchivePath, productPath } from "@/lib/routes"
+import { revalidateBadges, revalidateProduct } from "@/lib/cache/revalidate"
+import { APP_EVENTS } from "@/lib/server/events/constants"
+import { dispatchEventAsync } from "@/lib/server/events"
+import {
+  computeLeaderboardWindow,
+  getCurrentLeaderboardWindow,
+} from "@/lib/server/leaderboard/v2"
+import { normalizeMonth, toMonthKey } from "@/lib/server/leaderboard/months"
+import { getIsoWeekYearAndNumber } from "@/lib/server/leaderboard/weeks"
+import { normalizeTwitterHandle } from "@/lib/server/social/shared"
+import { sendEmail } from "@/lib/email/resend"
 
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -491,7 +494,7 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
         rank: entry.rank,
         name: product.name,
         slug: product.slug,
-        twitterHandle: extractTwitterHandle(product.metadata?.twitterUrl),
+        twitterHandle: normalizeTwitterHandle(product.metadata?.twitterUrl),
       }
     })
     .filter((entry: WinnerEvent | null): entry is WinnerEvent => Boolean(entry))
@@ -507,7 +510,7 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
       })),
     })
 
-    await dispatchEventAsync(
+    dispatchEventAsync(
       "leaderboard.monthly.winners",
       {
         monthKey,
@@ -565,10 +568,10 @@ export async function announceLeaderboardPeriodWinners(options: {
   const periodKey = buildPeriodKey(period, periodStart)
 
   const winners = await computeLeaderboardWindow({
-      periodStart,
-      periodEnd,
-      asOf: now,
-      limit,
+    periodStart,
+    periodEnd,
+    asOf: now,
+    limit,
   })
   if (!winners.length) {
     return {
@@ -604,7 +607,7 @@ export async function announceLeaderboardPeriodWinners(options: {
         rank: row.rank ?? 0,
         name: product.name,
         slug: product.slug,
-        twitterHandle: extractTwitterHandle(product.metadata?.twitterUrl),
+        twitterHandle: normalizeTwitterHandle(product.metadata?.twitterUrl),
       } as WinnerEvent
     })
     .filter((entry): entry is WinnerEvent => Boolean(entry))

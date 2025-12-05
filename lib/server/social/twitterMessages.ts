@@ -1,33 +1,17 @@
+import { normalizeTwitterHandle } from "@/lib/server/social/shared"
 import {
-  formatHandle,
-  formatDisplayName,
-  normalizeTwitterHandle,
-  rankEmoji,
-} from "@/lib/server/social/shared"
+  buildBadgeCopy,
+  buildLaunchCopy,
+  buildLeaderboardCopy,
+} from "@/lib/server/social/templates"
 
-const DEFAULT_HASHTAGS = ["ShipyardHQ"]
-
-type TweetSections = {
-  headline: string
-  body?: string
-}
+const DEFAULT_HASHTAGS = ["#ShipyardHQ"]
 
 type TweetParts = {
   headline: string
   body?: string
   url?: string
   hashtags?: string[]
-}
-
-function truncateSegment(value: string, limit: number): string {
-  if (value.length <= limit) {
-    return value
-  }
-  if (limit <= 3) {
-    return value.slice(0, Math.max(0, limit))
-  }
-  const sliced = value.slice(0, limit - 3).replace(/\s+$/g, "")
-  return `${sliced}...`
 }
 
 function appendSegment(current: string, segment: string): string {
@@ -59,64 +43,11 @@ function sanitizeHashtags(tags: string[]): string[] {
   return result
 }
 
-function ensureHandlePresence(
-  sections: TweetSections,
-  { name, handle }: { name: string; handle?: string | null },
-): TweetSections {
-  const normalizedHandle = handle?.trim()
-  if (!normalizedHandle) {
-    return sections
-  }
-
-  const handleValue = normalizedHandle.startsWith("@")
-    ? normalizedHandle
-    : `@${normalizedHandle}`
-
-  const headlineHasHandle = sections.headline.includes(handleValue)
-  const bodyHasHandle = sections.body?.includes(handleValue) ?? false
-  if (headlineHasHandle || bodyHasHandle) {
-    return sections
-  }
-
-  const replacement = `${name} (${handleValue})`
-  let headline = sections.headline
-  let body = sections.body
-
-  if (headline.includes(name)) {
-    const updated = headline.replace(name, replacement)
-    if (updated !== headline) {
-      headline = updated
-    } else {
-      headline = `${replacement} — ${headline}`.trim()
-    }
-  } else {
-    headline = `${replacement} — ${headline}`.trim()
-  }
-
-  if (!headline.includes(handleValue) && body) {
-    body = `${handleValue} ${body}`.trim()
-  }
-
-  if (
-    !headline.includes(handleValue) &&
-    !(body?.includes(handleValue) ?? false)
-  ) {
-    headline = `${handleValue} — ${headline}`.trim()
-  }
-
-  return {
-    headline,
-    body,
-  }
-}
-
 export function composeTweet(parts: TweetParts): string {
-  const hashtags = sanitizeHashtags([
-    ...DEFAULT_HASHTAGS,
-    ...(parts.hashtags ?? []),
-  ])
-
-  let hashtagsText = hashtags.map((tag) => `#${tag}`).join(" ")
+  const hashtagsText = [...DEFAULT_HASHTAGS, ...(parts.hashtags ?? [])]
+    .map((tag) => tag.trim())
+    .filter(Boolean)
+    .join(" ")
   const url = parts.url?.trim() ?? ""
 
   const headline = parts.headline.trim()
@@ -144,54 +75,22 @@ export function composeTweet(parts: TweetParts): string {
 
 export async function buildProductLaunchTweet(args: {
   name: string
-  tagline?: string | null
-  description?: string | null
+  tagline: string
   url: string
   twitterHandle?: string | null
 }): Promise<string> {
-  const handle = args.twitterHandle?.startsWith("@")
-    ? args.twitterHandle
-    : args.twitterHandle?.length
-      ? `@${args.twitterHandle}`
-      : null
-  const displayName = handle ? `${args.name} (${handle})` : args.name
-  const headline = `${displayName} just launched on Shipyard HQ!`
-  const body =
-    args.tagline && args.tagline.trim().length
-      ? args.tagline.trim()
-      : args.description && args.description.trim().length
-        ? truncateSegment(args.description.trim(), 200)
-        : undefined
+  const copy = buildLaunchCopy({
+    name: args.name,
+    twitterHandle: args.twitterHandle,
+    tagline: args.tagline,
+  }).twitter
 
   return composeTweet({
-    headline,
-    body,
+    headline: copy.headline,
+    body: copy.body,
     url: args.url,
-    hashtags: ["ProductLaunch", "IndieSaaS"],
+    hashtags: copy.hashtags,
   })
-}
-
-const BADGE_COPY: Record<
-  "featured" | "trending" | "editor-pick",
-  {
-    headline: (displayName: string) => string
-    hashtags: string[]
-  }
-> = {
-  trending: {
-    headline: (displayName) => `🔥 ${displayName} is trending on Shipyard HQ!`,
-    hashtags: ["Trending", "ProductDiscovery"],
-  },
-  featured: {
-    headline: (displayName) =>
-      `🌟 ${displayName} earned a Featured spotlight on Shipyard HQ!`,
-    hashtags: ["Featured", "IndieMakers"],
-  },
-  "editor-pick": {
-    headline: (displayName) =>
-      `🧭 Editor's pick: ${displayName} on Shipyard HQ!`,
-    hashtags: ["EditorsPick", "ProductDiscovery"],
-  },
 }
 
 export async function buildBadgeTweet(args: {
@@ -200,25 +99,21 @@ export async function buildBadgeTweet(args: {
   url: string
   twitterHandle?: string | null
 }): Promise<string | null> {
-  if (!Object.prototype.hasOwnProperty.call(BADGE_COPY, args.badge)) {
+  const copy = buildBadgeCopy({
+    badge: args.badge,
+    name: args.name,
+    twitterHandle: args.twitterHandle,
+  })
+
+  if (!copy) {
     return null
   }
 
-  const copy = BADGE_COPY[args.badge as keyof typeof BADGE_COPY]
-  const handle = formatHandle(args.twitterHandle)
-  const displayName = formatDisplayName(args.name, handle)
-  const headline = copy.headline(displayName)
-
-  const sections = ensureHandlePresence(
-    { headline },
-    { name: args.name, handle },
-  )
-
   return composeTweet({
-    headline: sections.headline,
-    body: sections.body,
+    headline: copy.twitter.headline,
+    body: copy.twitter.body,
     url: args.url,
-    hashtags: copy.hashtags,
+    hashtags: copy.twitter.hashtags,
   })
 }
 
@@ -227,39 +122,15 @@ export async function buildLeaderboardTweet(args: {
   leaderboardUrl: string
   winners: Array<{ rank: number; name: string; twitterHandle?: string | null }>
 }): Promise<string> {
-  const sorted = [...args.winners].sort((a, b) => a.rank - b.rank)
-  const leader = sorted[0]
-  const leaderName = leader?.name ?? "Shipyard builders"
-  const leaderHandle = formatHandle(leader?.twitterHandle)
-  const headline = leaderHandle
-    ? `${leaderName} (${leaderHandle}) leads the ${args.monthLabel} leaderboard!`
-    : `${leaderName} leads the ${args.monthLabel} leaderboard!`
-
-  const topEntries = sorted.map((entry) => {
-    const handle = formatHandle(entry.twitterHandle)
-    const emoji = rankEmoji(entry.rank)
-    return handle
-      ? `${emoji} ${entry.name} (${handle})`
-      : `${emoji} ${entry.name}`
-  })
-
-  const body = topEntries.length
-    ? ["Top builders:", ...topEntries].join("\n")
-    : undefined
-
-  const sections = ensureHandlePresence(
-    { headline, body },
-    { name: leaderName, handle: leaderHandle },
-  )
+  const copy = buildLeaderboardCopy({
+    monthLabel: args.monthLabel,
+    winners: args.winners,
+  }).twitter
 
   return composeTweet({
-    headline: sections.headline,
-    body: sections.body,
+    headline: copy.headline,
+    body: copy.body,
     url: args.leaderboardUrl,
-    hashtags: ["Leaderboard", "Community"],
+    hashtags: copy.hashtags,
   })
-}
-
-export function extractTwitterHandle(value?: string | null): string | null {
-  return normalizeTwitterHandle(value)
 }
