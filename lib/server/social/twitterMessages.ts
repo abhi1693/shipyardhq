@@ -17,17 +17,11 @@ const TWEET_COPY_SCHEMA = {
   required: ["headline", "body"],
 } as const
 
-type TweetRewriteKind = "launch" | "badge" | "leaderboard"
-
 type TweetRewriteContext = {
-  kind: TweetRewriteKind
   name: string
   handle?: string | null
   tagline?: string | null
   description?: string | null
-  badge?: string
-  monthLabel?: string
-  winners?: Array<{ rank: number; name: string; handle?: string | null }>
   fallbackHeadline: string
   fallbackBody?: string
 }
@@ -157,27 +151,8 @@ async function rewriteTweetCopyWithAI(
       : null,
   }
 
-  if (context.kind === "badge") {
-    ;(product as any).badge = context.badge ?? null
-  }
-
-  if (context.kind === "leaderboard") {
-    ;(product as any).monthLabel = context.monthLabel ?? null
-    ;(product as any).winners = (context.winners ?? []).map((winner) => ({
-      rank: winner.rank,
-      name: winner.name,
-      handle: winner.handle ?? null,
-    }))
-  }
-
-  const summaryByKind: Record<TweetRewriteKind, string> = {
-    launch: `${context.name} just launched on Shipyard HQ.`,
-    badge: `${context.name} earned the ${context.badge ?? "new"} badge on Shipyard HQ.`,
-    leaderboard: `Highlight monthly leaderboard winners for ${context.monthLabel ?? "Shipyard HQ"}.`,
-  }
-
   const payload = {
-    summary: summaryByKind[context.kind],
+    summary: `${context.name} just launched on Shipyard HQ.`,
     product,
     fallbackCopy: {
       headline: context.fallbackHeadline,
@@ -245,7 +220,7 @@ async function rewriteTweetCopyWithAI(
     }
   } catch (error) {
     console.error(
-      `[twitter] AI tweet rewrite failed (kind=${context.kind})`,
+      "[twitter] AI tweet rewrite failed (launch)",
       error,
     )
     return null
@@ -330,7 +305,6 @@ export async function buildProductLaunchTweet(args: {
     : undefined
 
   const aiSections = await rewriteTweetCopyWithAI({
-    kind: "launch",
     name: args.name,
     handle,
     tagline: args.tagline ?? null,
@@ -360,16 +334,16 @@ const BADGE_COPY: Record<
   }
 > = {
   trending: {
-    headline: (displayName) => `${displayName} is trending on Shipyard HQ!`,
+    headline: (displayName) => `🔥 ${displayName} is trending on Shipyard HQ!`,
     hashtags: ["Trending", "ProductDiscovery"],
   },
   featured: {
     headline: (displayName) =>
-      `${displayName} just earned a Featured spotlight!`,
+      `🌟 ${displayName} earned a Featured spotlight on Shipyard HQ!`,
     hashtags: ["Featured", "IndieMakers"],
   },
   "editor-pick": {
-    headline: (displayName) => `Editor's pick: ${displayName}!`,
+    headline: (displayName) => `🧭 Editor's pick: ${displayName} on Shipyard HQ!`,
     hashtags: ["EditorsPick", "ProductDiscovery"],
   },
 }
@@ -377,8 +351,6 @@ const BADGE_COPY: Record<
 export async function buildBadgeTweet(args: {
   badge: string
   name: string
-  tagline?: string | null
-  description?: string | null
   url: string
   twitterHandle?: string | null
 }): Promise<string | null> {
@@ -393,24 +365,9 @@ export async function buildBadgeTweet(args: {
       ? `@${args.twitterHandle}`
       : null
   const displayName = handle ? `${args.name} (${handle})` : args.name
-  const body = args.tagline?.trim()?.length ? args.tagline.trim() : undefined
-  const fallbackHeadline = copy.headline(displayName)
+  const headline = copy.headline(displayName)
 
-  const aiSections = await rewriteTweetCopyWithAI({
-    kind: "badge",
-    name: args.name,
-    handle,
-    badge: args.badge,
-    tagline: args.tagline ?? null,
-    description: args.description ?? null,
-    fallbackHeadline,
-    fallbackBody: body,
-  })
-
-  const sections = ensureHandlePresence(
-    aiSections ?? { headline: fallbackHeadline, body },
-    { name: args.name, handle },
-  )
+  const sections = ensureHandlePresence({ headline }, { name: args.name, handle })
 
   return composeTweet({
     headline: sections.headline,
@@ -437,43 +394,33 @@ export async function buildLeaderboardTweet(args: {
     ? `${leaderName} (${leaderHandle}) leads the ${args.monthLabel} leaderboard!`
     : `${leaderName} leads the ${args.monthLabel} leaderboard!`
 
+  const rankEmoji = (rank: number): string => {
+    if (rank === 1) return "🥇"
+    if (rank === 2) return "🥈"
+    if (rank === 3) return "🥉"
+    return `#${rank}`
+  }
+
   const topEntries = sorted.slice(0, 3).map((entry) => {
     const handle = entry.twitterHandle
       ? entry.twitterHandle.startsWith("@")
         ? entry.twitterHandle
         : `@${entry.twitterHandle}`
       : null
+    const emoji = rankEmoji(entry.rank)
     return handle
-      ? `${entry.rank}. ${entry.name} (${handle})`
-      : `${entry.rank}. ${entry.name}`
+      ? `${emoji} ${entry.name} (${handle})`
+      : `${emoji} ${entry.name}`
   })
 
   const body = topEntries.length
     ? ["Top builders:", ...topEntries].join("\n")
     : undefined
 
-  const aiSections = await rewriteTweetCopyWithAI({
-    kind: "leaderboard",
-    name: leaderName,
-    handle: leaderHandle,
-    monthLabel: args.monthLabel,
-    winners: sorted.map((entry) => ({
-      rank: entry.rank,
-      name: entry.name,
-      handle: entry.twitterHandle
-        ? entry.twitterHandle.startsWith("@")
-          ? entry.twitterHandle
-          : `@${entry.twitterHandle}`
-        : null,
-    })),
-    fallbackHeadline: headline,
-    fallbackBody: body,
-  })
-
-  const sections = ensureHandlePresence(aiSections ?? { headline, body }, {
-    name: leaderName,
-    handle: leaderHandle,
-  })
+  const sections = ensureHandlePresence(
+    { headline, body },
+    { name: leaderName, handle: leaderHandle },
+  )
 
   return composeTweet({
     headline: sections.headline,

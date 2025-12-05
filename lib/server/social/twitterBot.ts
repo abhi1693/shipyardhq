@@ -104,8 +104,6 @@ async function handleBadgeAssigned(productId: string, badge: string) {
         id: true,
         name: true,
         slug: true,
-        tagline: true,
-        description: true,
         status: true,
         metadata: {
           select: {
@@ -127,8 +125,6 @@ async function handleBadgeAssigned(productId: string, badge: string) {
     const tweet = await buildBadgeTweet({
       badge,
       name: product.name,
-      tagline: product.tagline,
-      description: product.description,
       url: getProductUrl(product.slug),
       twitterHandle: extractTwitterHandle(product.metadata?.twitterUrl),
     })
