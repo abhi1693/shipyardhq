@@ -1,8 +1,6 @@
 import prisma from "@/lib/prisma"
 import { getAppBaseUrl } from "@/lib/email/utils"
-import { productPath, monthlyLeaderboardArchivePath } from "@/lib/routes"
-import { normalizeMonth, toMonthKey } from "@/lib/server/leaderboard/months"
-import { getIsoWeekYearAndNumber } from "@/lib/server/leaderboard/weeks"
+import { productPath } from "@/lib/routes"
 
 const TWITTER_HANDLE_REGEX = /^[A-Za-z0-9_]{1,15}$/
 

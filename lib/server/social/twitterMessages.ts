@@ -1,4 +1,3 @@
-import { normalizeTwitterHandle } from "@/lib/server/social/shared"
 import {
   buildBadgeCopy,
   buildLaunchCopy,
@@ -23,24 +22,6 @@ function appendSegment(current: string, segment: string): string {
   const separator = current.length ? "\n\n" : ""
 
   return `${current}${separator}${trimmed}`
-}
-
-function sanitizeHashtags(tags: string[]): string[] {
-  const seen = new Set<string>()
-  const result: string[] = []
-
-  for (const tag of tags) {
-    const trimmed = tag.trim().replace(/^#+/, "")
-    if (!trimmed.length) continue
-    const cleaned = trimmed.replace(/[^A-Za-z0-9_]/g, "")
-    if (!cleaned.length) continue
-    const key = cleaned.toLowerCase()
-    if (seen.has(key)) continue
-    seen.add(key)
-    result.push(cleaned)
-  }
-
-  return result
 }
 
 export function composeTweet(parts: TweetParts): string {

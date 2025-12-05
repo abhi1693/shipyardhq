@@ -390,7 +390,8 @@ export async function sendWeeklyNewsletterEmails(now: Date = new Date()) {
   const productOfTheWeek: ProductOfTheWeek | null =
     trendingProductsWithRevenue.length > 0
       ? (() => {
-          const { rank: _rank, ...rest } = trendingProductsWithRevenue[0]
+          const { rank, ...rest } = trendingProductsWithRevenue[0]
+          void rank
           return rest
         })()
       : null
