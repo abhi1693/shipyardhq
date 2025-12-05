@@ -1,9 +1,7 @@
 import prisma from "@/lib/prisma"
-import {
-  LEADERBOARD_PATH,
-  monthlyLeaderboardArchivePath,
-  productPath,
-} from "@/lib/routes"
+import MonthlyWinnerEmail from "@/lib/email/templates/leaderboard/monthlyWinner"
+import { getAppBaseUrl } from "@/lib/email/utils"
+import { monthlyLeaderboardArchivePath, productPath } from "@/lib/routes"
 import { revalidateBadges, revalidateProduct } from "@/lib/cache/revalidate"
 import { APP_EVENTS } from "@/lib/server/events/constants"
 import { dispatchEventAsync } from "@/lib/server/events"
@@ -12,14 +10,15 @@ import {
   getCurrentLeaderboardWindow,
 } from "@/lib/server/leaderboard/v2"
 import { normalizeMonth, toMonthKey } from "@/lib/server/leaderboard/months"
-import { extractTwitterHandle } from "@/lib/server/social/twitterMessages"
+import { getIsoWeekYearAndNumber } from "@/lib/server/leaderboard/weeks"
+import { normalizeTwitterHandle } from "@/lib/server/social/shared"
+import { sendEmail } from "@/lib/email/resend"
 import { sendMonthlyLeaderboardWinnerNotification } from "@/lib/server/notifications/novuLeaderboard"
 import {
   broadcastProductOfDayWinnerToNovu,
   broadcastProductOfWeekWinnerToNovu,
   broadcastProductOfMonthWinnerToNovu,
 } from "@/lib/server/notifications/novuProduct"
-import { resolveSiteUrl } from "@/lib/siteConfig"
 
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -216,13 +215,35 @@ function buildPeriodKey(period: PeriodCadence, periodStart: Date) {
 }
 
 function getLeaderboardUrl(monthKey: string): string {
-  const siteUrl = resolveSiteUrl()
-  return `${siteUrl}${monthlyLeaderboardArchivePath(monthKey)}`
+  const base = getAppBaseUrl()
+  return `${base}${monthlyLeaderboardArchivePath(monthKey)}`
+}
+
+function buildPeriodicLeaderboardUrl(
+  period: PeriodCadence,
+  periodStart: Date,
+): string {
+  const base = getAppBaseUrl().replace(/\/+$/, "")
+
+  if (period === "day") {
+    const year = periodStart.getUTCFullYear()
+    const month = periodStart.getUTCMonth() + 1
+    const day = periodStart.getUTCDate()
+    return `${base}/leaderboard/daily/${year}/${month}/${day}`
+  }
+
+  if (period === "week") {
+    const { year, week } = getIsoWeekYearAndNumber(periodStart)
+    return `${base}/leaderboard/weekly/${year}/${week}`
+  }
+
+  const monthKey = toMonthKey(normalizeMonth(periodStart))
+  return `${base}${monthlyLeaderboardArchivePath(monthKey)}`
 }
 
 function getProductUrl(slug: string): string {
-  const siteUrl = resolveSiteUrl()
-  return `${siteUrl}${productPath(slug)}`
+  const base = getAppBaseUrl()
+  return `${base}${productPath(slug)}`
 }
 
 type WinnerProduct = {
@@ -453,6 +474,10 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
     const email = product?.user?.email
     if (!product || !email) continue
 
+    const leaderboardUrl = getLeaderboardUrl(monthKey)
+    const productUrl = getProductUrl(product.slug)
+    let delivered = false
+
     try {
       await sendMonthlyLeaderboardWinnerNotification({
         recipient: {
@@ -471,16 +496,41 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
           productSlug: (winner.product as WinnerProduct).slug,
           productName: (winner.product as WinnerProduct).name,
         })),
-        leaderboardUrl: getLeaderboardUrl(monthKey),
-        productUrl: getProductUrl(product.slug),
+        leaderboardUrl,
+        productUrl,
       })
-      recipients.push(email)
+      delivered = true
     } catch (error) {
       console.error("[novu] leaderboard winner notification failed", {
         email,
         productId: product.id,
         error,
       })
+    }
+
+    try {
+      await sendEmail({
+        to: email,
+        subject: `${product.name} ranked #${entry.rank} in ${monthLabel}`,
+        react: MonthlyWinnerEmail({
+          productName: product.name,
+          monthLabel,
+          rank: entry.rank,
+          productUrl,
+          leaderboardUrl,
+        }),
+      })
+      delivered = true
+    } catch (error) {
+      console.error("[email] leaderboard winner email failed", {
+        email,
+        productId: product.id,
+        error,
+      })
+    }
+
+    if (delivered) {
+      recipients.push(email)
     }
   }
 
@@ -498,7 +548,7 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
         rank: entry.rank,
         name: product.name,
         slug: product.slug,
-        twitterHandle: extractTwitterHandle(product.metadata?.twitterUrl),
+        twitterHandle: normalizeTwitterHandle(product.metadata?.twitterUrl),
       }
     })
     .filter((entry: WinnerEvent | null): entry is WinnerEvent => Boolean(entry))
@@ -514,7 +564,7 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
       })),
     })
 
-    await dispatchEventAsync(
+    dispatchEventAsync(
       "leaderboard.monthly.winners",
       {
         monthKey,
@@ -594,12 +644,12 @@ export async function announceLeaderboardPeriodWinners(options: {
   const periodLabel = formatPeriodLabel(period, periodStart, periodEnd)
   const periodKey = buildPeriodKey(period, periodStart)
 
-  const rankedRows = await computeLeaderboardWindow({
+  const winners = await computeLeaderboardWindow({
     periodStart,
     periodEnd,
     asOf: now,
+    limit,
   })
-  const winners = rankedRows.slice(0, limit)
   if (!winners.length) {
     return {
       notified: 0,
@@ -635,7 +685,7 @@ export async function announceLeaderboardPeriodWinners(options: {
         rank: row.rank ?? 0,
         name: product.name,
         slug: product.slug,
-        twitterHandle: extractTwitterHandle(product.metadata?.twitterUrl),
+        twitterHandle: normalizeTwitterHandle(product.metadata?.twitterUrl),
       } as WinnerEvent
     })
     .filter((entry): entry is WinnerEvent => Boolean(entry))
@@ -652,7 +702,7 @@ export async function announceLeaderboardPeriodWinners(options: {
 
   const leaderboardUrl =
     options.leaderboardUrl ??
-    `${resolveSiteUrl()}${LEADERBOARD_PATH}`.replace(/\/+$/, "")
+    buildPeriodicLeaderboardUrl(period, periodStart).replace(/\/+$/, "")
 
   await assignWinnerBadges({
     period,
@@ -664,7 +714,7 @@ export async function announceLeaderboardPeriodWinners(options: {
     })),
   })
 
-  await dispatchEventAsync(
+  dispatchEventAsync(
     APP_EVENTS.LEADERBOARD_PERIODIC_WINNERS,
     {
       period,

@@ -49,6 +49,10 @@
     {
       "path": "/api/cron/leaderboard-refresh",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/badges/trending",
+      "schedule": "0 */12 * * *"
     }
   ]
 }
