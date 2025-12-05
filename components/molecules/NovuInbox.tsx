@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Inbox } from "@novu/nextjs"
 import type { Preference, PreferenceGroups, Tab } from "@novu/nextjs"
 import { useUser } from "@clerk/nextjs"
@@ -55,15 +56,64 @@ const PREFERENCE_SORT = (a: Preference, b: Preference) => {
 export default function NovuInbox() {
   const { user, isLoaded, isSignedIn } = useUser()
   const subscriberId = user?.id?.trim() ?? null
+  const [subscriberHash, setSubscriberHash] = useState<string | null>(null)
+  const [hashError, setHashError] = useState(false)
+
+  useEffect(() => {
+    if (!subscriberId) return undefined
+
+    let isActive = true
+    setHashError(false)
+    setSubscriberHash(null)
+
+    async function loadSubscriberHash() {
+      try {
+        const response = await fetch("/api/novu/hmac", {
+          method: "GET",
+        })
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch subscriber hash (status ${response.status})`,
+          )
+        }
+
+        const payload = (await response.json()) as {
+          hash?: string
+        }
+
+        if (!payload.hash) {
+          throw new Error("Missing hash in response")
+        }
+
+        if (isActive) {
+          setSubscriberHash(payload.hash)
+        }
+      } catch (error) {
+        console.error("Unable to load Novu subscriber hash", error)
+        if (isActive) {
+          setHashError(true)
+        }
+      }
+    }
+
+    void loadSubscriberHash()
+
+    return () => {
+      isActive = false
+    }
+  }, [subscriberId])
 
   if (!isLoaded || !isSignedIn) return null
   if (!subscriberId) return null
   if (!NOVU_APPLICATION_IDENTIFIER) return null
+  if (!subscriberHash || hashError) return null
 
   return (
     <Inbox
       applicationIdentifier={NOVU_APPLICATION_IDENTIFIER}
       subscriber={subscriberId}
+      subscriberHash={subscriberHash}
       placement="bottom-end"
       tabs={INBOX_TABS}
       preferenceGroups={PREFERENCE_GROUPS}

@@ -1,3 +1,4 @@
+import { createHmac } from "crypto"
 import { Novu } from "@novu/api"
 import type {
   CreateSubscriberRequestDto,
@@ -66,6 +67,19 @@ export type TriggerNovuWorkflowInput = {
 
 export function isNovuEnabled(): boolean {
   return Boolean(NOVU_SECRET_KEY)
+}
+
+export function generateNovuSubscriberHash(subscriberId: string): string {
+  if (!NOVU_SECRET_KEY) {
+    throw new Error("NOVU_SECRET_KEY (or NOVU_API_KEY) is not configured")
+  }
+
+  const trimmed = subscriberId.trim()
+  if (!trimmed) {
+    throw new Error("Novu subscriberId is required to generate HMAC hash")
+  }
+
+  return createHmac("sha256", NOVU_SECRET_KEY).update(trimmed).digest("hex")
 }
 
 export function guardNovuWorkflow(
