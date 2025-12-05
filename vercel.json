@@ -5,7 +5,7 @@
       "schedule": "0 6 * * *"
     },
     {
-      "path": "/api/cron/discover-digest",
+      "path": "/api/cron/weekly-newsletter",
       "schedule": "0 9 * * 4"
     },
     {
@@ -19,10 +19,6 @@
     {
       "path": "/api/cron/leaderboard-highlights?period=week",
       "schedule": "55 23 * * 0"
-    },
-    {
-      "path": "/api/cron/product-review-digest",
-      "schedule": "0 7 * * *"
     },
     {
       "path": "/api/cron/product-insight-pipeline",
@@ -41,25 +37,11 @@
       "schedule": "*/30 * * * *"
     },
     {
-      "path": "/api/cron/product-review-milestones",
-      "schedule": "30 7 * * *"
-    },
-    {
       "path": "/api/cron/rewards/placements",
       "schedule": "*/5 * * * *"
     },
-    {
-      "path": "/api/cron/rewards/backlinks",
-      "schedule": "0 5 * * *"
-    },
-    {
-      "path": "/api/cron/rewards/streak",
-      "schedule": "0 4 * * *"
-    },
-    {
-      "path": "/api/cron/user-reengagement",
-      "schedule": "0 9 * * *"
-    },
+    { "path": "/api/cron/rewards/backlinks", "schedule": "0 5 * * *" },
+    { "path": "/api/cron/rewards/streak", "schedule": "0 4 * * *" },
     {
       "path": "/api/cron/payments/resync",
       "schedule": "0 6 * * *"

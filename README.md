@@ -40,11 +40,22 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 - Lint: `npm run lint`
 - Format: `npm run format`
 
-## Email Delivery
+## Novu Inbox
 
-- Transactional mail runs through `lib/email/resend.ts`, which now serializes messages through a shared rate-limited queue so Resend caps are respected across the app.
-- Defaults align with Resend's 2 requests/sec ceiling; adjust only if your account is provisioned for a higher burst.
-- Tune throughput with optional env vars: `RESEND_RATE_LIMIT_MAX_REQUESTS` or `RESEND_RATE_LIMIT_RPS` (per interval) and `RESEND_RATE_LIMIT_INTERVAL_MS` (window duration in ms).
+- In-app notifications render via `<Inbox />` from `components/molecules/NovuInbox.tsx` with `NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER`.
+- Enable Security HMAC in the Novu In-App provider; `NovuInbox` fetches the per-user subscriber hash from `GET /api/novu/hmac` (derived from `NOVU_SECRET_KEY` and the Clerk user id) before mounting the widget.
+- Server triggers live in `lib/server/notifications/novu.ts`; call `triggerNovuWorkflow` with the Novu workflow id and subscriber id to send directly (no event bus hop).
+- Configure `NOVU_SECRET_KEY` for access. Set `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` to the workflow id for product-related Novu notifications (upvotes, reviews, product updates).
+- Product publish confirmations also flow through `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` (kind `product_published`) so they render in inbox and email.
+- Rewards notifications route through Novu as well; set `NOVU_WORKFLOW_REWARDS_NOTIFICATIONS` and they will appear under the Rewards inbox tab (tagged `rewards`).
+- Organization invites send via `NOVU_WORKFLOW_ORGANIZATION_NOTIFICATIONS` (kind `organization_member_invite`).
+- Payment connector sync errors send via `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` with kind `product_payment_sync_error`.
+- Leaderboard winners send via `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` with kind `leaderboard_monthly_winner`.
+- Weekly newsletter now sends via Novu workflow `weekly-newsletter` (override with `NOVU_WORKFLOW_WEEKLY_NEWSLETTER`); kind `weekly_newsletter`, email-only.
+- New member onboarding uses the Novu workflow id `welcome-user`; override with `NOVU_WORKFLOW_WELCOME_USER` if your workflow id differs.
+- Backlink reminders now send through the rewards workflow with kind `reward_backlink_reminder` and tag `backlink`.
+- System updates from the Notification Center use the Novu workflow id `system-updates`; override with `NOVU_WORKFLOW_SYSTEM_UPDATES` (falls back to `NOVU_WORKFLOW_ADMIN_BROADCAST` for legacy setups).
+- Use `ensureNovuSubscriber` when you need to upsert subscriber profile data before triggering.
 
 ## Analytics Instrumentation
 

@@ -105,7 +105,24 @@ const publicUserProductsSelect = {
   select: publicUserProductSelectFields,
 } satisfies Prisma.User$productsArgs
 
-const publicUserProfileSelect = {
+type PublicUserProfileSelect = {
+  id: true
+  clerkId: true
+  firstName: true
+  lastName: true
+  _count: {
+    select: {
+      products: { where: typeof publishedProductWhere }
+    }
+  }
+  products: typeof publicUserProductsSelect
+}
+
+type PublicUserProfile = Prisma.UserGetPayload<{
+  select: PublicUserProfileSelect
+}>
+
+const publicUserProfileSelect: PublicUserProfileSelect = {
   id: true,
   clerkId: true,
   firstName: true,
@@ -116,11 +133,7 @@ const publicUserProfileSelect = {
     },
   },
   products: publicUserProductsSelect,
-} satisfies Prisma.UserSelect
-
-type PublicUserProfile = Prisma.UserGetPayload<{
-  select: typeof publicUserProfileSelect
-}>
+}
 
 const getUserProductsWithPaging = cached(
   async (

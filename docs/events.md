@@ -13,7 +13,7 @@ Shipyard now routes non-critical product events through a durable outbox so UI c
 ## Adding / Updating Handlers
 
 1. Import `registerEventHandler` from `@/lib/server/events`.
-2. Choose an idempotent `id` (e.g. `email.product-vote-milestone`).
+2. Choose an idempotent `id` (e.g. `notifications.product-upvote`).
 3. Ensure the handler is idempotent. For non-repeatable side effects (emails, tweets) store delivery receipts keyed by `envelopeId + handlerId` or guard with existing uniqueness constraints.
 4. Update publishers to call `dispatchEvent`. All handlers now execute through the async queue.
 

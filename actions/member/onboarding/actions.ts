@@ -3,21 +3,11 @@
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import {
-  subscribeToNewsletterAction,
-  unsubscribeFromNewsletterAction,
-} from "@/actions/public/newsletter/actions"
-import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
   invalidateActiveUserCache,
 } from "@/lib/server/userStatus"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
-import { sendEmail } from "@/lib/email/resend"
-import {
-  buildWelcomeTextBody,
-  WelcomeEmail,
-} from "@/lib/email/templates/onboarding/welcome"
-import { getAppBaseUrl } from "@/lib/email/utils"
 import {
   LEADERBOARD_GUIDE_PATH,
   LEADERBOARD_MONTHLY_PATH,
@@ -26,12 +16,18 @@ import {
   MEMBER_OVERVIEW_PATH,
   REWARDS_PATH,
 } from "@/lib/routes"
-import { IS_PROD } from "@/lib/constants"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { revalidateUser } from "@/lib/cache/revalidate"
+import { resolveSiteUrl, siteConfig } from "@/lib/siteConfig"
+import {
+  guardNovuWorkflow,
+  triggerNovuWorkflow,
+} from "@/lib/server/notifications/novu"
 
 const BUILDER_INTENTS = new Set(["launch-product", "manage-team"])
-const WELCOME_EMAIL_SUBJECT = "Welcome aboard ShipYardHQ"
+const WELCOME_SUBJECT = `Welcome to ${siteConfig.name}`
+const NOVU_WELCOME_WORKFLOW_ID =
+  process.env.NOVU_WORKFLOW_WELCOME_USER?.trim() || "welcome-user"
 
 export async function completeOnboarding(formData: FormData) {
   const { userId } = await auth()
@@ -39,18 +35,6 @@ export async function completeOnboarding(formData: FormData) {
 
   const roleIntent = formData.get("roleIntent")?.toString()
   const heardFrom = formData.get("heardFrom")?.toString()
-  const newsletterOptInRaw = formData.get("newsletterOptIn")
-  const normalizedNewsletterOptIn = newsletterOptInRaw
-    ?.toString()
-    .trim()
-    .toLowerCase()
-  const newsletterOptIn =
-    normalizedNewsletterOptIn == null
-      ? true
-      : normalizedNewsletterOptIn === "true" ||
-        normalizedNewsletterOptIn === "on" ||
-        normalizedNewsletterOptIn === "1"
-
   try {
     const clerkUser = await getClerkUserByIdCached(userId)
 
@@ -88,55 +72,62 @@ export async function completeOnboarding(formData: FormData) {
     }
 
     if (user.email && firstTimeOnboarding) {
-      if (newsletterOptIn) {
-        const result = await subscribeToNewsletterAction(user.email)
-        if (result.error) {
-          console.error(
-            "Failed to auto-opt user into newsletter:",
-            result.error,
-          )
-        }
-      } else {
-        const result = await unsubscribeFromNewsletterAction(user.email)
-        if (result.error) {
-          console.error(
-            "Failed to respect newsletter opt-out during onboarding:",
-            result.error,
-          )
-        }
-      }
-
       const isBuilderIntent = roleIntent
         ? BUILDER_INTENTS.has(roleIntent)
         : false
 
-      const shouldSendWelcomeEmail = IS_PROD || process.env.NODE_ENV === "test"
-      const configuredBaseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim()
+      const subscriber = {
+        subscriberId: userId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avatar: clerkUser.imageUrl ?? null,
+      }
 
-      if (!shouldSendWelcomeEmail || !configuredBaseUrl) {
-        console.info("Skipping onboarding welcome email.")
+      const workflow = guardNovuWorkflow(NOVU_WELCOME_WORKFLOW_ID, {
+        label: "welcome user",
+        missingMessage: "[novu] welcome workflow id missing",
+      })
+
+      if (!workflow.ready) {
+        if (workflow.reason === "novu-disabled") {
+          console.info(
+            "Skipping onboarding welcome workflow; Novu not configured.",
+          )
+        }
       } else {
         try {
-          const baseUrl = getAppBaseUrl()
-          const emailProps = {
-            firstName: user.firstName,
-            dashboardUrl: `${baseUrl}${MEMBER_OVERVIEW_PATH}`,
-            isBuilder: isBuilderIntent,
-            leaderboardUrl: `${baseUrl}${LEADERBOARD_PATH}`,
-            monthlyUrl: `${baseUrl}${LEADERBOARD_MONTHLY_PATH}`,
-            guideUrl: `${baseUrl}${LEADERBOARD_GUIDE_PATH}`,
-            feedbackUrl: `${baseUrl}${MEMBER_FEEDBACK_PATH}`,
-            rewardsUrl: `${baseUrl}${REWARDS_PATH}`,
+          const baseUrl = resolveSiteUrl()
+          const links = {
+            dashboard: `${baseUrl}${MEMBER_OVERVIEW_PATH}`,
+            leaderboard: `${baseUrl}${LEADERBOARD_PATH}`,
+            monthly: `${baseUrl}${LEADERBOARD_MONTHLY_PATH}`,
+            guide: `${baseUrl}${LEADERBOARD_GUIDE_PATH}`,
+            feedback: `${baseUrl}${MEMBER_FEEDBACK_PATH}`,
+            rewards: `${baseUrl}${REWARDS_PATH}`,
+          }
+          const payload = {
+            notification: {
+              kind: "welcome_user",
+              subject: WELCOME_SUBJECT,
+              message: `You’re in. Set up your product, publish when ready, and start getting discovered on ${siteConfig.name}.`,
+              timestamp: new Date().toISOString(),
+            },
+            onboarding: {
+              firstName: user.firstName ?? null,
+              isBuilder: isBuilderIntent,
+            },
+            links,
+            tags: ["welcome"],
           }
 
-          await sendEmail({
-            to: user.email,
-            subject: WELCOME_EMAIL_SUBJECT,
-            react: WelcomeEmail(emailProps),
-            text: buildWelcomeTextBody(emailProps),
+          await triggerNovuWorkflow({
+            workflowId: workflow.workflowId,
+            subscriber,
+            payload,
           })
         } catch (error) {
-          console.error("Failed to send onboarding welcome email:", error)
+          console.error("Failed to trigger onboarding welcome workflow:", error)
         }
       }
     }

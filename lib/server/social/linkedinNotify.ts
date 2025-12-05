@@ -1,5 +1,4 @@
 import { siteConfig } from "@/lib/siteConfig"
-import { sendEmail } from "@/lib/email/resend"
 import { getAppBaseUrl } from "@/lib/email/utils"
 import {
   buildLinkedInAuthRequest,
@@ -7,6 +6,7 @@ import {
 } from "@/lib/server/social/linkedinAuth"
 import { buildCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
+import { sendSystemUpdateNotification } from "@/lib/server/notifications/novuAdmin"
 
 const MIN_NOTIFY_INTERVAL_MS = 30 * 60 * 1000 // 30 minutes
 const NOTIFY_THROTTLE_KEY = buildCacheKey("linkedin", "auth-notify", "last")
@@ -99,15 +99,25 @@ export async function notifyLinkedInAuthNeeded(
   ].filter(Boolean) as string[]
 
   try {
-    await sendEmail({
-      to: [adminEmail],
-      subject: "LinkedIn OAuth approval needed",
-      text: lines.join("\n"),
+    await sendSystemUpdateNotification({
+      recipient: {
+        subscriberId: adminEmail,
+        email: adminEmail,
+      },
+      payload: {
+        subject: "LinkedIn OAuth approval needed",
+        html: lines
+          .map((line) => `<p style="margin:0 0 12px">${line}</p>`)
+          .join(""),
+        segment: "ops",
+        tags: ["system-updates", "ops", "linkedin"],
+      },
+      transactionId: `system_update:linkedin_auth_alert:${options.trigger ?? "unknown"}`,
     })
     await recordNotificationTimestamp()
     return { sent: true, adminEmail, authUrl }
   } catch (error) {
-    console.error("[linkedin] failed to send auth email", error)
+    console.error("[novu] failed to send LinkedIn auth alert", error)
     return { sent: false, reason: "email-failed" }
   }
 }

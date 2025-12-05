@@ -47,3 +47,6 @@ config/reddit-bot.config.json
 scripts/service-account.json
 cypress/screenshots
 .env*.local
+bot/venv
+bot/*.sh
+bot/*.json

@@ -9,14 +9,6 @@ export async function registerEventHandlers(): Promise<void> {
       load: () => import("@/lib/server/productInsights/initialPipeline"),
     },
     {
-      path: "@/lib/server/email/productVoteMilestone",
-      load: () => import("@/lib/server/email/productVoteMilestone"),
-    },
-    {
-      path: "@/lib/server/email/backlinkVerifiedReward",
-      load: () => import("@/lib/server/email/backlinkVerifiedReward"),
-    },
-    {
       path: "@/lib/server/rewards/listeners",
       load: () => import("@/lib/server/rewards/listeners"),
     },
@@ -27,10 +19,6 @@ export async function registerEventHandlers(): Promise<void> {
     {
       path: "@/lib/server/rewards/engagement",
       load: () => import("@/lib/server/rewards/engagement"),
-    },
-    {
-      path: "@/lib/server/notifications/listeners",
-      load: () => import("@/lib/server/notifications/listeners"),
     },
     {
       path: "@/lib/server/social/twitterBot",

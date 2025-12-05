@@ -1,5 +1,4 @@
 import prisma from "@/lib/prisma"
-import MonthlyWinnerEmail from "@/lib/email/templates/leaderboard/monthlyWinner"
 import { getAppBaseUrl } from "@/lib/email/utils"
 import { monthlyLeaderboardArchivePath, productPath } from "@/lib/routes"
 import { revalidateBadges, revalidateProduct } from "@/lib/cache/revalidate"
@@ -12,7 +11,12 @@ import {
 import { normalizeMonth, toMonthKey } from "@/lib/server/leaderboard/months"
 import { getIsoWeekYearAndNumber } from "@/lib/server/leaderboard/weeks"
 import { normalizeTwitterHandle } from "@/lib/server/social/shared"
-import { sendEmail } from "@/lib/email/resend"
+import { sendMonthlyLeaderboardWinnerNotification } from "@/lib/server/notifications/novuLeaderboard"
+import {
+  broadcastProductOfDayWinnerToNovu,
+  broadcastProductOfWeekWinnerToNovu,
+  broadcastProductOfMonthWinnerToNovu,
+} from "@/lib/server/notifications/novuProduct"
 
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -244,6 +248,7 @@ type WinnerProduct = {
   id: string
   name: string
   slug: string
+  tagline: string | null
   planId: string | null
   planAssignedAt: Date | null
   plan: {
@@ -425,6 +430,7 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
           id: true,
           name: true,
           slug: true,
+          tagline: true,
           planId: true,
           planAssignedAt: true,
           plan: {
@@ -466,18 +472,43 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
     const email = product?.user?.email
     if (!product || !email) continue
 
-    await sendEmail({
-      to: email,
-      subject: `${product.name} ranked #${entry.rank} in ${monthLabel}`,
-      react: MonthlyWinnerEmail({
+    const leaderboardUrl = getLeaderboardUrl(monthKey)
+    const productUrl = getProductUrl(product.slug)
+    let delivered = false
+
+    try {
+      await sendMonthlyLeaderboardWinnerNotification({
+        recipient: {
+          subscriberId: product.user?.email?.toLowerCase() ?? email,
+          email,
+        },
+        productId: product.id,
+        productSlug: product.slug,
         productName: product.name,
+        monthKey,
         monthLabel,
         rank: entry.rank,
-        productUrl: getProductUrl(product.slug),
-        leaderboardUrl: getLeaderboardUrl(monthKey),
-      }),
-    })
-    recipients.push(email)
+        topThree: topThree.map((winner: (typeof topThree)[number]) => ({
+          rank: winner.rank,
+          productId: (winner.product as WinnerProduct).id,
+          productSlug: (winner.product as WinnerProduct).slug,
+          productName: (winner.product as WinnerProduct).name,
+        })),
+        leaderboardUrl,
+        productUrl,
+      })
+      delivered = true
+    } catch (error) {
+      console.error("[novu] leaderboard winner notification failed", {
+        email,
+        productId: product.id,
+        error,
+      })
+    }
+
+    if (delivered) {
+      recipients.push(email)
+    }
   }
 
   const winnerProduct = topThree[0]?.product as WinnerProduct | undefined
@@ -520,6 +551,28 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
       },
       { context: { monthKey } },
     )
+
+    const topWinner = topThree[0]?.product as WinnerProduct | undefined
+    if (topWinner) {
+      const broadcast = await broadcastProductOfMonthWinnerToNovu({
+        periodKey: monthKey,
+        periodLabel: monthLabel,
+        leaderboardUrl: getLeaderboardUrl(monthKey),
+        product: {
+          id: topWinner.id,
+          slug: topWinner.slug,
+          name: topWinner.name,
+          tagline: topWinner.tagline ?? "",
+        },
+      })
+
+      console.info("[novu] product of the month broadcast", {
+        periodKey: monthKey,
+        sent: broadcast.sent,
+        total: broadcast.total,
+        reason: broadcast.reason,
+      })
+    }
   }
 
   await prisma.monthlyLeaderboardNotification.create({
@@ -538,6 +591,7 @@ export async function announceLeaderboardPeriodWinners(options: {
   period: PeriodCadence
   limit?: number
   now?: Date
+  leaderboardUrl?: string
 }) {
   const period = options.period
   const limit = options.limit ?? 3
@@ -590,6 +644,7 @@ export async function announceLeaderboardPeriodWinners(options: {
       id: true,
       name: true,
       slug: true,
+      tagline: true,
       metadata: { select: { twitterUrl: true } },
     },
   })
@@ -622,6 +677,10 @@ export async function announceLeaderboardPeriodWinners(options: {
     }
   }
 
+  const leaderboardUrl =
+    options.leaderboardUrl ??
+    buildPeriodicLeaderboardUrl(period, periodStart).replace(/\/+$/, "")
+
   await assignWinnerBadges({
     period,
     periodStart,
@@ -638,7 +697,7 @@ export async function announceLeaderboardPeriodWinners(options: {
       period,
       periodKey,
       periodLabel,
-      leaderboardUrl: buildPeriodicLeaderboardUrl(period, periodStart),
+      leaderboardUrl,
       window: {
         start: periodStart.toISOString(),
         end: periodEnd.toISOString(),
@@ -647,6 +706,54 @@ export async function announceLeaderboardPeriodWinners(options: {
     },
     { context: { period, periodKey } },
   )
+
+  if (period === "day") {
+    const productOfDay = winnersForEvent.find((winner) => winner.rank === 1)
+    if (productOfDay) {
+      const productDetails = productMap.get(productOfDay.productId)
+      const broadcast = await broadcastProductOfDayWinnerToNovu({
+        periodKey,
+        periodLabel,
+        leaderboardUrl,
+        product: {
+          id: productOfDay.productId,
+          slug: productOfDay.slug,
+          name: productOfDay.name,
+          tagline: productDetails?.tagline ?? "",
+        },
+      })
+      console.info("[novu] product of the day broadcast", {
+        periodKey,
+        sent: broadcast.sent,
+        total: broadcast.total,
+        reason: broadcast.reason,
+      })
+    }
+  }
+
+  if (period === "week") {
+    const productOfWeek = winnersForEvent.find((winner) => winner.rank === 1)
+    if (productOfWeek) {
+      const productDetails = productMap.get(productOfWeek.productId)
+      const broadcast = await broadcastProductOfWeekWinnerToNovu({
+        periodKey,
+        periodLabel,
+        leaderboardUrl,
+        product: {
+          id: productOfWeek.productId,
+          slug: productOfWeek.slug,
+          name: productOfWeek.name,
+          tagline: productDetails?.tagline ?? "",
+        },
+      })
+      console.info("[novu] product of the week broadcast", {
+        periodKey,
+        sent: broadcast.sent,
+        total: broadcast.total,
+        reason: broadcast.reason,
+      })
+    }
+  }
 
   return {
     notified: winnersForEvent.length,

@@ -5,11 +5,8 @@ import { useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
-import Link from "next/link"
-
 import {
   NotificationSegment,
-  SegmentCounts,
   SendNotificationResponse,
   NotificationUser,
   getSegmentPreviewRecipient,
@@ -42,19 +39,8 @@ import { Checkbox } from "@/components/atoms/checkbox"
 import { deriveFirstNameFromEmail } from "@/lib/email/personalization"
 import AdminEmailPreview from "./preview"
 import PreviewSkeleton from "./preview-skeleton"
-import { adminPath } from "@/lib/routes"
 
-const SEGMENT_SCHEMA = z.enum([
-  "registered",
-  "builders",
-  "explorers",
-  "withProducts",
-  "withoutProducts",
-  "buildersWithProducts",
-  "buildersWithoutProducts",
-  "explorersWithoutProducts",
-  "selected",
-])
+const SEGMENT_SCHEMA = z.enum(["all", "selected"])
 
 const formSchema = z
   .object({
@@ -85,18 +71,13 @@ type SegmentOption = {
   value: NotificationSegment
   label: string
   blurb: string
-  count?: number
 }
 
 type NotificationCenterProps = {
-  segmentCounts: SegmentCounts
   users: NotificationUser[]
 }
 
-export default function NotificationCenter({
-  segmentCounts,
-  users,
-}: NotificationCenterProps) {
+export default function NotificationCenter({ users }: NotificationCenterProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [invalidEmails, setInvalidEmails] = useState<string[]>([])
   const [failedRecipients, setFailedRecipients] = useState<
@@ -107,18 +88,11 @@ export default function NotificationCenter({
     firstName: string | null
   } | null>(null)
   const [isPreviewLoading, setIsPreviewLoading] = useState(false)
-  const [summaryStats, setSummaryStats] = useState<{
-    totalRecipients: number
-    sent: number
-    failed: number
-    sentPercentage: number
-    failedPercentage: number
-  } | null>(null)
 
   const form = useForm<NotificationFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      segment: "registered",
+      segment: "all",
       subject: "",
       message: "",
       selectedUserIds: [],
@@ -128,53 +102,9 @@ export default function NotificationCenter({
   const segmentOptions = useMemo<SegmentOption[]>(
     () => [
       {
-        value: "registered",
-        label: "All registered users",
-        blurb: "Reach every active member in the Harbor.",
-        count: segmentCounts.registered,
-      },
-      {
-        value: "builders",
-        label: "Builders",
-        blurb: "People who joined to launch or manage products.",
-        count: segmentCounts.builders,
-      },
-      {
-        value: "buildersWithProducts",
-        label: "Builders with products",
-        blurb:
-          "Builders who already shipped something and can handle advanced updates.",
-        count: segmentCounts.buildersWithProducts,
-      },
-      {
-        value: "buildersWithoutProducts",
-        label: "Builders without products",
-        blurb: "Builders still gearing up for their first launch.",
-        count: segmentCounts.buildersWithoutProducts,
-      },
-      {
-        value: "explorers",
-        label: "Explorers",
-        blurb: "Members browsing the community for inspiration.",
-        count: segmentCounts.explorers,
-      },
-      {
-        value: "explorersWithoutProducts",
-        label: "Explorers without products",
-        blurb: "Explorers who have yet to list anything in the Harbor.",
-        count: segmentCounts.explorersWithoutProducts,
-      },
-      {
-        value: "withProducts",
-        label: "With products",
-        blurb: "Makers who already listed at least one product.",
-        count: segmentCounts.withProducts,
-      },
-      {
-        value: "withoutProducts",
-        label: "Without products",
-        blurb: "Members who have not shipped anything yet.",
-        count: segmentCounts.withoutProducts,
+        value: "all",
+        label: "All subscribers",
+        blurb: "Everyone opted in to Shipyard updates.",
       },
       {
         value: "selected",
@@ -182,14 +112,14 @@ export default function NotificationCenter({
         blurb: "Hand-pick one or more members to receive this message.",
       },
     ],
-    [segmentCounts],
+    [],
   )
 
   const selectedSegment =
     useWatch<NotificationFormValues, "segment">({
       control: form.control,
       name: "segment",
-    }) ?? "registered"
+    }) ?? "all"
   const selectedUserIds =
     useWatch<NotificationFormValues, "selectedUserIds">({
       control: form.control,
@@ -268,7 +198,6 @@ export default function NotificationCenter({
     setIsSubmitting(true)
     setInvalidEmails([])
     setFailedRecipients([])
-    setSummaryStats(null)
 
     const payload = new FormData()
     payload.append("segment", values.segment)
@@ -306,19 +235,12 @@ export default function NotificationCenter({
     const summary = response.summary
     setInvalidEmails(summary.invalidEmails ?? [])
     setFailedRecipients(summary.failed)
-    setSummaryStats({
-      totalRecipients: summary.totalRecipients,
-      sent: summary.sent,
-      failed: summary.failed.length,
-      sentPercentage: summary.sentPercentage,
-      failedPercentage: summary.failedPercentage,
-    })
 
     const successCount = summary.sent
     const failCount = summary.failed.length
 
     if (successCount > 0) {
-      const suffix = successCount === 1 ? "email" : "emails"
+      const suffix = successCount === 1 ? "notification" : "notifications"
       toast.success(
         `Sent ${successCount} ${suffix}. ${summary.sentPercentage}% success.`,
       )
@@ -326,8 +248,8 @@ export default function NotificationCenter({
     if (failCount > 0) {
       toast.warning(
         failCount === 1
-          ? "One email failed to send. Check the delivery details below."
-          : `${failCount} emails failed to send. Check the delivery details below.`,
+          ? "One notification failed to send. Check the delivery details below."
+          : `${failCount} notifications failed to send. Check the delivery details below.`,
       )
     }
   }
@@ -340,11 +262,6 @@ export default function NotificationCenter({
             title="Notification Center"
             description="Send on-demand announcements to the right members."
           />
-          <Button asChild variant="outline">
-            <Link href={adminPath("notifications", "outreach")}>
-              Builder outreach
-            </Link>
-          </Button>
         </div>
         <Separator />
         <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
@@ -353,7 +270,7 @@ export default function NotificationCenter({
               <CardTitle>Compose message</CardTitle>
               <CardDescription>
                 Pick a recipient group, craft your note, and Shipyard will
-                deliver it via Resend.
+                deliver it via Novu (in-app + email).
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -375,17 +292,12 @@ export default function NotificationCenter({
                           {segmentOptions.map((option) => {
                             const isActive = selectedSegment === option.value
                             const labelId = `segment-${option.value}`
-                            let badgeLabel: string
-                            if (typeof option.count === "number") {
-                              badgeLabel = `${option.count} recipients`
-                            } else if (option.value === "selected") {
-                              badgeLabel =
-                                selectedUserIds.length > 0
+                            const badgeLabel =
+                              option.value === "selected"
+                                ? selectedUserIds.length > 0
                                   ? `${selectedUserIds.length} selected`
                                   : "Pick members"
-                            } else {
-                              badgeLabel = "Segment"
-                            }
+                                : "Segment"
                             return (
                               <button
                                 key={option.value}
@@ -548,7 +460,7 @@ export default function NotificationCenter({
                       disabled={isSubmitting}
                       className="min-w-[150px]"
                     >
-                      {isSubmitting ? "Sending..." : "Send email"}
+                      {isSubmitting ? "Sending..." : "Send notification"}
                     </Button>
                   </div>
                 </form>
@@ -561,7 +473,8 @@ export default function NotificationCenter({
               <CardHeader>
                 <CardTitle>Email preview</CardTitle>
                 <CardDescription>
-                  Live rendering of the Resend template with your content.
+                  Live rendering of the broadcast email template with your
+                  content.
                 </CardDescription>
               </CardHeader>
               <CardContent className="max-h-[32rem] overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-0">
@@ -602,33 +515,6 @@ export default function NotificationCenter({
                     </li>
                   ))}
                 </ul>
-              </div>
-            ) : null}
-            {summaryStats ? (
-              <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Delivery summary
-                </p>
-                <dl className="grid grid-cols-2 gap-3">
-                  <div>
-                    <dt className="text-xs text-slate-500">Total recipients</dt>
-                    <dd className="text-base font-semibold text-slate-900">
-                      {summaryStats.totalRecipients}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-slate-500">Sent</dt>
-                    <dd className="text-base font-semibold text-emerald-600">
-                      {summaryStats.sent} ({summaryStats.sentPercentage}%)
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-slate-500">Failed</dt>
-                    <dd className="text-base font-semibold text-rose-600">
-                      {summaryStats.failed} ({summaryStats.failedPercentage}%)
-                    </dd>
-                  </div>
-                </dl>
               </div>
             ) : null}
           </div>

@@ -1,25 +1,36 @@
 "use client"
 
-import { Controller, useForm, useWatch } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useRouter } from "next/navigation"
 import { completeOnboarding } from "@/actions/member/onboarding/actions"
 import { toast } from "sonner"
 import { useTransition } from "react"
+import {
+  IconBrandDiscord,
+  IconBrandGoogle,
+  IconBrandProducthunt,
+  IconBrandReddit,
+  IconBrandFacebook,
+  IconBrandLinkedin,
+  IconBrandX,
+  IconCompass,
+  IconDots,
+  IconNews,
+  IconRocket,
+  IconUsers,
+  IconUsersGroup,
+} from "@tabler/icons-react"
 
 import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
   CardFooter,
 } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
-import { Label } from "@/components/atoms/label"
-import { Checkbox } from "@/components/atoms/checkbox"
-import { Separator } from "@/components/atoms/separator"
 import { cn } from "@/lib/utils"
 import { ADMIN_BASE_PATH } from "@/lib/routes"
 import {
@@ -32,37 +43,36 @@ const roleIntentOptions = [
   {
     label: "Launch a product",
     value: "launch-product",
-    blurb:
-      "Spin up a launch plan, highlight milestones, and track early adopters.",
+    icon: IconRocket,
   },
   {
     label: "Manage a team",
     value: "manage-team",
-    blurb:
-      "Coordinate your crew with shared dashboards and smoother workflows.",
+    icon: IconUsersGroup,
   },
   {
     label: "Just exploring",
     value: "explore",
-    blurb: "Preview the harbor before you commit, no strings attached.",
+    icon: IconCompass,
   },
 ]
 
 const heardFromOptions = [
-  { label: "Twitter/X", value: "twitter" },
-  { label: "Reddit", value: "reddit" },
-  { label: "Product Hunt", value: "producthunt" },
-  { label: "Hacker News", value: "hackernews" },
-  { label: "Google", value: "google" },
-  { label: "Discord", value: "discord" },
-  { label: "Friend or colleague", value: "friend" },
-  { label: "Other", value: "other" },
+  { label: "Twitter/X", value: "twitter", icon: IconBrandX },
+  { label: "Reddit", value: "reddit", icon: IconBrandReddit },
+  { label: "Product Hunt", value: "producthunt", icon: IconBrandProducthunt },
+  { label: "Hacker News", value: "hackernews", icon: IconNews },
+  { label: "Google", value: "google", icon: IconBrandGoogle },
+  { label: "Discord", value: "discord", icon: IconBrandDiscord },
+  { label: "Friend or colleague", value: "friend", icon: IconUsers },
+  { label: "LinkedIn", value: "linkedin", icon: IconBrandLinkedin },
+  { label: "Facebook", value: "facebook", icon: IconBrandFacebook },
+  { label: "Other", value: "other", icon: IconDots },
 ]
 
 const onboardingSchema = z.object({
   roleIntent: z.string().min(1, "Please select your intent"),
   heardFrom: z.string().min(1, "Please select an option"),
-  newsletterOptIn: z.boolean().default(true),
 })
 
 type OnboardingFormInput = z.input<typeof onboardingSchema>
@@ -84,7 +94,6 @@ export function OnboardingForm({
     defaultValues: {
       roleIntent: "",
       heardFrom: "",
-      newsletterOptIn: true,
     },
   })
 
@@ -152,32 +161,26 @@ export function OnboardingForm({
   const isBusy = isSubmitting || isNavigating
 
   return (
-    <div className="flex h-full items-center justify-center py-6">
-      <Card className="mx-auto w-full max-w-2xl rounded-[26px] border-slate-200/75 bg-white/95 px-0 shadow-[0_24px_60px_-40px_rgba(15,23,42,0.45)] backdrop-blur lg:max-w-3xl">
-        <CardHeader className="space-y-2 px-8 pt-6">
-          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-sky-200/70 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.32em] text-sky-700">
-            Welcome aboard
-          </span>
-          <CardTitle className="text-3xl font-semibold tracking-tight text-slate-900">
-            {firstName
-              ? `Hi ${firstName}, let's personalize things`
-              : "Let's personalize things"}
+    <div className="flex min-h-[100dvh] items-center justify-center overflow-hidden px-4 lg:px-10">
+      <Card className="relative w-full max-w-3xl overflow-hidden border-slate-200/80 bg-white shadow-[0_22px_70px_-45px_rgba(15,23,42,0.55)]">
+        <CardHeader className="space-y-3 border-b border-slate-100 px-8 pb-6 pt-8">
+          <CardTitle className="flex items-center gap-2 text-3xl font-semibold tracking-tight text-slate-900">
+            <span aria-hidden>⛵️</span>
+            <span>
+              {firstName ? `Welcome, ${firstName}` : "Set up your workspace"}
+            </span>
           </CardTitle>
-          <CardDescription className="max-w-xl text-slate-600">
-            Answer a few quick questions so we can tailor dashboards,
-            checklists, and partner perks for your crew.
-          </CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          <CardContent className="space-y-8 px-8 pb-0">
-            <fieldset className="space-y-4">
-              <legend className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-500">
-                Mission focus
+          <CardContent className="space-y-8 px-8 pb-0 pt-6">
+            <fieldset className="space-y-2">
+              <legend className="text-base font-semibold text-slate-700">
+                What brings you here?
               </legend>
               <input type="hidden" {...register("roleIntent")} />
-              <div className="grid gap-3 sm:grid-cols-3">
-                {roleIntentOptions.map(({ value, label, blurb }) => {
+              <div className="flex flex-wrap gap-2">
+                {roleIntentOptions.map(({ value, label, icon: Icon }) => {
                   const active = roleIntent === value
 
                   return (
@@ -185,22 +188,28 @@ export function OnboardingForm({
                       key={value}
                       type="button"
                       className={cn(
-                        "flex h-full cursor-pointer flex-col rounded-2xl border border-slate-200/80 bg-white px-4 py-4 text-left transition-all hover:border-sky-300 hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200",
-                        active &&
-                          "border-sky-400 bg-sky-50 shadow-[0_18px_45px_-35px_rgba(56,189,248,0.65)]",
+                        "group inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold transition cursor-pointer",
+                        active
+                          ? "border-sky-300 bg-sky-50 text-slate-900 shadow-sm"
+                          : "border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50",
                       )}
                       onClick={() =>
                         setValue("roleIntent", value, { shouldValidate: true })
                       }
                     >
-                      <span className="text-base font-semibold text-slate-900">
-                        {label}
-                      </span>
-                      {blurb ? (
-                        <span className="mt-2 text-sm text-slate-500">
-                          {blurb}
+                      {Icon ? (
+                        <span
+                          className={cn(
+                            "flex size-8 items-center justify-center rounded-full",
+                            active
+                              ? "bg-sky-100 text-sky-800"
+                              : "bg-slate-100 text-slate-700",
+                          )}
+                        >
+                          <Icon className="size-4" aria-hidden />
                         </span>
                       ) : null}
+                      <span>{label}</span>
                     </button>
                   )
                 })}
@@ -212,13 +221,13 @@ export function OnboardingForm({
               ) : null}
             </fieldset>
 
-            <fieldset className="space-y-4">
-              <legend className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-500">
-                How you found us
+            <fieldset className="space-y-2">
+              <legend className="text-base font-semibold text-slate-700">
+                How you found us?
               </legend>
               <input type="hidden" {...register("heardFrom")} />
-              <div className="flex flex-wrap justify-center gap-2.5">
-                {heardFromOptions.map(({ value, label }) => {
+              <div className="flex flex-wrap gap-2">
+                {heardFromOptions.map(({ value, label, icon: Icon }) => {
                   const active = heardFrom === value
 
                   return (
@@ -226,15 +235,28 @@ export function OnboardingForm({
                       key={value}
                       type="button"
                       className={cn(
-                        "cursor-pointer rounded-full border border-slate-200/80 px-4 py-2 text-sm font-medium text-slate-600 transition-all hover:border-sky-300 hover:bg-sky-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200",
-                        active &&
-                          "border-sky-400 bg-sky-100 text-slate-900 shadow-[0_16px_40px_-30px_rgba(56,189,248,0.55)]",
+                        "group inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition cursor-pointer",
+                        active
+                          ? "border-sky-300 bg-sky-50 text-slate-900 shadow-sm"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900",
                       )}
                       onClick={() =>
                         setValue("heardFrom", value, { shouldValidate: true })
                       }
                     >
-                      {label}
+                      {Icon ? (
+                        <span
+                          className={cn(
+                            "flex size-7 items-center justify-center rounded-full",
+                            active
+                              ? "bg-sky-100 text-sky-800"
+                              : "bg-slate-100 text-slate-700",
+                          )}
+                        >
+                          <Icon className="size-4" aria-hidden />
+                        </span>
+                      ) : null}
+                      <span>{label}</span>
                     </button>
                   )
                 })}
@@ -245,43 +267,15 @@ export function OnboardingForm({
                 </p>
               ) : null}
             </fieldset>
-
-            <Separator className="bg-slate-200/80" />
-
-            <div className="flex flex-col gap-5">
-              <div className="flex items-start gap-3.5">
-                <Controller
-                  control={control}
-                  name="newsletterOptIn"
-                  render={({ field }) => (
-                    <Checkbox
-                      id="newsletterOptIn"
-                      checked={field.value ?? true}
-                      onCheckedChange={(checked) =>
-                        field.onChange(checked === true)
-                      }
-                      onBlur={field.onBlur}
-                      className="border-slate-300/90 bg-white data-[state=checked]:border-sky-400 data-[state=checked]:bg-sky-100 data-[state=checked]:text-slate-900"
-                    />
-                  )}
-                />
-                <Label
-                  htmlFor="newsletterOptIn"
-                  className="text-sm leading-relaxed text-slate-600"
-                >
-                  Keep me aboard the Captain&apos;s Log with launch alerts.
-                </Label>
-              </div>
-            </div>
           </CardContent>
 
-          <CardFooter className="flex flex-col gap-3 px-8 pb-8 pt-2">
+          <CardFooter className="flex flex-col gap-2 px-8 pb-8 pt-2">
             <Button
               type="submit"
-              className="w-full rounded-full bg-sky-500 px-6 py-3 text-base font-semibold text-white shadow-[0_22px_45px_-25px_rgba(56,189,248,0.65)] transition hover:bg-sky-400 focus-visible:ring-sky-200 disabled:opacity-60"
+              className="w-full rounded-xl bg-slate-900 px-6 py-3 text-base font-semibold text-white transition hover:bg-slate-800 focus-visible:ring-slate-900/20 disabled:opacity-60"
               disabled={isBusy || !canSubmit}
             >
-              {isBusy ? "Hoisting sails..." : "Complete Onboarding"}
+              {isBusy ? "Saving..." : "Finish setup"}
             </Button>
           </CardFooter>
         </form>

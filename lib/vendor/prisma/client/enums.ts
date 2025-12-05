@@ -144,17 +144,6 @@ export const DeviceCategory = {
 export type DeviceCategory = (typeof DeviceCategory)[keyof typeof DeviceCategory]
 
 
-export const NotificationType = {
-  product_upvote: 'product_upvote',
-  product_review: 'product_review',
-  reward_awarded: 'reward_awarded',
-  system: 'system',
-  product_update: 'product_update'
-} as const
-
-export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
-
-
 export const UserStatus = {
   active: 'active',
   suspended: 'suspended',

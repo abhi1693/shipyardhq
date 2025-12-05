@@ -9,12 +9,13 @@ import {
   insightProfileSelect,
   serializeInsightProfile,
 } from "@/lib/server/productInsights/profile"
+import { sendProductNotificationToNovu } from "@/lib/server/notifications/novuProduct"
 import {
   PRODUCT_INSIGHT_STAGE_DEFINITIONS,
   PRODUCT_INSIGHT_STAGE_MAP,
   PRODUCT_INSIGHT_STAGE_SET_MAP,
 } from "@/lib/server/productInsights/stages"
-import { sendProductInsightInsightsReadyEmail } from "@/lib/server/email/productInsightsReady"
+import { memberProductInsightsPath, productPath } from "@/lib/routes"
 import type {
   ProductInsightProductContext,
   ProductInsightSummary,
@@ -269,6 +270,9 @@ async function loadProductWithOwner(productId: string) {
       user: {
         select: {
           id: true,
+          clerkId: true,
+          firstName: true,
+          lastName: true,
           email: true,
         },
       },
@@ -642,18 +646,52 @@ export async function runProductInsightPipeline(job: {
   }
 
   if (job.notifyOnCompletion !== false) {
-    await sendProductInsightInsightsReadyEmail({
-      productId: productRecord.id,
-      productSlug: productRecord.slug,
-      productName: productRecord.name,
-      recipientEmail: productRecord.user!.email!,
-      profile: finalProfile,
-    })
+    const subscriberId = productRecord.user?.clerkId?.trim()
+    if (subscriberId) {
+      const memberInsightsLink =
+        productRecord.slug && productRecord.slug.length > 0
+          ? memberProductInsightsPath(productRecord.slug)
+          : null
+      const transactionId = `product_insights_ready:${profileRef.id}:${Date.now()}`
 
-    console.info("[productInsights:pipeline] insights email dispatched", {
-      productId: productRecord.id,
-      recipient: productRecord.user!.email,
-    })
+      await sendProductNotificationToNovu({
+        kind: "product_insights_ready",
+        message: `${productRecord.name} insights are ready.`,
+        subject: `Insights ready for ${productRecord.name}`,
+        recipient: {
+          subscriberId,
+          firstName: productRecord.user?.firstName ?? null,
+          lastName: productRecord.user?.lastName ?? null,
+          email: productRecord.user?.email ?? null,
+        },
+        product: {
+          id: productRecord.id,
+          slug: productRecord.slug,
+          name: productRecord.name,
+        },
+        links: {
+          member: memberInsightsLink,
+          public:
+            productRecord.slug && productRecord.slug.length > 0
+              ? productPath(productRecord.slug)
+              : null,
+        },
+        context: {
+          product_insights_ready: {
+            profileId: profileRef.id,
+            productId: productRecord.id,
+            completedAt: new Date().toISOString(),
+          },
+        },
+        transactionId,
+        tags: ["product-notifications", "insights"],
+      })
+    } else {
+      console.warn("[novu] skip insights notification due to missing clerkId", {
+        productId: productRecord.id,
+        userId: productRecord.user?.id,
+      })
+    }
   }
 
   return {

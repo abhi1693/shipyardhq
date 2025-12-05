@@ -4,6 +4,10 @@ import { type User as ClerkUser } from "@clerk/backend"
 import prisma from "@/lib/prisma"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { invalidateActiveUserCache } from "@/lib/server/userStatus"
+import {
+  ensureNovuSubscriber,
+  isNovuEnabled,
+} from "@/lib/server/notifications/novu"
 
 export async function syncUserFromClerk(clerkUser: ClerkUser) {
   const email = clerkUser.emailAddresses[0]?.emailAddress
@@ -28,7 +32,27 @@ export async function syncUserFromClerk(clerkUser: ClerkUser) {
       firstName,
       lastName,
     },
+    select: {
+      id: true,
+    },
   })
+
+  if (isNovuEnabled()) {
+    try {
+      await ensureNovuSubscriber({
+        subscriberId: clerkUser.id,
+        email,
+        firstName,
+        lastName,
+        avatar: clerkUser.imageUrl ?? null,
+      })
+    } catch (error) {
+      console.error("[novu] failed to sync subscriber", {
+        error,
+        clerkId: clerkUser.id,
+      })
+    }
+  }
 
   await invalidateActiveUserCache(clerkUser.id)
 }

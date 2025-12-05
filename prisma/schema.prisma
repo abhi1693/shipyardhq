@@ -224,24 +224,6 @@ model MonthlyLeaderboardNotification {
   @@index([updatedAt])
 }
 
-model Notification {
-  id        String           @id @default(cuid())
-  userId    String
-  type      NotificationType
-  message   String
-  metadata  Json?
-  readAt    DateTime?
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, createdAt])
-  @@index([userId, readAt])
-  @@index([createdAt])
-  @@index([updatedAt])
-}
-
 enum ProductType {
   saas
   browser_extension
@@ -553,7 +535,6 @@ model User {
   redemptions             Redemption[]
   featureEntitlements     FeatureEntitlement[]
   productUpdates          ProductUpdate[]
-  notifications           Notification[]
   productClaimAttempts    ProductClaimAttempt[]
 
   @@index([status])
@@ -581,14 +562,6 @@ model ProductReview {
   @@index([userId, createdAt])
   @@index([createdAt])
   @@index([updatedAt])
-}
-
-enum NotificationType {
-  product_upvote
-  product_review
-  reward_awarded
-  system
-  product_update
 }
 
 enum UserStatus {
@@ -679,15 +652,6 @@ model MemberFeedback {
   @@index([userId, createdAt])
   @@index([createdAt])
   @@index([updatedAt])
-}
-
-model NewsletterSubscription {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([createdAt])
 }
 
 model Category {
@@ -947,6 +911,8 @@ model RewardTransaction {
   @@index([userId, createdAt])
   @@index([type])
   @@index([ruleKey])
+  @@index([userId, ruleKey, type, createdAt])
+  @@index([userId, ruleKey, targetId, type, createdAt])
   @@index([rewardKey])
   @@index([productId])
   @@index([eventId])

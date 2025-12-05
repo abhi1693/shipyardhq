@@ -90,24 +90,9 @@ const baseNavItems: NavItem[] = [
     icon: "bell",
     items: [
       {
-        title: "All notifications",
-        url: adminPath("notifications", "notifications"),
-        icon: "list",
-      },
-      {
         title: "Email broadcasts",
         url: adminPath("notifications"),
         icon: "bell",
-      },
-      {
-        title: "Newsletter subscribers",
-        url: adminPath("notifications", "newsletter"),
-        icon: "member",
-      },
-      {
-        title: "Builder outreach",
-        url: adminPath("notifications", "outreach"),
-        icon: "link",
       },
     ],
   },

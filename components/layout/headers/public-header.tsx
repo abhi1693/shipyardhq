@@ -7,7 +7,7 @@ import { Button } from "@/components/atoms/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/atoms/sheet"
 import { Menu, LayoutDashboard, LogOut, UserRound, Rocket } from "lucide-react"
 import SignInCtaButton from "@/components/molecules/SignInCtaButton"
-import NotificationBell from "@/components/molecules/NotificationBell"
+import NovuInbox from "@/components/molecules/NovuInbox"
 import clsx from "clsx"
 import { SignOutButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs"
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
@@ -20,7 +20,6 @@ import {
   MEMBER_BASE_PATH,
   MEMBER_ACCOUNT_PROFILE_PATH,
   MEMBER_REWARDS_PATH,
-  MEMBER_NOTIFICATIONS_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
   REWARDS_PATH,
@@ -169,7 +168,7 @@ export default function PublicHeader() {
           </SignedOut>
           <SignedIn>
             <div className="flex items-center gap-2">
-              <NotificationBell />
+              <NovuInbox />
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -308,13 +307,6 @@ export default function PublicHeader() {
                   </SignedOut>
                   <SignedIn>
                     <div className="flex flex-col gap-2">
-                      <Link
-                        href={MEMBER_NOTIFICATIONS_PATH}
-                        onClick={() => setOpen(false)}
-                        className="inline-flex w-full items-center justify-between rounded-xl border border-border/60 bg-white/80 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted/60"
-                      >
-                        Notifications
-                      </Link>
                       <Link
                         href={MEMBER_REWARDS_PATH}
                         onClick={() => setOpen(false)}

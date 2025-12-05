@@ -7,13 +7,13 @@ import { requireMemberFeature } from "@/lib/memberFeatures"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { ensureUrlHasSchema } from "@/lib/utils"
-import { sendOrganizationMemberInviteEmail } from "@/lib/server/email/organizationMemberInvite"
 import { MEMBER_ORGANIZATIONS_PATH } from "@/lib/routes"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
   requireActiveUserOrRedirect,
 } from "@/lib/server/userStatus"
+import { sendOrganizationInviteNotification } from "@/lib/server/notifications/novuOrganization"
 
 type OrganizationMembershipWithUser = Prisma.OrganizationMembershipGetPayload<{
   include: { user: true }
@@ -232,7 +232,13 @@ export async function addMyOrganizationMemberAction(
       return { error: "Only the owner can add members" }
     const user = await prisma.user.findUnique({
       where: { email },
-      select: { id: true },
+      select: {
+        id: true,
+        email: true,
+        clerkId: true,
+        firstName: true,
+        lastName: true,
+      },
     })
     if (!user) return { error: "User not found. Ask them to sign up first." }
     await prisma.organizationMembership.create({
@@ -240,14 +246,26 @@ export async function addMyOrganizationMemberAction(
     })
 
     try {
-      await sendOrganizationMemberInviteEmail({
-        to: email,
-        organizationId: orgId,
-        organizationName: org.name ?? "your Shipyard organization",
-        inviterName: formatUserName(current),
-      })
+      if (!user.clerkId) {
+        console.warn("[novu] skip organization invite; missing clerkId", {
+          email,
+          orgId,
+        })
+      } else {
+        await sendOrganizationInviteNotification({
+          organizationId: orgId,
+          organizationName: org.name ?? "your Shipyard organization",
+          inviterName: formatUserName(current),
+          invitee: {
+            subscriberId: user.clerkId,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          },
+        })
+      }
     } catch (error) {
-      console.error("Organization invite email failed", error)
+      console.error("Organization invite notification failed", error)
     }
     return { success: true }
   } catch (e: any) {

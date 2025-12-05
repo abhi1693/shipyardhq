@@ -271,7 +271,7 @@ export default function TermsOfServicePage() {
             </h2>
             <p>
               The Service may link to third-party websites or integrate with
-              vendors such as Clerk, Dodo Payments, Resend, OpenAI, or social
+              vendors such as Clerk, Dodo Payments, Novu, OpenAI, or social
               networks. Your use of those services is subject to their own terms
               and privacy policies. We do not control and are not responsible
               for third-party services.

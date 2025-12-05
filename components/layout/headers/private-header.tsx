@@ -2,7 +2,7 @@ import { SidebarTrigger } from "@/components/atoms/sidebar"
 import { Separator } from "@/components/atoms/separator"
 import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
 import { UserNav } from "@/components/layout/user-nav"
-import NotificationBell from "@/components/molecules/NotificationBell"
+import NovuInbox from "@/components/molecules/NovuInbox"
 import { auth } from "@clerk/nextjs/server"
 import { getRewardBalanceByClerkId } from "@/lib/server/rewards/balance"
 
@@ -23,7 +23,7 @@ export default async function PrivateHeader() {
         <Breadcrumbs />
       </div>
       <div className="flex items-center gap-2 px-4">
-        <NotificationBell />
+        <NovuInbox />
         <UserNav rewardBalance={rewardBalance ?? 0} />
       </div>
     </header>

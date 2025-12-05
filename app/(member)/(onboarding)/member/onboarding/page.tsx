@@ -3,7 +3,6 @@
 import { useUser } from "@clerk/nextjs"
 import { useSearchParams } from "next/navigation"
 import AuthViewShell from "@/components/layout/AuthViewShell"
-import OnboardingMarketingPanel from "@/components/organisms/OnboardingMarketingPanel"
 import { OnboardingForm } from "./form"
 
 export default function OnboardingPage() {
@@ -14,8 +13,7 @@ export default function OnboardingPage() {
 
   return (
     <AuthViewShell>
-      <OnboardingMarketingPanel />
-      <div className="flex h-full w-full items-center justify-center px-5 py-10 lg:px-12 lg:py-14">
+      <div className="flex h-full w-full items-center justify-center px-4 lg:col-span-2 lg:px-10">
         <OnboardingForm
           firstName={user?.firstName}
           redirectTo={redirectTo}
