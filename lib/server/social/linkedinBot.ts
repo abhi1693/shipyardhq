@@ -138,8 +138,6 @@ async function handleBadgeAssigned(productId: string, badge: string) {
         id: true,
         name: true,
         slug: true,
-        tagline: true,
-        description: true,
         status: true,
         metadata: {
           select: {
@@ -161,8 +159,6 @@ async function handleBadgeAssigned(productId: string, badge: string) {
     const post = await buildLinkedInBadgePost({
       badge,
       name: product.name,
-      tagline: product.tagline,
-      description: product.description,
       url: getProductUrl(product.slug),
       twitterHandle: extractLinkedInHandle(product.metadata?.twitterUrl),
     })

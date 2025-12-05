@@ -22,6 +22,18 @@ export function extractLinkedInHandle(value?: string | null): string | null {
   return direct.length ? direct : null
 }
 
+function formatHandle(handle?: string | null): string | null {
+  if (!handle) return null
+  const trimmed = handle.trim()
+  if (!trimmed.length) return null
+  return trimmed.startsWith("@") ? trimmed : `@${trimmed}`
+}
+
+function formatDisplayName(name: string, handle?: string | null): string {
+  const normalizedHandle = formatHandle(handle)
+  return normalizedHandle ? `${name} (${normalizedHandle})` : name
+}
+
 export async function buildLinkedInProductLaunchPost(args: {
   name: string
   tagline?: string | null
@@ -45,24 +57,22 @@ const BADGE_COPY: Record<
 > = {
   featured: {
     headline: (name) =>
-      `${name} just earned a Featured spotlight on Shipyard HQ.`,
+      `🌟 ${name} just earned a Featured spotlight on Shipyard HQ.`,
     note: "We highlight the most compelling launches for our community.",
   },
   trending: {
-    headline: (name) => `${name} is trending on Shipyard HQ.`,
+    headline: (name) => `🔥 ${name} is trending on Shipyard HQ.`,
     note: "Momentum is building fast—check out why the community is excited.",
   },
   "editor-pick": {
     headline: (name) =>
-      `${name} was selected as an editor's pick on Shipyard HQ.`,
+      `🧭 ${name} was selected as an editor's pick on Shipyard HQ.`,
   },
 }
 
 export async function buildLinkedInBadgePost(args: {
   badge: string
   name: string
-  tagline?: string | null
-  description?: string | null
   url: string
   twitterHandle?: string | null
 }) {
@@ -71,10 +81,10 @@ export async function buildLinkedInBadgePost(args: {
   }
 
   const copy = BADGE_COPY[args.badge as keyof typeof BADGE_COPY]
+  const displayName = formatDisplayName(args.name, args.twitterHandle)
 
   const lines: Array<string | null | undefined> = [
-    copy.headline(args.name),
-    args.tagline?.trim(),
+    copy.headline(displayName),
     copy.note,
     `See more: ${args.url}`,
   ]
@@ -88,14 +98,24 @@ export async function buildLinkedInLeaderboardPost(args: {
   winners: Array<{ rank: number; name: string; twitterHandle?: string | null }>
 }) {
   const sorted = [...args.winners].sort((a, b) => a.rank - b.rank)
+
+  const rankEmoji = (rank: number): string => {
+    if (rank === 1) return "🥇"
+    if (rank === 2) return "🥈"
+    if (rank === 3) return "🥉"
+    return `#${rank}`
+  }
+
   const intro =
     sorted.length > 0
       ? `Celebrating the ${args.monthLabel} Shipyard HQ leaderboard winners.`
       : `Celebrating builders from ${args.monthLabel} on Shipyard HQ.`
 
-  const topWinners = sorted
-    .slice(0, 5)
-    .map((winner) => `${winner.rank}. ${winner.name}`)
+  const topWinners = sorted.map((winner) => {
+    const handle = formatHandle(winner.twitterHandle)
+    const displayName = handle ? `${winner.name} (${handle})` : winner.name
+    return `${rankEmoji(winner.rank)} ${displayName}`
+  })
 
   const lines: Array<string | null | undefined> = [
     intro,
