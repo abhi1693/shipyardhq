@@ -1,8 +1,3 @@
-import { getOpenAIClient } from "@/lib/server/openai"
-import {
-  coerceJsonText,
-  extractAssistantJson,
-} from "@/lib/server/openaiResponse"
 import {
   formatHandle,
   formatDisplayName,
@@ -10,27 +5,8 @@ import {
   rankEmoji,
 } from "@/lib/server/social/shared"
 
-const MAX_TWEET_LENGTH = 280
+const MAX_TWEET_LENGTH = Number.MAX_SAFE_INTEGER
 const DEFAULT_HASHTAGS = ["ShipyardHQ"]
-const AI_MODEL = "gpt-4.1-mini"
-const TWEET_COPY_SCHEMA = {
-  type: "object",
-  additionalProperties: false,
-  properties: {
-    headline: { type: "string", minLength: 6, maxLength: 220 },
-    body: { type: ["string", "null"], maxLength: 220 },
-  },
-  required: ["headline", "body"],
-} as const
-
-type TweetRewriteContext = {
-  name: string
-  handle?: string | null
-  tagline?: string | null
-  description?: string | null
-  fallbackHeadline: string
-  fallbackBody?: string
-}
 
 type TweetSections = {
   headline: string
@@ -141,95 +117,6 @@ function ensureHandlePresence(
   }
 }
 
-async function rewriteTweetCopyWithAI(
-  context: TweetRewriteContext,
-): Promise<TweetSections | null> {
-  if (!process.env.OPENAI_API_KEY?.trim()) {
-    return null
-  }
-
-  const product = {
-    name: context.name,
-    handle: context.handle ?? null,
-    tagline: context.tagline ?? null,
-    description: context.description
-      ? truncateSegment(context.description, 420)
-      : null,
-  }
-
-  const payload = {
-    summary: `${context.name} just launched on Shipyard HQ.`,
-    product,
-    fallbackCopy: {
-      headline: context.fallbackHeadline,
-      body: context.fallbackBody ?? null,
-    },
-    writingGuidelines: [
-      "Write in a warm, human tone that celebrates indie builders.",
-      "Return exactly two fields: headline and body (set body to null if no copy is needed).",
-      "Do not include URLs, hashtags, or emoji; we add them separately.",
-      "Keep the headline under 140 characters and the body under 120 characters.",
-      context.description
-        ? "Reference the description for extra context, but avoid repeating long phrases verbatim."
-        : null,
-      context.handle
-        ? `Mention the handle exactly as ${context.handle.startsWith("@") ? context.handle : `@${context.handle}`} once. You may also mention the product name.`
-        : "No handle is available; focus on the product's name instead.",
-    ].filter(Boolean),
-  }
-
-  try {
-    const openai = getOpenAIClient()
-    const response = await openai.responses.create({
-      model: AI_MODEL,
-      temperature: 0.6,
-      max_output_tokens: 200,
-      text: {
-        format: {
-          type: "json_schema",
-          name: "shipyard_tweet_copy",
-          schema: TWEET_COPY_SCHEMA,
-        },
-      },
-      input: [
-        {
-          role: "system",
-          content:
-            "You are Shipyard HQ's social media copywriter. Respond with valid JSON matching the provided schema only.",
-        },
-        {
-          role: "user",
-          content: JSON.stringify(payload),
-        },
-      ],
-    } as any)
-
-    const raw = extractAssistantJson(response)
-    const jsonText = coerceJsonText(raw)
-    if (!jsonText) {
-      return null
-    }
-
-    const parsed = JSON.parse(jsonText)
-    const headline =
-      typeof parsed.headline === "string" ? parsed.headline.trim() : ""
-    if (!headline.length) {
-      return null
-    }
-
-    const bodyValue =
-      typeof parsed.body === "string" ? parsed.body.trim() : undefined
-
-    return {
-      headline,
-      body: bodyValue?.length ? bodyValue : undefined,
-    }
-  } catch (error) {
-    console.error("[twitter] AI tweet rewrite failed (launch)", error)
-    return null
-  }
-}
-
 export function composeTweet(parts: TweetParts): string {
   const hashtags = sanitizeHashtags([
     ...DEFAULT_HASHTAGS,
@@ -302,28 +189,17 @@ export async function buildProductLaunchTweet(args: {
       ? `@${args.twitterHandle}`
       : null
   const displayName = handle ? `${args.name} (${handle})` : args.name
-  const fallbackHeadline = `${displayName} just launched on Shipyard HQ!`
-  const fallbackBody = args.tagline?.trim()?.length
-    ? args.tagline.trim()
-    : undefined
-
-  const aiSections = await rewriteTweetCopyWithAI({
-    name: args.name,
-    handle,
-    tagline: args.tagline ?? null,
-    description: args.description ?? null,
-    fallbackHeadline,
-    fallbackBody,
-  })
-
-  const sections = ensureHandlePresence(
-    aiSections ?? { headline: fallbackHeadline, body: fallbackBody },
-    { name: args.name, handle },
-  )
+  const headline = `${displayName} just launched on Shipyard HQ!`
+  const body =
+    args.tagline && args.tagline.trim().length
+      ? args.tagline.trim()
+      : args.description && args.description.trim().length
+        ? truncateSegment(args.description.trim(), 200)
+        : undefined
 
   return composeTweet({
-    headline: sections.headline,
-    body: sections.body,
+    headline,
+    body,
     url: args.url,
     hashtags: ["ProductLaunch", "IndieSaaS"],
   })
