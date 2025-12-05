@@ -5,7 +5,6 @@ import {
   rankEmoji,
 } from "@/lib/server/social/shared"
 
-const MAX_TWEET_LENGTH = Number.MAX_SAFE_INTEGER
 const DEFAULT_HASHTAGS = ["ShipyardHQ"]
 
 type TweetSections = {
@@ -38,14 +37,8 @@ function appendSegment(current: string, segment: string): string {
   }
 
   const separator = current.length ? "\n\n" : ""
-  const available = MAX_TWEET_LENGTH - current.length - separator.length
-  if (available <= 0) {
-    return current
-  }
 
-  const next =
-    trimmed.length <= available ? trimmed : truncateSegment(trimmed, available)
-  return `${current}${separator}${next}`
+  return `${current}${separator}${trimmed}`
 }
 
 function sanitizeHashtags(tags: string[]): string[] {
@@ -126,25 +119,7 @@ export function composeTweet(parts: TweetParts): string {
   let hashtagsText = hashtags.map((tag) => `#${tag}`).join(" ")
   const url = parts.url?.trim() ?? ""
 
-  let reservedTailLength = 0
-  if (url.length) {
-    reservedTailLength += url.length + 1
-  }
-  if (hashtagsText.length) {
-    reservedTailLength += hashtagsText.length + 1
-  }
-
-  if (reservedTailLength > MAX_TWEET_LENGTH && hashtagsText.length) {
-    // Drop hashtags when they would crowd out the URL entirely.
-    hashtagsText = ""
-    reservedTailLength = url.length ? url.length + 1 : 0
-  }
-
-  let headline = parts.headline.trim()
-  const maxHeadlineLength = Math.max(0, MAX_TWEET_LENGTH - reservedTailLength)
-  if (headline.length > maxHeadlineLength) {
-    headline = truncateSegment(headline, maxHeadlineLength)
-  }
+  const headline = parts.headline.trim()
 
   let tweet = ""
   tweet = appendSegment(tweet, headline)
@@ -152,16 +127,7 @@ export function composeTweet(parts: TweetParts): string {
   if (parts.body) {
     const trimmedBody = parts.body.trim()
     if (trimmedBody.length) {
-      const separatorCost = tweet.length ? 1 : 0
-      const availableForBody =
-        MAX_TWEET_LENGTH - tweet.length - reservedTailLength - separatorCost
-      if (availableForBody > 0) {
-        const safeBody =
-          trimmedBody.length <= availableForBody
-            ? trimmedBody
-            : truncateSegment(trimmedBody, availableForBody)
-        tweet = appendSegment(tweet, safeBody)
-      }
+      tweet = appendSegment(tweet, trimmedBody)
     }
   }
 
