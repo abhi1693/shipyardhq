@@ -1,11 +1,7 @@
 import prisma from "@/lib/prisma"
 import MonthlyWinnerEmail from "@/lib/email/templates/leaderboard/monthlyWinner"
 import { getAppBaseUrl } from "@/lib/email/utils"
-import {
-  LEADERBOARD_PATH,
-  monthlyLeaderboardArchivePath,
-  productPath,
-} from "@/lib/routes"
+import { monthlyLeaderboardArchivePath, productPath } from "@/lib/routes"
 import { revalidateBadges, revalidateProduct } from "@/lib/cache/revalidate"
 import { APP_EVENTS } from "@/lib/server/events/constants"
 import { dispatchEventAsync } from "@/lib/server/events"
@@ -14,6 +10,7 @@ import {
   getCurrentLeaderboardWindow,
 } from "@/lib/server/leaderboard/v2"
 import { normalizeMonth, toMonthKey } from "@/lib/server/leaderboard/months"
+import { getIsoWeekYearAndNumber } from "@/lib/server/leaderboard/weeks"
 import { extractTwitterHandle } from "@/lib/server/social/twitterMessages"
 import { sendEmail } from "@/lib/email/resend"
 
@@ -213,6 +210,28 @@ function buildPeriodKey(period: PeriodCadence, periodStart: Date) {
 
 function getLeaderboardUrl(monthKey: string): string {
   const base = getAppBaseUrl()
+  return `${base}${monthlyLeaderboardArchivePath(monthKey)}`
+}
+
+function buildPeriodicLeaderboardUrl(
+  period: PeriodCadence,
+  periodStart: Date,
+): string {
+  const base = getAppBaseUrl().replace(/\/+$/, "")
+
+  if (period === "day") {
+    const year = periodStart.getUTCFullYear()
+    const month = periodStart.getUTCMonth() + 1
+    const day = periodStart.getUTCDate()
+    return `${base}/leaderboard/daily/${year}/${month}/${day}`
+  }
+
+  if (period === "week") {
+    const { year, week } = getIsoWeekYearAndNumber(periodStart)
+    return `${base}/leaderboard/weekly/${year}/${week}`
+  }
+
+  const monthKey = toMonthKey(normalizeMonth(periodStart))
   return `${base}${monthlyLeaderboardArchivePath(monthKey)}`
 }
 
@@ -519,7 +538,6 @@ export async function announceLeaderboardPeriodWinners(options: {
   period: PeriodCadence
   limit?: number
   now?: Date
-  leaderboardUrl?: string
 }) {
   const period = options.period
   const limit = options.limit ?? 3
@@ -614,15 +632,13 @@ export async function announceLeaderboardPeriodWinners(options: {
     })),
   })
 
-  await dispatchEventAsync(
+  dispatchEventAsync(
     APP_EVENTS.LEADERBOARD_PERIODIC_WINNERS,
     {
       period,
       periodKey,
       periodLabel,
-      leaderboardUrl:
-        options.leaderboardUrl ??
-        `${getAppBaseUrl()}${LEADERBOARD_PATH}`.replace(/\/+$/, ""),
+      leaderboardUrl: buildPeriodicLeaderboardUrl(period, periodStart),
       window: {
         start: periodStart.toISOString(),
         end: periodEnd.toISOString(),

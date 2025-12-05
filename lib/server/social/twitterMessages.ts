@@ -219,10 +219,7 @@ async function rewriteTweetCopyWithAI(
       body: bodyValue?.length ? bodyValue : undefined,
     }
   } catch (error) {
-    console.error(
-      "[twitter] AI tweet rewrite failed (launch)",
-      error,
-    )
+    console.error("[twitter] AI tweet rewrite failed (launch)", error)
     return null
   }
 }
@@ -343,7 +340,8 @@ const BADGE_COPY: Record<
     hashtags: ["Featured", "IndieMakers"],
   },
   "editor-pick": {
-    headline: (displayName) => `🧭 Editor's pick: ${displayName} on Shipyard HQ!`,
+    headline: (displayName) =>
+      `🧭 Editor's pick: ${displayName} on Shipyard HQ!`,
     hashtags: ["EditorsPick", "ProductDiscovery"],
   },
 }
@@ -367,7 +365,10 @@ export async function buildBadgeTweet(args: {
   const displayName = handle ? `${args.name} (${handle})` : args.name
   const headline = copy.headline(displayName)
 
-  const sections = ensureHandlePresence({ headline }, { name: args.name, handle })
+  const sections = ensureHandlePresence(
+    { headline },
+    { name: args.name, handle },
+  )
 
   return composeTweet({
     headline: sections.headline,
