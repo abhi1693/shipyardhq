@@ -5,7 +5,7 @@ import {
   guardNovuWorkflow,
   triggerNovuWorkflow,
 } from "@/lib/server/notifications/novu"
-import { NOVU_SYSTEM_UPDATES_TOPIC_KEY } from "@/lib/server/notifications/novuSystemUpdates"
+import { NOVU_BROADCAST_TOPIC_KEY } from "@/lib/server/notifications/novuBroadcast"
 
 const NOVU_SYSTEM_UPDATES_WORKFLOW_ID =
   process.env.NOVU_WORKFLOW_SYSTEM_UPDATES?.trim() ||
@@ -99,12 +99,7 @@ export async function sendSystemUpdateTopicNotification(input: {
     return { sent: false, reason: workflow.reason }
   }
 
-  const topicKey =
-    input.topicKey?.trim() || NOVU_SYSTEM_UPDATES_TOPIC_KEY?.trim()
-  if (!topicKey) {
-    console.warn("[novu] system update missing topic key")
-    return { sent: false, reason: "send-failed" }
-  }
+  const topicKey = input.topicKey?.trim() || NOVU_BROADCAST_TOPIC_KEY
 
   const tags = input.payload.tags?.length
     ? input.payload.tags
