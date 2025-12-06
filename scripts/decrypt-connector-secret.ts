@@ -4,7 +4,7 @@ function readEncryptedPayload(): string {
   const [, , encryptedPayload] = process.argv
   if (!encryptedPayload?.trim()) {
     throw new Error(
-      "Usage: pnpm tsx scripts/decrypt-connector-secret.ts <encrypted-connector-secret>",
+      "Usage: npx tsx scripts/decrypt-connector-secret.ts <encrypted-connector-secret>",
     )
   }
 
