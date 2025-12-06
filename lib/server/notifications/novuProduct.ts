@@ -11,8 +11,18 @@ import {
 import { NOVU_BROADCAST_TOPIC_KEY } from "@/lib/server/notifications/novuBroadcast"
 import { resolveSiteUrl, siteConfig } from "@/lib/siteConfig"
 
+const NOVU_PRODUCT_NOTIFICATIONS_WORKFLOW_ID =
+  process.env.NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS?.trim() ?? null
 const NOVU_RECOMMENDATIONS_WORKFLOW_ID =
   process.env.NOVU_WORKFLOW_RECOMMENDATIONS?.trim() ?? null
+
+const PRODUCT_NOTIFICATION_KINDS = new Set<ProductNotificationKind>([
+  "product_upvote",
+  "product_review",
+  "product_published",
+  "product_insights_ready",
+  "product_payment_sync_error",
+])
 
 type ProductOfPeriodBroadcastReason =
   | "novu-disabled"
@@ -59,16 +69,33 @@ export type ProductNotificationPayload = {
 export async function sendProductNotificationToNovu(
   payload: ProductNotificationPayload,
 ): Promise<void> {
-  const workflow = guardNovuWorkflow(NOVU_RECOMMENDATIONS_WORKFLOW_ID, {
-    label: "recommendations notifications",
-    missingMessage: "[novu] NOVU_WORKFLOW_RECOMMENDATIONS is not set",
-  })
+  const isProductNotificationKind = PRODUCT_NOTIFICATION_KINDS.has(
+    payload.kind,
+  )
+  const workflow = guardNovuWorkflow(
+    isProductNotificationKind
+      ? NOVU_PRODUCT_NOTIFICATIONS_WORKFLOW_ID
+      : NOVU_RECOMMENDATIONS_WORKFLOW_ID,
+    {
+      label: isProductNotificationKind
+        ? "product notifications"
+        : "recommendations notifications",
+      missingMessage: isProductNotificationKind
+        ? "[novu] NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS is not set"
+        : "[novu] NOVU_WORKFLOW_RECOMMENDATIONS is not set",
+    },
+  )
   if (!workflow.ready) return
 
   const { recipient, actor, ...rest } = payload
 
   try {
     const siteUrl = resolveSiteUrl()
+    const defaultTags = rest.tags
+      ? rest.tags
+      : isProductNotificationKind
+        ? ["product-notifications"]
+        : ["discover"]
     const transactionId =
       payload.transactionId ??
       `${payload.kind}:${payload.product.id}:${Date.now()}`
@@ -120,7 +147,7 @@ export async function sendProductNotificationToNovu(
           public: publicLink,
         },
         context: rest.context ?? {},
-        tags: rest.tags ?? ["product-notifications"],
+        tags: defaultTags,
       },
     })
   } catch (error) {
