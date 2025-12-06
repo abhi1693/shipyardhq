@@ -83,9 +83,19 @@ async function assignWinnerBadges(options: {
   }
 
   const now = new Date()
-  const currentWindow = getPeriodWindow(options.period, now)
-  const expiresAt =
-    options.periodEnd > now ? options.periodEnd : currentWindow.periodEnd
+  const expiresAt = (() => {
+    const periodDurationMs = Math.max(
+      options.periodEnd.getTime() - options.periodStart.getTime(),
+      options.period === "week" ? 7 * DAY_MS : options.period === "month" ? 28 * DAY_MS : DAY_MS,
+    )
+    const currentWindow = getPeriodWindow(options.period, now)
+    const anchorEnd =
+      options.periodEnd > now ? options.periodEnd : currentWindow.periodEnd
+
+    // Keep winner badges active for a full additional period so they don't expire
+    // near the end of the current window (e.g., 5 minutes before midnight).
+    return new Date(anchorEnd.getTime() + periodDurationMs)
+  })()
 
   const assignments = options.winners
     .map((winner: WinnerBadgeAssignment) => {
