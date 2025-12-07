@@ -3,6 +3,8 @@ import Link from "next/link"
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
+export const dynamic = "force-dynamic"
+
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
 import {
   getKeywordTagBySlug,
@@ -38,8 +40,6 @@ import { getTagDetailPayload } from "@/lib/tags/page-cache"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { toProductCardItem } from "@/lib/products/card-item"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
-
-export const revalidate = 3600
 
 export async function generateMetadata({
   params,

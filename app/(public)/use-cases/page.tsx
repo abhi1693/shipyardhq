@@ -27,8 +27,7 @@ import {
 import { getUseCasesPagePayload } from "@/lib/useCases/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
 
-export const dynamic = "force-static"
-export const revalidate = 300
+export const dynamic = "force-dynamic"
 
 const PAGE_TITLE = "Use Cases"
 

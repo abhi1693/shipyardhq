@@ -1,6 +1,3 @@
-export const dynamic = "force-static"
-export const revalidate = 300
-
 import type { Metadata } from "next"
 import { Suspense } from "react"
 
@@ -9,9 +6,8 @@ import { UseCaseDetailSkeleton } from "@/components/templates/public/use-cases/d
 import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
 import { buildPageMetadata } from "@/lib/metadata"
 import { pluralize } from "@/lib/pluralize"
-import { getUseCaseStaticParams } from "@/lib/useCases/page-cache"
 
-export const generateStaticParams = getUseCaseStaticParams
+export const dynamic = "force-dynamic"
 
 export async function generateMetadata(
   props: Parameters<typeof UseCasePageContent>[0],
