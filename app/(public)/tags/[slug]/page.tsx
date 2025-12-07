@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Suspense } from "react"
-import { notFound } from "next/navigation"
+import { redirect } from "next/navigation"
 
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
 import {
@@ -128,7 +128,7 @@ export default async function TagDetailPage({ params }: TagPageProps) {
 
   const payload = await getTagDetailPayload(slug, 1)
   if (!payload) {
-    notFound()
+    redirect("/tags")
   }
 
   const { summary, products } = payload
