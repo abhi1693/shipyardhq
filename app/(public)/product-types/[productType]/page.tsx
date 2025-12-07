@@ -1,18 +1,15 @@
-export const revalidate = 3600
+export const dynamic = "force-dynamic"
 
 import type { Metadata } from "next"
 
 import { ProductTypePageContent } from "@/components/templates/public/product-types/product-type-page-content"
 import {
   getProductTypePagePayload,
-  getProductTypeStaticParams,
 } from "@/lib/product-types/page-cache"
 import { getProductTypeMeta } from "@/lib/product-types/models"
 import { buildPageMetadata } from "@/lib/metadata"
 import { productTypePath } from "@/lib/routes"
 import { pluralize } from "@/lib/pluralize"
-
-export const generateStaticParams = getProductTypeStaticParams
 
 export async function generateMetadata(
   props: Parameters<typeof ProductTypePageContent>[0],

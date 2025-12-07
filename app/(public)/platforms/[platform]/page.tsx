@@ -1,4 +1,4 @@
-export const revalidate = 3600
+export const dynamic = "force-dynamic"
 
 import type { Metadata } from "next"
 
@@ -6,12 +6,9 @@ import { PlatformPageContent } from "@/components/templates/public/platforms/pag
 import { getPlatformMeta } from "@/lib/platforms/config"
 import {
   getPlatformPagePayload,
-  getPlatformStaticParams,
 } from "@/lib/platforms/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
 import { platformPath } from "@/lib/routes"
-
-export const generateStaticParams = getPlatformStaticParams
 
 export async function generateMetadata(
   props: Parameters<typeof PlatformPageContent>[0],

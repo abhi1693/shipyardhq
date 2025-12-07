@@ -30,7 +30,6 @@ import {
   HERO_PRIMARY_BUTTON_CLASSES,
   HERO_SECONDARY_BUTTON_CLASSES,
 } from "@/components/templates/public/categories/hero-button-classes"
-import { getAlternativeStaticParams } from "@/lib/alternatives/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
   ALTERNATIVES_PATH,
@@ -42,9 +41,7 @@ import {
 import { siteConfig } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
 
-export const dynamic = "force-static"
-export const revalidate = 300
-export const generateStaticParams = getAlternativeStaticParams
+export const dynamic = "force-dynamic"
 
 export async function generateMetadata({
   params,
