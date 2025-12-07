@@ -83,14 +83,6 @@ export function revalidateProductUpdate(
   revalidateLeaderboardPage(mode)
 }
 
-export function revalidateProductReviews(
-  idOrSlug: string,
-  mode: CacheInvalidationMode = "update",
-) {
-  revalidateTag(TAGS.productReview(idOrSlug), mode)
-  revalidateTag(TAGS.productReviews, mode)
-}
-
 export function revalidateCategories(mode: CacheInvalidationMode = "update") {
   revalidateTag(TAGS.categories, mode)
   revalidateHomepage(mode)

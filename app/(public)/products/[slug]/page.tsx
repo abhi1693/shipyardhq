@@ -42,13 +42,11 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { SidebarInfoRow } from "@/components/templates/public/products/detail/sidebar-info-row"
 import {
   ProductUpvoteBadgeServer,
-  ProductReviewsServer,
   ProductUpdatesServer,
   SimilarProductsServer,
 } from "@/components/templates/public/products/detail/server-components"
 import {
   ProductUpvoteBadgeFallback,
-  ProductReviewsFallback,
   ProductUpdatesFallback,
   SimilarProductsFallback,
 } from "@/components/templates/public/products/detail/product-fallbacks"
@@ -78,7 +76,6 @@ import { formatTagLabel } from "@/app/(public)/tags/_utils"
 import { buildWebApplicationStructuredData } from "@/lib/seo/web-application"
 import { buildMobileApplicationStructuredData } from "@/lib/seo/mobile-application"
 import { buildProductStructuredData } from "@/lib/seo/product"
-import { getProductReviewSummary } from "@/lib/server/productReviews"
 import { getPlatformMetaByValue } from "@/lib/platforms/config"
 import { pricingModelSlugFromValue } from "@/lib/pricing/models"
 import {
@@ -222,9 +219,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return notFound()
 
-  const [sidebarProduct, reviewSummary, revenue] = await Promise.all([
+  const [sidebarProduct, revenue] = await Promise.all([
     getPublicProductBySlug(slug),
-    getProductReviewSummary(product.id, 1),
     product.pricingModel === "free"
       ? Promise.resolve(null)
       : getPublicProductRevenue(product.id),
@@ -344,22 +340,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     }
   }
 
-  const aggregateRating =
-    reviewSummary.totalReviews > 0
-      ? {
-          ratingValue: reviewSummary.averageRating,
-          ratingCount: reviewSummary.totalReviews,
-          bestRating: 5,
-          worstRating: 0,
-        }
-      : undefined
-
   const productStructuredData = buildProductStructuredData({
     path: canonicalPath,
     name: product.name,
     description: product.tagline || product.description || undefined,
     image: product.logo ?? undefined,
-    aggregateRating,
     offers: offer,
   })
 
@@ -380,7 +365,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     `/products/${product.slug}`,
     siteConfig.url,
   ).toString()
-  const redirectUrl = productPath(product.slug)
   const categoryLabel = product.category?.name ?? null
   const startingPrice =
     typeof sidebarProduct?.startingPriceCents === "number"
@@ -806,13 +790,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <ProductUpdatesServer
                 productId={product.id}
                 productSlug={product.slug}
-              />
-            </Suspense>
-            <Suspense fallback={<ProductReviewsFallback />}>
-              <ProductReviewsServer
-                productId={product.id}
-                productName={product.name}
-                redirectUrl={redirectUrl}
               />
             </Suspense>
             <StickyBanner className="w-full" />

@@ -44,62 +44,6 @@ registerEventHandler({
 })
 
 registerEventHandler({
-  event: "product.reviewed",
-  id: "rewards.award-review",
-  queue: "default",
-  handler: async (event) => {
-    try {
-      const ownerId =
-        event.productOwnerId ?? (await getProductOwnerId(event.productId))
-      if (ownerId && ownerId === event.userId) return
-
-      const metadata = {
-        rating: event.rating,
-        messageLength: event.messageLength,
-        createdAt: event.createdAt.toISOString(),
-        updatedAt: event.updatedAt.toISOString(),
-      }
-
-      await awardRewardsSafely(
-        event.userId,
-        REVIEW_RULE_KEY,
-        {
-          eventId: event.reviewId,
-          productId: event.productId,
-          sourceType: "review",
-          sourceId: event.reviewId,
-          targetType: "product",
-          targetId: event.productId,
-          actorUserId: event.userId,
-          metadata,
-        },
-        "award review rewards",
-      )
-
-      if (event.messageLength > REVIEW_DEPTH_THRESHOLD) {
-        await awardRewardsSafely(
-          event.userId,
-          REVIEW_DEPTH_RULE_KEY,
-          {
-            eventId: `${event.reviewId}:depth`,
-            productId: event.productId,
-            sourceType: "review",
-            sourceId: event.reviewId,
-            targetType: "product",
-            targetId: event.productId,
-            actorUserId: event.userId,
-            metadata,
-          },
-          "award review depth bonus",
-        )
-      }
-    } catch (error) {
-      console.error("[rewards] review listener error", { error, event })
-    }
-  },
-})
-
-registerEventHandler({
   event: "product.created",
   id: "rewards.award-product-created",
   queue: "default",

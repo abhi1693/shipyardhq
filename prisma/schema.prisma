@@ -50,7 +50,6 @@ model Product {
   ProductBadge          ProductBadge[]
   ProductMedia          ProductMedia[]
   ProductUpvote         ProductUpvote[]
-  ProductReview         ProductReview[]
   ProductUpdate         ProductUpdate[]
   placementSchedules    PlacementSchedule[]
   trafficEvents         ProductTrafficEvent[]
@@ -196,8 +195,6 @@ model ProductLeaderboardScore {
   views             Int      @default(0)
   uniqueVisitors    Int      @default(0)
   upvotes           Int      @default(0)
-  reviewsCount      Int      @default(0)
-  reviewsRatingSum  Int      @default(0)
   score             Int      @default(0)
   scoreComponents   Json?
   rank              Int?
@@ -525,7 +522,6 @@ model User {
   products                Product[]
   memberships             OrganizationMembership[]
   ProductUpvote           ProductUpvote[]
-  productReviews          ProductReview[]
   Organization            Organization[]
   feedback                MemberFeedback[]
   purchases               UserPlanPurchase[]
@@ -541,25 +537,6 @@ model User {
   @@index([roleIntent])
   @@index([heardFrom])
   @@index([onboardedAt])
-  @@index([createdAt])
-  @@index([updatedAt])
-}
-
-model ProductReview {
-  id        String   @id @default(cuid())
-  productId String
-  userId    String
-  rating    Int
-  message   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([productId, userId])
-  @@index([productId, createdAt])
-  @@index([userId, createdAt])
   @@index([createdAt])
   @@index([updatedAt])
 }

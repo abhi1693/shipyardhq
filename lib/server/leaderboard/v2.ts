@@ -5,24 +5,18 @@ type MetricMaps = {
   views: Map<string, number>
   uniqueVisitors: Map<string, number>
   upvotes: Map<string, number>
-  reviewsCount: Map<string, number>
-  reviewsRatingSum: Map<string, number>
 }
 
 export type LeaderboardWeights = {
   views: number
   uniqueVisitors: number
   upvotes: number
-  reviewsCount: number
-  reviewsRatingSum: number
 }
 
 const DEFAULT_WEIGHTS: LeaderboardWeights = {
   views: 1,
   uniqueVisitors: 3,
   upvotes: 10,
-  reviewsCount: 8,
-  reviewsRatingSum: 4,
 }
 
 type ScoreRow = {
@@ -30,8 +24,6 @@ type ScoreRow = {
   views: number
   uniqueVisitors: number
   upvotes: number
-  reviewsCount: number
-  reviewsRatingSum: number
   score: number
   scoreComponents: Record<string, number>
   rank?: number
@@ -44,8 +36,6 @@ function metricsHaveActivity(metrics: MetricMaps): boolean {
     metrics.views,
     metrics.uniqueVisitors,
     metrics.upvotes,
-    metrics.reviewsCount,
-    metrics.reviewsRatingSum,
   ].some((map) => Array.from(map.values()).some((value) => value > 0))
 }
 
@@ -173,8 +163,6 @@ export async function getProductScoreForCurrentWindow(
       views: true,
       uniqueVisitors: true,
       upvotes: true,
-      reviewsCount: true,
-      reviewsRatingSum: true,
       scoreComponents: true,
       updatedAt: true,
     },
@@ -265,7 +253,6 @@ export async function updateLeaderboardScoresForProducts(options: {
       views: row.views,
       uniqueVisitors: row.uniqueVisitors,
       upvotes: row.upvotes,
-      reviewsCount: row.reviewsCount,
     })
 
     await prisma.productLeaderboardScore.upsert({
@@ -281,8 +268,6 @@ export async function updateLeaderboardScoresForProducts(options: {
         views: row.views,
         uniqueVisitors: row.uniqueVisitors,
         upvotes: row.upvotes,
-        reviewsCount: row.reviewsCount,
-        reviewsRatingSum: row.reviewsRatingSum,
         score: row.score,
         scoreComponents: row.scoreComponents,
       },
@@ -290,8 +275,6 @@ export async function updateLeaderboardScoresForProducts(options: {
         views: row.views,
         uniqueVisitors: row.uniqueVisitors,
         upvotes: row.upvotes,
-        reviewsCount: row.reviewsCount,
-        reviewsRatingSum: row.reviewsRatingSum,
         score: row.score,
         scoreComponents: row.scoreComponents,
       },
@@ -339,8 +322,6 @@ async function collectMetrics(
     views: new Map(),
     uniqueVisitors: new Map(),
     upvotes: new Map(),
-    reviewsCount: new Map(),
-    reviewsRatingSum: new Map(),
   }
 
   for (const [productId, values] of gaMap.entries()) {
@@ -350,41 +331,18 @@ async function collectMetrics(
 
   const productIds = products.map((product: { id: string }) => product.id)
 
-  const [upvotes, reviews] = await Promise.all([
-    prisma.productUpvote.groupBy({
-      by: ["productId"],
-      where: {
-        productId: { in: productIds },
-        createdAt: { gte: periodStart, lt: periodEnd },
-        product: { status: "published" },
-      },
-      _count: { productId: true },
-    }),
-    prisma.productReview.groupBy({
-      by: ["productId"],
-      where: {
-        productId: { in: productIds },
-        createdAt: { gte: periodStart, lt: periodEnd },
-        product: { status: "published" },
-      },
-      _count: { productId: true },
-      _sum: { rating: true },
-    }),
-  ])
+  const upvotes = await prisma.productUpvote.groupBy({
+    by: ["productId"],
+    where: {
+      productId: { in: productIds },
+      createdAt: { gte: periodStart, lt: periodEnd },
+      product: { status: "published" },
+    },
+    _count: { productId: true },
+  })
 
   for (const entry of upvotes) {
     metrics.upvotes.set(entry.productId, Number(entry._count?.productId ?? 0))
-  }
-
-  for (const entry of reviews) {
-    metrics.reviewsCount.set(
-      entry.productId,
-      Number(entry._count?.productId ?? 0),
-    )
-    metrics.reviewsRatingSum.set(
-      entry.productId,
-      Number(entry._sum?.rating ?? 0),
-    )
   }
 
   return metrics
@@ -411,8 +369,6 @@ async function collectMetricsForProducts(
     views: new Map(),
     uniqueVisitors: new Map(),
     upvotes: new Map(),
-    reviewsCount: new Map(),
-    reviewsRatingSum: new Map(),
   }
 
   for (const [productId, values] of gaMap.entries()) {
@@ -420,41 +376,18 @@ async function collectMetricsForProducts(
     metrics.uniqueVisitors.set(productId, values.uniqueVisitors)
   }
 
-  const [upvotes, reviews] = await Promise.all([
-    prisma.productUpvote.groupBy({
-      by: ["productId"],
-      where: {
-        productId: { in: productIds },
-        createdAt: { gte: periodStart, lt: periodEnd },
-        product: { status: "published" },
-      },
-      _count: { productId: true },
-    }),
-    prisma.productReview.groupBy({
-      by: ["productId"],
-      where: {
-        productId: { in: productIds },
-        createdAt: { gte: periodStart, lt: periodEnd },
-        product: { status: "published" },
-      },
-      _count: { productId: true },
-      _sum: { rating: true },
-    }),
-  ])
+  const upvotes = await prisma.productUpvote.groupBy({
+    by: ["productId"],
+    where: {
+      productId: { in: productIds },
+      createdAt: { gte: periodStart, lt: periodEnd },
+      product: { status: "published" },
+    },
+    _count: { productId: true },
+  })
 
   for (const entry of upvotes) {
     metrics.upvotes.set(entry.productId, Number(entry._count?.productId ?? 0))
-  }
-
-  for (const entry of reviews) {
-    metrics.reviewsCount.set(
-      entry.productId,
-      Number(entry._count?.productId ?? 0),
-    )
-    metrics.reviewsRatingSum.set(
-      entry.productId,
-      Number(entry._sum?.rating ?? 0),
-    )
   }
 
   return metrics
@@ -482,8 +415,6 @@ function computeScores(
     ...metrics.views.keys(),
     ...metrics.uniqueVisitors.keys(),
     ...metrics.upvotes.keys(),
-    ...metrics.reviewsCount.keys(),
-    ...metrics.reviewsRatingSum.keys(),
   ])
 
   const rows: ScoreRow[] = []
@@ -492,15 +423,11 @@ function computeScores(
     const views = metrics.views.get(productId) ?? 0
     const uniqueVisitors = metrics.uniqueVisitors.get(productId) ?? 0
     const upvotes = metrics.upvotes.get(productId) ?? 0
-    const reviewsCount = metrics.reviewsCount.get(productId) ?? 0
-    const reviewsRatingSum = metrics.reviewsRatingSum.get(productId) ?? 0
 
     const scoreComponents = {
       views: views * weights.views,
       uniqueVisitors: uniqueVisitors * weights.uniqueVisitors,
       upvotes: upvotes * weights.upvotes,
-      reviewsCount: reviewsCount * weights.reviewsCount,
-      reviewsRatingSum: reviewsRatingSum * weights.reviewsRatingSum,
     }
 
     const score = Object.values(scoreComponents).reduce(
@@ -513,8 +440,6 @@ function computeScores(
       views,
       uniqueVisitors,
       upvotes,
-      reviewsCount,
-      reviewsRatingSum,
       score,
       scoreComponents,
     })
@@ -576,8 +501,6 @@ async function persistScores(runId: string, rows: ScoreRow[]) {
         views: row.views,
         uniqueVisitors: row.uniqueVisitors,
         upvotes: row.upvotes,
-        reviewsCount: row.reviewsCount,
-        reviewsRatingSum: row.reviewsRatingSum,
         score: row.score,
         scoreComponents: row.scoreComponents,
         rank: row.rank,

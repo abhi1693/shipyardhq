@@ -30,8 +30,6 @@ export type ProductLeaderboardScoreAvgAggregateOutputType = {
   views: number | null
   uniqueVisitors: number | null
   upvotes: number | null
-  reviewsCount: number | null
-  reviewsRatingSum: number | null
   score: number | null
   rank: number | null
 }
@@ -40,8 +38,6 @@ export type ProductLeaderboardScoreSumAggregateOutputType = {
   views: number | null
   uniqueVisitors: number | null
   upvotes: number | null
-  reviewsCount: number | null
-  reviewsRatingSum: number | null
   score: number | null
   rank: number | null
 }
@@ -53,8 +49,6 @@ export type ProductLeaderboardScoreMinAggregateOutputType = {
   views: number | null
   uniqueVisitors: number | null
   upvotes: number | null
-  reviewsCount: number | null
-  reviewsRatingSum: number | null
   score: number | null
   rank: number | null
   createdAt: Date | null
@@ -68,8 +62,6 @@ export type ProductLeaderboardScoreMaxAggregateOutputType = {
   views: number | null
   uniqueVisitors: number | null
   upvotes: number | null
-  reviewsCount: number | null
-  reviewsRatingSum: number | null
   score: number | null
   rank: number | null
   createdAt: Date | null
@@ -83,8 +75,6 @@ export type ProductLeaderboardScoreCountAggregateOutputType = {
   views: number
   uniqueVisitors: number
   upvotes: number
-  reviewsCount: number
-  reviewsRatingSum: number
   score: number
   scoreComponents: number
   rank: number
@@ -98,8 +88,6 @@ export type ProductLeaderboardScoreAvgAggregateInputType = {
   views?: true
   uniqueVisitors?: true
   upvotes?: true
-  reviewsCount?: true
-  reviewsRatingSum?: true
   score?: true
   rank?: true
 }
@@ -108,8 +96,6 @@ export type ProductLeaderboardScoreSumAggregateInputType = {
   views?: true
   uniqueVisitors?: true
   upvotes?: true
-  reviewsCount?: true
-  reviewsRatingSum?: true
   score?: true
   rank?: true
 }
@@ -121,8 +107,6 @@ export type ProductLeaderboardScoreMinAggregateInputType = {
   views?: true
   uniqueVisitors?: true
   upvotes?: true
-  reviewsCount?: true
-  reviewsRatingSum?: true
   score?: true
   rank?: true
   createdAt?: true
@@ -136,8 +120,6 @@ export type ProductLeaderboardScoreMaxAggregateInputType = {
   views?: true
   uniqueVisitors?: true
   upvotes?: true
-  reviewsCount?: true
-  reviewsRatingSum?: true
   score?: true
   rank?: true
   createdAt?: true
@@ -151,8 +133,6 @@ export type ProductLeaderboardScoreCountAggregateInputType = {
   views?: true
   uniqueVisitors?: true
   upvotes?: true
-  reviewsCount?: true
-  reviewsRatingSum?: true
   score?: true
   scoreComponents?: true
   rank?: true
@@ -254,8 +234,6 @@ export type ProductLeaderboardScoreGroupByOutputType = {
   views: number
   uniqueVisitors: number
   upvotes: number
-  reviewsCount: number
-  reviewsRatingSum: number
   score: number
   scoreComponents: runtime.JsonValue | null
   rank: number | null
@@ -293,8 +271,6 @@ export type ProductLeaderboardScoreWhereInput = {
   views?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
   uniqueVisitors?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
   upvotes?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
-  reviewsCount?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
-  reviewsRatingSum?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
   score?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
   scoreComponents?: Prisma.JsonNullableFilter<"ProductLeaderboardScore">
   rank?: Prisma.IntNullableFilter<"ProductLeaderboardScore"> | number | null
@@ -311,8 +287,6 @@ export type ProductLeaderboardScoreOrderByWithRelationInput = {
   views?: Prisma.SortOrder
   uniqueVisitors?: Prisma.SortOrder
   upvotes?: Prisma.SortOrder
-  reviewsCount?: Prisma.SortOrder
-  reviewsRatingSum?: Prisma.SortOrder
   score?: Prisma.SortOrder
   scoreComponents?: Prisma.SortOrderInput | Prisma.SortOrder
   rank?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -333,8 +307,6 @@ export type ProductLeaderboardScoreWhereUniqueInput = Prisma.AtLeast<{
   views?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
   uniqueVisitors?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
   upvotes?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
-  reviewsCount?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
-  reviewsRatingSum?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
   score?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
   scoreComponents?: Prisma.JsonNullableFilter<"ProductLeaderboardScore">
   rank?: Prisma.IntNullableFilter<"ProductLeaderboardScore"> | number | null
@@ -351,8 +323,6 @@ export type ProductLeaderboardScoreOrderByWithAggregationInput = {
   views?: Prisma.SortOrder
   uniqueVisitors?: Prisma.SortOrder
   upvotes?: Prisma.SortOrder
-  reviewsCount?: Prisma.SortOrder
-  reviewsRatingSum?: Prisma.SortOrder
   score?: Prisma.SortOrder
   scoreComponents?: Prisma.SortOrderInput | Prisma.SortOrder
   rank?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -375,8 +345,6 @@ export type ProductLeaderboardScoreScalarWhereWithAggregatesInput = {
   views?: Prisma.IntWithAggregatesFilter<"ProductLeaderboardScore"> | number
   uniqueVisitors?: Prisma.IntWithAggregatesFilter<"ProductLeaderboardScore"> | number
   upvotes?: Prisma.IntWithAggregatesFilter<"ProductLeaderboardScore"> | number
-  reviewsCount?: Prisma.IntWithAggregatesFilter<"ProductLeaderboardScore"> | number
-  reviewsRatingSum?: Prisma.IntWithAggregatesFilter<"ProductLeaderboardScore"> | number
   score?: Prisma.IntWithAggregatesFilter<"ProductLeaderboardScore"> | number
   scoreComponents?: Prisma.JsonNullableWithAggregatesFilter<"ProductLeaderboardScore">
   rank?: Prisma.IntNullableWithAggregatesFilter<"ProductLeaderboardScore"> | number | null
@@ -389,8 +357,6 @@ export type ProductLeaderboardScoreCreateInput = {
   views?: number
   uniqueVisitors?: number
   upvotes?: number
-  reviewsCount?: number
-  reviewsRatingSum?: number
   score?: number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: number | null
@@ -407,8 +373,6 @@ export type ProductLeaderboardScoreUncheckedCreateInput = {
   views?: number
   uniqueVisitors?: number
   upvotes?: number
-  reviewsCount?: number
-  reviewsRatingSum?: number
   score?: number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: number | null
@@ -421,8 +385,6 @@ export type ProductLeaderboardScoreUpdateInput = {
   views?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsCount?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsRatingSum?: Prisma.IntFieldUpdateOperationsInput | number
   score?: Prisma.IntFieldUpdateOperationsInput | number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -439,8 +401,6 @@ export type ProductLeaderboardScoreUncheckedUpdateInput = {
   views?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsCount?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsRatingSum?: Prisma.IntFieldUpdateOperationsInput | number
   score?: Prisma.IntFieldUpdateOperationsInput | number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -455,8 +415,6 @@ export type ProductLeaderboardScoreCreateManyInput = {
   views?: number
   uniqueVisitors?: number
   upvotes?: number
-  reviewsCount?: number
-  reviewsRatingSum?: number
   score?: number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: number | null
@@ -469,8 +427,6 @@ export type ProductLeaderboardScoreUpdateManyMutationInput = {
   views?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsCount?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsRatingSum?: Prisma.IntFieldUpdateOperationsInput | number
   score?: Prisma.IntFieldUpdateOperationsInput | number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -485,8 +441,6 @@ export type ProductLeaderboardScoreUncheckedUpdateManyInput = {
   views?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsCount?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsRatingSum?: Prisma.IntFieldUpdateOperationsInput | number
   score?: Prisma.IntFieldUpdateOperationsInput | number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -516,8 +470,6 @@ export type ProductLeaderboardScoreCountOrderByAggregateInput = {
   views?: Prisma.SortOrder
   uniqueVisitors?: Prisma.SortOrder
   upvotes?: Prisma.SortOrder
-  reviewsCount?: Prisma.SortOrder
-  reviewsRatingSum?: Prisma.SortOrder
   score?: Prisma.SortOrder
   scoreComponents?: Prisma.SortOrder
   rank?: Prisma.SortOrder
@@ -529,8 +481,6 @@ export type ProductLeaderboardScoreAvgOrderByAggregateInput = {
   views?: Prisma.SortOrder
   uniqueVisitors?: Prisma.SortOrder
   upvotes?: Prisma.SortOrder
-  reviewsCount?: Prisma.SortOrder
-  reviewsRatingSum?: Prisma.SortOrder
   score?: Prisma.SortOrder
   rank?: Prisma.SortOrder
 }
@@ -542,8 +492,6 @@ export type ProductLeaderboardScoreMaxOrderByAggregateInput = {
   views?: Prisma.SortOrder
   uniqueVisitors?: Prisma.SortOrder
   upvotes?: Prisma.SortOrder
-  reviewsCount?: Prisma.SortOrder
-  reviewsRatingSum?: Prisma.SortOrder
   score?: Prisma.SortOrder
   rank?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -557,8 +505,6 @@ export type ProductLeaderboardScoreMinOrderByAggregateInput = {
   views?: Prisma.SortOrder
   uniqueVisitors?: Prisma.SortOrder
   upvotes?: Prisma.SortOrder
-  reviewsCount?: Prisma.SortOrder
-  reviewsRatingSum?: Prisma.SortOrder
   score?: Prisma.SortOrder
   rank?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -569,8 +515,6 @@ export type ProductLeaderboardScoreSumOrderByAggregateInput = {
   views?: Prisma.SortOrder
   uniqueVisitors?: Prisma.SortOrder
   upvotes?: Prisma.SortOrder
-  reviewsCount?: Prisma.SortOrder
-  reviewsRatingSum?: Prisma.SortOrder
   score?: Prisma.SortOrder
   rank?: Prisma.SortOrder
 }
@@ -664,8 +608,6 @@ export type ProductLeaderboardScoreCreateWithoutProductInput = {
   views?: number
   uniqueVisitors?: number
   upvotes?: number
-  reviewsCount?: number
-  reviewsRatingSum?: number
   score?: number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: number | null
@@ -680,8 +622,6 @@ export type ProductLeaderboardScoreUncheckedCreateWithoutProductInput = {
   views?: number
   uniqueVisitors?: number
   upvotes?: number
-  reviewsCount?: number
-  reviewsRatingSum?: number
   score?: number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: number | null
@@ -725,8 +665,6 @@ export type ProductLeaderboardScoreScalarWhereInput = {
   views?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
   uniqueVisitors?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
   upvotes?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
-  reviewsCount?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
-  reviewsRatingSum?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
   score?: Prisma.IntFilter<"ProductLeaderboardScore"> | number
   scoreComponents?: Prisma.JsonNullableFilter<"ProductLeaderboardScore">
   rank?: Prisma.IntNullableFilter<"ProductLeaderboardScore"> | number | null
@@ -739,8 +677,6 @@ export type ProductLeaderboardScoreCreateWithoutRunInput = {
   views?: number
   uniqueVisitors?: number
   upvotes?: number
-  reviewsCount?: number
-  reviewsRatingSum?: number
   score?: number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: number | null
@@ -755,8 +691,6 @@ export type ProductLeaderboardScoreUncheckedCreateWithoutRunInput = {
   views?: number
   uniqueVisitors?: number
   upvotes?: number
-  reviewsCount?: number
-  reviewsRatingSum?: number
   score?: number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: number | null
@@ -796,8 +730,6 @@ export type ProductLeaderboardScoreCreateManyProductInput = {
   views?: number
   uniqueVisitors?: number
   upvotes?: number
-  reviewsCount?: number
-  reviewsRatingSum?: number
   score?: number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: number | null
@@ -810,8 +742,6 @@ export type ProductLeaderboardScoreUpdateWithoutProductInput = {
   views?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsCount?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsRatingSum?: Prisma.IntFieldUpdateOperationsInput | number
   score?: Prisma.IntFieldUpdateOperationsInput | number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -826,8 +756,6 @@ export type ProductLeaderboardScoreUncheckedUpdateWithoutProductInput = {
   views?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsCount?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsRatingSum?: Prisma.IntFieldUpdateOperationsInput | number
   score?: Prisma.IntFieldUpdateOperationsInput | number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -841,8 +769,6 @@ export type ProductLeaderboardScoreUncheckedUpdateManyWithoutProductInput = {
   views?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsCount?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsRatingSum?: Prisma.IntFieldUpdateOperationsInput | number
   score?: Prisma.IntFieldUpdateOperationsInput | number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -856,8 +782,6 @@ export type ProductLeaderboardScoreCreateManyRunInput = {
   views?: number
   uniqueVisitors?: number
   upvotes?: number
-  reviewsCount?: number
-  reviewsRatingSum?: number
   score?: number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: number | null
@@ -870,8 +794,6 @@ export type ProductLeaderboardScoreUpdateWithoutRunInput = {
   views?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsCount?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsRatingSum?: Prisma.IntFieldUpdateOperationsInput | number
   score?: Prisma.IntFieldUpdateOperationsInput | number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -886,8 +808,6 @@ export type ProductLeaderboardScoreUncheckedUpdateWithoutRunInput = {
   views?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsCount?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsRatingSum?: Prisma.IntFieldUpdateOperationsInput | number
   score?: Prisma.IntFieldUpdateOperationsInput | number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -901,8 +821,6 @@ export type ProductLeaderboardScoreUncheckedUpdateManyWithoutRunInput = {
   views?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
   upvotes?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsCount?: Prisma.IntFieldUpdateOperationsInput | number
-  reviewsRatingSum?: Prisma.IntFieldUpdateOperationsInput | number
   score?: Prisma.IntFieldUpdateOperationsInput | number
   scoreComponents?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   rank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -919,8 +837,6 @@ export type ProductLeaderboardScoreSelect<ExtArgs extends runtime.Types.Extensio
   views?: boolean
   uniqueVisitors?: boolean
   upvotes?: boolean
-  reviewsCount?: boolean
-  reviewsRatingSum?: boolean
   score?: boolean
   scoreComponents?: boolean
   rank?: boolean
@@ -937,8 +853,6 @@ export type ProductLeaderboardScoreSelectCreateManyAndReturn<ExtArgs extends run
   views?: boolean
   uniqueVisitors?: boolean
   upvotes?: boolean
-  reviewsCount?: boolean
-  reviewsRatingSum?: boolean
   score?: boolean
   scoreComponents?: boolean
   rank?: boolean
@@ -955,8 +869,6 @@ export type ProductLeaderboardScoreSelectUpdateManyAndReturn<ExtArgs extends run
   views?: boolean
   uniqueVisitors?: boolean
   upvotes?: boolean
-  reviewsCount?: boolean
-  reviewsRatingSum?: boolean
   score?: boolean
   scoreComponents?: boolean
   rank?: boolean
@@ -973,8 +885,6 @@ export type ProductLeaderboardScoreSelectScalar = {
   views?: boolean
   uniqueVisitors?: boolean
   upvotes?: boolean
-  reviewsCount?: boolean
-  reviewsRatingSum?: boolean
   score?: boolean
   scoreComponents?: boolean
   rank?: boolean
@@ -982,7 +892,7 @@ export type ProductLeaderboardScoreSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProductLeaderboardScoreOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "runId" | "productId" | "views" | "uniqueVisitors" | "upvotes" | "reviewsCount" | "reviewsRatingSum" | "score" | "scoreComponents" | "rank" | "createdAt" | "updatedAt", ExtArgs["result"]["productLeaderboardScore"]>
+export type ProductLeaderboardScoreOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "runId" | "productId" | "views" | "uniqueVisitors" | "upvotes" | "score" | "scoreComponents" | "rank" | "createdAt" | "updatedAt", ExtArgs["result"]["productLeaderboardScore"]>
 export type ProductLeaderboardScoreInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   run?: boolean | Prisma.LeaderboardRunDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -1009,8 +919,6 @@ export type $ProductLeaderboardScorePayload<ExtArgs extends runtime.Types.Extens
     views: number
     uniqueVisitors: number
     upvotes: number
-    reviewsCount: number
-    reviewsRatingSum: number
     score: number
     scoreComponents: runtime.JsonValue | null
     rank: number | null
@@ -1447,8 +1355,6 @@ export interface ProductLeaderboardScoreFieldRefs {
   readonly views: Prisma.FieldRef<"ProductLeaderboardScore", 'Int'>
   readonly uniqueVisitors: Prisma.FieldRef<"ProductLeaderboardScore", 'Int'>
   readonly upvotes: Prisma.FieldRef<"ProductLeaderboardScore", 'Int'>
-  readonly reviewsCount: Prisma.FieldRef<"ProductLeaderboardScore", 'Int'>
-  readonly reviewsRatingSum: Prisma.FieldRef<"ProductLeaderboardScore", 'Int'>
   readonly score: Prisma.FieldRef<"ProductLeaderboardScore", 'Int'>
   readonly scoreComponents: Prisma.FieldRef<"ProductLeaderboardScore", 'Json'>
   readonly rank: Prisma.FieldRef<"ProductLeaderboardScore", 'Int'>

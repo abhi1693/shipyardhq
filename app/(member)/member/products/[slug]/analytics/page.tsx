@@ -17,7 +17,6 @@ import {
   formatDuration,
   formatPercent,
   OsIcon,
-  ValueBarRow,
 } from "@/components/molecules/AnalyticsShared"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import {
@@ -34,7 +33,6 @@ import {
   type GaDateRange,
   getProductTrafficFromGa,
 } from "@/lib/server/analytics/googleAnalytics"
-import { getProductReviewSummary } from "@/lib/server/productReviews"
 import {
   Card,
   CardContent,
@@ -49,11 +47,10 @@ import {
   MousePointer2,
   TrendingUp,
   Users,
-  Star,
 } from "lucide-react"
 
 import { ProductAnalyticsRangeDropdown } from "@/components/molecules/ProductAnalyticsRangeDropdown"
-import { AnalyticsPieChart } from "@/components/molecules/AnalyticsPieChart"
+import { AnalyticsBarChart } from "@/components/molecules/AnalyticsBarChart"
 import { AnalyticsListCard } from "@/components/molecules/AnalyticsListCard"
 import { AnalyticsMetricCard } from "@/components/molecules/AnalyticsMetricCard"
 import { AnalyticsValueList } from "@/components/molecules/AnalyticsValueList"
@@ -248,7 +245,7 @@ export default async function ProductAnalyticsPage({
 
   const resolvedRange = resolveRange(sp?.range, product.createdAt)
   const previousRange = resolvePreviousRange(resolvedRange.dateRange)
-  const [gaTraffic, gaTrafficPrevious, reviewSummary] = await Promise.all([
+  const [gaTraffic, gaTrafficPrevious] = await Promise.all([
     getProductTrafficFromGa({
       pagePaths: buildProductPagePaths(product.slug),
       dateRange: resolvedRange.dateRange,
@@ -259,7 +256,6 @@ export default async function ProductAnalyticsPage({
       dateRange: previousRange,
       includeAdvanced: hasAdvancedAnalytics,
     }),
-    getProductReviewSummary(product.id, 1),
   ])
   const upvotes = product.analytics?.upvotes ?? 0
   const formatter = new Intl.NumberFormat("en-US")
@@ -274,8 +270,7 @@ export default async function ProductAnalyticsPage({
     gaTrafficPrevious.uniqueVisitors > 0
       ? (gaTrafficPrevious.newUsers / gaTrafficPrevious.uniqueVisitors) * 100
       : 0
-  const valueBarRowClassName =
-    "border border-slate-200 bg-white px-3 py-2 shadow-sm"
+  const newVisitorDelta = computeDelta(newVisitorShare, newVisitorSharePrev)
   const metricDeltas = {
     views: computeDelta(gaTraffic.pageViews, gaTrafficPrevious.pageViews),
     visits: computeDelta(gaTraffic.sessions, gaTrafficPrevious.sessions),
@@ -288,7 +283,6 @@ export default async function ProductAnalyticsPage({
       gaTraffic.averageSessionDuration,
       gaTrafficPrevious.averageSessionDuration,
     ),
-    newShare: computeDelta(newVisitorShare, newVisitorSharePrev),
   }
 
   const referrersSorted = gaTraffic.referrers
@@ -336,7 +330,7 @@ export default async function ProductAnalyticsPage({
       }
       relationships={
         <div className="space-y-6">
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
             <AnalyticsMetricCard
               label="Views"
               value={formatter.format(gaTraffic.pageViews)}
@@ -374,77 +368,11 @@ export default async function ProductAnalyticsPage({
               delta={metricDeltas.duration}
               icon={<Clock3 className="h-4 w-4" aria-hidden />}
             />
-          </div>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <AnalyticsMetricCard
               label="Upvotes"
               value={formatter.format(upvotes)}
               helper="All time"
             />
-            <AnalyticsMetricCard
-              label="Avg. review rating"
-              value={
-                reviewSummary.averageRating > 0
-                  ? `${reviewSummary.averageRating.toFixed(1)} / 5`
-                  : "—"
-              }
-              helper={
-                reviewSummary.totalReviews > 0
-                  ? `${reviewSummary.totalReviews} review${
-                      reviewSummary.totalReviews === 1 ? "" : "s"
-                    }`
-                  : "No reviews yet"
-              }
-              icon={<Star className="h-4 w-4" aria-hidden />}
-            />
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div className="text-sm font-semibold text-slate-600">
-                  New vs returning
-                </div>
-                <div className="text-xs text-slate-500">
-                  {resolvedRange.label}
-                </div>
-              </div>
-              <ValueBarRow
-                value={newVisitorShare}
-                max={100}
-                className={valueBarRowClassName}
-                left={
-                  <div className="flex items-center gap-2 truncate">
-                    <span className="h-2 w-2 rounded-full bg-sky-400" />
-                    <span className="text-sm font-medium text-slate-900">
-                      New
-                    </span>
-                  </div>
-                }
-                right={
-                  <span className="text-sm font-semibold text-slate-700">
-                    {formatPercentOneDecimal(newVisitorShare)}
-                  </span>
-                }
-                tone="blue"
-              />
-              <ValueBarRow
-                value={returningVisitorShare}
-                max={100}
-                className={valueBarRowClassName}
-                left={
-                  <div className="flex items-center gap-2 truncate">
-                    <span className="h-2 w-2 rounded-full bg-indigo-400" />
-                    <span className="text-sm font-medium text-slate-900">
-                      Returning
-                    </span>
-                  </div>
-                }
-                right={
-                  <span className="text-sm font-semibold text-slate-700">
-                    {formatPercentOneDecimal(returningVisitorShare)}
-                  </span>
-                }
-                tone="indigo"
-              />
-            </div>
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             <Card className="rounded-xl border border-slate-200 bg-white/90 shadow-sm">
@@ -468,40 +396,59 @@ export default async function ProductAnalyticsPage({
             </Card>
             <Card className="rounded-xl border border-slate-200 bg-white/90 shadow-sm">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base text-slate-900">
-                  Upvotes & reviews
-                </CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">
-                  Distribution for this range
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-4">
-                {upvotes > 0 || reviewSummary.totalReviews > 0 ? (
-                  <AnalyticsPieChart
-                    data={[
-                      { label: "Upvotes", value: upvotes },
-                      {
-                        label: "Reviews",
-                        value: reviewSummary.totalReviews,
-                      },
-                    ]}
-                    dataKey="value"
-                    nameKey="label"
-                    config={{
-                      upvotes: { label: "Upvotes", color: "#0ea5e9" },
-                      reviews: { label: "Reviews", color: "#6366f1" },
-                    }}
-                    cells={[{ fill: "#0ea5e9" }, { fill: "#6366f1" }]}
-                    innerRadius={60}
-                    outerRadius={80}
-                    showLegend
-                    className="border-none p-0 shadow-none"
-                  />
-                ) : (
-                  <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-sm text-muted-foreground">
-                    No upvotes or reviews yet for this range.
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-base text-slate-900">
+                      New vs returning
+                    </CardTitle>
+                    <CardDescription className="text-sm text-muted-foreground">
+                      {resolvedRange.label}
+                    </CardDescription>
                   </div>
-                )}
+                  <div className="text-right text-xs text-muted-foreground">
+                    <div>New: {formatPercentOneDecimal(newVisitorShare)}</div>
+                    <div>
+                      Returning: {formatPercentOneDecimal(returningVisitorShare)}
+                    </div>
+                    {newVisitorDelta !== null ? (
+                      <div className="text-[11px] text-foreground">
+                        Δ new: {formatPercentOneDecimal(newVisitorDelta)}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-2">
+                <AnalyticsBarChart
+                  className="min-h-[260px]"
+                  data={[
+                    {
+                      segment: "Visitors",
+                      newVisitors: Math.max(newVisitorShare, 0),
+                      returningVisitors: Math.max(returningVisitorShare, 0),
+                    },
+                  ]}
+                  config={{
+                    newVisitors: { label: "New", color: "#0ea5e9" },
+                    returningVisitors: {
+                      label: "Returning",
+                      color: "#6366f1",
+                    },
+                  }}
+                  bars={[
+                    { dataKey: "newVisitors", barProps: { radius: 6 } },
+                    {
+                      dataKey: "returningVisitors",
+                      barProps: { radius: 6 },
+                    },
+                  ]}
+                  showLegend
+                  xAxis={{ dataKey: "segment" }}
+                  yAxis={{
+                    domain: [0, 100],
+                  }}
+                  grid={{ strokeDasharray: "4 4" }}
+                />
               </CardContent>
             </Card>
           </div>

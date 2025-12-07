@@ -123,20 +123,10 @@ export type OrganizationMembership = Prisma.OrganizationMembershipModel
  */
 export type User = Prisma.UserModel
 /**
- * Model ProductReview
- * 
- */
-export type ProductReview = Prisma.ProductReviewModel
-/**
  * Model MemberFeedback
  * 
  */
 export type MemberFeedback = Prisma.MemberFeedbackModel
-/**
- * Model NewsletterSubscription
- * 
- */
-export type NewsletterSubscription = Prisma.NewsletterSubscriptionModel
 /**
  * Model Category
  * 

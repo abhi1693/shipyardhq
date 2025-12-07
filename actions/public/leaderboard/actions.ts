@@ -311,25 +311,15 @@ const getPeriodicArchive = cached(
       }
     })
 
-    const [upvotes, reviews] = await Promise.all([
-      prisma.productUpvote.findMany({
-        where: {
-          createdAt: { gte: earliestMonth, lt: now },
-          product: { status: "published" },
-        },
-        select: { createdAt: true },
-      }),
-      prisma.productReview.findMany({
-        where: {
-          createdAt: { gte: earliestMonth, lt: now },
-          product: { status: "published" },
-        },
-        select: { createdAt: true },
-      }),
-    ])
+    const upvotes = await prisma.productUpvote.findMany({
+      where: {
+        createdAt: { gte: earliestMonth, lt: now },
+        product: { status: "published" },
+      },
+      select: { createdAt: true },
+    })
 
     upvotes.forEach(({ createdAt }: { createdAt: Date }) => addWeek(createdAt))
-    reviews.forEach(({ createdAt }: { createdAt: Date }) => addWeek(createdAt))
 
     return {
       months: Array.from(months.values()).sort(sortMonthsDesc),

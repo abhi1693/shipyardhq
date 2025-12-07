@@ -363,7 +363,6 @@ export type ProductWhereInput = {
   ProductBadge?: Prisma.ProductBadgeListRelationFilter
   ProductMedia?: Prisma.ProductMediaListRelationFilter
   ProductUpvote?: Prisma.ProductUpvoteListRelationFilter
-  ProductReview?: Prisma.ProductReviewListRelationFilter
   ProductUpdate?: Prisma.ProductUpdateListRelationFilter
   placementSchedules?: Prisma.PlacementScheduleListRelationFilter
   trafficEvents?: Prisma.ProductTrafficEventListRelationFilter
@@ -411,7 +410,6 @@ export type ProductOrderByWithRelationInput = {
   ProductBadge?: Prisma.ProductBadgeOrderByRelationAggregateInput
   ProductMedia?: Prisma.ProductMediaOrderByRelationAggregateInput
   ProductUpvote?: Prisma.ProductUpvoteOrderByRelationAggregateInput
-  ProductReview?: Prisma.ProductReviewOrderByRelationAggregateInput
   ProductUpdate?: Prisma.ProductUpdateOrderByRelationAggregateInput
   placementSchedules?: Prisma.PlacementScheduleOrderByRelationAggregateInput
   trafficEvents?: Prisma.ProductTrafficEventOrderByRelationAggregateInput
@@ -462,7 +460,6 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   ProductBadge?: Prisma.ProductBadgeListRelationFilter
   ProductMedia?: Prisma.ProductMediaListRelationFilter
   ProductUpvote?: Prisma.ProductUpvoteListRelationFilter
-  ProductReview?: Prisma.ProductReviewListRelationFilter
   ProductUpdate?: Prisma.ProductUpdateListRelationFilter
   placementSchedules?: Prisma.PlacementScheduleListRelationFilter
   trafficEvents?: Prisma.ProductTrafficEventListRelationFilter
@@ -566,7 +563,6 @@ export type ProductCreateInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -610,7 +606,6 @@ export type ProductUncheckedCreateInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -654,7 +649,6 @@ export type ProductUpdateInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -698,7 +692,6 @@ export type ProductUncheckedUpdateInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -1233,20 +1226,6 @@ export type ProductUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.ProductScalarWhereInput | Prisma.ProductScalarWhereInput[]
 }
 
-export type ProductCreateNestedOneWithoutProductReviewInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutProductReviewInput, Prisma.ProductUncheckedCreateWithoutProductReviewInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutProductReviewInput
-  connect?: Prisma.ProductWhereUniqueInput
-}
-
-export type ProductUpdateOneRequiredWithoutProductReviewNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutProductReviewInput, Prisma.ProductUncheckedCreateWithoutProductReviewInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutProductReviewInput
-  upsert?: Prisma.ProductUpsertWithoutProductReviewInput
-  connect?: Prisma.ProductWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutProductReviewInput, Prisma.ProductUpdateWithoutProductReviewInput>, Prisma.ProductUncheckedUpdateWithoutProductReviewInput>
-}
-
 export type ProductCreateNestedManyWithoutCategoryInput = {
   create?: Prisma.XOR<Prisma.ProductCreateWithoutCategoryInput, Prisma.ProductUncheckedCreateWithoutCategoryInput> | Prisma.ProductCreateWithoutCategoryInput[] | Prisma.ProductUncheckedCreateWithoutCategoryInput[]
   connectOrCreate?: Prisma.ProductCreateOrConnectWithoutCategoryInput | Prisma.ProductCreateOrConnectWithoutCategoryInput[]
@@ -1438,7 +1417,6 @@ export type ProductCreateWithoutPaymentConnectorInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -1481,7 +1459,6 @@ export type ProductUncheckedCreateWithoutPaymentConnectorInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -1540,7 +1517,6 @@ export type ProductUpdateWithoutPaymentConnectorInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -1583,7 +1559,6 @@ export type ProductUncheckedUpdateWithoutPaymentConnectorInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -1626,7 +1601,6 @@ export type ProductCreateWithoutAlternativesInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -1669,7 +1643,6 @@ export type ProductUncheckedCreateWithoutAlternativesInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -1762,7 +1735,6 @@ export type ProductCreateWithoutLeaderboardScoresInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -1805,7 +1777,6 @@ export type ProductUncheckedCreateWithoutLeaderboardScoresInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -1864,7 +1835,6 @@ export type ProductUpdateWithoutLeaderboardScoresInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -1907,7 +1877,6 @@ export type ProductUncheckedUpdateWithoutLeaderboardScoresInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -1949,7 +1918,6 @@ export type ProductCreateWithoutProductMediaInput = {
   insightProfile?: Prisma.ProductInsightProfileCreateNestedOneWithoutProductInput
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -1992,7 +1960,6 @@ export type ProductUncheckedCreateWithoutProductMediaInput = {
   insightProfile?: Prisma.ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -2051,7 +2018,6 @@ export type ProductUpdateWithoutProductMediaInput = {
   insightProfile?: Prisma.ProductInsightProfileUpdateOneWithoutProductNestedInput
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -2094,7 +2060,6 @@ export type ProductUncheckedUpdateWithoutProductMediaInput = {
   insightProfile?: Prisma.ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -2138,7 +2103,6 @@ export type ProductCreateWithoutProductUpdateInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
@@ -2181,7 +2145,6 @@ export type ProductUncheckedCreateWithoutProductUpdateInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
@@ -2240,7 +2203,6 @@ export type ProductUpdateWithoutProductUpdateInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
@@ -2283,7 +2245,6 @@ export type ProductUncheckedUpdateWithoutProductUpdateInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
@@ -2325,7 +2286,6 @@ export type ProductCreateWithoutVerificationInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -2368,7 +2328,6 @@ export type ProductUncheckedCreateWithoutVerificationInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -2427,7 +2386,6 @@ export type ProductUpdateWithoutVerificationInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -2470,7 +2428,6 @@ export type ProductUncheckedUpdateWithoutVerificationInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -2514,7 +2471,6 @@ export type ProductCreateWithoutClaimAttemptsInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -2557,7 +2513,6 @@ export type ProductUncheckedCreateWithoutClaimAttemptsInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -2616,7 +2571,6 @@ export type ProductUpdateWithoutClaimAttemptsInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -2659,7 +2613,6 @@ export type ProductUncheckedUpdateWithoutClaimAttemptsInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -2701,7 +2654,6 @@ export type ProductCreateWithoutMetadataInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -2744,7 +2696,6 @@ export type ProductUncheckedCreateWithoutMetadataInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -2803,7 +2754,6 @@ export type ProductUpdateWithoutMetadataInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -2846,7 +2796,6 @@ export type ProductUncheckedUpdateWithoutMetadataInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -2889,7 +2838,6 @@ export type ProductCreateWithoutAnalyticsInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -2932,7 +2880,6 @@ export type ProductUncheckedCreateWithoutAnalyticsInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -2991,7 +2938,6 @@ export type ProductUpdateWithoutAnalyticsInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -3034,7 +2980,6 @@ export type ProductUncheckedUpdateWithoutAnalyticsInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -3078,7 +3023,6 @@ export type ProductCreateWithoutTrafficEventsInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
@@ -3121,7 +3065,6 @@ export type ProductUncheckedCreateWithoutTrafficEventsInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
@@ -3180,7 +3123,6 @@ export type ProductUpdateWithoutTrafficEventsInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
@@ -3223,7 +3165,6 @@ export type ProductUncheckedUpdateWithoutTrafficEventsInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
@@ -3265,7 +3206,6 @@ export type ProductCreateWithoutInsightProfileInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -3308,7 +3248,6 @@ export type ProductUncheckedCreateWithoutInsightProfileInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -3367,7 +3306,6 @@ export type ProductUpdateWithoutInsightProfileInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -3410,7 +3348,6 @@ export type ProductUncheckedUpdateWithoutInsightProfileInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -3453,7 +3390,6 @@ export type ProductCreateWithoutProductUpvoteInput = {
   insightProfile?: Prisma.ProductInsightProfileCreateNestedOneWithoutProductInput
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -3496,7 +3432,6 @@ export type ProductUncheckedCreateWithoutProductUpvoteInput = {
   insightProfile?: Prisma.ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -3555,7 +3490,6 @@ export type ProductUpdateWithoutProductUpvoteInput = {
   insightProfile?: Prisma.ProductInsightProfileUpdateOneWithoutProductNestedInput
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -3598,7 +3532,6 @@ export type ProductUncheckedUpdateWithoutProductUpvoteInput = {
   insightProfile?: Prisma.ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -3641,7 +3574,6 @@ export type ProductCreateWithoutOrganizationInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -3684,7 +3616,6 @@ export type ProductUncheckedCreateWithoutOrganizationInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -3753,7 +3684,6 @@ export type ProductCreateWithoutUserInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -3796,7 +3726,6 @@ export type ProductUncheckedCreateWithoutUserInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -3835,194 +3764,6 @@ export type ProductUpdateManyWithWhereWithoutUserInput = {
   data: Prisma.XOR<Prisma.ProductUpdateManyMutationInput, Prisma.ProductUncheckedUpdateManyWithoutUserInput>
 }
 
-export type ProductCreateWithoutProductReviewInput = {
-  id?: string
-  name: string
-  slug: string
-  tagline: string
-  description: string
-  websiteUrl: string
-  logo: string
-  planAssignedAt?: Date | string | null
-  type: $Enums.ProductType
-  pricingModel: $Enums.PricingModel
-  status?: $Enums.ProductStatus
-  publishedAt?: Date | string | null
-  startingPriceCents?: number | null
-  currencyCode?: string | null
-  bannerImage?: string | null
-  keywords?: Prisma.ProductCreatekeywordsInput | string[]
-  platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutProductsInput
-  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
-  plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
-  metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
-  analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
-  verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
-  insightProfile?: Prisma.ProductInsightProfileCreateNestedOneWithoutProductInput
-  ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
-  ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
-  ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
-  placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
-  trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
-  rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
-  redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
-  featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
-  alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
-  claimAttempts?: Prisma.ProductClaimAttemptCreateNestedManyWithoutProductInput
-}
-
-export type ProductUncheckedCreateWithoutProductReviewInput = {
-  id?: string
-  name: string
-  slug: string
-  tagline: string
-  description: string
-  websiteUrl: string
-  logo: string
-  userId: string
-  categoryId: string
-  planId?: string | null
-  planAssignedAt?: Date | string | null
-  type: $Enums.ProductType
-  pricingModel: $Enums.PricingModel
-  status?: $Enums.ProductStatus
-  publishedAt?: Date | string | null
-  organizationId?: string | null
-  startingPriceCents?: number | null
-  currencyCode?: string | null
-  bannerImage?: string | null
-  keywords?: Prisma.ProductCreatekeywordsInput | string[]
-  platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
-  analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
-  verification?: Prisma.ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-  insightProfile?: Prisma.ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
-  ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
-  ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
-  ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
-  placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
-  trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
-  rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
-  redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
-  featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
-  alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
-  claimAttempts?: Prisma.ProductClaimAttemptUncheckedCreateNestedManyWithoutProductInput
-}
-
-export type ProductCreateOrConnectWithoutProductReviewInput = {
-  where: Prisma.ProductWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductCreateWithoutProductReviewInput, Prisma.ProductUncheckedCreateWithoutProductReviewInput>
-}
-
-export type ProductUpsertWithoutProductReviewInput = {
-  update: Prisma.XOR<Prisma.ProductUpdateWithoutProductReviewInput, Prisma.ProductUncheckedUpdateWithoutProductReviewInput>
-  create: Prisma.XOR<Prisma.ProductCreateWithoutProductReviewInput, Prisma.ProductUncheckedCreateWithoutProductReviewInput>
-  where?: Prisma.ProductWhereInput
-}
-
-export type ProductUpdateToOneWithWhereWithoutProductReviewInput = {
-  where?: Prisma.ProductWhereInput
-  data: Prisma.XOR<Prisma.ProductUpdateWithoutProductReviewInput, Prisma.ProductUncheckedUpdateWithoutProductReviewInput>
-}
-
-export type ProductUpdateWithoutProductReviewInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
-  logo?: Prisma.StringFieldUpdateOperationsInput | string
-  planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
-  pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
-  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  keywords?: Prisma.ProductUpdatekeywordsInput | string[]
-  platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
-  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
-  plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
-  metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
-  analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
-  verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
-  insightProfile?: Prisma.ProductInsightProfileUpdateOneWithoutProductNestedInput
-  ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
-  ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
-  ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
-  placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
-  trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
-  rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
-  redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
-  featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
-  alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
-  claimAttempts?: Prisma.ProductClaimAttemptUpdateManyWithoutProductNestedInput
-}
-
-export type ProductUncheckedUpdateWithoutProductReviewInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
-  logo?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
-  pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
-  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  keywords?: Prisma.ProductUpdatekeywordsInput | string[]
-  platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
-  analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
-  verification?: Prisma.ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-  insightProfile?: Prisma.ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
-  ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
-  ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
-  ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
-  placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
-  trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
-  rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
-  redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
-  featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
-  alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
-  claimAttempts?: Prisma.ProductClaimAttemptUncheckedUpdateManyWithoutProductNestedInput
-}
-
 export type ProductCreateWithoutCategoryInput = {
   id?: string
   name: string
@@ -4053,7 +3794,6 @@ export type ProductCreateWithoutCategoryInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -4096,7 +3836,6 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -4165,7 +3904,6 @@ export type ProductCreateWithoutPlanInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -4208,7 +3946,6 @@ export type ProductUncheckedCreateWithoutPlanInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -4277,7 +4014,6 @@ export type ProductCreateWithoutProductBadgeInput = {
   insightProfile?: Prisma.ProductInsightProfileCreateNestedOneWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -4320,7 +4056,6 @@ export type ProductUncheckedCreateWithoutProductBadgeInput = {
   insightProfile?: Prisma.ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -4379,7 +4114,6 @@ export type ProductUpdateWithoutProductBadgeInput = {
   insightProfile?: Prisma.ProductInsightProfileUpdateOneWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -4422,7 +4156,6 @@ export type ProductUncheckedUpdateWithoutProductBadgeInput = {
   insightProfile?: Prisma.ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -4466,7 +4199,6 @@ export type ProductCreateWithoutRewardTransactionsInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -4509,7 +4241,6 @@ export type ProductUncheckedCreateWithoutRewardTransactionsInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -4568,7 +4299,6 @@ export type ProductUpdateWithoutRewardTransactionsInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -4611,7 +4341,6 @@ export type ProductUncheckedUpdateWithoutRewardTransactionsInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -4654,7 +4383,6 @@ export type ProductCreateWithoutRedemptionsInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -4697,7 +4425,6 @@ export type ProductUncheckedCreateWithoutRedemptionsInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -4756,7 +4483,6 @@ export type ProductUpdateWithoutRedemptionsInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -4799,7 +4525,6 @@ export type ProductUncheckedUpdateWithoutRedemptionsInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -4842,7 +4567,6 @@ export type ProductCreateWithoutFeatureEntitlementsInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
@@ -4885,7 +4609,6 @@ export type ProductUncheckedCreateWithoutFeatureEntitlementsInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
@@ -4944,7 +4667,6 @@ export type ProductUpdateWithoutFeatureEntitlementsInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -4987,7 +4709,6 @@ export type ProductUncheckedUpdateWithoutFeatureEntitlementsInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -5030,7 +4751,6 @@ export type ProductCreateWithoutPlacementSchedulesInput = {
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventCreateNestedManyWithoutProductInput
   leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
@@ -5073,7 +4793,6 @@ export type ProductUncheckedCreateWithoutPlacementSchedulesInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
   ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  ProductReview?: Prisma.ProductReviewUncheckedCreateNestedManyWithoutProductInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedCreateNestedManyWithoutProductInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
@@ -5132,7 +4851,6 @@ export type ProductUpdateWithoutPlacementSchedulesInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
   leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
@@ -5175,7 +4893,6 @@ export type ProductUncheckedUpdateWithoutPlacementSchedulesInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
@@ -5218,7 +4935,6 @@ export type ProductUpdateWithoutAlternativesInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -5261,7 +4977,6 @@ export type ProductUncheckedUpdateWithoutAlternativesInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -5354,7 +5069,6 @@ export type ProductUpdateWithoutOrganizationInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -5397,7 +5111,6 @@ export type ProductUncheckedUpdateWithoutOrganizationInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -5490,7 +5203,6 @@ export type ProductUpdateWithoutUserInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -5533,7 +5245,6 @@ export type ProductUncheckedUpdateWithoutUserInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -5626,7 +5337,6 @@ export type ProductUpdateWithoutCategoryInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -5669,7 +5379,6 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -5762,7 +5471,6 @@ export type ProductUpdateWithoutPlanInput = {
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUpdateManyWithoutProductNestedInput
@@ -5805,7 +5513,6 @@ export type ProductUncheckedUpdateWithoutPlanInput = {
   ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
   ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  ProductReview?: Prisma.ProductReviewUncheckedUpdateManyWithoutProductNestedInput
   ProductUpdate?: Prisma.ProductUpdateUncheckedUpdateManyWithoutProductNestedInput
   placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
   trafficEvents?: Prisma.ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
@@ -5852,7 +5559,6 @@ export type ProductCountOutputType = {
   ProductBadge: number
   ProductMedia: number
   ProductUpvote: number
-  ProductReview: number
   ProductUpdate: number
   placementSchedules: number
   trafficEvents: number
@@ -5868,7 +5574,6 @@ export type ProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   ProductBadge?: boolean | ProductCountOutputTypeCountProductBadgeArgs
   ProductMedia?: boolean | ProductCountOutputTypeCountProductMediaArgs
   ProductUpvote?: boolean | ProductCountOutputTypeCountProductUpvoteArgs
-  ProductReview?: boolean | ProductCountOutputTypeCountProductReviewArgs
   ProductUpdate?: boolean | ProductCountOutputTypeCountProductUpdateArgs
   placementSchedules?: boolean | ProductCountOutputTypeCountPlacementSchedulesArgs
   trafficEvents?: boolean | ProductCountOutputTypeCountTrafficEventsArgs
@@ -5909,13 +5614,6 @@ export type ProductCountOutputTypeCountProductMediaArgs<ExtArgs extends runtime.
  */
 export type ProductCountOutputTypeCountProductUpvoteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProductUpvoteWhereInput
-}
-
-/**
- * ProductCountOutputType without action
- */
-export type ProductCountOutputTypeCountProductReviewArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProductReviewWhereInput
 }
 
 /**
@@ -6017,7 +5715,6 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   ProductBadge?: boolean | Prisma.Product$ProductBadgeArgs<ExtArgs>
   ProductMedia?: boolean | Prisma.Product$ProductMediaArgs<ExtArgs>
   ProductUpvote?: boolean | Prisma.Product$ProductUpvoteArgs<ExtArgs>
-  ProductReview?: boolean | Prisma.Product$ProductReviewArgs<ExtArgs>
   ProductUpdate?: boolean | Prisma.Product$ProductUpdateArgs<ExtArgs>
   placementSchedules?: boolean | Prisma.Product$placementSchedulesArgs<ExtArgs>
   trafficEvents?: boolean | Prisma.Product$trafficEventsArgs<ExtArgs>
@@ -6130,7 +5827,6 @@ export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   ProductBadge?: boolean | Prisma.Product$ProductBadgeArgs<ExtArgs>
   ProductMedia?: boolean | Prisma.Product$ProductMediaArgs<ExtArgs>
   ProductUpvote?: boolean | Prisma.Product$ProductUpvoteArgs<ExtArgs>
-  ProductReview?: boolean | Prisma.Product$ProductReviewArgs<ExtArgs>
   ProductUpdate?: boolean | Prisma.Product$ProductUpdateArgs<ExtArgs>
   placementSchedules?: boolean | Prisma.Product$placementSchedulesArgs<ExtArgs>
   trafficEvents?: boolean | Prisma.Product$trafficEventsArgs<ExtArgs>
@@ -6170,7 +5866,6 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     ProductBadge: Prisma.$ProductBadgePayload<ExtArgs>[]
     ProductMedia: Prisma.$ProductMediaPayload<ExtArgs>[]
     ProductUpvote: Prisma.$ProductUpvotePayload<ExtArgs>[]
-    ProductReview: Prisma.$ProductReviewPayload<ExtArgs>[]
     ProductUpdate: Prisma.$ProductUpdatePayload<ExtArgs>[]
     placementSchedules: Prisma.$PlacementSchedulePayload<ExtArgs>[]
     trafficEvents: Prisma.$ProductTrafficEventPayload<ExtArgs>[]
@@ -6611,7 +6306,6 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
   ProductBadge<T extends Prisma.Product$ProductBadgeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$ProductBadgeArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductBadgePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ProductMedia<T extends Prisma.Product$ProductMediaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$ProductMediaArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductMediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ProductUpvote<T extends Prisma.Product$ProductUpvoteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$ProductUpvoteArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductUpvotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  ProductReview<T extends Prisma.Product$ProductReviewArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$ProductReviewArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ProductUpdate<T extends Prisma.Product$ProductUpdateArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$ProductUpdateArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductUpdatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   placementSchedules<T extends Prisma.Product$placementSchedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$placementSchedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlacementSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   trafficEvents<T extends Prisma.Product$trafficEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$trafficEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7253,30 +6947,6 @@ export type Product$ProductUpvoteArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.ProductUpvoteScalarFieldEnum | Prisma.ProductUpvoteScalarFieldEnum[]
-}
-
-/**
- * Product.ProductReview
- */
-export type Product$ProductReviewArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ProductReview
-   */
-  select?: Prisma.ProductReviewSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ProductReview
-   */
-  omit?: Prisma.ProductReviewOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProductReviewInclude<ExtArgs> | null
-  where?: Prisma.ProductReviewWhereInput
-  orderBy?: Prisma.ProductReviewOrderByWithRelationInput | Prisma.ProductReviewOrderByWithRelationInput[]
-  cursor?: Prisma.ProductReviewWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ProductReviewScalarFieldEnum | Prisma.ProductReviewScalarFieldEnum[]
 }
 
 /**

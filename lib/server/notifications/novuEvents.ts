@@ -11,7 +11,6 @@ import {
 import { sendProductNotificationToNovu } from "@/lib/server/notifications/novuProduct"
 import { sendRewardsNotificationToNovu } from "@/lib/server/notifications/novuRewards"
 import type {
-  ProductReviewCreatedEvent,
   ProductUpvotedEvent,
   RewardsAdjustedEvent,
   RewardsAwardedEvent,
@@ -113,81 +112,6 @@ export async function notifyNovuProductUpvote(
     })
   } catch (error) {
     console.error("[notifications] failed to handle product.upvoted", {
-      error,
-      event,
-    })
-  }
-}
-
-export async function notifyNovuProductReview(
-  event: ProductReviewCreatedEvent,
-): Promise<void> {
-  try {
-    const [product, reviewer] = await Promise.all([
-      loadProduct(event.productId),
-      loadUser(event.userId),
-    ])
-
-    if (!product) return
-    if (!reviewer) return
-
-    const ownerUserId = event.productOwnerId ?? product.userId
-    if (!ownerUserId) return
-    if (ownerUserId === reviewer.id) return
-
-    const owner = await loadUser(ownerUserId)
-    const recipient = toNovuSubscriberFromUser(owner)
-    const actorSubscriber = toNovuSubscriberFromUser(reviewer)
-
-    if (!recipient || !actorSubscriber) {
-      console.warn(
-        "[novu] skip product.review notification due to missing clerkId",
-        {
-          productId: product.id,
-          recipientId: owner?.clerkId ?? null,
-          actorId: reviewer?.clerkId ?? null,
-        },
-      )
-      return
-    }
-
-    const reviewerName = formatUserName(reviewer)
-    const productName = formatProductName(product)
-    const message = `New review on ${productName} by ${reviewerName}`
-    const subject = `New review on ${productName}`
-
-    await sendProductNotificationToNovu({
-      kind: "product_review",
-      message,
-      subject,
-      recipient,
-      actor: actorSubscriber,
-      product: {
-        id: product.id,
-        slug: product.slug,
-        name: product.name,
-      },
-      links: {
-        member: memberProductPath(product.slug),
-        public: productPath(product.slug),
-      },
-      context: {
-        review: {
-          id: event.reviewId,
-          rating: event.rating,
-          messageLength: event.messageLength,
-          createdAt: event.createdAt.toISOString(),
-          updatedAt: event.updatedAt.toISOString(),
-          reviewer: {
-            id: reviewer.id,
-            name: reviewerName,
-          },
-        },
-      },
-      transactionId: `product_review:${event.reviewId}`,
-    })
-  } catch (error) {
-    console.error("[notifications] failed to handle product.reviewed", {
       error,
       event,
     })

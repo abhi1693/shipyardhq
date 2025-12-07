@@ -64,7 +64,6 @@ import ProductBadgeCelebrationGate from "@/components/molecules/ProductBadgeCele
 import ProductBadgeCelebrationTrigger from "@/components/molecules/ProductBadgeCelebrationTrigger"
 import { JSX } from "react"
 import { getRecentProductUpvoters } from "@/lib/server/productUpvotes"
-import { getProductReviewSummary } from "@/lib/server/productReviews"
 
 const chipIconClass = "h-3.5 w-3.5 text-muted-foreground"
 const infoChipClass =
@@ -132,12 +131,6 @@ export default async function ViewUserProductPage({
   })
   const canViewAnalytics = hasBasicAnalytics
   const upvoters = await getRecentProductUpvoters(productId, 8).catch(() => [])
-  const reviewSummary = await getProductReviewSummary(productId, 6)
-
-  const reviewerDisplayName = (first?: string | null, last?: string | null) => {
-    const parts = [first?.trim(), last?.trim()].filter(Boolean)
-    return parts.length ? parts.join(" ") : "Shipyard member"
-  }
 
   const allPlans = await getPublicPlans({
     type: PlanType.one_time_price,
@@ -714,27 +707,6 @@ export default async function ViewUserProductPage({
                 hasBanner={Boolean(product.bannerImage)}
                 ogImageUrl={product.bannerImage || product.logo}
                 editHref={memberProductEditPath(product.slug)}
-                reviewAverage={
-                  reviewSummary.totalReviews
-                    ? reviewSummary.averageRating
-                    : null
-                }
-                reviewCount={reviewSummary.totalReviews}
-                recentReviews={reviewSummary.reviews
-                  .slice(0, 3)
-                  .map((review) => ({
-                    id: review.id,
-                    rating: review.rating,
-                    message: review.message,
-                    createdAt:
-                      review.createdAt instanceof Date
-                        ? review.createdAt.toISOString()
-                        : new Date(review.createdAt).toISOString(),
-                    reviewer: reviewerDisplayName(
-                      review.user.firstName,
-                      review.user.lastName,
-                    ),
-                  }))}
               />
             </div>
             <Card className="col-span-12 md:col-span-4">

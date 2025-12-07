@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.0.1
- * Query Engine version: f09f2815f091dbba658cdcd2264306d88bb5bda6
+ * Prisma Client JS version: 7.1.0
+ * Query Engine version: ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.0.1",
-  engine: "f09f2815f091dbba658cdcd2264306d88bb5bda6"
+  client: "7.1.0",
+  engine: "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba"
 }
 
 /**
@@ -405,9 +405,7 @@ export const ModelName = {
   Organization: 'Organization',
   OrganizationMembership: 'OrganizationMembership',
   User: 'User',
-  ProductReview: 'ProductReview',
   MemberFeedback: 'MemberFeedback',
-  NewsletterSubscription: 'NewsletterSubscription',
   Category: 'Category',
   Plan: 'Plan',
   PlanFeature: 'PlanFeature',
@@ -440,7 +438,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "monthlyLeaderboardNotification" | "productMedia" | "productUpdate" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "monthlyLeaderboardNotification" | "productMedia" | "productUpdate" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "memberFeedback" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1998,80 +1996,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ProductReview: {
-      payload: Prisma.$ProductReviewPayload<ExtArgs>
-      fields: Prisma.ProductReviewFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ProductReviewFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductReviewPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ProductReviewFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductReviewPayload>
-        }
-        findFirst: {
-          args: Prisma.ProductReviewFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductReviewPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ProductReviewFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductReviewPayload>
-        }
-        findMany: {
-          args: Prisma.ProductReviewFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductReviewPayload>[]
-        }
-        create: {
-          args: Prisma.ProductReviewCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductReviewPayload>
-        }
-        createMany: {
-          args: Prisma.ProductReviewCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ProductReviewCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductReviewPayload>[]
-        }
-        delete: {
-          args: Prisma.ProductReviewDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductReviewPayload>
-        }
-        update: {
-          args: Prisma.ProductReviewUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductReviewPayload>
-        }
-        deleteMany: {
-          args: Prisma.ProductReviewDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ProductReviewUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ProductReviewUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductReviewPayload>[]
-        }
-        upsert: {
-          args: Prisma.ProductReviewUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductReviewPayload>
-        }
-        aggregate: {
-          args: Prisma.ProductReviewAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProductReview>
-        }
-        groupBy: {
-          args: Prisma.ProductReviewGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductReviewGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ProductReviewCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductReviewCountAggregateOutputType> | number
-        }
-      }
-    }
     MemberFeedback: {
       payload: Prisma.$MemberFeedbackPayload<ExtArgs>
       fields: Prisma.MemberFeedbackFieldRefs
@@ -2143,80 +2067,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.MemberFeedbackCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.MemberFeedbackCountAggregateOutputType> | number
-        }
-      }
-    }
-    NewsletterSubscription: {
-      payload: Prisma.$NewsletterSubscriptionPayload<ExtArgs>
-      fields: Prisma.NewsletterSubscriptionFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.NewsletterSubscriptionFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.NewsletterSubscriptionFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>
-        }
-        findFirst: {
-          args: Prisma.NewsletterSubscriptionFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.NewsletterSubscriptionFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>
-        }
-        findMany: {
-          args: Prisma.NewsletterSubscriptionFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>[]
-        }
-        create: {
-          args: Prisma.NewsletterSubscriptionCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>
-        }
-        createMany: {
-          args: Prisma.NewsletterSubscriptionCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.NewsletterSubscriptionCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>[]
-        }
-        delete: {
-          args: Prisma.NewsletterSubscriptionDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>
-        }
-        update: {
-          args: Prisma.NewsletterSubscriptionUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>
-        }
-        deleteMany: {
-          args: Prisma.NewsletterSubscriptionDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.NewsletterSubscriptionUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.NewsletterSubscriptionUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>[]
-        }
-        upsert: {
-          args: Prisma.NewsletterSubscriptionUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$NewsletterSubscriptionPayload>
-        }
-        aggregate: {
-          args: Prisma.NewsletterSubscriptionAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateNewsletterSubscription>
-        }
-        groupBy: {
-          args: Prisma.NewsletterSubscriptionGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.NewsletterSubscriptionGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.NewsletterSubscriptionCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.NewsletterSubscriptionCountAggregateOutputType> | number
         }
       }
     }
@@ -3627,8 +3477,6 @@ export const ProductLeaderboardScoreScalarFieldEnum = {
   views: 'views',
   uniqueVisitors: 'uniqueVisitors',
   upvotes: 'upvotes',
-  reviewsCount: 'reviewsCount',
-  reviewsRatingSum: 'reviewsRatingSum',
   score: 'score',
   scoreComponents: 'scoreComponents',
   rank: 'rank',
@@ -3843,19 +3691,6 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const ProductReviewScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  userId: 'userId',
-  rating: 'rating',
-  message: 'message',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductReviewScalarFieldEnum = (typeof ProductReviewScalarFieldEnum)[keyof typeof ProductReviewScalarFieldEnum]
-
-
 export const MemberFeedbackScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -3871,16 +3706,6 @@ export const MemberFeedbackScalarFieldEnum = {
 } as const
 
 export type MemberFeedbackScalarFieldEnum = (typeof MemberFeedbackScalarFieldEnum)[keyof typeof MemberFeedbackScalarFieldEnum]
-
-
-export const NewsletterSubscriptionScalarFieldEnum = {
-  id: 'id',
-  email: 'email',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type NewsletterSubscriptionScalarFieldEnum = (typeof NewsletterSubscriptionScalarFieldEnum)[keyof typeof NewsletterSubscriptionScalarFieldEnum]
 
 
 export const CategoryScalarFieldEnum = {
@@ -4722,7 +4547,7 @@ export type PrismaClientOptions = ({
    *  { emit: 'stdout', level: 'error' }
    * 
    * ```
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/logging#the-log-option).
+   * Read more in our [docs](https://pris.ly/d/logging).
    */
   log?: (LogLevel | LogDefinition)[]
   /**
@@ -4750,6 +4575,22 @@ export type PrismaClientOptions = ({
    * ```
    */
   omit?: GlobalOmitConfig
+  /**
+   * SQL commenter plugins that add metadata to SQL queries as comments.
+   * Comments follow the sqlcommenter format: https://google.github.io/sqlcommenter/
+   * 
+   * @example
+   * ```
+   * const prisma = new PrismaClient({
+   *   adapter,
+   *   comments: [
+   *     traceContext(),
+   *     queryInsights(),
+   *   ],
+   * })
+   * ```
+   */
+  comments?: runtime.SqlCommenterPlugin[]
 }
 export type GlobalOmitConfig = {
   product?: Prisma.ProductOmit
@@ -4773,9 +4614,7 @@ export type GlobalOmitConfig = {
   organization?: Prisma.OrganizationOmit
   organizationMembership?: Prisma.OrganizationMembershipOmit
   user?: Prisma.UserOmit
-  productReview?: Prisma.ProductReviewOmit
   memberFeedback?: Prisma.MemberFeedbackOmit
-  newsletterSubscription?: Prisma.NewsletterSubscriptionOmit
   category?: Prisma.CategoryOmit
   plan?: Prisma.PlanOmit
   planFeature?: Prisma.PlanFeatureOmit

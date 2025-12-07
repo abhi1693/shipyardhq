@@ -2,7 +2,6 @@ import { cache } from "react"
 import { auth } from "@clerk/nextjs/server"
 
 import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
-import ProductReviews from "@/components/organisms/ProductReviews"
 import { ProductCard } from "@/components/molecules/ProductCard"
 import { ProductUpdatesSection } from "@/components/templates/public/products/detail/product-updates-section"
 import { toProductCardItem } from "@/lib/products/card-item"
@@ -12,15 +11,9 @@ import {
   getPublicProductsByUseCase,
   hasUserUpvoted,
 } from "@/actions/public/products/actions"
-import {
-  getProductReviewSummary,
-  getUserProductReview,
-} from "@/lib/server/productReviews"
 
 export type ViewerProductState = {
-  isSignedIn: boolean
   viewerUpvoted: boolean
-  viewerReview: { rating: number; message: string } | null
 }
 
 const getViewerProductState = cache(
@@ -28,29 +21,17 @@ const getViewerProductState = cache(
     const authResult = await auth()
     const clerkUserId = authResult?.userId ?? null
     if (!clerkUserId) {
-      return { isSignedIn: false, viewerUpvoted: false, viewerReview: null }
+      return { viewerUpvoted: false }
     }
 
     const viewer = await getActiveUserByClerkId(clerkUserId).catch(() => null)
     if (!viewer) {
-      return { isSignedIn: false, viewerUpvoted: false, viewerReview: null }
+      return { viewerUpvoted: false }
     }
 
-    const [viewerUpvoted, viewerReview] = await Promise.all([
-      hasUserUpvoted(productId, clerkUserId),
-      getUserProductReview(productId, viewer.id).catch(() => null),
-    ])
+    const viewerUpvoted = await hasUserUpvoted(productId, clerkUserId)
 
-    return {
-      isSignedIn: true,
-      viewerUpvoted,
-      viewerReview: viewerReview
-        ? {
-            rating: viewerReview.rating,
-            message: viewerReview.message,
-          }
-        : null,
-    }
+    return { viewerUpvoted }
   },
 )
 
@@ -69,30 +50,6 @@ export async function ProductUpvoteBadgeServer({
       productSlug={productSlug}
       count={upvoteCount}
       initialUpvoted={viewerUpvoted}
-    />
-  )
-}
-
-export async function ProductReviewsServer({
-  productId,
-  productName,
-  redirectUrl,
-}: {
-  productId: string
-  productName: string
-  redirectUrl: string
-}) {
-  const reviewSummary = await getProductReviewSummary(productId, 6)
-  const { isSignedIn, viewerReview } = await getViewerProductState(productId)
-
-  return (
-    <ProductReviews
-      productId={productId}
-      productName={productName}
-      reviewSummary={reviewSummary}
-      viewerReview={viewerReview}
-      isSignedIn={isSignedIn}
-      redirectUrl={redirectUrl}
     />
   )
 }

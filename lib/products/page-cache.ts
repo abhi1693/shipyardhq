@@ -4,7 +4,6 @@ import {
   getPublicProductsByUseCase,
 } from "@/actions/public/products/actions"
 import { getPublicProductUpdates } from "@/actions/public/product-updates/actions"
-import { getProductReviewSummary } from "@/lib/server/productReviews"
 import { productPath } from "@/lib/routes"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import type { ProductUpdatePublicView } from "@/types/product-updates"
@@ -17,10 +16,6 @@ type UseCaseProduct = Awaited<
   ReturnType<typeof getPublicProductsByUseCase>
 >[number]
 
-export type ProductReviewSummary = Awaited<
-  ReturnType<typeof getProductReviewSummary>
->
-
 export const APPLICATION_CATEGORY_MAP: Record<string, string> = {
   saas: "BusinessApplication",
   browser_extension: "BrowserApplication",
@@ -29,14 +24,6 @@ export const APPLICATION_CATEGORY_MAP: Record<string, string> = {
   api: "DeveloperApplication",
   open_source: "DeveloperApplication",
   other: "UtilitiesApplication",
-}
-
-export function reviewerDisplayName(
-  first?: string | null,
-  last?: string | null,
-) {
-  const parts = [first?.trim(), last?.trim()].filter(Boolean)
-  return parts.length ? parts.join(" ") : "Shipyard member"
 }
 
 export function platformSchemaLabel(platform: string): string | null {
@@ -74,7 +61,6 @@ type SimilarProduct = {
 
 export type ProductPagePayload = {
   product: PublicProduct
-  reviewSummary: ProductReviewSummary
   productUpdates: ProductUpdatePublicView[]
   hasAdditionalUpdates: boolean
   similarProducts: SimilarProduct[]
@@ -105,7 +91,6 @@ function mapUseCaseProducts(products: UseCaseProduct[]): SimilarProduct[] {
 
 export function buildProductStructuredData(
   product: PublicProduct,
-  reviewSummary: ProductReviewSummary,
 ) {
   const baseUrl = (
     process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
@@ -139,18 +124,6 @@ export function buildProductStructuredData(
     ),
   )
 
-  const aggregateRating =
-    reviewSummary.totalReviews > 0
-      ? {
-          "@type": "AggregateRating",
-          ratingValue: reviewSummary.averageRating.toFixed(1),
-          ratingCount: reviewSummary.totalReviews,
-          reviewCount: reviewSummary.totalReviews,
-          bestRating: 5,
-          worstRating: 0,
-        }
-      : undefined
-
   const offers =
     product.startingPriceCents !== null &&
     product.startingPriceCents !== undefined
@@ -176,36 +149,6 @@ export function buildProductStructuredData(
     offers,
   }
 
-  if (aggregateRating) {
-    structuredData.aggregateRating = aggregateRating
-  }
-
-  const reviews = reviewSummary.reviews.map((review) => ({
-    "@type": "Review",
-    author: {
-      "@type": "Person",
-      name: reviewerDisplayName(review.user.firstName, review.user.lastName),
-    },
-    datePublished: (() => {
-      try {
-        return new Date(review.createdAt).toISOString()
-      } catch {
-        return undefined
-      }
-    })(),
-    reviewBody: review.message,
-    name: `Feedback for ${product.name}`,
-    reviewRating: {
-      "@type": "Rating",
-      ratingValue: review.rating,
-      bestRating: 5,
-      worstRating: 0,
-    },
-  }))
-  if (reviews.length) {
-    structuredData.review = reviews
-  }
-
   return structuredData
 }
 
@@ -218,16 +161,14 @@ export const getProductPagePayload = cached(
 
     const useCaseSlug = product.category.useCases?.[0]?.useCase?.slug ?? null
 
-    const [reviewSummary, productUpdatesRaw, similarProductsRaw] =
-      await Promise.all([
-        getProductReviewSummary(product.id, 12),
-        getPublicProductUpdates(product.id, {
-          limit: PRODUCT_UPDATES_LIMIT,
-        }),
-        useCaseSlug
-          ? getPublicProductsByUseCase(useCaseSlug, product.id)
-          : Promise.resolve([]),
-      ])
+    const [productUpdatesRaw, similarProductsRaw] = await Promise.all([
+      getPublicProductUpdates(product.id, {
+        limit: PRODUCT_UPDATES_LIMIT,
+      }),
+      useCaseSlug
+        ? getPublicProductsByUseCase(useCaseSlug, product.id)
+        : Promise.resolve([]),
+    ])
 
     const hasAdditionalUpdates =
       productUpdatesRaw.length > PRODUCT_UPDATES_PREVIEW
@@ -244,11 +185,10 @@ export const getProductPagePayload = cached(
         }
       : null
 
-    const structuredData = buildProductStructuredData(product, reviewSummary)
+    const structuredData = buildProductStructuredData(product)
 
     return {
       product,
-      reviewSummary,
       productUpdates,
       hasAdditionalUpdates,
       similarProducts,
@@ -263,7 +203,6 @@ export const getProductPagePayload = cached(
     tags: ([slug]) => [
       TAGS.products,
       TAGS.product(String(slug)),
-      TAGS.productReviews,
       TAGS.productUpdatesLatest,
     ],
   },

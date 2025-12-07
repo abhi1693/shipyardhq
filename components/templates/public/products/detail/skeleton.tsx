@@ -4,7 +4,6 @@ import { Skeleton } from "@/components/atoms/skeleton"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { SponsoredProductsSkeleton } from "@/components/templates/public/homepage/sponsored-products"
 import {
-  ProductReviewsFallback,
   ProductUpdatesFallback,
   ProductUpvoteBadgeFallback,
   SimilarProductsFallback,
@@ -113,7 +112,6 @@ export function PublicProductDetailSkeleton() {
             </div>
 
             <ProductUpdatesFallback />
-            <ProductReviewsFallback />
             <Skeleton className="h-16 rounded-2xl border border-border bg-white" />
             <SimilarProductsFallback />
           </>

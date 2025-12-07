@@ -72,9 +72,7 @@ export const ModelName = {
   Organization: 'Organization',
   OrganizationMembership: 'OrganizationMembership',
   User: 'User',
-  ProductReview: 'ProductReview',
   MemberFeedback: 'MemberFeedback',
-  NewsletterSubscription: 'NewsletterSubscription',
   Category: 'Category',
   Plan: 'Plan',
   PlanFeature: 'PlanFeature',
@@ -220,8 +218,6 @@ export const ProductLeaderboardScoreScalarFieldEnum = {
   views: 'views',
   uniqueVisitors: 'uniqueVisitors',
   upvotes: 'upvotes',
-  reviewsCount: 'reviewsCount',
-  reviewsRatingSum: 'reviewsRatingSum',
   score: 'score',
   scoreComponents: 'scoreComponents',
   rank: 'rank',
@@ -436,19 +432,6 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const ProductReviewScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  userId: 'userId',
-  rating: 'rating',
-  message: 'message',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductReviewScalarFieldEnum = (typeof ProductReviewScalarFieldEnum)[keyof typeof ProductReviewScalarFieldEnum]
-
-
 export const MemberFeedbackScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -464,16 +447,6 @@ export const MemberFeedbackScalarFieldEnum = {
 } as const
 
 export type MemberFeedbackScalarFieldEnum = (typeof MemberFeedbackScalarFieldEnum)[keyof typeof MemberFeedbackScalarFieldEnum]
-
-
-export const NewsletterSubscriptionScalarFieldEnum = {
-  id: 'id',
-  email: 'email',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type NewsletterSubscriptionScalarFieldEnum = (typeof NewsletterSubscriptionScalarFieldEnum)[keyof typeof NewsletterSubscriptionScalarFieldEnum]
 
 
 export const CategoryScalarFieldEnum = {

@@ -361,12 +361,6 @@ function hydratePayload(
         ...data,
         occurredAt: reviveDate(data.occurredAt),
       } as AppEvents[keyof AppEvents]
-    case "product.reviewed":
-      return {
-        ...data,
-        createdAt: reviveDate(data.createdAt),
-        updatedAt: reviveDate(data.updatedAt),
-      } as AppEvents[keyof AppEvents]
     case "badge.assigned":
       return {
         ...data,
