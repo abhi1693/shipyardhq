@@ -27,8 +27,7 @@ import {
 import { getCategoriesPagePayload } from "@/lib/categories/cache"
 import { buildPageMetadata } from "@/lib/metadata"
 
-export const dynamic = "force-static"
-export const revalidate = 300
+export const dynamic = "force-dynamic"
 
 const PAGE_TITLE = "Categories"
 

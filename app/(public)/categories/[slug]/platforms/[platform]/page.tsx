@@ -1,26 +1,22 @@
-export const dynamic = "force-static"
-export const revalidate = 600
+export const dynamic = "force-dynamic"
 
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import {
-  getCategoriesWithCounts,
-  getCategoryMeta,
-} from "@/actions/public/categories/actions"
+import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
-  HOME_PATH,
   CATEGORIES_PATH,
+  HOME_PATH,
   categoryPath,
   categoryPlatformPath,
   productPath,
 } from "@/lib/routes"
 import { buildQuery, type StrOrArr } from "@/lib/urlParams"
-import { getPlatformMeta, PLATFORM_SLUGS } from "@/lib/platforms/config"
+import { getPlatformMeta } from "@/lib/platforms/config"
 import { pluralize } from "@/lib/pluralize"
 import { cn } from "@/lib/utils"
 
@@ -83,19 +79,6 @@ const buildSearchParams = (params: CategoryPlatformSearchParams) => {
     }
   }
   return search
-}
-
-export async function generateStaticParams() {
-  const categories = await getCategoriesWithCounts()
-  type CategorySummary = (typeof categories)[number]
-  return categories
-    .filter((category: CategorySummary) => category.slug && category.count > 0)
-    .flatMap((category: CategorySummary) =>
-      PLATFORM_SLUGS.map((platform) => ({
-        slug: category.slug,
-        platform,
-      })),
-    )
 }
 
 export async function generateMetadata(props: {

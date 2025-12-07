@@ -1,4 +1,4 @@
-export const revalidate = 120
+export const dynamic = "force-dynamic"
 
 import type { Metadata } from "next"
 import { Suspense } from "react"
@@ -7,14 +7,9 @@ import { CategoryDetailPageContent } from "@/components/templates/public/categor
 import { CategoryDetailSkeleton } from "@/components/templates/public/categories/detail/skeleton"
 import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { buildPageMetadata } from "@/lib/metadata"
-import {
-  getCategoryDetailPayload,
-  getCategoryStaticParams,
-} from "@/lib/categories/page-cache"
+import { getCategoryDetailPayload } from "@/lib/categories/page-cache"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { CATEGORIES_PATH, HOME_PATH, categoryPath } from "@/lib/routes"
-
-// export const generateStaticParams = getCategoryStaticParams
 
 export async function generateMetadata(
   props: Parameters<typeof CategoryDetailPageContent>[0],
