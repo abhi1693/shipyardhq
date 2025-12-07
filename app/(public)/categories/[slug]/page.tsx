@@ -14,7 +14,7 @@ import {
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { CATEGORIES_PATH, HOME_PATH, categoryPath } from "@/lib/routes"
 
-export const generateStaticParams = getCategoryStaticParams
+// export const generateStaticParams = getCategoryStaticParams
 
 export async function generateMetadata(
   props: Parameters<typeof CategoryDetailPageContent>[0],
