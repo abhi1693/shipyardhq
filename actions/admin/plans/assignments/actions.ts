@@ -2,8 +2,6 @@
 
 import prisma from "@/lib/prisma"
 import { Prisma, TimeInterval } from "@/lib/vendor/prisma/client"
-import { INSIGHTS_PIPELINE_FEATURE_KEY } from "@/lib/constants"
-import { buildInsightsUsageConfig } from "@/lib/productInsights/insightsUsage"
 
 export async function getAssignedFeatures(
   args: Prisma.PlanFeatureAssignmentFindManyArgs = {},
@@ -78,16 +76,11 @@ export async function createPlanFeatureAssignment(data: Input) {
       return { error: "This feature is already assigned to this plan." }
     }
 
-    const usagePolicy =
-      feature.key === INSIGHTS_PIPELINE_FEATURE_KEY
-        ? buildInsightsUsageConfig(data.usageLimit, data.usageInterval)
-        : { usageLimit: null, usageInterval: null }
-
     const configJson =
-      usagePolicy.usageLimit !== null && usagePolicy.usageInterval !== null
+      data.usageLimit != null && data.usageInterval
         ? {
-            usageLimit: usagePolicy.usageLimit,
-            usageInterval: usagePolicy.usageInterval,
+            usageLimit: data.usageLimit,
+            usageInterval: data.usageInterval,
           }
         : Prisma.JsonNull
 
@@ -149,16 +142,11 @@ export async function updatePlanFeatureAssignmentAction(
       }
     }
 
-    const usagePolicy =
-      feature.key === INSIGHTS_PIPELINE_FEATURE_KEY
-        ? buildInsightsUsageConfig(input.usageLimit, input.usageInterval)
-        : { usageLimit: null, usageInterval: null }
-
     const configJson =
-      usagePolicy.usageLimit !== null && usagePolicy.usageInterval !== null
+      input.usageLimit != null && input.usageInterval
         ? {
-            usageLimit: usagePolicy.usageLimit,
-            usageInterval: usagePolicy.usageInterval,
+            usageLimit: input.usageLimit,
+            usageInterval: input.usageInterval,
           }
         : Prisma.JsonNull
 

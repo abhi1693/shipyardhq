@@ -26,12 +26,6 @@ const FEATURES = [
     description: "Adds a backlink from Shipyard to your product site.",
   },
   {
-    key: "insights.pipeline",
-    name: "Product Insights Pipeline",
-    description:
-      "Run the competitive, community, and discussion analysis pipeline for your product.",
-  },
-  {
     key: "analytics.advanced",
     name: "Advanced Analytics",
     description: "Unlocks advanced traffic dashboards",

@@ -43,10 +43,6 @@ const PLANS: PlanSeed[] = [
       { key: "analytics.basic" },
       { key: "product.sitemap" },
       { key: "backlink" },
-      {
-        key: "insights.pipeline",
-        config: { usageLimit: 1, usageInterval: "week" },
-      },
     ],
   },
   {
@@ -63,10 +59,6 @@ const PLANS: PlanSeed[] = [
       { key: "featured" },
       { key: "priorityPlacement" },
       { key: "sponsoredProducts" },
-      {
-        key: "insights.pipeline",
-        config: { usageLimit: 1, usageInterval: "day" },
-      },
     ],
   },
   {
@@ -88,10 +80,6 @@ const PLANS: PlanSeed[] = [
       { key: "customCTA" },
       { key: "newsletterPromotion" },
       { key: "backlink" },
-      {
-        key: "insights.pipeline",
-        config: { usageLimit: null },
-      },
     ],
   },
   {
@@ -109,10 +97,6 @@ const PLANS: PlanSeed[] = [
       { key: "priorityPlacement" },
       { key: "sponsoredProducts" },
       { key: "organization" },
-      {
-        key: "insights.pipeline",
-        config: { usageLimit: null },
-      },
     ],
     paymentFrequencyCount: 1,
     paymentFrequencyInterval: TimeInterval.month,

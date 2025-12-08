@@ -233,17 +233,6 @@ const CATALOG: CatalogSeed[] = [
     metadata: { capabilities: ["funnels", "geo", "utm"] },
   },
   {
-    featureKey: REWARD_FEATURE_KEY.insightsPipeline,
-    planFeatureKey: REWARD_FEATURE_KEY.insightsPipeline,
-    name: "Insights pipeline",
-    description: "Run a full competitive and sentiment insights refresh.",
-    category: RewardFeatureCategory.insights,
-    baseCost: 80,
-    durationSeconds: 14 * DAY,
-    requiresProduct: true,
-    metadata: { includes: ["community", "threads", "aiSummary"] },
-  },
-  {
     featureKey: REWARD_FEATURE_KEY.customCTA,
     planFeatureKey: REWARD_FEATURE_KEY.customCTA,
     name: "Custom call-to-action",

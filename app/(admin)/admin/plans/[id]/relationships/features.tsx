@@ -8,11 +8,6 @@ import type {
 } from "@/lib/vendor/prisma/client"
 import { formatBoolean, linkify } from "@/lib/ui/formatters"
 import { adminPath } from "@/lib/routes"
-import { INSIGHTS_PIPELINE_FEATURE_KEY } from "@/lib/constants"
-import {
-  formatInsightsUsage,
-  parseInsightsUsageConfig,
-} from "@/lib/productInsights/insightsUsage"
 
 type AssignmentWithFeature = PlanFeatureAssignment & {
   feature: PlanFeature
@@ -46,14 +41,6 @@ export function PlanFeatureRelationship({
       accessorKey: "isExperimental",
       header: "Experimental",
       cell: ({ row }) => formatBoolean(row.original.isExperimental),
-    },
-    {
-      accessorKey: "config",
-      header: "Usage policy",
-      cell: ({ row }) =>
-        row.original.feature.key === INSIGHTS_PIPELINE_FEATURE_KEY
-          ? formatInsightsUsage(parseInsightsUsageConfig(row.original.config))
-          : "—",
     },
   ]
 

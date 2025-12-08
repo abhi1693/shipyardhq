@@ -33,7 +33,6 @@ import {
 import {
   memberProductAnalyticsPath,
   memberProductEditPath,
-  memberProductInsightsPath,
   memberProductPath,
   productPath,
 } from "@/lib/routes"
@@ -42,7 +41,6 @@ import {
   BarChart3,
   Building2,
   ExternalLink,
-  Sparkles,
   Github as GithubIcon,
   Globe,
   Mail,
@@ -77,10 +75,6 @@ const sectionLabelClass =
   "text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground"
 const actionGroupClass =
   "flex flex-wrap items-center gap-2 rounded-full bg-white/80 px-2 py-1 shadow-sm ring-1 ring-slate-200/70"
-const radiantButtonWrapperClass =
-  "relative inline-flex items-center justify-center"
-const radiantButtonGlowClass =
-  "pointer-events-none absolute inset-0 -z-10 animate-pulse rounded-full bg-[radial-gradient(circle,var(--brand-1)/0.32,transparent_70%)] blur-sm"
 const radiantSecondaryWrapperClass =
   "relative inline-flex items-center justify-center"
 const radiantSecondaryGlowClass =
@@ -121,7 +115,6 @@ export default async function ViewUserProductPage({
   const canManage = true
   const publicPath = productPath(productSlug)
   const analyticsPath = memberProductAnalyticsPath(productSlug)
-  const insightsPath = memberProductInsightsPath(productSlug)
   const { hasBasicAnalytics } = resolveProductAnalyticsAccess({
     plan: product.plan,
     featureEntitlements: product.featureEntitlements ?? [],
@@ -417,20 +410,6 @@ export default async function ViewUserProductPage({
         editable={canManage}
         headingActionsLeft={
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {canManage ? (
-              <div className={radiantButtonWrapperClass}>
-                <span className={radiantButtonGlowClass} />
-                <Button
-                  size="sm"
-                  className="h-9 px-4 shadow-[0_16px_32px_-18px_rgba(7,78,134,0.5)] transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-16px_rgba(7,78,134,0.65)]"
-                  asChild
-                >
-                  <Link href={insightsPath}>
-                    <Sparkles className="mr-2 h-4 w-4" /> Explore Insights
-                  </Link>
-                </Button>
-              </div>
-            ) : null}
             {canManage && canViewAnalytics ? (
               <Button
                 variant="outline"
@@ -784,7 +763,7 @@ export default async function ViewUserProductPage({
                         const href = alternative.websiteUrl
                         const content = (
                           <span className="flex items-center gap-2">
-                            <Sparkles className={chipIconClass} />
+                            <ExternalLink className={chipIconClass} />
                             <span className="font-medium">
                               {alternative.name}
                             </span>

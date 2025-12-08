@@ -38,10 +38,6 @@ const browseMetrics = [
     key: "totalUpvotes" as const,
     label: "Community upvotes",
   },
-  {
-    key: "totalInsights" as const,
-    label: "Insights generated",
-  },
 ] as const
 
 type StrOrArr = string | string[] | undefined

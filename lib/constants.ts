@@ -95,9 +95,6 @@ export const PLAN_FEATURE_KEYS = [
   REWARD_FEATURE_KEY.newsletterPromotion,
   "backlink",
   "organization",
-  REWARD_FEATURE_KEY.insightsPipeline,
 ] as const
 
 export type PlanFeatureKey = (typeof PLAN_FEATURE_KEYS)[number]
-
-export const INSIGHTS_PIPELINE_FEATURE_KEY = REWARD_FEATURE_KEY.insightsPipeline

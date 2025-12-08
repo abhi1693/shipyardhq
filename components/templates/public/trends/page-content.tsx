@@ -36,7 +36,6 @@ export async function TrendsPageContent() {
     { label: "Directory listings", value: stats.totalProducts },
     { label: "Builders featured", value: stats.totalCreators },
     { label: "Community upvotes", value: stats.totalUpvotes },
-    { label: "Insights generated", value: stats.totalInsights },
   ]
 
   return (

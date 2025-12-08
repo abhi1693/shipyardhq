@@ -95,7 +95,7 @@ export async function MemberProductsPageContent({
           </h1>
           <p className="mt-3 max-w-md text-sm text-muted-foreground">
             Shipyard tracks engagement, verification, and health for every
-            launch. Add a product to unlock tailored insights for your crew.
+            launch. Add a product to unlock tailored analytics for your crew.
           </p>
           <CreateButton asChild className="mt-8" label="Add product">
             <Link href={MEMBER_PRODUCTS_ADD_PATH}>Add product</Link>

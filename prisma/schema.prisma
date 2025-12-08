@@ -46,7 +46,6 @@ model Product {
   metadata              ProductMetadata?
   analytics             ProductAnalytics?
   verification          ProductVerification?
-  insightProfile        ProductInsightProfile?
   ProductBadge          ProductBadge[]
   ProductMedia          ProductMedia[]
   ProductUpvote         ProductUpvote[]
@@ -244,12 +243,6 @@ enum ProductStatus {
   archived
 }
 
-enum ProductInsightStatus {
-  pending
-  ready
-  failed
-}
-
 enum Platform {
   web
   ios
@@ -388,45 +381,6 @@ model ProductTrafficEvent {
   @@index([country])
   @@index([device])
   @@index([isBot])
-}
-
-model ProductInsightProfile {
-  id                     String               @id @default(cuid())
-  productId              String               @unique
-  status                 ProductInsightStatus @default(pending)
-  errorMessage           String?              @db.Text
-  lastRunAt              DateTime?
-  insightsGeneratedCount Int                  @default(0)
-  createdAt              DateTime             @default(now())
-  updatedAt              DateTime             @updatedAt
-
-  product Product                     @relation(fields: [productId], references: [id], onDelete: Cascade)
-  stages  ProductInsightStageResult[]
-
-  @@index([status])
-  @@index([updatedAt])
-}
-
-model ProductInsightStageResult {
-  id           String               @id @default(cuid())
-  profileId    String
-  stageId      String
-  providerType String
-  status       ProductInsightStatus @default(pending)
-  data         Json?
-  metrics      Json?
-  errorMessage String?              @db.Text
-  startedAt    DateTime?
-  completedAt  DateTime?
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
-
-  profile ProductInsightProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-
-  @@unique([profileId, stageId, providerType])
-  @@index([profileId, stageId])
-  @@index([status])
-  @@index([updatedAt])
 }
 
 model ProductUpvote {

@@ -7,11 +7,6 @@ import { formatBoolean, formatDate, linkify } from "@/lib/ui/formatters"
 import { Button } from "@/components/atoms/button"
 import { Eye, Pencil } from "lucide-react"
 import { adminPath } from "@/lib/routes"
-import { INSIGHTS_PIPELINE_FEATURE_KEY } from "@/lib/constants"
-import {
-  formatInsightsUsage,
-  parseInsightsUsageConfig,
-} from "@/lib/productInsights/insightsUsage"
 
 type AssignmentWithRelations = PlanFeatureAssignment & {
   plan: { id: string; name: string }
@@ -56,14 +51,6 @@ export const columns: ColumnDef<AssignmentWithRelations>[] = [
     accessorKey: "isExperimental",
     header: "Experimental",
     cell: ({ row }) => formatBoolean(row.original.isExperimental),
-  },
-  {
-    accessorKey: "config",
-    header: "Usage policy",
-    cell: ({ row }) =>
-      row.original.feature.key === INSIGHTS_PIPELINE_FEATURE_KEY
-        ? formatInsightsUsage(parseInsightsUsageConfig(row.original.config))
-        : "—",
   },
   {
     accessorKey: "createdAt",

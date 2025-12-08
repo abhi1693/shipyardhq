@@ -5,10 +5,6 @@ export async function registerEventHandlers(): Promise<void> {
     { path: "@/lib/server/plans", load: () => import("@/lib/server/plans") },
     { path: "@/lib/server/badges", load: () => import("@/lib/server/badges") },
     {
-      path: "@/lib/server/productInsights/initialPipeline",
-      load: () => import("@/lib/server/productInsights/initialPipeline"),
-    },
-    {
       path: "@/lib/server/rewards/listeners",
       load: () => import("@/lib/server/rewards/listeners"),
     },

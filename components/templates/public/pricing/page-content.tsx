@@ -25,8 +25,8 @@ export const CORE_PERKS = [
   },
   {
     icon: IconSparkles,
-    title: "Insights built in",
-    body: "Automated research pipelines surface competitor intel, community chatter, and recommended plays—starting with a weekly run on the free plan and more credits as you upgrade.",
+    title: "Analytics built in",
+    body: "Traffic, referrers, and engagement dashboards are included out of the box—no extra setup or add-on tools required.",
   },
 ]
 
@@ -35,11 +35,6 @@ export const PRICING_FAQS = [
     question: "Can I start for free and upgrade later?",
     answer:
       "Absolutely. Every maker can list for free. Upgrade any product for extra reach—featured badges, sponsored placements, newsletter spots—whenever you need a boost.",
-  },
-  {
-    question: "Which plans include Shipyard Insights?",
-    answer:
-      "Every plan includes Insights. Free listings get one run per week, while paid placements and organization subscriptions add more credits so you can refresh findings whenever you need.",
   },
   {
     question: "Do plans renew automatically?",

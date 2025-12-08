@@ -340,7 +340,6 @@ export const getLeaderboardStats = cached(
       totalCreators,
       upvoteAgg,
       topProduct,
-      insightsAgg,
       homepageTraffic,
       realtimeVisitors,
     ] = await Promise.all([
@@ -353,9 +352,6 @@ export const getLeaderboardStats = cached(
         orderBy: { upvotes: "desc" },
         select: { upvotes: true },
       }),
-      prisma.productInsightProfile.aggregate({
-        _sum: { insightsGeneratedCount: true },
-      }),
       getHomepageTrafficFromGa(),
       getRealtimeVisitorsFromGa(),
     ])
@@ -365,7 +361,6 @@ export const getLeaderboardStats = cached(
       totalCreators,
       totalUpvotes: upvoteAgg._sum.upvotes ?? 0,
       topScore: topProduct?.upvotes ?? 0,
-      totalInsights: insightsAgg._sum.insightsGeneratedCount ?? 0,
       pageViews30: homepageTraffic.pageViews30,
       visitors30: homepageTraffic.visitors30,
       trafficSeries: homepageTraffic.trafficSeries,

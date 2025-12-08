@@ -21,10 +21,6 @@
       "schedule": "55 23 * * 0"
     },
     {
-      "path": "/api/cron/product-insight-pipeline",
-      "schedule": "*/15 * * * *"
-    },
-    {
       "path": "/api/cron/events/drain/high",
       "schedule": "*/5 * * * *"
     },
