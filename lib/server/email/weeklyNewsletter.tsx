@@ -116,17 +116,6 @@ type ProductOfTheWeek = {
 
 type TrendingProduct = ProductOfTheWeek & { rank: number }
 
-type ProductUpdateDigest = {
-  id: string
-  productId: string
-  productName: string
-  productUrl: string
-  title: string
-  summary: string
-  description: string
-  publishedAt: string | null
-}
-
 type SponsoredProduct = Omit<DigestProduct, "publishedAt"> & {
   publishedAt: string | null
 }
@@ -136,13 +125,6 @@ function formatOwnerName(owner: ProductOwner): string | null {
   const parts = [owner.firstName, owner.lastName].filter(Boolean)
   const name = parts.join(" ").trim()
   return name.length ? name : null
-}
-
-function truncateText(value: string | null | undefined, limit = 100): string {
-  if (!value) return ""
-  const normalized = value.replace(/\s+/g, " ").trim()
-  if (normalized.length <= limit) return normalized
-  return `${normalized.slice(0, limit - 3)}...`
 }
 
 function formatRevenueLabel(
@@ -319,54 +301,6 @@ export async function sendWeeklyNewsletterEmails(now: Date = new Date()) {
     })
     .filter((product): product is TrendingProduct => Boolean(product))
 
-  const updates: Array<{
-    id: string
-    title: string
-    summary: string | null
-    content: string
-    publishedAt: Date | null
-    product: { id: string; name: string; slug: string } | null
-  }> = await prisma.productUpdate.findMany({
-    where: {
-      status: "published",
-      publishedAt: {
-        gte: weekStart,
-        lte: weekEnd,
-      },
-    },
-    orderBy: { publishedAt: "desc" },
-    select: {
-      id: true,
-      title: true,
-      summary: true,
-      content: true,
-      publishedAt: true,
-      product: {
-        select: { id: true, name: true, slug: true },
-      },
-    },
-  })
-
-  const productUpdates: ProductUpdateDigest[] = updates
-    .map((update) => {
-      if (!update.product) return null
-      const snippet = truncateText(update.content, 100)
-      const summary = update.summary?.trim() || snippet
-      return {
-        id: update.id,
-        productId: update.product.id,
-        productName: update.product.name,
-        productUrl: buildProductUrl(update.product.slug),
-        title: update.title,
-        summary,
-        description: snippet,
-        publishedAt: formatPublishedDate(update.publishedAt),
-      }
-    })
-    .filter((update): update is ProductUpdateDigest =>
-      Boolean(update?.productId && update?.title),
-    )
-
   const revenueIds = new Set<string>()
   newsletterProducts.forEach((product) => revenueIds.add(product.id))
   leaderboardProducts.forEach((product) => revenueIds.add(product.id))
@@ -403,7 +337,6 @@ export async function sendWeeklyNewsletterEmails(now: Date = new Date()) {
     sponsoredProducts: sponsoredProductsWithRevenue,
     productOfTheWeek,
     trending: trendingProductsWithRevenue,
-    productUpdates,
   }
 
   const topicSent = await sendWeeklyNewsletterToSubscribers(

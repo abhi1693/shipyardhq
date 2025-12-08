@@ -5,10 +5,7 @@ import {
 } from "@/lib/server/rewards/helpers"
 
 const UPVOTE_RULE_KEY = "rewards.upvote.give"
-const REVIEW_RULE_KEY = "rewards.review.publish"
-const REVIEW_DEPTH_RULE_KEY = "rewards.review.depth"
 const PRODUCT_CREATED_RULE_KEY = "rewards.product.create"
-const REVIEW_DEPTH_THRESHOLD = 200
 
 registerEventHandler({
   event: "product.upvoted",

@@ -60,7 +60,6 @@ export const ModelName = {
   ProductLeaderboardScore: 'ProductLeaderboardScore',
   MonthlyLeaderboardNotification: 'MonthlyLeaderboardNotification',
   ProductMedia: 'ProductMedia',
-  ProductUpdate: 'ProductUpdate',
   ProductVerification: 'ProductVerification',
   ProductClaimAttempt: 'ProductClaimAttempt',
   ProductMetadata: 'ProductMetadata',
@@ -248,22 +247,6 @@ export const ProductMediaScalarFieldEnum = {
 } as const
 
 export type ProductMediaScalarFieldEnum = (typeof ProductMediaScalarFieldEnum)[keyof typeof ProductMediaScalarFieldEnum]
-
-
-export const ProductUpdateScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  authorId: 'authorId',
-  title: 'title',
-  summary: 'summary',
-  content: 'content',
-  status: 'status',
-  publishedAt: 'publishedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductUpdateScalarFieldEnum = (typeof ProductUpdateScalarFieldEnum)[keyof typeof ProductUpdateScalarFieldEnum]
 
 
 export const ProductVerificationScalarFieldEnum = {

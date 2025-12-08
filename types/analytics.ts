@@ -1,5 +1,3 @@
-import type { ProductUpdateStatusValue } from "./product-updates"
-
 export type DeviceCategory = "desktop" | "mobile" | "tablet" | "unknown"
 
 export type ProductClickMetadata = {
@@ -348,57 +346,4 @@ export interface IntentOutcomeAnalytics {
   generatedAt: string
   summary: IntentOutcomeSummary
   cohorts: IntentOutcomeCohort[]
-}
-
-export interface ProductUpdateTrendPoint {
-  date: string
-  label: string
-  created: number
-  published: number
-}
-
-export interface ProductUpdateTopProduct {
-  productId: string
-  productName: string
-  productSlug: string
-  created: number
-  published: number
-  lastActivityAt: string | null
-}
-
-export interface ProductUpdateRecentActivity {
-  updateId: string
-  productId: string
-  productName: string
-  productSlug: string
-  title: string
-  status: ProductUpdateStatusValue
-  createdAt: string
-  publishedAt: string | null
-}
-
-export interface ProductUpdateUsageSummary {
-  rangeDays: number
-  totals: {
-    allTime: {
-      updates: number
-      published: number
-      drafts: number
-      productsWithUpdates: number
-    }
-    range: {
-      created: number
-      published: number
-      drafts: number
-      createdDelta: number
-      publishedDelta: number
-    }
-  }
-  perProduct: {
-    activeProducts: number
-    averageCreatedPerActiveProduct: number
-    topProducts: ProductUpdateTopProduct[]
-  }
-  trend: ProductUpdateTrendPoint[]
-  recentActivity: ProductUpdateRecentActivity[]
 }

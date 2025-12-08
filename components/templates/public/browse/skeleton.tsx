@@ -6,7 +6,6 @@ import { Skeleton } from "@/components/atoms/skeleton"
 import { ProductListSkeleton } from "@/components/molecules/ProductList.skeleton"
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
 import HeroSkeleton from "@/components/organisms/directory/Hero.skeleton"
-import { ProductUpdatesFeedSkeleton } from "@/components/molecules/ProductUpdatesFeed.skeleton"
 
 export function BrowsePageSkeleton() {
   return (
@@ -47,7 +46,6 @@ export function BrowsePageSkeleton() {
               <CategoryRailSkeleton />
               <PromoCardSkeleton />
               <PromoCardSkeleton subtle />
-              <ProductUpdatesFeedSkeleton />
             </aside>
           </div>
 

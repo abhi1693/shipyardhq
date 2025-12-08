@@ -57,32 +57,6 @@ export function revalidateProduct(
   revalidateProducts(mode)
 }
 
-export function revalidateProductUpdates(
-  idOrSlug: string,
-  mode: CacheInvalidationMode = "update",
-) {
-  revalidateTag(TAGS.productUpdates(idOrSlug), mode)
-  revalidateProduct(idOrSlug, mode)
-  revalidateTag(TAGS.productUpdatesLatest, mode)
-}
-
-export function revalidateProductUpdate(
-  updateId: string,
-  productIdOrSlug?: string,
-  mode: CacheInvalidationMode = "update",
-) {
-  revalidateTag(TAGS.productUpdate(updateId), mode)
-  if (productIdOrSlug) {
-    revalidateProductUpdates(productIdOrSlug, mode)
-  }
-  revalidateTag(TAGS.productUpdatesLatest, mode)
-  revalidateHomepage(mode)
-  revalidateBrowse(mode)
-  revalidateCategoryDirectory(mode)
-  revalidateTagsPage(mode)
-  revalidateLeaderboardPage(mode)
-}
-
 export function revalidateCategories(mode: CacheInvalidationMode = "update") {
   revalidateTag(TAGS.categories, mode)
   revalidateHomepage(mode)

@@ -2,7 +2,6 @@ import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { SponsoredProductsSkeleton } from "@/components/templates/public/homepage/sponsored-products"
-import { ProductUpdatesSkeleton } from "@/components/templates/public/homepage/product-updates"
 import { HomepageFeedSkeleton } from "@/components/templates/public/homepage/homepage-feed-section"
 
 export function CategoryDetailSkeleton() {
@@ -17,7 +16,6 @@ export function CategoryDetailSkeleton() {
           </div>
           <aside className="flex w-full max-w-sm flex-col gap-6 lg:ml-auto">
             <SponsoredProductsSkeleton />
-            <ProductUpdatesSkeleton />
           </aside>
         </div>
       </div>

@@ -4,7 +4,6 @@ import {
   getTopRankedProducts,
 } from "@/actions/public/leaderboard/actions"
 import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
-import { getLatestPublicProductUpdates } from "@/actions/public/product-updates/actions"
 
 const DEFAULT_LIMIT = 50
 
@@ -25,9 +24,6 @@ export type LeaderboardPagePayload = {
   stats: Awaited<ReturnType<typeof getLeaderboardStats>>
   categories: LeaderboardCategory[]
   products: LeaderboardProduct[]
-  latestProductUpdates: Awaited<
-    ReturnType<typeof getLatestPublicProductUpdates>
-  >
   rankLabels: string[]
   firstPlacement: LeaderboardProduct | null
   runnerUps: LeaderboardProduct[]
@@ -51,16 +47,14 @@ export const getLeaderboardPagePayload = cached(
   async (input: LeaderboardFilters): Promise<LeaderboardPagePayload> => {
     const filters = normalizeFilters(input)
 
-    const [stats, categories, products, latestProductUpdates] =
-      await Promise.all([
-        getLeaderboardStats(),
-        getCategoriesWithCounts(),
-        getTopRankedProducts({
-          limit: filters.limit,
-          categorySlug: filters.categorySlug,
-        }),
-        getLatestPublicProductUpdates(6),
-      ])
+    const [stats, categories, products] = await Promise.all([
+      getLeaderboardStats(),
+      getCategoriesWithCounts(),
+      getTopRankedProducts({
+        limit: filters.limit,
+        categorySlug: filters.categorySlug,
+      }),
+    ])
 
     const topThree = products.slice(0, 3)
     const firstPlacement = topThree[0] ?? null
@@ -78,7 +72,6 @@ export const getLeaderboardPagePayload = cached(
       stats,
       categories,
       products,
-      latestProductUpdates,
       rankLabels: ["Top rank", "Second place", "Third place"],
       firstPlacement,
       runnerUps,
@@ -102,7 +95,6 @@ export const getLeaderboardPagePayload = cached(
       TAGS.categories,
       TAGS.products,
       TAGS.analytics,
-      TAGS.productUpdatesLatest,
     ],
   },
 )

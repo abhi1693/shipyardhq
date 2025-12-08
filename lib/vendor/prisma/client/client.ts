@@ -85,11 +85,6 @@ export type MonthlyLeaderboardNotification = Prisma.MonthlyLeaderboardNotificati
  */
 export type ProductMedia = Prisma.ProductMediaModel
 /**
- * Model ProductUpdate
- * 
- */
-export type ProductUpdate = Prisma.ProductUpdateModel
-/**
  * Model ProductVerification
  * 
  */
