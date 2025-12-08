@@ -18,7 +18,6 @@ import {
   PRICING_PATH,
   WHY_SHIPYARD_PATH,
 } from "@/lib/routes"
-import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
 
 const HERO_HIGHLIGHTS = [
   {
@@ -420,11 +419,6 @@ export default function WhyShipyardPage() {
           </div>
         </section>
 
-        <section className="relative py-16">
-          <div className="mx-auto max-w-[84rem] overflow-hidden rounded-[46px] border border-primary/15 px-0 md:px-0 dark:border-slate-800/60">
-            <NewsletterSignupSection />
-          </div>
-        </section>
       </main>
     </>
   )

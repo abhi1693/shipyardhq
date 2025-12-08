@@ -1,8 +1,7 @@
 "use client"
 
-import { useState, type FormEvent, useTransition } from "react"
 import Link from "next/link"
-import { Mail, Sparkles, Twitter } from "lucide-react"
+import { Mail, Twitter } from "lucide-react"
 
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import DomainRatingBadge from "@/components/molecules/DomainRatingBadge"
@@ -21,41 +20,12 @@ import {
   SHIPYARD_TWITTER_URL,
 } from "@/lib/routes"
 import { cn } from "@/lib/utils"
-import { subscribeToNewsletterAction } from "@/actions/public/newsletter/actions"
 
 const navLinkBase =
   "relative text-[15px] font-medium text-muted-foreground transition-colors hover:text-foreground after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full after:rounded-full after:bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] after:opacity-0 hover:after:opacity-100 after:transition-opacity"
 
 export default function PublicFooter() {
   const year = new Date().getFullYear()
-  const [email, setEmail] = useState("")
-  const [submitted, setSubmitted] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (isPending) return
-
-    const trimmed = email.trim()
-    if (!trimmed) {
-      setError("Please enter your email")
-      return
-    }
-
-    startTransition(async () => {
-      const result = await subscribeToNewsletterAction(trimmed)
-      if (result && "error" in result && result.error) {
-        setSubmitted(false)
-        setError(result.error)
-        return
-      }
-
-      setEmail("")
-      setError(null)
-      setSubmitted(true)
-    })
-  }
 
   const discoverLinks = [
     { label: "All Products", href: BROWSE_PATH },
@@ -177,68 +147,6 @@ export default function PublicFooter() {
               </div>
             </div>
 
-            <div className="space-y-3 max-w-sm sm:max-w-full">
-              {submitted ? (
-                <div className="flex items-center justify-end">
-                  <span className="hidden items-center gap-2 rounded-full bg-[color:var(--brand-1)/0.12] px-3 py-1 text-[11px] font-semibold text-[color:var(--brand-1)] lg:inline-flex">
-                    <Sparkles className="h-3 w-3" aria-hidden="true" />
-                    Subscribed!
-                  </span>
-                </div>
-              ) : null}
-              <form
-                className="flex w-full flex-col gap-3 rounded-2xl border border-border/60 bg-white/75 p-3 shadow-sm"
-                onSubmit={handleSubmit}
-                noValidate
-              >
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => {
-                    setEmail(event.target.value)
-                    if (submitted) setSubmitted(false)
-                    if (error) setError(null)
-                  }}
-                  placeholder="you@startup.com"
-                  className="h-10 w-full rounded-full border border-border/50 bg-white px-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.3]"
-                  aria-label="Email address"
-                  required
-                />
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="inline-flex h-10 items-center justify-center rounded-full bg-[color:var(--brand-1)] px-4 text-sm font-semibold text-white transition hover:brightness-105 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-75"
-                >
-                  {isPending ? "Subscribing..." : "Join newsletter"}
-                </button>
-              </form>
-              <div
-                className={cn(
-                  "text-xs",
-                  error
-                    ? "text-red-600"
-                    : submitted
-                      ? "text-[color:var(--brand-1)]"
-                      : "text-muted-foreground",
-                )}
-                aria-live="polite"
-              >
-                {error ? (
-                  error
-                ) : submitted ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Sparkles className="h-3 w-3" aria-hidden="true" />
-                    Thanks! You&apos;re subscribed.
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-2">
-                    <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                    Wednesday digest — launch signals, operator moves,
-                    highlights. No spam.
-                  </span>
-                )}
-              </div>
-            </div>
           </div>
         </section>
       </div>
