@@ -84,14 +84,6 @@ export const ProductStatus = {
 export type ProductStatus = (typeof ProductStatus)[keyof typeof ProductStatus]
 
 
-export const ProductUpdateStatus = {
-  draft: 'draft',
-  published: 'published'
-} as const
-
-export type ProductUpdateStatus = (typeof ProductUpdateStatus)[keyof typeof ProductUpdateStatus]
-
-
 export const ProductInsightStatus = {
   pending: 'pending',
   ready: 'ready',

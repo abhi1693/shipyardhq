@@ -5,10 +5,6 @@ import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import Hero from "@/components/organisms/directory/Hero"
 import {
-  ProductUpdatesSection,
-  ProductUpdatesSkeleton,
-} from "@/components/templates/public/homepage/product-updates"
-import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
@@ -80,9 +76,6 @@ export async function VerifiedRevenuePageContent() {
               <div className="hidden lg:block">
                 <SponsoredProductsSection />
               </div>
-            </Suspense>
-            <Suspense fallback={<ProductUpdatesSkeleton />}>
-              <ProductUpdatesSection />
             </Suspense>
           </>
         }

@@ -116,8 +116,6 @@ export const categoryPlatformPath = (categorySlug: string, platform: string) =>
   `${categoryPath(categorySlug)}/platforms/${platform}`
 export const usecasePath = (slug: string) => `${USE_CASES_PATH}/${slug}`
 export const productPath = (slug: string) => `/products/${slug}`
-export const productUpdatesPath = (slug: string) =>
-  `${productPath(slug)}/updates`
 export const userPath = (id: string) => `${USERS_PATH}/${id}`
 
 export const memberProductsStatusPath = (status: string) =>
@@ -135,9 +133,6 @@ export const memberProductAnalyticsPath = (slug: string) =>
 
 export const memberProductInsightsPath = (slug: string) =>
   `${memberProductPath(slug)}/insights`
-
-export const memberProductUpdatesPath = (slug: string) =>
-  `${memberProductPath(slug)}/updates`
 
 export const memberProductDeletePath = (slug: string) =>
   `${memberProductPath(slug)}/delete`

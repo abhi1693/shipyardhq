@@ -18,10 +18,6 @@ import {
   TrafficSidebarStats,
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
-import {
-  ProductUpdatesSection,
-  ProductUpdatesSkeleton,
-} from "@/components/templates/public/homepage/product-updates"
 import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
 import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
@@ -196,9 +192,6 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
             </Suspense>
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
-            </Suspense>
-            <Suspense fallback={<ProductUpdatesSkeleton />}>
-              <ProductUpdatesSection />
             </Suspense>
           </>
         }

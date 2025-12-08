@@ -1,7 +1,6 @@
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
-import { ProductUpdatesSkeleton } from "@/components/templates/public/homepage/product-updates"
 import { SponsoredProductsSkeleton } from "@/components/templates/public/homepage/sponsored-products"
 
 export function VerifiedRevenuePageSkeleton() {
@@ -33,7 +32,6 @@ export function VerifiedRevenuePageSkeleton() {
         sidebar={
           <>
             <SponsoredProductsSkeleton />
-            <ProductUpdatesSkeleton />
           </>
         }
       />

@@ -12,10 +12,6 @@ import {
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
 import {
-  ProductUpdatesSection,
-  ProductUpdatesSkeleton,
-} from "@/components/templates/public/homepage/product-updates"
-import {
   TrafficSidebarStats,
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
@@ -108,9 +104,6 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
             </Suspense>
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
-            </Suspense>
-            <Suspense fallback={<ProductUpdatesSkeleton />}>
-              <ProductUpdatesSection />
             </Suspense>
           </>
         }

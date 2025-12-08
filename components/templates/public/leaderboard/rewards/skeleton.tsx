@@ -5,7 +5,6 @@ import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { TrafficSidebarStatsSkeleton } from "@/components/templates/public/common/TrafficSidebarStats"
 import { SponsoredProductsSkeleton } from "@/components/templates/public/homepage/sponsored-products"
-import { ProductUpdatesSkeleton } from "@/components/templates/public/homepage/product-updates"
 
 export function RewardsLeaderboardSkeleton() {
   return (
@@ -32,7 +31,6 @@ export function RewardsLeaderboardSkeleton() {
             <div className="hidden lg:block">
               <SponsoredProductsSkeleton />
             </div>
-            <ProductUpdatesSkeleton />
           </>
         }
       />

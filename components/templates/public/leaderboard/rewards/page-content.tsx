@@ -18,10 +18,6 @@ import {
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
 import {
-  ProductUpdatesSection,
-  ProductUpdatesSkeleton,
-} from "@/components/templates/public/homepage/product-updates"
-import {
   TrafficSidebarStats,
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
@@ -190,9 +186,6 @@ export async function RewardsLeaderboardPageContent({
               <div className="hidden lg:block">
                 <SponsoredProductsSection />
               </div>
-            </Suspense>
-            <Suspense fallback={<ProductUpdatesSkeleton />}>
-              <ProductUpdatesSection />
             </Suspense>
           </>
         }

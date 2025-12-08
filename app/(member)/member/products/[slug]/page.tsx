@@ -34,7 +34,6 @@ import {
   memberProductAnalyticsPath,
   memberProductEditPath,
   memberProductInsightsPath,
-  memberProductUpdatesPath,
   memberProductPath,
   productPath,
 } from "@/lib/routes"
@@ -43,7 +42,6 @@ import {
   BarChart3,
   Building2,
   ExternalLink,
-  Megaphone,
   Sparkles,
   Github as GithubIcon,
   Globe,
@@ -124,7 +122,6 @@ export default async function ViewUserProductPage({
   const publicPath = productPath(productSlug)
   const analyticsPath = memberProductAnalyticsPath(productSlug)
   const insightsPath = memberProductInsightsPath(productSlug)
-  const updatesPath = memberProductUpdatesPath(productSlug)
   const { hasBasicAnalytics } = resolveProductAnalyticsAccess({
     plan: product.plan,
     featureEntitlements: product.featureEntitlements ?? [],
@@ -443,18 +440,6 @@ export default async function ViewUserProductPage({
               >
                 <Link href={analyticsPath}>
                   <BarChart3 className="mr-2 h-4 w-4" /> Open Analytics
-                </Link>
-              </Button>
-            ) : null}
-            {canManage ? (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 px-4 text-[color:var(--brand-1)] hover:bg-[color:var(--brand-1)/0.08]"
-                asChild
-              >
-                <Link href={updatesPath}>
-                  <Megaphone className="mr-2 h-4 w-4" /> Manage updates
                 </Link>
               </Button>
             ) : null}

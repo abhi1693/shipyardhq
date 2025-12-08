@@ -6,7 +6,6 @@ import {
   getCategories,
 } from "@/actions/admin/categories/actions"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
-import { getLatestPublicProductUpdates } from "@/actions/public/product-updates/actions"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 
 export const browseSortLabelMap: Record<BrowseSort, string> = {
@@ -39,9 +38,6 @@ export type BrowsePagePayload = {
   useCases: Awaited<ReturnType<typeof getUseCasesWithCounts>>
   categories: CategoryWithProductCount[]
   stats: Awaited<ReturnType<typeof getLeaderboardStats>>
-  latestProductUpdates: Awaited<
-    ReturnType<typeof getLatestPublicProductUpdates>
-  >
   sortLabel: string
   filterSummary: string[]
   headline: string
@@ -85,7 +81,6 @@ export const getBrowsePagePayload = async (
     useCases,
     categoriesRaw,
     stats,
-    latestProductUpdates,
   ] = await Promise.all([
     getBrowseProducts({
       useCaseSlug: filters.useCase,
@@ -99,7 +94,6 @@ export const getBrowsePagePayload = async (
     getUseCasesWithCounts(),
     getCategories(CATEGORY_QUERY) as Promise<CategoryWithProductCount[]>,
     getLeaderboardStats(),
-    getLatestPublicProductUpdates(6),
   ])
 
   const categories = categoriesRaw
@@ -161,7 +155,6 @@ export const getBrowsePagePayload = async (
     useCases,
     categories,
     stats,
-    latestProductUpdates,
     sortLabel,
     filterSummary,
     headline,

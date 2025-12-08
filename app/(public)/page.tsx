@@ -5,10 +5,6 @@ import {
   HeroSectionSkeleton,
 } from "@/components/templates/public/homepage/hero-section"
 import {
-  ProductUpdatesSection,
-  ProductUpdatesSkeleton,
-} from "@/components/templates/public/homepage/product-updates"
-import {
   HomepageFeedSection,
   HomepageFeedSkeleton,
 } from "@/components/templates/public/homepage/homepage-feed-section"
@@ -100,9 +96,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               <div className="hidden lg:block">
                 <SponsoredProductsSection />
               </div>
-            </Suspense>
-            <Suspense fallback={<ProductUpdatesSkeleton />}>
-              <ProductUpdatesSection />
             </Suspense>
           </>
         }

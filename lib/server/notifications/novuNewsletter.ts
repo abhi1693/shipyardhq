@@ -39,17 +39,6 @@ type ProductOfTheWeek = {
 
 type TrendingProduct = ProductOfTheWeek & { rank: number }
 
-type ProductUpdateDigest = {
-  id: string
-  productId: string
-  productName: string
-  productUrl: string
-  title: string
-  summary: string
-  description: string
-  publishedAt: string | null
-}
-
 type WeeklyNewsletterPayload = {
   weekRange: string
   issueNumber: number
@@ -57,7 +46,6 @@ type WeeklyNewsletterPayload = {
   sponsoredProducts: SponsoredProduct[]
   productOfTheWeek: ProductOfTheWeek | null
   trending: TrendingProduct[]
-  productUpdates: ProductUpdateDigest[]
 }
 
 export async function subscribeToWeeklyNewsletterTopic(
@@ -95,7 +83,7 @@ export async function sendWeeklyNewsletterNotification(input: {
     const timestamp = new Date().toISOString()
     const subject = "This week on Shipyard HQ"
     const message =
-      "Product of the week, trending launches, and fresh updates from the Shipyard community."
+      "Product of the week, trending launches, and standout picks from the Shipyard community."
 
     await triggerNovuWorkflow({
       workflowId: workflow.workflowId,
@@ -147,7 +135,7 @@ export async function sendWeeklyNewsletterToSubscribers(
     const timestamp = new Date().toISOString()
     const subject = "This week on Shipyard HQ"
     const message =
-      "Product of the week, trending launches, and fresh updates from the Shipyard community."
+      "Product of the week, trending launches, and standout picks from the Shipyard community."
 
     let rateState = { count: 0, windowStart: Date.now() }
     for (const [index, email] of subscriberEmails.entries()) {

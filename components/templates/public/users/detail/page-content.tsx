@@ -16,10 +16,6 @@ import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
-import {
-  ProductUpdatesSection,
-  ProductUpdatesSkeleton,
-} from "@/components/templates/public/homepage/product-updates"
 import { UserFeedClient } from "@/components/templates/public/users/detail/UserFeedClient"
 import {
   HERO_PRIMARY_BUTTON_CLASSES,
@@ -238,9 +234,6 @@ export async function UserProfilePageContent({ params }: PageProps) {
             </Suspense>
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
-            </Suspense>
-            <Suspense fallback={<ProductUpdatesSkeleton />}>
-              <ProductUpdatesSection />
             </Suspense>
           </div>
         }

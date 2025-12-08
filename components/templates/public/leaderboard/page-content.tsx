@@ -6,7 +6,6 @@ import Hero from "@/components/organisms/directory/Hero"
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { IconAnchor, IconRadar, IconTargetArrow } from "@tabler/icons-react"
-import { ProductUpdatesFeed } from "@/components/molecules/ProductUpdatesFeed"
 import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
@@ -25,7 +24,6 @@ import {
 import { getLeaderboardPagePayload } from "@/lib/leaderboard/cache"
 import { mapProductCardRecordToBase } from "@/lib/products/selects"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
-import { ProductUpdatesFeedSkeleton } from "@/components/molecules/ProductUpdatesFeed.skeleton"
 import HeroSkeleton from "@/components/organisms/directory/Hero.skeleton"
 import DirectoryProductListSkeleton from "@/components/organisms/directory/DirectoryProductList.skeleton"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
@@ -46,8 +44,7 @@ export async function LeaderboardPageContent({
     limit: Number(sp?.limit ?? 50),
   }
 
-  const { stats, products, latestProductUpdates } =
-    await getLeaderboardPagePayload(filters)
+  const { stats, products } = await getLeaderboardPagePayload(filters)
 
   const now = new Date()
   const dailyArchivePath = `/leaderboard/daily/${now.getUTCFullYear()}/${
@@ -144,9 +141,6 @@ export async function LeaderboardPageContent({
               }}
               icon={<IconRadar className="h-4 w-4" />}
             />
-
-            <ProductUpdatesFeed updates={latestProductUpdates} />
-
             <DirectoryPromoCard
               title="How we surface leaderboard standings"
               description="Understand the score formula, refresh cadence, and tie-break rules that keep the Shipyard leaderboard fair for every maker."
@@ -188,7 +182,6 @@ export function LeaderboardPageSkeleton() {
               className="border border-border/80 bg-white/95"
             />
             <SponsoredProductsSkeleton />
-            <ProductUpdatesFeedSkeleton />
           </>
         }
       />

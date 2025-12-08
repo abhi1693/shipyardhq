@@ -122,7 +122,7 @@ export function NewsletterSignupSection({
             )}
           >
             {formState.message ||
-              "No spam. Just launch and product updates from the Shipyard team."}
+              "No spam. Just new launches and builder stories from the Shipyard team."}
           </p>
         </form>
       </div>

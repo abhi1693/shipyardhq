@@ -3,10 +3,8 @@ import {
   getPublicProductBySlug,
   getPublicProductsByUseCase,
 } from "@/actions/public/products/actions"
-import { getPublicProductUpdates } from "@/actions/public/product-updates/actions"
 import { productPath } from "@/lib/routes"
 import { ensureUrlHasSchema } from "@/lib/utils"
-import type { ProductUpdatePublicView } from "@/types/product-updates"
 
 export type PublicProduct = NonNullable<
   Awaited<ReturnType<typeof getPublicProductBySlug>>
@@ -61,8 +59,6 @@ type SimilarProduct = {
 
 export type ProductPagePayload = {
   product: PublicProduct
-  productUpdates: ProductUpdatePublicView[]
-  hasAdditionalUpdates: boolean
   similarProducts: SimilarProduct[]
   similarUseCase: {
     slug: string
@@ -70,10 +66,6 @@ export type ProductPagePayload = {
   } | null
   structuredData: Record<string, unknown> | null
 }
-
-const PRODUCT_UPDATES_PREVIEW = 3
-// Fetch one extra update to know if more are available beyond the preview.
-const PRODUCT_UPDATES_LIMIT = PRODUCT_UPDATES_PREVIEW + 1
 
 function mapUseCaseProducts(products: UseCaseProduct[]): SimilarProduct[] {
   return products.map((item) => ({
@@ -161,21 +153,9 @@ export const getProductPagePayload = cached(
 
     const useCaseSlug = product.category.useCases?.[0]?.useCase?.slug ?? null
 
-    const [productUpdatesRaw, similarProductsRaw] = await Promise.all([
-      getPublicProductUpdates(product.id, {
-        limit: PRODUCT_UPDATES_LIMIT,
-      }),
-      useCaseSlug
-        ? getPublicProductsByUseCase(useCaseSlug, product.id)
-        : Promise.resolve([]),
-    ])
-
-    const hasAdditionalUpdates =
-      productUpdatesRaw.length > PRODUCT_UPDATES_PREVIEW
-
-    const productUpdates = hasAdditionalUpdates
-      ? productUpdatesRaw.slice(0, PRODUCT_UPDATES_PREVIEW)
-      : productUpdatesRaw
+    const similarProductsRaw = useCaseSlug
+      ? await getPublicProductsByUseCase(useCaseSlug, product.id)
+      : []
 
     const similarProducts = mapUseCaseProducts(similarProductsRaw)
     const similarUseCase = product.category.useCases?.[0]?.useCase
@@ -189,8 +169,6 @@ export const getProductPagePayload = cached(
 
     return {
       product,
-      productUpdates,
-      hasAdditionalUpdates,
       similarProducts,
       similarUseCase,
       structuredData,
@@ -203,7 +181,6 @@ export const getProductPagePayload = cached(
     tags: ([slug]) => [
       TAGS.products,
       TAGS.product(String(slug)),
-      TAGS.productUpdatesLatest,
     ],
   },
 )

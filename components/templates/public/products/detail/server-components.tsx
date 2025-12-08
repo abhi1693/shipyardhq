@@ -3,10 +3,8 @@ import { auth } from "@clerk/nextjs/server"
 
 import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
 import { ProductCard } from "@/components/molecules/ProductCard"
-import { ProductUpdatesSection } from "@/components/templates/public/products/detail/product-updates-section"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
-import { getPublicProductUpdates } from "@/actions/public/product-updates/actions"
 import {
   getPublicProductsByUseCase,
   hasUserUpvoted,
@@ -52,19 +50,6 @@ export async function ProductUpvoteBadgeServer({
       initialUpvoted={viewerUpvoted}
     />
   )
-}
-
-export async function ProductUpdatesServer({
-  productId,
-  productSlug,
-}: {
-  productId: string
-  productSlug: string
-}) {
-  const updates = await getPublicProductUpdates(productId)
-  if (!updates.length) return null
-
-  return <ProductUpdatesSection updates={updates} productSlug={productSlug} />
 }
 
 export async function SimilarProductsServer({

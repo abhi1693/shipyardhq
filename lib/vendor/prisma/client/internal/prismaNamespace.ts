@@ -393,7 +393,6 @@ export const ModelName = {
   ProductLeaderboardScore: 'ProductLeaderboardScore',
   MonthlyLeaderboardNotification: 'MonthlyLeaderboardNotification',
   ProductMedia: 'ProductMedia',
-  ProductUpdate: 'ProductUpdate',
   ProductVerification: 'ProductVerification',
   ProductClaimAttempt: 'ProductClaimAttempt',
   ProductMetadata: 'ProductMetadata',
@@ -438,7 +437,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "monthlyLeaderboardNotification" | "productMedia" | "productUpdate" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "memberFeedback" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "monthlyLeaderboardNotification" | "productMedia" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "memberFeedback" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1105,80 +1104,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductMediaCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductMediaCountAggregateOutputType> | number
-        }
-      }
-    }
-    ProductUpdate: {
-      payload: Prisma.$ProductUpdatePayload<ExtArgs>
-      fields: Prisma.ProductUpdateFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ProductUpdateFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductUpdatePayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ProductUpdateFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductUpdatePayload>
-        }
-        findFirst: {
-          args: Prisma.ProductUpdateFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductUpdatePayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ProductUpdateFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductUpdatePayload>
-        }
-        findMany: {
-          args: Prisma.ProductUpdateFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductUpdatePayload>[]
-        }
-        create: {
-          args: Prisma.ProductUpdateCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductUpdatePayload>
-        }
-        createMany: {
-          args: Prisma.ProductUpdateCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ProductUpdateCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductUpdatePayload>[]
-        }
-        delete: {
-          args: Prisma.ProductUpdateDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductUpdatePayload>
-        }
-        update: {
-          args: Prisma.ProductUpdateUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductUpdatePayload>
-        }
-        deleteMany: {
-          args: Prisma.ProductUpdateDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ProductUpdateUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ProductUpdateUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductUpdatePayload>[]
-        }
-        upsert: {
-          args: Prisma.ProductUpdateUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductUpdatePayload>
-        }
-        aggregate: {
-          args: Prisma.ProductUpdateAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProductUpdate>
-        }
-        groupBy: {
-          args: Prisma.ProductUpdateGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductUpdateGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ProductUpdateCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductUpdateCountAggregateOutputType> | number
         }
       }
     }
@@ -3509,22 +3434,6 @@ export const ProductMediaScalarFieldEnum = {
 export type ProductMediaScalarFieldEnum = (typeof ProductMediaScalarFieldEnum)[keyof typeof ProductMediaScalarFieldEnum]
 
 
-export const ProductUpdateScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  authorId: 'authorId',
-  title: 'title',
-  summary: 'summary',
-  content: 'content',
-  status: 'status',
-  publishedAt: 'publishedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductUpdateScalarFieldEnum = (typeof ProductUpdateScalarFieldEnum)[keyof typeof ProductUpdateScalarFieldEnum]
-
-
 export const ProductVerificationScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
@@ -4227,20 +4136,6 @@ export type ListEnumLeaderboardRunStatusFieldRefInput<$PrismaModel> = FieldRefIn
 
 
 /**
- * Reference to a field of type 'ProductUpdateStatus'
- */
-export type EnumProductUpdateStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductUpdateStatus'>
-    
-
-
-/**
- * Reference to a field of type 'ProductUpdateStatus[]'
- */
-export type ListEnumProductUpdateStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductUpdateStatus[]'>
-    
-
-
-/**
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
@@ -4602,7 +4497,6 @@ export type GlobalOmitConfig = {
   productLeaderboardScore?: Prisma.ProductLeaderboardScoreOmit
   monthlyLeaderboardNotification?: Prisma.MonthlyLeaderboardNotificationOmit
   productMedia?: Prisma.ProductMediaOmit
-  productUpdate?: Prisma.ProductUpdateOmit
   productVerification?: Prisma.ProductVerificationOmit
   productClaimAttempt?: Prisma.ProductClaimAttemptOmit
   productMetadata?: Prisma.ProductMetadataOmit

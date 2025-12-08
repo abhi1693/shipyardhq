@@ -42,12 +42,10 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { SidebarInfoRow } from "@/components/templates/public/products/detail/sidebar-info-row"
 import {
   ProductUpvoteBadgeServer,
-  ProductUpdatesServer,
   SimilarProductsServer,
 } from "@/components/templates/public/products/detail/server-components"
 import {
   ProductUpvoteBadgeFallback,
-  ProductUpdatesFallback,
   SimilarProductsFallback,
 } from "@/components/templates/public/products/detail/product-fallbacks"
 import {
@@ -786,12 +784,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </div>
               </div>
             ) : null}
-            <Suspense fallback={<ProductUpdatesFallback />}>
-              <ProductUpdatesServer
-                productId={product.id}
-                productSlug={product.slug}
-              />
-            </Suspense>
             <StickyBanner className="w-full" />
             {primaryUseCaseSlug ? (
               <Suspense fallback={<SimilarProductsFallback />}>

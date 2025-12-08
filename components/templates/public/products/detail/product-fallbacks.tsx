@@ -4,12 +4,6 @@ export function ProductUpvoteBadgeFallback() {
   )
 }
 
-export function ProductUpdatesFallback() {
-  return (
-    <div className="min-h-[14rem] animate-pulse rounded-2xl border border-border/70 bg-white" />
-  )
-}
-
 export function SimilarProductsFallback() {
   return (
     <div className="h-48 animate-pulse rounded-2xl border border-border/70 bg-white" />
