@@ -84,15 +84,6 @@ export const ProductStatus = {
 export type ProductStatus = (typeof ProductStatus)[keyof typeof ProductStatus]
 
 
-export const ProductInsightStatus = {
-  pending: 'pending',
-  ready: 'ready',
-  failed: 'failed'
-} as const
-
-export type ProductInsightStatus = (typeof ProductInsightStatus)[keyof typeof ProductInsightStatus]
-
-
 export const Platform = {
   web: 'web',
   ios: 'ios',

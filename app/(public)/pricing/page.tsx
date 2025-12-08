@@ -32,7 +32,7 @@ export const metadata = buildPageMetadata({
 const HERO_POINTS = [
   {
     title: "Free to list",
-    body: "Launch with a free placement and one Insights run each week.",
+    body: "Launch with a free placement and built-in analytics.",
   },
   {
     title: "Upgrade on demand",
@@ -40,7 +40,7 @@ const HERO_POINTS = [
   },
   {
     title: "Team-ready",
-    body: "Org subscriptions add shared access, analytics, and extra credits.",
+    body: "Org subscriptions add shared access and analytics.",
   },
 ]
 
@@ -150,8 +150,8 @@ export default function PricingPage() {
                   Subscriptions for teams
                 </h2>
                 <p className="text-muted-foreground">
-                  Shared organizations, analytics, and recurring Insights
-                  credits when you need team access.
+                  Shared organizations and analytics when you need ongoing team
+                  access.
                 </p>
               </div>
               <Suspense fallback={<SubscriptionPlansSkeleton />}>

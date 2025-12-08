@@ -45,7 +45,7 @@ const MONTHLY_PILLARS = [
     icon: IconUsersGroup,
     title: "Rally your team",
     description:
-      "Share the recap, schedule Insights runs, and plan promotions so your team stays on top next month.",
+      "Share the recap and plan promotions so your team stays on top next month.",
   },
 ]
 
@@ -121,7 +121,7 @@ export async function MonthlyLeaderboardView({
             <p className="text-lg text-white/85">
               Each reset captures the launches that earned the most support.
               Explore the archive, benchmark results with Analytics, and plan
-              your next spotlight with Insights at the ready.
+              your next spotlight with confidence.
             </p>
           </div>
           <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">

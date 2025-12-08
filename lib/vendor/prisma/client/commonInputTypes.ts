@@ -423,23 +423,6 @@ export type EnumDeviceCategoryWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumDeviceCategoryFilter<$PrismaModel>
 }
 
-export type EnumProductInsightStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.ProductInsightStatus | Prisma.EnumProductInsightStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.ProductInsightStatus[] | Prisma.ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.ProductInsightStatus[] | Prisma.ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumProductInsightStatusFilter<$PrismaModel> | $Enums.ProductInsightStatus
-}
-
-export type EnumProductInsightStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.ProductInsightStatus | Prisma.EnumProductInsightStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.ProductInsightStatus[] | Prisma.ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.ProductInsightStatus[] | Prisma.ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumProductInsightStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductInsightStatus
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumProductInsightStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumProductInsightStatusFilter<$PrismaModel>
-}
-
 export type EnumUserStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.UserStatus | Prisma.EnumUserStatusFieldRefInput<$PrismaModel>
   in?: $Enums.UserStatus[] | Prisma.ListEnumUserStatusFieldRefInput<$PrismaModel>
@@ -1132,23 +1115,6 @@ export type NestedEnumDeviceCategoryWithAggregatesFilter<$PrismaModel = never> =
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumDeviceCategoryFilter<$PrismaModel>
   _max?: Prisma.NestedEnumDeviceCategoryFilter<$PrismaModel>
-}
-
-export type NestedEnumProductInsightStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.ProductInsightStatus | Prisma.EnumProductInsightStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.ProductInsightStatus[] | Prisma.ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.ProductInsightStatus[] | Prisma.ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumProductInsightStatusFilter<$PrismaModel> | $Enums.ProductInsightStatus
-}
-
-export type NestedEnumProductInsightStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.ProductInsightStatus | Prisma.EnumProductInsightStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.ProductInsightStatus[] | Prisma.ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.ProductInsightStatus[] | Prisma.ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumProductInsightStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductInsightStatus
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumProductInsightStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumProductInsightStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumUserStatusFilter<$PrismaModel = never> = {

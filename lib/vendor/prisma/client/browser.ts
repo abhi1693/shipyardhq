@@ -88,16 +88,6 @@ export type ProductAnalytics = Prisma.ProductAnalyticsModel
  */
 export type ProductTrafficEvent = Prisma.ProductTrafficEventModel
 /**
- * Model ProductInsightProfile
- * 
- */
-export type ProductInsightProfile = Prisma.ProductInsightProfileModel
-/**
- * Model ProductInsightStageResult
- * 
- */
-export type ProductInsightStageResult = Prisma.ProductInsightStageResultModel
-/**
  * Model ProductUpvote
  * 
  */

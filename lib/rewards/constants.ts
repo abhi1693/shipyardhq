@@ -23,10 +23,6 @@ const REWARD_FEATURE_DEFINITIONS = {
     value: "analytics.advanced",
     label: "Advanced analytics",
   },
-  insightsPipeline: {
-    value: "insights.pipeline",
-    label: "Insights pipeline",
-  },
   customCTA: {
     value: "customCTA",
     label: "Custom call-to-action",

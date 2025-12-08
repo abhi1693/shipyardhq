@@ -3,11 +3,6 @@ import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import prisma from "@/lib/prisma"
 import { formatBoolean, linkify } from "@/lib/ui/formatters"
 import { adminPath } from "@/lib/routes"
-import { INSIGHTS_PIPELINE_FEATURE_KEY } from "@/lib/constants"
-import {
-  formatInsightsUsage,
-  parseInsightsUsageConfig,
-} from "@/lib/productInsights/insightsUsage"
 
 export default async function AssignedFeaturePage({
   params,
@@ -49,13 +44,6 @@ export default async function AssignedFeaturePage({
       value: formatBoolean(assignment.isExperimental),
     },
   ]
-
-  if (assignment.feature.key === INSIGHTS_PIPELINE_FEATURE_KEY) {
-    overview.push({
-      label: "Usage policy",
-      value: formatInsightsUsage(parseInsightsUsageConfig(assignment.config)),
-    })
-  }
 
   return (
     <ObjectPageLayout

@@ -75,8 +75,8 @@ const USE_CASES: UseCaseSeed[] = [
     categorySlugs: ["creator-economy", "content-writing", "video-audio"],
   },
   {
-    label: "Deliver Insights",
-    slug: "deliver-insights",
+    label: "Deliver Analytics",
+    slug: "deliver-analytics",
     categorySlugs: [
       "analytics",
       "monitoring-observability",

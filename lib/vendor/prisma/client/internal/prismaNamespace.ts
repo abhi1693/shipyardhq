@@ -398,8 +398,6 @@ export const ModelName = {
   ProductMetadata: 'ProductMetadata',
   ProductAnalytics: 'ProductAnalytics',
   ProductTrafficEvent: 'ProductTrafficEvent',
-  ProductInsightProfile: 'ProductInsightProfile',
-  ProductInsightStageResult: 'ProductInsightStageResult',
   ProductUpvote: 'ProductUpvote',
   Organization: 'Organization',
   OrganizationMembership: 'OrganizationMembership',
@@ -437,7 +435,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "monthlyLeaderboardNotification" | "productMedia" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "memberFeedback" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "monthlyLeaderboardNotification" | "productMedia" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productTrafficEvent" | "productUpvote" | "organization" | "organizationMembership" | "user" | "memberFeedback" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1474,154 +1472,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductTrafficEventCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductTrafficEventCountAggregateOutputType> | number
-        }
-      }
-    }
-    ProductInsightProfile: {
-      payload: Prisma.$ProductInsightProfilePayload<ExtArgs>
-      fields: Prisma.ProductInsightProfileFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ProductInsightProfileFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ProductInsightProfileFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
-        }
-        findFirst: {
-          args: Prisma.ProductInsightProfileFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ProductInsightProfileFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
-        }
-        findMany: {
-          args: Prisma.ProductInsightProfileFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>[]
-        }
-        create: {
-          args: Prisma.ProductInsightProfileCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
-        }
-        createMany: {
-          args: Prisma.ProductInsightProfileCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ProductInsightProfileCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>[]
-        }
-        delete: {
-          args: Prisma.ProductInsightProfileDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
-        }
-        update: {
-          args: Prisma.ProductInsightProfileUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
-        }
-        deleteMany: {
-          args: Prisma.ProductInsightProfileDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ProductInsightProfileUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ProductInsightProfileUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>[]
-        }
-        upsert: {
-          args: Prisma.ProductInsightProfileUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
-        }
-        aggregate: {
-          args: Prisma.ProductInsightProfileAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProductInsightProfile>
-        }
-        groupBy: {
-          args: Prisma.ProductInsightProfileGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductInsightProfileGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ProductInsightProfileCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductInsightProfileCountAggregateOutputType> | number
-        }
-      }
-    }
-    ProductInsightStageResult: {
-      payload: Prisma.$ProductInsightStageResultPayload<ExtArgs>
-      fields: Prisma.ProductInsightStageResultFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ProductInsightStageResultFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ProductInsightStageResultFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
-        }
-        findFirst: {
-          args: Prisma.ProductInsightStageResultFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ProductInsightStageResultFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
-        }
-        findMany: {
-          args: Prisma.ProductInsightStageResultFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>[]
-        }
-        create: {
-          args: Prisma.ProductInsightStageResultCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
-        }
-        createMany: {
-          args: Prisma.ProductInsightStageResultCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ProductInsightStageResultCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>[]
-        }
-        delete: {
-          args: Prisma.ProductInsightStageResultDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
-        }
-        update: {
-          args: Prisma.ProductInsightStageResultUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
-        }
-        deleteMany: {
-          args: Prisma.ProductInsightStageResultDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ProductInsightStageResultUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ProductInsightStageResultUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>[]
-        }
-        upsert: {
-          args: Prisma.ProductInsightStageResultUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
-        }
-        aggregate: {
-          args: Prisma.ProductInsightStageResultAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProductInsightStageResult>
-        }
-        groupBy: {
-          args: Prisma.ProductInsightStageResultGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductInsightStageResultGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ProductInsightStageResultCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductInsightStageResultCountAggregateOutputType> | number
         }
       }
     }
@@ -3514,38 +3364,6 @@ export const ProductTrafficEventScalarFieldEnum = {
 export type ProductTrafficEventScalarFieldEnum = (typeof ProductTrafficEventScalarFieldEnum)[keyof typeof ProductTrafficEventScalarFieldEnum]
 
 
-export const ProductInsightProfileScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  status: 'status',
-  errorMessage: 'errorMessage',
-  lastRunAt: 'lastRunAt',
-  insightsGeneratedCount: 'insightsGeneratedCount',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductInsightProfileScalarFieldEnum = (typeof ProductInsightProfileScalarFieldEnum)[keyof typeof ProductInsightProfileScalarFieldEnum]
-
-
-export const ProductInsightStageResultScalarFieldEnum = {
-  id: 'id',
-  profileId: 'profileId',
-  stageId: 'stageId',
-  providerType: 'providerType',
-  status: 'status',
-  data: 'data',
-  metrics: 'metrics',
-  errorMessage: 'errorMessage',
-  startedAt: 'startedAt',
-  completedAt: 'completedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductInsightStageResultScalarFieldEnum = (typeof ProductInsightStageResultScalarFieldEnum)[keyof typeof ProductInsightStageResultScalarFieldEnum]
-
-
 export const ProductUpvoteScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
@@ -4185,20 +4003,6 @@ export type ListEnumDeviceCategoryFieldRefInput<$PrismaModel> = FieldRefInputTyp
 
 
 /**
- * Reference to a field of type 'ProductInsightStatus'
- */
-export type EnumProductInsightStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductInsightStatus'>
-    
-
-
-/**
- * Reference to a field of type 'ProductInsightStatus[]'
- */
-export type ListEnumProductInsightStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductInsightStatus[]'>
-    
-
-
-/**
  * Reference to a field of type 'UserStatus'
  */
 export type EnumUserStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserStatus'>
@@ -4502,8 +4306,6 @@ export type GlobalOmitConfig = {
   productMetadata?: Prisma.ProductMetadataOmit
   productAnalytics?: Prisma.ProductAnalyticsOmit
   productTrafficEvent?: Prisma.ProductTrafficEventOmit
-  productInsightProfile?: Prisma.ProductInsightProfileOmit
-  productInsightStageResult?: Prisma.ProductInsightStageResultOmit
   productUpvote?: Prisma.ProductUpvoteOmit
   organization?: Prisma.OrganizationOmit
   organizationMembership?: Prisma.OrganizationMembershipOmit

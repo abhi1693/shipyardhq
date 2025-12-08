@@ -65,8 +65,6 @@ export const ModelName = {
   ProductMetadata: 'ProductMetadata',
   ProductAnalytics: 'ProductAnalytics',
   ProductTrafficEvent: 'ProductTrafficEvent',
-  ProductInsightProfile: 'ProductInsightProfile',
-  ProductInsightStageResult: 'ProductInsightStageResult',
   ProductUpvote: 'ProductUpvote',
   Organization: 'Organization',
   OrganizationMembership: 'OrganizationMembership',
@@ -327,38 +325,6 @@ export const ProductTrafficEventScalarFieldEnum = {
 } as const
 
 export type ProductTrafficEventScalarFieldEnum = (typeof ProductTrafficEventScalarFieldEnum)[keyof typeof ProductTrafficEventScalarFieldEnum]
-
-
-export const ProductInsightProfileScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  status: 'status',
-  errorMessage: 'errorMessage',
-  lastRunAt: 'lastRunAt',
-  insightsGeneratedCount: 'insightsGeneratedCount',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductInsightProfileScalarFieldEnum = (typeof ProductInsightProfileScalarFieldEnum)[keyof typeof ProductInsightProfileScalarFieldEnum]
-
-
-export const ProductInsightStageResultScalarFieldEnum = {
-  id: 'id',
-  profileId: 'profileId',
-  stageId: 'stageId',
-  providerType: 'providerType',
-  status: 'status',
-  data: 'data',
-  metrics: 'metrics',
-  errorMessage: 'errorMessage',
-  startedAt: 'startedAt',
-  completedAt: 'completedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductInsightStageResultScalarFieldEnum = (typeof ProductInsightStageResultScalarFieldEnum)[keyof typeof ProductInsightStageResultScalarFieldEnum]
 
 
 export const ProductUpvoteScalarFieldEnum = {

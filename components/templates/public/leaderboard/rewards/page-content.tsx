@@ -42,7 +42,7 @@ const leaderboardMetrics = [
     formatter: formatRewards,
   },
   {
-    key: "totalInsights",
+    key: "totalRedeemed",
     label: "Rewards redeemed (30d)",
     formatter: formatRewards,
   },
@@ -75,7 +75,7 @@ export async function RewardsLeaderboardPageContent({
     totalProducts: stats.membersWithRewards,
     totalCreators: stats.activeBalances,
     totalUpvotes: stats.earnedLast30d.rewardAmount,
-    totalInsights: stats.spentLast30d.rewardAmount,
+    totalRedeemed: stats.spentLast30d.rewardAmount,
   }
 
   return (

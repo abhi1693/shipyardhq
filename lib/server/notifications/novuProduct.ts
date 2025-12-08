@@ -20,7 +20,6 @@ const PRODUCT_NOTIFICATION_KINDS = new Set<ProductNotificationKind>([
   "product_upvote",
   "product_review",
   "product_published",
-  "product_insights_ready",
   "product_payment_sync_error",
 ])
 
@@ -39,7 +38,6 @@ export type ProductNotificationKind =
   | "product_upvote"
   | "product_review"
   | "product_published"
-  | "product_insights_ready"
   | "product_payment_sync_error"
   | "product_featured"
   | "product_of_day"

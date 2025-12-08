@@ -23,7 +23,6 @@ type StatsShape = {
   totalCreators: number
   totalUpvotes: number
   topScore: number
-  totalInsights: number
   pageViews30?: number
   visitors30?: number
   trafficSeries?: Array<{
