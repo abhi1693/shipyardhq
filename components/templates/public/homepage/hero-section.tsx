@@ -14,6 +14,7 @@ export async function HeroSection() {
         name,
         logoSrc,
       }))}
+      showDomainRatingBadge={false}
       secondaryAction={{
         label: "View the leaderboard",
         href: LEADERBOARD_PATH,
