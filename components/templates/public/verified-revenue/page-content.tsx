@@ -43,7 +43,6 @@ export async function VerifiedRevenuePageContent() {
                 title="The verified revenue leaderboard for startups"
                 primaryAction={null}
                 secondaryAction={null}
-                showDomainRatingBadge={false}
               />
             </div>
 

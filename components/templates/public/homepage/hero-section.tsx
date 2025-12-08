@@ -1,5 +1,4 @@
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
-import { LEADERBOARD_PATH } from "@/lib/routes"
 import Hero from "@/components/organisms/directory/Hero"
 import HeroSkeleton from "@/components/organisms/directory/Hero.skeleton"
 import { PAYMENT_PROVIDERS } from "@/lib/paymentProviders"
@@ -14,12 +13,8 @@ export async function HeroSection() {
         name,
         logoSrc,
       }))}
-      showDomainRatingBadge={false}
-      secondaryAction={{
-        label: "View the leaderboard",
-        href: LEADERBOARD_PATH,
-        variant: "outline",
-      }}
+      primaryAction={null}
+      secondaryAction={null}
     />
   )
 }

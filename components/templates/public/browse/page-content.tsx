@@ -4,7 +4,6 @@ import { Suspense } from "react"
 import { EmptyState } from "@/components/molecules/empty-state"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
 import BrowseFilterBar from "@/components/molecules/BrowseFilterBar"
-import Hero from "@/components/organisms/directory/Hero"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
   SponsoredProductsSection,
@@ -14,31 +13,12 @@ import {
   TrafficSidebarStats,
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
-import {
-  BROWSE_PATH,
-  LEADERBOARD_PATH,
-  MEMBER_PRODUCTS_PATH,
-} from "@/lib/routes"
+import { BROWSE_PATH } from "@/lib/routes"
 import {
   getBrowsePagePayload,
   type BrowseSort,
   type BrowsePageFilters,
 } from "@/lib/browse/cache"
-
-const browseMetrics = [
-  {
-    key: "totalProducts" as const,
-    label: "Directory listings",
-  },
-  {
-    key: "totalCreators" as const,
-    label: "Builders featured",
-  },
-  {
-    key: "totalUpvotes" as const,
-    label: "Community upvotes",
-  },
-] as const
 
 type StrOrArr = string | string[] | undefined
 
@@ -90,7 +70,6 @@ export async function BrowsePageContent({
     hasMore,
     useCases,
     categories,
-    stats,
     filterSummary,
     hasActiveFilters,
   } = await getBrowsePagePayload(parsedFilters)
@@ -103,23 +82,6 @@ export async function BrowsePageContent({
         sidebarClassName="lg:sticky lg:top-24"
         main={
           <>
-            <Hero
-              stats={stats}
-              eyebrow="Directory browse"
-              title="Browse the Shipyard launch catalog"
-              description="We run the sponsored placement spotlight, curate featured campaigns, and track momentum across editor picks, new arrivals, and the live leaderboard."
-              primaryAction={{
-                label: "Submit your launch",
-                href: MEMBER_PRODUCTS_PATH,
-              }}
-              secondaryAction={{
-                label: "View the leaderboard",
-                href: LEADERBOARD_PATH,
-                variant: "outline",
-              }}
-              metrics={browseMetrics}
-            />
-
             <Suspense
               fallback={
                 <div className="lg:hidden">

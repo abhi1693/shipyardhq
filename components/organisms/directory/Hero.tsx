@@ -3,7 +3,6 @@ import { Play, Rocket } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
-import DomainRatingBadge from "@/components/molecules/DomainRatingBadge"
 import { SquareImage } from "@/components/molecules/SquareImage"
 import {
   Tooltip,
@@ -52,7 +51,6 @@ interface HeroProps {
   secondaryAction?: HeaderActionConfig | null
   metrics?: readonly MetricConfig[]
   supportedProviders?: (string | ProviderDescriptor)[]
-  showDomainRatingBadge?: boolean
 }
 
 const HERO_PRIMARY_CLASSES =
@@ -63,25 +61,20 @@ const HERO_SECONDARY_CLASSES =
 
 export function Hero({
   stats,
-  eyebrow,
+  eyebrow: _eyebrow,
   title,
   description,
   primaryAction,
   secondaryAction,
   metrics = [],
   supportedProviders,
-  showDomainRatingBadge = true,
 }: HeroProps) {
-  const resolvedEyebrow =
-    typeof eyebrow === "string" && eyebrow.trim().length > 0
-      ? eyebrow.trim()
-      : null
   const resolvedTitle = title ?? "Shipyard homepage"
   const resolvedDescription =
     typeof description === "string" && description.trim().length > 0
       ? description.trim()
       : null
-  const contentGapClass = resolvedEyebrow ? "gap-6" : "gap-5"
+  const contentGapClass = "gap-5"
 
   const defaultPrimary: HeaderActionConfig = {
     label: "Launch your product now",
@@ -141,12 +134,6 @@ export function Hero({
           contentGapClass,
         )}
       >
-        {resolvedEyebrow ? (
-          <span className="inline-flex w-fit items-center gap-2 self-center rounded-full border border-border/80 bg-muted/40 px-4 py-1.5 text-xs font-semibold tracking-[0.18em] text-[color:var(--brand-1)]">
-            <span aria-hidden="true">🚀</span>
-            {resolvedEyebrow}
-          </span>
-        ) : null}
         <div className="space-y-4 text-balance text-center">
           {isDefaultHeadline ? (
             <h1 className="text-4xl font-semibold tracking-tight text-[#1C2333] sm:text-[2.4rem]">
@@ -173,9 +160,6 @@ export function Hero({
             {resolvedPrimary ? renderAction(resolvedPrimary, 0) : null}
             {resolvedSecondary ? renderAction(resolvedSecondary, 1) : null}
           </div>
-        ) : null}
-        {showDomainRatingBadge ? (
-          <DomainRatingBadge className="mx-auto" />
         ) : null}
         {hasProviders ? (
           <section
