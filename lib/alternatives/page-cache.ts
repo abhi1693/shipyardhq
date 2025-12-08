@@ -1,4 +1,3 @@
-import prisma from "@/lib/prisma"
 import {
   ALTERNATIVE_CATALOG_PAGE_SIZE,
   getAlternativeCatalogPage,
@@ -28,37 +27,6 @@ export const getAlternativesIndexPayload = cached(
   "alternative-products:index:payload",
   {
     ttl: DEFAULT_TTL.slow,
-    keyParts: () => [],
-    tags: () => [TAGS.alternativeProducts],
-  },
-)
-
-export const getAlternativeStaticParams = cached(
-  async () => {
-    const alternatives = await prisma.alternativeProduct.findMany({
-      where: {
-        products: {
-          some: {},
-        },
-      },
-      select: {
-        slug: true,
-      },
-      orderBy: {
-        slug: "asc",
-      },
-    })
-
-    return alternatives
-      .map((alternative: (typeof alternatives)[number]) => alternative.slug)
-      .filter((slug: string | undefined | null): slug is string =>
-        Boolean(slug?.trim()),
-      )
-      .map((slug: string) => ({ slug }))
-  },
-  "alternative-products:static-params",
-  {
-    ttl: DEFAULT_TTL.slowest,
     keyParts: () => [],
     tags: () => [TAGS.alternativeProducts],
   },

@@ -1,7 +1,6 @@
 import { REWARD_FEATURE_KEY } from "./rewards/constants"
 
 export const IS_PROD = process.env.NODE_ENV === "production"
-export const HAS_APP_URL = Boolean(process.env.NEXT_PUBLIC_APP_URL)
 
 export const BADGE_OPTIONS = [
   {

@@ -44,7 +44,6 @@ type ProviderDescriptor = {
 
 interface HeroProps {
   stats: StatsShape
-  eyebrow?: string
   title?: string
   description?: string
   primaryAction?: HeaderActionConfig | null
@@ -61,7 +60,6 @@ const HERO_SECONDARY_CLASSES =
 
 export function Hero({
   stats,
-  eyebrow: _eyebrow,
   title,
   description,
   primaryAction,
