@@ -10,14 +10,14 @@ import { Image } from "@/components/atoms/image"
 type Media = { id: string; imageUrl: string }
 
 type Props = {
-  productId: string
+  productSlug: string
   media: Media[]
   canEdit?: boolean
   max?: number
 }
 
 export default function ProductMediaManager({
-  productId,
+  productSlug,
   media,
   canEdit = false,
   max = 3,
@@ -41,7 +41,7 @@ export default function ProductMediaManager({
         for (const f of selected) {
           fd.append("file", f)
         }
-        const res = await fetch(`/api/products/${productId}/media`, {
+        const res = await fetch(`/api/products/${productSlug}/media`, {
           method: "POST",
           body: fd,
         })
@@ -53,7 +53,7 @@ export default function ProductMediaManager({
         setBusy(null)
       }
     },
-    [productId, remaining, canEdit, router],
+    [productSlug, remaining, canEdit, router],
   )
 
   async function onRemove(id: string) {
@@ -61,7 +61,7 @@ export default function ProductMediaManager({
     setDeletingId(id)
     setError(null)
     try {
-      const res = await fetch(`/api/products/${productId}/media/${id}`, {
+      const res = await fetch(`/api/products/${productSlug}/media/${id}`, {
         method: "DELETE",
       })
       if (!res.ok && res.status !== 204) throw new Error(await res.text())

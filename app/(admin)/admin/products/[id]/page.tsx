@@ -349,7 +349,7 @@ export default async function ViewProductPage({
                   </div>
                 </div>
                 <ProductMediaManager
-                  productId={product.id}
+                  productSlug={product.slug}
                   media={
                     product.ProductMedia?.map(
                       (
