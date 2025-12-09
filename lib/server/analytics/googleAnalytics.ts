@@ -64,11 +64,22 @@ export type SiteAnalyticsSnapshot = {
 }
 
 const CACHE_KEY = buildCacheKey("analytics:homepage:traffic:v1")
-const CACHE_TTL_SECONDS = 300
+const CACHE_TTL_SECONDS = 900
 const REALTIME_CACHE_KEY = buildCacheKey("analytics:homepage:realtime:v1")
-const REALTIME_CACHE_TTL_SECONDS = 30
+const REALTIME_CACHE_TTL_SECONDS = 120
 const SITE_SNAPSHOT_CACHE_PREFIX = "analytics:site:snapshot:v2"
-const SITE_SNAPSHOT_CACHE_TTL_SECONDS = 300
+const SITE_SNAPSHOT_CACHE_TTL_SECONDS = 900
+const CACHE_KEY_JITTER_BUCKETS = Math.max(
+  1,
+  Number.isFinite(
+    Number.parseInt(process.env.GA_CACHE_KEY_JITTER_BUCKETS ?? "", 10),
+  )
+    ? Number.parseInt(process.env.GA_CACHE_KEY_JITTER_BUCKETS ?? "", 10)
+    : 4,
+)
+const CACHE_KEY_JITTER_BUCKET = Math.floor(
+  Math.random() * CACHE_KEY_JITTER_BUCKETS,
+)
 
 let clientPromise: Promise<BetaAnalyticsDataClient> | null = null
 
@@ -128,6 +139,10 @@ export type GaProductTrafficSummary = {
     pageViews: number
     uniqueVisitors: number
   }>
+}
+
+function jitterCacheKey(baseKey: string) {
+  return `${baseKey}:j${CACHE_KEY_JITTER_BUCKET}`
 }
 
 function normalizeGaDateRange(range: GaDateRange): GaDateRange {
@@ -1298,11 +1313,13 @@ export async function getSiteAnalyticsSnapshot(args?: {
   const requestedDateRange = args?.dateRange ?? defaultSiteDateRange()
   const dateRange = normalizeGaDateRange(requestedDateRange)
   const topProductLimit = Math.max(1, args?.topProductLimit ?? 6)
-  const cacheKey = buildCacheKey(
-    SITE_SNAPSHOT_CACHE_PREFIX,
-    dateRange.startDate,
-    dateRange.endDate,
-    `top${topProductLimit}`,
+  const cacheKey = jitterCacheKey(
+    buildCacheKey(
+      SITE_SNAPSHOT_CACHE_PREFIX,
+      dateRange.startDate,
+      dateRange.endDate,
+      `top${topProductLimit}`,
+    ),
   )
 
   const redis = await getRedisClient().catch(() => null)
@@ -1404,9 +1421,10 @@ async function fetchHomepageTrafficFromGa(): Promise<HomepageTraffic> {
 export async function getHomepageTrafficFromGa(): Promise<HomepageTraffic> {
   const redis = await getRedisClient().catch(() => null)
   let cachedPayload: HomepageTraffic | null = null
+  const cacheKey = jitterCacheKey(CACHE_KEY)
 
   if (redis) {
-    const cached = await redis.get(CACHE_KEY)
+    const cached = await redis.get(cacheKey)
     if (cached) {
       try {
         cachedPayload = JSON.parse(cached) as HomepageTraffic
@@ -1424,7 +1442,7 @@ export async function getHomepageTrafficFromGa(): Promise<HomepageTraffic> {
   try {
     const fresh = await fetchHomepageTrafficFromGa()
     if (redis) {
-      await redis.set(CACHE_KEY, JSON.stringify(fresh), {
+      await redis.set(cacheKey, JSON.stringify(fresh), {
         EX: CACHE_TTL_SECONDS,
       })
     }
@@ -1467,9 +1485,10 @@ async function fetchRealtimeVisitorsFromGa(): Promise<number> {
 export async function getRealtimeVisitorsFromGa(): Promise<number> {
   const redis = await getRedisClient().catch(() => null)
   let cachedValue: number | null = null
+  const cacheKey = jitterCacheKey(REALTIME_CACHE_KEY)
 
   if (redis) {
-    const cached = await redis.get(REALTIME_CACHE_KEY)
+    const cached = await redis.get(cacheKey)
     if (cached) {
       const parsed = Number(cached)
       if (Number.isFinite(parsed)) {
@@ -1481,7 +1500,7 @@ export async function getRealtimeVisitorsFromGa(): Promise<number> {
   try {
     const fresh = await fetchRealtimeVisitorsFromGa()
     if (redis) {
-      await redis.set(REALTIME_CACHE_KEY, String(fresh), {
+      await redis.set(cacheKey, String(fresh), {
         EX: REALTIME_CACHE_TTL_SECONDS,
       })
     }
