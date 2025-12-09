@@ -3,9 +3,7 @@ export const dynamic = "force-dynamic"
 import type { Metadata } from "next"
 
 import { ProductTypePageContent } from "@/components/templates/public/product-types/product-type-page-content"
-import {
-  getProductTypePagePayload,
-} from "@/lib/product-types/page-cache"
+import { getProductTypePagePayload } from "@/lib/product-types/page-cache"
 import { getProductTypeMeta } from "@/lib/product-types/models"
 import { buildPageMetadata } from "@/lib/metadata"
 import { productTypePath } from "@/lib/routes"

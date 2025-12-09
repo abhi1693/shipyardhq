@@ -3,9 +3,7 @@ export const dynamic = "force-dynamic"
 import type { Metadata } from "next"
 
 import { PricingModelPageContent } from "@/components/templates/public/pricing/pricing-model-page-content"
-import {
-  getPricingModelPagePayload,
-} from "@/lib/pricing/page-cache"
+import { getPricingModelPagePayload } from "@/lib/pricing/page-cache"
 import { getPricingModelMeta } from "@/lib/pricing/models"
 import { buildPageMetadata } from "@/lib/metadata"
 import { pricingModelPath } from "@/lib/routes"

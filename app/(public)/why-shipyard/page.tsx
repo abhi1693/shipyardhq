@@ -418,7 +418,6 @@ export default function WhyShipyardPage() {
             </div>
           </div>
         </section>
-
       </main>
     </>
   )

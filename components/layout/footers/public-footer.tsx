@@ -146,7 +146,6 @@ export default function PublicFooter() {
                 </ul>
               </div>
             </div>
-
           </div>
         </section>
       </div>

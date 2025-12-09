@@ -73,12 +73,7 @@ export const getBrowsePagePayload = async (
 ): Promise<BrowsePagePayload> => {
   const filters = normalizeFilters(input)
 
-  const [
-    browseResult,
-    featured,
-    useCases,
-    categoriesRaw,
-  ] = await Promise.all([
+  const [browseResult, featured, useCases, categoriesRaw] = await Promise.all([
     getBrowseProducts({
       useCaseSlug: filters.useCase,
       categorySlug: filters.category,

@@ -408,7 +408,8 @@ export default async function ProductAnalyticsPage({
                   <div className="text-right text-xs text-muted-foreground">
                     <div>New: {formatPercentOneDecimal(newVisitorShare)}</div>
                     <div>
-                      Returning: {formatPercentOneDecimal(returningVisitorShare)}
+                      Returning:{" "}
+                      {formatPercentOneDecimal(returningVisitorShare)}
                     </div>
                     {newVisitorDelta !== null ? (
                       <div className="text-[11px] text-foreground">

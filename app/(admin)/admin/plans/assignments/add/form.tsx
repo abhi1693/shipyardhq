@@ -33,13 +33,12 @@ import PageContainer from "@/components/layout/page-container"
 import { createPlanFeatureAssignment } from "@/actions/admin/plans/assignments/actions"
 import { adminPath } from "@/lib/routes"
 
-const schema = z
-  .object({
-    planId: z.string().min(1, "Select a plan"),
-    featureId: z.string().min(1, "Select a feature"),
-    enabled: z.boolean().optional(),
-    isExperimental: z.boolean().optional(),
-  })
+const schema = z.object({
+  planId: z.string().min(1, "Select a plan"),
+  featureId: z.string().min(1, "Select a feature"),
+  enabled: z.boolean().optional(),
+  isExperimental: z.boolean().optional(),
+})
 
 type AssignmentFormInput = z.infer<typeof schema>
 

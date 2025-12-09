@@ -86,7 +86,11 @@ async function assignWinnerBadges(options: {
   const expiresAt = (() => {
     const periodDurationMs = Math.max(
       options.periodEnd.getTime() - options.periodStart.getTime(),
-      options.period === "week" ? 7 * DAY_MS : options.period === "month" ? 28 * DAY_MS : DAY_MS,
+      options.period === "week"
+        ? 7 * DAY_MS
+        : options.period === "month"
+          ? 28 * DAY_MS
+          : DAY_MS,
     )
     const currentWindow = getPeriodWindow(options.period, now)
     const anchorEnd =

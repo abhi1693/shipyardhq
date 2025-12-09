@@ -4,9 +4,7 @@ import type { Metadata } from "next"
 
 import { PlatformPageContent } from "@/components/templates/public/platforms/page-content"
 import { getPlatformMeta } from "@/lib/platforms/config"
-import {
-  getPlatformPagePayload,
-} from "@/lib/platforms/page-cache"
+import { getPlatformPagePayload } from "@/lib/platforms/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
 import { platformPath } from "@/lib/routes"
 

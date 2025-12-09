@@ -67,9 +67,7 @@ export type ProductNotificationPayload = {
 export async function sendProductNotificationToNovu(
   payload: ProductNotificationPayload,
 ): Promise<void> {
-  const isProductNotificationKind = PRODUCT_NOTIFICATION_KINDS.has(
-    payload.kind,
-  )
+  const isProductNotificationKind = PRODUCT_NOTIFICATION_KINDS.has(payload.kind)
   const workflow = guardNovuWorkflow(
     isProductNotificationKind
       ? NOVU_PRODUCT_NOTIFICATIONS_WORKFLOW_ID

@@ -18,7 +18,12 @@ import {
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
-import { BROWSE_PATH, HOME_PATH, MEMBER_PRODUCTS_PATH, TAGS_PATH } from "@/lib/routes"
+import {
+  BROWSE_PATH,
+  HOME_PATH,
+  MEMBER_PRODUCTS_PATH,
+  TAGS_PATH,
+} from "@/lib/routes"
 import { getTagsIndexPayload } from "@/lib/tags/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
 

@@ -32,11 +32,9 @@ type ScoreRow = {
 export type LeaderboardScoreRow = ScoreRow & { rank: number }
 
 function metricsHaveActivity(metrics: MetricMaps): boolean {
-  return [
-    metrics.views,
-    metrics.uniqueVisitors,
-    metrics.upvotes,
-  ].some((map) => Array.from(map.values()).some((value) => value > 0))
+  return [metrics.views, metrics.uniqueVisitors, metrics.upvotes].some((map) =>
+    Array.from(map.values()).some((value) => value > 0),
+  )
 }
 
 export async function createLeaderboardRun(input: {

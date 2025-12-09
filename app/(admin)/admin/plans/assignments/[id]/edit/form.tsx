@@ -37,13 +37,12 @@ import type {
   PlanFeature,
 } from "@/lib/vendor/prisma/client"
 
-const schema = z
-  .object({
-    planId: z.string().min(1, "Plan is required"),
-    featureId: z.string().min(1, "Feature is required"),
-    enabled: z.boolean().optional(),
-    isExperimental: z.boolean().optional(),
-  })
+const schema = z.object({
+  planId: z.string().min(1, "Plan is required"),
+  featureId: z.string().min(1, "Feature is required"),
+  enabled: z.boolean().optional(),
+  isExperimental: z.boolean().optional(),
+})
 
 type FormInput = z.infer<typeof schema>
 

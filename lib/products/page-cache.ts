@@ -81,9 +81,7 @@ function mapUseCaseProducts(products: UseCaseProduct[]): SimilarProduct[] {
   }))
 }
 
-export function buildProductStructuredData(
-  product: PublicProduct,
-) {
+export function buildProductStructuredData(product: PublicProduct) {
   const baseUrl = (
     process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
   ).replace(/\/$/, "")
@@ -178,9 +176,6 @@ export const getProductPagePayload = cached(
   {
     ttl: DEFAULT_TTL.medium,
     keyParts: ([slug]) => [slug],
-    tags: ([slug]) => [
-      TAGS.products,
-      TAGS.product(String(slug)),
-    ],
+    tags: ([slug]) => [TAGS.products, TAGS.product(String(slug))],
   },
 )
