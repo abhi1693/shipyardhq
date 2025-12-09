@@ -267,6 +267,9 @@ export default function EditProductForm({
       lockWebsiteUrl: false,
       persistOnVerify: true,
       rightOfWebsite: ownerNode,
+      enableAutofill: true,
+      autofillNotice:
+        "AI Autofill replaces the fields on this step with new suggestions. Your current content will be overwritten.",
       pricingAside: (
         <ConnectorFields
           form={form}
