@@ -1,10 +1,11 @@
 "use client"
 
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useFormState, useFormStatus } from "react-dom"
 import { toast } from "sonner"
 
 import { adjustUserRewardsAction } from "@/actions/admin/rewards/actions"
+import { searchAdminUsersAction } from "@/actions/admin/users/actions"
 import {
   initialAdjustRewardsState,
   type AdjustRewardsFormState,
@@ -54,6 +55,10 @@ export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
   const formRef = useRef<HTMLFormElement>(null)
   const [selectedUserId, setSelectedUserId] = useState<string>("")
   const [searchQuery, setSearchQuery] = useState<string>("")
+  const [remoteUsers, setRemoteUsers] = useState<UserOption[] | null>(null)
+  const [pinnedUser, setPinnedUser] = useState<UserOption | null>(null)
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchError, setSearchError] = useState<string | null>(null)
   const [state, formAction] = useFormState<AdjustRewardsFormState, FormData>(
     async (previousState, formData) => {
       try {
@@ -63,6 +68,7 @@ export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
           formRef.current?.reset()
           setSelectedUserId("")
           setSearchQuery("")
+          setPinnedUser(null)
         } else if (result.status === "error" && result.message) {
           toast.error(result.message)
         }
@@ -75,9 +81,43 @@ export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
     initialAdjustRewardsState,
   )
 
-  const filteredUsers = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase()
-    if (!query) {
+  const trimmedSearch = searchQuery.trim()
+  const normalizedSearch = trimmedSearch.toLowerCase()
+
+  useEffect(() => {
+    if (!trimmedSearch) {
+      setRemoteUsers(null)
+      setIsSearching(false)
+      setSearchError(null)
+      return
+    }
+
+    let cancelled = false
+    const handle = setTimeout(async () => {
+      setIsSearching(true)
+      try {
+        const results = await searchAdminUsersAction(trimmedSearch)
+        if (cancelled) return
+        setRemoteUsers(results ?? [])
+        setSearchError(null)
+      } catch (error) {
+        console.error("Failed to search users", error)
+        setSearchError("Unable to search users right now.")
+        setRemoteUsers([])
+      } finally {
+        if (cancelled) return
+        setIsSearching(false)
+      }
+    }, 450)
+
+    return () => {
+      cancelled = true
+      clearTimeout(handle)
+    }
+  }, [trimmedSearch])
+
+  const localFilteredUsers = useMemo(() => {
+    if (!normalizedSearch) {
       return users
     }
 
@@ -88,11 +128,36 @@ export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
         .trim()
       const haystack = `${fullName} ${user.email}`.toLowerCase()
 
-      return haystack.includes(query)
+      return haystack.includes(normalizedSearch)
     })
-  }, [searchQuery, users])
+  }, [normalizedSearch, users])
 
-  const disabledSubmit = users.length === 0 || !selectedUserId
+  const displayedUsers = useMemo(() => {
+    const seen = new Set<string>()
+    const ordered: UserOption[] = []
+
+    const pushUnique = (userList: UserOption[] | null | undefined) => {
+      if (!userList) return
+      for (const user of userList) {
+        if (seen.has(user.id)) continue
+        seen.add(user.id)
+        ordered.push(user)
+      }
+    }
+
+    pushUnique(pinnedUser ? [pinnedUser] : null)
+
+    if (trimmedSearch) {
+      pushUnique(remoteUsers)
+      pushUnique(localFilteredUsers)
+    } else {
+      pushUnique(users)
+    }
+
+    return ordered
+  }, [localFilteredUsers, pinnedUser, remoteUsers, trimmedSearch, users])
+
+  const disabledSubmit = displayedUsers.length === 0 || !selectedUserId
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
@@ -113,6 +178,9 @@ export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
                 value={selectedUserId === "" ? undefined : selectedUserId}
                 onValueChange={(value) => {
                   setSelectedUserId(value)
+                  const selected =
+                    displayedUsers.find((user) => user.id === value) ?? null
+                  setPinnedUser(selected)
                   setSearchQuery("")
                 }}
                 onOpenChange={(open) => {
@@ -134,6 +202,7 @@ export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
                     <Input
                       value={searchQuery}
                       onChange={(event) => setSearchQuery(event.target.value)}
+                      onKeyDown={(event) => event.stopPropagation()}
                       placeholder="Search by name or email..."
                       autoFocus
                       className="h-9 w-full"
@@ -141,8 +210,20 @@ export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
                     />
                   </div>
 
-                  {filteredUsers.length > 0 ? (
-                    filteredUsers.map((user) => {
+                  {isSearching ? (
+                    <div className="px-3 py-2 text-xs text-muted-foreground">
+                      Searching users…
+                    </div>
+                  ) : null}
+
+                  {searchError ? (
+                    <div className="px-3 py-3 text-sm text-destructive">
+                      {searchError}
+                    </div>
+                  ) : null}
+
+                  {displayedUsers.length > 0 ? (
+                    displayedUsers.map((user) => {
                       const name = [user.firstName, user.lastName]
                         .filter(Boolean)
                         .join(" ")
@@ -165,8 +246,8 @@ export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
                     })
                   ) : (
                     <div className="px-3 py-4 text-sm text-muted-foreground">
-                      {searchQuery
-                        ? `No users match "${searchQuery}".`
+                      {trimmedSearch
+                        ? `No users match "${trimmedSearch}".`
                         : "No users found."}
                     </div>
                   )}
@@ -175,7 +256,7 @@ export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
               <input type="hidden" name="userId" value={selectedUserId} />
               <p className="text-sm text-muted-foreground">
                 {users.length
-                  ? "Start typing to filter members by name or email."
+                  ? "Start typing to search all members by name or email."
                   : "No users found."}
               </p>
             </fieldset>

@@ -6,6 +6,8 @@ import { revalidateProducts } from "@/lib/cache/revalidate"
 import { auth, clerkClient } from "@clerk/nextjs/server"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
+const SEARCH_LIMIT = 25
+
 export async function getUsers(args: Prisma.UserFindManyArgs = {}) {
   try {
     return await prisma.user.findMany({
@@ -114,6 +116,57 @@ export async function deleteUserAction(id: string) {
   } catch (error) {
     console.error("Error deleting user:", error)
     return { error: "Failed to delete user" }
+  }
+}
+
+export async function searchAdminUsersAction(query: string) {
+  const { userId: clerkId } = await auth()
+  if (!clerkId) {
+    throw new Error("Not authenticated")
+  }
+
+  const adminUser = await getActiveUserByClerkId(clerkId)
+  if (!adminUser || adminUser.role !== "admin") {
+    throw new Error("Unauthorized")
+  }
+
+  const trimmed = query.trim()
+  if (!trimmed.length) {
+    return []
+  }
+
+  const terms = trimmed
+    .split(/\s+/)
+    .map((value) => value.trim())
+    .filter(Boolean)
+
+  if (!terms.length) {
+    return []
+  }
+
+  try {
+    return await prisma.user.findMany({
+      where: {
+        AND: terms.map((term) => ({
+          OR: [
+            { email: { contains: term, mode: "insensitive" } },
+            { firstName: { contains: term, mode: "insensitive" } },
+            { lastName: { contains: term, mode: "insensitive" } },
+          ],
+        })),
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+      },
+      orderBy: { email: "asc" },
+      take: SEARCH_LIMIT,
+    })
+  } catch (error) {
+    console.error("[admin.users.search] Failed to search users", error)
+    throw new Error("Unable to search users")
   }
 }
 
