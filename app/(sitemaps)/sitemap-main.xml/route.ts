@@ -19,7 +19,6 @@ import {
   ANALYTICS_PATH,
   REWARDS_PATH,
   TAGS_PATH,
-  TRENDS_PATH,
   WHY_SHIPYARD_PATH,
 } from "@/lib/routes"
 import { resolveSiteUrl } from "@/lib/siteConfig"
@@ -69,7 +68,6 @@ export async function GET() {
     ANALYTICS_PATH,
     TAGS_PATH,
     REWARDS_PATH,
-    TRENDS_PATH,
     WHY_SHIPYARD_PATH,
     LEADERBOARD_GUIDE_PATH,
     LEADERBOARD_REWARDS_PATH,
@@ -288,10 +286,6 @@ export async function GET() {
         case REWARDS_PATH:
           changefreq = "weekly"
           priority = "0.55"
-          break
-        case TRENDS_PATH:
-          changefreq = "daily"
-          priority = "0.65"
           break
         case WHY_SHIPYARD_PATH:
           changefreq = "monthly"

@@ -19,6 +19,11 @@ const nextConfig: NextConfig = {
         destination: "/leaderboard/monthly/:year/:month",
         permanent: true,
       },
+      {
+        source: "/trends/:path*",
+        destination: "/",
+        permanent: true,
+      },
     ]
   },
   async rewrites() {

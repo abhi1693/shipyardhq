@@ -5,7 +5,7 @@ import { Button } from "@/components/atoms/button"
 import Hero from "@/components/organisms/directory/Hero"
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
-import { IconAnchor, IconRadar, IconTargetArrow } from "@tabler/icons-react"
+import { IconAnchor, IconTargetArrow } from "@tabler/icons-react"
 import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
@@ -19,7 +19,6 @@ import {
   BROWSE_PATH,
   LEADERBOARD_GUIDE_PATH,
   MEMBER_PRODUCTS_PATH,
-  TRENDS_PATH,
 } from "@/lib/routes"
 import { getLeaderboardPagePayload } from "@/lib/leaderboard/cache"
 import { mapProductCardRecordToBase } from "@/lib/products/selects"
@@ -132,15 +131,6 @@ export async function LeaderboardPageContent({
               <SponsoredProductsSection />
             </Suspense>
 
-            <DirectoryPromoCard
-              title="See the Trend Radar in motion"
-              description="Watch Shipyard categories heat up across momentum, catalog depth, and upvote signal—auto-refreshed and ready to embed."
-              cta={{
-                label: "Open Trend Radar",
-                href: TRENDS_PATH,
-              }}
-              icon={<IconRadar className="h-4 w-4" />}
-            />
             <DirectoryPromoCard
               title="How we surface leaderboard standings"
               description="Understand the score formula, refresh cadence, and tie-break rules that keep the Shipyard leaderboard fair for every maker."

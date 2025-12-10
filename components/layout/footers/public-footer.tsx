@@ -16,7 +16,6 @@ import {
   REWARDS_PATH,
   USERS_PATH,
   WHY_SHIPYARD_PATH,
-  TRENDS_PATH,
   SHIPYARD_TWITTER_URL,
 } from "@/lib/routes"
 import { cn } from "@/lib/utils"
@@ -31,7 +30,6 @@ export default function PublicFooter() {
     { label: "All Products", href: BROWSE_PATH },
     { label: "Leaderboard", href: LEADERBOARD_PATH },
     { label: "Alternatives", href: ALTERNATIVES_PATH },
-    { label: "Trend Radar", href: TRENDS_PATH },
     { label: "Rewards", href: REWARDS_PATH },
     { label: "Analytics", href: ANALYTICS_PATH },
     { label: "Pricing", href: PRICING_PATH },
