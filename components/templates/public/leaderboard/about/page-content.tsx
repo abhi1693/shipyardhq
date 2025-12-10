@@ -14,7 +14,7 @@ const HERO_HIGHLIGHTS = [
   {
     title: "Live leaderboard",
     detail:
-      "Ranks published products in real time as upvotes roll in. It updates instantly whenever makers cheer on a tool.",
+      "Ranks published products as new traffic and upvotes land. Scores refresh whenever we log visits or votes for a listing.",
     icon: Trophy,
   },
   {
@@ -26,23 +26,23 @@ const HERO_HIGHLIGHTS = [
   {
     title: "Transparent scoring",
     detail:
-      "The score combines momentum and staying power so you can see who is surging today and who keeps winning fans over time.",
+      "Weights monthly upvotes, unique visitors, and page views (10:3:1) so you can see which products are converting attention into fans.",
     icon: LineChart,
   },
 ]
 
 const SCORE_FACTS = [
   {
-    heading: "Momentum × loyalty",
-    copy: "Every leaderboard score starts with a product’s upvotes this month. We multiply that total by 100, then add the product’s lifetime upvotes. The multiplier keeps fresh campaigns front and center while lifetime fans still matter for tie-breakers.",
+    heading: "Weighted monthly inputs",
+    copy: "Scores are recalculated off three signals inside the current calendar month: upvotes × 10, unique visitors × 3, and page views × 1. We pull traffic from GA for each product page and only consider published listings.",
   },
   {
     heading: "Real-time recalculation",
-    copy: "As soon as a member toggles an upvote, we update Product Analytics and revalidate the leaderboard cache. Makers see their new rank without refreshing the page.",
+    copy: "When a member upvotes or we capture a product traffic event, we rerun the leaderboard window up to that moment and revalidate caches so ranks reflect the latest activity.",
   },
   {
     heading: "Fair tie handling",
-    copy: "If two products land on the same score, the one with more monthly upvotes holds the higher slot. If that’s also tied, we fall back to the earliest product ID — effectively alphabetical by the internal identifier — to keep the list deterministic and transparent.",
+    copy: "If scores match, we compare monthly upvotes first, then unique visitors, then page views. If everything is still tied, we sort by product ID to keep the board deterministic.",
   },
 ]
 
@@ -50,7 +50,7 @@ const RANKING_EVENTS = [
   {
     title: "Daily cadence",
     detail:
-      "The public leaderboard is effectively live. It revalidates each time a product gains or loses an upvote.",
+      "The public leaderboard is effectively live. It revalidates each time a product gains an upvote or logs new traffic.",
     icon: Sparkles,
   },
   {
@@ -62,7 +62,7 @@ const RANKING_EVENTS = [
   {
     title: "Top placement cards",
     detail:
-      "The first three products receive hero cards across the leaderboard and marketing surfaces. That’s why the score multiplier rewards quick momentum.",
+      "The first three products receive hero cards across the leaderboard and marketing surfaces. That’s why the weighting favors quick momentum.",
     icon: Trophy,
   },
 ]
@@ -70,7 +70,7 @@ const RANKING_EVENTS = [
 export const LEADERBOARD_FAQ = [
   {
     q: "Where do upvotes come from?",
-    a: "Any signed-in member can cast a single upvote per product. They can toggle it off if they change their mind, and we immediately recalc the score.",
+    a: "Any signed-in member can cast a single upvote per product. Votes are permanent; monthly tallies only increase as new fans arrive, and we refresh scores right after each new vote.",
   },
   {
     q: "Do private drafts count?",
@@ -173,32 +173,34 @@ export function LeaderboardGuidePageContent() {
                 <p className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">
                   Score ={" "}
                   <span className="text-[color:var(--brand-1)]">
-                    (monthly upvotes × 100)
+                    (monthly upvotes × 10)
                   </span>{" "}
-                  + lifetime upvotes
+                  + (unique visitors × 3) + monthly page views
                 </p>
                 <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-                  Monthly upvotes reset with each calendar month to capture
-                  campaign momentum. Lifetime upvotes never reset, rewarding
-                  long-term supporters and giving tie-breakers a clear rule.
+                  All inputs reset on the first UTC day of the month. Upvotes
+                  are permanent and counted once per member, so this month’s
+                  score only rises as new fans arrive. Traffic comes from GA
+                  page views and unique visitors for each product page.
                 </p>
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
                   <div className="rounded-2xl border border-[color:var(--brand-1)/0.12] bg-background/80 p-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
-                      Momentum
+                      Upvotes lead
                     </p>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      Upvotes earned this calendar month multiplied by 100 keep
-                      rising launches at the top of the board.
+                      Each new upvote this month adds 10 points, making
+                      community enthusiasm the strongest driver of rank.
                     </p>
                   </div>
                   <div className="rounded-2xl border border-[color:var(--brand-1)/0.12] bg-background/80 p-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
-                      Loyalty
+                      Traffic keeps pace
                     </p>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      Lifetime upvotes make sure products with enduring fans
-                      keep their edge when campaigns tie.
+                      Unique visitors (×3) and page views (×1) capture ongoing
+                      discovery, rewarding listings that convert attention into
+                      upvotes.
                     </p>
                   </div>
                 </div>
