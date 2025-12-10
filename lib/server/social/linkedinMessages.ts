@@ -60,7 +60,7 @@ export async function buildLinkedInLeaderboardPost(args: {
 
   const lines: Array<string | null | undefined> = [
     copy.headline,
-    copy.body ? ["Top builders:", copy.body].join("\n") : null,
+    copy.body,
     `Full board: ${args.leaderboardUrl}`,
   ]
 
