@@ -37,10 +37,16 @@ export async function ProductUpvoteBadgeServer({
   productId,
   productSlug,
   upvoteCount,
+  leaderboard,
 }: {
   productId: string
   productSlug: string
   upvoteCount: number
+  leaderboard?: {
+    points: number
+    rank: number | null
+    available: boolean
+  }
 }) {
   const { viewerUpvoted } = await getViewerProductState(productId)
   return (
@@ -48,6 +54,7 @@ export async function ProductUpvoteBadgeServer({
       productSlug={productSlug}
       count={upvoteCount}
       initialUpvoted={viewerUpvoted}
+      leaderboard={leaderboard}
     />
   )
 }

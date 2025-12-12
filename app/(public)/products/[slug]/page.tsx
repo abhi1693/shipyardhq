@@ -82,6 +82,7 @@ import {
 } from "@/lib/product-types/models"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { ProductRevenueChart } from "@/components/templates/public/products/detail/ProductRevenueChart"
+import { getProductScoreForCurrentWindow } from "@/lib/server/leaderboard/v2"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -217,11 +218,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return notFound()
 
-  const [sidebarProduct, revenue] = await Promise.all([
+  const [sidebarProduct, revenue, leaderboardScore] = await Promise.all([
     getPublicProductBySlug(slug),
     product.pricingModel === "free"
       ? Promise.resolve(null)
       : getPublicProductRevenue(product.id),
+    getProductScoreForCurrentWindow(product.id).catch(() => null),
   ])
   if (!sidebarProduct) return notFound()
 
@@ -279,9 +281,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           priceCurrency: sidebarProduct.currencyCode || "USD",
         }
       : undefined
-  const platformValues = sidebarProduct.platforms ?? []
+  const platformValues = (sidebarProduct.platforms ?? []) as string[]
   const hasWebPlatform = platformValues.includes("web")
-  const mobilePlatforms = platformValues.filter((platform) =>
+  const mobilePlatforms = platformValues.filter((platform: string) =>
     ["ios", "android"].includes(platform),
   )
 
@@ -371,7 +373,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           sidebarProduct.currencyCode,
         )
       : null
-  const platformItems = (sidebarProduct?.platforms ?? []).map((platform) => {
+  const platformItems = ((sidebarProduct?.platforms ?? []) as string[]).map(
+    (platform) => {
     const key = String(platform)
     const platformMeta = getPlatformMetaByValue(platform)
     const iconKey = platformMeta?.slug ?? key
@@ -386,7 +389,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       ...meta,
       path,
     }
-  })
+    },
+  )
   const galleryMedia = (product.ProductMedia ?? [])
     .map((item: (typeof product.ProductMedia)[number]) => ({
       id: item.id,
@@ -394,7 +398,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       altText: item.altText,
     }))
     .filter((item: { imageUrl: string | null }) => Boolean(item.imageUrl))
-  const activeBadgeDefs = (sidebarProduct?.badges ?? [])
+  const activeBadgeDefs = ((sidebarProduct?.badges ?? []) as string[])
     .map((badgeKey) => BADGE_LOOKUP[badgeKey])
     .filter(Boolean)
   const keywordTagItems = Array.from(
@@ -451,6 +455,15 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         productLogoUrl={product.logo}
       />
     ) : null
+  const leaderboardPoints =
+    typeof leaderboardScore?.score === "number" ? leaderboardScore.score : 0
+  const leaderboardRank =
+    typeof leaderboardScore?.rank === "number" ? leaderboardScore.rank : null
+  const leaderboardPayload = {
+    points: leaderboardPoints,
+    rank: leaderboardRank,
+    available: Boolean(leaderboardScore),
+  }
   const productDetailsCard = (
     <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-5">
@@ -559,7 +572,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         {sidebarProduct?.alternatives.length ? (
           <SidebarInfoRow label="Alternative to">
             <div className="flex flex-wrap gap-2">
-              {sidebarProduct?.alternatives.map((alternative) => {
+              {sidebarProduct?.alternatives.map((alternative: {
+                id: string
+                slug: string
+                name: string
+                logoUrl: string
+              }) => {
                 const href = alternativePath(alternative.slug as string)
 
                 return (
@@ -753,6 +771,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     productId={product.id}
                     productSlug={product.slug}
                     upvoteCount={product.analytics?.upvotes ?? 0}
+                    leaderboard={leaderboardPayload}
                   />
                 </Suspense>
               </div>
@@ -802,6 +821,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   productId={product.id}
                   productSlug={product.slug}
                   upvoteCount={product.analytics?.upvotes ?? 0}
+                  leaderboard={leaderboardPayload}
                 />
               </Suspense>
             </div>
