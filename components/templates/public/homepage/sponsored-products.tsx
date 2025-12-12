@@ -100,13 +100,13 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
   const logoFallbackSrc = item.isPlaceholder ? null : item.logo || null
   const titleClassName = item.isPlaceholder
     ? "line-clamp-1 text-base font-medium leading-snug tracking-tight text-muted-foreground"
-    : "line-clamp-1 text-base font-semibold leading-snug tracking-tight text-foreground underline-offset-4 decoration-foreground/25 group-hover:underline"
+    : "line-clamp-1 text-base font-semibold leading-[1.25] tracking-tight text-foreground underline-offset-4 decoration-foreground/25 group-hover:underline"
   const taglineClassName = item.isPlaceholder
-    ? "line-clamp-2 text-[13px] leading-snug text-muted-foreground/80"
-    : "line-clamp-2 text-[13px] leading-snug text-muted-foreground"
+    ? "line-clamp-2 lg:line-clamp-1 text-[13px] leading-snug text-muted-foreground/80"
+    : "line-clamp-2 lg:line-clamp-1 text-[13px] leading-snug text-muted-foreground"
 
   const content = (
-    <article className="overflow-hidden rounded-xl border border-border/60 bg-white shadow-sm transition-all duration-150 group-hover:border-border/80 group-hover:shadow-md">
+    <article className="overflow-hidden rounded-xl border border-border/60 bg-white shadow-sm transition-all duration-150 group-hover:-translate-y-0.5 group-hover:border-border/80 group-hover:shadow-md">
       <div className="relative w-full aspect-[16/6] border-b border-border/50 bg-muted/40">
         {item.isPlaceholder ? (
           <div className="flex h-full w-full items-center justify-center border-2 border-dashed border-muted-foreground/20 text-muted-foreground">
@@ -151,7 +151,7 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
     return (
       <Link
         href={PRICING_PATH}
-        className="group block w-full rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+        className="group block w-full rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
         aria-label="Advertise here (sponsored listing)"
       >
         {content}
@@ -163,7 +163,7 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
     <ProductClickLink
       productSlug={item.slug}
       prefetch={false}
-      className="group block w-full rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      className="group block w-full rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
       formClassName="w-full"
       aria-label={`${item.name} (sponsored listing)`}
     >
