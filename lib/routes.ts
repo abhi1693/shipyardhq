@@ -104,7 +104,8 @@ export const LEGAL_TERMS_PATH = "/legal/terms" as const
 export const SHIPYARD_TWITTER_URL = "https://x.com/shipyardhq" as const
 export const SHIPYARD_LINKEDIN_URL =
   "https://www.linkedin.com/company/shipyard-hq" as const
-export const SHIPYARD_REDDIT_URL = "https://www.reddit.com/r/shipyardhq/" as const
+export const SHIPYARD_REDDIT_URL =
+  "https://www.reddit.com/r/shipyardhq/" as const
 
 export const alternativePath = (slug: string) => `${ALTERNATIVES_PATH}/${slug}`
 
