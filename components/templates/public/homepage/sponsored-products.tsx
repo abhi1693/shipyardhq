@@ -130,7 +130,7 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
       </div>
 
       <div className="space-y-1 px-3 py-2.5">
-        <p className="line-clamp-1 text-sm font-semibold leading-snug tracking-tight text-foreground underline-offset-4 decoration-foreground/25 group-hover:underline">
+        <p className="line-clamp-1 text-base font-semibold leading-snug tracking-tight text-foreground underline-offset-4 decoration-foreground/25 group-hover:underline">
           {item.name}
         </p>
         {item.tagline ? (
