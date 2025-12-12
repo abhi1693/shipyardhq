@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next"
-import Script from "next/script"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Toaster } from "@/components/atoms/sonner"
 import { GoogleAnalytics } from "@next/third-parties/google"
@@ -61,19 +60,6 @@ export default function RootLayout({
           <Toaster position="top-right" />
           {children}
         </Providers>
-        {IS_PROD && (
-          <Script id="crisp-chatbox" strategy="afterInteractive">{`
-           window.$crisp=[];
-           window.CRISP_WEBSITE_ID="fe0af523-3d4d-4ce1-9694-5f8cbdab1f80";
-           (function(){
-             d=document;
-             s=d.createElement("script");
-             s.src="https://client.crisp.chat/l.js";
-             s.async=1;
-             d.getElementsByTagName("head")[0].appendChild(s);
-           })();
-        `}</Script>
-        )}
       </body>
       {process.env.GOOGLE_ANALYTICS_ID && (
         <GoogleAnalytics
