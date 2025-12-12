@@ -1,7 +1,8 @@
 import { Banknote } from "lucide-react"
 
 import { getStickyBannerProducts } from "@/actions/public/products/featured"
-import { cn } from "@/lib/utils"
+import { cn, ensureUrlHasSchema } from "@/lib/utils"
+import { addUtmParams } from "@/lib/marketing/utm"
 import { Badge } from "@/components/atoms/badge"
 import { SquareImage } from "@/components/molecules/SquareImage"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
@@ -15,7 +16,7 @@ interface StickyBannerProps {
 
 const getCachedStickyBannerProduct = cached(
   async (limit: number) => getStickyBannerProducts(limit),
-  "sticky-banner:product",
+  "sticky-banner:product:v2",
   {
     ttl: 600,
     tags: () => [
@@ -41,6 +42,15 @@ export async function StickyBanner({
   const tagline = product.tagline?.trim()
   const hasRevenue =
     typeof latestRevenueCents === "number" && latestRevenueCents > 0
+  const websiteUrl = product.websiteUrl?.trim()
+  const websiteHref = websiteUrl
+    ? addUtmParams(ensureUrlHasSchema(websiteUrl), {
+        source: "shipyard",
+        medium: "referral",
+        campaign: product.utmCampaign ?? undefined,
+        content: "sticky-banner",
+      })
+    : undefined
   const revenueLabel = hasRevenue
     ? new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -55,6 +65,7 @@ export async function StickyBanner({
       <div className="w-full rounded-2xl border-2 border-[#F59E0B]/45 bg-[#FFF7ED] px-6 py-4 shadow-[4px_12px_28px_-20px_rgba(226,120,34,0.26)] transition-shadow duration-150 hover:shadow-[14px_30px_60px_-34px_rgba(226,120,34,0.45)]">
         <ProductClickLink
           productSlug={product.slug}
+          href={websiteHref}
           className="flex w-full flex-wrap items-center justify-between gap-4 text-left transition-shadow duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFF7ED]"
           formClassName="w-full"
         >
