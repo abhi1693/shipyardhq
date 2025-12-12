@@ -1,7 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { Mail, Twitter } from "lucide-react"
+import {
+  IconBrandLinkedin,
+  IconBrandReddit,
+  IconBrandX,
+} from "@tabler/icons-react"
+import { Mail } from "lucide-react"
 
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import DomainRatingBadge from "@/components/molecules/DomainRatingBadge"
@@ -16,6 +21,8 @@ import {
   REWARDS_PATH,
   USERS_PATH,
   WHY_SHIPYARD_PATH,
+  SHIPYARD_LINKEDIN_URL,
+  SHIPYARD_REDDIT_URL,
   SHIPYARD_TWITTER_URL,
 } from "@/lib/routes"
 import { cn } from "@/lib/utils"
@@ -25,6 +32,9 @@ const navLinkBase =
 
 export default function PublicFooter() {
   const year = new Date().getFullYear()
+
+  const socialLinkBase =
+    "inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 
   const discoverLinks = [
     { label: "All Products", href: BROWSE_PATH },
@@ -60,22 +70,40 @@ export default function PublicFooter() {
               investors watching the radar, and operator-fans who amplify
               breakout products.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap items-center gap-2">
               <Link
                 href="mailto:support@shipyardhq.dev"
-                className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
+                className={socialLinkBase}
+                aria-label="Email the team"
               >
                 <Mail className="h-4 w-4" aria-hidden="true" />
-                Email the team
               </Link>
               <Link
                 href={SHIPYARD_TWITTER_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
+                className={socialLinkBase}
+                aria-label="Follow Shipyard on X"
               >
-                <Twitter className="h-4 w-4" aria-hidden="true" />
-                Follow on X
+                <IconBrandX className="h-4 w-4" aria-hidden="true" />
+              </Link>
+              <Link
+                href={SHIPYARD_LINKEDIN_URL}
+                target="_blank"
+                rel="noreferrer"
+                className={socialLinkBase}
+                aria-label="Follow Shipyard on LinkedIn"
+              >
+                <IconBrandLinkedin className="h-4 w-4" aria-hidden="true" />
+              </Link>
+              <Link
+                href={SHIPYARD_REDDIT_URL}
+                target="_blank"
+                rel="noreferrer"
+                className={socialLinkBase}
+                aria-label="Join Shipyard on Reddit"
+              >
+                <IconBrandReddit className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
             <DomainRatingBadge className="pt-2" />
