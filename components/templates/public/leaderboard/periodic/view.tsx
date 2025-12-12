@@ -15,6 +15,7 @@ import {
   IconArrowRight,
   IconSparkles,
 } from "@tabler/icons-react"
+import { DailyLeaderboardDateSelect } from "./daily-date-select"
 
 function buildPath(
   period: PeriodicLeaderboardPayload["period"],
@@ -239,9 +240,24 @@ export function PeriodicLeaderboardView({
             <section className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-white px-4 py-4 shadow-sm">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="space-y-1">
-                  <h1 className="text-2xl font-semibold text-foreground">
-                    {headerTitle}
-                  </h1>
+                  {leaderboard.period === "day" ? (
+                    <h1 className="text-2xl font-semibold text-foreground">
+                      <span className="hidden sm:inline">{headerTitle}</span>
+                      <span className="inline-flex items-center gap-2 sm:hidden">
+                        Best of
+                        <DailyLeaderboardDateSelect
+                          year={start.getUTCFullYear()}
+                          month={start.getUTCMonth() + 1}
+                          activeDay={activeDay}
+                          dayLinks={dayLinks}
+                        />
+                      </span>
+                    </h1>
+                  ) : (
+                    <h1 className="text-2xl font-semibold text-foreground">
+                      {headerTitle}
+                    </h1>
+                  )}
                 </div>
                 <div className="inline-flex w-fit rounded-full border border-border/70 bg-white shadow-sm">
                   <Link
@@ -278,7 +294,7 @@ export function PeriodicLeaderboardView({
               </div>
 
               {leaderboard.period === "day" ? (
-                <div className="mt-1 flex items-center gap-0.5">
+                <div className="mt-1 hidden items-center gap-0.5 sm:flex">
                   {(() => {
                     const prevDay = getAdjacentStart("day", start, -1)
                     const prevDisabled = isFutureDate(prevDay)
