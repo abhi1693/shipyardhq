@@ -165,8 +165,6 @@ type StickyBannerProductResult = {
   slug: string
   name: string
   logo: string
-  websiteUrl: string
-  utmCampaign: string | null
   tagline: string | null
   latestRevenueCents: number | null
   revenueCurrencyCode: string | null
@@ -178,12 +176,6 @@ type StickyBannerProduct = Prisma.ProductGetPayload<{
     slug: true
     name: true
     logo: true
-    websiteUrl: true
-    metadata: {
-      select: {
-        utmCampaign: true
-      }
-    }
     tagline: true
     paymentConnector: {
       select: {
@@ -284,12 +276,6 @@ export const getStickyBannerProducts = cached(
         slug: true,
         name: true,
         logo: true,
-        websiteUrl: true,
-        metadata: {
-          select: {
-            utmCampaign: true,
-          },
-        },
         tagline: true,
         paymentConnector: {
           select: {
@@ -362,8 +348,6 @@ export const getStickyBannerProducts = cached(
       slug: selected.slug,
       name: selected.name,
       logo: selected.logo,
-      websiteUrl: selected.websiteUrl,
-      utmCampaign: selected.metadata?.utmCampaign ?? null,
       tagline: selected.tagline ?? null,
       latestRevenueCents: revenue.latestRevenueCents,
       revenueCurrencyCode: revenue.latestRevenueCents

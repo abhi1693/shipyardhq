@@ -6,7 +6,6 @@ import { getSponsoredProducts } from "@/actions/public/products/featured"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
-import { ProductClickLink } from "@/components/molecules/ProductClickLink"
 import { PRICING_PATH } from "@/lib/routes"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 
@@ -159,15 +158,16 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
   }
 
   return (
-    <ProductClickLink
-      productSlug={item.slug}
+    <Link
+      href={`/r/sponsored/${item.slug}`}
       prefetch={false}
+      target="_blank"
+      rel="noopener noreferrer"
       className="group block w-full rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-      formClassName="w-full"
       aria-label={`${item.name} (sponsored listing)`}
     >
       {content}
-    </ProductClickLink>
+    </Link>
   )
 }
 

@@ -274,9 +274,16 @@ export function ProductFeedCard({
     </article>
   )
 
+  const redirectHref =
+    cardVariant === "sponsored" ? `/r/sponsored/${item.slug}` : undefined
+
   return (
     <ProductClickLink
       productSlug={item.slug}
+      href={redirectHref}
+      prefetch={redirectHref ? false : undefined}
+      target={redirectHref ? "_blank" : undefined}
+      rel={redirectHref ? "noopener noreferrer" : undefined}
       className={cardClasses}
       data-testid="homepage-feed-card"
       formProps={{
