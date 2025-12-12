@@ -12,6 +12,9 @@ import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 
 const SPONSOR_SLOT_COUNT = 3
 
+const SPONSORED_SECTION_GLOW_CLASS =
+  "border-amber-200/80 ring-1 ring-amber-200/40 shadow-[0_1px_2px_rgba(15,23,42,0.06),0_26px_80px_-60px_rgba(245,158,11,0.75)]"
+
 type SponsorPlacement = Awaited<ReturnType<typeof getSponsoredProducts>>[number]
 
 type SponsorListItem =
@@ -183,7 +186,9 @@ export async function SponsoredProductsSection() {
   const sponsors = await getCachedSponsorItems()
 
   return (
-    <section className="rounded-xl border border-border bg-white p-5 shadow-sm">
+    <section
+      className={`rounded-xl border bg-white p-5 ${SPONSORED_SECTION_GLOW_CLASS}`}
+    >
       <div className="flex items-center gap-3">
         <span className="text-amber-500">
           <Sparkles
@@ -213,7 +218,7 @@ export function SponsoredProductsSkeleton() {
       tone="soft"
       radius="lg"
       shimmer={false}
-      className="rounded-xl border border-border bg-white p-5 shadow-sm"
+      className={`rounded-xl border bg-white p-5 ${SPONSORED_SECTION_GLOW_CLASS}`}
     >
       <HeadingSkeleton className="w-28" lines={1} />
       <div className="mt-5 space-y-3">
