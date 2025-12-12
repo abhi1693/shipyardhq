@@ -59,7 +59,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <PublicTwoColumnLayout
         className="pb-24 pt-10"
         mainClassName="gap-12"
-        sidebarClassName="lg:sticky lg:top-24"
         main={
           <>
             <Suspense fallback={<HeroSectionSkeleton />}>

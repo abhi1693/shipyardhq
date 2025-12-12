@@ -234,7 +234,7 @@ export function PeriodicLeaderboardView({
       <PublicTwoColumnLayout
         className="pb-16 pt-10"
         mainClassName="gap-6"
-        sidebarClassName="lg:sticky lg:top-24 gap-6"
+        sidebarClassName="gap-6"
         main={
           <>
             <section className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-white px-4 py-4 shadow-sm">

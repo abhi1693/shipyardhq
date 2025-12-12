@@ -79,7 +79,6 @@ export async function BrowsePageContent({
       <PublicTwoColumnLayout
         className="pb-24 pt-10"
         mainClassName="gap-12"
-        sidebarClassName="lg:sticky lg:top-24"
         main={
           <>
             <Suspense

@@ -9,7 +9,7 @@ export function VerifiedRevenuePageSkeleton() {
       <PublicTwoColumnLayout
         className="pb-24 pt-12"
         mainClassName="gap-10"
-        sidebarClassName="lg:sticky lg:top-24 gap-6"
+        sidebarClassName="gap-6"
         main={
           <>
             <CardSkeleton

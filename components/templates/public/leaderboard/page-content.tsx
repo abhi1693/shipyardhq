@@ -68,7 +68,7 @@ export async function LeaderboardPageContent({
       <PublicTwoColumnLayout
         className="pb-24 pt-12"
         mainClassName="gap-12"
-        sidebarClassName="lg:sticky lg:top-24 gap-8"
+        sidebarClassName="gap-8"
         main={
           <>
             <Hero
@@ -154,7 +154,7 @@ export function LeaderboardPageSkeleton() {
       <PublicTwoColumnLayout
         className="pb-24 pt-12"
         mainClassName="gap-12"
-        sidebarClassName="lg:sticky lg:top-24 gap-6"
+        sidebarClassName="gap-6"
         main={
           <>
             <HeroSkeleton metricCount={0} />

@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Sparkles } from "lucide-react"
 
-import { SquareImage } from "@/components/molecules/SquareImage"
+import { Image } from "@/components/atoms/image"
 import { getSponsoredProducts } from "@/actions/public/products/featured"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
@@ -20,6 +20,7 @@ type SponsorListItem =
       name: string
       tagline: string
       logo: string | null
+      bannerImage: string | null
       slug: string
       isPlaceholder?: false
     }
@@ -34,7 +35,7 @@ const PLACEHOLDER_CONTENT: Omit<SponsorListItem, "id">[] = Array.from(
   { length: SPONSOR_SLOT_COUNT },
   () => ({
     name: "Advertise here",
-    tagline: "",
+    tagline: "Get your product in front of builders.",
     isPlaceholder: true,
   }),
 )
@@ -58,6 +59,7 @@ function mapPlacementsToSponsors(
         product.tagline ??
         "Launch with Shipyard and reach thousands of early adopters.",
       logo: product.logo,
+      bannerImage: product.bannerImage ?? null,
       slug: product.slug,
     })
 
@@ -90,72 +92,62 @@ function withPlaceholders(items: SponsorListItem[]): SponsorListItem[] {
   return result
 }
 
-function SponsorAvatar({
-  name,
-  logo,
-  placeholder,
-}: {
-  name: string
-  logo?: string | null
-  placeholder?: boolean
-}) {
-  if (placeholder) {
-    return (
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-dashed border-muted-foreground/40 text-muted-foreground">
-        <Sparkles
-          className="h-4 w-4 text-amber-500"
-          aria-hidden="true"
-          fill="currentColor"
-          strokeWidth={1.75}
-        />
-      </span>
-    )
-  }
-
-  return (
-    <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border/50 bg-muted/40">
-      {logo ? (
-        <SquareImage
-          src={logo}
-          alt={name}
-          size={48}
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <span className="text-sm font-semibold text-primary">
-          {name.slice(0, 2).toUpperCase()}
-        </span>
-      )}
-    </span>
-  )
-}
-
 function SponsorCard({ item }: { item: SponsorListItem }) {
+  const bannerSrc = item.isPlaceholder ? null : item.bannerImage || null
+  const logoFallbackSrc = item.isPlaceholder ? null : item.logo || null
+
   const content = (
-    <div className="flex items-start gap-3">
-      <SponsorAvatar
-        name={item.name}
-        logo={!item.isPlaceholder ? item.logo : undefined}
-        placeholder={item.isPlaceholder}
-      />
-      <div className="min-w-0 flex-1">
-        <p className="line-clamp-1 text-sm font-semibold text-foreground">
+    <article className="overflow-hidden rounded-xl border border-border/60 bg-white shadow-sm transition-all duration-150 group-hover:border-border/80 group-hover:shadow-md">
+      <div className="relative h-[72px] w-full border-b border-border/50 bg-muted/40">
+        {item.isPlaceholder ? (
+          <div className="flex h-full w-full items-center justify-center border-2 border-dashed border-muted-foreground/20 text-muted-foreground">
+            <Sparkles
+              className="h-4 w-4 text-amber-500"
+              aria-hidden="true"
+              fill="currentColor"
+              strokeWidth={1.75}
+            />
+          </div>
+        ) : bannerSrc ? (
+          <>
+            <Image
+              src={bannerSrc}
+              alt={`${item.name} banner`}
+              fill
+              sizes="(min-width: 1024px) 220px, 100vw"
+              className="object-cover transition-transform duration-200 will-change-transform group-hover:scale-[1.03]"
+            />
+          </>
+        ) : logoFallbackSrc ? (
+          <Image
+            src={logoFallbackSrc}
+            alt={`${item.name} logo`}
+            fill
+            sizes="(min-width: 1024px) 220px, 100vw"
+            className="object-contain p-3"
+          />
+        ) : null}
+      </div>
+
+      <div className="space-y-1 px-3 py-2.5">
+        <p className="line-clamp-1 text-sm font-semibold leading-snug tracking-tight text-foreground underline-offset-4 decoration-foreground/25 group-hover:underline">
           {item.name}
         </p>
         {item.tagline ? (
-          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+          <p className="line-clamp-2 text-[13px] leading-snug text-muted-foreground">
             {item.tagline}
           </p>
         ) : null}
       </div>
-    </div>
+    </article>
   )
 
   if (item.isPlaceholder) {
     return (
       <Link
         href={PRICING_PATH}
-        className="group block w-full px-2 py-4 text-sm transition hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+        className="group block w-full rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+        aria-label="Advertise here (sponsored listing)"
       >
         {content}
       </Link>
@@ -166,8 +158,9 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
     <ProductClickLink
       productSlug={item.slug}
       prefetch={false}
-      className="group block w-full px-2 py-4 text-sm transition hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+      className="group block w-full rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
       formClassName="w-full"
+      aria-label={`${item.name} (sponsored listing)`}
     >
       {content}
     </ProductClickLink>
@@ -190,7 +183,7 @@ export async function SponsoredProductsSection() {
   const sponsors = await getCachedSponsorItems()
 
   return (
-    <section className="rounded-xl border border-border bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-border bg-white p-5 shadow-sm">
       <div className="flex items-center gap-3">
         <span className="text-amber-500">
           <Sparkles
@@ -200,16 +193,16 @@ export async function SponsoredProductsSection() {
             strokeWidth={1.75}
           />
         </span>
-        <h2 className="text-lg font-semibold text-foreground">Sponsors</h2>
+        <h2 className="text-base font-semibold text-foreground">Sponsors</h2>
       </div>
 
-      <div className="mt-6 divide-y divide-border/50">
+      <div className="mt-5 space-y-3">
         {sponsors.map((item) => (
           <SponsorCard key={item.id} item={item} />
         ))}
       </div>
 
-      <SponsorPromo className="mt-6" />
+      <SponsorPromo className="mt-5" />
     </section>
   )
 }
@@ -220,21 +213,20 @@ export function SponsoredProductsSkeleton() {
       tone="soft"
       radius="lg"
       shimmer={false}
-      className="rounded-xl border border-border bg-white p-6 shadow-sm"
+      className="rounded-xl border border-border bg-white p-5 shadow-sm"
     >
-      <HeadingSkeleton className="w-32" lines={1} />
-      <div className="mt-6 divide-y divide-border/50">
+      <HeadingSkeleton className="w-28" lines={1} />
+      <div className="mt-5 space-y-3">
         {Array.from({ length: SPONSOR_SLOT_COUNT }).map((_, index) => (
-          <div key={index} className="px-2 py-4">
-            <Skeleton
-              tone="neutral"
-              radius="none"
-              className="h-16 w-full border border-border/40"
-            />
-          </div>
+          <Skeleton
+            key={index}
+            tone="neutral"
+            radius="none"
+            className="h-28 w-full rounded-xl border border-border/40"
+          />
         ))}
       </div>
-      <Skeleton tone="neutral" radius="none" className="mt-6 h-4 w-48" />
+      <Skeleton tone="neutral" radius="none" className="mt-5 h-4 w-44" />
     </Skeleton>
   )
 }

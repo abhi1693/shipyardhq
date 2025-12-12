@@ -13,6 +13,7 @@ type SponsoredProduct = Prisma.ProductGetPayload<{
     name: true
     tagline: true
     logo: true
+    bannerImage: true
   }
 }>
 
@@ -463,6 +464,7 @@ export const getSponsoredProducts = cached(
         name: true,
         tagline: true,
         logo: true,
+        bannerImage: true,
       },
     })
 

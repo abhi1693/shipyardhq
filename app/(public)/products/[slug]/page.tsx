@@ -618,7 +618,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       <ScrollReset triggerKey={product.slug} />
       <PublicTwoColumnLayout
         mainClassName="gap-8"
-        sidebarClassName="lg:sticky lg:top-24"
         main={
           <div className="flex flex-col gap-8">
             <header className="flex flex-col gap-5">

@@ -33,7 +33,6 @@ export function PublicProductDetailSkeleton() {
     <main className="bg-white" aria-busy="true" aria-label="Loading product">
       <PublicTwoColumnLayout
         gapClassName="gap-8 lg:gap-10"
-        sidebarClassName="lg:sticky lg:top-24"
         main={
           <>
             <section className="space-y-6 rounded-3xl border border-border bg-white px-4 py-6 shadow-sm sm:px-6 lg:px-8 lg:py-8">

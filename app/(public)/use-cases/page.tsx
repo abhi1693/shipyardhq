@@ -60,7 +60,6 @@ export default async function UseCasesPage() {
       <PublicTwoColumnLayout
         className="pb-24 pt-12"
         mainClassName="space-y-12"
-        sidebarClassName="lg:sticky lg:top-24"
         main={
           <>
             <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">

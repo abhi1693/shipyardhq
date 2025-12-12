@@ -28,7 +28,7 @@ export async function VerifiedRevenuePageContent() {
       <PublicTwoColumnLayout
         className="pb-24 pt-12"
         mainClassName="gap-12"
-        sidebarClassName="lg:sticky lg:top-24 gap-8"
+        sidebarClassName="gap-8"
         main={
           <>
             <div className="space-y-6">
