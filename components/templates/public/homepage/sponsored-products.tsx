@@ -98,10 +98,16 @@ function withPlaceholders(items: SponsorListItem[]): SponsorListItem[] {
 function SponsorCard({ item }: { item: SponsorListItem }) {
   const bannerSrc = item.isPlaceholder ? null : item.bannerImage || null
   const logoFallbackSrc = item.isPlaceholder ? null : item.logo || null
+  const titleClassName = item.isPlaceholder
+    ? "line-clamp-1 text-base font-medium leading-snug tracking-tight text-muted-foreground"
+    : "line-clamp-1 text-base font-semibold leading-snug tracking-tight text-foreground underline-offset-4 decoration-foreground/25 group-hover:underline"
+  const taglineClassName = item.isPlaceholder
+    ? "line-clamp-2 text-[13px] leading-snug text-muted-foreground/80"
+    : "line-clamp-2 text-[13px] leading-snug text-muted-foreground"
 
   const content = (
     <article className="overflow-hidden rounded-xl border border-border/60 bg-white shadow-sm transition-all duration-150 group-hover:border-border/80 group-hover:shadow-md">
-      <div className="relative h-[72px] w-full border-b border-border/50 bg-muted/40">
+      <div className="relative w-full aspect-[16/6] border-b border-border/50 bg-muted/40">
         {item.isPlaceholder ? (
           <div className="flex h-full w-full items-center justify-center border-2 border-dashed border-muted-foreground/20 text-muted-foreground">
             <Sparkles
@@ -133,13 +139,9 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
       </div>
 
       <div className="space-y-1 px-3 py-2.5">
-        <p className="line-clamp-1 text-base font-semibold leading-snug tracking-tight text-foreground underline-offset-4 decoration-foreground/25 group-hover:underline">
-          {item.name}
-        </p>
+        <p className={titleClassName}>{item.name}</p>
         {item.tagline ? (
-          <p className="line-clamp-2 text-[13px] leading-snug text-muted-foreground">
-            {item.tagline}
-          </p>
+          <p className={taglineClassName}>{item.tagline}</p>
         ) : null}
       </div>
     </article>
@@ -223,12 +225,28 @@ export function SponsoredProductsSkeleton() {
       <HeadingSkeleton className="w-28" lines={1} />
       <div className="mt-5 space-y-3">
         {Array.from({ length: SPONSOR_SLOT_COUNT }).map((_, index) => (
-          <Skeleton
+          <div
             key={index}
-            tone="neutral"
-            radius="none"
-            className="h-28 w-full rounded-xl border border-border/40"
-          />
+            className="overflow-hidden rounded-xl border border-border/40 bg-white"
+          >
+            <Skeleton
+              tone="neutral"
+              radius="none"
+              className="w-full aspect-[16/6]"
+            />
+            <div className="space-y-2 px-3 py-2.5">
+              <Skeleton
+                tone="neutral"
+                radius="none"
+                className="h-3 w-2/3 rounded-full"
+              />
+              <Skeleton
+                tone="neutral"
+                radius="none"
+                className="h-3 w-full rounded-full"
+              />
+            </div>
+          </div>
         ))}
       </div>
       <Skeleton tone="neutral" radius="none" className="mt-5 h-4 w-44" />
