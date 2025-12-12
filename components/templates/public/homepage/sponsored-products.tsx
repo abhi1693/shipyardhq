@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Sparkles } from "lucide-react"
+import { Megaphone, Sparkles } from "lucide-react"
 
 import { Image } from "@/components/atoms/image"
 import { getSponsoredProducts } from "@/actions/public/products/featured"
@@ -110,10 +110,9 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
       <div className="relative w-full aspect-[16/6] border-b border-border/50 bg-muted/40">
         {item.isPlaceholder ? (
           <div className="flex h-full w-full items-center justify-center border-2 border-dashed border-muted-foreground/20 text-muted-foreground">
-            <Sparkles
-              className="h-4 w-4 text-amber-500"
+            <Megaphone
+              className="h-10 w-10 text-muted-foreground/45"
               aria-hidden="true"
-              fill="currentColor"
               strokeWidth={1.75}
             />
           </div>
