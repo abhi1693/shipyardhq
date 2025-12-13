@@ -21,6 +21,9 @@ const PRODUCT_NOTIFICATION_KINDS = new Set<ProductNotificationKind>([
   "product_review",
   "product_published",
   "product_payment_sync_error",
+  "product_visibility_trending",
+  "product_visibility_rank_moved",
+  "product_visibility_top_category",
 ])
 
 type ProductOfPeriodBroadcastReason =
@@ -39,6 +42,9 @@ export type ProductNotificationKind =
   | "product_review"
   | "product_published"
   | "product_payment_sync_error"
+  | "product_visibility_trending"
+  | "product_visibility_rank_moved"
+  | "product_visibility_top_category"
   | "product_featured"
   | "product_of_day"
   | "product_of_week"
@@ -62,6 +68,79 @@ export type ProductNotificationPayload = {
     public?: string | null
   }
   tags?: string[]
+}
+
+export async function broadcastProductNotificationToNovuTopic(input: {
+  kind: ProductNotificationKind
+  message: string
+  subject: string
+  product: { id: string; slug: string; name: string }
+  context?: Record<string, unknown>
+  tags?: string[]
+  transactionId?: string
+  topicKey?: string | null
+}): Promise<ProductOfPeriodBroadcastResult> {
+  const workflow = guardNovuWorkflow(NOVU_RECOMMENDATIONS_WORKFLOW_ID, {
+    label: "recommendations notifications",
+    missingMessage: "[novu] NOVU_WORKFLOW_RECOMMENDATIONS is not set",
+  })
+  if (!workflow.ready) {
+    return { sent: 0, total: 0, reason: workflow.reason }
+  }
+
+  const siteUrl = resolveSiteUrl()
+  const productUrl = new URL(
+    productPath(input.product.slug),
+    `${siteUrl}/`,
+  ).toString()
+  const timestamp = new Date().toISOString()
+  const transactionId =
+    input.transactionId ??
+    `${input.kind}:${input.product.id}:${Date.now().toString()}`
+  const tags = input.tags?.length ? input.tags : ["discover"]
+
+  try {
+    const client = getNovuClient()
+    await client.trigger({
+      workflowId: workflow.workflowId,
+      to: {
+        type: TriggerRecipientsTypeEnum.Topic,
+        topicKey: input.topicKey?.trim() || NOVU_BROADCAST_TOPIC_KEY,
+      },
+      payload: {
+        notification: {
+          kind: input.kind,
+          message: input.message,
+          subject: input.subject,
+          timestamp,
+          transactionId,
+        },
+        product: {
+          id: input.product.id,
+          slug: input.product.slug,
+          name: input.product.name,
+        },
+        links: {
+          member: productUrl,
+          public: productUrl,
+        },
+        context: input.context ?? {},
+        tags,
+      },
+      transactionId,
+    })
+
+    return { sent: 1, total: 1, reason: null }
+  } catch (error) {
+    console.error("[novu] failed to broadcast product notification", {
+      error,
+      topicKey: input.topicKey?.trim() || NOVU_BROADCAST_TOPIC_KEY,
+      kind: input.kind,
+      productId: input.product.id,
+    })
+
+    return { sent: 0, total: 0, reason: "send-failed" }
+  }
 }
 
 export async function sendProductNotificationToNovu(

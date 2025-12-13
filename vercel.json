@@ -53,6 +53,10 @@
     {
       "path": "/api/cron/analytics/product-interest",
       "schedule": "0 */3 * * *"
+    },
+    {
+      "path": "/api/cron/founder-visibility?audience=owner",
+      "schedule": "0 0 * * 1"
     }
   ]
 }
