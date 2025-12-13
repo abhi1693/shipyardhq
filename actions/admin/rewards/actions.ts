@@ -9,7 +9,7 @@ import {
   RewardTransactionType,
   RewardRuleCategory,
   RewardFeatureCategory,
-  type Prisma,
+  Prisma,
 } from "@/lib/vendor/prisma/client"
 import { adminPath } from "@/lib/routes"
 import { parseInteger } from "./utils"
@@ -277,6 +277,45 @@ export async function toggleRewardRuleAction(id: string, isActive: boolean) {
   } catch (error) {
     console.error("Failed to toggle reward rule", error)
     return { error: "Failed to update rule state." }
+  }
+}
+
+export async function deleteRewardRuleAction(id: string) {
+  await resolveAdminUser()
+  try {
+    await prisma.rewardRule.delete({ where: { id } })
+    revalidatePath(adminPath("rewards", "rules"))
+    return { success: true }
+  } catch (error) {
+    console.error("Failed to delete reward rule", error)
+    return { error: "Failed to delete reward rule." }
+  }
+}
+
+export async function deleteRewardCatalogItemAction(id: string) {
+  await resolveAdminUser()
+  try {
+    await prisma.rewardCatalogItem.delete({ where: { id } })
+    revalidatePath(adminPath("rewards", "catalog"))
+    return { success: true }
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      (error.code === "P2003" || error.code === "P2014")
+    ) {
+      return {
+        error:
+          "Cannot delete a catalog item that has redemptions, entitlements, placements, or transactions. Disable it instead.",
+      }
+    }
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      return { error: "Catalog item not found." }
+    }
+    console.error("Failed to delete reward catalog item", error)
+    return { error: "Failed to delete reward catalog item." }
   }
 }
 

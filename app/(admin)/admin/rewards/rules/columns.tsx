@@ -10,6 +10,7 @@ import { toggleRewardRuleAction } from "@/actions/admin/rewards/actions"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { Switch } from "@/components/atoms/switch"
+import DeleteButton from "@/components/molecules/DeleteButton"
 import { adminPath } from "@/lib/routes"
 import type { RewardRule } from "@/lib/vendor/prisma/client"
 
@@ -113,6 +114,9 @@ export const columns: ColumnDef<RewardRule>[] = [
           <Button size="sm" variant="outline">
             Edit
           </Button>
+        </Link>
+        <Link href={adminPath("rewards", "rules", row.original.id, "delete")}>
+          <DeleteButton size="sm" />
         </Link>
       </div>
     ),
