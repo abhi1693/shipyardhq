@@ -15,8 +15,6 @@ const STREAK_TIERS = [
 const STREAK_TRIGGER_RULE_KEYS = [
   "rewards.login.daily",
   "rewards.upvote.give",
-  "rewards.review.publish",
-  "rewards.review.depth",
 ] as const
 
 type StreakTriggerRule = (typeof STREAK_TRIGGER_RULE_KEYS)[number]

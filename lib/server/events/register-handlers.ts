@@ -13,10 +13,6 @@ export async function registerEventHandlers(): Promise<void> {
       load: () => import("@/lib/server/rewards/loginReward"),
     },
     {
-      path: "@/lib/server/rewards/engagement",
-      load: () => import("@/lib/server/rewards/engagement"),
-    },
-    {
       path: "@/lib/server/social/twitterBot",
       load: () => import("@/lib/server/social/twitterBot"),
     },

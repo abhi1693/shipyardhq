@@ -28,7 +28,7 @@
 
 ### Automated earn sources
 
-- **Product engagement:** Listeners on the internal event bus award points for upvotes, new product launches, and reviews while ignoring self-awards and handling soft failures (`lib/server/rewards/listeners.ts:13`). Product detail views dispatch `product.viewed` events that hydrate rewards asynchronously (`lib/server/rewards/engagement.ts:70`) via `queueProductViewReward` from the product page (`app/(public)/products/[slug]/page.tsx:184`), and a depth bonus fires when review bodies exceed 200 chars (`lib/server/rewards/listeners.ts:77`).
+- **Product engagement:** Listeners on the internal event bus award points for upvotes and new product launches while ignoring self-awards and handling soft failures (`lib/server/rewards/listeners.ts:13`).
 - **Daily login:** `ensureDailyLoginReward` now checks both pending envelopes and prior reward transactions before queueing work, then caches the day locally to avoid repeat grants (`lib/server/rewards/loginReward.ts:30`). Integrate this helper in auth flows to keep streaks alive without flooding the queue.
 - **Feedback closure:** Admins granting feedback rewards trigger `awardRewards` with feedback metadata when statuses transition to `closed` (`actions/admin/feedback/actions.ts:115`).
 - **Backlink verification:** The cron worker crawls member sites, validates backlinks, and awards the `rewards.backlink.verify` rule once per product using a deterministic `eventId` (`lib/server/rewards/backlinkVerification.ts:336`).
@@ -70,7 +70,7 @@
 ## Seeding & configuration
 
 - `prisma/seed.rewards.ts` seeds canonical rules and catalog items, including priority placements and analytics perks. It links catalog entries to plan features when available and warns if plan keys are missing (`prisma/seed.rewards.ts:24`).
-- Seeded rules encode default caps/cooldowns (e.g., daily login, upvote, review depth) and can be extended without manual DB work.
+- Seeded rules encode default caps/cooldowns (e.g., daily login, upvote) and can be extended without manual DB work.
 - The placement scheduler cron requires `CRON_SECRET` in the environment to reject unauthorized calls (`app/api/cron/rewards/placements/route.ts:9`).
 - Rewards-specific events rely on the in-memory event bus; ensure listeners are registered during app bootstrap (`lib/server/rewards/listeners.ts:43`).
 
