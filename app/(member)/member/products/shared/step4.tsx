@@ -11,7 +11,6 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
-import ImageUploadField from "@/components/molecules/ImageUploadField"
 import {
   Select,
   SelectContent,
@@ -33,11 +32,9 @@ type AlternativeOption = {
 
 export default function Step4({
   organizations,
-  productId,
   alternatives = [],
 }: {
   organizations: { id: string; name: string }[]
-  productId?: string
   alternatives?: AlternativeOption[]
 }) {
   const form = useFormContext()
@@ -58,65 +55,44 @@ export default function Step4({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
-          name="organizationId"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-center justify-between">
-                <FormLabel>Organization</FormLabel>
-                <a
-                  href={MEMBER_ORGANIZATIONS_PATH}
-                  className="text-xs text-primary hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Manage organizations
-                </a>
-              </div>
-              <Select
-                onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
-                value={field.value && field.value.length ? field.value : "none"}
+      <FormField
+        name="organizationId"
+        control={form.control}
+        render={({ field }) => (
+          <FormItem>
+            <div className="flex items-center justify-between">
+              <FormLabel>Organization</FormLabel>
+              <a
+                href={MEMBER_ORGANIZATIONS_PATH}
+                className="text-xs text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select organization (optional)" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="none">Personal</SelectItem>
-                  {organizations.map((org) => (
-                    <SelectItem key={org.id} value={org.id}>
-                      {org.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          name="bannerImage"
-          control={form.control}
-          render={() => (
-            <FormItem>
-              <ImageUploadField
-                name="bannerImage"
-                label="Banner Image"
-                folder="banners"
-                productId={productId}
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Recommended size: 1200×628 (≈1.91:1 aspect). Larger images will
-                be scaled to fit.
-              </p>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+                Manage organizations
+              </a>
+            </div>
+            <Select
+              onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
+              value={field.value && field.value.length ? field.value : "none"}
+            >
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select organization (optional)" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="none">Personal</SelectItem>
+                {organizations.map((org) => (
+                  <SelectItem key={org.id} value={org.id}>
+                    {org.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField

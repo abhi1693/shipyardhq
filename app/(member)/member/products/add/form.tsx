@@ -31,6 +31,7 @@ import {
   AccordionTrigger,
 } from "@/components/atoms/accordion"
 import Step1 from "@/app/(member)/member/products/shared/step1"
+import StepMedia from "@/app/(member)/member/products/shared/stepMedia"
 import Step2 from "@/app/(member)/member/products/shared/step2"
 import Step3 from "@/app/(member)/member/products/shared/step3"
 import Step4 from "@/app/(member)/member/products/shared/step4"
@@ -125,7 +126,7 @@ const schema = makeAddProductSchema()
 
 export type ProductWizardInput = ProductWizardInputAdd
 
-type SectionKey = "core" | "pricing" | "boost" | "details"
+type SectionKey = "core" | "media" | "pricing" | "boost" | "details"
 
 const SECTION_FIELDS: Record<SectionKey, readonly string[]> = {
   core: [
@@ -133,12 +134,12 @@ const SECTION_FIELDS: Record<SectionKey, readonly string[]> = {
     "name",
     "tagline",
     "description",
-    "logo",
     "categoryId",
     "type",
     "platforms",
     "keywordsText",
   ],
+  media: ["logo", "bannerImage"],
   pricing: ["pricingModel", "startingPriceCents", "currencyCode"],
   boost: [
     "connectorProvider",
@@ -151,7 +152,6 @@ const SECTION_FIELDS: Record<SectionKey, readonly string[]> = {
   ],
   details: [
     "organizationId",
-    "bannerImage",
     "githubUrl",
     "twitterUrl",
     "demoUrl",
@@ -190,6 +190,7 @@ export default function AddProductForm({
   const router = useRouter()
   const [openSections, setOpenSections] = useState<SectionKey[]>([
     "core",
+    "media",
     "pricing",
   ])
   const [newProductId] = useState(() => {
@@ -259,10 +260,10 @@ export default function AddProductForm({
     <Step1
       categories={categories}
       platforms={PLATFORMS as any}
-      productId={newProductId}
       enableAutofill
     />
   )
+  const media = <StepMedia productId={newProductId} />
   const pricing = <Step2 />
   const verification = (
     <Step3 productId={newProductId} persistOnVerify={false} />
@@ -270,7 +271,6 @@ export default function AddProductForm({
   const details = (
     <Step4
       organizations={organizations}
-      productId={newProductId}
       alternatives={alternatives}
     />
   )
@@ -307,11 +307,26 @@ export default function AddProductForm({
                       <Badge variant="outline">Required</Badge>
                     </div>
                     <span className="text-xs font-normal text-muted-foreground">
-                      Website, name, description, logo, category, and platforms.
+                      Website, name, description, category, and platforms.
                     </span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="pb-6">{core}</AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="media" className="px-6">
+                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold text-slate-900">Media</span>
+                      <Badge variant="outline">Required</Badge>
+                    </div>
+                    <span className="text-xs font-normal text-muted-foreground">
+                      Upload a logo and optional banner image.
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pb-6">{media}</AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="pricing" className="px-6">
@@ -368,8 +383,7 @@ export default function AddProductForm({
                       <Badge variant="secondary">Optional</Badge>
                     </div>
                     <span className="text-xs font-normal text-muted-foreground">
-                      Social links, banner, organization, and competitor
-                      alternatives.
+                      Social links, organization, and competitor alternatives.
                     </span>
                   </div>
                 </AccordionTrigger>

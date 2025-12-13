@@ -51,6 +51,7 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       // Optional marketing/org
       organizationId: z.string().optional(),
       bannerImage: z.url().optional().or(z.literal("")),
+      galleryMedia: z.array(z.url()).max(6).optional().default([]),
       alternativeIds: z.array(z.string()).default([]),
 
       // Metadata

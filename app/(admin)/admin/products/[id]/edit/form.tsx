@@ -264,6 +264,13 @@ export default function EditProductForm({
       categories,
       organizations,
       productId: product.id,
+      productSlug: product.slug,
+      galleryMedia:
+        product.ProductMedia?.map((m: any) => ({
+          id: m.id,
+          imageUrl: m.imageUrl,
+        })) ?? [],
+      maxGallery: 6,
       lockWebsiteUrl: false,
       persistOnVerify: true,
       rightOfWebsite: ownerNode,
@@ -283,6 +290,8 @@ export default function EditProductForm({
     categories,
     organizations,
     product.id,
+    product.slug,
+    product.ProductMedia,
     ownerId,
     users,
     connector,

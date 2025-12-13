@@ -233,6 +233,14 @@ export default function EditProductForm({
     categories,
     organizations,
     productId: product.id,
+    productSlug: product.slug,
+    galleryMedia:
+      product.ProductMedia?.map((m: any) => ({
+        id: m.id,
+        imageUrl: m.imageUrl,
+      })) ?? [],
+    canEditGallery: true,
+    maxGallery: 6,
     lockWebsiteUrl: true,
     persistOnVerify: true,
     enableAutofill: true,

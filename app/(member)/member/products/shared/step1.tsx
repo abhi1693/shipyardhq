@@ -12,7 +12,6 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
-import ImageUploadField from "@/components/molecules/ImageUploadField"
 import {
   Select,
   SelectContent,
@@ -30,7 +29,6 @@ import { MarkdownEditor } from "@/components/molecules/MarkdownEditor"
 type Props = {
   categories: { id: string; name: string }[]
   platforms: readonly string[]
-  productId?: string
   lockWebsiteUrl?: boolean
   rightOfWebsite?: ReactNode
   enableAutofill?: boolean
@@ -40,7 +38,6 @@ type Props = {
 export default function Step1({
   categories,
   platforms,
-  productId,
   lockWebsiteUrl,
   rightOfWebsite,
   enableAutofill,
@@ -325,59 +322,7 @@ export default function Step1({
         />
       </div>
 
-      <FormField
-        name="description"
-        control={form.control}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Description</FormLabel>
-            <FormDescription>
-              Supports Markdown formatting. Preview changes or revisit the{" "}
-              <a
-                href="https://www.markdownguide.org/basic-syntax/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
-                Markdown basics
-              </a>
-              .
-            </FormDescription>
-            <FormControl>
-              <MarkdownEditor
-                ref={field.ref}
-                value={(field.value as string) ?? ""}
-                onChange={(val) => field.onChange(val)}
-                onBlur={field.onBlur}
-                name={field.name}
-                placeholder="What does your product do?"
-                rows={10}
-                textareaClassName="h-48"
-                previewClassName="h-48"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
-          name="logo"
-          control={form.control}
-          render={() => (
-            <FormItem>
-              <ImageUploadField
-                name="logo"
-                label="Logo"
-                folder="logos"
-                productId={productId}
-              />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <FormField
           name="categoryId"
           control={form.control}
@@ -436,7 +381,6 @@ export default function Step1({
           )}
         />
 
-        {/* Keywords (comma separated) */}
         <FormField
           name="keywordsText"
           control={form.control}
@@ -459,9 +403,12 @@ export default function Step1({
         render={() => (
           <FormItem>
             <FormLabel>Platforms</FormLabel>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               {platforms.map((p) => (
-                <label key={p} className="flex items-center gap-2 text-sm">
+                <label
+                  key={p}
+                  className="flex items-center gap-2 rounded-lg border bg-background p-2 text-sm transition-colors hover:bg-muted/40"
+                >
                   <Checkbox
                     checked={(
                       form.getValues("platforms") as string[]
@@ -482,6 +429,42 @@ export default function Step1({
                 </label>
               ))}
             </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        name="description"
+        control={form.control}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Description</FormLabel>
+            <FormDescription>
+              Supports Markdown formatting. Preview changes or revisit the{" "}
+              <a
+                href="https://www.markdownguide.org/basic-syntax/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Markdown basics
+              </a>
+              .
+            </FormDescription>
+            <FormControl>
+              <MarkdownEditor
+                ref={field.ref}
+                value={(field.value as string) ?? ""}
+                onChange={(val) => field.onChange(val)}
+                onBlur={field.onBlur}
+                name={field.name}
+                placeholder="What does your product do?"
+                rows={10}
+                textareaClassName="h-48"
+                previewClassName="h-48"
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}

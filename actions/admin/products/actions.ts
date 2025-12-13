@@ -249,6 +249,19 @@ export async function createProductAction(formData: FormData) {
     }
   } catch {}
 
+  let galleryMediaUrls: string[] = []
+  try {
+    const rawGallery = formData.get("galleryMedia")?.toString()
+    if (rawGallery) {
+      const parsed = JSON.parse(rawGallery)
+      if (Array.isArray(parsed)) {
+        galleryMediaUrls = parsed
+          .filter((value) => typeof value === "string" && value.length > 0)
+          .map((value) => value as string)
+      }
+    }
+  } catch {}
+
   try {
     // Uniqueness: websiteUrl must be unique
     const existingWebsite = await prisma.product.findFirst({
@@ -282,6 +295,10 @@ export async function createProductAction(formData: FormData) {
     }
 
     const uniqueAlternativeIds = Array.from(new Set(alternativeIds))
+    const uniqueGalleryMediaUrls = Array.from(new Set(galleryMediaUrls)).slice(
+      0,
+      6,
+    )
 
     const created = await prisma.product.create({
       data: {
@@ -306,6 +323,13 @@ export async function createProductAction(formData: FormData) {
         bannerImage,
         keywords,
         platforms: (platforms as any) ?? undefined,
+        ProductMedia: uniqueGalleryMediaUrls.length
+          ? {
+              create: uniqueGalleryMediaUrls.map((imageUrl) => ({
+                imageUrl,
+              })),
+            }
+          : undefined,
         metadata: {
           create: {
             githubUrl,

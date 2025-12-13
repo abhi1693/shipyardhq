@@ -7,6 +7,9 @@ import { PLATFORMS } from "@/lib/productWizard/constants"
 const Step1 = dynamic(
   () => import("@/app/(member)/member/products/shared/step1"),
 )
+const StepMedia = dynamic(
+  () => import("@/app/(member)/member/products/shared/stepMedia"),
+)
 const Step2 = dynamic(
   () => import("@/app/(member)/member/products/shared/step2"),
 )
@@ -32,6 +35,10 @@ export function renderStep(
       websiteUrl?: string | null
     }[]
     productId?: string
+    productSlug?: string
+    galleryMedia?: { id: string; imageUrl: string }[]
+    canEditGallery?: boolean
+    maxGallery?: number
     persistOnVerify?: boolean
     lockWebsiteUrl?: boolean
     rightOfWebsite?: ReactNode
@@ -46,7 +53,6 @@ export function renderStep(
         <Step1
           categories={args.categories}
           platforms={PLATFORMS as any}
-          productId={args.productId}
           lockWebsiteUrl={args.lockWebsiteUrl}
           rightOfWebsite={args.rightOfWebsite as any}
           enableAutofill={Boolean(args.enableAutofill)}
@@ -54,23 +60,34 @@ export function renderStep(
         />
       )
     case 2:
-      return <Step2 rightOfPricing={args.pricingAside} />
+      return (
+        <StepMedia
+          productId={args.productId}
+          productSlug={args.productSlug}
+          galleryMedia={args.galleryMedia ?? []}
+          canEditGallery={Boolean(args.canEditGallery)}
+          maxGallery={args.maxGallery ?? 6}
+        />
+      )
     case 3:
+      return (
+        <Step2 rightOfPricing={args.pricingAside} />
+      )
+    case 4:
       return (
         <Step3
           productId={args.productId}
           persistOnVerify={Boolean(args.persistOnVerify)}
         />
       )
-    case 4:
+    case 5:
       return (
         <Step4
           organizations={args.organizations}
-          productId={args.productId}
           alternatives={args.alternatives ?? []}
         />
       )
-    case 5:
+    case 6:
     default:
       return (
         <Review

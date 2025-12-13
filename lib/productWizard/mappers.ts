@@ -24,6 +24,7 @@ export function getInitialValuesForAdd(): BaseValues {
     keywordsText: "",
     organizationId: "",
     bannerImage: "",
+    galleryMedia: [],
     githubUrl: "",
     twitterUrl: "",
     demoUrl: "",
@@ -65,6 +66,7 @@ export function getInitialValuesFromProduct(
     keywordsText: (product.keywords ?? []).join(", "),
     organizationId: product.organizationId ?? "",
     bannerImage: product.bannerImage ?? "",
+    galleryMedia: [],
     githubUrl: product.metadata?.githubUrl ?? "",
     twitterUrl: product.metadata?.twitterUrl ?? "",
     demoUrl: product.metadata?.demoUrl ?? "",
@@ -118,6 +120,9 @@ export function toCreateFormData(
   // Optional
   if (v.organizationId) fd.append("organizationId", v.organizationId)
   if (v.bannerImage) fd.append("bannerImage", normalizeUrl(v.bannerImage)!)
+  if (Array.isArray(v.galleryMedia) && v.galleryMedia.length) {
+    fd.append("galleryMedia", JSON.stringify(v.galleryMedia))
+  }
 
   if (v.githubUrl) fd.append("githubUrl", normalizeUrl(v.githubUrl)!)
   if (v.twitterUrl) fd.append("twitterUrl", normalizeUrl(v.twitterUrl)!)

@@ -47,7 +47,7 @@ export async function POST(
     const existingCount = await prisma.productMedia.count({
       where: { productId: product.id },
     })
-    const remaining = Math.max(0, 4 - existingCount)
+    const remaining = Math.max(0, 6 - existingCount)
     if (files.length > remaining) {
       return Response.json(
         {
