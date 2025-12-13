@@ -51,11 +51,6 @@ const FEATURES = [
     description: "Sticky header visibility",
   },
   {
-    key: "customCTA",
-    name: "Custom CTA",
-    description: "Add your own button/CTA",
-  },
-  {
     key: "newsletterPromotion",
     name: "Newsletter Promotion",
     description: "Promoted in email campaigns",

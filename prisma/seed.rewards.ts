@@ -232,17 +232,6 @@ const CATALOG: CatalogSeed[] = [
     requiresProduct: true,
     metadata: { capabilities: ["funnels", "geo", "utm"] },
   },
-  {
-    featureKey: REWARD_FEATURE_KEY.customCTA,
-    planFeatureKey: REWARD_FEATURE_KEY.customCTA,
-    name: "Custom call-to-action",
-    description: "Swap the default CTA with a bespoke message for 14 days.",
-    category: RewardFeatureCategory.utility,
-    baseCost: 60,
-    durationSeconds: 14 * DAY,
-    requiresProduct: true,
-    metadata: { surface: "productPage" },
-  },
 ]
 
 function toJson(value: Record<string, unknown> | null | undefined) {

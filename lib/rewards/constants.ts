@@ -23,10 +23,6 @@ const REWARD_FEATURE_DEFINITIONS = {
     value: "analytics.advanced",
     label: "Advanced analytics",
   },
-  customCTA: {
-    value: "customCTA",
-    label: "Custom call-to-action",
-  },
 } as const
 
 type RewardFeatureDefinitionRecord = typeof REWARD_FEATURE_DEFINITIONS

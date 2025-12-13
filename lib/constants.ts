@@ -90,7 +90,6 @@ export const PLAN_FEATURE_KEYS = [
   REWARD_FEATURE_KEY.priorityPlacement,
   REWARD_FEATURE_KEY.sponsoredProducts,
   REWARD_FEATURE_KEY.stickyBanner,
-  REWARD_FEATURE_KEY.customCTA,
   REWARD_FEATURE_KEY.newsletterPromotion,
   "backlink",
   "organization",
