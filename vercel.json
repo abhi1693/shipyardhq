@@ -49,6 +49,10 @@
     {
       "path": "/api/cron/badges/trending",
       "schedule": "0 */12 * * *"
+    },
+    {
+      "path": "/api/cron/analytics/product-interest",
+      "schedule": "0 */3 * * *"
     }
   ]
 }

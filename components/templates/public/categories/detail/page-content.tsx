@@ -79,6 +79,15 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
                   >
                     Explore promotion tiers
                   </Link>
+                  <Link
+                    href={`/trends/categories/${encodeURIComponent(categorySlug)}`}
+                    className={cn(
+                      HERO_SECONDARY_BUTTON_CLASSES,
+                      "w-full justify-center sm:w-auto",
+                    )}
+                  >
+                    Trending this week
+                  </Link>
                 </div>
               </div>
             </section>

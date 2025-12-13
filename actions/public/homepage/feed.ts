@@ -20,6 +20,7 @@ import type { ProductCardVariant } from "@/types/product-card"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import type { ProductInterestSignals } from "@/types/product-interest"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
+import { getMostClickedProductIds } from "@/lib/server/analytics/productInterest"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
 
 const homepageFeedSelect = {
@@ -328,6 +329,82 @@ export async function getHomepageVerifiedRevenueFeedPage(
   })
 }
 
+export async function getHomepageMostClickedFeedPage(
+  params: GetHomepageFeedPageParams = {},
+): Promise<HomepageFeedPageResult> {
+  const safePage = normalizePage(params.page, 1)
+  const safePageSize = normalizePageSize(
+    params.pageSize,
+    HOMEPAGE_FEED_PAGE_SIZE,
+  )
+
+  const ids = await getMostClickedProductIds({
+    days: 7,
+    limit: Math.max(200, safePage * safePageSize * 5),
+  })
+
+  if (!ids.length) {
+    return {
+      items: [],
+      page: safePage,
+      pageSize: safePageSize,
+      hasMore: false,
+      nextPage: null,
+    }
+  }
+
+  const interestMap = await getProductInterestSignalsMap({
+    products: ids.map((id) => ({ id, slug: "" })),
+    days: 7,
+  })
+
+  const nonZeroIds = ids.filter((id) => (interestMap.get(id)?.clicks7d ?? 0) > 0)
+  if (!nonZeroIds.length) {
+    return {
+      items: [],
+      page: safePage,
+      pageSize: safePageSize,
+      hasMore: false,
+      nextPage: null,
+    }
+  }
+
+  const skip = (safePage - 1) * safePageSize
+  const pageIds = nonZeroIds.slice(skip, skip + safePageSize)
+  if (!pageIds.length) {
+    return {
+      items: [],
+      page: safePage,
+      pageSize: safePageSize,
+      hasMore: false,
+      nextPage: null,
+    }
+  }
+
+  const records = (await prisma.product.findMany({
+    where: { id: { in: pageIds }, status: "published" },
+    select: homepageFeedSelect,
+  })) as unknown as HomepageFeedProduct[]
+
+  const recordMap = new Map<string, HomepageFeedProduct>(
+    records.map((record) => [record.id, record]),
+  )
+  const ordered = pageIds
+    .map((id) => recordMap.get(id))
+    .filter((record): record is HomepageFeedProduct => Boolean(record))
+
+  const items = await buildFeedItemsFromProducts(ordered, params.clerkUserId)
+  const hasMore = skip + pageIds.length < nonZeroIds.length
+
+  return {
+    items,
+    page: safePage,
+    pageSize: safePageSize,
+    hasMore,
+    nextPage: hasMore ? safePage + 1 : null,
+  }
+}
+
 async function getHomepageFeedViewImpl(
   params: GetHomepageFeedViewParams = {},
 ): Promise<HomepageFeedPageResult> {
@@ -340,6 +417,10 @@ async function getHomepageFeedViewImpl(
 
   if (normalizedView === "verified-revenue") {
     return getHomepageVerifiedRevenueFeedPage(baseParams)
+  }
+
+  if (normalizedView === "most-clicked") {
+    return getHomepageMostClickedFeedPage(baseParams)
   }
 
   return getHomepageNewFeedPage(baseParams)
@@ -362,7 +443,10 @@ export async function getHomepageFeedViewAll(
   const baseParams = { ...params, view: normalizedView }
   let page = normalizePage(params.page, 1)
   let iterations = 0
-  const MAX_PAGES = normalizedView === "verified-revenue" ? 1 : 100
+  const MAX_PAGES =
+    normalizedView === "verified-revenue" || normalizedView === "most-clicked"
+      ? 5
+      : 100
 
   while (iterations < MAX_PAGES) {
     const result = await getHomepageFeedView({

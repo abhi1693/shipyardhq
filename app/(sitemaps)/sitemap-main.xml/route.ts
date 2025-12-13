@@ -404,21 +404,31 @@ export async function GET() {
           </url>
         `
       }),
-    ...categories.map((c: CategorySitemapEntry) => {
+    ...categories.flatMap((c: CategorySitemapEntry) => {
       const last = c.updatedAt || now
       const days = Math.floor(
         (now.getTime() - new Date(last).getTime()) / 86400000,
       )
       const changefreq = days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
       const priority = days <= 7 ? "0.7" : days <= 60 ? "0.6" : "0.5"
-      return xml`
+      return [
+        xml`
           <url>
             <loc>${base}${categoryPath(c.slug)}</loc>
             <lastmod>${new Date(last).toISOString()}</lastmod>
             <changefreq>${changefreq}</changefreq>
             <priority>${priority}</priority>
           </url>
-        `
+        `,
+        xml`
+          <url>
+            <loc>${base}/trends/categories/${c.slug}</loc>
+            <lastmod>${new Date(last).toISOString()}</lastmod>
+            <changefreq>daily</changefreq>
+            <priority>0.55</priority>
+          </url>
+        `,
+      ]
     }),
     ...useCases
       .filter((useCase: (typeof useCases)[number]) => useCase.productCount > 0)

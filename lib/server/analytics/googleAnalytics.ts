@@ -1361,6 +1361,26 @@ export async function getSiteAnalyticsSnapshot(args?: {
   }
 }
 
+export async function runGaReport(
+  request: Omit<
+    Parameters<BetaAnalyticsDataClient["runReport"]>[0],
+    "property"
+  > & { property?: string },
+): Promise<protos.google.analytics.data.v1beta.IRunReportResponse> {
+  const client = await getClient()
+  const property = request.property ?? resolveProperty()
+  if (!property) {
+    throw new Error("GA_PROPERTY_ID is missing")
+  }
+
+  const [response] = await client.runReport({
+    ...request,
+    property,
+  })
+
+  return response
+}
+
 async function fetchHomepageTrafficFromGa(): Promise<HomepageTraffic> {
   const client = await getClient()
   const property = resolveProperty()

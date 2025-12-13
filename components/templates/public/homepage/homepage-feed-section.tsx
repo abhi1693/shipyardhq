@@ -27,6 +27,7 @@ export async function HomepageFeedSection({ view }: HomepageFeedSectionProps) {
   const viewCopy: Record<HomepageFeedView, string> = {
     new: "Fresh launches, published most recently.",
     "verified-revenue": "Top 10 verified revenue makers by total revenue.",
+    "most-clicked": "The products builders are clicking this week.",
   }
 
   const viewHref = (target: HomepageFeedView) =>
