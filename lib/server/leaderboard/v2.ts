@@ -56,7 +56,12 @@ async function fetchVerifiedRevenueProductIds(
               buildVerifiedRevenueWhere(),
             ],
           }
-        : { AND: [{ status: "published" as const }, buildVerifiedRevenueWhere()] },
+        : {
+            AND: [
+              { status: "published" as const },
+              buildVerifiedRevenueWhere(),
+            ],
+          },
     select: { id: true },
   })
 
@@ -224,8 +229,12 @@ export async function computeLeaderboardWindow(options: {
     productIds?.length ? productIds : null,
   )
 
-  const rows = computeScores(metrics, weights, productIds ?? [], verifiedRevenueIds)
-    .filter((row) => row.score > 0)
+  const rows = computeScores(
+    metrics,
+    weights,
+    productIds ?? [],
+    verifiedRevenueIds,
+  ).filter((row) => row.score > 0)
 
   const ranked = applyRanks(rows) as LeaderboardScoreRow[]
   return typeof options.limit === "number"

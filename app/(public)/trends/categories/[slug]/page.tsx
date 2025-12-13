@@ -192,9 +192,11 @@ export default async function TrendingToolsInCategoryPage({
                     Trending tools in {category.name}
                   </h1>
                   <p className="max-w-3xl text-sm text-muted-foreground">
-                    Ranking rule: base score = clicks in the last 7 days. If a product has
-                    verified revenue, we multiply that click score by{" "}
-                    {VERIFIED_REVENUE_RANKING_MULTIPLIER.toFixed(1)}×. Products without verified revenue are ranked lower by default.
+                    Ranking rule: base score = clicks in the last 7 days. If a
+                    product has verified revenue, we multiply that click score
+                    by {VERIFIED_REVENUE_RANKING_MULTIPLIER.toFixed(1)}×.
+                    Products without verified revenue are ranked lower by
+                    default.
                   </p>
                   <div className="flex flex-wrap items-center gap-2 pt-1">
                     <Link
@@ -327,9 +329,10 @@ export default async function TrendingToolsInCategoryPage({
                   </p>
                 )}
                 <p className="max-w-3xl text-sm text-muted-foreground">
-                  Ranking rule: base score = clicks in the last 7 days. If a product has
-                  verified revenue, we multiply that click score by{" "}
-                  {VERIFIED_REVENUE_RANKING_MULTIPLIER.toFixed(1)}×. Products without verified revenue are ranked lower by default.
+                  Ranking rule: base score = clicks in the last 7 days. If a
+                  product has verified revenue, we multiply that click score by{" "}
+                  {VERIFIED_REVENUE_RANKING_MULTIPLIER.toFixed(1)}×. Products
+                  without verified revenue are ranked lower by default.
                 </p>
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <Link

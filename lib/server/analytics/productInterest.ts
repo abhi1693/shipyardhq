@@ -7,9 +7,7 @@ import { buildCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import { siteConfig } from "@/lib/siteConfig"
 import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
-import {
-  buildVerifiedRevenueWhere,
-} from "@/lib/products/verifiedRevenue"
+import { buildVerifiedRevenueWhere } from "@/lib/products/verifiedRevenue"
 import {
   getProductTrafficMapFromGa,
   runGaReport,

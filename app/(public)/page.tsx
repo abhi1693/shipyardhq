@@ -32,8 +32,7 @@ const HOMEPAGE_TITLE = "Shipyard shows what builders are actually clicking on"
 
 export const metadata = buildPageMetadata({
   title: HOMEPAGE_TITLE,
-  description:
-    "Ranked by real interest — not launch-day hype.",
+  description: "Ranked by real interest — not launch-day hype.",
   canonical: HOME_PATH,
 })
 

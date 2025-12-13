@@ -725,7 +725,10 @@ export const getPeriodicLeaderboard = cached(
       ? (
           await prisma.product.findMany({
             where: {
-              AND: [{ status: "published" as const }, buildVerifiedRevenueWhere()],
+              AND: [
+                { status: "published" as const },
+                buildVerifiedRevenueWhere(),
+              ],
             },
             select: { id: true },
           })
