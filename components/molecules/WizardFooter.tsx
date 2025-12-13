@@ -44,7 +44,6 @@ export default function WizardFooter({
           </Button>
           <Button
             type="button"
-            className="bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))] text-white"
             disabled={!!isSubmitting}
             onClick={onPublish}
           >
@@ -64,7 +63,6 @@ export default function WizardFooter({
           </Button>
           <Button
             type="button"
-            className="bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))] text-white"
             onClick={onNext}
             disabled={!!isSubmitting}
           >

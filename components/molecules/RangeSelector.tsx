@@ -53,7 +53,7 @@ export default function RangeSelector({
           className={cn(
             "rounded-full px-3 text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--brand-1)] transition",
             current === r.value &&
-              "bg-[linear-gradient(120deg,var(--brand-1),var(--brand-2))] text-white shadow-[0_18px_45px_-30px_rgba(7,78,134,0.6)]",
+              "bg-[color:var(--brand-1)] text-white shadow-[0_18px_45px_-30px_rgba(7,78,134,0.55)] hover:bg-[color:var(--brand-1)] hover:brightness-105 active:brightness-95",
           )}
           aria-pressed={current === r.value}
           onClick={() => setRange(r.value)}

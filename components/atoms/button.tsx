@@ -10,11 +10,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-full border border-[color:var(--brand-2)/0.35] bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))] text-white shadow-[0_14px_28px_-18px_rgba(7,78,134,0.55)] transition-shadow hover:shadow-[0_18px_36px_-18px_rgba(7,78,134,0.45)] focus-visible:border-[color:var(--brand-2)/0.55] focus-visible:ring-[color:var(--brand-2)/0.35]",
+          "rounded-full border border-[color:var(--brand-1)/0.35] bg-[color:var(--brand-1)] text-white shadow-[0_14px_28px_-18px_rgba(7,78,134,0.45)] hover:brightness-105 hover:shadow-[0_18px_36px_-18px_rgba(7,78,134,0.35)] active:brightness-95 focus-visible:border-[color:var(--brand-1)/0.55] focus-visible:ring-[color:var(--brand-1)/0.35]",
         destructive:
-          "rounded-full border border-red-500/40 bg-[linear-gradient(135deg,#f87171,#ef4444)] text-white shadow-[0_14px_30px_-18px_rgba(248,113,113,0.5)] hover:shadow-[0_18px_40px_-20px_rgba(248,113,113,0.45)] focus-visible:ring-red-300/50",
+          "rounded-full border border-red-500/40 bg-red-500 text-white shadow-[0_14px_30px_-18px_rgba(248,113,113,0.45)] hover:bg-red-600 hover:shadow-[0_18px_40px_-20px_rgba(248,113,113,0.4)] focus-visible:ring-red-300/50",
         success:
-          "rounded-full border border-emerald-500/40 bg-[linear-gradient(135deg,#34d399,#10b981)] text-white shadow-[0_14px_28px_-18px_rgba(52,211,153,0.45)] hover:shadow-[0_18px_36px_-18px_rgba(16,185,129,0.45)] focus-visible:ring-emerald-300/50",
+          "rounded-full border border-emerald-500/40 bg-emerald-500 text-white shadow-[0_14px_28px_-18px_rgba(52,211,153,0.4)] hover:bg-emerald-600 hover:shadow-[0_18px_36px_-18px_rgba(16,185,129,0.4)] focus-visible:ring-emerald-300/50",
         outline:
           "rounded-full border border-[color:var(--brand-1)/0.32] bg-white/85 text-slate-900 shadow-[0_10px_24px_-18px_rgba(7,58,104,0.35)] hover:bg-[color:var(--brand-1)/0.06] hover:text-slate-900 focus-visible:border-[color:var(--brand-1)/0.55] focus-visible:ring-[color:var(--brand-1)/0.25] dark:bg-input/40 dark:text-white",
         secondary:
