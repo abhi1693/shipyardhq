@@ -166,10 +166,12 @@ export function PaymentConnectorCard({
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-base font-semibold leading-tight">
-            Revenue verification
+            Verified revenue
           </p>
           <p className="text-xs text-muted-foreground">
-            Products without verified revenue are ranked lower by default.
+            Connect a payment provider to display verified revenue, earn a
+            visibility boost, and rank higher across Shipyard. Optional, but
+            recommended.
           </p>
         </div>
         <div className="flex items-center gap-2">

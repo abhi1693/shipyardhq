@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -19,13 +19,21 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
+  CardFooter,
 } from "@/components/atoms/card"
-import { Separator } from "@/components/atoms/separator"
-
-import WizardStepper from "@/components/molecules/WizardStepper"
-import WizardFooter from "@/components/molecules/WizardFooter"
-import { STEPS, STEP_FIELDS } from "@/lib/productWizard/constants"
-import { validateExternalResources as validateResources } from "@/lib/productWizard/validate"
+import { Button } from "@/components/atoms/button"
+import { Badge } from "@/components/atoms/badge"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/atoms/accordion"
+import Step1 from "@/app/(member)/member/products/shared/step1"
+import Step2 from "@/app/(member)/member/products/shared/step2"
+import Step3 from "@/app/(member)/member/products/shared/step3"
+import Step4 from "@/app/(member)/member/products/shared/step4"
 import {
   makeAddProductSchema,
   type ProductWizardInputAdd,
@@ -34,8 +42,7 @@ import {
   getInitialValuesForAdd,
   toCreateFormData,
 } from "@/lib/productWizard/mappers"
-import { useProductWizard } from "@/hooks/useProductWizard"
-import { renderStep } from "@/components/molecules/ProductWizardStepRenderer"
+import { PLATFORMS } from "@/lib/productWizard/constants"
 import type { PaymentConnectorProvider as PaymentConnectorProviderType } from "@/lib/vendor/prisma/client/enums"
 import { PaymentConnectorCard } from "../shared/PaymentConnectorCard"
 
@@ -118,6 +125,52 @@ const schema = makeAddProductSchema()
 
 export type ProductWizardInput = ProductWizardInputAdd
 
+type SectionKey = "core" | "pricing" | "boost" | "details"
+
+const SECTION_FIELDS: Record<SectionKey, readonly string[]> = {
+  core: [
+    "websiteUrl",
+    "name",
+    "tagline",
+    "description",
+    "logo",
+    "categoryId",
+    "type",
+    "platforms",
+    "keywordsText",
+  ],
+  pricing: ["pricingModel", "startingPriceCents", "currencyCode"],
+  boost: [
+    "connectorProvider",
+    "connectorApiKey",
+    "connectorAccountId",
+    "connectorBrandId",
+    "verificationExpectedTxt",
+    "verificationChecked",
+    "verificationSuccess",
+  ],
+  details: [
+    "organizationId",
+    "bannerImage",
+    "githubUrl",
+    "twitterUrl",
+    "demoUrl",
+    "contactEmail",
+    "utmCampaign",
+    "alternativeIds",
+  ],
+}
+
+function getSectionsForErrorFields(fields: readonly string[]): SectionKey[] {
+  const sections: SectionKey[] = []
+  const fieldSet = new Set(fields)
+  ;(Object.keys(SECTION_FIELDS) as SectionKey[]).forEach((section) => {
+    const hasAny = SECTION_FIELDS[section].some((f) => fieldSet.has(f))
+    if (hasAny) sections.push(section)
+  })
+  return sections.length ? sections : ["core"]
+}
+
 export default function AddProductForm({
   categories,
   organizations,
@@ -135,6 +188,10 @@ export default function AddProductForm({
   }[]
 }) {
   const router = useRouter()
+  const [openSections, setOpenSections] = useState<SectionKey[]>([
+    "core",
+    "pricing",
+  ])
   const [newProductId] = useState(() => {
     const g: any = typeof globalThis !== "undefined" ? (globalThis as any) : {}
     const c = g.crypto as Crypto | undefined
@@ -150,6 +207,10 @@ export default function AddProductForm({
     defaultValues: getInitialValuesForAdd(),
     mode: "onBlur",
   })
+
+  const connectorFields = useMemo(() => {
+    return <ConnectorFields form={form} />
+  }, [form])
 
   async function submitAll(
     values: ProductWizardInput & { status?: "draft" | "published" },
@@ -173,68 +234,177 @@ export default function AddProductForm({
     }
   }
 
-  const wizard = useProductWizard<ProductWizardInput>({
-    form,
-    steps: STEPS,
-    stepFields: STEP_FIELDS,
-    validateExternal: async () => {
-      const v = form.getValues()
-      const { issues, checks } = await validateResources(v as any)
-      form.setValue("reviewIssues" as any, issues)
-      form.setValue("reviewChecks" as any, checks)
-      if (issues.length) {
-        toast.error("Some links/images look invalid. Please review.")
-        return false
-      }
-      return true
-    },
-    onSubmit: submitAll as any,
-  })
+  function openFromErrors(errors: Record<string, any>) {
+    const keys = Object.keys(errors)
+    const sectionsToOpen = getSectionsForErrorFields(keys)
+    setOpenSections((prev) => {
+      const next = new Set<SectionKey>(prev)
+      sectionsToOpen.forEach((s) => next.add(s))
+      return Array.from(next)
+    })
+  }
 
-  const StepComponent = renderStep(wizard.step, {
-    categories,
-    organizations,
-    productId: newProductId,
-    persistOnVerify: false,
-    enableAutofill: true,
-    alternatives,
-    pricingAside: <ConnectorFields form={form} />,
-  })
+  const submitWithStatus = (status: "draft" | "published") =>
+    form.handleSubmit(
+      async (values) => {
+        await submitAll({ ...values, status })
+      },
+      (errors) => {
+        openFromErrors(errors as any)
+        toast.error("Fix the highlighted fields to continue.")
+      },
+    )
+
+  const core = (
+    <Step1
+      categories={categories}
+      platforms={PLATFORMS as any}
+      productId={newProductId}
+      enableAutofill
+    />
+  )
+  const pricing = <Step2 />
+  const verification = (
+    <Step3 productId={newProductId} persistOnVerify={false} />
+  )
+  const details = (
+    <Step4
+      organizations={organizations}
+      productId={newProductId}
+      alternatives={alternatives}
+    />
+  )
 
   return (
     <Card className="mx-auto w-full max-w-4xl">
       <CardHeader>
-        <CardTitle className="text-left text-2xl font-bold">
-          Add Product
-        </CardTitle>
+        <CardTitle className="text-left text-2xl font-bold">Add product</CardTitle>
+        <CardDescription>
+          Fill the essentials, then optionally add verification and alternatives
+          to boost visibility.
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <WizardStepper steps={STEPS} step={wizard.step} />
-
         <FormProvider {...form}>
           <form
-            onSubmit={form.handleSubmit(() =>
-              wizard.submitWithStatus("published"),
-            )}
-            className="space-y-6"
+            id="add-product-form"
+            onSubmit={submitWithStatus("published")}
+            className="space-y-6 pb-24"
           >
-            {/* Steps */}
-            {StepComponent}
+            <Accordion
+              type="multiple"
+              value={openSections}
+              onValueChange={(v) => setOpenSections(v as SectionKey[])}
+              className="rounded-xl border bg-white/80"
+            >
+              <AccordionItem value="core" className="px-6">
+                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold text-slate-900">
+                        Core details
+                      </span>
+                      <Badge variant="outline">Required</Badge>
+                    </div>
+                    <span className="text-xs font-normal text-muted-foreground">
+                      Website, name, description, logo, category, and platforms.
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pb-6">{core}</AccordionContent>
+              </AccordionItem>
 
-            <Separator className="my-4" />
+              <AccordionItem value="pricing" className="px-6">
+                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold text-slate-900">
+                        Pricing
+                      </span>
+                      <Badge variant="outline">Required</Badge>
+                    </div>
+                    <span className="text-xs font-normal text-muted-foreground">
+                      Tell visitors how you monetize (or that it&apos;s free).
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pb-6">{pricing}</AccordionContent>
+              </AccordionItem>
 
-            <WizardFooter
-              isReview={wizard.isReview}
-              onBack={wizard.back}
-              onNext={wizard.next}
-              onSaveDraft={() => wizard.submitWithStatus("draft")}
-              onPublish={() => wizard.submitWithStatus("published")}
-              disableBack={wizard.step === 1}
-              isSubmitting={form.formState.isSubmitting}
-            />
+              <AccordionItem value="boost" className="px-6">
+                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold text-slate-900">
+                        Boost visibility
+                      </span>
+                      <Badge>Recommended</Badge>
+                    </div>
+                    <span className="text-xs font-normal text-muted-foreground">
+                      Verify revenue + domain ownership to rank higher and build
+                      trust.
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pb-6">
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <div className="rounded-xl border border-dashed border-border/70 bg-muted/20 p-4 sm:p-5">
+                      {connectorFields}
+                    </div>
+                    <div className="rounded-xl border border-dashed border-border/70 bg-muted/20 p-4 sm:p-5">
+                      {verification}
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="details" className="px-6">
+                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold text-slate-900">
+                        Details & positioning
+                      </span>
+                      <Badge variant="secondary">Optional</Badge>
+                    </div>
+                    <span className="text-xs font-normal text-muted-foreground">
+                      Social links, banner, organization, and competitor
+                      alternatives.
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pb-6">{details}</AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </form>
         </FormProvider>
       </CardContent>
+      <CardFooter className="sticky bottom-0 z-10 border-t bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-muted-foreground">
+            Recommended: add verified revenue and alternatives now so you rank
+            higher from day one.
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button
+              type="button"
+              variant="outline"
+              className="border-slate-300 text-slate-700"
+              disabled={form.formState.isSubmitting}
+              onClick={() => submitWithStatus("draft")()}
+            >
+              Save draft
+            </Button>
+            <Button
+              type="submit"
+              form="add-product-form"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? "Publishing…" : "Publish"}
+            </Button>
+          </div>
+        </div>
+      </CardFooter>
     </Card>
   )
 }

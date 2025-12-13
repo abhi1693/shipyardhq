@@ -7,6 +7,7 @@ import {
   FormItem,
   FormLabel,
   FormControl,
+  FormDescription,
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
@@ -21,6 +22,7 @@ import {
 import { MEMBER_ORGANIZATIONS_PATH } from "@/lib/routes"
 import { Checkbox } from "@/components/atoms/checkbox"
 import { cn } from "@/lib/utils"
+import { Badge } from "@/components/atoms/badge"
 
 type AlternativeOption = {
   id: string
@@ -191,7 +193,19 @@ export default function Step4({
           const selectedIds = Array.isArray(field.value) ? field.value : []
           return (
             <FormItem>
-              <FormLabel>Alternative to</FormLabel>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <FormLabel>Alternatives</FormLabel>
+                  <Badge>Recommended</Badge>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  Selected: {selectedIds.length}
+                </span>
+              </div>
+              <FormDescription>
+                Pick 1–3 products you replace or compete with. This helps your
+                product show up in alternative searches and comparison pages.
+              </FormDescription>
               <div className="mt-3 space-y-3 contain-content">
                 <Input
                   value={alternativeQuery}

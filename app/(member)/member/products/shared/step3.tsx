@@ -121,6 +121,10 @@ export default function Step3({
         <FormLabel>Verification</FormLabel>
         <div className="text-sm text-muted-foreground space-y-2">
           <p>
+            Verify that you own this website to show a verified badge and avoid
+            impersonation.
+          </p>
+          <p>
             Add the following DNS TXT record at your domain provider for
             <span className="font-medium"> {domain || "your domain"}</span>.
           </p>
