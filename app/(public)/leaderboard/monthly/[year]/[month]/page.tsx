@@ -34,19 +34,29 @@ export async function generateMetadata({
 
 export default async function MonthlyLeaderboardArchivePage({
   params,
+  searchParams,
 }: {
   params: Promise<PageParams>
+  searchParams?: Promise<{ revenue?: string }>
 }) {
   const { year, month } = await params
+  const sp = await searchParams
+  const verifiedRevenueOnly = sp?.revenue === "verified"
   const leaderboard = await getPeriodicLeaderboardByParams({
     period: "month",
     year: Number(year),
     month: Number(month),
+    verifiedRevenueOnly,
   })
 
   if (!leaderboard) {
     notFound()
   }
 
-  return <PeriodicLeaderboardView leaderboard={leaderboard} />
+  return (
+    <PeriodicLeaderboardView
+      leaderboard={leaderboard}
+      verifiedRevenueOnly={verifiedRevenueOnly}
+    />
+  )
 }

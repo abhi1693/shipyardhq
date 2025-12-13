@@ -62,7 +62,7 @@ export function VerifiedRevenueGridClient({
     if (!total) return null
     return (
       <p className="py-4 text-center text-sm text-muted-foreground">
-        Showing all {total.toLocaleString()} verified revenue products.
+        Showing all {total.toLocaleString()} revenue verified products.
       </p>
     )
   }, [total])
@@ -91,8 +91,8 @@ export function VerifiedRevenueGridClient({
       }}
       emptyState={
         <EmptyState
-          title="No verified revenue yet"
-          description="Once teams connect their payment provider, their verified revenue will appear here."
+          title="No revenue verified products yet"
+          description="Once teams connect their payment provider, their products will show up here with verified revenue."
         />
       }
       endMessage={endMessage}

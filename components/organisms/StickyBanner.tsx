@@ -6,6 +6,7 @@ import { Badge } from "@/components/atoms/badge"
 import { SquareImage } from "@/components/molecules/SquareImage"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
 import { cached, TAGS } from "@/lib/cache"
+import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
 
 interface StickyBannerProps {
   limit?: number
@@ -81,7 +82,9 @@ export async function StickyBanner({
             {revenueLabel ? (
               <span
                 className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-white/80 px-3 py-1 text-[11px] font-semibold text-[#0c4a6e] shadow-sm"
-                title="Verified revenue"
+                title={`Verified revenue (boosts click-based ranking by ${VERIFIED_REVENUE_RANKING_MULTIPLIER.toFixed(
+                  1,
+                )}×). Products without verified revenue are ranked lower by default.`}
               >
                 <Banknote className="h-3.5 w-3.5" aria-hidden="true" />
                 <span className="sr-only">Revenue</span>

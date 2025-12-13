@@ -1,5 +1,7 @@
 import { Prisma } from "@/lib/vendor/prisma/client"
 
+export { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
+
 export const buildVerifiedRevenueWhere = (): Prisma.ProductWhereInput => ({
   paymentConnector: {
     is: {

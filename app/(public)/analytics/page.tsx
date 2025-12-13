@@ -146,7 +146,7 @@ async function getVerifiedRevenueTotals({
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description:
-    "Live Shipyard performance for the past 30 days—pulled directly from Google Analytics with top products, referrers, and engagement signals.",
+    "Live Shipyard performance for the past 30 days with top products, referrers, and engagement signals.",
 })
 
 export default async function AnalyticsPage() {
@@ -397,7 +397,7 @@ export default async function AnalyticsPage() {
               emptyLabel="Not enough data yet."
             />
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-              <span>Source: Google Analytics</span>
+              <span>Source: Shipyard analytics</span>
               <span className="h-1 w-1 rounded-full bg-slate-300" aria-hidden />
               <span>Updated {new Date().toLocaleString()}</span>
             </div>

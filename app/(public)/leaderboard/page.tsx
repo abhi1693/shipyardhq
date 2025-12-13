@@ -13,7 +13,7 @@ const PAGE_TITLE = "Shipyard Leaderboard"
 export const metadata = buildPageMetadata({
   title: `${PAGE_TITLE} — Ranked by real builder interest`,
   description:
-    "See what builders are actually clicking on, ranked by real interest — not launch-day hype.",
+    "Revenue verified products rank higher by default. Products without verified revenue are ranked lower.",
 })
 
 export default function LeaderboardPage(

@@ -35,9 +35,12 @@ import {
 } from "@/components/templates/public/homepage/sponsored-products"
 import { cn } from "@/lib/utils"
 import { pluralize } from "@/lib/pluralize"
+import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
+import { buildVerifiedRevenueWhere } from "@/lib/products/verifiedRevenue"
 
 interface CategoryTrendsPageProps {
   params: Promise<{ slug: string }>
+  searchParams?: Promise<{ revenue?: string }>
 }
 
 export const dynamic = "force-dynamic"
@@ -67,8 +70,11 @@ export async function generateMetadata(
 
 export default async function TrendingToolsInCategoryPage({
   params,
+  searchParams,
 }: CategoryTrendsPageProps) {
   const { slug } = await params
+  const sp = await searchParams
+  const verifiedRevenueOnly = sp?.revenue === "verified"
   const category = await prisma.category.findUnique({
     where: { slug },
     select: { id: true, name: true, description: true, slug: true },
@@ -149,16 +155,90 @@ export default async function TrendingToolsInCategoryPage({
     )
   }
 
+  const toggleHref = (nextValue: "all" | "verified") => {
+    const params = new URLSearchParams()
+    if (nextValue === "verified") params.set("revenue", "verified")
+    const qs = params.toString()
+    return qs ? `${path}?${qs}` : path
+  }
+
   const records = (await prisma.product.findMany({
     where: {
       id: { in: ids },
       status: "published",
       category: { is: { slug: category.slug } },
+      ...(verifiedRevenueOnly ? buildVerifiedRevenueWhere() : {}),
     },
     select: productCardSelect,
   })) as unknown as ProductCardRecord[]
 
-  if (!records.length) notFound()
+  if (!records.length) {
+    if (!verifiedRevenueOnly) notFound()
+    return (
+      <main className="relative isolate bg-[#f5f7fb]">
+        <CoreStructuredData
+          scriptKeyPrefix={`trends-category-${category.slug}`}
+          webPage={{ path, name: `Trending tools in ${category.name}` }}
+          breadcrumbs={{ items: breadcrumbs }}
+        />
+        <PublicTwoColumnLayout
+          className="pb-24 pt-12"
+          mainClassName="gap-10"
+          main={
+            <>
+              <section className="rounded-3xl border border-border/40 bg-white px-6 py-10 shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
+                <div className="space-y-4">
+                  <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+                    Trending tools in {category.name}
+                  </h1>
+                  <p className="max-w-3xl text-sm text-muted-foreground">
+                    Ranking rule: base score = clicks in the last 7 days. If a product has
+                    verified revenue, we multiply that click score by{" "}
+                    {VERIFIED_REVENUE_RANKING_MULTIPLIER.toFixed(1)}×. Products without verified revenue are ranked lower by default.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <Link
+                      href={toggleHref("all")}
+                      className={cn(
+                        "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition",
+                        "border-border/70 bg-white text-[#1C2333] hover:border-[color:var(--brand-1)]/60 hover:bg-[color:var(--brand-1)/0.06] hover:text-[color:var(--brand-1)]",
+                      )}
+                      scroll={false}
+                    >
+                      All products
+                    </Link>
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold",
+                        "border-[color:var(--brand-1)] bg-[color:var(--brand-1)] text-white shadow-[0_12px_32px_-18px_rgba(4,59,89,0.35)]",
+                      )}
+                      aria-current="page"
+                    >
+                      Revenue verified only
+                    </span>
+                  </div>
+                  <p className="max-w-2xl text-base text-muted-foreground">
+                    No revenue-verified products in this category yet.
+                  </p>
+                </div>
+              </section>
+              <StickyBanner className="mx-auto w-full rounded-2xl" />
+            </>
+          }
+          sidebar={
+            <>
+              <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
+                <TrafficSidebarStats />
+              </Suspense>
+              <Suspense fallback={<SponsoredProductsSkeleton />}>
+                <SponsoredProductsSection />
+              </Suspense>
+            </>
+          }
+        />
+      </main>
+    )
+  }
 
   const recordMap = new Map<string, ProductCardRecord>(
     records.map((record) => [record.id, record]),
@@ -246,6 +326,37 @@ export default async function TrendingToolsInCategoryPage({
                     Most clicked in the last 7 days.
                   </p>
                 )}
+                <p className="max-w-3xl text-sm text-muted-foreground">
+                  Ranking rule: base score = clicks in the last 7 days. If a product has
+                  verified revenue, we multiply that click score by{" "}
+                  {VERIFIED_REVENUE_RANKING_MULTIPLIER.toFixed(1)}×. Products without verified revenue are ranked lower by default.
+                </p>
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <Link
+                    href={toggleHref("all")}
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition",
+                      !verifiedRevenueOnly
+                        ? "border-[color:var(--brand-1)] bg-[color:var(--brand-1)] text-white shadow-[0_12px_32px_-18px_rgba(4,59,89,0.35)]"
+                        : "border-border/70 bg-white text-[#1C2333] hover:border-[color:var(--brand-1)]/60 hover:bg-[color:var(--brand-1)/0.06] hover:text-[color:var(--brand-1)]",
+                    )}
+                    scroll={false}
+                  >
+                    All products
+                  </Link>
+                  <Link
+                    href={toggleHref("verified")}
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition",
+                      verifiedRevenueOnly
+                        ? "border-[color:var(--brand-1)] bg-[color:var(--brand-1)] text-white shadow-[0_12px_32px_-18px_rgba(4,59,89,0.35)]"
+                        : "border-border/70 bg-white text-[#1C2333] hover:border-[color:var(--brand-1)]/60 hover:bg-[color:var(--brand-1)/0.06] hover:text-[color:var(--brand-1)]",
+                    )}
+                    scroll={false}
+                  >
+                    Revenue verified only
+                  </Link>
+                </div>
                 <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:gap-4">
                   <Link
                     href={categoryPath(category.slug)}

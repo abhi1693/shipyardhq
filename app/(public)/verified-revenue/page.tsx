@@ -7,7 +7,7 @@ import { buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH, VERIFIED_REVENUE_PATH } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
 
-const PAGE_TITLE = "Verified revenue directory"
+const PAGE_TITLE = "Revenue verified products"
 const OG_IMAGE_URL = new URL(
   "/opengraph-verified-revenue.png",
   siteConfig.url,
@@ -16,14 +16,14 @@ const OG_IMAGE_URL = new URL(
 export const metadata = buildPageMetadata({
   title: `${PAGE_TITLE} — proof you can trust`,
   description:
-    "Explore Shipyard makers with verified revenue pulled directly from their payment providers, ranked in descending order.",
+    "Explore products with verified revenue pulled directly from their payment providers, ranked in descending order.",
   canonical: VERIFIED_REVENUE_PATH,
   openGraph: {
     url: VERIFIED_REVENUE_PATH,
     images: [
       {
         url: OG_IMAGE_URL,
-        alt: "Verified revenue directory preview",
+        alt: "Revenue verified products preview",
       },
     ],
   },

@@ -130,12 +130,12 @@ export async function TrafficSidebarStats({
       />
       <RealtimeVisitorsCard initialValue={stats.realtimeVisitors ?? 0} />
       <p className="text-xs text-muted-foreground text-center">
-        Powered by{" "}
+        See{" "}
         <a
           href="/analytics"
           className="font-semibold text-slate-700 underline-offset-4 hover:underline"
         >
-          Google Analytics
+          the analytics dashboard
         </a>
       </p>
     </div>

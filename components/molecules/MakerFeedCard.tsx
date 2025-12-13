@@ -4,6 +4,7 @@ import { SquareImage } from "@/components/molecules/SquareImage"
 import { BadgeCheck, Banknote } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { userPath } from "@/lib/routes"
+import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
 
 type MakerCardVariant = "default" | "sponsored"
 
@@ -100,7 +101,9 @@ export function MakerFeedCard({ item, className }: MakerFeedCardProps) {
           {revenueLabel ? (
             <span
               className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-semibold text-sky-900 shadow-sm"
-              title="Verified revenue"
+              title={`Verified revenue (boosts click-based ranking by ${VERIFIED_REVENUE_RANKING_MULTIPLIER.toFixed(
+                1,
+              )}×). Products without verified revenue are ranked lower by default.`}
             >
               <Banknote className="h-3.5 w-3.5" aria-hidden="true" />
               <span className="whitespace-nowrap">{revenueLabel}</span>

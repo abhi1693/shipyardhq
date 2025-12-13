@@ -18,6 +18,12 @@ const HERO_HIGHLIGHTS = [
     icon: Trophy,
   },
   {
+    title: "Visibility accelerator",
+    detail:
+      "Revenue verified products rank higher by default. Products without verified revenue are ranked lower.",
+    icon: Sparkles,
+  },
+  {
     title: "Monthly rankings",
     detail:
       "Resets on the first UTC day each month to spotlight fresh launches. Historical snapshots live in the monthly archive.",
@@ -35,6 +41,10 @@ const SCORE_FACTS = [
   {
     heading: "Weighted monthly inputs",
     copy: "Scores are recalculated off three signals inside the current calendar month: upvotes × 10, unique visitors × 3, and page views × 1. Traffic comes from product page views and unique visitors, and we only consider published listings.",
+  },
+  {
+    heading: "Revenue verification boosts visibility",
+    copy: "After we calculate base points, revenue verified products receive a visibility boost and are ranked above products without verified revenue by default.",
   },
   {
     heading: "Real-time recalculation",
@@ -182,6 +192,10 @@ export function LeaderboardGuidePageContent() {
                   are permanent and counted once per member, so this month’s
                   score only rises as new fans arrive. Traffic comes from page
                   views and unique visitors for each product page.
+                </p>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  Revenue verified products rank higher by default. Products
+                  without verified revenue are ranked lower.
                 </p>
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
                   <div className="rounded-2xl border border-[color:var(--brand-1)/0.12] bg-background/80 p-4">

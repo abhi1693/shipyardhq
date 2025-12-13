@@ -166,11 +166,10 @@ export function PaymentConnectorCard({
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-base font-semibold leading-tight">
-            Show verified revenue
+            Revenue verification
           </p>
           <p className="text-xs text-muted-foreground">
-            Connect your payment provider so we can display verified revenue on
-            your product page.
+            Products without verified revenue are ranked lower by default.
           </p>
         </div>
         <div className="flex items-center gap-2">

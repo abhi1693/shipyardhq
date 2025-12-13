@@ -36,12 +36,14 @@ type LeaderboardListItem = ProductCardBase & {
 export async function LeaderboardPageContent({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; limit?: string }>
+  searchParams: Promise<{ category?: string; limit?: string; revenue?: string }>
 }) {
   const sp = await searchParams
+  const verifiedRevenueOnly = sp?.revenue === "verified"
   const filters = {
     categorySlug: sp?.category,
     limit: Number(sp?.limit ?? 50),
+    verifiedRevenueOnly,
   }
 
   const { stats, products } = await getLeaderboardPagePayload(filters)
@@ -71,6 +73,15 @@ export async function LeaderboardPageContent({
   const totalCount = products.length
   const hasProducts = totalCount > 0
 
+  const toggleHref = (nextValue: "all" | "verified") => {
+    const params = new URLSearchParams()
+    if (sp?.category) params.set("category", sp.category)
+    if (sp?.limit) params.set("limit", sp.limit)
+    if (nextValue === "verified") params.set("revenue", "verified")
+    const qs = params.toString()
+    return qs ? `/leaderboard?${qs}` : "/leaderboard"
+  }
+
   return (
     <main className="relative isolate bg-[#f5f7fb]">
       <PublicTwoColumnLayout
@@ -82,7 +93,7 @@ export async function LeaderboardPageContent({
             <Hero
               stats={stats}
               title="This month's leaderboard"
-              description="Watch the Shipyard launches leading the board this month, updated as founders earn fresh momentum from the community."
+              description="Revenue verified products rank higher by default. Products without verified revenue are ranked lower."
               primaryAction={{
                 label: "Submit your launch",
                 href: MEMBER_PRODUCTS_PATH,
@@ -95,6 +106,31 @@ export async function LeaderboardPageContent({
             />
 
             <section className="flex flex-col gap-8">
+              <div className="flex flex-wrap items-center gap-2">
+                <Link
+                  href={toggleHref("all")}
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                    !verifiedRevenueOnly
+                      ? "border-[color:var(--brand-1)] bg-[color:var(--brand-1)] text-white shadow-[0_12px_32px_-18px_rgba(4,59,89,0.35)]"
+                      : "border-border/70 bg-white text-[#1C2333] hover:border-[color:var(--brand-1)]/60 hover:bg-[color:var(--brand-1)/0.06] hover:text-[color:var(--brand-1)]"
+                  }`}
+                  scroll={false}
+                >
+                  All products
+                </Link>
+                <Link
+                  href={toggleHref("verified")}
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                    verifiedRevenueOnly
+                      ? "border-[color:var(--brand-1)] bg-[color:var(--brand-1)] text-white shadow-[0_12px_32px_-18px_rgba(4,59,89,0.35)]"
+                      : "border-border/70 bg-white text-[#1C2333] hover:border-[color:var(--brand-1)]/60 hover:bg-[color:var(--brand-1)/0.06] hover:text-[color:var(--brand-1)]"
+                  }`}
+                  scroll={false}
+                >
+                  Revenue verified only
+                </Link>
+              </div>
+
               {hasProducts ? (
                 <DirectoryProductList
                   items={leaderboardItems}

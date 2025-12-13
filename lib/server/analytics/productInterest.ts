@@ -6,6 +6,10 @@ import type { ProductInterestSignals } from "@/types/product-interest"
 import { buildCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import { siteConfig } from "@/lib/siteConfig"
+import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
+import {
+  buildVerifiedRevenueWhere,
+} from "@/lib/products/verifiedRevenue"
 import {
   getProductTrafficMapFromGa,
   runGaReport,
@@ -411,6 +415,14 @@ export async function refreshProductInterestCache(args?: {
     categorySlug: product.category?.slug ?? null,
   }))
 
+  const verifiedRevenueRows = await prisma.product.findMany({
+    where: { AND: [{ status: "published" }, buildVerifiedRevenueWhere()] },
+    select: { id: true },
+  })
+  const verifiedRevenueIds = new Set(
+    verifiedRevenueRows.map((row: { id: string }) => row.id),
+  )
+
   const currentRange = resolveRangeForLastNDays(days)
   const previousRange = resolvePreviousRange(currentRange, days)
 
@@ -456,16 +468,35 @@ export async function refreshProductInterestCache(args?: {
     })
   }
 
-  const mostClickedIds = Array.from(signalsByProductId.entries())
-    .filter(([, signals]) => (signals?.clicks7d ?? 0) > 0)
+  const mostClickedScored = Array.from(signalsByProductId.entries())
+    .map(([productId, signals]) => {
+      const clicks = signals?.clicks7d ?? 0
+      const multiplier = verifiedRevenueIds.has(productId)
+        ? VERIFIED_REVENUE_RANKING_MULTIPLIER
+        : 1
+      const score = verifiedRevenueIds.has(productId)
+        ? Math.ceil(clicks * multiplier)
+        : clicks
+      return {
+        productId,
+        clicks,
+        clickVelocityWoW: signals?.clickVelocityWoW ?? 0,
+        score,
+        revenueVerified: verifiedRevenueIds.has(productId),
+      }
+    })
+    .filter((entry) => entry.clicks > 0)
+
+  const mostClickedIds = mostClickedScored
     .sort((a, b) => {
-      const aClicks = a[1].clicks7d
-      const bClicks = b[1].clicks7d
-      if (bClicks !== aClicks) return bClicks - aClicks
-      return b[1].clickVelocityWoW - a[1].clickVelocityWoW
+      if (b.score !== a.score) return b.score - a.score
+      if (b.clicks !== a.clicks) return b.clicks - a.clicks
+      if (b.clickVelocityWoW !== a.clickVelocityWoW)
+        return b.clickVelocityWoW - a.clickVelocityWoW
+      return a.productId.localeCompare(b.productId)
     })
     .slice(0, Math.max(0, Math.floor(topLimit)))
-    .map(([productId]) => productId)
+    .map((entry) => entry.productId)
 
   if (mostClickedIds.length) {
     multi.set(
@@ -494,10 +525,30 @@ export async function refreshProductInterestCache(args?: {
   for (const [categorySlug, entries] of byCategory.entries()) {
     const ids = entries
       .sort((a, b) => {
-        if (b.signals.clicks7d !== a.signals.clicks7d) {
-          return b.signals.clicks7d - a.signals.clicks7d
+        const aClicks = a.signals.clicks7d ?? 0
+        const bClicks = b.signals.clicks7d ?? 0
+
+        const aMultiplier = verifiedRevenueIds.has(a.id)
+          ? VERIFIED_REVENUE_RANKING_MULTIPLIER
+          : 1
+        const bMultiplier = verifiedRevenueIds.has(b.id)
+          ? VERIFIED_REVENUE_RANKING_MULTIPLIER
+          : 1
+
+        const aScore = verifiedRevenueIds.has(a.id)
+          ? Math.ceil(aClicks * aMultiplier)
+          : aClicks
+        const bScore = verifiedRevenueIds.has(b.id)
+          ? Math.ceil(bClicks * bMultiplier)
+          : bClicks
+
+        if (bScore !== aScore) return bScore - aScore
+        if (bClicks !== aClicks) return bClicks - aClicks
+        if (b.signals.clickVelocityWoW !== a.signals.clickVelocityWoW) {
+          return b.signals.clickVelocityWoW - a.signals.clickVelocityWoW
         }
-        return b.signals.clickVelocityWoW - a.signals.clickVelocityWoW
+
+        return a.id.localeCompare(b.id)
       })
       .slice(0, Math.max(0, Math.floor(perCategoryLimit)))
       .map((entry) => entry.id)

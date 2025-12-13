@@ -1,5 +1,7 @@
 import prisma from "@/lib/prisma"
 import { getProductTrafficMapFromGa } from "@/lib/server/analytics/googleAnalytics"
+import { buildVerifiedRevenueWhere } from "@/lib/products/verifiedRevenue"
+import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
 
 type MetricMaps = {
   views: Map<string, number>
@@ -24,6 +26,7 @@ type ScoreRow = {
   views: number
   uniqueVisitors: number
   upvotes: number
+  revenueVerified: boolean
   score: number
   scoreComponents: Record<string, number>
   rank?: number
@@ -35,6 +38,29 @@ function metricsHaveActivity(metrics: MetricMaps): boolean {
   return [metrics.views, metrics.uniqueVisitors, metrics.upvotes].some((map) =>
     Array.from(map.values()).some((value) => value > 0),
   )
+}
+
+async function fetchVerifiedRevenueProductIds(
+  productIds?: Iterable<string> | null,
+): Promise<Set<string>> {
+  const uniqueIds = productIds
+    ? Array.from(new Set(Array.from(productIds))).filter(Boolean)
+    : []
+
+  const rows = await prisma.product.findMany({
+    where:
+      uniqueIds.length > 0
+        ? {
+            AND: [
+              { id: { in: uniqueIds }, status: "published" as const },
+              buildVerifiedRevenueWhere(),
+            ],
+          }
+        : { AND: [{ status: "published" as const }, buildVerifiedRevenueWhere()] },
+    select: { id: true },
+  })
+
+  return new Set(rows.map((row: { id: string }) => row.id))
 }
 
 export async function createLeaderboardRun(input: {
@@ -82,8 +108,11 @@ export async function generateLeaderboardRun(options: {
   const windowEnd = resolveWindowEnd(options.periodEnd, options.asOf)
   const metrics = await collectMetrics(options.periodStart, windowEnd)
   const hasActivity = metricsHaveActivity(metrics)
+  const verifiedRevenueIds = hasActivity
+    ? await fetchVerifiedRevenueProductIds(null)
+    : new Set<string>()
   const rankedRows = hasActivity
-    ? applyRanks(computeScores(metrics, weights))
+    ? applyRanks(computeScores(metrics, weights, [], verifiedRevenueIds))
     : []
 
   await persistScores(run.id, rankedRows)
@@ -191,9 +220,12 @@ export async function computeLeaderboardWindow(options: {
   if (!hasActivity) return []
 
   // Only rank products that have a non-zero score.
-  const rows = computeScores(metrics, weights, productIds ?? []).filter(
-    (row) => row.score > 0,
+  const verifiedRevenueIds = await fetchVerifiedRevenueProductIds(
+    productIds?.length ? productIds : null,
   )
+
+  const rows = computeScores(metrics, weights, productIds ?? [], verifiedRevenueIds)
+    .filter((row) => row.score > 0)
 
   const ranked = applyRanks(rows) as LeaderboardScoreRow[]
   return typeof options.limit === "number"
@@ -222,7 +254,8 @@ export async function updateLeaderboardScoresForProducts(options: {
     options.periodStart,
     windowEnd,
   )
-  const rows = computeScores(metrics, weights, productIds)
+  const verifiedRevenueIds = await fetchVerifiedRevenueProductIds(productIds)
+  const rows = computeScores(metrics, weights, productIds, verifiedRevenueIds)
 
   if (!rows.length) {
     const { runId } = await generateLeaderboardRun({
@@ -407,6 +440,7 @@ function computeScores(
   metrics: MetricMaps,
   weights: LeaderboardWeights,
   seedProductIds: string[] = [],
+  verifiedRevenueProductIds: Set<string> = new Set(),
 ): ScoreRow[] {
   const productIds = new Set<string>([
     ...seedProductIds,
@@ -415,31 +449,67 @@ function computeScores(
     ...metrics.upvotes.keys(),
   ])
 
+  const baseRows: Array<
+    Omit<ScoreRow, "score" | "scoreComponents" | "rank"> & {
+      baseScore: number
+      baseScoreComponents: Record<string, number>
+      multiplier: number
+    }
+  > = []
+
   const rows: ScoreRow[] = []
 
   for (const productId of productIds) {
     const views = metrics.views.get(productId) ?? 0
     const uniqueVisitors = metrics.uniqueVisitors.get(productId) ?? 0
     const upvotes = metrics.upvotes.get(productId) ?? 0
+    const revenueVerified = verifiedRevenueProductIds.has(productId)
+    const multiplier = revenueVerified ? VERIFIED_REVENUE_RANKING_MULTIPLIER : 1
 
-    const scoreComponents = {
+    const baseScoreComponents = {
       views: views * weights.views,
       uniqueVisitors: uniqueVisitors * weights.uniqueVisitors,
       upvotes: upvotes * weights.upvotes,
     }
 
-    const score = Object.values(scoreComponents).reduce(
+    const baseScore = Object.values(baseScoreComponents).reduce(
       (total, value) => total + value,
       0,
     )
 
-    rows.push({
+    baseRows.push({
       productId,
       views,
       uniqueVisitors,
       upvotes,
+      revenueVerified,
+      baseScore,
+      baseScoreComponents,
+      multiplier,
+    })
+  }
+
+  for (const entry of baseRows) {
+    const score =
+      entry.baseScore <= 0
+        ? 0
+        : entry.revenueVerified
+          ? Math.ceil(entry.baseScore * entry.multiplier)
+          : entry.baseScore
+    rows.push({
+      productId: entry.productId,
+      views: entry.views,
+      uniqueVisitors: entry.uniqueVisitors,
+      upvotes: entry.upvotes,
+      revenueVerified: entry.revenueVerified,
       score,
-      scoreComponents,
+      scoreComponents: {
+        ...entry.baseScoreComponents,
+        baseScore: entry.baseScore,
+        revenueVerified: entry.revenueVerified ? 1 : 0,
+        revenueMultiplier: entry.multiplier,
+        finalScore: score,
+      },
     })
   }
 
@@ -468,6 +538,9 @@ async function fetchProductSlugs(
 function applyRanks(rows: ScoreRow[]): ScoreRow[] {
   const sorted = [...rows].sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score
+    if (a.revenueVerified !== b.revenueVerified) {
+      return a.revenueVerified ? -1 : 1
+    }
     if (b.upvotes !== a.upvotes) return b.upvotes - a.upvotes
     if (b.uniqueVisitors !== a.uniqueVisitors)
       return b.uniqueVisitors - a.uniqueVisitors

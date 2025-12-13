@@ -10,6 +10,7 @@ const DEFAULT_LIMIT = 50
 export type LeaderboardFilters = {
   categorySlug?: string
   limit: number
+  verifiedRevenueOnly?: boolean
 }
 
 type LeaderboardProduct = Awaited<
@@ -40,7 +41,11 @@ const normalizeFilters = (filters: LeaderboardFilters): LeaderboardFilters => {
     filters.categorySlug && filters.categorySlug.trim().length
       ? filters.categorySlug.trim()
       : undefined
-  return { limit, categorySlug }
+  return {
+    limit,
+    categorySlug,
+    verifiedRevenueOnly: Boolean(filters.verifiedRevenueOnly),
+  }
 }
 
 export const getLeaderboardPagePayload = cached(
@@ -53,6 +58,7 @@ export const getLeaderboardPagePayload = cached(
       getTopRankedProducts({
         limit: filters.limit,
         categorySlug: filters.categorySlug,
+        verifiedRevenueOnly: filters.verifiedRevenueOnly,
       }),
     ])
 
@@ -86,6 +92,7 @@ export const getLeaderboardPagePayload = cached(
       const parts = [
         filters.categorySlug ? `category:${filters.categorySlug}` : null,
         `limit:${filters.limit}`,
+        filters.verifiedRevenueOnly ? "verifiedRevenueOnly:1" : null,
       ].filter((value): value is string => Boolean(value))
       return parts
     },

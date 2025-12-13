@@ -23,6 +23,7 @@ import {
   productCardSelect,
   type ProductCardRecord,
 } from "@/lib/products/selects"
+import { buildVerifiedRevenueWhere } from "@/lib/products/verifiedRevenue"
 
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -417,9 +418,14 @@ async function getOrCreateActiveLeaderboardRun() {
 }
 
 export const getTopRankedProducts = cached(
-  async (args?: { limit?: number; categorySlug?: string }) => {
+  async (args?: {
+    limit?: number
+    categorySlug?: string
+    verifiedRevenueOnly?: boolean
+  }) => {
     const limit = args?.limit ?? 50
     const categorySlug = args?.categorySlug
+    const verifiedRevenueOnly = Boolean(args?.verifiedRevenueOnly)
 
     // Ensure the run exists and is populated before reading scores.
     const run = await getOrCreateActiveLeaderboardRun()
@@ -435,17 +441,26 @@ export const getTopRankedProducts = cached(
       })
     }
 
+    const productWhere =
+      categorySlug || verifiedRevenueOnly
+        ? {
+            status: "published" as const,
+            ...(categorySlug
+              ? {
+                  category: {
+                    slug: categorySlug,
+                  },
+                }
+              : {}),
+            ...(verifiedRevenueOnly ? buildVerifiedRevenueWhere() : {}),
+          }
+        : undefined
+
     const scores = await prisma.productLeaderboardScore.findMany({
       take: limit,
       where: {
         runId: run.id,
-        product: categorySlug
-          ? {
-              category: {
-                slug: categorySlug,
-              },
-            }
-          : undefined,
+        product: productWhere ? { is: productWhere } : undefined,
       },
       orderBy: [{ score: "desc" }, { upvotes: "desc" }, { productId: "asc" }],
       include: {
@@ -469,6 +484,7 @@ export const getTopRankedProducts = cached(
       const parts = [
         `limit:${limit}`,
         args?.categorySlug ? `category:${args.categorySlug}` : null,
+        args?.verifiedRevenueOnly ? "verifiedRevenueOnly:1" : null,
       ].filter((value): value is string => Boolean(value))
       return parts
     },
@@ -645,6 +661,7 @@ async function mapRunRowsToProducts(params: {
   periodStart: Date
   periodEnd: Date
   limit?: number
+  verifiedRevenueOnly?: boolean
 }): Promise<ProductCardRecord[] | null> {
   const run = await prisma.leaderboardRun.findUnique({
     where: {
@@ -657,8 +674,20 @@ async function mapRunRowsToProducts(params: {
   })
   if (!run) return null
 
+  const verifiedRevenueOnly = Boolean(params.verifiedRevenueOnly)
+  const productWhere = verifiedRevenueOnly
+    ? {
+        status: "published" as const,
+        ...buildVerifiedRevenueWhere(),
+      }
+    : undefined
+
   const rows = await prisma.productLeaderboardScore.findMany({
-    where: { runId: run.id, score: { gt: 0 } },
+    where: {
+      runId: run.id,
+      score: { gt: 0 },
+      ...(productWhere ? { product: { is: productWhere } } : {}),
+    },
     orderBy: [{ rank: "asc" }, { score: "desc" }, { upvotes: "desc" }],
     take: params.limit ?? undefined,
     include: {
@@ -684,18 +713,31 @@ export const getPeriodicLeaderboard = cached(
     periodEnd: Date
     limit?: number
     label?: string
+    verifiedRevenueOnly?: boolean
   }): Promise<PeriodicLeaderboardPayload> => {
     const limit = args.limit
     const periodLabel =
       args.label ??
       formatPeriodLabel(args.period, args.periodStart, args.periodEnd)
     const archive = await getPeriodicArchive()
+    const verifiedRevenueOnly = Boolean(args.verifiedRevenueOnly)
+    const verifiedRevenueIds = verifiedRevenueOnly
+      ? (
+          await prisma.product.findMany({
+            where: {
+              AND: [{ status: "published" as const }, buildVerifiedRevenueWhere()],
+            },
+            select: { id: true },
+          })
+        ).map((row: { id: string }) => row.id)
+      : null
 
     if (args.period === "month") {
       const runProducts = await mapRunRowsToProducts({
         periodStart: args.periodStart,
         periodEnd: args.periodEnd,
         limit,
+        verifiedRevenueOnly,
       })
       if (runProducts?.length) {
         return {
@@ -713,6 +755,7 @@ export const getPeriodicLeaderboard = cached(
       periodStart: args.periodStart,
       periodEnd: args.periodEnd,
       limit,
+      productIds: verifiedRevenueIds ?? undefined,
     })
     const products = await mapRowsToProducts(rankedRows, limit)
 
@@ -734,6 +777,7 @@ export const getPeriodicLeaderboard = cached(
         args.periodStart.toISOString(),
         args.periodEnd.toISOString(),
         typeof args.limit === "number" ? `limit:${args.limit}` : null,
+        args.verifiedRevenueOnly ? "verifiedRevenueOnly:1" : null,
       ].filter((part): part is string => Boolean(part)),
     tags: () => [TAGS.leaderboard, TAGS.analytics, TAGS.products],
   },
@@ -746,6 +790,7 @@ export async function getPeriodicLeaderboardByParams(args: {
   day?: number
   week?: number
   limit?: number
+  verifiedRevenueOnly?: boolean
 }): Promise<PeriodicLeaderboardPayload | null> {
   const window = await resolvePeriodWindowFromParts(args)
   if (!window) return null
@@ -756,6 +801,7 @@ export async function getPeriodicLeaderboardByParams(args: {
     periodEnd: window.periodEnd,
     limit: args.limit,
     label: window.label,
+    verifiedRevenueOnly: args.verifiedRevenueOnly,
   })
 }
 

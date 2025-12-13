@@ -40,7 +40,8 @@ export async function VerifiedRevenuePageContent() {
                     logoSrc,
                   }),
                 )}
-                title="The verified revenue leaderboard for startups"
+                title="Revenue verified products"
+                description="Revenue verified products rank higher by default. Products without verified revenue are ranked lower."
                 primaryAction={null}
                 secondaryAction={null}
               />
