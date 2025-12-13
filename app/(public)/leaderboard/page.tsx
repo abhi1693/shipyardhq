@@ -11,9 +11,9 @@ import { HOME_PATH, LEADERBOARD_PATH } from "@/lib/routes"
 const PAGE_TITLE = "Shipyard Leaderboard"
 
 export const metadata = buildPageMetadata({
-  title: `${PAGE_TITLE} — Track live launch momentum`,
+  title: `${PAGE_TITLE} — Ranked by real builder interest`,
   description:
-    "Monitor the Shipyard leaderboard to see which launches are earning the strongest community momentum right now.",
+    "See what builders are actually clicking on, ranked by real interest — not launch-day hype.",
 })
 
 export default function LeaderboardPage(

@@ -34,7 +34,7 @@ const HERO_HIGHLIGHTS = [
 const SCORE_FACTS = [
   {
     heading: "Weighted monthly inputs",
-    copy: "Scores are recalculated off three signals inside the current calendar month: upvotes × 10, unique visitors × 3, and page views × 1. We pull traffic from GA for each product page and only consider published listings.",
+    copy: "Scores are recalculated off three signals inside the current calendar month: upvotes × 10, unique visitors × 3, and page views × 1. Traffic comes from product page views and unique visitors, and we only consider published listings.",
   },
   {
     heading: "Real-time recalculation",
@@ -180,8 +180,8 @@ export function LeaderboardGuidePageContent() {
                 <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
                   All inputs reset on the first UTC day of the month. Upvotes
                   are permanent and counted once per member, so this month’s
-                  score only rises as new fans arrive. Traffic comes from GA
-                  page views and unique visitors for each product page.
+                  score only rises as new fans arrive. Traffic comes from page
+                  views and unique visitors for each product page.
                 </p>
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
                   <div className="rounded-2xl border border-[color:var(--brand-1)/0.12] bg-background/80 p-4">

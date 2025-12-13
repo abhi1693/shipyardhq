@@ -68,10 +68,16 @@ export function Hero({
   supportedProviders,
 }: HeroProps) {
   const resolvedTitle = title ?? "Shipyard homepage"
+  const isDefaultHeadline = title === undefined
+  const fallbackDescription = isDefaultHeadline
+    ? "Ranked by real interest — not launch-day hype."
+    : null
   const resolvedDescription =
-    typeof description === "string" && description.trim().length > 0
-      ? description.trim()
-      : null
+    typeof description === "string"
+      ? description.trim().length > 0
+        ? description.trim()
+        : null
+      : fallbackDescription
   const contentGapClass = "gap-5"
 
   const defaultPrimary: HeaderActionConfig = {
@@ -121,7 +127,6 @@ export function Hero({
     )
   }
 
-  const isDefaultHeadline = title === undefined
   const hasProviders = providers.length > 0
   const hasMetrics = metrics.length > 0
   return (
@@ -135,12 +140,11 @@ export function Hero({
         <div className="space-y-4 text-balance text-center">
           {isDefaultHeadline ? (
             <h1 className="text-4xl font-semibold tracking-tight text-[#1C2333] sm:text-[2.4rem]">
+              Shipyard shows{" "}
               <span className="bg-gradient-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] bg-clip-text text-transparent">
-                Verified revenue
-              </span>{" "}
-              on display. Claim your{" "}
-              <span className="text-[color:var(--brand-3)]">free backlink</span>{" "}
-              on Shipyard.
+                what builders are actually clicking on
+              </span>
+              .
             </h1>
           ) : (
             <h1 className="text-4xl font-semibold tracking-tight text-[#1C2333] sm:text-5xl">
