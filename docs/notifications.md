@@ -2,6 +2,12 @@
 
 Shipyard uses Novu to deliver in-app and email notifications. Most notification payloads are triggered from server-side helpers in `lib/server/notifications`.
 
+## Development Utilities
+
+- Clear Novu subscribers (dry-run by default):
+  - `npm run novu:clear-subscribers`
+  - Delete with `npm run novu:clear-subscribers -- --confirm`
+
 ## Founder Visibility (Soft Hooks)
 
 Founders respond to visibility signals more reliably than requests for updates. The weekly founder visibility job sends informational nudges like:

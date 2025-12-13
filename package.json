@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "novu:clear-subscribers": "tsx scripts/clear-novu-subscribers.ts",
     "prisma:migrate:reset": "prisma migrate reset --force",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
