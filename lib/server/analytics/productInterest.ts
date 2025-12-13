@@ -70,7 +70,7 @@ function alsoClickedIndexKey(productId: string, days: number) {
 function hasGaDataApiConfig() {
   return Boolean(
     process.env.GA_CREDENTIALS_JSON?.trim() &&
-      process.env.GA_PROPERTY_ID?.trim(),
+    process.env.GA_PROPERTY_ID?.trim(),
   )
 }
 
@@ -213,13 +213,17 @@ export async function getAlsoClickedProductIds(args: {
   return ids.slice(0, Math.max(0, Math.floor(limit)))
 }
 
-function extractProductSlugFromPath(value: string | null | undefined): string | null {
+function extractProductSlugFromPath(
+  value: string | null | undefined,
+): string | null {
   if (!value) return null
   const match = value.match(/\/products\/([^/?#]+)/i)
   return match ? match[1]!.trim().toLowerCase() : null
 }
 
-function extractProductSlugFromReferrer(value: string | null | undefined): string | null {
+function extractProductSlugFromReferrer(
+  value: string | null | undefined,
+): string | null {
   if (!value) return null
   const raw = value.trim()
   if (!raw || raw === "(direct)") return null
@@ -471,7 +475,10 @@ export async function refreshProductInterestCache(args?: {
     )
   }
 
-  const byCategory = new Map<string, Array<{ id: string; signals: ProductInterestSignals }>>()
+  const byCategory = new Map<
+    string,
+    Array<{ id: string; signals: ProductInterestSignals }>
+  >()
   for (const product of productRefs) {
     const categorySlug = product.categorySlug
     if (!categorySlug) continue

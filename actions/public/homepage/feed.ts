@@ -358,7 +358,9 @@ export async function getHomepageMostClickedFeedPage(
     days: 7,
   })
 
-  const nonZeroIds = ids.filter((id) => (interestMap.get(id)?.clicks7d ?? 0) > 0)
+  const nonZeroIds = ids.filter(
+    (id) => (interestMap.get(id)?.clicks7d ?? 0) > 0,
+  )
   if (!nonZeroIds.length) {
     return {
       items: [],

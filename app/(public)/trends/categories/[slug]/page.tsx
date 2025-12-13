@@ -16,7 +16,12 @@ import {
 import { toProductCardItem } from "@/lib/products/card-item"
 import ProductGrid from "@/components/molecules/ProductGrid"
 import { buildPageMetadata } from "@/lib/metadata"
-import { CATEGORIES_PATH, HOME_PATH, categoryPath, productPath } from "@/lib/routes"
+import {
+  CATEGORIES_PATH,
+  HOME_PATH,
+  categoryPath,
+  productPath,
+} from "@/lib/routes"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
@@ -54,7 +59,8 @@ export async function generateMetadata(
     title,
     section: "Trends",
     description:
-      category.description ?? `Most clicked tools in ${category.name} this week.`,
+      category.description ??
+      `Most clicked tools in ${category.name} this week.`,
     canonical,
   })
 }
