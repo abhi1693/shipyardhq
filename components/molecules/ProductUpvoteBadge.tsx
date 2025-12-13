@@ -150,7 +150,8 @@ export function ProductUpvoteBadge({
   )
 
   const leaderboardPoints =
-    typeof leaderboard?.points === "number" && Number.isFinite(leaderboard.points)
+    typeof leaderboard?.points === "number" &&
+    Number.isFinite(leaderboard.points)
       ? leaderboard.points
       : null
   const leaderboardRank =

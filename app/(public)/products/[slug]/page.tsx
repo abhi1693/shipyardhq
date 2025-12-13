@@ -375,20 +375,20 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       : null
   const platformItems = ((sidebarProduct?.platforms ?? []) as string[]).map(
     (platform) => {
-    const key = String(platform)
-    const platformMeta = getPlatformMetaByValue(platform)
-    const iconKey = platformMeta?.slug ?? key
-    const meta = PLATFORM_CONFIG[iconKey] ??
-      PLATFORM_CONFIG[key] ?? {
-        label: platformMeta?.label ?? formatLabel(key),
-        icon: Globe,
+      const key = String(platform)
+      const platformMeta = getPlatformMetaByValue(platform)
+      const iconKey = platformMeta?.slug ?? key
+      const meta = PLATFORM_CONFIG[iconKey] ??
+        PLATFORM_CONFIG[key] ?? {
+          label: platformMeta?.label ?? formatLabel(key),
+          icon: Globe,
+        }
+      const path = platformMeta ? platformPath(platformMeta.slug) : null
+      return {
+        key,
+        ...meta,
+        path,
       }
-    const path = platformMeta ? platformPath(platformMeta.slug) : null
-    return {
-      key,
-      ...meta,
-      path,
-    }
     },
   )
   const galleryMedia = (product.ProductMedia ?? [])
@@ -572,37 +572,39 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         {sidebarProduct?.alternatives.length ? (
           <SidebarInfoRow label="Alternative to">
             <div className="flex flex-wrap gap-2">
-              {sidebarProduct?.alternatives.map((alternative: {
-                id: string
-                slug: string
-                name: string
-                logoUrl: string
-              }) => {
-                const href = alternativePath(alternative.slug as string)
+              {sidebarProduct?.alternatives.map(
+                (alternative: {
+                  id: string
+                  slug: string
+                  name: string
+                  logoUrl: string
+                }) => {
+                  const href = alternativePath(alternative.slug as string)
 
-                return (
-                  <Tooltip key={alternative.id}>
-                    <TooltipTrigger asChild>
-                      <Link
-                        href={href}
-                        aria-label={`View ${alternative.name} alternative`}
-                        className="group relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      >
-                        <Image
-                          src={alternative.logoUrl}
-                          alt={`${alternative.name} logo`}
-                          fill
-                          sizes="40px"
-                          className="object-cover"
-                        />
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent sideOffset={6}>
-                      <span className="font-medium">{alternative.name}</span>
-                    </TooltipContent>
-                  </Tooltip>
-                )
-              })}
+                  return (
+                    <Tooltip key={alternative.id}>
+                      <TooltipTrigger asChild>
+                        <Link
+                          href={href}
+                          aria-label={`View ${alternative.name} alternative`}
+                          className="group relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        >
+                          <Image
+                            src={alternative.logoUrl}
+                            alt={`${alternative.name} logo`}
+                            fill
+                            sizes="40px"
+                            className="object-cover"
+                          />
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent sideOffset={6}>
+                        <span className="font-medium">{alternative.name}</span>
+                      </TooltipContent>
+                    </Tooltip>
+                  )
+                },
+              )}
             </div>
           </SidebarInfoRow>
         ) : null}

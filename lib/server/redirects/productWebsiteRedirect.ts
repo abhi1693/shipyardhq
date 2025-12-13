@@ -57,4 +57,3 @@ export async function redirectToProductWebsite(
   response.headers.set("Cache-Control", "no-store")
   return response
 }
-
