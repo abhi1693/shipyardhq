@@ -260,7 +260,7 @@ export default async function AnalyticsPage() {
           ],
         }}
       />
-      <main className="bg-gradient-to-b from-slate-50 via-white to-white text-slate-900">
+      <main className="bg-slate-50 text-slate-900">
         <div className="mx-auto max-w-7xl px-4 pb-16 pt-10 sm:px-6 lg:px-8">
           <header className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-3">

@@ -48,6 +48,7 @@ interface HeroProps {
   description?: string
   primaryAction?: HeaderActionConfig | null
   secondaryAction?: HeaderActionConfig | null
+  tertiaryAction?: HeaderActionConfig | null
   metrics?: readonly MetricConfig[]
   supportedProviders?: (string | ProviderDescriptor)[]
 }
@@ -64,6 +65,7 @@ export function Hero({
   description,
   primaryAction,
   secondaryAction,
+  tertiaryAction,
   metrics = [],
   supportedProviders,
 }: HeroProps) {
@@ -94,6 +96,7 @@ export function Hero({
     primaryAction === undefined ? defaultPrimary : primaryAction
   const resolvedSecondary =
     secondaryAction === undefined ? defaultSecondary : secondaryAction
+  const resolvedTertiary = tertiaryAction ?? null
 
   const providers =
     supportedProviders
@@ -141,7 +144,7 @@ export function Hero({
           {isDefaultHeadline ? (
             <h1 className="text-4xl font-semibold tracking-tight text-[#1C2333] sm:text-[2.4rem]">
               Shipyard shows{" "}
-              <span className="bg-gradient-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] bg-clip-text text-transparent">
+              <span className="text-[color:var(--brand-1)]">
                 what builders are actually clicking on
               </span>
               .
@@ -157,10 +160,11 @@ export function Hero({
             </p>
           ) : null}
         </div>
-        {(resolvedPrimary ?? resolvedSecondary) ? (
+        {(resolvedPrimary ?? resolvedSecondary ?? resolvedTertiary) ? (
           <div className="flex flex-wrap items-center justify-center gap-3">
             {resolvedPrimary ? renderAction(resolvedPrimary, 0) : null}
             {resolvedSecondary ? renderAction(resolvedSecondary, 1) : null}
+            {resolvedTertiary ? renderAction(resolvedTertiary, 2) : null}
           </div>
         ) : null}
         {hasProviders ? (

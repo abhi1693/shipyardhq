@@ -10,7 +10,7 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border border-[color:var(--brand-1)/0.35] bg-[linear-gradient(135deg,var(--brand-1)/0.18,var(--brand-2)/0.22)] text-[color:var(--brand-1)] shadow-[0px_12px_30px_-28px_rgba(7,78,134,0.65)] hover:border-[color:var(--brand-1)/0.45] hover:bg-[linear-gradient(135deg,var(--brand-1)/0.22,var(--brand-2)/0.26)]",
+          "border border-[color:var(--brand-1)/0.35] bg-[color:var(--brand-1)/0.14] text-[color:var(--brand-1)] shadow-[0px_12px_30px_-28px_rgba(7,78,134,0.55)] hover:border-[color:var(--brand-1)/0.45] hover:bg-[color:var(--brand-1)/0.18]",
         secondary:
           "border border-[color:var(--brand-2)/0.32] bg-[color:var(--brand-2)/0.12] text-[color:var(--brand-2-text,#0a5678)] shadow-[0px_10px_25px_-28px_rgba(20,115,185,0.45)] hover:border-[color:var(--brand-2)/0.42] hover:bg-[color:var(--brand-2)/0.18]",
         destructive:

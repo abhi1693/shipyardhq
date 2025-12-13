@@ -78,7 +78,7 @@ const actionGroupClass =
 const radiantSecondaryWrapperClass =
   "relative inline-flex items-center justify-center"
 const radiantSecondaryGlowClass =
-  "pointer-events-none absolute inset-0 -z-10 animate-pulse rounded-full bg-[radial-gradient(circle,rgba(29,155,240,0.35),transparent_70%)] blur-sm"
+  "pointer-events-none absolute inset-0 -z-10 animate-pulse rounded-full bg-[color:var(--brand-1)/0.22] blur-sm"
 
 export default async function ViewUserProductPage({
   params,

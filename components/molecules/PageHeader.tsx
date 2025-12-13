@@ -32,7 +32,7 @@ export function PageHeader({
       {underline && (
         <div
           className={cn(
-            "mt-1 h-1.5 w-16 rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]",
+            "mt-1 h-1.5 w-16 rounded-full bg-[color:var(--brand-1)]",
             isCenter ? "mx-auto" : undefined,
           )}
         />

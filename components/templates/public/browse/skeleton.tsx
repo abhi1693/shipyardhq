@@ -131,7 +131,7 @@ function CategoryRailSkeleton() {
 
 function PromoCardSkeleton({ subtle = false }: { subtle?: boolean }) {
   return (
-    <section className="rounded-3xl border border-border bg-gradient-to-br from-[color:var(--brand-1)/0.08] via-white to-[color:var(--brand-2)/0.08] p-6 text-white shadow-sm">
+    <section className="rounded-3xl border border-border bg-[color:var(--brand-1)/0.08] p-6 text-white shadow-sm">
       <div className="space-y-4">
         <BadgeSkeleton
           variant="outline"

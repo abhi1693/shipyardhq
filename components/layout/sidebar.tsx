@@ -117,10 +117,10 @@ export default function AppSidebar(props: SidebarProps) {
     "transition-colors duration-150 hover:bg-[color:var(--brand-1)/0.1] hover:text-[color:var(--brand-1)] data-[active=true]:bg-[color:var(--brand-1)/0.18] data-[active=true]:text-[color:var(--brand-1)]"
 
   return (
-    <Sidebar collapsible="icon">
+      <Sidebar collapsible="icon">
       <SidebarHeader>
         <BrandWordmark href={brandHref} compact eager />
-        <div className="mx-1 mt-1 h-px rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] opacity-70" />
+        <div className="mx-1 mt-1 h-px rounded-full bg-[color:var(--brand-1)/0.35] opacity-70" />
       </SidebarHeader>
       <SidebarContent className="overflow-x-hidden">
         <SidebarGroup>

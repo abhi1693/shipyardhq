@@ -58,7 +58,7 @@ export function BadgeSkeleton({
     >
       <span
         aria-hidden="true"
-        className="absolute inset-0 rounded-md border border-white/20 bg-gradient-to-r from-white/10 via-white/5 to-white/0 opacity-80 dark:border-white/10 dark:from-white/5 dark:via-white/0 dark:to-transparent"
+        className="absolute inset-0 rounded-md border border-white/20 bg-white/10 opacity-80 dark:border-white/10 dark:bg-white/5"
       />
       <span className="relative z-10 inline-flex items-center gap-1.5">
         {leadingIcon && (

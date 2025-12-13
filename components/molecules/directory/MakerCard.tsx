@@ -18,7 +18,7 @@ const variantClasses = {
   default:
     "rounded-2xl border border-border/70 bg-background/80 p-6 shadow-[0_26px_70px_-56px_rgba(7,58,104,0.65)] backdrop-blur hover:border-[color:var(--brand-1)/0.28] hover:shadow-[0_34px_90px_-60px_rgba(7,78,134,0.6)]",
   highlight:
-    "rounded-3xl border border-[color:var(--brand-1)/0.28] bg-[radial-gradient(120%_120%_at_92%_0%,var(--brand-1)/0.14,transparent_60%),radial-gradient(120%_120%_at_0%_100%,var(--brand-2)/0.12,transparent_70%)] p-7 shadow-[0_36px_110px_-58px_rgba(7,78,134,0.68)] backdrop-blur hover:border-[color:var(--brand-1)/0.35] hover:shadow-[0_45px_120px_-62px_rgba(7,78,134,0.7)]",
+    "rounded-3xl border border-[color:var(--brand-1)/0.28] bg-[color:var(--brand-1)/0.08] p-7 shadow-[0_36px_110px_-58px_rgba(7,78,134,0.68)] backdrop-blur hover:border-[color:var(--brand-1)/0.35] hover:shadow-[0_45px_120px_-62px_rgba(7,78,134,0.7)]",
 }
 
 export function MakerCard({

@@ -23,11 +23,10 @@ const features = [
 export default function AuthMarketingPanel() {
   return (
     <div className="relative hidden overflow-hidden rounded-none bg-white/85 px-12 py-10 text-slate-900 shadow-[0_25px_60px_-35px_rgba(59,130,246,0.55)] ring-1 ring-sky-100/80 backdrop-blur lg:flex lg:flex-col">
-      {/* Layered gradient backdrop */}
+      {/* Layered backdrop */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.25),_transparent_60%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(125,211,252,0.45),_transparent_72%)]" />
-        <div className="absolute inset-x-[-20%] bottom-[-55%] h-[26rem] rounded-[50%] bg-[radial-gradient(ellipse_at_top,_rgba(14,165,233,0.35),_transparent_70%)] blur-[70px]" />
+        <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[color:var(--brand-1)/0.16] blur-3xl" />
+        <div className="absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-sky-200/60 blur-3xl" />
         <div className="absolute -right-24 top-16 h-56 w-56 rounded-full bg-sky-300/40 blur-3xl" />
         <svg
           aria-hidden

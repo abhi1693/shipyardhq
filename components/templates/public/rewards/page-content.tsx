@@ -190,13 +190,13 @@ export async function RewardsPageContent() {
             {stats.map((item) => (
               <div
                 key={item.label}
-                className="relative overflow-hidden rounded-2xl border border-white/25 bg-white/92 px-5 py-5 text-foreground shadow-[0px_22px_48px_-38px_rgba(7,58,104,0.58)] backdrop-blur before:absolute before:inset-0 before:-z-10 before:bg-[radial-gradient(120%_120%_at_50%_-20%,var(--brand-1)/0.18,transparent)] before:content-['']"
+                className="relative overflow-hidden rounded-2xl border border-white/25 bg-white/92 px-5 py-5 text-foreground shadow-[0px_22px_48px_-38px_rgba(7,58,104,0.58)] backdrop-blur before:absolute before:inset-0 before:-z-10 before:bg-[color:var(--brand-1)/0.1] before:content-['']"
               >
                 <div className="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
                   <span className="line-clamp-2 min-h-[2.4em] leading-[1.2]">
                     {item.label}
                   </span>
-                  <span className="inline-flex h-1.5 w-6 shrink-0 rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2))]" />
+                  <span className="inline-flex h-1.5 w-6 shrink-0 rounded-full bg-[color:var(--brand-1)]" />
                 </div>
                 <div className="mt-4 flex min-h-[3.6rem] flex-col justify-between gap-2">
                   <p className="text-2xl font-semibold tracking-tight text-foreground">
@@ -217,22 +217,22 @@ export async function RewardsPageContent() {
       <section className="relative overflow-hidden py-20">
         <div
           aria-hidden
-          className="absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.16,transparent_58%)]"
+          className="absolute inset-0 -z-20 bg-[color:var(--brand-1)/0.06]"
         />
         <div
           aria-hidden
-          className="absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_100%_0%,var(--brand-2)/0.14,transparent_60%)]"
+          className="absolute inset-0 -z-10 bg-[color:var(--brand-1)/0.04]"
         />
         <div
           aria-hidden
-          className="absolute inset-x-0 bottom-0 -z-10 h-64 bg-gradient-to-t from-[color:var(--brand-1)/0.08] via-transparent to-transparent"
+          className="absolute inset-x-0 bottom-0 -z-10 h-64 bg-[color:var(--brand-1)/0.04]"
         />
         <div className="mx-auto grid max-w-[84rem] gap-10 px-4 md:px-8 lg:grid-cols-[1.05fr,0.95fr]">
           <div className="space-y-6">
             <article className="relative overflow-hidden rounded-[32px] bg-white/70 p-6 shadow-[0px_40px_120px_-60px_rgba(7,58,104,0.55)] backdrop-blur md:p-8 ring-1 ring-[rgba(7,58,104,0.08)]">
               <div
                 aria-hidden
-                className="absolute inset-x-0 -top-1 h-1 bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]"
+                className="absolute inset-x-0 -top-1 h-1 bg-[color:var(--brand-1)]"
               />
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-1 text-left">
@@ -280,7 +280,7 @@ export async function RewardsPageContent() {
 
                   <div className="relative mt-4 h-2 rounded-full bg-[color:var(--brand-1)/0.08]">
                     <div
-                      className="absolute inset-y-0 left-0 rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2))]"
+                      className="absolute inset-y-0 left-0 rounded-full bg-[color:var(--brand-1)]"
                       style={{
                         width: `${Math.min(conversionRate, 100).toFixed(0)}%`,
                       }}
@@ -338,7 +338,7 @@ export async function RewardsPageContent() {
           <article className="relative overflow-hidden rounded-[32px] bg-white/68 p-6 shadow-[0px_36px_110px_-56px_rgba(7,58,104,0.5)] backdrop-blur md:p-8 ring-1 ring-[rgba(7,58,104,0.08)]">
             <div
               aria-hidden
-              className="absolute inset-x-0 -top-1 h-1 bg-[linear-gradient(90deg,var(--brand-2),var(--brand-3),var(--brand-1))]"
+              className="absolute inset-x-0 -top-1 h-1 bg-[color:var(--brand-1)]"
             />
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -417,11 +417,11 @@ export async function RewardsPageContent() {
         <div className="mx-auto max-w-[84rem] px-4 md:px-8">
           <div
             aria-hidden
-            className="absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_10%_-20%,var(--brand-1)/0.12,transparent_68%)]"
+            className="absolute inset-0 -z-20 bg-[color:var(--brand-1)/0.05]"
           />
           <div
             aria-hidden
-            className="absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_90%_-10%,var(--brand-3)/0.14,transparent_70%)]"
+            className="absolute inset-0 -z-10 bg-[color:var(--brand-1)/0.03]"
           />
           <div className="mx-auto max-w-3xl space-y-5 text-center">
             <span className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
@@ -461,7 +461,7 @@ export async function RewardsPageContent() {
                   >
                     <div
                       aria-hidden
-                      className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-[color:var(--brand-1)/0] via-[color:var(--brand-1)/0.45] to-[color:var(--brand-2)/0]"
+                      className="absolute inset-x-6 top-0 h-px bg-[color:var(--brand-1)/0.35]"
                     />
 
                     <div className="space-y-3">
@@ -543,11 +543,11 @@ export async function RewardsPageContent() {
         <div className="mx-auto max-w-[84rem] px-4 md:px-8">
           <div
             aria-hidden
-            className="absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.12,transparent_70%)]"
+            className="absolute inset-0 -z-20 bg-[color:var(--brand-1)/0.05]"
           />
           <div
             aria-hidden
-            className="absolute inset-0 -z-10 bg-[radial-gradient(100%_140%_at_100%_-20%,var(--brand-2)/0.12,transparent_68%)]"
+            className="absolute inset-0 -z-10 bg-[color:var(--brand-1)/0.03]"
           />
           <div className="mx-auto max-w-3xl space-y-5 text-center">
             <span className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
@@ -583,7 +583,7 @@ export async function RewardsPageContent() {
                   >
                     <div
                       aria-hidden
-                      className="absolute inset-x-7 top-0 h-px bg-gradient-to-r from-[color:var(--brand-2)/0] via-[color:var(--brand-2)/0.45] to-[color:var(--brand-3)/0]"
+                      className="absolute inset-x-7 top-0 h-px bg-[color:var(--brand-1)/0.35]"
                     />
                     <div className="space-y-3">
                       <Badge
@@ -644,16 +644,16 @@ export async function RewardsPageContent() {
         <div className="mx-auto max-w-[84rem] px-4 md:px-8">
           <div
             aria-hidden
-            className="absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_50%_-30%,var(--brand-1)/0.14,transparent_68%)]"
+            className="absolute inset-0 -z-10 bg-[color:var(--brand-1)/0.04]"
           />
           <div
             aria-hidden
-            className="absolute inset-0 -z-20 bg-[radial-gradient(120%_160%_at_50%_120%,var(--brand-3)/0.12,transparent_72%)]"
+            className="absolute inset-0 -z-20 bg-[color:var(--brand-1)/0.05]"
           />
           <div className="relative overflow-hidden rounded-[36px] bg-white/70 px-8 py-12 shadow-[0px_48px_140px_-70px_rgba(7,58,104,0.6)] backdrop-blur ring-1 ring-[rgba(7,58,104,0.08)] sm:px-12">
             <div
               aria-hidden
-              className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-[color:var(--brand-1)/0] via-[color:var(--brand-1)/0.35] to-[color:var(--brand-2)/0]"
+              className="absolute inset-x-10 top-0 h-px bg-[color:var(--brand-1)/0.3]"
             />
             <div className="grid gap-8 lg:grid-cols-[1.2fr,0.8fr] lg:items-center">
               <div className="space-y-4">

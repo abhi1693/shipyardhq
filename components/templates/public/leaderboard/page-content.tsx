@@ -4,8 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/atoms/button"
 import Hero from "@/components/organisms/directory/Hero"
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
-import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
-import { IconAnchor, IconTargetArrow } from "@tabler/icons-react"
+import { IconAnchor } from "@tabler/icons-react"
 import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
@@ -99,6 +98,10 @@ export async function LeaderboardPageContent({
                 href: MEMBER_PRODUCTS_PATH,
               }}
               secondaryAction={{
+                label: "Review the ranking guide",
+                href: LEADERBOARD_GUIDE_PATH,
+              }}
+              tertiaryAction={{
                 label: "Launch Archives",
                 href: dailyArchivePath,
                 variant: "ghost",
@@ -174,17 +177,6 @@ export async function LeaderboardPageContent({
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>
-
-            <DirectoryPromoCard
-              title="How we surface leaderboard standings"
-              description="Understand the score formula, refresh cadence, and tie-break rules that keep the Shipyard leaderboard fair for every maker."
-              cta={{
-                label: "Review the ranking guide",
-                href: LEADERBOARD_GUIDE_PATH,
-                variant: "ghost",
-              }}
-              icon={<IconTargetArrow className="h-4 w-4" />}
-            />
           </>
         }
       />

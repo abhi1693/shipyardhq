@@ -36,19 +36,10 @@ const quickFacts = [
 
 export default function OnboardingMarketingPanel() {
   return (
-    <div className="relative hidden overflow-hidden rounded-none bg-gradient-to-br from-slate-950 via-slate-900 to-sky-950 px-10 py-12 text-slate-50 shadow-[0_30px_80px_-45px_rgba(15,23,42,0.8)] ring-1 ring-white/10 backdrop-blur xl:px-12 xl:py-14 lg:flex lg:w-full lg:items-center">
+    <div className="relative hidden overflow-hidden rounded-none bg-slate-950 px-10 py-12 text-slate-50 shadow-[0_30px_80px_-45px_rgba(15,23,42,0.8)] ring-1 ring-white/10 backdrop-blur xl:px-12 xl:py-14 lg:flex lg:w-full lg:items-center">
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,_rgba(56,189,248,0.2),_transparent_45%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_10%,_rgba(14,165,233,0.2),_transparent_38%)]" />
-        <div className="absolute inset-x-[-25%] bottom-[-40%] h-[26rem] rounded-[60%] bg-[radial-gradient(circle,_rgba(14,165,233,0.16),_transparent_75%)] blur-[95px]" />
-        <div
-          className="absolute inset-0 opacity-40"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
-          }}
-        />
+        <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-sky-400/20 blur-3xl" />
+        <div className="absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-sky-500/15 blur-3xl" />
       </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col gap-10">

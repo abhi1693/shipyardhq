@@ -76,7 +76,7 @@ function BreakdownList({
             </div>
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-sky-500 via-sky-400 to-sky-600"
+                className="h-full rounded-full bg-sky-500"
                 style={{ width: `${clampedPercent}%` }}
                 aria-hidden
               />
@@ -127,7 +127,7 @@ function NewsletterIntentBreakdown({
             </p>
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-sky-400 to-sky-500"
+                className="h-full rounded-full bg-emerald-500"
                 style={{ width: `${clampedPercent}%` }}
                 aria-hidden
               />

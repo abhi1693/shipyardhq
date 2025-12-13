@@ -80,7 +80,7 @@ export function ButtonSkeleton({
     >
       <span
         aria-hidden="true"
-        className="absolute inset-0 rounded-full border border-white/15 bg-gradient-to-br from-white/10 via-white/5 to-white/0 opacity-80 mix-blend-lighten dark:border-white/5 dark:from-white/5 dark:via-white/0 dark:to-white/0"
+        className="absolute inset-0 rounded-full border border-white/15 bg-white/10 opacity-80 mix-blend-lighten dark:border-white/5 dark:bg-white/5"
       />
       <span
         aria-hidden="true"

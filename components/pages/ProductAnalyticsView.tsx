@@ -221,7 +221,7 @@ function BreakdownCard({
                       "h-full rounded-full",
                       colorPalette?.length
                         ? undefined
-                        : "bg-gradient-to-r from-sky-500 via-sky-400 to-sky-500",
+                        : "bg-[color:var(--brand-1)]",
                     )}
                     style={{
                       width: `${Math.max(6, (item.views / max) * 100)}%`,

@@ -157,7 +157,7 @@ export function ProductDescriptionCard({
           </ReactMarkdown>
         </div>
         {!isExpanded && shouldTruncate ? (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-white via-white/90 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-white/95" />
         ) : null}
       </div>
       {shouldTruncate ? (

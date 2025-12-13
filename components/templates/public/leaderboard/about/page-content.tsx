@@ -102,7 +102,7 @@ export function LeaderboardGuidePageContent() {
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.4] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2-text,#0a5678)] shadow-[0_18px_40px_-30px_rgba(7,58,104,0.45)] backdrop-blur">
                 Leaderboard playbook
               </span>
-              <h1 className="bg-gradient-to-r from-[color:var(--brand-1)] via-[color:var(--brand-2)] to-[color:var(--brand-3)] bg-clip-text text-4xl font-semibold tracking-tight text-transparent md:text-5xl">
+              <h1 className="text-4xl font-semibold tracking-tight text-[color:var(--brand-1)] md:text-5xl">
                 Master the scoring system that spotlights ShipYardHQ builders.
               </h1>
               <p className="max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
@@ -137,7 +137,7 @@ export function LeaderboardGuidePageContent() {
                   key={title}
                   className="group relative overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.12] bg-white/90 p-6 shadow-[0_30px_70px_-40px_rgba(7,58,104,0.55)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_32px_80px_-36px_rgba(7,78,134,0.65)]"
                 >
-                  <div className="absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_100%_0%,var(--brand-2)/0.14,transparent_65%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="absolute inset-0 -z-10 bg-[color:var(--brand-1)/0.06] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <div className="flex items-start gap-4">
                     {Icon ? (
                       <span className="rounded-2xl border border-[color:var(--brand-1)/0.15] bg-[color:var(--brand-1)/0.08] p-3 text-[color:var(--brand-1)]">
@@ -176,7 +176,7 @@ export function LeaderboardGuidePageContent() {
 
             <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
               <div className="relative overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.18] bg-white/95 p-8 shadow-[0_32px_90px_-48px_rgba(7,78,134,0.6)] backdrop-blur">
-                <div className="absolute inset-0 -z-10 bg-[radial-gradient(120%_90%_at_100%_-10%,var(--brand-2)/0.18,transparent_70%)]" />
+                <div className="absolute inset-0 -z-10 bg-[color:var(--brand-1)/0.06]" />
                 <p className="font-mono text-xs uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
                   Score calculation
                 </p>
@@ -227,7 +227,7 @@ export function LeaderboardGuidePageContent() {
                     className={cn(
                       "rounded-3xl border border-[color:var(--brand-1)/0.12] bg-white/92 p-6 shadow-[0_24px_60px_-42px_rgba(7,58,104,0.55)] backdrop-blur transition-transform duration-200 hover:-translate-y-1",
                       index === 0 &&
-                        "bg-[linear-gradient(135deg,rgba(7,78,134,0.08),rgba(7,78,134,0.02))]",
+                        "bg-[color:var(--brand-1)/0.06]",
                     )}
                   >
                     <h3 className="text-base font-semibold text-slate-900">
@@ -258,14 +258,14 @@ export function LeaderboardGuidePageContent() {
             </div>
 
             <div className="relative grid gap-6 lg:grid-cols-3">
-              <div className="pointer-events-none absolute left-1/2 top-10 hidden h-[1px] w-full -translate-x-1/2 bg-[radial-gradient(circle,var(--brand-1)/0.3,transparent_70%)] lg:block" />
+              <div className="pointer-events-none absolute left-1/2 top-10 hidden h-[1px] w-full -translate-x-1/2 bg-[color:var(--brand-1)/0.25] lg:block" />
               {RANKING_EVENTS.map(({ title, detail, icon: Icon }, index) => (
                 <div
                   key={title}
                   className={cn(
                     "relative flex h-full flex-col gap-3 rounded-3xl border border-[color:var(--brand-1)/0.12] bg-white/92 p-6 shadow-[0_28px_70px_-46px_rgba(7,78,134,0.6)] backdrop-blur transition-transform duration-200 hover:-translate-y-1",
                     index === 1 &&
-                      "bg-[linear-gradient(135deg,rgba(24,113,181,0.08),rgba(7,78,134,0.02))]",
+                      "bg-[color:var(--brand-1)/0.06]",
                   )}
                 >
                   <div className="flex items-center gap-3">
@@ -294,7 +294,7 @@ export function LeaderboardGuidePageContent() {
             <div className="relative overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.2] bg-white/95 shadow-[0_34px_90px_-48px_rgba(7,78,134,0.58)]">
               <div className="grid gap-0 md:grid-cols-[1.1fr_1fr]">
                 <div className="relative p-8 md:p-10">
-                  <div className="absolute inset-0 -z-10 bg-[radial-gradient(130%_130%_at_20%_-20%,var(--brand-2)/0.16,transparent_70%)]" />
+                  <div className="absolute inset-0 -z-10 bg-[color:var(--brand-1)/0.06]" />
                   <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.2] bg-background/80 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
                     Feature boost
                   </div>
@@ -339,7 +339,7 @@ export function LeaderboardGuidePageContent() {
                     </div>
                   </div>
                 </div>
-                <div className="relative flex flex-col justify-between border-t border-[color:var(--brand-1)/0.08] bg-[linear-gradient(135deg,rgba(24,113,181,0.1),rgba(7,78,134,0.05))] p-8 md:border-l md:border-t-0">
+                <div className="relative flex flex-col justify-between border-t border-[color:var(--brand-1)/0.08] bg-[color:var(--brand-1)/0.06] p-8 md:border-l md:border-t-0">
                   <div>
                     <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
                       Spotlight bundle
@@ -406,7 +406,7 @@ export function LeaderboardGuidePageContent() {
                     className={cn(
                       "rounded-3xl border border-[color:var(--brand-1)/0.12] bg-white/92 p-6 shadow-[0_24px_60px_-44px_rgba(7,78,134,0.45)] backdrop-blur transition-transform duration-200 hover:-translate-y-1",
                       index === 0 &&
-                        "bg-[linear-gradient(135deg,rgba(7,78,134,0.08),rgba(7,78,134,0.02))]",
+                        "bg-[color:var(--brand-1)/0.06]",
                     )}
                   >
                     <h3 className="text-base font-semibold text-slate-900">

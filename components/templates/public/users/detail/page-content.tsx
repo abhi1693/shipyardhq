@@ -158,7 +158,7 @@ export async function UserProfilePageContent({ params }: PageProps) {
                 </Avatar>
 
                 <div className="space-y-4">
-                  <h1 className="bg-[linear-gradient(95deg,var(--brand-1),var(--brand-2),var(--brand-3))] bg-clip-text text-4xl font-semibold leading-tight text-transparent sm:text-5xl">
+                  <h1 className="text-4xl font-semibold leading-tight text-[color:var(--brand-1)] sm:text-5xl">
                     {fullName}
                   </h1>
                   <p className="mx-auto max-w-2xl text-base text-muted-foreground">

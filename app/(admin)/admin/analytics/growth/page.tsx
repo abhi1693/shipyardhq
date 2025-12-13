@@ -244,7 +244,7 @@ export default async function GrowthAnalyticsPage({
               </div>
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-sky-500 via-sky-400 to-sky-600"
+                  className="h-full rounded-full bg-[color:var(--brand-1)]"
                   style={{
                     width: `${Math.max(0, Math.min(stats.verifiedRate, 100))}%`,
                   }}

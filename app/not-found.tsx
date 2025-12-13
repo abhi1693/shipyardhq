@@ -10,14 +10,13 @@ export default function NotFound() {
 
   return (
     <section className="relative isolate w-full min-h-[70vh] py-20 md:py-28 overflow-hidden flex items-center">
-      {/* Brand gradient backdrop to match the app's look */}
       <div className="pointer-events-none absolute inset-0 -z-10 opacity-70">
-        <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_0%,var(--brand-1)/0.18,transparent_70%),radial-gradient(40%_50%_at_10%_80%,var(--brand-2)/0.16,transparent_70%),radial-gradient(50%_40%_at_90%_60%,var(--brand-3)/0.14,transparent_72%)]" />
+        <div className="absolute -top-24 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-[color:var(--brand-1)/0.14] blur-3xl" />
+        <div className="absolute -bottom-40 right-[-8rem] h-96 w-96 rounded-full bg-sky-200/55 blur-3xl" />
       </div>
 
       <div className="max-w-4xl mx-auto px-4 text-center">
-        {/* Large gradient 404 to align with branding */}
-        <h1 className="text-7xl sm:text-8xl md:text-9xl font-extrabold leading-none tracking-tight text-transparent bg-clip-text bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]">
+        <h1 className="text-7xl sm:text-8xl md:text-9xl font-extrabold leading-none tracking-tight text-[color:var(--brand-1)]">
           404
         </h1>
 

@@ -331,7 +331,7 @@ export default async function OverviewPage({
             <CardContent className="space-y-3">
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-sky-500 via-sky-400 to-sky-600"
+                  className="h-full rounded-full bg-[color:var(--brand-1)]"
                   style={{ width: `${verifiedProgress}%` }}
                 />
               </div>

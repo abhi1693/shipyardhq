@@ -30,7 +30,7 @@ export default function WizardStepper({
           const isCurrent = index === currentIndex
           const isCompleted = index < currentIndex
           const circleClass = isCurrent
-            ? "bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))] text-white border-[color:var(--brand-1)]"
+            ? "bg-[color:var(--brand-1)] text-white border-[color:var(--brand-1)]"
             : isCompleted
               ? "bg-sky-100 text-sky-700 border-sky-200"
               : "bg-slate-100 text-slate-500 border-slate-200"

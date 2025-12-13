@@ -62,7 +62,7 @@ function Skeleton({
         skeletonVariants({ tone, radius, border, inset }),
         "transition-colors duration-500 ease-out",
         shimmer &&
-          "after:content-[''] after:absolute after:inset-y-0 after:-left-1/2 after:h-full after:w-2/3 after:animate-shimmer after:bg-gradient-to-r after:from-transparent after:via-white/80 after:to-transparent dark:after:via-white/15",
+          "after:content-[''] after:absolute after:inset-y-0 after:-left-1/2 after:h-full after:w-1/3 after:animate-shimmer after:bg-white/70 after:opacity-50 dark:after:bg-white/15 dark:after:opacity-60",
         className,
       )}
       {...props}

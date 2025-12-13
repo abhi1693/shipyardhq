@@ -28,7 +28,7 @@ import {
 import { cn } from "@/lib/utils"
 
 const navLinkBase =
-  "relative text-[15px] font-medium text-muted-foreground transition-colors hover:text-foreground after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full after:rounded-full after:bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] after:opacity-0 hover:after:opacity-100 after:transition-opacity"
+  "relative text-[15px] font-medium text-muted-foreground transition-colors hover:text-foreground after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full after:rounded-full after:bg-[color:var(--brand-1)] after:opacity-0 hover:after:opacity-100 after:transition-opacity"
 
 export default function PublicFooter() {
   const year = new Date().getFullYear()
@@ -60,7 +60,7 @@ export default function PublicFooter() {
   ]
 
   return (
-    <footer className="border-t bg-gradient-to-b from-white via-white to-white/90 text-sm text-foreground">
+    <footer className="border-t bg-white text-sm text-foreground">
       <div className="mx-auto w-full max-w-7xl px-4 pb-16 pt-12 sm:px-6 lg:px-8 lg:pb-20 lg:pt-16">
         <section className="grid gap-y-10 gap-x-8 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.2fr)_repeat(3,minmax(0,1fr))]">
           <div className="space-y-5">
