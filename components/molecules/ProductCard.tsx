@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import ProductFeedCard from "@/components/molecules/ProductFeedCard"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import type { ProductCardVariant } from "@/types/product-card"
+import type { ProductInterestSignals } from "@/types/product-interest"
 export type { ProductCardVariant } from "@/types/product-card"
 
 export type ProductCardBase = {
@@ -21,6 +22,7 @@ export type ProductCardBase = {
   latestRevenueCents?: number | null
   revenueCurrencyCode?: string | null
   scoreCount?: number
+  interest?: ProductInterestSignals | null
 }
 
 export type ProductCardItem = ProductCardBase & {
@@ -69,6 +71,7 @@ function toFeedItem(product: ProductCardItem): HomepageFeedItem {
         : null,
     revenueCurrencyCode: product.revenueCurrencyCode ?? null,
     isVerified: Boolean(product.isVerified),
+    interest: product.interest ?? null,
     shuffleRank: Math.random(),
   }
 }

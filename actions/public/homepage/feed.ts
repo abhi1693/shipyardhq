@@ -18,6 +18,8 @@ import {
 import { resolveProductRevenue } from "@/lib/products/revenue"
 import type { ProductCardVariant } from "@/types/product-card"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
+import type { ProductInterestSignals } from "@/types/product-interest"
+import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
 
 const homepageFeedSelect = {
@@ -104,6 +106,7 @@ export interface HomepageFeedItem {
   variant?: ProductCardVariant
   latestRevenueCents?: number | null
   revenueCurrencyCode?: string | null
+  interest?: ProductInterestSignals | null
   shuffleRank: number
 }
 
@@ -152,6 +155,7 @@ function mapProductToFeedItem(
   now: Date,
   rates: Map<string, number>,
   scoreByProductId?: Map<string, number>,
+  interestByProductId?: Map<string, ProductInterestSignals>,
 ): HomepageFeedItem {
   const activeBadges =
     product.ProductBadge?.filter(
@@ -188,6 +192,7 @@ function mapProductToFeedItem(
     latestRevenueCents: revenue.latestRevenueCents,
     revenueCurrencyCode:
       revenue.latestRevenueCents !== null ? revenue.revenueCurrencyCode : null,
+    interest: interestByProductId?.get(product.id) ?? null,
     shuffleRank: Math.random(),
   }
 }
@@ -231,6 +236,12 @@ async function buildFeedItemsFromProducts(
   const upvoted = await resolveUpvotedProductIds(clerkUserId, productIds)
   const now = new Date()
   const scoreMap = await getCurrentScoreMap(productIds)
+  const interestMap = await getProductInterestSignalsMap({
+    products: products.map((product) => ({
+      id: product.id,
+      slug: product.slug,
+    })),
+  })
   const needsRates = products.some((product) => {
     const code =
       product.paymentConnector?.latestCurrencyCode ??
@@ -243,7 +254,7 @@ async function buildFeedItemsFromProducts(
     : new Map<string, number>([["USD", 1]])
 
   return products.map((product) =>
-    mapProductToFeedItem(product, upvoted, now, rates, scoreMap),
+    mapProductToFeedItem(product, upvoted, now, rates, scoreMap, interestMap),
   )
 }
 

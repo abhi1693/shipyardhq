@@ -17,6 +17,7 @@ import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { cn } from "@/lib/utils"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import type { ProductCardVariant } from "@/types/product-card"
+import { buildProductInterestBadges } from "@/lib/products/interest"
 
 const LOGO_SIZE = 60
 
@@ -114,6 +115,11 @@ export function ProductFeedCard({
   const tagline =
     item.tagline?.trim() ||
     "Discover launch-ready tools from indie makers worldwide."
+
+  const interestBadges = buildProductInterestBadges(item.interest, {
+    maxBadges: 2,
+    includeBuildersClicked: true,
+  })
 
   const badgeColorMap: Record<string, string> = {
     yellow:
@@ -235,6 +241,18 @@ export function ProductFeedCard({
           ) : (
             <span className="text-xs text-muted-foreground">Uncategorized</span>
           )}
+          {interestBadges.length
+            ? interestBadges.map((badge) => (
+                <Badge
+                  key={`${item.id}:${badge.key}`}
+                  variant={badge.variant}
+                  className="rounded-full px-3 py-1 text-[11px] font-semibold"
+                  title={badge.title}
+                >
+                  {badge.label}
+                </Badge>
+              ))
+            : null}
           {revenueBadge ? (
             <span className="sm:hidden">{revenueBadge}</span>
           ) : null}

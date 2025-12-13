@@ -6,6 +6,7 @@ import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLay
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 import { mapProductCardRecordToBase } from "@/lib/products/selects"
 import { BROWSE_PATH, LEADERBOARD_PATH } from "@/lib/routes"
+import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import {
   getIsoWeekKey,
   getIsoWeekYearAndNumber,
@@ -50,7 +51,7 @@ function getAdjacentStart(
   return next
 }
 
-export function PeriodicLeaderboardView({
+export async function PeriodicLeaderboardView({
   leaderboard,
 }: {
   leaderboard: PeriodicLeaderboardPayload
@@ -70,10 +71,18 @@ export function PeriodicLeaderboardView({
   const shouldFilterMonths = availableMonthKeys.size > 0
   const shouldFilterWeeks = availableWeekKeys.size > 0
 
+  const interestMap = await getProductInterestSignalsMap({
+    products: leaderboard.products.map((product) => ({
+      id: product.id,
+      slug: product.slug,
+    })),
+  })
+
   const items = leaderboard.products.map((product) => {
     const base = mapProductCardRecordToBase(product, now)
     return {
       ...base,
+      interest: interestMap.get(base.id) ?? null,
       badges: base.badges ?? undefined,
     }
   })

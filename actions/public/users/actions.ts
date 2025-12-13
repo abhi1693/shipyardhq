@@ -4,12 +4,14 @@ import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { ProductInterestSignals } from "@/types/product-interest"
 import {
   mapProductCardRecordToBase,
   productCardSelect,
   type ProductCardRecord,
 } from "@/lib/products/selects"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
+import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import {
   convertToUsdCents,
@@ -167,12 +169,21 @@ const getUserProductsWithPaging = cached(
       : new Map<string, number>()
 
     const now = new Date()
-    const items = typedProducts.map((product) =>
-      mapUserProductToFeedItem(
-        mapProductCardRecordToBase(product, now, {
-          scoreByProductId: scoreMap,
-        }),
-      ),
+    const baseProducts = typedProducts.map((product) =>
+      mapProductCardRecordToBase(product, now, {
+        scoreByProductId: scoreMap,
+      }),
+    )
+
+    const interestMap = await getProductInterestSignalsMap({
+      products: baseProducts.map((product) => ({
+        id: product.id,
+        slug: product.slug,
+      })),
+    })
+
+    const items = baseProducts.map((product) =>
+      mapUserProductToFeedItem(product, interestMap),
     )
 
     const hasMore = skip + items.length < total
@@ -382,6 +393,7 @@ export async function getPublicUsersPage(
 
 const mapUserProductToFeedItem = (
   product: ReturnType<typeof mapProductCardRecordToBase>,
+  interestByProductId?: Map<string, ProductInterestSignals>,
 ): HomepageFeedItem => {
   const categoryName = product.category?.name ?? null
   const categorySlug = (product.category as any)?.slug ?? null
@@ -420,6 +432,7 @@ const mapUserProductToFeedItem = (
         ? product.latestRevenueCents
         : null,
     revenueCurrencyCode: product.revenueCurrencyCode ?? null,
+    interest: interestByProductId?.get(product.id) ?? null,
     shuffleRank: Math.random(),
   }
 }

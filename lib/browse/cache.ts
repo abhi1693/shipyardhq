@@ -6,6 +6,8 @@ import {
   getCategories,
 } from "@/actions/admin/categories/actions"
 import type { Prisma } from "@/lib/vendor/prisma/client"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 
 export const browseSortLabelMap: Record<BrowseSort, string> = {
   new: "Newest",
@@ -88,7 +90,19 @@ export const getBrowsePagePayload = async (
   ])
 
   const categories = categoriesRaw
-  const { products, hasMore } = browseResult
+  const products: ProductCardBase[] = browseResult.products
+  const { hasMore } = browseResult
+
+  const interestMap = await getProductInterestSignalsMap({
+    products: products.map((product) => ({
+      id: product.id,
+      slug: product.slug,
+    })),
+  })
+  const productsWithInterest = products.map((product) => ({
+    ...product,
+    interest: interestMap.get(product.id) ?? null,
+  }))
   const sortLabel = browseSortLabelMap[filters.sort] ?? browseSortLabelMap.new
 
   const selectedUseCaseLabel = filters.useCase
@@ -140,7 +154,7 @@ export const getBrowsePagePayload = async (
 
   return {
     filters,
-    products,
+    products: productsWithInterest,
     hasMore,
     featured,
     useCases,

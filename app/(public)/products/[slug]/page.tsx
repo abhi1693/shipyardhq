@@ -83,6 +83,9 @@ import {
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { ProductRevenueChart } from "@/components/templates/public/products/detail/ProductRevenueChart"
 import { getProductScoreForCurrentWindow } from "@/lib/server/leaderboard/v2"
+import { buildProductInterestBadges } from "@/lib/products/interest"
+import { Badge } from "@/components/atoms/badge"
+import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -217,6 +220,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return notFound()
+
+  const interestMap = await getProductInterestSignalsMap({
+    products: [{ id: product.id, slug: product.slug }],
+  })
+  const interestBadges = buildProductInterestBadges(
+    interestMap.get(product.id) ?? null,
+    { maxBadges: 4, includeBuildersClicked: true, minBuildersClicked: 1 },
+  )
 
   const [sidebarProduct, revenue, leaderboardScore] = await Promise.all([
     getPublicProductBySlug(slug),
@@ -677,6 +688,20 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       <p className="text-lg text-muted-foreground">
                         {product.tagline}
                       </p>
+                    ) : null}
+                    {interestBadges.length ? (
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        {interestBadges.map((badge) => (
+                          <Badge
+                            key={`${product.id}:${badge.key}`}
+                            variant={badge.variant}
+                            className="rounded-full px-3 py-1 text-[11px] font-semibold"
+                            title={badge.title}
+                          >
+                            {badge.label}
+                          </Badge>
+                        ))}
+                      </div>
                     ) : null}
                   </div>
                 </div>

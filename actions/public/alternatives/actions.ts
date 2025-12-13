@@ -9,6 +9,7 @@ import {
 } from "@/lib/products/selects"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
+import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 
 const ALTERNATIVE_CARD_INCLUDE = {
   _count: {
@@ -233,9 +234,21 @@ export const getAlternativeProductsPage = cached(
     const now = new Date()
     const allProducts = [...priorityProducts, ...regularProducts]
     const scoreMap = await getCurrentScoreMap(allProducts.map((p) => p.id))
-    const items = allProducts.map((product) =>
+    const baseItems = allProducts.map((product) =>
       mapProductCardRecordToBase(product, now, { scoreByProductId: scoreMap }),
     )
+
+    const interestMap = await getProductInterestSignalsMap({
+      products: baseItems.map((product) => ({
+        id: product.id,
+        slug: product.slug,
+      })),
+    })
+
+    const items = baseItems.map((product) => ({
+      ...product,
+      interest: interestMap.get(product.id) ?? null,
+    }))
 
     const hasMore = skip + items.length < total
 

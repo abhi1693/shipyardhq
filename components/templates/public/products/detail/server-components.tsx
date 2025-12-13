@@ -5,6 +5,7 @@ import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
 import { ProductCard } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
+import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import {
   getPublicProductsByUseCase,
   hasUserUpvoted,
@@ -74,6 +75,13 @@ export async function SimilarProductsServer({
   )
   if (!similarProducts.length) return null
 
+  const interestMap = await getProductInterestSignalsMap({
+    products: similarProducts.map((product) => ({
+      id: product.id,
+      slug: product.slug,
+    })),
+  })
+
   const cardItems = similarProducts.map((item) =>
     toProductCardItem({
       id: item.id,
@@ -81,6 +89,7 @@ export async function SimilarProductsServer({
       name: item.name,
       logo: item.logo ?? "",
       tagline: item.tagline ?? "",
+      interest: interestMap.get(item.id) ?? null,
       analytics: item.analytics
         ? { upvotes: item.analytics.upvotes ?? 0 }
         : undefined,

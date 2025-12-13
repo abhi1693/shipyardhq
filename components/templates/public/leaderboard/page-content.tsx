@@ -26,6 +26,7 @@ import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import HeroSkeleton from "@/components/organisms/directory/Hero.skeleton"
 import DirectoryProductListSkeleton from "@/components/organisms/directory/DirectoryProductList.skeleton"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 
 type LeaderboardListItem = ProductCardBase & {
   badges?: string[]
@@ -46,6 +47,12 @@ export async function LeaderboardPageContent({
   const { stats, products } = await getLeaderboardPagePayload(filters)
 
   const now = new Date()
+  const interestMap = await getProductInterestSignalsMap({
+    products: products.map((product) => ({
+      id: product.id,
+      slug: product.slug,
+    })),
+  })
   const dailyArchivePath = `/leaderboard/daily/${now.getUTCFullYear()}/${
     now.getUTCMonth() + 1
   }/${now.getUTCDate()}`
@@ -54,6 +61,7 @@ export async function LeaderboardPageContent({
     const score = (product as any).scoreCount ?? null
     return {
       ...base,
+      interest: interestMap.get(base.id) ?? null,
       badges: base.badges ?? undefined,
       voteCount: undefined,
       scoreCount: typeof score === "number" ? score : undefined,

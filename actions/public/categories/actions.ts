@@ -4,12 +4,14 @@ import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { ProductInterestSignals } from "@/types/product-interest"
 import {
   mapProductCardRecordToBase,
   productCardSelect,
   type ProductCardRecord,
 } from "@/lib/products/selects"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
+import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 
 const categoryProductSelect = productCardSelect satisfies Prisma.ProductSelect
 
@@ -73,6 +75,7 @@ const coerceDateString = (value?: string | Date | null) => {
 
 const mapProductToFeedItem = (
   product: ReturnType<typeof mapProductCardRecordToBase>,
+  interestByProductId?: Map<string, ProductInterestSignals>,
 ): HomepageFeedItem => {
   const badges = product.badges ?? []
   const categoryName = product.category?.name ?? null
@@ -102,6 +105,7 @@ const mapProductToFeedItem = (
         ? product.latestRevenueCents
         : null,
     revenueCurrencyCode: product.revenueCurrencyCode ?? null,
+    interest: interestByProductId?.get(product.id) ?? null,
     shuffleRank: Math.random(),
   }
 }
@@ -206,12 +210,21 @@ export const getCategoryWithProducts = cached(
       : new Map<string, number>()
 
     const now = new Date()
-    const feedItems = typedProducts.map((product: ProductCardRecord) =>
-      mapProductToFeedItem(
-        mapProductCardRecordToBase(product, now, {
-          scoreByProductId: scoreMap,
-        }),
-      ),
+    const baseProducts = typedProducts.map((product: ProductCardRecord) =>
+      mapProductCardRecordToBase(product, now, {
+        scoreByProductId: scoreMap,
+      }),
+    )
+
+    const interestMap = await getProductInterestSignalsMap({
+      products: baseProducts.map((product) => ({
+        id: product.id,
+        slug: product.slug,
+      })),
+    })
+
+    const feedItems = baseProducts.map((product) =>
+      mapProductToFeedItem(product, interestMap),
     )
 
     const hasMore = skip + feedItems.length < total

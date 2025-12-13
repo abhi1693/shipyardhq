@@ -9,6 +9,7 @@ import {
 } from "@/lib/products/selects"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
+import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 
 const TAG_LIST_LIMIT = 200
 export const TAG_PRODUCTS_PAGE_SIZE = 24
@@ -308,13 +309,26 @@ export const getKeywordTagProducts = cached(
 
     const hasMore = offset + productIds.length < total
 
-    return {
-      summary,
-      products: orderedProducts.map((product: ProductCardRecord) =>
+    const baseProducts: ProductCardBase[] = orderedProducts.map(
+      (product: ProductCardRecord) =>
         mapProductCardRecordToBase(product, new Date(), {
           scoreByProductId: scoreMap,
         }),
-      ),
+    )
+
+    const interestMap = await getProductInterestSignalsMap({
+      products: baseProducts.map((product) => ({
+        id: product.id,
+        slug: product.slug,
+      })),
+    })
+
+    return {
+      summary,
+      products: baseProducts.map((product) => ({
+        ...product,
+        interest: interestMap.get(product.id) ?? null,
+      })),
       total,
       hasMore,
     }

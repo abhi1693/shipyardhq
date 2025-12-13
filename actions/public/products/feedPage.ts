@@ -18,6 +18,7 @@ import { getPlatformMeta } from "@/lib/platforms/config"
 import { productTypeValueFromSlug } from "@/lib/product-types/models"
 import { pricingModelValueFromSlug } from "@/lib/pricing/models"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
+import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 
 export type ProductFeedPageRequest =
   | {
@@ -89,8 +90,18 @@ export async function getProductFeedPage(
         type: productTypeEnum,
       })
 
+      const interestMap = await getProductInterestSignalsMap({
+        products: result.products.map((product) => ({
+          id: product.id,
+          slug: product.slug,
+        })),
+      })
+
       return {
-        items: result.products,
+        items: result.products.map((product) => ({
+          ...product,
+          interest: interestMap.get(product.id) ?? null,
+        })),
         hasMore: result.hasMore,
       }
     }
@@ -98,8 +109,19 @@ export async function getProductFeedPage(
     case "tag": {
       const result = await getKeywordTagProducts(request.slug, request.page)
 
+      const tagProducts: ProductCardBase[] = result?.products ?? []
+      const interestMap = await getProductInterestSignalsMap({
+        products: tagProducts.map((product) => ({
+          id: product.id,
+          slug: product.slug,
+        })),
+      })
+
       return {
-        items: result?.products ?? [],
+        items: tagProducts.map((product) => ({
+          ...product,
+          interest: interestMap.get(product.id) ?? null,
+        })),
         hasMore: result?.hasMore ?? false,
         total: result?.total ?? 0,
       }
@@ -112,8 +134,18 @@ export async function getProductFeedPage(
         pageSize: request.pageSize,
       })
 
+      const interestMap = await getProductInterestSignalsMap({
+        products: result.items.map((product) => ({
+          id: product.id,
+          slug: product.slug,
+        })),
+      })
+
       return {
-        items: result.items,
+        items: result.items.map((product) => ({
+          ...product,
+          interest: interestMap.get(product.id) ?? null,
+        })),
         hasMore: result.hasMore,
         total: result.total,
       }
@@ -146,8 +178,18 @@ export async function getProductFeedPage(
 
       const { items, hasMore } = await pager.loadPage(page)
 
+      const interestMap = await getProductInterestSignalsMap({
+        products: items.map((product) => ({
+          id: product.id,
+          slug: product.slug,
+        })),
+      })
+
       return {
-        items,
+        items: items.map((product) => ({
+          ...product,
+          interest: interestMap.get(product.id) ?? null,
+        })),
         hasMore,
         total: records.length,
       }
@@ -186,10 +228,21 @@ export async function getProductFeedPage(
       const now = new Date()
       const typedRecords = records as unknown as ProductCardRecord[]
 
+      const baseItems = typedRecords.map((record) =>
+        mapProductCardRecordToBase(record, now),
+      )
+      const interestMap = await getProductInterestSignalsMap({
+        products: baseItems.map((product) => ({
+          id: product.id,
+          slug: product.slug,
+        })),
+      })
+
       return {
-        items: typedRecords.map((record) =>
-          mapProductCardRecordToBase(record, now),
-        ),
+        items: baseItems.map((product) => ({
+          ...product,
+          interest: interestMap.get(product.id) ?? null,
+        })),
         hasMore: skip + typedRecords.length < total,
         total,
       }
