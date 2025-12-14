@@ -38,6 +38,7 @@ import { MarkdownEditor } from "@/components/molecules/MarkdownEditor"
 import { SearchableSelect } from "@/components/molecules/SearchableSelect"
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/atoms/tooltip"
+import { KeywordsInput } from "@/components/molecules/KeywordsInput"
 
 const PLATFORM_LABELS: Record<string, string> = {
   web: "Web",
@@ -593,10 +594,14 @@ export default function Step1({
               <FormItem>
                 <FormLabel>Keywords</FormLabel>
                 <FormDescription>
-                  Comma-separated tags people might search for.
+                  Tags people might search for.
                 </FormDescription>
                 <FormControl>
-                  <Input placeholder="e.g. analytics, invoicing, ai" {...field} />
+                  <KeywordsInput
+                    value={(field.value as string) ?? ""}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
