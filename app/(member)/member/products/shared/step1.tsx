@@ -6,6 +6,7 @@ import {
   Globe,
   Code,
   Laptop,
+  Info,
   Monitor,
   Puzzle,
   Smartphone,
@@ -18,7 +19,6 @@ import {
   FormItem,
   FormLabel,
   FormControl,
-  FormDescription,
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
@@ -30,14 +30,18 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import { Checkbox } from "@/components/atoms/checkbox"
-import { cleanWebsiteUrlInput } from "@/lib/productWizard/transform"
+import { cleanWebsiteUrlInput, parseKeywords } from "@/lib/productWizard/transform"
 import { Button } from "@/components/atoms/button"
 import { toast } from "sonner"
 import type { ProductAutofillSuggestion } from "@/lib/productWizard/autofill"
 import { MarkdownEditor } from "@/components/molecules/MarkdownEditor"
 import { SearchableSelect } from "@/components/molecules/SearchableSelect"
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/atoms/tooltip"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/atoms/tooltip"
 import { KeywordsInput } from "@/components/molecules/KeywordsInput"
 
 const PLATFORM_LABELS: Record<string, string> = {
@@ -72,6 +76,24 @@ const PRODUCT_TYPE_OPTIONS: { v: string; l: string; Icon: LucideIcon }[] = [
   { v: "other", l: "Other", Icon: Globe },
 ]
 
+const NAME_MAX_CHARS = 60
+const TAGLINE_MAX_CHARS = 90
+const TAGLINE_RECOMMENDED_MIN = 40
+const TAGLINE_RECOMMENDED_MAX = 70
+
+const INFO_TRIGGER_CLASS =
+  "inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+
+const KEYWORD_SUGGESTIONS_BY_TYPE: Record<string, readonly string[]> = {
+  saas: ["b2b", "productivity", "automation", "analytics"],
+  browser_extension: ["chrome extension", "browser extension", "productivity", "automation"],
+  mobile_app: ["ios", "android", "mobile app", "productivity"],
+  desktop_app: ["mac", "windows", "desktop app", "productivity"],
+  api: ["api", "developer tools", "integration", "automation"],
+  open_source: ["open source", "github", "developer tools", "self-hosted"],
+  other: ["tool", "productivity", "workflow", "automation"],
+}
+
 type Props = {
   categories: { id: string; name: string; icon?: string | null }[]
   platforms: readonly string[]
@@ -99,6 +121,10 @@ export default function Step1({
     control: form.control,
     name: "platforms",
   }) as string[] | undefined
+  const selectedCategoryId = useWatch({
+    control: form.control,
+    name: "categoryId",
+  }) as string | undefined
 
   const allowedPlatforms = useMemo(() => {
     switch (productType) {
@@ -131,6 +157,19 @@ export default function Step1({
       icon: <CategoryIcon icon={c.icon ?? null} size={16} />,
     }))
   }, [categories])
+
+  const suggestedKeywords = useMemo(() => {
+    const rawCategory = categories.find((c) => c.id === selectedCategoryId)?.name
+    const categoryKeyword = rawCategory ? rawCategory.trim().toLowerCase() : ""
+    const byType = productType ? KEYWORD_SUGGESTIONS_BY_TYPE[productType] ?? [] : []
+    return Array.from(
+      new Set(
+        [categoryKeyword, ...byType]
+          .map((s) => s.trim().toLowerCase())
+          .filter(Boolean),
+      ),
+    ).slice(0, 8)
+  }, [categories, productType, selectedCategoryId])
 
   useEffect(() => {
     if (!allowedPlatforms) return
@@ -319,54 +358,32 @@ export default function Step1({
   return (
     <div className="space-y-6">
       <div className="rounded-xl border bg-white/80 p-4 sm:p-5">
-        <div className="space-y-4">
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-slate-900">Website</p>
-          </div>
-
-          {enableAutofill ? (
-            <div className="rounded-lg border border-dashed border-[color:var(--brand-1)/0.35] bg-[color:var(--brand-1)/0.05] p-3 sm:p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-start gap-3 text-left">
-                  <span className="mt-0.5 rounded-full bg-[color:var(--brand-1)/0.12] p-2 text-[color:var(--brand-1)]">
-                    <Sparkles className="h-4 w-4" />
-                  </span>
-                  <div className="space-y-1">
-                    <p className="text-sm font-semibold text-slate-900">
-                      Run AI Autofill
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      We&apos;ll draft your name, tagline, description, and
-                      more from your website.
-                    </p>
-                    {autofillNotice ? (
-                      <p className="text-xs text-muted-foreground">
-                        {autofillNotice}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-                <Button
-                  type="button"
-                  size="sm"
-                  className="w-full sm:w-auto"
-                  onClick={handleAutofill}
-                  disabled={autofilling}
-                >
-                  <Sparkles className="h-4 w-4" />
-                  {autofilling ? "AI autofilling…" : "Run AI Autofill"}
-                </Button>
-              </div>
-            </div>
-          ) : null}
-
+        <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <FormField
               name="websiteUrl"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Website URL</FormLabel>
+                  <div className="flex items-center justify-between gap-3">
+                    <FormLabel className="flex items-center gap-2">
+                      Website URL
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            className={INFO_TRIGGER_CLASS}
+                            aria-label="Why we ask for your website URL"
+                          >
+                            <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" sideOffset={6}>
+                          Used for autofill and ownership verification.
+                        </TooltipContent>
+                      </Tooltip>
+                    </FormLabel>
+                  </div>
                   <FormControl>
                     <Input
                       placeholder="https://example.com"
@@ -390,65 +407,160 @@ export default function Step1({
                 </FormItem>
               )}
             />
+
             {rightOfWebsite ? (
               <div className="flex flex-col justify-end gap-2">
                 {rightOfWebsite}
               </div>
             ) : null}
           </div>
+
+          {enableAutofill ? (
+            <div className="border-t pt-6">
+              <div className="rounded-lg border border-dashed border-[color:var(--brand-1)/0.35] bg-[color:var(--brand-1)/0.05] p-3 sm:p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-start gap-3 text-left">
+                    <span className="mt-0.5 rounded-full bg-[color:var(--brand-1)/0.12] p-2 text-[color:var(--brand-1)]">
+                      <Sparkles className="h-4 w-4" />
+                    </span>
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-slate-900">
+                        Run AI Autofill
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Draft name, tagline, and description from your website.
+                      </p>
+                      {autofillNotice ? (
+                        <p className="text-xs text-muted-foreground">
+                          {autofillNotice}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="w-full sm:w-auto"
+                    onClick={handleAutofill}
+                    disabled={autofilling}
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    {autofilling ? "AI autofilling…" : "Run AI Autofill"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          <div className="border-t pt-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <FormField
+                name="name"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-end justify-between gap-3">
+                      <FormLabel className="flex items-center gap-2">
+                        Name
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              className={INFO_TRIGGER_CLASS}
+                              aria-label="Name guidance"
+                            >
+                              <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" sideOffset={6}>
+                            Keep it short and recognizable (max {NAME_MAX_CHARS}).
+                          </TooltipContent>
+                        </Tooltip>
+                      </FormLabel>
+                      <span className="text-xs tabular-nums text-muted-foreground">
+                        {(typeof field.value === "string" ? field.value : "").length}/
+                        {NAME_MAX_CHARS}
+                      </span>
+                    </div>
+                    <FormControl>
+                      <Input
+                        ref={field.ref}
+                        name={field.name}
+                        placeholder="Enter product name"
+                        maxLength={NAME_MAX_CHARS}
+                        value={(field.value as string) ?? ""}
+                        onChange={(e) => {
+                          form.clearErrors(field.name)
+                          form.setValue(field.name, e.target.value, {
+                            shouldDirty: true,
+                            shouldValidate: false,
+                          })
+                        }}
+                        onBlur={field.onBlur}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="tagline"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-end justify-between gap-3">
+                      <FormLabel className="flex items-center gap-2">
+                        Tagline
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              className={INFO_TRIGGER_CLASS}
+                              aria-label="Tagline guidance"
+                            >
+                              <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" sideOffset={6}>
+                            Recommended {TAGLINE_RECOMMENDED_MIN}–{TAGLINE_RECOMMENDED_MAX}{" "}
+                            characters (max {TAGLINE_MAX_CHARS}).
+                          </TooltipContent>
+                        </Tooltip>
+                      </FormLabel>
+                      <span className="text-xs tabular-nums text-muted-foreground">
+                        {(typeof field.value === "string" ? field.value : "").length}/
+                        {TAGLINE_MAX_CHARS}
+                      </span>
+                    </div>
+                    <FormControl>
+                      <Input
+                        ref={field.ref}
+                        name={field.name}
+                        placeholder="Short tagline"
+                        maxLength={TAGLINE_MAX_CHARS}
+                        value={(field.value as string) ?? ""}
+                        onChange={(e) => {
+                          form.clearErrors(field.name)
+                          form.setValue(field.name, e.target.value, {
+                            shouldDirty: true,
+                            shouldValidate: false,
+                          })
+                        }}
+                        onBlur={field.onBlur}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
       <div className="rounded-xl border bg-white/80 p-4 sm:p-5">
-        <div className="space-y-4">
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-slate-900">Basics</p>
-            <p className="text-xs text-muted-foreground">
-              Keep it clear and specific—this is what people see in listings.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <FormField
-              name="name"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter product name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              name="tagline"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tagline</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Short tagline" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-xl border bg-white/80 p-4 sm:p-5">
-        <div className="space-y-4">
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-slate-900">Positioning</p>
-            <p className="text-xs text-muted-foreground">
-              Help people discover your product and understand where it fits.
-            </p>
-          </div>
-
+        <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <FormField
               name="categoryId"
@@ -520,144 +632,200 @@ export default function Step1({
             />
           </div>
 
-      {/* Platforms */}
-      <FormField
-        name="platforms"
-        control={form.control}
-        render={() => (
-          <FormItem>
-            <FormLabel>Platforms</FormLabel>
-            <FormDescription>Select all that apply.</FormDescription>
-            <div
-              className={[
-                "grid gap-3",
-                "grid-cols-2",
-                visiblePlatforms.length === 1
-                  ? "md:grid-cols-1"
-                  : visiblePlatforms.length === 2
-                    ? "md:grid-cols-2"
-                    : visiblePlatforms.length === 3
-                      ? "md:grid-cols-3"
-                      : "md:grid-cols-4",
-              ].join(" ")}
-            >
-              {visiblePlatforms.map((p) => {
-                const Icon = PLATFORM_ICONS[p] ?? Globe
-                const label =
-                  PLATFORM_LABELS[p] ??
-                  p.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())
-                const isChecked = (selectedPlatforms ?? [])?.includes(p)
-
-                return (
-                  <label
-                    key={p}
-                    className="flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-lg border bg-background p-2 text-sm transition-colors hover:bg-muted/40"
-                  >
-                    <Checkbox
-                      checked={isChecked}
-                      onCheckedChange={(checked) => {
-                        const current = Array.isArray(selectedPlatforms)
-                          ? selectedPlatforms
-                          : []
-                        const next = checked
-                          ? Array.from(new Set([...current, p]))
-                          : current.filter((x) => x !== p)
-                        form.setValue("platforms", next, {
-                          shouldDirty: true,
-                          shouldValidate: true,
-                        })
-                      }}
-                    />
-                    <Icon
-                      className="h-4 w-4 text-muted-foreground"
-                      aria-hidden="true"
-                    />
+          {productType ? (
+            <FormField
+              name="platforms"
+              control={form.control}
+              render={() => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    Platforms
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="min-w-0 flex-1 truncate whitespace-nowrap">
-                          {label}
-                        </span>
+                        <button
+                          type="button"
+                          className={INFO_TRIGGER_CLASS}
+                          aria-label="Platform guidance"
+                        >
+                          <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                        </button>
                       </TooltipTrigger>
                       <TooltipContent side="top" sideOffset={6}>
-                        {label}
+                        Select all that apply. Options may be filtered by product type.
                       </TooltipContent>
                     </Tooltip>
-                  </label>
-                )
-              })}
+                  </FormLabel>
+                  <div
+                    className={[
+                      "grid gap-3",
+                      "grid-cols-2",
+                      visiblePlatforms.length === 1
+                        ? "md:grid-cols-1"
+                        : visiblePlatforms.length === 2
+                          ? "md:grid-cols-2"
+                          : visiblePlatforms.length === 3
+                            ? "md:grid-cols-3"
+                            : "md:grid-cols-4",
+                    ].join(" ")}
+                  >
+                    {visiblePlatforms.map((p) => {
+                      const Icon = PLATFORM_ICONS[p] ?? Globe
+                      const label =
+                        PLATFORM_LABELS[p] ??
+                        p
+                          .replace(/_/g, " ")
+                          .replace(/^\w/, (c) => c.toUpperCase())
+                      const isChecked = (selectedPlatforms ?? [])?.includes(p)
+
+                      return (
+                        <label
+                          key={p}
+                          className="flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-lg border bg-background p-2 text-sm transition-colors hover:bg-muted/40"
+                        >
+                          <Checkbox
+                            checked={isChecked}
+                            onCheckedChange={(checked) => {
+                              const current = Array.isArray(selectedPlatforms)
+                                ? selectedPlatforms
+                                : []
+                              const next = checked
+                                ? Array.from(new Set([...current, p]))
+                                : current.filter((x) => x !== p)
+                              form.setValue("platforms", next, {
+                                shouldDirty: true,
+                                shouldValidate: true,
+                              })
+                            }}
+                          />
+                          <Icon
+                            className="h-4 w-4 text-muted-foreground"
+                            aria-hidden="true"
+                          />
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="min-w-0 flex-1 truncate whitespace-nowrap">
+                                {label}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" sideOffset={6}>
+                              {label}
+                            </TooltipContent>
+                          </Tooltip>
+                        </label>
+                      )
+                    })}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : (
+            <div className="rounded-lg border bg-muted/10 p-3 text-sm text-muted-foreground">
+              Select a product type to choose platforms.
             </div>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+          )}
 
           <FormField
             name="keywordsText"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Keywords</FormLabel>
-                <FormDescription>
-                  Tags people might search for.
-                </FormDescription>
+                <FormLabel className="flex items-center gap-2">
+                  Keywords
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        className={INFO_TRIGGER_CLASS}
+                        aria-label="Keyword guidance"
+                      >
+                        <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" sideOffset={6}>
+                      Helps people find your product in search. Recommended: 3–8 keywords.
+                    </TooltipContent>
+                  </Tooltip>
+                </FormLabel>
                 <FormControl>
                   <KeywordsInput
                     value={(field.value as string) ?? ""}
                     onChange={field.onChange}
                     onBlur={field.onBlur}
+                    suggestions={suggestedKeywords}
                   />
                 </FormControl>
+                {parseKeywords((field.value as string) ?? "").length === 0 &&
+                suggestedKeywords.length ? (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {suggestedKeywords.map((k) => (
+                      <button
+                        key={k}
+                        type="button"
+                        className="inline-flex cursor-pointer items-center rounded-full border bg-background px-3 py-1 text-xs text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+                        onClick={() => field.onChange(k)}
+                        title="Add keyword"
+                      >
+                        + {k}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
                 <FormMessage />
               </FormItem>
             )}
           />
-        </div>
-      </div>
 
-      <div className="rounded-xl border bg-white/80 p-4 sm:p-5">
-        <div className="space-y-4">
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-slate-900">Description</p>
-            <p className="text-xs text-muted-foreground">
-              Explain what it does, who it&apos;s for, and why it&apos;s better.
-            </p>
+          <div className="border-t pt-6">
+            <FormField
+              name="description"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    Description
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          className={INFO_TRIGGER_CLASS}
+                          aria-label="Description guidance"
+                        >
+                          <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" sideOffset={6}>
+                        Markdown supported. Use headings like ## / ###.{" "}
+                        <a
+                          href="https://www.markdownguide.org/basic-syntax/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          Markdown basics
+                        </a>
+                        .
+                      </TooltipContent>
+                    </Tooltip>
+                  </FormLabel>
+                  <FormControl>
+                    <MarkdownEditor
+                      ref={field.ref}
+                      value={(field.value as string) ?? ""}
+                      onChange={(val) => field.onChange(val)}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      placeholder="What does your product do?"
+                      rows={10}
+                      textareaClassName="h-48"
+                      previewClassName="h-48"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-
-          <FormField
-            name="description"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="sr-only">Description</FormLabel>
-                <FormDescription>
-                  Supports Markdown formatting. Preview changes or revisit the{" "}
-                  <a
-                    href="https://www.markdownguide.org/basic-syntax/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline"
-                  >
-                    Markdown basics
-                  </a>
-                  .
-                </FormDescription>
-                <FormControl>
-                  <MarkdownEditor
-                    ref={field.ref}
-                    value={(field.value as string) ?? ""}
-                    onChange={(val) => field.onChange(val)}
-                    onBlur={field.onBlur}
-                    name={field.name}
-                    placeholder="What does your product do?"
-                    rows={10}
-                    textareaClassName="h-48"
-                    previewClassName="h-48"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
       </div>
     </div>
