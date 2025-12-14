@@ -349,7 +349,7 @@ export default function AddProductForm({
                       <Badge variant="outline">Required</Badge>
                     </div>
                     <span className="text-xs font-normal text-muted-foreground">
-                      Upload a logo and optional banner image.
+                      Upload a logo (required). Banner and screenshots are optional.
                     </span>
                   </div>
                 </AccordionTrigger>

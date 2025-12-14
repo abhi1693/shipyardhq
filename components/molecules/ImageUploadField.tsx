@@ -9,7 +9,7 @@ import { Image } from "@/components/atoms/image"
 
 type Props = {
   name: string
-  label: string
+  label: React.ReactNode
   placeholder?: string
   folder?: string
   maxSizeMB?: number
