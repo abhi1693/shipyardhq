@@ -11,7 +11,7 @@ import {
   useFormState,
 } from "react-hook-form"
 import { toast } from "sonner"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, Info } from "lucide-react"
 import { MEMBER_PRODUCTS_PATH, memberProductUpgradePath } from "@/lib/routes"
 
 import { createProductAction } from "@/actions/admin/products/actions"
@@ -31,6 +31,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/atoms/accordion"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/atoms/tooltip"
 import Step1 from "@/app/(member)/member/products/shared/step1"
 import StepMedia from "@/app/(member)/member/products/shared/stepMedia"
 import Step2 from "@/app/(member)/member/products/shared/step2"
@@ -129,6 +134,9 @@ export type ProductWizardInput = ProductWizardInputAdd
 
 type SectionKey = "core" | "media" | "pricing" | "boost" | "details"
 
+const INFO_TRIGGER_CLASS =
+  "inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+
 const SECTION_FIELDS: Record<SectionKey, readonly string[]> = {
   core: [
     "websiteUrl",
@@ -189,11 +197,7 @@ export default function AddProductForm({
   }[]
 }) {
   const router = useRouter()
-  const [openSections, setOpenSections] = useState<SectionKey[]>([
-    "core",
-    "media",
-    "pricing",
-  ])
+  const [openSection, setOpenSection] = useState<SectionKey | "">("core")
   const [openBoostPanel, setOpenBoostPanel] = useState<null | "revenue" | "domain">(
     null,
   )
@@ -240,6 +244,10 @@ export default function AddProductForm({
     setOpenBoostPanel((prev) => (prev === panel ? null : panel))
   }
 
+  function setBoostPanel(panel: null | "revenue" | "domain") {
+    setOpenBoostPanel(panel)
+  }
+
   async function submitAll(
     values: ProductWizardInput & { status?: "draft" | "published" },
   ) {
@@ -265,11 +273,14 @@ export default function AddProductForm({
   function openFromErrors(errors: Record<string, any>) {
     const keys = Object.keys(errors)
     const sectionsToOpen = getSectionsForErrorFields(keys)
-    setOpenSections((prev) => {
-      const next = new Set<SectionKey>(prev)
-      sectionsToOpen.forEach((s) => next.add(s))
-      return Array.from(next)
-    })
+    const target = sectionsToOpen[0] ?? "core"
+    setOpenSection(target)
+    if (target === "boost") {
+      const hasRevenueError = keys.some((k) => k.startsWith("connector"))
+      const hasDomainError = keys.some((k) => k.startsWith("verification"))
+      if (hasRevenueError) setBoostPanel("revenue")
+      else if (hasDomainError) setBoostPanel("domain")
+    }
   }
 
   const submitWithStatus = (status: "draft" | "published") =>
@@ -319,13 +330,14 @@ export default function AddProductForm({
             className="space-y-6 pb-24"
           >
             <Accordion
-              type="multiple"
-              value={openSections}
-              onValueChange={(v) => setOpenSections(v as SectionKey[])}
+              type="single"
+              collapsible
+              value={openSection}
+              onValueChange={(v) => setOpenSection((v as SectionKey) ?? "")}
               className="rounded-xl border bg-white/80"
             >
               <AccordionItem value="core" className="px-6">
-                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline">
+                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline group">
                   <div className="flex flex-col gap-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold text-slate-900">
@@ -338,14 +350,16 @@ export default function AddProductForm({
                     </span>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="pb-6">{core}</AccordionContent>
+                <AccordionContent className="pt-4 pb-6">{core}</AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="media" className="px-6">
-                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline">
+                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline group">
                   <div className="flex flex-col gap-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold text-slate-900">Media</span>
+                      <span className="font-semibold text-slate-900">
+                        Logo & media
+                      </span>
                       <Badge variant="outline">Required</Badge>
                     </div>
                     <span className="text-xs font-normal text-muted-foreground">
@@ -353,11 +367,11 @@ export default function AddProductForm({
                     </span>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="pb-6">{media}</AccordionContent>
+                <AccordionContent className="pt-4 pb-6">{media}</AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="pricing" className="px-6">
-                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline">
+                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline group">
                   <div className="flex flex-col gap-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold text-slate-900">
@@ -370,11 +384,11 @@ export default function AddProductForm({
                     </span>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="pb-6">{pricing}</AccordionContent>
+                <AccordionContent className="pt-4 pb-6">{pricing}</AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="boost" className="px-6">
-                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline">
+                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline group">
                   <div className="flex flex-col gap-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold text-slate-900">
@@ -383,11 +397,11 @@ export default function AddProductForm({
                       <Badge>Recommended</Badge>
                     </div>
                     <span className="text-xs font-normal text-muted-foreground">
-                      Pick a boost to unlock higher ranking and trust.
+                      Verified revenue (+40%) and domain badge.
                     </span>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="pb-6">
+                <AccordionContent className="pt-4 pb-6">
                   <div className="rounded-xl border bg-white/70">
                     <div className="divide-y divide-border/60">
                       <div className="px-4 py-4 sm:px-5">
@@ -411,16 +425,31 @@ export default function AddProductForm({
                                   Verified revenue
                                 </span>
                                 <Badge variant="outline">Up to +40% ranking</Badge>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      type="button"
+                                      className={INFO_TRIGGER_CLASS}
+                                      aria-label="Verified revenue help"
+                                      onClick={(e) => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                      }}
+                                    >
+                                      <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" sideOffset={6}>
+                                    Connect a payment provider to become eligible for the
+                                    verified revenue ranking boost.
+                                  </TooltipContent>
+                                </Tooltip>
                                 {hasRevenueSetupDraft ? (
                                   <Badge variant="success">Connected</Badge>
                                 ) : (
                                   <Badge variant="secondary">Incomplete</Badge>
                                 )}
                               </div>
-                              <p className="text-xs text-muted-foreground">
-                                Connect a payment provider to become eligible for
-                                the verified revenue ranking boost.
-                              </p>
                             </div>
 
                             <div className="flex items-center gap-2">
@@ -476,6 +505,25 @@ export default function AddProductForm({
                                   Verified badge
                                 </span>
                                 <Badge variant="outline">Trust + filters</Badge>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      type="button"
+                                      className={INFO_TRIGGER_CLASS}
+                                      aria-label="Verified badge help"
+                                      onClick={(e) => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                      }}
+                                    >
+                                      <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" sideOffset={6}>
+                                    Verify domain ownership to show a verified badge and reduce
+                                    impersonation.
+                                  </TooltipContent>
+                                </Tooltip>
                                 {domainChecked ? (
                                   domainVerified ? (
                                     <Badge variant="success">Verified</Badge>
@@ -486,10 +534,6 @@ export default function AddProductForm({
                                   <Badge variant="secondary">Incomplete</Badge>
                                 )}
                               </div>
-                              <p className="text-xs text-muted-foreground">
-                                Verify domain ownership to show a verified badge and
-                                reduce impersonation.
-                              </p>
                             </div>
 
                             <div className="flex items-center gap-2">
@@ -529,7 +573,7 @@ export default function AddProductForm({
               </AccordionItem>
 
               <AccordionItem value="details" className="px-6">
-                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline">
+                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline group">
                   <div className="flex flex-col gap-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold text-slate-900">
@@ -542,7 +586,7 @@ export default function AddProductForm({
                     </span>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="pb-6">{details}</AccordionContent>
+                <AccordionContent className="pt-4 pb-6">{details}</AccordionContent>
               </AccordionItem>
             </Accordion>
           </form>
@@ -550,10 +594,17 @@ export default function AddProductForm({
       </CardContent>
       <CardFooter className="sticky bottom-0 z-10 border-t bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/60">
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-muted-foreground">
-            Recommended: add verified revenue and alternatives now so you rank
-            higher from day one.
-          </p>
+          {!hasRevenueSetupDraft ? (
+            <p className="text-xs text-muted-foreground">
+              Recommended: connect verified revenue to boost ranking up to +40%.
+            </p>
+          ) : !domainVerified ? (
+            <p className="text-xs text-muted-foreground">
+              Recommended: verify your domain to show a verified badge.
+            </p>
+          ) : (
+            <span />
+          )}
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button
               type="button"

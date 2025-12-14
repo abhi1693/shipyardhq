@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import { Checkbox } from "@/components/atoms/checkbox"
-import { cleanWebsiteUrlInput, parseKeywords } from "@/lib/productWizard/transform"
+import { cleanWebsiteUrlInput } from "@/lib/productWizard/transform"
 import { Button } from "@/components/atoms/button"
 import { toast } from "sonner"
 import type { ProductAutofillSuggestion } from "@/lib/productWizard/autofill"
@@ -755,22 +755,6 @@ export default function Step1({
                     suggestions={suggestedKeywords}
                   />
                 </FormControl>
-                {parseKeywords((field.value as string) ?? "").length === 0 &&
-                suggestedKeywords.length ? (
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {suggestedKeywords.map((k) => (
-                      <button
-                        key={k}
-                        type="button"
-                        className="inline-flex cursor-pointer items-center rounded-full border bg-background px-3 py-1 text-xs text-muted-foreground hover:bg-muted/30 hover:text-foreground"
-                        onClick={() => field.onChange(k)}
-                        title="Add keyword"
-                      >
-                        + {k}
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
                 <FormMessage />
               </FormItem>
             )}
