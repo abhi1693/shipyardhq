@@ -33,7 +33,6 @@ export const STEPS: { id: number; label: string }[] = [
   { id: 3, label: "Pricing" },
   { id: 4, label: "Verification" },
   { id: 5, label: "Details" },
-  { id: 6, label: "Review" },
 ]
 
 // Keep this untyped to avoid coupling to zod types; pages cast when needed.

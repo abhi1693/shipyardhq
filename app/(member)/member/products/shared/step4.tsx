@@ -2,531 +2,285 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
-import { X } from "lucide-react"
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription,
-  FormMessage,
-} from "@/components/atoms/form"
-import { Input } from "@/components/atoms/input"
 import { Button } from "@/components/atoms/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/atoms/select"
-import { Checkbox } from "@/components/atoms/checkbox"
-import { cn } from "@/lib/utils"
+import { FormItem, FormLabel } from "@/components/atoms/form"
 import { Badge } from "@/components/atoms/badge"
+import { toast } from "sonner"
+import { Check, Copy, Loader2 } from "lucide-react"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/atoms/dialog"
-import { ScrollArea } from "@/components/atoms/scroll-area"
+  checkDomainTxtAction,
+  verifyProductDomainAction,
+} from "@/actions/admin/products/actions"
+import { getRootDomain } from "@/lib/domain"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/atoms/accordion"
 
-type AlternativeOption = {
-  id: string
-  slug?: string | null
-  name: string
-  websiteUrl?: string | null
-}
-
-function normalizeComparableUrl(input: string) {
-  const trimmed = input.trim()
-  if (!trimmed) return ""
-  try {
-    const u = new URL(trimmed)
-    const pathname = (u.pathname || "/").replace(/\/+$/g, "") || "/"
-    return `${u.origin}${pathname}`
-  } catch {
-    return trimmed.replace(/\/+$/g, "")
-  }
-}
-
-function buildDemoSuggestion(websiteUrl: string, path: string) {
-  try {
-    const u = new URL(websiteUrl.trim())
-    u.pathname = path
-    u.search = ""
-    u.hash = ""
-    return u.toString().replace(/\/+$/g, "")
-  } catch {
-    return ""
-  }
-}
-
-function normalizeGenericUrl(raw: string) {
-  const trimmed = raw.trim()
-  if (!trimmed) return ""
-  if (/^https?:\/\//i.test(trimmed)) return trimmed
-  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)) return trimmed
-  if (trimmed.includes(".") || trimmed.includes("/")) {
-    return `https://${trimmed.replace(/^\/+/, "")}`
-  }
-  return trimmed
-}
-
-function normalizeXUrl(raw: string) {
-  const trimmed = raw.trim()
-  if (!trimmed) return ""
-  if (/^https?:\/\//i.test(trimmed)) return trimmed
-  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)) return trimmed
-
-  const handle = trimmed.replace(/^@/, "")
-  if (/^[A-Za-z0-9_]{1,30}$/.test(handle)) {
-    return `https://x.com/${handle}`
-  }
-
-  if (trimmed.includes(".") || trimmed.includes("/")) {
-    return `https://${trimmed.replace(/^\/+/, "")}`
-  }
-
-  return trimmed
-}
-
-export default function Step4({
-  organizations,
-  alternatives = [],
+export default function Step3({
+  productId,
+  persistOnVerify = false,
 }: {
-  organizations: { id: string; name: string }[]
-  alternatives?: AlternativeOption[]
+  productId?: string
+  persistOnVerify?: boolean
 }) {
   const form = useFormContext()
-  const [alternativeQuery, setAlternativeQuery] = useState("")
-  const [alternativesOpen, setAlternativesOpen] = useState(false)
-  const [showTracking, setShowTracking] = useState(false)
-  const maxAlternatives = 3
-  const websiteUrl = useWatch({
+  const website = useWatch({
     control: form.control,
-    name: "websiteUrl" as any,
+    name: "websiteUrl",
+  }) as string
+  const expected = useWatch({
+    control: form.control,
+    name: "verificationExpectedTxt",
   }) as string | undefined
+  const checked = useWatch({
+    control: form.control,
+    name: "verificationChecked",
+  }) as boolean | undefined
+  const success = useWatch({
+    control: form.control,
+    name: "verificationSuccess",
+  }) as boolean | undefined
+  const [verifying, setVerifying] = useState(false)
+  const [copiedKey, setCopiedKey] = useState<null | "host" | "value">(null)
+  const domain = useMemo(() => {
+    return getRootDomain(website) ?? ""
+  }, [website])
+
+  async function copyToClipboard(text: string, key: "host" | "value") {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedKey(key)
+      window.setTimeout(() => setCopiedKey(null), 1200)
+    } catch {
+      toast.error("Copy failed. Please copy manually.")
+    }
+  }
 
   useEffect(() => {
-    if (organizations.length !== 1) return
-    const current = (form.getValues("organizationId" as any) as string) ?? ""
-    if (current) return
-    form.setValue("organizationId" as any, organizations[0].id, {
-      shouldDirty: false,
-      shouldTouch: false,
-      shouldValidate: false,
-    })
-  }, [form, organizations])
+    let active = true
 
-  const filteredAlternatives = useMemo(() => {
-    if (!alternativeQuery.trim()) {
-      return alternatives
+    async function sha256Hex(input: string): Promise<string> {
+      const enc = new TextEncoder().encode(input)
+      const buf = await crypto.subtle.digest("SHA-256", enc)
+      const bytes = Array.from(new Uint8Array(buf))
+      return bytes.map((b) => b.toString(16).padStart(2, "0")).join("")
     }
-    const q = alternativeQuery.trim().toLowerCase()
-    return alternatives.filter((alt) => {
-      return (
-        alt.name.toLowerCase().includes(q) ||
-        (alt.websiteUrl?.toLowerCase().includes(q) ?? false)
-      )
-    })
-  }, [alternativeQuery, alternatives])
 
-  const alternativeById = useMemo(() => {
-    return new Map(alternatives.map((alt) => [alt.id, alt]))
-  }, [alternatives])
+    async function load() {
+      if (!website) {
+        form.setValue("verificationExpectedTxt", "")
+        // Reset verification state when URL changes/clears
+        form.setValue("verificationChecked", false)
+        form.setValue("verificationSuccess", false)
+        return
+      }
 
-  const demoSuggestions = useMemo(() => {
-    const base = typeof websiteUrl === "string" ? websiteUrl.trim() : ""
-    if (!base) return []
-    const candidates = ["/demo", "/pricing", "/app", "/docs"]
-      .map((p) => buildDemoSuggestion(base, p))
-      .filter(Boolean)
-    return Array.from(new Set(candidates)).slice(0, 4)
-  }, [websiteUrl])
+      // Compute expected locally to avoid placeholder flicker
+      try {
+        const norm = website.trim().toLowerCase()
+        const hex = await sha256Hex(norm)
+        const localExpected = `prod-verif-shipyard-${hex.slice(0, 12)}`
+        if (active) form.setValue("verificationExpectedTxt", localExpected)
+      } catch {}
+
+      // Also attempt DNS check (best effort) and keep expected in sync
+      try {
+        const res = await checkDomainTxtAction(website)
+        if (active && "expected" in res && res.expected) {
+          form.setValue("verificationExpectedTxt", res.expected)
+        }
+      } catch {}
+
+      // Any website change invalidates prior verification result
+      form.setValue("verificationChecked", false)
+      form.setValue("verificationSuccess", false)
+    }
+
+    load()
+    return () => {
+      active = false
+    }
+  }, [website, form])
+
+  async function handleVerify() {
+    if (!website) return toast.error("Enter a valid Website URL first")
+    setVerifying(true)
+    try {
+      const res = await checkDomainTxtAction(website)
+      if ("error" in res) return toast.error(res.error)
+      form.setValue("verificationChecked", true)
+      form.setValue("verificationSuccess", !!res.success)
+      if (res.expected) form.setValue("verificationExpectedTxt", res.expected)
+      if (res.success) {
+        // Persist verification for existing products (edit flow only)
+        if (persistOnVerify && productId) {
+          const persist = await verifyProductDomainAction(productId)
+          if (persist?.success) {
+            toast.success("Domain verified and saved.")
+          } else if (persist?.error) {
+            // If persistence fails, still show local success but inform user
+            toast.error(`Verified, but save failed: ${persist.error}`)
+          }
+        } else {
+          toast.success("TXT record found. Looks good!")
+        }
+      } else toast.error("TXT record not found yet. Please try again later.")
+    } finally {
+      setVerifying(false)
+    }
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <FormField
-          name="demoUrl"
-          control={form.control}
-          render={({ field }) => {
-            const demoValue = ((field.value as string) ?? "").trim()
-            const websiteValue = (websiteUrl ?? "").trim()
-            const isSameAsWebsite =
-              Boolean(demoValue && websiteValue) &&
-              normalizeComparableUrl(demoValue) ===
-                normalizeComparableUrl(websiteValue)
+    <div className="space-y-4">
+      <FormItem>
+        <FormLabel>Verification</FormLabel>
+        <div className="space-y-3 text-sm text-muted-foreground">
+          <p>
+            Optional: verify your website to show a verified badge, build trust,
+            and appear in verified filters.
+          </p>
 
-            return (
-              <FormItem>
-                <FormLabel>Demo URL</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="https://example.com/demo"
-                    {...field}
-                    onBlur={(e) => {
-                      const raw = e.currentTarget.value ?? ""
-                      const trimmed = raw.trim()
-                      const normalized =
-                        trimmed.startsWith("/") && websiteValue
-                          ? buildDemoSuggestion(websiteValue, trimmed)
-                          : normalizeGenericUrl(trimmed)
-                      if (normalized !== raw) field.onChange(normalized)
-                      field.onBlur()
-                    }}
-                  />
-                </FormControl>
-
-                {demoSuggestions.length ? (
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {demoSuggestions.map((url) => (
-                      <Button
-                        key={url}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-7 px-2 text-xs"
-                        onClick={() => field.onChange(url)}
-                      >
-                        {new URL(url).pathname}
-                      </Button>
-                    ))}
-                  </div>
-                ) : null}
-
-                {isSameAsWebsite ? (
-                  <p className="pt-2 text-xs text-muted-foreground">
-                    Use a specific path like{" "}
-                    <span className="font-mono">{websiteValue}/demo</span> or{" "}
-                    <span className="font-mono">{websiteValue}/app</span>.
-                  </p>
-                ) : null}
-
-                <FormMessage />
-              </FormItem>
-            )
-          }}
-        />
-
-        <FormField
-          name="contactEmail"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Contact Email</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="support@example.com"
-                  {...field}
-                  onBlur={(e) => {
-                    const raw = e.currentTarget.value ?? ""
-                    const next = raw.trim()
-                    if (next !== raw) field.onChange(next)
-                    field.onBlur()
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          name="githubUrl"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>GitHub URL</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="github.com/org/repo"
-                  {...field}
-                  onBlur={(e) => {
-                    const raw = e.currentTarget.value ?? ""
-                    const next = normalizeGenericUrl(raw)
-                    if (next !== raw) field.onChange(next)
-                    field.onBlur()
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          name="twitterUrl"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>X (Twitter) URL</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="x.com/yourapp"
-                  {...field}
-                  onBlur={(e) => {
-                    const raw = e.currentTarget.value ?? ""
-                    const next = normalizeXUrl(raw)
-                    if (next !== raw) field.onChange(next)
-                    field.onBlur()
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      <FormField
-        name="utmCampaign"
-        control={form.control}
-        render={({ field }) => (
-          <FormItem>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <FormLabel>Tracking</FormLabel>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => setShowTracking((v) => !v)}
-              >
-                {showTracking || (field.value as string)?.length
-                  ? "Hide"
-                  : "Add tracking (UTM)"}
-              </Button>
+          <div className="rounded-lg border bg-muted/40 p-3">
+            <div className="mb-2 text-xs text-muted-foreground">
+              Add this TXT record for{" "}
+              <span className="font-medium text-foreground">
+                {domain || "your domain"}
+              </span>
+              .
             </div>
-            {showTracking || (field.value as string)?.length ? (
-              <div className="pt-3">
-                <FormLabel className="sr-only">UTM Campaign</FormLabel>
-                <FormDescription>
-                  Appended to outbound links so you can track Shipyard traffic in
-                  analytics (e.g. GA/Amplitude).
-                </FormDescription>
-                <FormControl>
-                  <Input placeholder="e.g. shipyard-launch" {...field} />
-                </FormControl>
-                <FormMessage />
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground">
-                Optional: add a UTM campaign to track clicks from Shipyard.
-              </p>
-            )}
-          </FormItem>
-        )}
-      />
 
-      <FormField
-        name="alternativeIds"
-        control={form.control}
-        render={({ field }) => {
-          const selectedIds = Array.isArray(field.value) ? field.value : []
-          const selectedSet = new Set(selectedIds)
-          const selectedAlternatives = selectedIds
-            .map((id) => alternativeById.get(id))
-            .filter(Boolean) as AlternativeOption[]
-          const pinnedFiltered = [
-            ...selectedAlternatives,
-            ...filteredAlternatives.filter((alt) => !selectedSet.has(alt.id)),
-          ]
-          return (
-            <FormItem>
-              <div className="space-y-1">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <FormLabel>Positioning</FormLabel>
-                    <Badge>Recommended</Badge>
-                  </div>
+            <div className="grid gap-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-xs text-muted-foreground">Type</div>
+                  <div className="font-medium text-foreground">TXT</div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-xs text-muted-foreground">Host/Name</div>
+                  <code className="text-foreground">@</code>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => copyToClipboard("@", "host")}
+                  aria-label="Copy host/name"
+                  title={copiedKey === "host" ? "Copied" : "Copy"}
+                >
+                  {copiedKey === "host" ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-xs text-muted-foreground">Value</div>
+                  <code className="block break-all text-xs text-foreground">
+                    {expected || "prod-verif-shipyard-<hash>"}
+                  </code>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() =>
+                    copyToClipboard(
+                      expected || "prod-verif-shipyard-<hash>",
+                      "value",
+                    )
+                  }
+                  disabled={!expected}
+                  aria-label="Copy value"
+                  title={copiedKey === "value" ? "Copied" : "Copy"}
+                >
+                  {copiedKey === "value" ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <Accordion type="single" collapsible className="rounded-lg border bg-background/60">
+            <AccordionItem value="steps" className="px-3">
+              <AccordionTrigger className="-mx-3 px-3 text-sm hover:no-underline">
+                Setup steps
+              </AccordionTrigger>
+              <AccordionContent className="pb-3">
+                <ol className="list-decimal space-y-1 pl-4 text-xs text-muted-foreground">
+                  <li>Open your domain&apos;s DNS settings at your provider.</li>
+                  <li>Add the TXT record exactly as shown above.</li>
+                  <li>Return here and click Verify.</li>
+                </ol>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="troubleshooting" className="px-3">
+              <AccordionTrigger className="-mx-3 px-3 text-sm hover:no-underline">
+                Troubleshooting
+              </AccordionTrigger>
+              <AccordionContent className="pb-3">
+                <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                  <li>DNS changes can take time to propagate (sometimes hours).</li>
+                  <li>
+                    Some providers want host <code>@</code>, others want the root
+                    domain.
+                  </li>
+                  <li>
+                    Make sure you added the record to the root domain (not only{" "}
+                    <code>www</code>).
+                  </li>
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleVerify}
+              disabled={verifying}
+            >
+              {verifying ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Checking DNS…
+                </>
+              ) : (
+                "Verify"
+              )}
+            </Button>
+
+            {verifying ? null : checked ? (
+              success ? (
+                <Badge variant="success">Verified</Badge>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Badge variant="destructive">Not found</Badge>
                   <span className="text-xs text-muted-foreground">
-                    Alternatives: {selectedIds.length}/{maxAlternatives}
+                    Try again in 5–10 minutes.
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Show up on alternative searches and comparison pages.
-                </p>
-              </div>
-
-              <div className="mt-3 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  {selectedIds.length ? (
-                    <div className="flex flex-wrap gap-2">
-                      {selectedIds.map((id) => {
-                        const alt = alternativeById.get(id)
-                        const label = alt?.name ?? "Selected product"
-                        return (
-                          <button
-                            key={id}
-                            type="button"
-                            className="inline-flex cursor-pointer items-center gap-1 rounded-full border bg-muted/20 px-3 py-1 text-xs text-foreground hover:bg-muted/40"
-                            onClick={() => {
-                              const next = selectedIds.filter((x) => x !== id)
-                              field.onChange(next)
-                            }}
-                            title="Remove"
-                          >
-                            <span className="max-w-[14rem] truncate">{label}</span>
-                            <X className="h-3.5 w-3.5 text-muted-foreground" />
-                          </button>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">
-                      Pick up to {maxAlternatives} products you replace or compete with.
-                    </p>
-                  )}
-
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setAlternativesOpen(true)}
-                    disabled={!alternatives.length}
-                  >
-                    Choose
-                  </Button>
-                </div>
-
-                {!alternatives.length ? (
-                  <p className="text-xs text-muted-foreground">
-                    No alternatives available yet. Ask an admin to add them from the
-                    catalog.
-                  </p>
-                ) : null}
-              </div>
-
-              <Dialog
-                open={alternativesOpen}
-                onOpenChange={(open) => {
-                  setAlternativesOpen(open)
-                  if (!open) setAlternativeQuery("")
-                }}
-              >
-                <DialogContent className="sm:max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle>Choose alternatives</DialogTitle>
-                    <DialogDescription>
-                      Select up to {maxAlternatives}. These show on alternative searches and
-                      comparisons.
-                    </DialogDescription>
-                  </DialogHeader>
-
-                  <div className="space-y-3">
-                    <Input
-                      value={alternativeQuery}
-                      onChange={(event) => setAlternativeQuery(event.target.value)}
-                      placeholder="Search by name or URL"
-                    />
-
-                    <ScrollArea className="max-h-[320px] rounded-md border border-dashed border-border/60">
-                      <div className="p-2">
-                        {pinnedFiltered.length === 0 ? (
-                          <p className="px-2 py-6 text-sm text-muted-foreground">
-                            No alternatives match your search.
-                          </p>
-                        ) : (
-                          <div className="space-y-1">
-                            {pinnedFiltered.map((alternative) => {
-                              const isSelected = selectedSet.has(alternative.id)
-                              const atLimit =
-                                selectedSet.size >= maxAlternatives && !isSelected
-                              return (
-                                <label
-                                  key={alternative.id}
-                                  className={cn(
-                                    "flex cursor-pointer items-start justify-between gap-3 rounded-md px-3 py-2 text-sm transition hover:bg-muted/40",
-                                    isSelected && "bg-muted/40",
-                                    atLimit && "cursor-not-allowed opacity-60",
-                                  )}
-                                >
-                                  <div className="flex items-start gap-3">
-                                    <Checkbox
-                                      checked={isSelected}
-                                      disabled={atLimit}
-                                      onCheckedChange={(checked) => {
-                                        const next = new Set(selectedSet)
-                                        if (checked) next.add(alternative.id)
-                                        else next.delete(alternative.id)
-                                        field.onChange(Array.from(next))
-                                      }}
-                                    />
-                                    <div className="min-w-0">
-                                      <div className="font-medium">
-                                        {alternative.name}
-                                      </div>
-                                      {alternative.websiteUrl ? (
-                                        <div className="text-xs text-muted-foreground">
-                                          {alternative.websiteUrl}
-                                        </div>
-                                      ) : null}
-                                    </div>
-                                  </div>
-                                  {isSelected ? (
-                                    <Badge variant="secondary">Selected</Badge>
-                                  ) : null}
-                                </label>
-                              )
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </ScrollArea>
-
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-xs text-muted-foreground">
-                        Selected: {selectedSet.size}/{maxAlternatives}
-                      </span>
-                      <Button type="button" onClick={() => setAlternativesOpen(false)}>
-                        Done
-                      </Button>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-
-              <FormMessage />
-            </FormItem>
-          )
-        }}
-      />
-
-      {organizations.length ? (
-        <FormField
-          name="organizationId"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Publish under organization</FormLabel>
-              <Select
-                onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
-                value={(field.value as string) ?? ""}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select organization" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="none">No organization</SelectItem>
-                  {organizations.map((org) => (
-                    <SelectItem key={org.id} value={org.id}>
-                      {org.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      ) : null}
-
-      <p className="text-xs text-muted-foreground">
-        Skip now — you can edit these anytime.
-      </p>
+              )
+            ) : (
+              <span className="text-xs text-muted-foreground">
+                You can verify later—this won&apos;t block publishing.
+              </span>
+            )}
+          </div>
+        </div>
+      </FormItem>
     </div>
   )
 }

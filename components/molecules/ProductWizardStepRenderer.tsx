@@ -8,19 +8,16 @@ const Step1 = dynamic(
   () => import("@/app/(member)/member/products/shared/step1"),
 )
 const StepMedia = dynamic(
-  () => import("@/app/(member)/member/products/shared/stepMedia"),
-)
-const Step2 = dynamic(
   () => import("@/app/(member)/member/products/shared/step2"),
 )
-const Step3 = dynamic(
+const Step2 = dynamic(
   () => import("@/app/(member)/member/products/shared/step3"),
 )
-const Step4 = dynamic(
+const Step3 = dynamic(
   () => import("@/app/(member)/member/products/shared/step4"),
 )
-const Review = dynamic(
-  () => import("@/app/(member)/member/products/shared/review"),
+const Step4 = dynamic(
+  () => import("@/app/(member)/member/products/shared/step5"),
 )
 
 export function renderStep(
@@ -87,11 +84,9 @@ export function renderStep(
           alternatives={args.alternatives ?? []}
         />
       )
-    case 6:
     default:
       return (
-        <Review
-          categories={args.categories}
+        <Step4
           organizations={args.organizations}
           alternatives={args.alternatives ?? []}
         />

@@ -37,10 +37,10 @@ import {
   TooltipTrigger,
 } from "@/components/atoms/tooltip"
 import Step1 from "@/app/(member)/member/products/shared/step1"
-import StepMedia from "@/app/(member)/member/products/shared/stepMedia"
 import Step2 from "@/app/(member)/member/products/shared/step2"
 import Step3 from "@/app/(member)/member/products/shared/step3"
 import Step4 from "@/app/(member)/member/products/shared/step4"
+import Step5 from "@/app/(member)/member/products/shared/step5"
 import {
   makeAddProductSchema,
   type ProductWizardInputAdd,
@@ -301,13 +301,13 @@ export default function AddProductForm({
       enableAutofill
     />
   )
-  const media = <StepMedia productId={newProductId} />
-  const pricing = <Step2 />
+  const media = <Step2 productId={newProductId} />
+  const pricing = <Step3 />
   const verification = (
-    <Step3 productId={newProductId} persistOnVerify={false} />
+    <Step4 productId={newProductId} persistOnVerify={false} />
   )
   const details = (
-    <Step4
+    <Step5
       organizations={organizations}
       alternatives={alternatives}
     />
