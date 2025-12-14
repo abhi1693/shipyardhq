@@ -124,6 +124,14 @@ export default function Step1({
     return platforms.filter((p) => allowedPlatforms.has(p))
   }, [allowedPlatforms, platforms])
 
+  const categoryOptions = useMemo(() => {
+    return categories.map((c) => ({
+      value: c.id,
+      label: c.name,
+      icon: <CategoryIcon icon={c.icon ?? null} size={16} />,
+    }))
+  }, [categories])
+
   useEffect(() => {
     if (!allowedPlatforms) return
     const current = Array.isArray(selectedPlatforms) ? selectedPlatforms : []
@@ -452,11 +460,7 @@ export default function Step1({
                     <SearchableSelect
                       value={field.value}
                       onValueChange={field.onChange}
-                      options={categories.map((c) => ({
-                        value: c.id,
-                        label: c.name,
-                        icon: <CategoryIcon icon={c.icon ?? null} size={16} />,
-                      }))}
+                      options={categoryOptions}
                       placeholder="Select category"
                       title="Choose a category"
                       description="Start typing to filter categories."
