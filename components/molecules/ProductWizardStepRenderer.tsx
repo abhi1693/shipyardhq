@@ -26,7 +26,7 @@ const Review = dynamic(
 export function renderStep(
   step: number,
   args: {
-    categories: { id: string; name: string }[]
+    categories: { id: string; name: string; icon?: string | null }[]
     organizations: { id: string; name: string }[]
     alternatives?: {
       id: string

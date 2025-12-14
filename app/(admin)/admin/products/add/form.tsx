@@ -132,7 +132,7 @@ export default function AddProductForm({
   organizations,
   users,
 }: {
-  categories: { id: string; name: string }[]
+  categories: { id: string; name: string; icon?: string | null }[]
   organizations: { id: string; name: string }[]
   users: { id: string; email: string }[]
 }) {

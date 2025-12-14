@@ -1,8 +1,18 @@
 "use client"
 
-import { useFormContext } from "react-hook-form"
-import { ReactNode, useState } from "react"
-import { Sparkles } from "lucide-react"
+import { useFormContext, useWatch } from "react-hook-form"
+import { ReactNode, useEffect, useMemo, useState } from "react"
+import {
+  Globe,
+  Code,
+  Laptop,
+  Monitor,
+  Puzzle,
+  Smartphone,
+  Sparkles,
+  Terminal,
+  type LucideIcon,
+} from "lucide-react"
 import {
   FormField,
   FormItem,
@@ -25,9 +35,44 @@ import { Button } from "@/components/atoms/button"
 import { toast } from "sonner"
 import type { ProductAutofillSuggestion } from "@/lib/productWizard/autofill"
 import { MarkdownEditor } from "@/components/molecules/MarkdownEditor"
+import { SearchableSelect } from "@/components/molecules/SearchableSelect"
+import { CategoryIcon } from "@/components/molecules/CategoryIcons"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/atoms/tooltip"
+
+const PLATFORM_LABELS: Record<string, string> = {
+  web: "Web",
+  ios: "iOS",
+  android: "Android",
+  mac: "Mac",
+  windows: "Windows",
+  linux: "Linux",
+  chrome_extension: "Chrome Extension",
+  firefox_extension: "Firefox Extension",
+}
+
+const PLATFORM_ICONS: Record<string, LucideIcon> = {
+  web: Globe,
+  ios: Smartphone,
+  android: Smartphone,
+  mac: Laptop,
+  windows: Monitor,
+  linux: Terminal,
+  chrome_extension: Puzzle,
+  firefox_extension: Puzzle,
+}
+
+const PRODUCT_TYPE_OPTIONS: { v: string; l: string; Icon: LucideIcon }[] = [
+  { v: "saas", l: "SaaS", Icon: Globe },
+  { v: "browser_extension", l: "Browser Extension", Icon: Puzzle },
+  { v: "mobile_app", l: "Mobile App", Icon: Smartphone },
+  { v: "desktop_app", l: "Desktop App", Icon: Monitor },
+  { v: "api", l: "API", Icon: Terminal },
+  { v: "open_source", l: "Open Source", Icon: Code },
+  { v: "other", l: "Other", Icon: Globe },
+]
 
 type Props = {
-  categories: { id: string; name: string }[]
+  categories: { id: string; name: string; icon?: string | null }[]
   platforms: readonly string[]
   lockWebsiteUrl?: boolean
   rightOfWebsite?: ReactNode
@@ -45,6 +90,50 @@ export default function Step1({
 }: Props) {
   const form = useFormContext()
   const [autofilling, setAutofilling] = useState(false)
+  const productType = useWatch({
+    control: form.control,
+    name: "type",
+  }) as string | undefined
+  const selectedPlatforms = useWatch({
+    control: form.control,
+    name: "platforms",
+  }) as string[] | undefined
+
+  const allowedPlatforms = useMemo(() => {
+    switch (productType) {
+      case "saas":
+        return null
+      case "browser_extension":
+        return new Set<string>(["chrome_extension", "firefox_extension"])
+      case "mobile_app":
+        return new Set<string>(["ios", "android"])
+      case "desktop_app":
+        return new Set<string>(["mac", "windows", "linux"])
+      case "api":
+        return new Set<string>(["web"])
+      case "open_source":
+      case "other":
+      default:
+        return null
+    }
+  }, [productType])
+
+  const visiblePlatforms = useMemo(() => {
+    if (!allowedPlatforms) return platforms
+    return platforms.filter((p) => allowedPlatforms.has(p))
+  }, [allowedPlatforms, platforms])
+
+  useEffect(() => {
+    if (!allowedPlatforms) return
+    const current = Array.isArray(selectedPlatforms) ? selectedPlatforms : []
+    const next = current.filter((p) => allowedPlatforms.has(p))
+    if (next.length !== current.length) {
+      form.setValue("platforms", next, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+  }, [allowedPlatforms, form, selectedPlatforms])
 
   async function handleAutofill() {
     const currentUrl = cleanWebsiteUrlInput(
@@ -220,181 +309,211 @@ export default function Step1({
 
   return (
     <div className="space-y-6">
-      {enableAutofill ? (
-        <div className="rounded-xl border border-dashed border-[color:var(--brand-1)/0.35] bg-[color:var(--brand-1)/0.05] p-4 sm:p-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-3 text-left">
-              <span className="rounded-full bg-[color:var(--brand-1)/0.12] p-2 text-[color:var(--brand-1)]">
-                <Sparkles className="h-4 w-4" />
-              </span>
-              <div className="space-y-1">
-                <p className="text-sm font-semibold text-slate-900">
-                  Let AI set up your product
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Paste your website below and Shipyard AI will draft your name,
-                  description, links, pricing details, and more. You can tweak
-                  everything after.
-                </p>
-                {autofillNotice ? (
-                  <p className="text-xs text-muted-foreground">
-                    {autofillNotice}
-                  </p>
-                ) : null}
+      <div className="rounded-xl border bg-white/80 p-4 sm:p-5">
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-slate-900">Website</p>
+          </div>
+
+          {enableAutofill ? (
+            <div className="rounded-lg border border-dashed border-[color:var(--brand-1)/0.35] bg-[color:var(--brand-1)/0.05] p-3 sm:p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-3 text-left">
+                  <span className="mt-0.5 rounded-full bg-[color:var(--brand-1)/0.12] p-2 text-[color:var(--brand-1)]">
+                    <Sparkles className="h-4 w-4" />
+                  </span>
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-slate-900">
+                      Run AI Autofill
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      We&apos;ll draft your name, tagline, description, and
+                      more from your website.
+                    </p>
+                    {autofillNotice ? (
+                      <p className="text-xs text-muted-foreground">
+                        {autofillNotice}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="w-full sm:w-auto"
+                  onClick={handleAutofill}
+                  disabled={autofilling}
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {autofilling ? "AI autofilling…" : "Run AI Autofill"}
+                </Button>
               </div>
             </div>
-            <Button
-              type="button"
-              size="sm"
-              className="w-full sm:w-auto"
-              onClick={handleAutofill}
-              disabled={autofilling}
-            >
-              <Sparkles className="h-4 w-4" />
-              {autofilling ? "AI autofilling…" : "Run AI Autofill"}
-            </Button>
+          ) : null}
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <FormField
+              name="websiteUrl"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Website URL</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="https://example.com"
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled={!!lockWebsiteUrl}
+                      readOnly={!!lockWebsiteUrl}
+                      onBlur={(e) => {
+                        const sanitized = cleanWebsiteUrlInput(e.target.value)
+                        if (sanitized !== field.value) {
+                          form.setValue("websiteUrl", sanitized, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          })
+                        }
+                        field.onBlur()
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {rightOfWebsite ? (
+              <div className="flex flex-col justify-end gap-2">
+                {rightOfWebsite}
+              </div>
+            ) : null}
           </div>
         </div>
-      ) : null}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
-          name="websiteUrl"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Website URL</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="https://example.com"
-                  value={field.value}
-                  onChange={field.onChange}
-                  disabled={!!lockWebsiteUrl}
-                  readOnly={!!lockWebsiteUrl}
-                  onBlur={(e) => {
-                    const sanitized = cleanWebsiteUrlInput(e.target.value)
-                    if (sanitized !== field.value) {
-                      form.setValue("websiteUrl", sanitized, {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      })
-                    }
-                    field.onBlur()
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {rightOfWebsite ? (
-          <div className="flex flex-col gap-2">{rightOfWebsite}</div>
-        ) : null}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
-          name="name"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter product name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <div className="rounded-xl border bg-white/80 p-4 sm:p-5">
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-slate-900">Basics</p>
+            <p className="text-xs text-muted-foreground">
+              Keep it clear and specific—this is what people see in listings.
+            </p>
+          </div>
 
-        <FormField
-          name="tagline"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tagline</FormLabel>
-              <FormControl>
-                <Input placeholder="Short tagline" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <FormField
+              name="name"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter product name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="tagline"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tagline</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Short tagline" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
-          name="categoryId"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <div className="rounded-xl border bg-white/80 p-4 sm:p-5">
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-slate-900">Positioning</p>
+            <p className="text-xs text-muted-foreground">
+              Help people discover your product and understand where it fits.
+            </p>
+          </div>
 
-        <FormField
-          name="type"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Product Type</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {[
-                    { v: "saas", l: "SaaS" },
-                    { v: "browser_extension", l: "Browser Extension" },
-                    { v: "mobile_app", l: "Mobile App" },
-                    { v: "desktop_app", l: "Desktop App" },
-                    { v: "api", l: "API" },
-                    { v: "open_source", l: "Open Source" },
-                    { v: "other", l: "Other" },
-                  ].map((o) => (
-                    <SelectItem key={o.v} value={o.v}>
-                      {o.l}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <FormField
+              name="categoryId"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <FormControl>
+                    <SearchableSelect
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      options={categories.map((c) => ({
+                        value: c.id,
+                        label: c.name,
+                        icon: <CategoryIcon icon={c.icon ?? null} size={16} />,
+                      }))}
+                      placeholder="Select category"
+                      title="Choose a category"
+                      description="Start typing to filter categories."
+                      searchPlaceholder="Search categories…"
+                      emptyText="No categories match your search."
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          name="keywordsText"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Keywords</FormLabel>
-              <FormControl>
-                <Input placeholder="comma,separated,keywords" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+            <FormField
+              name="type"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Product Type</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        {(() => {
+                          const selected = PRODUCT_TYPE_OPTIONS.find(
+                            (o) => o.v === field.value,
+                          )
+                          if (!selected) {
+                            return <SelectValue placeholder="Select type" />
+                          }
+                          const Icon = selected.Icon
+                          return (
+                            <SelectValue placeholder="Select type">
+                              <Icon
+                                className="h-4 w-4 text-muted-foreground"
+                                aria-hidden="true"
+                              />
+                              <span>{selected.l}</span>
+                            </SelectValue>
+                          )
+                        })()}
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {PRODUCT_TYPE_OPTIONS.map(({ v, l, Icon }) => (
+                        <SelectItem
+                          key={v}
+                          value={v}
+                          icon={<Icon className="h-4 w-4 text-muted-foreground" />}
+                        >
+                          {l}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
       {/* Platforms */}
       <FormField
@@ -403,72 +522,135 @@ export default function Step1({
         render={() => (
           <FormItem>
             <FormLabel>Platforms</FormLabel>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              {platforms.map((p) => (
-                <label
-                  key={p}
-                  className="flex items-center gap-2 rounded-lg border bg-background p-2 text-sm transition-colors hover:bg-muted/40"
-                >
-                  <Checkbox
-                    checked={(
-                      form.getValues("platforms") as string[]
-                    )?.includes(p)}
-                    onCheckedChange={(checked) => {
-                      const current =
-                        (form.getValues("platforms") as string[]) || []
-                      const next = checked
-                        ? Array.from(new Set([...current, p]))
-                        : current.filter((x) => x !== p)
-                      form.setValue("platforms", next, {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      })
-                    }}
-                  />
-                  <span className="capitalize">{p.replace(/_/g, " ")}</span>
-                </label>
-              ))}
+            <FormDescription>Select all that apply.</FormDescription>
+            <div
+              className={[
+                "grid gap-3",
+                "grid-cols-2",
+                visiblePlatforms.length === 1
+                  ? "md:grid-cols-1"
+                  : visiblePlatforms.length === 2
+                    ? "md:grid-cols-2"
+                    : visiblePlatforms.length === 3
+                      ? "md:grid-cols-3"
+                      : "md:grid-cols-4",
+              ].join(" ")}
+            >
+              {visiblePlatforms.map((p) => {
+                const Icon = PLATFORM_ICONS[p] ?? Globe
+                const label =
+                  PLATFORM_LABELS[p] ??
+                  p.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())
+                const isChecked = (selectedPlatforms ?? [])?.includes(p)
+
+                return (
+                  <label
+                    key={p}
+                    className="flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-lg border bg-background p-2 text-sm transition-colors hover:bg-muted/40"
+                  >
+                    <Checkbox
+                      checked={isChecked}
+                      onCheckedChange={(checked) => {
+                        const current = Array.isArray(selectedPlatforms)
+                          ? selectedPlatforms
+                          : []
+                        const next = checked
+                          ? Array.from(new Set([...current, p]))
+                          : current.filter((x) => x !== p)
+                        form.setValue("platforms", next, {
+                          shouldDirty: true,
+                          shouldValidate: true,
+                        })
+                      }}
+                    />
+                    <Icon
+                      className="h-4 w-4 text-muted-foreground"
+                      aria-hidden="true"
+                    />
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="min-w-0 flex-1 truncate whitespace-nowrap">
+                          {label}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" sideOffset={6}>
+                        {label}
+                      </TooltipContent>
+                    </Tooltip>
+                  </label>
+                )
+              })}
             </div>
             <FormMessage />
           </FormItem>
         )}
       />
 
-      <FormField
-        name="description"
-        control={form.control}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Description</FormLabel>
-            <FormDescription>
-              Supports Markdown formatting. Preview changes or revisit the{" "}
-              <a
-                href="https://www.markdownguide.org/basic-syntax/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
-                Markdown basics
-              </a>
-              .
-            </FormDescription>
-            <FormControl>
-              <MarkdownEditor
-                ref={field.ref}
-                value={(field.value as string) ?? ""}
-                onChange={(val) => field.onChange(val)}
-                onBlur={field.onBlur}
-                name={field.name}
-                placeholder="What does your product do?"
-                rows={10}
-                textareaClassName="h-48"
-                previewClassName="h-48"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+          <FormField
+            name="keywordsText"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Keywords</FormLabel>
+                <FormDescription>
+                  Comma-separated tags people might search for.
+                </FormDescription>
+                <FormControl>
+                  <Input placeholder="e.g. analytics, invoicing, ai" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      </div>
+
+      <div className="rounded-xl border bg-white/80 p-4 sm:p-5">
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-slate-900">Description</p>
+            <p className="text-xs text-muted-foreground">
+              Explain what it does, who it&apos;s for, and why it&apos;s better.
+            </p>
+          </div>
+
+          <FormField
+            name="description"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="sr-only">Description</FormLabel>
+                <FormDescription>
+                  Supports Markdown formatting. Preview changes or revisit the{" "}
+                  <a
+                    href="https://www.markdownguide.org/basic-syntax/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    Markdown basics
+                  </a>
+                  .
+                </FormDescription>
+                <FormControl>
+                  <MarkdownEditor
+                    ref={field.ref}
+                    value={(field.value as string) ?? ""}
+                    onChange={(val) => field.onChange(val)}
+                    onBlur={field.onBlur}
+                    name={field.name}
+                    placeholder="What does your product do?"
+                    rows={10}
+                    textareaClassName="h-48"
+                    previewClassName="h-48"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      </div>
     </div>
   )
 }

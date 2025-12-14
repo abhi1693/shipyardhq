@@ -7,7 +7,7 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
 type Props = {
-  categories: { id: string; name: string }[]
+  categories: { id: string; name: string; icon?: string | null }[]
   organizations: { id: string; name: string }[]
   alternatives: {
     id: string

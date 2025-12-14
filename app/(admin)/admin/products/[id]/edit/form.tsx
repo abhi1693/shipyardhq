@@ -191,7 +191,7 @@ export default function EditProductForm({
   connector,
 }: {
   product: any
-  categories: { id: string; name: string }[]
+  categories: { id: string; name: string; icon?: string | null }[]
   organizations: { id: string; name: string }[]
   users: { id: string; email: string }[]
   connector?: {

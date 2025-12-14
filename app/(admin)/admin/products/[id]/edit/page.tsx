@@ -13,7 +13,7 @@ export default async function EditProductPage({
   const { id } = await params
   const [product, categories, users, organizations] = await Promise.all([
     getProductById(id),
-    getCategories({ select: { id: true, name: true } }),
+    getCategories({ select: { id: true, name: true, icon: true } }),
     getUsers({
       select: { id: true, email: true, firstName: true, lastName: true },
     }),
