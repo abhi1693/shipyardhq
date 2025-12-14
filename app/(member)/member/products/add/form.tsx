@@ -11,6 +11,7 @@ import {
   useFormState,
 } from "react-hook-form"
 import { toast } from "sonner"
+import { ChevronDown } from "lucide-react"
 import { MEMBER_PRODUCTS_PATH, memberProductUpgradePath } from "@/lib/routes"
 
 import { createProductAction } from "@/actions/admin/products/actions"
@@ -193,6 +194,9 @@ export default function AddProductForm({
     "media",
     "pricing",
   ])
+  const [openBoostPanel, setOpenBoostPanel] = useState<null | "revenue" | "domain">(
+    null,
+  )
   const [newProductId] = useState(() => {
     const g: any = typeof globalThis !== "undefined" ? (globalThis as any) : {}
     const c = g.crypto as Crypto | undefined
@@ -209,9 +213,32 @@ export default function AddProductForm({
     mode: "onBlur",
   })
 
+  const connectorProvider = useWatch({
+    control: form.control,
+    name: "connectorProvider" as any,
+  }) as string | undefined
+  const connectorApiKey = useWatch({
+    control: form.control,
+    name: "connectorApiKey" as any,
+  }) as string | undefined
+  const domainChecked = useWatch({
+    control: form.control,
+    name: "verificationChecked" as any,
+  }) as boolean | undefined
+  const domainVerified = useWatch({
+    control: form.control,
+    name: "verificationSuccess" as any,
+  }) as boolean | undefined
+
+  const hasRevenueSetupDraft = Boolean(connectorProvider && connectorApiKey?.length)
+
   const connectorFields = useMemo(() => {
     return <ConnectorFields form={form} />
   }, [form])
+
+  function toggleBoostPanel(panel: "revenue" | "domain") {
+    setOpenBoostPanel((prev) => (prev === panel ? null : panel))
+  }
 
   async function submitAll(
     values: ProductWizardInput & { status?: "draft" | "published" },
@@ -356,18 +383,146 @@ export default function AddProductForm({
                       <Badge>Recommended</Badge>
                     </div>
                     <span className="text-xs font-normal text-muted-foreground">
-                      Verify revenue + domain ownership to rank higher and build
-                      trust.
+                      Pick a boost to unlock higher ranking and trust.
                     </span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="pb-6">
-                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <div className="rounded-xl border border-dashed border-border/70 bg-muted/20 p-4 sm:p-5">
-                      {connectorFields}
-                    </div>
-                    <div className="rounded-xl border border-dashed border-border/70 bg-muted/20 p-4 sm:p-5">
-                      {verification}
+                  <div className="rounded-xl border bg-white/70">
+                    <div className="divide-y divide-border/60">
+                      <div className="px-4 py-4 sm:px-5">
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          aria-expanded={openBoostPanel === "revenue"}
+                          className="-mx-2 cursor-pointer rounded-lg px-2 py-2 outline-none transition-colors hover:bg-muted/30 focus-visible:ring-[3px] focus-visible:ring-ring/40"
+                          onClick={() => toggleBoostPanel("revenue")}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault()
+                              toggleBoostPanel("revenue")
+                            }
+                          }}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="space-y-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-sm font-semibold text-slate-900">
+                                  Verified revenue
+                                </span>
+                                <Badge variant="outline">Up to +40% ranking</Badge>
+                                {hasRevenueSetupDraft ? (
+                                  <Badge variant="success">Connected</Badge>
+                                ) : (
+                                  <Badge variant="secondary">Incomplete</Badge>
+                                )}
+                              </div>
+                              <p className="text-xs text-muted-foreground">
+                                Connect a payment provider to become eligible for
+                                the verified revenue ranking boost.
+                              </p>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              {openBoostPanel !== "revenue" ? (
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  className="sm:hidden"
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    toggleBoostPanel("revenue")
+                                  }}
+                                >
+                                  Set up
+                                </Button>
+                              ) : null}
+                              <ChevronDown
+                                className={[
+                                  "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                                  openBoostPanel === "revenue" ? "rotate-180" : "",
+                                ].join(" ")}
+                                aria-hidden="true"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {openBoostPanel === "revenue" ? (
+                          <div className="pt-4">{connectorFields}</div>
+                        ) : null}
+                      </div>
+
+                      <div className="px-4 py-4 sm:px-5">
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          aria-expanded={openBoostPanel === "domain"}
+                          className="-mx-2 cursor-pointer rounded-lg px-2 py-2 outline-none transition-colors hover:bg-muted/30 focus-visible:ring-[3px] focus-visible:ring-ring/40"
+                          onClick={() => toggleBoostPanel("domain")}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault()
+                              toggleBoostPanel("domain")
+                            }
+                          }}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="space-y-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-sm font-semibold text-slate-900">
+                                  Verified badge
+                                </span>
+                                <Badge variant="outline">Trust + filters</Badge>
+                                {domainChecked ? (
+                                  domainVerified ? (
+                                    <Badge variant="success">Verified</Badge>
+                                  ) : (
+                                    <Badge variant="destructive">Not found</Badge>
+                                  )
+                                ) : (
+                                  <Badge variant="secondary">Incomplete</Badge>
+                                )}
+                              </div>
+                              <p className="text-xs text-muted-foreground">
+                                Verify domain ownership to show a verified badge and
+                                reduce impersonation.
+                              </p>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              {openBoostPanel !== "domain" ? (
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  className="sm:hidden"
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    toggleBoostPanel("domain")
+                                  }}
+                                >
+                                  Verify
+                                </Button>
+                              ) : null}
+                              <ChevronDown
+                                className={[
+                                  "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                                  openBoostPanel === "domain" ? "rotate-180" : "",
+                                ].join(" ")}
+                                aria-hidden="true"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {openBoostPanel === "domain" ? (
+                          <div className="pt-4">{verification}</div>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </AccordionContent>
