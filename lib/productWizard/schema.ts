@@ -137,6 +137,31 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
         }
       }
 
+      // Prevent redundant URLs
+      const normalizeComparableUrl = (input: string) => {
+        try {
+          const u = new URL(input)
+          const pathname = (u.pathname || "/").replace(/\/+$/g, "") || "/"
+          return `${u.origin}${pathname}`
+        } catch {
+          return input.trim().replace(/\/+$/g, "")
+        }
+      }
+
+      const demoUrl =
+        typeof val.demoUrl === "string" ? val.demoUrl.trim() : undefined
+      if (demoUrl && demoUrl.length) {
+        const websiteComparable = normalizeComparableUrl(val.websiteUrl)
+        const demoComparable = normalizeComparableUrl(demoUrl)
+        if (websiteComparable === demoComparable) {
+          ctx.addIssue({
+            path: ["demoUrl"],
+            code: z.ZodIssueCode.custom,
+            message: "Demo URL must be different from Website URL",
+          })
+        }
+      }
+
       if (val.connectorApiKey && !val.connectorProvider) {
         ctx.addIssue({
           path: ["connectorProvider"],
