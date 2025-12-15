@@ -265,7 +265,11 @@ export default function EditProductForm({
   } | null
 }) {
   const router = useRouter()
-  const [openSection, setOpenSection] = useState<SectionKey | "">("core")
+  const [openSections, setOpenSections] = useState<SectionKey[]>([
+    "core",
+    "media",
+    "pricing",
+  ])
   const [openBoostPanel, setOpenBoostPanel] = useState<null | "revenue" | "domain">(
     null,
   )
@@ -303,6 +307,21 @@ export default function EditProductForm({
   const hasRevenueSetupDraft = Boolean(
     connectorState?.provider || (connectorProvider && connectorApiKey?.length),
   )
+  const pricingModel = useWatch({
+    control: form.control,
+    name: "pricingModel" as any,
+  }) as string | undefined
+  const startingPriceCents = useWatch({
+    control: form.control,
+    name: "startingPriceCents" as any,
+  }) as number | undefined
+  const currencyCode = useWatch({
+    control: form.control,
+    name: "currencyCode" as any,
+  }) as string | undefined
+  const galleryCount = Array.isArray(product?.ProductMedia)
+    ? product.ProductMedia.length
+    : 0
 
   const connectorFields = useMemo(() => {
     return (
@@ -321,6 +340,17 @@ export default function EditProductForm({
 
   function setBoostPanel(panel: null | "revenue" | "domain") {
     setOpenBoostPanel(panel)
+  }
+
+  function jumpTo(section: SectionKey, opts?: { boostPanel?: "revenue" | "domain" }) {
+    setOpenSections((prev) => Array.from(new Set([...(prev || []), section])))
+    if (section === "boost" && opts?.boostPanel) {
+      setBoostPanel(opts.boostPanel)
+    }
+    requestAnimationFrame(() => {
+      const node = document.getElementById(`section-${section}`)
+      node?.scrollIntoView({ behavior: "smooth", block: "start" })
+    })
   }
 
   async function submitAll(
@@ -343,15 +373,43 @@ export default function EditProductForm({
   function openFromErrors(errors: Record<string, any>) {
     const keys = Object.keys(errors)
     const sectionsToOpen = getSectionsForErrorFields(keys)
-    const target = sectionsToOpen[0] ?? "core"
-    setOpenSection(target)
-    if (target === "boost") {
+    setOpenSections((prev) =>
+      Array.from(new Set([...(prev || []), ...(sectionsToOpen as SectionKey[])])),
+    )
+    if (sectionsToOpen.includes("boost")) {
       const hasRevenueError = keys.some((k) => k.startsWith("connector"))
       const hasDomainError = keys.some((k) => k.startsWith("verification"))
       if (hasRevenueError) setBoostPanel("revenue")
       else if (hasDomainError) setBoostPanel("domain")
     }
   }
+
+  const needsPricingDetails =
+    pricingModel === "subscription" || pricingModel === "one_time"
+  const missingPricingDetails =
+    needsPricingDetails && (!startingPriceCents || !currencyCode)
+
+  const smartNextAction = (() => {
+    if (missingPricingDetails) {
+      return { label: "Set pricing", onClick: () => jumpTo("pricing") }
+    }
+    if (!hasRevenueSetupDraft) {
+      return {
+        label: "Connect revenue (+40% ranking)",
+        onClick: () => jumpTo("boost", { boostPanel: "revenue" }),
+      }
+    }
+    if (!domainVerifiedEffective) {
+      return {
+        label: "Verify domain (badge)",
+        onClick: () => jumpTo("boost", { boostPanel: "domain" }),
+      }
+    }
+    if (galleryCount < 3) {
+      return { label: "Add screenshots (3+)", onClick: () => jumpTo("media") }
+    }
+    return null
+  })()
 
   const submitWithStatus = (status: "draft" | "published") =>
     form.handleSubmit(
@@ -414,13 +472,12 @@ export default function EditProductForm({
             className="space-y-6 pb-24"
           >
             <Accordion
-              type="single"
-              collapsible
-              value={openSection}
-              onValueChange={(v) => setOpenSection((v as SectionKey) ?? "")}
+              type="multiple"
+              value={openSections as any}
+              onValueChange={(v) => setOpenSections((v as any) ?? [])}
               className="rounded-xl border bg-white/80"
             >
-              <AccordionItem value="core" className="px-6">
+              <AccordionItem id="section-core" value="core" className="px-6">
                 <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
                   <div className="flex w-full items-start justify-between gap-4">
                     <div className="flex flex-col gap-1">
@@ -439,7 +496,7 @@ export default function EditProductForm({
                 <AccordionContent className="pt-4 pb-6">{core}</AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="media" className="px-6">
+              <AccordionItem id="section-media" value="media" className="px-6">
                 <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
                   <div className="flex w-full items-start justify-between gap-4">
                     <div className="flex flex-col gap-1">
@@ -458,7 +515,7 @@ export default function EditProductForm({
                 <AccordionContent className="pt-4 pb-6">{media}</AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="pricing" className="px-6">
+              <AccordionItem id="section-pricing" value="pricing" className="px-6">
                 <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
                   <div className="flex w-full items-start justify-between gap-4">
                     <div className="flex flex-col gap-1">
@@ -477,7 +534,7 @@ export default function EditProductForm({
                 <AccordionContent className="pt-4 pb-6">{pricing}</AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="boost" className="px-6">
+              <AccordionItem id="section-boost" value="boost" className="px-6">
                 <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
                   <div className="flex w-full items-start justify-between gap-4">
                     <div className="flex flex-col gap-1">
@@ -489,7 +546,7 @@ export default function EditProductForm({
                       </span>
                     </div>
                     <div className="pt-0.5">
-                      <Badge variant="secondary">Optional</Badge>
+                      <Badge>Recommended</Badge>
                     </div>
                   </div>
                 </AccordionTrigger>
@@ -670,7 +727,7 @@ export default function EditProductForm({
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="details" className="px-6">
+              <AccordionItem id="section-details" value="details" className="px-6">
                 <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
                   <div className="flex w-full items-start justify-between gap-4">
                     <div className="flex flex-col gap-1">
@@ -694,14 +751,29 @@ export default function EditProductForm({
       </CardContent>
       <CardFooter className="sticky bottom-0 z-10 border-t bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/60">
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          {!hasRevenueSetupDraft ? (
-            <p className="text-xs text-muted-foreground">
-              Recommended: connect verified revenue to boost ranking up to +40%.
-            </p>
-          ) : !domainVerifiedEffective ? (
-            <p className="text-xs text-muted-foreground">
-              Recommended: verify your domain to show a verified badge.
-            </p>
+          {smartNextAction ? (
+            <div
+              role="button"
+              tabIndex={form.formState.isSubmitting ? -1 : 0}
+              aria-disabled={form.formState.isSubmitting}
+              onClick={() => {
+                if (form.formState.isSubmitting) return
+                smartNextAction.onClick()
+              }}
+              onKeyDown={(e) => {
+                if (form.formState.isSubmitting) return
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault()
+                  smartNextAction.onClick()
+                }
+              }}
+              className="group w-fit select-none text-left text-xs text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:rounded focus-visible:ring-[3px] focus-visible:ring-ring/40"
+            >
+              <span className="text-muted-foreground">Tip:</span>{" "}
+              <span className="cursor-pointer underline-offset-4 group-hover:underline">
+                {smartNextAction.label}
+              </span>
+            </div>
           ) : (
             <span />
           )}
