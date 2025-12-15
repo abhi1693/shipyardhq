@@ -1,14 +1,11 @@
 "use client"
 
-import { useMemo, useRef, useState, useSyncExternalStore } from "react"
+import { useMemo, useRef, useState } from "react"
 import { X } from "lucide-react"
 
 import { Input } from "@/components/atoms/input"
 import { cn } from "@/lib/utils"
 import { parseKeywords } from "@/lib/productWizard/transform"
-
-const RECENT_KEY = "shipyard:product-wizard:recent-keywords"
-const RECENT_EVENT = "shipyard:recent-keywords"
 
 function normalizeKeyword(raw: string) {
   const trimmed = raw.trim().replace(/\s+/g, " ")
@@ -19,30 +16,6 @@ function toKeywordsText(keywords: string[]) {
   return keywords.join(", ")
 }
 
-function readRecentKeywords(): string[] {
-  try {
-    if (typeof window === "undefined") return []
-    const raw = window.localStorage.getItem(RECENT_KEY)
-    if (!raw) return []
-    const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed)) return []
-    return parsed
-      .filter((v) => typeof v === "string")
-      .map((v) => normalizeKeyword(v))
-      .filter(Boolean)
-  } catch {
-    return []
-  }
-}
-
-function writeRecentKeywords(keywords: string[]) {
-  if (typeof window === "undefined") return
-  try {
-    window.localStorage.setItem(RECENT_KEY, JSON.stringify(keywords))
-    window.dispatchEvent(new Event(RECENT_EVENT))
-  } catch {}
-}
-
 export function KeywordsInput({
   value,
   onChange,
@@ -50,26 +23,6 @@ export function KeywordsInput({
   placeholder = "Type a keyword and press Enter",
   maxKeywords = 10,
   maxKeywordLength = 32,
-  suggestions = [
-    "ai",
-    "analytics",
-    "automation",
-    "billing",
-    "crm",
-    "customer support",
-    "design",
-    "developer tools",
-    "email",
-    "finance",
-    "marketing",
-    "monitoring",
-    "no-code",
-    "payments",
-    "productivity",
-    "security",
-    "seo",
-    "social",
-  ],
   className,
 }: {
   value?: string
@@ -78,7 +31,6 @@ export function KeywordsInput({
   placeholder?: string
   maxKeywords?: number
   maxKeywordLength?: number
-  suggestions?: readonly string[]
   className?: string
 }) {
   const rootRef = useRef<HTMLDivElement | null>(null)
@@ -87,61 +39,13 @@ export function KeywordsInput({
 
   const keywords = useMemo(() => parseKeywords(value), [value])
 
-  const recentRaw = useSyncExternalStore(
-    (callback) => {
-      if (typeof window === "undefined") return () => {}
-      const onStorage = (e: StorageEvent) => {
-        if (!e.key || e.key === RECENT_KEY) callback()
-      }
-      const onLocal = () => callback()
-      window.addEventListener("storage", onStorage)
-      window.addEventListener(RECENT_EVENT, onLocal)
-      return () => {
-        window.removeEventListener("storage", onStorage)
-        window.removeEventListener(RECENT_EVENT, onLocal)
-      }
-    },
-    () => (typeof window === "undefined" ? "" : window.localStorage.getItem(RECENT_KEY) || ""),
-    () => "",
-  )
-
-  const recent = useMemo(() => {
-    try {
-      const parsed = JSON.parse(recentRaw || "[]")
-      if (!Array.isArray(parsed)) return []
-      return parsed
-        .filter((v) => typeof v === "string")
-        .map((v) => normalizeKeyword(v))
-        .filter(Boolean)
-    } catch {
-      return []
-    }
-  }, [recentRaw])
-
   const canAddMore = keywords.length < maxKeywords
-  const suggestionOptions = useMemo(() => {
-    const selected = new Set(keywords)
-    const base = Array.from(
-      new Set([...recent, ...suggestions.map((s) => normalizeKeyword(s))]),
-    ).filter(Boolean)
-
-    const q = normalizeKeyword(draft)
-    const filtered = q.length
-      ? base.filter((k) => k.includes(q))
-      : base
-
-    return filtered.filter((k) => !selected.has(k)).slice(0, 24)
-  }, [draft, keywords, recent, suggestions])
 
   function commitKeywords(nextKeywords: string[]) {
     const deduped = Array.from(new Set(nextKeywords.map(normalizeKeyword)))
       .filter(Boolean)
       .slice(0, maxKeywords)
     onChange(toKeywordsText(deduped))
-
-    const stored = readRecentKeywords()
-    const nextRecent = Array.from(new Set([...deduped, ...stored])).slice(0, 20)
-    writeRecentKeywords(nextRecent)
   }
 
   function addFromString(input: string) {
@@ -242,23 +146,6 @@ export function KeywordsInput({
 
       {localError ? (
         <div className="text-sm text-destructive">{localError}</div>
-      ) : null}
-
-      {suggestionOptions.length ? (
-        <div className="flex flex-wrap gap-2 pt-1">
-          {suggestionOptions.map((s) => (
-            <button
-              key={s}
-              type="button"
-              className="inline-flex cursor-pointer items-center rounded-full border bg-background px-3 py-1 text-xs text-muted-foreground hover:bg-muted/30 hover:text-foreground"
-              onClick={() => addFromString(s)}
-              disabled={!canAddMore}
-              title="Add"
-            >
-              + {s}
-            </button>
-          ))}
-        </div>
       ) : null}
     </div>
   )

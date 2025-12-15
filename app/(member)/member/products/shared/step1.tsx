@@ -84,16 +84,6 @@ const TAGLINE_RECOMMENDED_MAX = 70
 const INFO_TRIGGER_CLASS =
   "inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
 
-const KEYWORD_SUGGESTIONS_BY_TYPE: Record<string, readonly string[]> = {
-  saas: ["b2b", "productivity", "automation", "analytics"],
-  browser_extension: ["chrome extension", "browser extension", "productivity", "automation"],
-  mobile_app: ["ios", "android", "mobile app", "productivity"],
-  desktop_app: ["mac", "windows", "desktop app", "productivity"],
-  api: ["api", "developer tools", "integration", "automation"],
-  open_source: ["open source", "github", "developer tools", "self-hosted"],
-  other: ["tool", "productivity", "workflow", "automation"],
-}
-
 type Props = {
   categories: { id: string; name: string; icon?: string | null }[]
   platforms: readonly string[]
@@ -121,10 +111,6 @@ export default function Step1({
     control: form.control,
     name: "platforms",
   }) as string[] | undefined
-  const selectedCategoryId = useWatch({
-    control: form.control,
-    name: "categoryId",
-  }) as string | undefined
 
   const allowedPlatforms = useMemo(() => {
     switch (productType) {
@@ -157,23 +143,6 @@ export default function Step1({
       icon: <CategoryIcon icon={c.icon ?? null} size={16} />,
     }))
   }, [categories])
-
-  const suggestedKeywords = useMemo(() => {
-    const rawCategory = categories.find((c) => c.id === selectedCategoryId)?.name
-    const categoryKeyword = rawCategory ? rawCategory.trim().toLowerCase() : ""
-    const byType = productType
-      ? (KEYWORD_SUGGESTIONS_BY_TYPE[productType] ??
-        KEYWORD_SUGGESTIONS_BY_TYPE.other ??
-        [])
-      : []
-    return Array.from(
-      new Set(
-        [categoryKeyword, ...byType]
-          .map((s) => s.trim().toLowerCase())
-          .filter(Boolean),
-      ),
-    ).slice(0, 8)
-  }, [categories, productType, selectedCategoryId])
 
   useEffect(() => {
     if (!allowedPlatforms) return
@@ -772,7 +741,6 @@ export default function Step1({
                     value={(field.value as string) ?? ""}
                     onChange={field.onChange}
                     onBlur={field.onBlur}
-                    suggestions={suggestedKeywords}
                   />
                 </FormControl>
                 <FormMessage />
