@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import Script from "next/script"
 import { Toaster } from "@/components/atoms/sonner"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import Providers from "@/components/layout/providers"
@@ -60,6 +61,11 @@ export default function RootLayout({
           <Toaster position="top-right" />
           {children}
         </Providers>
+        <Script
+          src="https://trustviews.io/script.js"
+          data-token="f13fd5a1-f111-40c9-86b5-53287e59d23e"
+          strategy="afterInteractive"
+        />
       </body>
       {IS_PROD && process.env.GOOGLE_ANALYTICS_ID && (
         <GoogleAnalytics gaId={process.env.GOOGLE_ANALYTICS_ID} />
