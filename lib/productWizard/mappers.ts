@@ -5,10 +5,18 @@ import {
   normalizeUrl,
   coercePricing,
 } from "./transform"
+import type { ProductWizardInputAdd, ProductWizardInputEdit } from "./schema"
+import type { ProductForEditWizard } from "@/types/product-wizard"
 
-type BaseValues = Record<string, any>
+type ConnectorDefaults = {
+  provider?: ProductWizardInputEdit["connectorProvider"] | null
+  accountId?: string | null
+  brandId?: string | null
+}
 
-export function getInitialValuesForAdd(): BaseValues {
+type OwnerIdValues = { ownerId?: string }
+
+export function getInitialValuesForAdd(): ProductWizardInputAdd {
   return {
     name: "",
     tagline: "",
@@ -24,6 +32,7 @@ export function getInitialValuesForAdd(): BaseValues {
     keywordsText: "",
     organizationId: "",
     bannerImage: "",
+    galleryMedia: [],
     githubUrl: "",
     twitterUrl: "",
     demoUrl: "",
@@ -43,13 +52,9 @@ export function getInitialValuesForAdd(): BaseValues {
 }
 
 export function getInitialValuesFromProduct(
-  product: any,
-  connector?: {
-    provider?: string | null
-    accountId?: string | null
-    brandId?: string | null
-  },
-): BaseValues {
+  product: ProductForEditWizard,
+  connector?: ConnectorDefaults,
+): ProductWizardInputEdit & OwnerIdValues {
   return {
     name: product.name,
     tagline: product.tagline ?? "",
@@ -65,13 +70,14 @@ export function getInitialValuesFromProduct(
     keywordsText: (product.keywords ?? []).join(", "),
     organizationId: product.organizationId ?? "",
     bannerImage: product.bannerImage ?? "",
+    galleryMedia: [],
     githubUrl: product.metadata?.githubUrl ?? "",
     twitterUrl: product.metadata?.twitterUrl ?? "",
     demoUrl: product.metadata?.demoUrl ?? "",
     contactEmail: product.metadata?.contactEmail ?? "",
     utmCampaign: product.metadata?.utmCampaign ?? "",
     alternativeIds: Array.isArray(product.alternatives)
-      ? product.alternatives.map((alt: any) => alt.id)
+      ? product.alternatives.map((alt) => alt.id)
       : [],
     connectorProvider: connector?.provider ?? undefined,
     connectorApiKey: "",
@@ -87,7 +93,7 @@ export function getInitialValuesFromProduct(
 }
 
 export function toCreateFormData(
-  values: BaseValues,
+  values: ProductWizardInputAdd & OwnerIdValues,
   userId: string,
   productId?: string,
 ): FormData {
@@ -118,6 +124,9 @@ export function toCreateFormData(
   // Optional
   if (v.organizationId) fd.append("organizationId", v.organizationId)
   if (v.bannerImage) fd.append("bannerImage", normalizeUrl(v.bannerImage)!)
+  if (Array.isArray(v.galleryMedia) && v.galleryMedia.length) {
+    fd.append("galleryMedia", JSON.stringify(v.galleryMedia))
+  }
 
   if (v.githubUrl) fd.append("githubUrl", normalizeUrl(v.githubUrl)!)
   if (v.twitterUrl) fd.append("twitterUrl", normalizeUrl(v.twitterUrl)!)
@@ -138,20 +147,27 @@ export function toCreateFormData(
   return fd
 }
 
-export function toUpdatePayload(values: BaseValues, product: any) {
+export function toUpdatePayload(
+  values: ProductWizardInputEdit & OwnerIdValues,
+  product: ProductForEditWizard,
+) {
   const v0 = sanitizeTextFields(values)
-  const v = coercePricing(v0) as any
+  const v = coercePricing(v0)
   const keywords = parseKeywords(v.keywordsText)
+  const nextOwnerId =
+    typeof values.ownerId === "string" && values.ownerId.length
+      ? values.ownerId
+      : product.userId
   return {
     name: v.name,
     categoryId: v.categoryId,
-    userId: product.userId,
+    userId: nextOwnerId,
     description: v.description,
     tagline: v.tagline,
     websiteUrl: normalizeUrl(v.websiteUrl) || v.websiteUrl,
     logo: normalizeUrl(v.logo) || v.logo,
-    type: v.type as any,
-    pricingModel: v.pricingModel as any,
+    type: v.type,
+    pricingModel: v.pricingModel,
     organizationId: v.organizationId || null,
     slug: undefined,
     status: v.status,
@@ -161,7 +177,7 @@ export function toUpdatePayload(values: BaseValues, product: any) {
     currencyCode: uppercaseCurrency(v.currencyCode),
     bannerImage: v.bannerImage ? normalizeUrl(v.bannerImage) : null,
     keywords,
-    platforms: v.platforms as any,
+    platforms: v.platforms,
     githubUrl: v.githubUrl ? normalizeUrl(v.githubUrl) : null,
     twitterUrl: v.twitterUrl ? normalizeUrl(v.twitterUrl) : null,
     demoUrl: v.demoUrl ? normalizeUrl(v.demoUrl) : null,

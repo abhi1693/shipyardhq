@@ -51,7 +51,15 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       // Optional marketing/org
       organizationId: z.string().optional(),
       bannerImage: z.url().optional().or(z.literal("")),
-      alternativeIds: z.array(z.string()).default([]),
+      galleryMedia: z
+        .array(z.url())
+        .max(6, "You can add up to 6 screenshots.")
+        .optional()
+        .default([]),
+      alternativeIds: z
+        .array(z.string())
+        .max(3, "You can add up to 3 alternatives.")
+        .default([]),
 
       // Metadata
       githubUrl: z.url().optional().or(z.literal("")),
@@ -132,6 +140,32 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
             path: ["currencyCode"],
             code: z.ZodIssueCode.custom,
             message: "Should be empty for free/custom",
+          })
+        }
+      }
+
+      // Prevent redundant URLs
+      const normalizeComparableUrl = (input: string) => {
+        try {
+          const u = new URL(input)
+          const pathname = (u.pathname || "/").replace(/\/+$/g, "") || "/"
+          return `${u.origin}${pathname}`
+        } catch {
+          return input.trim().replace(/\/+$/g, "")
+        }
+      }
+
+      const demoUrl =
+        typeof val.demoUrl === "string" ? val.demoUrl.trim() : undefined
+      if (demoUrl && demoUrl.length) {
+        const websiteComparable = normalizeComparableUrl(val.websiteUrl)
+        const demoComparable = normalizeComparableUrl(demoUrl)
+        if (websiteComparable === demoComparable) {
+          ctx.addIssue({
+            path: ["demoUrl"],
+            code: z.ZodIssueCode.custom,
+            message:
+              "Demo URL must be different from Website URL. Try using a full path like 'https://example.com/demo' or 'https://example.com/app'.",
           })
         }
       }
@@ -289,14 +323,26 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
     })
 }
 
-export const makeAddProductSchema = () =>
-  makeProductSchema({ allowArchived: false })
-export const makeEditProductSchema = () =>
-  makeProductSchema({ allowArchived: true })
+export const addProductSchema = makeProductSchema({ allowArchived: false })
+export const editProductSchema = makeProductSchema({ allowArchived: true })
 
-export type ProductWizardInputAdd = z.infer<
-  ReturnType<typeof makeAddProductSchema>
+export function makeAdminAddProductSchema() {
+  return addProductSchema.extend({
+    ownerId: z.string().min(1, "Owner is required"),
+  })
+}
+
+export function makeAdminEditProductSchema() {
+  return editProductSchema.extend({
+    ownerId: z.string().min(1, "Owner is required"),
+  })
+}
+
+export type ProductWizardInputAdd = z.infer<typeof addProductSchema>
+export type ProductWizardInputEdit = z.infer<typeof editProductSchema>
+export type AdminProductWizardInputAdd = z.infer<
+  ReturnType<typeof makeAdminAddProductSchema>
 >
-export type ProductWizardInputEdit = z.infer<
-  ReturnType<typeof makeEditProductSchema>
+export type AdminProductWizardInputEdit = z.infer<
+  ReturnType<typeof makeAdminEditProductSchema>
 >

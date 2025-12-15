@@ -16,14 +16,19 @@ export async function DELETE(
 
     const user = await getActiveUserByClerkId(userId)
     if (!user) return new Response("Account inactive", { status: 403 })
+    const isAdmin = user.role === "admin"
 
     const product = await prisma.product.findUnique({
       where: { slug },
-      select: { id: true, userId: true },
+      select: { id: true, userId: true, user: { select: { clerkId: true } } },
     })
     if (!product) return new Response("Not Found", { status: 404 })
-    if (product.userId !== user.id)
+    if (!isAdmin && product.userId !== user.id)
       return new Response("Forbidden", { status: 403 })
+    const ownerClerkId =
+      typeof product.user?.clerkId === "string" && product.user.clerkId.length
+        ? product.user.clerkId
+        : userId
 
     const media = await prisma.productMedia.findUnique({
       where: { id },
@@ -37,7 +42,7 @@ export async function DELETE(
     // Best-effort blob cleanup; ignore failures so UI stays responsive.
     try {
       const url = new URL(media.imageUrl)
-      const expectedPrefix = `${userId}/products/${product.id}/media/`
+      const expectedPrefix = `${ownerClerkId}/products/${product.id}/media/`
       if (
         url.hostname.includes("vercel-storage.com") &&
         url.pathname.slice(1).startsWith(expectedPrefix)

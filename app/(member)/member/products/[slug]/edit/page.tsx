@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { getCategories } from "@/actions/admin/categories/actions"
 import EditProductForm from "./form"
-import { getProductById } from "@/actions/admin/products/actions"
+import { getProductForEditWizard } from "@/actions/admin/products/actions"
 import { getMyOrganizations } from "@/actions/member/organizations/actions"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import { getAlternativeProducts } from "@/actions/admin/alternative-products/actions"
@@ -18,7 +18,7 @@ export default async function EditProductPage({
     missingRedirect: null,
   })
 
-  const product = await getProductById(summary.id)
+  const product = await getProductForEditWizard(summary.id)
   if (!product) return notFound()
 
   const [categories, organizations, alternatives, connector] =

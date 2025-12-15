@@ -23,6 +23,7 @@ import { Button } from "@/components/atoms/button"
 import { Badge } from "@/components/atoms/badge"
 import { cn } from "@/lib/utils"
 import { PAYMENT_PROVIDERS } from "@/lib/paymentProviders"
+import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
 
 type Draft = {
   provider?: PaymentConnectorProvider
@@ -160,16 +161,23 @@ export function PaymentConnectorCard({
             : "org_..."
 
   const statusBadge = renderStatus(status)
+  const rankingBoostPct = Math.round(
+    (VERIFIED_REVENUE_RANKING_MULTIPLIER - 1) * 100,
+  )
 
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-base font-semibold leading-tight">
-            Revenue verification
+            Verified revenue
           </p>
           <p className="text-xs text-muted-foreground">
-            Products without verified revenue are ranked lower by default.
+            Connect a payment provider to show verified revenue and boost
+            click-based ranking by{" "}
+            {VERIFIED_REVENUE_RANKING_MULTIPLIER.toFixed(1)}× (+
+            {rankingBoostPct}
+            %) once revenue is verified. Optional, but recommended.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -228,12 +236,7 @@ export function PaymentConnectorCard({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="connector-key">
-          API key{" "}
-          <span className="text-xs text-muted-foreground">
-            (encrypted using AES-256-GCM)
-          </span>
-        </Label>
+        <Label htmlFor="connector-key">API key</Label>
         <Input
           id="connector-key"
           type="password"
@@ -256,8 +259,7 @@ export function PaymentConnectorCard({
           </p>
         ) : (
           <p className="text-xs text-muted-foreground">
-            Paste the secret key from your provider. We only keep an encrypted
-            copy.
+            Paste the secret key from your provider. Stored securely.
           </p>
         )}
         {selectedProvider === PaymentConnectorProviderEnum.stripe ? (

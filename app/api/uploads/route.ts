@@ -22,6 +22,7 @@ export async function POST(req: Request) {
     const folder = (form.get("folder") as string | null) || "assets"
     const productId = (form.get("productId") as string | null) || undefined
     const scopeValue = (form.get("scope") as string | null) || "user"
+    const asClerkId = (form.get("asClerkId") as string | null) || undefined
     const scope = scopeValue === "global" ? "global" : "user"
     if (!file) return new Response("Missing file", { status: 400 })
     if (!file.type?.startsWith("image/"))
@@ -34,13 +35,18 @@ export async function POST(req: Request) {
     if (scope === "global" && user.role !== "admin") {
       return new Response("Forbidden", { status: 403 })
     }
+    if (asClerkId && user.role !== "admin") {
+      return new Response("Forbidden", { status: 403 })
+    }
 
+    const effectiveClerkId =
+      asClerkId && user.role === "admin" ? asClerkId : userId
     const prefix =
       scope === "global"
         ? `global/${trimmedFolder}`
         : productId
-          ? `${userId}/products/${productId}/${trimmedFolder}`
-          : `${userId}/${trimmedFolder}`
+          ? `${effectiveClerkId}/products/${productId}/${trimmedFolder}`
+          : `${effectiveClerkId}/${trimmedFolder}`
     const arrayBuf = await file.arrayBuffer()
     const processed = await toWebpIfPossible(arrayBuf, file.type)
     const base = sanitizeFilename(
@@ -65,32 +71,44 @@ export async function DELETE(req: Request) {
 
     const user = await getActiveUserByClerkId(userId)
     if (!user) return new Response("Account inactive", { status: 403 })
+    const isAdmin = user.role === "admin"
 
     // Support url via JSON body or query param
     let url: string | undefined
+    let asClerkId: string | undefined
     const contentType = req.headers.get("content-type") || ""
     if (contentType.includes("application/json")) {
       const body = (await req.json().catch(() => ({}))) as any
       url = typeof body?.url === "string" ? body.url : undefined
+      asClerkId =
+        typeof body?.asClerkId === "string" ? body.asClerkId : undefined
     }
     if (!url) {
       const u = new URL(req.url)
       url = u.searchParams.get("url") ?? undefined
+      asClerkId = u.searchParams.get("asClerkId") ?? undefined
     }
     if (!url) return new Response("Missing url", { status: 400 })
+    if (asClerkId && !isAdmin) {
+      return new Response("Forbidden", { status: 403 })
+    }
 
     // Only allow deleting blobs under the current user's prefix on Vercel Blob
     try {
       const u = new URL(url)
       const isVercelHost = u.hostname.includes("vercel-storage.com")
       const pathname = u.pathname
-      const userScoped = pathname.startsWith(`/${userId}/`)
       const globalScoped = pathname.startsWith("/global/")
+      const allowedUserPrefixes = new Set<string>([userId])
+      if (isAdmin && asClerkId) allowedUserPrefixes.add(asClerkId)
+      const userScoped = Array.from(allowedUserPrefixes).some((prefix) =>
+        pathname.startsWith(`/${prefix}/`),
+      )
       if (!isVercelHost) {
         return new Response("Forbidden", { status: 403 })
       }
       if (globalScoped) {
-        if (user.role !== "admin") {
+        if (!isAdmin) {
           return new Response("Forbidden", { status: 403 })
         }
       } else if (!userScoped) {

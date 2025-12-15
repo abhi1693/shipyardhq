@@ -31,28 +31,27 @@ export function cleanWebsiteUrlInput(raw?: string | null): string {
   if (!value) return ""
 
   const hasProtocol = /^https?:\/\//i.test(value)
-  let cleaned = value
+  const isProtocolRelative = /^\/\//.test(value)
 
-  if (!hasProtocol) {
-    cleaned = cleaned.replace(/^\/+/g, "")
+  let candidate = value
+  if (isProtocolRelative) {
+    candidate = `https:${candidate}`
+  } else if (!hasProtocol) {
+    candidate = candidate.replace(/^\/+/g, "")
+    candidate = `https://${candidate}`
   }
-
-  if (!cleaned) return ""
-
-  const candidate = hasProtocol ? cleaned : `https://${cleaned}`
 
   try {
     const url = new URL(candidate)
     const isRootPath = !url.pathname || url.pathname === "/"
     const hasQueryOrHash = Boolean(url.search || url.hash)
     if (isRootPath && !hasQueryOrHash) {
-      cleaned = cleaned.replace(/\/+$/g, "")
+      return url.origin
     }
+    return `${url.origin}${url.pathname}${url.search}${url.hash}`
   } catch {
-    cleaned = cleaned.replace(/\/+$/g, "")
+    return candidate.replace(/\/+$/g, "")
   }
-
-  return cleaned
 }
 
 export function normalizeUrl(url?: string | null): string | undefined {
@@ -63,12 +62,12 @@ export function normalizeUrl(url?: string | null): string | undefined {
   return `https://${s}`
 }
 
-export function coercePricing(values: Record<string, any>) {
-  const v = { ...values } as any
-  const pm = v.pricingModel
+export function coercePricing<T extends Record<string, any>>(values: T): T {
+  const v: T = { ...values }
+  const pm = (v as any).pricingModel
   if (pm === "free" || pm === "custom") {
-    v.startingPriceCents = undefined
-    v.currencyCode = undefined
+    ;(v as any).startingPriceCents = undefined
+    ;(v as any).currencyCode = undefined
   }
   return v
 }

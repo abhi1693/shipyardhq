@@ -226,8 +226,7 @@ export function LeaderboardGuidePageContent() {
                     key={fact.heading}
                     className={cn(
                       "rounded-3xl border border-[color:var(--brand-1)/0.12] bg-white/92 p-6 shadow-[0_24px_60px_-42px_rgba(7,58,104,0.55)] backdrop-blur transition-transform duration-200 hover:-translate-y-1",
-                      index === 0 &&
-                        "bg-[color:var(--brand-1)/0.06]",
+                      index === 0 && "bg-[color:var(--brand-1)/0.06]",
                     )}
                   >
                     <h3 className="text-base font-semibold text-slate-900">
@@ -264,8 +263,7 @@ export function LeaderboardGuidePageContent() {
                   key={title}
                   className={cn(
                     "relative flex h-full flex-col gap-3 rounded-3xl border border-[color:var(--brand-1)/0.12] bg-white/92 p-6 shadow-[0_28px_70px_-46px_rgba(7,78,134,0.6)] backdrop-blur transition-transform duration-200 hover:-translate-y-1",
-                    index === 1 &&
-                      "bg-[color:var(--brand-1)/0.06]",
+                    index === 1 && "bg-[color:var(--brand-1)/0.06]",
                   )}
                 >
                   <div className="flex items-center gap-3">
@@ -405,8 +403,7 @@ export function LeaderboardGuidePageContent() {
                     key={item.q}
                     className={cn(
                       "rounded-3xl border border-[color:var(--brand-1)/0.12] bg-white/92 p-6 shadow-[0_24px_60px_-44px_rgba(7,78,134,0.45)] backdrop-blur transition-transform duration-200 hover:-translate-y-1",
-                      index === 0 &&
-                        "bg-[color:var(--brand-1)/0.06]",
+                      index === 0 && "bg-[color:var(--brand-1)/0.06]",
                     )}
                   >
                     <h3 className="text-base font-semibold text-slate-900">
