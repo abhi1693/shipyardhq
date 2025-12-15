@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -54,6 +54,7 @@ import type {
   PaymentConnectorProvider,
   PaymentConnectorStatus,
 } from "@/lib/vendor/prisma/client/enums"
+import type { ProductForEditWizard } from "@/types/product-wizard"
 
 type ConnectorSummary = {
   provider?: PaymentConnectorProvider
@@ -71,7 +72,7 @@ type AlternativeProduct = {
 }
 
 type BaseProps = {
-  product: any
+  product: ProductForEditWizard
   categories: { id: string; name: string; icon?: string | null }[]
   organizations: { id: string; name: string }[]
   connector?: {
@@ -353,6 +354,14 @@ export default function EditProductWizard(props: EditProductWizardProps) {
       : "Update the essentials, then optionally edit verification and connect revenue for higher visibility."
   const formId =
     props.mode === "admin" ? "admin-edit-product-form" : "edit-product-form"
+  const disableSubmit = props.mode === "admin" && !ownerId
+  const handlePublishedSubmit = disableSubmit
+    ? (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        toast.error("Please select an owner")
+        jumpTo("core")
+      }
+    : submitWithStatus("published")
 
   return (
     <Card className="mx-auto w-full max-w-4xl">
@@ -364,7 +373,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
         <FormProvider {...form}>
           <form
             id={formId}
-            onSubmit={submitWithStatus("published")}
+            onSubmit={handlePublishedSubmit}
             className="space-y-6 pb-24"
           >
             <ProductWizardAccordion
@@ -390,6 +399,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
         <ProductWizardFooter
           formId={formId}
           isSubmitting={form.formState.isSubmitting}
+          isDisabled={disableSubmit}
           smartNextAction={smartNextAction}
           onSaveDraft={() => submitWithStatus("draft")()}
         />

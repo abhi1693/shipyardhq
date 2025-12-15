@@ -7,6 +7,7 @@ export type WizardSmartNextAction = { label: string; onClick: () => void }
 export default function ProductWizardFooter({
   formId,
   isSubmitting,
+  isDisabled,
   smartNextAction,
   onSaveDraft,
   publishLabel = "Publish",
@@ -14,24 +15,28 @@ export default function ProductWizardFooter({
 }: {
   formId: string
   isSubmitting: boolean
+  isDisabled?: boolean
   smartNextAction: WizardSmartNextAction | null
   onSaveDraft: () => void
   publishLabel?: string
   publishingLabel?: string
 }) {
+  const disabled = isSubmitting || Boolean(isDisabled)
+  const tipDisabled = isSubmitting
+
   return (
     <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       {smartNextAction ? (
         <div
           role="button"
-          tabIndex={isSubmitting ? -1 : 0}
-          aria-disabled={isSubmitting}
+          tabIndex={tipDisabled ? -1 : 0}
+          aria-disabled={tipDisabled}
           onClick={() => {
-            if (isSubmitting) return
+            if (tipDisabled) return
             smartNextAction.onClick()
           }}
           onKeyDown={(e) => {
-            if (isSubmitting) return
+            if (tipDisabled) return
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault()
               smartNextAction.onClick()
@@ -52,16 +57,18 @@ export default function ProductWizardFooter({
           type="button"
           variant="outline"
           className="border-slate-300 text-slate-700"
-          disabled={isSubmitting}
-          onClick={onSaveDraft}
+          disabled={disabled}
+          onClick={() => {
+            if (disabled) return
+            onSaveDraft()
+          }}
         >
           Save draft
         </Button>
-        <Button type="submit" form={formId} disabled={isSubmitting}>
+        <Button type="submit" form={formId} disabled={disabled}>
           {isSubmitting ? publishingLabel : publishLabel}
         </Button>
       </div>
     </div>
   )
 }
-

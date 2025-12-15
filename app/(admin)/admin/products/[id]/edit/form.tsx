@@ -5,6 +5,7 @@ import type {
   PaymentConnectorProvider,
   PaymentConnectorStatus,
 } from "@/lib/vendor/prisma/client/enums"
+import type { ProductForEditWizard } from "@/types/product-wizard"
 
 export default function EditProductForm({
   product,
@@ -13,7 +14,7 @@ export default function EditProductForm({
   users,
   connector,
 }: {
-  product: any
+  product: ProductForEditWizard
   categories: { id: string; name: string; icon?: string | null }[]
   organizations: { id: string; name: string }[]
   users: { id: string; email: string }[]
@@ -39,4 +40,3 @@ export default function EditProductForm({
     />
   )
 }
-

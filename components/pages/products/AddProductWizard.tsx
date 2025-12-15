@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -307,6 +307,14 @@ export default function AddProductWizard(props: AddProductWizardProps) {
       ? "Fill the essentials, then optionally add verification and alternatives to boost visibility."
       : "Fill the essentials, then optionally add verification and connect revenue for higher visibility."
   const formId = props.mode === "admin" ? "admin-add-product-form" : "add-product-form"
+  const disableSubmit = props.mode === "admin" && !ownerId
+  const handlePublishedSubmit = disableSubmit
+    ? (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        toast.error("Please select an owner")
+        jumpTo("core")
+      }
+    : submitWithStatus("published")
 
   return (
     <>
@@ -319,7 +327,7 @@ export default function AddProductWizard(props: AddProductWizardProps) {
           <FormProvider {...form}>
             <form
               id={formId}
-              onSubmit={submitWithStatus("published")}
+              onSubmit={handlePublishedSubmit}
               className="space-y-6 pb-24"
             >
               <ProductWizardAccordion
@@ -345,6 +353,7 @@ export default function AddProductWizard(props: AddProductWizardProps) {
           <ProductWizardFooter
             formId={formId}
             isSubmitting={form.formState.isSubmitting}
+            isDisabled={disableSubmit}
             smartNextAction={smartNextAction}
             onSaveDraft={() => submitWithStatus("draft")()}
           />
