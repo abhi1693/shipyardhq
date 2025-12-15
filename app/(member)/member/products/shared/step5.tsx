@@ -137,15 +137,6 @@ export default function Step4({
     return new Map(alternatives.map((alt) => [alt.id, alt]))
   }, [alternatives])
 
-  const demoSuggestions = useMemo(() => {
-    const base = typeof websiteUrl === "string" ? websiteUrl.trim() : ""
-    if (!base) return []
-    const candidates = ["/demo", "/pricing", "/app", "/docs"]
-      .map((p) => buildDemoSuggestion(base, p))
-      .filter(Boolean)
-    return Array.from(new Set(candidates)).slice(0, 4)
-  }, [websiteUrl])
-
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -179,23 +170,6 @@ export default function Step4({
                     }}
                   />
                 </FormControl>
-
-                {demoSuggestions.length ? (
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {demoSuggestions.map((url) => (
-                      <Button
-                        key={url}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-7 px-2 text-xs"
-                        onClick={() => field.onChange(url)}
-                      >
-                        {new URL(url).pathname}
-                      </Button>
-                    ))}
-                  </div>
-                ) : null}
 
                 {isSameAsWebsite ? (
                   <p className="pt-2 text-xs text-muted-foreground">
