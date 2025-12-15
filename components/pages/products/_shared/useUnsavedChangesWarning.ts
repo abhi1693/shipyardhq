@@ -18,4 +18,3 @@ export function useUnsavedChangesWarning(isDirty: boolean) {
     }
   }, [isDirty])
 }
-

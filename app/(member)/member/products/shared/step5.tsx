@@ -276,8 +276,8 @@ export default function Step4({
               <div className="pt-3">
                 <FormLabel className="sr-only">UTM Campaign</FormLabel>
                 <FormDescription>
-                  Appended to outbound links so you can track Shipyard traffic in
-                  analytics (e.g. GA/Amplitude).
+                  Appended to outbound links so you can track Shipyard traffic
+                  in analytics (e.g. GA/Amplitude).
                 </FormDescription>
                 <FormControl>
                   <Input placeholder="e.g. shipyard-launch" {...field} />
@@ -341,7 +341,9 @@ export default function Step4({
                             }}
                             title="Remove"
                           >
-                            <span className="max-w-[14rem] truncate">{label}</span>
+                            <span className="max-w-[14rem] truncate">
+                              {label}
+                            </span>
                             <X className="h-3.5 w-3.5 text-muted-foreground" />
                           </button>
                         )
@@ -349,7 +351,8 @@ export default function Step4({
                     </div>
                   ) : (
                     <p className="text-xs text-muted-foreground">
-                      Pick up to {maxAlternatives} products you replace or compete with.
+                      Pick up to {maxAlternatives} products you replace or
+                      compete with.
                     </p>
                   )}
 
@@ -366,8 +369,8 @@ export default function Step4({
 
                 {!alternatives.length ? (
                   <p className="text-xs text-muted-foreground">
-                    No alternatives available yet. Ask an admin to add them from the
-                    catalog.
+                    No alternatives available yet. Ask an admin to add them from
+                    the catalog.
                   </p>
                 ) : null}
               </div>
@@ -383,15 +386,17 @@ export default function Step4({
                   <DialogHeader>
                     <DialogTitle>Choose alternatives</DialogTitle>
                     <DialogDescription>
-                      Select up to {maxAlternatives}. These show on alternative searches and
-                      comparisons.
+                      Select up to {maxAlternatives}. These show on alternative
+                      searches and comparisons.
                     </DialogDescription>
                   </DialogHeader>
 
                   <div className="space-y-3">
                     <Input
                       value={alternativeQuery}
-                      onChange={(event) => setAlternativeQuery(event.target.value)}
+                      onChange={(event) =>
+                        setAlternativeQuery(event.target.value)
+                      }
                       placeholder="Search by name or URL"
                     />
 
@@ -406,7 +411,8 @@ export default function Step4({
                             {pinnedFiltered.map((alternative) => {
                               const isSelected = selectedSet.has(alternative.id)
                               const atLimit =
-                                selectedSet.size >= maxAlternatives && !isSelected
+                                selectedSet.size >= maxAlternatives &&
+                                !isSelected
                               return (
                                 <label
                                   key={alternative.id}
@@ -453,7 +459,10 @@ export default function Step4({
                       <span className="text-xs text-muted-foreground">
                         Selected: {selectedSet.size}/{maxAlternatives}
                       </span>
-                      <Button type="button" onClick={() => setAlternativesOpen(false)}>
+                      <Button
+                        type="button"
+                        onClick={() => setAlternativesOpen(false)}
+                      >
                         Done
                       </Button>
                     </div>

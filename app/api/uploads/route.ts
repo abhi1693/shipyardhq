@@ -39,7 +39,8 @@ export async function POST(req: Request) {
       return new Response("Forbidden", { status: 403 })
     }
 
-    const effectiveClerkId = asClerkId && user.role === "admin" ? asClerkId : userId
+    const effectiveClerkId =
+      asClerkId && user.role === "admin" ? asClerkId : userId
     const prefix =
       scope === "global"
         ? `global/${trimmedFolder}`

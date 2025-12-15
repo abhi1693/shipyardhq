@@ -20,7 +20,11 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import { SearchableSelect } from "@/components/molecules/SearchableSelect"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/atoms/tooltip"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/atoms/tooltip"
 
 type CurrencyOption = { code: string; name: string }
 
@@ -145,7 +149,10 @@ export default function Step2({
         value: c.code,
         label: `${c.code} — ${c.name}`,
         icon: (
-          <span className="tabular-nums text-muted-foreground" aria-hidden="true">
+          <span
+            className="tabular-nums text-muted-foreground"
+            aria-hidden="true"
+          >
             {symbol}
           </span>
         ),
@@ -185,7 +192,8 @@ export default function Step2({
 
   useEffect(() => {
     const isFocused =
-      typeof document !== "undefined" && document.activeElement === priceInputRef.current
+      typeof document !== "undefined" &&
+      document.activeElement === priceInputRef.current
     if (isFocused) return
 
     const numericCents =
@@ -206,7 +214,10 @@ export default function Step2({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fractionDigits, startingPriceCents])
 
-  function setCentsFromPriceText(nextText: string, opts?: { validate?: boolean }) {
+  function setCentsFromPriceText(
+    nextText: string,
+    opts?: { validate?: boolean },
+  ) {
     const normalized = normalizeMoneyInput(nextText)
     if (!normalized) {
       form.setValue("startingPriceCents" as any, undefined, {
@@ -244,7 +255,8 @@ export default function Step2({
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="top" sideOffset={6}>
-                  Choose how you monetize. For subscription/one-time, add a starting price.
+                  Choose how you monetize. For subscription/one-time, add a
+                  starting price.
                 </TooltipContent>
               </Tooltip>
             </FormLabel>
@@ -320,7 +332,9 @@ export default function Step2({
                       value={priceText}
                       aria-required={requirePrice || undefined}
                       onChange={(e) => {
-                        const normalized = normalizeMoneyInput(e.currentTarget.value)
+                        const normalized = normalizeMoneyInput(
+                          e.currentTarget.value,
+                        )
                         setPriceText(normalized)
                         form.clearErrors(field.name)
                         setCentsFromPriceText(normalized, { validate: false })

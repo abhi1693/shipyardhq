@@ -50,15 +50,12 @@ export default function StepMedia({
     control: form.control,
     name: "galleryMedia" as any,
   }) as string[] | undefined
-  const draftGalleryMedia = useMemo(
-    () => {
-      const urls = Array.isArray(draftGalleryUrls) ? draftGalleryUrls : []
-      return urls
-        .filter((url) => typeof url === "string" && url.length)
-        .map((url) => ({ id: url, imageUrl: url }))
-    },
-    [draftGalleryUrls],
-  )
+  const draftGalleryMedia = useMemo(() => {
+    const urls = Array.isArray(draftGalleryUrls) ? draftGalleryUrls : []
+    return urls
+      .filter((url) => typeof url === "string" && url.length)
+      .map((url) => ({ id: url, imageUrl: url }))
+  }, [draftGalleryUrls])
   const [busy, setBusy] = useState<null | "upload" | "delete">(null)
   const [uploadProgress, setUploadProgress] = useState<UploadProgress>(null)
   const [deletingUrl, setDeletingUrl] = useState<string | null>(null)
@@ -68,7 +65,8 @@ export default function StepMedia({
   const effectiveMedia = isDraftMode ? draftGalleryMedia : galleryMedia
   const remaining = Math.max(0, (maxGallery ?? 6) - effectiveMedia.length)
   const canEdit = isDraftMode ? true : canEditGallery
-  const requiresOwner = isDraftMode && requireUploadAsClerkId && !uploadAsClerkId
+  const requiresOwner =
+    isDraftMode && requireUploadAsClerkId && !uploadAsClerkId
   const canUpload =
     remaining > 0 &&
     (isDraftMode ? Boolean(productId) && !requiresOwner : canEditGallery)
@@ -76,7 +74,8 @@ export default function StepMedia({
   function validateAndSliceFiles(files: FileList | File[]) {
     const all = Array.from(files || [])
     const selected = all.slice(0, remaining)
-    if (!selected.length) return { selected: [] as File[], error: null as string | null }
+    if (!selected.length)
+      return { selected: [] as File[], error: null as string | null }
 
     const invalidType = selected.find((f) => !f.type?.startsWith("image/"))
     if (invalidType) {
@@ -122,11 +121,16 @@ export default function StepMedia({
             fd.append("folder", "media")
             fd.append("productId", productId)
             if (uploadAsClerkId) fd.append("asClerkId", uploadAsClerkId)
-            const res = await fetch("/api/uploads", { method: "POST", body: fd })
+            const res = await fetch("/api/uploads", {
+              method: "POST",
+              body: fd,
+            })
             if (!res.ok) {
               const msg = await res.text().catch(() => "")
               throw new Error(
-                msg ? `${file.name || "image"}: ${msg}` : `${file.name || "image"}: Upload failed`,
+                msg
+                  ? `${file.name || "image"}: ${msg}`
+                  : `${file.name || "image"}: Upload failed`,
               )
             }
             const payload = (await res.json()) as { url?: string }
@@ -141,7 +145,10 @@ export default function StepMedia({
         }),
       )
       const uploadedUrls = results
-        .filter((r): r is PromiseFulfilledResult<string | null> => r.status === "fulfilled")
+        .filter(
+          (r): r is PromiseFulfilledResult<string | null> =>
+            r.status === "fulfilled",
+        )
         .map((r) => r.value)
         .filter((u): u is string => typeof u === "string" && u.length > 0)
 
@@ -161,7 +168,8 @@ export default function StepMedia({
         )
       }
       if (uploadedUrls.length) {
-        const current = (form.getValues("galleryMedia" as any) as string[]) || []
+        const current =
+          (form.getValues("galleryMedia" as any) as string[]) || []
         const next = Array.from(new Set([...current, ...uploadedUrls])).slice(
           0,
           maxGallery,
@@ -186,7 +194,9 @@ export default function StepMedia({
     try {
       const qp = new URLSearchParams({ url })
       if (uploadAsClerkId) qp.set("asClerkId", uploadAsClerkId)
-      const res = await fetch(`/api/uploads?${qp.toString()}`, { method: "DELETE" })
+      const res = await fetch(`/api/uploads?${qp.toString()}`, {
+        method: "DELETE",
+      })
       if (!res.ok && res.status !== 204) throw new Error(await res.text())
       const current = (form.getValues("galleryMedia" as any) as string[]) || []
       form.setValue(
@@ -267,7 +277,8 @@ export default function StepMedia({
     ) {
       return `Uploading ${uploadProgress.done}/${uploadProgress.total}…`
     }
-    if (uploadProgress?.total) return `Uploading ${uploadProgress.total} image${uploadProgress.total === 1 ? "" : "s"}…`
+    if (uploadProgress?.total)
+      return `Uploading ${uploadProgress.total} image${uploadProgress.total === 1 ? "" : "s"}…`
     return "Uploading…"
   }
 
@@ -301,7 +312,8 @@ export default function StepMedia({
                           </button>
                         </TooltipTrigger>
                         <TooltipContent side="top" sideOffset={6}>
-                          Square logo recommended (e.g. 272×272). Used across badges and cards.
+                          Square logo recommended (e.g. 272×272). Used across
+                          badges and cards.
                         </TooltipContent>
                       </Tooltip>
                       <span className="text-xs font-normal text-muted-foreground">
@@ -341,7 +353,8 @@ export default function StepMedia({
                           </button>
                         </TooltipTrigger>
                         <TooltipContent side="top" sideOffset={6}>
-                          Optional. 1200×628 recommended for link previews (X/LinkedIn/Slack).
+                          Optional. 1200×628 recommended for link previews
+                          (X/LinkedIn/Slack).
                         </TooltipContent>
                       </Tooltip>
                     </span>
@@ -447,7 +460,11 @@ export default function StepMedia({
                             ? removeDraftUrl(m.imageUrl)
                             : removeSavedMedia(m.id)
                         }
-                        disabled={busy === "upload" || deletingUrl === m.id || deletingUrl === m.imageUrl}
+                        disabled={
+                          busy === "upload" ||
+                          deletingUrl === m.id ||
+                          deletingUrl === m.imageUrl
+                        }
                         aria-label="Remove image"
                         title="Remove image"
                       />
@@ -472,7 +489,9 @@ export default function StepMedia({
                     accept="image/*"
                     multiple
                     className="hidden"
-                    onChange={(e) => e.target.files && uploadFiles(e.target.files)}
+                    onChange={(e) =>
+                      e.target.files && uploadFiles(e.target.files)
+                    }
                     disabled={busy === "upload" || !canUpload}
                   />
                   <Plus className="h-4 w-4" aria-hidden="true" />
@@ -502,10 +521,16 @@ export default function StepMedia({
             />
             <div className="space-y-1">
               <div className="font-medium">
-                {busy === "upload" ? uploadingText() : "Drag & drop screenshots (or click)"}
+                {busy === "upload"
+                  ? uploadingText()
+                  : "Drag & drop screenshots (or click)"}
               </div>
               <div className="text-xs text-muted-foreground">
-                {canUpload ? `Add up to ${remaining}.` : requiresOwner ? "Select an owner to upload." : "Uploads unavailable."}
+                {canUpload
+                  ? `Add up to ${remaining}.`
+                  : requiresOwner
+                    ? "Select an owner to upload."
+                    : "Uploads unavailable."}
               </div>
             </div>
           </label>

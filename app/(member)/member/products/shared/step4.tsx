@@ -212,14 +212,20 @@ export default function Step3({
             </div>
           </div>
 
-          <Accordion type="single" collapsible className="rounded-lg border bg-background/60">
+          <Accordion
+            type="single"
+            collapsible
+            className="rounded-lg border bg-background/60"
+          >
             <AccordionItem value="steps" className="px-3">
               <AccordionTrigger className="-mx-3 px-3 text-sm hover:no-underline">
                 Setup steps
               </AccordionTrigger>
               <AccordionContent className="pb-3">
                 <ol className="list-decimal space-y-1 pl-4 text-xs text-muted-foreground">
-                  <li>Open your domain&apos;s DNS settings at your provider.</li>
+                  <li>
+                    Open your domain&apos;s DNS settings at your provider.
+                  </li>
                   <li>Add the TXT record exactly as shown above.</li>
                   <li>Return here and click Verify.</li>
                 </ol>
@@ -231,10 +237,12 @@ export default function Step3({
               </AccordionTrigger>
               <AccordionContent className="pb-3">
                 <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
-                  <li>DNS changes can take time to propagate (sometimes hours).</li>
                   <li>
-                    Some providers want host <code>@</code>, others want the root
-                    domain.
+                    DNS changes can take time to propagate (sometimes hours).
+                  </li>
+                  <li>
+                    Some providers want host <code>@</code>, others want the
+                    root domain.
                   </li>
                   <li>
                     Make sure you added the record to the root domain (not only{" "}

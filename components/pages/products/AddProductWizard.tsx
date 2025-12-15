@@ -3,11 +3,7 @@
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import {
-  FormProvider,
-  useForm,
-  useWatch,
-} from "react-hook-form"
+import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 
 import { createProductAction } from "@/actions/admin/products/actions"
@@ -48,7 +44,10 @@ import {
   getInitialValuesForAdd,
   toCreateFormData,
 } from "@/lib/productWizard/mappers"
-import { addProductSchema, makeAdminAddProductSchema } from "@/lib/productWizard/schema"
+import {
+  addProductSchema,
+  makeAdminAddProductSchema,
+} from "@/lib/productWizard/schema"
 import {
   adminPath,
   MEMBER_PRODUCTS_PATH,
@@ -141,7 +140,9 @@ export default function AddProductWizard(props: AddProductWizardProps) {
     name: "verificationSuccess" as any,
   }) as boolean | undefined
 
-  const hasRevenueSetupDraft = Boolean(connectorProvider && connectorApiKey?.length)
+  const hasRevenueSetupDraft = Boolean(
+    connectorProvider && connectorApiKey?.length,
+  )
   const pricingModel = useWatch({
     control: form.control,
     name: "pricingModel" as any,
@@ -172,7 +173,10 @@ export default function AddProductWizard(props: AddProductWizardProps) {
   }, [form])
 
   async function submitAll(
-    values: ProductWizardInput & { status?: "draft" | "published"; ownerId?: string },
+    values: ProductWizardInput & {
+      status?: "draft" | "published"
+      ownerId?: string
+    },
   ) {
     try {
       if (props.mode === "admin") {
@@ -184,7 +188,8 @@ export default function AddProductWizard(props: AddProductWizardProps) {
           return
         }
         const nextSlug =
-          typeof (result as any)?.slug === "string" && (result as any).slug.length
+          typeof (result as any)?.slug === "string" &&
+          (result as any).slug.length
             ? (result as any).slug
             : null
         setCelebrationProductSlug(nextSlug)
@@ -300,7 +305,9 @@ export default function AddProductWizard(props: AddProductWizardProps) {
       <Step2 productId={newProductId} />
     )
   const pricing = <Step3 />
-  const verification = <Step4 productId={newProductId} persistOnVerify={false} />
+  const verification = (
+    <Step4 productId={newProductId} persistOnVerify={false} />
+  )
   const details = (
     <Step5
       organizations={props.organizations}
@@ -316,13 +323,16 @@ export default function AddProductWizard(props: AddProductWizardProps) {
     props.mode === "member"
       ? "Fill the essentials, then optionally add verification and alternatives to boost visibility."
       : "Fill the essentials, then optionally add verification and connect revenue for higher visibility."
-  const formId = props.mode === "admin" ? "admin-add-product-form" : "add-product-form"
+  const formId =
+    props.mode === "admin" ? "admin-add-product-form" : "add-product-form"
 
   return (
     <>
       <Card className="mx-auto w-full max-w-4xl">
         <CardHeader>
-          <CardTitle className="text-left text-2xl font-bold">Add product</CardTitle>
+          <CardTitle className="text-left text-2xl font-bold">
+            Add product
+          </CardTitle>
           <CardDescription>{description}</CardDescription>
         </CardHeader>
         <CardContent>
@@ -375,7 +385,9 @@ export default function AddProductWizard(props: AddProductWizardProps) {
             }
           }}
           productPublicPath={
-            celebrationProductSlug ? productPath(celebrationProductSlug) : undefined
+            celebrationProductSlug
+              ? productPath(celebrationProductSlug)
+              : undefined
           }
         />
       ) : null}

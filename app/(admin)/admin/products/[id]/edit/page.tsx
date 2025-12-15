@@ -14,15 +14,16 @@ export default async function EditProductPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const [product, categories, users, organizations, connector] = await Promise.all([
-    getProductForEditWizard(id),
-    getCategories({ select: { id: true, name: true, icon: true } }),
-    getUsers({
-      select: { id: true, email: true, clerkId: true },
-    }),
-    getOrganizations({ select: { id: true, name: true } }),
-    getProductConnectorSummaryForAdmin(id),
-  ])
+  const [product, categories, users, organizations, connector] =
+    await Promise.all([
+      getProductForEditWizard(id),
+      getCategories({ select: { id: true, name: true, icon: true } }),
+      getUsers({
+        select: { id: true, email: true, clerkId: true },
+      }),
+      getOrganizations({ select: { id: true, name: true } }),
+      getProductConnectorSummaryForAdmin(id),
+    ])
 
   if (!product) return notFound()
 

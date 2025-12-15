@@ -87,7 +87,9 @@ export const SearchableSelect = React.forwardRef<
                 {selected.icon}
               </span>
             ) : null}
-            <span className="line-clamp-1">{selected?.label ?? placeholder}</span>
+            <span className="line-clamp-1">
+              {selected?.label ?? placeholder}
+            </span>
           </span>
           <ChevronDown className="h-4 w-4 opacity-50" />
         </button>

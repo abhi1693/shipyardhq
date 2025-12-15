@@ -161,7 +161,9 @@ export function PaymentConnectorCard({
             : "org_..."
 
   const statusBadge = renderStatus(status)
-  const rankingBoostPct = Math.round((VERIFIED_REVENUE_RANKING_MULTIPLIER - 1) * 100)
+  const rankingBoostPct = Math.round(
+    (VERIFIED_REVENUE_RANKING_MULTIPLIER - 1) * 100,
+  )
 
   return (
     <div className="space-y-4">
@@ -173,9 +175,9 @@ export function PaymentConnectorCard({
           <p className="text-xs text-muted-foreground">
             Connect a payment provider to show verified revenue and boost
             click-based ranking by{" "}
-            {VERIFIED_REVENUE_RANKING_MULTIPLIER.toFixed(1)}× (+{rankingBoostPct}
-            %) once revenue is verified.
-            Optional, but recommended.
+            {VERIFIED_REVENUE_RANKING_MULTIPLIER.toFixed(1)}× (+
+            {rankingBoostPct}
+            %) once revenue is verified. Optional, but recommended.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -234,9 +236,7 @@ export function PaymentConnectorCard({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="connector-key">
-          API key
-        </Label>
+        <Label htmlFor="connector-key">API key</Label>
         <Input
           id="connector-key"
           type="password"

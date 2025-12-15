@@ -183,9 +183,8 @@ async function main() {
   loadDotenv({ path: ".env.local" })
   loadDotenv({ path: ".env" })
 
-  const { getNovuClient, isNovuEnabled } = await import(
-    "@/lib/server/notifications/novu"
-  )
+  const { getNovuClient, isNovuEnabled } =
+    await import("@/lib/server/notifications/novu")
 
   if (!isNovuEnabled()) {
     throw new Error("NOVU_SECRET_KEY is required to manage subscribers.")
@@ -263,4 +262,3 @@ main().catch((error) => {
   console.error(`[clear-novu-subscribers] ${message}`)
   process.exitCode = 1
 })
-

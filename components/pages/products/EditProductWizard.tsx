@@ -3,11 +3,7 @@
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import {
-  FormProvider,
-  useForm,
-  useWatch,
-} from "react-hook-form"
+import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 
 import {
@@ -128,7 +124,10 @@ export default function EditProductWizard(props: EditProductWizardProps) {
   const form = useForm<ProductWizardInput & { ownerId?: string }>({
     resolver: zodResolver(schema) as any,
     defaultValues: {
-      ...getInitialValuesFromProduct(props.product, props.connector || undefined),
+      ...getInitialValuesFromProduct(
+        props.product,
+        props.connector || undefined,
+      ),
       ...(props.mode === "admin" ? { ownerId: props.product.userId } : {}),
     },
     mode: "onBlur",
@@ -158,9 +157,15 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     name: "verificationSuccess" as any,
   }) as boolean | undefined
 
-  const productAlreadyVerified = Boolean(props.product?.verification?.isVerified)
-  const domainCheckedEffective = productAlreadyVerified ? true : Boolean(domainChecked)
-  const domainVerifiedEffective = productAlreadyVerified ? true : Boolean(domainVerified)
+  const productAlreadyVerified = Boolean(
+    props.product?.verification?.isVerified,
+  )
+  const domainCheckedEffective = productAlreadyVerified
+    ? true
+    : Boolean(domainChecked)
+  const domainVerifiedEffective = productAlreadyVerified
+    ? true
+    : Boolean(domainVerified)
 
   const hasRevenueSetupDraft = Boolean(
     connectorState?.provider || (connectorProvider && connectorApiKey?.length),
@@ -236,7 +241,10 @@ export default function EditProductWizard(props: EditProductWizardProps) {
   }, [connectorState, form, props.product.id, setConnectorState])
 
   async function submitAll(
-    values: ProductWizardInput & { status?: "draft" | "published"; ownerId?: string },
+    values: ProductWizardInput & {
+      status?: "draft" | "published"
+      ownerId?: string
+    },
   ) {
     try {
       const payload = toUpdatePayload(values, props.product)
@@ -374,7 +382,9 @@ export default function EditProductWizard(props: EditProductWizardProps) {
   return (
     <Card className="mx-auto w-full max-w-4xl">
       <CardHeader>
-        <CardTitle className="text-left text-2xl font-bold">Edit product</CardTitle>
+        <CardTitle className="text-left text-2xl font-bold">
+          Edit product
+        </CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>

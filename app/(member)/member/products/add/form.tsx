@@ -30,4 +30,3 @@ export default function AddProductForm({
 }
 
 export type { ProductWizardInputAdd as AddProductValues } from "@/lib/productWizard/schema"
-

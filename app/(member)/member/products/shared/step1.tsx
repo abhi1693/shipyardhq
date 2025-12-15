@@ -458,17 +458,24 @@ export default function Step1({
                               className={INFO_TRIGGER_CLASS}
                               aria-label="Name guidance"
                             >
-                              <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                              <Info
+                                className="h-3.5 w-3.5"
+                                aria-hidden="true"
+                              />
                             </button>
                           </TooltipTrigger>
                           <TooltipContent side="top" sideOffset={6}>
-                            Keep it short and recognizable (max {NAME_MAX_CHARS}).
+                            Keep it short and recognizable (max {NAME_MAX_CHARS}
+                            ).
                           </TooltipContent>
                         </Tooltip>
                       </FormLabel>
                       <span className="text-xs tabular-nums text-muted-foreground">
-                        {(typeof field.value === "string" ? field.value : "").length}/
-                        {NAME_MAX_CHARS}
+                        {
+                          (typeof field.value === "string" ? field.value : "")
+                            .length
+                        }
+                        /{NAME_MAX_CHARS}
                       </span>
                     </div>
                     <FormControl>
@@ -508,18 +515,25 @@ export default function Step1({
                               className={INFO_TRIGGER_CLASS}
                               aria-label="Tagline guidance"
                             >
-                              <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                              <Info
+                                className="h-3.5 w-3.5"
+                                aria-hidden="true"
+                              />
                             </button>
                           </TooltipTrigger>
                           <TooltipContent side="top" sideOffset={6}>
-                            Recommended {TAGLINE_RECOMMENDED_MIN}–{TAGLINE_RECOMMENDED_MAX}{" "}
-                            characters (max {TAGLINE_MAX_CHARS}).
+                            Recommended {TAGLINE_RECOMMENDED_MIN}–
+                            {TAGLINE_RECOMMENDED_MAX} characters (max{" "}
+                            {TAGLINE_MAX_CHARS}).
                           </TooltipContent>
                         </Tooltip>
                       </FormLabel>
                       <span className="text-xs tabular-nums text-muted-foreground">
-                        {(typeof field.value === "string" ? field.value : "").length}/
-                        {TAGLINE_MAX_CHARS}
+                        {
+                          (typeof field.value === "string" ? field.value : "")
+                            .length
+                        }
+                        /{TAGLINE_MAX_CHARS}
                       </span>
                     </div>
                     <FormControl>
@@ -608,7 +622,9 @@ export default function Step1({
                         <SelectItem
                           key={v}
                           value={v}
-                          icon={<Icon className="h-4 w-4 text-muted-foreground" />}
+                          icon={
+                            <Icon className="h-4 w-4 text-muted-foreground" />
+                          }
                         >
                           {l}
                         </SelectItem>
@@ -640,7 +656,8 @@ export default function Step1({
                         </button>
                       </TooltipTrigger>
                       <TooltipContent side="top" sideOffset={6}>
-                        Select all that apply. Options may be filtered by product type.
+                        Select all that apply. Options may be filtered by
+                        product type.
                       </TooltipContent>
                     </Tooltip>
                   </FormLabel>
@@ -732,7 +749,8 @@ export default function Step1({
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="top" sideOffset={6}>
-                      Helps people find your product in search. Recommended: 3–8 keywords.
+                      Helps people find your product in search. Recommended: 3–8
+                      keywords.
                     </TooltipContent>
                   </Tooltip>
                 </FormLabel>

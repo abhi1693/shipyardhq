@@ -1,4 +1,7 @@
-import type { PaymentConnectorProvider, PaymentConnectorStatus } from "@/lib/vendor/prisma/client/enums"
+import type {
+  PaymentConnectorProvider,
+  PaymentConnectorStatus,
+} from "@/lib/vendor/prisma/client/enums"
 
 export type ProductWizardConnectorSummary = {
   id: string
@@ -10,4 +13,3 @@ export type ProductWizardConnectorSummary = {
   accountId?: string | null
   brandId?: string | null
 } | null
-

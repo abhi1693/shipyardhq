@@ -117,7 +117,9 @@ export default function ProductWizardAccordion({
         <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
           <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
             <div className="flex min-w-0 flex-col gap-1">
-              <span className="font-semibold text-slate-900">Boost visibility</span>
+              <span className="font-semibold text-slate-900">
+                Boost visibility
+              </span>
               <span className="text-xs font-normal text-muted-foreground">
                 Verified revenue (+40%) and domain badge.
               </span>
@@ -161,12 +163,15 @@ export default function ProductWizardAccordion({
                                 e.stopPropagation()
                               }}
                             >
-                              <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                              <Info
+                                className="h-3.5 w-3.5"
+                                aria-hidden="true"
+                              />
                             </button>
                           </TooltipTrigger>
                           <TooltipContent side="top" sideOffset={6}>
-                            Connect a payment provider to become eligible for the verified
-                            revenue ranking boost.
+                            Connect a payment provider to become eligible for
+                            the verified revenue ranking boost.
                           </TooltipContent>
                         </Tooltip>
                       </div>
@@ -243,12 +248,15 @@ export default function ProductWizardAccordion({
                                 e.stopPropagation()
                               }}
                             >
-                              <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                              <Info
+                                className="h-3.5 w-3.5"
+                                aria-hidden="true"
+                              />
                             </button>
                           </TooltipTrigger>
                           <TooltipContent side="top" sideOffset={6}>
-                            Verify domain ownership to show a verified badge and reduce
-                            impersonation.
+                            Verify domain ownership to show a verified badge and
+                            reduce impersonation.
                           </TooltipContent>
                         </Tooltip>
                       </div>

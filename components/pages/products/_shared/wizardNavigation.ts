@@ -2,7 +2,12 @@
 
 import { useState } from "react"
 
-export type WizardSectionKey = "core" | "media" | "pricing" | "boost" | "details"
+export type WizardSectionKey =
+  | "core"
+  | "media"
+  | "pricing"
+  | "boost"
+  | "details"
 export type WizardBoostPanel = null | "revenue" | "domain"
 
 const SECTION_FIELDS: Record<WizardSectionKey, readonly string[]> = {
@@ -39,7 +44,9 @@ const SECTION_FIELDS: Record<WizardSectionKey, readonly string[]> = {
   ],
 }
 
-function getSectionsForErrorFields(fields: readonly string[]): WizardSectionKey[] {
+function getSectionsForErrorFields(
+  fields: readonly string[],
+): WizardSectionKey[] {
   const sections: WizardSectionKey[] = []
   const fieldSet = new Set(fields)
   ;(Object.keys(SECTION_FIELDS) as WizardSectionKey[]).forEach((section) => {
@@ -52,7 +59,8 @@ function getSectionsForErrorFields(fields: readonly string[]): WizardSectionKey[
 export function useWizardNavigation(
   initialOpen: WizardSectionKey[] = ["core", "media", "pricing"],
 ) {
-  const [openSections, setOpenSections] = useState<WizardSectionKey[]>(initialOpen)
+  const [openSections, setOpenSections] =
+    useState<WizardSectionKey[]>(initialOpen)
   const [openBoostPanel, setOpenBoostPanel] = useState<WizardBoostPanel>(null)
 
   function toggleBoostPanel(panel: Exclude<WizardBoostPanel, null>) {
@@ -77,7 +85,9 @@ export function useWizardNavigation(
     const keys = Object.keys(errors)
     const sectionsToOpen = getSectionsForErrorFields(keys)
     setOpenSections((prev) =>
-      Array.from(new Set([...(prev || []), ...(sectionsToOpen as WizardSectionKey[])])),
+      Array.from(
+        new Set([...(prev || []), ...(sectionsToOpen as WizardSectionKey[])]),
+      ),
     )
     if (sectionsToOpen.includes("boost")) {
       const hasRevenueError = keys.some((k) => k.startsWith("connector"))
