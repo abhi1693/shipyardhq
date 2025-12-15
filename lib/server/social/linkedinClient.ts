@@ -50,6 +50,16 @@ function parseLinkedInError(
   status: number,
   detail?: string,
 ): LinkedInPostResult {
+  const normalizedDetail = detail?.trim()
+  if (normalizedDetail && /member is restricted/i.test(normalizedDetail)) {
+    return {
+      posted: false,
+      reason: "member-restricted",
+      status,
+      detail: normalizedDetail,
+    }
+  }
+
   let reason: LinkedInPostResult["reason"] = "api-error"
   if (status === 401) {
     reason = "unauthorized"
@@ -65,7 +75,7 @@ function parseLinkedInError(
     posted: false,
     reason,
     status,
-    detail,
+    detail: normalizedDetail,
   }
 }
 
@@ -151,7 +161,29 @@ export async function postLinkedInUpdate(
       }
     }
 
-    return parseLinkedInError(response.status, detail)
+    const parsed = parseLinkedInError(response.status, detail)
+
+    if (
+      parsed.reason === "unauthorized" ||
+      parsed.reason === "forbidden" ||
+      parsed.reason === "member-restricted"
+    ) {
+      notifyLinkedInAuthNeeded({
+        trigger: `post-failed:${parsed.reason}`,
+        force: true,
+        context: {
+          status: parsed.status,
+          reason: parsed.reason,
+          detail: parsed.detail,
+        },
+      }).catch((error) =>
+        console.error("[linkedin] failed to notify admin about auth issue", {
+          error: error instanceof Error ? error.message : error,
+        }),
+      )
+    }
+
+    return parsed
   } catch (error) {
     return {
       posted: false,

@@ -83,6 +83,7 @@ Questions or feedback? Email `support@shipyardhq.dev` or say hi on X: https://x.
 - Token bootstrap: Hit `/api/linkedin/oauth` to mint a signed, short-lived `state` and log the authorization URL. After approving, LinkedIn redirects back with the `code` and `state` and renders a success page once the token is stored. The bot automatically reads the cached token and resolves the org URN.
 - Safety: Add `LINKEDIN_BOT_DRY_RUN=true` to log outbound posts without publishing—useful for staging checks.
 - Cooldown: Shares reuse the same 6-hour per-event throttle to avoid duplicate announcements. Throttle state is stored in Redis when available, so it survives restarts; if Redis is unavailable, throttling falls back to in-process memory.
+- Troubleshooting: If LinkedIn returns `401 unauthorized` with `Member is restricted`, the member who approved OAuth may not be allowed to post on behalf of the organization (or the token was revoked). Re-run `/api/linkedin/oauth` and approve with a LinkedIn account that is an admin of the target organization page.
 
 ## Feature Gating
 

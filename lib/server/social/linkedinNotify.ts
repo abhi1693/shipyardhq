@@ -26,6 +26,11 @@ type NotifyResult =
 type NotifyOptions = {
   trigger?: string
   force?: boolean
+  context?: {
+    status?: number
+    reason?: string
+    detail?: string
+  }
 }
 
 async function shouldThrottle(): Promise<boolean> {
@@ -88,9 +93,15 @@ export async function notifyLinkedInAuthNeeded(
   }
 
   const { authUrl } = await buildLinkedInAuthRequest(baseUrl)
+  const detail = options.context?.detail?.trim()
   const lines = [
-    "LinkedIn access token is missing or expired.",
+    "LinkedIn OAuth approval may be required (missing/expired/revoked, or lacking posting permissions).",
     options.trigger ? `Trigger: ${options.trigger}` : null,
+    typeof options.context?.status === "number"
+      ? `Status: ${options.context.status}`
+      : null,
+    options.context?.reason ? `Reason: ${options.context.reason}` : null,
+    detail ? `Detail: ${detail}` : null,
     "",
     "Open this URL to approve access:",
     authUrl,

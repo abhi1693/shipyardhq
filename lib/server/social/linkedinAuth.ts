@@ -258,7 +258,7 @@ export async function resolveOrganizationUrn(): Promise<string | null> {
     const patterns: Array<RegExp> = [
       /urn:li:organization:(\d{4,20})/i,
       /urn:li:fsd_company:(\d{4,20})/i,
-      /"companyId"\s*:\s*"?(\\d{4,20})"?/,
+      /"companyId"\s*:\s*"?(\d{4,20})"?/,
     ]
 
     for (const pattern of patterns) {
