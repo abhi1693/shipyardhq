@@ -62,12 +62,12 @@ export function normalizeUrl(url?: string | null): string | undefined {
   return `https://${s}`
 }
 
-export function coercePricing(values: Record<string, any>) {
-  const v = { ...values } as any
-  const pm = v.pricingModel
+export function coercePricing<T extends Record<string, any>>(values: T): T {
+  const v: T = { ...values }
+  const pm = (v as any).pricingModel
   if (pm === "free" || pm === "custom") {
-    v.startingPriceCents = undefined
-    v.currencyCode = undefined
+    ;(v as any).startingPriceCents = undefined
+    ;(v as any).currencyCode = undefined
   }
   return v
 }

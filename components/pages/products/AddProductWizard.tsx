@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, type FormEvent } from "react"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -19,7 +19,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
-import { Label } from "@/components/atoms/label"
 import {
   Select,
   SelectContent,
@@ -27,6 +26,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select"
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/atoms/form"
 import ProductBadgeCelebrationDialog from "@/components/molecules/ProductBadgeCelebrationDialog"
 import ProductConnectorFields from "@/components/pages/products/_components/ProductConnectorFields"
 import ProductWizardAccordion from "@/components/pages/products/_components/ProductWizardAccordion"
@@ -43,43 +48,39 @@ import {
   getInitialValuesForAdd,
   toCreateFormData,
 } from "@/lib/productWizard/mappers"
-import {
-  makeAddProductSchema,
-  type ProductWizardInputAdd,
-} from "@/lib/productWizard/schema"
+import { addProductSchema, makeAdminAddProductSchema } from "@/lib/productWizard/schema"
 import {
   adminPath,
   MEMBER_PRODUCTS_PATH,
   memberProductUpgradePath,
   productPath,
 } from "@/lib/routes"
-
-type AlternativeProduct = {
-  id: string
-  slug?: string | null
-  name: string
-  websiteUrl?: string | null
-}
+import type {
+  ProductWizardAdminUserOption,
+  ProductWizardAlternativeOption,
+  ProductWizardCategoryOption,
+  ProductWizardOrganizationOption,
+} from "@/types/product-wizard"
+import type { ProductWizardInputAdd } from "@/lib/productWizard/schema"
 
 type BaseProps = {
-  categories: { id: string; name: string; icon?: string | null }[]
-  organizations: { id: string; name: string }[]
+  categories: ProductWizardCategoryOption[]
+  organizations: ProductWizardOrganizationOption[]
 }
 
 type MemberProps = BaseProps & {
   mode: "member"
   userId: string
-  alternatives: AlternativeProduct[]
+  alternatives: ProductWizardAlternativeOption[]
 }
 
 type AdminProps = BaseProps & {
   mode: "admin"
-  users: { id: string; email: string; clerkId: string }[]
+  users: ProductWizardAdminUserOption[]
 }
 
 export type AddProductWizardProps = MemberProps | AdminProps
 
-const schema = makeAddProductSchema()
 export type ProductWizardInput = ProductWizardInputAdd
 
 function makeClientProductId() {
@@ -94,6 +95,8 @@ function makeClientProductId() {
 
 export default function AddProductWizard(props: AddProductWizardProps) {
   const router = useRouter()
+  const schema =
+    props.mode === "admin" ? makeAdminAddProductSchema() : addProductSchema
   const {
     openSections,
     setOpenSections,
@@ -104,18 +107,22 @@ export default function AddProductWizard(props: AddProductWizardProps) {
   } = useWizardNavigation()
 
   const [newProductId] = useState(makeClientProductId)
-  const form = useForm<ProductWizardInput>({
+  const form = useForm<ProductWizardInput & { ownerId?: string }>({
     resolver: zodResolver(schema) as any,
     defaultValues: getInitialValuesForAdd(),
     mode: "onBlur",
   })
 
-  const [ownerId, setOwnerId] = useState("")
   const [showCelebration, setShowCelebration] = useState(false)
   const [isCompletionPending, setIsCompletionPending] = useState(false)
   const [celebrationProductSlug, setCelebrationProductSlug] = useState<
     string | null
   >(null)
+
+  const ownerId = useWatch({
+    control: form.control,
+    name: "ownerId" as any,
+  }) as string | undefined
 
   const connectorProvider = useWatch({
     control: form.control,
@@ -155,7 +162,7 @@ export default function AddProductWizard(props: AddProductWizardProps) {
 
   const ownerClerkId =
     props.mode === "admin"
-      ? ownerId
+      ? ownerId?.length
         ? props.users.find((u) => u.id === ownerId)?.clerkId
         : undefined
       : undefined
@@ -165,16 +172,12 @@ export default function AddProductWizard(props: AddProductWizardProps) {
   }, [form])
 
   async function submitAll(
-    values: ProductWizardInput & { status?: "draft" | "published" },
+    values: ProductWizardInput & { status?: "draft" | "published"; ownerId?: string },
   ) {
     try {
       if (props.mode === "admin") {
-        if (!ownerId) {
-          toast.error("Please select an owner")
-          jumpTo("core")
-          return
-        }
-        const fd = toCreateFormData(values as any, ownerId, newProductId)
+        const nextOwnerId = values.ownerId ?? ""
+        const fd = toCreateFormData(values, nextOwnerId, newProductId)
         const result = await createProductAction(fd)
         if ((result as any)?.error) {
           toast.error((result as any).error)
@@ -215,7 +218,7 @@ export default function AddProductWizard(props: AddProductWizardProps) {
     needsPricingDetails && (!startingPriceCents || !currencyCode)
 
   const smartNextAction = (() => {
-    if (props.mode === "admin" && !ownerId) {
+    if (props.mode === "admin" && !ownerId?.length) {
       return { label: "Select an owner", onClick: () => jumpTo("core") }
     }
     if (missingPricingDetails) {
@@ -252,21 +255,28 @@ export default function AddProductWizard(props: AddProductWizardProps) {
 
   const ownerNode =
     props.mode === "admin" ? (
-      <div>
-        <Label>Owner (user)</Label>
-        <Select value={ownerId} onValueChange={setOwnerId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select owner" />
-          </SelectTrigger>
-          <SelectContent>
-            {props.users.map((u) => (
-              <SelectItem key={u.id} value={u.id}>
-                {u.email}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <FormField
+        control={form.control}
+        name={"ownerId" as any}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Owner (user)</FormLabel>
+            <Select value={field.value || ""} onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select owner" />
+              </SelectTrigger>
+              <SelectContent>
+                {props.users.map((u) => (
+                  <SelectItem key={u.id} value={u.id}>
+                    {u.email}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     ) : null
 
   const core = (
@@ -307,14 +317,6 @@ export default function AddProductWizard(props: AddProductWizardProps) {
       ? "Fill the essentials, then optionally add verification and alternatives to boost visibility."
       : "Fill the essentials, then optionally add verification and connect revenue for higher visibility."
   const formId = props.mode === "admin" ? "admin-add-product-form" : "add-product-form"
-  const disableSubmit = props.mode === "admin" && !ownerId
-  const handlePublishedSubmit = disableSubmit
-    ? (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        toast.error("Please select an owner")
-        jumpTo("core")
-      }
-    : submitWithStatus("published")
 
   return (
     <>
@@ -327,7 +329,7 @@ export default function AddProductWizard(props: AddProductWizardProps) {
           <FormProvider {...form}>
             <form
               id={formId}
-              onSubmit={handlePublishedSubmit}
+              onSubmit={submitWithStatus("published")}
               className="space-y-6 pb-24"
             >
               <ProductWizardAccordion
@@ -353,7 +355,6 @@ export default function AddProductWizard(props: AddProductWizardProps) {
           <ProductWizardFooter
             formId={formId}
             isSubmitting={form.formState.isSubmitting}
-            isDisabled={disableSubmit}
             smartNextAction={smartNextAction}
             onSaveDraft={() => submitWithStatus("draft")()}
           />

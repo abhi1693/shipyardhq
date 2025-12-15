@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, type FormEvent } from "react"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -22,7 +22,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
-import { Label } from "@/components/atoms/label"
 import {
   Select,
   SelectContent,
@@ -30,6 +29,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select"
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/atoms/form"
 import ProductConnectorFields from "@/components/pages/products/_components/ProductConnectorFields"
 import ProductWizardAccordion from "@/components/pages/products/_components/ProductWizardAccordion"
 import ProductWizardFooter from "@/components/pages/products/_components/ProductWizardFooter"
@@ -46,7 +51,8 @@ import {
   toUpdatePayload,
 } from "@/lib/productWizard/mappers"
 import {
-  makeEditProductSchema,
+  editProductSchema,
+  makeAdminEditProductSchema,
   type ProductWizardInputEdit,
 } from "@/lib/productWizard/schema"
 import { adminPath, memberProductPath } from "@/lib/routes"
@@ -55,6 +61,12 @@ import type {
   PaymentConnectorStatus,
 } from "@/lib/vendor/prisma/client/enums"
 import type { ProductForEditWizard } from "@/types/product-wizard"
+import type {
+  ProductWizardAdminEditUserOption,
+  ProductWizardAlternativeOption,
+  ProductWizardCategoryOption,
+  ProductWizardOrganizationOption,
+} from "@/types/product-wizard"
 
 type ConnectorSummary = {
   provider?: PaymentConnectorProvider
@@ -64,17 +76,10 @@ type ConnectorSummary = {
   keyHint?: string | null
 } | null
 
-type AlternativeProduct = {
-  id: string
-  slug?: string | null
-  name: string
-  websiteUrl?: string | null
-}
-
 type BaseProps = {
   product: ProductForEditWizard
-  categories: { id: string; name: string; icon?: string | null }[]
-  organizations: { id: string; name: string }[]
+  categories: ProductWizardCategoryOption[]
+  organizations: ProductWizardOrganizationOption[]
   connector?: {
     id: string
     provider: PaymentConnectorProvider
@@ -89,21 +94,22 @@ type BaseProps = {
 
 type MemberProps = BaseProps & {
   mode: "member"
-  alternatives: AlternativeProduct[]
+  alternatives: ProductWizardAlternativeOption[]
 }
 
 type AdminProps = BaseProps & {
   mode: "admin"
-  users: { id: string; email: string }[]
+  users: ProductWizardAdminEditUserOption[]
 }
 
 export type EditProductWizardProps = MemberProps | AdminProps
 
-const schema = makeEditProductSchema()
 export type ProductWizardInput = ProductWizardInputEdit
 
 export default function EditProductWizard(props: EditProductWizardProps) {
   const router = useRouter()
+  const schema =
+    props.mode === "admin" ? makeAdminEditProductSchema() : editProductSchema
   const {
     openSections,
     setOpenSections,
@@ -113,21 +119,23 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     openFromErrors,
   } = useWizardNavigation()
 
-  const [ownerId, setOwnerId] = useState(
-    props.mode === "admin" ? ((props.product?.userId as string) ?? "") : "",
-  )
   const [connectorState, setConnectorState] = useState<ConnectorSummary>(
     props.connector ?? null,
   )
 
-  const form = useForm<ProductWizardInput>({
+  const form = useForm<ProductWizardInput & { ownerId?: string }>({
     resolver: zodResolver(schema) as any,
-    defaultValues: getInitialValuesFromProduct(
-      props.product,
-      props.connector || undefined,
-    ),
+    defaultValues: {
+      ...getInitialValuesFromProduct(props.product, props.connector || undefined),
+      ...(props.mode === "admin" ? { ownerId: props.product.userId } : {}),
+    },
     mode: "onBlur",
   })
+
+  const ownerId = useWatch({
+    control: form.control,
+    name: "ownerId" as any,
+  }) as string | undefined
 
   const connectorProvider = useWatch({
     control: form.control,
@@ -224,16 +232,10 @@ export default function EditProductWizard(props: EditProductWizardProps) {
   }, [connectorState, form, props.product.id, setConnectorState])
 
   async function submitAll(
-    values: ProductWizardInput & { status?: "draft" | "published" },
+    values: ProductWizardInput & { status?: "draft" | "published"; ownerId?: string },
   ) {
     try {
-      if (props.mode === "admin" && !ownerId) {
-        toast.error("Please select an owner")
-        jumpTo("core")
-        return
-      }
-      const payload = toUpdatePayload(values as any, props.product) as any
-      if (props.mode === "admin") payload.userId = ownerId
+      const payload = toUpdatePayload(values, props.product)
       const res = await updateProductAction(props.product.id, payload)
       if ((res as any)?.error) {
         toast.error((res as any).error)
@@ -256,7 +258,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     needsPricingDetails && (!startingPriceCents || !currencyCode)
 
   const smartNextAction = (() => {
-    if (props.mode === "admin" && !ownerId) {
+    if (props.mode === "admin" && !ownerId?.length) {
       return { label: "Select an owner", onClick: () => jumpTo("core") }
     }
     if (missingPricingDetails) {
@@ -293,21 +295,28 @@ export default function EditProductWizard(props: EditProductWizardProps) {
 
   const ownerNode =
     props.mode === "admin" ? (
-      <div>
-        <Label>Owner (user)</Label>
-        <Select value={ownerId} onValueChange={setOwnerId}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select owner" />
-          </SelectTrigger>
-          <SelectContent>
-            {props.users.map((u) => (
-              <SelectItem key={u.id} value={u.id}>
-                {u.email}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <FormField
+        control={form.control}
+        name={"ownerId" as any}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Owner (user)</FormLabel>
+            <Select value={field.value || ""} onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select owner" />
+              </SelectTrigger>
+              <SelectContent>
+                {props.users.map((u) => (
+                  <SelectItem key={u.id} value={u.id}>
+                    {u.email}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     ) : null
 
   const core = (
@@ -354,14 +363,6 @@ export default function EditProductWizard(props: EditProductWizardProps) {
       : "Update the essentials, then optionally edit verification and connect revenue for higher visibility."
   const formId =
     props.mode === "admin" ? "admin-edit-product-form" : "edit-product-form"
-  const disableSubmit = props.mode === "admin" && !ownerId
-  const handlePublishedSubmit = disableSubmit
-    ? (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        toast.error("Please select an owner")
-        jumpTo("core")
-      }
-    : submitWithStatus("published")
 
   return (
     <Card className="mx-auto w-full max-w-4xl">
@@ -373,7 +374,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
         <FormProvider {...form}>
           <form
             id={formId}
-            onSubmit={handlePublishedSubmit}
+            onSubmit={submitWithStatus("published")}
             className="space-y-6 pb-24"
           >
             <ProductWizardAccordion
@@ -399,7 +400,6 @@ export default function EditProductWizard(props: EditProductWizardProps) {
         <ProductWizardFooter
           formId={formId}
           isSubmitting={form.formState.isSubmitting}
-          isDisabled={disableSubmit}
           smartNextAction={smartNextAction}
           onSaveDraft={() => submitWithStatus("draft")()}
         />

@@ -323,14 +323,26 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
     })
 }
 
-export const makeAddProductSchema = () =>
-  makeProductSchema({ allowArchived: false })
-export const makeEditProductSchema = () =>
-  makeProductSchema({ allowArchived: true })
+export const addProductSchema = makeProductSchema({ allowArchived: false })
+export const editProductSchema = makeProductSchema({ allowArchived: true })
 
-export type ProductWizardInputAdd = z.infer<
-  ReturnType<typeof makeAddProductSchema>
+export function makeAdminAddProductSchema() {
+  return addProductSchema.extend({
+    ownerId: z.string().min(1, "Owner is required"),
+  })
+}
+
+export function makeAdminEditProductSchema() {
+  return editProductSchema.extend({
+    ownerId: z.string().min(1, "Owner is required"),
+  })
+}
+
+export type ProductWizardInputAdd = z.infer<typeof addProductSchema>
+export type ProductWizardInputEdit = z.infer<typeof editProductSchema>
+export type AdminProductWizardInputAdd = z.infer<
+  ReturnType<typeof makeAdminAddProductSchema>
 >
-export type ProductWizardInputEdit = z.infer<
-  ReturnType<typeof makeEditProductSchema>
+export type AdminProductWizardInputEdit = z.infer<
+  ReturnType<typeof makeAdminEditProductSchema>
 >

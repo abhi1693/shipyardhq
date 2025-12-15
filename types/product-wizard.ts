@@ -1,5 +1,34 @@
 import type { Prisma } from "@/lib/vendor/prisma/client"
 
+export type ProductWizardCategoryOption = {
+  id: string
+  name: string
+  icon?: string | null
+}
+
+export type ProductWizardOrganizationOption = {
+  id: string
+  name: string
+}
+
+export type ProductWizardAlternativeOption = {
+  id: string
+  slug?: string | null
+  name: string
+  websiteUrl?: string | null
+}
+
+export type ProductWizardAdminUserOption = {
+  id: string
+  email: string
+  clerkId: string
+}
+
+export type ProductWizardAdminEditUserOption = {
+  id: string
+  email: string
+}
+
 export type ProductForEditWizard = Prisma.ProductGetPayload<{
   select: {
     id: true
@@ -35,4 +64,3 @@ export type ProductForEditWizard = Prisma.ProductGetPayload<{
     user: { select: { clerkId: true } }
   }
 }>
-
