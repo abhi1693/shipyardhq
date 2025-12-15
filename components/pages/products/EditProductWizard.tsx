@@ -1,14 +1,12 @@
 "use client"
 
-import { useMemo, useState, type Dispatch, type SetStateAction } from "react"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
   FormProvider,
   useForm,
-  useFormState,
   useWatch,
-  type UseFormReturn,
 } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -32,15 +30,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select"
+import ProductConnectorFields from "@/components/pages/products/_components/ProductConnectorFields"
 import ProductWizardAccordion from "@/components/pages/products/_components/ProductWizardAccordion"
 import ProductWizardFooter from "@/components/pages/products/_components/ProductWizardFooter"
+import { PRODUCT_AUTOFILL_NOTICE } from "@/components/pages/products/_shared/autofillText"
 import { useWizardNavigation } from "@/components/pages/products/_shared/wizardNavigation"
 import Step1 from "@/app/(member)/member/products/shared/step1"
 import Step2 from "@/app/(member)/member/products/shared/step2"
 import Step3 from "@/app/(member)/member/products/shared/step3"
 import Step4 from "@/app/(member)/member/products/shared/step4"
 import Step5 from "@/app/(member)/member/products/shared/step5"
-import { PaymentConnectorCard } from "@/app/(member)/member/products/shared/PaymentConnectorCard"
 import { PLATFORMS } from "@/lib/productWizard/constants"
 import {
   getInitialValuesFromProduct,
@@ -101,124 +100,6 @@ export type EditProductWizardProps = MemberProps | AdminProps
 
 const schema = makeEditProductSchema()
 export type ProductWizardInput = ProductWizardInputEdit
-
-function ConnectorFields({
-  form,
-  connectorState,
-  setConnectorState,
-  productId,
-}: {
-  form: UseFormReturn<ProductWizardInput>
-  connectorState: ConnectorSummary
-  setConnectorState: Dispatch<SetStateAction<ConnectorSummary>>
-  productId: string
-}) {
-  const provider = useWatch({
-    control: form.control,
-    name: "connectorProvider" as any,
-  }) as PaymentConnectorProvider | undefined
-  const { errors } = useFormState({ control: form.control })
-  const apiKey =
-    (useWatch({
-      control: form.control,
-      name: "connectorApiKey" as any,
-    }) as string | undefined) ?? ""
-  const accountId =
-    (useWatch({
-      control: form.control,
-      name: "connectorAccountId" as any,
-    }) as string | undefined) ?? ""
-  const brandId =
-    (useWatch({
-      control: form.control,
-      name: "connectorBrandId" as any,
-    }) as string | undefined) ?? ""
-  const lockedProvider = connectorState?.provider
-
-  return (
-    <PaymentConnectorCard
-      provider={provider ?? connectorState?.provider}
-      apiKey={apiKey ?? ""}
-      accountId={accountId ?? ""}
-      brandId={brandId ?? ""}
-      keyHint={connectorState?.keyHint ?? null}
-      status={connectorState?.status ?? null}
-      lastSyncedAt={connectorState?.lastSyncedAt ?? null}
-      lastSyncError={connectorState?.lastSyncError ?? null}
-      showSaveButton={false}
-      lockedProvider={lockedProvider}
-      onChange={(draft) => {
-        if (draft.provider) {
-          form.setValue("connectorProvider" as any, draft.provider, {
-            shouldDirty: true,
-            shouldValidate: true,
-          })
-        }
-        if (draft.apiKey !== undefined) {
-          form.setValue("connectorApiKey" as any, draft.apiKey ?? "", {
-            shouldDirty: true,
-            shouldValidate: true,
-          })
-        }
-        if (draft.accountId !== undefined) {
-          form.setValue("connectorAccountId" as any, draft.accountId ?? "", {
-            shouldDirty: true,
-            shouldValidate: true,
-          })
-        }
-        if (draft.brandId !== undefined) {
-          form.setValue("connectorBrandId" as any, draft.brandId ?? "", {
-            shouldDirty: true,
-            shouldValidate: true,
-          })
-        }
-      }}
-      errors={{
-        provider: (errors as any)?.connectorProvider?.message as
-          | string
-          | undefined,
-        apiKey: (errors as any)?.connectorApiKey?.message as string | undefined,
-        accountId: (errors as any)?.connectorAccountId?.message as
-          | string
-          | undefined,
-        brandId: (errors as any)?.connectorBrandId?.message as
-          | string
-          | undefined,
-      }}
-      onReset={
-        connectorState
-          ? async () => {
-              const res = await resetProductConnectorAction(productId)
-              if ((res as any)?.error) {
-                toast.error((res as any).error)
-                return
-              }
-              form.setValue("connectorProvider" as any, undefined as any, {
-                shouldDirty: true,
-                shouldValidate: true,
-              })
-              form.setValue("connectorApiKey" as any, "", {
-                shouldDirty: true,
-                shouldValidate: true,
-              })
-              form.setValue("connectorAccountId" as any, "", {
-                shouldDirty: true,
-                shouldValidate: true,
-              })
-              form.setValue("connectorBrandId" as any, "", {
-                shouldDirty: true,
-                shouldValidate: true,
-              })
-              setConnectorState(null)
-              toast.success(
-                "Removed connector configuration. Enter new details to reconnect.",
-              )
-            }
-          : undefined
-      }
-    />
-  )
-}
 
 export default function EditProductWizard(props: EditProductWizardProps) {
   const router = useRouter()
@@ -298,14 +179,48 @@ export default function EditProductWizard(props: EditProductWizardProps) {
 
   const connectorFields = useMemo(() => {
     return (
-      <ConnectorFields
+      <ProductConnectorFields
         form={form}
-        connectorState={connectorState}
-        setConnectorState={setConnectorState}
-        productId={props.product.id}
+        providerFallback={connectorState?.provider}
+        lockedProvider={connectorState?.provider}
+        keyHint={connectorState?.keyHint ?? null}
+        status={connectorState?.status ?? null}
+        lastSyncedAt={connectorState?.lastSyncedAt ?? null}
+        lastSyncError={connectorState?.lastSyncError ?? null}
+        onReset={
+          connectorState
+            ? async () => {
+                const res = await resetProductConnectorAction(props.product.id)
+                if ((res as any)?.error) {
+                  toast.error((res as any).error)
+                  return
+                }
+                form.setValue("connectorProvider" as any, undefined as any, {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+                form.setValue("connectorApiKey" as any, "", {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+                form.setValue("connectorAccountId" as any, "", {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+                form.setValue("connectorBrandId" as any, "", {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+                setConnectorState(null)
+                toast.success(
+                  "Removed connector configuration. Enter new details to reconnect.",
+                )
+              }
+            : undefined
+        }
       />
     )
-  }, [connectorState, form, props.product.id])
+  }, [connectorState, form, props.product.id, setConnectorState])
 
   async function submitAll(
     values: ProductWizardInput & { status?: "draft" | "published" },
@@ -401,7 +316,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
       lockWebsiteUrl={props.mode === "member"}
       rightOfWebsite={ownerNode}
       enableAutofill
-      autofillNotice="AI Autofill replaces the fields on this step with new suggestions. Your current content will be overwritten."
+      autofillNotice={PRODUCT_AUTOFILL_NOTICE}
     />
   )
   const media = (
@@ -482,4 +397,3 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     </Card>
   )
 }
-

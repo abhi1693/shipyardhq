@@ -6,9 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import {
   FormProvider,
   useForm,
-  useFormState,
   useWatch,
-  type UseFormReturn,
 } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -30,15 +28,16 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import ProductBadgeCelebrationDialog from "@/components/molecules/ProductBadgeCelebrationDialog"
+import ProductConnectorFields from "@/components/pages/products/_components/ProductConnectorFields"
 import ProductWizardAccordion from "@/components/pages/products/_components/ProductWizardAccordion"
 import ProductWizardFooter from "@/components/pages/products/_components/ProductWizardFooter"
+import { PRODUCT_AUTOFILL_NOTICE } from "@/components/pages/products/_shared/autofillText"
 import { useWizardNavigation } from "@/components/pages/products/_shared/wizardNavigation"
 import Step1 from "@/app/(member)/member/products/shared/step1"
 import Step2 from "@/app/(member)/member/products/shared/step2"
 import Step3 from "@/app/(member)/member/products/shared/step3"
 import Step4 from "@/app/(member)/member/products/shared/step4"
 import Step5 from "@/app/(member)/member/products/shared/step5"
-import { PaymentConnectorCard } from "@/app/(member)/member/products/shared/PaymentConnectorCard"
 import { PLATFORMS } from "@/lib/productWizard/constants"
 import {
   getInitialValuesForAdd,
@@ -54,7 +53,6 @@ import {
   memberProductUpgradePath,
   productPath,
 } from "@/lib/routes"
-import type { PaymentConnectorProvider as PaymentConnectorProviderType } from "@/lib/vendor/prisma/client/enums"
 
 type AlternativeProduct = {
   id: string
@@ -83,77 +81,6 @@ export type AddProductWizardProps = MemberProps | AdminProps
 
 const schema = makeAddProductSchema()
 export type ProductWizardInput = ProductWizardInputAdd
-
-function ConnectorFields({ form }: { form: UseFormReturn<ProductWizardInput> }) {
-  const { errors } = useFormState({ control: form.control })
-  const provider = useWatch({
-    control: form.control,
-    name: "connectorProvider" as any,
-  }) as PaymentConnectorProviderType | undefined
-  const apiKey =
-    (useWatch({
-      control: form.control,
-      name: "connectorApiKey" as any,
-    }) as string | undefined) ?? ""
-  const accountId =
-    (useWatch({
-      control: form.control,
-      name: "connectorAccountId" as any,
-    }) as string | undefined) ?? ""
-  const brandId =
-    (useWatch({
-      control: form.control,
-      name: "connectorBrandId" as any,
-    }) as string | undefined) ?? ""
-
-  return (
-    <PaymentConnectorCard
-      provider={provider}
-      apiKey={apiKey ?? ""}
-      accountId={accountId ?? ""}
-      brandId={brandId ?? ""}
-      showSaveButton={false}
-      onChange={(draft) => {
-        if (draft.provider) {
-          form.setValue("connectorProvider" as any, draft.provider, {
-            shouldDirty: true,
-            shouldValidate: true,
-          })
-        }
-        if (draft.apiKey !== undefined) {
-          form.setValue("connectorApiKey" as any, draft.apiKey ?? "", {
-            shouldDirty: true,
-            shouldValidate: true,
-          })
-        }
-        if (draft.accountId !== undefined) {
-          form.setValue("connectorAccountId" as any, draft.accountId ?? "", {
-            shouldDirty: true,
-            shouldValidate: true,
-          })
-        }
-        if (draft.brandId !== undefined) {
-          form.setValue("connectorBrandId" as any, draft.brandId ?? "", {
-            shouldDirty: true,
-            shouldValidate: true,
-          })
-        }
-      }}
-      errors={{
-        provider: (errors as any)?.connectorProvider?.message as
-          | string
-          | undefined,
-        apiKey: (errors as any)?.connectorApiKey?.message as string | undefined,
-        accountId: (errors as any)?.connectorAccountId?.message as
-          | string
-          | undefined,
-        brandId: (errors as any)?.connectorBrandId?.message as
-          | string
-          | undefined,
-      }}
-    />
-  )
-}
 
 function makeClientProductId() {
   const g: any = typeof globalThis !== "undefined" ? (globalThis as any) : {}
@@ -234,7 +161,7 @@ export default function AddProductWizard(props: AddProductWizardProps) {
       : undefined
 
   const connectorFields = useMemo(() => {
-    return <ConnectorFields form={form} />
+    return <ProductConnectorFields form={form} />
   }, [form])
 
   async function submitAll(
@@ -349,6 +276,7 @@ export default function AddProductWizard(props: AddProductWizardProps) {
       lockWebsiteUrl={false}
       rightOfWebsite={ownerNode}
       enableAutofill
+      autofillNotice={PRODUCT_AUTOFILL_NOTICE}
     />
   )
   const media =
@@ -444,4 +372,3 @@ export default function AddProductWizard(props: AddProductWizardProps) {
     </>
   )
 }
-

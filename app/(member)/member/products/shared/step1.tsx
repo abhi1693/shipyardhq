@@ -429,16 +429,32 @@ export default function Step1({
                     </span>
                     <div className="space-y-1">
                       <p className="text-sm font-semibold text-slate-900">
-                        Run AI Autofill
+                        <span className="inline-flex items-center gap-2">
+                          Run AI Autofill
+                          {autofillNotice ? (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  className={INFO_TRIGGER_CLASS}
+                                  aria-label="AI Autofill notice"
+                                >
+                                  <Info
+                                    className="h-3.5 w-3.5"
+                                    aria-hidden="true"
+                                  />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" sideOffset={6}>
+                                {autofillNotice}
+                              </TooltipContent>
+                            </Tooltip>
+                          ) : null}
+                        </span>
                       </p>
                       <p className="text-xs text-muted-foreground">
                         Draft name, tagline, and description from your website.
                       </p>
-                      {autofillNotice ? (
-                        <p className="text-xs text-muted-foreground">
-                          {autofillNotice}
-                        </p>
-                      ) : null}
                     </div>
                   </div>
                   <Button
