@@ -15,6 +15,8 @@ type Props = {
   maxSizeMB?: number
   productId?: string
   scope?: "user" | "global"
+  asClerkId?: string
+  disabled?: boolean
 }
 
 export default function ImageUploadField({
@@ -25,6 +27,8 @@ export default function ImageUploadField({
   maxSizeMB = 5,
   productId,
   scope = "user",
+  asClerkId,
+  disabled = false,
 }: Props) {
   const { setValue, watch } = useFormContext()
   const value = (watch(name) as string) || ""
@@ -32,7 +36,10 @@ export default function ImageUploadField({
   const [uploading, setUploading] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
+  const isDisabled = disabled || uploading || deleting
+
   async function handleFiles(files: FileList | null) {
+    if (isDisabled) return
     if (!files?.length) return
     const file = files[0]
     setError(null)
@@ -43,6 +50,7 @@ export default function ImageUploadField({
       fd.append("folder", folder)
       if (productId) fd.append("productId", productId)
       fd.append("scope", scope)
+      if (asClerkId) fd.append("asClerkId", asClerkId)
       const res = await fetch("/api/uploads", { method: "POST", body: fd })
       if (!res.ok) throw new Error(await res.text())
       const data = await res.json()
@@ -56,7 +64,7 @@ export default function ImageUploadField({
 
   function onDrop(e: React.DragEvent<HTMLLabelElement>) {
     e.preventDefault()
-    if (uploading) return
+    if (isDisabled) return
     handleFiles(e.dataTransfer.files)
   }
   function onDragOver(e: React.DragEvent<HTMLLabelElement>) {
@@ -88,6 +96,7 @@ export default function ImageUploadField({
               size="sm"
               label="Remove"
               onClick={async () => {
+                if (isDisabled) return
                 if (!value) {
                   setValue(name, "", {
                     shouldDirty: true,
@@ -98,12 +107,11 @@ export default function ImageUploadField({
                 setDeleting(true)
                 setError(null)
                 try {
-                  const res = await fetch(
-                    `/api/uploads?url=${encodeURIComponent(value)}`,
-                    {
-                      method: "DELETE",
-                    },
-                  )
+                  const qp = new URLSearchParams({ url: value })
+                  if (asClerkId) qp.set("asClerkId", asClerkId)
+                  const res = await fetch(`/api/uploads?${qp.toString()}`, {
+                    method: "DELETE",
+                  })
                   if (!res?.ok && res?.status !== 204) {
                     // Non-blocking: still clear the field
                     console.warn("Failed to delete blob for", value)
@@ -118,7 +126,7 @@ export default function ImageUploadField({
                   })
                 }
               }}
-              disabled={uploading || deleting}
+              disabled={isDisabled}
             />
           </div>
         </div>
@@ -134,7 +142,7 @@ export default function ImageUploadField({
             accept="image/*"
             className="hidden"
             onChange={(e) => handleFiles(e.target.files)}
-            disabled={uploading}
+            disabled={isDisabled}
           />
           {uploading ? (
             <div className="flex items-center gap-2 text-muted-foreground">

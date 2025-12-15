@@ -134,7 +134,7 @@ export default function AddProductForm({
 }: {
   categories: { id: string; name: string; icon?: string | null }[]
   organizations: { id: string; name: string }[]
-  users: { id: string; email: string }[]
+  users: { id: string; email: string; clerkId: string }[]
 }) {
   const router = useRouter()
   const [ownerId, setOwnerId] = useState("")
@@ -219,6 +219,11 @@ export default function AddProductForm({
         </Select>
       </div>
     )
+
+    const ownerClerkId = ownerId
+      ? users.find((u) => u.id === ownerId)?.clerkId
+      : undefined
+
     return renderStep(wizard.step, {
       categories,
       organizations,
@@ -227,6 +232,8 @@ export default function AddProductForm({
       rightOfWebsite: ownerId ? ownerNode : ownerNode,
       enableAutofill: true,
       pricingAside: <ConnectorFields form={form} />,
+      uploadAsClerkId: ownerClerkId,
+      requireUploadAsClerkId: true,
     })
   }, [
     wizard.step,

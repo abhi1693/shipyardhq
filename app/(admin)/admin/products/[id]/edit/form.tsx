@@ -270,6 +270,7 @@ export default function EditProductForm({
           id: m.id,
           imageUrl: m.imageUrl,
         })) ?? [],
+      canEditGallery: true,
       maxGallery: 6,
       lockWebsiteUrl: false,
       persistOnVerify: true,

@@ -33,12 +33,16 @@ export default function StepMedia({
   galleryMedia = [],
   canEditGallery = false,
   maxGallery = 6,
+  uploadAsClerkId,
+  requireUploadAsClerkId = false,
 }: {
   productId?: string
   productSlug?: string
   galleryMedia?: GalleryMedia[]
   canEditGallery?: boolean
   maxGallery?: number
+  uploadAsClerkId?: string
+  requireUploadAsClerkId?: boolean
 }) {
   const router = useRouter()
   const form = useFormContext()
@@ -64,7 +68,10 @@ export default function StepMedia({
   const effectiveMedia = isDraftMode ? draftGalleryMedia : galleryMedia
   const remaining = Math.max(0, (maxGallery ?? 6) - effectiveMedia.length)
   const canEdit = isDraftMode ? true : canEditGallery
-  const canUpload = remaining > 0 && (isDraftMode ? Boolean(productId) : canEditGallery)
+  const requiresOwner = isDraftMode && requireUploadAsClerkId && !uploadAsClerkId
+  const canUpload =
+    remaining > 0 &&
+    (isDraftMode ? Boolean(productId) && !requiresOwner : canEditGallery)
 
   function validateAndSliceFiles(files: FileList | File[]) {
     const all = Array.from(files || [])
@@ -113,6 +120,7 @@ export default function StepMedia({
         fd.append("file", file)
         fd.append("folder", "media")
         fd.append("productId", productId)
+        if (uploadAsClerkId) fd.append("asClerkId", uploadAsClerkId)
         const res = await fetch("/api/uploads", { method: "POST", body: fd })
         if (!res.ok) throw new Error(await res.text())
         const payload = (await res.json()) as { url?: string }
@@ -147,9 +155,9 @@ export default function StepMedia({
     setDeletingUrl(url)
     setError(null)
     try {
-      const res = await fetch(`/api/uploads?url=${encodeURIComponent(url)}`, {
-        method: "DELETE",
-      })
+      const qp = new URLSearchParams({ url })
+      if (uploadAsClerkId) qp.set("asClerkId", uploadAsClerkId)
+      const res = await fetch(`/api/uploads?${qp.toString()}`, { method: "DELETE" })
       if (!res.ok && res.status !== 204) throw new Error(await res.text())
     } catch (e: any) {
       setError(e?.message || "Failed to remove")
@@ -233,6 +241,11 @@ export default function StepMedia({
   return (
     <div className="space-y-6">
       <div className="rounded-xl border bg-white/80 p-4 sm:p-5">
+        {requiresOwner ? (
+          <div className="mb-4 rounded-lg border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+            Select an owner to upload logo, banner, and screenshots.
+          </div>
+        ) : null}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <FormField
             name="logo"
@@ -265,6 +278,8 @@ export default function StepMedia({
                   }
                   folder="logos"
                   productId={productId}
+                  asClerkId={uploadAsClerkId}
+                  disabled={requiresOwner}
                   placeholder="Drag & drop a square logo"
                 />
                 <FormMessage />
@@ -300,6 +315,8 @@ export default function StepMedia({
                   }
                   folder="banners"
                   productId={productId}
+                  asClerkId={uploadAsClerkId}
+                  disabled={requiresOwner}
                   placeholder="Drag & drop a banner image"
                 />
                 <FormMessage />
@@ -339,6 +356,12 @@ export default function StepMedia({
         {error ? (
           <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
             {error}
+          </div>
+        ) : null}
+
+        {requiresOwner ? (
+          <div className="mb-4 rounded-lg border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+            Select an owner to upload screenshots.
           </div>
         ) : null}
 
@@ -417,11 +440,11 @@ export default function StepMedia({
                     multiple
                     className="hidden"
                     onChange={(e) => e.target.files && uploadFiles(e.target.files)}
-                    disabled={busy === "upload" || remaining === 0}
-                  />
-                  <Plus className="h-4 w-4" aria-hidden="true" />
-                  <div className="text-xs">
-                    Add ({remaining} left)
+                  disabled={busy === "upload" || remaining === 0}
+                />
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                <div className="text-xs">
+                  Add ({remaining} left)
                   </div>
                 </label>
               ) : null}
@@ -451,7 +474,7 @@ export default function StepMedia({
                 {busy === "upload" ? uploadingText() : "Drag & drop screenshots (or click)"}
               </div>
               <div className="text-xs text-muted-foreground">
-                {canUpload ? `Add up to ${remaining}.` : "Uploads unavailable."}
+                {canUpload ? `Add up to ${remaining}.` : requiresOwner ? "Select an owner to upload." : "Uploads unavailable."}
               </div>
             </div>
           </label>

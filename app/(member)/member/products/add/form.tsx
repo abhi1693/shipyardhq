@@ -337,68 +337,76 @@ export default function AddProductForm({
               className="rounded-xl border bg-white/80"
             >
               <AccordionItem value="core" className="px-6">
-                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline group">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex flex-wrap items-center gap-2">
+                <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+                  <div className="flex w-full items-start justify-between gap-4">
+                    <div className="flex flex-col gap-1">
                       <span className="font-semibold text-slate-900">
                         Core details
                       </span>
+                      <span className="text-xs font-normal text-muted-foreground">
+                        Website, name, description, category, and platforms.
+                      </span>
+                    </div>
+                    <div className="pt-0.5">
                       <Badge variant="outline">Required</Badge>
                     </div>
-                    <span className="text-xs font-normal text-muted-foreground">
-                      Website, name, description, category, and platforms.
-                    </span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="pt-4 pb-6">{core}</AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="media" className="px-6">
-                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline group">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex flex-wrap items-center gap-2">
+                <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+                  <div className="flex w-full items-start justify-between gap-4">
+                    <div className="flex flex-col gap-1">
                       <span className="font-semibold text-slate-900">
                         Logo & media
                       </span>
+                      <span className="text-xs font-normal text-muted-foreground">
+                        Upload a logo (required). Banner and screenshots are optional.
+                      </span>
+                    </div>
+                    <div className="pt-0.5">
                       <Badge variant="outline">Required</Badge>
                     </div>
-                    <span className="text-xs font-normal text-muted-foreground">
-                      Upload a logo (required). Banner and screenshots are optional.
-                    </span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="pt-4 pb-6">{media}</AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="pricing" className="px-6">
-                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline group">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex flex-wrap items-center gap-2">
+                <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+                  <div className="flex w-full items-start justify-between gap-4">
+                    <div className="flex flex-col gap-1">
                       <span className="font-semibold text-slate-900">
                         Pricing
                       </span>
+                      <span className="text-xs font-normal text-muted-foreground">
+                        Tell visitors how you monetize (or that it&apos;s free).
+                      </span>
+                    </div>
+                    <div className="pt-0.5">
                       <Badge variant="outline">Required</Badge>
                     </div>
-                    <span className="text-xs font-normal text-muted-foreground">
-                      Tell visitors how you monetize (or that it&apos;s free).
-                    </span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="pt-4 pb-6">{pricing}</AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="boost" className="px-6">
-                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline group">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex flex-wrap items-center gap-2">
+                <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+                  <div className="flex w-full items-start justify-between gap-4">
+                    <div className="flex flex-col gap-1">
                       <span className="font-semibold text-slate-900">
                         Boost visibility
                       </span>
+                      <span className="text-xs font-normal text-muted-foreground">
+                        Verified revenue (+40%) and domain badge.
+                      </span>
+                    </div>
+                    <div className="pt-0.5">
                       <Badge>Recommended</Badge>
                     </div>
-                    <span className="text-xs font-normal text-muted-foreground">
-                      Verified revenue (+40%) and domain badge.
-                    </span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="pt-4 pb-6">
@@ -573,17 +581,19 @@ export default function AddProductForm({
               </AccordionItem>
 
               <AccordionItem value="details" className="px-6">
-                <AccordionTrigger className="-mx-6 rounded-lg px-6 text-base hover:no-underline group">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex flex-wrap items-center gap-2">
+                <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+                  <div className="flex w-full items-start justify-between gap-4">
+                    <div className="flex flex-col gap-1">
                       <span className="font-semibold text-slate-900">
                         Details & positioning
                       </span>
+                      <span className="text-xs font-normal text-muted-foreground">
+                        Social links, organization, and competitor alternatives.
+                      </span>
+                    </div>
+                    <div className="pt-0.5">
                       <Badge variant="secondary">Optional</Badge>
                     </div>
-                    <span className="text-xs font-normal text-muted-foreground">
-                      Social links, organization, and competitor alternatives.
-                    </span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="pt-4 pb-6">{details}</AccordionContent>

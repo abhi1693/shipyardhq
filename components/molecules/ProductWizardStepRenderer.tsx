@@ -36,6 +36,8 @@ export function renderStep(
     galleryMedia?: { id: string; imageUrl: string }[]
     canEditGallery?: boolean
     maxGallery?: number
+    uploadAsClerkId?: string
+    requireUploadAsClerkId?: boolean
     persistOnVerify?: boolean
     lockWebsiteUrl?: boolean
     rightOfWebsite?: ReactNode
@@ -64,6 +66,8 @@ export function renderStep(
           galleryMedia={args.galleryMedia ?? []}
           canEditGallery={Boolean(args.canEditGallery)}
           maxGallery={args.maxGallery ?? 6}
+          uploadAsClerkId={args.uploadAsClerkId}
+          requireUploadAsClerkId={Boolean(args.requireUploadAsClerkId)}
         />
       )
     case 3:
