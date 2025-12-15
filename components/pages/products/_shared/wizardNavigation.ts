@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 export type WizardSectionKey =
   | "core"
@@ -56,12 +56,41 @@ function getSectionsForErrorFields(
   return sections.length ? sections : ["core"]
 }
 
+function isWizardSectionKey(value: string): value is WizardSectionKey {
+  return (Object.keys(SECTION_FIELDS) as WizardSectionKey[]).includes(
+    value as WizardSectionKey,
+  )
+}
+
 export function useWizardNavigation(
   initialOpen: WizardSectionKey[] = ["core", "media", "pricing"],
 ) {
   const [openSections, setOpenSections] =
     useState<WizardSectionKey[]>(initialOpen)
   const [openBoostPanel, setOpenBoostPanel] = useState<WizardBoostPanel>(null)
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const syncFromHash = () => {
+      const id = window.location.hash.replace(/^#/, "")
+      if (!id.startsWith("section-")) return
+      const sectionKey = id.replace(/^section-/, "")
+      if (!isWizardSectionKey(sectionKey)) return
+      setOpenSections((prev) =>
+        Array.from(new Set([...(prev || []), sectionKey])),
+      )
+    }
+
+    const handleHashChange = () => {
+      syncFromHash()
+    }
+
+    window.addEventListener("hashchange", handleHashChange)
+    queueMicrotask(syncFromHash)
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange)
+    }
+  }, [])
 
   function toggleBoostPanel(panel: Exclude<WizardBoostPanel, null>) {
     setOpenBoostPanel((prev) => (prev === panel ? null : panel))

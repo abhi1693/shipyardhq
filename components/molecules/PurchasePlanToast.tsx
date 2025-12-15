@@ -22,7 +22,11 @@ export default function PurchasePlanToast() {
           ? "This plan isn't configured for checkout yet. Please contact support."
           : error === "checkout_init_failed"
             ? "Unable to start checkout. Please try again."
-            : "Something went wrong. Please try again."
+            : error === "publish_failed"
+              ? "Unable to publish your listing. Please try again."
+              : error === "must_publish"
+                ? "Publish your listing before boosting."
+                : "Something went wrong. Please try again."
       toast.error(msg)
       didNotify = true
     } else if (upgraded === "1") {

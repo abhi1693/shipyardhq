@@ -133,6 +133,7 @@ export async function getProductById(id: string) {
             id: true,
             name: true,
             price: true,
+            boostForDays: true,
             isDefault: true,
             assignments: {
               include: {
@@ -671,6 +672,23 @@ export async function updateProductAction(
         return {
           error: "Members cannot change product URL/slug after creation.",
         }
+      }
+    }
+
+    const nextStatus = data.status
+    if (nextStatus && nextStatus !== current.status) {
+      const isFreePlan = !current.plan || current.plan.isDefault
+      const boostAssignedAt = current.planAssignedAt
+      const boostDays = current.plan?.boostForDays ?? 0
+      const boostExpired =
+        !isFreePlan &&
+        boostAssignedAt &&
+        boostDays > 0 &&
+        boostAssignedAt.getTime() + boostDays * 24 * 60 * 60 * 1000 <=
+          Date.now()
+
+      if (!isFreePlan && !boostExpired) {
+        return { error: "Status locked while boosted." }
       }
     }
   }
@@ -1234,7 +1252,13 @@ export async function setProductStatusAction(
 
     const previous = await prisma.product.findUnique({
       where: { id },
-      select: { status: true, userId: true, organizationId: true },
+      select: {
+        status: true,
+        userId: true,
+        organizationId: true,
+        planAssignedAt: true,
+        plan: { select: { isDefault: true, boostForDays: true } },
+      },
     })
     if (!previous) return { error: "Product not found" }
 
@@ -1254,6 +1278,19 @@ export async function setProductStatusAction(
       if (!ownsProduct && !belongsToOrg) {
         return { error: "Not authorized to update status" }
       }
+    }
+
+    const isFreePlan = !previous.plan || previous.plan.isDefault
+    const boostAssignedAt = previous.planAssignedAt
+    const boostDays = previous.plan?.boostForDays ?? 0
+    const boostExpired =
+      !isFreePlan &&
+      boostAssignedAt &&
+      boostDays > 0 &&
+      boostAssignedAt.getTime() + boostDays * 24 * 60 * 60 * 1000 <= Date.now()
+
+    if (!isAdmin && !isFreePlan && !boostExpired) {
+      return { error: "Status locked while boosted." }
     }
 
     const result = await prisma.product.update({

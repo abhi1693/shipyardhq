@@ -404,6 +404,13 @@ export async function choosePlanAction(
   })
   if (!plan) return
 
+  const ownership = await requireOwnedProduct(ctx.productId)
+  if ("error" in ownership) return
+
+  if ((plan.price || 0) > 0 && ownership.product.status !== "published") {
+    redirect(`${ctx.redirectPath}?error=must_publish`)
+  }
+
   // Free plans (no price): attach immediately
   if ((plan.price || 0) === 0) {
     await setProductPlanAction(ctx.productId, planId)
@@ -434,7 +441,7 @@ async function requireOwnedProduct(productId: string) {
 
   const product = await prisma.product.findFirst({
     where: { id: productId, userId: user.id },
-    select: { id: true, slug: true, userId: true, name: true },
+    select: { id: true, slug: true, userId: true, name: true, status: true },
   })
   if (!product)
     return { error: "Product not found or not owned by user" as const } as const

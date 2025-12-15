@@ -8,6 +8,12 @@ import {
   CardTitle,
 } from "@/components/atoms/card"
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/atoms/accordion"
+import {
   formatBoolean,
   formatCurrency,
   formatDate,
@@ -18,10 +24,11 @@ import {
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
-import { getProductById } from "@/actions/admin/products/actions"
-import ProductMediaManager from "@/components/molecules/ProductMediaManager"
+import {
+  getProductById,
+  setProductStatusAction,
+} from "@/actions/admin/products/actions"
 import { requireManageableProduct } from "@/lib/server/productAccess"
-import ProductStatusMenu from "@/components/molecules/ProductStatusMenu"
 import CopyButton from "@/components/molecules/CopyButton"
 import Link from "next/link"
 import { Badge } from "@/components/atoms/badge"
@@ -32,20 +39,19 @@ import {
 } from "@/actions/member/products/actions"
 import {
   memberProductAnalyticsPath,
+  memberProductDeletePath,
   memberProductEditPath,
   memberProductPath,
+  memberProductUpgradePath,
   productPath,
 } from "@/lib/routes"
-import ShareOnXButton from "@/components/molecules/ShareOnXButton"
 import {
-  BarChart3,
   Building2,
-  ExternalLink,
+  CheckCircle2,
+  Circle,
   Github as GithubIcon,
-  Globe,
+  LockKeyhole,
   Mail,
-  Tag,
-  Target,
   Twitter as TwitterIcon,
   Video,
 } from "lucide-react"
@@ -57,28 +63,13 @@ import { hasPlanFeature } from "@/lib/features"
 import { resolveProductAnalyticsAccess } from "@/lib/server/analytics/productAnalytics"
 import PurchasePlanToast from "@/components/molecules/PurchasePlanToast"
 import ProductBadgeCelebrationGate from "@/components/molecules/ProductBadgeCelebrationGate"
-import ProductBadgeCelebrationTrigger from "@/components/molecules/ProductBadgeCelebrationTrigger"
 import { JSX } from "react"
 import { getRecentProductUpvoters } from "@/lib/server/productUpvotes"
+import MemberProductHeaderActions from "@/components/molecules/MemberProductHeaderActions"
 
 const chipIconClass = "h-3.5 w-3.5 text-muted-foreground"
-const infoChipClass =
-  "inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-700"
-const accentChipClass =
-  "inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs text-sky-700"
-const placeholderTextClass = "text-xs text-muted-foreground"
-const calloutPanelClass =
-  "rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"
 const dashedCalloutClass =
   "rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-3"
-const sectionLabelClass =
-  "text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground"
-const actionGroupClass =
-  "flex flex-wrap items-center gap-2 rounded-full bg-white/80 px-2 py-1 shadow-sm ring-1 ring-slate-200/70"
-const radiantSecondaryWrapperClass =
-  "relative inline-flex items-center justify-center"
-const radiantSecondaryGlowClass =
-  "pointer-events-none absolute inset-0 -z-10 animate-pulse rounded-full bg-[color:var(--brand-1)/0.22] blur-sm"
 
 export default async function ViewUserProductPage({
   params,
@@ -112,9 +103,9 @@ export default async function ViewUserProductPage({
   const productId = product.id
   const productSlug = product.slug
   const isOwner = manageableProduct.userId === currentUser.id
-  const canManage = true
   const publicPath = productPath(productSlug)
   const analyticsPath = memberProductAnalyticsPath(productSlug)
+  const editPath = memberProductEditPath(productSlug)
   const { hasBasicAnalytics } = resolveProductAnalyticsAccess({
     plan: product.plan,
     featureEntitlements: product.featureEntitlements ?? [],
@@ -138,36 +129,16 @@ export default async function ViewUserProductPage({
     const paidPlans = sortedPlans.filter((plan) => (plan.price ?? 0) > 0)
     return paidPlans.length ? paidPlans : sortedPlans
   })()
-  const planBenefitSummaries = upgradeCandidates.map((plan) => {
-    const enabled = plan.features.filter((feature) => feature.enabled)
-    const newBenefits = enabled.filter(
-      (feature) => !hasPlanFeature(product.plan ?? null, feature.key),
-    )
-    return {
-      plan,
-      topHighlights: newBenefits
-        .slice(0, 3)
-        .map((feature) => ({ id: feature.id, name: feature.name })),
-      highlightCount: newBenefits.length,
-    }
-  })
-  const benefitSummaryById = new Map(
-    planBenefitSummaries.map((entry) => [entry.plan.id, entry]),
-  )
   const nextPlan = upgradeCandidates[0]
-  const topPlanCandidate = upgradeCandidates.length
-    ? upgradeCandidates[upgradeCandidates.length - 1]
-    : undefined
-  const deltaTop = nextPlan
-    ? (benefitSummaryById.get(nextPlan.id)?.topHighlights ?? [])
+  const nextPlanNewBenefits = nextPlan
+    ? nextPlan.features
+        .filter((feature) => feature.enabled)
+        .filter((feature) => !hasPlanFeature(product.plan ?? null, feature.key))
     : []
-  const deltaCount = nextPlan
-    ? (benefitSummaryById.get(nextPlan.id)?.highlightCount ?? 0)
-    : 0
-  const alternatePlanSummaries = nextPlan
-    ? planBenefitSummaries.filter((entry) => entry.plan.id !== nextPlan.id)
-    : planBenefitSummaries
-  const topPlanId = topPlanCandidate?.id ?? null
+  const nextPlanHighlights = nextPlanNewBenefits
+    .slice(0, 3)
+    .map((feature) => ({ id: feature.id, name: feature.name }))
+  const nextPlanHighlightCount = nextPlanNewBenefits.length
   const usdFormatter = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -191,34 +162,18 @@ export default async function ViewUserProductPage({
     }
   }
 
-  const exclusiveCurrentTop: { id: string; name: string }[] = (() => {
-    if (!currentPlanPublic) return []
-    const cheaper = allPlans
-      .filter((p) => p.price < currentPlanPublic.price)
-      .sort((a, b) => b.price - a.price)
-    const prev = cheaper[0]
-    const currentEnabled = new Set(
-      currentPlanPublic.features.filter((f) => f.enabled).map((f) => f.key),
-    )
-    const prevEnabled = new Set(
-      (prev?.features || []).filter((f) => f.enabled).map((f) => f.key),
-    )
-    const exclusive = Array.from(currentEnabled).filter(
-      (k) => !prevEnabled.has(k),
-    )
-    const nameByKey = new Map(
-      currentPlanPublic.features.map((f) => [f.key, f.name] as const),
-    )
-    return exclusive
-      .slice(0, 4)
-      .map((key) => ({ id: key, name: nameByKey.get(key) || key }))
-  })()
-
   const choosePlan = choosePlanAction.bind(null, {
     productId,
     redirectPath: memberProductPath(productSlug),
   })
-  const showPlanUI = Boolean(currentPlanPublic)
+  const upgradePath = memberProductUpgradePath(productSlug)
+  const isFreePlan = !product.plan || product.plan.isDefault
+  const boostAssignedAt = product.planAssignedAt
+  const boostDays = product.plan?.boostForDays ?? 0
+  const statusChangeUnlockAt =
+    !isFreePlan && boostAssignedAt && boostDays > 0
+      ? boostAssignedAt.getTime() + boostDays * 24 * 60 * 60 * 1000
+      : null
 
   const formatHost = (value?: string | null) => {
     if (!value) return null
@@ -298,6 +253,160 @@ export default async function ViewUserProductPage({
     })
   }
 
+  const descriptionLength = (product.description || "").trim().length
+  const descriptionReady = descriptionLength >= 200
+  const galleryCount = (product.ProductMedia || []).length
+  const galleryReady = galleryCount >= 3
+  const bannerReady = Boolean(product.bannerImage)
+
+  const requiresStartingPrice =
+    product.pricingModel === "subscription" ||
+    product.pricingModel === "one_time"
+  const hasStartingPrice =
+    product.startingPriceCents != null && Boolean(product.currencyCode)
+  const pricingReady = !requiresStartingPrice || hasStartingPrice
+
+  const keywordsReady = tags.length >= 3
+  const socialsReady = Boolean(
+    metadata?.githubUrl ||
+    metadata?.twitterUrl ||
+    metadata?.demoUrl ||
+    metadata?.contactEmail,
+  )
+
+  const listingChecklistItems: Array<{
+    key: string
+    label: string
+    note?: string
+    complete: boolean
+    href?: string
+  }> = [
+    {
+      key: "description",
+      label: "Description is strong",
+      note: `${descriptionLength} chars (aim for 200+)`,
+      complete: descriptionReady,
+      href: `${editPath}#section-core`,
+    },
+    {
+      key: "screenshots",
+      label: "Add screenshots",
+      note: `${galleryCount}/6 screenshots`,
+      complete: galleryReady,
+      href: `${editPath}#section-media`,
+    },
+    {
+      key: "banner",
+      label: "Set banner image",
+      note: bannerReady
+        ? "Looks great on the feed"
+        : "Recommended for better clicks",
+      complete: bannerReady,
+      href: `${editPath}#section-media`,
+    },
+    {
+      key: "pricing",
+      label: "Pricing details complete",
+      note: requiresStartingPrice
+        ? pricingReady
+          ? "Starting price set"
+          : "Add starting price + currency"
+        : "All set for this pricing model",
+      complete: pricingReady,
+      href: `${editPath}#section-pricing`,
+    },
+    {
+      key: "keywords",
+      label: "Add keywords",
+      note: `${tags.length} keywords`,
+      complete: keywordsReady,
+      href: `${editPath}#section-core`,
+    },
+    {
+      key: "socials",
+      label: "Add socials/contact",
+      note: socialsReady ? "Nice." : "GitHub, X, demo, or email",
+      complete: socialsReady,
+      href: `${editPath}#section-details`,
+    },
+    {
+      key: "publish",
+      label: "Publish your listing",
+      note:
+        product.status === "published"
+          ? "Live"
+          : "Use Publish in the header when ready",
+      complete: product.status === "published",
+    },
+  ]
+  const checklistCompleted = listingChecklistItems.filter(
+    (i) => i.complete,
+  ).length
+  const checklistTotal = listingChecklistItems.length
+  const checklistPct = checklistTotal
+    ? Math.round((checklistCompleted / checklistTotal) * 100)
+    : 0
+  const nextChecklistAction = listingChecklistItems.find(
+    (item) => !item.complete && item.href,
+  )
+  const nextChecklistLabel =
+    nextChecklistAction?.label ??
+    (product.status !== "published" ? "Publish your listing" : null)
+  const nextChecklistHref = nextChecklistAction?.href ?? null
+
+  const upvoteCount = product.analytics?.upvotes ?? 0
+  const publishPrereqsComplete = listingChecklistItems
+    .filter((item) => item.key !== "publish")
+    .every((item) => item.complete)
+
+  const publishAndBoost = async (formData: FormData) => {
+    "use server"
+    const result = await setProductStatusAction(productId, "published")
+    if (result && typeof result === "object" && "error" in result) {
+      redirect(`${memberProductPath(productSlug)}?error=publish_failed`)
+    }
+    await choosePlanAction(
+      { productId, redirectPath: memberProductPath(productSlug) },
+      formData,
+    )
+  }
+
+  const boostMode =
+    product.status !== "published"
+      ? publishPrereqsComplete
+        ? "publish_and_boost"
+        : "finish_setup"
+      : "boost"
+  const boostCardTitle =
+    product.status !== "published"
+      ? publishPrereqsComplete
+        ? "Ready to launch — boost your debut"
+        : "Boost once you're live"
+      : upvoteCount === 0
+        ? "Want more impressions? Boost to get featured"
+        : "Want more visibility? Boost your listing"
+  const boostCtaLabel =
+    boostMode === "publish_and_boost"
+      ? "Publish + boost"
+      : boostMode === "finish_setup"
+        ? "Finish setup to boost"
+        : upvoteCount === 0
+          ? "Boost to get featured"
+          : "Boost listing"
+  const boostCtaHint =
+    boostMode === "publish_and_boost"
+      ? "We’ll publish your listing and start checkout."
+      : boostMode === "finish_setup"
+        ? "Boosts start after you publish."
+        : null
+  const boostTimingText =
+    product.status === "published"
+      ? "Starts immediately"
+      : "Starts after publish"
+  const boostFormAction =
+    boostMode === "publish_and_boost" ? publishAndBoost : choosePlan
+  const boostSetupHref = nextChecklistHref ?? editPath
+
   return (
     <>
       <ProductBadgeCelebrationGate
@@ -311,42 +420,48 @@ export default async function ViewUserProductPage({
           title: product.name,
           createdAt: product.createdAt,
           updatedAt: product.updatedAt,
-          slug: product.id,
+          subtitle: product.tagline,
         }}
         overview={[
           {
-            label: "Name",
+            label: "Readiness",
             value: (
-              <span className="inline-flex items-center gap-2">
-                {product.name}
-                <Link
-                  href={publicPath}
-                  target="_blank"
-                  aria-label="View public page"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Link>
-              </span>
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>
+                    {checklistCompleted}/{checklistTotal} complete
+                  </span>
+                  <span className="font-medium text-foreground">
+                    {checklistPct}%
+                  </span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/70">
+                  <div
+                    className="h-full rounded-full bg-slate-900"
+                    style={{ width: `${checklistPct}%` }}
+                  />
+                </div>
+                {nextChecklistLabel ? (
+                  <div className="text-xs text-muted-foreground">
+                    Next:{" "}
+                    {nextChecklistHref ? (
+                      <Link
+                        href={nextChecklistHref}
+                        className="text-primary hover:underline"
+                      >
+                        {nextChecklistLabel}
+                      </Link>
+                    ) : (
+                      <span className="text-foreground">
+                        {nextChecklistLabel}
+                      </span>
+                    )}
+                  </div>
+                ) : null}
+              </div>
             ),
           },
           { label: "Category", value: product.category.name },
-          {
-            label: "Status",
-            value: (
-              <Badge
-                variant={
-                  (product.status === "published"
-                    ? "success"
-                    : product.status === "draft"
-                      ? "secondary"
-                      : "outline") as any
-                }
-              >
-                {product.status}
-              </Badge>
-            ),
-          },
           { label: "Type", value: product.type.replace("_", " ") },
           {
             label: "Pricing",
@@ -372,296 +487,145 @@ export default async function ViewUserProductPage({
                   label: "Verified",
                   value: formatBoolean(product.verification.isVerified),
                 },
-                {
-                  label: "Verified At",
-                  value: product.verification.verifiedAt
-                    ? formatDate(product.verification.verifiedAt)
-                    : placeholder(),
-                },
-                {
-                  label: "Domain",
-                  value: (() => {
-                    try {
-                      return new URL(product.websiteUrl).hostname
-                    } catch {
-                      return product.websiteUrl
-                    }
-                  })(),
-                },
-                !product.verification.isVerified
-                  ? {
-                      label: "Verify Domain",
-                      value: (
-                        <div className="flex items-center gap-2">
-                          <CopyButton
-                            text={product.verification!.verificationTxt}
-                            label="Copy TXT"
-                          />
-                          <VerifyDomainButton productId={product.id} />
-                        </div>
-                      ),
-                    }
-                  : null,
-              ].filter(Boolean) as any)
+              ] as const)
             : []),
         ]}
         basePath="member/products"
-        deletable={isOwner}
-        editable={canManage}
+        deletable={false}
+        editable={false}
         headingActionsLeft={
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {canManage && canViewAnalytics ? (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 px-4 border-[color:var(--brand-1)/0.45] text-[color:var(--brand-1)] hover:bg-[color:var(--brand-1)/0.08]"
-                asChild
-              >
-                <Link href={analyticsPath}>
-                  <BarChart3 className="mr-2 h-4 w-4" /> Open Analytics
-                </Link>
-              </Button>
-            ) : null}
-            <div className={radiantSecondaryWrapperClass}>
-              <span className={radiantSecondaryGlowClass} />
-              <ShareOnXButton
-                path={publicPath}
-                productName={product.name}
-                tagline={product.tagline}
-                variant="default"
-                className="h-9 px-4 shadow-[0_12px_28px_-18px_rgba(29,155,240,0.6)] transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-16px_rgba(29,155,240,0.65)]"
-              />
-            </div>
-            <div className={actionGroupClass}>
-              <ProductBadgeCelebrationTrigger />
-            </div>
-            {canManage ? (
-              <ProductStatusMenu
-                productId={product.id}
-                status={product.status as any}
-                triggerClassName="h-8 px-3"
-              />
-            ) : null}
-          </div>
+          <MemberProductHeaderActions
+            productId={product.id}
+            productName={product.name}
+            tagline={product.tagline}
+            status={product.status as any}
+            canChangeStatus={isFreePlan}
+            statusChangeUnlockAt={statusChangeUnlockAt}
+            publicPath={publicPath}
+            editPath={editPath}
+            analyticsPath={analyticsPath}
+            canViewAnalytics={canViewAnalytics}
+            upgradePath={upgradePath}
+            deletePath={memberProductDeletePath(product.slug)}
+            canDelete={isOwner}
+          />
         }
         topRowExtras={[
-          showPlanUI ? (
-            <Card key="plan-top">
+          nextPlan ? (
+            <Card key="boost-upsell">
               <CardHeader className="pb-0">
-                <CardTitle className="text-base">Plan</CardTitle>
+                <CardTitle className="text-base">{boostCardTitle}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-5 text-sm">
-                {product.plan ? (
-                  <div className="space-y-1.5">
-                    <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-foreground">
-                      {product.plan.name}
-                      {product.plan.isDefault ? (
-                        <Badge variant="outline">Default</Badge>
-                      ) : null}
+              <CardContent className="space-y-4 text-sm">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="text-xs text-muted-foreground">
+                      Recommended boost
+                    </div>
+                    <div className="text-sm font-semibold text-foreground">
+                      {nextPlan.name}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {formatCurrency(product.plan.price) as any}
+                      Featured for {nextPlan.boostForDays ?? 1} day(s) •{" "}
+                      {boostTimingText}
                     </div>
                   </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    No plan currently attached.
-                  </p>
-                )}
-                {product.plan && exclusiveCurrentTop.length ? (
+                  {(() => {
+                    const pricing = getPlanPricing(nextPlan)
+                    return (
+                      <div className="text-right">
+                        {pricing.original ? (
+                          <div className="text-xs text-muted-foreground line-through">
+                            {pricing.original}
+                          </div>
+                        ) : (
+                          <div className="h-4" />
+                        )}
+                        <div className="text-2xl font-semibold text-foreground">
+                          {pricing.priceText}
+                        </div>
+                        {pricing.pct > 0 ? (
+                          <div className="mt-1 inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                            Save {percentFormatter.format(pricing.pct)}%
+                          </div>
+                        ) : null}
+                      </div>
+                    )
+                  })()}
+                </div>
+
+                {nextPlanHighlights.length ? (
                   <div className={dashedCalloutClass}>
                     <div className="text-xs font-semibold text-foreground">
-                      Included only in {product.plan.name}
+                      You&apos;ll unlock
                     </div>
                     <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-                      {exclusiveCurrentTop.map((f) => (
-                        <li key={f.id}>• {f.name}</li>
+                      {nextPlanHighlights.map((f) => (
+                        <li key={f.id}>+ {f.name}</li>
                       ))}
+                      {nextPlanHighlightCount > nextPlanHighlights.length ? (
+                        <li key="more">
+                          …and{" "}
+                          {nextPlanHighlightCount - nextPlanHighlights.length}{" "}
+                          more benefits
+                        </li>
+                      ) : null}
                     </ul>
                   </div>
+                ) : nextPlan.description ? (
+                  <p className="text-xs text-muted-foreground">
+                    {nextPlan.description}
+                  </p>
                 ) : null}
-                {(() => {
-                  const np = nextPlan
-                  if (!np) return null
-                  const pricing = getPlanPricing(np)
-                  return (
-                    <div className={calloutPanelClass}>
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <div className="text-sm font-semibold text-foreground">
-                            Unlock more with {np.name}
-                          </div>
-                          <div className="mt-1 flex flex-wrap items-baseline gap-2">
-                            {pricing.original ? (
-                              <span className="text-xs text-muted-foreground line-through">
-                                {pricing.original}
-                              </span>
-                            ) : null}
-                            <span className="text-2xl font-semibold text-foreground">
-                              {pricing.priceText}
-                            </span>
-                            {pricing.pct > 0 ? (
-                              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                                Save {percentFormatter.format(pricing.pct)}%
-                              </span>
-                            ) : null}
-                          </div>
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            Activation is instant. Boost lasts{" "}
-                            {np.boostForDays ?? 1} day(s).
-                          </p>
-                          {np.description ? (
-                            <p className="mt-2 text-xs text-muted-foreground">
-                              {np.description}
-                            </p>
-                          ) : null}
-                        </div>
-                        <form action={choosePlan} className="flex-shrink-0">
-                          <input type="hidden" name="planId" value={np.id} />
-                          <Button variant="outline" size="sm">
-                            Buy now
-                          </Button>
-                        </form>
-                      </div>
-                      {deltaTop.length ? (
-                        <div className="mt-3 space-y-2 text-xs text-muted-foreground">
-                          <div className="font-medium text-foreground">
-                            You also get
-                          </div>
-                          <ul className="space-y-1">
-                            {deltaTop.map((f) => (
-                              <li key={f.id}>+ {f.name}</li>
-                            ))}
-                          </ul>
-                          {deltaCount > deltaTop.length ? (
-                            <div>
-                              …and {deltaCount - deltaTop.length} more benefits
-                            </div>
-                          ) : null}
-                        </div>
-                      ) : null}
-                      {alternatePlanSummaries.length ? (
-                        <details className="mt-4 rounded-md border border-dashed border-slate-200 bg-white/70 text-sm">
-                          <summary className="cursor-pointer list-none px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                            Prefer a different upgrade?
-                          </summary>
-                          <div className="max-h-72 space-y-2 overflow-auto px-3 pb-3 pt-1">
-                            {alternatePlanSummaries.map(
-                              ({ plan, topHighlights, highlightCount }) => {
-                                const planPricing = getPlanPricing(plan)
-                                const isTopTier = plan.id === topPlanId
-                                return (
-                                  <form
-                                    key={plan.id}
-                                    action={choosePlan}
-                                    className="flex flex-col gap-2 rounded-md border border-slate-200 bg-white/90 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
-                                  >
-                                    <input
-                                      type="hidden"
-                                      name="planId"
-                                      value={plan.id}
-                                    />
-                                    <div className="space-y-1">
-                                      <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-foreground">
-                                        {plan.name}
-                                        {isTopTier ? (
-                                          <Badge variant="secondary">
-                                            Top tier
-                                          </Badge>
-                                        ) : null}
-                                      </div>
-                                      <div className="flex flex-wrap items-baseline gap-2 text-xs text-muted-foreground">
-                                        {planPricing.original ? (
-                                          <span className="line-through">
-                                            {planPricing.original}
-                                          </span>
-                                        ) : null}
-                                        <span className="text-sm font-semibold text-foreground">
-                                          {planPricing.priceText}
-                                        </span>
-                                        {planPricing.pct > 0 ? (
-                                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
-                                            Save{" "}
-                                            {percentFormatter.format(
-                                              planPricing.pct,
-                                            )}
-                                            %
-                                          </span>
-                                        ) : null}
-                                      </div>
-                                      {topHighlights.length ? (
-                                        <ul className="space-y-1 text-xs text-muted-foreground">
-                                          {topHighlights.map((feature) => (
-                                            <li key={feature.id}>
-                                              + {feature.name}
-                                            </li>
-                                          ))}
-                                          {highlightCount >
-                                          topHighlights.length ? (
-                                            <li key="more">
-                                              …and{" "}
-                                              {highlightCount -
-                                                topHighlights.length}{" "}
-                                              more benefits
-                                            </li>
-                                          ) : null}
-                                        </ul>
-                                      ) : null}
-                                    </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="self-start sm:self-center"
-                                    >
-                                      Choose plan
-                                    </Button>
-                                  </form>
-                                )
-                              },
-                            )}
-                          </div>
-                        </details>
-                      ) : null}
+
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-3">
+                    {boostMode === "finish_setup" ? (
+                      <Button size="sm" className="h-9 px-4" asChild>
+                        <Link href={boostSetupHref}>{boostCtaLabel}</Link>
+                      </Button>
+                    ) : (
+                      <form action={boostFormAction}>
+                        <input
+                          type="hidden"
+                          name="planId"
+                          value={nextPlan.id}
+                        />
+                        <Button size="sm" className="h-9 px-4">
+                          {boostCtaLabel}
+                        </Button>
+                      </form>
+                    )}
+                    <Link
+                      href={upgradePath}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Compare boosts
+                    </Link>
+                  </div>
+                  {boostCtaHint ? (
+                    <div className="text-xs text-muted-foreground">
+                      {boostCtaHint}
                     </div>
-                  )
-                })()}
+                  ) : null}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <span>
+                    Current:{" "}
+                    <span className="font-medium text-foreground">
+                      {product.plan?.name ?? "Free"}
+                    </span>
+                  </span>
+                  {isFreePlan ? <Badge variant="secondary">Free</Badge> : null}
+                </div>
               </CardContent>
             </Card>
           ) : null,
         ]}
         relationships={
           <div className="grid grid-cols-12 gap-6">
-            <Card className="col-span-12 md:col-span-8">
-              <CardHeader>
-                <CardTitle className="text-base">Media Gallery</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs">
-                  <div className="text-muted-foreground">
-                    {`Images: ${(product.ProductMedia || []).length}/6`}
-                  </div>
-                  <div className="text-muted-foreground">
-                    Tips: 3–6 screenshots (1280×720). Banner 1200×628.
-                  </div>
-                </div>
-                <ProductMediaManager
-                  productSlug={product.slug}
-                  media={
-                    product.ProductMedia?.map(
-                      (
-                        m: NonNullable<typeof product.ProductMedia>[number],
-                      ) => ({
-                        id: m.id,
-                        imageUrl: m.imageUrl,
-                      }),
-                    ) ?? []
-                  }
-                  canEdit={canManage}
-                  max={6}
-                />
-              </CardContent>
-            </Card>
-            <div className="col-span-12 md:col-span-4">
+            <div className="col-span-12 md:col-span-4 md:order-2 space-y-6">
               <PerformanceCard
                 upvotes={product.analytics?.upvotes ?? 0}
                 upvoters={upvoters as any}
@@ -670,250 +634,566 @@ export default async function ViewUserProductPage({
                 tagline={product.tagline}
                 hasBanner={Boolean(product.bannerImage)}
                 ogImageUrl={product.bannerImage || product.logo}
-                editHref={memberProductEditPath(product.slug)}
+                editHref={editPath}
               />
-            </div>
-            <Card className="col-span-12 md:col-span-4">
-              <CardHeader>
-                <CardTitle className="text-base">Branding</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <OverviewRow label="Slug" value={slugFmt(product.slug)} />
-                <OverviewRow label="Tagline" value={product.tagline} />
-                <OverviewRow
-                  label="Logo"
-                  value={image(product.logo, product.name, 64, 64)}
-                />
-              </CardContent>
-            </Card>
-            <Card className="col-span-12 md:col-span-4">
-              <CardHeader>
-                <CardTitle className="text-base">
-                  Organization & Targeting
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm text-muted-foreground">
-                <div className="space-y-2">
-                  <span className={sectionLabelClass}>Organization</span>
-                  {organizationName ? (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className={infoChipClass}>
-                        <Building2 className={chipIconClass} />
-                        {organizationName}
-                      </span>
-                      {organizationUrl ? (
+              <Card>
+                <CardHeader className="pb-0">
+                  <CardTitle className="text-base">Launch checklist</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 text-sm">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                    <span>
+                      {checklistCompleted}/{checklistTotal} complete
+                    </span>
+                    {nextChecklistLabel ? (
+                      nextChecklistHref ? (
                         <Link
-                          href={organizationUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={accentChipClass}
+                          href={nextChecklistHref}
+                          className="text-primary hover:underline"
                         >
-                          <Globe className={chipIconClass} />
-                          <span className="truncate max-w-[12rem]">
-                            {organizationHost ?? organizationUrl}
-                          </span>
+                          Focus: {nextChecklistLabel}
                         </Link>
-                      ) : null}
-                    </div>
-                  ) : (
-                    <span className={placeholderTextClass}>
-                      {placeholder()}
-                    </span>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <span className={sectionLabelClass}>Platforms</span>
-                  {platforms.length ? (
-                    <div className="flex flex-wrap gap-2">
-                      {platforms.map((platform: string) => (
-                        <span className={infoChipClass} key={platform}>
-                          <Target className={chipIconClass} />
-                          {platform}
+                      ) : (
+                        <span className="text-foreground">
+                          Focus: {nextChecklistLabel}
                         </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className={placeholderTextClass}>
-                      {placeholder()}
-                    </span>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <span className={sectionLabelClass}>Keywords</span>
-                  {tags.length ? (
-                    <div className="flex flex-wrap gap-2">
-                      {tags.map((tagValue: string) => (
-                        <span className={accentChipClass} key={tagValue}>
-                          <Tag className={chipIconClass} />
-                          {tagValue}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className={placeholderTextClass}>
-                      {placeholder()}
-                    </span>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <span className={sectionLabelClass}>Alternative to</span>
-                  {alternativesList.length ? (
-                    <div className="flex flex-col gap-2">
-                      {alternativesList.map((alternative: any) => {
-                        const href = alternative.websiteUrl
-                        const content = (
-                          <span className="flex items-center gap-2">
-                            <ExternalLink className={chipIconClass} />
-                            <span className="font-medium">
-                              {alternative.name}
-                            </span>
-                            {href ? (
-                              <span className="text-xs text-muted-foreground">
-                                {formatHost(href) ?? href}
-                              </span>
+                      )
+                    ) : (
+                      <span className="text-foreground">All set</span>
+                    )}
+                  </div>
+
+                  <ul className="space-y-1">
+                    {listingChecklistItems.map((item) => {
+                      const icon = item.complete ? (
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-600" />
+                      ) : (
+                        <Circle className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                      )
+
+                      const body = (
+                        <>
+                          {icon}
+                          <div className="flex-1">
+                            <div className="text-sm text-foreground">
+                              {item.label}
+                            </div>
+                            {item.note ? (
+                              <div className="text-xs text-muted-foreground">
+                                {item.note}
+                              </div>
                             ) : null}
-                          </span>
-                        )
-                        return href ? (
-                          <Link
-                            key={alternative.id}
-                            href={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 shadow-sm transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
-                          >
-                            {content}
-                          </Link>
+                          </div>
+                          {!item.complete ? (
+                            <span className="mt-0.5 text-xs text-primary opacity-0 transition group-hover:opacity-100">
+                              Fix
+                            </span>
+                          ) : null}
+                        </>
+                      )
+
+                      return (
+                        <li key={item.key}>
+                          {item.href ? (
+                            <Link
+                              href={item.href}
+                              className="group flex items-start gap-2 rounded-md px-2 py-2 transition hover:bg-slate-50"
+                            >
+                              {body}
+                            </Link>
+                          ) : (
+                            <div className="flex items-start gap-2 rounded-md px-2 py-2">
+                              {icon}
+                              <div className="flex-1">
+                                <div className="text-sm text-foreground">
+                                  {item.label}
+                                </div>
+                                {item.note ? (
+                                  <div className="text-xs text-muted-foreground">
+                                    {item.note}
+                                  </div>
+                                ) : null}
+                              </div>
+                            </div>
+                          )}
+                        </li>
+                      )
+                    })}
+                  </ul>
+
+                  <div className={dashedCalloutClass}>
+                    <div className="flex items-start justify-between gap-3 text-xs text-muted-foreground">
+                      <div className="flex items-start gap-2">
+                        {canViewAnalytics ? (
+                          <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-600" />
                         ) : (
-                          <span
-                            key={alternative.id}
-                            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-700"
-                          >
-                            {content}
-                          </span>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    <span className={placeholderTextClass}>
-                      {placeholder()}
-                    </span>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="col-span-12 md:col-span-4">
-              <CardHeader>
-                <CardTitle className="text-base">Links</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm text-muted-foreground">
-                <div className="space-y-2">
-                  <span className={sectionLabelClass}>Website</span>
-                  {product.websiteUrl ? (
-                    <div className="space-y-1">
+                          <LockKeyhole className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                        )}
+                        <div className="space-y-0.5">
+                          <div className="font-medium text-foreground">
+                            Analytics
+                          </div>
+                          <div>
+                            {canViewAnalytics
+                              ? "Open analytics for this product."
+                              : "Locked on free. Unlock with a boost."}
+                          </div>
+                        </div>
+                      </div>
                       <Link
-                        href={product.websiteUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`${accentChipClass} max-w-full`}
+                        href={canViewAnalytics ? analyticsPath : upgradePath}
+                        className="mt-0.5 shrink-0 text-primary hover:underline"
                       >
-                        <span className="truncate max-w-[18rem]">
-                          {websiteHost}
-                        </span>
+                        {canViewAnalytics ? "Open" : "Unlock"}
                       </Link>
                     </div>
-                  ) : (
-                    <span className={placeholderTextClass}>
-                      {placeholder()}
-                    </span>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <span className={sectionLabelClass}>Additional Links</span>
-                  {extraLinks.length ? (
-                    <div className="flex flex-wrap gap-2">
-                      {extraLinks.map(({ key, href, label, icon }) => {
-                        const isExternal = href.startsWith("http")
-                        const content = (
-                          <>
-                            {icon}
-                            <span className="truncate max-w-[12rem]">
-                              {label}
-                            </span>
-                          </>
-                        )
-                        return isExternal ? (
-                          <Link
-                            key={key}
-                            href={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`${accentChipClass} max-w-full`}
-                          >
-                            {content}
-                          </Link>
-                        ) : (
-                          <a
-                            key={key}
-                            href={href}
-                            className={`${accentChipClass} max-w-full`}
-                          >
-                            {content}
-                          </a>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    <span className={placeholderTextClass}>
-                      {placeholder()}
-                    </span>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="col-span-12">
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            <Card className="col-span-12 md:col-span-8 md:order-1">
               <CardHeader className="pb-0">
-                <CardTitle className="text-base">Description</CardTitle>
+                <CardTitle className="text-base">Listing details</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4 text-sm text-muted-foreground">
-                <div className="flex flex-col gap-2 text-xs sm:flex-row sm:items-center sm:justify-between">
-                  {(() => {
-                    const len = (product.description || "").trim().length
-                    const good = len >= 200
-                    return (
-                      <div>
-                        Quality:{" "}
-                        <span
-                          className={
-                            good ? "text-emerald-600" : "text-amber-600"
-                          }
-                        >
-                          {good ? "Good" : "Needs work"}
-                        </span>{" "}
-                        ({len} chars)
+              <CardContent className="px-0">
+                <Accordion type="multiple" className="w-full">
+                  <AccordionItem value="branding" className="px-6">
+                    <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+                      <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
+                        <div className="flex min-w-0 flex-col gap-1">
+                          <span className="font-semibold text-slate-900">
+                            Branding
+                          </span>
+                          <span className="text-xs font-normal text-muted-foreground">
+                            Slug, logo, banner, and screenshots.
+                          </span>
+                        </div>
+                        <div className="pt-0.5 shrink-0">
+                          <Badge variant="outline">
+                            {galleryCount}/6 screenshots
+                          </Badge>
+                        </div>
                       </div>
-                    )
-                  })()}
-                  <Link
-                    href={memberProductEditPath(product.slug)}
-                    className="text-xs text-primary hover:underline"
-                  >
-                    Improve description
-                  </Link>
-                </div>
-                <div className="prose prose-sm max-w-none text-foreground">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {product.description}
-                  </ReactMarkdown>
-                </div>
-                <OverviewRow
-                  label="Published At"
-                  value={
-                    product.publishedAt
-                      ? formatDate(product.publishedAt)
-                      : placeholder()
-                  }
-                />
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4 pb-6">
+                      <div className="space-y-3 text-sm text-muted-foreground">
+                        <OverviewRow
+                          label="Slug"
+                          value={slugFmt(product.slug)}
+                        />
+                        <OverviewRow
+                          label="Logo"
+                          value={image(product.logo, product.name, 64, 64)}
+                        />
+                        <OverviewRow
+                          label="Banner"
+                          value={
+                            product.bannerImage ? (
+                              image(
+                                product.bannerImage,
+                                `${product.name} banner`,
+                                240,
+                                126,
+                              )
+                            ) : (
+                              <Link
+                                href={`${editPath}#section-media`}
+                                className="text-xs text-primary hover:underline"
+                              >
+                                Add banner
+                              </Link>
+                            )
+                          }
+                        />
+                        <OverviewRow
+                          label="Screenshots"
+                          value={
+                            <span className="text-sm text-muted-foreground">
+                              {galleryCount}/6
+                            </span>
+                          }
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="targeting" className="px-6">
+                    <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+                      <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
+                        <div className="flex min-w-0 flex-col gap-1">
+                          <span className="font-semibold text-slate-900">
+                            Organization & targeting
+                          </span>
+                          <span className="text-xs font-normal text-muted-foreground">
+                            Organization, platforms, keywords, and alternatives.
+                          </span>
+                        </div>
+                        <div className="pt-0.5 shrink-0">
+                          <Badge variant="outline">
+                            {tags.length} keywords
+                          </Badge>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4 pb-6">
+                      <div className="space-y-3 text-sm text-muted-foreground">
+                        <OverviewRow
+                          label="Organization"
+                          value={
+                            organizationName ? (
+                              <div className="space-y-1">
+                                <div className="text-sm text-foreground">
+                                  {organizationName}
+                                </div>
+                                {organizationUrl ? (
+                                  <Link
+                                    href={organizationUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-primary hover:underline"
+                                  >
+                                    {organizationHost ?? organizationUrl}
+                                  </Link>
+                                ) : null}
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-between gap-3">
+                                {placeholder()}
+                                <Link
+                                  href={`${editPath}#section-details`}
+                                  className="text-xs text-primary hover:underline"
+                                >
+                                  Add
+                                </Link>
+                              </div>
+                            )
+                          }
+                        />
+                        <OverviewRow
+                          label="Platforms"
+                          value={
+                            platforms.length ? (
+                              <span className="text-sm text-muted-foreground">
+                                {platforms.join(", ")}
+                              </span>
+                            ) : (
+                              <div className="flex items-center justify-between gap-3">
+                                {placeholder()}
+                                <Link
+                                  href={`${editPath}#section-core`}
+                                  className="text-xs text-primary hover:underline"
+                                >
+                                  Add
+                                </Link>
+                              </div>
+                            )
+                          }
+                        />
+                        <OverviewRow
+                          label="Keywords"
+                          value={
+                            tags.length ? (
+                              <span className="text-sm text-muted-foreground">
+                                {tags.join(", ")}
+                              </span>
+                            ) : (
+                              <div className="flex items-center justify-between gap-3">
+                                {placeholder()}
+                                <Link
+                                  href={`${editPath}#section-core`}
+                                  className="text-xs text-primary hover:underline"
+                                >
+                                  Add
+                                </Link>
+                              </div>
+                            )
+                          }
+                        />
+                        <OverviewRow
+                          label="Alternative to"
+                          value={
+                            alternativesList.length ? (
+                              <ul className="space-y-1">
+                                {alternativesList.map((alternative: any) => {
+                                  const href = alternative.websiteUrl
+                                  return (
+                                    <li
+                                      key={alternative.id}
+                                      className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-2"
+                                    >
+                                      {href ? (
+                                        <Link
+                                          href={href}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-sm text-primary hover:underline"
+                                        >
+                                          {alternative.name}
+                                        </Link>
+                                      ) : (
+                                        <span className="text-sm text-foreground">
+                                          {alternative.name}
+                                        </span>
+                                      )}
+                                      {href ? (
+                                        <span className="text-xs text-muted-foreground">
+                                          {formatHost(href) ?? href}
+                                        </span>
+                                      ) : null}
+                                    </li>
+                                  )
+                                })}
+                              </ul>
+                            ) : (
+                              <div className="flex items-center justify-between gap-3">
+                                {placeholder()}
+                                <Link
+                                  href={`${editPath}#section-details`}
+                                  className="text-xs text-primary hover:underline"
+                                >
+                                  Add
+                                </Link>
+                              </div>
+                            )
+                          }
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="links" className="px-6">
+                    <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+                      <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
+                        <div className="flex min-w-0 flex-col gap-1">
+                          <span className="font-semibold text-slate-900">
+                            Links
+                          </span>
+                          <span className="text-xs font-normal text-muted-foreground">
+                            Website and additional links.
+                          </span>
+                        </div>
+                        <div className="pt-0.5 shrink-0">
+                          <Badge variant="outline">
+                            {extraLinks.length} extra
+                          </Badge>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4 pb-6">
+                      <div className="space-y-3 text-sm text-muted-foreground">
+                        <OverviewRow
+                          label="Website"
+                          value={
+                            <Link
+                              href={product.websiteUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-primary hover:underline"
+                            >
+                              {websiteHost}
+                            </Link>
+                          }
+                        />
+                        <OverviewRow
+                          label="Additional links"
+                          value={
+                            extraLinks.length ? (
+                              <ul className="space-y-2">
+                                {extraLinks.map(
+                                  ({ key, href, label, icon }) => {
+                                    const isExternal = href.startsWith("http")
+                                    const linkClassName =
+                                      "inline-flex max-w-full items-center gap-2 text-sm text-primary hover:underline"
+                                    return (
+                                      <li key={key}>
+                                        {isExternal ? (
+                                          <Link
+                                            href={href}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={linkClassName}
+                                          >
+                                            {icon}
+                                            <span className="truncate max-w-[16rem]">
+                                              {label}
+                                            </span>
+                                          </Link>
+                                        ) : (
+                                          <a
+                                            href={href}
+                                            className={linkClassName}
+                                          >
+                                            {icon}
+                                            <span className="truncate max-w-[16rem]">
+                                              {label}
+                                            </span>
+                                          </a>
+                                        )}
+                                      </li>
+                                    )
+                                  },
+                                )}
+                              </ul>
+                            ) : (
+                              <div className="flex items-center justify-between gap-3">
+                                {placeholder()}
+                                <Link
+                                  href={`${editPath}#section-details`}
+                                  className="text-xs text-primary hover:underline"
+                                >
+                                  Add
+                                </Link>
+                              </div>
+                            )
+                          }
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  {product.verification ? (
+                    <AccordionItem value="verification" className="px-6">
+                      <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+                        <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
+                          <div className="flex min-w-0 flex-col gap-1">
+                            <span className="font-semibold text-slate-900">
+                              Verification
+                            </span>
+                            <span className="text-xs font-normal text-muted-foreground">
+                              Verify your domain ownership via DNS.
+                            </span>
+                          </div>
+                          <div className="pt-0.5 shrink-0">
+                            <Badge
+                              variant={
+                                product.verification.isVerified
+                                  ? "success"
+                                  : "outline"
+                              }
+                            >
+                              {product.verification.isVerified
+                                ? "Verified"
+                                : "Unverified"}
+                            </Badge>
+                          </div>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="pt-4 pb-6">
+                        <div className="space-y-4 text-sm text-muted-foreground">
+                          <OverviewRow
+                            label="Domain"
+                            value={
+                              <span className="text-sm text-muted-foreground">
+                                {websiteHost}
+                              </span>
+                            }
+                          />
+                          <OverviewRow
+                            label="TXT record"
+                            value={
+                              <div className="flex flex-wrap items-center gap-2">
+                                <code className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700">
+                                  {product.verification.verificationTxt}
+                                </code>
+                                <CopyButton
+                                  text={product.verification.verificationTxt}
+                                  label="Copy TXT"
+                                  size="sm"
+                                />
+                              </div>
+                            }
+                          />
+                          <OverviewRow
+                            label="Verified at"
+                            value={
+                              product.verification.verifiedAt
+                                ? formatDate(product.verification.verifiedAt)
+                                : placeholder()
+                            }
+                          />
+                          <div className={dashedCalloutClass}>
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                              <div className="text-xs text-muted-foreground">
+                                Add the TXT record to your DNS, then click
+                                verify.
+                              </div>
+                              <VerifyDomainButton
+                                productId={product.id}
+                                label={
+                                  product.verification.isVerified
+                                    ? "Re-check"
+                                    : "Verify"
+                                }
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ) : null}
+
+                  <AccordionItem value="description" className="px-6">
+                    <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+                      <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
+                        <div className="flex min-w-0 flex-col gap-1">
+                          <span className="font-semibold text-slate-900">
+                            Description
+                          </span>
+                          <span className="text-xs font-normal text-muted-foreground">
+                            Your main pitch (Markdown supported).
+                          </span>
+                        </div>
+                        <div className="pt-0.5 shrink-0">
+                          <Badge
+                            variant={descriptionReady ? "success" : "secondary"}
+                          >
+                            {descriptionReady ? "Good" : "Needs work"}
+                          </Badge>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4 pb-6">
+                      <div className="space-y-4 text-sm text-muted-foreground">
+                        <div className="flex flex-col gap-2 text-xs sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            Quality:{" "}
+                            <span
+                              className={
+                                descriptionReady
+                                  ? "text-emerald-600"
+                                  : "text-amber-600"
+                              }
+                            >
+                              {descriptionReady ? "Good" : "Needs work"}
+                            </span>{" "}
+                            ({descriptionLength} chars)
+                          </div>
+                          <Link
+                            href={`${editPath}#section-core`}
+                            className="text-xs text-primary hover:underline"
+                          >
+                            Improve description
+                          </Link>
+                        </div>
+
+                        <div className="prose prose-sm max-w-none text-foreground">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {product.description}
+                          </ReactMarkdown>
+                        </div>
+
+                        <OverviewRow
+                          label="Published At"
+                          value={
+                            product.publishedAt
+                              ? formatDate(product.publishedAt)
+                              : placeholder()
+                          }
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </CardContent>
             </Card>
           </div>
