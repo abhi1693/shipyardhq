@@ -6,6 +6,40 @@ export type ProductWizardCategoryOption = {
   icon?: string | null
 }
 
+export const productForEditWizardSelect = {
+  id: true,
+  slug: true,
+  userId: true,
+  name: true,
+  tagline: true,
+  description: true,
+  websiteUrl: true,
+  logo: true,
+  categoryId: true,
+  type: true,
+  pricingModel: true,
+  startingPriceCents: true,
+  currencyCode: true,
+  platforms: true,
+  keywords: true,
+  organizationId: true,
+  bannerImage: true,
+  status: true,
+  metadata: {
+    select: {
+      githubUrl: true,
+      twitterUrl: true,
+      demoUrl: true,
+      contactEmail: true,
+      utmCampaign: true,
+    },
+  },
+  alternatives: { select: { id: true } },
+  ProductMedia: { select: { id: true, imageUrl: true } },
+  verification: { select: { isVerified: true } },
+  user: { select: { clerkId: true } },
+} satisfies Prisma.ProductSelect
+
 export type ProductWizardOrganizationOption = {
   id: string
   name: string
@@ -27,40 +61,9 @@ export type ProductWizardAdminUserOption = {
 export type ProductWizardAdminEditUserOption = {
   id: string
   email: string
+  clerkId: string
 }
 
 export type ProductForEditWizard = Prisma.ProductGetPayload<{
-  select: {
-    id: true
-    slug: true
-    userId: true
-    name: true
-    tagline: true
-    description: true
-    websiteUrl: true
-    logo: true
-    categoryId: true
-    type: true
-    pricingModel: true
-    startingPriceCents: true
-    currencyCode: true
-    platforms: true
-    keywords: true
-    organizationId: true
-    bannerImage: true
-    status: true
-    metadata: {
-      select: {
-        githubUrl: true
-        twitterUrl: true
-        demoUrl: true
-        contactEmail: true
-        utmCampaign: true
-      }
-    }
-    alternatives: { select: { id: true } }
-    ProductMedia: { select: { id: true; imageUrl: true } }
-    verification: { select: { isVerified: true } }
-    user: { select: { clerkId: true } }
-  }
+  select: typeof productForEditWizardSelect
 }>

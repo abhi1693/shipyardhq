@@ -39,6 +39,7 @@ import ProductConnectorFields from "@/components/pages/products/_components/Prod
 import ProductWizardAccordion from "@/components/pages/products/_components/ProductWizardAccordion"
 import ProductWizardFooter from "@/components/pages/products/_components/ProductWizardFooter"
 import { PRODUCT_AUTOFILL_NOTICE } from "@/components/pages/products/_shared/autofillText"
+import { useUnsavedChangesWarning } from "@/components/pages/products/_shared/useUnsavedChangesWarning"
 import { useWizardNavigation } from "@/components/pages/products/_shared/wizardNavigation"
 import Step1 from "@/app/(member)/member/products/shared/step1"
 import Step2 from "@/app/(member)/member/products/shared/step2"
@@ -67,6 +68,7 @@ import type {
   ProductWizardCategoryOption,
   ProductWizardOrganizationOption,
 } from "@/types/product-wizard"
+import { Badge } from "@/components/atoms/badge"
 
 type ConnectorSummary = {
   provider?: PaymentConnectorProvider
@@ -132,6 +134,8 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     mode: "onBlur",
   })
 
+  useUnsavedChangesWarning(form.formState.isDirty)
+
   const ownerId = useWatch({
     control: form.control,
     name: "ownerId" as any,
@@ -180,10 +184,10 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     : 0
 
   const ownerClerkId =
-    props.mode === "admin" &&
-    typeof props.product?.user?.clerkId === "string" &&
-    props.product.user.clerkId.length
-      ? props.product.user.clerkId
+    props.mode === "admin"
+      ? ownerId?.length
+        ? props.users.find((u) => u.id === ownerId)?.clerkId
+        : undefined
       : undefined
 
   const connectorFields = useMemo(() => {
@@ -300,7 +304,10 @@ export default function EditProductWizard(props: EditProductWizardProps) {
         name={"ownerId" as any}
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Owner (user)</FormLabel>
+            <FormLabel className="flex items-center justify-between gap-2">
+              <span>Owner (user)</span>
+              <Badge variant="secondary">Admin</Badge>
+            </FormLabel>
             <Select value={field.value || ""} onValueChange={field.onChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Select owner" />

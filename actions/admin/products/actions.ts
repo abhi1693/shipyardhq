@@ -43,6 +43,9 @@ import {
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
 import { getRootDomain } from "@/lib/domain"
+import { productForEditWizardSelect } from "@/types/product-wizard"
+import type { ProductWizardConnectorSummary } from "@/types/product-connector"
+import type { PaymentConnectorConfig } from "@/lib/server/payments/types"
 
 async function generateUniqueSlug(base: string): Promise<string> {
   const clean = slugify(base)
@@ -171,6 +174,63 @@ export async function getProductById(id: string) {
   } catch (error) {
     console.error("Error fetching product by ID:", error)
     throw new Error("Failed to fetch product")
+  }
+}
+
+export async function getProductForEditWizard(id: string) {
+  try {
+    return await prisma.product.findUnique({
+      where: { id },
+      select: productForEditWizardSelect,
+    })
+  } catch (error) {
+    console.error("Error fetching product for wizard:", error)
+    throw new Error("Failed to fetch product")
+  }
+}
+
+export async function getProductConnectorSummaryForAdmin(
+  productId: string,
+): Promise<ProductWizardConnectorSummary> {
+  try {
+    const connector = await prisma.paymentConnector.findUnique({
+      where: { productId },
+      select: {
+        id: true,
+        provider: true,
+        status: true,
+        lastSyncedAt: true,
+        lastSyncError: true,
+        config: true,
+        credentials: {
+          where: { status: PaymentCredentialStatus.active },
+          select: { keyHint: true },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+        },
+      },
+    })
+    if (!connector) return null
+
+    const keyHint = connector.credentials?.[0]?.keyHint || null
+    const config = connector.config as PaymentConnectorConfig | null
+    const accountId =
+      typeof config?.accountId === "string" ? config.accountId : undefined
+    const brandId =
+      typeof config?.brandId === "string" ? config.brandId : undefined
+    return {
+      id: connector.id,
+      provider: connector.provider,
+      status: connector.status,
+      lastSyncedAt: connector.lastSyncedAt,
+      lastSyncError: connector.lastSyncError,
+      keyHint,
+      accountId,
+      brandId,
+    }
+  } catch (error) {
+    console.error("Error fetching connector summary:", error)
+    throw new Error("Failed to fetch connector summary")
   }
 }
 

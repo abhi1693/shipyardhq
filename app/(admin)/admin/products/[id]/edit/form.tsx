@@ -17,7 +17,7 @@ export default function EditProductForm({
   product: ProductForEditWizard
   categories: { id: string; name: string; icon?: string | null }[]
   organizations: { id: string; name: string }[]
-  users: { id: string; email: string }[]
+  users: { id: string; email: string; clerkId: string }[]
   connector?: {
     id: string
     provider: PaymentConnectorProvider
