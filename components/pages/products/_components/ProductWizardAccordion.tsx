@@ -64,14 +64,14 @@ export default function ProductWizardAccordion({
     >
       <AccordionItem id="section-core" value="core" className="px-6">
         <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
-          <div className="flex w-full items-start justify-between gap-4">
-            <div className="flex flex-col gap-1">
+          <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
+            <div className="flex min-w-0 flex-col gap-1">
               <span className="font-semibold text-slate-900">Core details</span>
               <span className="text-xs font-normal text-muted-foreground">
                 Website, name, description, category, and platforms.
               </span>
             </div>
-            <div className="pt-0.5">
+            <div className="pt-0.5 shrink-0">
               <Badge variant="outline">Required</Badge>
             </div>
           </div>
@@ -81,14 +81,14 @@ export default function ProductWizardAccordion({
 
       <AccordionItem id="section-media" value="media" className="px-6">
         <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
-          <div className="flex w-full items-start justify-between gap-4">
-            <div className="flex flex-col gap-1">
+          <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
+            <div className="flex min-w-0 flex-col gap-1">
               <span className="font-semibold text-slate-900">Logo & media</span>
               <span className="text-xs font-normal text-muted-foreground">
                 Logo, optional banner, and screenshots.
               </span>
             </div>
-            <div className="pt-0.5">
+            <div className="pt-0.5 shrink-0">
               <Badge variant="outline">Required</Badge>
             </div>
           </div>
@@ -98,14 +98,14 @@ export default function ProductWizardAccordion({
 
       <AccordionItem id="section-pricing" value="pricing" className="px-6">
         <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
-          <div className="flex w-full items-start justify-between gap-4">
-            <div className="flex flex-col gap-1">
+          <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
+            <div className="flex min-w-0 flex-col gap-1">
               <span className="font-semibold text-slate-900">Pricing</span>
               <span className="text-xs font-normal text-muted-foreground">
                 Pricing model and starting price (if applicable).
               </span>
             </div>
-            <div className="pt-0.5">
+            <div className="pt-0.5 shrink-0">
               <Badge variant="outline">Required</Badge>
             </div>
           </div>
@@ -115,27 +115,27 @@ export default function ProductWizardAccordion({
 
       <AccordionItem id="section-boost" value="boost" className="px-6">
         <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
-          <div className="flex w-full items-start justify-between gap-4">
-            <div className="flex flex-col gap-1">
+          <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
+            <div className="flex min-w-0 flex-col gap-1">
               <span className="font-semibold text-slate-900">Boost visibility</span>
               <span className="text-xs font-normal text-muted-foreground">
                 Verified revenue (+40%) and domain badge.
               </span>
             </div>
-            <div className="pt-0.5">
+            <div className="pt-0.5 shrink-0">
               <Badge>Recommended</Badge>
             </div>
           </div>
         </AccordionTrigger>
         <AccordionContent className="pt-4 pb-6">
-          <div className="rounded-xl border bg-white/70">
+          <div className="rounded-xl border bg-white/70 overflow-hidden">
             <div className="divide-y divide-border/60">
-              <div className="px-4 py-4 sm:px-5">
+              <div>
                 <div
                   role="button"
                   tabIndex={0}
                   aria-expanded={openBoostPanel === "revenue"}
-                  className="-mx-2 cursor-pointer rounded-lg px-2 py-2 outline-none transition-colors hover:bg-muted/30 focus-visible:ring-[3px] focus-visible:ring-ring/40"
+                  className="cursor-pointer px-4 py-4 outline-none transition-colors hover:bg-muted/30 focus-visible:ring-[3px] focus-visible:ring-ring/40 sm:px-5"
                   onClick={() => onToggleBoostPanel("revenue")}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -145,12 +145,11 @@ export default function ProductWizardAccordion({
                   }}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-2">
+                    <div className="min-w-0 space-y-1">
+                      <div className="flex min-w-0 items-center gap-2">
                         <span className="text-sm font-semibold text-slate-900">
                           Verified revenue
                         </span>
-                        <Badge variant="outline">Up to +40% ranking</Badge>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <button
@@ -170,11 +169,6 @@ export default function ProductWizardAccordion({
                             revenue ranking boost.
                           </TooltipContent>
                         </Tooltip>
-                        {hasRevenueSetupDraft ? (
-                          <Badge variant="success">Connected</Badge>
-                        ) : (
-                          <Badge variant="secondary">Incomplete</Badge>
-                        )}
                       </div>
                     </div>
 
@@ -194,6 +188,14 @@ export default function ProductWizardAccordion({
                           Set up
                         </Button>
                       ) : null}
+                      <div className="flex flex-wrap items-center justify-end gap-2">
+                        <Badge variant="outline">Up to +40% ranking</Badge>
+                        {hasRevenueSetupDraft ? (
+                          <Badge variant="success">Connected</Badge>
+                        ) : (
+                          <Badge variant="secondary">Incomplete</Badge>
+                        )}
+                      </div>
                       <ChevronDown
                         className={[
                           "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
@@ -206,16 +208,16 @@ export default function ProductWizardAccordion({
                 </div>
 
                 {openBoostPanel === "revenue" ? (
-                  <div className="pt-4">{connectorFields}</div>
+                  <div className="px-4 pb-4 sm:px-5">{connectorFields}</div>
                 ) : null}
               </div>
 
-              <div className="px-4 py-4 sm:px-5">
+              <div>
                 <div
                   role="button"
                   tabIndex={0}
                   aria-expanded={openBoostPanel === "domain"}
-                  className="-mx-2 cursor-pointer rounded-lg px-2 py-2 outline-none transition-colors hover:bg-muted/30 focus-visible:ring-[3px] focus-visible:ring-ring/40"
+                  className="cursor-pointer px-4 py-4 outline-none transition-colors hover:bg-muted/30 focus-visible:ring-[3px] focus-visible:ring-ring/40 sm:px-5"
                   onClick={() => onToggleBoostPanel("domain")}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -225,12 +227,11 @@ export default function ProductWizardAccordion({
                   }}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-2">
+                    <div className="min-w-0 space-y-1">
+                      <div className="flex min-w-0 items-center gap-2">
                         <span className="text-sm font-semibold text-slate-900">
                           Verified badge
                         </span>
-                        <Badge variant="outline">Boost trust</Badge>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <button
@@ -250,15 +251,6 @@ export default function ProductWizardAccordion({
                             impersonation.
                           </TooltipContent>
                         </Tooltip>
-                        {domainChecked ? (
-                          domainVerified ? (
-                            <Badge variant="success">Verified</Badge>
-                          ) : (
-                            <Badge variant="destructive">Not found</Badge>
-                          )
-                        ) : (
-                          <Badge variant="secondary">Incomplete</Badge>
-                        )}
                       </div>
                     </div>
 
@@ -278,6 +270,18 @@ export default function ProductWizardAccordion({
                           Verify
                         </Button>
                       ) : null}
+                      <div className="flex flex-wrap items-center justify-end gap-2">
+                        <Badge variant="outline">Boost trust</Badge>
+                        {domainChecked ? (
+                          domainVerified ? (
+                            <Badge variant="success">Verified</Badge>
+                          ) : (
+                            <Badge variant="destructive">Not found</Badge>
+                          )
+                        ) : (
+                          <Badge variant="secondary">Incomplete</Badge>
+                        )}
+                      </div>
                       <ChevronDown
                         className={[
                           "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
@@ -290,7 +294,7 @@ export default function ProductWizardAccordion({
                 </div>
 
                 {openBoostPanel === "domain" ? (
-                  <div className="pt-4">{verification}</div>
+                  <div className="px-4 pb-4 sm:px-5">{verification}</div>
                 ) : null}
               </div>
             </div>
@@ -300,8 +304,8 @@ export default function ProductWizardAccordion({
 
       <AccordionItem id="section-details" value="details" className="px-6">
         <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
-          <div className="flex w-full items-start justify-between gap-4">
-            <div className="flex flex-col gap-1">
+          <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
+            <div className="flex min-w-0 flex-col gap-1">
               <span className="font-semibold text-slate-900">
                 Details & positioning
               </span>
@@ -309,7 +313,7 @@ export default function ProductWizardAccordion({
                 {detailsSubcopy}
               </span>
             </div>
-            <div className="pt-0.5">
+            <div className="pt-0.5 shrink-0">
               <Badge variant="secondary">Optional</Badge>
             </div>
           </div>
@@ -319,4 +323,3 @@ export default function ProductWizardAccordion({
     </Accordion>
   )
 }
-
