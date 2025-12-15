@@ -327,13 +327,13 @@ export const addProductSchema = makeProductSchema({ allowArchived: false })
 export const editProductSchema = makeProductSchema({ allowArchived: true })
 
 export function makeAdminAddProductSchema() {
-  return addProductSchema.extend({
+  return addProductSchema.safeExtend({
     ownerId: z.string().min(1, "Owner is required"),
   })
 }
 
 export function makeAdminEditProductSchema() {
-  return editProductSchema.extend({
+  return editProductSchema.safeExtend({
     ownerId: z.string().min(1, "Owner is required"),
   })
 }
