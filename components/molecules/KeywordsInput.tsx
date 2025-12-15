@@ -213,7 +213,6 @@ export function KeywordsInput({
               ? e.relatedTarget
               : null
           if (nextFocus && rootRef.current?.contains(nextFocus)) {
-            onBlur?.()
             return
           }
           if (draft.trim().length) addFromString(draft)

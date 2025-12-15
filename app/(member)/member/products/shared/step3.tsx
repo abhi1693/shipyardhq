@@ -96,9 +96,12 @@ function getCurrencyFractionDigits(currency?: string) {
 
 function normalizeMoneyInput(raw: string) {
   const cleaned = raw.replace(",", ".").replace(/[^\d.]/g, "")
-  const [head, ...rest] = cleaned.split(".")
-  if (!rest.length) return head
-  return `${head}.${rest.join("")}`
+  const parts = cleaned.split(".")
+  let head = parts[0] ?? ""
+  const tail = parts.slice(1)
+  if (head === "") head = "0"
+  if (!tail.length) return head
+  return `${head}.${tail.join("")}`
 }
 
 export default function Step2({
@@ -208,7 +211,7 @@ export default function Step2({
     if (!normalized) {
       form.setValue("startingPriceCents" as any, undefined, {
         shouldDirty: true,
-        shouldValidate: Boolean(opts?.validate),
+        shouldValidate: false,
       })
       return
     }

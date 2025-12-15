@@ -51,8 +51,15 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       // Optional marketing/org
       organizationId: z.string().optional(),
       bannerImage: z.url().optional().or(z.literal("")),
-      galleryMedia: z.array(z.url()).max(6).optional().default([]),
-      alternativeIds: z.array(z.string()).default([]),
+      galleryMedia: z
+        .array(z.url())
+        .max(6, "You can add up to 6 screenshots.")
+        .optional()
+        .default([]),
+      alternativeIds: z
+        .array(z.string())
+        .max(3, "You can add up to 3 alternatives.")
+        .default([]),
 
       // Metadata
       githubUrl: z.url().optional().or(z.literal("")),
@@ -157,7 +164,8 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
           ctx.addIssue({
             path: ["demoUrl"],
             code: z.ZodIssueCode.custom,
-            message: "Demo URL must be different from Website URL",
+            message:
+              "Demo URL must be different from Website URL. Try using a full path like 'https://example.com/demo' or 'https://example.com/app'.",
           })
         }
       }

@@ -113,22 +113,51 @@ export default function StepMedia({
         setError(validationError)
         return
       }
-      const uploadedUrls: string[] = []
       setUploadProgress({ total: selected.length, done: 0 })
-      for (const file of selected) {
-        const fd = new FormData()
-        fd.append("file", file)
-        fd.append("folder", "media")
-        fd.append("productId", productId)
-        if (uploadAsClerkId) fd.append("asClerkId", uploadAsClerkId)
-        const res = await fetch("/api/uploads", { method: "POST", body: fd })
-        if (!res.ok) throw new Error(await res.text())
-        const payload = (await res.json()) as { url?: string }
-        if (payload?.url) uploadedUrls.push(payload.url)
-        setUploadProgress((prev) =>
-          prev
-            ? { ...prev, done: Math.min(prev.total, (prev.done ?? 0) + 1) }
-            : prev,
+      const results = await Promise.allSettled(
+        selected.map(async (file) => {
+          try {
+            const fd = new FormData()
+            fd.append("file", file)
+            fd.append("folder", "media")
+            fd.append("productId", productId)
+            if (uploadAsClerkId) fd.append("asClerkId", uploadAsClerkId)
+            const res = await fetch("/api/uploads", { method: "POST", body: fd })
+            if (!res.ok) {
+              const msg = await res.text().catch(() => "")
+              throw new Error(
+                msg ? `${file.name || "image"}: ${msg}` : `${file.name || "image"}: Upload failed`,
+              )
+            }
+            const payload = (await res.json()) as { url?: string }
+            return payload?.url || null
+          } finally {
+            setUploadProgress((prev) =>
+              prev
+                ? { ...prev, done: Math.min(prev.total, (prev.done ?? 0) + 1) }
+                : prev,
+            )
+          }
+        }),
+      )
+      const uploadedUrls = results
+        .filter((r): r is PromiseFulfilledResult<string | null> => r.status === "fulfilled")
+        .map((r) => r.value)
+        .filter((u): u is string => typeof u === "string" && u.length > 0)
+
+      const failures = results.filter(
+        (r): r is PromiseRejectedResult => r.status === "rejected",
+      )
+      if (failures.length) {
+        const first = failures[0]?.reason
+        const message =
+          first instanceof Error && first.message
+            ? first.message
+            : "One or more uploads failed"
+        setError(
+          failures.length > 1
+            ? `${message} (+${failures.length - 1} more)`
+            : message,
         )
       }
       if (uploadedUrls.length) {
@@ -159,15 +188,15 @@ export default function StepMedia({
       if (uploadAsClerkId) qp.set("asClerkId", uploadAsClerkId)
       const res = await fetch(`/api/uploads?${qp.toString()}`, { method: "DELETE" })
       if (!res.ok && res.status !== 204) throw new Error(await res.text())
-    } catch (e: any) {
-      setError(e?.message || "Failed to remove")
-    } finally {
       const current = (form.getValues("galleryMedia" as any) as string[]) || []
       form.setValue(
         "galleryMedia" as any,
         current.filter((u) => u !== url) as any,
         { shouldDirty: true, shouldValidate: true },
       )
+    } catch (e: any) {
+      setError(e?.message || "Failed to remove")
+    } finally {
       setDeletingUrl(null)
       setBusy(null)
     }
@@ -231,7 +260,11 @@ export default function StepMedia({
 
   function uploadingText() {
     if (busy !== "upload") return null
-    if (uploadProgress?.total && uploadProgress.done != null) {
+    if (
+      uploadProgress?.total &&
+      uploadProgress.done !== null &&
+      uploadProgress.done !== undefined
+    ) {
       return `Uploading ${uploadProgress.done}/${uploadProgress.total}…`
     }
     if (uploadProgress?.total) return `Uploading ${uploadProgress.total} image${uploadProgress.total === 1 ? "" : "s"}…`
@@ -440,12 +473,10 @@ export default function StepMedia({
                     multiple
                     className="hidden"
                     onChange={(e) => e.target.files && uploadFiles(e.target.files)}
-                  disabled={busy === "upload" || remaining === 0}
-                />
-                <Plus className="h-4 w-4" aria-hidden="true" />
-                <div className="text-xs">
-                  Add ({remaining} left)
-                  </div>
+                    disabled={busy === "upload" || !canUpload}
+                  />
+                  <Plus className="h-4 w-4" aria-hidden="true" />
+                  <div className="text-xs">Add ({remaining} left)</div>
                 </label>
               ) : null}
             </div>

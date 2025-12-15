@@ -161,7 +161,11 @@ export default function Step1({
   const suggestedKeywords = useMemo(() => {
     const rawCategory = categories.find((c) => c.id === selectedCategoryId)?.name
     const categoryKeyword = rawCategory ? rawCategory.trim().toLowerCase() : ""
-    const byType = productType ? KEYWORD_SUGGESTIONS_BY_TYPE[productType] ?? [] : []
+    const byType = productType
+      ? (KEYWORD_SUGGESTIONS_BY_TYPE[productType] ??
+        KEYWORD_SUGGESTIONS_BY_TYPE.other ??
+        [])
+      : []
     return Array.from(
       new Set(
         [categoryKeyword, ...byType]
