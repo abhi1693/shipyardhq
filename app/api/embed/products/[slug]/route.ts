@@ -224,7 +224,7 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
     ["svg", "png"],
     DEFAULT_FORMAT,
   )
-  const brandLogoPath = theme === "dark" ? "/brand-white.png" : "/brand.png"
+  const brandLogoPath = theme === "dark" ? "/brand-white.svg" : "/brand.svg"
   const brandLogoHref = await resolveHref(brandLogoPath, url.origin, format)
   const isFeatured = badgeType === "featured"
   const productLogoHref = await resolveHref(
