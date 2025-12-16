@@ -55,6 +55,10 @@
       "schedule": "0 */3 * * *"
     },
     {
+      "path": "/api/cron/promotions/featured?dryRun=1",
+      "schedule": "15 6 * * *"
+    },
+    {
       "path": "/api/cron/founder-visibility?audience=owner",
       "schedule": "0 0 * * 1"
     }

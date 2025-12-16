@@ -15,6 +15,7 @@ type CheckoutOptions = {
   customer: CheckoutCustomer
   metadata?: Record<string, string>
   returnUrl?: string
+  discountCode?: string
 }
 
 export type CheckoutResult = { url: string }
@@ -24,6 +25,7 @@ export async function createPlanCheckout({
   customer,
   metadata,
   returnUrl,
+  discountCode,
 }: CheckoutOptions): Promise<CheckoutResult> {
   const planId = plan.externalId?.trim()
   if (!planId) {
@@ -38,12 +40,14 @@ export async function createPlanCheckout({
   }
 
   const isRecurring = (plan.type || "").toString() === "recurring_price"
+  const normalizedDiscountCode = discountCode?.trim()
 
   const session = (await dodoClient.checkoutSessions.create({
     product_cart: [{ product_id: planId, quantity: 1 }],
     customer: customerPayload as any,
     metadata,
     return_url: returnUrl,
+    ...(normalizedDiscountCode ? { discount_code: normalizedDiscountCode } : {}),
     ...(isRecurring ? undefined : { subscription_data: null }),
   } as any)) as { checkout_url?: string }
 
