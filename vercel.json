@@ -55,7 +55,7 @@
       "schedule": "0 */3 * * *"
     },
     {
-      "path": "/api/cron/promotions/featured?dryRun=1",
+      "path": "/api/cron/promotions/featured",
       "schedule": "15 6 * * *"
     },
     {
