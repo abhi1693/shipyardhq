@@ -12,7 +12,7 @@ import { Button } from "@/components/atoms/button"
 import clsx from "clsx"
 import { IconAnchor, IconArrowUpRight, IconBolt } from "@tabler/icons-react"
 import { PricingFeature } from "@/components/molecules/PricingFeature"
-import { MEMBER_OVERVIEW_PATH } from "@/lib/routes"
+import {MEMBER_PRODUCTS_ADD_PATH} from "@/lib/routes"
 
 export type PricingCardProps = {
   name: string
@@ -44,7 +44,7 @@ export function PricingCard({
   isPopular,
   features,
   boostForDays,
-  ctaHref = MEMBER_OVERVIEW_PATH,
+  ctaHref = MEMBER_PRODUCTS_ADD_PATH,
   ctaLabel = "Get Started",
   ctaSlot,
 }: PricingCardProps) {
