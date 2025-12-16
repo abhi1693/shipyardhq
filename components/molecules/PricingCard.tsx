@@ -45,7 +45,7 @@ export function PricingCard({
   features,
   boostForDays,
   ctaHref = MEMBER_OVERVIEW_PATH,
-  ctaLabel = "Choose Plan",
+  ctaLabel = "Get Started",
   ctaSlot,
 }: PricingCardProps) {
   const isFree = price === 0
