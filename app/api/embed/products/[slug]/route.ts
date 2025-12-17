@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 
+import { readFileSync } from "node:fs"
+import path from "node:path"
+
 import {
   getPublicProductMetaBySlug,
   getPublicProductRevenue,
@@ -25,6 +28,22 @@ const MAX_INLINE_BYTES = 1_500_000
 
 const CACHE_CONTROL =
   "public, max-age=300, s-maxage=300, stale-while-revalidate=600"
+
+let cachedBrandPathData: string | null = null
+
+function getBrandPathData(): string | null {
+  if (cachedBrandPathData) return cachedBrandPathData
+  try {
+    const filePath = path.join(process.cwd(), "public", "brand.svg")
+    const svg = readFileSync(filePath, "utf8")
+    const match = svg.match(/<path\s+d="([^"]+)"/)
+    if (!match?.[1]) return null
+    cachedBrandPathData = match[1]
+    return cachedBrandPathData
+  } catch {
+    return null
+  }
+}
 
 const THEME_STYLES: Record<
   Theme,
@@ -95,9 +114,32 @@ const toDataUri = async (
   }
 }
 
+function renderBrandMark(options: {
+  x: number
+  y: number
+  size: number
+  fill: string
+  ariaHidden?: boolean
+}): string {
+  const { x, y, size, fill, ariaHidden } = options
+  const pathData = getBrandPathData()
+  if (!pathData) return ""
+
+  return `
+<svg x="${x}" y="${y}" width="${size}" height="${size}" viewBox="0 0 1024 1024" ${
+    ariaHidden ? 'aria-hidden="true"' : ""
+  } xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)" fill="${fill}" stroke="none">
+    <path d="${pathData}"/>
+  </g>
+</svg>
+`.trim()
+}
+
 function buildBaseSvg(options: {
   theme: Theme
   badgeType: BadgeType
+  format: Format
   slug: string
   productName: string
   metricValue: string
@@ -107,6 +149,7 @@ function buildBaseSvg(options: {
   const {
     theme,
     badgeType,
+    format,
     slug,
     productName,
     metricValue,
@@ -115,9 +158,12 @@ function buildBaseSvg(options: {
   } = options
   const palette = THEME_STYLES[theme]
   const leftWidth = 170
+  const logoFallbackBase =
+    badgeType === "featured" ? siteConfig.name : productName
   const logoInitial =
-    productName?.trim()?.[0]?.toUpperCase() ||
+    logoFallbackBase?.trim()?.[0]?.toUpperCase() ||
     slug?.trim()?.[0]?.toUpperCase() ||
+    siteConfig.name?.trim()?.[0]?.toUpperCase() ||
     "S"
   const clipId = `logo-clip-${slug}`
   const logoSize = 136
@@ -130,7 +176,8 @@ function buildBaseSvg(options: {
   const headingText = badgeType === "featured" ? "Featured On" : "Total Revenue"
   const subheadingText =
     badgeType === "featured" ? siteConfig.name : metricValue
-  const showVerification = badgeType !== "featured" && !!brandLogo
+  const showVerification =
+    badgeType !== "featured" && (format === "svg" || !!brandLogo)
   const verifiedLogoSize = 20
   const subtextSize = 14
   const verificationGap = 6
@@ -150,14 +197,22 @@ function buildBaseSvg(options: {
     </clipPath>
   </defs>
   <g transform="translate(${OUTER_PADDING}, ${OUTER_PADDING})">
-    <rect x="0" y="0" rx="12" ry="12" width="${WIDTH}" height="${HEIGHT}" fill="${palette.card}" stroke="${palette.border}" stroke-width="2" />
-    <g aria-label="Logo area">
-      ${
-        productLogo
-          ? `<image x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" href="${productLogo}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clipId})" />`
-          : `<rect x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" rx="16" ry="16" fill="${palette.border}" /><text x="${leftWidth / 2}" y="${HEIGHT / 2 + 12}" fill="${palette.text}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="46" font-weight="900" text-anchor="middle">${logoInitial}</text>`
-      }
-    </g>
+	    <rect x="0" y="0" rx="12" ry="12" width="${WIDTH}" height="${HEIGHT}" fill="${palette.card}" stroke="${palette.border}" stroke-width="2" />
+	    <g aria-label="Logo area">
+	      ${
+	        badgeType === "featured" && format === "svg"
+	          ? renderBrandMark({
+	              x: logoX + 10,
+	              y: logoY + 10,
+	              size: logoSize - 20,
+	              fill: palette.accent,
+	              ariaHidden: true,
+	            })
+	          : productLogo && format === "png"
+	          ? `<image x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" href="${productLogo}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clipId})" />`
+	          : `<rect x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" rx="16" ry="16" fill="${palette.border}" /><text x="${leftWidth / 2}" y="${HEIGHT / 2 + 12}" fill="${palette.text}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="46" font-weight="900" text-anchor="middle">${logoInitial}</text>`
+	      }
+	    </g>
     <g aria-label="Content area" transform="translate(${leftWidth + rightInset}, ${contentY})">
       <text x="0" y="0" fill="${palette.muted}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="${headingSize}" font-weight="600" letter-spacing="1.4" dominant-baseline="hanging">${headingText.toUpperCase()}</text>
       <g transform="translate(0, ${gap})">
@@ -165,7 +220,17 @@ function buildBaseSvg(options: {
         ${
           showVerification
             ? `<g transform="translate(0, ${subheadingSize + verificationGap})" aria-label="Verification text">
-              <image x="0" y="0" width="${verifiedLogoSize}" height="${verifiedLogoSize}" href="${brandLogo}" preserveAspectRatio="xMidYMid slice" />
+              ${
+                format === "png" && brandLogo
+                  ? `<image x="0" y="0" width="${verifiedLogoSize}" height="${verifiedLogoSize}" href="${brandLogo}" preserveAspectRatio="xMidYMid slice" />`
+                  : renderBrandMark({
+                      x: 0,
+                      y: 0,
+                      size: verifiedLogoSize,
+                      fill: palette.muted,
+                      ariaHidden: true,
+                    })
+              }
               <text x="${verifiedLogoSize + 8}" y="${verificationTextY}" fill="${palette.muted}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="${subtextSize}" font-weight="600" dominant-baseline="hanging">Verified by ${siteConfig.name}</text>
             </g>`
             : ""
@@ -253,6 +318,7 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
   const svg = buildBaseSvg({
     theme,
     badgeType,
+    format,
     slug,
     productName,
     metricValue,

@@ -11,6 +11,7 @@ export default function CopyButton({
   size = "xs",
   variant = "outline",
   resolveAbsolute = false,
+  disabled = false,
   children,
   className,
 }: {
@@ -19,6 +20,7 @@ export default function CopyButton({
   size?: "xs" | "sm" | "default"
   variant?: "outline" | "secondary" | "default"
   resolveAbsolute?: boolean
+  disabled?: boolean
   children?: ReactNode
   className?: string
 }) {
@@ -29,7 +31,10 @@ export default function CopyButton({
       size={size === "xs" ? "sm" : size}
       variant={variant}
       className={cn(className)}
+      disabled={disabled}
       onClick={async () => {
+        if (disabled) return
+
         const toCopy = (() => {
           if (
             resolveAbsolute &&
