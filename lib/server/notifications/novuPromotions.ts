@@ -7,7 +7,11 @@ import {
 const NOVU_FEATURED_PROMO_WORKFLOW_ID =
   process.env.NOVU_WORKFLOW_PROMOTIONS_FEATURED?.trim() || "promotions-featured"
 
-type FeaturedPromoPayload = {
+const NOVU_TRENDING_PROMO_WORKFLOW_ID =
+  process.env.NOVU_WORKFLOW_PROMOTIONS_TRENDING?.trim() ||
+  NOVU_FEATURED_PROMO_WORKFLOW_ID
+
+export type FeaturedPromoPayload = {
   promotion: {
     kind: "featured_plan_promo"
     discountPct: number
@@ -102,6 +106,68 @@ export async function sendFeaturedPlanPromotionNotification(input: {
     return true
   } catch (error) {
     console.error("[novu] failed to send featured promo notification", {
+      error,
+      subscriberId: input.recipient.subscriberId,
+      transactionId: input.transactionId,
+    })
+    return false
+  }
+}
+
+export async function sendTrendingBoostPromotionNotification(input: {
+  recipient: NovuSubscriberInput
+  transactionId: string
+  payload: FeaturedPromoPayload
+}): Promise<boolean> {
+  const workflow = guardNovuWorkflow(NOVU_TRENDING_PROMO_WORKFLOW_ID, {
+    label: "trending promotions",
+    missingMessage: "[novu] promotions trending workflow id missing",
+  })
+  if (!workflow.ready) return false
+
+  const timestamp = new Date().toISOString()
+  const pct = input.payload.promotion.discountPct
+  const code = input.payload.promotion.discountCode
+  const productName = input.payload.product.name
+  const boostDays = input.payload.plan.boostForDays
+  const highlights = input.payload.plan.highlights ?? []
+  const highlightLabel = highlights.length
+    ? highlights
+        .map((item) => item.name)
+        .slice(0, 3)
+        .join(" + ")
+    : "Featured boost"
+
+  const validDays = Math.max(0, Math.floor(input.payload.promotion.validDays))
+  const expiresLabel = validDays === 1 ? "24 hours" : `${validDays} days`
+
+  const subject = `${productName} is trending — ${pct}% off ${highlightLabel}`
+  const message = `Your product is trending. Extend the momentum with ${highlightLabel} for ${boostDays} days — ${pct}% off (code ${code}, single-use). Offer ends in ${expiresLabel}.`
+
+  try {
+    await triggerNovuWorkflow({
+      workflowId: workflow.workflowId,
+      subscriber: input.recipient,
+      transactionId: input.transactionId,
+      payload: {
+        notification: {
+          kind: input.payload.promotion.kind,
+          subject,
+          message,
+          timestamp,
+          transactionId: input.transactionId,
+        },
+        ...input.payload,
+        meta: {
+          promotionId: input.transactionId,
+          sentAt: timestamp,
+        },
+        tags: ["promotion", "featured", "trending"],
+      },
+    })
+    return true
+  } catch (error) {
+    console.error("[novu] failed to send trending promo notification", {
       error,
       subscriberId: input.recipient.subscriberId,
       transactionId: input.transactionId,
