@@ -69,7 +69,10 @@ export async function sendFeaturedPlanPromotionNotification(input: {
   const boostDays = input.payload.plan.boostForDays
   const highlights = input.payload.plan.highlights ?? []
   const highlightLabel = highlights.length
-    ? highlights.map((item) => item.name).slice(0, 3).join(" + ")
+    ? highlights
+        .map((item) => item.name)
+        .slice(0, 3)
+        .join(" + ")
     : "Featured boost"
 
   const subject = `${productName}: ${pct}% off Featured boost`

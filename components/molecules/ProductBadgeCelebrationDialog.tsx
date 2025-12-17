@@ -285,7 +285,9 @@ export function ProductBadgeCelebrationDialog({
                       key={formatOption.id}
                       type="button"
                       size="sm"
-                      variant={format === formatOption.id ? "secondary" : "outline"}
+                      variant={
+                        format === formatOption.id ? "secondary" : "outline"
+                      }
                       onClick={() => handleFormatSelect(formatOption.id)}
                       className="h-9 px-3 text-sm"
                     >

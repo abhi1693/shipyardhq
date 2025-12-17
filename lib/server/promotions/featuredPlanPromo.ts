@@ -124,11 +124,23 @@ function getUtcDayKey(now: Date): string {
 }
 
 function runLockKey(dayKey: string): string {
-  return buildCacheKey("promotions", "featured", "run", dayKey, `v${PROMO_VERSION}`)
+  return buildCacheKey(
+    "promotions",
+    "featured",
+    "run",
+    dayKey,
+    `v${PROMO_VERSION}`,
+  )
 }
 
 function userStateKey(userId: string): string {
-  return buildCacheKey("promotions", "featured", "user", userId, `v${PROMO_VERSION}`)
+  return buildCacheKey(
+    "promotions",
+    "featured",
+    "user",
+    userId,
+    `v${PROMO_VERSION}`,
+  )
 }
 
 function parseJson<T>(value: string | null): T | null {
@@ -140,7 +152,9 @@ function parseJson<T>(value: string | null): T | null {
   }
 }
 
-function isValidState(state: FeaturedPromoState | null): state is FeaturedPromoState {
+function isValidState(
+  state: FeaturedPromoState | null,
+): state is FeaturedPromoState {
   if (!state) return false
   if (state.version !== PROMO_VERSION) return false
   if (!state.userId) return false
@@ -154,7 +168,11 @@ function parseIsoDate(value: string | null | undefined): Date | null {
   return Number.isFinite(parsed.getTime()) ? parsed : null
 }
 
-function isWithinCooldown(lastNotifiedAt: string | null, now: Date, cooldownDays: number): boolean {
+function isWithinCooldown(
+  lastNotifiedAt: string | null,
+  now: Date,
+  cooldownDays: number,
+): boolean {
   const notifiedAt = parseIsoDate(lastNotifiedAt)
   if (!notifiedAt) return false
   const cutoffMs = cooldownDays * DAY_MS
@@ -166,7 +184,10 @@ function floorToStep(value: number, step: number): number {
   return Math.floor(value / step) * step
 }
 
-function computeIntentScore(metrics: { traffic7d: number; upvotes7d: number }): number {
+function computeIntentScore(metrics: {
+  traffic7d: number
+  upvotes7d: number
+}): number {
   const traffic = Math.max(0, metrics.traffic7d)
   const upvotes = Math.max(0, metrics.upvotes7d)
 
@@ -197,7 +218,11 @@ function computeDiscountPct(args: {
   // Escalate cautiously when users didn't convert in prior cycles; scale the
   // increase by (1-intent) so high-intent users don't get large discounts.
   const attemptFactor = clampNumber(1 - intent, 0, 1)
-  const attemptBonus = clampNumber(Math.floor(args.attempts) * 5 * attemptFactor, 0, 10)
+  const attemptBonus = clampNumber(
+    Math.floor(args.attempts) * 5 * attemptFactor,
+    0,
+    10,
+  )
   const withBonus = base + attemptBonus
 
   // Round down to protect revenue; still clamp to 5–25.
@@ -221,10 +246,15 @@ async function storePromoState(
   ttlDays: number,
 ): Promise<void> {
   const ttlSeconds = Math.max(1, Math.floor(ttlDays * 24 * 60 * 60))
-  await redis.set(userStateKey(userId), JSON.stringify(state), { EX: ttlSeconds })
+  await redis.set(userStateKey(userId), JSON.stringify(state), {
+    EX: ttlSeconds,
+  })
 }
 
-async function ensureRunLock(redis: RedisClient, dayKey: string): Promise<boolean> {
+async function ensureRunLock(
+  redis: RedisClient,
+  dayKey: string,
+): Promise<boolean> {
   const result = await redis.set(runLockKey(dayKey), new Date().toISOString(), {
     NX: true,
     EX: RUN_LOCK_TTL_SECONDS,
@@ -237,15 +267,24 @@ async function getPendingUserIds(redis: RedisClient): Promise<string[]> {
   return Array.isArray(members) ? members.filter(Boolean) : []
 }
 
-async function addPendingUser(redis: RedisClient, userId: string): Promise<void> {
+async function addPendingUser(
+  redis: RedisClient,
+  userId: string,
+): Promise<void> {
   await redis.sAdd(PENDING_SET_KEY, userId)
 }
 
-async function removePendingUser(redis: RedisClient, userId: string): Promise<void> {
+async function removePendingUser(
+  redis: RedisClient,
+  userId: string,
+): Promise<void> {
   await redis.sRem(PENDING_SET_KEY, userId)
 }
 
-async function countPaidFeaturedCustomers(windowStart: Date, featuredPlanId: string): Promise<number> {
+async function countPaidFeaturedCustomers(
+  windowStart: Date,
+  featuredPlanId: string,
+): Promise<number> {
   const rows = await prisma.product.findMany({
     where: {
       planId: featuredPlanId,
@@ -261,7 +300,10 @@ async function countPaidFeaturedCustomers(windowStart: Date, featuredPlanId: str
   return rows.length
 }
 
-async function fetchCandidates(now: Date, windowDays: number): Promise<PromoCandidate[]> {
+async function fetchCandidates(
+  now: Date,
+  windowDays: number,
+): Promise<PromoCandidate[]> {
   const windowStart = new Date(now.getTime() - windowDays * DAY_MS)
 
   const [trafficRows, upvoteRows] = await Promise.all([
@@ -364,12 +406,12 @@ async function fetchCandidates(now: Date, windowDays: number): Promise<PromoCand
     }
   }
 
-  return Array.from(byUserId.values()).sort((a, b) => b.metrics.score - a.metrics.score)
+  return Array.from(byUserId.values()).sort(
+    (a, b) => b.metrics.score - a.metrics.score,
+  )
 }
 
-async function resolvePendingOfferRecipient(
-  userId: string,
-): Promise<{
+async function resolvePendingOfferRecipient(userId: string): Promise<{
   userId: string
   clerkId: string
   email: string
@@ -406,7 +448,9 @@ async function prepareOffer(args: {
   plan: { id: string; slug: string; externalId: string }
   discountPct: number
 }): Promise<FeaturedPromoOffer> {
-  const expiresAt = new Date(args.now.getTime() + DEFAULT_DISCOUNT_VALID_DAYS * DAY_MS)
+  const expiresAt = new Date(
+    args.now.getTime() + DEFAULT_DISCOUNT_VALID_DAYS * DAY_MS,
+  )
   const amountBps = Math.round(args.discountPct * 100)
 
   const discount = await dodoClient.discounts.create({
@@ -682,7 +726,11 @@ export async function runFeaturedPlanPromoCron(request?: {
 
   const boostForDays = plan.boostForDays ?? 0
 
-  const highlightKeys = ["featured", "priorityPlacement", "sponsoredProducts"] as const
+  const highlightKeys = [
+    "featured",
+    "priorityPlacement",
+    "sponsoredProducts",
+  ] as const
   const assignments = (plan.assignments ?? []) as Array<{
     feature: { key: string; name: string; description: string }
   }>
@@ -714,7 +762,10 @@ export async function runFeaturedPlanPromoCron(request?: {
     highlights,
   }
   const paidWindowStart = new Date(now.getTime() - DAY_MS)
-  const paidFeaturedCustomers = await countPaidFeaturedCustomers(paidWindowStart, plan.id)
+  const paidFeaturedCustomers = await countPaidFeaturedCustomers(
+    paidWindowStart,
+    plan.id,
+  )
   const availableSlots = Math.max(
     0,
     Math.floor(dailyMax) - Math.max(0, paidFeaturedCustomers),
@@ -752,7 +803,10 @@ export async function runFeaturedPlanPromoCron(request?: {
   let notified = 0
   let skipped = 0
 
-  const processUser = async (candidate: PromoCandidate, state: FeaturedPromoState | null) => {
+  const processUser = async (
+    candidate: PromoCandidate,
+    state: FeaturedPromoState | null,
+  ) => {
     if (isWithinCooldown(state?.lastNotifiedAt ?? null, now, cooldownDays)) {
       skipped += 1
       recordReason(reasons, "cooldown")
@@ -817,7 +871,12 @@ export async function runFeaturedPlanPromoCron(request?: {
           lastNotifiedAt: state?.lastNotifiedAt ?? null,
           offer,
         }
-        await storePromoState(redis, candidate.user.id, nextState, DEFAULT_STATE_TTL_DAYS)
+        await storePromoState(
+          redis,
+          candidate.user.id,
+          nextState,
+          DEFAULT_STATE_TTL_DAYS,
+        )
         await addPendingUser(redis, candidate.user.id)
       } catch (error) {
         skipped += 1
@@ -860,7 +919,12 @@ export async function runFeaturedPlanPromoCron(request?: {
         lastNotifiedAt: now.toISOString(),
         offer: { ...offer, notifiedAt: now.toISOString() },
       }
-      await storePromoState(redis, candidate.user.id, nextState, DEFAULT_STATE_TTL_DAYS)
+      await storePromoState(
+        redis,
+        candidate.user.id,
+        nextState,
+        DEFAULT_STATE_TTL_DAYS,
+      )
       await removePendingUser(redis, candidate.user.id)
     } catch (error) {
       skipped += 1
@@ -880,7 +944,13 @@ export async function runFeaturedPlanPromoCron(request?: {
     const offer = state?.offer
     const expiresAt = parseIsoDate(offer?.expiresAt ?? null)
 
-    if (!state || !offer || offer.notifiedAt || !expiresAt || expiresAt <= now) {
+    if (
+      !state ||
+      !offer ||
+      offer.notifiedAt ||
+      !expiresAt ||
+      expiresAt <= now
+    ) {
       await removePendingUser(redis, pendingUserId).catch(() => {})
       recordReason(reasons, "pending-expired")
       continue

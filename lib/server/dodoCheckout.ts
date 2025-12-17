@@ -47,7 +47,9 @@ export async function createPlanCheckout({
     customer: customerPayload as any,
     metadata,
     return_url: returnUrl,
-    ...(normalizedDiscountCode ? { discount_code: normalizedDiscountCode } : {}),
+    ...(normalizedDiscountCode
+      ? { discount_code: normalizedDiscountCode }
+      : {}),
     ...(isRecurring ? undefined : { subscription_data: null }),
   } as any)) as { checkout_url?: string }
 

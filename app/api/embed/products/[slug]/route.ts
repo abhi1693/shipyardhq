@@ -195,31 +195,31 @@ function buildBaseSvg(options: {
 		    <rect x="0" y="0" rx="12" ry="12" width="${WIDTH}" height="${HEIGHT}" fill="${palette.card}" stroke="${palette.border}" stroke-width="2" />
 		    <g aria-label="Logo area">
 		      ${
-		        (badgeType === "featured" || badgeType === "revenue") &&
-		        format === "svg"
-		          ? renderBrandMark({
-		              x: logoX + 10,
-		              y: logoY + 10,
-		              size: logoSize - 20,
-		              fill: palette.accent,
-		              ariaHidden: true,
-		            })
-		          : productLogo && format === "png"
-		          ? `<image x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" href="${productLogo}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clipId})" />`
-		          : `<rect x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" rx="16" ry="16" fill="${palette.border}" /><text x="${leftWidth / 2}" y="${HEIGHT / 2 + 12}" fill="${palette.text}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="46" font-weight="900" text-anchor="middle">${logoInitial}</text>`
-		      }
+            (badgeType === "featured" || badgeType === "revenue") &&
+            format === "svg"
+              ? renderBrandMark({
+                  x: logoX + 10,
+                  y: logoY + 10,
+                  size: logoSize - 20,
+                  fill: palette.accent,
+                  ariaHidden: true,
+                })
+              : productLogo && format === "png"
+                ? `<image x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" href="${productLogo}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clipId})" />`
+                : `<rect x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" rx="16" ry="16" fill="${palette.border}" /><text x="${leftWidth / 2}" y="${HEIGHT / 2 + 12}" fill="${palette.text}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="46" font-weight="900" text-anchor="middle">${logoInitial}</text>`
+          }
 		    </g>
     <g aria-label="Content area" transform="translate(${leftWidth + rightInset}, ${contentY})">
       <text x="0" y="0" fill="${palette.muted}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="${headingSize}" font-weight="600" letter-spacing="1.4" dominant-baseline="hanging">${headingText.toUpperCase()}</text>
       <g transform="translate(0, ${gap})">
         <text x="0" y="0" fill="${palette.text}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="${subheadingSize}" font-weight="900" dominant-baseline="hanging">${subheadingText}</text>
 		        ${
-		          showVerification
-		            ? `<g transform="translate(0, ${subheadingSize + verificationGap})" aria-label="Verification text">
+              showVerification
+                ? `<g transform="translate(0, ${subheadingSize + verificationGap})" aria-label="Verification text">
 		              <text x="0" y="0" fill="${palette.muted}" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="${subtextSize}" font-weight="600" dominant-baseline="hanging">Verified by ${siteConfig.name}</text>
 		            </g>`
-		            : ""
-		        }
+                : ""
+            }
 	      </g>
     </g>
   </g>
@@ -276,7 +276,9 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
   )
   const brandLogoPath = theme === "dark" ? "/brand-white.png" : "/brand.png"
   const brandLogoHref =
-    format === "png" ? await resolveHref(brandLogoPath, url.origin, format) : null
+    format === "png"
+      ? await resolveHref(brandLogoPath, url.origin, format)
+      : null
   const isFeatured = badgeType === "featured"
   let metricValue = "$0"
 
