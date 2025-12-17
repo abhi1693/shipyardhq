@@ -125,7 +125,9 @@ async function storeState(
   ttlDays: number,
 ): Promise<void> {
   const ttlSeconds = Math.max(1, Math.floor(ttlDays * 24 * 60 * 60))
-  await redis.set(stateKey(productId), JSON.stringify(state), { EX: ttlSeconds })
+  await redis.set(stateKey(productId), JSON.stringify(state), {
+    EX: ttlSeconds,
+  })
 }
 
 async function prepareOffer(args: {
@@ -466,10 +468,11 @@ registerEventHandler({
             },
             customer: {
               email: product.user.email,
-              name: `${product.user.firstName ?? ""} ${product.user.lastName ?? ""}`
-                .trim()
-                .replace(/\s+/g, " ")
-                .trim() || null,
+              name:
+                `${product.user.firstName ?? ""} ${product.user.lastName ?? ""}`
+                  .trim()
+                  .replace(/\s+/g, " ")
+                  .trim() || null,
             },
             discountPct,
             validHours,
