@@ -61,6 +61,10 @@
     {
       "path": "/api/cron/founder-visibility?audience=owner",
       "schedule": "0 0 * * 1"
+    },
+    {
+      "path": "/api/cron/dodo/discounts/cleanup",
+      "schedule": "0 3 * * 0"
     }
   ]
 }
