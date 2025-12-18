@@ -12,6 +12,7 @@ import {
 import AlternativeProductsClient from "@/app/(public)/alternatives/[slug]/AlternativeProductsClient"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { EmptyState } from "@/components/molecules/empty-state"
+import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import {
@@ -426,6 +427,7 @@ export default async function AlternativeDetailPage({
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>
+            <AffiliateLinkCard />
           </>
         }
       />

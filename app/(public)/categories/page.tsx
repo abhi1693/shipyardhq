@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Suspense } from "react"
 
 import { CategoryCard } from "@/components/molecules/CategoryCard"
+import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
@@ -132,6 +133,7 @@ export default async function CategoriesPage() {
               {/* reuse homepage sponsors to surface promoted directory listings */}
               <SponsoredProductsSection />
             </Suspense>
+            <AffiliateLinkCard />
 
             <section className="rounded-3xl border border-border/40 bg-white px-6 py-8 text-center shadow-[0_24px_80px_-60px_rgba(7,58,104,0.35)]">
               <div className="space-y-4">

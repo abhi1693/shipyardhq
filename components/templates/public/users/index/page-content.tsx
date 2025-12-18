@@ -4,6 +4,7 @@ import { Suspense } from "react"
 import { getPublicUsersPage } from "@/actions/public/users/actions"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
+import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import {
   TrafficSidebarStats,
   TrafficSidebarStatsSkeleton,
@@ -95,6 +96,7 @@ export async function UsersIndexPageContent() {
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>
+            <AffiliateLinkCard />
           </div>
         }
       />

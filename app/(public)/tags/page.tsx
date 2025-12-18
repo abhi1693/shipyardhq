@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Suspense } from "react"
 
 import { EmptyState } from "@/components/molecules/empty-state"
+import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
@@ -129,6 +130,7 @@ export default async function TagsIndexPage({
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>
+            <AffiliateLinkCard />
           </>
         }
       />

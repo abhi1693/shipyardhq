@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Suspense } from "react"
 
 import { UseCaseCard } from "@/components/molecules/UseCaseCard"
+import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
@@ -136,6 +137,7 @@ export default async function UseCasesPage() {
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>
+            <AffiliateLinkCard />
           </>
         }
       />

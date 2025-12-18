@@ -29,6 +29,7 @@ import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
+import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import ProductShareBar from "@/components/molecules/ProductShareBar"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
@@ -857,6 +858,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <Suspense fallback={<SponsoredProductsSkeleton />}>
                 <SponsoredProductsSection />
               </Suspense>
+            </div>
+            <div className="hidden lg:block">
+              <AffiliateLinkCard />
             </div>
           </div>
         }

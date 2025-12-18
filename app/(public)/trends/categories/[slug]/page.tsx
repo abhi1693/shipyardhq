@@ -15,6 +15,7 @@ import {
 } from "@/lib/products/selects"
 import { toProductCardItem } from "@/lib/products/card-item"
 import ProductGrid from "@/components/molecules/ProductGrid"
+import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
   CATEGORIES_PATH,
@@ -148,6 +149,7 @@ export default async function TrendingToolsInCategoryPage({
               <Suspense fallback={<SponsoredProductsSkeleton />}>
                 <SponsoredProductsSection />
               </Suspense>
+              <AffiliateLinkCard />
             </>
           }
         />
@@ -235,6 +237,7 @@ export default async function TrendingToolsInCategoryPage({
               <Suspense fallback={<SponsoredProductsSkeleton />}>
                 <SponsoredProductsSection />
               </Suspense>
+              <AffiliateLinkCard />
             </>
           }
         />
@@ -399,6 +402,7 @@ export default async function TrendingToolsInCategoryPage({
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>
+            <AffiliateLinkCard />
           </>
         }
       />

@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import Link from "next/link"
 
 import { Button } from "@/components/atoms/button"
+import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import Hero from "@/components/organisms/directory/Hero"
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 import { IconAnchor } from "@tabler/icons-react"
@@ -177,6 +178,7 @@ export async function LeaderboardPageContent({
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>
+            <AffiliateLinkCard />
           </>
         }
       />

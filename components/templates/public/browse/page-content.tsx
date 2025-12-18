@@ -4,6 +4,7 @@ import { Suspense } from "react"
 import { EmptyState } from "@/components/molecules/empty-state"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
 import BrowseFilterBar from "@/components/molecules/BrowseFilterBar"
+import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
   SponsoredProductsSection,
@@ -167,6 +168,9 @@ export async function BrowsePageContent({
                 <SponsoredProductsSection />
               </div>
             </Suspense>
+            <div className="hidden lg:block">
+              <AffiliateLinkCard />
+            </div>
           </>
         }
       />

@@ -17,6 +17,7 @@ import {
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
+import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
@@ -272,6 +273,7 @@ export default async function TagDetailPage({ params }: TagPageProps) {
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>
+            <AffiliateLinkCard />
           </>
         }
       />

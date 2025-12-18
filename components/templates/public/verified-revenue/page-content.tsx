@@ -3,6 +3,7 @@ import { Suspense } from "react"
 import { getVerifiedRevenueProductsPage } from "@/actions/public/verified-revenue/actions"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import Hero from "@/components/organisms/directory/Hero"
 import {
   SponsoredProductsSection,
@@ -77,6 +78,9 @@ export async function VerifiedRevenuePageContent() {
                 <SponsoredProductsSection />
               </div>
             </Suspense>
+            <div className="hidden lg:block">
+              <AffiliateLinkCard />
+            </div>
           </>
         }
       />

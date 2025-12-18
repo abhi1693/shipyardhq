@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
+import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
@@ -113,6 +114,7 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>
+            <AffiliateLinkCard />
           </>
         }
       />

@@ -1,17 +1,19 @@
 import { Image } from "@/components/atoms/image"
+import {
+  SUPADR_AFFILIATE_URL,
+  SUPADR_BADGE_IMAGE_URL,
+} from "@/lib/marketing/affiliates"
 import { cn } from "@/lib/utils"
 
-const BADGE_IMAGE_URL =
-  "https://supadr.com/api/badge/shipyardhq.dev.svg?theme=orange&template=awards"
-const AFFILIATE_URL =
-  "https://supadr.com?via=shipyardhq&utm_source=shipyardhq.dev&utm_medium=badge&utm_campaign=supadr"
+const BADGE_IMAGE_URL = SUPADR_BADGE_IMAGE_URL
+const AFFILIATE_URL = SUPADR_AFFILIATE_URL
 
 export function DomainRatingBadge({ className }: { className?: string }) {
   return (
     <a
       href={AFFILIATE_URL}
       target="_blank"
-      rel="noreferrer"
+      rel="noopener noreferrer sponsored"
       className={cn(
         "inline-flex items-center transition-transform duration-200 hover:scale-[1.01] hover:opacity-90",
         className,

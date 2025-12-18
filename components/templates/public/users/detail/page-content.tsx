@@ -5,6 +5,7 @@ import { format } from "date-fns"
 
 import CopyButton from "@/components/molecules/CopyButton"
 import ShareProfileButton from "@/components/molecules/ShareProfileButton"
+import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
@@ -234,6 +235,7 @@ export async function UserProfilePageContent({ params }: PageProps) {
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>
+            <AffiliateLinkCard />
           </div>
         }
       />
