@@ -1,6 +1,3 @@
-"use client"
-
-import { useEffect, useState } from "react"
 import { ArrowUpRight, Sparkles } from "lucide-react"
 
 import { Image } from "@/components/atoms/image"
@@ -10,32 +7,34 @@ import {
 } from "@/lib/marketing/affiliates"
 import { cn } from "@/lib/utils"
 
-const OFFERS = AFFILIATE_SIDEBAR_OFFERS
-const FALLBACK_OFFER = OFFERS[0] ?? null
+function pickWeightedOffer(
+  offers: readonly AffiliateSidebarOffer[],
+): AffiliateSidebarOffer | null {
+  if (!offers.length) return null
+
+  const weighted = offers
+    .map((offer) => ({
+      offer,
+      weight: Math.max(0, Number(offer.weight ?? 1)),
+    }))
+    .filter((item) => item.weight > 0)
+
+  const totalWeight = weighted.reduce((sum, item) => sum + item.weight, 0)
+  if (totalWeight <= 0) return offers[0] ?? null
+
+  const pick = Math.random() * totalWeight
+  let cursor = 0
+
+  for (const item of weighted) {
+    cursor += item.weight
+    if (pick < cursor) return item.offer
+  }
+
+  return weighted.at(-1)?.offer ?? offers[0] ?? null
+}
 
 export function AffiliateLinkCard({ className }: { className?: string }) {
-  const [selectedOfferId, setSelectedOfferId] = useState<string | null>(
-    FALLBACK_OFFER?.id ?? null,
-  )
-
-  useEffect(() => {
-    if (OFFERS.length <= 1) return
-
-    const randomIndex = Math.floor(Math.random() * OFFERS.length)
-    const nextId = OFFERS[randomIndex]?.id
-    if (!nextId) return
-
-    const timeoutId = window.setTimeout(() => {
-      setSelectedOfferId(nextId)
-    }, 0)
-
-    return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [])
-
-  const offer: AffiliateSidebarOffer | null =
-    OFFERS.find((item) => item.id === selectedOfferId) ?? FALLBACK_OFFER
+  const offer = pickWeightedOffer(AFFILIATE_SIDEBAR_OFFERS)
   if (!offer) return null
 
   const theme = offer.theme ?? "brand"
@@ -48,7 +47,7 @@ export function AffiliateLinkCard({ className }: { className?: string }) {
       target="_blank"
       rel="noopener noreferrer sponsored"
       className={cn(
-        "group block overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-white via-white p-5 shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-border/80 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white",
+        "group hidden overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-white via-white p-5 shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-border/80 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white lg:block",
         theme === "amber" ? "to-amber-50/60" : "to-[color:var(--brand-1)/0.08]",
         className,
       )}

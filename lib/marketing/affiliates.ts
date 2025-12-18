@@ -15,6 +15,7 @@ export type AffiliateSidebarOffer = {
   logoSrc?: string
   logoAlt?: string
   theme?: "brand" | "amber"
+  weight?: number
 }
 
 export const AFFILIATE_SIDEBAR_OFFERS = [
@@ -29,6 +30,7 @@ export const AFFILIATE_SIDEBAR_OFFERS = [
     logoSrc: "/affiliates/dodo.jpeg",
     logoAlt: "Dodo Payments logo",
     theme: "brand",
+    weight: 3,
   },
   {
     id: "supadr",
@@ -41,5 +43,6 @@ export const AFFILIATE_SIDEBAR_OFFERS = [
     logoSrc: "/affiliates/supadr.png",
     logoAlt: "Supadr logo",
     theme: "amber",
+    weight: 1,
   },
 ] as const satisfies readonly AffiliateSidebarOffer[]
