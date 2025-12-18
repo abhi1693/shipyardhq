@@ -3,6 +3,12 @@ import { randomUUID } from "node:crypto"
 const MAX_VISITS_PER_RUN = 100
 const DEFAULT_ORIGIN = "http://localhost:3000"
 const DEFAULT_TIMEOUT_MS = 10_000
+const DEFAULT_SRC = "https://trustviews.io/script.js"
+const DEFAULT_PAGE_ORIGIN = "https://shipyardhq.dev"
+const DEFAULT_REFERER = "https://shipyardhq.dev"
+const DEFAULT_DELAY_MS = 30_000
+const DEFAULT_COUNT = 100
+const DEFAULT_JITTER_RATIO = 0.1
 
 type ParsedArgs = {
   token?: string
@@ -12,6 +18,7 @@ type ParsedArgs = {
   referer?: string
   count: number
   delayMs: number
+  jitterMs?: number
   timeoutMs: number
   allowRemote: boolean
   dryRun: boolean
@@ -22,10 +29,10 @@ function parseArgs(): ParsedArgs {
   const [, , ...rawArgs] = process.argv
 
   const parsed: ParsedArgs = {
-    count: 1,
-    delayMs: 0,
+    count: DEFAULT_COUNT,
+    delayMs: DEFAULT_DELAY_MS,
     timeoutMs: DEFAULT_TIMEOUT_MS,
-    allowRemote: false,
+    allowRemote: true,
     dryRun: false,
     showHelp: false,
   }
@@ -109,6 +116,17 @@ function parseArgs(): ParsedArgs {
       continue
     }
 
+    if (current === "--jitter-ms" && next) {
+      parsed.jitterMs = Number.parseInt(next, 10)
+      i += 1
+      continue
+    }
+
+    if (current.startsWith("--jitter-ms=")) {
+      parsed.jitterMs = Number.parseInt(current.replace("--jitter-ms=", ""), 10)
+      continue
+    }
+
     if (current === "--count" && next) {
       parsed.count = Number.parseInt(next, 10)
       i += 1
@@ -167,6 +185,19 @@ function parseArgs(): ParsedArgs {
     }
   }
 
+  if (!parsed.src && !parsed.origin) {
+    parsed.src = DEFAULT_SRC
+  }
+  if (!parsed.pageOrigin) {
+    parsed.pageOrigin = DEFAULT_PAGE_ORIGIN
+  }
+  if (!parsed.referer) {
+    parsed.referer = DEFAULT_REFERER
+  }
+  if (typeof parsed.jitterMs !== "number") {
+    parsed.jitterMs = Math.round(parsed.delayMs * DEFAULT_JITTER_RATIO)
+  }
+
   return parsed
 }
 
@@ -195,6 +226,14 @@ function resolveVisitsEndpoint(args: ParsedArgs): URL {
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function delayWithJitter(baseDelayMs: number, jitterMs: number): number {
+  if (baseDelayMs <= 0) return 0
+  if (jitterMs <= 0) return baseDelayMs
+
+  const delta = (Math.random() * 2 - 1) * jitterMs
+  return Math.max(0, Math.round(baseDelayMs + delta))
 }
 
 function parseHttpUrl(value: string, label: string): URL {
@@ -226,12 +265,14 @@ async function main() {
         "  npx tsx scripts/post-visits.ts --token <token> [--origin <url> | --src <script-url>] [options]",
         "",
         "Options:",
-        `  --count <n>         Number of requests (1-${MAX_VISITS_PER_RUN}, default: 1)`,
-        "  --delay-ms <ms>     Fixed delay between requests (default: 0)",
+        `  --count <n>         Number of requests (1-${MAX_VISITS_PER_RUN}, default: ${DEFAULT_COUNT})`,
+        `  --delay-ms <ms>     Fixed delay between requests (default: ${DEFAULT_DELAY_MS})`,
+        "  --jitter-ms <ms>    Adds +/- jitter to --delay-ms (default: 10% of --delay-ms)",
         `  --timeout-ms <ms>   Per-request timeout (default: ${DEFAULT_TIMEOUT_MS})`,
-        "  --page-origin <url> Set the Origin header (simulated page origin)",
-        "  --referer <url>     Set the Referer header (simulated page URL)",
-        "  --allow-remote      Allow non-local origins (default: false)",
+        `  --src <url>         Script URL for deriving /api/visits (default: ${DEFAULT_SRC})`,
+        `  --page-origin <url> Set the Origin header (default: ${DEFAULT_PAGE_ORIGIN})`,
+        `  --referer <url>     Set the Referer header (default: ${DEFAULT_REFERER})`,
+        "  --allow-remote      Allow non-local origins (default: true)",
         "  --dry-run           Print the requests without sending them",
         "  -h, --help          Show this help",
       ].join("\n"),
@@ -263,6 +304,10 @@ async function main() {
     throw new Error("--delay-ms must be a non-negative integer")
   }
 
+  if (!Number.isFinite(args.jitterMs) || (args.jitterMs ?? 0) < 0) {
+    throw new Error("--jitter-ms must be a non-negative integer")
+  }
+
   if (!Number.isFinite(args.timeoutMs) || args.timeoutMs < 1) {
     throw new Error("--timeout-ms must be a positive integer")
   }
@@ -288,12 +333,12 @@ async function main() {
   if (referer) headers.Referer = referer
 
   console.info(
-    `Sending ${args.count} request(s) to ${endpoint.toString()} (delay=${args.delayMs}ms, run=${runId})`,
+    `Sending ${args.count} request(s) to ${endpoint.toString()} (delay=${args.delayMs}ms±${args.jitterMs ?? 0}ms, run=${runId})`,
   )
 
   for (let i = 1; i <= args.count; i += 1) {
     if (args.delayMs > 0 && i > 1) {
-      await sleep(args.delayMs)
+      await sleep(delayWithJitter(args.delayMs, args.jitterMs ?? 0))
     }
 
     const requestHeaders = { ...headers, "X-Visits-Test-Index": String(i) }
