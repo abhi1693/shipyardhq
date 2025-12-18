@@ -84,7 +84,10 @@ function recordReason(reasons: Record<string, number>, key: string) {
   reasons[key] = (reasons[key] ?? 0) + 1
 }
 
-function buildWeeklyLeaderboardUrl(weekStart: Date, categorySlug: string): string {
+function buildWeeklyLeaderboardUrl(
+  weekStart: Date,
+  categorySlug: string,
+): string {
   const siteUrl = resolveSiteUrl()
   const { year, week } = getIsoWeekYearAndNumber(weekStart)
   const url = new URL(`/leaderboard/weekly/${year}/${week}`, `${siteUrl}/`)
@@ -201,7 +204,8 @@ export async function runMicroLeaderboardEngagement(options: {
   }
 
   candidates.sort((a, b) => {
-    if (a.categoryRank !== b.categoryRank) return a.categoryRank - b.categoryRank
+    if (a.categoryRank !== b.categoryRank)
+      return a.categoryRank - b.categoryRank
     if (a.overallRank !== b.overallRank) return a.overallRank - b.overallRank
     return a.productId.localeCompare(b.productId)
   })

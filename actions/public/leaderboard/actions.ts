@@ -716,7 +716,7 @@ async function mapRunRowsToProducts(params: {
   return rows.map((row: (typeof rows)[number], index: number) => ({
     ...row.product,
     scoreCount: row.score ?? 0,
-    leaderboardRank: categorySlug ? index + 1 : row.rank ?? index + 1,
+    leaderboardRank: categorySlug ? index + 1 : (row.rank ?? index + 1),
   })) as unknown as ProductCardRecord[]
 }
 

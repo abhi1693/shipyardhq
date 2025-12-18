@@ -54,7 +54,8 @@ function withLeaderboardFilters(
   }
 
   const categorySlug =
-    typeof filters.categorySlug === "string" && filters.categorySlug.trim().length
+    typeof filters.categorySlug === "string" &&
+    filters.categorySlug.trim().length
       ? filters.categorySlug.trim()
       : null
 
@@ -170,7 +171,10 @@ export async function PeriodicLeaderboardView({
             const slotEnd = new Date(slotStart)
             slotEnd.setUTCDate(slotStart.getUTCDate() + 6)
             return {
-              path: withLeaderboardFilters(buildPath("week", slotStart), filters),
+              path: withLeaderboardFilters(
+                buildPath("week", slotStart),
+                filters,
+              ),
               label: `${shortRangeFormatter.format(slotStart)} - ${shortRangeFormatter.format(slotEnd)}`,
               active: delta === 0,
               disabled: isFutureDate(slotStart),
@@ -216,7 +220,10 @@ export async function PeriodicLeaderboardView({
     monthArchive.push({
       label: monthFormatter.format(date),
       displayLabel: monthOnlyFormatter.format(date),
-      path: withLeaderboardFilters(`/leaderboard/monthly/${year}/${month}`, filters),
+      path: withLeaderboardFilters(
+        `/leaderboard/monthly/${year}/${month}`,
+        filters,
+      ),
       year,
       month,
       active:
@@ -260,9 +267,15 @@ export async function PeriodicLeaderboardView({
       const day = Math.min(start.getUTCDate(), daysInTargetMonth)
       const anchor = new Date(Date.UTC(year, month - 1, day))
       const { year: weekYear, week } = getIsoWeekYearAndNumber(anchor)
-      return withLeaderboardFilters(`/leaderboard/weekly/${weekYear}/${week}`, filters)
+      return withLeaderboardFilters(
+        `/leaderboard/weekly/${weekYear}/${week}`,
+        filters,
+      )
     }
-    return withLeaderboardFilters(`/leaderboard/monthly/${year}/${month}`, filters)
+    return withLeaderboardFilters(
+      `/leaderboard/monthly/${year}/${month}`,
+      filters,
+    )
   }
 
   const headerTitle =
@@ -318,7 +331,10 @@ export async function PeriodicLeaderboardView({
                 </div>
                 <div className="inline-flex w-fit rounded-full border border-border/70 bg-white shadow-sm">
                   <Link
-                    href={withLeaderboardFilters(buildPath("day", start), filters)}
+                    href={withLeaderboardFilters(
+                      buildPath("day", start),
+                      filters,
+                    )}
                     className={`border-r border-border/50 px-4 py-2 text-sm font-semibold transition first:rounded-l-[15px] last:rounded-r-[15px] ${
                       leaderboard.period === "day"
                         ? "bg-[color:var(--brand-1)] text-white"
@@ -328,7 +344,10 @@ export async function PeriodicLeaderboardView({
                     Daily
                   </Link>
                   <Link
-                    href={withLeaderboardFilters(buildPath("week", start), filters)}
+                    href={withLeaderboardFilters(
+                      buildPath("week", start),
+                      filters,
+                    )}
                     className={`border-r border-border/50 px-4 py-2 text-sm font-semibold transition first:rounded-l-[15px] last:rounded-r-[15px] ${
                       leaderboard.period === "week"
                         ? "bg-[color:var(--brand-1)] text-white"
@@ -338,7 +357,10 @@ export async function PeriodicLeaderboardView({
                     Weekly
                   </Link>
                   <Link
-                    href={withLeaderboardFilters(buildPath("month", start), filters)}
+                    href={withLeaderboardFilters(
+                      buildPath("month", start),
+                      filters,
+                    )}
                     className={`px-4 py-2 text-sm font-semibold transition first:rounded-l-[15px] last:rounded-r-[15px] ${
                       leaderboard.period === "month"
                         ? "bg-[color:var(--brand-1)] text-white"
@@ -400,7 +422,10 @@ export async function PeriodicLeaderboardView({
                     }
                     return (
                       <Link
-                        href={withLeaderboardFilters(buildPath("day", prevDay), filters)}
+                        href={withLeaderboardFilters(
+                          buildPath("day", prevDay),
+                          filters,
+                        )}
                         className="inline-flex shrink-0 items-center justify-center rounded-full px-1 py-[2px] text-[10px] font-semibold text-muted-foreground hover:bg-muted"
                         aria-label="Previous day"
                       >
@@ -450,7 +475,10 @@ export async function PeriodicLeaderboardView({
                     }
                     return (
                       <Link
-                        href={withLeaderboardFilters(buildPath("day", nextDay), filters)}
+                        href={withLeaderboardFilters(
+                          buildPath("day", nextDay),
+                          filters,
+                        )}
                         className="inline-flex shrink-0 items-center justify-center rounded-full px-1 py-[2px] text-[10px] font-semibold text-muted-foreground hover:bg-muted"
                         aria-label="Next day"
                       >
@@ -476,7 +504,10 @@ export async function PeriodicLeaderboardView({
                     }
                     return (
                       <Link
-                        href={withLeaderboardFilters(buildPath("week", prevWeek), filters)}
+                        href={withLeaderboardFilters(
+                          buildPath("week", prevWeek),
+                          filters,
+                        )}
                         className="inline-flex shrink-0 items-center justify-center rounded-full border border-border/70 px-2 py-1 text-xs font-semibold text-muted-foreground hover:bg-muted"
                         aria-label="Previous week"
                       >
@@ -522,7 +553,10 @@ export async function PeriodicLeaderboardView({
                     }
                     return (
                       <Link
-                        href={withLeaderboardFilters(buildPath("week", nextWeek), filters)}
+                        href={withLeaderboardFilters(
+                          buildPath("week", nextWeek),
+                          filters,
+                        )}
                         className="inline-flex shrink-0 items-center justify-center rounded-full border border-border/70 px-2 py-1 text-xs font-semibold text-muted-foreground hover:bg-muted"
                         aria-label="Next week"
                       >
