@@ -54,10 +54,7 @@ export async function GET(request: Request) {
         failed: result.failed.slice(0, 25),
         failedCount: result.failed.length,
       })
-      return NextResponse.json(
-        { success: false, ...result },
-        { status: 500 },
-      )
+      return NextResponse.json({ success: false, ...result }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, ...result })
@@ -72,4 +69,3 @@ export async function GET(request: Request) {
     )
   }
 }
-
