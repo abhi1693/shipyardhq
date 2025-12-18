@@ -79,6 +79,7 @@ export async function sendMonthlyLeaderboardWinnerNotification(input: {
     input.productUrl ||
     new URL(productPath(input.productSlug), `${siteUrl}/`).toString()
   const timestamp = new Date().toISOString()
+  const transactionId = `leaderboard_monthly_winner:${input.productId}:${input.monthKey}:${timestamp}`
 
   const message = `${input.productName} ranked #${input.rank} in ${input.monthLabel}`
   const subject = `${input.productName} ranked #${input.rank} in ${input.monthLabel}`
@@ -102,6 +103,7 @@ export async function sendMonthlyLeaderboardWinnerNotification(input: {
           message,
           subject,
           timestamp,
+          transactionId,
         },
         links: {
           member: productUrl,
@@ -122,7 +124,7 @@ export async function sendMonthlyLeaderboardWinnerNotification(input: {
         },
         tags: ["leaderboard", "winner"],
       },
-      transactionId: `leaderboard_monthly_winner:${input.productId}:${input.monthKey}:${timestamp}`,
+      transactionId,
     })
   } catch (error) {
     console.error("[novu] failed to send leaderboard winner notification", {
@@ -168,6 +170,7 @@ export async function sendWeeklyMicroLeaderboardNudgeNotification(input: {
     input.productUrl ||
     new URL(productPath(input.productSlug), `${siteUrl}/`).toString()
   const timestamp = new Date().toISOString()
+  const transactionId = `leaderboard_weekly_nudge:${input.productId}:${input.weekKey}:${input.category.id}`
 
   const subject = "You are close to the top"
   const message = `Your product is currently ranked #${input.rank} in ${input.category.name} this week.\n\nTop products receive extra visibility and rewards.\n\nA small push can move you higher.`
@@ -196,6 +199,7 @@ export async function sendWeeklyMicroLeaderboardNudgeNotification(input: {
           message,
           subject,
           timestamp,
+          transactionId,
         },
         links: {
           member: input.leaderboardUrl,
@@ -217,7 +221,7 @@ export async function sendWeeklyMicroLeaderboardNudgeNotification(input: {
         },
         tags: ["leaderboard"],
       },
-      transactionId: `leaderboard_weekly_nudge:${input.productId}:${input.weekKey}:${input.category.id}`,
+      transactionId,
     })
   } catch (error) {
     console.error("[novu] failed to send leaderboard weekly nudge", {
