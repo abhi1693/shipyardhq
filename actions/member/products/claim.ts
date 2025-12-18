@@ -439,10 +439,9 @@ export async function sendProductClaimOtpAction(
   if ("error" in reserve) return reserve
 
   try {
-    const subscriberId = viewer.clerkId?.trim() || normalizedEmail
     await sendClaimOtpNotification({
       recipient: {
-        subscriberId,
+        subscriberId: userId,
         email: normalizedEmail,
         firstName: viewer.firstName,
         lastName: viewer.lastName,

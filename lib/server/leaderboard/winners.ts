@@ -271,7 +271,7 @@ type WinnerProduct = {
     boostForDays: number | null
     isDefault: boolean
   } | null
-  user: { email: string | null } | null
+  user: { clerkId: string | null; email: string | null } | null
   metadata?: { twitterUrl: string | null } | null
 }
 
@@ -457,6 +457,7 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
           },
           user: {
             select: {
+              clerkId: true,
               email: true,
             },
           },
@@ -484,7 +485,8 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
   for (const entry of topThree) {
     const product = entry.product as WinnerProduct | null
     const email = product?.user?.email
-    if (!product || !email) continue
+    const clerkId = product?.user?.clerkId
+    if (!product || !email || !clerkId) continue
 
     const leaderboardUrl = getLeaderboardUrl(monthKey)
     const productUrl = getProductUrl(product.slug)
@@ -493,7 +495,7 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
     try {
       await sendMonthlyLeaderboardWinnerNotification({
         recipient: {
-          subscriberId: product.user?.email?.toLowerCase() ?? email,
+          subscriberId: clerkId,
           email,
         },
         productId: product.id,

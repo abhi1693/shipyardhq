@@ -1,3 +1,4 @@
+import prisma from "@/lib/prisma"
 import {
   fetchAllNovuSubscriberEmails,
   guardNovuWorkflow,
@@ -58,6 +59,7 @@ export async function subscribeToWeeklyNewsletterTopic(
 }
 
 export async function sendWeeklyNewsletterNotification(input: {
+  subscriberId: string
   email: string
   payload: WeeklyNewsletterPayload
   weekKey: string
@@ -68,15 +70,15 @@ export async function sendWeeklyNewsletterNotification(input: {
   })
   if (!workflow.ready) return false
 
-  const subscriberId = input.email?.trim().toLowerCase()
+  const subscriberId = input.subscriberId?.trim()
   if (!subscriberId) {
-    console.warn("[novu] weekly newsletter missing subscriber email")
+    console.warn("[novu] weekly newsletter missing subscriber id")
     return false
   }
 
   const subscriber = {
     subscriberId,
-    email: input.email,
+    email: input.email?.trim() || undefined,
   }
 
   try {
@@ -131,6 +133,21 @@ export async function sendWeeklyNewsletterToSubscribers(
     return false
   }
 
+  const users = await prisma.user.findMany({
+    where: {
+      email: {
+        in: subscriberEmails,
+        mode: "insensitive",
+      },
+    },
+    select: { clerkId: true, email: true },
+  })
+
+  if (!users.length) {
+    console.warn("[novu] weekly newsletter has no matching users to notify")
+    return false
+  }
+
   try {
     const timestamp = new Date().toISOString()
     const subject = "This week on Shipyard HQ"
@@ -138,14 +155,14 @@ export async function sendWeeklyNewsletterToSubscribers(
       "Product of the week, trending launches, and standout picks from the Shipyard community."
 
     let rateState = { count: 0, windowStart: Date.now() }
-    for (const [index, email] of subscriberEmails.entries()) {
+    for (const [index, user] of users.entries()) {
       rateState = await throttleResendRate(rateState)
 
       await triggerNovuWorkflow({
         workflowId: workflow.workflowId,
         subscriber: {
-          subscriberId: email,
-          email,
+          subscriberId: user.clerkId,
+          email: user.email,
         },
         payload: {
           notification: {
@@ -162,7 +179,7 @@ export async function sendWeeklyNewsletterToSubscribers(
           },
           tags: ["newsletter", "discover"],
         },
-        transactionId: `weekly_newsletter:${email}:${weekKey}:${index}`,
+        transactionId: `weekly_newsletter:${user.clerkId}:${weekKey}:${index}`,
       })
     }
 

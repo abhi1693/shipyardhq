@@ -154,7 +154,7 @@ function toRecipient(
     return null
   }
 
-  const subscriberId = user.clerkId?.trim() || email
+  const subscriberId = user.clerkId?.trim()
   if (!subscriberId) {
     return null
   }

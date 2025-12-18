@@ -31,13 +31,17 @@ export type NovuSubscriberSource = {
   subscriberId?: string | null
 } & Partial<Omit<NovuSubscriberInput, "subscriberId">>
 
+export function isClerkUserId(value: string): boolean {
+  return value.trim().startsWith("user_")
+}
+
 export function toNovuSubscriberInput(
   source?: NovuSubscriberSource | null,
 ): NovuSubscriberInput | null {
   if (!source) return null
 
   const subscriberId = source.subscriberId?.trim()
-  if (!subscriberId) return null
+  if (!subscriberId || !isClerkUserId(subscriberId)) return null
 
   return omitUndefined({
     subscriberId,
@@ -74,10 +78,7 @@ export function generateNovuSubscriberHash(subscriberId: string): string {
     throw new Error("NOVU_SECRET_KEY (or NOVU_API_KEY) is not configured")
   }
 
-  const trimmed = subscriberId.trim()
-  if (!trimmed) {
-    throw new Error("Novu subscriberId is required to generate HMAC hash")
-  }
+  const trimmed = requireClerkUserId(subscriberId)
 
   return createHmac("sha256", NOVU_SECRET_KEY).update(trimmed).digest("hex")
 }
@@ -184,10 +185,7 @@ function toSubscriberPayload(
   subscriber: NovuSubscriberInput,
 ): CreateSubscriberRequestDto {
   const { subscriberId, ...rest } = subscriber
-  const trimmedSubscriberId = subscriberId.trim()
-  if (!trimmedSubscriberId) {
-    throw new Error("Novu subscriberId is required")
-  }
+  const trimmedSubscriberId = requireClerkUserId(subscriberId)
 
   return {
     subscriberId: trimmedSubscriberId,
@@ -293,7 +291,7 @@ export async function subscribeNovuTopic(
   const ids = Array.isArray(subscriberIds) ? subscriberIds : [subscriberIds]
   const normalized = ids
     .map((id) => id?.toString().trim())
-    .filter((id): id is string => Boolean(id))
+    .filter((id): id is string => Boolean(id) && isClerkUserId(id))
 
   if (!normalized.length) return
 
@@ -310,4 +308,15 @@ export async function subscribeNovuTopic(
       error,
     })
   }
+}
+
+function requireClerkUserId(value: string): string {
+  const trimmed = value.trim()
+  if (!trimmed) {
+    throw new Error("Novu subscriberId is required")
+  }
+  if (!isClerkUserId(trimmed)) {
+    throw new Error("Novu subscriberId must be a Clerk user id (user_*)")
+  }
+  return trimmed
 }

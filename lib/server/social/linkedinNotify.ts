@@ -1,5 +1,6 @@
 import { siteConfig } from "@/lib/siteConfig"
 import { getAppBaseUrl } from "@/lib/email/utils"
+import prisma from "@/lib/prisma"
 import {
   buildLinkedInAuthRequest,
   getLinkedInAuthStatus,
@@ -18,6 +19,8 @@ type NotifyResult =
       sent: false
       reason:
         | "missing-admin-email"
+        | "missing-admin-user"
+        | "missing-admin-clerk-id"
         | "token-present"
         | "throttled"
         | "email-failed"
@@ -81,6 +84,20 @@ export async function notifyLinkedInAuthNeeded(
     return { sent: false, reason: "missing-admin-email" }
   }
 
+  const adminUser = await prisma.user.findFirst({
+    where: { email: { equals: adminEmail, mode: "insensitive" } },
+    select: { clerkId: true, email: true, firstName: true, lastName: true },
+  })
+
+  if (!adminUser) {
+    return { sent: false, reason: "missing-admin-user" }
+  }
+
+  const adminClerkId = adminUser.clerkId?.trim()
+  if (!adminClerkId) {
+    return { sent: false, reason: "missing-admin-clerk-id" }
+  }
+
   const baseUrl = getAppBaseUrl()
   const status = await getLinkedInAuthStatus({ baseUrl })
 
@@ -112,8 +129,10 @@ export async function notifyLinkedInAuthNeeded(
   try {
     await sendSystemUpdateNotification({
       recipient: {
-        subscriberId: adminEmail,
+        subscriberId: adminClerkId,
         email: adminEmail,
+        firstName: adminUser.firstName,
+        lastName: adminUser.lastName,
       },
       payload: {
         subject: "LinkedIn OAuth approval needed",
