@@ -37,7 +37,7 @@ export default async function MonthlyLeaderboardArchivePage({
   searchParams,
 }: {
   params: Promise<PageParams>
-  searchParams?: Promise<{ revenue?: string }>
+  searchParams?: Promise<{ revenue?: string; category?: string }>
 }) {
   const { year, month } = await params
   const sp = await searchParams
@@ -47,6 +47,7 @@ export default async function MonthlyLeaderboardArchivePage({
     year: Number(year),
     month: Number(month),
     verifiedRevenueOnly,
+    categorySlug: sp?.category,
   })
 
   if (!leaderboard) {
@@ -57,6 +58,7 @@ export default async function MonthlyLeaderboardArchivePage({
     <PeriodicLeaderboardView
       leaderboard={leaderboard}
       verifiedRevenueOnly={verifiedRevenueOnly}
+      categorySlug={sp?.category}
     />
   )
 }

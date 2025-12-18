@@ -9,6 +9,22 @@ import { monthlyLeaderboardArchivePath, productPath } from "@/lib/routes"
 const NOVU_LEADERBOARD_WORKFLOW_ID =
   process.env.NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS?.trim() ?? null
 
+type WeeklyMicroLeaderboardNotification = {
+  weekKey: string
+  category: {
+    id: string
+    name: string
+    slug: string
+  }
+  rank: number
+  leaderboardUrl: string
+  product: {
+    id: string
+    name: string
+    slug: string
+  }
+}
+
 type LeaderboardWinnerNotification = {
   monthKey: string
   monthLabel: string
@@ -113,6 +129,101 @@ export async function sendMonthlyLeaderboardWinnerNotification(input: {
       error,
       productId: input.productId,
       monthKey: input.monthKey,
+    })
+  }
+}
+
+export async function sendWeeklyMicroLeaderboardNudgeNotification(input: {
+  recipient: NovuSubscriberInput
+  productId: string
+  productSlug: string
+  productName: string
+  weekKey: string
+  category: {
+    id: string
+    name: string
+    slug: string
+  }
+  rank: number
+  leaderboardUrl: string
+  productUrl?: string
+}): Promise<void> {
+  const workflow = guardNovuWorkflow(NOVU_LEADERBOARD_WORKFLOW_ID, {
+    label: "leaderboard notifications",
+    missingMessage: "[novu] leaderboard workflow id not configured",
+  })
+  if (!workflow.ready) return
+
+  const subscriberId = input.recipient.subscriberId?.trim()
+  if (!subscriberId) {
+    console.warn("[novu] leaderboard weekly nudge missing subscriber id", {
+      productId: input.productId,
+      weekKey: input.weekKey,
+    })
+    return
+  }
+
+  const siteUrl = resolveSiteUrl()
+  const productUrl =
+    input.productUrl ||
+    new URL(productPath(input.productSlug), `${siteUrl}/`).toString()
+  const timestamp = new Date().toISOString()
+
+  const subject = "You are close to the top"
+  const message = `Your product is currently ranked #${input.rank} in ${input.category.name} this week.\n\nTop products receive extra visibility and rewards.\n\nA small push can move you higher.`
+
+  const payload: WeeklyMicroLeaderboardNotification = {
+    weekKey: input.weekKey,
+    category: input.category,
+    rank: input.rank,
+    leaderboardUrl: input.leaderboardUrl,
+    product: {
+      id: input.productId,
+      slug: input.productSlug,
+      name: input.productName,
+    },
+  }
+
+  try {
+    const subscriber = { ...input.recipient, subscriberId }
+
+    await triggerNovuWorkflow({
+      workflowId: workflow.workflowId,
+      subscriber,
+      payload: {
+        notification: {
+          kind: "leaderboard_weekly_nudge",
+          message,
+          subject,
+          timestamp,
+        },
+        links: {
+          member: input.leaderboardUrl,
+          public: input.leaderboardUrl,
+        },
+        context: {
+          leaderboard_weekly_nudge: {
+            weekKey: payload.weekKey,
+            rank: payload.rank,
+            leaderboardUrl: payload.leaderboardUrl,
+            category: payload.category,
+            product: payload.product,
+            productUrl,
+            cta: {
+              label: "View leaderboard",
+              url: payload.leaderboardUrl,
+            },
+          },
+        },
+        tags: ["leaderboard"],
+      },
+      transactionId: `leaderboard_weekly_nudge:${input.productId}:${input.weekKey}:${input.category.id}`,
+    })
+  } catch (error) {
+    console.error("[novu] failed to send leaderboard weekly nudge", {
+      error,
+      productId: input.productId,
+      weekKey: input.weekKey,
     })
   }
 }

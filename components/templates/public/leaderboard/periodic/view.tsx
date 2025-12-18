@@ -35,12 +35,37 @@ function buildPath(
   return `/leaderboard/monthly/${start.getUTCFullYear()}/${month}`
 }
 
-function withVerifiedRevenueFilter(
+type PeriodicLeaderboardFilters = {
+  verifiedRevenueOnly: boolean
+  categorySlug?: string | null
+}
+
+function withLeaderboardFilters(
   path: string,
-  verifiedRevenueOnly: boolean,
+  filters: PeriodicLeaderboardFilters,
 ): string {
-  if (!verifiedRevenueOnly) return path
-  return `${path}?revenue=verified`
+  const [basePath, existingQuery] = path.split("?")
+  const params = new URLSearchParams(existingQuery ?? "")
+
+  if (filters.verifiedRevenueOnly) {
+    params.set("revenue", "verified")
+  } else {
+    params.delete("revenue")
+  }
+
+  const categorySlug =
+    typeof filters.categorySlug === "string" && filters.categorySlug.trim().length
+      ? filters.categorySlug.trim()
+      : null
+
+  if (categorySlug) {
+    params.set("category", categorySlug)
+  } else {
+    params.delete("category")
+  }
+
+  const query = params.toString()
+  return query ? `${basePath}?${query}` : basePath
 }
 
 function getAdjacentStart(
@@ -62,13 +87,19 @@ function getAdjacentStart(
 export async function PeriodicLeaderboardView({
   leaderboard,
   verifiedRevenueOnly = false,
+  categorySlug,
 }: {
   leaderboard: PeriodicLeaderboardPayload
   verifiedRevenueOnly?: boolean
+  categorySlug?: string | null
 }) {
   const archive = leaderboard.archive ?? { months: [], weeks: [] }
   const start = new Date(leaderboard.periodStart)
   const basePath = buildPath(leaderboard.period, start)
+  const filters: PeriodicLeaderboardFilters = {
+    verifiedRevenueOnly,
+    categorySlug,
+  }
   const now = new Date()
   const todayUtc = new Date()
   todayUtc.setUTCHours(0, 0, 0, 0)
@@ -114,9 +145,9 @@ export async function PeriodicLeaderboardView({
           )
           return {
             day,
-            path: withVerifiedRevenueFilter(
+            path: withLeaderboardFilters(
               `/leaderboard/daily/${start.getUTCFullYear()}/${start.getUTCMonth() + 1}/${day}`,
-              verifiedRevenueOnly,
+              filters,
             ),
             active: day === activeDay,
             disabled,
@@ -139,10 +170,7 @@ export async function PeriodicLeaderboardView({
             const slotEnd = new Date(slotStart)
             slotEnd.setUTCDate(slotStart.getUTCDate() + 6)
             return {
-              path: withVerifiedRevenueFilter(
-                buildPath("week", slotStart),
-                verifiedRevenueOnly,
-              ),
+              path: withLeaderboardFilters(buildPath("week", slotStart), filters),
               label: `${shortRangeFormatter.format(slotStart)} - ${shortRangeFormatter.format(slotEnd)}`,
               active: delta === 0,
               disabled: isFutureDate(slotStart),
@@ -188,10 +216,7 @@ export async function PeriodicLeaderboardView({
     monthArchive.push({
       label: monthFormatter.format(date),
       displayLabel: monthOnlyFormatter.format(date),
-      path: withVerifiedRevenueFilter(
-        `/leaderboard/monthly/${year}/${month}`,
-        verifiedRevenueOnly,
-      ),
+      path: withLeaderboardFilters(`/leaderboard/monthly/${year}/${month}`, filters),
       year,
       month,
       active:
@@ -225,9 +250,9 @@ export async function PeriodicLeaderboardView({
     if (leaderboard.period === "day") {
       const daysInTargetMonth = new Date(Date.UTC(year, month, 0)).getUTCDate()
       const day = Math.min(start.getUTCDate(), daysInTargetMonth)
-      return withVerifiedRevenueFilter(
+      return withLeaderboardFilters(
         buildPath("day", new Date(Date.UTC(year, month - 1, day))),
-        verifiedRevenueOnly,
+        filters,
       )
     }
     if (leaderboard.period === "week") {
@@ -235,15 +260,9 @@ export async function PeriodicLeaderboardView({
       const day = Math.min(start.getUTCDate(), daysInTargetMonth)
       const anchor = new Date(Date.UTC(year, month - 1, day))
       const { year: weekYear, week } = getIsoWeekYearAndNumber(anchor)
-      return withVerifiedRevenueFilter(
-        `/leaderboard/weekly/${weekYear}/${week}`,
-        verifiedRevenueOnly,
-      )
+      return withLeaderboardFilters(`/leaderboard/weekly/${weekYear}/${week}`, filters)
     }
-    return withVerifiedRevenueFilter(
-      `/leaderboard/monthly/${year}/${month}`,
-      verifiedRevenueOnly,
-    )
+    return withLeaderboardFilters(`/leaderboard/monthly/${year}/${month}`, filters)
   }
 
   const headerTitle =
@@ -299,10 +318,7 @@ export async function PeriodicLeaderboardView({
                 </div>
                 <div className="inline-flex w-fit rounded-full border border-border/70 bg-white shadow-sm">
                   <Link
-                    href={withVerifiedRevenueFilter(
-                      buildPath("day", start),
-                      verifiedRevenueOnly,
-                    )}
+                    href={withLeaderboardFilters(buildPath("day", start), filters)}
                     className={`border-r border-border/50 px-4 py-2 text-sm font-semibold transition first:rounded-l-[15px] last:rounded-r-[15px] ${
                       leaderboard.period === "day"
                         ? "bg-[color:var(--brand-1)] text-white"
@@ -312,10 +328,7 @@ export async function PeriodicLeaderboardView({
                     Daily
                   </Link>
                   <Link
-                    href={withVerifiedRevenueFilter(
-                      buildPath("week", start),
-                      verifiedRevenueOnly,
-                    )}
+                    href={withLeaderboardFilters(buildPath("week", start), filters)}
                     className={`border-r border-border/50 px-4 py-2 text-sm font-semibold transition first:rounded-l-[15px] last:rounded-r-[15px] ${
                       leaderboard.period === "week"
                         ? "bg-[color:var(--brand-1)] text-white"
@@ -325,10 +338,7 @@ export async function PeriodicLeaderboardView({
                     Weekly
                   </Link>
                   <Link
-                    href={withVerifiedRevenueFilter(
-                      buildPath("month", start),
-                      verifiedRevenueOnly,
-                    )}
+                    href={withLeaderboardFilters(buildPath("month", start), filters)}
                     className={`px-4 py-2 text-sm font-semibold transition first:rounded-l-[15px] last:rounded-r-[15px] ${
                       leaderboard.period === "month"
                         ? "bg-[color:var(--brand-1)] text-white"
@@ -342,7 +352,10 @@ export async function PeriodicLeaderboardView({
 
               <div className="flex flex-wrap items-center gap-2">
                 <Link
-                  href={basePath}
+                  href={withLeaderboardFilters(basePath, {
+                    verifiedRevenueOnly: false,
+                    categorySlug: filters.categorySlug,
+                  })}
                   className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
                     !verifiedRevenueOnly
                       ? "border-[color:var(--brand-1)] bg-[color:var(--brand-1)] text-white"
@@ -353,7 +366,10 @@ export async function PeriodicLeaderboardView({
                   All products
                 </Link>
                 <Link
-                  href={withVerifiedRevenueFilter(basePath, true)}
+                  href={withLeaderboardFilters(basePath, {
+                    verifiedRevenueOnly: true,
+                    categorySlug: filters.categorySlug,
+                  })}
                   className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
                     verifiedRevenueOnly
                       ? "border-[color:var(--brand-1)] bg-[color:var(--brand-1)] text-white"
@@ -384,10 +400,7 @@ export async function PeriodicLeaderboardView({
                     }
                     return (
                       <Link
-                        href={withVerifiedRevenueFilter(
-                          buildPath("day", prevDay),
-                          verifiedRevenueOnly,
-                        )}
+                        href={withLeaderboardFilters(buildPath("day", prevDay), filters)}
                         className="inline-flex shrink-0 items-center justify-center rounded-full px-1 py-[2px] text-[10px] font-semibold text-muted-foreground hover:bg-muted"
                         aria-label="Previous day"
                       >
@@ -437,10 +450,7 @@ export async function PeriodicLeaderboardView({
                     }
                     return (
                       <Link
-                        href={withVerifiedRevenueFilter(
-                          buildPath("day", nextDay),
-                          verifiedRevenueOnly,
-                        )}
+                        href={withLeaderboardFilters(buildPath("day", nextDay), filters)}
                         className="inline-flex shrink-0 items-center justify-center rounded-full px-1 py-[2px] text-[10px] font-semibold text-muted-foreground hover:bg-muted"
                         aria-label="Next day"
                       >
@@ -466,10 +476,7 @@ export async function PeriodicLeaderboardView({
                     }
                     return (
                       <Link
-                        href={withVerifiedRevenueFilter(
-                          buildPath("week", prevWeek),
-                          verifiedRevenueOnly,
-                        )}
+                        href={withLeaderboardFilters(buildPath("week", prevWeek), filters)}
                         className="inline-flex shrink-0 items-center justify-center rounded-full border border-border/70 px-2 py-1 text-xs font-semibold text-muted-foreground hover:bg-muted"
                         aria-label="Previous week"
                       >
@@ -515,10 +522,7 @@ export async function PeriodicLeaderboardView({
                     }
                     return (
                       <Link
-                        href={withVerifiedRevenueFilter(
-                          buildPath("week", nextWeek),
-                          verifiedRevenueOnly,
-                        )}
+                        href={withLeaderboardFilters(buildPath("week", nextWeek), filters)}
                         className="inline-flex shrink-0 items-center justify-center rounded-full border border-border/70 px-2 py-1 text-xs font-semibold text-muted-foreground hover:bg-muted"
                         aria-label="Next week"
                       >

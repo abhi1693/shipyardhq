@@ -21,6 +21,10 @@
       "schedule": "55 23 * * 0"
     },
     {
+      "path": "/api/cron/micro-leaderboards/midweek",
+      "schedule": "0 12 * * 3"
+    },
+    {
       "path": "/api/cron/events/drain/high",
       "schedule": "*/5 * * * *"
     },

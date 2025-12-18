@@ -34,3 +34,27 @@ Scheduled in `vercel.json` as a weekly job:
 
 - Scoring and ranking use `computeLeaderboardWindow` (`lib/server/leaderboard/v2.ts`) for the current ISO week and the previous ISO week.
 - Owner notifications route through the Novu “product notifications” workflow; broadcasts (`audience=all`) route through the “recommendations” workflow topic.
+
+## Micro Leaderboards (Weekly Category Nudges)
+
+Micro leaderboards send category-based weekly nudges to product owners:
+
+- Mid-week competitive nudge: “You are close to the top”
+
+### Cron Endpoints
+
+- `GET /api/cron/micro-leaderboards/midweek`
+  - Query params:
+    - `rankMin=<int>` (default `2`)
+    - `rankMax=<int>` (default `5`)
+    - `max=<int>` (default `200`)
+    - `dryRun=1`
+
+Scheduled in `vercel.json`:
+
+- `/api/cron/micro-leaderboards/midweek` (Wednesdays at 12:00 UTC)
+
+### Implementation Notes
+
+- Weekly ranking is computed from `computeLeaderboardWindow` (ISO week) and then re-ranked per category.
+- Links point to the weekly leaderboard view with a category filter: `/leaderboard/weekly/{year}/{week}?category={slug}`.

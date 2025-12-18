@@ -37,7 +37,7 @@ export default async function WeeklyLeaderboardPage({
   searchParams,
 }: {
   params: Promise<PageParams>
-  searchParams?: Promise<{ revenue?: string }>
+  searchParams?: Promise<{ revenue?: string; category?: string }>
 }) {
   const { year, week } = await params
   const sp = await searchParams
@@ -47,6 +47,7 @@ export default async function WeeklyLeaderboardPage({
     year: Number(year),
     week: Number(week),
     verifiedRevenueOnly,
+    categorySlug: sp?.category,
   })
 
   if (!leaderboard) {
@@ -57,6 +58,7 @@ export default async function WeeklyLeaderboardPage({
     <PeriodicLeaderboardView
       leaderboard={leaderboard}
       verifiedRevenueOnly={verifiedRevenueOnly}
+      categorySlug={sp?.category}
     />
   )
 }
