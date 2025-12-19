@@ -71,6 +71,11 @@ const publicProductSelect = {
       upvotes: true,
     },
   },
+  _count: {
+    select: {
+      ProductUpvote: true,
+    },
+  },
   verification: {
     select: {
       isVerified: true,

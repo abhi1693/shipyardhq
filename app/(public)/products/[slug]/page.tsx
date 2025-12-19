@@ -480,6 +480,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     rank: leaderboardRank,
     available: Boolean(leaderboardScore),
   }
+  const analyticsUpvotes =
+    sidebarProduct.analytics?.upvotes ?? product.analytics?.upvotes ?? 0
+  const sidebarUpvotes = sidebarProduct._count?.ProductUpvote
+  const upvoteCount =
+    typeof sidebarUpvotes === "number"
+      ? Math.max(sidebarUpvotes, analyticsUpvotes)
+      : analyticsUpvotes
   const productDetailsCard = (
     <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-5">
@@ -802,7 +809,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   <ProductUpvoteBadgeServer
                     productId={product.id}
                     productSlug={product.slug}
-                    upvoteCount={product.analytics?.upvotes ?? 0}
+                    upvoteCount={upvoteCount}
                     leaderboard={leaderboardPayload}
                   />
                 </Suspense>
@@ -852,7 +859,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 <ProductUpvoteBadgeServer
                   productId={product.id}
                   productSlug={product.slug}
-                  upvoteCount={product.analytics?.upvotes ?? 0}
+                  upvoteCount={upvoteCount}
                   leaderboard={leaderboardPayload}
                 />
               </Suspense>
