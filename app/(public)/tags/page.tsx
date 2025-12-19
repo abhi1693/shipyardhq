@@ -6,6 +6,10 @@ import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
+  DirectoryHighlightsSidebar,
+  DirectoryHighlightsSidebarSkeleton,
+} from "@/components/templates/public/homepage/directory-highlights"
+import {
   HERO_PRIMARY_BUTTON_CLASSES,
   HERO_SECONDARY_BUTTON_CLASSES,
 } from "@/components/templates/public/categories/hero-button-classes"
@@ -129,6 +133,9 @@ export default async function TagsIndexPage({
             </Suspense>
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
+            </Suspense>
+            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+              <DirectoryHighlightsSidebar />
             </Suspense>
             <AffiliateLinkCard />
           </>

@@ -10,6 +10,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import {
+  DirectoryHighlightsSidebar,
+  DirectoryHighlightsSidebarSkeleton,
+} from "@/components/templates/public/homepage/directory-highlights"
+import {
   TrafficSidebarStats,
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
@@ -234,6 +238,9 @@ export async function UserProfilePageContent({ params }: PageProps) {
             </Suspense>
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
+            </Suspense>
+            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+              <DirectoryHighlightsSidebar />
             </Suspense>
             <AffiliateLinkCard />
           </div>

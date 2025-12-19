@@ -55,6 +55,21 @@ type CategoryProductsPage = {
 const FALLBACK_TAGLINE =
   "Discover launch-ready tools from indie makers worldwide."
 
+const CATEGORY_HIGHLIGHTS_DEFAULT_LIMIT = 6
+const CATEGORY_HIGHLIGHTS_MAX_LIMIT = 12
+
+const sanitizeCategoryHighlightLimit = (limit?: number) => {
+  if (typeof limit !== "number") {
+    return CATEGORY_HIGHLIGHTS_DEFAULT_LIMIT
+  }
+  if (!Number.isFinite(limit)) {
+    return CATEGORY_HIGHLIGHTS_DEFAULT_LIMIT
+  }
+  const normalized = Math.trunc(limit)
+  if (normalized <= 0) return 0
+  return Math.min(normalized, CATEGORY_HIGHLIGHTS_MAX_LIMIT)
+}
+
 const normalizePage = (value: unknown, fallback: number) => {
   const parsed = Number(value)
   if (!Number.isFinite(parsed) || parsed <= 0) return fallback
@@ -144,6 +159,41 @@ export const getCategoriesWithCounts = cached(
   },
   "categories:with-counts",
   { ttl: DEFAULT_TTL.slow, tags: () => [TAGS.categories] },
+)
+
+export type CategoryHighlight = {
+  id: string
+  name: string
+  slug: string
+}
+
+export const getCategoryHighlights = cached(
+  async (
+    limit: number = CATEGORY_HIGHLIGHTS_DEFAULT_LIMIT,
+  ): Promise<CategoryHighlight[]> => {
+    const safeLimit = sanitizeCategoryHighlightLimit(limit)
+    if (safeLimit === 0) {
+      return [] satisfies CategoryHighlight[]
+    }
+
+    const rows = await prisma.$queryRaw<CategoryHighlight[]>(Prisma.sql`
+      SELECT c."id", c."name", c."slug"
+      FROM "Category" c
+      INNER JOIN "Product" p ON p."categoryId" = c."id"
+      WHERE p."status" = 'published'
+      GROUP BY c."id", c."name", c."slug"
+      ORDER BY COUNT(p."id") DESC, c."name" ASC
+      LIMIT ${safeLimit}
+    `)
+
+    return rows
+  },
+  "categories:highlights",
+  {
+    ttl: DEFAULT_TTL.slow,
+    tags: () => [TAGS.categories, TAGS.products],
+    keyParts: ([limit]) => [String(sanitizeCategoryHighlightLimit(limit))],
+  },
 )
 
 export const getCategoryMeta = cached(

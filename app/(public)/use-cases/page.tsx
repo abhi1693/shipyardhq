@@ -4,6 +4,10 @@ import { Suspense } from "react"
 import { UseCaseCard } from "@/components/molecules/UseCaseCard"
 import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import {
+  DirectoryHighlightsSidebar,
+  DirectoryHighlightsSidebarSkeleton,
+} from "@/components/templates/public/homepage/directory-highlights"
+import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
@@ -136,6 +140,9 @@ export default async function UseCasesPage() {
             </Suspense>
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
+            </Suspense>
+            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+              <DirectoryHighlightsSidebar />
             </Suspense>
             <AffiliateLinkCard />
           </>

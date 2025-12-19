@@ -8,6 +8,10 @@ import {
   HomepageFeedSection,
   HomepageFeedSkeleton,
 } from "@/components/templates/public/homepage/homepage-feed-section"
+import {
+  DirectoryHighlightsSidebar,
+  DirectoryHighlightsSidebarSkeleton,
+} from "@/components/templates/public/homepage/directory-highlights"
 import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import {
   SponsoredProductsSection,
@@ -95,6 +99,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               <div className="hidden lg:block">
                 <SponsoredProductsSection />
               </div>
+            </Suspense>
+            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+              <DirectoryHighlightsSidebar />
             </Suspense>
             <div className="hidden lg:block">
               <AffiliateLinkCard />

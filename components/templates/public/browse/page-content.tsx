@@ -7,6 +7,10 @@ import BrowseFilterBar from "@/components/molecules/BrowseFilterBar"
 import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
+  DirectoryHighlightsSidebar,
+  DirectoryHighlightsSidebarSkeleton,
+} from "@/components/templates/public/homepage/directory-highlights"
+import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
@@ -167,6 +171,9 @@ export async function BrowsePageContent({
               <div className="hidden lg:block">
                 <SponsoredProductsSection />
               </div>
+            </Suspense>
+            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+              <DirectoryHighlightsSidebar />
             </Suspense>
             <div className="hidden lg:block">
               <AffiliateLinkCard />

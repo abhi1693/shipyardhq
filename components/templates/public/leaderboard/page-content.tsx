@@ -7,6 +7,10 @@ import Hero from "@/components/organisms/directory/Hero"
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 import { IconAnchor } from "@tabler/icons-react"
 import {
+  DirectoryHighlightsSidebar,
+  DirectoryHighlightsSidebarSkeleton,
+} from "@/components/templates/public/homepage/directory-highlights"
+import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
@@ -178,6 +182,9 @@ export async function LeaderboardPageContent({
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
             </Suspense>
+            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+              <DirectoryHighlightsSidebar />
+            </Suspense>
             <AffiliateLinkCard />
           </>
         }
@@ -210,6 +217,7 @@ export function LeaderboardPageSkeleton() {
               className="border border-border/80 bg-white/95"
             />
             <SponsoredProductsSkeleton />
+            <DirectoryHighlightsSidebarSkeleton />
           </>
         }
       />

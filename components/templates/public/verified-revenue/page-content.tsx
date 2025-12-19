@@ -6,6 +6,10 @@ import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLay
 import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import Hero from "@/components/organisms/directory/Hero"
 import {
+  DirectoryHighlightsSidebar,
+  DirectoryHighlightsSidebarSkeleton,
+} from "@/components/templates/public/homepage/directory-highlights"
+import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
@@ -77,6 +81,9 @@ export async function VerifiedRevenuePageContent() {
               <div className="hidden lg:block">
                 <SponsoredProductsSection />
               </div>
+            </Suspense>
+            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+              <DirectoryHighlightsSidebar />
             </Suspense>
             <div className="hidden lg:block">
               <AffiliateLinkCard />

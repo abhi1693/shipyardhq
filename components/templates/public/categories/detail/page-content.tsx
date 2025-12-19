@@ -7,6 +7,10 @@ import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+import {
+  DirectoryHighlightsSidebar,
+  DirectoryHighlightsSidebarSkeleton,
+} from "@/components/templates/public/homepage/directory-highlights"
 import { cn } from "@/lib/utils"
 import {
   SponsoredProductsSection,
@@ -113,6 +117,9 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
             </Suspense>
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
+            </Suspense>
+            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+              <DirectoryHighlightsSidebar />
             </Suspense>
             <AffiliateLinkCard />
           </>

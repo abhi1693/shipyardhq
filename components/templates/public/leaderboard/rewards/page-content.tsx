@@ -19,6 +19,10 @@ import {
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
 import {
+  DirectoryHighlightsSidebar,
+  DirectoryHighlightsSidebarSkeleton,
+} from "@/components/templates/public/homepage/directory-highlights"
+import {
   TrafficSidebarStats,
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
@@ -187,6 +191,9 @@ export async function RewardsLeaderboardPageContent({
               <div className="hidden lg:block">
                 <SponsoredProductsSection />
               </div>
+            </Suspense>
+            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+              <DirectoryHighlightsSidebar />
             </Suspense>
             <div className="hidden lg:block">
               <AffiliateLinkCard />

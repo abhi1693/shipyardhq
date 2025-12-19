@@ -24,7 +24,7 @@
     "prisma:seed:rewards": "tsx prisma/seed.rewards.ts"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.36.3",
+    "@clerk/nextjs": "^6.36.4",
     "@google-analytics/data": "^5.2.1",
     "@hookform/resolvers": "^5.2.2",
     "@next/env": "16.1.0",

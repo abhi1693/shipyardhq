@@ -27,6 +27,10 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import {
+  DirectoryHighlightsSidebar,
+  DirectoryHighlightsSidebarSkeleton,
+} from "@/components/templates/public/homepage/directory-highlights"
+import {
   TrafficSidebarStats,
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
@@ -149,6 +153,9 @@ export default async function TrendingToolsInCategoryPage({
               <Suspense fallback={<SponsoredProductsSkeleton />}>
                 <SponsoredProductsSection />
               </Suspense>
+              <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+                <DirectoryHighlightsSidebar />
+              </Suspense>
               <AffiliateLinkCard />
             </>
           }
@@ -236,6 +243,9 @@ export default async function TrendingToolsInCategoryPage({
               </Suspense>
               <Suspense fallback={<SponsoredProductsSkeleton />}>
                 <SponsoredProductsSection />
+              </Suspense>
+              <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+                <DirectoryHighlightsSidebar />
               </Suspense>
               <AffiliateLinkCard />
             </>
@@ -401,6 +411,9 @@ export default async function TrendingToolsInCategoryPage({
             </Suspense>
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
+            </Suspense>
+            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+              <DirectoryHighlightsSidebar />
             </Suspense>
             <AffiliateLinkCard />
           </>

@@ -4,6 +4,10 @@ import { Suspense } from "react"
 import { CategoryCard } from "@/components/molecules/CategoryCard"
 import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import {
+  DirectoryHighlightsSidebar,
+  DirectoryHighlightsSidebarSkeleton,
+} from "@/components/templates/public/homepage/directory-highlights"
+import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
@@ -132,6 +136,9 @@ export default async function CategoriesPage() {
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               {/* reuse homepage sponsors to surface promoted directory listings */}
               <SponsoredProductsSection />
+            </Suspense>
+            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+              <DirectoryHighlightsSidebar />
             </Suspense>
             <AffiliateLinkCard />
 

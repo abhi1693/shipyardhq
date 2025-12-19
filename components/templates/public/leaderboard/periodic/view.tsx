@@ -1,8 +1,13 @@
 import Link from "next/link"
+import { Suspense } from "react"
 
 import type { PeriodicLeaderboardPayload } from "@/actions/public/leaderboard/actions"
 import { Button } from "@/components/atoms/button"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
+import {
+  DirectoryHighlightsSidebar,
+  DirectoryHighlightsSidebarSkeleton,
+} from "@/components/templates/public/homepage/directory-highlights"
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 import { mapProductCardRecordToBase } from "@/lib/products/selects"
 import { BROWSE_PATH, LEADERBOARD_PATH } from "@/lib/routes"
@@ -608,43 +613,48 @@ export async function PeriodicLeaderboardView({
           </>
         }
         sidebar={
-          <div className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-white px-4 py-4 shadow-sm">
-            <div className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Monthly archive
-            </div>
-            <div className="space-y-4 text-sm text-foreground">
-              {groupedArchive.map((group) => (
-                <div key={group.year} className="space-y-2">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                    {group.year}
-                  </div>
-                  <ul className="space-y-1.5">
-                    {group.months.map((month) => (
-                      <li key={month.path}>
-                        <Link
-                          href={buildSidebarPath(month.year, month.month)}
-                          className={`flex items-center justify-between rounded-lg px-2 py-2 transition ${
-                            month.active
-                              ? "bg-[color:var(--brand-1)/0.1] text-[color:var(--brand-1)]"
-                              : "hover:bg-muted/60"
-                          }`}
-                        >
-                          <span>{month.displayLabel}</span>
-                          <IconArrowRight
-                            className={`h-4 w-4 ${
+          <>
+            <div className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-white px-4 py-4 shadow-sm">
+              <div className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Monthly archive
+              </div>
+              <div className="space-y-4 text-sm text-foreground">
+                {groupedArchive.map((group) => (
+                  <div key={group.year} className="space-y-2">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                      {group.year}
+                    </div>
+                    <ul className="space-y-1.5">
+                      {group.months.map((month) => (
+                        <li key={month.path}>
+                          <Link
+                            href={buildSidebarPath(month.year, month.month)}
+                            className={`flex items-center justify-between rounded-lg px-2 py-2 transition ${
                               month.active
-                                ? "text-[color:var(--brand-1)]"
-                                : "text-muted-foreground"
+                                ? "bg-[color:var(--brand-1)/0.1] text-[color:var(--brand-1)]"
+                                : "hover:bg-muted/60"
                             }`}
-                          />
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+                          >
+                            <span>{month.displayLabel}</span>
+                            <IconArrowRight
+                              className={`h-4 w-4 ${
+                                month.active
+                                  ? "text-[color:var(--brand-1)]"
+                                  : "text-muted-foreground"
+                              }`}
+                            />
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+              <DirectoryHighlightsSidebar />
+            </Suspense>
+          </>
         }
       />
     </main>

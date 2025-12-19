@@ -40,6 +40,20 @@ export type UseCaseCategoriesWithCounts = {
 }
 
 export const USE_CASE_PRODUCTS_PAGE_SIZE = 12
+const USE_CASE_HIGHLIGHTS_DEFAULT_LIMIT = 6
+const USE_CASE_HIGHLIGHTS_MAX_LIMIT = 12
+
+const sanitizeUseCaseHighlightLimit = (limit?: number) => {
+  if (typeof limit !== "number") {
+    return USE_CASE_HIGHLIGHTS_DEFAULT_LIMIT
+  }
+  if (!Number.isFinite(limit)) {
+    return USE_CASE_HIGHLIGHTS_DEFAULT_LIMIT
+  }
+  const normalized = Math.trunc(limit)
+  if (normalized <= 0) return 0
+  return Math.min(normalized, USE_CASE_HIGHLIGHTS_MAX_LIMIT)
+}
 
 type UseCaseSummary = {
   id: string
@@ -47,6 +61,12 @@ type UseCaseSummary = {
   label: string
   updatedAt: Date
   productCount: number
+}
+
+export type UseCaseHighlight = {
+  id: string
+  slug: string
+  label: string
 }
 
 const getPublishedProductCountsByUseCase = async () => {
@@ -103,6 +123,36 @@ export const getPublicUseCasesWithCounts = cached(
   {
     ttl: DEFAULT_TTL.slow,
     tags: () => [TAGS.useCases],
+  },
+)
+
+export const getUseCaseHighlights = cached(
+  async (
+    limit: number = USE_CASE_HIGHLIGHTS_DEFAULT_LIMIT,
+  ): Promise<UseCaseHighlight[]> => {
+    const safeLimit = sanitizeUseCaseHighlightLimit(limit)
+    if (safeLimit === 0) {
+      return [] satisfies UseCaseHighlight[]
+    }
+
+    const rows = await prisma.$queryRaw<UseCaseHighlight[]>(Prisma.sql`
+      SELECT uc."id", uc."label", uc."slug"
+      FROM "UseCase" uc
+      INNER JOIN "UseCaseCategory" ucc ON ucc."useCaseId" = uc."id"
+      INNER JOIN "Product" p ON p."categoryId" = ucc."categoryId"
+      WHERE p."status" = 'published'
+      GROUP BY uc."id", uc."label", uc."slug"
+      ORDER BY COUNT(p."id") DESC, uc."label" ASC
+      LIMIT ${safeLimit}
+    `)
+
+    return rows
+  },
+  "use-cases:highlights",
+  {
+    ttl: DEFAULT_TTL.slow,
+    tags: () => [TAGS.useCases, TAGS.products, TAGS.categories],
+    keyParts: ([limit]) => [String(sanitizeUseCaseHighlightLimit(limit))],
   },
 )
 

@@ -16,6 +16,10 @@ import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import {
+  DirectoryHighlightsSidebar,
+  DirectoryHighlightsSidebarSkeleton,
+} from "@/components/templates/public/homepage/directory-highlights"
+import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
@@ -426,6 +430,9 @@ export default async function AlternativeDetailPage({
             </Suspense>
             <Suspense fallback={<SponsoredProductsSkeleton />}>
               <SponsoredProductsSection />
+            </Suspense>
+            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+              <DirectoryHighlightsSidebar />
             </Suspense>
             <AffiliateLinkCard />
           </>

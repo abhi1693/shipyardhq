@@ -26,6 +26,10 @@ import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLay
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import {
+  DirectoryHighlightsSidebar,
+  DirectoryHighlightsSidebarSkeleton,
+} from "@/components/templates/public/homepage/directory-highlights"
+import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
@@ -857,6 +861,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             <div className="hidden lg:block">
               <Suspense fallback={<SponsoredProductsSkeleton />}>
                 <SponsoredProductsSection />
+              </Suspense>
+            </div>
+            <div className="hidden lg:block">
+              <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
+                <DirectoryHighlightsSidebar />
               </Suspense>
             </div>
             <div className="hidden lg:block">
