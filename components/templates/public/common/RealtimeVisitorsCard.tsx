@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 
+import { useVisibilityGate } from "@/hooks/use-visibility-gate"
 import { cn } from "@/lib/utils"
 
 function formatNumber(value: number) {
@@ -18,15 +19,23 @@ export function RealtimeVisitorsCard({
   intervalMs?: number
 }) {
   const [value, setValue] = useState(initialValue)
+  const { ref: containerRef, isActive } =
+    useVisibilityGate<HTMLDivElement>()
 
   useEffect(() => {
+    if (!isActive) return
+
     let canceled = false
     let timer: NodeJS.Timeout | null = null
+    let controller: AbortController | null = null
 
     const fetchVisitors = async () => {
       try {
+        if (controller) controller.abort()
+        controller = new AbortController()
         const res = await fetch("/api/analytics/realtime", {
           cache: "no-store",
+          signal: controller.signal,
         })
         if (!res.ok) return
         const data = (await res.json()) as { visitors?: number }
@@ -45,12 +54,14 @@ export function RealtimeVisitorsCard({
 
     return () => {
       canceled = true
+      if (controller) controller.abort()
       if (timer) clearInterval(timer)
     }
-  }, [intervalMs])
+  }, [intervalMs, isActive])
 
   return (
     <div
+      ref={containerRef}
       className={cn(
         "flex items-center justify-between rounded-2xl border border-border/60 bg-white p-4 shadow-sm",
         className,
