@@ -2,6 +2,11 @@ import Link from "next/link"
 import { Megaphone, Sparkles } from "lucide-react"
 
 import { Image } from "@/components/atoms/image"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/atoms/tooltip"
 import { getSponsoredProducts } from "@/actions/public/products/featured"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
@@ -97,6 +102,7 @@ function withPlaceholders(items: SponsorListItem[]): SponsorListItem[] {
 function SponsorCard({ item }: { item: SponsorListItem }) {
   const bannerSrc = item.isPlaceholder ? null : item.bannerImage || null
   const logoFallbackSrc = item.isPlaceholder ? null : item.logo || null
+  const displayTagline = item.tagline?.trim()
   const titleClassName = item.isPlaceholder
     ? "line-clamp-1 text-base font-medium leading-snug tracking-tight text-muted-foreground"
     : "line-clamp-1 text-base font-semibold leading-[1.25] tracking-tight text-foreground underline-offset-4 decoration-foreground/25 group-hover:underline"
@@ -138,8 +144,8 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
 
       <div className="space-y-1 px-3 py-2.5">
         <p className={titleClassName}>{item.name}</p>
-        {item.tagline ? (
-          <p className={taglineClassName}>{item.tagline}</p>
+        {displayTagline ? (
+          <p className={taglineClassName}>{displayTagline}</p>
         ) : null}
       </div>
     </article>
@@ -157,7 +163,7 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
     )
   }
 
-  return (
+  const link = (
     <Link
       href={`/r/sponsored/${item.slug}`}
       prefetch={false}
@@ -168,6 +174,19 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
     >
       {content}
     </Link>
+  )
+
+  if (!displayTagline) {
+    return link
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{link}</TooltipTrigger>
+      <TooltipContent side="top" sideOffset={6} className="max-w-xs">
+        {displayTagline}
+      </TooltipContent>
+    </Tooltip>
   )
 }
 

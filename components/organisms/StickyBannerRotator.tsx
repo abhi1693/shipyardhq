@@ -92,7 +92,9 @@ export function StickyBannerRotator({
                   {product.name}
                 </span>
                 {tagline ? (
-                  <span className="block text-xs text-[#854d0e]">{tagline}</span>
+                  <span className="block text-xs text-[#854d0e]">
+                    {tagline}
+                  </span>
                 ) : null}
               </div>
             </div>

@@ -50,3 +50,4 @@ cypress/screenshots
 bot/venv
 bot/*.sh
 bot/*.json
+preflight.yml
