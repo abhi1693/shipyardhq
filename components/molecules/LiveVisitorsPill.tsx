@@ -12,8 +12,7 @@ export function LiveVisitorsPill({
   initialVisitors: number
 }) {
   const [count, setCount] = useState(initialVisitors)
-  const { ref: containerRef, isActive } =
-    useVisibilityGate<HTMLDivElement>()
+  const { ref: containerRef, isActive } = useVisibilityGate<HTMLDivElement>()
 
   useEffect(() => {
     if (!isActive) return

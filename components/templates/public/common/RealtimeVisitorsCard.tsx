@@ -19,8 +19,7 @@ export function RealtimeVisitorsCard({
   intervalMs?: number
 }) {
   const [value, setValue] = useState(initialValue)
-  const { ref: containerRef, isActive } =
-    useVisibilityGate<HTMLDivElement>()
+  const { ref: containerRef, isActive } = useVisibilityGate<HTMLDivElement>()
 
   useEffect(() => {
     if (!isActive) return
