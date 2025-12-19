@@ -1,4 +1,6 @@
 import { toggleVoteState } from "@/lib/server/productVotesStore"
+import { syncUserFromClerk } from "@/actions/member/users/actions"
+import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -36,7 +38,19 @@ export async function toggleProductUpvote({
     throw new UpvoteError("Unauthorized", 401)
   }
 
-  const user = await getActiveUserByClerkId(clerkUserId)
+  let user = await getActiveUserByClerkId(clerkUserId)
+  if (!user) {
+    try {
+      const clerkUser = await getClerkUserByIdCached(clerkUserId)
+      await syncUserFromClerk(clerkUser)
+      user = await getActiveUserByClerkId(clerkUserId)
+    } catch (error) {
+      console.error("Failed to sync user before upvote", {
+        error,
+        clerkUserId,
+      })
+    }
+  }
   if (!user) {
     throw new UpvoteError(INACTIVE_ACCOUNT_MESSAGE, 403)
   }
