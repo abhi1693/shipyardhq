@@ -195,7 +195,7 @@ type StickyBannerProduct = Prisma.ProductGetPayload<{
 }>
 
 export const getStickyBannerProducts = cached(
-  async (limit = 100): Promise<StickyBannerProductResult | null> => {
+  async (limit = 100): Promise<StickyBannerProductResult[]> => {
     const now = new Date()
     const effectiveLimit = Math.max(1, limit)
 
@@ -206,7 +206,9 @@ export const getStickyBannerProducts = cached(
       Prisma.sql`
         SELECT ids.id
         FROM (
-          SELECT DISTINCT p.id
+          SELECT p.id,
+                 MIN(ps."startsAt") AS starts_at,
+                 MIN(ps."createdAt") AS created_at
           FROM "PlacementSchedule" AS ps
           INNER JOIN "Product" AS p ON p.id = ps."productId"
           WHERE ps."featureKey" = ${stickyFeatureKey}
@@ -214,8 +216,9 @@ export const getStickyBannerProducts = cached(
             AND ps."startsAt" <= ${now}
             AND ps."endsAt" >= ${now}
             AND p.status = 'published'
+          GROUP BY p.id
         ) AS ids
-        ORDER BY RANDOM()
+        ORDER BY ids.starts_at ASC, ids.created_at ASC, ids.id ASC
         LIMIT ${effectiveLimit}
       `,
     )
@@ -236,7 +239,9 @@ export const getStickyBannerProducts = cached(
             Prisma.sql`
               SELECT ids.id
               FROM (
-                SELECT DISTINCT p.id
+                SELECT p.id,
+                       COALESCE(p."planAssignedAt", p."createdAt") AS assigned_at,
+                       p."createdAt" AS created_at
                 FROM "Product" AS p
                 WHERE p.status = 'published'
                   AND EXISTS (
@@ -250,7 +255,7 @@ export const getStickyBannerProducts = cached(
                   )
                   ${exclusionClause}
               ) AS ids
-              ORDER BY RANDOM()
+              ORDER BY ids.assigned_at DESC, ids.created_at DESC, ids.id ASC
               LIMIT ${remaining}
             `,
           )
@@ -262,7 +267,7 @@ export const getStickyBannerProducts = cached(
     ]
 
     if (!combinedIds.length) {
-      return null
+      return []
     }
 
     const products: StickyBannerProduct[] = await prisma.product.findMany({
@@ -316,46 +321,44 @@ export const getStickyBannerProducts = cached(
     const pool = ordered.length > 0 ? ordered : products
 
     if (!pool.length) {
-      return null
+      return []
     }
 
-    const randomIndex = Math.floor(Math.random() * pool.length)
-    const selected = pool[randomIndex]
+    const needsRates = pool.some((product) => {
+      const currency =
+        product.paymentConnector?.latestCurrencyCode ??
+        product.paymentConnector?.revenueHistory?.[0]?.currencyCode ??
+        null
+      return Boolean(currency && currency.toUpperCase() !== "USD")
+    })
 
-    if (!selected) {
-      return null
-    }
-
-    const connectorCurrency =
-      selected.paymentConnector?.latestCurrencyCode ??
-      selected.paymentConnector?.revenueHistory?.[0]?.currencyCode ??
-      null
-    const needsRates =
-      connectorCurrency && connectorCurrency.toUpperCase() !== "USD"
     const rates = needsRates ? await getUsdConversionRates() : undefined
-    const revenue = resolveProductRevenue(
-      selected.paymentConnector,
-      rates
-        ? {
-            rates,
-            targetCurrency: "USD",
-          }
-        : {},
-    )
 
-    return {
-      id: selected.id,
-      slug: selected.slug,
-      name: selected.name,
-      logo: selected.logo,
-      tagline: selected.tagline ?? null,
-      latestRevenueCents: revenue.latestRevenueCents,
-      revenueCurrencyCode: revenue.latestRevenueCents
-        ? revenue.revenueCurrencyCode
-        : null,
-    }
+    return pool.map((product) => {
+      const revenue = resolveProductRevenue(
+        product.paymentConnector,
+        rates
+          ? {
+              rates,
+              targetCurrency: "USD",
+            }
+          : {},
+      )
+
+      return {
+        id: product.id,
+        slug: product.slug,
+        name: product.name,
+        logo: product.logo,
+        tagline: product.tagline ?? null,
+        latestRevenueCents: revenue.latestRevenueCents,
+        revenueCurrencyCode: revenue.latestRevenueCents
+          ? revenue.revenueCurrencyCode
+          : null,
+      }
+    })
   },
-  "products:sticky-banner",
+  "products:sticky-banner:v2",
   {
     ttl: 600,
     tags: () => [
