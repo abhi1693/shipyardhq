@@ -107,6 +107,19 @@ export default function PublicFooter() {
               </Link>
             </div>
             <DomainRatingBadge className="pt-2" />
+            <a
+              href="https://launchdirectories.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex"
+            >
+              <img
+                src="https://launchdirectories.com/api/badge/not-listed-yet?width=200&height=50&color=white&shape=rect&certificationText=FEATURED%20ON&textStyle=uppercase&badgeType=featured-on&linkType=home&v=1753169742175"
+                alt="Featured on LaunchDirectories"
+                loading="lazy"
+                className="block h-auto w-[200px]"
+              />
+            </a>
           </div>
 
           <div className="space-y-4">
