@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 
 import {
   Dialog,
@@ -61,7 +61,7 @@ const BADGE_FORMATS: Array<{
   {
     id: "svg",
     label: "SVG",
-    description: "Inline SVG markup (no <img>)",
+    description: "Image tag embed (SVG URL)",
   },
   {
     id: "png",
@@ -69,14 +69,6 @@ const BADGE_FORMATS: Array<{
     description: "Image tag embed",
   },
 ]
-
-function indentLines(value: string, spaces = 2) {
-  const prefix = " ".repeat(spaces)
-  return value
-    .split("\n")
-    .map((line) => `${prefix}${line}`)
-    .join("\n")
-}
 
 export function ProductBadgeCelebrationDialog({
   open,
@@ -90,10 +82,6 @@ export function ProductBadgeCelebrationDialog({
   const [theme, setTheme] = useState<BadgeTheme>("light")
   const [badgeVariant, setBadgeVariant] = useState<BadgeVariant>("featured")
   const [format, setFormat] = useState<BadgeFormat>("svg")
-  const [svgPayload, setSvgPayload] = useState<{
-    url: string
-    markup: string
-  } | null>(null)
   const origin = useMemo(() => {
     if (typeof window !== "undefined" && window.location?.origin) {
       return window.location.origin
@@ -160,49 +148,11 @@ export function ProductBadgeCelebrationDialog({
     return pngBadgeUrl
   }, [pngBadgeUrl])
 
-  useEffect(() => {
-    if (format !== "svg") return
-    if (!svgBadgeUrl || isMissingProduct) return
-
-    const controller = new AbortController()
-
-    fetch(svgBadgeUrl, {
-      signal: controller.signal,
-      headers: {
-        Accept: "image/svg+xml,text/plain;q=0.9,*/*;q=0.1",
-      },
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error(`Badge request failed with status ${response.status}`)
-        }
-        return await response.text()
-      })
-      .then((text) => {
-        if (controller.signal.aborted) return
-        setSvgPayload({ url: svgBadgeUrl, markup: text })
-      })
-      .catch(() => {
-        if (controller.signal.aborted) return
-        setSvgPayload(null)
-      })
-
-    return () => {
-      controller.abort()
-    }
-  }, [format, isMissingProduct, svgBadgeUrl])
-
   const embedCode = useMemo(() => {
-    if (format === "png") {
-      const badgeUrl = pngBadgeUrl ?? ""
-      return `<a href="${productUrl}" target="_blank" rel="noopener">\n  <img src="${badgeUrl}" alt="Shipyard badge" style="max-width: 500px;" />\n</a>`
-    }
-
-    if (!svgBadgeUrl) return ""
-    if (!svgPayload || svgPayload.url !== svgBadgeUrl) return ""
-
-    return `<a href="${productUrl}" target="_blank" rel="noopener">\n${indentLines(svgPayload.markup)}\n</a>`
-  }, [format, pngBadgeUrl, productUrl, svgBadgeUrl, svgPayload])
+    const badgeUrl = format === "png" ? pngBadgeUrl : svgBadgeUrl
+    if (!badgeUrl) return ""
+    return `<a href="${productUrl}" target="_blank" rel="noopener">\n  <img src="${badgeUrl}" alt="Shipyard badge" style="max-width: 500px; width: 100%; height: auto;" />\n</a>`
+  }, [format, pngBadgeUrl, productUrl, svgBadgeUrl])
 
   const handleThemeSelect = useCallback((nextTheme: BadgeTheme) => {
     setTheme(nextTheme)
@@ -216,8 +166,7 @@ export function ProductBadgeCelebrationDialog({
     setFormat(nextFormat)
   }, [])
 
-  const canCopyEmbed =
-    format === "png" || (svgPayload?.url === svgBadgeUrl && !!svgPayload.markup)
+  const canCopyEmbed = Boolean(embedCode)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -340,11 +289,6 @@ export function ProductBadgeCelebrationDialog({
               value={embedCode}
               readOnly
               rows={3}
-              placeholder={
-                format === "svg" && !canCopyEmbed
-                  ? "Generating SVG embed..."
-                  : undefined
-              }
               className="font-mono text-xs whitespace-pre-wrap break-words break-all"
             />
           </section>
