@@ -127,22 +127,6 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
           })
         }
       }
-      if (pm === "free" || pm === "custom") {
-        if (hasPrice) {
-          ctx.addIssue({
-            path: ["startingPriceCents"],
-            code: z.ZodIssueCode.custom,
-            message: "Should be empty for free/custom",
-          })
-        }
-        if (hasCurrency) {
-          ctx.addIssue({
-            path: ["currencyCode"],
-            code: z.ZodIssueCode.custom,
-            message: "Should be empty for free/custom",
-          })
-        }
-      }
 
       // Prevent redundant URLs
       const normalizeComparableUrl = (input: string) => {
