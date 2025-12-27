@@ -9,7 +9,7 @@ import { SponsorPromo } from "@/components/molecules/SponsorPromo"
 import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
 import { cn } from "@/lib/utils"
 
-const ROTATION_INTERVAL_MS = 30000
+const ROTATION_INTERVAL_MS = 15000
 
 type StickyBannerProduct = {
   id: string
