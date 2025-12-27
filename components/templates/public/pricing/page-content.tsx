@@ -57,8 +57,34 @@ export async function PricingPlansList({
   disableSectionWrapper = false,
 }: { disableSectionWrapper?: boolean } = {}) {
   const plans = await getPublicPlans({ type: PlanType.one_time_price })
+  const defaultPlan = plans.find((plan) => plan.isDefault)
+  const visiblePlans = defaultPlan
+    ? plans.filter((plan) => plan.id !== defaultPlan.id)
+    : plans
+  const table = visiblePlans.length ? (
+    <PricingTable
+      plans={visiblePlans}
+      disableSectionWrapper={disableSectionWrapper}
+    />
+  ) : null
+
+  if (!defaultPlan) {
+    return table
+  }
+  const description = defaultPlan.description?.trim()
+
   return (
-    <PricingTable plans={plans} disableSectionWrapper={disableSectionWrapper} />
+    <div className="space-y-4">
+      {table}
+      <p className="text-center text-sm text-muted-foreground">
+        Default plan:{" "}
+        <span className="font-semibold text-foreground">
+          {defaultPlan.name}
+        </span>
+        {description ? ` - ${description}` : ""}
+        .
+      </p>
+    </div>
   )
 }
 
@@ -105,14 +131,29 @@ export function PricingPlansSkeleton({
       ))}
     </div>
   )
+  const defaultLine = (
+    <div className="flex justify-center">
+      <Skeleton
+        className="h-3 w-64 rounded-full"
+        tone="muted"
+        shimmer={false}
+      />
+    </div>
+  )
+  const content = (
+    <div className="space-y-4">
+      {grid}
+      {defaultLine}
+    </div>
+  )
 
   if (!withSectionWrapper) {
-    return <div className="mx-auto max-w-6xl px-4 py-2">{grid}</div>
+    return <div className="mx-auto max-w-6xl px-4 py-2">{content}</div>
   }
 
   return (
     <section className="py-12">
-      <div className="mx-auto max-w-6xl px-4">{grid}</div>
+      <div className="mx-auto max-w-6xl px-4">{content}</div>
     </section>
   )
 }
