@@ -384,9 +384,7 @@ async function countPaidFeaturedCustomers(args: {
     return 0
   }
 
-  const activeStart = new Date(
-    args.now.getTime() - args.boostForDays * DAY_MS,
-  )
+  const activeStart = new Date(args.now.getTime() - args.boostForDays * DAY_MS)
 
   const rows = await prisma.product.findMany({
     where: {
@@ -851,14 +849,12 @@ export async function runFeaturedPlanPromoCron(request?: {
     currencyCode: "USD",
     highlights,
   }
-  const paidFeaturedCustomers = await countPaidFeaturedCustomers(
-    {
-      now,
-      featuredPlanId: plan.id,
-      planPriceCents: plan.price,
-      boostForDays,
-    },
-  )
+  const paidFeaturedCustomers = await countPaidFeaturedCustomers({
+    now,
+    featuredPlanId: plan.id,
+    planPriceCents: plan.price,
+    boostForDays,
+  })
   const availableSlots = Math.max(
     0,
     Math.floor(dailyMax) - Math.max(0, paidFeaturedCustomers),
