@@ -56,7 +56,7 @@ type PaidPlanRemaining = {
   boostForDays: number
   priceCents: number
   expiresAt: string
-  timeLeft: DurationDisplay
+  timeLeftLabel: string
 }
 
 export async function expireBoostedPlans(now: Date = new Date()) {
@@ -148,6 +148,7 @@ export async function expireBoostedPlans(now: Date = new Date()) {
       if (priceCents > 0) {
         const expiresAt = addDays(assignedAt, boostDays)
         const timeLeftMs = Math.max(0, expiresAt.getTime() - nowMs)
+        const timeLeft = formatDuration(timeLeftMs)
         paidPlanRemaining.push({
           productId: product.id,
           productName: product.name,
@@ -155,7 +156,7 @@ export async function expireBoostedPlans(now: Date = new Date()) {
           boostForDays: boostDays,
           priceCents,
           expiresAt: expiresAt.toISOString(),
-          timeLeft: formatDuration(timeLeftMs),
+          timeLeftLabel: `${timeLeft.value} ${timeLeft.unit}`,
         })
         evaluation.paidPlanRemainingCount += 1
       }
