@@ -424,26 +424,11 @@ registerEventHandler({
       offerExpiresAt > now &&
       state.offer.notifiedAt === null
 
-    const highlightKeys = [
-      "featured",
-      "priorityPlacement",
-      "sponsoredProducts",
-    ] as const
     const assignments = (plan.assignments ?? []) as Array<{
       feature: { key: string; name: string; description: string }
     }>
-    const enabledFeatures = assignments.map((assignment) => assignment.feature)
-    const featureByKey = new Map(
-      enabledFeatures.map((feature) => [feature.key, feature]),
-    )
-    const highlights = highlightKeys
-      .map((key) => featureByKey.get(key))
-      .filter(
-        (
-          feature,
-        ): feature is { key: string; name: string; description: string } =>
-          Boolean(feature),
-      )
+    const highlights = assignments
+      .map((assignment) => assignment.feature)
       .map((feature) => ({
         key: feature.key,
         name: feature.name,
