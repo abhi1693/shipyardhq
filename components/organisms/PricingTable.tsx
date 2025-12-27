@@ -20,6 +20,13 @@ export function PricingTable({
   const maxCount = paidPlans.length
     ? Math.max(...paidPlans.map((p) => p.productCount || 0))
     : 0
+  const popularPlanId =
+    maxCount > 0
+      ? paidPlans
+          .filter((p) => (p.productCount || 0) === maxCount)
+          // Break ties by picking the highest priced plan.
+          .sort((a, b) => b.price - a.price)[0]?.id
+      : undefined
 
   const gridClassName = clsx(
     "grid gap-6 grid-cols-1",
@@ -47,11 +54,7 @@ export function PricingTable({
                 price={p.price}
                 priceSuffix={priceSuffix}
                 discount={p.discount}
-                isPopular={
-                  p.price > 0 &&
-                  (p.productCount || 0) === maxCount &&
-                  maxCount > 0
-                }
+                isPopular={p.price > 0 && p.id === popularPlanId}
                 features={p.features}
                 boostForDays={p.boostForDays}
                 ctaSlot={renderPlanCTA?.(p)}
