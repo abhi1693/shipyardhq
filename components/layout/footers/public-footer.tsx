@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import {
   IconBrandLinkedin,
@@ -11,6 +10,7 @@ import { Mail } from "lucide-react"
 
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import DomainRatingBadge from "@/components/molecules/DomainRatingBadge"
+import { Image } from "@/components/atoms/image"
 import {
   ANALYTICS_PATH,
   BROWSE_PATH,
@@ -122,6 +122,7 @@ export default function PublicFooter() {
                 loading="lazy"
                 className="block h-auto w-[200px]"
                 sizes="200px"
+                unoptimized
               />
             </a>
           </div>
