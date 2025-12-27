@@ -56,14 +56,14 @@ function resolveReturnUrl(
 }
 
 function invalidTokenResponse() {
-  return NextResponse.json({ error: "Invalid promotion token" }, { status: 404 })
+  return NextResponse.json(
+    { error: "Invalid promotion token" },
+    { status: 404 },
+  )
 }
 
 function serviceUnavailableResponse() {
-  return NextResponse.json(
-    { error: "Promotion unavailable" },
-    { status: 503 },
-  )
+  return NextResponse.json({ error: "Promotion unavailable" }, { status: 503 })
 }
 
 export async function GET(request: Request) {
