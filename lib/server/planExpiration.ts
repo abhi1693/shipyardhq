@@ -1,5 +1,33 @@
 import prisma from "@/lib/prisma"
 
+const MS_PER_SECOND = 1000
+const MS_PER_MINUTE = 60 * MS_PER_SECOND
+const MS_PER_HOUR = 60 * MS_PER_MINUTE
+const MS_PER_DAY = 24 * MS_PER_HOUR
+
+type DurationDisplay = {
+  value: number
+  unit: "days" | "hours" | "minutes" | "seconds"
+}
+
+function formatDuration(ms: number): DurationDisplay {
+  const safeMs = Math.max(0, ms)
+  if (safeMs >= MS_PER_DAY) {
+    return { value: roundDuration(safeMs / MS_PER_DAY), unit: "days" }
+  }
+  if (safeMs >= MS_PER_HOUR) {
+    return { value: roundDuration(safeMs / MS_PER_HOUR), unit: "hours" }
+  }
+  if (safeMs >= MS_PER_MINUTE) {
+    return { value: roundDuration(safeMs / MS_PER_MINUTE), unit: "minutes" }
+  }
+  return { value: roundDuration(safeMs / MS_PER_SECOND), unit: "seconds" }
+}
+
+function roundDuration(value: number): number {
+  return Math.round(value * 100) / 100
+}
+
 export function addDays(date: Date, days: number): Date {
   return new Date(date.getTime() + days * 24 * 60 * 60 * 1000)
 }
@@ -28,7 +56,7 @@ type PaidPlanRemaining = {
   boostForDays: number
   priceCents: number
   expiresAt: string
-  timeLeftMs: number
+  timeLeft: DurationDisplay
 }
 
 export async function expireBoostedPlans(now: Date = new Date()) {
@@ -127,7 +155,7 @@ export async function expireBoostedPlans(now: Date = new Date()) {
           boostForDays: boostDays,
           priceCents,
           expiresAt: expiresAt.toISOString(),
-          timeLeftMs,
+          timeLeft: formatDuration(timeLeftMs),
         })
         evaluation.paidPlanRemainingCount += 1
       }
