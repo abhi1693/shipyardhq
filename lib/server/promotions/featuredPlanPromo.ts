@@ -359,7 +359,7 @@ async function fetchCandidates(
   if (!products.length) return []
 
   const trafficByProductId = await getProductTrafficMapFromGa({
-    products: products.map((product) => ({
+    products: products.map((product: { id: string; slug: string }) => ({
       id: product.id,
       slug: product.slug,
     })),

@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import {
   IconBrandLinkedin,
@@ -113,11 +114,14 @@ export default function PublicFooter() {
               rel="noopener noreferrer"
               className="inline-flex"
             >
-              <img
+              <Image
                 src="https://launchdirectories.com/api/badge/not-listed-yet?width=200&height=50&color=white&shape=rect&certificationText=FEATURED%20ON&textStyle=uppercase&badgeType=featured-on&linkType=home&v=1753169742175"
                 alt="Featured on LaunchDirectories"
+                width={200}
+                height={50}
                 loading="lazy"
                 className="block h-auto w-[200px]"
+                sizes="200px"
               />
             </a>
           </div>
