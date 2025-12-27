@@ -374,14 +374,25 @@ async function storeClaimToken(args: {
   })
 }
 
-async function countPaidFeaturedCustomers(
-  windowStart: Date,
-  featuredPlanId: string,
-): Promise<number> {
-  const rows = await prisma.userPlanPurchase.findMany({
+async function countPaidFeaturedCustomers(args: {
+  now: Date
+  featuredPlanId: string
+  planPriceCents: number
+  boostForDays: number
+}): Promise<number> {
+  if (args.planPriceCents <= 0 || args.boostForDays <= 0) {
+    return 0
+  }
+
+  const activeStart = new Date(
+    args.now.getTime() - args.boostForDays * DAY_MS,
+  )
+
+  const rows = await prisma.product.findMany({
     where: {
-      planId: featuredPlanId,
-      createdAt: { gte: windowStart },
+      planId: args.featuredPlanId,
+      planAssignedAt: { gte: activeStart },
+      status: "published",
     },
     select: {
       userId: true,
@@ -840,10 +851,13 @@ export async function runFeaturedPlanPromoCron(request?: {
     currencyCode: "USD",
     highlights,
   }
-  const paidWindowStart = new Date(now.getTime() - DAY_MS)
   const paidFeaturedCustomers = await countPaidFeaturedCustomers(
-    paidWindowStart,
-    plan.id,
+    {
+      now,
+      featuredPlanId: plan.id,
+      planPriceCents: plan.price,
+      boostForDays,
+    },
   )
   const availableSlots = Math.max(
     0,
