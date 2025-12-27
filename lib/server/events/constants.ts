@@ -14,7 +14,6 @@ export const APP_EVENTS = {
   PRODUCT_PUBLISHED: "product.published",
   PRODUCT_DELETED: "product.deleted",
   PRODUCT_UPVOTED: "product.upvoted",
-  ANALYTICS_PRODUCT_TRAFFIC: "analytics.product-traffic",
   LEADERBOARD_REFRESH: "leaderboard.refresh",
   PAYMENTS_CONNECTOR_SYNC: "payments.connector.sync",
   BADGE_ASSIGNED: "badge.assigned",

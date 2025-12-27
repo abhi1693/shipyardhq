@@ -1,9 +1,15 @@
+import { format, subDays } from "date-fns"
+
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { getRedisClient, type RedisClient } from "@/lib/server/redis"
 import { buildCacheKey } from "@/lib/server/cache"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import { memberProductUpgradePath, productPath } from "@/lib/routes"
+import {
+  getProductTrafficMapFromGa,
+  type GaDateRange,
+} from "@/lib/server/analytics/googleAnalytics"
 import { toNovuSubscriberInput } from "@/lib/server/notifications/novu"
 import { sendFeaturedPlanPromotionNotification } from "@/lib/server/notifications/novuPromotions"
 
@@ -106,6 +112,16 @@ export type FeaturedPlanPromoRunResult = {
 function parseBoolParam(value: string | null | undefined): boolean {
   const normalized = (value ?? "").trim().toLowerCase()
   return normalized === "1" || normalized === "true" || normalized === "yes"
+}
+
+function resolveGaDateRange(now: Date, days: number): GaDateRange {
+  const safeDays = Math.max(1, Math.floor(days))
+  const end = subDays(now, 0)
+  const start = subDays(end, safeDays - 1)
+  return {
+    startDate: format(start, "yyyy-MM-dd"),
+    endDate: format(end, "yyyy-MM-dd"),
+  }
 }
 
 function clampNumber(value: number, min: number, max: number): number {
@@ -306,17 +322,7 @@ async function fetchCandidates(
 ): Promise<PromoCandidate[]> {
   const windowStart = new Date(now.getTime() - windowDays * DAY_MS)
 
-  const [trafficRows, upvoteRows] = await Promise.all([
-    prisma.productTrafficEvent.groupBy({
-      by: ["productId"],
-      where: {
-        createdAt: { gte: windowStart },
-        isBot: false,
-      },
-      _count: { productId: true },
-      orderBy: { _count: { productId: "desc" } },
-      take: 250,
-    }),
+  const [upvoteRows, products] = await Promise.all([
     prisma.productUpvote.groupBy({
       by: ["productId"],
       where: {
@@ -327,44 +333,43 @@ async function fetchCandidates(
       orderBy: { _count: { productId: "desc" } },
       take: 250,
     }),
+    prisma.product.findMany({
+      where: { status: "published" },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        userId: true,
+        createdAt: true,
+        plan: { select: { isDefault: true } },
+        user: {
+          select: {
+            id: true,
+            clerkId: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            status: true,
+          },
+        },
+      },
+    }),
   ])
 
-  const trafficByProductId = new Map<string, number>()
-  const upvotesByProductId = new Map<string, number>()
+  if (!products.length) return []
 
-  for (const row of trafficRows) {
-    trafficByProductId.set(row.productId, Number(row._count?.productId ?? 0))
-  }
+  const trafficByProductId = await getProductTrafficMapFromGa({
+    products: products.map((product) => ({
+      id: product.id,
+      slug: product.slug,
+    })),
+    dateRange: resolveGaDateRange(now, windowDays),
+  })
+
+  const upvotesByProductId = new Map<string, number>()
   for (const row of upvoteRows) {
     upvotesByProductId.set(row.productId, Number(row._count?.productId ?? 0))
   }
-
-  const productIds = Array.from(
-    new Set([...trafficByProductId.keys(), ...upvotesByProductId.keys()]),
-  )
-  if (!productIds.length) return []
-
-  const products = await prisma.product.findMany({
-    where: { id: { in: productIds }, status: "published" },
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      userId: true,
-      createdAt: true,
-      plan: { select: { isDefault: true } },
-      user: {
-        select: {
-          id: true,
-          clerkId: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          status: true,
-        },
-      },
-    },
-  })
 
   const byUserId = new Map<string, PromoCandidate>()
 
@@ -375,7 +380,8 @@ async function fetchCandidates(
     const isDefaultPlan = product.plan?.isDefault ?? true
     if (!isDefaultPlan) continue
 
-    const traffic7d = trafficByProductId.get(product.id) ?? 0
+    const trafficEntry = trafficByProductId.get(product.id)
+    const traffic7d = Math.max(0, Math.round(trafficEntry?.pageViews ?? 0))
     const upvotes7d = upvotesByProductId.get(product.id) ?? 0
 
     if (traffic7d <= 0 && upvotes7d <= 0) continue

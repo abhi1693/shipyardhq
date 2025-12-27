@@ -64,7 +64,6 @@ export const ModelName = {
   ProductClaimAttempt: 'ProductClaimAttempt',
   ProductMetadata: 'ProductMetadata',
   ProductAnalytics: 'ProductAnalytics',
-  ProductTrafficEvent: 'ProductTrafficEvent',
   ProductUpvote: 'ProductUpvote',
   Organization: 'Organization',
   OrganizationMembership: 'OrganizationMembership',
@@ -305,26 +304,6 @@ export const ProductAnalyticsScalarFieldEnum = {
 } as const
 
 export type ProductAnalyticsScalarFieldEnum = (typeof ProductAnalyticsScalarFieldEnum)[keyof typeof ProductAnalyticsScalarFieldEnum]
-
-
-export const ProductTrafficEventScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  path: 'path',
-  referrer: 'referrer',
-  userAgent: 'userAgent',
-  device: 'device',
-  browser: 'browser',
-  os: 'os',
-  country: 'country',
-  region: 'region',
-  city: 'city',
-  ipHash: 'ipHash',
-  isBot: 'isBot',
-  createdAt: 'createdAt'
-} as const
-
-export type ProductTrafficEventScalarFieldEnum = (typeof ProductTrafficEventScalarFieldEnum)[keyof typeof ProductTrafficEventScalarFieldEnum]
 
 
 export const ProductUpvoteScalarFieldEnum = {

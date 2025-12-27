@@ -406,23 +406,6 @@ export type EnumProductClaimStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumProductClaimStatusFilter<$PrismaModel>
 }
 
-export type EnumDeviceCategoryFilter<$PrismaModel = never> = {
-  equals?: $Enums.DeviceCategory | Prisma.EnumDeviceCategoryFieldRefInput<$PrismaModel>
-  in?: $Enums.DeviceCategory[] | Prisma.ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
-  notIn?: $Enums.DeviceCategory[] | Prisma.ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumDeviceCategoryFilter<$PrismaModel> | $Enums.DeviceCategory
-}
-
-export type EnumDeviceCategoryWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.DeviceCategory | Prisma.EnumDeviceCategoryFieldRefInput<$PrismaModel>
-  in?: $Enums.DeviceCategory[] | Prisma.ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
-  notIn?: $Enums.DeviceCategory[] | Prisma.ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumDeviceCategoryWithAggregatesFilter<$PrismaModel> | $Enums.DeviceCategory
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumDeviceCategoryFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumDeviceCategoryFilter<$PrismaModel>
-}
-
 export type EnumUserStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.UserStatus | Prisma.EnumUserStatusFieldRefInput<$PrismaModel>
   in?: $Enums.UserStatus[] | Prisma.ListEnumUserStatusFieldRefInput<$PrismaModel>
@@ -1098,23 +1081,6 @@ export type NestedEnumProductClaimStatusWithAggregatesFilter<$PrismaModel = neve
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumProductClaimStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumProductClaimStatusFilter<$PrismaModel>
-}
-
-export type NestedEnumDeviceCategoryFilter<$PrismaModel = never> = {
-  equals?: $Enums.DeviceCategory | Prisma.EnumDeviceCategoryFieldRefInput<$PrismaModel>
-  in?: $Enums.DeviceCategory[] | Prisma.ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
-  notIn?: $Enums.DeviceCategory[] | Prisma.ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumDeviceCategoryFilter<$PrismaModel> | $Enums.DeviceCategory
-}
-
-export type NestedEnumDeviceCategoryWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.DeviceCategory | Prisma.EnumDeviceCategoryFieldRefInput<$PrismaModel>
-  in?: $Enums.DeviceCategory[] | Prisma.ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
-  notIn?: $Enums.DeviceCategory[] | Prisma.ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumDeviceCategoryWithAggregatesFilter<$PrismaModel> | $Enums.DeviceCategory
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumDeviceCategoryFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumDeviceCategoryFilter<$PrismaModel>
 }
 
 export type NestedEnumUserStatusFilter<$PrismaModel = never> = {

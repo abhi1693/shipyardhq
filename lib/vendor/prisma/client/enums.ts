@@ -117,16 +117,6 @@ export const ProductClaimStatus = {
 export type ProductClaimStatus = (typeof ProductClaimStatus)[keyof typeof ProductClaimStatus]
 
 
-export const DeviceCategory = {
-  desktop: 'desktop',
-  mobile: 'mobile',
-  tablet: 'tablet',
-  unknown: 'unknown'
-} as const
-
-export type DeviceCategory = (typeof DeviceCategory)[keyof typeof DeviceCategory]
-
-
 export const UserStatus = {
   active: 'active',
   suspended: 'suspended',

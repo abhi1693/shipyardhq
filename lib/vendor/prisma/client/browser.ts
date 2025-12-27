@@ -83,11 +83,6 @@ export type ProductMetadata = Prisma.ProductMetadataModel
  */
 export type ProductAnalytics = Prisma.ProductAnalyticsModel
 /**
- * Model ProductTrafficEvent
- * 
- */
-export type ProductTrafficEvent = Prisma.ProductTrafficEventModel
-/**
  * Model ProductUpvote
  * 
  */
