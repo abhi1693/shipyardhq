@@ -18,6 +18,7 @@ export async function GET(request: Request) {
       max: url.searchParams.get("max") ?? null,
       cooldownDays: url.searchParams.get("cooldownDays") ?? null,
       windowDays: url.searchParams.get("windowDays") ?? null,
+      skipLock: url.searchParams.get("skipLock") ?? null,
     })
 
     const result = await runFeaturedPlanPromoCron({

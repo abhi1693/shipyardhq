@@ -14,6 +14,7 @@ type PlanSeed = {
   description?: string
   type: PlanType
   price: number
+  externalId?: string
   isDefault?: boolean
   boostForDays?: number
   features: PlanFeatureAssignmentSeed[]
@@ -51,6 +52,7 @@ const PLANS: PlanSeed[] = [
     description: "Boosted listing",
     type: PlanType.one_time_price,
     price: 1900,
+    externalId: "pdt_0NUDyZ7zmuNGcCruDKM6a",
     isDefault: false,
     boostForDays: 14,
     features: [
@@ -67,6 +69,7 @@ const PLANS: PlanSeed[] = [
     description: "Maximum visibility",
     type: PlanType.one_time_price,
     price: 4900,
+    externalId: "pdt_4svcVbrQbzOwQipWmygBQ",
     isDefault: false,
     boostForDays: 30,
     features: [
@@ -87,6 +90,7 @@ const PLANS: PlanSeed[] = [
     description: "Unlock organizations and collaboration tools",
     type: PlanType.recurring_price,
     price: 9900,
+    externalId: "pdt_kHlmYiDo7Qoq5B0aEXBvV",
     isDefault: false,
     boostForDays: 30,
     features: [
@@ -124,6 +128,7 @@ export async function seedPlans(prisma: PrismaClient) {
         description: p.description,
         type: p.type,
         price: p.price,
+        externalId: p.externalId,
         isDefault: !!p.isDefault,
         boostForDays: p.boostForDays ?? 1,
         paymentFrequencyCount: p.paymentFrequencyCount,
@@ -137,6 +142,7 @@ export async function seedPlans(prisma: PrismaClient) {
         description: p.description,
         type: p.type,
         price: p.price,
+        externalId: p.externalId,
         isDefault: !!p.isDefault,
         boostForDays: p.boostForDays ?? 1,
         paymentFrequencyCount: p.paymentFrequencyCount,

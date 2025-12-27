@@ -4,6 +4,8 @@ import {
   type NovuSubscriberInput,
 } from "@/lib/server/notifications/novu"
 
+const HOUR_MS = 60 * 60 * 1000
+
 const NOVU_FEATURED_PROMO_WORKFLOW_ID =
   process.env.NOVU_WORKFLOW_PROMOTIONS_FEATURED?.trim() || "promotions-featured"
 
@@ -55,6 +57,68 @@ export type FeaturedPromoPayload = {
   context?: Record<string, unknown>
 }
 
+function buildMetricsNudge(
+  context?: FeaturedPromoPayload["context"],
+): string | null {
+  if (!context || typeof context !== "object") return null
+  const metrics = (context as { metrics?: Record<string, unknown> }).metrics
+  if (!metrics) return null
+
+  const trafficRaw = metrics.traffic7d
+  const upvotesRaw = metrics.upvotes7d
+  const traffic =
+    typeof trafficRaw === "number" && Number.isFinite(trafficRaw)
+      ? Math.max(0, Math.round(trafficRaw))
+      : 0
+  const upvotes =
+    typeof upvotesRaw === "number" && Number.isFinite(upvotesRaw)
+      ? Math.max(0, Math.round(upvotesRaw))
+      : 0
+
+  if (traffic <= 0 && upvotes <= 0) return null
+
+  const parts: string[] = []
+  if (traffic > 0) parts.push(`${traffic} views`)
+  if (upvotes > 0) parts.push(`${upvotes} upvotes`)
+
+  const summary = parts.join(" and ")
+  return `Last 7 days: ${summary}. Featured placement can turn that momentum into more reach.`
+}
+
+function buildExpiresLabel({
+  expiresAt,
+  sentAt,
+  fallbackDays,
+}: {
+  expiresAt: string
+  sentAt: string
+  fallbackDays: number
+}): string {
+  const safeFallbackDays = Math.max(1, Math.floor(fallbackDays))
+  const sentDate = new Date(sentAt)
+  const expiresDate = new Date(expiresAt)
+
+  if (
+    !Number.isFinite(sentDate.getTime()) ||
+    !Number.isFinite(expiresDate.getTime())
+  ) {
+    return safeFallbackDays === 1 ? "24 hours" : `${safeFallbackDays} days`
+  }
+
+  const deltaMs = expiresDate.getTime() - sentDate.getTime()
+  if (deltaMs <= 0) {
+    return safeFallbackDays === 1 ? "24 hours" : `${safeFallbackDays} days`
+  }
+
+  const hours = Math.max(1, Math.ceil(deltaMs / HOUR_MS))
+  if (hours <= 24) {
+    return hours === 1 ? "1 hour" : `${hours} hours`
+  }
+
+  const days = Math.max(1, Math.ceil(hours / 24))
+  return days === 1 ? "1 day" : `${days} days`
+}
+
 export async function sendFeaturedPlanPromotionNotification(input: {
   recipient: NovuSubscriberInput
   transactionId: string
@@ -79,8 +143,22 @@ export async function sendFeaturedPlanPromotionNotification(input: {
         .join(" + ")
     : "Featured boost"
 
+  const validDays = Math.max(0, Math.floor(input.payload.promotion.validDays))
+  const expiresLabel = buildExpiresLabel({
+    expiresAt: input.payload.promotion.expiresAt,
+    sentAt: timestamp,
+    fallbackDays: validDays,
+  })
+  const metricsNudge = buildMetricsNudge(input.payload.context)
+
   const subject = `${productName}: ${pct}% off Featured boost`
-  const message = `Unlock ${highlightLabel} for ${boostDays} days. Use code ${code} at checkout within ${input.payload.promotion.validDays} days (single-use).`
+  const message = [
+    `Unlock ${highlightLabel} for ${boostDays} days.`,
+    `Your ${pct}% discount is applied at checkout (code ${code}). Offer ends in ${expiresLabel}.`,
+    metricsNudge,
+  ]
+    .filter(Boolean)
+    .join(" ")
 
   try {
     await triggerNovuWorkflow({
@@ -139,10 +217,20 @@ export async function sendTrendingBoostPromotionNotification(input: {
     : "Featured boost"
 
   const validDays = Math.max(0, Math.floor(input.payload.promotion.validDays))
-  const expiresLabel = validDays === 1 ? "24 hours" : `${validDays} days`
+  const expiresLabel = buildExpiresLabel({
+    expiresAt: input.payload.promotion.expiresAt,
+    sentAt: timestamp,
+    fallbackDays: validDays,
+  })
+  const metricsNudge = buildMetricsNudge(input.payload.context)
 
   const subject = `${productName} is trending — ${pct}% off ${highlightLabel}`
-  const message = `Your product is trending. Extend the momentum with ${highlightLabel} for ${boostDays} days — ${pct}% off (code ${code}, single-use). Offer ends in ${expiresLabel}.`
+  const message = [
+    `Your product is trending. Extend the momentum with ${highlightLabel} for ${boostDays} days — ${pct}% off (code ${code}). Offer ends in ${expiresLabel}.`,
+    metricsNudge,
+  ]
+    .filter(Boolean)
+    .join(" ")
 
   try {
     await triggerNovuWorkflow({

@@ -1,11 +1,13 @@
+import { randomUUID } from "crypto"
 import { format, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
+import { IS_PROD } from "@/lib/constants"
 import { getRedisClient, type RedisClient } from "@/lib/server/redis"
 import { buildCacheKey } from "@/lib/server/cache"
-import { resolveSiteUrl } from "@/lib/siteConfig"
-import { memberProductUpgradePath, productPath } from "@/lib/routes"
+import { resolveSiteUrl, siteConfig } from "@/lib/siteConfig"
+import { productPath } from "@/lib/routes"
 import {
   getProductTrafficMapFromGa,
   type GaDateRange,
@@ -13,15 +15,22 @@ import {
 import { toNovuSubscriberInput } from "@/lib/server/notifications/novu"
 import { sendFeaturedPlanPromotionNotification } from "@/lib/server/notifications/novuPromotions"
 
-const DAY_MS = 86_400_000
+const HOUR_MS = 60 * 60 * 1000
+const DAY_MS = 24 * HOUR_MS
 
 const FEATURED_PLAN_SLUG = "featured"
-const PROMO_VERSION = 1
+export const FEATURED_PROMO_VERSION = 2
 
-const DEFAULT_DAILY_MAX_RECIPIENTS = 3
+const DEFAULT_DAILY_MAX_RECIPIENTS = 6
 const DEFAULT_COOLDOWN_DAYS = 60
-const DEFAULT_DISCOUNT_VALID_DAYS = 3
 const DEFAULT_ACTIVITY_WINDOW_DAYS = 7
+
+const MIN_DISCOUNT_PCT = 5
+const MAX_DISCOUNT_PCT = 85
+const DISCOUNT_BUCKET_PCT = 5
+const MIN_DISCOUNT_VALID_HOURS = 12
+const MAX_DISCOUNT_VALID_HOURS = 6 * 24
+const DEFAULT_DISCOUNT_VALID_HOURS = 24
 
 const DEFAULT_STATE_TTL_DAYS = 365
 const RUN_LOCK_TTL_SECONDS = 60 * 60 * 25
@@ -30,10 +39,10 @@ const PENDING_SET_KEY = buildCacheKey(
   "promotions",
   "featured",
   "pending",
-  `v${PROMO_VERSION}`,
+  `v${FEATURED_PROMO_VERSION}`,
 )
 
-type FeaturedPromoOffer = {
+export type FeaturedPromoOffer = {
   planId: string
   planSlug: string
   productId: string
@@ -44,12 +53,13 @@ type FeaturedPromoOffer = {
   discountPct: number
   checkoutUrl: string | null
   transactionId: string
+  claimToken?: string
   createdAt: string
   expiresAt: string
   notifiedAt: string | null
 }
 
-type FeaturedPromoState = {
+export type FeaturedPromoState = {
   version: number
   userId: string
   attempts: number
@@ -76,6 +86,13 @@ type PromoCandidate = {
   }
   metrics: CandidateMetrics
 }
+
+type NotifyOfferResult =
+  | { ok: true }
+  | {
+      ok: false
+      reason: "missing-claim-token" | "missing-recipient" | "send-failed"
+    }
 
 export type FeaturedPlanPromoRunResult = {
   success: boolean
@@ -145,17 +162,27 @@ function runLockKey(dayKey: string): string {
     "featured",
     "run",
     dayKey,
-    `v${PROMO_VERSION}`,
+    `v${FEATURED_PROMO_VERSION}`,
   )
 }
 
-function userStateKey(userId: string): string {
+export function featuredPromoUserStateKey(userId: string): string {
   return buildCacheKey(
     "promotions",
     "featured",
     "user",
     userId,
-    `v${PROMO_VERSION}`,
+    `v${FEATURED_PROMO_VERSION}`,
+  )
+}
+
+export function featuredPromoClaimKey(token: string): string {
+  return buildCacheKey(
+    "promotions",
+    "featured",
+    "claim",
+    token,
+    `v${FEATURED_PROMO_VERSION}`,
   )
 }
 
@@ -172,7 +199,7 @@ function isValidState(
   state: FeaturedPromoState | null,
 ): state is FeaturedPromoState {
   if (!state) return false
-  if (state.version !== PROMO_VERSION) return false
+  if (state.version !== FEATURED_PROMO_VERSION) return false
   if (!state.userId) return false
   if (typeof state.attempts !== "number") return false
   return true
@@ -200,6 +227,35 @@ function floorToStep(value: number, step: number): number {
   return Math.floor(value / step) * step
 }
 
+function createClaimToken(): string {
+  return randomUUID()
+}
+
+function computeDiscountValidHours(discountPct: number): number {
+  const pct = clampNumber(discountPct, MIN_DISCOUNT_PCT, MAX_DISCOUNT_PCT)
+  const range = Math.max(1, MAX_DISCOUNT_PCT - MIN_DISCOUNT_PCT)
+  const normalized = (pct - MIN_DISCOUNT_PCT) / range
+  const hours =
+    MAX_DISCOUNT_VALID_HOURS -
+    normalized * (MAX_DISCOUNT_VALID_HOURS - MIN_DISCOUNT_VALID_HOURS)
+
+  return clampNumber(
+    Math.round(hours),
+    MIN_DISCOUNT_VALID_HOURS,
+    MAX_DISCOUNT_VALID_HOURS,
+  )
+}
+
+function resolveOfferValidDays(offer: FeaturedPromoOffer): number {
+  const createdAt = parseIsoDate(offer.createdAt) ?? new Date()
+  const fallbackExpiresAt = new Date(
+    createdAt.getTime() + DEFAULT_DISCOUNT_VALID_HOURS * HOUR_MS,
+  )
+  const expiresAt = parseIsoDate(offer.expiresAt) ?? fallbackExpiresAt
+  const durationMs = Math.max(0, expiresAt.getTime() - createdAt.getTime())
+  return Math.max(1, Math.ceil(durationMs / DAY_MS))
+}
+
 function computeIntentScore(metrics: {
   traffic7d: number
   upvotes7d: number
@@ -221,15 +277,13 @@ function computeDiscountPct(args: {
   metrics: CandidateMetrics
   attempts: number
 }): number {
-  const minPct = 5
-  const maxPct = 25
-  const bucket = 5
-
   const intent = clampNumber(args.metrics.score, 0, 1)
   // Protect revenue: bias discounts toward the minimum unless intent is low.
   // This is a convex curve (quadratic) so high-intent users are much more likely
-  // to get 5–10%, reserving 20–25% for low-intent segments.
-  const base = minPct + (1 - intent) * (1 - intent) * (maxPct - minPct)
+  // to get 5–10%, reserving 75–85% for low-intent segments.
+  const base =
+    MIN_DISCOUNT_PCT +
+    (1 - intent) * (1 - intent) * (MAX_DISCOUNT_PCT - MIN_DISCOUNT_PCT)
 
   // Escalate cautiously when users didn't convert in prior cycles; scale the
   // increase by (1-intent) so high-intent users don't get large discounts.
@@ -241,16 +295,16 @@ function computeDiscountPct(args: {
   )
   const withBonus = base + attemptBonus
 
-  // Round down to protect revenue; still clamp to 5–25.
-  const bucketed = floorToStep(withBonus, bucket)
-  return clampNumber(bucketed, minPct, maxPct)
+  // Round down to protect revenue; still clamp to 5–85.
+  const bucketed = floorToStep(withBonus, DISCOUNT_BUCKET_PCT)
+  return clampNumber(bucketed, MIN_DISCOUNT_PCT, MAX_DISCOUNT_PCT)
 }
 
 async function loadPromoState(
   redis: RedisClient,
   userId: string,
 ): Promise<FeaturedPromoState | null> {
-  const raw = await redis.get(userStateKey(userId))
+  const raw = await redis.get(featuredPromoUserStateKey(userId))
   const parsed = parseJson<FeaturedPromoState>(raw ?? null)
   return isValidState(parsed) ? parsed : null
 }
@@ -262,7 +316,7 @@ async function storePromoState(
   ttlDays: number,
 ): Promise<void> {
   const ttlSeconds = Math.max(1, Math.floor(ttlDays * 24 * 60 * 60))
-  await redis.set(userStateKey(userId), JSON.stringify(state), {
+  await redis.set(featuredPromoUserStateKey(userId), JSON.stringify(state), {
     EX: ttlSeconds,
   })
 }
@@ -297,15 +351,37 @@ async function removePendingUser(
   await redis.sRem(PENDING_SET_KEY, userId)
 }
 
+function resolveClaimTtlSeconds(offer: FeaturedPromoOffer, now: Date): number {
+  const expiresAt = parseIsoDate(offer.expiresAt)
+  if (!expiresAt) {
+    return Math.max(1, Math.floor(DEFAULT_STATE_TTL_DAYS * 24 * 60 * 60))
+  }
+
+  const deltaMs = expiresAt.getTime() - now.getTime()
+  if (deltaMs <= 0) return 60
+
+  return Math.max(60, Math.floor(deltaMs / 1000))
+}
+
+async function storeClaimToken(args: {
+  redis: RedisClient
+  token: string
+  userId: string
+  ttlSeconds: number
+}): Promise<void> {
+  await args.redis.set(featuredPromoClaimKey(args.token), args.userId, {
+    EX: Math.max(1, Math.floor(args.ttlSeconds)),
+  })
+}
+
 async function countPaidFeaturedCustomers(
   windowStart: Date,
   featuredPlanId: string,
 ): Promise<number> {
-  const rows = await prisma.product.findMany({
+  const rows = await prisma.userPlanPurchase.findMany({
     where: {
       planId: featuredPlanId,
-      planAssignedAt: { gte: windowStart },
-      status: "published",
+      createdAt: { gte: windowStart },
     },
     select: {
       userId: true,
@@ -454,9 +530,8 @@ async function prepareOffer(args: {
   plan: { id: string; slug: string; externalId: string }
   discountPct: number
 }): Promise<FeaturedPromoOffer> {
-  const expiresAt = new Date(
-    args.now.getTime() + DEFAULT_DISCOUNT_VALID_DAYS * DAY_MS,
-  )
+  const validHours = computeDiscountValidHours(args.discountPct)
+  const expiresAt = new Date(args.now.getTime() + validHours * HOUR_MS)
   const amountBps = Math.round(args.discountPct * 100)
 
   const discount = await dodoClient.discounts.create({
@@ -465,7 +540,7 @@ async function prepareOffer(args: {
     usage_limit: 1,
     expires_at: expiresAt.toISOString(),
     restricted_to: [args.plan.externalId],
-    name: `Shipyard Featured Promo ${args.discountPct}%`,
+    name: `${siteConfig.name} Featured Promo ${args.discountPct}%`,
   })
 
   const transactionId = `promo_featured:${args.candidate.user.id}:${discount.discount_id}`
@@ -481,6 +556,7 @@ async function prepareOffer(args: {
     discountPct: args.discountPct,
     checkoutUrl: null,
     transactionId,
+    claimToken: createClaimToken(),
     createdAt: args.now.toISOString(),
     expiresAt: expiresAt.toISOString(),
     notifiedAt: null,
@@ -500,18 +576,22 @@ async function notifyOffer(args: {
     currencyCode: string
     highlights: Array<{ key: string; name: string; description: string }>
   }
-}): Promise<boolean> {
+}): Promise<NotifyOfferResult> {
   const recipient = toNovuSubscriberInput({
     subscriberId: args.candidate.user.clerkId,
     email: args.candidate.user.email,
     firstName: args.candidate.user.firstName,
     lastName: args.candidate.user.lastName,
   })
-  if (!recipient) return false
+  if (!recipient) return { ok: false, reason: "missing-recipient" }
+  if (!args.offer.claimToken) {
+    return { ok: false, reason: "missing-claim-token" }
+  }
 
   const siteUrl = resolveSiteUrl()
-  const upgradeUrl = new URL(
-    memberProductUpgradePath(args.offer.productSlug),
+  let claimUrl: string | null = null
+  claimUrl = new URL(
+    `/api/promotions/featured/claim?token=${encodeURIComponent(args.offer.claimToken)}`,
     `${siteUrl}/`,
   ).toString()
   const publicUrl = new URL(
@@ -523,8 +603,9 @@ async function notifyOffer(args: {
     0,
     Math.round(args.plan.priceCents * (1 - args.offer.discountPct / 100)),
   )
+  const validDays = resolveOfferValidDays(args.offer)
 
-  return sendFeaturedPlanPromotionNotification({
+  const sent = await sendFeaturedPlanPromotionNotification({
     recipient,
     transactionId: args.offer.transactionId,
     payload: {
@@ -534,7 +615,7 @@ async function notifyOffer(args: {
         discountCode: args.offer.discountCode,
         expiresAt: args.offer.expiresAt,
         redeemLimit: 1,
-        validDays: DEFAULT_DISCOUNT_VALID_DAYS,
+        validDays,
         cooldownDays: Math.max(0, Math.floor(args.cooldownDays)),
         provider: "dodo",
       },
@@ -555,28 +636,30 @@ async function notifyOffer(args: {
       },
       instructions: {
         steps: [
-          "Open your product’s upgrade page",
-          `Choose the ${args.plan.name} plan`,
-          `Enter code ${args.offer.discountCode} at checkout`,
+          "Open the checkout link",
+          `Complete payment to unlock ${args.plan.name}`,
         ],
       },
       cta: {
         label: "Boost my listing",
-        url: upgradeUrl,
+        url: claimUrl,
       },
       links: {
-        upgrade: upgradeUrl,
+        upgrade: claimUrl,
         public: publicUrl,
       },
       context: {
         metrics: {
           traffic7d: args.candidate.metrics.traffic7d,
           upvotes7d: args.candidate.metrics.upvotes7d,
-          score: args.candidate.metrics.score,
+          score: args.candidate.metrics.score * 100,
         },
       },
     },
   })
+  if (!sent) return { ok: false, reason: "send-failed" }
+
+  return { ok: true }
 }
 
 export async function runFeaturedPlanPromoCron(request?: {
@@ -586,6 +669,7 @@ export async function runFeaturedPlanPromoCron(request?: {
   const now = request?.now ?? new Date()
   const sp = request?.searchParams
   const dryRun = parseBoolParam(sp?.get("dryRun"))
+  const skipLock = !IS_PROD && parseBoolParam(sp?.get("skipLock"))
   const cooldownDays =
     Number.parseInt(sp?.get("cooldownDays") || "", 10) || DEFAULT_COOLDOWN_DAYS
   const dailyMax =
@@ -626,31 +710,35 @@ export async function runFeaturedPlanPromoCron(request?: {
 
   const runDay = getUtcDayKey(now)
   if (!dryRun) {
-    const locked = await ensureRunLock(redis, runDay)
-    if (!locked) {
-      recordReason(reasons, "already-ran")
-      return {
-        success: true,
-        dryRun,
-        runDay,
-        plan: {
-          id: "",
-          slug: FEATURED_PLAN_SLUG,
-          externalId: "",
-          boostForDays: 0,
-          discountPct: null,
-        },
-        slots: { dailyMax, paidFeaturedCustomers: 0, available: 0 },
-        windowDays,
-        cooldownDays,
-        candidates: 0,
-        pendingOffers: 0,
-        prepared: 0,
-        notified: 0,
-        skipped: 0,
-        reasons,
-        sample,
+    if (!skipLock) {
+      const locked = await ensureRunLock(redis, runDay)
+      if (!locked) {
+        recordReason(reasons, "already-ran")
+        return {
+          success: true,
+          dryRun,
+          runDay,
+          plan: {
+            id: "",
+            slug: FEATURED_PLAN_SLUG,
+            externalId: "",
+            boostForDays: 0,
+            discountPct: null,
+          },
+          slots: { dailyMax, paidFeaturedCustomers: 0, available: 0 },
+          windowDays,
+          cooldownDays,
+          candidates: 0,
+          pendingOffers: 0,
+          prepared: 0,
+          notified: 0,
+          skipped: 0,
+          reasons,
+          sample,
+        }
       }
+    } else {
+      recordReason(reasons, "skip-lock")
     }
   }
 
@@ -825,6 +913,11 @@ export async function runFeaturedPlanPromoCron(request?: {
       upvotes7d: candidate.metrics.upvotes7d,
       score: candidate.metrics.score,
     }
+    if (metrics.traffic7d <= 0 && metrics.upvotes7d <= 0) {
+      skipped += 1
+      recordReason(reasons, "no-activity")
+      return
+    }
     const discountPct = computeDiscountPct({ metrics, attempts })
 
     sample.push({
@@ -871,7 +964,7 @@ export async function runFeaturedPlanPromoCron(request?: {
         recordReason(reasons, "prepared")
 
         const nextState: FeaturedPromoState = {
-          version: PROMO_VERSION,
+          version: FEATURED_PROMO_VERSION,
           userId: candidate.user.id,
           attempts,
           lastNotifiedAt: state?.lastNotifiedAt ?? null,
@@ -902,16 +995,46 @@ export async function runFeaturedPlanPromoCron(request?: {
       return
     }
 
+    if (!offer.claimToken) {
+      skipped += 1
+      recordReason(reasons, "missing-claim-token")
+      return
+    }
+
     try {
-      const sent = await notifyOffer({
+      await storeClaimToken({
+        redis,
+        token: offer.claimToken,
+        userId: candidate.user.id,
+        ttlSeconds: resolveClaimTtlSeconds(offer, now),
+      })
+    } catch (error) {
+      skipped += 1
+      recordReason(reasons, "claim-token-failed")
+      console.error("[promotions.featured] failed to store claim token", {
+        error,
+        userId: candidate.user.id,
+        productId: candidate.productId,
+      })
+      return
+    }
+
+    try {
+      const notification = await notifyOffer({
         offer,
         candidate,
         cooldownDays,
         plan: promoPlan,
       })
-      if (!sent) {
+      if (!notification.ok) {
         skipped += 1
         recordReason(reasons, "notify-failed")
+        console.warn("[promotions.featured] notify returned false", {
+          userId: candidate.user.id,
+          productId: candidate.productId,
+          transactionId: offer.transactionId,
+          reason: notification.reason,
+        })
         return
       }
 
@@ -919,7 +1042,7 @@ export async function runFeaturedPlanPromoCron(request?: {
       recordReason(reasons, "notified")
 
       const nextState: FeaturedPromoState = {
-        version: PROMO_VERSION,
+        version: FEATURED_PROMO_VERSION,
         userId: candidate.user.id,
         attempts: attempts + 1,
         lastNotifiedAt: now.toISOString(),
