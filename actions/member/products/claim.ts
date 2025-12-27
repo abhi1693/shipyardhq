@@ -73,30 +73,13 @@ function resolveExpectedTxt(product: ClaimableProduct, domain: string) {
   )
 }
 
-async function getUserOrganizationIds(userId: string) {
-  const memberships = await prisma.organizationMembership.findMany({
-    where: { userId },
-    select: { organizationId: true },
-  })
-  return memberships.map(
-    ({ organizationId }: { organizationId: string }) => organizationId,
-  )
-}
-
 async function getClaimableProductsForViewer(
   userId: string,
   q?: string,
 ): Promise<ClaimableProductSummary[]> {
-  const organizationIds = await getUserOrganizationIds(userId)
-
   const where: Prisma.ProductWhereInput = {
     verification: { isVerified: false },
-    NOT: [
-      { userId },
-      ...(organizationIds.length
-        ? [{ organizationId: { in: organizationIds } }]
-        : []),
-    ],
+    NOT: [{ userId }],
   }
 
   const search = q?.trim()
@@ -141,9 +124,6 @@ async function getClaimTarget(productId: string) {
     where: { id: productId },
     include: {
       verification: true,
-      organization: {
-        select: { id: true, name: true },
-      },
     },
   })
   if (!product) return { error: "Product not found." }
@@ -161,26 +141,9 @@ async function getClaimTarget(productId: string) {
   return { product, domain, expectedTxt }
 }
 
-async function ensureNotOwner(
-  product: Prisma.ProductGetPayload<{
-    include: { organization: { select: { id: true } } }
-  }>,
-  viewerId: string,
-) {
+async function ensureNotOwner(product: { userId: string }, viewerId: string) {
   if (product.userId === viewerId) {
     return { error: "You already own this product." }
-  }
-  if (product.organizationId) {
-    const membership = await prisma.organizationMembership.findFirst({
-      where: { userId: viewerId, organizationId: product.organizationId },
-      select: { id: true },
-    })
-    if (membership) {
-      return {
-        error:
-          "You already have access to this product through your organization.",
-      }
-    }
   }
   return {}
 }

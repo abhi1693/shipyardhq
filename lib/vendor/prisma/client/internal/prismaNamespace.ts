@@ -398,8 +398,6 @@ export const ModelName = {
   ProductMetadata: 'ProductMetadata',
   ProductAnalytics: 'ProductAnalytics',
   ProductUpvote: 'ProductUpvote',
-  Organization: 'Organization',
-  OrganizationMembership: 'OrganizationMembership',
   User: 'User',
   MemberFeedback: 'MemberFeedback',
   Category: 'Category',
@@ -434,7 +432,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "monthlyLeaderboardNotification" | "productMedia" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productUpvote" | "organization" | "organizationMembership" | "user" | "memberFeedback" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "monthlyLeaderboardNotification" | "productMedia" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "productUpvote" | "user" | "memberFeedback" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1471,154 +1469,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductUpvoteCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductUpvoteCountAggregateOutputType> | number
-        }
-      }
-    }
-    Organization: {
-      payload: Prisma.$OrganizationPayload<ExtArgs>
-      fields: Prisma.OrganizationFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.OrganizationFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.OrganizationFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationPayload>
-        }
-        findFirst: {
-          args: Prisma.OrganizationFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.OrganizationFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationPayload>
-        }
-        findMany: {
-          args: Prisma.OrganizationFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationPayload>[]
-        }
-        create: {
-          args: Prisma.OrganizationCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationPayload>
-        }
-        createMany: {
-          args: Prisma.OrganizationCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.OrganizationCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationPayload>[]
-        }
-        delete: {
-          args: Prisma.OrganizationDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationPayload>
-        }
-        update: {
-          args: Prisma.OrganizationUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationPayload>
-        }
-        deleteMany: {
-          args: Prisma.OrganizationDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.OrganizationUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.OrganizationUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationPayload>[]
-        }
-        upsert: {
-          args: Prisma.OrganizationUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationPayload>
-        }
-        aggregate: {
-          args: Prisma.OrganizationAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateOrganization>
-        }
-        groupBy: {
-          args: Prisma.OrganizationGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.OrganizationGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.OrganizationCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.OrganizationCountAggregateOutputType> | number
-        }
-      }
-    }
-    OrganizationMembership: {
-      payload: Prisma.$OrganizationMembershipPayload<ExtArgs>
-      fields: Prisma.OrganizationMembershipFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.OrganizationMembershipFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationMembershipPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.OrganizationMembershipFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationMembershipPayload>
-        }
-        findFirst: {
-          args: Prisma.OrganizationMembershipFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationMembershipPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.OrganizationMembershipFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationMembershipPayload>
-        }
-        findMany: {
-          args: Prisma.OrganizationMembershipFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationMembershipPayload>[]
-        }
-        create: {
-          args: Prisma.OrganizationMembershipCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationMembershipPayload>
-        }
-        createMany: {
-          args: Prisma.OrganizationMembershipCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.OrganizationMembershipCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationMembershipPayload>[]
-        }
-        delete: {
-          args: Prisma.OrganizationMembershipDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationMembershipPayload>
-        }
-        update: {
-          args: Prisma.OrganizationMembershipUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationMembershipPayload>
-        }
-        deleteMany: {
-          args: Prisma.OrganizationMembershipDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.OrganizationMembershipUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.OrganizationMembershipUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationMembershipPayload>[]
-        }
-        upsert: {
-          args: Prisma.OrganizationMembershipUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrganizationMembershipPayload>
-        }
-        aggregate: {
-          args: Prisma.OrganizationMembershipAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateOrganizationMembership>
-        }
-        groupBy: {
-          args: Prisma.OrganizationMembershipGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.OrganizationMembershipGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.OrganizationMembershipCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.OrganizationMembershipCountAggregateOutputType> | number
         }
       }
     }
@@ -3083,7 +2933,6 @@ export const ProductScalarFieldEnum = {
   pricingModel: 'pricingModel',
   status: 'status',
   publishedAt: 'publishedAt',
-  organizationId: 'organizationId',
   startingPriceCents: 'startingPriceCents',
   currencyCode: 'currencyCode',
   bannerImage: 'bannerImage',
@@ -3277,30 +3126,6 @@ export const ProductUpvoteScalarFieldEnum = {
 } as const
 
 export type ProductUpvoteScalarFieldEnum = (typeof ProductUpvoteScalarFieldEnum)[keyof typeof ProductUpvoteScalarFieldEnum]
-
-
-export const OrganizationScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  url: 'url',
-  ownerUserId: 'ownerUserId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type OrganizationScalarFieldEnum = (typeof OrganizationScalarFieldEnum)[keyof typeof OrganizationScalarFieldEnum]
-
-
-export const OrganizationMembershipScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  organizationId: 'organizationId',
-  jobTitle: 'jobTitle',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type OrganizationMembershipScalarFieldEnum = (typeof OrganizationMembershipScalarFieldEnum)[keyof typeof OrganizationMembershipScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
@@ -4197,8 +4022,6 @@ export type GlobalOmitConfig = {
   productMetadata?: Prisma.ProductMetadataOmit
   productAnalytics?: Prisma.ProductAnalyticsOmit
   productUpvote?: Prisma.ProductUpvoteOmit
-  organization?: Prisma.OrganizationOmit
-  organizationMembership?: Prisma.OrganizationMembershipOmit
   user?: Prisma.UserOmit
   memberFeedback?: Prisma.MemberFeedbackOmit
   category?: Prisma.CategoryOmit

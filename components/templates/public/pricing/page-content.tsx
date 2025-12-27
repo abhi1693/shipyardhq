@@ -8,7 +8,6 @@ import { Skeleton } from "@/components/atoms/skeleton"
 import { getPublicPlans } from "@/actions/public/plans/actions"
 import { getProducts } from "@/actions/public/products/featured"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
-import { SubscriptionPlanCard } from "@/components/molecules/SubscriptionPlanCard"
 import { PricingTable } from "@/components/organisms/PricingTable"
 import { PlanType } from "@/lib/vendor/prisma/client"
 
@@ -49,7 +48,7 @@ export const PRICING_FAQS = [
   {
     question: "Can my team collaborate on launches?",
     answer:
-      "Team access unlocks on plans that include organizations. Add your team, assign roles, and manage launches together from a shared dashboard.",
+      "Today, launches are managed per account. If you need multi-user access, reach out and we’ll help you plan a workflow.",
   },
 ]
 
@@ -81,32 +80,8 @@ export async function PricingPlansList({
         <span className="font-semibold text-foreground">
           {defaultPlan.name}
         </span>
-        {description ? ` - ${description}` : ""}
-        .
+        {description ? ` - ${description}` : ""}.
       </p>
-    </div>
-  )
-}
-
-export async function SubscriptionPlansList() {
-  const subscriptionPlans = await getPublicPlans({
-    type: PlanType.recurring_price,
-  })
-
-  if (!subscriptionPlans.length) {
-    return null
-  }
-
-  return (
-    <div className="mt-10 mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-5 lg:gap-6">
-      {subscriptionPlans.map((plan) => (
-        <div
-          key={plan.id}
-          className="flex w-full max-w-sm flex-1 basis-full sm:basis-[20rem]"
-        >
-          <SubscriptionPlanCard plan={plan} />
-        </div>
-      ))}
     </div>
   )
 }
@@ -155,19 +130,6 @@ export function PricingPlansSkeleton({
     <section className="py-12">
       <div className="mx-auto max-w-6xl px-4">{content}</div>
     </section>
-  )
-}
-
-export function SubscriptionPlansSkeleton() {
-  return (
-    <div className="mt-10 mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-5 lg:gap-6">
-      {[...Array(2).keys()].map((index) => (
-        <div
-          key={index}
-          className="h-72 w-full max-w-sm flex-1 basis-full animate-pulse rounded-3xl border border-[color:var(--brand-1)/0.15] bg-background/80 sm:basis-[20rem]"
-        />
-      ))}
-    </div>
   )
 }
 

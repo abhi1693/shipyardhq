@@ -30,7 +30,6 @@ export function getInitialValuesForAdd(): ProductWizardInputAdd {
     currencyCode: undefined,
     platforms: [],
     keywordsText: "",
-    organizationId: "",
     bannerImage: "",
     galleryMedia: [],
     githubUrl: "",
@@ -68,7 +67,6 @@ export function getInitialValuesFromProduct(
     currencyCode: product.currencyCode ?? undefined,
     platforms: product.platforms ?? [],
     keywordsText: (product.keywords ?? []).join(", "),
-    organizationId: product.organizationId ?? "",
     bannerImage: product.bannerImage ?? "",
     galleryMedia: [],
     githubUrl: product.metadata?.githubUrl ?? "",
@@ -122,7 +120,6 @@ export function toCreateFormData(
     fd.append("currencyCode", uppercaseCurrency(v.currencyCode)!)
 
   // Optional
-  if (v.organizationId) fd.append("organizationId", v.organizationId)
   if (v.bannerImage) fd.append("bannerImage", normalizeUrl(v.bannerImage)!)
   if (Array.isArray(v.galleryMedia) && v.galleryMedia.length) {
     fd.append("galleryMedia", JSON.stringify(v.galleryMedia))
@@ -168,7 +165,6 @@ export function toUpdatePayload(
     logo: normalizeUrl(v.logo) || v.logo,
     type: v.type,
     pricingModel: v.pricingModel,
-    organizationId: v.organizationId || null,
     slug: undefined,
     status: v.status,
     publishedAt: undefined,

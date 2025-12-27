@@ -10,8 +10,6 @@ export const TAGS = {
   usecase: (idOrSlug: string) => `use-case:${idOrSlug}`,
   users: "users",
   user: (id: string) => `user:${id}`,
-  organizations: "organizations",
-  organization: (id: string) => `organization:${id}`,
   badges: "badges",
   featured: "featured",
   trending: "trending",

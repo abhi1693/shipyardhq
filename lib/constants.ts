@@ -92,7 +92,6 @@ export const PLAN_FEATURE_KEYS = [
   REWARD_FEATURE_KEY.stickyBanner,
   REWARD_FEATURE_KEY.newsletterPromotion,
   "backlink",
-  "organization",
 ] as const
 
 export type PlanFeatureKey = (typeof PLAN_FEATURE_KEYS)[number]

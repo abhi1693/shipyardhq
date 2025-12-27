@@ -22,7 +22,6 @@ export const productForEditWizardSelect = {
   currencyCode: true,
   platforms: true,
   keywords: true,
-  organizationId: true,
   bannerImage: true,
   status: true,
   metadata: {
@@ -39,11 +38,6 @@ export const productForEditWizardSelect = {
   verification: { select: { isVerified: true } },
   user: { select: { clerkId: true } },
 } satisfies Prisma.ProductSelect
-
-export type ProductWizardOrganizationOption = {
-  id: string
-  name: string
-}
 
 export type ProductWizardAlternativeOption = {
   id: string

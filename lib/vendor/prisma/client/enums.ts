@@ -195,7 +195,6 @@ export type RewardFeatureCategory = (typeof RewardFeatureCategory)[keyof typeof 
 export const FeatureSubjectType = {
   user: 'user',
   product: 'product',
-  organization: 'organization',
   global: 'global'
 } as const
 

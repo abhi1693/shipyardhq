@@ -111,7 +111,6 @@ export async function getProductById(id: string) {
       include: {
         category: true,
         user: true,
-        organization: true,
         metadata: true,
         analytics: true,
         verification: true,
@@ -244,7 +243,6 @@ export async function createProductAction(formData: FormData) {
   const logo = formData.get("logo")!.toString().trim()
   const categoryId = formData.get("categoryId")!.toString()
   const userId = formData.get("userId")!.toString()
-  const organizationId = formData.get("organizationId")?.toString() || undefined
   const slug = formData.get("slug")?.toString().trim()
   const status = formData.get("status")?.toString().trim() as
     | "draft"
@@ -372,8 +370,6 @@ export async function createProductAction(formData: FormData) {
         logo,
         categoryId,
         userId,
-        organizationId:
-          organizationId && organizationId.length ? organizationId : undefined,
         type,
         pricingModel,
         status: status ?? "published",
@@ -565,7 +561,6 @@ export async function updateProductAction(
     logo: string
     type: Prisma.ProductUpdateInput["type"]
     pricingModel: Prisma.ProductUpdateInput["pricingModel"]
-    organizationId?: string | null
     slug?: string
     status?: "draft" | "published" | "archived"
     publishedAt?: string | null
@@ -642,18 +637,7 @@ export async function updateProductAction(
 
   if (!isAdmin && currentUser) {
     const ownsProduct = current.userId === currentUser.id
-    let belongsToOrg = false
-    if (!ownsProduct && current.organizationId) {
-      const membership = await prisma.organizationMembership.findFirst({
-        where: {
-          organizationId: current.organizationId,
-          userId: currentUser.id,
-        },
-        select: { id: true },
-      })
-      belongsToOrg = Boolean(membership)
-    }
-    if (!ownsProduct && !belongsToOrg) {
+    if (!ownsProduct) {
       return { error: "Not authorized to edit this product" }
     }
   }
@@ -770,7 +754,6 @@ export async function updateProductAction(
             utmCampaign: (data.utmCampaign || undefined) ?? undefined,
           },
         },
-        organizationId: data.organizationId || null,
         // Only admins may change slug (guarded above)
         slug: isAdmin ? data.slug || undefined : undefined,
         status: (data.status as any) || undefined,
@@ -1011,7 +994,6 @@ export async function resetProductConnectorAction(productId: string) {
     select: {
       id: true,
       userId: true,
-      organizationId: true,
       categoryId: true,
     },
   })
@@ -1021,18 +1003,7 @@ export async function resetProductConnectorAction(productId: string) {
 
   if (!isAdmin && currentUser) {
     const ownsProduct = product.userId === currentUser.id
-    let belongsToOrg = false
-    if (!ownsProduct && product.organizationId) {
-      const membership = await prisma.organizationMembership.findFirst({
-        where: {
-          organizationId: product.organizationId,
-          userId: currentUser.id,
-        },
-        select: { id: true },
-      })
-      belongsToOrg = Boolean(membership)
-    }
-    if (!ownsProduct && !belongsToOrg) {
+    if (!ownsProduct) {
       return { error: "Not authorized to edit this product" }
     }
   }
@@ -1064,7 +1035,6 @@ export async function deleteProductAction(id: string) {
       select: {
         id: true,
         userId: true,
-        organizationId: true,
         user: { select: { clerkId: true } },
       },
     })
@@ -1255,7 +1225,6 @@ export async function setProductStatusAction(
       select: {
         status: true,
         userId: true,
-        organizationId: true,
         planAssignedAt: true,
         plan: { select: { isDefault: true, boostForDays: true } },
       },
@@ -1264,18 +1233,7 @@ export async function setProductStatusAction(
 
     if (!isAdmin && currentUser) {
       const ownsProduct = previous.userId === currentUser.id
-      let belongsToOrg = false
-      if (!ownsProduct && previous.organizationId) {
-        const membership = await prisma.organizationMembership.findFirst({
-          where: {
-            organizationId: previous.organizationId,
-            userId: currentUser.id,
-          },
-          select: { id: true },
-        })
-        belongsToOrg = Boolean(membership)
-      }
-      if (!ownsProduct && !belongsToOrg) {
+      if (!ownsProduct) {
         return { error: "Not authorized to update status" }
       }
     }

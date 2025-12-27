@@ -564,9 +564,8 @@ export function ClaimProductsClient({
                     What happens next
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Once verified, the listing moves into your organization,
-                    becomes marked as verified, and anyone previously invited is
-                    notified automatically.
+                    Once verified, the listing moves into your account and is
+                    marked as verified.
                   </p>
                 </div>
               </CardContent>

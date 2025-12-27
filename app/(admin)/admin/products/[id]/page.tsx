@@ -119,16 +119,6 @@ export default async function ViewProductPage({
           }),
         },
         {
-          label: "Organization",
-          value: product.organization
-            ? linkify({
-                href: product.organization.url || "#",
-                label: product.organization.name,
-                isExternal: Boolean(product.organization.url),
-              })
-            : placeholder(),
-        },
-        {
           label: "Alternatives",
           value: product.alternatives?.length
             ? commaSeparated(
@@ -237,29 +227,9 @@ export default async function ViewProductPage({
 
             <Card className="col-span-12 md:col-span-4">
               <CardHeader>
-                <CardTitle className="text-base">
-                  Organization & Targeting
-                </CardTitle>
+                <CardTitle className="text-base">Targeting</CardTitle>
               </CardHeader>
               <CardContent>
-                <OverviewRow
-                  label="Organization"
-                  value={
-                    product.organization ? (
-                      <div className="flex items-center gap-2">
-                        <span>{product.organization.name}</span>
-                        {product.organization.url
-                          ? linkify({
-                              href: product.organization.url,
-                              isExternal: true,
-                            })
-                          : null}
-                      </div>
-                    ) : (
-                      placeholder()
-                    )
-                  }
-                />
                 <OverviewRow
                   label="Platforms"
                   value={

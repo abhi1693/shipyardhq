@@ -4,12 +4,10 @@ import AddProductWizard from "@/components/pages/products/AddProductWizard"
 
 export default function AddProductForm({
   categories,
-  organizations,
   userId,
   alternatives,
 }: {
   categories: { id: string; name: string; icon?: string | null }[]
-  organizations: { id: string; name: string }[]
   userId: string
   alternatives: {
     id: string
@@ -22,7 +20,6 @@ export default function AddProductForm({
     <AddProductWizard
       mode="member"
       categories={categories}
-      organizations={organizations}
       userId={userId}
       alternatives={alternatives}
     />

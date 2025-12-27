@@ -50,7 +50,6 @@ export type ProductMinAggregateOutputType = {
   pricingModel: $Enums.PricingModel | null
   status: $Enums.ProductStatus | null
   publishedAt: Date | null
-  organizationId: string | null
   startingPriceCents: number | null
   currencyCode: string | null
   bannerImage: string | null
@@ -74,7 +73,6 @@ export type ProductMaxAggregateOutputType = {
   pricingModel: $Enums.PricingModel | null
   status: $Enums.ProductStatus | null
   publishedAt: Date | null
-  organizationId: string | null
   startingPriceCents: number | null
   currencyCode: string | null
   bannerImage: string | null
@@ -98,7 +96,6 @@ export type ProductCountAggregateOutputType = {
   pricingModel: number
   status: number
   publishedAt: number
-  organizationId: number
   startingPriceCents: number
   currencyCode: number
   bannerImage: number
@@ -134,7 +131,6 @@ export type ProductMinAggregateInputType = {
   pricingModel?: true
   status?: true
   publishedAt?: true
-  organizationId?: true
   startingPriceCents?: true
   currencyCode?: true
   bannerImage?: true
@@ -158,7 +154,6 @@ export type ProductMaxAggregateInputType = {
   pricingModel?: true
   status?: true
   publishedAt?: true
-  organizationId?: true
   startingPriceCents?: true
   currencyCode?: true
   bannerImage?: true
@@ -182,7 +177,6 @@ export type ProductCountAggregateInputType = {
   pricingModel?: true
   status?: true
   publishedAt?: true
-  organizationId?: true
   startingPriceCents?: true
   currencyCode?: true
   bannerImage?: true
@@ -295,7 +289,6 @@ export type ProductGroupByOutputType = {
   pricingModel: $Enums.PricingModel
   status: $Enums.ProductStatus
   publishedAt: Date | null
-  organizationId: string | null
   startingPriceCents: number | null
   currencyCode: string | null
   bannerImage: string | null
@@ -344,7 +337,6 @@ export type ProductWhereInput = {
   pricingModel?: Prisma.EnumPricingModelFilter<"Product"> | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFilter<"Product"> | $Enums.ProductStatus
   publishedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
-  organizationId?: Prisma.StringNullableFilter<"Product"> | string | null
   startingPriceCents?: Prisma.IntNullableFilter<"Product"> | number | null
   currencyCode?: Prisma.StringNullableFilter<"Product"> | string | null
   bannerImage?: Prisma.StringNullableFilter<"Product"> | string | null
@@ -355,7 +347,6 @@ export type ProductWhereInput = {
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
   plan?: Prisma.XOR<Prisma.PlanNullableScalarRelationFilter, Prisma.PlanWhereInput> | null
-  organization?: Prisma.XOR<Prisma.OrganizationNullableScalarRelationFilter, Prisma.OrganizationWhereInput> | null
   metadata?: Prisma.XOR<Prisma.ProductMetadataNullableScalarRelationFilter, Prisma.ProductMetadataWhereInput> | null
   analytics?: Prisma.XOR<Prisma.ProductAnalyticsNullableScalarRelationFilter, Prisma.ProductAnalyticsWhereInput> | null
   verification?: Prisma.XOR<Prisma.ProductVerificationNullableScalarRelationFilter, Prisma.ProductVerificationWhereInput> | null
@@ -388,7 +379,6 @@ export type ProductOrderByWithRelationInput = {
   pricingModel?: Prisma.SortOrder
   status?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  organizationId?: Prisma.SortOrderInput | Prisma.SortOrder
   startingPriceCents?: Prisma.SortOrderInput | Prisma.SortOrder
   currencyCode?: Prisma.SortOrderInput | Prisma.SortOrder
   bannerImage?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -399,7 +389,6 @@ export type ProductOrderByWithRelationInput = {
   user?: Prisma.UserOrderByWithRelationInput
   category?: Prisma.CategoryOrderByWithRelationInput
   plan?: Prisma.PlanOrderByWithRelationInput
-  organization?: Prisma.OrganizationOrderByWithRelationInput
   metadata?: Prisma.ProductMetadataOrderByWithRelationInput
   analytics?: Prisma.ProductAnalyticsOrderByWithRelationInput
   verification?: Prisma.ProductVerificationOrderByWithRelationInput
@@ -435,7 +424,6 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   pricingModel?: Prisma.EnumPricingModelFilter<"Product"> | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFilter<"Product"> | $Enums.ProductStatus
   publishedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
-  organizationId?: Prisma.StringNullableFilter<"Product"> | string | null
   startingPriceCents?: Prisma.IntNullableFilter<"Product"> | number | null
   currencyCode?: Prisma.StringNullableFilter<"Product"> | string | null
   bannerImage?: Prisma.StringNullableFilter<"Product"> | string | null
@@ -446,7 +434,6 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
   plan?: Prisma.XOR<Prisma.PlanNullableScalarRelationFilter, Prisma.PlanWhereInput> | null
-  organization?: Prisma.XOR<Prisma.OrganizationNullableScalarRelationFilter, Prisma.OrganizationWhereInput> | null
   metadata?: Prisma.XOR<Prisma.ProductMetadataNullableScalarRelationFilter, Prisma.ProductMetadataWhereInput> | null
   analytics?: Prisma.XOR<Prisma.ProductAnalyticsNullableScalarRelationFilter, Prisma.ProductAnalyticsWhereInput> | null
   verification?: Prisma.XOR<Prisma.ProductVerificationNullableScalarRelationFilter, Prisma.ProductVerificationWhereInput> | null
@@ -479,7 +466,6 @@ export type ProductOrderByWithAggregationInput = {
   pricingModel?: Prisma.SortOrder
   status?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  organizationId?: Prisma.SortOrderInput | Prisma.SortOrder
   startingPriceCents?: Prisma.SortOrderInput | Prisma.SortOrder
   currencyCode?: Prisma.SortOrderInput | Prisma.SortOrder
   bannerImage?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -513,7 +499,6 @@ export type ProductScalarWhereWithAggregatesInput = {
   pricingModel?: Prisma.EnumPricingModelWithAggregatesFilter<"Product"> | $Enums.PricingModel
   status?: Prisma.EnumProductStatusWithAggregatesFilter<"Product"> | $Enums.ProductStatus
   publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Product"> | Date | string | null
-  organizationId?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   startingPriceCents?: Prisma.IntNullableWithAggregatesFilter<"Product"> | number | null
   currencyCode?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   bannerImage?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
@@ -546,7 +531,6 @@ export type ProductCreateInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -579,7 +563,6 @@ export type ProductUncheckedCreateInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -626,7 +609,6 @@ export type ProductUpdateInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -659,7 +641,6 @@ export type ProductUncheckedUpdateInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -699,7 +680,6 @@ export type ProductCreateManyInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -747,7 +727,6 @@ export type ProductUncheckedUpdateManyInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -789,7 +768,6 @@ export type ProductCountOrderByAggregateInput = {
   pricingModel?: Prisma.SortOrder
   status?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
-  organizationId?: Prisma.SortOrder
   startingPriceCents?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
   bannerImage?: Prisma.SortOrder
@@ -819,7 +797,6 @@ export type ProductMaxOrderByAggregateInput = {
   pricingModel?: Prisma.SortOrder
   status?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
-  organizationId?: Prisma.SortOrder
   startingPriceCents?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
   bannerImage?: Prisma.SortOrder
@@ -843,7 +820,6 @@ export type ProductMinOrderByAggregateInput = {
   pricingModel?: Prisma.SortOrder
   status?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
-  organizationId?: Prisma.SortOrder
   startingPriceCents?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
   bannerImage?: Prisma.SortOrder
@@ -1079,48 +1055,6 @@ export type ProductUpdateOneRequiredWithoutProductUpvoteNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutProductUpvoteInput, Prisma.ProductUpdateWithoutProductUpvoteInput>, Prisma.ProductUncheckedUpdateWithoutProductUpvoteInput>
 }
 
-export type ProductCreateNestedManyWithoutOrganizationInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutOrganizationInput, Prisma.ProductUncheckedCreateWithoutOrganizationInput> | Prisma.ProductCreateWithoutOrganizationInput[] | Prisma.ProductUncheckedCreateWithoutOrganizationInput[]
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutOrganizationInput | Prisma.ProductCreateOrConnectWithoutOrganizationInput[]
-  createMany?: Prisma.ProductCreateManyOrganizationInputEnvelope
-  connect?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
-}
-
-export type ProductUncheckedCreateNestedManyWithoutOrganizationInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutOrganizationInput, Prisma.ProductUncheckedCreateWithoutOrganizationInput> | Prisma.ProductCreateWithoutOrganizationInput[] | Prisma.ProductUncheckedCreateWithoutOrganizationInput[]
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutOrganizationInput | Prisma.ProductCreateOrConnectWithoutOrganizationInput[]
-  createMany?: Prisma.ProductCreateManyOrganizationInputEnvelope
-  connect?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
-}
-
-export type ProductUpdateManyWithoutOrganizationNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutOrganizationInput, Prisma.ProductUncheckedCreateWithoutOrganizationInput> | Prisma.ProductCreateWithoutOrganizationInput[] | Prisma.ProductUncheckedCreateWithoutOrganizationInput[]
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutOrganizationInput | Prisma.ProductCreateOrConnectWithoutOrganizationInput[]
-  upsert?: Prisma.ProductUpsertWithWhereUniqueWithoutOrganizationInput | Prisma.ProductUpsertWithWhereUniqueWithoutOrganizationInput[]
-  createMany?: Prisma.ProductCreateManyOrganizationInputEnvelope
-  set?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
-  disconnect?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
-  delete?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
-  connect?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
-  update?: Prisma.ProductUpdateWithWhereUniqueWithoutOrganizationInput | Prisma.ProductUpdateWithWhereUniqueWithoutOrganizationInput[]
-  updateMany?: Prisma.ProductUpdateManyWithWhereWithoutOrganizationInput | Prisma.ProductUpdateManyWithWhereWithoutOrganizationInput[]
-  deleteMany?: Prisma.ProductScalarWhereInput | Prisma.ProductScalarWhereInput[]
-}
-
-export type ProductUncheckedUpdateManyWithoutOrganizationNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutOrganizationInput, Prisma.ProductUncheckedCreateWithoutOrganizationInput> | Prisma.ProductCreateWithoutOrganizationInput[] | Prisma.ProductUncheckedCreateWithoutOrganizationInput[]
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutOrganizationInput | Prisma.ProductCreateOrConnectWithoutOrganizationInput[]
-  upsert?: Prisma.ProductUpsertWithWhereUniqueWithoutOrganizationInput | Prisma.ProductUpsertWithWhereUniqueWithoutOrganizationInput[]
-  createMany?: Prisma.ProductCreateManyOrganizationInputEnvelope
-  set?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
-  disconnect?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
-  delete?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
-  connect?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
-  update?: Prisma.ProductUpdateWithWhereUniqueWithoutOrganizationInput | Prisma.ProductUpdateWithWhereUniqueWithoutOrganizationInput[]
-  updateMany?: Prisma.ProductUpdateManyWithWhereWithoutOrganizationInput | Prisma.ProductUpdateManyWithWhereWithoutOrganizationInput[]
-  deleteMany?: Prisma.ProductScalarWhereInput | Prisma.ProductScalarWhereInput[]
-}
-
 export type ProductCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.ProductCreateWithoutUserInput, Prisma.ProductUncheckedCreateWithoutUserInput> | Prisma.ProductCreateWithoutUserInput[] | Prisma.ProductUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.ProductCreateOrConnectWithoutUserInput | Prisma.ProductCreateOrConnectWithoutUserInput[]
@@ -1346,7 +1280,6 @@ export type ProductCreateWithoutPaymentConnectorInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -1378,7 +1311,6 @@ export type ProductUncheckedCreateWithoutPaymentConnectorInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -1440,7 +1372,6 @@ export type ProductUpdateWithoutPaymentConnectorInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -1472,7 +1403,6 @@ export type ProductUncheckedUpdateWithoutPaymentConnectorInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1518,7 +1448,6 @@ export type ProductCreateWithoutAlternativesInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -1550,7 +1479,6 @@ export type ProductUncheckedCreateWithoutAlternativesInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -1613,7 +1541,6 @@ export type ProductScalarWhereInput = {
   pricingModel?: Prisma.EnumPricingModelFilter<"Product"> | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFilter<"Product"> | $Enums.ProductStatus
   publishedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
-  organizationId?: Prisma.StringNullableFilter<"Product"> | string | null
   startingPriceCents?: Prisma.IntNullableFilter<"Product"> | number | null
   currencyCode?: Prisma.StringNullableFilter<"Product"> | string | null
   bannerImage?: Prisma.StringNullableFilter<"Product"> | string | null
@@ -1646,7 +1573,6 @@ export type ProductCreateWithoutLeaderboardScoresInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -1678,7 +1604,6 @@ export type ProductUncheckedCreateWithoutLeaderboardScoresInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -1740,7 +1665,6 @@ export type ProductUpdateWithoutLeaderboardScoresInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -1772,7 +1696,6 @@ export type ProductUncheckedUpdateWithoutLeaderboardScoresInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1818,7 +1741,6 @@ export type ProductCreateWithoutProductMediaInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -1850,7 +1772,6 @@ export type ProductUncheckedCreateWithoutProductMediaInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -1912,7 +1833,6 @@ export type ProductUpdateWithoutProductMediaInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -1944,7 +1864,6 @@ export type ProductUncheckedUpdateWithoutProductMediaInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1990,7 +1909,6 @@ export type ProductCreateWithoutVerificationInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
@@ -2022,7 +1940,6 @@ export type ProductUncheckedCreateWithoutVerificationInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -2084,7 +2001,6 @@ export type ProductUpdateWithoutVerificationInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
@@ -2116,7 +2032,6 @@ export type ProductUncheckedUpdateWithoutVerificationInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2162,7 +2077,6 @@ export type ProductCreateWithoutClaimAttemptsInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -2194,7 +2108,6 @@ export type ProductUncheckedCreateWithoutClaimAttemptsInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -2256,7 +2169,6 @@ export type ProductUpdateWithoutClaimAttemptsInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -2288,7 +2200,6 @@ export type ProductUncheckedUpdateWithoutClaimAttemptsInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2334,7 +2245,6 @@ export type ProductCreateWithoutMetadataInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
@@ -2366,7 +2276,6 @@ export type ProductUncheckedCreateWithoutMetadataInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -2428,7 +2337,6 @@ export type ProductUpdateWithoutMetadataInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
@@ -2460,7 +2368,6 @@ export type ProductUncheckedUpdateWithoutMetadataInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2506,7 +2413,6 @@ export type ProductCreateWithoutAnalyticsInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
   ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
@@ -2538,7 +2444,6 @@ export type ProductUncheckedCreateWithoutAnalyticsInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -2600,7 +2505,6 @@ export type ProductUpdateWithoutAnalyticsInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
   ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
@@ -2632,7 +2536,6 @@ export type ProductUncheckedUpdateWithoutAnalyticsInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2678,7 +2581,6 @@ export type ProductCreateWithoutProductUpvoteInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -2710,7 +2612,6 @@ export type ProductUncheckedCreateWithoutProductUpvoteInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -2772,7 +2673,6 @@ export type ProductUpdateWithoutProductUpvoteInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -2804,7 +2704,6 @@ export type ProductUncheckedUpdateWithoutProductUpvoteInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2825,110 +2724,6 @@ export type ProductUncheckedUpdateWithoutProductUpvoteInput = {
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
   paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
   claimAttempts?: Prisma.ProductClaimAttemptUncheckedUpdateManyWithoutProductNestedInput
-}
-
-export type ProductCreateWithoutOrganizationInput = {
-  id?: string
-  name: string
-  slug: string
-  tagline: string
-  description: string
-  websiteUrl: string
-  logo: string
-  planAssignedAt?: Date | string | null
-  type: $Enums.ProductType
-  pricingModel: $Enums.PricingModel
-  status?: $Enums.ProductStatus
-  publishedAt?: Date | string | null
-  startingPriceCents?: number | null
-  currencyCode?: string | null
-  bannerImage?: string | null
-  keywords?: Prisma.ProductCreatekeywordsInput | string[]
-  platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutProductsInput
-  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
-  plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
-  analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
-  verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
-  ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
-  ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
-  ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
-  rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
-  redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
-  featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
-  alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
-  claimAttempts?: Prisma.ProductClaimAttemptCreateNestedManyWithoutProductInput
-}
-
-export type ProductUncheckedCreateWithoutOrganizationInput = {
-  id?: string
-  name: string
-  slug: string
-  tagline: string
-  description: string
-  websiteUrl: string
-  logo: string
-  userId: string
-  categoryId: string
-  planId?: string | null
-  planAssignedAt?: Date | string | null
-  type: $Enums.ProductType
-  pricingModel: $Enums.PricingModel
-  status?: $Enums.ProductStatus
-  publishedAt?: Date | string | null
-  startingPriceCents?: number | null
-  currencyCode?: string | null
-  bannerImage?: string | null
-  keywords?: Prisma.ProductCreatekeywordsInput | string[]
-  platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
-  analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
-  verification?: Prisma.ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-  ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
-  ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
-  ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
-  rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
-  redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
-  featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
-  alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
-  claimAttempts?: Prisma.ProductClaimAttemptUncheckedCreateNestedManyWithoutProductInput
-}
-
-export type ProductCreateOrConnectWithoutOrganizationInput = {
-  where: Prisma.ProductWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductCreateWithoutOrganizationInput, Prisma.ProductUncheckedCreateWithoutOrganizationInput>
-}
-
-export type ProductCreateManyOrganizationInputEnvelope = {
-  data: Prisma.ProductCreateManyOrganizationInput | Prisma.ProductCreateManyOrganizationInput[]
-  skipDuplicates?: boolean
-}
-
-export type ProductUpsertWithWhereUniqueWithoutOrganizationInput = {
-  where: Prisma.ProductWhereUniqueInput
-  update: Prisma.XOR<Prisma.ProductUpdateWithoutOrganizationInput, Prisma.ProductUncheckedUpdateWithoutOrganizationInput>
-  create: Prisma.XOR<Prisma.ProductCreateWithoutOrganizationInput, Prisma.ProductUncheckedCreateWithoutOrganizationInput>
-}
-
-export type ProductUpdateWithWhereUniqueWithoutOrganizationInput = {
-  where: Prisma.ProductWhereUniqueInput
-  data: Prisma.XOR<Prisma.ProductUpdateWithoutOrganizationInput, Prisma.ProductUncheckedUpdateWithoutOrganizationInput>
-}
-
-export type ProductUpdateManyWithWhereWithoutOrganizationInput = {
-  where: Prisma.ProductScalarWhereInput
-  data: Prisma.XOR<Prisma.ProductUpdateManyMutationInput, Prisma.ProductUncheckedUpdateManyWithoutOrganizationInput>
 }
 
 export type ProductCreateWithoutUserInput = {
@@ -2953,7 +2748,6 @@ export type ProductCreateWithoutUserInput = {
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -2985,7 +2779,6 @@ export type ProductUncheckedCreateWithoutUserInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -3057,7 +2850,6 @@ export type ProductCreateWithoutCategoryInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -3089,7 +2881,6 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -3161,7 +2952,6 @@ export type ProductCreateWithoutPlanInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -3193,7 +2983,6 @@ export type ProductUncheckedCreateWithoutPlanInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -3266,7 +3055,6 @@ export type ProductCreateWithoutProductBadgeInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -3298,7 +3086,6 @@ export type ProductUncheckedCreateWithoutProductBadgeInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -3360,7 +3147,6 @@ export type ProductUpdateWithoutProductBadgeInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -3392,7 +3178,6 @@ export type ProductUncheckedUpdateWithoutProductBadgeInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3438,7 +3223,6 @@ export type ProductCreateWithoutRewardTransactionsInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -3470,7 +3254,6 @@ export type ProductUncheckedCreateWithoutRewardTransactionsInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -3532,7 +3315,6 @@ export type ProductUpdateWithoutRewardTransactionsInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -3564,7 +3346,6 @@ export type ProductUncheckedUpdateWithoutRewardTransactionsInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3610,7 +3391,6 @@ export type ProductCreateWithoutRedemptionsInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -3642,7 +3422,6 @@ export type ProductUncheckedCreateWithoutRedemptionsInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -3704,7 +3483,6 @@ export type ProductUpdateWithoutRedemptionsInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -3736,7 +3514,6 @@ export type ProductUncheckedUpdateWithoutRedemptionsInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3782,7 +3559,6 @@ export type ProductCreateWithoutFeatureEntitlementsInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -3814,7 +3590,6 @@ export type ProductUncheckedCreateWithoutFeatureEntitlementsInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -3876,7 +3651,6 @@ export type ProductUpdateWithoutFeatureEntitlementsInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -3908,7 +3682,6 @@ export type ProductUncheckedUpdateWithoutFeatureEntitlementsInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3954,7 +3727,6 @@ export type ProductCreateWithoutPlacementSchedulesInput = {
   user: Prisma.UserCreateNestedOneWithoutProductsInput
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  organization?: Prisma.OrganizationCreateNestedOneWithoutProductInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
@@ -3986,7 +3758,6 @@ export type ProductUncheckedCreateWithoutPlacementSchedulesInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -4048,7 +3819,6 @@ export type ProductUpdateWithoutPlacementSchedulesInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -4080,7 +3850,6 @@ export type ProductUncheckedUpdateWithoutPlacementSchedulesInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4126,7 +3895,6 @@ export type ProductUpdateWithoutAlternativesInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -4158,7 +3926,6 @@ export type ProductUncheckedUpdateWithoutAlternativesInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4182,135 +3949,6 @@ export type ProductUncheckedUpdateWithoutAlternativesInput = {
 }
 
 export type ProductUncheckedUpdateManyWithoutAlternativesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
-  logo?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
-  pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
-  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  keywords?: Prisma.ProductUpdatekeywordsInput | string[]
-  platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type ProductCreateManyOrganizationInput = {
-  id?: string
-  name: string
-  slug: string
-  tagline: string
-  description: string
-  websiteUrl: string
-  logo: string
-  userId: string
-  categoryId: string
-  planId?: string | null
-  planAssignedAt?: Date | string | null
-  type: $Enums.ProductType
-  pricingModel: $Enums.PricingModel
-  status?: $Enums.ProductStatus
-  publishedAt?: Date | string | null
-  startingPriceCents?: number | null
-  currencyCode?: string | null
-  bannerImage?: string | null
-  keywords?: Prisma.ProductCreatekeywordsInput | string[]
-  platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type ProductUpdateWithoutOrganizationInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
-  logo?: Prisma.StringFieldUpdateOperationsInput | string
-  planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
-  pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
-  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  keywords?: Prisma.ProductUpdatekeywordsInput | string[]
-  platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
-  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
-  plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
-  analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
-  verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
-  ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
-  ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
-  ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
-  rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
-  redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
-  featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
-  alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
-  claimAttempts?: Prisma.ProductClaimAttemptUpdateManyWithoutProductNestedInput
-}
-
-export type ProductUncheckedUpdateWithoutOrganizationInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
-  logo?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
-  pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
-  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  keywords?: Prisma.ProductUpdatekeywordsInput | string[]
-  platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
-  analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
-  verification?: Prisma.ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-  ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
-  ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
-  ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
-  rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
-  redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
-  featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
-  alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
-  claimAttempts?: Prisma.ProductClaimAttemptUncheckedUpdateManyWithoutProductNestedInput
-}
-
-export type ProductUncheckedUpdateManyWithoutOrganizationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4350,7 +3988,6 @@ export type ProductCreateManyUserInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -4382,7 +4019,6 @@ export type ProductUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -4414,7 +4050,6 @@ export type ProductUncheckedUpdateWithoutUserInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4453,7 +4088,6 @@ export type ProductUncheckedUpdateManyWithoutUserInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4478,7 +4112,6 @@ export type ProductCreateManyCategoryInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -4510,7 +4143,6 @@ export type ProductUpdateWithoutCategoryInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -4542,7 +4174,6 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4581,7 +4212,6 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4606,7 +4236,6 @@ export type ProductCreateManyPlanInput = {
   pricingModel: $Enums.PricingModel
   status?: $Enums.ProductStatus
   publishedAt?: Date | string | null
-  organizationId?: string | null
   startingPriceCents?: number | null
   currencyCode?: string | null
   bannerImage?: string | null
@@ -4638,7 +4267,6 @@ export type ProductUpdateWithoutPlanInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
-  organization?: Prisma.OrganizationUpdateOneWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
@@ -4670,7 +4298,6 @@ export type ProductUncheckedUpdateWithoutPlanInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4709,7 +4336,6 @@ export type ProductUncheckedUpdateManyWithoutPlanInput = {
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  organizationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4847,7 +4473,6 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   pricingModel?: boolean
   status?: boolean
   publishedAt?: boolean
-  organizationId?: boolean
   startingPriceCents?: boolean
   currencyCode?: boolean
   bannerImage?: boolean
@@ -4858,7 +4483,6 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.Product$planArgs<ExtArgs>
-  organization?: boolean | Prisma.Product$organizationArgs<ExtArgs>
   metadata?: boolean | Prisma.Product$metadataArgs<ExtArgs>
   analytics?: boolean | Prisma.Product$analyticsArgs<ExtArgs>
   verification?: boolean | Prisma.Product$verificationArgs<ExtArgs>
@@ -4892,7 +4516,6 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   pricingModel?: boolean
   status?: boolean
   publishedAt?: boolean
-  organizationId?: boolean
   startingPriceCents?: boolean
   currencyCode?: boolean
   bannerImage?: boolean
@@ -4903,7 +4526,6 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.Product$planArgs<ExtArgs>
-  organization?: boolean | Prisma.Product$organizationArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
 
 export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -4922,7 +4544,6 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   pricingModel?: boolean
   status?: boolean
   publishedAt?: boolean
-  organizationId?: boolean
   startingPriceCents?: boolean
   currencyCode?: boolean
   bannerImage?: boolean
@@ -4933,7 +4554,6 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.Product$planArgs<ExtArgs>
-  organization?: boolean | Prisma.Product$organizationArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
 
 export type ProductSelectScalar = {
@@ -4952,7 +4572,6 @@ export type ProductSelectScalar = {
   pricingModel?: boolean
   status?: boolean
   publishedAt?: boolean
-  organizationId?: boolean
   startingPriceCents?: boolean
   currencyCode?: boolean
   bannerImage?: boolean
@@ -4962,12 +4581,11 @@ export type ProductSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "tagline" | "description" | "websiteUrl" | "logo" | "userId" | "categoryId" | "planId" | "planAssignedAt" | "type" | "pricingModel" | "status" | "publishedAt" | "organizationId" | "startingPriceCents" | "currencyCode" | "bannerImage" | "keywords" | "platforms" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "tagline" | "description" | "websiteUrl" | "logo" | "userId" | "categoryId" | "planId" | "planAssignedAt" | "type" | "pricingModel" | "status" | "publishedAt" | "startingPriceCents" | "currencyCode" | "bannerImage" | "keywords" | "platforms" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.Product$planArgs<ExtArgs>
-  organization?: boolean | Prisma.Product$organizationArgs<ExtArgs>
   metadata?: boolean | Prisma.Product$metadataArgs<ExtArgs>
   analytics?: boolean | Prisma.Product$analyticsArgs<ExtArgs>
   verification?: boolean | Prisma.Product$verificationArgs<ExtArgs>
@@ -4988,13 +4606,11 @@ export type ProductIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.Product$planArgs<ExtArgs>
-  organization?: boolean | Prisma.Product$organizationArgs<ExtArgs>
 }
 export type ProductIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.Product$planArgs<ExtArgs>
-  organization?: boolean | Prisma.Product$organizationArgs<ExtArgs>
 }
 
 export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -5003,7 +4619,6 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     user: Prisma.$UserPayload<ExtArgs>
     category: Prisma.$CategoryPayload<ExtArgs>
     plan: Prisma.$PlanPayload<ExtArgs> | null
-    organization: Prisma.$OrganizationPayload<ExtArgs> | null
     metadata: Prisma.$ProductMetadataPayload<ExtArgs> | null
     analytics: Prisma.$ProductAnalyticsPayload<ExtArgs> | null
     verification: Prisma.$ProductVerificationPayload<ExtArgs> | null
@@ -5035,7 +4650,6 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     pricingModel: $Enums.PricingModel
     status: $Enums.ProductStatus
     publishedAt: Date | null
-    organizationId: string | null
     startingPriceCents: number | null
     currencyCode: string | null
     bannerImage: string | null
@@ -5440,7 +5054,6 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   category<T extends Prisma.CategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__CategoryClient<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   plan<T extends Prisma.Product$planArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$planArgs<ExtArgs>>): Prisma.Prisma__PlanClient<runtime.Types.Result.GetResult<Prisma.$PlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  organization<T extends Prisma.Product$organizationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$organizationArgs<ExtArgs>>): Prisma.Prisma__OrganizationClient<runtime.Types.Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   metadata<T extends Prisma.Product$metadataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$metadataArgs<ExtArgs>>): Prisma.Prisma__ProductMetadataClient<runtime.Types.Result.GetResult<Prisma.$ProductMetadataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   analytics<T extends Prisma.Product$analyticsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$analyticsArgs<ExtArgs>>): Prisma.Prisma__ProductAnalyticsClient<runtime.Types.Result.GetResult<Prisma.$ProductAnalyticsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   verification<T extends Prisma.Product$verificationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$verificationArgs<ExtArgs>>): Prisma.Prisma__ProductVerificationClient<runtime.Types.Result.GetResult<Prisma.$ProductVerificationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -5499,7 +5112,6 @@ export interface ProductFieldRefs {
   readonly pricingModel: Prisma.FieldRef<"Product", 'PricingModel'>
   readonly status: Prisma.FieldRef<"Product", 'ProductStatus'>
   readonly publishedAt: Prisma.FieldRef<"Product", 'DateTime'>
-  readonly organizationId: Prisma.FieldRef<"Product", 'String'>
   readonly startingPriceCents: Prisma.FieldRef<"Product", 'Int'>
   readonly currencyCode: Prisma.FieldRef<"Product", 'String'>
   readonly bannerImage: Prisma.FieldRef<"Product", 'String'>
@@ -5919,25 +5531,6 @@ export type Product$planArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   include?: Prisma.PlanInclude<ExtArgs> | null
   where?: Prisma.PlanWhereInput
-}
-
-/**
- * Product.organization
- */
-export type Product$organizationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Organization
-   */
-  select?: Prisma.OrganizationSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Organization
-   */
-  omit?: Prisma.OrganizationOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.OrganizationInclude<ExtArgs> | null
-  where?: Prisma.OrganizationWhereInput
 }
 
 /**

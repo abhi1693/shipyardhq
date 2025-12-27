@@ -49,43 +49,14 @@ async function requireCurrentUser() {
   return user
 }
 
-async function getAccessibleOrganizationIds(userId: string) {
-  const memberships = await prisma.organizationMembership.findMany({
-    where: { userId },
-    select: { organizationId: true },
-  })
-  type Membership = (typeof memberships)[number]
-  return memberships.map((membership: Membership) => membership.organizationId)
-}
-
 async function getProductOptions(userId: string) {
-  const organizationIds = await getAccessibleOrganizationIds(userId)
-  const productWhere = organizationIds.length
-    ? {
-        OR: [{ userId }, { organizationId: { in: organizationIds } }],
-      }
-    : { userId }
-
-  type ProductWithOrgName = Prisma.ProductGetPayload<{
-    include: { organization: { select: { name: true } } }
-  }>
-
-  // Edge Prisma client loses relation typing; assert shape for organization select
-  const products = (await prisma.product.findMany({
-    where: productWhere,
-    include: {
-      organization: { select: { name: true } },
-    },
+  const products = await prisma.product.findMany({
+    where: { userId },
     orderBy: [{ name: "asc" }],
-  })) as ProductWithOrgName[]
+    select: { id: true, name: true, slug: true, status: true },
+  })
 
-  return products.map((product) => ({
-    id: product.id,
-    name: product.name,
-    slug: product.slug,
-    status: product.status,
-    organizationName: product.organization?.name ?? null,
-  }))
+  return products
 }
 
 export async function getMemberRewardsSnapshot(): Promise<MemberRewardsSnapshot> {
@@ -370,17 +341,8 @@ export async function redeemCatalogItemAction(
     let productId: string | undefined
 
     if (productIdRaw) {
-      const organizationIds = await getAccessibleOrganizationIds(user.id)
       const product = await prisma.product.findFirst({
-        where: organizationIds.length
-          ? {
-              id: productIdRaw,
-              OR: [
-                { userId: user.id },
-                { organizationId: { in: organizationIds } },
-              ],
-            }
-          : { id: productIdRaw, userId: user.id },
+        where: { id: productIdRaw, userId: user.id },
         select: { id: true },
       })
 

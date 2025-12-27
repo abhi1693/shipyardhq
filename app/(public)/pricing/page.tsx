@@ -7,8 +7,6 @@ import {
   PRICING_FAQS,
   PricingPlansList,
   PricingPlansSkeleton,
-  SubscriptionPlansList,
-  SubscriptionPlansSkeleton,
 } from "@/components/templates/public/pricing/page-content"
 import {
   Accordion,
@@ -39,8 +37,8 @@ const HERO_POINTS = [
     body: "Add featured or sponsored reach only when you need it.",
   },
   {
-    title: "Team-ready",
-    body: "Org subscriptions add shared access and analytics.",
+    title: "Always-on insights",
+    body: "Keep advanced analytics and priority placement rolling for longer.",
   },
 ]
 
@@ -138,25 +136,6 @@ export default function PricingPage() {
                   <PricingPlansList disableSectionWrapper />
                 </Suspense>
               </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="pb-12">
-          <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-            <div className="rounded-[24px] border border-border bg-white p-8 shadow-sm sm:p-10">
-              <div className="mx-auto max-w-2xl text-center space-y-3">
-                <h2 className="text-3xl font-bold tracking-tight text-foreground">
-                  Subscriptions for teams
-                </h2>
-                <p className="text-muted-foreground">
-                  Shared organizations and analytics when you need ongoing team
-                  access.
-                </p>
-              </div>
-              <Suspense fallback={<SubscriptionPlansSkeleton />}>
-                <SubscriptionPlansList />
-              </Suspense>
             </div>
           </div>
         </section>

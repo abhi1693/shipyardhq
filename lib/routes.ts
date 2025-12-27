@@ -13,11 +13,6 @@ export const MEMBER_PRODUCTS_ADD_PATH = `${MEMBER_PRODUCTS_PATH}/add` as const
 export const MEMBER_PRODUCTS_CLAIM_PATH =
   `${MEMBER_PRODUCTS_PATH}/claim` as const
 
-export const MEMBER_ORGANIZATIONS_PATH =
-  `${MEMBER_BASE_PATH}/organizations` as const
-export const MEMBER_ORGANIZATIONS_ADD_PATH =
-  `${MEMBER_ORGANIZATIONS_PATH}/add` as const
-
 export const ADMIN_BASE_PATH = "/admin" as const
 
 const trimSlashes = (segment: string) => segment.replace(/^\/+|\/+$/g, "")
@@ -138,29 +133,3 @@ export const memberProductDeletePath = (slug: string) =>
 
 export const memberProductUpgradePath = (slug: string) =>
   `${memberProductPath(slug)}/upgrade`
-
-export const memberOrganizationPath = (organizationId: string) =>
-  `${MEMBER_ORGANIZATIONS_PATH}/${organizationId}`
-
-export const memberOrganizationAnalyticsPath = (organizationId: string) =>
-  `${memberOrganizationPath(organizationId)}/analytics`
-
-export const memberOrganizationEditPath = (organizationId: string) =>
-  `${memberOrganizationPath(organizationId)}/edit`
-
-export const memberOrganizationOwnerPath = (organizationId: string) =>
-  `${memberOrganizationPath(organizationId)}/owner`
-
-export const memberOrganizationDeletePath = (organizationId: string) =>
-  `${memberOrganizationPath(organizationId)}/delete`
-
-export const memberOrganizationMembersPath = (organizationId: string) =>
-  `${memberOrganizationPath(organizationId)}/members`
-
-export const memberOrganizationMemberAddPath = (organizationId: string) =>
-  `${memberOrganizationMembersPath(organizationId)}/add`
-
-export const memberOrganizationMemberDeletePath = (
-  organizationId: string,
-  membershipId: string,
-) => `${memberOrganizationMembersPath(organizationId)}/${membershipId}/delete`

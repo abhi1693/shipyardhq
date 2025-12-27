@@ -7,8 +7,6 @@ import {
 } from "@/actions/admin/rewards/actions"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { UserProductRelationship } from "./relationships/products"
-import { UserMembershipRelationship } from "./relationships/memberships"
-import { UserOwnedOrganizationsRelationship } from "./relationships/owned-organizations"
 import { UserProductUpvoteRelationship } from "./relationships/upvotes"
 import { UserFeedbackRelationship } from "./relationships/feedback"
 import { UserPlanPurchasesRelationship } from "./relationships/purchases"
@@ -29,19 +27,6 @@ const userInclude = {
   products: {
     include: {
       category: true,
-    },
-  },
-  memberships: {
-    include: {
-      organization: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  },
-  Organization: {
-    orderBy: {
-      createdAt: "desc",
     },
   },
   ProductUpvote: {
@@ -242,8 +227,6 @@ export default async function ViewUserPage({
       relationships={
         <>
           <UserProductRelationship rows={user.products} />
-          <UserMembershipRelationship rows={user.memberships} />
-          <UserOwnedOrganizationsRelationship rows={user.Organization} />
           <UserProductUpvoteRelationship rows={user.ProductUpvote} />
           <UserPlanPurchasesRelationship rows={user.purchases} />
           <UserRewardsRelationship

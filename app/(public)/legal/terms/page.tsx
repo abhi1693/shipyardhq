@@ -57,7 +57,7 @@ export default function TermsOfServicePage() {
               </li>
               <li>
                 You are responsible for all activity under your account,
-                safeguarding credentials, and ensuring that teammates you invite
+                safeguarding credentials, and ensuring any authorized users
                 comply with these Terms.
               </li>
               <li>
@@ -73,14 +73,14 @@ export default function TermsOfServicePage() {
             <ul className="list-disc list-inside space-y-2">
               <li>
                 ShipYardHQ provides a product discovery marketplace, maker
-                workspaces, analytics dashboards, rewards economies, and related
-                tools that help you launch and promote products.
+                dashboards, rewards economies, and related tools that help you
+                launch and promote products.
               </li>
               <li>
-                Features may include product submissions, organization
-                workspaces, leaderboard placements, automated insights,
-                AI-assisted content, out-of-band notifications, and third-party
-                integrations (such as email or social sharing).
+                Features may include product submissions, leaderboard
+                placements, automated insights, AI-assisted content, out-of-band
+                notifications, and third-party integrations (such as email or
+                social sharing).
               </li>
               <li>
                 We may update or discontinue any feature, and we reserve the
@@ -101,9 +101,8 @@ export default function TermsOfServicePage() {
             <ul className="list-disc list-inside space-y-2">
               <li>
                 Certain features (including featured placements, advanced
-                analytics, and organization access) require payment. Prices,
-                currency, and billing cadence are shown at checkout and may
-                change from time to time.
+                analytics) require payment. Prices, currency, and billing
+                cadence are shown at checkout and may change from time to time.
               </li>
               <li>
                 Payments are processed by Dodo Payments on our behalf. By
@@ -153,8 +152,7 @@ export default function TermsOfServicePage() {
             <ul className="list-disc list-inside space-y-2">
               <li>
                 You retain ownership of content you submit, including product
-                listings, media assets, reviews, feedback, and organization
-                data.
+                listings, media assets, reviews, feedback, and campaign data.
               </li>
               <li>
                 You grant ShipYardHQ a worldwide, non-exclusive, royalty-free,
@@ -165,8 +163,8 @@ export default function TermsOfServicePage() {
               <li>
                 You represent that your submissions are accurate, lawful, and do
                 not infringe third-party rights. You are responsible for
-                securing permissions (for example, from teammates or licensors)
-                before sharing content.
+                securing permissions (for example, from licensors) before
+                sharing content.
               </li>
               <li>
                 We may remove or decline to publish content that violates these

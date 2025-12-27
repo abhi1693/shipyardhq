@@ -223,9 +223,7 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
                 <SelectContent className="w-full min-w-[16rem]">
                   {productOptions.map((product) => (
                     <SelectItem key={product.id} value={product.id}>
-                      {product.organizationName
-                        ? `${product.name} • ${product.organizationName}`
-                        : product.name}
+                      {product.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

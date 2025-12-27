@@ -2,7 +2,6 @@ import { notFound } from "next/navigation"
 import { getCategories } from "@/actions/admin/categories/actions"
 import EditProductForm from "./form"
 import { getProductForEditWizard } from "@/actions/admin/products/actions"
-import { getMyOrganizations } from "@/actions/member/organizations/actions"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import { getAlternativeProducts } from "@/actions/admin/alternative-products/actions"
 import { getProductConnectorSummary } from "@/actions/member/products/actions"
@@ -21,22 +20,19 @@ export default async function EditProductPage({
   const product = await getProductForEditWizard(summary.id)
   if (!product) return notFound()
 
-  const [categories, organizations, alternatives, connector] =
-    await Promise.all([
-      getCategories({ orderBy: { name: "asc" } }),
-      getMyOrganizations().catch(() => []),
-      getAlternativeProducts({
-        select: { id: true, slug: true, name: true, websiteUrl: true },
-        orderBy: { name: "asc" },
-      }).catch(() => []),
-      getProductConnectorSummary(product.id).catch(() => null),
-    ])
+  const [categories, alternatives, connector] = await Promise.all([
+    getCategories({ orderBy: { name: "asc" } }),
+    getAlternativeProducts({
+      select: { id: true, slug: true, name: true, websiteUrl: true },
+      orderBy: { name: "asc" },
+    }).catch(() => []),
+    getProductConnectorSummary(product.id).catch(() => null),
+  ])
 
   return (
     <EditProductForm
       product={product}
       categories={categories}
-      organizations={organizations}
       alternatives={alternatives}
       connector={connector}
     />

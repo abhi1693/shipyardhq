@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { X } from "lucide-react"
 import {
@@ -13,13 +13,6 @@ import {
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
 import { Button } from "@/components/atoms/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/atoms/select"
 import { Checkbox } from "@/components/atoms/checkbox"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/atoms/badge"
@@ -93,10 +86,8 @@ function normalizeXUrl(raw: string) {
 }
 
 export default function Step4({
-  organizations,
   alternatives = [],
 }: {
-  organizations: { id: string; name: string }[]
   alternatives?: AlternativeOption[]
 }) {
   const form = useFormContext()
@@ -108,17 +99,6 @@ export default function Step4({
     control: form.control,
     name: "websiteUrl" as any,
   }) as string | undefined
-
-  useEffect(() => {
-    if (organizations.length !== 1) return
-    const current = (form.getValues("organizationId" as any) as string) ?? ""
-    if (current) return
-    form.setValue("organizationId" as any, organizations[0].id, {
-      shouldDirty: false,
-      shouldTouch: false,
-      shouldValidate: false,
-    })
-  }, [form, organizations])
 
   const filteredAlternatives = useMemo(() => {
     if (!alternativeQuery.trim()) {
@@ -475,37 +455,6 @@ export default function Step4({
           )
         }}
       />
-
-      {organizations.length ? (
-        <FormField
-          name="organizationId"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Publish under organization</FormLabel>
-              <Select
-                onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
-                value={(field.value as string) ?? ""}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select organization" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="none">No organization</SelectItem>
-                  {organizations.map((org) => (
-                    <SelectItem key={org.id} value={org.id}>
-                      {org.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      ) : null}
 
       <p className="text-xs text-muted-foreground">
         Skip now — you can edit these anytime.

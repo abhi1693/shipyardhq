@@ -34,7 +34,6 @@ const SECTION_FIELDS: Record<WizardSectionKey, readonly string[]> = {
     "verificationSuccess",
   ],
   details: [
-    "organizationId",
     "githubUrl",
     "twitterUrl",
     "demoUrl",

@@ -48,7 +48,6 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 - Configure `NOVU_SECRET_KEY` for access. Set `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` to the workflow id for product-related Novu notifications (upvotes, reviews).
 - Product publish confirmations also flow through `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` (kind `product_published`) so they render in inbox and email.
 - Rewards notifications route through Novu as well; set `NOVU_WORKFLOW_REWARDS_NOTIFICATIONS` and they will appear under the Rewards inbox tab (tagged `rewards`).
-- Organization invites send via `NOVU_WORKFLOW_ORGANIZATION_NOTIFICATIONS` (kind `organization_member_invite`).
 - Payment connector sync errors send via `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` with kind `product_payment_sync_error`.
 - Leaderboard winners send via `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` with kind `leaderboard_monthly_winner`.
 - Weekly newsletter now sends via Novu workflow `weekly-newsletter` (override with `NOVU_WORKFLOW_WEEKLY_NEWSLETTER`); kind `weekly_newsletter`, email-only.
@@ -82,11 +81,6 @@ Questions or feedback? Email `support@shipyardhq.dev` or say hi on X: https://x.
 - Safety: Add `LINKEDIN_BOT_DRY_RUN=true` to log outbound posts without publishing—useful for staging checks.
 - Cooldown: Shares reuse the same 6-hour per-event throttle to avoid duplicate announcements. Throttle state is stored in Redis when available, so it survives restarts; if Redis is unavailable, throttling falls back to in-process memory.
 - Troubleshooting: If LinkedIn returns `401 unauthorized` with `Member is restricted`, the member who approved OAuth may not be allowed to post on behalf of the organization (or the token was revoked). Re-run `/api/linkedin/oauth` and approve with a LinkedIn account that is an admin of the target organization page.
-
-## Feature Gating
-
-- Organizations: Access to member Organizations is gated by the plan feature key `organization`. Entitlement is determined server-side: a user is entitled if they (a) own any product whose attached plan has the `organization` feature enabled, or (b) have purchased any plan that includes the `organization` feature. See `lib/memberFeatures.ts`.
-- Enforcement: All organization server actions check entitlement. The member sidebar hides the Organizations link when not entitled. The organizations index is accessible and shows an upsell when access is missing.
 
 ## Reddit Outreach Bot
 

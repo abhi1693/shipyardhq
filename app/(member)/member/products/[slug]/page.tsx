@@ -46,7 +46,6 @@ import {
   productPath,
 } from "@/lib/routes"
 import {
-  Building2,
   CheckCircle2,
   Circle,
   Github as GithubIcon,
@@ -192,9 +191,6 @@ export default async function ViewUserProductPage({
   const alternativesList = Array.isArray(product.alternatives)
     ? product.alternatives
     : []
-  const organizationName = product.organization?.name ?? ""
-  const organizationUrl = product.organization?.url ?? ""
-  const organizationHost = organizationUrl ? formatHost(organizationUrl) : null
   const websiteHost = formatHost(product.websiteUrl) ?? product.websiteUrl
   const metadata = product.metadata
 
@@ -204,15 +200,6 @@ export default async function ViewUserProductPage({
     href: string
     icon: JSX.Element
   }> = []
-
-  if (organizationUrl) {
-    extraLinks.push({
-      key: "organization-url",
-      label: organizationHost ?? organizationUrl,
-      href: organizationUrl,
-      icon: <Building2 className={chipIconClass} />,
-    })
-  }
 
   if (metadata?.githubUrl) {
     const href = metadata.githubUrl
@@ -822,10 +809,10 @@ export default async function ViewUserProductPage({
                       <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
                         <div className="flex min-w-0 flex-col gap-1">
                           <span className="font-semibold text-slate-900">
-                            Organization & targeting
+                            Targeting
                           </span>
                           <span className="text-xs font-normal text-muted-foreground">
-                            Organization, platforms, keywords, and alternatives.
+                            Platforms, keywords, and alternatives.
                           </span>
                         </div>
                         <div className="pt-0.5 shrink-0">
@@ -837,38 +824,6 @@ export default async function ViewUserProductPage({
                     </AccordionTrigger>
                     <AccordionContent className="pt-4 pb-6">
                       <div className="space-y-3 text-sm text-muted-foreground">
-                        <OverviewRow
-                          label="Organization"
-                          value={
-                            organizationName ? (
-                              <div className="space-y-1">
-                                <div className="text-sm text-foreground">
-                                  {organizationName}
-                                </div>
-                                {organizationUrl ? (
-                                  <Link
-                                    href={organizationUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-primary hover:underline"
-                                  >
-                                    {organizationHost ?? organizationUrl}
-                                  </Link>
-                                ) : null}
-                              </div>
-                            ) : (
-                              <div className="flex items-center justify-between gap-3">
-                                {placeholder()}
-                                <Link
-                                  href={`${editPath}#section-details`}
-                                  className="text-xs text-primary hover:underline"
-                                >
-                                  Add
-                                </Link>
-                              </div>
-                            )
-                          }
-                        />
                         <OverviewRow
                           label="Platforms"
                           value={

@@ -84,28 +84,6 @@ const PLANS: PlanSeed[] = [
       { key: "backlink" },
     ],
   },
-  {
-    name: "Crew",
-    slug: "crew",
-    description: "Unlock organizations and collaboration tools",
-    type: PlanType.recurring_price,
-    price: 9900,
-    externalId: "pdt_kHlmYiDo7Qoq5B0aEXBvV",
-    isDefault: false,
-    boostForDays: 30,
-    features: [
-      { key: "analytics.basic" },
-      { key: "analytics.advanced" },
-      { key: "product.sitemap" },
-      { key: "priorityPlacement" },
-      { key: "sponsoredProducts" },
-      { key: "organization" },
-    ],
-    paymentFrequencyCount: 1,
-    paymentFrequencyInterval: TimeInterval.month,
-    subscriptionPeriodCount: 1,
-    subscriptionPeriodInterval: TimeInterval.month,
-  },
 ]
 
 export async function seedPlans(prisma: PrismaClient) {

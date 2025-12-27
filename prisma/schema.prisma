@@ -29,7 +29,6 @@ model Product {
   pricingModel       PricingModel
   status             ProductStatus @default(published)
   publishedAt        DateTime?
-  organizationId     String?
   startingPriceCents Int?
   currencyCode       String? // ISO 4217, e.g. "USD"
   bannerImage        String?
@@ -42,7 +41,6 @@ model Product {
   user                  User                    @relation(fields: [userId], references: [id])
   category              Category                @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   plan                  Plan?                   @relation(fields: [planId], references: [id], onDelete: SetNull)
-  organization          Organization?           @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   metadata              ProductMetadata?
   analytics             ProductAnalytics?
   verification          ProductVerification?
@@ -364,39 +362,6 @@ model ProductUpvote {
   @@index([createdAt])
 }
 
-model Organization {
-  id          String                   @id @default(cuid())
-  name        String
-  url         String                   @unique
-  ownerUserId String?
-  createdAt   DateTime                 @default(now())
-  updatedAt   DateTime                 @updatedAt
-  memberships OrganizationMembership[]
-
-  Product Product[]
-
-  owner User? @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
-
-  @@index([createdAt])
-  @@index([updatedAt])
-}
-
-model OrganizationMembership {
-  id             String   @id @default(cuid())
-  userId         String
-  organizationId String
-  jobTitle       String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, organizationId])
-  @@index([createdAt])
-  @@index([updatedAt])
-}
-
 model User {
   id           String     @id @default(cuid())
   clerkId      String     @unique
@@ -415,9 +380,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   products                Product[]
-  memberships             OrganizationMembership[]
   ProductUpvote           ProductUpvote[]
-  Organization            Organization[]
   feedback                MemberFeedback[]
   purchases               UserPlanPurchase[]
   rewardBalance           RewardBalance?
@@ -492,7 +455,6 @@ enum RewardFeatureCategory {
 enum FeatureSubjectType {
   user
   product
-  organization
   global
 }
 

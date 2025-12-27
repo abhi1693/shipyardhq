@@ -62,7 +62,6 @@ import type {
   ProductWizardAdminEditUserOption,
   ProductWizardAlternativeOption,
   ProductWizardCategoryOption,
-  ProductWizardOrganizationOption,
 } from "@/types/product-wizard"
 import { Badge } from "@/components/atoms/badge"
 
@@ -77,7 +76,6 @@ type ConnectorSummary = {
 type BaseProps = {
   product: ProductForEditWizard
   categories: ProductWizardCategoryOption[]
-  organizations: ProductWizardOrganizationOption[]
   connector?: {
     id: string
     provider: PaymentConnectorProvider
@@ -362,16 +360,13 @@ export default function EditProductWizard(props: EditProductWizardProps) {
   const pricing = <Step3 />
   const verification = <Step4 productId={props.product.id} persistOnVerify />
   const details = (
-    <Step5
-      organizations={props.organizations}
-      alternatives={props.mode === "member" ? props.alternatives : []}
-    />
+    <Step5 alternatives={props.mode === "member" ? props.alternatives : []} />
   )
 
   const detailsSubcopy =
     props.mode === "member"
-      ? "Social links, organization, and competitor alternatives."
-      : "Social links and organization."
+      ? "Social links and competitor alternatives."
+      : "Social links and positioning details."
   const description =
     props.mode === "member"
       ? "Update the essentials, then optionally edit verification and alternatives to boost visibility."

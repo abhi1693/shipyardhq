@@ -24,7 +24,6 @@ export const productPageCopy = {
   },
   crew: {
     heading: "Team roster",
-    organizationPrefix: "Operated by",
     emptyState: "The team list will be updated when members check in.",
   },
   recommendations: {

@@ -22,26 +22,6 @@ type SummaryOptions = {
 
 type GaSummary = Awaited<ReturnType<typeof getProductTrafficFromGa>>
 
-function emptyGaSummary(): GaSummary {
-  return {
-    pageViews: 0,
-    uniqueVisitors: 0,
-    newUsers: 0,
-    returningVisitors: 0,
-    sessions: 0,
-    bounceRate: 0,
-    averageSessionDuration: 0,
-    referrers: [],
-    referrerCategories: [],
-    browsers: [],
-    operatingSystems: [],
-    cities: [],
-    countries: [],
-    devices: [],
-    timeseries: [],
-  }
-}
-
 function buildDateRange(rangeDays: number): GaDateRange {
   const now = startOfDay(new Date())
   const start = subDays(now, Math.max(rangeDays - 1, 0))
@@ -289,65 +269,6 @@ export async function getProductTrafficSummary(
       : Promise.resolve(null),
     countUpvotes([productId], dateRange),
     prevRange ? countUpvotes([productId], prevRange) : Promise.resolve(0),
-  ])
-
-  return buildSummary({
-    ga,
-    gaPrevious,
-    rangeDays,
-    upvotesInRange,
-    previousUpvotes,
-  })
-}
-
-export async function getOrganizationTrafficSummary(
-  organizationId: string,
-  options: SummaryOptions = {},
-): Promise<ProductTrafficSummary> {
-  const products: Array<{ id: string; slug: string }> =
-    await prisma.product.findMany({
-      where: { organizationId },
-      select: { id: true, slug: true },
-    })
-  const productIds = options.productIds ?? products.map((p) => p.id)
-  const pagePaths = products
-    .filter((p) => productIds.includes(p.id))
-    .flatMap((p) => {
-      const base = productPath(p.slug)
-      return [base, `${base}/`]
-    })
-
-  const rangeDays = Math.max(options.rangeDays ?? 7, 1)
-  const dateRange = buildDateRange(rangeDays)
-  const prevRange =
-    options.previousComparison === false ? null : previousRange(dateRange)
-
-  if (pagePaths.length === 0) {
-    const ga = emptyGaSummary()
-    return buildSummary({
-      ga,
-      gaPrevious: null,
-      rangeDays,
-      upvotesInRange: 0,
-      previousUpvotes: 0,
-    })
-  }
-
-  const [ga, gaPrevious, upvotesInRange, previousUpvotes] = await Promise.all([
-    getProductTrafficFromGa({
-      pagePaths,
-      dateRange,
-      includeAdvanced: options.includeAdvanced,
-    }),
-    prevRange
-      ? getProductTrafficFromGa({
-          pagePaths,
-          dateRange: prevRange,
-          includeAdvanced: options.includeAdvanced,
-        })
-      : Promise.resolve(null),
-    countUpvotes(productIds, dateRange),
-    prevRange ? countUpvotes(productIds, prevRange) : Promise.resolve(0),
   ])
 
   return buildSummary({

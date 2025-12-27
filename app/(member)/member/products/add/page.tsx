@@ -2,7 +2,6 @@ import { getCategories } from "@/actions/admin/categories/actions"
 import AddProductForm from "./form"
 import { getUserByClerkId } from "@/actions/member/users/actions"
 import { auth } from "@clerk/nextjs/server"
-import { getMyOrganizations } from "@/actions/member/organizations/actions"
 import { getAlternativeProducts } from "@/actions/admin/alternative-products/actions"
 
 export default async function AddProductPage() {
@@ -24,9 +23,8 @@ export default async function AddProductPage() {
     )
   }
 
-  const [categories, organizations, alternatives] = await Promise.all([
+  const [categories, alternatives] = await Promise.all([
     getCategories({ orderBy: { name: "asc" } }).catch(() => []),
-    getMyOrganizations().catch(() => []),
     getAlternativeProducts({
       select: { id: true, slug: true, name: true, websiteUrl: true },
       orderBy: { name: "asc" },
@@ -36,7 +34,6 @@ export default async function AddProductPage() {
   return (
     <AddProductForm
       categories={categories}
-      organizations={organizations}
       userId={dbUser.id}
       alternatives={alternatives}
     />

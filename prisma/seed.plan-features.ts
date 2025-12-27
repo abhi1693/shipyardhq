@@ -55,11 +55,6 @@ const FEATURES = [
     name: "Newsletter Promotion",
     description: "Promoted in email campaigns",
   },
-  {
-    key: "organization",
-    name: "Organizations",
-    description: "Invite your team and manage members together",
-  },
 ]
 
 export async function seedPlanFeatures(prisma: PrismaClient) {

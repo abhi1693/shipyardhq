@@ -88,16 +88,6 @@ export type ProductAnalytics = Prisma.ProductAnalyticsModel
  */
 export type ProductUpvote = Prisma.ProductUpvoteModel
 /**
- * Model Organization
- * 
- */
-export type Organization = Prisma.OrganizationModel
-/**
- * Model OrganizationMembership
- * 
- */
-export type OrganizationMembership = Prisma.OrganizationMembershipModel
-/**
  * Model User
  * 
  */

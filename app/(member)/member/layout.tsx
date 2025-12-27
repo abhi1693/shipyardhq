@@ -18,7 +18,6 @@ import {
   HOME_PATH,
   MEMBER_FEEDBACK_PATH,
   MEMBER_ONBOARDING_PATH,
-  MEMBER_ORGANIZATIONS_PATH,
   MEMBER_OVERVIEW_PATH,
   MEMBER_PRODUCTS_CLAIM_PATH,
   MEMBER_PRODUCTS_PATH,
@@ -49,11 +48,6 @@ const navItems: NavItem[] = [
     title: "Claim products",
     url: MEMBER_PRODUCTS_CLAIM_PATH,
     icon: "link",
-  },
-  {
-    title: "Organizations",
-    url: MEMBER_ORGANIZATIONS_PATH,
-    icon: "building",
   },
   {
     title: "Feedback",

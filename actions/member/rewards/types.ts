@@ -87,6 +87,5 @@ export type MemberRewardsSnapshot = {
     name: string
     slug: string
     status: ProductStatus
-    organizationName: string | null
   }>
 }

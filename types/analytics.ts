@@ -217,7 +217,6 @@ export interface OnboardingOutcomeDeltaItem {
 
 export type IntentOutcomeStageKey =
   | "shippedProduct"
-  | "joinedOrganization"
   | "upvotedProduct"
   | "submittedFeedback"
   | "purchasedPlan"

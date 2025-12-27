@@ -58,13 +58,11 @@ import type {
   ProductWizardAdminUserOption,
   ProductWizardAlternativeOption,
   ProductWizardCategoryOption,
-  ProductWizardOrganizationOption,
 } from "@/types/product-wizard"
 import type { ProductWizardInputAdd } from "@/lib/productWizard/schema"
 
 type BaseProps = {
   categories: ProductWizardCategoryOption[]
-  organizations: ProductWizardOrganizationOption[]
 }
 
 type MemberProps = BaseProps & {
@@ -309,16 +307,13 @@ export default function AddProductWizard(props: AddProductWizardProps) {
     <Step4 productId={newProductId} persistOnVerify={false} />
   )
   const details = (
-    <Step5
-      organizations={props.organizations}
-      alternatives={props.mode === "member" ? props.alternatives : []}
-    />
+    <Step5 alternatives={props.mode === "member" ? props.alternatives : []} />
   )
 
   const detailsSubcopy =
     props.mode === "member"
-      ? "Social links, organization, and competitor alternatives."
-      : "Social links and organization."
+      ? "Social links and competitor alternatives."
+      : "Social links and positioning details."
   const description =
     props.mode === "member"
       ? "Fill the essentials, then optionally add verification and alternatives to boost visibility."

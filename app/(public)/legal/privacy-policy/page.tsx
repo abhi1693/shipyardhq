@@ -56,15 +56,13 @@ export default function PrivacyPolicyPage() {
                     <strong>Account and profile data:</strong> Name, email,
                     photo, and authentication details supplied through Clerk,
                     plus optional information such as job title, role
-                    preferences, organization membership, and onboarding
-                    responses.
+                    preferences, and onboarding responses.
                   </li>
                   <li>
                     <strong>Product and workspace content:</strong> Product
                     names, descriptions, categories, pricing details, media
-                    assets, metadata links, organization details, campaign
-                    notes, and other material you or your teammates submit to
-                    ShipYardHQ.
+                    assets, metadata links, campaign notes, and other material
+                    you submit to ShipYardHQ.
                   </li>
                   <li>
                     <strong>Transactions and rewards:</strong> Plan selections,
@@ -142,8 +140,7 @@ export default function PrivacyPolicyPage() {
             <ul className="list-disc list-inside space-y-2">
               <li>Operate, maintain, and secure the ShipYardHQ platform.</li>
               <li>
-                Publish product listings, organization workspaces, and reward
-                dashboards you create.
+                Publish product listings and reward dashboards you create.
               </li>
               <li>
                 Process transactions, deliver perks, and provide billing
@@ -200,8 +197,7 @@ export default function PrivacyPolicyPage() {
               <li>
                 <strong>Teams and community:</strong> Content you publish—such
                 as product listings, reviews, and leaderboard standings—is
-                visible to other users by design. Organization members may see
-                shared workspace data.
+                visible to other users by design.
               </li>
               <li>
                 <strong>Business transfers:</strong> In connection with a

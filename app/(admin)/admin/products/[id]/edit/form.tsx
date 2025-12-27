@@ -10,13 +10,11 @@ import type { ProductForEditWizard } from "@/types/product-wizard"
 export default function EditProductForm({
   product,
   categories,
-  organizations,
   users,
   connector,
 }: {
   product: ProductForEditWizard
   categories: { id: string; name: string; icon?: string | null }[]
-  organizations: { id: string; name: string }[]
   users: { id: string; email: string; clerkId: string }[]
   connector?: {
     id: string
@@ -34,7 +32,6 @@ export default function EditProductForm({
       mode="admin"
       product={product}
       categories={categories}
-      organizations={organizations}
       users={users}
       connector={connector}
     />

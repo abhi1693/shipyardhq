@@ -5,7 +5,6 @@ import {
 } from "@/actions/admin/products/actions"
 import { getCategories } from "@/actions/admin/categories/actions"
 import { getUsers } from "@/actions/admin/users/actions"
-import { getOrganizations } from "@/actions/admin/organizations/actions"
 import EditProductForm from "./form"
 
 export default async function EditProductPage({
@@ -14,16 +13,14 @@ export default async function EditProductPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const [product, categories, users, organizations, connector] =
-    await Promise.all([
-      getProductForEditWizard(id),
-      getCategories({ select: { id: true, name: true, icon: true } }),
-      getUsers({
-        select: { id: true, email: true, clerkId: true },
-      }),
-      getOrganizations({ select: { id: true, name: true } }),
-      getProductConnectorSummaryForAdmin(id),
-    ])
+  const [product, categories, users, connector] = await Promise.all([
+    getProductForEditWizard(id),
+    getCategories({ select: { id: true, name: true, icon: true } }),
+    getUsers({
+      select: { id: true, email: true, clerkId: true },
+    }),
+    getProductConnectorSummaryForAdmin(id),
+  ])
 
   if (!product) return notFound()
 
@@ -32,7 +29,6 @@ export default async function EditProductPage({
       product={product}
       categories={categories}
       users={users}
-      organizations={organizations}
       connector={connector}
     />
   )

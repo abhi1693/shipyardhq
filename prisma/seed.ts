@@ -58,7 +58,6 @@ type ProductSeed = {
   planAssignedAt?: Date | null
   userEmail: string
   categorySlug: string
-  organizationName?: string
   createdAt?: Date
   updatedAt?: Date
   metadata?: Prisma.ProductMetadataCreateWithoutProductInput
@@ -70,7 +69,6 @@ type ProductSeed = {
 type SeedContext = {
   userIdByEmail: Map<string, string>
   userIdByClerkId: Map<string, string>
-  organizationIdByName: Map<string, string>
   categoryIdBySlug: Map<string, string>
   planIdBySlug: Map<string, string>
 }
@@ -138,13 +136,6 @@ function buildProductCreateInput(
     throw new Error(`Missing category '${def.categorySlug}'`)
   }
 
-  const organizationId = def.organizationName
-    ? ctx.organizationIdByName.get(def.organizationName)
-    : undefined
-  if (def.organizationName && !organizationId) {
-    throw new Error(`Missing organization '${def.organizationName}'`)
-  }
-
   const planId = def.planSlug ? ctx.planIdBySlug.get(def.planSlug) : undefined
   if (def.planSlug && !planId) {
     throw new Error(`Missing plan '${def.planSlug}'`)
@@ -176,10 +167,6 @@ function buildProductCreateInput(
 
   if (def.updatedAt) {
     data.updatedAt = def.updatedAt
-  }
-
-  if (organizationId) {
-    data.organization = { connect: { id: organizationId } }
   }
 
   if (planId) {
@@ -217,13 +204,6 @@ function buildProductUpdateInput(
     throw new Error(`Missing category '${def.categorySlug}'`)
   }
 
-  const organizationId = def.organizationName
-    ? ctx.organizationIdByName.get(def.organizationName)
-    : undefined
-  if (def.organizationName && !organizationId) {
-    throw new Error(`Missing organization '${def.organizationName}'`)
-  }
-
   const planId = def.planSlug ? ctx.planIdBySlug.get(def.planSlug) : undefined
   if (def.planSlug && !planId) {
     throw new Error(`Missing plan '${def.planSlug}'`)
@@ -257,9 +237,6 @@ function buildProductUpdateInput(
     update.updatedAt = def.updatedAt
   }
 
-  if (organizationId) {
-    update.organization = { connect: { id: organizationId } }
-  }
   if (planId) {
     update.plan = { connect: { id: planId } }
   }
@@ -400,88 +377,6 @@ async function main() {
   }
   console.table(userRows)
 
-  const organizationSeeds = [
-    { name: "OpenStackers Inc", url: "https://openstackers.com" },
-    { name: "DevBoost Labs", url: "https://devboostlabs.io" },
-  ]
-
-  const organizationIdByName = new Map<string, string>()
-  const organizationRows: { name: string; action: "create" | "update" }[] = []
-  for (const org of organizationSeeds) {
-    const existing = await prisma.organization.findUnique({
-      where: { url: org.url },
-    })
-    const record = await prisma.organization.upsert({
-      where: { url: org.url },
-      update: { name: org.name },
-      create: { name: org.name, url: org.url },
-    })
-    organizationIdByName.set(org.name, record.id)
-    organizationRows.push({
-      name: org.name,
-      action: existing ? "update" : "create",
-    })
-  }
-  console.table(organizationRows)
-
-  const membershipSeeds = [
-    {
-      userClerkId: "clerk-001",
-      organizationName: "OpenStackers Inc",
-      jobTitle: "Frontend Engineer",
-    },
-    {
-      userClerkId: "clerk-002",
-      organizationName: "DevBoost Labs",
-      jobTitle: "Marketing Lead",
-    },
-  ]
-
-  const membershipRows: {
-    organization: string
-    clerkId: string
-    action: "create" | "update"
-  }[] = []
-
-  for (const membership of membershipSeeds) {
-    const userId = userIdByClerkId.get(membership.userClerkId)
-    const organizationId = organizationIdByName.get(membership.organizationName)
-    if (!userId || !organizationId) {
-      continue
-    }
-
-    const existing = await prisma.organizationMembership.findUnique({
-      where: {
-        userId_organizationId: {
-          userId,
-          organizationId,
-        },
-      },
-    })
-
-    await prisma.organizationMembership.upsert({
-      where: {
-        userId_organizationId: {
-          userId,
-          organizationId,
-        },
-      },
-      update: { jobTitle: membership.jobTitle },
-      create: {
-        userId,
-        organizationId,
-        jobTitle: membership.jobTitle,
-      },
-    })
-
-    membershipRows.push({
-      organization: membership.organizationName,
-      clerkId: membership.userClerkId,
-      action: existing ? "update" : "create",
-    })
-  }
-  console.table(membershipRows)
-
   const [categoryRows, planRows] = await Promise.all([
     prisma.category.findMany({ select: { id: true, slug: true } }),
     prisma.plan.findMany({ select: { id: true, slug: true } }),
@@ -495,7 +390,6 @@ async function main() {
   const ctx: SeedContext = {
     userIdByEmail,
     userIdByClerkId,
-    organizationIdByName,
     categoryIdBySlug,
     planIdBySlug,
   }

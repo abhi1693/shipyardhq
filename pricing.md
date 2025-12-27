@@ -1,6 +1,6 @@
 # Pricing & Plans
 
-Clear, fair tiers that start generous and scale with growth. Free is the default so every product can launch confidently; upgrades add visibility, collaboration, and time‑boxed spotlighting.
+Clear, fair tiers that start generous and scale with growth. Free is the default so every product can launch confidently; upgrades add visibility and time‑boxed spotlighting.
 
 ## Plan Summary
 
@@ -8,7 +8,7 @@ Clear, fair tiers that start generous and scale with growth. Free is the default
 | -------------- | ------------------- | -----------: | --------------------: | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | Free (Default) | Default             |           $0 |                     — | `analytics.basic`, `product.sitemap`, `backlink`                                                                           | Public listing, product page, browse visibility, basic analytics, do‑follow backlink |
 | Pro            | One‑time (lifetime) | $19 one‑time | Time‑boxed placements | `priorityPlacement`, `featured`, `sponsoredProducts`, `newsletterPromotion`, `stickyBanner`, `product.sitemap`, `backlink` | Stronger page + premium surfaces + visibility bump                                   |
-| Team           | One‑time (lifetime) | $49 one‑time | Time‑boxed placements | All Pro features + `organization`                                                                                          | Collaboration (orgs) with all Pro growth tools                                       |
+| Team           | One‑time (lifetime) | $49 one‑time | Time‑boxed placements | All Pro features                                                                                                           | Extra visibility for larger launches                                                 |
 
 Notes
 
@@ -28,7 +28,6 @@ Notes
 | `newsletterPromotion` |  —   |  ✓  |  ✓   |
 | `backlink`            |  ✓   |  ✓  |  ✓   |
 | `product.sitemap`     |  ✓   |  ✓  |  ✓   |
-| `organization`        |  —   |  —  |  ✓   |
 
 ## Implementation Notes
 
@@ -38,7 +37,6 @@ Notes
 - Feature Keys: use the existing constants in `lib/constants.ts` for `PlanFeature` records.
 - Entitlements
   - Pro/Team purchases grant lifetime feature access; time‑boxed placements can still be scheduled editorially (use `boostForDays` if desired per placement).
-  - Organizations are already gated via `memberHasFeature('organization')` in server actions.
   - Product page UI should reference assignments via `lib/features.ts` helpers.
 
 Pricing can be tuned later; the structure keeps Free generous while upgrades deliver tangible, trustworthy value.

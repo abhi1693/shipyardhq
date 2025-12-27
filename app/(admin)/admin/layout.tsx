@@ -87,11 +87,6 @@ const baseNavItems: NavItem[] = [
     icon: "feedback",
   },
   {
-    title: "Organizations",
-    url: adminPath("organizations"),
-    icon: "building",
-  },
-  {
     title: "Categories",
     url: "#",
     icon: "category",

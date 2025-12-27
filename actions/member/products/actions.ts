@@ -32,10 +32,6 @@ import { redirect } from "next/navigation"
 
 type ListParams = Record<string, string | string[] | undefined>
 
-type OrgMembershipRef = Prisma.OrganizationMembershipGetPayload<{
-  select: { organizationId: true }
-}>
-
 const ACTIVE_ENTITLEMENT_STATUSES: FeatureEntitlementStatus[] = [
   "active",
   "pending",
@@ -68,22 +64,11 @@ type ProductListItem = Prisma.ProductGetPayload<{
   }
 }>
 
-async function getAccessibleOrganizationIds(userId: string) {
-  const memberships: OrgMembershipRef[] =
-    await prisma.organizationMembership.findMany({
-      where: { userId },
-      select: { organizationId: true },
-    })
-  return memberships.map((m) => m.organizationId)
-}
-
 export async function getUserProducts(params?: ListParams) {
   const { userId } = await auth()
   if (!userId) throw new Error("Unauthenticated")
   const user = await getActiveUserByClerkId(userId)
   if (!user) throw new Error(INACTIVE_ACCOUNT_MESSAGE)
-
-  const organizationIds = await getAccessibleOrganizationIds(user.id)
 
   const verification = (params?.verification as string) || undefined
   const rawStatus = (params?.status as string) || undefined
@@ -105,13 +90,7 @@ export async function getUserProducts(params?: ListParams) {
   )
   const skip = (page - 1) * limit
 
-  const accessFilter = organizationIds.length
-    ? {
-        OR: [{ userId: user.id }, { organizationId: { in: organizationIds } }],
-      }
-    : { userId: user.id }
-
-  const where: any = { ...accessFilter }
+  const where: any = { userId: user.id }
   const andFilters: any[] = []
 
   if (verification === "verified") {

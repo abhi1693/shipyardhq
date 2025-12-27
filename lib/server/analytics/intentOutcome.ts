@@ -50,19 +50,13 @@ const STAGE_CONFIG: ReadonlyArray<{
   key: StageKey
   label: string
   description: string
-  source: "product" | "membership" | "upvote" | "feedback" | "purchase"
+  source: "product" | "upvote" | "feedback" | "purchase"
 }> = [
   {
     key: "shippedProduct",
     label: "Shipped a product",
     description: "Created at least one product in Shipyard.",
     source: "product",
-  },
-  {
-    key: "joinedOrganization",
-    label: "Joined an organisation",
-    description: "Belongs to an organisation workspace.",
-    source: "membership",
   },
   {
     key: "upvotedProduct",
@@ -332,7 +326,6 @@ export async function getIntentOutcomeAnalytics(
   const userIds = Array.from(userMap.keys())
 
   let productRows: StageRow[] = []
-  let membershipRows: StageRow[] = []
   let upvoteRows: StageRow[] = []
   let feedbackRows: StageRow[] = []
   let purchaseRows: StageRow[] = []
@@ -342,7 +335,6 @@ export async function getIntentOutcomeAnalytics(
   if (userIds.length) {
     ;[
       productRows,
-      membershipRows,
       upvoteRows,
       feedbackRows,
       purchaseRows,
@@ -350,14 +342,6 @@ export async function getIntentOutcomeAnalytics(
       purchaseEvents,
     ] = await Promise.all([
       prisma.product.groupBy({
-        by: ["userId"],
-        where: {
-          userId: { in: userIds },
-        },
-        _count: { _all: true },
-        _min: { createdAt: true },
-      }) as unknown as StageRow[],
-      prisma.organizationMembership.groupBy({
         by: ["userId"],
         where: {
           userId: { in: userIds },
@@ -414,7 +398,6 @@ export async function getIntentOutcomeAnalytics(
 
   const stageRowMap: Record<StageKey, StageRow[]> = {
     shippedProduct: productRows,
-    joinedOrganization: membershipRows,
     upvotedProduct: upvoteRows,
     submittedFeedback: feedbackRows,
     purchasedPlan: purchaseRows,

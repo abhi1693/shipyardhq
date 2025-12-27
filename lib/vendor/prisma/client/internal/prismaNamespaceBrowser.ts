@@ -65,8 +65,6 @@ export const ModelName = {
   ProductMetadata: 'ProductMetadata',
   ProductAnalytics: 'ProductAnalytics',
   ProductUpvote: 'ProductUpvote',
-  Organization: 'Organization',
-  OrganizationMembership: 'OrganizationMembership',
   User: 'User',
   MemberFeedback: 'MemberFeedback',
   Category: 'Category',
@@ -120,7 +118,6 @@ export const ProductScalarFieldEnum = {
   pricingModel: 'pricingModel',
   status: 'status',
   publishedAt: 'publishedAt',
-  organizationId: 'organizationId',
   startingPriceCents: 'startingPriceCents',
   currencyCode: 'currencyCode',
   bannerImage: 'bannerImage',
@@ -314,30 +311,6 @@ export const ProductUpvoteScalarFieldEnum = {
 } as const
 
 export type ProductUpvoteScalarFieldEnum = (typeof ProductUpvoteScalarFieldEnum)[keyof typeof ProductUpvoteScalarFieldEnum]
-
-
-export const OrganizationScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  url: 'url',
-  ownerUserId: 'ownerUserId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type OrganizationScalarFieldEnum = (typeof OrganizationScalarFieldEnum)[keyof typeof OrganizationScalarFieldEnum]
-
-
-export const OrganizationMembershipScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  organizationId: 'organizationId',
-  jobTitle: 'jobTitle',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type OrganizationMembershipScalarFieldEnum = (typeof OrganizationMembershipScalarFieldEnum)[keyof typeof OrganizationMembershipScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
