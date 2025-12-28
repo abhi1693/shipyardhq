@@ -1,18 +1,13 @@
-import { protos } from "@google-analytics/data"
 import { format, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
 import type { ProductInterestSignals } from "@/types/product-interest"
 import { buildCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
-import { siteConfig } from "@/lib/siteConfig"
 import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
 import { buildVerifiedRevenueWhere } from "@/lib/products/verifiedRevenue"
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
-import {
-  runGaReport,
-  type GaDateRange,
-} from "./googleAnalytics"
+import type { GaDateRange } from "./googleAnalytics"
 
 export type ProductRef = { id: string; slug: string }
 
@@ -29,9 +24,8 @@ type ProductInterestCacheValue = {
   previousRange: GaDateRange
 }
 
-type AlsoClickedEntry = { productId: string; clicks: number }
-
 const CACHE_TTL_SECONDS = 60 * 60 * 3
+const UNCATEGORIZED_KEY = "uncategorized"
 
 const INTEREST_KEY_PREFIX = ["analytics", "product-interest", "v2"] as const
 
@@ -69,13 +63,6 @@ function alsoClickedIndexKey(productId: string, days: number) {
   )
 }
 
-function hasGaDataApiConfig() {
-  return Boolean(
-    process.env.GA_CREDENTIALS_JSON?.trim() &&
-    process.env.GA_PROPERTY_ID?.trim(),
-  )
-}
-
 function resolveRangeForLastNDays(days: number): GaDateRange {
   const safeDays = Math.max(1, Math.floor(days))
   const end = subDays(new Date(), 0)
@@ -94,6 +81,22 @@ function resolvePreviousRange(current: GaDateRange, days: number): GaDateRange {
   return {
     startDate: format(prevStart, "yyyy-MM-dd"),
     endDate: format(prevEnd, "yyyy-MM-dd"),
+  }
+}
+
+function parseUtcDate(value: string): Date | null {
+  const parsed = new Date(`${value}T00:00:00Z`)
+  return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
+function resolveRangeBounds(range: GaDateRange) {
+  const start = parseUtcDate(range.startDate)
+  const end = parseUtcDate(range.endDate)
+  if (!start || !end) return null
+
+  return {
+    start: start <= end ? start : end,
+    end: start <= end ? end : start,
   }
 }
 
@@ -215,29 +218,6 @@ export async function getAlsoClickedProductIds(args: {
   return ids.slice(0, Math.max(0, Math.floor(limit)))
 }
 
-function extractProductSlugFromPath(
-  value: string | null | undefined,
-): string | null {
-  if (!value) return null
-  const match = value.match(/\/products\/([^/?#]+)/i)
-  return match ? match[1]!.trim().toLowerCase() : null
-}
-
-function extractProductSlugFromReferrer(
-  value: string | null | undefined,
-): string | null {
-  if (!value) return null
-  const raw = value.trim()
-  if (!raw || raw === "(direct)") return null
-
-  try {
-    const parsed = new URL(raw, siteConfig.url)
-    return extractProductSlugFromPath(parsed.pathname)
-  } catch {
-    return extractProductSlugFromPath(raw)
-  }
-}
-
 async function refreshAlsoClickedIndex({
   products,
   days,
@@ -248,108 +228,112 @@ async function refreshAlsoClickedIndex({
   days: number
   ttlSeconds: number
   limitPerProduct: number
-}) {
-  if (!hasGaDataApiConfig()) {
-    return { storedCount: 0, rowsProcessed: 0 }
-  }
-
+}): Promise<{ storedCount: number; rowsProcessed: number } | null> {
+  if (!products.length) return null
   const redis = await getRedisClient().catch(() => null)
-  if (!redis) return { storedCount: 0, rowsProcessed: 0 }
-
-  const slugToId = new Map<string, string>()
-  for (const product of products) {
-    slugToId.set(product.slug.toLowerCase(), product.id)
-  }
+  if (!redis) return null
 
   const range = resolveRangeForLastNDays(days)
-  const rowsProcessed: { count: number } = { count: 0 }
-  const fromToCounts = new Map<string, Map<string, number>>()
+  const bounds = resolveRangeBounds(range)
+  if (!bounds) return null
 
-  const report = await runGaReport({
-    dateRanges: [range],
-    dimensions: [{ name: "pageReferrer" }, { name: "pagePath" }],
-    metrics: [{ name: "screenPageViews" }],
-    dimensionFilter: {
-      andGroup: {
-        expressions: [
-          {
-            filter: {
-              fieldName: "pagePath",
-              stringFilter: {
-                matchType:
-                  protos.google.analytics.data.v1beta.Filter.StringFilter
-                    .MatchType.BEGINS_WITH,
-                value: "/products/",
-              },
-            },
-          },
-          {
-            filter: {
-              fieldName: "pageReferrer",
-              stringFilter: {
-                matchType:
-                  protos.google.analytics.data.v1beta.Filter.StringFilter
-                    .MatchType.CONTAINS,
-                value: "/products/",
-              },
-            },
-          },
-        ],
-      },
+  const coverage = await prisma.analyticsIngestionRun.findFirst({
+    where: {
+      source: "ga4",
+      job: "product_traffic_daily",
+      status: "completed",
+      windowStart: { lte: bounds.start },
+      windowEnd: { gte: bounds.end },
     },
-    orderBys: [
-      {
-        metric: { metricName: "screenPageViews" },
-        desc: true,
-      },
-    ],
-    limit: 10_000,
+    select: { id: true },
+    orderBy: { finishedAt: "desc" },
   })
 
-  const rows = report.rows ?? []
-  for (const row of rows) {
-    rowsProcessed.count += 1
-    const referrer = row.dimensionValues?.[0]?.value ?? null
-    const path = row.dimensionValues?.[1]?.value ?? null
-    const views = Number(row.metricValues?.[0]?.value ?? 0) || 0
-    if (views <= 0) continue
+  if (!coverage) return null
 
-    const fromSlug = extractProductSlugFromReferrer(referrer)
-    const toSlug = extractProductSlugFromPath(path)
-    if (!fromSlug || !toSlug) continue
+  const productIds = products.map((product) => product.id)
+  const trafficRows = await prisma.productTrafficDaily.groupBy({
+    by: ["productId"],
+    where: {
+      source: "ga4",
+      productId: { in: productIds },
+      date: { gte: bounds.start, lte: bounds.end },
+    },
+    _sum: { pageViews: true },
+  })
 
-    const fromId = slugToId.get(fromSlug)
-    const toId = slugToId.get(toSlug)
-    if (!fromId || !toId) continue
-    if (fromId === toId) continue
+  const trafficById = new Map<string, number>()
+  for (const row of trafficRows) {
+    trafficById.set(row.productId, row._sum.pageViews ?? 0)
+  }
 
-    const toMap = fromToCounts.get(fromId) ?? new Map<string, number>()
-    toMap.set(toId, (toMap.get(toId) ?? 0) + views)
-    fromToCounts.set(fromId, toMap)
+  const scoredProducts = products
+    .map((product) => ({
+      id: product.id,
+      category: product.categorySlug ?? UNCATEGORIZED_KEY,
+      views: trafficById.get(product.id) ?? 0,
+    }))
+    .filter((entry) => entry.views > 0)
+
+  if (!scoredProducts.length) {
+    return { storedCount: 0, rowsProcessed: trafficRows.length }
+  }
+
+  const byViews = (a: typeof scoredProducts[number], b: typeof scoredProducts[number]) => {
+    if (b.views !== a.views) return b.views - a.views
+    return a.id.localeCompare(b.id)
+  }
+
+  const globalIds = scoredProducts
+    .slice()
+    .sort(byViews)
+    .map((entry) => entry.id)
+
+  const categoryMap = new Map<string, typeof scoredProducts>()
+  for (const entry of scoredProducts) {
+    const list = categoryMap.get(entry.category) ?? []
+    list.push(entry)
+    categoryMap.set(entry.category, list)
+  }
+
+  const categoryIds = new Map<string, string[]>()
+  for (const [category, entries] of categoryMap.entries()) {
+    categoryIds.set(
+      category,
+      entries.slice().sort(byViews).map((entry) => entry.id),
+    )
   }
 
   let storedCount = 0
   const multi = redis.multi()
+  const limit = Math.max(0, Math.floor(limitPerProduct))
 
-  for (const [fromId, toMap] of fromToCounts.entries()) {
-    const list: AlsoClickedEntry[] = Array.from(toMap.entries())
-      .map(([productId, clicks]) => ({ productId, clicks }))
-      .sort((a, b) => b.clicks - a.clicks)
-      .slice(0, Math.max(0, Math.floor(limitPerProduct)))
+  for (const product of products) {
+    if (limit <= 0) break
+    const categoryKey = product.categorySlug ?? UNCATEGORIZED_KEY
+    const primary = categoryIds.get(categoryKey) ?? []
+    const combined = [...primary, ...globalIds]
+    const uniqueIds: string[] = []
+    const seen = new Set<string>()
+    for (const id of combined) {
+      if (seen.has(id)) continue
+      seen.add(id)
+      if (id === product.id) continue
+      uniqueIds.push(id)
+      if (uniqueIds.length >= limit) break
+    }
 
-    if (!list.length) continue
-
-    const productIds = list.map((entry) => entry.productId)
+    if (!uniqueIds.length) continue
     multi.set(
-      alsoClickedIndexKey(fromId, days),
-      JSON.stringify({ productIds }),
+      alsoClickedIndexKey(product.id, days),
+      JSON.stringify({ productIds: uniqueIds }),
       { EX: ttlSeconds },
     )
     storedCount += 1
   }
 
   await multi.exec().catch(() => null)
-  return { storedCount, rowsProcessed: rowsProcessed.count }
+  return { storedCount, rowsProcessed: trafficRows.length }
 }
 
 export async function refreshProductInterestCache(args?: {
@@ -374,8 +358,6 @@ export async function refreshProductInterestCache(args?: {
     typeof args?.alsoClickedLimit === "number" ? args.alsoClickedLimit : 12
   const skipAlsoClicked =
     typeof args?.skipAlsoClicked === "boolean" ? args.skipAlsoClicked : true
-  const gaConfigured = hasGaDataApiConfig()
-
   const redis = await getRedisClient().catch(() => null)
   if (!redis) {
     return {
@@ -552,15 +534,14 @@ export async function refreshProductInterestCache(args?: {
 
   await multi.exec()
 
-  const alsoClicked =
-    skipAlsoClicked || !gaConfigured
-      ? null
-      : await refreshAlsoClickedIndex({
-          products: productRefs,
-          days,
-          ttlSeconds: CACHE_TTL_SECONDS,
-          limitPerProduct: alsoClickedLimit,
-        })
+  const alsoClicked = skipAlsoClicked
+    ? null
+    : await refreshAlsoClickedIndex({
+        products: productRefs,
+        days,
+        ttlSeconds: CACHE_TTL_SECONDS,
+        limitPerProduct: alsoClickedLimit,
+      })
 
   return {
     success: true,
