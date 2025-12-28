@@ -93,8 +93,6 @@ const CACHE_KEY_JITTER_BUCKETS = Math.max(
 const CACHE_KEY_JITTER_BUCKET = Math.floor(
   Math.random() * CACHE_KEY_JITTER_BUCKETS,
 )
-const GA_QUOTA_LOW_THRESHOLD = 0.2
-
 let clientPromise: Promise<BetaAnalyticsDataClient> | null = null
 
 export type GaDateRange = {
@@ -230,87 +228,14 @@ function resolveProperty(): string | null {
   return raw.startsWith("properties/") ? raw : `properties/${raw}`
 }
 
-type QuotaSnapshot = {
-  consumed: number
-  remaining: number
-  total: number
-  remainingRatio: number | null
-}
-
-function normalizeQuotaStatus(
-  status?: protos.google.analytics.data.v1beta.IQuotaStatus | null,
-): QuotaSnapshot | null {
-  const consumed = Number(status?.consumed)
-  const remaining = Number(status?.remaining)
-  const hasConsumed = Number.isFinite(consumed)
-  const hasRemaining = Number.isFinite(remaining)
-
-  if (!hasConsumed && !hasRemaining) return null
-
-  const safeConsumed = hasConsumed ? consumed : 0
-  const safeRemaining = hasRemaining ? remaining : 0
-  const total = safeConsumed + safeRemaining
-  const remainingRatio = total > 0 ? safeRemaining / total : null
-
-  return { consumed: safeConsumed, remaining: safeRemaining, total, remainingRatio }
-}
-
-function isQuotaLow(snapshot: QuotaSnapshot | null) {
-  if (!snapshot) return false
-  if (snapshot.remaining <= 0) return true
-  if (snapshot.remainingRatio === null) return false
-  return snapshot.remainingRatio <= GA_QUOTA_LOW_THRESHOLD
-}
-
-function logPropertyQuota(
-  label: string,
-  propertyQuota?: protos.google.analytics.data.v1beta.IPropertyQuota | null,
-  context?: Record<string, unknown>,
-) {
-  if (!propertyQuota) return
-
-  const snapshot = {
-    tokensPerDay: normalizeQuotaStatus(propertyQuota.tokensPerDay),
-    tokensPerHour: normalizeQuotaStatus(propertyQuota.tokensPerHour),
-    tokensPerProjectPerHour: normalizeQuotaStatus(
-      propertyQuota.tokensPerProjectPerHour,
-    ),
-    concurrentRequests: normalizeQuotaStatus(propertyQuota.concurrentRequests),
-    serverErrorsPerProjectPerHour: normalizeQuotaStatus(
-      propertyQuota.serverErrorsPerProjectPerHour,
-    ),
-    potentiallyThresholdedRequestsPerHour: normalizeQuotaStatus(
-      propertyQuota.potentiallyThresholdedRequestsPerHour,
-    ),
-  }
-
-  const hasData = Object.values(snapshot).some(Boolean)
-  if (!hasData) return
-
-  const low = Object.values(snapshot).some((entry) =>
-    isQuotaLow(entry ?? null),
-  )
-  const payload = { label, ...snapshot, ...(context ?? {}) }
-
-  if (low) {
-    console.warn("[analytics] GA quota low", payload)
-    return
-  }
-
-  console.info("[analytics] GA quota", payload)
-}
-
 async function runReportWithQuota(
   client: BetaAnalyticsDataClient,
   request: Parameters<BetaAnalyticsDataClient["runReport"]>[0],
-  label: string,
+  _label: string,
 ): Promise<protos.google.analytics.data.v1beta.IRunReportResponse> {
   const [response] = await client.runReport({
     ...request,
     returnPropertyQuota: true,
-  })
-  logPropertyQuota(label, response.propertyQuota ?? null, {
-    property: request.property ?? null,
   })
   return response
 }
@@ -318,14 +243,11 @@ async function runReportWithQuota(
 async function runRealtimeReportWithQuota(
   client: BetaAnalyticsDataClient,
   request: Parameters<BetaAnalyticsDataClient["runRealtimeReport"]>[0],
-  label: string,
+  _label: string,
 ): Promise<protos.google.analytics.data.v1beta.IRunRealtimeReportResponse> {
   const [response] = await client.runRealtimeReport({
     ...request,
     returnPropertyQuota: true,
-  })
-  logPropertyQuota(label, response.propertyQuota ?? null, {
-    property: request.property ?? null,
   })
   return response
 }
