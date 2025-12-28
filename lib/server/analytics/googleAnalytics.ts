@@ -1,7 +1,7 @@
 import { BetaAnalyticsDataClient, protos } from "@google-analytics/data"
 import { format, subDays } from "date-fns"
 
-import { buildCacheKey } from "@/lib/server/cache"
+import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import { productPath } from "@/lib/routes"
 
@@ -69,6 +69,9 @@ const REALTIME_CACHE_KEY = buildCacheKey("analytics:homepage:realtime:v1")
 const REALTIME_CACHE_TTL_SECONDS = 120
 const SITE_SNAPSHOT_CACHE_PREFIX = "analytics:site:snapshot:v2"
 const SITE_SNAPSHOT_CACHE_TTL_SECONDS = 900
+const PRODUCT_TRAFFIC_CACHE_PREFIX = "analytics:product:traffic:v1"
+const PRODUCT_TRAFFIC_CACHE_TTL_SECONDS = 300
+const PRODUCT_TRAFFIC_IN_PROCESS_TTL_MS = 60_000
 const CACHE_KEY_JITTER_BUCKETS = Math.max(
   1,
   Number.isFinite(
@@ -80,6 +83,7 @@ const CACHE_KEY_JITTER_BUCKETS = Math.max(
 const CACHE_KEY_JITTER_BUCKET = Math.floor(
   Math.random() * CACHE_KEY_JITTER_BUCKETS,
 )
+const GA_QUOTA_LOW_THRESHOLD = 0.2
 
 let clientPromise: Promise<BetaAnalyticsDataClient> | null = null
 
@@ -216,6 +220,106 @@ function resolveProperty(): string | null {
   return raw.startsWith("properties/") ? raw : `properties/${raw}`
 }
 
+type QuotaSnapshot = {
+  consumed: number
+  remaining: number
+  total: number
+  remainingRatio: number | null
+}
+
+function normalizeQuotaStatus(
+  status?: protos.google.analytics.data.v1beta.IQuotaStatus | null,
+): QuotaSnapshot | null {
+  const consumed = Number(status?.consumed)
+  const remaining = Number(status?.remaining)
+  const hasConsumed = Number.isFinite(consumed)
+  const hasRemaining = Number.isFinite(remaining)
+
+  if (!hasConsumed && !hasRemaining) return null
+
+  const safeConsumed = hasConsumed ? consumed : 0
+  const safeRemaining = hasRemaining ? remaining : 0
+  const total = safeConsumed + safeRemaining
+  const remainingRatio = total > 0 ? safeRemaining / total : null
+
+  return { consumed: safeConsumed, remaining: safeRemaining, total, remainingRatio }
+}
+
+function isQuotaLow(snapshot: QuotaSnapshot | null) {
+  if (!snapshot) return false
+  if (snapshot.remaining <= 0) return true
+  if (snapshot.remainingRatio === null) return false
+  return snapshot.remainingRatio <= GA_QUOTA_LOW_THRESHOLD
+}
+
+function logPropertyQuota(
+  label: string,
+  propertyQuota?: protos.google.analytics.data.v1beta.IPropertyQuota | null,
+  context?: Record<string, unknown>,
+) {
+  if (!propertyQuota) return
+
+  const snapshot = {
+    tokensPerDay: normalizeQuotaStatus(propertyQuota.tokensPerDay),
+    tokensPerHour: normalizeQuotaStatus(propertyQuota.tokensPerHour),
+    tokensPerProjectPerHour: normalizeQuotaStatus(
+      propertyQuota.tokensPerProjectPerHour,
+    ),
+    concurrentRequests: normalizeQuotaStatus(propertyQuota.concurrentRequests),
+    serverErrorsPerProjectPerHour: normalizeQuotaStatus(
+      propertyQuota.serverErrorsPerProjectPerHour,
+    ),
+    potentiallyThresholdedRequestsPerHour: normalizeQuotaStatus(
+      propertyQuota.potentiallyThresholdedRequestsPerHour,
+    ),
+  }
+
+  const hasData = Object.values(snapshot).some(Boolean)
+  if (!hasData) return
+
+  const low = Object.values(snapshot).some((entry) =>
+    isQuotaLow(entry ?? null),
+  )
+  const payload = { label, ...snapshot, ...(context ?? {}) }
+
+  if (low) {
+    console.warn("[analytics] GA quota low", payload)
+    return
+  }
+
+  console.info("[analytics] GA quota", payload)
+}
+
+async function runReportWithQuota(
+  client: BetaAnalyticsDataClient,
+  request: Parameters<BetaAnalyticsDataClient["runReport"]>[0],
+  label: string,
+): Promise<protos.google.analytics.data.v1beta.IRunReportResponse> {
+  const [response] = await client.runReport({
+    ...request,
+    returnPropertyQuota: true,
+  })
+  logPropertyQuota(label, response.propertyQuota ?? null, {
+    property: request.property ?? null,
+  })
+  return response
+}
+
+async function runRealtimeReportWithQuota(
+  client: BetaAnalyticsDataClient,
+  request: Parameters<BetaAnalyticsDataClient["runRealtimeReport"]>[0],
+  label: string,
+): Promise<protos.google.analytics.data.v1beta.IRunRealtimeReportResponse> {
+  const [response] = await client.runRealtimeReport({
+    ...request,
+    returnPropertyQuota: true,
+  })
+  logPropertyQuota(label, response.propertyQuota ?? null, {
+    property: request.property ?? null,
+  })
+  return response
+}
+
 async function getClient(): Promise<BetaAnalyticsDataClient> {
   if (!clientPromise) {
     const credentials = parseCredentials()
@@ -252,6 +356,34 @@ function normalizePath(value: string | undefined | null) {
     return base.slice(0, -1)
   }
   return base
+}
+
+function normalizePagePathsForCache(pagePaths: string[]) {
+  const normalized = pagePaths
+    .map((path) => {
+      if (!path) return "/"
+      const base = path.split(/[?#]/)[0] || "/"
+      return base.length > 0 ? base : "/"
+    })
+    .filter((path) => path.length > 0)
+  return Array.from(new Set(normalized)).sort()
+}
+
+function buildProductTrafficCacheKey(args: {
+  pagePaths: string[]
+  dateRange: GaDateRange
+  includeAdvanced: boolean
+}) {
+  const pathKey = normalizePagePathsForCache(args.pagePaths).join("|")
+  const property = resolveProperty()
+  return buildCacheKey(
+    PRODUCT_TRAFFIC_CACHE_PREFIX,
+    property,
+    args.includeAdvanced ? "advanced" : "basic",
+    args.dateRange.startDate,
+    args.dateRange.endDate,
+    pathKey,
+  )
 }
 
 function resolveReferrerDomain(value?: string | null) {
@@ -385,12 +517,11 @@ async function fetchProductTrafficFromGa({
     { name: "engagedSessions" },
   ]
 
-  const runReport = async (
+  const runReport = (
     request: Parameters<typeof client.runReport>[0],
-  ): Promise<protos.google.analytics.data.v1beta.IRunReportResponse> => {
-    const [response] = await client.runReport(request)
-    return response
-  }
+    label: string,
+  ): Promise<protos.google.analytics.data.v1beta.IRunReportResponse> =>
+    runReportWithQuota(client, request, `product-traffic:${label}`)
 
   const emptyReport: protos.google.analytics.data.v1beta.IRunReportResponse = {
     rows: [],
@@ -417,7 +548,152 @@ async function fetchProductTrafficFromGa({
       cityReport,
       deviceReport,
     ] = await Promise.all([
-      runReport({
+      runReport(
+        {
+          property,
+          dateRanges: [dateRange],
+          metrics,
+          dimensions: [{ name: "date" }],
+          dimensionFilter,
+          metricAggregations: [
+            protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
+          ],
+          orderBys: [{ dimension: { dimensionName: "date" } }],
+        },
+        "trend",
+      ),
+      runReport(
+        {
+          property,
+          dateRanges: [dateRange],
+          metrics: [{ name: "screenPageViews" }],
+          dimensions: [{ name: "pageReferrer" }],
+          dimensionFilter,
+          limit: 8,
+          orderBys: [
+            {
+              metric: {
+                metricName: "screenPageViews",
+              },
+              desc: true,
+            },
+          ],
+        },
+        "referrers",
+      ),
+      runReport(
+        {
+          property,
+          dateRanges: [dateRange],
+          metrics: [{ name: "screenPageViews" }],
+          dimensions: [{ name: "sessionDefaultChannelGrouping" }],
+          dimensionFilter,
+          limit: 8,
+          orderBys: [
+            {
+              metric: {
+                metricName: "screenPageViews",
+              },
+              desc: true,
+            },
+          ],
+        },
+        "referrer-categories",
+      ),
+      runReport(
+        {
+          property,
+          dateRanges: [dateRange],
+          metrics: [{ name: "activeUsers" }],
+          dimensions: [{ name: "browser" }],
+          dimensionFilter,
+          limit: 8,
+          orderBys: [
+            {
+              metric: { metricName: "activeUsers" },
+              desc: true,
+            },
+          ],
+        },
+        "browsers",
+      ),
+      runReport(
+        {
+          property,
+          dateRanges: [dateRange],
+          metrics: [{ name: "activeUsers" }],
+          dimensions: [{ name: "operatingSystem" }],
+          dimensionFilter,
+          limit: 8,
+          orderBys: [
+            {
+              metric: { metricName: "activeUsers" },
+              desc: true,
+            },
+          ],
+        },
+        "operating-systems",
+      ),
+      runReport(
+        {
+          property,
+          dateRanges: [dateRange],
+          metrics: [{ name: "activeUsers" }],
+          dimensions: [{ name: "country" }, { name: "countryId" }],
+          dimensionFilter,
+          limit: 8,
+          orderBys: [
+            {
+              metric: { metricName: "activeUsers" },
+              desc: true,
+            },
+          ],
+        },
+        "countries",
+      ),
+      runReport(
+        {
+          property,
+          dateRanges: [dateRange],
+          metrics: [{ name: "activeUsers" }],
+          dimensions: [
+            { name: "city" },
+            { name: "region" },
+            { name: "country" },
+            { name: "countryId" },
+          ],
+          dimensionFilter,
+          limit: 8,
+          orderBys: [
+            {
+              metric: { metricName: "activeUsers" },
+              desc: true,
+            },
+          ],
+        },
+        "cities",
+      ),
+      runReport(
+        {
+          property,
+          dateRanges: [dateRange],
+          metrics: [{ name: "activeUsers" }],
+          dimensions: [{ name: "deviceCategory" }],
+          dimensionFilter,
+          limit: 8,
+          orderBys: [
+            {
+              metric: { metricName: "activeUsers" },
+              desc: true,
+            },
+          ],
+        },
+        "devices",
+      ),
+    ])
+  } else {
+    trendReport = await runReport(
+      {
         property,
         dateRanges: [dateRange],
         metrics,
@@ -427,127 +703,9 @@ async function fetchProductTrafficFromGa({
           protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
         ],
         orderBys: [{ dimension: { dimensionName: "date" } }],
-      }),
-      runReport({
-        property,
-        dateRanges: [dateRange],
-        metrics: [{ name: "screenPageViews" }],
-        dimensions: [{ name: "pageReferrer" }],
-        dimensionFilter,
-        limit: 8,
-        orderBys: [
-          {
-            metric: {
-              metricName: "screenPageViews",
-            },
-            desc: true,
-          },
-        ],
-      }),
-      runReport({
-        property,
-        dateRanges: [dateRange],
-        metrics: [{ name: "screenPageViews" }],
-        dimensions: [{ name: "sessionDefaultChannelGrouping" }],
-        dimensionFilter,
-        limit: 8,
-        orderBys: [
-          {
-            metric: {
-              metricName: "screenPageViews",
-            },
-            desc: true,
-          },
-        ],
-      }),
-      runReport({
-        property,
-        dateRanges: [dateRange],
-        metrics: [{ name: "activeUsers" }],
-        dimensions: [{ name: "browser" }],
-        dimensionFilter,
-        limit: 8,
-        orderBys: [
-          {
-            metric: { metricName: "activeUsers" },
-            desc: true,
-          },
-        ],
-      }),
-      runReport({
-        property,
-        dateRanges: [dateRange],
-        metrics: [{ name: "activeUsers" }],
-        dimensions: [{ name: "operatingSystem" }],
-        dimensionFilter,
-        limit: 8,
-        orderBys: [
-          {
-            metric: { metricName: "activeUsers" },
-            desc: true,
-          },
-        ],
-      }),
-      runReport({
-        property,
-        dateRanges: [dateRange],
-        metrics: [{ name: "activeUsers" }],
-        dimensions: [{ name: "country" }, { name: "countryId" }],
-        dimensionFilter,
-        limit: 8,
-        orderBys: [
-          {
-            metric: { metricName: "activeUsers" },
-            desc: true,
-          },
-        ],
-      }),
-      runReport({
-        property,
-        dateRanges: [dateRange],
-        metrics: [{ name: "activeUsers" }],
-        dimensions: [
-          { name: "city" },
-          { name: "region" },
-          { name: "country" },
-          { name: "countryId" },
-        ],
-        dimensionFilter,
-        limit: 8,
-        orderBys: [
-          {
-            metric: { metricName: "activeUsers" },
-            desc: true,
-          },
-        ],
-      }),
-      runReport({
-        property,
-        dateRanges: [dateRange],
-        metrics: [{ name: "activeUsers" }],
-        dimensions: [{ name: "deviceCategory" }],
-        dimensionFilter,
-        limit: 8,
-        orderBys: [
-          {
-            metric: { metricName: "activeUsers" },
-            desc: true,
-          },
-        ],
-      }),
-    ])
-  } else {
-    trendReport = await runReport({
-      property,
-      dateRanges: [dateRange],
-      metrics,
-      dimensions: [{ name: "date" }],
-      dimensionFilter,
-      metricAggregations: [
-        protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
-      ],
-      orderBys: [{ dimension: { dimensionName: "date" } }],
-    })
+      },
+      "trend",
+    )
   }
 
   const trendResponse = trendReport
@@ -712,12 +870,53 @@ export async function getProductTrafficFromGa(args: {
   dateRange: GaDateRange
   includeAdvanced?: boolean
 }): Promise<GaProductTrafficSummary> {
+  const includeAdvanced = args.includeAdvanced ?? true
+  const dateRange = normalizeGaDateRange(args.dateRange)
+  const cacheKey = buildProductTrafficCacheKey({
+    pagePaths: args.pagePaths,
+    dateRange,
+    includeAdvanced,
+  })
+
+  const cached = await cacheHit<GaProductTrafficSummary>({
+    key: cacheKey,
+    inProcessTtlMs: PRODUCT_TRAFFIC_IN_PROCESS_TTL_MS,
+    onError: (error) => {
+      console.error("[analytics] failed to read GA product traffic cache", {
+        cacheKey,
+        error,
+      })
+    },
+  })
+
+  if (cached) {
+    return cached
+  }
+
   try {
-    return await fetchProductTrafficFromGa(args)
+    const fresh = await fetchProductTrafficFromGa({
+      pagePaths: args.pagePaths,
+      dateRange,
+      includeAdvanced,
+    })
+    await cacheMiss({
+      key: cacheKey,
+      value: fresh,
+      ttlSeconds: PRODUCT_TRAFFIC_CACHE_TTL_SECONDS,
+      inProcessTtlMs: PRODUCT_TRAFFIC_IN_PROCESS_TTL_MS,
+      onError: (error) => {
+        console.error("[analytics] failed to cache GA product traffic", {
+          cacheKey,
+          error,
+        })
+      },
+    })
+    return fresh
   } catch (error) {
     console.error("[analytics] failed to fetch GA product traffic", {
       pagePaths: args.pagePaths,
-      dateRange: args.dateRange,
+      dateRange,
+      includeAdvanced,
       error,
     })
     return {
@@ -787,22 +986,26 @@ export async function getProductTrafficMapFromGa(args: {
     if (!chunk.length) continue
 
     try {
-      const response = await client.runReport({
-        property,
-        dateRanges: [dateRange],
-        dimensions: [{ name: "pagePath" }],
-        metrics,
-        dimensionFilter: {
-          filter: {
-            fieldName: "pagePath",
-            inListFilter: {
-              values: chunk,
+      const response = await runReportWithQuota(
+        client,
+        {
+          property,
+          dateRanges: [dateRange],
+          dimensions: [{ name: "pagePath" }],
+          metrics,
+          dimensionFilter: {
+            filter: {
+              fieldName: "pagePath",
+              inListFilter: {
+                values: chunk,
+              },
             },
           },
         },
-      })
+        `product-traffic-map:${Math.floor(i / CHUNK_SIZE) + 1}`,
+      )
 
-      const rows = response?.[0]?.rows ?? []
+      const rows = response.rows ?? []
       for (const row of rows) {
         const path = row.dimensionValues?.[0]?.value ?? ""
         const productId = pathToProductId.get(path)
@@ -901,8 +1104,9 @@ async function fetchSiteAnalyticsSnapshot({
     osResponse,
     deviceResponse,
   ] = await Promise.all([
-    client
-      .runReport({
+    runReportWithQuota(
+      client,
+      {
         property,
         dateRanges: [dateRange],
         metrics,
@@ -911,10 +1115,12 @@ async function fetchSiteAnalyticsSnapshot({
           protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
         ],
         orderBys: [{ dimension: { dimensionName: "date" } }],
-      })
-      .then((res) => res[0]),
-    client
-      .runReport({
+      },
+      "site-snapshot:trend",
+    ),
+    runReportWithQuota(
+      client,
+      {
         property,
         dateRanges: [dateRange],
         metrics: [{ name: "screenPageViews" }],
@@ -926,10 +1132,12 @@ async function fetchSiteAnalyticsSnapshot({
           },
         ],
         limit: 12,
-      })
-      .then((res) => res[0]),
-    client
-      .runReport({
+      },
+      "site-snapshot:referrers",
+    ),
+    runReportWithQuota(
+      client,
+      {
         property,
         dateRanges: [dateRange],
         metrics,
@@ -971,10 +1179,12 @@ async function fetchSiteAnalyticsSnapshot({
           },
         ],
         limit: Math.max(10, topProductLimit * 4),
-      })
-      .then((res) => res[0]),
-    client
-      .runReport({
+      },
+      "site-snapshot:product-pages",
+    ),
+    runReportWithQuota(
+      client,
+      {
         property,
         dateRanges: [dateRange],
         metrics: [{ name: "activeUsers" }],
@@ -986,10 +1196,12 @@ async function fetchSiteAnalyticsSnapshot({
           },
         ],
         limit: 10,
-      })
-      .then((res) => res[0]),
-    client
-      .runReport({
+      },
+      "site-snapshot:countries",
+    ),
+    runReportWithQuota(
+      client,
+      {
         property,
         dateRanges: [dateRange],
         metrics: [{ name: "activeUsers" }],
@@ -1005,10 +1217,12 @@ async function fetchSiteAnalyticsSnapshot({
           },
         ],
         limit: 10,
-      })
-      .then((res) => res[0]),
-    client
-      .runReport({
+      },
+      "site-snapshot:regions",
+    ),
+    runReportWithQuota(
+      client,
+      {
         property,
         dateRanges: [dateRange],
         metrics: [{ name: "activeUsers" }],
@@ -1025,10 +1239,12 @@ async function fetchSiteAnalyticsSnapshot({
           },
         ],
         limit: 10,
-      })
-      .then((res) => res[0]),
-    client
-      .runReport({
+      },
+      "site-snapshot:cities",
+    ),
+    runReportWithQuota(
+      client,
+      {
         property,
         dateRanges: [dateRange],
         metrics: [{ name: "activeUsers" }],
@@ -1040,10 +1256,12 @@ async function fetchSiteAnalyticsSnapshot({
           },
         ],
         limit: 8,
-      })
-      .then((res) => res[0]),
-    client
-      .runReport({
+      },
+      "site-snapshot:browsers",
+    ),
+    runReportWithQuota(
+      client,
+      {
         property,
         dateRanges: [dateRange],
         metrics: [{ name: "activeUsers" }],
@@ -1055,10 +1273,12 @@ async function fetchSiteAnalyticsSnapshot({
           },
         ],
         limit: 8,
-      })
-      .then((res) => res[0]),
-    client
-      .runReport({
+      },
+      "site-snapshot:operating-systems",
+    ),
+    runReportWithQuota(
+      client,
+      {
         property,
         dateRanges: [dateRange],
         metrics: [{ name: "activeUsers" }],
@@ -1070,8 +1290,9 @@ async function fetchSiteAnalyticsSnapshot({
           },
         ],
         limit: 5,
-      })
-      .then((res) => res[0]),
+      },
+      "site-snapshot:devices",
+    ),
   ])
   const totals = trendResponse.totals?.[0]?.metricValues ?? undefined
   const rows = trendResponse.rows ?? []
@@ -1373,12 +1594,14 @@ export async function runGaReport(
     throw new Error("GA_PROPERTY_ID is missing")
   }
 
-  const [response] = await client.runReport({
-    ...request,
-    property,
-  })
-
-  return response
+  return runReportWithQuota(
+    client,
+    {
+      ...request,
+      property,
+    },
+    "ga-report",
+  )
 }
 
 async function fetchHomepageTrafficFromGa(): Promise<HomepageTraffic> {
@@ -1388,20 +1611,20 @@ async function fetchHomepageTrafficFromGa(): Promise<HomepageTraffic> {
     throw new Error("GA_PROPERTY_ID is missing")
   }
 
-  const reportResponse = await client.runReport({
-    property,
-    dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
-    dimensions: [{ name: "date" }],
-    metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }],
-    orderBys: [{ dimension: { dimensionName: "date" } }],
-    metricAggregations: [
-      protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
-    ],
-  })
-  const response =
-    Array.isArray(reportResponse) && reportResponse.length > 0
-      ? reportResponse[0]
-      : (reportResponse as protos.google.analytics.data.v1beta.IRunReportResponse)
+  const response = await runReportWithQuota(
+    client,
+    {
+      property,
+      dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+      dimensions: [{ name: "date" }],
+      metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }],
+      orderBys: [{ dimension: { dimensionName: "date" } }],
+      metricAggregations: [
+        protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
+      ],
+    },
+    "homepage-traffic",
+  )
 
   const totals = response.totals?.[0]?.metricValues ?? []
   const summedFromRows = (index: number) =>
@@ -1483,14 +1706,14 @@ async function fetchRealtimeVisitorsFromGa(): Promise<number> {
     throw new Error("GA_PROPERTY_ID is missing")
   }
 
-  const rtResponse = await client.runRealtimeReport({
-    property,
-    metrics: [{ name: "activeUsers" }],
-  })
-  const response =
-    Array.isArray(rtResponse) && rtResponse.length > 0
-      ? rtResponse[0]
-      : (rtResponse as protos.google.analytics.data.v1beta.IRunRealtimeReportResponse)
+  const response = await runRealtimeReportWithQuota(
+    client,
+    {
+      property,
+      metrics: [{ name: "activeUsers" }],
+    },
+    "realtime-visitors",
+  )
 
   const total = Number(response.totals?.[0]?.metricValues?.[0]?.value ?? 0)
   const summedRows =
