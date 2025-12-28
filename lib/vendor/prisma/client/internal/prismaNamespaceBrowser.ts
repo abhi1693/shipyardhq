@@ -73,6 +73,14 @@ export const ModelName = {
   ProductTrafficDeviceDaily: 'ProductTrafficDeviceDaily',
   ProductTrafficCountryDaily: 'ProductTrafficCountryDaily',
   ProductTrafficCityDaily: 'ProductTrafficCityDaily',
+  SiteTrafficDaily: 'SiteTrafficDaily',
+  SiteTrafficReferrerDaily: 'SiteTrafficReferrerDaily',
+  SiteTrafficBrowserDaily: 'SiteTrafficBrowserDaily',
+  SiteTrafficOperatingSystemDaily: 'SiteTrafficOperatingSystemDaily',
+  SiteTrafficDeviceDaily: 'SiteTrafficDeviceDaily',
+  SiteTrafficCountryDaily: 'SiteTrafficCountryDaily',
+  SiteTrafficRegionDaily: 'SiteTrafficRegionDaily',
+  SiteTrafficCityDaily: 'SiteTrafficCityDaily',
   ProductUpvote: 'ProductUpvote',
   User: 'User',
   MemberFeedback: 'MemberFeedback',
@@ -459,6 +467,131 @@ export const ProductTrafficCityDailyScalarFieldEnum = {
 } as const
 
 export type ProductTrafficCityDailyScalarFieldEnum = (typeof ProductTrafficCityDailyScalarFieldEnum)[keyof typeof ProductTrafficCityDailyScalarFieldEnum]
+
+
+export const SiteTrafficDailyScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  source: 'source',
+  pageViews: 'pageViews',
+  uniqueVisitors: 'uniqueVisitors',
+  sessions: 'sessions',
+  bounceRate: 'bounceRate',
+  averageSessionDuration: 'averageSessionDuration',
+  newUsers: 'newUsers',
+  returningVisitors: 'returningVisitors',
+  engagementRate: 'engagementRate',
+  pagesPerSession: 'pagesPerSession',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteTrafficDailyScalarFieldEnum = (typeof SiteTrafficDailyScalarFieldEnum)[keyof typeof SiteTrafficDailyScalarFieldEnum]
+
+
+export const SiteTrafficReferrerDailyScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  source: 'source',
+  referrer: 'referrer',
+  pageViews: 'pageViews',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteTrafficReferrerDailyScalarFieldEnum = (typeof SiteTrafficReferrerDailyScalarFieldEnum)[keyof typeof SiteTrafficReferrerDailyScalarFieldEnum]
+
+
+export const SiteTrafficBrowserDailyScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  source: 'source',
+  browser: 'browser',
+  visitors: 'visitors',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteTrafficBrowserDailyScalarFieldEnum = (typeof SiteTrafficBrowserDailyScalarFieldEnum)[keyof typeof SiteTrafficBrowserDailyScalarFieldEnum]
+
+
+export const SiteTrafficOperatingSystemDailyScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  source: 'source',
+  operatingSystem: 'operatingSystem',
+  visitors: 'visitors',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteTrafficOperatingSystemDailyScalarFieldEnum = (typeof SiteTrafficOperatingSystemDailyScalarFieldEnum)[keyof typeof SiteTrafficOperatingSystemDailyScalarFieldEnum]
+
+
+export const SiteTrafficDeviceDailyScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  source: 'source',
+  deviceCategory: 'deviceCategory',
+  visitors: 'visitors',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteTrafficDeviceDailyScalarFieldEnum = (typeof SiteTrafficDeviceDailyScalarFieldEnum)[keyof typeof SiteTrafficDeviceDailyScalarFieldEnum]
+
+
+export const SiteTrafficCountryDailyScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  source: 'source',
+  country: 'country',
+  countryCode: 'countryCode',
+  visitors: 'visitors',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteTrafficCountryDailyScalarFieldEnum = (typeof SiteTrafficCountryDailyScalarFieldEnum)[keyof typeof SiteTrafficCountryDailyScalarFieldEnum]
+
+
+export const SiteTrafficRegionDailyScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  source: 'source',
+  region: 'region',
+  country: 'country',
+  countryCode: 'countryCode',
+  visitors: 'visitors',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteTrafficRegionDailyScalarFieldEnum = (typeof SiteTrafficRegionDailyScalarFieldEnum)[keyof typeof SiteTrafficRegionDailyScalarFieldEnum]
+
+
+export const SiteTrafficCityDailyScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  source: 'source',
+  city: 'city',
+  region: 'region',
+  country: 'country',
+  countryCode: 'countryCode',
+  visitors: 'visitors',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteTrafficCityDailyScalarFieldEnum = (typeof SiteTrafficCityDailyScalarFieldEnum)[keyof typeof SiteTrafficCityDailyScalarFieldEnum]
 
 
 export const ProductUpvoteScalarFieldEnum = {

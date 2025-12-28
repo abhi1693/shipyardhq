@@ -136,7 +136,9 @@ export type AnalyticsIngestionStatus = (typeof AnalyticsIngestionStatus)[keyof t
 
 export const AnalyticsIngestionJob = {
   product_traffic_daily: 'product_traffic_daily',
-  product_traffic_breakdowns: 'product_traffic_breakdowns'
+  product_traffic_breakdowns: 'product_traffic_breakdowns',
+  site_traffic_daily: 'site_traffic_daily',
+  site_traffic_breakdowns: 'site_traffic_breakdowns'
 } as const
 
 export type AnalyticsIngestionJob = (typeof AnalyticsIngestionJob)[keyof typeof AnalyticsIngestionJob]

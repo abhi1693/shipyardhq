@@ -156,6 +156,7 @@ export default async function AnalyticsPage() {
   const prevRangeStartUtc = startOfUtcDay(prevRangeStart)
   const prevRangeEndUtc = startOfUtcDay(prevRangeEnd)
   const analyticsProvider = getAnalyticsProvider("db")
+  const realtimeProvider = getAnalyticsProvider("cache")
 
   const [snapshot, previousSnapshot, realtimeVisitors, verifiedRevenue] =
     await Promise.all([
@@ -167,7 +168,7 @@ export default async function AnalyticsPage() {
           endDate: format(prevRangeEnd, "yyyy-MM-dd"),
         },
       }),
-      analyticsProvider.getRealtimeVisitors(),
+      realtimeProvider.getRealtimeVisitors(),
       getVerifiedRevenueTotals({
         rangeStart: rangeStartUtc,
         rangeEnd: rangeEndUtc,

@@ -19,8 +19,19 @@ function resolveJobs(jobParam: string | null) {
       return ["product_traffic_daily"] as const
     case "breakdowns":
       return ["product_traffic_breakdowns"] as const
+    case "site-daily":
+      return ["site_traffic_daily"] as const
+    case "site-breakdowns":
+      return ["site_traffic_breakdowns"] as const
+    case "site":
+      return ["site_traffic_daily", "site_traffic_breakdowns"] as const
     case "all":
-      return ["product_traffic_daily", "product_traffic_breakdowns"] as const
+      return [
+        "product_traffic_daily",
+        "product_traffic_breakdowns",
+        "site_traffic_daily",
+        "site_traffic_breakdowns",
+      ] as const
     default:
       return null
   }

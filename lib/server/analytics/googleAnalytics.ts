@@ -1583,7 +1583,7 @@ export async function getHomepageTrafficFromGa(): Promise<HomepageTraffic> {
   }
 }
 
-async function fetchRealtimeVisitorsFromGa(): Promise<number> {
+export async function fetchRealtimeVisitorsFromGa(): Promise<number> {
   const client = await getClient()
   const property = resolveProperty()
   if (!property) {

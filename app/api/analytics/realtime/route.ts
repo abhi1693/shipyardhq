@@ -4,7 +4,7 @@ import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 
 export async function GET() {
   try {
-    const visitors = await getAnalyticsProvider("db").getRealtimeVisitors()
+    const visitors = await getAnalyticsProvider("cache").getRealtimeVisitors()
     return NextResponse.json(
       { visitors },
       {

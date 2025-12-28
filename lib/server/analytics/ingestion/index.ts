@@ -11,8 +11,20 @@ import {
   syncProductTrafficBreakdowns,
   type ProductTrafficBreakdownSyncResult,
 } from "@/lib/server/analytics/ingestion/productTrafficBreakdowns"
+import {
+  syncSiteTrafficDaily,
+  type SiteTrafficDailySyncResult,
+} from "@/lib/server/analytics/ingestion/siteTrafficDaily"
+import {
+  syncSiteTrafficBreakdowns,
+  type SiteTrafficBreakdownSyncResult,
+} from "@/lib/server/analytics/ingestion/siteTrafficBreakdowns"
 
-type IngestionJobKey = "product_traffic_daily" | "product_traffic_breakdowns"
+type IngestionJobKey =
+  | "product_traffic_daily"
+  | "product_traffic_breakdowns"
+  | "site_traffic_daily"
+  | "site_traffic_breakdowns"
 
 type IngestionJobResult = {
   job: IngestionJobKey
@@ -95,7 +107,10 @@ export async function runAnalyticsIngestion(
       ? options.jobs
       : ([
           "product_traffic_daily",
-          ...(options.includeBreakdowns ? ["product_traffic_breakdowns"] : []),
+          "site_traffic_daily",
+          ...(options.includeBreakdowns
+            ? ["product_traffic_breakdowns", "site_traffic_breakdowns"]
+            : []),
         ] as IngestionJobKey[])
 
   const results: IngestionJobResult[] = []
@@ -103,7 +118,11 @@ export async function runAnalyticsIngestion(
   for (const job of requestedJobs) {
     const run = await startIngestionRun(job, window)
     try {
-      let stats: ProductTrafficDailySyncResult | ProductTrafficBreakdownSyncResult
+      let stats:
+        | ProductTrafficDailySyncResult
+        | ProductTrafficBreakdownSyncResult
+        | SiteTrafficDailySyncResult
+        | SiteTrafficBreakdownSyncResult
 
       if (job === "product_traffic_daily") {
         stats = await syncProductTrafficDaily({
@@ -111,8 +130,20 @@ export async function runAnalyticsIngestion(
           ingestionRunId: run.id,
           maxRows: options.maxRows,
         })
-      } else {
+      } else if (job === "product_traffic_breakdowns") {
         stats = await syncProductTrafficBreakdowns({
+          window,
+          ingestionRunId: run.id,
+          maxRows: options.maxRows,
+        })
+      } else if (job === "site_traffic_daily") {
+        stats = await syncSiteTrafficDaily({
+          window,
+          ingestionRunId: run.id,
+          maxRows: options.maxRows,
+        })
+      } else {
+        stats = await syncSiteTrafficBreakdowns({
           window,
           ingestionRunId: run.id,
           maxRows: options.maxRows,

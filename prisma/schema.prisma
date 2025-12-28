@@ -370,6 +370,8 @@ enum AnalyticsIngestionStatus {
 enum AnalyticsIngestionJob {
   product_traffic_daily
   product_traffic_breakdowns
+  site_traffic_daily
+  site_traffic_breakdowns
 }
 
 model AnalyticsIngestionRun {
@@ -394,6 +396,14 @@ model AnalyticsIngestionRun {
   productTrafficDevices          ProductTrafficDeviceDaily[]
   productTrafficCountries        ProductTrafficCountryDaily[]
   productTrafficCities           ProductTrafficCityDaily[]
+  siteTrafficDaily               SiteTrafficDaily[]
+  siteTrafficReferrers           SiteTrafficReferrerDaily[]
+  siteTrafficBrowsers            SiteTrafficBrowserDaily[]
+  siteTrafficOperatingSystems    SiteTrafficOperatingSystemDaily[]
+  siteTrafficDevices             SiteTrafficDeviceDaily[]
+  siteTrafficCountries           SiteTrafficCountryDaily[]
+  siteTrafficRegions             SiteTrafficRegionDaily[]
+  siteTrafficCities              SiteTrafficCityDaily[]
 
   @@unique([source, job, windowStart, windowEnd])
   @@index([status, createdAt])
@@ -562,6 +572,155 @@ model ProductTrafficCityDaily {
 
   @@unique([productId, date, source, city, region, country, countryCode])
   @@index([productId, date])
+  @@index([city])
+}
+
+model SiteTrafficDaily {
+  id                     String              @id @default(cuid())
+  date                   DateTime
+  source                 AnalyticsDataSource @default(ga4)
+  pageViews              Int                 @default(0)
+  uniqueVisitors         Int                 @default(0)
+  sessions               Int                 @default(0)
+  bounceRate             Float               @default(0)
+  averageSessionDuration Float               @default(0)
+  newUsers               Int                 @default(0)
+  returningVisitors      Int                 @default(0)
+  engagementRate         Float               @default(0)
+  pagesPerSession        Float               @default(0)
+  ingestionRunId         String?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([date, source])
+  @@index([date])
+  @@index([source, date])
+}
+
+model SiteTrafficReferrerDaily {
+  id             String              @id @default(cuid())
+  date           DateTime
+  source         AnalyticsDataSource @default(ga4)
+  referrer       String
+  pageViews      Int                 @default(0)
+  ingestionRunId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([date, source, referrer])
+  @@index([date])
+  @@index([referrer])
+}
+
+model SiteTrafficBrowserDaily {
+  id             String              @id @default(cuid())
+  date           DateTime
+  source         AnalyticsDataSource @default(ga4)
+  browser        String
+  visitors       Int                 @default(0)
+  ingestionRunId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([date, source, browser])
+  @@index([date])
+  @@index([browser])
+}
+
+model SiteTrafficOperatingSystemDaily {
+  id              String              @id @default(cuid())
+  date            DateTime
+  source          AnalyticsDataSource @default(ga4)
+  operatingSystem String
+  visitors        Int                 @default(0)
+  ingestionRunId  String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([date, source, operatingSystem])
+  @@index([date])
+  @@index([operatingSystem])
+}
+
+model SiteTrafficDeviceDaily {
+  id             String              @id @default(cuid())
+  date           DateTime
+  source         AnalyticsDataSource @default(ga4)
+  deviceCategory String
+  visitors       Int                 @default(0)
+  ingestionRunId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([date, source, deviceCategory])
+  @@index([date])
+  @@index([deviceCategory])
+}
+
+model SiteTrafficCountryDaily {
+  id             String              @id @default(cuid())
+  date           DateTime
+  source         AnalyticsDataSource @default(ga4)
+  country        String
+  countryCode    String
+  visitors       Int                 @default(0)
+  ingestionRunId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([date, source, country, countryCode])
+  @@index([date])
+  @@index([country])
+}
+
+model SiteTrafficRegionDaily {
+  id             String              @id @default(cuid())
+  date           DateTime
+  source         AnalyticsDataSource @default(ga4)
+  region         String
+  country        String
+  countryCode    String
+  visitors       Int                 @default(0)
+  ingestionRunId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([date, source, region, country, countryCode])
+  @@index([date])
+  @@index([region])
+}
+
+model SiteTrafficCityDaily {
+  id             String              @id @default(cuid())
+  date           DateTime
+  source         AnalyticsDataSource @default(ga4)
+  city           String
+  region         String
+  country        String
+  countryCode    String
+  visitors       Int                 @default(0)
+  ingestionRunId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([date, source, city, region, country, countryCode])
+  @@index([date])
   @@index([city])
 }
 

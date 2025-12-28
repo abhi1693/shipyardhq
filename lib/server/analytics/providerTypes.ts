@@ -14,7 +14,7 @@ export type ProductTrafficMapEntry = {
   sessions: number
 }
 
-export type AnalyticsProviderKey = "ga4" | "db"
+export type AnalyticsProviderKey = "ga4" | "db" | "cache"
 
 export type AnalyticsProvider = {
   getProductTraffic: (args: {

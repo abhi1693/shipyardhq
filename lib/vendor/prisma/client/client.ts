@@ -150,6 +150,46 @@ export type ProductTrafficCountryDaily = Prisma.ProductTrafficCountryDailyModel
  */
 export type ProductTrafficCityDaily = Prisma.ProductTrafficCityDailyModel
 /**
+ * Model SiteTrafficDaily
+ * 
+ */
+export type SiteTrafficDaily = Prisma.SiteTrafficDailyModel
+/**
+ * Model SiteTrafficReferrerDaily
+ * 
+ */
+export type SiteTrafficReferrerDaily = Prisma.SiteTrafficReferrerDailyModel
+/**
+ * Model SiteTrafficBrowserDaily
+ * 
+ */
+export type SiteTrafficBrowserDaily = Prisma.SiteTrafficBrowserDailyModel
+/**
+ * Model SiteTrafficOperatingSystemDaily
+ * 
+ */
+export type SiteTrafficOperatingSystemDaily = Prisma.SiteTrafficOperatingSystemDailyModel
+/**
+ * Model SiteTrafficDeviceDaily
+ * 
+ */
+export type SiteTrafficDeviceDaily = Prisma.SiteTrafficDeviceDailyModel
+/**
+ * Model SiteTrafficCountryDaily
+ * 
+ */
+export type SiteTrafficCountryDaily = Prisma.SiteTrafficCountryDailyModel
+/**
+ * Model SiteTrafficRegionDaily
+ * 
+ */
+export type SiteTrafficRegionDaily = Prisma.SiteTrafficRegionDailyModel
+/**
+ * Model SiteTrafficCityDaily
+ * 
+ */
+export type SiteTrafficCityDaily = Prisma.SiteTrafficCityDailyModel
+/**
  * Model ProductUpvote
  * 
  */
