@@ -43,6 +43,14 @@ model Product {
   plan                  Plan?                   @relation(fields: [planId], references: [id], onDelete: SetNull)
   metadata              ProductMetadata?
   analytics             ProductAnalytics?
+  trafficDaily            ProductTrafficDaily[]
+  trafficReferrers        ProductTrafficReferrerDaily[]
+  trafficChannels         ProductTrafficChannelDaily[]
+  trafficBrowsers         ProductTrafficBrowserDaily[]
+  trafficOperatingSystems ProductTrafficOperatingSystemDaily[]
+  trafficDevices          ProductTrafficDeviceDaily[]
+  trafficCountries        ProductTrafficCountryDaily[]
+  trafficCities           ProductTrafficCityDaily[]
   verification          ProductVerification?
   ProductBadge          ProductBadge[]
   ProductMedia          ProductMedia[]
@@ -346,6 +354,215 @@ model ProductAnalytics {
   @@index([upvotes])
   @@index([createdAt])
   @@index([updatedAt])
+}
+
+enum AnalyticsDataSource {
+  ga4
+}
+
+enum AnalyticsIngestionStatus {
+  pending
+  processing
+  completed
+  failed
+}
+
+enum AnalyticsIngestionJob {
+  product_traffic_daily
+  product_traffic_breakdowns
+}
+
+model AnalyticsIngestionRun {
+  id          String                   @id @default(cuid())
+  source      AnalyticsDataSource      @default(ga4)
+  job         AnalyticsIngestionJob
+  status      AnalyticsIngestionStatus @default(pending)
+  windowStart DateTime
+  windowEnd   DateTime
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  stats       Json?
+  error       String?
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+
+  productTrafficDaily            ProductTrafficDaily[]
+  productTrafficReferrers        ProductTrafficReferrerDaily[]
+  productTrafficChannels         ProductTrafficChannelDaily[]
+  productTrafficBrowsers         ProductTrafficBrowserDaily[]
+  productTrafficOperatingSystems ProductTrafficOperatingSystemDaily[]
+  productTrafficDevices          ProductTrafficDeviceDaily[]
+  productTrafficCountries        ProductTrafficCountryDaily[]
+  productTrafficCities           ProductTrafficCityDaily[]
+
+  @@unique([source, job, windowStart, windowEnd])
+  @@index([status, createdAt])
+  @@index([job, source, windowStart])
+  @@index([windowStart, windowEnd])
+}
+
+model ProductTrafficDaily {
+  id                     String              @id @default(cuid())
+  productId              String
+  date                   DateTime
+  source                 AnalyticsDataSource @default(ga4)
+  pageViews              Int                 @default(0)
+  uniqueVisitors         Int                 @default(0)
+  sessions               Int                 @default(0)
+  bounceRate             Float               @default(0)
+  averageSessionDuration Float               @default(0)
+  newUsers               Int                 @default(0)
+  returningVisitors      Int                 @default(0)
+  engagementRate         Float               @default(0)
+  pagesPerSession        Float               @default(0)
+  ingestionRunId         String?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  product      Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, date, source])
+  @@index([productId, date])
+  @@index([date])
+  @@index([source, date])
+}
+
+model ProductTrafficReferrerDaily {
+  id             String              @id @default(cuid())
+  productId      String
+  date           DateTime
+  source         AnalyticsDataSource @default(ga4)
+  referrer       String
+  pageViews      Int                 @default(0)
+  ingestionRunId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  product      Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, date, source, referrer])
+  @@index([productId, date])
+  @@index([referrer])
+}
+
+model ProductTrafficChannelDaily {
+  id             String              @id @default(cuid())
+  productId      String
+  date           DateTime
+  source         AnalyticsDataSource @default(ga4)
+  channel        String
+  pageViews      Int                 @default(0)
+  ingestionRunId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  product      Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, date, source, channel])
+  @@index([productId, date])
+  @@index([channel])
+}
+
+model ProductTrafficBrowserDaily {
+  id             String              @id @default(cuid())
+  productId      String
+  date           DateTime
+  source         AnalyticsDataSource @default(ga4)
+  browser        String
+  visitors       Int                 @default(0)
+  ingestionRunId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  product      Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, date, source, browser])
+  @@index([productId, date])
+  @@index([browser])
+}
+
+model ProductTrafficOperatingSystemDaily {
+  id              String              @id @default(cuid())
+  productId       String
+  date            DateTime
+  source          AnalyticsDataSource @default(ga4)
+  operatingSystem String
+  visitors        Int                 @default(0)
+  ingestionRunId  String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  product      Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, date, source, operatingSystem])
+  @@index([productId, date])
+  @@index([operatingSystem])
+}
+
+model ProductTrafficDeviceDaily {
+  id             String              @id @default(cuid())
+  productId      String
+  date           DateTime
+  source         AnalyticsDataSource @default(ga4)
+  deviceCategory String
+  visitors       Int                 @default(0)
+  ingestionRunId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  product      Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, date, source, deviceCategory])
+  @@index([productId, date])
+  @@index([deviceCategory])
+}
+
+model ProductTrafficCountryDaily {
+  id             String              @id @default(cuid())
+  productId      String
+  date           DateTime
+  source         AnalyticsDataSource @default(ga4)
+  country        String              @default("Unknown")
+  countryCode    String              @default("")
+  visitors       Int                 @default(0)
+  ingestionRunId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  product      Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, date, source, country, countryCode])
+  @@index([productId, date])
+  @@index([country])
+}
+
+model ProductTrafficCityDaily {
+  id             String              @id @default(cuid())
+  productId      String
+  date           DateTime
+  source         AnalyticsDataSource @default(ga4)
+  city           String              @default("Unknown")
+  region         String              @default("Unknown")
+  country        String              @default("Unknown")
+  countryCode    String              @default("")
+  visitors       Int                 @default(0)
+  ingestionRunId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  product      Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, date, source, city, region, country, countryCode])
+  @@index([productId, date])
+  @@index([city])
 }
 
 model ProductUpvote {

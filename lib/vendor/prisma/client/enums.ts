@@ -117,6 +117,31 @@ export const ProductClaimStatus = {
 export type ProductClaimStatus = (typeof ProductClaimStatus)[keyof typeof ProductClaimStatus]
 
 
+export const AnalyticsDataSource = {
+  ga4: 'ga4'
+} as const
+
+export type AnalyticsDataSource = (typeof AnalyticsDataSource)[keyof typeof AnalyticsDataSource]
+
+
+export const AnalyticsIngestionStatus = {
+  pending: 'pending',
+  processing: 'processing',
+  completed: 'completed',
+  failed: 'failed'
+} as const
+
+export type AnalyticsIngestionStatus = (typeof AnalyticsIngestionStatus)[keyof typeof AnalyticsIngestionStatus]
+
+
+export const AnalyticsIngestionJob = {
+  product_traffic_daily: 'product_traffic_daily',
+  product_traffic_breakdowns: 'product_traffic_breakdowns'
+} as const
+
+export type AnalyticsIngestionJob = (typeof AnalyticsIngestionJob)[keyof typeof AnalyticsIngestionJob]
+
+
 export const UserStatus = {
   active: 'active',
   suspended: 'suspended',

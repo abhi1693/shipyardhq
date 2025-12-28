@@ -64,6 +64,15 @@ export const ModelName = {
   ProductClaimAttempt: 'ProductClaimAttempt',
   ProductMetadata: 'ProductMetadata',
   ProductAnalytics: 'ProductAnalytics',
+  AnalyticsIngestionRun: 'AnalyticsIngestionRun',
+  ProductTrafficDaily: 'ProductTrafficDaily',
+  ProductTrafficReferrerDaily: 'ProductTrafficReferrerDaily',
+  ProductTrafficChannelDaily: 'ProductTrafficChannelDaily',
+  ProductTrafficBrowserDaily: 'ProductTrafficBrowserDaily',
+  ProductTrafficOperatingSystemDaily: 'ProductTrafficOperatingSystemDaily',
+  ProductTrafficDeviceDaily: 'ProductTrafficDeviceDaily',
+  ProductTrafficCountryDaily: 'ProductTrafficCountryDaily',
+  ProductTrafficCityDaily: 'ProductTrafficCityDaily',
   ProductUpvote: 'ProductUpvote',
   User: 'User',
   MemberFeedback: 'MemberFeedback',
@@ -301,6 +310,155 @@ export const ProductAnalyticsScalarFieldEnum = {
 } as const
 
 export type ProductAnalyticsScalarFieldEnum = (typeof ProductAnalyticsScalarFieldEnum)[keyof typeof ProductAnalyticsScalarFieldEnum]
+
+
+export const AnalyticsIngestionRunScalarFieldEnum = {
+  id: 'id',
+  source: 'source',
+  job: 'job',
+  status: 'status',
+  windowStart: 'windowStart',
+  windowEnd: 'windowEnd',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  stats: 'stats',
+  error: 'error',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AnalyticsIngestionRunScalarFieldEnum = (typeof AnalyticsIngestionRunScalarFieldEnum)[keyof typeof AnalyticsIngestionRunScalarFieldEnum]
+
+
+export const ProductTrafficDailyScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  date: 'date',
+  source: 'source',
+  pageViews: 'pageViews',
+  uniqueVisitors: 'uniqueVisitors',
+  sessions: 'sessions',
+  bounceRate: 'bounceRate',
+  averageSessionDuration: 'averageSessionDuration',
+  newUsers: 'newUsers',
+  returningVisitors: 'returningVisitors',
+  engagementRate: 'engagementRate',
+  pagesPerSession: 'pagesPerSession',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductTrafficDailyScalarFieldEnum = (typeof ProductTrafficDailyScalarFieldEnum)[keyof typeof ProductTrafficDailyScalarFieldEnum]
+
+
+export const ProductTrafficReferrerDailyScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  date: 'date',
+  source: 'source',
+  referrer: 'referrer',
+  pageViews: 'pageViews',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductTrafficReferrerDailyScalarFieldEnum = (typeof ProductTrafficReferrerDailyScalarFieldEnum)[keyof typeof ProductTrafficReferrerDailyScalarFieldEnum]
+
+
+export const ProductTrafficChannelDailyScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  date: 'date',
+  source: 'source',
+  channel: 'channel',
+  pageViews: 'pageViews',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductTrafficChannelDailyScalarFieldEnum = (typeof ProductTrafficChannelDailyScalarFieldEnum)[keyof typeof ProductTrafficChannelDailyScalarFieldEnum]
+
+
+export const ProductTrafficBrowserDailyScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  date: 'date',
+  source: 'source',
+  browser: 'browser',
+  visitors: 'visitors',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductTrafficBrowserDailyScalarFieldEnum = (typeof ProductTrafficBrowserDailyScalarFieldEnum)[keyof typeof ProductTrafficBrowserDailyScalarFieldEnum]
+
+
+export const ProductTrafficOperatingSystemDailyScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  date: 'date',
+  source: 'source',
+  operatingSystem: 'operatingSystem',
+  visitors: 'visitors',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductTrafficOperatingSystemDailyScalarFieldEnum = (typeof ProductTrafficOperatingSystemDailyScalarFieldEnum)[keyof typeof ProductTrafficOperatingSystemDailyScalarFieldEnum]
+
+
+export const ProductTrafficDeviceDailyScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  date: 'date',
+  source: 'source',
+  deviceCategory: 'deviceCategory',
+  visitors: 'visitors',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductTrafficDeviceDailyScalarFieldEnum = (typeof ProductTrafficDeviceDailyScalarFieldEnum)[keyof typeof ProductTrafficDeviceDailyScalarFieldEnum]
+
+
+export const ProductTrafficCountryDailyScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  date: 'date',
+  source: 'source',
+  country: 'country',
+  countryCode: 'countryCode',
+  visitors: 'visitors',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductTrafficCountryDailyScalarFieldEnum = (typeof ProductTrafficCountryDailyScalarFieldEnum)[keyof typeof ProductTrafficCountryDailyScalarFieldEnum]
+
+
+export const ProductTrafficCityDailyScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  date: 'date',
+  source: 'source',
+  city: 'city',
+  region: 'region',
+  country: 'country',
+  countryCode: 'countryCode',
+  visitors: 'visitors',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductTrafficCityDailyScalarFieldEnum = (typeof ProductTrafficCityDailyScalarFieldEnum)[keyof typeof ProductTrafficCityDailyScalarFieldEnum]
 
 
 export const ProductUpvoteScalarFieldEnum = {

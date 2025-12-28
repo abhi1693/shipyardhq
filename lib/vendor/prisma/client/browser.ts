@@ -83,6 +83,51 @@ export type ProductMetadata = Prisma.ProductMetadataModel
  */
 export type ProductAnalytics = Prisma.ProductAnalyticsModel
 /**
+ * Model AnalyticsIngestionRun
+ * 
+ */
+export type AnalyticsIngestionRun = Prisma.AnalyticsIngestionRunModel
+/**
+ * Model ProductTrafficDaily
+ * 
+ */
+export type ProductTrafficDaily = Prisma.ProductTrafficDailyModel
+/**
+ * Model ProductTrafficReferrerDaily
+ * 
+ */
+export type ProductTrafficReferrerDaily = Prisma.ProductTrafficReferrerDailyModel
+/**
+ * Model ProductTrafficChannelDaily
+ * 
+ */
+export type ProductTrafficChannelDaily = Prisma.ProductTrafficChannelDailyModel
+/**
+ * Model ProductTrafficBrowserDaily
+ * 
+ */
+export type ProductTrafficBrowserDaily = Prisma.ProductTrafficBrowserDailyModel
+/**
+ * Model ProductTrafficOperatingSystemDaily
+ * 
+ */
+export type ProductTrafficOperatingSystemDaily = Prisma.ProductTrafficOperatingSystemDailyModel
+/**
+ * Model ProductTrafficDeviceDaily
+ * 
+ */
+export type ProductTrafficDeviceDaily = Prisma.ProductTrafficDeviceDailyModel
+/**
+ * Model ProductTrafficCountryDaily
+ * 
+ */
+export type ProductTrafficCountryDaily = Prisma.ProductTrafficCountryDailyModel
+/**
+ * Model ProductTrafficCityDaily
+ * 
+ */
+export type ProductTrafficCityDaily = Prisma.ProductTrafficCityDailyModel
+/**
  * Model ProductUpvote
  * 
  */
