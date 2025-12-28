@@ -22,6 +22,62 @@ type RangeBounds = {
   days: number
 }
 
+type ReferrerRow = { referrer: string; _sum: { pageViews: number | null } }
+type BrowserRow = { browser: string; _sum: { visitors: number | null } }
+type OperatingSystemRow = {
+  operatingSystem: string
+  _sum: { visitors: number | null }
+}
+type DeviceRow = { deviceCategory: string; _sum: { visitors: number | null } }
+type CountryRow = {
+  country: string
+  countryCode: string
+  _sum: { visitors: number | null }
+}
+type RegionRow = {
+  region: string
+  country: string
+  countryCode: string
+  _sum: { visitors: number | null }
+}
+type CityRow = {
+  city: string
+  region: string
+  country: string
+  countryCode: string
+  _sum: { visitors: number | null }
+}
+type TopProductCandidateRow = {
+  productId: string
+  _sum: { pageViews: number | null }
+}
+type ProductReferrerRow = {
+  referrer: string
+  _sum: { pageViews: number | null }
+}
+type ProductChannelRow = { channel: string; _sum: { pageViews: number | null } }
+type ProductBrowserRow = { browser: string; _sum: { visitors: number | null } }
+type ProductOperatingSystemRow = {
+  operatingSystem: string
+  _sum: { visitors: number | null }
+}
+type ProductDeviceRow = {
+  deviceCategory: string
+  _sum: { visitors: number | null }
+}
+type ProductCountryRow = {
+  country: string
+  countryCode: string
+  _sum: { visitors: number | null }
+}
+type ProductCityRow = {
+  city: string
+  region: string
+  country: string
+  countryCode: string
+  _sum: { visitors: number | null }
+}
+
 function toUtcDate(value: string): Date | null {
   const parsed = new Date(`${value}T00:00:00Z`)
   return Number.isNaN(parsed.getTime()) ? null : parsed
@@ -248,7 +304,7 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     }),
   ])
 
-  const referrers = referrerRows.map((row) => {
+  const referrers = referrerRows.map((row: ReferrerRow) => {
     const views = Number(row._sum.pageViews ?? 0)
     return {
       referrer: row.referrer,
@@ -257,7 +313,7 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     }
   })
 
-  const browsers = browserRows.map((row) => {
+  const browsers = browserRows.map((row: BrowserRow) => {
     const visitors = Number(row._sum.visitors ?? 0)
     return {
       browser: row.browser,
@@ -266,7 +322,7 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     }
   })
 
-  const operatingSystems = osRows.map((row) => {
+  const operatingSystems = osRows.map((row: OperatingSystemRow) => {
     const visitors = Number(row._sum.visitors ?? 0)
     return {
       os: row.operatingSystem,
@@ -275,7 +331,7 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     }
   })
 
-  const devices = deviceRows.map((row) => {
+  const devices = deviceRows.map((row: DeviceRow) => {
     const visitors = Number(row._sum.visitors ?? 0)
     return {
       deviceCategory: row.deviceCategory,
@@ -284,7 +340,7 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     }
   })
 
-  const countries = countryRows.map((row) => {
+  const countries = countryRows.map((row: CountryRow) => {
     const visitors = Number(row._sum.visitors ?? 0)
     return {
       country: row.country,
@@ -294,7 +350,7 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     }
   })
 
-  const regions = regionRows.map((row) => {
+  const regions = regionRows.map((row: RegionRow) => {
     const visitors = Number(row._sum.visitors ?? 0)
     return {
       region: row.region,
@@ -305,7 +361,7 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     }
   })
 
-  const cities = cityRows.map((row) => {
+  const cities = cityRows.map((row: CityRow) => {
     const visitors = Number(row._sum.visitors ?? 0)
     return {
       city: row.city,
@@ -329,7 +385,9 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     take: Math.max(topProductLimit, 1),
   })
 
-  const candidateIds = topProductCandidates.map((row) => row.productId)
+  const candidateIds = topProductCandidates.map(
+    (row: TopProductCandidateRow) => row.productId,
+  )
   let topProductPages: Array<{
     path: string
     slug: string | null
@@ -356,8 +414,11 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
       }),
     ])
 
-    const slugById = new Map(
-      products.map((product) => [product.id, product.slug]),
+    const slugById = new Map<string, string>(
+      products.map((product: { id: string; slug: string }) => [
+        product.id,
+        product.slug,
+      ]),
     )
 
     const aggregated = new Map<
@@ -398,9 +459,9 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     }
 
     topProductPages = Array.from(aggregated.entries())
-      .map(([productId, metrics]) => {
-        const slug = slugById.get(productId) ?? null
-        if (!slug) return null
+      .flatMap(([productId, metrics]) => {
+        const slug = slugById.get(productId)
+        if (!slug) return []
         const bounceRateValue =
           metrics.sessions > 0
             ? metrics.bounceWeighted / metrics.sessions
@@ -409,31 +470,20 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
           metrics.sessions > 0
             ? metrics.durationWeighted / metrics.sessions
             : 0
-        return {
-          path: productPath(slug),
-          slug,
-          pageViews: metrics.pageViews,
-          uniqueVisitors: metrics.uniqueVisitors,
-          sessions: metrics.sessions,
-          bounceRate: bounceRateValue,
-          averageSessionDuration: avgSessionDuration,
-          shareOfViews: pageViews > 0 ? (metrics.pageViews / pageViews) * 100 : 0,
-        }
+        return [
+          {
+            path: productPath(slug),
+            slug,
+            pageViews: metrics.pageViews,
+            uniqueVisitors: metrics.uniqueVisitors,
+            sessions: metrics.sessions,
+            bounceRate: bounceRateValue,
+            averageSessionDuration: avgSessionDuration,
+            shareOfViews:
+              pageViews > 0 ? (metrics.pageViews / pageViews) * 100 : 0,
+          },
+        ]
       })
-      .filter(
-        (
-          entry,
-        ): entry is {
-          path: string
-          slug: string | null
-          pageViews: number
-          uniqueVisitors: number
-          sessions: number
-          bounceRate: number
-          averageSessionDuration: number
-          shareOfViews: number
-        } => Boolean(entry),
-      )
       .sort((a, b) => b.pageViews - a.pageViews)
       .slice(0, topProductLimit)
   }
@@ -647,7 +697,7 @@ async function getProductTrafficFromDb(args: {
     }),
   ])
 
-  const referrers = referrerRows.map((row) => {
+  const referrers = referrerRows.map((row: ProductReferrerRow) => {
     const views = Number(row._sum.pageViews ?? 0)
     return {
       referrer: row.referrer,
@@ -656,7 +706,7 @@ async function getProductTrafficFromDb(args: {
     }
   })
 
-  const referrerCategories = channelRows.map((row) => {
+  const referrerCategories = channelRows.map((row: ProductChannelRow) => {
     const views = Number(row._sum.pageViews ?? 0)
     return {
       category: row.channel,
@@ -665,22 +715,22 @@ async function getProductTrafficFromDb(args: {
     }
   })
 
-  const browsers = browserRows.map((row) => ({
+  const browsers = browserRows.map((row: ProductBrowserRow) => ({
     browser: row.browser,
     visitors: Number(row._sum.visitors ?? 0),
   }))
 
-  const operatingSystems = osRows.map((row) => ({
+  const operatingSystems = osRows.map((row: ProductOperatingSystemRow) => ({
     os: row.operatingSystem,
     visitors: Number(row._sum.visitors ?? 0),
   }))
 
-  const devices = deviceRows.map((row) => ({
+  const devices = deviceRows.map((row: ProductDeviceRow) => ({
     deviceCategory: row.deviceCategory,
     visitors: Number(row._sum.visitors ?? 0),
   }))
 
-  const countries = countryRows.map((row) => {
+  const countries = countryRows.map((row: ProductCountryRow) => {
     const visitors = Number(row._sum.visitors ?? 0)
     return {
       country: row.country,
@@ -690,7 +740,7 @@ async function getProductTrafficFromDb(args: {
     }
   })
 
-  const cities = cityRows.map((row) => ({
+  const cities = cityRows.map((row: ProductCityRow) => ({
     city: row.city,
     region: row.region || null,
     country: row.country || null,

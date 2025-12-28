@@ -8,8 +8,8 @@ import { getRedisClient, type RedisClient } from "@/lib/server/redis"
 import { buildCacheKey } from "@/lib/server/cache"
 import { resolveSiteUrl, siteConfig } from "@/lib/siteConfig"
 import { productPath } from "@/lib/routes"
+import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import {
-  getProductTrafficMapFromGa,
   type GaDateRange,
 } from "@/lib/server/analytics/googleAnalytics"
 import { toNovuSubscriberInput } from "@/lib/server/notifications/novu"
@@ -443,7 +443,8 @@ async function fetchCandidates(
 
   if (!products.length) return []
 
-  const trafficByProductId = await getProductTrafficMapFromGa({
+  const analyticsProvider = getAnalyticsProvider("cache")
+  const trafficByProductId = await analyticsProvider.getProductTrafficMap({
     products: products.map((product: { id: string; slug: string }) => ({
       id: product.id,
       slug: product.slug,

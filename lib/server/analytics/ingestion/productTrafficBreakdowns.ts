@@ -12,6 +12,10 @@ import {
 
 type ProductSlugMap = Map<string, string>
 
+type NumericKeys<T> = {
+  [K in keyof T]: T[K] extends number ? K : never
+}[keyof T]
+
 type BreakdownResult = {
   name: string
   rows: number
@@ -40,7 +44,7 @@ type BreakdownCollectorInput<T extends Record<string, any>> = {
     ingestionRunId?: string | null
   }) => T | null
   recordKey: (record: T) => string
-  metricField: keyof T
+  metricField: NumericKeys<T>
   replaceRecords: (records: T[]) => Promise<void>
 }
 
@@ -48,10 +52,11 @@ async function loadProductSlugMap(): Promise<ProductSlugMap> {
   const rows = await prisma.product.findMany({
     select: { id: true, slug: true },
   })
-  return rows.reduce<ProductSlugMap>((acc, row) => {
-    acc.set(row.slug.toLowerCase(), row.id)
-    return acc
-  }, new Map())
+  const slugMap: ProductSlugMap = new Map()
+  for (const row of rows) {
+    slugMap.set(row.slug.toLowerCase(), row.id)
+  }
+  return slugMap
 }
 
 async function collectBreakdownRecords<T extends Record<string, any>>(
@@ -112,8 +117,12 @@ async function collectBreakdownRecords<T extends Record<string, any>>(
       continue
     }
 
-    const currentValue = Number(current[input.metricField] ?? 0)
-    current[input.metricField] = currentValue + metricValue
+    const metricField = input.metricField as string
+    const currentValue = Number(
+      (current as Record<string, number>)[metricField] ?? 0,
+    )
+    ;(current as Record<string, number>)[metricField] =
+      currentValue + metricValue
     aggregated.set(key, current)
   }
 
@@ -319,6 +328,7 @@ export async function syncProductTrafficBreakdowns(args: {
   }
 
   const breakdowns: BreakdownResult[] = []
+  const source = "ga4" as const
 
   breakdowns.push(
     await collectBreakdownRecords({
@@ -341,7 +351,7 @@ export async function syncProductTrafficBreakdowns(args: {
         return {
           productId,
           date,
-          source: "ga4",
+          source,
           referrer,
           pageViews: Math.round(metricValue),
           ingestionRunId,
@@ -375,7 +385,7 @@ export async function syncProductTrafficBreakdowns(args: {
         return {
           productId,
           date,
-          source: "ga4",
+          source,
           channel,
           pageViews: Math.round(metricValue),
           ingestionRunId,
@@ -409,7 +419,7 @@ export async function syncProductTrafficBreakdowns(args: {
         return {
           productId,
           date,
-          source: "ga4",
+          source,
           browser,
           visitors: Math.round(metricValue),
           ingestionRunId,
@@ -443,7 +453,7 @@ export async function syncProductTrafficBreakdowns(args: {
         return {
           productId,
           date,
-          source: "ga4",
+          source,
           operatingSystem,
           visitors: Math.round(metricValue),
           ingestionRunId,
@@ -478,7 +488,7 @@ export async function syncProductTrafficBreakdowns(args: {
         return {
           productId,
           date,
-          source: "ga4",
+          source,
           deviceCategory,
           visitors: Math.round(metricValue),
           ingestionRunId,
@@ -513,7 +523,7 @@ export async function syncProductTrafficBreakdowns(args: {
         return {
           productId,
           date,
-          source: "ga4",
+          source,
           country,
           countryCode,
           visitors: Math.round(metricValue),
@@ -551,7 +561,7 @@ export async function syncProductTrafficBreakdowns(args: {
         return {
           productId,
           date,
-          source: "ga4",
+          source,
           city,
           region,
           country,

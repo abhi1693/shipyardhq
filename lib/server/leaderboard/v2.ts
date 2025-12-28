@@ -346,7 +346,7 @@ async function collectMetrics(
   periodStart: Date,
   periodEnd: Date,
 ): Promise<MetricMaps> {
-  const analyticsProvider = getAnalyticsProvider("db")
+  const analyticsProvider = getAnalyticsProvider("cache")
   const products: Array<{ id: string; slug: string }> =
     await prisma.product.findMany({
       where: { status: "published" },
@@ -394,7 +394,7 @@ async function collectMetricsForProducts(
   periodStart: Date,
   periodEnd: Date,
 ): Promise<MetricMaps> {
-  const analyticsProvider = getAnalyticsProvider("db")
+  const analyticsProvider = getAnalyticsProvider("cache")
   const products: Array<{ id: string; slug: string }> =
     await prisma.product.findMany({
       where: { id: { in: productIds }, status: "published" },

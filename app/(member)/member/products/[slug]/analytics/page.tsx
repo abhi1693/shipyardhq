@@ -247,7 +247,7 @@ export default async function ProductAnalyticsPage({
   const rankingNoticePromise = getRevenueVerificationRankingNotice({
     productId: product.id,
   }).catch(() => null)
-  const analyticsProvider = getAnalyticsProvider("db")
+  const analyticsProvider = getAnalyticsProvider("cache")
 
   const [gaTraffic, gaTrafficPrevious, rankingNotice] = await Promise.all([
     analyticsProvider.getProductTraffic({

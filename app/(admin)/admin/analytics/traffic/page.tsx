@@ -159,8 +159,7 @@ export default async function TrafficAnalyticsPage({
   const selectedRange = resolvedRange.key
   const dateRange = resolvedRange.dateRange
   const prevRange = previousRange(dateRange)
-  const analyticsProvider = getAnalyticsProvider("db")
-  const realtimeProvider = getAnalyticsProvider("cache")
+  const analyticsProvider = getAnalyticsProvider("cache")
 
   const [snapshot, previousSnapshot, realtimeVisitors] = await Promise.all([
     analyticsProvider.getSiteAnalyticsSnapshot({
@@ -171,7 +170,7 @@ export default async function TrafficAnalyticsPage({
       dateRange: prevRange,
       topProductLimit: 10,
     }),
-    realtimeProvider.getRealtimeVisitors(),
+    analyticsProvider.getRealtimeVisitors(),
   ])
 
   const startLabel = format(new Date(dateRange.startDate), "MMM d")

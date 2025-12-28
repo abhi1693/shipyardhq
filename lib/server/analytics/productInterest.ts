@@ -413,7 +413,7 @@ export async function refreshProductInterestCache(args?: {
 
   const currentRange = resolveRangeForLastNDays(days)
   const previousRange = resolvePreviousRange(currentRange, days)
-  const analyticsProvider = getAnalyticsProvider("db")
+  const analyticsProvider = getAnalyticsProvider("cache")
 
   const [currentMap, previousMap] = await Promise.all([
     analyticsProvider.getProductTrafficMap({

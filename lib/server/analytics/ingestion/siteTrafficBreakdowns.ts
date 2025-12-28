@@ -15,6 +15,10 @@ type BreakdownResult = {
   truncated: boolean
 }
 
+type NumericKeys<T> = {
+  [K in keyof T]: T[K] extends number ? K : never
+}[keyof T]
+
 export type SiteTrafficBreakdownSyncResult = {
   breakdowns: BreakdownResult[]
 }
@@ -33,7 +37,7 @@ type BreakdownCollectorInput<T extends Record<string, any>> = {
     ingestionRunId?: string | null
   }) => T | null
   recordKey: (record: T) => string
-  metricField: keyof T
+  metricField: NumericKeys<T>
   replaceRecords: (records: T[]) => Promise<void>
 }
 
@@ -87,8 +91,12 @@ async function collectBreakdownRecords<T extends Record<string, any>>(
       continue
     }
 
-    const currentValue = Number(current[input.metricField] ?? 0)
-    current[input.metricField] = currentValue + metricValue
+    const metricField = input.metricField as string
+    const currentValue = Number(
+      (current as Record<string, number>)[metricField] ?? 0,
+    )
+    ;(current as Record<string, number>)[metricField] =
+      currentValue + metricValue
     aggregated.set(key, current)
   }
 
@@ -284,6 +292,7 @@ export async function syncSiteTrafficBreakdowns(args: {
   maxRows?: number
 }): Promise<SiteTrafficBreakdownSyncResult> {
   const breakdowns: BreakdownResult[] = []
+  const source = "ga4" as const
 
   breakdowns.push(
     await collectBreakdownRecords({
@@ -304,7 +313,7 @@ export async function syncSiteTrafficBreakdowns(args: {
             : "Direct / none"
         return {
           date,
-          source: "ga4",
+          source,
           referrer,
           pageViews: Math.round(metricValue),
           ingestionRunId,
@@ -330,7 +339,7 @@ export async function syncSiteTrafficBreakdowns(args: {
         const browser = dimensionValues[0]?.trim() || "Unknown"
         return {
           date,
-          source: "ga4",
+          source,
           browser,
           visitors: Math.round(metricValue),
           ingestionRunId,
@@ -356,7 +365,7 @@ export async function syncSiteTrafficBreakdowns(args: {
         const operatingSystem = dimensionValues[0]?.trim() || "Unknown"
         return {
           date,
-          source: "ga4",
+          source,
           operatingSystem,
           visitors: Math.round(metricValue),
           ingestionRunId,
@@ -383,7 +392,7 @@ export async function syncSiteTrafficBreakdowns(args: {
           dimensionValues[0]?.trim().toLowerCase() || "unknown"
         return {
           date,
-          source: "ga4",
+          source,
           deviceCategory,
           visitors: Math.round(metricValue),
           ingestionRunId,
@@ -410,7 +419,7 @@ export async function syncSiteTrafficBreakdowns(args: {
         const countryCode = dimensionValues[1]?.trim() || ""
         return {
           date,
-          source: "ga4",
+          source,
           country,
           countryCode,
           visitors: Math.round(metricValue),
@@ -439,7 +448,7 @@ export async function syncSiteTrafficBreakdowns(args: {
         const countryCode = dimensionValues[2]?.trim() || ""
         return {
           date,
-          source: "ga4",
+          source,
           region,
           country,
           countryCode,
@@ -470,7 +479,7 @@ export async function syncSiteTrafficBreakdowns(args: {
         const countryCode = dimensionValues[3]?.trim() || ""
         return {
           date,
-          source: "ga4",
+          source,
           city,
           region,
           country,

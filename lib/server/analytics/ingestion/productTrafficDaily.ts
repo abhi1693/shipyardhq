@@ -52,10 +52,11 @@ async function loadProductSlugMap(): Promise<ProductSlugMap> {
   const rows = await prisma.product.findMany({
     select: { id: true, slug: true },
   })
-  return rows.reduce<ProductSlugMap>((acc, row) => {
-    acc.set(row.slug.toLowerCase(), row.id)
-    return acc
-  }, new Map())
+  const slugMap: ProductSlugMap = new Map()
+  for (const row of rows) {
+    slugMap.set(row.slug.toLowerCase(), row.id)
+  }
+  return slugMap
 }
 
 export async function syncProductTrafficDaily(args: {

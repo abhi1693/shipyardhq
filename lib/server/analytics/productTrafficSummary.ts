@@ -253,7 +253,7 @@ export async function getProductTrafficSummary(
 
   const pagePaths = [productPath(product.slug), `${productPath(product.slug)}/`]
 
-  const analyticsProvider = getAnalyticsProvider("db")
+  const analyticsProvider = getAnalyticsProvider("cache")
 
   const [ga, gaPrevious, upvotesInRange, previousUpvotes] = await Promise.all([
     analyticsProvider.getProductTraffic({
