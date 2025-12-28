@@ -29,10 +29,8 @@ import {
   getProductAnalyticsRecord,
   resolveProductAnalyticsAccess,
 } from "@/lib/server/analytics/productAnalytics"
-import {
-  type GaDateRange,
-  getProductTrafficFromGa,
-} from "@/lib/server/analytics/googleAnalytics"
+import { type GaDateRange } from "@/lib/server/analytics/googleAnalytics"
+import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import {
   Card,
   CardContent,
@@ -249,14 +247,15 @@ export default async function ProductAnalyticsPage({
   const rankingNoticePromise = getRevenueVerificationRankingNotice({
     productId: product.id,
   }).catch(() => null)
+  const analyticsProvider = getAnalyticsProvider("db")
 
   const [gaTraffic, gaTrafficPrevious, rankingNotice] = await Promise.all([
-    getProductTrafficFromGa({
+    analyticsProvider.getProductTraffic({
       pagePaths: buildProductPagePaths(product.slug),
       dateRange: resolvedRange.dateRange,
       includeAdvanced: hasAdvancedAnalytics,
     }),
-    getProductTrafficFromGa({
+    analyticsProvider.getProductTraffic({
       pagePaths: buildProductPagePaths(product.slug),
       dateRange: previousRange,
       includeAdvanced: hasAdvancedAnalytics,

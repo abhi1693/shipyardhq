@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server"
 
-import { getRealtimeVisitorsFromGa } from "@/lib/server/analytics/googleAnalytics"
+import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 
 export async function GET() {
   try {
-    const visitors = await getRealtimeVisitorsFromGa()
+    const visitors = await getAnalyticsProvider("db").getRealtimeVisitors()
     return NextResponse.json(
       { visitors },
       {

@@ -22,11 +22,8 @@ import {
   OsIcon,
   ValueBarRow,
 } from "@/components/molecules/AnalyticsShared"
-import {
-  type GaDateRange,
-  getRealtimeVisitorsFromGa,
-  getSiteAnalyticsSnapshot,
-} from "@/lib/server/analytics/googleAnalytics"
+import { type AnalyticsDateRange } from "@/lib/server/analytics/providerTypes"
+import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 
 export const dynamic = "force-dynamic"
 
@@ -67,7 +64,7 @@ function formatGaDate(date: Date) {
 function resolveRange(keyRaw: string | null | undefined): {
   key: RangeKey
   label: string
-  dateRange: GaDateRange
+  dateRange: AnalyticsDateRange
 } {
   const now = startOfDay(new Date())
   const resolvedKey =
@@ -76,7 +73,7 @@ function resolveRange(keyRaw: string | null | undefined): {
     RANGE_OPTIONS.find((opt) => opt.value === resolvedKey)?.label ??
     "Last 7 days"
 
-  const dateRange: GaDateRange = (() => {
+  const dateRange: AnalyticsDateRange = (() => {
     switch (resolvedKey) {
       case "today": {
         return { startDate: formatGaDate(now), endDate: formatGaDate(now) }
@@ -128,7 +125,7 @@ function resolveRange(keyRaw: string | null | undefined): {
   return { key: resolvedKey, label, dateRange }
 }
 
-function previousRange(range: GaDateRange): GaDateRange {
+function previousRange(range: AnalyticsDateRange): AnalyticsDateRange {
   const end = startOfDay(new Date(range.startDate))
   const spanDays = diffDays(range) + 1
   const start = subDays(end, spanDays)
@@ -138,7 +135,7 @@ function previousRange(range: GaDateRange): GaDateRange {
   }
 }
 
-function diffDays(range: GaDateRange) {
+function diffDays(range: AnalyticsDateRange) {
   const start = startOfDay(new Date(range.startDate))
   const end = startOfDay(new Date(range.endDate))
   const ms = end.getTime() - start.getTime()
@@ -162,11 +159,18 @@ export default async function TrafficAnalyticsPage({
   const selectedRange = resolvedRange.key
   const dateRange = resolvedRange.dateRange
   const prevRange = previousRange(dateRange)
+  const analyticsProvider = getAnalyticsProvider("db")
 
   const [snapshot, previousSnapshot, realtimeVisitors] = await Promise.all([
-    getSiteAnalyticsSnapshot({ dateRange, topProductLimit: 10 }),
-    getSiteAnalyticsSnapshot({ dateRange: prevRange, topProductLimit: 10 }),
-    getRealtimeVisitorsFromGa(),
+    analyticsProvider.getSiteAnalyticsSnapshot({
+      dateRange,
+      topProductLimit: 10,
+    }),
+    analyticsProvider.getSiteAnalyticsSnapshot({
+      dateRange: prevRange,
+      topProductLimit: 10,
+    }),
+    analyticsProvider.getRealtimeVisitors(),
   ])
 
   const startLabel = format(new Date(dateRange.startDate), "MMM d")

@@ -8,8 +8,8 @@ import { getRedisClient } from "@/lib/server/redis"
 import { siteConfig } from "@/lib/siteConfig"
 import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
 import { buildVerifiedRevenueWhere } from "@/lib/products/verifiedRevenue"
+import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import {
-  getProductTrafficMapFromGa,
   runGaReport,
   type GaDateRange,
 } from "./googleAnalytics"
@@ -374,20 +374,10 @@ export async function refreshProductInterestCache(args?: {
     typeof args?.alsoClickedLimit === "number" ? args.alsoClickedLimit : 12
   const skipAlsoClicked =
     typeof args?.skipAlsoClicked === "boolean" ? args.skipAlsoClicked : true
+  const gaConfigured = hasGaDataApiConfig()
 
   const redis = await getRedisClient().catch(() => null)
   if (!redis) {
-    return {
-      success: false,
-      productCount: 0,
-      storedSignals: 0,
-      storedMostClicked: 0,
-      storedCategories: 0,
-      alsoClicked: null,
-    }
-  }
-
-  if (!hasGaDataApiConfig()) {
     return {
       success: false,
       productCount: 0,
@@ -423,13 +413,14 @@ export async function refreshProductInterestCache(args?: {
 
   const currentRange = resolveRangeForLastNDays(days)
   const previousRange = resolvePreviousRange(currentRange, days)
+  const analyticsProvider = getAnalyticsProvider("db")
 
   const [currentMap, previousMap] = await Promise.all([
-    getProductTrafficMapFromGa({
+    analyticsProvider.getProductTrafficMap({
       products: productRefs.map((p) => ({ id: p.id, slug: p.slug })),
       dateRange: currentRange,
     }),
-    getProductTrafficMapFromGa({
+    analyticsProvider.getProductTrafficMap({
       products: productRefs.map((p) => ({ id: p.id, slug: p.slug })),
       dateRange: previousRange,
     }),
@@ -561,14 +552,15 @@ export async function refreshProductInterestCache(args?: {
 
   await multi.exec()
 
-  const alsoClicked = skipAlsoClicked
-    ? null
-    : await refreshAlsoClickedIndex({
-        products: productRefs,
-        days,
-        ttlSeconds: CACHE_TTL_SECONDS,
-        limitPerProduct: alsoClickedLimit,
-      })
+  const alsoClicked =
+    skipAlsoClicked || !gaConfigured
+      ? null
+      : await refreshAlsoClickedIndex({
+          products: productRefs,
+          days,
+          ttlSeconds: CACHE_TTL_SECONDS,
+          limitPerProduct: alsoClickedLimit,
+        })
 
   return {
     success: true,

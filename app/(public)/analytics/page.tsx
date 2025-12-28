@@ -25,10 +25,7 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import prisma from "@/lib/prisma"
 import { buildPageMetadata } from "@/lib/metadata"
 import { ANALYTICS_PATH, HOME_PATH } from "@/lib/routes"
-import {
-  getRealtimeVisitorsFromGa,
-  getSiteAnalyticsSnapshot,
-} from "@/lib/server/analytics/googleAnalytics"
+import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import {
   convertToUsdCents,
   getUsdConversionRates,
@@ -158,18 +155,19 @@ export default async function AnalyticsPage() {
   const rangeEndUtc = startOfUtcDay(rangeEnd)
   const prevRangeStartUtc = startOfUtcDay(prevRangeStart)
   const prevRangeEndUtc = startOfUtcDay(prevRangeEnd)
+  const analyticsProvider = getAnalyticsProvider("db")
 
   const [snapshot, previousSnapshot, realtimeVisitors, verifiedRevenue] =
     await Promise.all([
-      getSiteAnalyticsSnapshot({ topProductLimit: 8 }),
-      getSiteAnalyticsSnapshot({
+      analyticsProvider.getSiteAnalyticsSnapshot({ topProductLimit: 8 }),
+      analyticsProvider.getSiteAnalyticsSnapshot({
         topProductLimit: 8,
         dateRange: {
           startDate: format(prevRangeStart, "yyyy-MM-dd"),
           endDate: format(prevRangeEnd, "yyyy-MM-dd"),
         },
       }),
-      getRealtimeVisitorsFromGa(),
+      analyticsProvider.getRealtimeVisitors(),
       getVerifiedRevenueTotals({
         rangeStart: rangeStartUtc,
         rangeEnd: rangeEndUtc,

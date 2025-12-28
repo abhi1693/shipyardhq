@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import { getProductTrafficMapFromGa } from "@/lib/server/analytics/googleAnalytics"
+import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import { buildVerifiedRevenueWhere } from "@/lib/products/verifiedRevenue"
 import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
 
@@ -346,6 +346,7 @@ async function collectMetrics(
   periodStart: Date,
   periodEnd: Date,
 ): Promise<MetricMaps> {
+  const analyticsProvider = getAnalyticsProvider("db")
   const products: Array<{ id: string; slug: string }> =
     await prisma.product.findMany({
       where: { status: "published" },
@@ -353,7 +354,7 @@ async function collectMetrics(
     })
 
   const dateRange = buildDateRange(periodStart, periodEnd)
-  const gaMap = await getProductTrafficMapFromGa({
+  const gaMap = await analyticsProvider.getProductTrafficMap({
     products,
     dateRange,
   })
@@ -393,6 +394,7 @@ async function collectMetricsForProducts(
   periodStart: Date,
   periodEnd: Date,
 ): Promise<MetricMaps> {
+  const analyticsProvider = getAnalyticsProvider("db")
   const products: Array<{ id: string; slug: string }> =
     await prisma.product.findMany({
       where: { id: { in: productIds }, status: "published" },
@@ -400,7 +402,7 @@ async function collectMetricsForProducts(
     })
 
   const dateRange = buildDateRange(periodStart, periodEnd)
-  const gaMap = await getProductTrafficMapFromGa({
+  const gaMap = await analyticsProvider.getProductTrafficMap({
     products,
     dateRange,
   })

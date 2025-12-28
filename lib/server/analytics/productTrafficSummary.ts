@@ -2,10 +2,9 @@ import { format, startOfDay, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
 import { productPath } from "@/lib/routes"
-import {
-  type GaDateRange,
-  getProductTrafficFromGa,
-} from "@/lib/server/analytics/googleAnalytics"
+import { type GaDateRange } from "@/lib/server/analytics/googleAnalytics"
+import type { ProductTrafficSummary as ProviderProductTrafficSummary } from "@/lib/server/analytics/providerTypes"
+import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import type {
   ProductTrafficAdvancedInsights,
   ProductTrafficReferrerCategory,
@@ -20,7 +19,7 @@ type SummaryOptions = {
   previousComparison?: boolean
 }
 
-type GaSummary = Awaited<ReturnType<typeof getProductTrafficFromGa>>
+type GaSummary = ProviderProductTrafficSummary
 
 function buildDateRange(rangeDays: number): GaDateRange {
   const now = startOfDay(new Date())
@@ -254,14 +253,16 @@ export async function getProductTrafficSummary(
 
   const pagePaths = [productPath(product.slug), `${productPath(product.slug)}/`]
 
+  const analyticsProvider = getAnalyticsProvider("db")
+
   const [ga, gaPrevious, upvotesInRange, previousUpvotes] = await Promise.all([
-    getProductTrafficFromGa({
+    analyticsProvider.getProductTraffic({
       pagePaths,
       dateRange,
       includeAdvanced: options.includeAdvanced,
     }),
     prevRange
-      ? getProductTrafficFromGa({
+      ? analyticsProvider.getProductTraffic({
           pagePaths,
           dateRange: prevRange,
           includeAdvanced: options.includeAdvanced,

@@ -4,8 +4,18 @@ import { format, subDays } from "date-fns"
 import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import { productPath } from "@/lib/routes"
+import {
+  buildPagePathFilter,
+  extractProductSlug,
+  normalizeBounceRate,
+  normalizePath,
+  parseDateString,
+  parseMetricValue,
+  resolveMetricValue,
+  resolveReferrerDomain,
+} from "@/lib/server/analytics/providers/ga/helpers"
 
-type HomepageTraffic = {
+export type HomepageTraffic = {
   pageViews30: number
   visitors30: number
   trafficSeries: Array<{ date: string; pageViews: number; visitors: number }>
@@ -333,31 +343,6 @@ async function getClient(): Promise<BetaAnalyticsDataClient> {
   return clientPromise
 }
 
-function parseDateString(value: string | null | undefined): string | null {
-  if (!value || value.length !== 8) return null
-  const year = Number(value.slice(0, 4))
-  const month = Number(value.slice(4, 6))
-  const day = Number(value.slice(6, 8))
-  if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
-    return null
-  }
-  return new Date(Date.UTC(year, month - 1, day)).toISOString()
-}
-
-function normalizeBounceRate(raw: number) {
-  if (!Number.isFinite(raw)) return 0
-  return raw > 0 && raw <= 1 ? raw * 100 : raw
-}
-
-function normalizePath(value: string | undefined | null) {
-  if (!value) return "/"
-  const base = value.split(/[?#]/)[0] || "/"
-  if (base !== "/" && base.endsWith("/")) {
-    return base.slice(0, -1)
-  }
-  return base
-}
-
 function normalizePagePathsForCache(pagePaths: string[]) {
   const normalized = pagePaths
     .map((path) => {
@@ -383,107 +368,6 @@ function buildProductTrafficCacheKey(args: {
     args.dateRange.startDate,
     args.dateRange.endDate,
     pathKey,
-  )
-}
-
-function resolveReferrerDomain(value?: string | null) {
-  const raw = value?.trim()
-  if (!raw || raw === "(direct)") return "direct"
-
-  const cleaned = raw
-    .replace(/^https?:\/\//i, "")
-    .replace(/^www\./i, "")
-    .trim()
-    .toLowerCase()
-
-  const domain = cleaned.split(/[/#?]/)[0]
-  if (domain) return domain
-
-  return "direct"
-}
-
-function extractProductSlug(path: string | null | undefined) {
-  if (!path) return null
-  const normalized = normalizePath(path)
-  const match = normalized.match(/^\/products\/([^/]+)/)
-  return match ? match[1].toLowerCase() : null
-}
-
-function buildPagePathFilter(
-  pagePaths: string[],
-): protos.google.analytics.data.v1beta.IFilterExpression {
-  if (pagePaths.length === 0) {
-    throw new Error("No page paths provided for GA product traffic")
-  }
-
-  if (pagePaths.length === 1) {
-    return {
-      filter: {
-        fieldName: "pagePath",
-        stringFilter: {
-          matchType:
-            protos.google.analytics.data.v1beta.Filter.StringFilter.MatchType
-              .EXACT,
-          value: pagePaths[0],
-        },
-      },
-    }
-  }
-
-  return {
-    orGroup: {
-      expressions: pagePaths.map((path) => ({
-        filter: {
-          fieldName: "pagePath",
-          stringFilter: {
-            matchType:
-              protos.google.analytics.data.v1beta.Filter.StringFilter.MatchType
-                .EXACT,
-            value: path,
-          },
-        },
-      })),
-    },
-  }
-}
-
-function parseMetricValue(value?: string | null) {
-  const numeric = Number(value ?? 0)
-  return Number.isFinite(numeric) ? numeric : 0
-}
-
-function resolveMetricValue(
-  totals: protos.google.analytics.data.v1beta.IMetricValue[] | undefined,
-  index: number,
-  rows:
-    | protos.google.analytics.data.v1beta.IRow[]
-    | null
-    | undefined = undefined,
-  mode: "sum" | "avg" = "sum",
-) {
-  const totalEntry = totals?.[index]
-  const totalValue =
-    totalEntry && "value" in totalEntry
-      ? parseMetricValue(totalEntry.value)
-      : null
-
-  if (totalValue !== null) {
-    return totalValue
-  }
-
-  if (!rows?.length) return 0
-
-  if (mode === "avg") {
-    const values = rows.map((row) =>
-      parseMetricValue(row.metricValues?.[index]?.value),
-    )
-    const sum = values.reduce((acc, val) => acc + val, 0)
-    return values.length ? sum / values.length : 0
-  }
-
-  return rows.reduce(
-    (acc, row) => acc + parseMetricValue(row.metricValues?.[index]?.value),
-    0,
   )
 }
 
