@@ -339,7 +339,3 @@ export const cacheAnalyticsProvider: AnalyticsProvider = {
   getHomepageTraffic: () => fetchHomepageTrafficWithCache(),
   getRealtimeVisitors: () => fetchRealtimeVisitorsWithCache(),
 }
-
-export function createCacheAnalyticsProvider(): AnalyticsProvider {
-  return cacheAnalyticsProvider
-}

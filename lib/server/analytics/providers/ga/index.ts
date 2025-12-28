@@ -14,7 +14,3 @@ export const gaAnalyticsProvider: AnalyticsProvider = {
   getHomepageTraffic: () => getHomepageTrafficFromGa(),
   getRealtimeVisitors: () => getRealtimeVisitorsFromGa(),
 }
-
-export function createGaAnalyticsProvider(): AnalyticsProvider {
-  return gaAnalyticsProvider
-}

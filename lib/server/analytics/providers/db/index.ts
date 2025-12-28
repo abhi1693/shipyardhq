@@ -857,7 +857,3 @@ export const dbAnalyticsProvider: AnalyticsProvider = {
   getHomepageTraffic: () => gaAnalyticsProvider.getHomepageTraffic(),
   getRealtimeVisitors: () => gaAnalyticsProvider.getRealtimeVisitors(),
 }
-
-export function createDbAnalyticsProvider(): AnalyticsProvider {
-  return dbAnalyticsProvider
-}
