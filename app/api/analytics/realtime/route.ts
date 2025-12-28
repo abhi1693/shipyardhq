@@ -16,6 +16,6 @@ export async function GET() {
     )
   } catch (error) {
     console.error("[analytics] failed to fetch realtime visitors", error)
-    return NextResponse.json({ visitors: 0 }, { status: 200 })
+    return NextResponse.json({ visitors: 1 }, { status: 200 })
   }
 }

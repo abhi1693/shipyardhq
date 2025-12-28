@@ -1502,6 +1502,10 @@ async function fetchRealtimeVisitorsFromGa(): Promise<number> {
   return total || summedRows || 0
 }
 
+function normalizeRealtimeVisitors(value: number) {
+  return value === 0 ? 1 : value
+}
+
 export async function getRealtimeVisitorsFromGa(): Promise<number> {
   const redis = await getRedisClient().catch(() => null)
   let cachedValue: number | null = null
@@ -1524,10 +1528,10 @@ export async function getRealtimeVisitorsFromGa(): Promise<number> {
         EX: REALTIME_CACHE_TTL_SECONDS,
       })
     }
-    return fresh
+    return normalizeRealtimeVisitors(fresh)
   } catch (error) {
     console.error("[analytics] failed to fetch GA realtime visitors", error)
-    if (cachedValue != null) return cachedValue
-    return 0
+    const fallback = cachedValue ?? 0
+    return normalizeRealtimeVisitors(fallback)
   }
 }
