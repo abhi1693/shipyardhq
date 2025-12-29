@@ -48,7 +48,7 @@
     },
     {
       "path": "/api/cron/leaderboard-refresh",
-      "schedule": "0 * * * *"
+      "schedule": "0 */1 * * *"
     },
     {
       "path": "/api/cron/badges/trending",
