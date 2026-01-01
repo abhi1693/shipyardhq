@@ -30,9 +30,11 @@ const isAccelerateUrl =
   (accelerateUrl.startsWith("prisma://") ||
     accelerateUrl.startsWith("prisma+postgres://"))
 
-const createPrismaClient = () => {
+const createPrismaClient = (): PrismaClient => {
   if (isAccelerateUrl && accelerateUrl) {
-    return new PrismaClient({ accelerateUrl }).$extends(withAccelerate())
+    return new PrismaClient({ accelerateUrl }).$extends(
+      withAccelerate(),
+    ) as unknown as PrismaClient
   }
 
   const adapter = new PrismaPg({ connectionString: directDatabaseUrl })
@@ -40,7 +42,7 @@ const createPrismaClient = () => {
 }
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: ReturnType<typeof createPrismaClient>
+  prisma: PrismaClient
 }
 
 const prisma = globalForPrisma.prisma || createPrismaClient()
