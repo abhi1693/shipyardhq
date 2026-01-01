@@ -170,15 +170,14 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
 
   // Determine most used plan within current range
   let mostPopularPlan: { id: string; name: string; count: number } | null = null
-  type PlanIdGroup = Pick<Prisma.ProductGroupByOutputType, "planId" | "_count">
 
-  const grouped = (await prisma.product.groupBy({
+  const grouped = await prisma.product.groupBy({
     by: ["planId"],
     where: { createdAt: { gte: since }, planId: { not: null } },
     _count: { planId: true },
     orderBy: { _count: { planId: "desc" } },
     take: 1,
-  })) as PlanIdGroup[]
+  })
 
   if (grouped.length > 0 && grouped[0]?.planId) {
     const top = grouped[0]

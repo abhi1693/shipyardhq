@@ -887,6 +887,7 @@ export async function runFeaturedPlanPromoCron(request?: {
     }
   }
 
+  const planExternalId = plan.externalId
   const pendingUserIds = await getPendingUserIds(redis)
   let sendBudget = availableSlots
   let prepared = 0
@@ -951,7 +952,7 @@ export async function runFeaturedPlanPromoCron(request?: {
           plan: {
             id: plan.id,
             slug: plan.slug,
-            externalId: plan.externalId,
+            externalId: planExternalId,
           },
           discountPct,
         })

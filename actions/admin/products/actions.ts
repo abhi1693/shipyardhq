@@ -884,8 +884,15 @@ export async function updateProductAction(
         existingConnector?.id
       ) {
         // Update config to include the connected account/brand without requiring a new key.
-        const nextConfig = {
-          ...(existingConnector.config ?? {}),
+        const isJsonObject = (
+          value: Prisma.JsonValue | null,
+        ): value is Prisma.JsonObject =>
+          typeof value === "object" && value !== null && !Array.isArray(value)
+        const existingConfig = isJsonObject(existingConnector.config)
+          ? existingConnector.config
+          : {}
+        const nextConfig: Prisma.InputJsonValue = {
+          ...existingConfig,
           ...(connectorAccountId !== undefined
             ? { accountId: connectorAccountId }
             : {}),
@@ -896,7 +903,7 @@ export async function updateProductAction(
         await prisma.paymentConnector.update({
           where: { id: existingConnector.id },
           data: {
-            config: nextConfig as Prisma.JsonValue,
+            config: nextConfig,
           },
         })
         dispatchEventAsync(

@@ -182,28 +182,19 @@ async function getSyncContext(connectorId: string) {
   const currencyAllTimeBase = new Map<string, number>()
   const latestPeriodStartByCurrency = new Map<string, Date>()
 
-  type LatestByCurrency = {
-    currencyCode: string | null
-    _max: { periodStart: Date | null }
-  }
-
-  const latestByCurrency: LatestByCurrency[] =
-    await prisma.paymentRevenueSnapshot.groupBy({
-      by: ["currencyCode"],
-      where: { connectorId },
-      _max: { periodStart: true },
-    })
+  const latestByCurrency = await prisma.paymentRevenueSnapshot.groupBy({
+    by: ["currencyCode"],
+    where: { connectorId },
+    _max: { periodStart: true },
+  })
 
   const since =
-    latestByCurrency.reduce<Date | null>(
-      (earliest: Date | null, entry: LatestByCurrency) => {
-        const periodStart = entry._max.periodStart
-        if (!periodStart) return earliest
-        if (!earliest || periodStart < earliest) return periodStart
-        return earliest
-      },
-      null,
-    ) ?? null
+    latestByCurrency.reduce<Date | null>((earliest, entry) => {
+      const periodStart = entry._max.periodStart
+      if (!periodStart) return earliest
+      if (!earliest || periodStart < earliest) return periodStart
+      return earliest
+    }, null) ?? null
 
   const lookups = latestByCurrency
     .map((entry) => ({
@@ -281,11 +272,16 @@ async function applySnapshots(
   }
 }
 
+type RevenueSnapshotSummary = Pick<
+  RevenueSnapshotInput,
+  "currencyCode" | "periodStart" | "allTimeRevenueCents"
+>
+
 function selectPrimarySnapshot(
-  snapshots: RevenueSnapshotInput[],
-): RevenueSnapshotInput | undefined {
+  snapshots: RevenueSnapshotSummary[],
+): RevenueSnapshotSummary | undefined {
   if (snapshots.length === 0) return undefined
-  const latestByCurrency = new Map<string, RevenueSnapshotInput>()
+  const latestByCurrency = new Map<string, RevenueSnapshotSummary>()
   for (const snap of snapshots) {
     const existing = latestByCurrency.get(snap.currencyCode)
     if (!existing || snap.periodStart > existing.periodStart) {
@@ -404,8 +400,19 @@ export async function syncPaymentConnector(connectorId: string) {
         where: { connectorId: connector.id },
         orderBy: { periodStart: "asc" },
       })) ?? []
-    const historyForSummary =
-      fullHistory.length > 0 ? fullHistory : result.snapshots
+    const historyForSummary: RevenueSnapshotInput[] =
+      fullHistory.length > 0
+        ? fullHistory.map((snapshot) => ({
+            currencyCode: snapshot.currencyCode,
+            periodStart: snapshot.periodStart,
+            periodRevenueCents: snapshot.periodRevenueCents,
+            allTimeRevenueCents: snapshot.allTimeRevenueCents,
+            data:
+              snapshot.data === null
+                ? undefined
+                : (snapshot.data as Prisma.InputJsonValue),
+          }))
+        : result.snapshots
 
     const requiresConversion = historyForSummary.some(
       (snapshot: { currencyCode: any }) =>

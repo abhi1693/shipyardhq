@@ -109,7 +109,7 @@ export const getPublicUseCasesWithCounts = cached(
     if (useCases.length === 0) return []
 
     const productCountsByUseCase = await getPublishedProductCountsByUseCase()
-    const results = useCases.map((useCase: UseCaseSummary) => ({
+    const results = useCases.map((useCase) => ({
       id: useCase.id,
       slug: useCase.slug,
       label: useCase.label,

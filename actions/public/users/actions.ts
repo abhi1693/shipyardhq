@@ -353,7 +353,7 @@ const getPublicUsersPageCached = cached(
     }
 
     const items = await Promise.all(
-      users.map((user: PublicUserProfile) =>
+      users.map((user) =>
         mapUserSummaryToListItem(user, revenueByUser.get(user.id)),
       ),
     )

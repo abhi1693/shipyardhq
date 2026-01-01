@@ -173,7 +173,7 @@ export async function MonthlyLeaderboardView({
                   <TopPlacementCard
                     key={firstPlacement.id}
                     product={firstPlacement.product}
-                    rank={firstPlacement.rank}
+                    rank={firstPlacement.rank ?? 1}
                     label={rankLabels[0] ?? "Top 1"}
                     upvotesOverride={firstPlacement.upvotes}
                     upvotesLabel="monthly upvotes"
@@ -196,7 +196,7 @@ export async function MonthlyLeaderboardView({
                       <TopPlacementCard
                         key={entry.id}
                         product={entry.product}
-                        rank={entry.rank}
+                        rank={entry.rank ?? index + 2}
                         label={rankLabels[index + 1] ?? `Top ${index + 2}`}
                         upvotesOverride={entry.upvotes}
                         upvotesLabel="monthly upvotes"

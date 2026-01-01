@@ -480,9 +480,14 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
     }
   }
 
+  const topThreeWithRank = topThree.map((entry, index) => ({
+    ...entry,
+    resolvedRank: entry.rank ?? index + 1,
+  }))
+
   const recipients: string[] = []
 
-  for (const entry of topThree) {
+  for (const entry of topThreeWithRank) {
     const product = entry.product as WinnerProduct | null
     const email = product?.user?.email
     const clerkId = product?.user?.clerkId
@@ -503,13 +508,15 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
         productName: product.name,
         monthKey,
         monthLabel,
-        rank: entry.rank,
-        topThree: topThree.map((winner: (typeof topThree)[number]) => ({
-          rank: winner.rank,
-          productId: (winner.product as WinnerProduct).id,
-          productSlug: (winner.product as WinnerProduct).slug,
-          productName: (winner.product as WinnerProduct).name,
-        })),
+        rank: entry.resolvedRank,
+        topThree: topThreeWithRank.map(
+          (winner: (typeof topThreeWithRank)[number]) => ({
+            rank: winner.resolvedRank,
+            productId: (winner.product as WinnerProduct).id,
+            productSlug: (winner.product as WinnerProduct).slug,
+            productName: (winner.product as WinnerProduct).name,
+          }),
+        ),
         leaderboardUrl,
         productUrl,
       })
@@ -527,23 +534,27 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
     }
   }
 
-  const winnerProduct = topThree[0]?.product as WinnerProduct | undefined
+  const winnerProduct = topThreeWithRank[0]?.product as
+    | WinnerProduct
+    | undefined
   if (winnerProduct) {
     await grantWinnerPerks(winnerProduct, now)
   }
 
-  const winnersForEvent = topThree
-    .map((entry: (typeof topThree)[number]): WinnerEvent | null => {
+  const winnersForEvent = topThreeWithRank
+    .map(
+      (entry: (typeof topThreeWithRank)[number]): WinnerEvent | null => {
       const product = entry.product as WinnerProduct | undefined
       if (!product) return null
       return {
         productId: product.id,
-        rank: entry.rank,
+        rank: entry.resolvedRank,
         name: product.name,
         slug: product.slug,
         twitterHandle: normalizeTwitterHandle(product.metadata?.twitterUrl),
       }
-    })
+      },
+    )
     .filter((entry: WinnerEvent | null): entry is WinnerEvent => Boolean(entry))
 
   if (winnersForEvent.length) {
@@ -568,7 +579,7 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
       { context: { monthKey } },
     )
 
-    const topWinner = topThree[0]?.product as WinnerProduct | undefined
+    const topWinner = topThreeWithRank[0]?.product as WinnerProduct | undefined
     if (topWinner) {
       const broadcast = await broadcastProductOfMonthWinnerToNovu({
         periodKey: monthKey,

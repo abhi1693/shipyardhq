@@ -1,6 +1,5 @@
 import { PrismaClient } from "@/lib/vendor/prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
-import { withAccelerate } from "@prisma/extension-accelerate"
 import {
   convertToUsdCents,
   getUsdConversionRates,
@@ -132,16 +131,6 @@ function parseDate(value?: string): Date | null {
 }
 
 function createPrismaClient(connectionString: string) {
-  const isAccelerate =
-    connectionString.startsWith("prisma://") ||
-    connectionString.startsWith("prisma+postgres://")
-
-  if (isAccelerate) {
-    return new PrismaClient({ accelerateUrl: connectionString }).$extends(
-      withAccelerate(),
-    )
-  }
-
   const adapter = new PrismaPg({ connectionString })
   return new PrismaClient({ adapter })
 }

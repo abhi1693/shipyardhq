@@ -1,12 +1,22 @@
 import prisma from "@/lib/prisma"
+import type { Prisma } from "@/lib/vendor/prisma/client"
 
-type PlanFeatureSummary = {
-  id: string
-  name: string
-  price: unknown
-  isDefault: boolean
-  assignments: { enabled: boolean; feature: { key: string | null } | null }[]
-}
+const defaultPlanSelect = {
+  id: true,
+  name: true,
+  price: true,
+  boostForDays: true,
+  isDefault: true,
+  assignments: {
+    include: {
+      feature: true,
+    },
+  },
+} satisfies Prisma.PlanSelect
+
+type PlanFeatureSummary = Prisma.PlanGetPayload<{
+  select: typeof defaultPlanSelect
+}>
 
 /**
  * Fetch the default plan with feature assignments.
@@ -16,18 +26,7 @@ export async function getDefaultPlanWithFeatures(): Promise<PlanFeatureSummary |
   try {
     const plan = await prisma.plan.findFirst({
       where: { isDefault: true },
-      select: {
-        id: true,
-        name: true,
-        price: true,
-        isDefault: true,
-        assignments: {
-          select: {
-            enabled: true,
-            feature: { select: { key: true } },
-          },
-        },
-      },
+      select: defaultPlanSelect,
     })
     return plan ?? null
   } catch (error) {

@@ -217,7 +217,7 @@ async function resolveSegmentRecipients(
   }
 
   const where = {
-    status: "active",
+    status: "active" as const,
     role: { not: "admin" as const },
     ...emailFilter,
   }
