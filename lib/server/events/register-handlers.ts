@@ -32,10 +32,10 @@ export async function registerEventHandlers(): Promise<void> {
       path: "@/lib/server/leaderboard/listeners",
       load: () => import("@/lib/server/leaderboard/listeners"),
     },
-    // {
-    //   path: "@/lib/server/claims/cleanup",
-    //   load: () => import("@/lib/server/claims/cleanup"),
-    // },
+    {
+      path: "@/lib/server/claims/cleanup",
+      load: () => import("@/lib/server/claims/cleanup"),
+    },
   ]
 
   const results = await Promise.allSettled(
