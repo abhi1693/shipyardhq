@@ -26,6 +26,8 @@ export default function PurchasePlanToast() {
               ? "Finish your previous subscription payment before changing plans."
               : error === "subscription_change_failed"
                 ? "Unable to change your subscription plan right now."
+                : error === "plan_type_locked"
+                  ? "You can't switch between subscription and one-time while a paid plan is active."
               : error === "publish_failed"
                 ? "Unable to publish your listing. Please try again."
               : error === "must_publish"

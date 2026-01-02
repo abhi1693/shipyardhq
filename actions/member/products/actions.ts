@@ -488,6 +488,23 @@ export async function choosePlanAction(
   const ownership = await requireOwnedProduct(ctx.productId)
   if ("error" in ownership) return
 
+  const currentPlan = await prisma.product.findUnique({
+    where: { id: ctx.productId },
+    select: {
+      plan: {
+        select: { type: true, isDefault: true, price: true },
+      },
+    },
+  })
+  const activePlan = currentPlan?.plan
+  const hasPaidPlan =
+    !!activePlan &&
+    !activePlan.isDefault &&
+    (activePlan.price ?? 0) > 0
+  if (hasPaidPlan && activePlan.type !== plan.type) {
+    redirect(`${ctx.redirectPath}?error=plan_type_locked`)
+  }
+
   if ((plan.price || 0) > 0 && ownership.product.status !== "published") {
     redirect(`${ctx.redirectPath}?error=must_publish`)
   }

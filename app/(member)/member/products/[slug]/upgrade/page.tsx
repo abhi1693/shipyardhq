@@ -33,11 +33,23 @@ export default async function ProductUpgradePage({
         select: {
           id: true,
           name: true,
+          type: true,
+          price: true,
+          isDefault: true,
         },
       },
     },
   })
   const currentPlan = productPlan?.plan ?? null
+  const lockedPlanType =
+    currentPlan &&
+    !currentPlan.isDefault &&
+    (currentPlan.price ?? 0) > 0
+      ? currentPlan.type
+      : null
+  const upgradePlans = lockedPlanType
+    ? paidPlans.filter((plan) => plan.type === lockedPlanType)
+    : paidPlans
 
   const productHref = memberProductPath(product.slug)
   const celebrateHref = `${productHref}?celebrate=1`
@@ -65,11 +77,11 @@ export default async function ProductUpgradePage({
         {paidPlans.length ? (
           <div className="mx-auto w-full max-w-5xl">
             <ProductUpgradePricingTable
-              plans={paidPlans}
+              plans={upgradePlans}
               productId={product.id}
               redirectPath={productHref}
               currentPlanId={currentPlan?.id}
-              showTypeToggle
+              showTypeToggle={!lockedPlanType}
             />
           </div>
         ) : (
