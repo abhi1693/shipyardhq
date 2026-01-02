@@ -1,7 +1,10 @@
+import { format, subDays } from "date-fns"
+
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { createPlanCheckout } from "@/lib/server/dodoCheckout"
 import { buildCacheKey } from "@/lib/server/cache"
+import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import { getRedisClient, type RedisClient } from "@/lib/server/redis"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import { memberProductPath, productPath } from "@/lib/routes"
@@ -26,6 +29,7 @@ const DEFAULT_DISCOUNT_PCT = 10
 const DEFAULT_VALID_HOURS = 24
 const DEFAULT_COOLDOWN_DAYS = 30
 const DEFAULT_STATE_TTL_DAYS = 90
+const METRICS_WINDOW_DAYS = 7
 
 type TrendingBoostOffer = {
   badgeId: string
@@ -62,6 +66,62 @@ function clampNumber(value: number, min: number, max: number): number {
   if (value < min) return min
   if (value > max) return max
   return value
+}
+
+function resolveGaDateRange(now: Date, days: number) {
+  const safeDays = Math.max(1, Math.floor(days))
+  const end = subDays(now, 0)
+  const start = subDays(end, safeDays - 1)
+  return {
+    startDate: format(start, "yyyy-MM-dd"),
+    endDate: format(end, "yyyy-MM-dd"),
+  }
+}
+
+function computeVisibilityScore(metrics: {
+  traffic7d: number
+  upvotes7d: number
+}): number {
+  const traffic = Math.max(0, metrics.traffic7d)
+  const upvotes = Math.max(0, metrics.upvotes7d)
+
+  const trafficScore = clampNumber(
+    Math.log10(traffic + 1) / Math.log10(250 + 1),
+    0,
+    1,
+  )
+  const upvoteScore = clampNumber(upvotes / 6, 0, 1)
+
+  return clampNumber(trafficScore * 0.75 + upvoteScore * 0.25, 0, 1)
+}
+
+async function fetchTrendingMetrics(args: {
+  now: Date
+  productId: string
+  productSlug: string
+}): Promise<{ traffic7d: number; upvotes7d: number; score: number }> {
+  const windowDays = METRICS_WINDOW_DAYS
+  const windowStart = new Date(args.now.getTime() - windowDays * DAY_MS)
+
+  const analyticsProvider = getAnalyticsProvider("cache")
+  const trafficMap = await analyticsProvider.getProductTrafficMap({
+    products: [{ id: args.productId, slug: args.productSlug }],
+    dateRange: resolveGaDateRange(args.now, windowDays),
+  })
+
+  const trafficEntry = trafficMap.get(args.productId)
+  const traffic7d = Math.max(0, Math.round(trafficEntry?.pageViews ?? 0))
+  const upvotes7d = Math.max(
+    0,
+    await prisma.productUpvote.count({
+      where: { productId: args.productId, createdAt: { gte: windowStart } },
+    }),
+  )
+  const score = Number(
+    (computeVisibilityScore({ traffic7d, upvotes7d }) * 100).toFixed(2),
+  )
+
+  return { traffic7d, upvotes7d, score }
 }
 
 function parseIsoDate(value: string | null | undefined): Date | null {
@@ -247,6 +307,21 @@ async function sendOffer(args: {
     productPath(args.offer.productSlug),
     `${siteUrl}/`,
   ).toString()
+  const metricsTimestamp = new Date()
+  let metrics = { traffic7d: 0, upvotes7d: 0, score: 0 }
+
+  try {
+    metrics = await fetchTrendingMetrics({
+      now: metricsTimestamp,
+      productId: args.offer.productId,
+      productSlug: args.offer.productSlug,
+    })
+  } catch (error) {
+    console.warn("[promotions.trending] failed to load metrics", {
+      error,
+      productId: args.offer.productId,
+    })
+  }
 
   const payload: FeaturedPromoPayload = {
     // Derive validDays from the offer window so overrides stay consistent.
@@ -304,6 +379,7 @@ async function sendOffer(args: {
     context: {
       source: "trending_badge",
       badgeId: args.offer.badgeId,
+      metrics,
     },
   }
 
