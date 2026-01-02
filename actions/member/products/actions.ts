@@ -26,6 +26,7 @@ import { memberProductPath } from "@/lib/routes"
 import type { PaymentConnectorConfig } from "@/lib/server/payments/types"
 import { dispatchEventAsync } from "@/lib/server/events"
 import { APP_EVENTS } from "@/lib/server/events/constants"
+import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -36,6 +37,8 @@ const ACTIVE_ENTITLEMENT_STATUSES: FeatureEntitlementStatus[] = [
   "active",
   "pending",
 ]
+const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active"])
+const SUBSCRIPTION_CHANGE_PRORATION_MODE = "prorated_immediately"
 
 type ProductListItem = Prisma.ProductGetPayload<{
   include: {
@@ -63,6 +66,48 @@ type ProductListItem = Prisma.ProductGetPayload<{
     }
   }
 }>
+
+function parseIsoDate(value: string | null | undefined): Date | null {
+  if (!value) return null
+  const parsed = new Date(value)
+  return Number.isFinite(parsed.getTime()) ? parsed : null
+}
+
+async function findActiveSubscriptionForProduct(args: {
+  email: string
+  productId: string
+}) {
+  const customer = await fetchDodoCustomerByEmail(args.email)
+  if (!customer) return null
+
+  let best: any | null = null
+  let bestCreatedAt = 0
+
+  for await (const subscription of dodoClient.subscriptions.list({
+    customer_id: customer.customer_id,
+    page_size: 100,
+  } as any)) {
+    const status = (subscription?.status || "").toString().toLowerCase()
+    if (!ACTIVE_SUBSCRIPTION_STATUSES.has(status)) continue
+
+    const metadata =
+      typeof subscription?.metadata === "object" && subscription.metadata
+        ? (subscription.metadata as Record<string, unknown>)
+        : null
+    const metaProductId =
+      (metadata?.productId as string | undefined) ||
+      (metadata?.product_id as string | undefined)
+    if (metaProductId !== args.productId) continue
+
+    const createdAt = parseIsoDate(subscription?.created_at)?.getTime() ?? 0
+    if (!best || createdAt > bestCreatedAt) {
+      best = subscription
+      bestCreatedAt = createdAt
+    }
+  }
+
+  return best
+}
 
 export async function getUserProducts(params?: ListParams) {
   const { userId } = await auth()
@@ -436,7 +481,7 @@ export async function choosePlanAction(
   // Try to start checkout when plan requires payment
   const plan = await prisma.plan.findUnique({
     where: { id: planId },
-    select: { id: true, externalId: true, price: true },
+    select: { id: true, externalId: true, price: true, type: true },
   })
   if (!plan) return
 
@@ -456,6 +501,48 @@ export async function choosePlanAction(
   // Paid plans must have an externalId to start checkout
   if ((plan.price || 0) > 0 && !plan.externalId) {
     redirect(`${ctx.redirectPath}?error=plan_not_configured`)
+  }
+
+  if (
+    (plan.price || 0) > 0 &&
+    plan.type === "recurring_price" &&
+    ownership.user.email
+  ) {
+    const existingSubscription = await findActiveSubscriptionForProduct({
+      email: ownership.user.email,
+      productId: ctx.productId,
+    })
+    const subscriptionId =
+      (existingSubscription as any)?.subscription_id || null
+    if (subscriptionId) {
+      try {
+        const isSamePlan =
+          (existingSubscription as any)?.product_id === plan.externalId
+        if (!isSamePlan) {
+          await dodoClient.subscriptions.changePlan(
+            subscriptionId,
+            {
+              product_id: plan.externalId,
+              proration_billing_mode: SUBSCRIPTION_CHANGE_PRORATION_MODE,
+              quantity: 1,
+            } as any,
+          )
+        }
+        await setProductPlanAction(ctx.productId, planId)
+      } catch (error) {
+        const status = (error as any)?.status
+        const message = String((error as any)?.error?.message || "")
+          .trim()
+          .toLowerCase()
+        if (status === 409 && message.includes("previous payment")) {
+          console.warn("Subscription change blocked by pending payment")
+          redirect(`${ctx.redirectPath}?error=subscription_payment_pending`)
+        }
+        console.error("Failed to change subscription plan:", error)
+        redirect(`${ctx.redirectPath}?error=subscription_change_failed`)
+      }
+      redirect(`${ctx.redirectPath}?upgraded=1`)
+    }
   }
 
   // Start hosted checkout for paid plans
