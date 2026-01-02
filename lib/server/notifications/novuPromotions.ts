@@ -133,7 +133,6 @@ export async function sendFeaturedPlanPromotionNotification(input: {
   const timestamp = new Date().toISOString()
   const pct = input.payload.promotion.discountPct
   const code = input.payload.promotion.discountCode
-  const productName = input.payload.product.name
   const boostDays = input.payload.plan.boostForDays
   const highlights = input.payload.plan.highlights ?? []
   const highlightLabel = highlights.length
@@ -151,7 +150,7 @@ export async function sendFeaturedPlanPromotionNotification(input: {
   })
   const metricsNudge = buildMetricsNudge(input.payload.context)
 
-  const subject = `${productName}: ${pct}% off Featured boost`
+  const subject = `Get ${pct}% off`
   const message = [
     `Unlock ${highlightLabel} for ${boostDays} days.`,
     `Your ${pct}% discount is applied at checkout (code ${code}). Offer ends in ${expiresLabel}.`,
@@ -206,7 +205,6 @@ export async function sendTrendingBoostPromotionNotification(input: {
   const timestamp = new Date().toISOString()
   const pct = input.payload.promotion.discountPct
   const code = input.payload.promotion.discountCode
-  const productName = input.payload.product.name
   const boostDays = input.payload.plan.boostForDays
   const highlights = input.payload.plan.highlights ?? []
   const highlightLabel = highlights.length
@@ -224,7 +222,7 @@ export async function sendTrendingBoostPromotionNotification(input: {
   })
   const metricsNudge = buildMetricsNudge(input.payload.context)
 
-  const subject = `${productName} is trending — ${pct}% off ${highlightLabel}`
+  const subject = `Get ${pct}% off`
   const message = [
     `Your product is trending. Extend the momentum with ${highlightLabel} for ${boostDays} days — ${pct}% off (code ${code}). Offer ends in ${expiresLabel}.`,
     metricsNudge,
