@@ -69,6 +69,7 @@ export default async function ProductUpgradePage({
               productId={product.id}
               redirectPath={productHref}
               currentPlanId={currentPlan?.id}
+              showTypeToggle
             />
           </div>
         ) : (

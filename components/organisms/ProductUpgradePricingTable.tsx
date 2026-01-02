@@ -13,11 +13,13 @@ export function ProductUpgradePricingTable({
   productId,
   redirectPath,
   currentPlanId,
+  showTypeToggle = false,
 }: {
   plans: PublicPlan[]
   productId: string
   redirectPath: string
   currentPlanId?: string | null
+  showTypeToggle?: boolean
 }) {
   const choosePlan = useMemo(() => {
     return choosePlanAction.bind(null, {
@@ -29,6 +31,7 @@ export function ProductUpgradePricingTable({
   return (
     <PricingTable
       plans={plans}
+      showTypeToggle={showTypeToggle}
       renderPlanCTA={(plan) => {
         const isCurrentPlan = currentPlanId != null && plan.id === currentPlanId
 
