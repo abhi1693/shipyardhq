@@ -36,6 +36,7 @@ import { Button } from "@/components/atoms/button"
 import {
   choosePlanAction,
   validatePaymentAndAttachPlan,
+  validateSubscriptionAndAttachPlan,
 } from "@/actions/member/products/actions"
 import {
   memberProductAnalyticsPath,
@@ -79,6 +80,7 @@ export default async function ViewUserProductPage({
   const { slug } = await params
   const sp = (await searchParams) || {}
   const paymentId = (sp["payment_id"] as string) || ""
+  const subscriptionId = (sp["subscription_id"] as string) || ""
   const status = (sp["status"] as string) || ""
   const celebrateValue = sp["celebrate"]
   const celebrate = Array.isArray(celebrateValue)
@@ -88,6 +90,10 @@ export default async function ViewUserProductPage({
   if (paymentId && status) {
     await validatePaymentAndAttachPlan(paymentId)
     // Clean URL params regardless of outcome
+    redirect(memberProductPath(slug))
+  }
+  if (subscriptionId) {
+    await validateSubscriptionAndAttachPlan(subscriptionId)
     redirect(memberProductPath(slug))
   }
   const { product: manageableProduct, currentUser } =

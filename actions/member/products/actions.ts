@@ -366,6 +366,63 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
   }
 }
 
+// Validate subscription by ID and attach plan to product using metadata from Dodo
+export async function validateSubscriptionAndAttachPlan(subscriptionId: string) {
+  const { userId } = await auth()
+  if (!userId) return { error: "Unauthenticated" }
+
+  const user = await getActiveUserByClerkId(userId)
+  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
+
+  try {
+    const subscription = await dodoClient.subscriptions.retrieve(subscriptionId)
+    if (!subscription) return { error: "Subscription not found" }
+
+    const status = (subscription.status || "").toString().toLowerCase()
+    if (status !== "active") {
+      return { error: `Subscription not active: ${subscription.status}` }
+    }
+
+    const meta = (subscription.metadata || {}) as any
+    const productId = (meta.productId || meta.product_id) as string | undefined
+    const planId = (meta.planId || meta.plan_id) as string | undefined
+    if (!productId || !planId) {
+      return { error: "Missing metadata for product/plan" }
+    }
+
+    const product = await prisma.product.findFirst({
+      where: { id: productId, userId: user.id },
+      select: {
+        id: true,
+        userId: true,
+        planAssignedAt: true,
+        plan: { select: { boostForDays: true, isDefault: true } },
+      },
+    })
+    if (!product) return { error: "Product not found or not owned" }
+
+    const plan = await prisma.plan.findUnique({
+      where: { id: planId },
+      select: { boostForDays: true, isDefault: true },
+    })
+    if (!plan) return { error: "Plan not found" }
+
+    const planAssignedAt = resolvePlanAssignedAt({
+      currentPlan: product.plan,
+      currentAssignedAt: product.planAssignedAt,
+      newPlan: plan,
+    })
+    await prisma.product.update({
+      where: { id: productId },
+      data: { planId, planAssignedAt },
+    })
+    return { success: true }
+  } catch (e) {
+    console.error("Subscription validation failed:", e)
+    return { error: "Subscription validation failed" }
+  }
+}
+
 // Unified server action to choose/upgrade a plan for a product
 // Usage from a form: const action = choosePlanAction.bind(null, { productId, redirectPath })
 export async function choosePlanAction(
