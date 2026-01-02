@@ -21,7 +21,13 @@ type PlanSummary = {
 }
 
 const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active"])
-const INACTIVE_SUBSCRIPTION_STATUSES = new Set(["cancelled", "expired", "failed"])
+const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
+  "pending",
+  "cancelled",
+  "expired",
+  "failed",
+  "on_hold",
+])
 
 function readMetadataString(
   metadata: Record<string, unknown> | null | undefined,
@@ -35,6 +41,26 @@ function readMetadataString(
     }
   }
   return undefined
+}
+
+function parseIsoDate(value: string | null | undefined): Date | null {
+  if (!value) return null
+  const parsed = new Date(value)
+  return Number.isFinite(parsed.getTime()) ? parsed : null
+}
+
+function getSubscriptionEndAt(subscription: any): Date | null {
+  return parseIsoDate(subscription?.expires_at || subscription?.next_billing_date)
+}
+
+function isCancelledButActive(
+  status: string,
+  subscription: any,
+  nowMs: number,
+): boolean {
+  if (status !== "cancelled") return false
+  const endAt = getSubscriptionEndAt(subscription)
+  return Boolean(endAt && endAt.getTime() > nowMs)
 }
 
 export async function syncCurrentUserBilling() {
@@ -58,13 +84,18 @@ export async function syncCurrentUserBilling() {
 
   const activeProducts = new Set<string>()
   const cancelledProducts = new Set<string>()
+  const nowMs = Date.now()
   const items: any[] = (page as any)?.items || []
   for (const sub of items) {
     const status = (sub?.status || "").toLowerCase()
     const pid = sub?.product_id as string | undefined
     if (!pid) continue
-    if (status === "active") activeProducts.add(pid)
-    if (status === "cancelled" || status === "expired" || status === "failed") {
+    const cancelledButActive = isCancelledButActive(status, sub, nowMs)
+    if (ACTIVE_SUBSCRIPTION_STATUSES.has(status) || cancelledButActive) {
+      activeProducts.add(pid)
+      continue
+    }
+    if (INACTIVE_SUBSCRIPTION_STATUSES.has(status)) {
       cancelledProducts.add(pid)
     }
   }
@@ -118,6 +149,7 @@ export async function syncCurrentUserBilling() {
     subscriptions: items,
     planById,
     planIdByExternal: byExternal,
+    nowMs,
   })
 
   let added = 0
@@ -157,14 +189,17 @@ async function syncProductPlanSubscriptions(args: {
   subscriptions: any[]
   planById: Map<string, PlanSummary>
   planIdByExternal: Record<string, string>
+  nowMs: number
 }) {
   const activeByProductId = new Map<string, PlanSummary>()
   const inactiveByProductId = new Map<string, PlanSummary>()
 
   for (const sub of args.subscriptions) {
     const status = (sub?.status || "").toLowerCase()
-    const isActive = ACTIVE_SUBSCRIPTION_STATUSES.has(status)
-    const isInactive = INACTIVE_SUBSCRIPTION_STATUSES.has(status)
+    const cancelledButActive = isCancelledButActive(status, sub, args.nowMs)
+    const isActive = ACTIVE_SUBSCRIPTION_STATUSES.has(status) || cancelledButActive
+    const isInactive =
+      INACTIVE_SUBSCRIPTION_STATUSES.has(status) && !cancelledButActive
     if (!isActive && !isInactive) continue
 
     const metadata =

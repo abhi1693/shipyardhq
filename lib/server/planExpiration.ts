@@ -66,6 +66,26 @@ function readMetadataString(
   return undefined
 }
 
+function parseIsoDate(value: string | null | undefined): Date | null {
+  if (!value) return null
+  const parsed = new Date(value)
+  return Number.isFinite(parsed.getTime()) ? parsed : null
+}
+
+function getSubscriptionEndAt(subscription: any): Date | null {
+  return parseIsoDate(subscription?.expires_at || subscription?.next_billing_date)
+}
+
+function isCancelledButActive(
+  status: string,
+  subscription: any,
+  nowMs: number,
+): boolean {
+  if (status !== "cancelled") return false
+  const endAt = getSubscriptionEndAt(subscription)
+  return Boolean(endAt && endAt.getTime() > nowMs)
+}
+
 type ExpiredBoost = {
   productId: string
   productName: string
@@ -239,6 +259,7 @@ export async function expireBoostedPlans(now: Date = new Date()) {
   try {
     recurringResult = await expireInactiveRecurringPlans({
       defaultPlanId: defaultPlan.id,
+      now: now instanceof Date && !Number.isNaN(now.valueOf()) ? now : new Date(),
     })
   } catch (error) {
     console.error("[cron] expire plans recurring failed", error)
@@ -265,7 +286,10 @@ export async function expireBoostedPlans(now: Date = new Date()) {
   }
 }
 
-async function expireInactiveRecurringPlans(args: { defaultPlanId: string }) {
+async function expireInactiveRecurringPlans(args: {
+  defaultPlanId: string
+  now: Date
+}) {
   const recurringPlans = await prisma.plan.findMany({
     where: { type: PlanType.recurring_price },
     select: {
@@ -294,13 +318,16 @@ async function expireInactiveRecurringPlans(args: { defaultPlanId: string }) {
     string,
     { planId: string; status: string; subscriptionId?: string | null }
   >()
+  const nowMs = args.now.getTime()
 
   for await (const subscription of dodoClient.subscriptions.list({
     page_size: 100,
   } as any)) {
     const status = (subscription?.status || "").toString().toLowerCase()
-    const isActive = ACTIVE_SUBSCRIPTION_STATUSES.has(status)
-    const isInactive = INACTIVE_SUBSCRIPTION_STATUSES.has(status)
+    const cancelledButActive = isCancelledButActive(status, subscription, nowMs)
+    const isActive = ACTIVE_SUBSCRIPTION_STATUSES.has(status) || cancelledButActive
+    const isInactive =
+      INACTIVE_SUBSCRIPTION_STATUSES.has(status) && !cancelledButActive
     if (!isActive && !isInactive) continue
 
     const metadata =
