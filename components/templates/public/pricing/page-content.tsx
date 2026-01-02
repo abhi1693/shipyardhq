@@ -53,7 +53,8 @@ export const PRICING_FAQS = [
 
 export async function PricingPlansList({
   disableSectionWrapper = false,
-}: { disableSectionWrapper?: boolean } = {}) {
+  showTypeToggle = false,
+}: { disableSectionWrapper?: boolean; showTypeToggle?: boolean } = {}) {
   const plans = await getPublicPlans()
   const defaultPlan = plans.find((plan) => plan.isDefault)
   const visiblePlans = defaultPlan
@@ -63,6 +64,7 @@ export async function PricingPlansList({
     <PricingTable
       plans={visiblePlans}
       disableSectionWrapper={disableSectionWrapper}
+      showTypeToggle={showTypeToggle}
     />
   ) : null
 
@@ -98,6 +100,15 @@ export async function FeaturedProductsList() {
 export function PricingPlansSkeleton({
   withSectionWrapper = true,
 }: { withSectionWrapper?: boolean } = {}) {
+  const toggle = (
+    <div className="flex justify-center">
+      <Skeleton
+        className="h-10 w-56 rounded-full"
+        tone="muted"
+        shimmer={false}
+      />
+    </div>
+  )
   const grid = (
     <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
       {[0, 1, 2].map((index) => (
@@ -116,6 +127,7 @@ export function PricingPlansSkeleton({
   )
   const content = (
     <div className="space-y-4">
+      {toggle}
       {grid}
       {defaultLine}
     </div>

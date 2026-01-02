@@ -133,7 +133,7 @@ export default function PricingPage() {
                 <Suspense
                   fallback={<PricingPlansSkeleton withSectionWrapper={false} />}
                 >
-                  <PricingPlansList disableSectionWrapper />
+                  <PricingPlansList disableSectionWrapper showTypeToggle />
                 </Suspense>
               </div>
             </div>
