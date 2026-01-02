@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+import { PlanType } from "@/lib/vendor/prisma/client"
 
 const MS_PER_SECOND = 1000
 const MS_PER_MINUTE = 60 * MS_PER_SECOND
@@ -91,6 +92,7 @@ export async function expireBoostedPlans(now: Date = new Date()) {
       planId: { not: null },
       planAssignedAt: { not: null },
       plan: {
+        type: PlanType.one_time_price,
         boostForDays: { gt: defaultBoostDays },
         price: { gt: 0 },
       },

@@ -2,7 +2,6 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { getPublicPlans } from "@/actions/public/plans/actions"
-import { PlanType } from "@/lib/vendor/prisma/client"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import { memberProductPath, memberProductsStatusPath } from "@/lib/routes"
 import { ProductUpgradePricingTable } from "@/components/organisms/ProductUpgradePricingTable"
@@ -24,9 +23,7 @@ export default async function ProductUpgradePage({
     unauthorizedRedirect: memberProductsStatusPath("unauthorized"),
   })
 
-  const allPlans = await getPublicPlans({
-    type: PlanType.one_time_price,
-  }).catch(() => [])
+  const allPlans = await getPublicPlans().catch(() => [])
   const paidPlans = allPlans.filter((plan) => (plan.price || 0) > 0)
 
   const productPlan = await prisma.product.findUnique({

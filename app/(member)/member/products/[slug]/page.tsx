@@ -56,7 +56,6 @@ import {
 } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
 import { getPublicPlans } from "@/actions/public/plans/actions"
-import { PlanType } from "@/lib/vendor/prisma/client"
 // startPlanCheckoutAction and setProductPlanAction are used inside choosePlanAction
 import { hasPlanFeature } from "@/lib/features"
 import { resolveProductAnalyticsAccess } from "@/lib/server/analytics/productAnalytics"
@@ -112,9 +111,7 @@ export default async function ViewUserProductPage({
   const canViewAnalytics = hasBasicAnalytics
   const upvoters = await getRecentProductUpvoters(productId, 8).catch(() => [])
 
-  const allPlans = await getPublicPlans({
-    type: PlanType.one_time_price,
-  }).catch(() => [])
+  const allPlans = await getPublicPlans().catch(() => [])
   const currentPlanPublic = allPlans.find((p) => p.id === product.plan?.id)
   const sortedPlans = [...allPlans].sort(
     (a, b) => (a.price ?? 0) - (b.price ?? 0),
