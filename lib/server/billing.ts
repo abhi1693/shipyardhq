@@ -6,6 +6,7 @@ import { dodoClient } from "@/lib/dodo"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import { PlanType, Prisma } from "@/lib/vendor/prisma/client"
+import { readMetadataString } from "@/lib/server/subscriptionMetadata"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -29,20 +30,6 @@ const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
   "failed",
   "on_hold",
 ])
-
-function readMetadataString(
-  metadata: Record<string, unknown> | null | undefined,
-  ...keys: string[]
-): string | undefined {
-  if (!metadata) return undefined
-  for (const key of keys) {
-    const raw = metadata[key]
-    if (typeof raw === "string" && raw.trim()) {
-      return raw.trim()
-    }
-  }
-  return undefined
-}
 
 export async function syncCurrentUserBilling() {
   const { userId } = await auth()

@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { PlanType } from "@/lib/vendor/prisma/client"
+import { readMetadataString } from "@/lib/server/subscriptionMetadata"
 
 const MS_PER_SECOND = 1000
 const MS_PER_MINUTE = 60 * MS_PER_SECOND
@@ -51,20 +52,6 @@ export function isPlanExpired(
   if (boostForDays <= 0) return false
   const expiresAt = addDays(assignedAt, boostForDays)
   return expiresAt <= now
-}
-
-function readMetadataString(
-  metadata: Record<string, unknown> | null | undefined,
-  ...keys: string[]
-): string | undefined {
-  if (!metadata) return undefined
-  for (const key of keys) {
-    const raw = metadata[key]
-    if (typeof raw === "string" && raw.trim()) {
-      return raw.trim()
-    }
-  }
-  return undefined
 }
 
 type ExpiredBoost = {
@@ -299,9 +286,13 @@ async function expireInactiveRecurringPlans(args: {
     string,
     { planId: string; status: string; subscriptionId?: string | null }
   >()
-  for await (const subscription of dodoClient.subscriptions.list({
+  const subscriptionListParams = {
     page_size: 100,
-  } as any)) {
+  } satisfies Parameters<typeof dodoClient.subscriptions.list>[0]
+
+  for await (const subscription of dodoClient.subscriptions.list(
+    subscriptionListParams,
+  )) {
     const status = (subscription?.status || "").toString().toLowerCase()
     const isActive = ACTIVE_SUBSCRIPTION_STATUSES.has(status)
     const isInactive = INACTIVE_SUBSCRIPTION_STATUSES.has(status)
