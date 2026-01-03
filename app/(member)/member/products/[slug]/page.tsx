@@ -116,14 +116,20 @@ export default async function ViewUserProductPage({
   })
   const canViewAnalytics = hasBasicAnalytics
   const upvoters = await getRecentProductUpvoters(productId, 8).catch(() => [])
+  const isFreePlan = !product.plan || product.plan.isDefault
 
   const allPlans = await getPublicPlans().catch(() => [])
   const currentPlanPublic = allPlans.find((p) => p.id === product.plan?.id)
   const sortedPlans = [...allPlans].sort(
     (a, b) => (a.price ?? 0) - (b.price ?? 0),
   )
+  const hasRecurringPlans = sortedPlans.some(
+    (plan) => plan.type === "recurring_price",
+  )
   const targetPlanType =
-    currentPlanPublic?.type === "recurring_price"
+    isFreePlan && hasRecurringPlans
+      ? "recurring_price"
+      : currentPlanPublic?.type === "recurring_price"
       ? "recurring_price"
       : "one_time_price"
   const typeFilteredPlans = sortedPlans.filter(
@@ -176,7 +182,6 @@ export default async function ViewUserProductPage({
     redirectPath: memberProductPath(productSlug),
   })
   const upgradePath = memberProductUpgradePath(productSlug)
-  const isFreePlan = !product.plan || product.plan.isDefault
   const boostAssignedAt = product.planAssignedAt
   const boostDays = product.plan?.boostForDays ?? 0
   const statusChangeUnlockAt =

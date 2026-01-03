@@ -24,6 +24,7 @@ const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active"])
 const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
   "pending",
   "cancelled",
+  "canceled",
   "expired",
   "failed",
   "on_hold",
@@ -41,26 +42,6 @@ function readMetadataString(
     }
   }
   return undefined
-}
-
-function parseIsoDate(value: string | null | undefined): Date | null {
-  if (!value) return null
-  const parsed = new Date(value)
-  return Number.isFinite(parsed.getTime()) ? parsed : null
-}
-
-function getSubscriptionEndAt(subscription: any): Date | null {
-  return parseIsoDate(subscription?.expires_at || subscription?.next_billing_date)
-}
-
-function isCancelledButActive(
-  status: string,
-  subscription: any,
-  nowMs: number,
-): boolean {
-  if (status !== "cancelled") return false
-  const endAt = getSubscriptionEndAt(subscription)
-  return Boolean(endAt && endAt.getTime() > nowMs)
 }
 
 export async function syncCurrentUserBilling() {
@@ -84,14 +65,12 @@ export async function syncCurrentUserBilling() {
 
   const activeProducts = new Set<string>()
   const cancelledProducts = new Set<string>()
-  const nowMs = Date.now()
   const items: any[] = (page as any)?.items || []
   for (const sub of items) {
     const status = (sub?.status || "").toLowerCase()
     const pid = sub?.product_id as string | undefined
     if (!pid) continue
-    const cancelledButActive = isCancelledButActive(status, sub, nowMs)
-    if (ACTIVE_SUBSCRIPTION_STATUSES.has(status) || cancelledButActive) {
+    if (ACTIVE_SUBSCRIPTION_STATUSES.has(status)) {
       activeProducts.add(pid)
       continue
     }
@@ -149,7 +128,6 @@ export async function syncCurrentUserBilling() {
     subscriptions: items,
     planById,
     planIdByExternal: byExternal,
-    nowMs,
   })
 
   let added = 0
@@ -189,17 +167,20 @@ async function syncProductPlanSubscriptions(args: {
   subscriptions: any[]
   planById: Map<string, PlanSummary>
   planIdByExternal: Record<string, string>
-  nowMs: number
 }) {
-  const activeByProductId = new Map<string, PlanSummary>()
-  const inactiveByProductId = new Map<string, PlanSummary>()
+  const activeByProductId = new Map<
+    string,
+    { plan: PlanSummary; subscriptionId?: string }
+  >()
+  const inactiveByProductId = new Map<
+    string,
+    { plan: PlanSummary; subscriptionId?: string }
+  >()
 
   for (const sub of args.subscriptions) {
     const status = (sub?.status || "").toLowerCase()
-    const cancelledButActive = isCancelledButActive(status, sub, args.nowMs)
-    const isActive = ACTIVE_SUBSCRIPTION_STATUSES.has(status) || cancelledButActive
-    const isInactive =
-      INACTIVE_SUBSCRIPTION_STATUSES.has(status) && !cancelledButActive
+    const isActive = ACTIVE_SUBSCRIPTION_STATUSES.has(status)
+    const isInactive = INACTIVE_SUBSCRIPTION_STATUSES.has(status)
     if (!isActive && !isInactive) continue
 
     const metadata =
@@ -219,17 +200,20 @@ async function syncProductPlanSubscriptions(args: {
 
     const plan = args.planById.get(planId)
     if (!plan || plan.type !== PlanType.recurring_price) continue
+    const rawSubscriptionId = (sub as any)?.subscription_id || (sub as any)?.id
+    const subscriptionId =
+      typeof rawSubscriptionId === "string" ? rawSubscriptionId : undefined
 
     if (isActive) {
       const existing = activeByProductId.get(productId)
-      if (!existing || plan.price > existing.price) {
-        activeByProductId.set(productId, plan)
+      if (!existing || plan.price > existing.plan.price) {
+        activeByProductId.set(productId, { plan, subscriptionId })
       }
       continue
     }
 
     if (!activeByProductId.has(productId)) {
-      inactiveByProductId.set(productId, plan)
+      inactiveByProductId.set(productId, { plan, subscriptionId })
     }
   }
 
@@ -251,6 +235,7 @@ async function syncProductPlanSubscriptions(args: {
         id: true,
         planId: true,
         planAssignedAt: true,
+        subscriptionId: true,
         plan: { select: { boostForDays: true, isDefault: true, type: true } },
       },
     }),
@@ -260,10 +245,14 @@ async function syncProductPlanSubscriptions(args: {
   const productById = new Map(products.map((product) => [product.id, product]))
   const updates: Array<ReturnType<typeof prisma.product.update>> = []
 
-  for (const [productId, plan] of activeByProductId.entries()) {
+  for (const [productId, { plan, subscriptionId }] of activeByProductId.entries()) {
     const product = productById.get(productId)
     if (!product) continue
-    if (product.planId === plan.id && product.planAssignedAt) continue
+    const shouldUpdateSubscriptionId =
+      subscriptionId && product.subscriptionId !== subscriptionId
+    if (product.planId === plan.id && product.planAssignedAt && !shouldUpdateSubscriptionId) {
+      continue
+    }
 
     const planAssignedAt = resolvePlanAssignedAt({
       currentPlan: product.plan,
@@ -271,16 +260,23 @@ async function syncProductPlanSubscriptions(args: {
       newPlan: plan,
     })
 
+    const data = {
+      planId: plan.id,
+      planAssignedAt,
+    }
+    if (subscriptionId) {
+      data.subscriptionId = subscriptionId
+    }
     updates.push(
       prisma.product.update({
         where: { id: productId },
-        data: { planId: plan.id, planAssignedAt },
+        data,
       }),
     )
   }
 
   if (defaultPlan) {
-    for (const [productId, plan] of inactiveByProductId.entries()) {
+    for (const [productId, { plan }] of inactiveByProductId.entries()) {
       if (activeByProductId.has(productId)) continue
       const product = productById.get(productId)
       if (!product) continue
@@ -290,7 +286,7 @@ async function syncProductPlanSubscriptions(args: {
       updates.push(
         prisma.product.update({
           where: { id: productId },
-          data: { planId: defaultPlan.id, planAssignedAt: null },
+          data: { planId: defaultPlan.id, planAssignedAt: null, subscriptionId: null },
         }),
       )
     }

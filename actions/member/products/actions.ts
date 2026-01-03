@@ -259,6 +259,7 @@ export async function getUserProducts(params?: ListParams) {
 export async function setProductPlanAction(
   productId: string,
   planId: string | null,
+  subscriptionId?: string | null,
 ) {
   const { userId } = await auth()
   if (!userId) return { error: "Unauthenticated" }
@@ -277,10 +278,11 @@ export async function setProductPlanAction(
   if (!product) return { error: "Product not found or not owned by user" }
 
   let planAssignedAt: Date | null = null
+  let subscriptionIdUpdate: string | null | undefined
   if (planId) {
     const plan = await prisma.plan.findUnique({
       where: { id: planId },
-      select: { id: true, boostForDays: true, isDefault: true },
+      select: { id: true, boostForDays: true, isDefault: true, type: true },
     })
     if (!plan) return { error: "Plan not found" }
     planAssignedAt = resolvePlanAssignedAt({
@@ -288,11 +290,26 @@ export async function setProductPlanAction(
       currentAssignedAt: product.planAssignedAt,
       newPlan: plan,
     })
+    if (plan.type !== "recurring_price") {
+      subscriptionIdUpdate = null
+    } else if (subscriptionId !== undefined) {
+      subscriptionIdUpdate = subscriptionId
+    }
+  } else {
+    subscriptionIdUpdate = null
+  }
+
+  const data: Prisma.ProductUpdateInput = {
+    planId: planId ?? null,
+    planAssignedAt,
+  }
+  if (subscriptionIdUpdate !== undefined) {
+    data.subscriptionId = subscriptionIdUpdate
   }
 
   await prisma.product.update({
     where: { id: productId },
-    data: { planId: planId ?? null, planAssignedAt },
+    data,
   })
 
   return { success: true }
@@ -402,7 +419,7 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
     })
     await prisma.product.update({
       where: { id: productId },
-      data: { planId, planAssignedAt },
+      data: { planId, planAssignedAt, subscriptionId: null },
     })
     return { success: true }
   } catch (e) {
@@ -457,9 +474,15 @@ export async function validateSubscriptionAndAttachPlan(subscriptionId: string) 
       currentAssignedAt: product.planAssignedAt,
       newPlan: plan,
     })
+    const rawSubscriptionId =
+      (subscription as any)?.subscription_id ||
+      (subscription as any)?.id ||
+      subscriptionId
+    const subscriptionExternalId =
+      typeof rawSubscriptionId === "string" ? rawSubscriptionId : subscriptionId
     await prisma.product.update({
       where: { id: productId },
-      data: { planId, planAssignedAt },
+      data: { planId, planAssignedAt, subscriptionId: subscriptionExternalId },
     })
     return { success: true }
   } catch (e) {
@@ -511,7 +534,7 @@ export async function choosePlanAction(
 
   // Free plans (no price): attach immediately
   if ((plan.price || 0) === 0) {
-    await setProductPlanAction(ctx.productId, planId)
+    await setProductPlanAction(ctx.productId, planId, null)
     redirect(`${ctx.redirectPath}?upgraded=1`)
   }
 
@@ -529,8 +552,12 @@ export async function choosePlanAction(
       email: ownership.user.email,
       productId: ctx.productId,
     })
+    const rawSubscriptionId =
+      (existingSubscription as any)?.subscription_id ||
+      (existingSubscription as any)?.id ||
+      null
     const subscriptionId =
-      (existingSubscription as any)?.subscription_id || null
+      typeof rawSubscriptionId === "string" ? rawSubscriptionId : null
     if (subscriptionId) {
       try {
         const isSamePlan =
@@ -545,7 +572,7 @@ export async function choosePlanAction(
             } as any,
           )
         }
-        await setProductPlanAction(ctx.productId, planId)
+        await setProductPlanAction(ctx.productId, planId, subscriptionId)
       } catch (error) {
         const status = (error as any)?.status
         const message = String((error as any)?.error?.message || "")

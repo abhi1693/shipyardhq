@@ -10,6 +10,7 @@ const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active"])
 const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
   "pending",
   "cancelled",
+  "canceled",
   "expired",
   "failed",
   "on_hold",
@@ -64,26 +65,6 @@ function readMetadataString(
     }
   }
   return undefined
-}
-
-function parseIsoDate(value: string | null | undefined): Date | null {
-  if (!value) return null
-  const parsed = new Date(value)
-  return Number.isFinite(parsed.getTime()) ? parsed : null
-}
-
-function getSubscriptionEndAt(subscription: any): Date | null {
-  return parseIsoDate(subscription?.expires_at || subscription?.next_billing_date)
-}
-
-function isCancelledButActive(
-  status: string,
-  subscription: any,
-  nowMs: number,
-): boolean {
-  if (status !== "cancelled") return false
-  const endAt = getSubscriptionEndAt(subscription)
-  return Boolean(endAt && endAt.getTime() > nowMs)
 }
 
 type ExpiredBoost = {
@@ -239,7 +220,7 @@ export async function expireBoostedPlans(now: Date = new Date()) {
   } else {
     const updateResult = await prisma.product.updateMany({
       where: { id: { in: expired.map((item) => item.productId) } },
-      data: { planId: defaultPlan.id, planAssignedAt: null },
+      data: { planId: defaultPlan.id, planAssignedAt: null, subscriptionId: null },
     })
 
     console.info("[cron] expire plans reverted boosts", {
@@ -318,16 +299,12 @@ async function expireInactiveRecurringPlans(args: {
     string,
     { planId: string; status: string; subscriptionId?: string | null }
   >()
-  const nowMs = args.now.getTime()
-
   for await (const subscription of dodoClient.subscriptions.list({
     page_size: 100,
   } as any)) {
     const status = (subscription?.status || "").toString().toLowerCase()
-    const cancelledButActive = isCancelledButActive(status, subscription, nowMs)
-    const isActive = ACTIVE_SUBSCRIPTION_STATUSES.has(status) || cancelledButActive
-    const isInactive =
-      INACTIVE_SUBSCRIPTION_STATUSES.has(status) && !cancelledButActive
+    const isActive = ACTIVE_SUBSCRIPTION_STATUSES.has(status)
+    const isInactive = INACTIVE_SUBSCRIPTION_STATUSES.has(status)
     if (!isActive && !isInactive) continue
 
     const metadata =
@@ -361,10 +338,15 @@ async function expireInactiveRecurringPlans(args: {
     }
 
     if (!activeByProductId.has(productId)) {
+      const rawSubscriptionId =
+        (subscription as any)?.subscription_id ||
+        (subscription as any)?.id ||
+        null
       inactiveByProductId.set(productId, {
         planId,
         status,
-        subscriptionId: (subscription as any)?.subscription_id ?? null,
+        subscriptionId:
+          typeof rawSubscriptionId === "string" ? rawSubscriptionId : null,
       })
     }
   }
@@ -415,7 +397,7 @@ async function expireInactiveRecurringPlans(args: {
     updates.push(
       prisma.product.update({
         where: { id: product.id },
-        data: { planId: args.defaultPlanId, planAssignedAt: null },
+        data: { planId: args.defaultPlanId, planAssignedAt: null, subscriptionId: null },
       }),
     )
   }
