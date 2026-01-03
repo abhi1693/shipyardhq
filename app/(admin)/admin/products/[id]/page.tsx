@@ -48,7 +48,9 @@ export default async function ViewProductPage({
   const { id } = await params
   const [product, plans] = await Promise.all([
     getProductById(id),
-    getPlans({ select: { id: true, name: true, type: true, price: true } }),
+    getPlans({
+      select: { id: true, name: true, slug: true, type: true, price: true },
+    }),
   ])
   if (!product) return notFound()
   const productId = product.id
@@ -407,8 +409,9 @@ export default async function ViewProductPage({
                       <option value="">No plan</option>
                       {plans.map((p: (typeof plans)[number]) => (
                         <option key={p.id} value={p.id}>
-                          {p.name}{" "}
-                          {p.price ? `— $${(p.price / 100).toFixed(2)}` : ""}
+                          {p.name}
+                          {p.slug ? ` (${p.slug})` : ""}
+                          {p.price ? ` — $${(p.price / 100).toFixed(2)}` : ""}
                         </option>
                       ))}
                     </select>

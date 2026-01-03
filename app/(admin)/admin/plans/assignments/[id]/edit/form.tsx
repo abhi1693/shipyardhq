@@ -55,7 +55,7 @@ export default function EditAssignmentForm({
     plan: Plan
     feature: PlanFeature
   }
-  plans: { id: string; name: string }[]
+  plans: { id: string; name: string; slug: string }[]
   features: { id: string; name: string; key: string }[]
 }) {
   const router = useRouter()
@@ -117,7 +117,7 @@ export default function EditAssignmentForm({
                       <SelectContent>
                         {plans.map((p) => (
                           <SelectItem key={p.id} value={p.id}>
-                            {p.name}
+                            {p.slug ? `${p.name} (${p.slug})` : p.name}
                           </SelectItem>
                         ))}
                       </SelectContent>

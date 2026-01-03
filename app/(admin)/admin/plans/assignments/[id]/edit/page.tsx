@@ -20,7 +20,7 @@ export default async function EditAssignmentPage({
 
   if (!assignment) return notFound()
 
-  const plans = await getPlans({ select: { id: true, name: true } })
+  const plans = await getPlans({ select: { id: true, name: true, slug: true } })
   const features = await getPlanFeatures({
     select: { id: true, name: true, key: true },
   })
