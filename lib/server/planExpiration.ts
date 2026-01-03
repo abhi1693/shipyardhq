@@ -1,9 +1,21 @@
 import prisma from "@/lib/prisma"
+import { dodoClient } from "@/lib/dodo"
+import { PlanType } from "@/lib/vendor/prisma/client"
+import { readMetadataString } from "@/lib/server/subscriptionMetadata"
 
 const MS_PER_SECOND = 1000
 const MS_PER_MINUTE = 60 * MS_PER_SECOND
 const MS_PER_HOUR = 60 * MS_PER_MINUTE
 const MS_PER_DAY = 24 * MS_PER_HOUR
+const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active"])
+const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
+  "pending",
+  "cancelled",
+  "canceled",
+  "expired",
+  "failed",
+  "on_hold",
+])
 
 type DurationDisplay = {
   value: number
@@ -49,6 +61,14 @@ type ExpiredBoost = {
   boostForDays: number
 }
 
+type ExpiredSubscriptionPlan = {
+  productId: string
+  productName: string
+  planName: string
+  status: string
+  subscriptionId?: string | null
+}
+
 type PaidPlanRemaining = {
   productId: string
   productName: string
@@ -91,6 +111,7 @@ export async function expireBoostedPlans(now: Date = new Date()) {
       planId: { not: null },
       planAssignedAt: { not: null },
       plan: {
+        type: PlanType.one_time_price,
         boostForDays: { gt: defaultBoostDays },
         price: { gt: 0 },
       },
@@ -183,24 +204,198 @@ export async function expireBoostedPlans(now: Date = new Date()) {
     console.info("[cron] expire plans no boosts to expire", {
       durationMs: Date.now() - startedAtMs,
     })
+  } else {
+    const updateResult = await prisma.product.updateMany({
+      where: { id: { in: expired.map((item) => item.productId) } },
+      data: { planId: defaultPlan.id, planAssignedAt: null, subscriptionId: null },
+    })
+
+    console.info("[cron] expire plans reverted boosts", {
+      expired: expired.map((item) => ({
+        productId: item.productId,
+        productName: item.productName,
+        planName: item.planName,
+        boostForDays: item.boostForDays,
+      })),
+      updatedCount: updateResult?.count ?? 0,
+      durationMs: Date.now() - startedAtMs,
+    })
+  }
+
+  let recurringResult: Awaited<ReturnType<typeof expireInactiveRecurringPlans>> =
+    { expired: [], count: 0 }
+  try {
+    recurringResult = await expireInactiveRecurringPlans({
+      defaultPlanId: defaultPlan.id,
+      now: now instanceof Date && !Number.isNaN(now.valueOf()) ? now : new Date(),
+    })
+  } catch (error) {
+    console.error("[cron] expire plans recurring failed", error)
+  }
+
+  if (recurringResult.count) {
+    console.info("[cron] expire plans recurring expired", {
+      count: recurringResult.count,
+      expired: recurringResult.expired.map((item) => ({
+        productId: item.productId,
+        productName: item.productName,
+        planName: item.planName,
+        status: item.status,
+        subscriptionId: item.subscriptionId ?? undefined,
+      })),
+    })
+  }
+
+  return {
+    expired,
+    count: expired.length,
+    recurringExpired: recurringResult.expired,
+    recurringCount: recurringResult.count,
+  }
+}
+
+async function expireInactiveRecurringPlans(args: {
+  defaultPlanId: string
+  now: Date
+}) {
+  const recurringPlans = await prisma.plan.findMany({
+    where: { type: PlanType.recurring_price },
+    select: {
+      id: true,
+      name: true,
+      externalId: true,
+      price: true,
+      type: true,
+      isDefault: true,
+    },
+  })
+  if (!recurringPlans.length) {
     return { expired: [], count: 0 }
   }
 
-  const updateResult = await prisma.product.updateMany({
-    where: { id: { in: expired.map((item) => item.productId) } },
-    data: { planId: defaultPlan.id, planAssignedAt: null },
+  const planById = new Map(recurringPlans.map((plan) => [plan.id, plan]))
+  const planIdByExternal: Record<string, string> = {}
+  for (const plan of recurringPlans) {
+    if (plan.externalId) {
+      planIdByExternal[plan.externalId] = plan.id
+    }
+  }
+
+  const activeByProductId = new Map<string, (typeof recurringPlans)[number]>()
+  const inactiveByProductId = new Map<
+    string,
+    { planId: string; status: string; subscriptionId?: string | null }
+  >()
+  const subscriptionListParams = {
+    page_size: 100,
+  } satisfies Parameters<typeof dodoClient.subscriptions.list>[0]
+
+  for await (const subscription of dodoClient.subscriptions.list(
+    subscriptionListParams,
+  )) {
+    const status = (subscription?.status || "").toString().toLowerCase()
+    const isActive = ACTIVE_SUBSCRIPTION_STATUSES.has(status)
+    const isInactive = INACTIVE_SUBSCRIPTION_STATUSES.has(status)
+    if (!isActive && !isInactive) continue
+
+    const metadata =
+      typeof subscription?.metadata === "object" && subscription.metadata
+        ? (subscription.metadata as Record<string, unknown>)
+        : null
+    const productId = readMetadataString(metadata, "productId", "product_id")
+    if (!productId) continue
+
+    const planIdFromMeta = readMetadataString(metadata, "planId", "plan_id")
+    const productExternalId =
+      typeof subscription?.product_id === "string"
+        ? subscription.product_id
+        : undefined
+    const planId =
+      (productExternalId ? planIdByExternal[productExternalId] : undefined) ||
+      planIdFromMeta
+    if (!planId) continue
+
+    const plan = planById.get(planId)
+    if (!plan || plan.type !== PlanType.recurring_price) continue
+
+    if (isActive) {
+      const existing = activeByProductId.get(productId)
+      const planPrice = plan.price ?? 0
+      const existingPrice = existing?.price ?? 0
+      if (!existing || planPrice > existingPrice) {
+        activeByProductId.set(productId, plan)
+      }
+      continue
+    }
+
+    if (!activeByProductId.has(productId)) {
+      const rawSubscriptionId =
+        (subscription as any)?.subscription_id ||
+        (subscription as any)?.id ||
+        null
+      inactiveByProductId.set(productId, {
+        planId,
+        status,
+        subscriptionId:
+          typeof rawSubscriptionId === "string" ? rawSubscriptionId : null,
+      })
+    }
+  }
+
+  if (!inactiveByProductId.size) {
+    return { expired: [], count: 0 }
+  }
+
+  const productIds = Array.from(inactiveByProductId.keys())
+  const products = await prisma.product.findMany({
+    where: {
+      id: { in: productIds },
+      plan: { type: PlanType.recurring_price },
+    },
+    select: {
+      id: true,
+      name: true,
+      planId: true,
+      plan: {
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          isDefault: true,
+        },
+      },
+    },
   })
 
-  console.info("[cron] expire plans reverted boosts", {
-    expired: expired.map((item) => ({
-      productId: item.productId,
-      productName: item.productName,
-      planName: item.planName,
-      boostForDays: item.boostForDays,
-    })),
-    updatedCount: updateResult?.count ?? 0,
-    durationMs: Date.now() - startedAtMs,
-  })
+  const expired: ExpiredSubscriptionPlan[] = []
+  const updates: Array<ReturnType<typeof prisma.product.update>> = []
+
+  for (const product of products) {
+    if (activeByProductId.has(product.id)) continue
+    const plan = product.plan
+    const inactive = inactiveByProductId.get(product.id)
+    if (!inactive || !plan || plan.isDefault) continue
+    if (plan.id !== inactive.planId) continue
+
+    expired.push({
+      productId: product.id,
+      productName: product.name,
+      planName: plan.name,
+      status: inactive.status,
+      subscriptionId: inactive.subscriptionId,
+    })
+
+    updates.push(
+      prisma.product.update({
+        where: { id: product.id },
+        data: { planId: args.defaultPlanId, planAssignedAt: null, subscriptionId: null },
+      }),
+    )
+  }
+
+  if (updates.length) {
+    await Promise.all(updates)
+  }
 
   return { expired, count: expired.length }
 }

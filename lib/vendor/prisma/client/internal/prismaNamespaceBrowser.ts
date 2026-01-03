@@ -130,6 +130,7 @@ export const ProductScalarFieldEnum = {
   userId: 'userId',
   categoryId: 'categoryId',
   planId: 'planId',
+  subscriptionId: 'subscriptionId',
   planAssignedAt: 'planAssignedAt',
   type: 'type',
   pricingModel: 'pricingModel',

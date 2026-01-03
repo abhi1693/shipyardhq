@@ -12,17 +12,27 @@ export async function GET(request: Request) {
 
   try {
     const result = await expireBoostedPlans()
+    const boostCount = result.count ?? 0
+    const recurringCount = result.recurringCount ?? 0
+    const totalExpired = boostCount + recurringCount
 
-    if (!result.count) {
+    if (!totalExpired) {
       console.info("[cron] expire plans noop")
     } else {
       console.info("[cron] expire plans expired boosts", {
-        count: result.count,
-        expired: result.expired.map((item) => ({
+        count: totalExpired,
+        boostsExpired: result.expired.map((item) => ({
           productId: item.productId,
           productName: item.productName,
           planName: item.planName,
           boostForDays: item.boostForDays,
+        })),
+        recurringExpired: (result.recurringExpired || []).map((item) => ({
+          productId: item.productId,
+          productName: item.productName,
+          planName: item.planName,
+          status: item.status,
+          subscriptionId: item.subscriptionId ?? undefined,
         })),
       })
     }

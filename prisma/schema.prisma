@@ -24,6 +24,7 @@ model Product {
   userId             String
   categoryId         String
   planId             String?
+  subscriptionId     String?       @unique
   planAssignedAt     DateTime?
   type               ProductType
   pricingModel       PricingModel

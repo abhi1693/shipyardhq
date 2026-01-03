@@ -4,10 +4,32 @@ import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
+import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
+import { PlanType, Prisma } from "@/lib/vendor/prisma/client"
+import { readMetadataString } from "@/lib/server/subscriptionMetadata"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
+
+type PlanSummary = {
+  id: string
+  externalId: string | null
+  type: PlanType
+  boostForDays: number | null
+  isDefault: boolean
+  price: number
+}
+
+const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active"])
+const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
+  "pending",
+  "cancelled",
+  "canceled",
+  "expired",
+  "failed",
+  "on_hold",
+])
 
 export async function syncCurrentUserBilling() {
   const { userId } = await auth()
@@ -35,8 +57,11 @@ export async function syncCurrentUserBilling() {
     const status = (sub?.status || "").toLowerCase()
     const pid = sub?.product_id as string | undefined
     if (!pid) continue
-    if (status === "active") activeProducts.add(pid)
-    if (status === "cancelled" || status === "expired" || status === "failed") {
+    if (ACTIVE_SUBSCRIPTION_STATUSES.has(status)) {
+      activeProducts.add(pid)
+      continue
+    }
+    if (INACTIVE_SUBSCRIPTION_STATUSES.has(status)) {
       cancelledProducts.add(pid)
     }
   }
@@ -57,7 +82,7 @@ export async function syncCurrentUserBilling() {
     }
   }
 
-  const plans = await prisma.plan.findMany({
+  const plans = (await prisma.plan.findMany({
     where: {
       externalId: {
         in: Array.from(
@@ -69,10 +94,28 @@ export async function syncCurrentUserBilling() {
         ),
       },
     },
-    select: { id: true, externalId: true },
-  })
+    select: {
+      id: true,
+      externalId: true,
+      type: true,
+      boostForDays: true,
+      isDefault: true,
+      price: true,
+    },
+  })) as PlanSummary[]
   const byExternal: Record<string, string> = {}
-  for (const p of plans) if (p.externalId) byExternal[p.externalId] = p.id
+  const planById = new Map<string, PlanSummary>()
+  for (const p of plans) {
+    planById.set(p.id, p)
+    if (p.externalId) byExternal[p.externalId] = p.id
+  }
+
+  await syncProductPlanSubscriptions({
+    userId: user.id,
+    subscriptions: items,
+    planById,
+    planIdByExternal: byExternal,
+  })
 
   let added = 0
   for (const pid of new Set<string>([...activeProducts, ...oneTimeProducts])) {
@@ -104,4 +147,134 @@ export async function syncCurrentUserBilling() {
   })
 
   return { added, removed: removed.count }
+}
+
+async function syncProductPlanSubscriptions(args: {
+  userId: string
+  subscriptions: any[]
+  planById: Map<string, PlanSummary>
+  planIdByExternal: Record<string, string>
+}) {
+  const activeByProductId = new Map<
+    string,
+    { plan: PlanSummary; subscriptionId?: string }
+  >()
+  const inactiveByProductId = new Map<string, PlanSummary>()
+
+  for (const sub of args.subscriptions) {
+    const status = (sub?.status || "").toLowerCase()
+    const isActive = ACTIVE_SUBSCRIPTION_STATUSES.has(status)
+    const isInactive = INACTIVE_SUBSCRIPTION_STATUSES.has(status)
+    if (!isActive && !isInactive) continue
+
+    const metadata =
+      typeof sub?.metadata === "object" && sub.metadata
+        ? (sub.metadata as Record<string, unknown>)
+        : null
+    const productId = readMetadataString(metadata, "productId", "product_id")
+    if (!productId) continue
+
+    const planIdFromMeta = readMetadataString(metadata, "planId", "plan_id")
+    const productExternalId =
+      typeof sub?.product_id === "string" ? sub.product_id : undefined
+    const planId =
+      (productExternalId ? args.planIdByExternal[productExternalId] : undefined) ||
+      planIdFromMeta
+    if (!planId) continue
+
+    const plan = args.planById.get(planId)
+    if (!plan || plan.type !== PlanType.recurring_price) continue
+    const rawSubscriptionId = (sub as any)?.subscription_id || (sub as any)?.id
+    const subscriptionId =
+      typeof rawSubscriptionId === "string" ? rawSubscriptionId : undefined
+
+    if (isActive) {
+      const existing = activeByProductId.get(productId)
+      if (!existing || plan.price > existing.plan.price) {
+        activeByProductId.set(productId, { plan, subscriptionId })
+      }
+      continue
+    }
+
+    if (!activeByProductId.has(productId)) {
+      inactiveByProductId.set(productId, plan)
+    }
+  }
+
+  if (!activeByProductId.size && !inactiveByProductId.size) {
+    return
+  }
+
+  const productIds = Array.from(
+    new Set([
+      ...activeByProductId.keys(),
+      ...inactiveByProductId.keys(),
+    ]),
+  )
+
+  const [products, defaultPlan] = await Promise.all([
+    prisma.product.findMany({
+      where: { id: { in: productIds }, userId: args.userId },
+      select: {
+        id: true,
+        planId: true,
+        planAssignedAt: true,
+        subscriptionId: true,
+        plan: { select: { boostForDays: true, isDefault: true, type: true } },
+      },
+    }),
+    prisma.plan.findFirst({ where: { isDefault: true }, select: { id: true } }),
+  ])
+
+  const productById = new Map(products.map((product) => [product.id, product]))
+  const updates: Array<ReturnType<typeof prisma.product.update>> = []
+
+  for (const [productId, { plan, subscriptionId }] of activeByProductId.entries()) {
+    const product = productById.get(productId)
+    if (!product) continue
+    const shouldUpdateSubscriptionId =
+      subscriptionId && product.subscriptionId !== subscriptionId
+    if (product.planId === plan.id && product.planAssignedAt && !shouldUpdateSubscriptionId) {
+      continue
+    }
+
+    const planAssignedAt = resolvePlanAssignedAt({
+      currentPlan: product.plan,
+      currentAssignedAt: product.planAssignedAt,
+      newPlan: plan,
+    })
+
+    const data: Prisma.ProductUncheckedUpdateInput = {
+      planId: plan.id,
+      planAssignedAt,
+      ...(subscriptionId ? { subscriptionId } : {}),
+    }
+    updates.push(
+      prisma.product.update({
+        where: { id: productId },
+        data,
+      }),
+    )
+  }
+
+  if (defaultPlan) {
+    for (const [productId, plan] of inactiveByProductId.entries()) {
+      if (activeByProductId.has(productId)) continue
+      const product = productById.get(productId)
+      if (!product) continue
+      if (product.planId !== plan.id) continue
+      if (product.plan?.type !== PlanType.recurring_price) continue
+
+      updates.push(
+        prisma.product.update({
+          where: { id: productId },
+          data: { planId: defaultPlan.id, planAssignedAt: null, subscriptionId: null },
+        }),
+      )
+    }
+  }
+
+  if (updates.length) {
+    await Promise.all(updates)
+  }
 }

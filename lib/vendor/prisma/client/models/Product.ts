@@ -45,6 +45,7 @@ export type ProductMinAggregateOutputType = {
   userId: string | null
   categoryId: string | null
   planId: string | null
+  subscriptionId: string | null
   planAssignedAt: Date | null
   type: $Enums.ProductType | null
   pricingModel: $Enums.PricingModel | null
@@ -68,6 +69,7 @@ export type ProductMaxAggregateOutputType = {
   userId: string | null
   categoryId: string | null
   planId: string | null
+  subscriptionId: string | null
   planAssignedAt: Date | null
   type: $Enums.ProductType | null
   pricingModel: $Enums.PricingModel | null
@@ -91,6 +93,7 @@ export type ProductCountAggregateOutputType = {
   userId: number
   categoryId: number
   planId: number
+  subscriptionId: number
   planAssignedAt: number
   type: number
   pricingModel: number
@@ -126,6 +129,7 @@ export type ProductMinAggregateInputType = {
   userId?: true
   categoryId?: true
   planId?: true
+  subscriptionId?: true
   planAssignedAt?: true
   type?: true
   pricingModel?: true
@@ -149,6 +153,7 @@ export type ProductMaxAggregateInputType = {
   userId?: true
   categoryId?: true
   planId?: true
+  subscriptionId?: true
   planAssignedAt?: true
   type?: true
   pricingModel?: true
@@ -172,6 +177,7 @@ export type ProductCountAggregateInputType = {
   userId?: true
   categoryId?: true
   planId?: true
+  subscriptionId?: true
   planAssignedAt?: true
   type?: true
   pricingModel?: true
@@ -284,6 +290,7 @@ export type ProductGroupByOutputType = {
   userId: string
   categoryId: string
   planId: string | null
+  subscriptionId: string | null
   planAssignedAt: Date | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -332,6 +339,7 @@ export type ProductWhereInput = {
   userId?: Prisma.StringFilter<"Product"> | string
   categoryId?: Prisma.StringFilter<"Product"> | string
   planId?: Prisma.StringNullableFilter<"Product"> | string | null
+  subscriptionId?: Prisma.StringNullableFilter<"Product"> | string | null
   planAssignedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
   type?: Prisma.EnumProductTypeFilter<"Product"> | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFilter<"Product"> | $Enums.PricingModel
@@ -382,6 +390,7 @@ export type ProductOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   planId?: Prisma.SortOrderInput | Prisma.SortOrder
+  subscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   planAssignedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   pricingModel?: Prisma.SortOrder
@@ -424,6 +433,7 @@ export type ProductOrderByWithRelationInput = {
 export type ProductWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   slug?: string
+  subscriptionId?: string
   AND?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
   OR?: Prisma.ProductWhereInput[]
   NOT?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
@@ -472,7 +482,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   alternatives?: Prisma.AlternativeProductListRelationFilter
   paymentConnector?: Prisma.XOR<Prisma.PaymentConnectorNullableScalarRelationFilter, Prisma.PaymentConnectorWhereInput> | null
   claimAttempts?: Prisma.ProductClaimAttemptListRelationFilter
-}, "id" | "slug">
+}, "id" | "slug" | "subscriptionId">
 
 export type ProductOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -485,6 +495,7 @@ export type ProductOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   planId?: Prisma.SortOrderInput | Prisma.SortOrder
+  subscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   planAssignedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   pricingModel?: Prisma.SortOrder
@@ -518,6 +529,7 @@ export type ProductScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"Product"> | string
   categoryId?: Prisma.StringWithAggregatesFilter<"Product"> | string
   planId?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
+  subscriptionId?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   planAssignedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Product"> | Date | string | null
   type?: Prisma.EnumProductTypeWithAggregatesFilter<"Product"> | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelWithAggregatesFilter<"Product"> | $Enums.PricingModel
@@ -540,6 +552,7 @@ export type ProductCreateInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -590,6 +603,7 @@ export type ProductUncheckedCreateInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -634,6 +648,7 @@ export type ProductUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -684,6 +699,7 @@ export type ProductUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -731,6 +747,7 @@ export type ProductCreateManyInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -753,6 +770,7 @@ export type ProductUpdateManyMutationInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -778,6 +796,7 @@ export type ProductUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -819,6 +838,7 @@ export type ProductCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   planId?: Prisma.SortOrder
+  subscriptionId?: Prisma.SortOrder
   planAssignedAt?: Prisma.SortOrder
   type?: Prisma.SortOrder
   pricingModel?: Prisma.SortOrder
@@ -848,6 +868,7 @@ export type ProductMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   planId?: Prisma.SortOrder
+  subscriptionId?: Prisma.SortOrder
   planAssignedAt?: Prisma.SortOrder
   type?: Prisma.SortOrder
   pricingModel?: Prisma.SortOrder
@@ -871,6 +892,7 @@ export type ProductMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   planId?: Prisma.SortOrder
+  subscriptionId?: Prisma.SortOrder
   planAssignedAt?: Prisma.SortOrder
   type?: Prisma.SortOrder
   pricingModel?: Prisma.SortOrder
@@ -919,6 +941,10 @@ export type StringFieldUpdateOperationsInput = {
   set?: string
 }
 
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
@@ -941,10 +967,6 @@ export type NullableIntFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
-}
-
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
 }
 
 export type ProductUpdatekeywordsInput = {
@@ -1433,6 +1455,7 @@ export type ProductCreateWithoutPaymentConnectorInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -1482,6 +1505,7 @@ export type ProductUncheckedCreateWithoutPaymentConnectorInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -1541,6 +1565,7 @@ export type ProductUpdateWithoutPaymentConnectorInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -1590,6 +1615,7 @@ export type ProductUncheckedUpdateWithoutPaymentConnectorInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -1633,6 +1659,7 @@ export type ProductCreateWithoutAlternativesInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -1682,6 +1709,7 @@ export type ProductUncheckedCreateWithoutAlternativesInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -1752,6 +1780,7 @@ export type ProductScalarWhereInput = {
   userId?: Prisma.StringFilter<"Product"> | string
   categoryId?: Prisma.StringFilter<"Product"> | string
   planId?: Prisma.StringNullableFilter<"Product"> | string | null
+  subscriptionId?: Prisma.StringNullableFilter<"Product"> | string | null
   planAssignedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
   type?: Prisma.EnumProductTypeFilter<"Product"> | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFilter<"Product"> | $Enums.PricingModel
@@ -1774,6 +1803,7 @@ export type ProductCreateWithoutLeaderboardScoresInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -1823,6 +1853,7 @@ export type ProductUncheckedCreateWithoutLeaderboardScoresInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -1882,6 +1913,7 @@ export type ProductUpdateWithoutLeaderboardScoresInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -1931,6 +1963,7 @@ export type ProductUncheckedUpdateWithoutLeaderboardScoresInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -1974,6 +2007,7 @@ export type ProductCreateWithoutProductMediaInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -2023,6 +2057,7 @@ export type ProductUncheckedCreateWithoutProductMediaInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -2082,6 +2117,7 @@ export type ProductUpdateWithoutProductMediaInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -2131,6 +2167,7 @@ export type ProductUncheckedUpdateWithoutProductMediaInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -2174,6 +2211,7 @@ export type ProductCreateWithoutVerificationInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -2223,6 +2261,7 @@ export type ProductUncheckedCreateWithoutVerificationInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -2282,6 +2321,7 @@ export type ProductUpdateWithoutVerificationInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -2331,6 +2371,7 @@ export type ProductUncheckedUpdateWithoutVerificationInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -2374,6 +2415,7 @@ export type ProductCreateWithoutClaimAttemptsInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -2423,6 +2465,7 @@ export type ProductUncheckedCreateWithoutClaimAttemptsInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -2482,6 +2525,7 @@ export type ProductUpdateWithoutClaimAttemptsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -2531,6 +2575,7 @@ export type ProductUncheckedUpdateWithoutClaimAttemptsInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -2574,6 +2619,7 @@ export type ProductCreateWithoutMetadataInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -2623,6 +2669,7 @@ export type ProductUncheckedCreateWithoutMetadataInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -2682,6 +2729,7 @@ export type ProductUpdateWithoutMetadataInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -2731,6 +2779,7 @@ export type ProductUncheckedUpdateWithoutMetadataInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -2774,6 +2823,7 @@ export type ProductCreateWithoutAnalyticsInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -2823,6 +2873,7 @@ export type ProductUncheckedCreateWithoutAnalyticsInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -2882,6 +2933,7 @@ export type ProductUpdateWithoutAnalyticsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -2931,6 +2983,7 @@ export type ProductUncheckedUpdateWithoutAnalyticsInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -2974,6 +3027,7 @@ export type ProductCreateWithoutTrafficDailyInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -3023,6 +3077,7 @@ export type ProductUncheckedCreateWithoutTrafficDailyInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -3082,6 +3137,7 @@ export type ProductUpdateWithoutTrafficDailyInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -3131,6 +3187,7 @@ export type ProductUncheckedUpdateWithoutTrafficDailyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -3174,6 +3231,7 @@ export type ProductCreateWithoutTrafficReferrersInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -3223,6 +3281,7 @@ export type ProductUncheckedCreateWithoutTrafficReferrersInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -3282,6 +3341,7 @@ export type ProductUpdateWithoutTrafficReferrersInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -3331,6 +3391,7 @@ export type ProductUncheckedUpdateWithoutTrafficReferrersInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -3374,6 +3435,7 @@ export type ProductCreateWithoutTrafficChannelsInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -3423,6 +3485,7 @@ export type ProductUncheckedCreateWithoutTrafficChannelsInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -3482,6 +3545,7 @@ export type ProductUpdateWithoutTrafficChannelsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -3531,6 +3595,7 @@ export type ProductUncheckedUpdateWithoutTrafficChannelsInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -3574,6 +3639,7 @@ export type ProductCreateWithoutTrafficBrowsersInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -3623,6 +3689,7 @@ export type ProductUncheckedCreateWithoutTrafficBrowsersInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -3682,6 +3749,7 @@ export type ProductUpdateWithoutTrafficBrowsersInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -3731,6 +3799,7 @@ export type ProductUncheckedUpdateWithoutTrafficBrowsersInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -3774,6 +3843,7 @@ export type ProductCreateWithoutTrafficOperatingSystemsInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -3823,6 +3893,7 @@ export type ProductUncheckedCreateWithoutTrafficOperatingSystemsInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -3882,6 +3953,7 @@ export type ProductUpdateWithoutTrafficOperatingSystemsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -3931,6 +4003,7 @@ export type ProductUncheckedUpdateWithoutTrafficOperatingSystemsInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -3974,6 +4047,7 @@ export type ProductCreateWithoutTrafficDevicesInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -4023,6 +4097,7 @@ export type ProductUncheckedCreateWithoutTrafficDevicesInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -4082,6 +4157,7 @@ export type ProductUpdateWithoutTrafficDevicesInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -4131,6 +4207,7 @@ export type ProductUncheckedUpdateWithoutTrafficDevicesInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -4174,6 +4251,7 @@ export type ProductCreateWithoutTrafficCountriesInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -4223,6 +4301,7 @@ export type ProductUncheckedCreateWithoutTrafficCountriesInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -4282,6 +4361,7 @@ export type ProductUpdateWithoutTrafficCountriesInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -4331,6 +4411,7 @@ export type ProductUncheckedUpdateWithoutTrafficCountriesInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -4374,6 +4455,7 @@ export type ProductCreateWithoutTrafficCitiesInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -4423,6 +4505,7 @@ export type ProductUncheckedCreateWithoutTrafficCitiesInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -4482,6 +4565,7 @@ export type ProductUpdateWithoutTrafficCitiesInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -4531,6 +4615,7 @@ export type ProductUncheckedUpdateWithoutTrafficCitiesInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -4574,6 +4659,7 @@ export type ProductCreateWithoutProductUpvoteInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -4623,6 +4709,7 @@ export type ProductUncheckedCreateWithoutProductUpvoteInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -4682,6 +4769,7 @@ export type ProductUpdateWithoutProductUpvoteInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -4731,6 +4819,7 @@ export type ProductUncheckedUpdateWithoutProductUpvoteInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -4774,6 +4863,7 @@ export type ProductCreateWithoutUserInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -4822,6 +4912,7 @@ export type ProductUncheckedCreateWithoutUserInput = {
   logo: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -4892,6 +4983,7 @@ export type ProductCreateWithoutCategoryInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -4940,6 +5032,7 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   logo: string
   userId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -5010,6 +5103,7 @@ export type ProductCreateWithoutPlanInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -5058,6 +5152,7 @@ export type ProductUncheckedCreateWithoutPlanInput = {
   logo: string
   userId: string
   categoryId: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -5128,6 +5223,7 @@ export type ProductCreateWithoutProductBadgeInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -5177,6 +5273,7 @@ export type ProductUncheckedCreateWithoutProductBadgeInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -5236,6 +5333,7 @@ export type ProductUpdateWithoutProductBadgeInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -5285,6 +5383,7 @@ export type ProductUncheckedUpdateWithoutProductBadgeInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -5328,6 +5427,7 @@ export type ProductCreateWithoutRewardTransactionsInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -5377,6 +5477,7 @@ export type ProductUncheckedCreateWithoutRewardTransactionsInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -5436,6 +5537,7 @@ export type ProductUpdateWithoutRewardTransactionsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -5485,6 +5587,7 @@ export type ProductUncheckedUpdateWithoutRewardTransactionsInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -5528,6 +5631,7 @@ export type ProductCreateWithoutRedemptionsInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -5577,6 +5681,7 @@ export type ProductUncheckedCreateWithoutRedemptionsInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -5636,6 +5741,7 @@ export type ProductUpdateWithoutRedemptionsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -5685,6 +5791,7 @@ export type ProductUncheckedUpdateWithoutRedemptionsInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -5728,6 +5835,7 @@ export type ProductCreateWithoutFeatureEntitlementsInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -5777,6 +5885,7 @@ export type ProductUncheckedCreateWithoutFeatureEntitlementsInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -5836,6 +5945,7 @@ export type ProductUpdateWithoutFeatureEntitlementsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -5885,6 +5995,7 @@ export type ProductUncheckedUpdateWithoutFeatureEntitlementsInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -5928,6 +6039,7 @@ export type ProductCreateWithoutPlacementSchedulesInput = {
   description: string
   websiteUrl: string
   logo: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -5977,6 +6089,7 @@ export type ProductUncheckedCreateWithoutPlacementSchedulesInput = {
   userId: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -6036,6 +6149,7 @@ export type ProductUpdateWithoutPlacementSchedulesInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -6085,6 +6199,7 @@ export type ProductUncheckedUpdateWithoutPlacementSchedulesInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -6128,6 +6243,7 @@ export type ProductUpdateWithoutAlternativesInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -6177,6 +6293,7 @@ export type ProductUncheckedUpdateWithoutAlternativesInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -6223,6 +6340,7 @@ export type ProductUncheckedUpdateManyWithoutAlternativesInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -6247,6 +6365,7 @@ export type ProductCreateManyUserInput = {
   logo: string
   categoryId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -6269,6 +6388,7 @@ export type ProductUpdateWithoutUserInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -6317,6 +6437,7 @@ export type ProductUncheckedUpdateWithoutUserInput = {
   logo?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -6363,6 +6484,7 @@ export type ProductUncheckedUpdateManyWithoutUserInput = {
   logo?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -6387,6 +6509,7 @@ export type ProductCreateManyCategoryInput = {
   logo: string
   userId: string
   planId?: string | null
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -6409,6 +6532,7 @@ export type ProductUpdateWithoutCategoryInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -6457,6 +6581,7 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   logo?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -6503,6 +6628,7 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   logo?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -6527,6 +6653,7 @@ export type ProductCreateManyPlanInput = {
   logo: string
   userId: string
   categoryId: string
+  subscriptionId?: string | null
   planAssignedAt?: Date | string | null
   type: $Enums.ProductType
   pricingModel: $Enums.PricingModel
@@ -6549,6 +6676,7 @@ export type ProductUpdateWithoutPlanInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -6597,6 +6725,7 @@ export type ProductUncheckedUpdateWithoutPlanInput = {
   logo?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -6643,6 +6772,7 @@ export type ProductUncheckedUpdateManyWithoutPlanInput = {
   logo?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
@@ -6852,6 +6982,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   userId?: boolean
   categoryId?: boolean
   planId?: boolean
+  subscriptionId?: boolean
   planAssignedAt?: boolean
   type?: boolean
   pricingModel?: boolean
@@ -6903,6 +7034,7 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   userId?: boolean
   categoryId?: boolean
   planId?: boolean
+  subscriptionId?: boolean
   planAssignedAt?: boolean
   type?: boolean
   pricingModel?: boolean
@@ -6931,6 +7063,7 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   userId?: boolean
   categoryId?: boolean
   planId?: boolean
+  subscriptionId?: boolean
   planAssignedAt?: boolean
   type?: boolean
   pricingModel?: boolean
@@ -6959,6 +7092,7 @@ export type ProductSelectScalar = {
   userId?: boolean
   categoryId?: boolean
   planId?: boolean
+  subscriptionId?: boolean
   planAssignedAt?: boolean
   type?: boolean
   pricingModel?: boolean
@@ -6973,7 +7107,7 @@ export type ProductSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "tagline" | "description" | "websiteUrl" | "logo" | "userId" | "categoryId" | "planId" | "planAssignedAt" | "type" | "pricingModel" | "status" | "publishedAt" | "startingPriceCents" | "currencyCode" | "bannerImage" | "keywords" | "platforms" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "tagline" | "description" | "websiteUrl" | "logo" | "userId" | "categoryId" | "planId" | "subscriptionId" | "planAssignedAt" | "type" | "pricingModel" | "status" | "publishedAt" | "startingPriceCents" | "currencyCode" | "bannerImage" | "keywords" | "platforms" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
@@ -7053,6 +7187,7 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     userId: string
     categoryId: string
     planId: string | null
+    subscriptionId: string | null
     planAssignedAt: Date | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
@@ -7523,6 +7658,7 @@ export interface ProductFieldRefs {
   readonly userId: Prisma.FieldRef<"Product", 'String'>
   readonly categoryId: Prisma.FieldRef<"Product", 'String'>
   readonly planId: Prisma.FieldRef<"Product", 'String'>
+  readonly subscriptionId: Prisma.FieldRef<"Product", 'String'>
   readonly planAssignedAt: Prisma.FieldRef<"Product", 'DateTime'>
   readonly type: Prisma.FieldRef<"Product", 'ProductType'>
   readonly pricingModel: Prisma.FieldRef<"Product", 'PricingModel'>

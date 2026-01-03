@@ -26,6 +26,7 @@ import { memberProductPath } from "@/lib/routes"
 import type { PaymentConnectorConfig } from "@/lib/server/payments/types"
 import { dispatchEventAsync } from "@/lib/server/events"
 import { APP_EVENTS } from "@/lib/server/events/constants"
+import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -36,6 +37,8 @@ const ACTIVE_ENTITLEMENT_STATUSES: FeatureEntitlementStatus[] = [
   "active",
   "pending",
 ]
+const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active"])
+const SUBSCRIPTION_CHANGE_PRORATION_MODE = "prorated_immediately"
 
 type ProductListItem = Prisma.ProductGetPayload<{
   include: {
@@ -63,6 +66,48 @@ type ProductListItem = Prisma.ProductGetPayload<{
     }
   }
 }>
+
+function parseIsoDate(value: string | null | undefined): Date | null {
+  if (!value) return null
+  const parsed = new Date(value)
+  return Number.isFinite(parsed.getTime()) ? parsed : null
+}
+
+async function findActiveSubscriptionForProduct(args: {
+  email: string
+  productId: string
+}) {
+  const customer = await fetchDodoCustomerByEmail(args.email)
+  if (!customer) return null
+
+  let best: any | null = null
+  let bestCreatedAt = 0
+
+  for await (const subscription of dodoClient.subscriptions.list({
+    customer_id: customer.customer_id,
+    page_size: 100,
+  } as any)) {
+    const status = (subscription?.status || "").toString().toLowerCase()
+    if (!ACTIVE_SUBSCRIPTION_STATUSES.has(status)) continue
+
+    const metadata =
+      typeof subscription?.metadata === "object" && subscription.metadata
+        ? (subscription.metadata as Record<string, unknown>)
+        : null
+    const metaProductId =
+      (metadata?.productId as string | undefined) ||
+      (metadata?.product_id as string | undefined)
+    if (metaProductId !== args.productId) continue
+
+    const createdAt = parseIsoDate(subscription?.created_at)?.getTime() ?? 0
+    if (!best || createdAt > bestCreatedAt) {
+      best = subscription
+      bestCreatedAt = createdAt
+    }
+  }
+
+  return best
+}
 
 export async function getUserProducts(params?: ListParams) {
   const { userId } = await auth()
@@ -214,6 +259,7 @@ export async function getUserProducts(params?: ListParams) {
 export async function setProductPlanAction(
   productId: string,
   planId: string | null,
+  subscriptionId?: string | null,
 ) {
   const { userId } = await auth()
   if (!userId) return { error: "Unauthenticated" }
@@ -232,10 +278,11 @@ export async function setProductPlanAction(
   if (!product) return { error: "Product not found or not owned by user" }
 
   let planAssignedAt: Date | null = null
+  let subscriptionIdUpdate: string | null | undefined
   if (planId) {
     const plan = await prisma.plan.findUnique({
       where: { id: planId },
-      select: { id: true, boostForDays: true, isDefault: true },
+      select: { id: true, boostForDays: true, isDefault: true, type: true },
     })
     if (!plan) return { error: "Plan not found" }
     planAssignedAt = resolvePlanAssignedAt({
@@ -243,11 +290,26 @@ export async function setProductPlanAction(
       currentAssignedAt: product.planAssignedAt,
       newPlan: plan,
     })
+    if (plan.type !== "recurring_price") {
+      subscriptionIdUpdate = null
+    } else if (subscriptionId !== undefined) {
+      subscriptionIdUpdate = subscriptionId
+    }
+  } else {
+    subscriptionIdUpdate = null
+  }
+
+  const data: Prisma.ProductUncheckedUpdateInput = {
+    planId: planId ?? null,
+    planAssignedAt,
+  }
+  if (subscriptionIdUpdate !== undefined) {
+    data.subscriptionId = subscriptionIdUpdate
   }
 
   await prisma.product.update({
     where: { id: productId },
-    data: { planId: planId ?? null, planAssignedAt },
+    data,
   })
 
   return { success: true }
@@ -357,12 +419,75 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
     })
     await prisma.product.update({
       where: { id: productId },
-      data: { planId, planAssignedAt },
+      data: { planId, planAssignedAt, subscriptionId: null },
     })
     return { success: true }
   } catch (e) {
     console.error("Payment validation failed:", e)
     return { error: "Payment validation failed" }
+  }
+}
+
+// Validate subscription by ID and attach plan to product using metadata from Dodo
+export async function validateSubscriptionAndAttachPlan(subscriptionId: string) {
+  const { userId } = await auth()
+  if (!userId) return { error: "Unauthenticated" }
+
+  const user = await getActiveUserByClerkId(userId)
+  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
+
+  try {
+    const subscription = await dodoClient.subscriptions.retrieve(subscriptionId)
+    if (!subscription) return { error: "Subscription not found" }
+
+    const status = (subscription.status || "").toString().toLowerCase()
+    if (status !== "active") {
+      return { error: `Subscription not active: ${subscription.status}` }
+    }
+
+    const meta = (subscription.metadata || {}) as any
+    const productId = (meta.productId || meta.product_id) as string | undefined
+    const planId = (meta.planId || meta.plan_id) as string | undefined
+    if (!productId || !planId) {
+      return { error: "Missing metadata for product/plan" }
+    }
+
+    const product = await prisma.product.findFirst({
+      where: { id: productId, userId: user.id },
+      select: {
+        id: true,
+        userId: true,
+        planAssignedAt: true,
+        plan: { select: { boostForDays: true, isDefault: true } },
+      },
+    })
+    if (!product) return { error: "Product not found or not owned" }
+
+    const plan = await prisma.plan.findUnique({
+      where: { id: planId },
+      select: { boostForDays: true, isDefault: true },
+    })
+    if (!plan) return { error: "Plan not found" }
+
+    const planAssignedAt = resolvePlanAssignedAt({
+      currentPlan: product.plan,
+      currentAssignedAt: product.planAssignedAt,
+      newPlan: plan,
+    })
+    const rawSubscriptionId =
+      (subscription as any)?.subscription_id ||
+      (subscription as any)?.id ||
+      subscriptionId
+    const subscriptionExternalId =
+      typeof rawSubscriptionId === "string" ? rawSubscriptionId : subscriptionId
+    await prisma.product.update({
+      where: { id: productId },
+      data: { planId, planAssignedAt, subscriptionId: subscriptionExternalId },
+    })
+    return { success: true }
+  } catch (e) {
+    console.error("Subscription validation failed:", e)
+    return { error: "Subscription validation failed" }
   }
 }
 
@@ -379,12 +504,29 @@ export async function choosePlanAction(
   // Try to start checkout when plan requires payment
   const plan = await prisma.plan.findUnique({
     where: { id: planId },
-    select: { id: true, externalId: true, price: true },
+    select: { id: true, externalId: true, price: true, type: true },
   })
   if (!plan) return
 
   const ownership = await requireOwnedProduct(ctx.productId)
   if ("error" in ownership) return
+
+  const currentPlan = await prisma.product.findUnique({
+    where: { id: ctx.productId },
+    select: {
+      plan: {
+        select: { type: true, isDefault: true, price: true },
+      },
+    },
+  })
+  const activePlan = currentPlan?.plan
+  const hasPaidPlan =
+    !!activePlan &&
+    !activePlan.isDefault &&
+    (activePlan.price ?? 0) > 0
+  if (hasPaidPlan && activePlan.type !== plan.type) {
+    redirect(`${ctx.redirectPath}?error=plan_type_locked`)
+  }
 
   if ((plan.price || 0) > 0 && ownership.product.status !== "published") {
     redirect(`${ctx.redirectPath}?error=must_publish`)
@@ -392,13 +534,59 @@ export async function choosePlanAction(
 
   // Free plans (no price): attach immediately
   if ((plan.price || 0) === 0) {
-    await setProductPlanAction(ctx.productId, planId)
+    await setProductPlanAction(ctx.productId, planId, null)
     redirect(`${ctx.redirectPath}?upgraded=1`)
   }
 
   // Paid plans must have an externalId to start checkout
   if ((plan.price || 0) > 0 && !plan.externalId) {
     redirect(`${ctx.redirectPath}?error=plan_not_configured`)
+  }
+
+  if (
+    (plan.price || 0) > 0 &&
+    plan.type === "recurring_price" &&
+    ownership.user.email
+  ) {
+    const existingSubscription = await findActiveSubscriptionForProduct({
+      email: ownership.user.email,
+      productId: ctx.productId,
+    })
+    const rawSubscriptionId =
+      (existingSubscription as any)?.subscription_id ||
+      (existingSubscription as any)?.id ||
+      null
+    const subscriptionId =
+      typeof rawSubscriptionId === "string" ? rawSubscriptionId : null
+    if (subscriptionId) {
+      try {
+        const isSamePlan =
+          (existingSubscription as any)?.product_id === plan.externalId
+        if (!isSamePlan) {
+          await dodoClient.subscriptions.changePlan(
+            subscriptionId,
+            {
+              product_id: plan.externalId,
+              proration_billing_mode: SUBSCRIPTION_CHANGE_PRORATION_MODE,
+              quantity: 1,
+            } as any,
+          )
+        }
+        await setProductPlanAction(ctx.productId, planId, subscriptionId)
+      } catch (error) {
+        const status = (error as any)?.status
+        const message = String((error as any)?.error?.message || "")
+          .trim()
+          .toLowerCase()
+        if (status === 409 && message.includes("previous payment")) {
+          console.warn("Subscription change blocked by pending payment")
+          redirect(`${ctx.redirectPath}?error=subscription_payment_pending`)
+        }
+        console.error("Failed to change subscription plan:", error)
+        redirect(`${ctx.redirectPath}?error=subscription_change_failed`)
+      }
+      redirect(`${ctx.redirectPath}?upgraded=1`)
+    }
   }
 
   // Start hosted checkout for paid plans

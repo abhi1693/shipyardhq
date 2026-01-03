@@ -9,7 +9,6 @@ import { getPublicPlans } from "@/actions/public/plans/actions"
 import { getProducts } from "@/actions/public/products/featured"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
 import { PricingTable } from "@/components/organisms/PricingTable"
-import { PlanType } from "@/lib/vendor/prisma/client"
 
 export const CORE_PERKS = [
   {
@@ -38,7 +37,7 @@ export const PRICING_FAQS = [
   {
     question: "Do plans renew automatically?",
     answer:
-      "Plans are purchased per launch window. When a term ends you decide whether to re-up. No surprise auto-renewals—just opt in when you’re ready for the next campaign.",
+      "One-time boosts never auto-renew. Subscription plans stay active on the billing cadence you choose until you cancel, so perks keep running without manual re-ups.",
   },
   {
     question: "What level of support is included?",
@@ -54,8 +53,9 @@ export const PRICING_FAQS = [
 
 export async function PricingPlansList({
   disableSectionWrapper = false,
-}: { disableSectionWrapper?: boolean } = {}) {
-  const plans = await getPublicPlans({ type: PlanType.one_time_price })
+  showTypeToggle = false,
+}: { disableSectionWrapper?: boolean; showTypeToggle?: boolean } = {}) {
+  const plans = await getPublicPlans()
   const defaultPlan = plans.find((plan) => plan.isDefault)
   const visiblePlans = defaultPlan
     ? plans.filter((plan) => plan.id !== defaultPlan.id)
@@ -64,6 +64,7 @@ export async function PricingPlansList({
     <PricingTable
       plans={visiblePlans}
       disableSectionWrapper={disableSectionWrapper}
+      showTypeToggle={showTypeToggle}
     />
   ) : null
 
@@ -99,6 +100,15 @@ export async function FeaturedProductsList() {
 export function PricingPlansSkeleton({
   withSectionWrapper = true,
 }: { withSectionWrapper?: boolean } = {}) {
+  const toggle = (
+    <div className="flex justify-center">
+      <Skeleton
+        className="h-10 w-56 rounded-full"
+        tone="muted"
+        shimmer={false}
+      />
+    </div>
+  )
   const grid = (
     <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
       {[0, 1, 2].map((index) => (
@@ -117,6 +127,7 @@ export function PricingPlansSkeleton({
   )
   const content = (
     <div className="space-y-4">
+      {toggle}
       {grid}
       {defaultLine}
     </div>

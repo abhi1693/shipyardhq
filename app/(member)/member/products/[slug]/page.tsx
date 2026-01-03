@@ -36,6 +36,7 @@ import { Button } from "@/components/atoms/button"
 import {
   choosePlanAction,
   validatePaymentAndAttachPlan,
+  validateSubscriptionAndAttachPlan,
 } from "@/actions/member/products/actions"
 import {
   memberProductAnalyticsPath,
@@ -56,7 +57,6 @@ import {
 } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
 import { getPublicPlans } from "@/actions/public/plans/actions"
-import { PlanType } from "@/lib/vendor/prisma/client"
 // startPlanCheckoutAction and setProductPlanAction are used inside choosePlanAction
 import { hasPlanFeature } from "@/lib/features"
 import { resolveProductAnalyticsAccess } from "@/lib/server/analytics/productAnalytics"
@@ -80,6 +80,7 @@ export default async function ViewUserProductPage({
   const { slug } = await params
   const sp = (await searchParams) || {}
   const paymentId = (sp["payment_id"] as string) || ""
+  const subscriptionId = (sp["subscription_id"] as string) || ""
   const status = (sp["status"] as string) || ""
   const celebrateValue = sp["celebrate"]
   const celebrate = Array.isArray(celebrateValue)
@@ -89,6 +90,10 @@ export default async function ViewUserProductPage({
   if (paymentId && status) {
     await validatePaymentAndAttachPlan(paymentId)
     // Clean URL params regardless of outcome
+    redirect(memberProductPath(slug))
+  }
+  if (subscriptionId) {
+    await validateSubscriptionAndAttachPlan(subscriptionId)
     redirect(memberProductPath(slug))
   }
   const { product: manageableProduct, currentUser } =
@@ -111,22 +116,33 @@ export default async function ViewUserProductPage({
   })
   const canViewAnalytics = hasBasicAnalytics
   const upvoters = await getRecentProductUpvoters(productId, 8).catch(() => [])
+  const isFreePlan = !product.plan || product.plan.isDefault
 
-  const allPlans = await getPublicPlans({
-    type: PlanType.one_time_price,
-  }).catch(() => [])
+  const allPlans = await getPublicPlans().catch(() => [])
   const currentPlanPublic = allPlans.find((p) => p.id === product.plan?.id)
   const sortedPlans = [...allPlans].sort(
     (a, b) => (a.price ?? 0) - (b.price ?? 0),
   )
+  const hasRecurringPlans = sortedPlans.some(
+    (plan) => plan.type === "recurring_price",
+  )
+  const targetPlanType =
+    isFreePlan && hasRecurringPlans
+      ? "recurring_price"
+      : currentPlanPublic?.type === "recurring_price"
+      ? "recurring_price"
+      : "one_time_price"
+  const typeFilteredPlans = sortedPlans.filter(
+    (plan) => plan.type === targetPlanType,
+  )
   const upgradeCandidates = (() => {
     if (currentPlanPublic) {
-      return sortedPlans.filter(
+      return typeFilteredPlans.filter(
         (plan) => (plan.price ?? 0) > (currentPlanPublic.price ?? 0),
       )
     }
-    const paidPlans = sortedPlans.filter((plan) => (plan.price ?? 0) > 0)
-    return paidPlans.length ? paidPlans : sortedPlans
+    const paidPlans = typeFilteredPlans.filter((plan) => (plan.price ?? 0) > 0)
+    return paidPlans.length ? paidPlans : typeFilteredPlans
   })()
   const nextPlan = upgradeCandidates[0]
   const nextPlanNewBenefits = nextPlan
@@ -166,7 +182,6 @@ export default async function ViewUserProductPage({
     redirectPath: memberProductPath(productSlug),
   })
   const upgradePath = memberProductUpgradePath(productSlug)
-  const isFreePlan = !product.plan || product.plan.isDefault
   const boostAssignedAt = product.planAssignedAt
   const boostDays = product.plan?.boostForDays ?? 0
   const statusChangeUnlockAt =
