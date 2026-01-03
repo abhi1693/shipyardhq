@@ -299,7 +299,7 @@ export async function setProductPlanAction(
     subscriptionIdUpdate = null
   }
 
-  const data: Prisma.ProductUpdateInput = {
+  const data: Prisma.ProductUncheckedUpdateInput = {
     planId: planId ?? null,
     planAssignedAt,
   }

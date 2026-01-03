@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
-import { PlanType } from "@/lib/vendor/prisma/client"
+import { PlanType, Prisma } from "@/lib/vendor/prisma/client"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -260,12 +260,10 @@ async function syncProductPlanSubscriptions(args: {
       newPlan: plan,
     })
 
-    const data = {
+    const data: Prisma.ProductUncheckedUpdateInput = {
       planId: plan.id,
       planAssignedAt,
-    }
-    if (subscriptionId) {
-      data.subscriptionId = subscriptionId
+      ...(subscriptionId ? { subscriptionId } : {}),
     }
     updates.push(
       prisma.product.update({
