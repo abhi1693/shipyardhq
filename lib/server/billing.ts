@@ -172,10 +172,7 @@ async function syncProductPlanSubscriptions(args: {
     string,
     { plan: PlanSummary; subscriptionId?: string }
   >()
-  const inactiveByProductId = new Map<
-    string,
-    { plan: PlanSummary; subscriptionId?: string }
-  >()
+  const inactiveByProductId = new Map<string, PlanSummary>()
 
   for (const sub of args.subscriptions) {
     const status = (sub?.status || "").toLowerCase()
@@ -213,7 +210,7 @@ async function syncProductPlanSubscriptions(args: {
     }
 
     if (!activeByProductId.has(productId)) {
-      inactiveByProductId.set(productId, { plan, subscriptionId })
+      inactiveByProductId.set(productId, plan)
     }
   }
 
@@ -274,7 +271,7 @@ async function syncProductPlanSubscriptions(args: {
   }
 
   if (defaultPlan) {
-    for (const [productId, { plan }] of inactiveByProductId.entries()) {
+    for (const [productId, plan] of inactiveByProductId.entries()) {
       if (activeByProductId.has(productId)) continue
       const product = productById.get(productId)
       if (!product) continue
