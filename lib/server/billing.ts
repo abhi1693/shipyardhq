@@ -194,8 +194,8 @@ async function syncProductPlanSubscriptions(args: {
     const productExternalId =
       typeof sub?.product_id === "string" ? sub.product_id : undefined
     const planId =
-      planIdFromMeta ||
-      (productExternalId ? args.planIdByExternal[productExternalId] : undefined)
+      (productExternalId ? args.planIdByExternal[productExternalId] : undefined) ||
+      planIdFromMeta
     if (!planId) continue
 
     const plan = args.planById.get(planId)

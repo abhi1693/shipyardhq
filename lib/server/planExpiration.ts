@@ -320,8 +320,8 @@ async function expireInactiveRecurringPlans(args: {
         ? subscription.product_id
         : undefined
     const planId =
-      planIdFromMeta ||
-      (productExternalId ? planIdByExternal[productExternalId] : undefined)
+      (productExternalId ? planIdByExternal[productExternalId] : undefined) ||
+      planIdFromMeta
     if (!planId) continue
 
     const plan = planById.get(planId)
