@@ -114,20 +114,11 @@ export function buildProductStructuredData(product: PublicProduct) {
     ),
   )
 
-  const offers =
-    typeof product.startingPriceCents === "number"
-      ? {
-          "@type": "Offer",
-          price: (product.startingPriceCents / 100).toFixed(2),
-          priceCurrency: product.currencyCode || "USD",
-        }
-      : product.pricingModel === "free"
-        ? {
-            "@type": "Offer",
-            price: "0.00",
-            priceCurrency: product.currencyCode || "USD",
-          }
-        : undefined
+  const offers = {
+    "@type": "Offer",
+    price: ((product.startingPriceCents ?? 0) / 100).toFixed(2),
+    priceCurrency: product.currencyCode || "USD",
+  }
 
   const structuredData: Record<string, unknown> = {
     "@context": "https://schema.org",

@@ -290,18 +290,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const pricingModelSlug = pricingModelSlugFromValue(
     sidebarProduct?.pricingModel,
   )
-  const offer =
-    typeof sidebarProduct.startingPriceCents === "number"
-      ? {
-          price: (sidebarProduct.startingPriceCents / 100).toFixed(2),
-          priceCurrency: sidebarProduct.currencyCode || "USD",
-        }
-      : sidebarProduct.pricingModel === "free"
-        ? {
-            price: "0.00",
-            priceCurrency: sidebarProduct.currencyCode || "USD",
-          }
-        : undefined
+  const offer = {
+    price: ((sidebarProduct.startingPriceCents ?? 0) / 100).toFixed(2),
+    priceCurrency: sidebarProduct.currencyCode || "USD",
+  }
   const platformValues = (sidebarProduct.platforms ?? []) as string[]
   const hasWebPlatform = platformValues.includes("web")
   const mobilePlatforms = platformValues.filter((platform: string) =>
