@@ -9,9 +9,7 @@ import { buildCacheKey } from "@/lib/server/cache"
 import { resolveSiteUrl, siteConfig } from "@/lib/siteConfig"
 import { productPath } from "@/lib/routes"
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
-import {
-  type GaDateRange,
-} from "@/lib/server/analytics/googleAnalytics"
+import { type GaDateRange } from "@/lib/server/analytics/googleAnalytics"
 import { toNovuSubscriberInput } from "@/lib/server/notifications/novu"
 import { sendFeaturedPlanPromotionNotification } from "@/lib/server/notifications/novuPromotions"
 

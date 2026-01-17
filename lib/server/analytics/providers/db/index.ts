@@ -102,8 +102,7 @@ function resolveRangeBounds(range: AnalyticsDateRange): RangeBounds | null {
   const orderedEnd = start <= end ? end : start
   const days =
     Math.round(
-      (orderedEnd.getTime() - orderedStart.getTime()) /
-        (1000 * 60 * 60 * 24),
+      (orderedEnd.getTime() - orderedStart.getTime()) / (1000 * 60 * 60 * 24),
     ) + 1
 
   return {
@@ -161,12 +160,11 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
   const bounds = resolveRangeBounds(requestedRange)
   if (!bounds) return null
 
-  const [hasSiteDaily, hasSiteBreakdowns, hasProductDaily] =
-    await Promise.all([
-      hasIngestionCoverage("site_traffic_daily", bounds),
-      hasIngestionCoverage("site_traffic_breakdowns", bounds),
-      hasIngestionCoverage("product_traffic_daily", bounds),
-    ])
+  const [hasSiteDaily, hasSiteBreakdowns, hasProductDaily] = await Promise.all([
+    hasIngestionCoverage("site_traffic_daily", bounds),
+    hasIngestionCoverage("site_traffic_breakdowns", bounds),
+    hasIngestionCoverage("product_traffic_daily", bounds),
+  ])
 
   if (!hasSiteDaily || !hasSiteBreakdowns || !hasProductDaily) {
     return null
@@ -463,13 +461,9 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
         const slug = slugById.get(productId)
         if (!slug) return []
         const bounceRateValue =
-          metrics.sessions > 0
-            ? metrics.bounceWeighted / metrics.sessions
-            : 0
+          metrics.sessions > 0 ? metrics.bounceWeighted / metrics.sessions : 0
         const avgSessionDuration =
-          metrics.sessions > 0
-            ? metrics.durationWeighted / metrics.sessions
-            : 0
+          metrics.sessions > 0 ? metrics.durationWeighted / metrics.sessions : 0
         return [
           {
             path: productPath(slug),
@@ -770,7 +764,10 @@ async function getProductTrafficFromDb(args: {
 async function getProductTrafficMapFromDb(args: {
   products: Array<{ id: string; slug: string }>
   dateRange: AnalyticsDateRange
-}): Promise<Map<string, { pageViews: number; uniqueVisitors: number; sessions: number }> | null> {
+}): Promise<Map<
+  string,
+  { pageViews: number; uniqueVisitors: number; sessions: number }
+> | null> {
   const bounds = resolveRangeBounds(args.dateRange)
   if (!bounds) return null
 

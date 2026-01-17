@@ -207,7 +207,11 @@ export async function expireBoostedPlans(now: Date = new Date()) {
   } else {
     const updateResult = await prisma.product.updateMany({
       where: { id: { in: expired.map((item) => item.productId) } },
-      data: { planId: defaultPlan.id, planAssignedAt: null, subscriptionId: null },
+      data: {
+        planId: defaultPlan.id,
+        planAssignedAt: null,
+        subscriptionId: null,
+      },
     })
 
     console.info("[cron] expire plans reverted boosts", {
@@ -222,12 +226,14 @@ export async function expireBoostedPlans(now: Date = new Date()) {
     })
   }
 
-  let recurringResult: Awaited<ReturnType<typeof expireInactiveRecurringPlans>> =
-    { expired: [], count: 0 }
+  let recurringResult: Awaited<
+    ReturnType<typeof expireInactiveRecurringPlans>
+  > = { expired: [], count: 0 }
   try {
     recurringResult = await expireInactiveRecurringPlans({
       defaultPlanId: defaultPlan.id,
-      now: now instanceof Date && !Number.isNaN(now.valueOf()) ? now : new Date(),
+      now:
+        now instanceof Date && !Number.isNaN(now.valueOf()) ? now : new Date(),
     })
   } catch (error) {
     console.error("[cron] expire plans recurring failed", error)
@@ -388,7 +394,11 @@ async function expireInactiveRecurringPlans(args: {
     updates.push(
       prisma.product.update({
         where: { id: product.id },
-        data: { planId: args.defaultPlanId, planAssignedAt: null, subscriptionId: null },
+        data: {
+          planId: args.defaultPlanId,
+          planAssignedAt: null,
+          subscriptionId: null,
+        },
       }),
     )
   }

@@ -46,8 +46,7 @@ export async function GET(request: Request) {
   const endDate = url.searchParams.get("end")
   const days = parseNumberParam(url.searchParams.get("days"))
   const maxRows = parseNumberParam(url.searchParams.get("maxRows"))
-  const includeBreakdowns =
-    url.searchParams.get("breakdowns") === "true"
+  const includeBreakdowns = url.searchParams.get("breakdowns") === "true"
   const jobs = resolveJobs(url.searchParams.get("job"))
 
   const result = await runAnalyticsIngestion({

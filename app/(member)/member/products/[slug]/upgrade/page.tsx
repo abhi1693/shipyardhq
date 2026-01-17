@@ -42,9 +42,7 @@ export default async function ProductUpgradePage({
   })
   const currentPlan = productPlan?.plan ?? null
   const lockedPlanType =
-    currentPlan &&
-    !currentPlan.isDefault &&
-    (currentPlan.price ?? 0) > 0
+    currentPlan && !currentPlan.isDefault && (currentPlan.price ?? 0) > 0
       ? currentPlan.type
       : null
   const upgradePlans = lockedPlanType

@@ -1,6 +1,8 @@
 import { protos } from "@google-analytics/data"
 
-export function parseDateString(value: string | null | undefined): string | null {
+export function parseDateString(
+  value: string | null | undefined,
+): string | null {
   if (!value || value.length !== 8) return null
   const year = Number(value.slice(0, 4))
   const month = Number(value.slice(4, 6))

@@ -115,14 +115,19 @@ export function buildProductStructuredData(product: PublicProduct) {
   )
 
   const offers =
-    product.startingPriceCents !== null &&
-    product.startingPriceCents !== undefined
+    typeof product.startingPriceCents === "number"
       ? {
           "@type": "Offer",
           price: (product.startingPriceCents / 100).toFixed(2),
           priceCurrency: product.currencyCode || "USD",
         }
-      : undefined
+      : product.pricingModel === "free"
+        ? {
+            "@type": "Offer",
+            price: "0.00",
+            priceCurrency: product.currencyCode || "USD",
+          }
+        : undefined
 
   const structuredData: Record<string, unknown> = {
     "@context": "https://schema.org",

@@ -95,7 +95,10 @@ async function finishIngestionRun(args: {
 
 export async function runAnalyticsIngestion(
   options: IngestionOptions,
-): Promise<{ window: AnalyticsIngestionWindow; results: IngestionJobResult[] }> {
+): Promise<{
+  window: AnalyticsIngestionWindow
+  results: IngestionJobResult[]
+}> {
   const window = resolveIngestionWindow({
     startDate: options.startDate ?? null,
     endDate: options.endDate ?? null,

@@ -231,7 +231,6 @@ function resolveProperty(): string | null {
 async function runReportWithQuota(
   client: BetaAnalyticsDataClient,
   request: Parameters<BetaAnalyticsDataClient["runReport"]>[0],
-  _label: string,
 ): Promise<protos.google.analytics.data.v1beta.IRunReportResponse> {
   const [response] = await client.runReport({
     ...request,
@@ -243,7 +242,6 @@ async function runReportWithQuota(
 async function runRealtimeReportWithQuota(
   client: BetaAnalyticsDataClient,
   request: Parameters<BetaAnalyticsDataClient["runRealtimeReport"]>[0],
-  _label: string,
 ): Promise<protos.google.analytics.data.v1beta.IRunRealtimeReportResponse> {
   const [response] = await client.runRealtimeReport({
     ...request,
@@ -325,9 +323,8 @@ async function fetchProductTrafficFromGa({
 
   const runReport = (
     request: Parameters<typeof client.runReport>[0],
-    label: string,
   ): Promise<protos.google.analytics.data.v1beta.IRunReportResponse> =>
-    runReportWithQuota(client, request, `product-traffic:${label}`)
+    runReportWithQuota(client, request)
 
   const emptyReport: protos.google.analytics.data.v1beta.IRunReportResponse = {
     rows: [],
@@ -354,152 +351,7 @@ async function fetchProductTrafficFromGa({
       cityReport,
       deviceReport,
     ] = await Promise.all([
-      runReport(
-        {
-          property,
-          dateRanges: [dateRange],
-          metrics,
-          dimensions: [{ name: "date" }],
-          dimensionFilter,
-          metricAggregations: [
-            protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
-          ],
-          orderBys: [{ dimension: { dimensionName: "date" } }],
-        },
-        "trend",
-      ),
-      runReport(
-        {
-          property,
-          dateRanges: [dateRange],
-          metrics: [{ name: "screenPageViews" }],
-          dimensions: [{ name: "pageReferrer" }],
-          dimensionFilter,
-          limit: 8,
-          orderBys: [
-            {
-              metric: {
-                metricName: "screenPageViews",
-              },
-              desc: true,
-            },
-          ],
-        },
-        "referrers",
-      ),
-      runReport(
-        {
-          property,
-          dateRanges: [dateRange],
-          metrics: [{ name: "screenPageViews" }],
-          dimensions: [{ name: "sessionDefaultChannelGrouping" }],
-          dimensionFilter,
-          limit: 8,
-          orderBys: [
-            {
-              metric: {
-                metricName: "screenPageViews",
-              },
-              desc: true,
-            },
-          ],
-        },
-        "referrer-categories",
-      ),
-      runReport(
-        {
-          property,
-          dateRanges: [dateRange],
-          metrics: [{ name: "activeUsers" }],
-          dimensions: [{ name: "browser" }],
-          dimensionFilter,
-          limit: 8,
-          orderBys: [
-            {
-              metric: { metricName: "activeUsers" },
-              desc: true,
-            },
-          ],
-        },
-        "browsers",
-      ),
-      runReport(
-        {
-          property,
-          dateRanges: [dateRange],
-          metrics: [{ name: "activeUsers" }],
-          dimensions: [{ name: "operatingSystem" }],
-          dimensionFilter,
-          limit: 8,
-          orderBys: [
-            {
-              metric: { metricName: "activeUsers" },
-              desc: true,
-            },
-          ],
-        },
-        "operating-systems",
-      ),
-      runReport(
-        {
-          property,
-          dateRanges: [dateRange],
-          metrics: [{ name: "activeUsers" }],
-          dimensions: [{ name: "country" }, { name: "countryId" }],
-          dimensionFilter,
-          limit: 8,
-          orderBys: [
-            {
-              metric: { metricName: "activeUsers" },
-              desc: true,
-            },
-          ],
-        },
-        "countries",
-      ),
-      runReport(
-        {
-          property,
-          dateRanges: [dateRange],
-          metrics: [{ name: "activeUsers" }],
-          dimensions: [
-            { name: "city" },
-            { name: "region" },
-            { name: "country" },
-            { name: "countryId" },
-          ],
-          dimensionFilter,
-          limit: 8,
-          orderBys: [
-            {
-              metric: { metricName: "activeUsers" },
-              desc: true,
-            },
-          ],
-        },
-        "cities",
-      ),
-      runReport(
-        {
-          property,
-          dateRanges: [dateRange],
-          metrics: [{ name: "activeUsers" }],
-          dimensions: [{ name: "deviceCategory" }],
-          dimensionFilter,
-          limit: 8,
-          orderBys: [
-            {
-              metric: { metricName: "activeUsers" },
-              desc: true,
-            },
-          ],
-        },
-        "devices",
-      ),
-    ])
-  } else {
-    trendReport = await runReport(
-      {
+      runReport({
         property,
         dateRanges: [dateRange],
         metrics,
@@ -509,9 +361,127 @@ async function fetchProductTrafficFromGa({
           protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
         ],
         orderBys: [{ dimension: { dimensionName: "date" } }],
-      },
-      "trend",
-    )
+      }),
+      runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "screenPageViews" }],
+        dimensions: [{ name: "pageReferrer" }],
+        dimensionFilter,
+        limit: 8,
+        orderBys: [
+          {
+            metric: {
+              metricName: "screenPageViews",
+            },
+            desc: true,
+          },
+        ],
+      }),
+      runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "screenPageViews" }],
+        dimensions: [{ name: "sessionDefaultChannelGrouping" }],
+        dimensionFilter,
+        limit: 8,
+        orderBys: [
+          {
+            metric: {
+              metricName: "screenPageViews",
+            },
+            desc: true,
+          },
+        ],
+      }),
+      runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [{ name: "browser" }],
+        dimensionFilter,
+        limit: 8,
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+            desc: true,
+          },
+        ],
+      }),
+      runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [{ name: "operatingSystem" }],
+        dimensionFilter,
+        limit: 8,
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+            desc: true,
+          },
+        ],
+      }),
+      runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [{ name: "country" }, { name: "countryId" }],
+        dimensionFilter,
+        limit: 8,
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+            desc: true,
+          },
+        ],
+      }),
+      runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [
+          { name: "city" },
+          { name: "region" },
+          { name: "country" },
+          { name: "countryId" },
+        ],
+        dimensionFilter,
+        limit: 8,
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+            desc: true,
+          },
+        ],
+      }),
+      runReport({
+        property,
+        dateRanges: [dateRange],
+        metrics: [{ name: "activeUsers" }],
+        dimensions: [{ name: "deviceCategory" }],
+        dimensionFilter,
+        limit: 8,
+        orderBys: [
+          {
+            metric: { metricName: "activeUsers" },
+            desc: true,
+          },
+        ],
+      }),
+    ])
+  } else {
+    trendReport = await runReport({
+      property,
+      dateRanges: [dateRange],
+      metrics,
+      dimensions: [{ name: "date" }],
+      dimensionFilter,
+      metricAggregations: [
+        protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
+      ],
+      orderBys: [{ dimension: { dimensionName: "date" } }],
+    })
   }
 
   const trendResponse = trendReport
@@ -792,24 +762,20 @@ export async function getProductTrafficMapFromGa(args: {
     if (!chunk.length) continue
 
     try {
-      const response = await runReportWithQuota(
-        client,
-        {
-          property,
-          dateRanges: [dateRange],
-          dimensions: [{ name: "pagePath" }],
-          metrics,
-          dimensionFilter: {
-            filter: {
-              fieldName: "pagePath",
-              inListFilter: {
-                values: chunk,
-              },
+      const response = await runReportWithQuota(client, {
+        property,
+        dateRanges: [dateRange],
+        dimensions: [{ name: "pagePath" }],
+        metrics,
+        dimensionFilter: {
+          filter: {
+            fieldName: "pagePath",
+            inListFilter: {
+              values: chunk,
             },
           },
         },
-        `product-traffic-map:${Math.floor(i / CHUNK_SIZE) + 1}`,
-      )
+      })
 
       const rows = response.rows ?? []
       for (const row of rows) {
@@ -910,195 +876,159 @@ async function fetchSiteAnalyticsSnapshot({
     osResponse,
     deviceResponse,
   ] = await Promise.all([
-    runReportWithQuota(
-      client,
-      {
-        property,
-        dateRanges: [dateRange],
-        metrics,
-        dimensions: [{ name: "date" }],
-        metricAggregations: [
-          protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
-        ],
-        orderBys: [{ dimension: { dimensionName: "date" } }],
-      },
-      "site-snapshot:trend",
-    ),
-    runReportWithQuota(
-      client,
-      {
-        property,
-        dateRanges: [dateRange],
-        metrics: [{ name: "screenPageViews" }],
-        dimensions: [{ name: "sessionSource" }],
-        orderBys: [
-          {
-            metric: { metricName: "screenPageViews" },
-            desc: true,
-          },
-        ],
-        limit: 12,
-      },
-      "site-snapshot:referrers",
-    ),
-    runReportWithQuota(
-      client,
-      {
-        property,
-        dateRanges: [dateRange],
-        metrics,
-        dimensions: [{ name: "pagePath" }],
-        dimensionFilter: {
-          andGroup: {
-            expressions: [
-              {
+    runReportWithQuota(client, {
+      property,
+      dateRanges: [dateRange],
+      metrics,
+      dimensions: [{ name: "date" }],
+      metricAggregations: [
+        protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
+      ],
+      orderBys: [{ dimension: { dimensionName: "date" } }],
+    }),
+    runReportWithQuota(client, {
+      property,
+      dateRanges: [dateRange],
+      metrics: [{ name: "screenPageViews" }],
+      dimensions: [{ name: "sessionSource" }],
+      orderBys: [
+        {
+          metric: { metricName: "screenPageViews" },
+          desc: true,
+        },
+      ],
+      limit: 12,
+    }),
+    runReportWithQuota(client, {
+      property,
+      dateRanges: [dateRange],
+      metrics,
+      dimensions: [{ name: "pagePath" }],
+      dimensionFilter: {
+        andGroup: {
+          expressions: [
+            {
+              filter: {
+                fieldName: "pagePath",
+                stringFilter: {
+                  matchType:
+                    protos.google.analytics.data.v1beta.Filter.StringFilter
+                      .MatchType.BEGINS_WITH,
+                  value: "/products/",
+                },
+              },
+            },
+            {
+              notExpression: {
                 filter: {
                   fieldName: "pagePath",
                   stringFilter: {
                     matchType:
                       protos.google.analytics.data.v1beta.Filter.StringFilter
                         .MatchType.BEGINS_WITH,
-                    value: "/products/",
+                    value: "/admin",
                   },
                 },
               },
-              {
-                notExpression: {
-                  filter: {
-                    fieldName: "pagePath",
-                    stringFilter: {
-                      matchType:
-                        protos.google.analytics.data.v1beta.Filter.StringFilter
-                          .MatchType.BEGINS_WITH,
-                      value: "/admin",
-                    },
-                  },
-                },
-              },
-            ],
-          },
+            },
+          ],
         },
-        orderBys: [
-          {
-            metric: { metricName: "screenPageViews" },
-            desc: true,
-          },
-        ],
-        limit: Math.max(10, topProductLimit * 4),
       },
-      "site-snapshot:product-pages",
-    ),
-    runReportWithQuota(
-      client,
-      {
-        property,
-        dateRanges: [dateRange],
-        metrics: [{ name: "activeUsers" }],
-        dimensions: [{ name: "country" }, { name: "countryId" }],
-        orderBys: [
-          {
-            metric: { metricName: "activeUsers" },
-            desc: true,
-          },
-        ],
-        limit: 10,
-      },
-      "site-snapshot:countries",
-    ),
-    runReportWithQuota(
-      client,
-      {
-        property,
-        dateRanges: [dateRange],
-        metrics: [{ name: "activeUsers" }],
-        dimensions: [
-          { name: "region" },
-          { name: "country" },
-          { name: "countryId" },
-        ],
-        orderBys: [
-          {
-            metric: { metricName: "activeUsers" },
-            desc: true,
-          },
-        ],
-        limit: 10,
-      },
-      "site-snapshot:regions",
-    ),
-    runReportWithQuota(
-      client,
-      {
-        property,
-        dateRanges: [dateRange],
-        metrics: [{ name: "activeUsers" }],
-        dimensions: [
-          { name: "city" },
-          { name: "region" },
-          { name: "country" },
-          { name: "countryId" },
-        ],
-        orderBys: [
-          {
-            metric: { metricName: "activeUsers" },
-            desc: true,
-          },
-        ],
-        limit: 10,
-      },
-      "site-snapshot:cities",
-    ),
-    runReportWithQuota(
-      client,
-      {
-        property,
-        dateRanges: [dateRange],
-        metrics: [{ name: "activeUsers" }],
-        dimensions: [{ name: "browser" }],
-        orderBys: [
-          {
-            metric: { metricName: "activeUsers" },
-            desc: true,
-          },
-        ],
-        limit: 8,
-      },
-      "site-snapshot:browsers",
-    ),
-    runReportWithQuota(
-      client,
-      {
-        property,
-        dateRanges: [dateRange],
-        metrics: [{ name: "activeUsers" }],
-        dimensions: [{ name: "operatingSystem" }],
-        orderBys: [
-          {
-            metric: { metricName: "activeUsers" },
-            desc: true,
-          },
-        ],
-        limit: 8,
-      },
-      "site-snapshot:operating-systems",
-    ),
-    runReportWithQuota(
-      client,
-      {
-        property,
-        dateRanges: [dateRange],
-        metrics: [{ name: "activeUsers" }],
-        dimensions: [{ name: "deviceCategory" }],
-        orderBys: [
-          {
-            metric: { metricName: "activeUsers" },
-            desc: true,
-          },
-        ],
-        limit: 5,
-      },
-      "site-snapshot:devices",
-    ),
+      orderBys: [
+        {
+          metric: { metricName: "screenPageViews" },
+          desc: true,
+        },
+      ],
+      limit: Math.max(10, topProductLimit * 4),
+    }),
+    runReportWithQuota(client, {
+      property,
+      dateRanges: [dateRange],
+      metrics: [{ name: "activeUsers" }],
+      dimensions: [{ name: "country" }, { name: "countryId" }],
+      orderBys: [
+        {
+          metric: { metricName: "activeUsers" },
+          desc: true,
+        },
+      ],
+      limit: 10,
+    }),
+    runReportWithQuota(client, {
+      property,
+      dateRanges: [dateRange],
+      metrics: [{ name: "activeUsers" }],
+      dimensions: [
+        { name: "region" },
+        { name: "country" },
+        { name: "countryId" },
+      ],
+      orderBys: [
+        {
+          metric: { metricName: "activeUsers" },
+          desc: true,
+        },
+      ],
+      limit: 10,
+    }),
+    runReportWithQuota(client, {
+      property,
+      dateRanges: [dateRange],
+      metrics: [{ name: "activeUsers" }],
+      dimensions: [
+        { name: "city" },
+        { name: "region" },
+        { name: "country" },
+        { name: "countryId" },
+      ],
+      orderBys: [
+        {
+          metric: { metricName: "activeUsers" },
+          desc: true,
+        },
+      ],
+      limit: 10,
+    }),
+    runReportWithQuota(client, {
+      property,
+      dateRanges: [dateRange],
+      metrics: [{ name: "activeUsers" }],
+      dimensions: [{ name: "browser" }],
+      orderBys: [
+        {
+          metric: { metricName: "activeUsers" },
+          desc: true,
+        },
+      ],
+      limit: 8,
+    }),
+    runReportWithQuota(client, {
+      property,
+      dateRanges: [dateRange],
+      metrics: [{ name: "activeUsers" }],
+      dimensions: [{ name: "operatingSystem" }],
+      orderBys: [
+        {
+          metric: { metricName: "activeUsers" },
+          desc: true,
+        },
+      ],
+      limit: 8,
+    }),
+    runReportWithQuota(client, {
+      property,
+      dateRanges: [dateRange],
+      metrics: [{ name: "activeUsers" }],
+      dimensions: [{ name: "deviceCategory" }],
+      orderBys: [
+        {
+          metric: { metricName: "activeUsers" },
+          desc: true,
+        },
+      ],
+      limit: 5,
+    }),
   ])
   const totals = trendResponse.totals?.[0]?.metricValues ?? undefined
   const rows = trendResponse.rows ?? []
@@ -1400,14 +1330,10 @@ export async function runGaReport(
     throw new Error("GA_PROPERTY_ID is missing")
   }
 
-  return runReportWithQuota(
-    client,
-    {
-      ...request,
-      property,
-    },
-    "ga-report",
-  )
+  return runReportWithQuota(client, {
+    ...request,
+    property,
+  })
 }
 
 async function fetchHomepageTrafficFromGa(): Promise<HomepageTraffic> {
@@ -1417,20 +1343,16 @@ async function fetchHomepageTrafficFromGa(): Promise<HomepageTraffic> {
     throw new Error("GA_PROPERTY_ID is missing")
   }
 
-  const response = await runReportWithQuota(
-    client,
-    {
-      property,
-      dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
-      dimensions: [{ name: "date" }],
-      metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }],
-      orderBys: [{ dimension: { dimensionName: "date" } }],
-      metricAggregations: [
-        protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
-      ],
-    },
-    "homepage-traffic",
-  )
+  const response = await runReportWithQuota(client, {
+    property,
+    dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+    dimensions: [{ name: "date" }],
+    metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }],
+    orderBys: [{ dimension: { dimensionName: "date" } }],
+    metricAggregations: [
+      protos.google.analytics.data.v1beta.MetricAggregation.TOTAL,
+    ],
+  })
 
   const totals = response.totals?.[0]?.metricValues ?? []
   const summedFromRows = (index: number) =>
@@ -1512,14 +1434,10 @@ export async function fetchRealtimeVisitorsFromGa(): Promise<number> {
     throw new Error("GA_PROPERTY_ID is missing")
   }
 
-  const response = await runRealtimeReportWithQuota(
-    client,
-    {
-      property,
-      metrics: [{ name: "activeUsers" }],
-    },
-    "realtime-visitors",
-  )
+  const response = await runRealtimeReportWithQuota(client, {
+    property,
+    metrics: [{ name: "activeUsers" }],
+  })
 
   const total = Number(response.totals?.[0]?.metricValues?.[0]?.value ?? 0)
   const summedRows =

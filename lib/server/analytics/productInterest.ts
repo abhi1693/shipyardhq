@@ -279,7 +279,10 @@ async function refreshAlsoClickedIndex({
     return { storedCount: 0, rowsProcessed: trafficRows.length }
   }
 
-  const byViews = (a: typeof scoredProducts[number], b: typeof scoredProducts[number]) => {
+  const byViews = (
+    a: (typeof scoredProducts)[number],
+    b: (typeof scoredProducts)[number],
+  ) => {
     if (b.views !== a.views) return b.views - a.views
     return a.id.localeCompare(b.id)
   }
@@ -300,7 +303,10 @@ async function refreshAlsoClickedIndex({
   for (const [category, entries] of categoryMap.entries()) {
     categoryIds.set(
       category,
-      entries.slice().sort(byViews).map((entry) => entry.id),
+      entries
+        .slice()
+        .sort(byViews)
+        .map((entry) => entry.id),
     )
   }
 

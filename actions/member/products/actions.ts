@@ -429,7 +429,9 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
 }
 
 // Validate subscription by ID and attach plan to product using metadata from Dodo
-export async function validateSubscriptionAndAttachPlan(subscriptionId: string) {
+export async function validateSubscriptionAndAttachPlan(
+  subscriptionId: string,
+) {
   const { userId } = await auth()
   if (!userId) return { error: "Unauthenticated" }
 
@@ -521,9 +523,7 @@ export async function choosePlanAction(
   })
   const activePlan = currentPlan?.plan
   const hasPaidPlan =
-    !!activePlan &&
-    !activePlan.isDefault &&
-    (activePlan.price ?? 0) > 0
+    !!activePlan && !activePlan.isDefault && (activePlan.price ?? 0) > 0
   if (hasPaidPlan && activePlan.type !== plan.type) {
     redirect(`${ctx.redirectPath}?error=plan_type_locked`)
   }
@@ -563,14 +563,11 @@ export async function choosePlanAction(
         const isSamePlan =
           (existingSubscription as any)?.product_id === plan.externalId
         if (!isSamePlan) {
-          await dodoClient.subscriptions.changePlan(
-            subscriptionId,
-            {
-              product_id: plan.externalId,
-              proration_billing_mode: SUBSCRIPTION_CHANGE_PRORATION_MODE,
-              quantity: 1,
-            } as any,
-          )
+          await dodoClient.subscriptions.changePlan(subscriptionId, {
+            product_id: plan.externalId,
+            proration_billing_mode: SUBSCRIPTION_CHANGE_PRORATION_MODE,
+            quantity: 1,
+          } as any)
         }
         await setProductPlanAction(ctx.productId, planId, subscriptionId)
       } catch (error) {

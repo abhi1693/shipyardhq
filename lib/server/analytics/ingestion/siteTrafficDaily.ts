@@ -110,8 +110,10 @@ export async function syncSiteTrafficDaily(args: {
     current.newUsers += newUsers
     current.engagedSessions += engagedSessions
     current.bounceRateWeighted += sessions > 0 ? bounceRate * sessions : 0
-    current.durationWeighted += sessions > 0 ? averageSessionDuration * sessions : 0
-    current.pagesPerSessionWeighted += sessions > 0 ? pagesPerSession * sessions : 0
+    current.durationWeighted +=
+      sessions > 0 ? averageSessionDuration * sessions : 0
+    current.pagesPerSessionWeighted +=
+      sessions > 0 ? pagesPerSession * sessions : 0
 
     aggregated.set(key, current)
   }

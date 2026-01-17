@@ -130,8 +130,8 @@ export default async function ViewUserProductPage({
     isFreePlan && hasRecurringPlans
       ? "recurring_price"
       : currentPlanPublic?.type === "recurring_price"
-      ? "recurring_price"
-      : "one_time_price"
+        ? "recurring_price"
+        : "one_time_price"
   const typeFilteredPlans = sortedPlans.filter(
     (plan) => plan.type === targetPlanType,
   )

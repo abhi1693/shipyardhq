@@ -151,13 +151,11 @@ async function fetchRealtimeVisitorsWithCache(): Promise<number> {
   }
 }
 
-async function fetchProductTrafficWithCache(
-  args: {
-    pagePaths: string[]
-    dateRange: AnalyticsDateRange
-    includeAdvanced?: boolean
-  },
-): Promise<ProductTrafficSummary> {
+async function fetchProductTrafficWithCache(args: {
+  pagePaths: string[]
+  dateRange: AnalyticsDateRange
+  includeAdvanced?: boolean
+}): Promise<ProductTrafficSummary> {
   const cacheKey = cacheKeyForProductTraffic(args)
   const cached = await cacheHit<ProductTrafficSummary>({
     key: cacheKey,
@@ -208,7 +206,9 @@ function mapToRecord(
   return record
 }
 
-function recordToMap(record: CachedTrafficMap): Map<string, ProductTrafficMapEntry> {
+function recordToMap(
+  record: CachedTrafficMap,
+): Map<string, ProductTrafficMapEntry> {
   const map = new Map<string, ProductTrafficMapEntry>()
   for (const [key, value] of Object.entries(record)) {
     map.set(key, value)
@@ -286,7 +286,9 @@ async function fetchSiteSnapshotWithCache(args?: {
     value: fresh,
     ttlSeconds: SITE_SNAPSHOT_TTL_SECONDS,
     onError: (error) => {
-      console.error("[analytics] failed to write site snapshot cache", { error })
+      console.error("[analytics] failed to write site snapshot cache", {
+        error,
+      })
     },
     inProcessTtlMs: SITE_SNAPSHOT_IN_PROCESS_TTL_MS,
   })

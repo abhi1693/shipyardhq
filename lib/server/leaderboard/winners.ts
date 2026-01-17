@@ -542,8 +542,7 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
   }
 
   const winnersForEvent = topThreeWithRank
-    .map(
-      (entry: (typeof topThreeWithRank)[number]): WinnerEvent | null => {
+    .map((entry: (typeof topThreeWithRank)[number]): WinnerEvent | null => {
       const product = entry.product as WinnerProduct | undefined
       if (!product) return null
       return {
@@ -553,8 +552,7 @@ export async function announceLeaderboardWinnersForRun(runId: string) {
         slug: product.slug,
         twitterHandle: normalizeTwitterHandle(product.metadata?.twitterUrl),
       }
-      },
-    )
+    })
     .filter((entry: WinnerEvent | null): entry is WinnerEvent => Boolean(entry))
 
   if (winnersForEvent.length) {

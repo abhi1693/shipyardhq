@@ -178,8 +178,9 @@ async function syncProductPlanSubscriptions(args: {
     const productExternalId =
       typeof sub?.product_id === "string" ? sub.product_id : undefined
     const planId =
-      (productExternalId ? args.planIdByExternal[productExternalId] : undefined) ||
-      planIdFromMeta
+      (productExternalId
+        ? args.planIdByExternal[productExternalId]
+        : undefined) || planIdFromMeta
     if (!planId) continue
 
     const plan = args.planById.get(planId)
@@ -206,10 +207,7 @@ async function syncProductPlanSubscriptions(args: {
   }
 
   const productIds = Array.from(
-    new Set([
-      ...activeByProductId.keys(),
-      ...inactiveByProductId.keys(),
-    ]),
+    new Set([...activeByProductId.keys(), ...inactiveByProductId.keys()]),
   )
 
   const [products, defaultPlan] = await Promise.all([
@@ -229,12 +227,19 @@ async function syncProductPlanSubscriptions(args: {
   const productById = new Map(products.map((product) => [product.id, product]))
   const updates: Array<ReturnType<typeof prisma.product.update>> = []
 
-  for (const [productId, { plan, subscriptionId }] of activeByProductId.entries()) {
+  for (const [
+    productId,
+    { plan, subscriptionId },
+  ] of activeByProductId.entries()) {
     const product = productById.get(productId)
     if (!product) continue
     const shouldUpdateSubscriptionId =
       subscriptionId && product.subscriptionId !== subscriptionId
-    if (product.planId === plan.id && product.planAssignedAt && !shouldUpdateSubscriptionId) {
+    if (
+      product.planId === plan.id &&
+      product.planAssignedAt &&
+      !shouldUpdateSubscriptionId
+    ) {
       continue
     }
 
@@ -268,7 +273,11 @@ async function syncProductPlanSubscriptions(args: {
       updates.push(
         prisma.product.update({
           where: { id: productId },
-          data: { planId: defaultPlan.id, planAssignedAt: null, subscriptionId: null },
+          data: {
+            planId: defaultPlan.id,
+            planAssignedAt: null,
+            subscriptionId: null,
+          },
         }),
       )
     }

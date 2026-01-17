@@ -296,7 +296,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           price: (sidebarProduct.startingPriceCents / 100).toFixed(2),
           priceCurrency: sidebarProduct.currencyCode || "USD",
         }
-      : undefined
+      : sidebarProduct.pricingModel === "free"
+        ? {
+            price: "0.00",
+            priceCurrency: sidebarProduct.currencyCode || "USD",
+          }
+        : undefined
   const platformValues = (sidebarProduct.platforms ?? []) as string[]
   const hasWebPlatform = platformValues.includes("web")
   const mobilePlatforms = platformValues.filter((platform: string) =>

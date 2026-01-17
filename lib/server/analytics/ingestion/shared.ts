@@ -22,7 +22,9 @@ type WindowInput = {
 }
 
 function toUtcDay(date: Date): Date {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  )
 }
 
 function parseIsoDate(value?: string | null): Date | null {
@@ -42,8 +44,7 @@ export function resolveIngestionWindow({
 }: WindowInput): AnalyticsIngestionWindow {
   const end = parseIsoDate(endDate) ?? toUtcDay(new Date())
   const spanDays = Math.max(1, Math.floor(days ?? 7))
-  const start =
-    parseIsoDate(startDate) ?? subDays(end, spanDays - 1)
+  const start = parseIsoDate(startDate) ?? subDays(end, spanDays - 1)
 
   const orderedStart = start <= end ? start : end
   const orderedEnd = start <= end ? end : start
@@ -55,14 +56,13 @@ export function resolveIngestionWindow({
     end: normalizedEnd,
     startDate: formatUtcDate(normalizedStart),
     endDate: formatUtcDate(normalizedEnd),
-    days:
-      Math.max(
-        1,
-        Math.round(
-          (normalizedEnd.getTime() - normalizedStart.getTime()) /
-            (1000 * 60 * 60 * 24),
-        ) + 1,
-      ),
+    days: Math.max(
+      1,
+      Math.round(
+        (normalizedEnd.getTime() - normalizedStart.getTime()) /
+          (1000 * 60 * 60 * 24),
+      ) + 1,
+    ),
   }
 }
 
@@ -71,7 +71,11 @@ export function parseGaDate(value?: string | null): Date | null {
   const year = Number(value.slice(0, 4))
   const month = Number(value.slice(4, 6))
   const day = Number(value.slice(6, 8))
-  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(month) ||
+    !Number.isFinite(day)
+  ) {
     return null
   }
   return new Date(Date.UTC(year, month - 1, day))
@@ -160,14 +164,15 @@ export function buildProductPageFilter(): protos.google.analytics.data.v1beta.IF
 }
 
 export async function fetchGaReportRows(args: {
-  request: Omit<
-    Parameters<typeof runGaReport>[0],
-    "offset" | "limit"
-  >
+  request: Omit<Parameters<typeof runGaReport>[0], "offset" | "limit">
   pageSize?: number
   maxRows?: number
   maxPages?: number
-}): Promise<{ rows: protos.google.analytics.data.v1beta.IRow[]; pages: number; truncated: boolean }> {
+}): Promise<{
+  rows: protos.google.analytics.data.v1beta.IRow[]
+  pages: number
+  truncated: boolean
+}> {
   const pageSize = Math.max(1, Math.floor(args.pageSize ?? GA_REPORT_PAGE_SIZE))
   const maxRows = Math.max(1, Math.floor(args.maxRows ?? GA_REPORT_MAX_ROWS))
   const maxPages = Math.max(1, Math.floor(args.maxPages ?? GA_REPORT_MAX_PAGES))
