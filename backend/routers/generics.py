@@ -631,9 +631,12 @@ class GenericAPIView(BaseAPIView, ABC):
         data = payload.model_dump(exclude_unset=True)
         obj = self.model(**data)
         save = getattr(obj, "save", None)
-        if not callable(save):
-            raise RuntimeError(f"{self.model.__name__} is missing save().")
-        return await save(session, commit=True, refresh=True)
+        if callable(save):
+            return await save(session, commit=True, refresh=True)
+        session.add(obj)
+        await session.commit()
+        await session.refresh(obj)
+        return obj
 
     async def perform_update(
         self,
@@ -645,15 +648,22 @@ class GenericAPIView(BaseAPIView, ABC):
     ) -> ModelT:
         data = payload.model_dump(exclude_unset=partial)
         update = getattr(obj, "update", None)
-        if not callable(update):
-            raise RuntimeError(f"{self.model.__name__} is missing update().")
-        return await update(session, commit=True, refresh=True, **data)
+        if callable(update):
+            return await update(session, commit=True, refresh=True, **data)
+        for key, value in data.items():
+            setattr(obj, key, value)
+        session.add(obj)
+        await session.commit()
+        await session.refresh(obj)
+        return obj
 
     async def perform_delete(self, session: Session, obj: ModelT) -> None:
         delete = getattr(obj, "delete", None)
-        if not callable(delete):
-            raise RuntimeError(f"{self.model.__name__} is missing delete().")
-        await delete(session, commit=True)
+        if callable(delete):
+            await delete(session, commit=True)
+            return
+        await session.delete(obj)
+        await session.commit()
 
     def _build_create_endpoint(self):
         schema = self.get_create_schema()
@@ -666,6 +676,8 @@ class GenericAPIView(BaseAPIView, ABC):
             return await self.create(payload, request=request, session=session)
 
         endpoint.__name__ = f"{self.__class__.__name__}_create"
+        endpoint.__annotations__ = dict(endpoint.__annotations__)
+        endpoint.__annotations__["payload"] = schema
         return endpoint
 
     def _build_detail_endpoint(self, handler, *, payload_schema: type[BaseModel] | None = None):
@@ -696,6 +708,9 @@ class GenericAPIView(BaseAPIView, ABC):
         exec(code, namespace)
         endpoint = namespace["endpoint"]
         endpoint.__name__ = f"{self.__class__.__name__}_{handler.__name__}"
+        if payload_schema is not None:
+            endpoint.__annotations__ = dict(endpoint.__annotations__)
+            endpoint.__annotations__["payload"] = payload_schema
         return endpoint
 
 

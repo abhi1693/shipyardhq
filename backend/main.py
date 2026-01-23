@@ -11,6 +11,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 
 from admin import configure_admin
 from routers.auth import router as auth_router
+from routers.crud import crud_routers
 from routers.health import router as health_router
 from routers.webhooks import router as identity_webhook_router
 from services.logger import AppLogger
@@ -155,3 +156,5 @@ if settings.cors_origins:
 app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(identity_webhook_router)
+for router in crud_routers:
+    app.include_router(router)
