@@ -13,9 +13,7 @@ _POSTGRES_DIALECTS = ("postgresql",)
 def _validate_database_url(database_url: str) -> None:
     scheme = database_url.split("://", 1)[0]
     if not scheme.startswith(_POSTGRES_DIALECTS):
-        raise RuntimeError(
-            f"Only PostgreSQL is supported. Got '{scheme}'."
-        )
+        raise RuntimeError(f"Only PostgreSQL is supported. Got '{scheme}'.")
 
 
 def _build_sync_url(database_url: str) -> str:
@@ -65,6 +63,7 @@ async def init_db() -> None:
 
     async with async_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
+
 
 async_session = async_sessionmaker(
     async_engine,

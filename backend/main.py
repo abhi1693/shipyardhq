@@ -9,24 +9,13 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 
+from admin import configure_admin
+from routers.auth import router as auth_router
+from routers.health import router as health_router
 from services.logger import AppLogger
 from services.migrations import run_migrations
 from services.version import APP_VERSION
 from settings import get_settings
-from routers.settings import router as settings_router
-from routers.providers import router as providers_router
-from routers.profile_delete import router as profile_delete_router
-from routers.sync_runs import router as sync_runs_router
-from routers.profile import router as profile_router
-from routers.leaderboard import router as leaderboard_router
-from routers.share import router as share_router
-from routers.webhooks import router as webhooks_router
-from routers.github_webhooks import router as github_webhooks_router
-from routers.provider_resources import router as provider_resources_router
-from routers.stats import router as stats_router
-from routers.health import router as health_router
-from services.sync_scheduler import init_scheduler, shutdown_scheduler
-from admin import configure_admin
 
 settings = get_settings()
 AppLogger.configure()
@@ -59,22 +48,10 @@ def build_error_content(
 async def lifespan(app: FastAPI):
     if settings.auto_migrate_db:
         await to_thread(run_migrations)
-    scheduler, _ = await init_scheduler(
-        settings.sync_refresh_interval_seconds,
-        settings.sync_scheduler_max_concurrent,
-        leaderboard_daily_interval_seconds=settings.leaderboard_daily_refresh_interval_seconds,
-        leaderboard_weekly_interval_seconds=settings.leaderboard_weekly_refresh_interval_seconds,
-        leaderboard_monthly_interval_seconds=settings.leaderboard_monthly_refresh_interval_seconds,
-        task_worker_interval_seconds=settings.task_worker_interval_seconds,
-        task_worker_batch_size=settings.task_worker_batch_size,
-        task_worker_lease_seconds=settings.task_worker_lease_seconds,
-        task_worker_concurrency=settings.task_worker_concurrency,
-    )
     yield
-    await shutdown_scheduler(scheduler)
 
 
-app = FastAPI(lifespan=lifespan, version=APP_VERSION)
+app = FastAPI(title="ShipyardHQ API", version=APP_VERSION, lifespan=lifespan)
 configure_admin(app)
 
 
@@ -88,7 +65,7 @@ async def root() -> str:
         "<head>"
         "<meta charset=\"utf-8\" />"
         "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />"
-        "<title>GitRank API</title>"
+        "<title>ShipyardHQ API</title>"
         "<style>"
         "body{margin:0;background:#f7f7f8;color:#0b0b0b;font-family:Arial, sans-serif;}"
         "main{max-width:720px;margin:0 auto;padding:32px 20px;}"
@@ -108,7 +85,7 @@ async def root() -> str:
         "<body>"
         "<main>"
         "<div class=\"card\">"
-        "<h1>GitRank API</h1>"
+        "<h1>ShipyardHQ API</h1>"
         "<p>Service status overview</p>"
         "<dl>"
         "<dt>Status</dt><dd>OK</dd>"
@@ -126,6 +103,7 @@ async def root() -> str:
         "</body>"
         "</html>"
     )
+
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
@@ -173,15 +151,5 @@ if settings.cors_origins:
         allow_headers=["*"],
     )
 
-app.include_router(settings_router)
-app.include_router(providers_router)
-app.include_router(profile_delete_router)
-app.include_router(sync_runs_router)
-app.include_router(profile_router)
-app.include_router(leaderboard_router)
-app.include_router(share_router)
-app.include_router(webhooks_router)
-app.include_router(github_webhooks_router)
-app.include_router(provider_resources_router)
-app.include_router(stats_router)
 app.include_router(health_router)
+app.include_router(auth_router)

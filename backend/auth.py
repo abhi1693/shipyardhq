@@ -54,9 +54,7 @@ def _resolve_auth_from_state(
     return auth_data or fallback
 
 
-def _parse_subject(
-    auth_data: HTTPAuthorizationCredentials | None,
-) -> str | None:
+def _parse_subject(auth_data: HTTPAuthorizationCredentials | None) -> str | None:
     if not auth_data or not auth_data.decoded:
         return None
     payload = ClerkTokenPayload.model_validate(auth_data.decoded)

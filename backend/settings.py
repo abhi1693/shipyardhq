@@ -1,20 +1,12 @@
-from __future__ import annotations
-
 from functools import lru_cache
 from typing import Any
 
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
-
-    database_url: str
+    database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/shipyardhq"
     auto_migrate_db: bool = False
     db_pool_size: int = 5
     db_max_overflow: int = 2
@@ -23,34 +15,16 @@ class Settings(BaseSettings):
     db_pool_pre_ping: bool = True
     redis_url: str | None = None
     redis_cache_default_ttl_seconds: int = 300
-    leaderboard_cache_ttl_seconds: int = 120
-    leaderboard_scope_cache_ttl_seconds: int = 3600
-    profile_cache_ttl_seconds: int = 120
     clerk_jwks_url: str | None = None
     clerk_publishable_key: str | None = None
     clerk_js_url: str | None = None
     clerk_verify_iat: bool = True
-    clerk_leeway: float = 10.0
+    clerk_leeway: int = 0
     clerk_secret_key: str | None = None
-    identity_webhook_secret: str | None = None
-    identity_webhook_tolerance_seconds: int = 300
-    github_webhook_secret: str | None = None
-    github_app_id: str | None = None
-    github_app_private_key: str | None = None
-    github_app_slug: str | None = None
     admin_base_url: str = "/admin"
-    admin_title: str = "Git Rank Admin"
+    admin_title: str = "ShipyardHQ Admin"
     admin_redirect_url: str | None = None
-    sync_refresh_interval_seconds: int = 3600
-    sync_scheduler_max_concurrent: int = 3
-    leaderboard_daily_refresh_interval_seconds: int = 86400
-    leaderboard_weekly_refresh_interval_seconds: int = 604800
-    leaderboard_monthly_refresh_interval_seconds: int = 2592000
-    task_worker_interval_seconds: int = 30
-    task_worker_batch_size: int = 10
-    task_worker_lease_seconds: int = 3600
-    task_worker_concurrency: int | None = 3
-    cors_origins: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    cors_origins: list[str] | str | None = Field(default_factory=list)
     log_level: str = "INFO"
     log_format: str = "json"
     log_use_utc: bool = True
@@ -66,27 +40,11 @@ class Settings(BaseSettings):
     rate_limit_use_forwarded_for: bool = False
     rate_limit_ip_header: str | None = None
 
-    @field_validator(
-        "auto_migrate_db",
-        "db_pool_pre_ping",
-        "clerk_verify_iat",
-        "log_use_utc",
-        "rate_limit_enabled",
-        "rate_limit_use_forwarded_for",
-        mode="before",
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
     )
-    @classmethod
-    def normalize_bool_env(cls, value: Any) -> Any:
-        if isinstance(value, str):
-            trimmed = value.strip()
-            if (
-                len(trimmed) >= 2
-                and trimmed[0] == trimmed[-1]
-                and trimmed[0] in {"'", '"'}
-            ):
-                return trimmed[1:-1].strip()
-            return trimmed
-        return value
 
     @field_validator("cors_origins", mode="before")
     @classmethod
@@ -124,6 +82,28 @@ class Settings(BaseSettings):
             return normalize_items(trimmed.split(","))
         if isinstance(value, (list, tuple, set)):
             return normalize_items(value)
+        return value
+
+    @field_validator(
+        "auto_migrate_db",
+        "db_pool_pre_ping",
+        "clerk_verify_iat",
+        "log_use_utc",
+        "rate_limit_enabled",
+        "rate_limit_use_forwarded_for",
+        mode="before",
+    )
+    @classmethod
+    def normalize_bool_env(cls, value: Any) -> Any:
+        if isinstance(value, str):
+            trimmed = value.strip()
+            if (
+                len(trimmed) >= 2
+                and trimmed[0] == trimmed[-1]
+                and trimmed[0] in {"'", '"'}
+            ):
+                return trimmed[1:-1].strip()
+            return trimmed
         return value
 
 

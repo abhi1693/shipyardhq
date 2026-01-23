@@ -5,7 +5,7 @@ from importlib import metadata
 from pathlib import Path
 import tomllib
 
-_PACKAGE_NAME = "git-rank"
+_PACKAGE_NAME = "shipyardhq-backend"
 _DEFAULT_VERSION = "0.0.0"
 APP_NAME = _PACKAGE_NAME
 
