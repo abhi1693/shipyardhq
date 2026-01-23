@@ -27,15 +27,15 @@
                             <label class="form-selectgroup-item flex-fill">
                                 <input class="form-selectgroup-input scheduler-job"
                                        type="checkbox"
-                                       data-job="sync_fanout">
+                                       data-job="analytics_sync">
                                 <div class="form-selectgroup-label d-flex align-items-center p-3">
                                     <span class="me-2">
-                                        <i class="fa-solid fa-rotate"></i>
+                                        <i class="fa-solid fa-chart-line"></i>
                                     </span>
                                     <div>
-                                        <div class="fw-bold">Sync fanout</div>
+                                        <div class="fw-bold">Analytics sync</div>
                                         <div class="text-muted small">
-                                            Queue provider syncs for all users.
+                                            Ingest recent analytics windows.
                                         </div>
                                     </div>
                                 </div>
@@ -43,15 +43,15 @@
                             <label class="form-selectgroup-item flex-fill mt-2">
                                 <input class="form-selectgroup-input scheduler-job"
                                        type="checkbox"
-                                       data-job="task_worker">
+                                       data-job="rewards_placements">
                                 <div class="form-selectgroup-label d-flex align-items-center p-3">
                                     <span class="me-2">
-                                        <i class="fa-solid fa-gears"></i>
+                                        <i class="fa-solid fa-bullseye"></i>
                                     </span>
                                     <div>
-                                        <div class="fw-bold">Task worker</div>
+                                        <div class="fw-bold">Rewards placements</div>
                                         <div class="text-muted small">
-                                            Process queued tasks immediately.
+                                            Activate and expire placement schedules.
                                         </div>
                                     </div>
                                 </div>
@@ -59,15 +59,15 @@
                             <label class="form-selectgroup-item flex-fill mt-2">
                                 <input class="form-selectgroup-input scheduler-job"
                                        type="checkbox"
-                                       data-job="leaderboard_daily">
+                                       data-job="rewards_backlinks">
                                 <div class="form-selectgroup-label d-flex align-items-center p-3">
                                     <span class="me-2">
-                                        <i class="fa-solid fa-calendar-day"></i>
+                                        <i class="fa-solid fa-link"></i>
                                     </span>
                                     <div>
-                                        <div class="fw-bold">Leaderboard daily</div>
+                                        <div class="fw-bold">Backlink rewards</div>
                                         <div class="text-muted small">
-                                            Refresh daily leaderboard entries.
+                                            Verify backlinks and award rewards.
                                         </div>
                                     </div>
                                 </div>
@@ -75,15 +75,15 @@
                             <label class="form-selectgroup-item flex-fill mt-2">
                                 <input class="form-selectgroup-input scheduler-job"
                                        type="checkbox"
-                                       data-job="leaderboard_weekly">
+                                       data-job="rewards_streak">
                                 <div class="form-selectgroup-label d-flex align-items-center p-3">
                                     <span class="me-2">
-                                        <i class="fa-solid fa-calendar-week"></i>
+                                        <i class="fa-solid fa-fire"></i>
                                     </span>
                                     <div>
-                                        <div class="fw-bold">Leaderboard weekly</div>
+                                        <div class="fw-bold">Streak rewards</div>
                                         <div class="text-muted small">
-                                            Refresh weekly leaderboard entries.
+                                            Evaluate streaks and grant rewards.
                                         </div>
                                     </div>
                                 </div>
@@ -91,15 +91,15 @@
                             <label class="form-selectgroup-item flex-fill mt-2">
                                 <input class="form-selectgroup-input scheduler-job"
                                        type="checkbox"
-                                       data-job="leaderboard_monthly">
+                                       data-job="leaderboard_refresh">
                                 <div class="form-selectgroup-label d-flex align-items-center p-3">
                                     <span class="me-2">
-                                        <i class="fa-solid fa-calendar"></i>
+                                        <i class="fa-solid fa-trophy"></i>
                                     </span>
                                     <div>
-                                        <div class="fw-bold">Leaderboard monthly</div>
+                                        <div class="fw-bold">Leaderboard refresh</div>
                                         <div class="text-muted small">
-                                            Refresh monthly leaderboard entries.
+                                            Recompute product leaderboard scores.
                                         </div>
                                     </div>
                                 </div>
@@ -134,7 +134,7 @@
                                 <strong>Run all</strong> triggers every scheduled job in one request.
                             </li>
                             <li>
-                                <strong>Task worker</strong> processes queued work, including syncs and webhooks.
+                                <strong>Analytics sync</strong> loads new analytics windows into Postgres.
                             </li>
                         </ul>
                         <p class="text-muted small mb-0">

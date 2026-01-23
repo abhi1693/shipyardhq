@@ -95,12 +95,12 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Repository growth</h3>
+                        <h3 class="card-title">Product growth</h3>
                         <div class="card-actions text-muted small">{{ range_label }}</div>
                     </div>
                     <div class="card-body">
                         <div class="dashboard-chart">
-                            <canvas id="chart-repos"></canvas>
+                            <canvas id="chart-products"></canvas>
                         </div>
                     </div>
                 </div>
@@ -111,7 +111,7 @@
             <div class="col-12 col-xl-6">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Activity volume trends</h3>
+                        <h3 class="card-title">Reward activity trends</h3>
                         <div class="card-actions text-muted small">{{ range_label }}</div>
                     </div>
                     <div class="card-body">
@@ -124,7 +124,7 @@
             <div class="col-12 col-xl-6">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Daily activity distribution</h3>
+                        <h3 class="card-title">Daily signups & products</h3>
                         <div class="card-actions text-muted small">Last 7 days</div>
                     </div>
                     <div class="card-body">
@@ -176,7 +176,7 @@
                     <div class="card-body">
                         <div class="mb-4">
                             <div class="d-flex align-items-center justify-content-between">
-                                <span class="text-muted small">Task queue</span>
+                                <span class="text-muted small">Event queue</span>
                                 <i class="fa-solid fa-bolt text-blue"></i>
                             </div>
                             <div class="h2 mb-0">{{ task_metrics.total_processed }}</div>
@@ -188,7 +188,7 @@
                         </div>
                         <div class="mb-4">
                             <div class="d-flex align-items-center justify-content-between">
-                                <span class="text-muted small">Sync runs</span>
+                                <span class="text-muted small">Analytics runs</span>
                                 <i class="fa-solid fa-circle-check text-green"></i>
                             </div>
                             <div class="h2 mb-0">{{ sync_metrics.total_runs }}</div>
@@ -203,7 +203,7 @@
                         </div>
                         <div>
                             <div class="d-flex align-items-center justify-content-between">
-                                <span class="text-muted small">Items synced</span>
+                                <span class="text-muted small">Traffic rows</span>
                                 <i class="fa-solid fa-database text-purple"></i>
                             </div>
                             <div class="h2 mb-0">{{ sync_metrics.total_items_synced }}</div>
@@ -285,28 +285,28 @@
             }),
         });
 
-        buildChart(document.getElementById("chart-repos"), {
+        buildChart(document.getElementById("chart-products"), {
             type: "line",
             data: {
-                labels: dashboardData.repoGrowth.map((row) => row.label),
+                labels: dashboardData.productGrowth.map((row) => row.label),
                 datasets: [
                     {
                         label: "Added",
-                        data: dashboardData.repoGrowth.map((row) => row.added),
+                        data: dashboardData.productGrowth.map((row) => row.added),
                         borderColor: "rgba(16, 185, 129, 1)",
                         backgroundColor: "rgba(16, 185, 129, 0.15)",
                         tension: 0.3,
                     },
                     {
                         label: "Archived",
-                        data: dashboardData.repoGrowth.map((row) => row.archived),
+                        data: dashboardData.productGrowth.map((row) => row.archived),
                         borderColor: "rgba(239, 68, 68, 1)",
                         backgroundColor: "rgba(239, 68, 68, 0.15)",
                         tension: 0.3,
                     },
                     {
                         label: "Net growth",
-                        data: dashboardData.repoGrowth.map((row) => row.net),
+                        data: dashboardData.productGrowth.map((row) => row.net),
                         borderColor: "rgba(59, 130, 246, 1)",
                         backgroundColor: "rgba(59, 130, 246, 0.15)",
                         borderWidth: 2,
@@ -324,27 +324,27 @@
         buildChart(document.getElementById("chart-activity"), {
             type: "line",
             data: {
-                labels: dashboardData.activityTrends.map((row) => row.label),
+                labels: dashboardData.rewardActivity.map((row) => row.label),
                 datasets: [
                     {
-                        label: "Commits",
-                        data: dashboardData.activityTrends.map((row) => row.commits),
+                        label: "Earn",
+                        data: dashboardData.rewardActivity.map((row) => row.earn),
                         borderColor: "rgba(59, 130, 246, 1)",
                         backgroundColor: "rgba(59, 130, 246, 0.2)",
                         fill: true,
                         tension: 0.3,
                     },
                     {
-                        label: "PRs & reviews",
-                        data: dashboardData.activityTrends.map((row) => row.prs),
+                        label: "Spend",
+                        data: dashboardData.rewardActivity.map((row) => row.spend),
                         borderColor: "rgba(16, 185, 129, 1)",
                         backgroundColor: "rgba(16, 185, 129, 0.2)",
                         fill: true,
                         tension: 0.3,
                     },
                     {
-                        label: "Issues",
-                        data: dashboardData.activityTrends.map((row) => row.issues),
+                        label: "Adjustments",
+                        data: dashboardData.rewardActivity.map((row) => row.adjustments),
                         borderColor: "rgba(245, 158, 11, 1)",
                         backgroundColor: "rgba(245, 158, 11, 0.2)",
                         fill: true,
@@ -373,8 +373,8 @@
                         backgroundColor: "rgba(59, 130, 246, 0.7)",
                     },
                     {
-                        label: "New repos",
-                        data: dashboardData.dailyStats.map((row) => row.repos),
+                        label: "New products",
+                        data: dashboardData.dailyStats.map((row) => row.products),
                         backgroundColor: "rgba(16, 185, 129, 0.7)",
                     },
                 ],

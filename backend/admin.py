@@ -3,7 +3,6 @@ from __future__ import annotations
 from datetime import date, datetime, time, timedelta, timezone
 from functools import lru_cache
 from pathlib import Path
-import logging
 
 from fastapi import FastAPI
 import jwt
@@ -31,9 +30,10 @@ from starlette_admin.views import CustomView, DropDown, Link
 
 from database import sync_engine
 import models
+from services.logger import AppLogger
 from settings import get_settings
 
-logger = logging.getLogger(__name__)
+logger = AppLogger.get_logger(__name__)
 
 _HEAVY_LIST_FIELDS = {
     "metadata_",
@@ -44,6 +44,28 @@ _HEAVY_LIST_FIELDS = {
     "scope_metadata",
 }
 _READONLY_EDIT_FIELDS = {"created_at", "updated_at"}
+
+_PRODUCT_TRAFFIC_FIELDS = [
+    "id",
+    "product_id",
+    "date",
+    "source",
+    "page_views",
+    "unique_visitors",
+    "sessions",
+    "visitors",
+    "created_at",
+]
+_SITE_TRAFFIC_FIELDS = [
+    "id",
+    "date",
+    "source",
+    "page_views",
+    "unique_visitors",
+    "sessions",
+    "visitors",
+    "created_at",
+]
 
 _MODEL_LIST_FIELDS: dict[type[models.SQLModel], list[str]] = {
     models.User: [
@@ -56,18 +78,277 @@ _MODEL_LIST_FIELDS: dict[type[models.SQLModel], list[str]] = {
         "status",
         "created_at",
     ],
+    models.MemberFeedback: [
+        "id",
+        "user_id",
+        "subject",
+        "status",
+        "rating",
+        "reward_eligible",
+        "created_at",
+    ],
+    models.Category: ["id", "name", "slug", "created_at"],
+    models.Plan: [
+        "id",
+        "name",
+        "slug",
+        "type",
+        "price",
+        "is_default",
+        "created_at",
+    ],
+    models.PlanFeature: ["id", "name", "key", "created_at"],
+    models.PlanFeatureAssignment: [
+        "id",
+        "plan_id",
+        "feature_id",
+        "enabled",
+        "is_experimental",
+        "created_at",
+    ],
+    models.UserPlanPurchase: [
+        "id",
+        "user_id",
+        "plan_id",
+        "external_id",
+        "created_at",
+    ],
+    models.Product: [
+        "id",
+        "name",
+        "slug",
+        "user_id",
+        "category_id",
+        "status",
+        "published_at",
+        "created_at",
+    ],
+    models.ProductMetadata: ["id", "product_id", "github_url", "created_at"],
+    models.ProductAnalytics: ["id", "product_id", "upvotes", "created_at"],
+    models.ProductMedia: ["id", "product_id", "image_url", "created_at"],
+    models.ProductVerification: [
+        "id",
+        "product_id",
+        "is_verified",
+        "verified_at",
+        "created_at",
+    ],
+    models.ProductClaimAttempt: [
+        "id",
+        "product_id",
+        "user_id",
+        "method",
+        "status",
+        "created_at",
+    ],
+    models.ProductBadge: [
+        "id",
+        "product_id",
+        "badge",
+        "expires_at",
+        "created_at",
+    ],
+    models.ProductUpvote: ["id", "product_id", "user_id", "created_at"],
+    models.AlternativeProduct: ["id", "name", "slug", "website_url", "created_at"],
+    models.UseCase: ["id", "label", "slug", "created_at"],
+    models.LeaderboardRun: [
+        "id",
+        "period_start",
+        "period_end",
+        "status",
+        "created_at",
+    ],
+    models.ProductLeaderboardScore: [
+        "id",
+        "run_id",
+        "product_id",
+        "score",
+        "rank",
+        "created_at",
+    ],
+    models.MonthlyLeaderboardNotification: ["id", "month", "created_at"],
+    models.AnalyticsIngestionRun: [
+        "id",
+        "source",
+        "job",
+        "status",
+        "window_start",
+        "window_end",
+        "started_at",
+        "finished_at",
+        "created_at",
+    ],
+    models.ProductTrafficDaily: _PRODUCT_TRAFFIC_FIELDS,
+    models.ProductTrafficReferrerDaily: _PRODUCT_TRAFFIC_FIELDS
+    + ["referrer", "page_views"],
+    models.ProductTrafficChannelDaily: _PRODUCT_TRAFFIC_FIELDS
+    + ["channel", "page_views"],
+    models.ProductTrafficBrowserDaily: _PRODUCT_TRAFFIC_FIELDS
+    + ["browser", "page_views"],
+    models.ProductTrafficOperatingSystemDaily: _PRODUCT_TRAFFIC_FIELDS
+    + ["operating_system", "page_views"],
+    models.ProductTrafficDeviceDaily: _PRODUCT_TRAFFIC_FIELDS
+    + ["device", "page_views"],
+    models.ProductTrafficCountryDaily: _PRODUCT_TRAFFIC_FIELDS
+    + ["country", "country_code", "page_views"],
+    models.ProductTrafficCityDaily: _PRODUCT_TRAFFIC_FIELDS
+    + ["city", "region", "country", "page_views"],
+    models.SiteTrafficDaily: _SITE_TRAFFIC_FIELDS,
+    models.SiteTrafficReferrerDaily: _SITE_TRAFFIC_FIELDS
+    + ["referrer", "page_views"],
+    models.SiteTrafficBrowserDaily: _SITE_TRAFFIC_FIELDS + ["browser", "page_views"],
+    models.SiteTrafficOperatingSystemDaily: _SITE_TRAFFIC_FIELDS
+    + ["operating_system", "page_views"],
+    models.SiteTrafficDeviceDaily: _SITE_TRAFFIC_FIELDS + ["device", "page_views"],
+    models.SiteTrafficCountryDaily: _SITE_TRAFFIC_FIELDS
+    + ["country", "country_code", "page_views"],
+    models.SiteTrafficRegionDaily: _SITE_TRAFFIC_FIELDS
+    + ["region", "country", "country_code", "page_views"],
+    models.SiteTrafficCityDaily: _SITE_TRAFFIC_FIELDS
+    + ["city", "region", "country", "page_views"],
+    models.PaymentConnector: [
+        "id",
+        "product_id",
+        "provider",
+        "status",
+        "verified_at",
+        "created_at",
+    ],
+    models.PaymentConnectorCredential: [
+        "id",
+        "connector_id",
+        "status",
+        "created_at",
+    ],
+    models.PaymentRevenueSnapshot: [
+        "id",
+        "connector_id",
+        "currency_code",
+        "period_start",
+        "period_revenue_cents",
+        "created_at",
+    ],
+    models.RewardRule: [
+        "id",
+        "key",
+        "name",
+        "category",
+        "base_reward_amount",
+        "is_active",
+        "created_at",
+    ],
+    models.RewardCatalogItem: [
+        "id",
+        "feature_key",
+        "name",
+        "category",
+        "base_cost",
+        "is_active",
+        "created_at",
+    ],
+    models.RewardTransaction: [
+        "id",
+        "user_id",
+        "type",
+        "reward_amount",
+        "balance_after",
+        "created_at",
+    ],
+    models.RewardBalance: [
+        "user_id",
+        "balance",
+        "lifetime_earned",
+        "lifetime_spent",
+        "updated_at",
+    ],
+    models.Redemption: [
+        "id",
+        "user_id",
+        "feature_key",
+        "status",
+        "cost",
+        "starts_at",
+        "created_at",
+    ],
+    models.FeatureEntitlement: [
+        "id",
+        "user_id",
+        "feature_key",
+        "status",
+        "starts_at",
+        "created_at",
+    ],
+    models.PlacementSchedule: [
+        "id",
+        "product_id",
+        "feature_key",
+        "slot_key",
+        "status",
+        "starts_at",
+        "ends_at",
+        "created_at",
+    ],
+    models.EventEnvelope: [
+        "id",
+        "event",
+        "status",
+        "queue",
+        "attempts",
+        "enqueued_at",
+        "processed_at",
+    ],
+    models.EventAttempt: [
+        "id",
+        "envelope_id",
+        "handler",
+        "status",
+        "duration_ms",
+        "created_at",
+    ],
 }
 
 _MODEL_VIEW_OPTIONS: dict[type[models.SQLModel], dict[str, str]] = {
     models.User: {"icon": "fa-solid fa-user"},
+    models.MemberFeedback: {"icon": "fa-solid fa-comment"},
+    models.Category: {"icon": "fa-solid fa-tag"},
+    models.Plan: {"icon": "fa-solid fa-ticket"},
+    models.PlanFeature: {"icon": "fa-solid fa-puzzle-piece"},
+    models.PlanFeatureAssignment: {"icon": "fa-solid fa-sliders"},
+    models.UserPlanPurchase: {"icon": "fa-solid fa-receipt"},
+    models.Product: {"icon": "fa-solid fa-box"},
+    models.ProductMetadata: {"icon": "fa-solid fa-file-lines"},
+    models.ProductAnalytics: {"icon": "fa-solid fa-chart-line"},
+    models.ProductMedia: {"icon": "fa-solid fa-image"},
+    models.ProductVerification: {"icon": "fa-solid fa-shield"},
+    models.ProductClaimAttempt: {"icon": "fa-solid fa-key"},
+    models.ProductBadge: {"icon": "fa-solid fa-award"},
+    models.ProductUpvote: {"icon": "fa-solid fa-thumbs-up"},
+    models.AlternativeProduct: {"icon": "fa-solid fa-layer-group"},
+    models.UseCase: {"icon": "fa-solid fa-lightbulb"},
+    models.LeaderboardRun: {"icon": "fa-solid fa-trophy"},
+    models.ProductLeaderboardScore: {"icon": "fa-solid fa-ranking-star"},
+    models.MonthlyLeaderboardNotification: {"icon": "fa-solid fa-calendar"},
+    models.AnalyticsIngestionRun: {"icon": "fa-solid fa-rotate"},
+    models.PaymentConnector: {"icon": "fa-solid fa-credit-card"},
+    models.PaymentConnectorCredential: {"icon": "fa-solid fa-key"},
+    models.PaymentRevenueSnapshot: {"icon": "fa-solid fa-coins"},
+    models.RewardRule: {"icon": "fa-solid fa-gift"},
+    models.RewardCatalogItem: {"icon": "fa-solid fa-gift"},
+    models.RewardTransaction: {"icon": "fa-solid fa-coins"},
+    models.RewardBalance: {"icon": "fa-solid fa-wallet"},
+    models.Redemption: {"icon": "fa-solid fa-ticket"},
+    models.FeatureEntitlement: {"icon": "fa-solid fa-star"},
+    models.PlacementSchedule: {"icon": "fa-solid fa-calendar-check"},
+    models.EventEnvelope: {"icon": "fa-solid fa-envelope"},
+    models.EventAttempt: {"icon": "fa-solid fa-bolt"},
 }
 
 _DEFAULT_SCHEDULED_JOBS = (
-    "sync_fanout",
-    "task_worker",
-    "leaderboard_daily",
-    "leaderboard_weekly",
-    "leaderboard_monthly",
+    "analytics_sync",
+    "rewards_placements",
+    "rewards_backlinks",
+    "rewards_streak",
+    "leaderboard_refresh",
 )
 
 _CLERK_SESSION_COOKIES = ("__session", "__clerk_session", "__clerk_jwt", "__clerk_db_jwt")
@@ -313,237 +594,53 @@ class DashboardView(CustomView):
         chart_end = datetime.combine(
             chart_end_date + timedelta(days=1), time.min, tzinfo=timezone.utc
         )
+        task_window_start = now - timedelta(hours=24)
 
         stats = {
             "users": 0,
-            "provider_accounts": 0,
-            "provider_accounts_active": 0,
-            "provider_accounts_disconnected": 0,
-            "repos_total": 0,
-            "repos_private": 0,
-            "repos_archived": 0,
-            "activity_items": 0,
+            "products": 0,
+            "products_published": 0,
+            "products_archived": 0,
+            "redemptions": 0,
+            "redemptions_active": 0,
+            "reward_transactions": 0,
+            "reward_earn": 0,
+            "reward_spend": 0,
+            "payment_connectors": 0,
+            "payment_connectors_active": 0,
+            "payment_connectors_error": 0,
+            "verified_products": 0,
         }
         users_in_window = 0
         users_prev_window = 0
         users_today = 0
         users_week = 0
-        admins_total = 0
-        admins_in_window = 0
-        admins_prev_window = 0
-        admins_today = 0
+        products_in_window = 0
+        products_prev_window = 0
+        products_today = 0
+        products_week = 0
+        redemptions_in_window = 0
+        redemptions_prev_window = 0
+        redemptions_today = 0
+        redemptions_week = 0
+        reward_in_window = 0
+        reward_prev_window = 0
+        total_users_before_window = 0
+        total_products_before_window = 0
+        published_before_window = 0
+        verified_before_window = 0
+        connectors_before_window = 0
+        connectors_active_before_window = 0
+        reward_before_window = 0
 
-        daily_counts: dict[date, int] = {}
-        recent_daily_counts: dict[date, int] = {}
-
-        try:
-            with Session(sync_engine) as session:
-                stats["users"] = _count_value(
-                    session, select(func.count()).select_from(models.User)
-                )
-                users_in_window = _count_value(
-                    session,
-                    select(func.count())
-                    .select_from(models.User)
-                    .where(models.User.created_at >= window_start),
-                )
-                users_prev_window = _count_value(
-                    session,
-                    select(func.count())
-                    .select_from(models.User)
-                    .where(
-                        models.User.created_at >= prev_window_start,
-                        models.User.created_at < window_start,
-                    ),
-                )
-                today_start = datetime.combine(
-                    now.date(), time.min, tzinfo=timezone.utc
-                )
-                users_today = _count_value(
-                    session,
-                    select(func.count())
-                    .select_from(models.User)
-                    .where(models.User.created_at >= today_start),
-                )
-                week_start = now - timedelta(days=7)
-                users_week = _count_value(
-                    session,
-                    select(func.count())
-                    .select_from(models.User)
-                    .where(models.User.created_at >= week_start),
-                )
-                admins_total = _count_value(
-                    session,
-                    select(func.count())
-                    .select_from(models.User)
-                    .where(models.User.role == models.UserRole.ADMIN),
-                )
-                admins_in_window = _count_value(
-                    session,
-                    select(func.count())
-                    .select_from(models.User)
-                    .where(
-                        models.User.role == models.UserRole.ADMIN,
-                        models.User.created_at >= window_start,
-                    ),
-                )
-                admins_prev_window = _count_value(
-                    session,
-                    select(func.count())
-                    .select_from(models.User)
-                    .where(
-                        models.User.role == models.UserRole.ADMIN,
-                        models.User.created_at >= prev_window_start,
-                        models.User.created_at < window_start,
-                    ),
-                )
-                admins_today = _count_value(
-                    session,
-                    select(func.count())
-                    .select_from(models.User)
-                    .where(
-                        models.User.role == models.UserRole.ADMIN,
-                        models.User.created_at >= today_start,
-                    ),
-                )
-                daily_counts = _fetch_daily_counts(
-                    session,
-                    models.User,
-                    models.User.created_at,
-                    chart_start,
-                    chart_end,
-                )
-                recent_start = now.date() - timedelta(days=6)
-                recent_start_dt = datetime.combine(
-                    recent_start, time.min, tzinfo=timezone.utc
-                )
-                recent_end_dt = datetime.combine(
-                    now.date() + timedelta(days=1), time.min, tzinfo=timezone.utc
-                )
-                recent_daily_counts = _fetch_daily_counts(
-                    session,
-                    models.User,
-                    models.User.created_at,
-                    recent_start_dt,
-                    recent_end_dt,
-                )
-        except Exception:
-            logger.warning("Admin dashboard query failed; using defaults.", exc_info=True)
-
-        buckets = _build_buckets(
-            chart_start_date, chart_end_date, bucket_days=bucket_days
-        )
-
-        user_signups: list[dict[str, object]] = []
-        cumulative = 0
-        for bucket in buckets:
-            signups = _sum_daily_in_bucket(
-                daily_counts, bucket["start"], bucket["end"]
-            )
-            cumulative += signups
-            user_signups.append(
-                {
-                    "label": bucket["label"],
-                    "signups": signups,
-                    "cumulative": cumulative,
-                }
-            )
-
-        repo_growth = [
-            {
-                "label": bucket["label"],
-                "added": 0,
-                "archived": 0,
-                "net": 0,
-            }
-            for bucket in buckets
-        ]
-
-        activity_trends = [
-            {
-                "label": bucket["label"],
-                "commits": 0,
-                "prs": 0,
-                "issues": 0,
-            }
-            for bucket in buckets
-        ]
-
-        daily_stats: list[dict[str, object]] = []
-        recent_start = now.date() - timedelta(days=6)
-        for offset in range(7):
-            day = recent_start + timedelta(days=offset)
-            daily_stats.append(
-                {
-                    "label": day.strftime("%m/%d"),
-                    "users": int(recent_daily_counts.get(day, 0)),
-                    "repos": 0,
-                }
-            )
-
-        growth_metrics = [
-            {
-                "label": "Total Users",
-                "total": stats["users"],
-                "delta": users_in_window,
-                "percent_change": _percent_change(users_in_window, users_prev_window),
-                "subtitle": f"in {window_label.lower()}",
-                "detail": f"{users_today} today, {users_week} last 7d",
-                "icon": "fa-solid fa-users",
-            },
-            {
-                "label": "Provider Accounts",
-                "total": stats["provider_accounts"],
-                "delta": 0,
-                "percent_change": 0.0,
-                "subtitle": f"in {window_label.lower()}",
-                "detail": "0 active, 0 disconnected",
-                "icon": "fa-solid fa-link",
-            },
-            {
-                "label": "Repositories",
-                "total": stats["repos_total"],
-                "delta": 0,
-                "percent_change": 0.0,
-                "subtitle": f"in {window_label.lower()}",
-                "detail": "0 today, 0 last 7d",
-                "icon": "fa-solid fa-code-branch",
-            },
-            {
-                "label": "Activities",
-                "total": stats["activity_items"],
-                "delta": 0,
-                "percent_change": 0.0,
-                "subtitle": f"in {window_label.lower()}",
-                "detail": "0 today",
-                "icon": "fa-solid fa-bolt",
-            },
-        ]
-
-        admin_ratio = _safe_ratio(admins_total, stats["users"]) * 100
-        prev_admin_ratio = _safe_ratio(admins_prev_window, users_prev_window) * 100
-        system_metrics = [
-            {
-                "metric": "Admin share",
-                "current": admin_ratio,
-                "previous": prev_admin_ratio,
-                "change": _percent_change(admin_ratio, prev_admin_ratio),
-                "precision": 1,
-                "unit": "%",
-            },
-            {
-                "metric": "Signups / day",
-                "current": _safe_ratio(users_in_window, range_days),
-                "previous": _safe_ratio(users_prev_window, range_days),
-                "change": _percent_change(
-                    _safe_ratio(users_in_window, range_days),
-                    _safe_ratio(users_prev_window, range_days),
-                ),
-                "precision": 1,
-                "unit": "",
-            },
-        ]
-
+        user_daily: dict[date, int] = {}
+        product_daily: dict[date, int] = {}
+        product_archived_daily: dict[date, int] = {}
+        base_users = 0
+        base_products = 0
+        daily_user_counts: dict[date, int] = {}
+        daily_product_counts: dict[date, int] = {}
+        activity_daily_by_type: dict[date, dict[str, int]] = {}
         task_metrics = {
             "total_processed": 0,
             "success_rate": 0.0,
@@ -561,10 +658,639 @@ class DashboardView(CustomView):
             "running": 0,
         }
 
+        try:
+            with Session(sync_engine) as session:
+                stats["users"] = _count_value(
+                    session, select(func.count()).select_from(models.User)
+                )
+                stats["products"] = _count_value(
+                    session, select(func.count()).select_from(models.Product)
+                )
+                stats["products_published"] = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.Product)
+                    .where(models.Product.status == models.ProductStatus.PUBLISHED),
+                )
+                stats["products_archived"] = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.Product)
+                    .where(models.Product.status == models.ProductStatus.ARCHIVED),
+                )
+                stats["redemptions"] = _count_value(
+                    session, select(func.count()).select_from(models.Redemption)
+                )
+                stats["redemptions_active"] = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.Redemption)
+                    .where(models.Redemption.status == models.RedemptionStatus.ACTIVE),
+                )
+                stats["reward_transactions"] = _count_value(
+                    session, select(func.count()).select_from(models.RewardTransaction)
+                )
+                stats["reward_earn"] = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.RewardTransaction)
+                    .where(models.RewardTransaction.type == models.RewardTransactionType.EARN),
+                )
+                stats["reward_spend"] = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.RewardTransaction)
+                    .where(models.RewardTransaction.type == models.RewardTransactionType.SPEND),
+                )
+                stats["payment_connectors"] = _count_value(
+                    session, select(func.count()).select_from(models.PaymentConnector)
+                )
+                stats["payment_connectors_active"] = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.PaymentConnector)
+                    .where(
+                        models.PaymentConnector.status
+                        == models.PaymentConnectorStatus.ACTIVE
+                    ),
+                )
+                stats["payment_connectors_error"] = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.PaymentConnector)
+                    .where(
+                        models.PaymentConnector.status
+                        == models.PaymentConnectorStatus.ERROR
+                    ),
+                )
+                stats["verified_products"] = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.ProductVerification)
+                    .where(models.ProductVerification.is_verified.is_(True)),
+                )
+
+                users_in_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.User)
+                    .where(models.User.created_at >= window_start),
+                )
+                users_prev_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.User)
+                    .where(
+                        models.User.created_at >= prev_window_start,
+                        models.User.created_at < window_start,
+                    ),
+                )
+                today_start = datetime.combine(now.date(), time.min, tzinfo=timezone.utc)
+                week_start = now - timedelta(days=7)
+                users_today = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.User)
+                    .where(models.User.created_at >= today_start),
+                )
+                users_week = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.User)
+                    .where(models.User.created_at >= week_start),
+                )
+
+                products_in_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.Product)
+                    .where(models.Product.created_at >= window_start),
+                )
+                products_prev_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.Product)
+                    .where(
+                        models.Product.created_at >= prev_window_start,
+                        models.Product.created_at < window_start,
+                    ),
+                )
+                products_today = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.Product)
+                    .where(models.Product.created_at >= today_start),
+                )
+                products_week = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.Product)
+                    .where(models.Product.created_at >= week_start),
+                )
+
+                redemptions_in_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.Redemption)
+                    .where(models.Redemption.created_at >= window_start),
+                )
+                redemptions_prev_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.Redemption)
+                    .where(
+                        models.Redemption.created_at >= prev_window_start,
+                        models.Redemption.created_at < window_start,
+                    ),
+                )
+                redemptions_today = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.Redemption)
+                    .where(models.Redemption.created_at >= today_start),
+                )
+                redemptions_week = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.Redemption)
+                    .where(models.Redemption.created_at >= week_start),
+                )
+
+                reward_in_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.RewardTransaction)
+                    .where(models.RewardTransaction.created_at >= window_start),
+                )
+                reward_prev_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.RewardTransaction)
+                    .where(
+                        models.RewardTransaction.created_at >= prev_window_start,
+                        models.RewardTransaction.created_at < window_start,
+                    ),
+                )
+
+                total_users_before_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.User)
+                    .where(models.User.created_at < window_start),
+                )
+                total_products_before_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.Product)
+                    .where(models.Product.created_at < window_start),
+                )
+                published_before_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.Product)
+                    .where(
+                        models.Product.status == models.ProductStatus.PUBLISHED,
+                        models.Product.created_at < window_start,
+                    ),
+                )
+                verified_before_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.ProductVerification)
+                    .where(
+                        models.ProductVerification.is_verified.is_(True),
+                        models.ProductVerification.created_at < window_start,
+                    ),
+                )
+                connectors_before_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.PaymentConnector)
+                    .where(models.PaymentConnector.created_at < window_start),
+                )
+                connectors_active_before_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.PaymentConnector)
+                    .where(
+                        models.PaymentConnector.status
+                        == models.PaymentConnectorStatus.ACTIVE,
+                        models.PaymentConnector.created_at < window_start,
+                    ),
+                )
+                reward_before_window = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.RewardTransaction)
+                    .where(models.RewardTransaction.created_at < window_start),
+                )
+
+                user_daily = _fetch_daily_counts(
+                    session,
+                    models.User,
+                    models.User.created_at,
+                    chart_start,
+                    chart_end,
+                )
+                base_users = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.User)
+                    .where(models.User.created_at < chart_start),
+                )
+                product_daily = _fetch_daily_counts(
+                    session,
+                    models.Product,
+                    models.Product.created_at,
+                    chart_start,
+                    chart_end,
+                )
+                base_products = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.Product)
+                    .where(models.Product.created_at < chart_start),
+                )
+                product_archived_daily = _fetch_daily_counts(
+                    session,
+                    models.Product,
+                    models.Product.updated_at,
+                    chart_start,
+                    chart_end,
+                    filters=[models.Product.status == models.ProductStatus.ARCHIVED],
+                )
+
+                recent_start = now.date() - timedelta(days=6)
+                recent_start_dt = datetime.combine(
+                    recent_start, time.min, tzinfo=timezone.utc
+                )
+                recent_end_dt = datetime.combine(
+                    now.date() + timedelta(days=1), time.min, tzinfo=timezone.utc
+                )
+                daily_user_counts = _fetch_daily_counts(
+                    session,
+                    models.User,
+                    models.User.created_at,
+                    recent_start_dt,
+                    recent_end_dt,
+                )
+                daily_product_counts = _fetch_daily_counts(
+                    session,
+                    models.Product,
+                    models.Product.created_at,
+                    recent_start_dt,
+                    recent_end_dt,
+                )
+
+                activity_rows = session.exec(
+                    select(
+                        func.date(models.RewardTransaction.created_at),
+                        models.RewardTransaction.type,
+                        func.count(),
+                    )
+                    .where(
+                        models.RewardTransaction.created_at >= chart_start,
+                        models.RewardTransaction.created_at < chart_end,
+                    )
+                    .group_by(
+                        func.date(models.RewardTransaction.created_at),
+                        models.RewardTransaction.type,
+                    )
+                ).all()
+                type_map = {
+                    "earn": "earn",
+                    "spend": "spend",
+                    "adjustment": "adjustments",
+                    "refund": "adjustments",
+                }
+                for raw_date, transaction_type, count in activity_rows:
+                    bucket_date = _coerce_date(raw_date)
+                    normalized = _normalize_enum_value(transaction_type)
+                    category = type_map.get(normalized)
+                    if not category:
+                        continue
+                    activity_daily_by_type.setdefault(
+                        bucket_date,
+                        {"earn": 0, "spend": 0, "adjustments": 0},
+                    )[category] += int(count or 0)
+
+                completed_events = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.EventEnvelope)
+                    .where(
+                        models.EventEnvelope.status
+                        == models.EventEnvelopeStatus.COMPLETED,
+                        models.EventEnvelope.processed_at >= task_window_start,
+                    ),
+                )
+                failed_events = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.EventEnvelope)
+                    .where(
+                        models.EventEnvelope.status
+                        == models.EventEnvelopeStatus.DEAD_LETTER,
+                        models.EventEnvelope.updated_at >= task_window_start,
+                    ),
+                )
+                queued_events = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.EventEnvelope)
+                    .where(
+                        models.EventEnvelope.status.in_(
+                            [
+                                models.EventEnvelopeStatus.PENDING,
+                                models.EventEnvelopeStatus.RETRYING,
+                                models.EventEnvelopeStatus.PROCESSING,
+                            ]
+                        )
+                    ),
+                )
+                avg_attempt_duration = session.exec(
+                    select(func.avg(models.EventAttempt.duration_ms)).where(
+                        models.EventAttempt.created_at >= task_window_start
+                    )
+                ).one()
+                avg_duration_seconds = 0.0
+                if isinstance(avg_attempt_duration, tuple):
+                    avg_attempt_duration = avg_attempt_duration[0]
+                if avg_attempt_duration:
+                    avg_duration_seconds = float(avg_attempt_duration) / 1000
+                task_metrics = {
+                    "total_processed": completed_events,
+                    "success_rate": _safe_ratio(
+                        completed_events, completed_events + failed_events
+                    )
+                    * 100,
+                    "avg_duration": _format_duration(avg_duration_seconds),
+                    "queued_now": queued_events,
+                    "failed": failed_events,
+                }
+
+                recent_runs = session.exec(
+                    select(models.AnalyticsIngestionRun).where(
+                        models.AnalyticsIngestionRun.started_at >= task_window_start
+                    )
+                ).all()
+                run_total = len(recent_runs)
+                run_success = sum(
+                    1
+                    for run in recent_runs
+                    if run.status == models.AnalyticsIngestionStatus.COMPLETED
+                )
+                run_failed = sum(
+                    1
+                    for run in recent_runs
+                    if run.status == models.AnalyticsIngestionStatus.FAILED
+                )
+                run_running = sum(
+                    1
+                    for run in recent_runs
+                    if run.status == models.AnalyticsIngestionStatus.PROCESSING
+                )
+                run_durations = [
+                    (run.finished_at - run.started_at).total_seconds()
+                    for run in recent_runs
+                    if run.finished_at and run.started_at
+                ]
+                avg_run_duration = (
+                    sum(run_durations) / len(run_durations) if run_durations else 0
+                )
+                product_rows = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.ProductTrafficDaily)
+                    .where(models.ProductTrafficDaily.created_at >= task_window_start),
+                )
+                site_rows = _count_value(
+                    session,
+                    select(func.count())
+                    .select_from(models.SiteTrafficDaily)
+                    .where(models.SiteTrafficDaily.created_at >= task_window_start),
+                )
+                total_items = product_rows + site_rows
+                sync_metrics = {
+                    "total_runs": run_total,
+                    "avg_items_per_run": _safe_ratio(total_items, run_total),
+                    "total_items_synced": total_items,
+                    "avg_duration": _format_duration(avg_run_duration),
+                    "success": run_success,
+                    "failed": run_failed,
+                    "running": run_running,
+                }
+        except Exception:
+            logger.warning("Admin dashboard query failed; using defaults.", exc_info=True)
+
+        buckets = _build_buckets(
+            chart_start_date, chart_end_date, bucket_days=bucket_days
+        )
+
+        user_signups: list[dict[str, object]] = []
+        cumulative_users = base_users
+        for bucket in buckets:
+            signups = _sum_daily_in_bucket(user_daily, bucket["start"], bucket["end"])
+            cumulative_users += signups
+            user_signups.append(
+                {
+                    "label": bucket["label"],
+                    "signups": signups,
+                    "cumulative": cumulative_users,
+                }
+            )
+
+        product_growth = []
+        cumulative_products = base_products
+        for bucket in buckets:
+            added = _sum_daily_in_bucket(
+                product_daily, bucket["start"], bucket["end"]
+            )
+            archived = _sum_daily_in_bucket(
+                product_archived_daily, bucket["start"], bucket["end"]
+            )
+            net = added - archived
+            cumulative_products += net
+            product_growth.append(
+                {
+                    "label": bucket["label"],
+                    "added": added,
+                    "archived": archived,
+                    "net": net,
+                    "cumulative": cumulative_products,
+                }
+            )
+
+        reward_activity = []
+        for bucket in buckets:
+            earn = 0
+            spend = 0
+            adjustments = 0
+            current_date = bucket["start"]
+            end_date = bucket["end"]
+            while current_date < end_date:
+                counts = activity_daily_by_type.get(current_date, {})
+                earn += counts.get("earn", 0)
+                spend += counts.get("spend", 0)
+                adjustments += counts.get("adjustments", 0)
+                current_date += timedelta(days=1)
+            reward_activity.append(
+                {
+                    "label": bucket["label"],
+                    "earn": earn,
+                    "spend": spend,
+                    "adjustments": adjustments,
+                    "total": earn + spend + adjustments,
+                }
+            )
+
+        daily_stats: list[dict[str, object]] = []
+        recent_start = now.date() - timedelta(days=6)
+        for offset in range(7):
+            day = recent_start + timedelta(days=offset)
+            daily_stats.append(
+                {
+                    "label": day.strftime("%m/%d"),
+                    "users": int(daily_user_counts.get(day, 0)),
+                    "products": int(daily_product_counts.get(day, 0)),
+                }
+            )
+
+        growth_metrics = [
+            {
+                "label": "Total Users",
+                "total": stats["users"],
+                "delta": users_in_window,
+                "percent_change": _percent_change(users_in_window, users_prev_window),
+                "subtitle": f"in {window_label.lower()}",
+                "detail": f"{users_today} today, {users_week} last 7d",
+                "icon": "fa-solid fa-users",
+            },
+            {
+                "label": "Products",
+                "total": stats["products"],
+                "delta": products_in_window,
+                "percent_change": _percent_change(
+                    products_in_window, products_prev_window
+                ),
+                "subtitle": f"in {window_label.lower()}",
+                "detail": (
+                    f"{stats['products_published']} published, "
+                    f"{stats['products_archived']} archived"
+                ),
+                "icon": "fa-solid fa-box",
+            },
+            {
+                "label": "Redemptions",
+                "total": stats["redemptions"],
+                "delta": redemptions_in_window,
+                "percent_change": _percent_change(
+                    redemptions_in_window, redemptions_prev_window
+                ),
+                "subtitle": f"in {window_label.lower()}",
+                "detail": (
+                    f"{stats['redemptions_active']} active, "
+                    f"{redemptions_today} today"
+                ),
+                "icon": "fa-solid fa-ticket",
+            },
+            {
+                "label": "Reward transactions",
+                "total": stats["reward_transactions"],
+                "delta": reward_in_window,
+                "percent_change": _percent_change(reward_in_window, reward_prev_window),
+                "subtitle": f"in {window_label.lower()}",
+                "detail": (
+                    f"{stats['reward_earn']} earn, "
+                    f"{stats['reward_spend']} spend"
+                ),
+                "icon": "fa-solid fa-coins",
+            },
+        ]
+
+        system_metrics = [
+            {
+                "metric": "Published product rate",
+                "current": _safe_ratio(
+                    stats["products_published"], stats["products"]
+                )
+                * 100,
+                "previous": _safe_ratio(
+                    published_before_window, total_products_before_window
+                )
+                * 100,
+                "change": _percent_change(
+                    _safe_ratio(stats["products_published"], stats["products"]) * 100,
+                    _safe_ratio(
+                        published_before_window, total_products_before_window
+                    )
+                    * 100,
+                ),
+                "precision": 1,
+                "unit": "%",
+            },
+            {
+                "metric": "Verified product rate",
+                "current": _safe_ratio(
+                    stats["verified_products"], stats["products"]
+                )
+                * 100,
+                "previous": _safe_ratio(
+                    verified_before_window, total_products_before_window
+                )
+                * 100,
+                "change": _percent_change(
+                    _safe_ratio(stats["verified_products"], stats["products"]) * 100,
+                    _safe_ratio(
+                        verified_before_window, total_products_before_window
+                    )
+                    * 100,
+                ),
+                "precision": 1,
+                "unit": "%",
+            },
+            {
+                "metric": "Active connector rate",
+                "current": _safe_ratio(
+                    stats["payment_connectors_active"],
+                    stats["payment_connectors"],
+                )
+                * 100,
+                "previous": _safe_ratio(
+                    connectors_active_before_window, connectors_before_window
+                )
+                * 100,
+                "change": _percent_change(
+                    _safe_ratio(
+                        stats["payment_connectors_active"],
+                        stats["payment_connectors"],
+                    )
+                    * 100,
+                    _safe_ratio(
+                        connectors_active_before_window, connectors_before_window
+                    )
+                    * 100,
+                ),
+                "precision": 1,
+                "unit": "%",
+            },
+            {
+                "metric": "Rewards per user",
+                "current": _safe_ratio(stats["reward_transactions"], stats["users"]),
+                "previous": _safe_ratio(reward_before_window, total_users_before_window),
+                "change": _percent_change(
+                    _safe_ratio(stats["reward_transactions"], stats["users"]),
+                    _safe_ratio(reward_before_window, total_users_before_window),
+                ),
+                "precision": 2,
+                "unit": "",
+            },
+        ]
+
         dashboard_data = {
             "userSignups": user_signups,
-            "repoGrowth": repo_growth,
-            "activityTrends": activity_trends,
+            "productGrowth": product_growth,
+            "rewardActivity": reward_activity,
             "dailyStats": daily_stats,
         }
 
@@ -579,8 +1305,8 @@ class DashboardView(CustomView):
                 "task_metrics": task_metrics,
                 "sync_metrics": sync_metrics,
                 "user_signups": user_signups,
-                "repo_growth": repo_growth,
-                "activity_trends": activity_trends,
+                "product_growth": product_growth,
+                "reward_activity": reward_activity,
                 "daily_stats": daily_stats,
                 "range_value": range_value,
                 "range_label": window_label,
@@ -942,7 +1668,74 @@ def configure_admin(app: FastAPI) -> None:
     def build_model_view(model: type[models.SQLModel]) -> SlimModelView:
         return SlimModelView(model, **_MODEL_VIEW_OPTIONS.get(model, {}))
 
-    user_view = build_model_view(models.User)
+    def build_views(*model_list: type[models.SQLModel]) -> list[SlimModelView]:
+        return [build_model_view(model) for model in model_list]
+
+    account_views = build_views(
+        models.User,
+        models.MemberFeedback,
+    )
+    catalog_views = build_views(
+        models.Category,
+        models.Plan,
+        models.PlanFeature,
+        models.PlanFeatureAssignment,
+        models.UseCase,
+        models.AlternativeProduct,
+    )
+    product_views = build_views(
+        models.Product,
+        models.ProductMetadata,
+        models.ProductMedia,
+        models.ProductVerification,
+        models.ProductClaimAttempt,
+        models.ProductBadge,
+        models.ProductUpvote,
+    )
+    reward_views = build_views(
+        models.RewardRule,
+        models.RewardCatalogItem,
+        models.RewardBalance,
+        models.RewardTransaction,
+        models.Redemption,
+        models.FeatureEntitlement,
+        models.PlacementSchedule,
+    )
+    payment_views = build_views(
+        models.UserPlanPurchase,
+        models.PaymentConnector,
+        models.PaymentConnectorCredential,
+        models.PaymentRevenueSnapshot,
+    )
+    analytics_views = build_views(
+        models.ProductAnalytics,
+        models.AnalyticsIngestionRun,
+        models.ProductTrafficDaily,
+        models.ProductTrafficReferrerDaily,
+        models.ProductTrafficChannelDaily,
+        models.ProductTrafficBrowserDaily,
+        models.ProductTrafficOperatingSystemDaily,
+        models.ProductTrafficDeviceDaily,
+        models.ProductTrafficCountryDaily,
+        models.ProductTrafficCityDaily,
+        models.SiteTrafficDaily,
+        models.SiteTrafficReferrerDaily,
+        models.SiteTrafficBrowserDaily,
+        models.SiteTrafficOperatingSystemDaily,
+        models.SiteTrafficDeviceDaily,
+        models.SiteTrafficCountryDaily,
+        models.SiteTrafficRegionDaily,
+        models.SiteTrafficCityDaily,
+    )
+    leaderboard_views = build_views(
+        models.LeaderboardRun,
+        models.ProductLeaderboardScore,
+        models.MonthlyLeaderboardNotification,
+    )
+    event_views = build_views(
+        models.EventEnvelope,
+        models.EventAttempt,
+    )
 
     scheduler_view = CustomView(
         label="Scheduler",
@@ -957,7 +1750,56 @@ def configure_admin(app: FastAPI) -> None:
         DropDown(
             "Accounts",
             icon="fa-solid fa-users",
-            views=[user_view],
+            views=account_views,
+        )
+    )
+    admin.add_view(
+        DropDown(
+            "Catalog",
+            icon="fa-solid fa-tags",
+            views=catalog_views,
+        )
+    )
+    admin.add_view(
+        DropDown(
+            "Products",
+            icon="fa-solid fa-box",
+            views=product_views,
+        )
+    )
+    admin.add_view(
+        DropDown(
+            "Rewards",
+            icon="fa-solid fa-gift",
+            views=reward_views,
+        )
+    )
+    admin.add_view(
+        DropDown(
+            "Payments",
+            icon="fa-solid fa-credit-card",
+            views=payment_views,
+        )
+    )
+    admin.add_view(
+        DropDown(
+            "Analytics",
+            icon="fa-solid fa-chart-line",
+            views=analytics_views,
+        )
+    )
+    admin.add_view(
+        DropDown(
+            "Leaderboards",
+            icon="fa-solid fa-trophy",
+            views=leaderboard_views,
+        )
+    )
+    admin.add_view(
+        DropDown(
+            "Events",
+            icon="fa-solid fa-envelope",
+            views=event_views,
         )
     )
     admin.add_view(
