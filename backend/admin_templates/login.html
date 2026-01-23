@@ -1,0 +1,141 @@
+{% extends "layout.html" %}
+{% block header %}{% endblock %}
+{% block sidebar %}
+{% endblock %}
+{% block head_css %}
+    {{ super() }}
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        .page,
+        .page-wrapper,
+        .page-body,
+        .page-body > .container-fluid,
+        .page-body .row.row-deck.row-cards {
+            height: 100%;
+        }
+
+        .page-body,
+        .page-body > .container-fluid {
+            padding: 0;
+        }
+
+        .page-header {
+            display: none;
+        }
+
+        .page-body .row.row-deck.row-cards {
+            margin: 0;
+        }
+
+        .auth-shell {
+            height: 100%;
+            display: grid;
+            place-items: center;
+            padding: 1rem;
+        }
+
+        #clerk-error {
+            margin-top: 1rem;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="auth-shell">
+{% if admin_enabled %}
+    <div id="clerk-signin"></div>
+    <div id="clerk-error" class="text-danger text-center mt-3" style="display:none"></div>
+    <script async crossorigin="anonymous"
+            data-clerk-publishable-key="{{ clerk_publishable_key }}"
+            src="{{ clerk_js_url }}"></script>
+    <script type="text/javascript">
+        window.addEventListener("load", function () {
+            function showError(message) {
+                var el = document.getElementById("clerk-error");
+                if (!el) return;
+                el.textContent = message;
+                el.style.display = "block";
+            }
+
+            async function exchangeToken() {
+                if (!window.Clerk || !Clerk.session) {
+                    return;
+                }
+                var token = await Clerk.session.getToken();
+                if (!token) {
+                    return;
+                }
+                var response = await fetch("{{ admin_sso_exchange_url }}", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token: token })
+                });
+                if (response.ok) {
+                    window.location.href = "{{ admin_base_url }}";
+                } else {
+                    var message = "Access denied.";
+                    try {
+                        var data = await response.json();
+                        if (data && data.redirectUrl) {
+                            window.location.href = data.redirectUrl;
+                            return;
+                        }
+                        if (data && data.error && data.error.message) {
+                            message = data.error.message;
+                        }
+                    } catch (err) {
+                        // ignore parse errors
+                    }
+                    showError(message);
+                }
+            }
+
+            function mountClerk() {
+                Clerk.load()
+                    .then(function () {
+                        if (Clerk.user) {
+                            exchangeToken();
+                            return;
+                        }
+                        var target = document.getElementById("clerk-signin");
+                        if (!target) {
+                            showError("Missing sign in container.");
+                            return;
+                        }
+                        var returnUrl = window.location.href;
+                        Clerk.mountSignIn(target, {
+                            redirectUrl: returnUrl,
+                            afterSignInUrl: returnUrl,
+                            afterSignUpUrl: returnUrl
+                        });
+                        Clerk.addListener(function (state) {
+                            if (state && state.user && state.session) {
+                                exchangeToken();
+                            }
+                        });
+                    })
+                    .catch(function () {
+                        showError("Unable to load sign in.");
+                    });
+            }
+
+            if (window.Clerk) {
+                mountClerk();
+            } else {
+                showError("Clerk failed to load.");
+            }
+        });
+    </script>
+{% else %}
+    <div class="card card-md">
+        <div class="card-body text-center text-muted">
+            {{ _("SSO login is not configured.") }}
+        </div>
+    </div>
+{% endif %}
+    </div>
+{% endblock %}

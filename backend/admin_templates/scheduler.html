@@ -1,0 +1,159 @@
+{% extends "layout.html" %}
+{% block header %}
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="d-flex align-items-center gap-2">
+            <i class="fa-solid fa-bolt"></i>
+            <span>Scheduler</span>
+        </h1>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{{ url_for(__name__ ~ ':index') }}">{{ _("Admin") }}</a>
+            </li>
+            <li class="breadcrumb-item active">Scheduler</li>
+        </ol>
+    </div>
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row row-deck">
+            <div class="col-12 col-xl-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Trigger scheduled jobs</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="alertContainer" class="mb-3"></div>
+                        <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+                            <label class="form-selectgroup-item flex-fill">
+                                <input class="form-selectgroup-input scheduler-job"
+                                       type="checkbox"
+                                       data-job="sync_fanout">
+                                <div class="form-selectgroup-label d-flex align-items-center p-3">
+                                    <span class="me-2">
+                                        <i class="fa-solid fa-rotate"></i>
+                                    </span>
+                                    <div>
+                                        <div class="fw-bold">Sync fanout</div>
+                                        <div class="text-muted small">
+                                            Queue provider syncs for all users.
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="form-selectgroup-item flex-fill mt-2">
+                                <input class="form-selectgroup-input scheduler-job"
+                                       type="checkbox"
+                                       data-job="task_worker">
+                                <div class="form-selectgroup-label d-flex align-items-center p-3">
+                                    <span class="me-2">
+                                        <i class="fa-solid fa-gears"></i>
+                                    </span>
+                                    <div>
+                                        <div class="fw-bold">Task worker</div>
+                                        <div class="text-muted small">
+                                            Process queued tasks immediately.
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="form-selectgroup-item flex-fill mt-2">
+                                <input class="form-selectgroup-input scheduler-job"
+                                       type="checkbox"
+                                       data-job="leaderboard_daily">
+                                <div class="form-selectgroup-label d-flex align-items-center p-3">
+                                    <span class="me-2">
+                                        <i class="fa-solid fa-calendar-day"></i>
+                                    </span>
+                                    <div>
+                                        <div class="fw-bold">Leaderboard daily</div>
+                                        <div class="text-muted small">
+                                            Refresh daily leaderboard entries.
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="form-selectgroup-item flex-fill mt-2">
+                                <input class="form-selectgroup-input scheduler-job"
+                                       type="checkbox"
+                                       data-job="leaderboard_weekly">
+                                <div class="form-selectgroup-label d-flex align-items-center p-3">
+                                    <span class="me-2">
+                                        <i class="fa-solid fa-calendar-week"></i>
+                                    </span>
+                                    <div>
+                                        <div class="fw-bold">Leaderboard weekly</div>
+                                        <div class="text-muted small">
+                                            Refresh weekly leaderboard entries.
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="form-selectgroup-item flex-fill mt-2">
+                                <input class="form-selectgroup-input scheduler-job"
+                                       type="checkbox"
+                                       data-job="leaderboard_monthly">
+                                <div class="form-selectgroup-label d-flex align-items-center p-3">
+                                    <span class="me-2">
+                                        <i class="fa-solid fa-calendar"></i>
+                                    </span>
+                                    <div>
+                                        <div class="fw-bold">Leaderboard monthly</div>
+                                        <div class="text-muted small">
+                                            Refresh monthly leaderboard entries.
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="mt-4 d-flex flex-wrap gap-2">
+                            <button id="scheduler-run-selected" class="btn btn-primary">
+                                <i class="fa-solid fa-bolt me-2"></i>
+                                Run selected
+                            </button>
+                            <button id="scheduler-run-all" class="btn btn-outline-primary">
+                                Run all
+                            </button>
+                            <button id="scheduler-clear" class="btn btn-ghost-secondary">
+                                Clear selection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-xl-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Notes</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled space-y">
+                            <li>
+                                <strong>Run selected</strong> executes only the checked jobs.
+                            </li>
+                            <li>
+                                <strong>Run all</strong> triggers every scheduled job in one request.
+                            </li>
+                            <li>
+                                <strong>Task worker</strong> processes queued work, including syncs and webhooks.
+                            </li>
+                        </ul>
+                        <p class="text-muted small mb-0">
+                            Jobs run in the background; refresh lists to see new entries.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    {{ super() }}
+    <script>
+        var schedulerRunUrl =
+          {{ url_for(__name__ ~ ':scheduler-run') | tojson | safe }};
+    </script>
+    <script type="text/javascript"
+            src="{{ url_for(__name__ ~ ':statics', path='js/alerts.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for(__name__ ~ ':statics', path='js/scheduler.js').include_query_params(v=1) }}"></script>
+{% endblock %}

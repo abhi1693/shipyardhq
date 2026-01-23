@@ -1,0 +1,389 @@
+{% extends "layout.html" %}
+{% block header %}
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <h1 class="mb-1">System Analytics</h1>
+            <div class="text-muted">
+                Growth metrics and aggregate insights.
+                {% if updated_at %}
+                    <span class="ms-2">Updated {{ updated_at }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <select id="dashboard-range" class="form-select">
+                <option value="7d" {% if range_value == "7d" %}selected{% endif %}>
+                    Last 7 days
+                </option>
+                <option value="30d" {% if range_value == "30d" %}selected{% endif %}>
+                    Last 30 days
+                </option>
+                <option value="90d" {% if range_value == "90d" %}selected{% endif %}>
+                    Last 90 days
+                </option>
+                <option value="1y" {% if range_value == "1y" %}selected{% endif %}>
+                    Last year
+                </option>
+            </select>
+        </div>
+    </div>
+{% endblock %}
+{% block head_css %}
+    {{ super() }}
+    <style>
+        .dashboard-chart {
+            height: 300px;
+            position: relative;
+        }
+
+        .dashboard-section {
+            margin-bottom: 1.75rem;
+        }
+
+        .dashboard-section:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row row-cards dashboard-section g-3">
+            {% for metric in growth_metrics %}
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card card-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="avatar bg-blue-lt text-blue">
+                                    <i class="{{ metric.icon }}"></i>
+                                </span>
+                                <span class="badge {% if metric.percent_change >= 0 %}bg-success-lt{% else %}bg-danger-lt{% endif %}">
+                                    <i class="fa-solid {% if metric.percent_change >= 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %} me-1"></i>
+                                    {{ metric.percent_change | round(1) }}%
+                                </span>
+                            </div>
+                            <div class="mt-3">
+                                <div class="subheader">{{ metric.label }}</div>
+                                <div class="h1 mb-0">{{ metric.total }}</div>
+                                <div class="text-muted small">
+                                    <span class="fw-bold">{{ metric.delta }}</span> {{ metric.subtitle }}
+                                </div>
+                                <div class="text-muted small">{{ metric.detail }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="row row-cards dashboard-section g-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">User signups</h3>
+                        <div class="card-actions text-muted small">{{ range_label }}</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="dashboard-chart">
+                            <canvas id="chart-users"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cards dashboard-section g-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Repository growth</h3>
+                        <div class="card-actions text-muted small">{{ range_label }}</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="dashboard-chart">
+                            <canvas id="chart-repos"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cards dashboard-section g-3">
+            <div class="col-12 col-xl-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Activity volume trends</h3>
+                        <div class="card-actions text-muted small">{{ range_label }}</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="dashboard-chart">
+                            <canvas id="chart-activity"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-xl-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Daily activity distribution</h3>
+                        <div class="card-actions text-muted small">Last 7 days</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="dashboard-chart">
+                            <canvas id="chart-daily"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cards dashboard-section g-3">
+            <div class="col-12 col-xl-7">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">System health ratios</h3>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for metric in system_metrics %}
+                            <div class="list-group-item">
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <div class="fw-bold">{{ metric.metric }}</div>
+                                        <div class="text-muted small">
+                                            Previous: {{ metric.previous | round(metric.precision) }}{{ metric.unit }}
+                                        </div>
+                                    </div>
+                                    <div class="ms-auto text-end">
+                                        <div class="h2 mb-0">
+                                            {{ metric.current | round(metric.precision) }}{{ metric.unit }}
+                                        </div>
+                                        <div class="text-muted small">
+                                            <span class="{% if metric.change >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                                {{ metric.change | round(1) }}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-xl-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Operations (24h)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="text-muted small">Task queue</span>
+                                <i class="fa-solid fa-bolt text-blue"></i>
+                            </div>
+                            <div class="h2 mb-0">{{ task_metrics.total_processed }}</div>
+                            <div class="text-muted small">
+                                {{ task_metrics.success_rate | round(1) }}% success,
+                                {{ task_metrics.failed }} failed,
+                                {{ task_metrics.queued_now }} queued
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="text-muted small">Sync runs</span>
+                                <i class="fa-solid fa-circle-check text-green"></i>
+                            </div>
+                            <div class="h2 mb-0">{{ sync_metrics.total_runs }}</div>
+                            <div class="text-muted small">
+                                {{ sync_metrics.success }} success,
+                                {{ sync_metrics.failed }} failed,
+                                {{ sync_metrics.running }} running
+                            </div>
+                            <div class="text-muted small">
+                                {{ sync_metrics.avg_items_per_run | round(1) }} items/run avg
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="text-muted small">Items synced</span>
+                                <i class="fa-solid fa-database text-purple"></i>
+                            </div>
+                            <div class="h2 mb-0">{{ sync_metrics.total_items_synced }}</div>
+                            <div class="text-muted small">
+                                {{ sync_metrics.avg_duration }} avg duration
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+{% block script %}
+    {{ super() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        const dashboardData = {{ dashboard_data | tojson | safe }};
+        const rangeSelect = document.getElementById("dashboard-range");
+        if (rangeSelect) {
+            rangeSelect.addEventListener("change", () => {
+                const params = new URLSearchParams(window.location.search);
+                params.set("range", rangeSelect.value);
+                window.location.search = params.toString();
+            });
+        }
+
+        function buildChart(ctx, config) {
+            if (!ctx) return null;
+            return new Chart(ctx, config);
+        }
+
+        function withTooltips(options) {
+            const next = { ...(options || {}) };
+            const interaction = { mode: "index", intersect: false, ...(next.interaction || {}) };
+            const plugins = { ...(next.plugins || {}) };
+            plugins.tooltip = { enabled: true, ...(plugins.tooltip || {}) };
+            next.interaction = interaction;
+            next.plugins = plugins;
+            return next;
+        }
+
+        const usersLabels = dashboardData.userSignups.map((row) => row.label);
+        buildChart(document.getElementById("chart-users"), {
+            data: {
+                labels: usersLabels,
+                datasets: [
+                    {
+                        type: "bar",
+                        label: "New signups",
+                        data: dashboardData.userSignups.map((row) => row.signups),
+                        backgroundColor: "rgba(16, 185, 129, 0.6)",
+                        borderColor: "rgba(16, 185, 129, 1)",
+                    },
+                    {
+                        type: "line",
+                        label: "Cumulative users",
+                        data: dashboardData.userSignups.map((row) => row.cumulative),
+                        borderColor: "rgba(59, 130, 246, 1)",
+                        backgroundColor: "rgba(59, 130, 246, 0.2)",
+                        fill: true,
+                        tension: 0.3,
+                        yAxisID: "y1",
+                    },
+                ],
+            },
+            options: withTooltips({
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true },
+                    y1: {
+                        beginAtZero: false,
+                        position: "right",
+                        grid: { drawOnChartArea: false },
+                    },
+                },
+            }),
+        });
+
+        buildChart(document.getElementById("chart-repos"), {
+            type: "line",
+            data: {
+                labels: dashboardData.repoGrowth.map((row) => row.label),
+                datasets: [
+                    {
+                        label: "Added",
+                        data: dashboardData.repoGrowth.map((row) => row.added),
+                        borderColor: "rgba(16, 185, 129, 1)",
+                        backgroundColor: "rgba(16, 185, 129, 0.15)",
+                        tension: 0.3,
+                    },
+                    {
+                        label: "Archived",
+                        data: dashboardData.repoGrowth.map((row) => row.archived),
+                        borderColor: "rgba(239, 68, 68, 1)",
+                        backgroundColor: "rgba(239, 68, 68, 0.15)",
+                        tension: 0.3,
+                    },
+                    {
+                        label: "Net growth",
+                        data: dashboardData.repoGrowth.map((row) => row.net),
+                        borderColor: "rgba(59, 130, 246, 1)",
+                        backgroundColor: "rgba(59, 130, 246, 0.15)",
+                        borderWidth: 2,
+                        tension: 0.3,
+                    },
+                ],
+            },
+            options: withTooltips({
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } },
+            }),
+        });
+
+        buildChart(document.getElementById("chart-activity"), {
+            type: "line",
+            data: {
+                labels: dashboardData.activityTrends.map((row) => row.label),
+                datasets: [
+                    {
+                        label: "Commits",
+                        data: dashboardData.activityTrends.map((row) => row.commits),
+                        borderColor: "rgba(59, 130, 246, 1)",
+                        backgroundColor: "rgba(59, 130, 246, 0.2)",
+                        fill: true,
+                        tension: 0.3,
+                    },
+                    {
+                        label: "PRs & reviews",
+                        data: dashboardData.activityTrends.map((row) => row.prs),
+                        borderColor: "rgba(16, 185, 129, 1)",
+                        backgroundColor: "rgba(16, 185, 129, 0.2)",
+                        fill: true,
+                        tension: 0.3,
+                    },
+                    {
+                        label: "Issues",
+                        data: dashboardData.activityTrends.map((row) => row.issues),
+                        borderColor: "rgba(245, 158, 11, 1)",
+                        backgroundColor: "rgba(245, 158, 11, 0.2)",
+                        fill: true,
+                        tension: 0.3,
+                    },
+                ],
+            },
+            options: withTooltips({
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, stacked: true },
+                    x: { stacked: true },
+                },
+            }),
+        });
+
+        buildChart(document.getElementById("chart-daily"), {
+            type: "bar",
+            data: {
+                labels: dashboardData.dailyStats.map((row) => row.label),
+                datasets: [
+                    {
+                        label: "New users",
+                        data: dashboardData.dailyStats.map((row) => row.users),
+                        backgroundColor: "rgba(59, 130, 246, 0.7)",
+                    },
+                    {
+                        label: "New repos",
+                        data: dashboardData.dailyStats.map((row) => row.repos),
+                        backgroundColor: "rgba(16, 185, 129, 0.7)",
+                    },
+                ],
+            },
+            options: withTooltips({
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } },
+            }),
+        });
+    </script>
+{% endblock %}
