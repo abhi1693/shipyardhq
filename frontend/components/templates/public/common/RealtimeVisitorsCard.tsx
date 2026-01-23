@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 
 import { useVisibilityGate } from "@/hooks/use-visibility-gate"
+import { getRealtimeVisitorsApiV1PublicAnalyticsRealtimeGet } from "@/lib/generated/fastapi/public-homepage"
 import { cn } from "@/lib/utils"
 
 function formatNumber(value: number) {
@@ -32,12 +33,12 @@ export function RealtimeVisitorsCard({
       try {
         if (controller) controller.abort()
         controller = new AbortController()
-        const res = await fetch("/api/analytics/realtime", {
-          cache: "no-store",
-          signal: controller.signal,
-        })
-        if (!res.ok) return
-        const data = (await res.json()) as { visitors?: number }
+        const response = await getRealtimeVisitorsApiV1PublicAnalyticsRealtimeGet(
+          {
+            signal: controller.signal,
+          },
+        )
+        const data = response.data
         if (!canceled && typeof data?.visitors === "number") {
           setValue(data.visitors)
         }

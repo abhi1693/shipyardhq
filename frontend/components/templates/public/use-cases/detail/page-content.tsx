@@ -24,7 +24,7 @@ import {
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
 import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
-import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
+import { getHomepageFeedAllApiV1PublicHomepageFeedAllGet } from "@/lib/generated/fastapi/public-homepage"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { pluralize } from "@/lib/pluralize"
 import {
@@ -50,9 +50,11 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
   if (!data) notFound()
 
   const { useCase, categories, productCount } = data
-  const homepageFeedItems = await getHomepageFeedViewAll({
-    view: DEFAULT_HOMEPAGE_FEED_VIEW,
-  })
+  const homepageFeedResponse =
+    await getHomepageFeedAllApiV1PublicHomepageFeedAllGet({
+      view: DEFAULT_HOMEPAGE_FEED_VIEW,
+    })
+  const homepageFeedItems = homepageFeedResponse.data.items
   const categorySlugs = new Set(categories.map((c) => c.slug.toLowerCase()))
   const categoryNames = new Set(
     categories.map((c) => c.name?.toLowerCase()).filter(Boolean) as string[],

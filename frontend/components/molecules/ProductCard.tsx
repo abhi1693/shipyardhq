@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 
 import ProductFeedCard from "@/components/molecules/ProductFeedCard"
-import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { HomepageFeedItem } from "@/lib/generated/fastapi/schemas"
 import type { ProductCardVariant } from "@/types/product-card"
 import type { ProductInterestSignals } from "@/types/product-interest"
 export type { ProductCardVariant } from "@/types/product-card"

@@ -1,8 +1,10 @@
 import Link from "next/link"
 
-import { getFeaturedAlternatives } from "@/actions/public/alternatives/actions"
-import { getCategoryHighlights } from "@/actions/public/categories/actions"
-import { getUseCaseHighlights } from "@/actions/public/use-cases/actions"
+import {
+  getAlternativeHighlightsApiV1PublicAlternativesFeaturedGet,
+  getCategoryHighlightsApiV1PublicCategoriesHighlightsGet,
+  getUseCaseHighlightsApiV1PublicUseCasesHighlightsGet,
+} from "@/lib/generated/fastapi/public-homepage"
 import { Skeleton } from "@/components/atoms/skeleton"
 import {
   ALTERNATIVES_PATH,
@@ -35,11 +37,21 @@ const bulletClasses =
   "h-1.5 w-1.5 rounded-full bg-[color:var(--brand-1)] opacity-60 group-hover:opacity-100"
 
 export async function DirectoryHighlightsSidebar() {
-  const [categories, useCases, alternatives] = await Promise.all([
-    getCategoryHighlights(CATEGORY_PREVIEW_LIMIT),
-    getUseCaseHighlights(USE_CASE_PREVIEW_LIMIT),
-    getFeaturedAlternatives({ take: ALTERNATIVE_PREVIEW_LIMIT }),
-  ])
+  const [categoriesResponse, useCasesResponse, alternativesResponse] =
+    await Promise.all([
+      getCategoryHighlightsApiV1PublicCategoriesHighlightsGet({
+        limit: CATEGORY_PREVIEW_LIMIT,
+      }),
+      getUseCaseHighlightsApiV1PublicUseCasesHighlightsGet({
+        limit: USE_CASE_PREVIEW_LIMIT,
+      }),
+      getAlternativeHighlightsApiV1PublicAlternativesFeaturedGet({
+        limit: ALTERNATIVE_PREVIEW_LIMIT,
+      }),
+    ])
+  const categories = categoriesResponse.data
+  const useCases = useCasesResponse.data
+  const alternatives = alternativesResponse.data
   const hasAlternatives = alternatives.length > 0
 
   return (

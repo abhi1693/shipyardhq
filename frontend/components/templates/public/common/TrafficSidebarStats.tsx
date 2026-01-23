@@ -1,6 +1,6 @@
 import { BarChart2, Users } from "lucide-react"
 
-import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
+import { getLeaderboardStatsApiV1PublicLeaderboardStatsGet } from "@/lib/generated/fastapi/public-homepage"
 import { cn } from "@/lib/utils"
 import { TrafficSparkline, type SparklinePoint } from "./TrafficSparkline"
 import { RealtimeVisitorsCard } from "./RealtimeVisitorsCard"
@@ -79,7 +79,8 @@ export async function TrafficSidebarStats({
 }: {
   className?: string
 }) {
-  const stats = await getLeaderboardStats()
+  const response = await getLeaderboardStatsApiV1PublicLeaderboardStatsGet()
+  const stats = response.data
   const formatter = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",

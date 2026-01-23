@@ -7,7 +7,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/atoms/tooltip"
-import { getSponsoredProducts } from "@/actions/public/products/featured"
+import { getSponsoredProductsApiV1PublicProductsSponsoredGet } from "@/lib/generated/fastapi/public-homepage"
+import type { SponsoredPlacement } from "@/lib/generated/fastapi/schemas"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
@@ -19,7 +20,7 @@ const SPONSOR_SLOT_COUNT = 3
 const SPONSORED_SECTION_GLOW_CLASS =
   "border-amber-200/80 ring-1 ring-amber-200/40 shadow-[0_1px_2px_rgba(15,23,42,0.06),0_26px_80px_-60px_rgba(245,158,11,0.75)]"
 
-type SponsorPlacement = Awaited<ReturnType<typeof getSponsoredProducts>>[number]
+type SponsorPlacement = SponsoredPlacement
 
 type SponsorListItem =
   | {
@@ -192,7 +193,10 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
 
 const getCachedSponsorItems = cached(
   async () => {
-    const placements = await getSponsoredProducts(1000)
+    const response = await getSponsoredProductsApiV1PublicProductsSponsoredGet({
+      limit: 1000,
+    })
+    const placements = response.data
     return withPlaceholders(mapPlacementsToSponsors(placements))
   },
   "sponsored-products:section",

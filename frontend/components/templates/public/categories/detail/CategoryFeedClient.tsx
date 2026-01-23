@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
-import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { HomepageFeedItem } from "@/lib/generated/fastapi/schemas"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { getCategoryProductsPage } from "@/actions/public/categories/actions"
 

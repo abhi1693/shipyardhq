@@ -19,4 +19,5 @@ dependencies = [
     "psycopg[c,pool]>=3.3.2",
     "uvloop>=0.22.1",
     "httptools>=0.7.1",
+    "psycopg2>=2.9.11",
 ]

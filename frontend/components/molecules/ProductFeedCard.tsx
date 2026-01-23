@@ -13,7 +13,7 @@ import {
 } from "@/components/atoms/tooltip"
 import { ProductScore } from "@/components/molecules/ProductScore"
 import { ProductClickLink } from "@/components/molecules/ProductClickLink"
-import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { HomepageFeedItem } from "@/lib/generated/fastapi/schemas"
 import { cn } from "@/lib/utils"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import type { ProductCardVariant } from "@/types/product-card"

@@ -10,10 +10,8 @@ import {
   getKeywordTagBySlug,
   getKeywordTagProducts,
 } from "@/actions/public/tags/actions"
-import {
-  getHomepageFeedViewAll,
-  type HomepageFeedItem,
-} from "@/actions/public/homepage/feed"
+import { getHomepageFeedAllApiV1PublicHomepageFeedAllGet } from "@/lib/generated/fastapi/public-homepage"
+import type { HomepageFeedItem } from "@/lib/generated/fastapi/schemas"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
@@ -158,9 +156,11 @@ export default async function TagDetailPage({ params }: TagPageProps) {
   )
   const tagProductIdSet = new Set(tagProductItems.map((item) => item.id))
 
-  const homepageFeedItems = await getHomepageFeedViewAll({
-    view: DEFAULT_HOMEPAGE_FEED_VIEW,
-  })
+  const homepageFeedResponse =
+    await getHomepageFeedAllApiV1PublicHomepageFeedAllGet({
+      view: DEFAULT_HOMEPAGE_FEED_VIEW,
+    })
+  const homepageFeedItems = homepageFeedResponse.data.items
 
   const filteredHomepageItems = homepageFeedItems.filter((item) => {
     if (item.isSponsored) {

@@ -1,10 +1,11 @@
-import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
+import { getLeaderboardStatsApiV1PublicLeaderboardStatsGet } from "@/lib/generated/fastapi/public-homepage"
 import Hero from "@/components/organisms/directory/Hero"
 import HeroSkeleton from "@/components/organisms/directory/Hero.skeleton"
 import { PAYMENT_PROVIDERS } from "@/lib/paymentProviders"
 
 export async function HeroSection() {
-  const stats = await getLeaderboardStats()
+  const response = await getLeaderboardStatsApiV1PublicLeaderboardStatsGet()
+  const stats = response.data
 
   return (
     <Hero

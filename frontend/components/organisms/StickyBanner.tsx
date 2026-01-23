@@ -1,4 +1,4 @@
-import { getStickyBannerProducts } from "@/actions/public/products/featured"
+import { getStickyBannerProductsApiV1PublicProductsStickyBannerGet } from "@/lib/generated/fastapi/public-homepage"
 import { cached, TAGS } from "@/lib/cache"
 import { StickyBannerRotator } from "@/components/organisms/StickyBannerRotator"
 
@@ -8,7 +8,14 @@ interface StickyBannerProps {
 }
 
 const getCachedStickyBannerProducts = cached(
-  async (limit: number) => getStickyBannerProducts(limit),
+  async (limit: number) => {
+    const response = await getStickyBannerProductsApiV1PublicProductsStickyBannerGet(
+      {
+        limit,
+      },
+    )
+    return response.data
+  },
   "sticky-banner:product:v3",
   {
     ttl: 600,

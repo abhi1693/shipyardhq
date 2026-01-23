@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
+import { getHomepageFeedAllApiV1PublicHomepageFeedAllGet } from "@/lib/generated/fastapi/public-homepage"
 import { HOMEPAGE_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 import {
   DEFAULT_HOMEPAGE_FEED_VIEW,
@@ -19,10 +19,11 @@ interface HomepageFeedSectionProps {
 }
 
 export async function HomepageFeedSection({ view }: HomepageFeedSectionProps) {
-  const items = await getHomepageFeedViewAll({
+  const response = await getHomepageFeedAllApiV1PublicHomepageFeedAllGet({
     pageSize: HOMEPAGE_FEED_PAGE_SIZE,
     view,
   })
+  const items = response.data.items
 
   const viewCopy: Record<HomepageFeedView, string> = {
     new: "Fresh launches, published most recently.",

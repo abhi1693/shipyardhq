@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 
 import { useVisibilityGate } from "@/hooks/use-visibility-gate"
+import { getRealtimeVisitorsApiV1PublicAnalyticsRealtimeGet } from "@/lib/generated/fastapi/public-homepage"
 
 const formatter = new Intl.NumberFormat("en-US")
 
@@ -25,14 +26,15 @@ export function LiveVisitorsPill({
       try {
         if (controller) controller.abort()
         controller = new AbortController()
-        const res = await fetch("/api/analytics/realtime", {
-          cache: "no-store",
-          signal: controller.signal,
-        })
-        if (!res.ok) return
-        const data = (await res.json()) as { visitors?: number }
+        const response =
+          await getRealtimeVisitorsApiV1PublicAnalyticsRealtimeGet({
+            cache: "no-store",
+            signal: controller.signal,
+          })
+        const data = response.data
         if (aborted) return
         if (
+          data &&
           typeof data.visitors === "number" &&
           Number.isFinite(data.visitors)
         ) {

@@ -3,7 +3,7 @@
 import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { Prisma } from "@/lib/vendor/prisma/client"
-import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { HomepageFeedItem } from "@/lib/generated/fastapi/schemas"
 import type { ProductInterestSignals } from "@/types/product-interest"
 import {
   mapProductCardRecordToBase,
