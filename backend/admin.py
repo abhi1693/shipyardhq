@@ -48,10 +48,12 @@ _READONLY_EDIT_FIELDS = {"created_at", "updated_at"}
 _MODEL_LIST_FIELDS: dict[type[models.SQLModel], list[str]] = {
     models.User: [
         "id",
-        "handle",
-        "display_name",
+        "email",
+        "first_name",
+        "last_name",
         "clerk_id",
         "role",
+        "status",
         "created_at",
     ],
 }
@@ -69,6 +71,13 @@ _DEFAULT_SCHEDULED_JOBS = (
 )
 
 _CLERK_SESSION_COOKIES = ("__session", "__clerk_session", "__clerk_jwt", "__clerk_db_jwt")
+
+
+def _format_admin_label(user: models.User) -> str:
+    if user.email:
+        return user.email
+    name = " ".join(part for part in (user.first_name, user.last_name) if part)
+    return name or user.clerk_id
 
 
 def _noop_job(job_name: str) -> None:
@@ -705,7 +714,7 @@ class AdminAuthProvider(AuthProvider):
     ) -> Response:
         clerk_user = self._get_clerk_user(request)
         if clerk_user and clerk_user.role == models.UserRole.ADMIN:
-            label = clerk_user.handle or clerk_user.display_name or clerk_user.clerk_id
+            label = _format_admin_label(clerk_user)
             request.session.update(
                 {"admin_user_id": clerk_user.id, "admin_user_label": label}
             )
@@ -1003,7 +1012,7 @@ async def _admin_sso_login(request: Request) -> Response:
         return _error("User not found.")
     if user.role != models.UserRole.ADMIN:
         return _error("User is not an admin.")
-    label = user.handle or user.display_name or user.clerk_id
+    label = _format_admin_label(user)
     request.session.update({"admin_user_id": user.id, "admin_user_label": label})
 
     redirect_to = request.query_params.get("redirect")

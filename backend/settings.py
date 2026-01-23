@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     clerk_verify_iat: bool = True
     clerk_leeway: int = 0
     clerk_secret_key: str | None = None
+    identity_webhook_secret: str | None = None
+    identity_webhook_tolerance_seconds: int = 300
     admin_base_url: str = "/admin"
     admin_title: str = "ShipyardHQ Admin"
     admin_redirect_url: str | None = None

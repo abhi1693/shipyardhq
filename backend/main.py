@@ -12,6 +12,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from admin import configure_admin
 from routers.auth import router as auth_router
 from routers.health import router as health_router
+from routers.webhooks import router as identity_webhook_router
 from services.logger import AppLogger
 from services.migrations import run_migrations
 from services.version import APP_VERSION
@@ -153,3 +154,4 @@ if settings.cors_origins:
 
 app.include_router(health_router)
 app.include_router(auth_router)
+app.include_router(identity_webhook_router)
