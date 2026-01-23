@@ -122,11 +122,9 @@ class AppLogger:
         root.handlers.clear()
         root.addHandler(handler)
 
-        logging.getLogger("apscheduler").setLevel(logging.WARNING)
-        logging.getLogger("apscheduler.jobstores").setLevel(logging.WARNING)
-        logging.getLogger("apscheduler.scheduler").setLevel(logging.WARNING)
-        logging.getLogger("apscheduler.triggers").setLevel(logging.WARNING)
-        logging.getLogger("apscheduler.executors").setLevel(logging.ERROR)
+        logging.getLogger("rq").setLevel(logging.WARNING)
+        logging.getLogger("rq.worker").setLevel(logging.WARNING)
+        logging.getLogger("rq.cron").setLevel(logging.WARNING)
         logging.getLogger("github_sync").setLevel(logging.INFO)
         cls._configured = True
 

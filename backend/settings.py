@@ -26,6 +26,16 @@ class Settings(BaseSettings):
     admin_base_url: str = "/admin"
     admin_title: str = "ShipyardHQ Admin"
     admin_redirect_url: str | None = None
+    analytics_sync_interval_seconds: int = 86400
+    rewards_placements_interval_seconds: int = 300
+    rewards_backlinks_interval_seconds: int = 86400
+    rewards_streak_interval_seconds: int = 86400
+    leaderboard_refresh_interval_seconds: int = 3600
+    rq_job_result_ttl_seconds: int = 3600
+    rq_job_failure_ttl_seconds: int = 604800
+    rq_job_ttl_seconds: int = 86400
+    rq_registry_cleanup_interval_seconds: int = 3600
+    task_worker_lease_seconds: int = 3600
     cors_origins: list[str] | str | None = Field(default_factory=list)
     log_level: str = "INFO"
     log_format: str = "json"

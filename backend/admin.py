@@ -31,6 +31,13 @@ from starlette_admin.views import CustomView, DropDown, Link
 from database import sync_engine
 import models
 from services.logger import AppLogger
+from services.task_scheduler import (
+    rq_enqueue_analytics_sync,
+    rq_enqueue_leaderboard_refresh,
+    rq_enqueue_rewards_backlinks,
+    rq_enqueue_rewards_placements,
+    rq_enqueue_rewards_streak,
+)
 from settings import get_settings
 
 logger = AppLogger.get_logger(__name__)
@@ -361,12 +368,12 @@ def _format_admin_label(user: models.User) -> str:
     return name or user.clerk_id
 
 
-def _noop_job(job_name: str) -> None:
-    logger.warning("Scheduled job '%s' is not configured.", job_name)
-
-
 _SCHEDULED_JOB_HANDLERS = {
-    job: (lambda job_name=job: _noop_job(job_name)) for job in _DEFAULT_SCHEDULED_JOBS
+    "analytics_sync": rq_enqueue_analytics_sync,
+    "rewards_placements": rq_enqueue_rewards_placements,
+    "rewards_backlinks": rq_enqueue_rewards_backlinks,
+    "rewards_streak": rq_enqueue_rewards_streak,
+    "leaderboard_refresh": rq_enqueue_leaderboard_refresh,
 }
 
 
