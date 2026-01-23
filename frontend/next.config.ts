@@ -1,4 +1,10 @@
 import type { NextConfig } from "next"
+import {
+  FASTAPI_PROXY_PATH,
+  getFastApiProxyTarget,
+} from "./lib/fastapi-config"
+
+const fastApiProxyTarget = getFastApiProxyTarget()
 
 const nextConfig: NextConfig = {
   async redirects() {
@@ -34,6 +40,10 @@ const nextConfig: NextConfig = {
       {
         source: "/sitemap-tags-:index(\\d+).xml",
         destination: "/sitemap-tags/:index",
+      },
+      {
+        source: `${FASTAPI_PROXY_PATH}/:path*`,
+        destination: `${fastApiProxyTarget}/:path*`,
       },
     ]
   },
