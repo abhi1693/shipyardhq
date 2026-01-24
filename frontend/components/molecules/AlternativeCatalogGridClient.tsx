@@ -3,8 +3,8 @@
 import type { ReactNode } from "react"
 import { useCallback, useEffect, useRef, useState, useTransition } from "react"
 
-import type { AlternativeCatalogItem } from "@/actions/public/alternatives/actions"
-import { loadMoreAlternatives } from "@/actions/public/alternatives/loadMore"
+import type { AlternativeCatalogItem } from "@/lib/generated/fastapi/schemas"
+import { getAlternativeCatalogApiV1PublicAlternativesCatalogGet } from "@/lib/generated/fastapi/public-homepage"
 import { AlternativeCatalogCard } from "@/components/molecules/AlternativeCatalogCard"
 import { cn } from "@/lib/utils"
 
@@ -48,18 +48,19 @@ export function AlternativeCatalogGridClient({
 
     startTransition(async () => {
       try {
-        const result = await loadMoreAlternatives({
+        const response = await getAlternativeCatalogApiV1PublicAlternativesCatalogGet({
           page: nextPage,
-          query,
           pageSize,
+          q: query,
         })
+        const result = response.data
 
         if (result.items.length) {
           setItems((prev) => [...prev, ...result.items])
         }
 
         setHasMore(result.hasMore)
-        setNextPage((prev) => prev + 1)
+        setNextPage(result.nextPage ?? nextPage + 1)
       } catch (error) {
         console.error("Failed to load more alternatives", error)
         setHasMore(false)

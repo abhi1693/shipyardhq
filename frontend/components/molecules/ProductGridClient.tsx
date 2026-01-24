@@ -5,7 +5,7 @@ import { useCallback, useMemo } from "react"
 import ProductGrid from "@/components/molecules/ProductGrid"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { toProductCardItem as buildProductCardItem } from "@/lib/products/card-item"
-import { getProductFeedPage } from "@/actions/public/products/feedPage"
+import { getBrowseProductsApiV1PublicBrowseProductsGet } from "@/lib/generated/fastapi/public-homepage"
 
 type BrowseProduct = ProductCardBase
 
@@ -66,11 +66,18 @@ export default function ProductGridClient({
 
   const loadPage = useCallback(
     async (page: number) => {
-      const result = await getProductFeedPage({
-        kind: "browse",
+      const response = await getBrowseProductsApiV1PublicBrowseProductsGet({
         page,
-        ...normalizedSearch,
+        useCase: normalizedSearch.useCase,
+        category: normalizedSearch.category,
+        verified: normalizedSearch.verified,
+        sort: normalizedSearch.sort,
+        q: normalizedSearch.q,
+        platform: normalizedSearch.platform,
+        pricingModel: normalizedSearch.pricingModel,
+        productType: normalizedSearch.productType,
       })
+      const result = response.data
 
       return {
         items: result.items.map((item) => buildProductCardItem(item)),

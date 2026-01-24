@@ -10,14 +10,14 @@ import {
 } from "react"
 import Link from "next/link"
 
-import { getTagDirectoryPage } from "@/actions/public/tags/directory-page"
-import type { KeywordTagSummary } from "@/actions/public/tags/actions"
+import { getTagDirectoryApiV1PublicTagsDirectoryGet } from "@/lib/generated/fastapi/public-homepage"
+import type { TagSummary } from "@/lib/generated/fastapi/schemas"
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { cn } from "@/lib/utils"
 
 interface TagDirectoryListProps {
-  initialItems: KeywordTagSummary[]
+  initialItems: TagSummary[]
   initialHasMore: boolean
   pageSize: number
   totalTags: number
@@ -59,7 +59,7 @@ function formatUpdatedLabel(date: Date | string | null | undefined) {
   }
 }
 
-function TagDirectoryCard({ summary }: { summary: KeywordTagSummary }) {
+function TagDirectoryCard({ summary }: { summary: TagSummary }) {
   const label = useMemo(
     () => formatTagLabel(summary.canonical || summary.keyword),
     [summary.canonical, summary.keyword],
@@ -141,10 +141,11 @@ export function TagDirectoryList({
     startTransition(async () => {
       try {
         const nextPage = page
-        const result = await getTagDirectoryPage({
+        const response = await getTagDirectoryApiV1PublicTagsDirectoryGet({
           page: nextPage,
           pageSize,
         })
+        const result = response.data
 
         if (result.items.length) {
           setItems((prev) => [...prev, ...result.items])

@@ -1,9 +1,8 @@
-import {
-  ALTERNATIVE_CATALOG_PAGE_SIZE,
-  getAlternativeCatalogPage,
-  type AlternativeCatalogItem,
-} from "@/actions/public/alternatives/actions"
+import type { AlternativeCatalogItem } from "@/lib/generated/fastapi/schemas"
+import { getAlternativeCatalogApiV1PublicAlternativesCatalogGet } from "@/lib/generated/fastapi/public-homepage"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+
+const ALTERNATIVE_CATALOG_PAGE_SIZE = 18
 
 type AlternativesIndexPayload = {
   initialItems: AlternativeCatalogItem[]
@@ -13,15 +12,16 @@ type AlternativesIndexPayload = {
 
 export const getAlternativesIndexPayload = cached(
   async (): Promise<AlternativesIndexPayload> => {
-    const result = await getAlternativeCatalogPage({
+    const response = await getAlternativeCatalogApiV1PublicAlternativesCatalogGet({
       page: 1,
       pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
     })
+    const result = response.data
 
     return {
       initialItems: result.items,
       initialHasMore: result.hasMore,
-      pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
+      pageSize: result.pageSize,
     }
   },
   "alternative-products:index:payload",

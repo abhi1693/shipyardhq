@@ -124,3 +124,134 @@ class StickyBannerProduct(BaseSerializer):
     tagline: str | None = None
     latestRevenueCents: int | None = None
     revenueCurrencyCode: str | None = None
+
+
+class ProductCategorySummary(BaseSerializer):
+    name: str | None = None
+    slug: str | None = None
+
+
+class PublicProductCard(BaseSerializer):
+    id: str
+    slug: str
+    name: str
+    logo: str
+    tagline: str
+    category: ProductCategorySummary | None = None
+    badges: list[str] = []
+    sponsored: bool = False
+    isVerified: bool = False
+    createdAt: str | None = None
+    updatedAt: str | None = None
+    latestRevenueCents: int | None = None
+    revenueCurrencyCode: str | None = None
+    scoreCount: int | None = None
+    interest: ProductInterestSignals | None = None
+
+
+class CategorySummary(BaseSerializer):
+    id: str
+    name: str
+    slug: str
+    description: str | None = None
+    icon: str | None = None
+    count: int = 0
+
+
+class UseCaseSummary(BaseSerializer):
+    id: str
+    label: str
+    slug: str
+    productCount: int = 0
+
+
+class UseCaseMeta(BaseSerializer):
+    id: str
+    label: str
+    slug: str
+    createdAt: str
+    updatedAt: str
+    productCount: int = 0
+
+
+class BrowseFilters(BaseSerializer):
+    useCase: str | None = None
+    category: str | None = None
+    verified: bool = False
+    sort: str = HomepageFeedView.NEW.value
+    page: int = 1
+    pageSize: int = 20
+    query: str | None = None
+    platform: str | None = None
+    pricingModel: str | None = None
+    productType: str | None = None
+
+
+class BrowseProductsPageResult(BaseSerializer):
+    items: list[PublicProductCard]
+    hasMore: bool
+    page: int
+    pageSize: int
+    total: int
+
+
+class BrowsePagePayload(BaseSerializer):
+    filters: BrowseFilters
+    products: list[PublicProductCard]
+    hasMore: bool
+    total: int
+    useCases: list[UseCaseSummary]
+    categories: list[CategorySummary]
+    filterSummary: list[str]
+    hasActiveFilters: bool
+
+
+class CategoriesDirectoryPayload(BaseSerializer):
+    categories: list[CategorySummary]
+    highlightCategories: list[CategorySummary]
+    categoryCount: int
+    totalProducts: int
+    averagePerCategory: int
+
+
+class UseCasesDirectoryPayload(BaseSerializer):
+    useCases: list[UseCaseSummary]
+    highlightUseCases: list[UseCaseSummary]
+    useCaseCount: int
+    totalProducts: int
+    averagePerUseCase: int
+
+
+class TagSummary(BaseSerializer):
+    keyword: str
+    canonical: str
+    hash: str
+    slug: str
+    productCount: int
+    lastUpdated: str | None = None
+
+
+class TagDirectoryPageResult(BaseSerializer):
+    items: list[TagSummary]
+    hasMore: bool
+    total: int | None = None
+    page: int
+    pageSize: int
+
+
+class AlternativeCatalogItem(BaseSerializer):
+    id: str
+    name: str
+    slug: str
+    description: str
+    websiteUrl: str
+    logoUrl: str
+    productCount: int
+
+
+class AlternativeCatalogPageResult(BaseSerializer):
+    items: list[AlternativeCatalogItem]
+    hasMore: bool
+    nextPage: int | None = None
+    page: int
+    pageSize: int

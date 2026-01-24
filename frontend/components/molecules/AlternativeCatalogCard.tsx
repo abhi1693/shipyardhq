@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { cn } from "@/lib/utils"
-import type { AlternativeCatalogItem } from "@/actions/public/alternatives/actions"
+import type { AlternativeCatalogItem } from "@/lib/generated/fastapi/schemas"
 import { alternativePath } from "@/lib/routes"
 
 interface AlternativeCatalogCardProps {
@@ -13,7 +13,7 @@ export function AlternativeCatalogCard({
   alternative,
   className,
 }: AlternativeCatalogCardProps) {
-  const count = alternative._count.products
+  const count = alternative.productCount
   const countLabel = `${count.toLocaleString()} alternative${count === 1 ? "" : "s"}`
   const initials = getInitials(alternative.name)
   const websiteUrl = alternative.websiteUrl?.trim()

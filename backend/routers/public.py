@@ -1,17 +1,20 @@
 from __future__ import annotations
 
 from datetime import datetime, time, timedelta, timezone
+import hashlib
 import random
+import re
 from typing import Sequence
 
-from fastapi import APIRouter, Depends, Query, Request
-from sqlalchemy import and_, exists, func, or_, select
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from sqlalchemy import and_, exists, func, or_, select, text
 from sqlalchemy.orm import selectinload
 from sqlmodel.ext.asyncio.session import AsyncSession as Session
 
 from database import get_session
 from models import (
     AlternativeProduct,
+    AlternativeProductCategoryLink,
     Category,
     LeaderboardRun,
     PaymentConnector,
@@ -22,11 +25,16 @@ from models import (
     PlanFeatureAssignment,
     PlacementSchedule,
     PlacementStatus,
+    Platform,
     Product,
+    ProductAlternativeProductLink,
     ProductAnalytics,
     ProductLeaderboardScore,
     ProductStatus,
     ProductTrafficDaily,
+    PricingModel,
+    ProductType,
+    ProductVerification,
     SiteTrafficDaily,
     UseCase,
     UseCaseCategory,
@@ -36,20 +44,34 @@ from routers.base import api_prefix
 from services.cache import cached_json
 from services.schemas.public import (
     AlternativeHighlight,
+    AlternativeCatalogItem,
+    AlternativeCatalogPageResult,
+    BrowseFilters,
+    BrowsePagePayload,
+    BrowseProductsPageResult,
     CategoryHighlight,
+    CategorySummary,
+    CategoriesDirectoryPayload,
     HomepageFeedAllResult,
     HomepageFeedItem,
     HomepageFeedPageResult,
     HomepageFeedView,
     LeaderboardStats,
+    ProductCategorySummary,
     ProductInterestSignals,
+    PublicProductCard,
     RealtimeVisitors,
     SponsoredPlacement,
     SponsoredPlacementSchedule,
     SponsoredProduct,
     StickyBannerProduct,
+    TagDirectoryPageResult,
+    TagSummary,
     TrafficPoint,
     UseCaseHighlight,
+    UseCaseMeta,
+    UseCaseSummary,
+    UseCasesDirectoryPayload,
 )
 
 router = APIRouter(prefix=api_prefix("public"), tags=["public-homepage"])
@@ -71,16 +93,74 @@ STICKY_BANNER_FEATURE_KEY = "stickyBanner"
 DEFAULT_HIGHLIGHT_LIMIT = 6
 MAX_HIGHLIGHT_LIMIT = 12
 
+BROWSE_PAGE_SIZE = 20
+BROWSE_CACHE_TTL = 120
+
+CATEGORIES_CACHE_TTL = 600
+USE_CASES_CACHE_TTL = 600
+ALTERNATIVES_CACHE_TTL = 600
+TAGS_CACHE_TTL = 600
+
+CATEGORY_HIGHLIGHT_LIMIT = 4
+USE_CASE_HIGHLIGHT_LIMIT = 8
+
+ALTERNATIVE_CATALOG_PAGE_SIZE = 18
+ALTERNATIVE_CATALOG_MAX_PAGE_SIZE = 50
+
+TAG_DIRECTORY_DEFAULT_PAGE_SIZE = 36
+TAG_LIST_LIMIT = 200
+KEYWORD_SLUG_HASH_LENGTH = 6
+
+BROWSE_SORT_LABELS = {
+    "new": "Newest",
+    "trending": "Trending",
+    "votes": "Most Upvoted",
+    "az": "A–Z",
+}
+
+PLATFORM_SLUG_MAP = {
+    "web": Platform.WEB,
+    "ios": Platform.IOS,
+    "android": Platform.ANDROID,
+    "mac": Platform.MAC,
+    "windows": Platform.WINDOWS,
+    "linux": Platform.LINUX,
+    "chrome": Platform.CHROME_EXTENSION,
+}
+
+PRODUCT_TYPE_SLUG_MAP = {
+    "saas": ProductType.SAAS,
+    "browser-extension": ProductType.BROWSER_EXTENSION,
+    "mobile-app": ProductType.MOBILE_APP,
+    "desktop-app": ProductType.DESKTOP_APP,
+    "api": ProductType.API,
+    "open-source": ProductType.OPEN_SOURCE,
+    "other": ProductType.OTHER,
+}
+
+PRICING_MODEL_SLUG_MAP = {
+    "free": PricingModel.FREE,
+    "freemium": PricingModel.FREEMIUM,
+    "subscription": PricingModel.SUBSCRIPTION,
+    "one-time": PricingModel.ONE_TIME,
+    "custom": PricingModel.CUSTOM,
+}
+
 
 def _scalar_value(value: object) -> int:
     if value is None:
         return 0
     if isinstance(value, tuple):
         value = value[0] if value else 0
-    elif hasattr(value, "_mapping"):
+    else:
         mapping = getattr(value, "_mapping", None)
-        if mapping:
-            value = next(iter(mapping.values()), 0)
+        if mapping is not None:
+            value = next(iter(mapping.values()), 0) if mapping else 0
+        elif hasattr(value, "__getitem__"):
+            try:
+                value = value[0]
+            except (TypeError, IndexError, KeyError):
+                pass
     return int(value or 0)
 
 
@@ -128,6 +208,79 @@ def _normalize_view(value: str | None) -> str:
     }:
         return normalized
     return HomepageFeedView.NEW.value
+
+
+def _normalize_filter_slug(value: str | None) -> str | None:
+    if not value:
+        return None
+    normalized = value.strip()
+    if not normalized or normalized == "__all__":
+        return None
+    return normalized
+
+
+def _normalize_browse_sort(value: str | None) -> str:
+    if not value:
+        return "new"
+    normalized = value.strip().lower()
+    return normalized if normalized in BROWSE_SORT_LABELS else "new"
+
+
+def _normalize_query(value: str | None) -> str | None:
+    if not value:
+        return None
+    trimmed = value.strip()
+    return trimmed if trimmed else None
+
+
+def _parse_platform(value: str | None) -> Platform | None:
+    if not value:
+        return None
+    normalized = value.strip().lower()
+    if normalized in PLATFORM_SLUG_MAP:
+        return PLATFORM_SLUG_MAP[normalized]
+    try:
+        return Platform(normalized)
+    except ValueError:
+        return None
+
+
+def _parse_product_type(value: str | None) -> ProductType | None:
+    if not value:
+        return None
+    normalized = value.strip().lower().replace("_", "-")
+    if normalized in PRODUCT_TYPE_SLUG_MAP:
+        return PRODUCT_TYPE_SLUG_MAP[normalized]
+    try:
+        return ProductType(normalized)
+    except ValueError:
+        return None
+
+
+def _parse_pricing_model(value: str | None) -> PricingModel | None:
+    if not value:
+        return None
+    normalized = value.strip().lower().replace("_", "-")
+    if normalized in PRICING_MODEL_SLUG_MAP:
+        return PRICING_MODEL_SLUG_MAP[normalized]
+    try:
+        return PricingModel(normalized)
+    except ValueError:
+        return None
+
+
+def _pluralize(value: int, singular: str) -> str:
+    return singular if value == 1 else f"{singular}s"
+
+
+def _keyword_to_slug(keyword: str) -> str:
+    normalized = keyword.strip().lower()
+    if not normalized:
+        return ""
+    base = re.sub(r"[^a-z0-9]+", "-", normalized).strip("-")
+    digest = hashlib.md5(normalized.encode("utf-8")).hexdigest()
+    hash_suffix = digest[:KEYWORD_SLUG_HASH_LENGTH]
+    return f"{base}-{hash_suffix}" if base else hash_suffix
 
 
 def _utc_range_for_days(days: int, *, now: datetime | None = None) -> tuple[datetime, datetime]:
@@ -186,6 +339,93 @@ def _product_load_options():
     ]
 
 
+async def _fetch_category_summaries(session: Session) -> list[CategorySummary]:
+    stmt = (
+        select(
+            Category.id,
+            Category.name,
+            Category.slug,
+            Category.description,
+            Category.icon,
+            func.count(Product.id).label("product_count"),
+        )
+        .join(Product, Product.category_id == Category.id)
+        .where(Product.status == ProductStatus.PUBLISHED)
+        .group_by(Category.id)
+        .order_by(Category.name.asc())
+    )
+    rows = (await session.exec(stmt)).all()
+    summaries: list[CategorySummary] = []
+    for row in rows:
+        summaries.append(
+            CategorySummary(
+                id=str(row[0]),
+                name=row[1],
+                slug=row[2],
+                description=row[3],
+                icon=row[4],
+                count=int(row[5] or 0),
+            )
+        )
+    return summaries
+
+
+async def _fetch_use_case_counts(session: Session) -> dict[int, int]:
+    stmt = (
+        select(
+            UseCaseCategory.use_case_id,
+            func.count(Product.id).label("product_count"),
+        )
+        .join(Product, Product.category_id == UseCaseCategory.category_id)
+        .where(Product.status == ProductStatus.PUBLISHED)
+        .group_by(UseCaseCategory.use_case_id)
+    )
+    rows = (await session.exec(stmt)).all()
+    return {int(row[0]): int(row[1] or 0) for row in rows}
+
+
+async def _fetch_use_case_summaries(session: Session) -> list[UseCaseSummary]:
+    use_cases = (await session.exec(select(UseCase).order_by(UseCase.label.asc()))).scalars().all()
+    counts = await _fetch_use_case_counts(session)
+    return [
+        UseCaseSummary(
+            id=str(use_case.id),
+            label=use_case.label,
+            slug=use_case.slug,
+            productCount=counts.get(use_case.id, 0),
+        )
+        for use_case in use_cases
+    ]
+
+
+async def _resolve_browse_category_ids(
+    session: Session,
+    *,
+    use_case_slug: str | None,
+    category_slug: str | None,
+) -> list[int] | None:
+    if category_slug:
+        category_stmt = select(Category).where(Category.slug == category_slug)
+        category = (await session.exec(category_stmt)).scalars().one_or_none()
+        if not category:
+            return []
+        return [category.id]
+
+    if not use_case_slug:
+        return None
+
+    use_case_stmt = select(UseCase).where(UseCase.slug == use_case_slug)
+    use_case = (await session.exec(use_case_stmt)).scalars().one_or_none()
+    if not use_case:
+        return []
+
+    category_stmt = select(UseCaseCategory.category_id).where(
+        UseCaseCategory.use_case_id == use_case.id
+    )
+    rows = (await session.exec(category_stmt)).all()
+    return [int(row[0]) for row in rows]
+
+
 async def _fetch_score_map(
     session: Session, product_ids: Sequence[int]
 ) -> dict[int, int]:
@@ -204,7 +444,7 @@ async def _fetch_score_map(
             LeaderboardRun.period_end == period_end,
         )
     )
-    run = (await session.exec(run_stmt)).one_or_none()
+    run = (await session.exec(run_stmt)).scalars().one_or_none()
     if not run:
         return {}
 
@@ -214,7 +454,7 @@ async def _fetch_score_map(
             ProductLeaderboardScore.product_id.in_(product_ids),
         )
     )
-    rows = (await session.exec(score_stmt)).all()
+    rows = (await session.exec(score_stmt)).scalars().all()
     return {row.product_id: row.score or 0 for row in rows}
 
 
@@ -308,6 +548,229 @@ async def _fetch_interest_map(
         )
 
     return signals
+
+
+def _map_product_to_card(
+    product: Product,
+    *,
+    now: datetime,
+    score_map: dict[int, int],
+    interest_map: dict[int, ProductInterestSignals],
+) -> PublicProductCard:
+    badges = _resolve_product_badges(product, now)
+    is_sponsored = _is_sponsored(product)
+    revenue_cents, revenue_currency = _resolve_product_revenue(product.payment_connector)
+    interest = interest_map.get(product.id)
+
+    category = (
+        ProductCategorySummary(
+            name=product.category.name if product.category else None,
+            slug=product.category.slug if product.category else None,
+        )
+        if product.category
+        else None
+    )
+
+    return PublicProductCard(
+        id=str(product.id),
+        slug=product.slug,
+        name=product.name,
+        logo=product.logo,
+        tagline=product.tagline or "",
+        category=category,
+        badges=badges,
+        sponsored=is_sponsored,
+        isVerified=bool(product.verification and product.verification.is_verified),
+        createdAt=product.created_at.isoformat() if product.created_at else None,
+        updatedAt=product.updated_at.isoformat() if product.updated_at else None,
+        latestRevenueCents=revenue_cents,
+        revenueCurrencyCode=revenue_currency if revenue_cents is not None else None,
+        scoreCount=score_map.get(product.id),
+        interest=interest,
+    )
+
+
+async def _fetch_browse_products(
+    session: Session,
+    *,
+    use_case_slug: str | None,
+    category_slug: str | None,
+    verified: bool,
+    sort: str,
+    page: int,
+    page_size: int,
+    query: str | None,
+    platform: Platform | None,
+    pricing_model: PricingModel | None,
+    product_type: ProductType | None,
+) -> tuple[list[Product], bool, int]:
+    category_ids = await _resolve_browse_category_ids(
+        session, use_case_slug=use_case_slug, category_slug=category_slug
+    )
+
+    if category_ids is not None and not category_ids:
+        return [], False, 0
+
+    conditions = [Product.status == ProductStatus.PUBLISHED]
+
+    if category_ids:
+        conditions.append(Product.category_id.in_(category_ids))
+
+    if platform:
+        conditions.append(Product.platforms.any(platform))
+
+    if pricing_model:
+        conditions.append(Product.pricing_model == pricing_model)
+
+    if product_type:
+        conditions.append(Product.type == product_type)
+
+    if verified:
+        verified_exists = exists(
+            select(ProductVerification.id).where(
+                and_(
+                    ProductVerification.product_id == Product.id,
+                    ProductVerification.is_verified.is_(True),
+                )
+            )
+        )
+        conditions.append(verified_exists)
+
+    if query:
+        like = f"%{query}%"
+        tokens = [token for token in re.split(r"[\\s,]+", query) if token]
+        tokens_lower = [token.lower() for token in tokens]
+        keyword_values = {query, *tokens, *tokens_lower}
+        keyword_conditions = [
+            Product.keywords.any(value) for value in keyword_values if value
+        ]
+        category_match = exists(
+            select(Category.id).where(
+                and_(Category.id == Product.category_id, Category.name.ilike(like))
+            )
+        )
+        conditions.append(
+            or_(
+                Product.name.ilike(like),
+                Product.tagline.ilike(like),
+                Product.description.ilike(like),
+                category_match,
+                *keyword_conditions,
+            )
+        )
+
+    base_filter = and_(*conditions)
+
+    priority_exists = exists(
+        select(PlanFeatureAssignment.id)
+        .join(PlanFeature, PlanFeature.id == PlanFeatureAssignment.feature_id)
+        .where(
+            and_(
+                PlanFeatureAssignment.plan_id == Product.plan_id,
+                PlanFeatureAssignment.enabled.is_(True),
+                PlanFeature.key == PRIORITY_FEATURE_KEY,
+            )
+        )
+    )
+
+    priority_filter = and_(base_filter, priority_exists)
+    regular_filter = and_(base_filter, ~priority_exists)
+
+    total_priority = _scalar_value(
+        (await session.exec(select(func.count(Product.id)).where(priority_filter))).one()
+    )
+    total_regular = _scalar_value(
+        (await session.exec(select(func.count(Product.id)).where(regular_filter))).one()
+    )
+
+    skip = (page - 1) * page_size
+
+    if skip < total_priority:
+        priority_skip = skip
+        priority_take = min(page_size, total_priority - priority_skip)
+        regular_skip = 0
+        regular_take = max(0, page_size - priority_take)
+    else:
+        priority_skip = total_priority
+        priority_take = 0
+        regular_skip = skip - total_priority
+        regular_take = page_size
+
+    if sort == "az":
+        order_by = [Product.name.asc()]
+    elif sort in {"votes", "trending"}:
+        order_by = [
+            func.coalesce(ProductAnalytics.upvotes, 0).desc(),
+            Product.created_at.desc(),
+        ]
+    else:
+        order_by = [Product.created_at.desc()]
+
+    products: list[Product] = []
+
+    if priority_take > 0:
+        priority_stmt = (
+            select(Product)
+            .outerjoin(ProductAnalytics)
+            .where(priority_filter)
+            .order_by(*order_by)
+            .options(*_product_load_options())
+            .offset(priority_skip)
+            .limit(priority_take)
+        )
+        products.extend((await session.exec(priority_stmt)).scalars().all())
+
+    if regular_take > 0:
+        regular_stmt = (
+            select(Product)
+            .outerjoin(ProductAnalytics)
+            .where(regular_filter)
+            .order_by(*order_by)
+            .options(*_product_load_options())
+            .offset(regular_skip)
+            .limit(regular_take)
+        )
+        products.extend((await session.exec(regular_stmt)).scalars().all())
+
+    total = total_priority + total_regular
+    has_more = skip + len(products) < total
+
+    return products, has_more, total
+
+
+def _build_browse_filter_summary(
+    filters: BrowseFilters,
+    *,
+    use_cases: list[UseCaseSummary],
+    categories: list[CategorySummary],
+    result_count: int,
+) -> list[str]:
+    sort_label = BROWSE_SORT_LABELS.get(filters.sort, BROWSE_SORT_LABELS["new"])
+    summary = [
+        f"Showing {result_count} {_pluralize(result_count, 'result')}",
+        f"Sorted by {sort_label}",
+    ]
+
+    if filters.useCase:
+        label = next(
+            (entry.label for entry in use_cases if entry.slug == filters.useCase),
+            None,
+        )
+        if label:
+            summary.append(f"Use case: {label}")
+
+    if filters.category:
+        label = next(
+            (entry.name for entry in categories if entry.slug == filters.category),
+            None,
+        )
+        if label:
+            summary.append(f"Category: {label}")
+
+    if filters.verified:
+        summary.append("Verified makers only")
+
+    return summary
 
 
 def _map_product_to_feed_item(
@@ -591,12 +1054,567 @@ async def get_homepage_feed_all(
     return HomepageFeedAllResult.model_validate(payload)
 
 
+@router.get("/browse", response_model=BrowsePagePayload)
+async def get_browse_page(
+    request: Request,
+    *,
+    use_case: str | None = Query(None, alias="useCase"),
+    category: str | None = Query(None),
+    verified: bool | None = Query(None),
+    sort: str | None = Query(None),
+    page: int | None = Query(None),
+    page_size: int | None = Query(None, alias="pageSize"),
+    query: str | None = Query(None, alias="q"),
+    platform: str | None = Query(None),
+    pricing_model: str | None = Query(None, alias="pricingModel"),
+    product_type: str | None = Query(None, alias="productType"),
+    session: Session = Depends(get_session),
+) -> BrowsePagePayload:
+    normalized_use_case = _normalize_filter_slug(use_case)
+    normalized_category = _normalize_filter_slug(category)
+    normalized_sort = _normalize_browse_sort(sort)
+    safe_page = _normalize_page(page, 1)
+    safe_page_size = _normalize_page_size(page_size, BROWSE_PAGE_SIZE)
+    normalized_query = _normalize_query(query)
+    platform_enum = _parse_platform(platform)
+    pricing_enum = _parse_pricing_model(pricing_model)
+    product_type_enum = _parse_product_type(product_type)
+
+    filters = BrowseFilters(
+        useCase=normalized_use_case,
+        category=normalized_category,
+        verified=bool(verified),
+        sort=normalized_sort,
+        page=safe_page,
+        pageSize=safe_page_size,
+        query=normalized_query,
+        platform=platform if platform_enum else None,
+        pricingModel=pricing_model if pricing_enum else None,
+        productType=product_type if product_type_enum else None,
+    )
+
+    async def build_payload() -> dict:
+        use_cases = await _fetch_use_case_summaries(session)
+        categories = await _fetch_category_summaries(session)
+        products, has_more, total = await _fetch_browse_products(
+            session,
+            use_case_slug=normalized_use_case,
+            category_slug=normalized_category,
+            verified=bool(verified),
+            sort=normalized_sort,
+            page=safe_page,
+            page_size=safe_page_size,
+            query=normalized_query,
+            platform=platform_enum,
+            pricing_model=pricing_enum,
+            product_type=product_type_enum,
+        )
+        product_ids = [product.id for product in products]
+        score_map = await _fetch_score_map(session, product_ids)
+        interest_map = await _fetch_interest_map(session, product_ids)
+        now = datetime.now(timezone.utc)
+
+        items = [
+            _map_product_to_card(
+                product,
+                now=now,
+                score_map=score_map,
+                interest_map=interest_map,
+            )
+            for product in products
+        ]
+
+        filter_summary = _build_browse_filter_summary(
+            filters,
+            use_cases=use_cases,
+            categories=categories,
+            result_count=len(items),
+        )
+
+        has_active_filters = bool(
+            filters.useCase
+            or filters.category
+            or filters.verified
+            or filters.query
+            or filters.sort != "new"
+            or filters.platform
+            or filters.pricingModel
+            or filters.productType
+        )
+
+        payload = BrowsePagePayload(
+            filters=filters,
+            products=items,
+            hasMore=has_more,
+            total=total,
+            useCases=use_cases,
+            categories=categories,
+            filterSummary=filter_summary,
+            hasActiveFilters=has_active_filters,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:browse-page",
+        ttl_seconds=BROWSE_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("useCase", normalized_use_case or ""),
+            ("category", normalized_category or ""),
+            ("verified", str(bool(verified)).lower()),
+            ("sort", normalized_sort),
+            ("page", str(safe_page)),
+            ("pageSize", str(safe_page_size)),
+            ("q", normalized_query or ""),
+            ("platform", platform or ""),
+            ("pricingModel", pricing_model or ""),
+            ("productType", product_type or ""),
+        ],
+        builder=build_payload,
+    )
+    return BrowsePagePayload.model_validate(payload)
+
+
+@router.get("/browse/products", response_model=BrowseProductsPageResult)
+async def get_browse_products(
+    request: Request,
+    *,
+    use_case: str | None = Query(None, alias="useCase"),
+    category: str | None = Query(None),
+    verified: bool | None = Query(None),
+    sort: str | None = Query(None),
+    page: int | None = Query(None),
+    page_size: int | None = Query(None, alias="pageSize"),
+    query: str | None = Query(None, alias="q"),
+    platform: str | None = Query(None),
+    pricing_model: str | None = Query(None, alias="pricingModel"),
+    product_type: str | None = Query(None, alias="productType"),
+    session: Session = Depends(get_session),
+) -> BrowseProductsPageResult:
+    normalized_use_case = _normalize_filter_slug(use_case)
+    normalized_category = _normalize_filter_slug(category)
+    normalized_sort = _normalize_browse_sort(sort)
+    safe_page = _normalize_page(page, 1)
+    safe_page_size = _normalize_page_size(page_size, BROWSE_PAGE_SIZE)
+    normalized_query = _normalize_query(query)
+    platform_enum = _parse_platform(platform)
+    pricing_enum = _parse_pricing_model(pricing_model)
+    product_type_enum = _parse_product_type(product_type)
+
+    async def build_payload() -> dict:
+        products, has_more, total = await _fetch_browse_products(
+            session,
+            use_case_slug=normalized_use_case,
+            category_slug=normalized_category,
+            verified=bool(verified),
+            sort=normalized_sort,
+            page=safe_page,
+            page_size=safe_page_size,
+            query=normalized_query,
+            platform=platform_enum,
+            pricing_model=pricing_enum,
+            product_type=product_type_enum,
+        )
+        product_ids = [product.id for product in products]
+        score_map = await _fetch_score_map(session, product_ids)
+        interest_map = await _fetch_interest_map(session, product_ids)
+        now = datetime.now(timezone.utc)
+
+        items = [
+            _map_product_to_card(
+                product,
+                now=now,
+                score_map=score_map,
+                interest_map=interest_map,
+            )
+            for product in products
+        ]
+
+        payload = BrowseProductsPageResult(
+            items=items,
+            hasMore=has_more,
+            page=safe_page,
+            pageSize=safe_page_size,
+            total=total,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:browse-products",
+        ttl_seconds=BROWSE_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("useCase", normalized_use_case or ""),
+            ("category", normalized_category or ""),
+            ("verified", str(bool(verified)).lower()),
+            ("sort", normalized_sort),
+            ("page", str(safe_page)),
+            ("pageSize", str(safe_page_size)),
+            ("q", normalized_query or ""),
+            ("platform", platform or ""),
+            ("pricingModel", pricing_model or ""),
+            ("productType", product_type or ""),
+        ],
+        builder=build_payload,
+    )
+    return BrowseProductsPageResult.model_validate(payload)
+
+
+@router.get("/categories/directory", response_model=CategoriesDirectoryPayload)
+async def get_categories_directory(
+    request: Request,
+    session: Session = Depends(get_session),
+) -> CategoriesDirectoryPayload:
+    async def build_payload() -> dict:
+        categories = await _fetch_category_summaries(session)
+        total_products = sum(category.count for category in categories)
+        category_count = len(categories)
+        average_per_category = (
+            max(1, round(total_products / category_count)) if category_count > 0 else 0
+        )
+
+        highlight_categories = sorted(
+            categories,
+            key=lambda entry: (-entry.count, entry.name.lower()),
+        )[:CATEGORY_HIGHLIGHT_LIMIT]
+
+        payload = CategoriesDirectoryPayload(
+            categories=categories,
+            highlightCategories=highlight_categories,
+            categoryCount=category_count,
+            totalProducts=total_products,
+            averagePerCategory=average_per_category,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:categories-directory",
+        ttl_seconds=CATEGORIES_CACHE_TTL,
+        path=request.url.path,
+        builder=build_payload,
+    )
+    return CategoriesDirectoryPayload.model_validate(payload)
+
+
+@router.get("/use-cases/directory", response_model=UseCasesDirectoryPayload)
+async def get_use_cases_directory(
+    request: Request,
+    session: Session = Depends(get_session),
+) -> UseCasesDirectoryPayload:
+    async def build_payload() -> dict:
+        use_cases = await _fetch_use_case_summaries(session)
+        filtered = [entry for entry in use_cases if entry.productCount > 0]
+        total_products = sum(entry.productCount for entry in filtered)
+        use_case_count = len(filtered)
+        average_per_use_case = (
+            max(1, round(total_products / use_case_count)) if use_case_count > 0 else 0
+        )
+
+        highlight = sorted(
+            filtered,
+            key=lambda entry: (-entry.productCount, entry.label.lower()),
+        )[:USE_CASE_HIGHLIGHT_LIMIT]
+
+        payload = UseCasesDirectoryPayload(
+            useCases=filtered,
+            highlightUseCases=highlight,
+            useCaseCount=use_case_count,
+            totalProducts=total_products,
+            averagePerUseCase=average_per_use_case,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:use-cases-directory",
+        ttl_seconds=USE_CASES_CACHE_TTL,
+        path=request.url.path,
+        builder=build_payload,
+    )
+    return UseCasesDirectoryPayload.model_validate(payload)
+
+
+@router.get("/use-cases/{slug}/meta", response_model=UseCaseMeta)
+async def get_use_case_meta(
+    request: Request,
+    slug: str,
+    session: Session = Depends(get_session),
+) -> UseCaseMeta:
+    async def build_payload() -> dict:
+        use_case = (
+            await session.exec(select(UseCase).where(UseCase.slug == slug))
+        ).scalars().one_or_none()
+        if not use_case:
+            raise HTTPException(status_code=404, detail="Use case not found")
+
+        counts = await _fetch_use_case_counts(session)
+        payload = UseCaseMeta(
+            id=str(use_case.id),
+            label=use_case.label,
+            slug=use_case.slug,
+            createdAt=use_case.created_at.isoformat(),
+            updatedAt=use_case.updated_at.isoformat(),
+            productCount=counts.get(use_case.id, 0),
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:use-case-meta",
+        ttl_seconds=USE_CASES_CACHE_TTL,
+        path=request.url.path,
+        params=[("slug", slug)],
+        builder=build_payload,
+    )
+    return UseCaseMeta.model_validate(payload)
+
+
+@router.get("/tags/directory", response_model=TagDirectoryPageResult)
+async def get_tag_directory(
+    request: Request,
+    *,
+    page: int | None = Query(None),
+    page_size: int | None = Query(None, alias="pageSize"),
+    include_total: bool | None = Query(None, alias="includeTotal"),
+    session: Session = Depends(get_session),
+) -> TagDirectoryPageResult:
+    safe_page = _normalize_page(page, 1)
+    try:
+        parsed_page_size = int(page_size) if page_size is not None else TAG_DIRECTORY_DEFAULT_PAGE_SIZE
+    except (TypeError, ValueError):
+        parsed_page_size = TAG_DIRECTORY_DEFAULT_PAGE_SIZE
+    if parsed_page_size <= 0:
+        parsed_page_size = TAG_DIRECTORY_DEFAULT_PAGE_SIZE
+    safe_page_size = max(1, min(parsed_page_size, TAG_LIST_LIMIT))
+    limit = min(TAG_LIST_LIMIT, safe_page_size + 1)
+    offset = max(0, (safe_page - 1) * safe_page_size)
+
+    async def build_payload() -> dict:
+        tag_stmt = text(
+            """
+            WITH expanded AS (
+              SELECT
+                LOWER(TRIM(k)) AS keyword,
+                TRIM(k) AS raw_keyword,
+                SUBSTRING(md5(LOWER(TRIM(k))), 1, 6) AS hash,
+                p.id AS product_id,
+                COALESCE(p.updated_at, p.published_at, p.created_at) AS updated_at
+              FROM product p
+              CROSS JOIN LATERAL UNNEST(p.keywords) AS k
+              WHERE
+                p.status = 'published'
+                AND k IS NOT NULL
+                AND TRIM(k) <> ''
+            )
+            SELECT
+              keyword,
+              MIN(raw_keyword) AS canonical,
+              hash,
+              COUNT(DISTINCT product_id)::int AS product_count,
+              MAX(updated_at) AS last_updated
+            FROM expanded
+            GROUP BY keyword, hash
+            ORDER BY product_count DESC, canonical ASC
+            OFFSET :offset
+            LIMIT :limit
+            """
+        )
+
+        rows = (await session.exec(tag_stmt, params={"offset": offset, "limit": limit})).all()
+        items: list[TagSummary] = []
+
+        for row in rows[:safe_page_size]:
+            keyword = row[0]
+            canonical = row[1]
+            hash_value = row[2]
+            product_count = int(row[3] or 0)
+            last_updated = row[4].isoformat() if row[4] else None
+            items.append(
+                TagSummary(
+                    keyword=keyword,
+                    canonical=canonical,
+                    hash=hash_value,
+                    slug=_keyword_to_slug(keyword),
+                    productCount=product_count,
+                    lastUpdated=last_updated,
+                )
+            )
+
+        has_more = len(rows) > safe_page_size
+        total = None
+
+        if include_total:
+            total_stmt = text(
+                """
+                WITH expanded AS (
+                  SELECT
+                    LOWER(TRIM(k)) AS keyword,
+                    COALESCE(p.updated_at, p.published_at, p.created_at) AS updated_at
+                  FROM product p
+                  CROSS JOIN LATERAL UNNEST(p.keywords) AS k
+                  WHERE
+                    p.status = 'published'
+                    AND k IS NOT NULL
+                    AND TRIM(k) <> ''
+                ),
+                grouped AS (
+                  SELECT
+                    keyword,
+                    MAX(updated_at) AS last_updated
+                  FROM expanded
+                  GROUP BY keyword
+                )
+                SELECT COUNT(*)::int AS total
+                FROM grouped
+                """
+            )
+            total_row = (await session.exec(total_stmt)).one_or_none()
+            total = int(total_row[0] or 0) if total_row else 0
+
+        payload = TagDirectoryPageResult(
+            items=items,
+            hasMore=has_more,
+            total=total,
+            page=safe_page,
+            pageSize=safe_page_size,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:tags-directory",
+        ttl_seconds=TAGS_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("page", str(safe_page)),
+            ("pageSize", str(safe_page_size)),
+            ("includeTotal", str(bool(include_total)).lower()),
+        ],
+        builder=build_payload,
+    )
+    return TagDirectoryPageResult.model_validate(payload)
+
+
+@router.get("/alternatives/catalog", response_model=AlternativeCatalogPageResult)
+async def get_alternative_catalog(
+    request: Request,
+    *,
+    page: int | None = Query(None),
+    page_size: int | None = Query(None, alias="pageSize"),
+    query: str | None = Query(None, alias="q"),
+    session: Session = Depends(get_session),
+) -> AlternativeCatalogPageResult:
+    safe_page = _normalize_page(page, 1)
+    safe_page_size = max(
+        1,
+        min(
+            _normalize_page_size(page_size, ALTERNATIVE_CATALOG_PAGE_SIZE),
+            ALTERNATIVE_CATALOG_MAX_PAGE_SIZE,
+        ),
+    )
+    trimmed_query = _normalize_query(query)
+    skip = (safe_page - 1) * safe_page_size
+    take = safe_page_size + 1
+
+    async def build_payload() -> dict:
+        search_filter = None
+        if trimmed_query:
+            like = f"%{trimmed_query}%"
+            category_match = exists(
+                select(AlternativeProductCategoryLink.alternative_product_id)
+                .join(Category, Category.id == AlternativeProductCategoryLink.category_id)
+                .where(
+                    and_(
+                        AlternativeProductCategoryLink.alternative_product_id
+                        == AlternativeProduct.id,
+                        Category.name.ilike(like),
+                    )
+                )
+            )
+            product_match = exists(
+                select(ProductAlternativeProductLink.alternative_product_id)
+                .join(Product, Product.id == ProductAlternativeProductLink.product_id)
+                .where(
+                    and_(
+                        ProductAlternativeProductLink.alternative_product_id
+                        == AlternativeProduct.id,
+                        Product.name.ilike(like),
+                    )
+                )
+            )
+            search_filter = or_(
+                AlternativeProduct.name.ilike(like),
+                AlternativeProduct.description.ilike(like),
+                category_match,
+                product_match,
+            )
+
+        stmt = (
+            select(
+                AlternativeProduct.id,
+                AlternativeProduct.name,
+                AlternativeProduct.slug,
+                AlternativeProduct.description,
+                AlternativeProduct.website_url,
+                AlternativeProduct.logo_url,
+                func.count(ProductAlternativeProductLink.product_id).label("product_count"),
+            )
+            .join(
+                ProductAlternativeProductLink,
+                ProductAlternativeProductLink.alternative_product_id == AlternativeProduct.id,
+            )
+            .group_by(AlternativeProduct.id)
+            .order_by(AlternativeProduct.name.asc())
+            .offset(skip)
+            .limit(take)
+        )
+
+        if search_filter is not None:
+            stmt = stmt.where(search_filter)
+
+        rows = (await session.exec(stmt)).all()
+        has_more = len(rows) > safe_page_size
+        items: list[AlternativeCatalogItem] = []
+
+        for row in rows[:safe_page_size]:
+            items.append(
+                AlternativeCatalogItem(
+                    id=str(row[0]),
+                    name=row[1],
+                    slug=row[2],
+                    description=row[3],
+                    websiteUrl=row[4],
+                    logoUrl=row[5],
+                    productCount=int(row[6] or 0),
+                )
+            )
+
+        payload = AlternativeCatalogPageResult(
+            items=items,
+            hasMore=has_more,
+            nextPage=safe_page + 1 if has_more else None,
+            page=safe_page,
+            pageSize=safe_page_size,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:alternatives-catalog",
+        ttl_seconds=ALTERNATIVES_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("page", str(safe_page)),
+            ("pageSize", str(safe_page_size)),
+            ("q", trimmed_query or ""),
+        ],
+        builder=build_payload,
+    )
+    return AlternativeCatalogPageResult.model_validate(payload)
+
+
 async def _resolve_realtime_visitors(session: Session) -> int:
     stmt = select(SiteTrafficDaily.unique_visitors).order_by(SiteTrafficDaily.date.desc()).limit(1)
     row = (await session.exec(stmt)).one_or_none()
     if row is None:
         return 1
-    return max(int(row or 0), 0)
+    return max(_scalar_value(row), 0)
 
 
 async def _build_leaderboard_stats(session: Session) -> LeaderboardStats:

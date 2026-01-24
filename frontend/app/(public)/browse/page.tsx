@@ -4,7 +4,7 @@ import { Suspense } from "react"
 import { BrowsePageContent } from "@/components/templates/public/browse/page-content"
 import { BrowsePageSkeleton } from "@/components/templates/public/browse/skeleton"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
-import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
+import { getUseCaseMetaApiV1PublicUseCasesSlugMetaGet } from "@/lib/generated/fastapi/public-homepage"
 import { buildPageMetadata } from "@/lib/metadata"
 import { BROWSE_PATH, HOME_PATH, usecasePath } from "@/lib/routes"
 
@@ -25,12 +25,18 @@ export async function generateMetadata(
   const useCaseSlug = resolveSingle(params.useCase)
 
   if (useCaseSlug && useCaseSlug !== "__all__") {
-    const useCaseMeta = await getPublicUseCaseMeta(useCaseSlug)
-    if (useCaseMeta && useCaseMeta.productCount > 0) {
-      return {
-        ...baseMetadata,
-        alternates: { canonical: usecasePath(useCaseMeta.slug) },
+    try {
+      const response =
+        await getUseCaseMetaApiV1PublicUseCasesSlugMetaGet(useCaseSlug)
+      const useCaseMeta = response.data
+      if (useCaseMeta && useCaseMeta.productCount > 0) {
+        return {
+          ...baseMetadata,
+          alternates: { canonical: usecasePath(useCaseMeta.slug) },
+        }
       }
+    } catch {
+      // ignore invalid use case slugs
     }
   }
 

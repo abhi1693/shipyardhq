@@ -1,52 +1,22 @@
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   getPublicUseCaseCategoriesWithCounts,
-  getPublicUseCasesWithCounts,
   type UseCaseCategoriesWithCounts,
 } from "@/actions/public/use-cases/actions"
-
-type UseCasesWithCounts = Awaited<
-  ReturnType<typeof getPublicUseCasesWithCounts>
->
+import { getUseCasesDirectoryApiV1PublicUseCasesDirectoryGet } from "@/lib/generated/fastapi/public-homepage"
+import type { UseCasesDirectoryPayload } from "@/lib/generated/fastapi/schemas"
 
 export type UseCasePagePayload =
   | (UseCaseCategoriesWithCounts & {
       hasProducts: boolean
     })
   | null
-export type UseCasesPagePayload = {
-  useCases: UseCasesWithCounts
-  highlightUseCases: UseCasesWithCounts
-  useCaseCount: number
-  totalProducts: number
-  averagePerUseCase: number
-}
+export type UseCasesPagePayload = UseCasesDirectoryPayload
 
 export const getUseCasesPagePayload = cached(
   async (): Promise<UseCasesPagePayload> => {
-    const useCases = await getPublicUseCasesWithCounts()
-    const withProducts = useCases.filter((useCase) => useCase.productCount > 0)
-    const sortedByCount = [...withProducts].sort(
-      (a, b) => b.productCount - a.productCount,
-    )
-
-    const totalProducts = withProducts.reduce(
-      (sum, useCase) => sum + (useCase.productCount ?? 0),
-      0,
-    )
-    const useCaseCount = withProducts.length
-    const averagePerUseCase =
-      useCaseCount > 0
-        ? Math.max(1, Math.round(totalProducts / useCaseCount))
-        : 0
-
-    return {
-      useCases: withProducts,
-      highlightUseCases: sortedByCount.slice(0, 8),
-      useCaseCount,
-      totalProducts,
-      averagePerUseCase,
-    }
+    const response = await getUseCasesDirectoryApiV1PublicUseCasesDirectoryGet()
+    return response.data
   },
   "usecases:page:payload",
   {
@@ -83,10 +53,8 @@ export const getUseCasePagePayload = cached(
 
 export const getUseCaseStaticParams = cached(
   async () => {
-    const useCases = await getPublicUseCasesWithCounts()
-    return useCases
-      .filter((useCase) => useCase.productCount > 0)
-      .map((useCase) => ({ slug: useCase.slug }))
+    const response = await getUseCasesDirectoryApiV1PublicUseCasesDirectoryGet()
+    return response.data.useCases.map((useCase) => ({ slug: useCase.slug }))
   },
   "usecases:static-params",
   {

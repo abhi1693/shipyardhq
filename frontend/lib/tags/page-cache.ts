@@ -2,14 +2,14 @@ import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   getKeywordTagSummaries,
   getKeywordTagProducts,
-  getKeywordTagDirectoryPage,
-  TAG_DIRECTORY_DEFAULT_PAGE_SIZE,
   type KeywordTagProductsResult,
   type KeywordTagSummary,
 } from "@/actions/public/tags/actions"
+import { getTagDirectoryApiV1PublicTagsDirectoryGet } from "@/lib/generated/fastapi/public-homepage"
+import type { TagSummary } from "@/lib/generated/fastapi/schemas"
 
 type TagsIndexPayload = {
-  initialItems: KeywordTagSummary[]
+  initialItems: TagSummary[]
   hasMore: boolean
   totalTags: number
   pageSize: number
@@ -17,13 +17,13 @@ type TagsIndexPayload = {
 
 export const getTagsIndexPayload = cached(
   async (): Promise<TagsIndexPayload> => {
-    const result = await getKeywordTagDirectoryPage({
+    const response = await getTagDirectoryApiV1PublicTagsDirectoryGet({
       page: 1,
-      pageSize: TAG_DIRECTORY_DEFAULT_PAGE_SIZE,
       includeTotal: true,
     })
+    const result = response.data
 
-    const pageSize = TAG_DIRECTORY_DEFAULT_PAGE_SIZE
+    const pageSize = result.pageSize
     const initialItems = result.items
     const totalTags = result.total ?? initialItems.length
 

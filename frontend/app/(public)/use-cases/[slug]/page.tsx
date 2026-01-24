@@ -3,7 +3,7 @@ import { Suspense } from "react"
 
 import { UseCasePageContent } from "@/components/templates/public/use-cases/detail/page-content"
 import { UseCaseDetailSkeleton } from "@/components/templates/public/use-cases/detail/skeleton"
-import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
+import { getUseCaseMetaApiV1PublicUseCasesSlugMetaGet } from "@/lib/generated/fastapi/public-homepage"
 import { buildPageMetadata } from "@/lib/metadata"
 import { pluralize } from "@/lib/pluralize"
 
@@ -13,19 +13,25 @@ export async function generateMetadata(
   props: Parameters<typeof UseCasePageContent>[0],
 ): Promise<Metadata> {
   const { slug } = await props.params
-  const useCase = await getPublicUseCaseMeta(slug)
-  if (!useCase || useCase.productCount === 0) return {}
+  try {
+    const response =
+      await getUseCaseMetaApiV1PublicUseCasesSlugMetaGet(slug)
+    const useCase = response.data
+    if (!useCase || useCase.productCount === 0) return {}
 
-  const description = `Explore ${useCase.productCount} ${pluralize(
-    useCase.productCount,
-    "product",
-  )} built for ${useCase.label}.`
+    const description = `Explore ${useCase.productCount} ${pluralize(
+      useCase.productCount,
+      "product",
+    )} built for ${useCase.label}.`
 
-  return buildPageMetadata({
-    title: `${useCase.label} Use Case`,
-    section: "Use Cases",
-    description,
-  })
+    return buildPageMetadata({
+      title: `${useCase.label} Use Case`,
+      section: "Use Cases",
+      description,
+    })
+  } catch {
+    return {}
+  }
 }
 
 export default function UseCasePage(

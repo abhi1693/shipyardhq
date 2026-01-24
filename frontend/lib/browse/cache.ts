@@ -1,13 +1,5 @@
-import { pluralize } from "@/lib/pluralize"
-import { getBrowseProducts } from "@/actions/public/browse/actions"
-import { getProducts } from "@/actions/public/products/featured"
-import {
-  getUseCasesWithCounts,
-  getCategories,
-} from "@/actions/admin/categories/actions"
-import type { Prisma } from "@/lib/vendor/prisma/client"
-import type { ProductCardBase } from "@/components/molecules/ProductCard"
-import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
+import type { BrowsePagePayload as ApiBrowsePagePayload } from "@/lib/generated/fastapi/schemas"
+import { getBrowsePageApiV1PublicBrowseGet } from "@/lib/generated/fastapi/public-homepage"
 
 export const browseSortLabelMap: Record<BrowseSort, string> = {
   new: "Newest",
@@ -27,34 +19,9 @@ export type BrowsePageFilters = {
   query?: string
 }
 
-type CategoryWithProductCount = Prisma.CategoryGetPayload<{
-  include: { _count: { select: { products: true } } }
-}>
-
-export type BrowsePagePayload = {
+export type BrowsePagePayload = Omit<ApiBrowsePagePayload, "filters"> & {
   filters: BrowsePageFilters
-  products: Awaited<ReturnType<typeof getBrowseProducts>>["products"]
-  hasMore: Awaited<ReturnType<typeof getBrowseProducts>>["hasMore"]
-  featured: Awaited<ReturnType<typeof getProducts>>
-  useCases: Awaited<ReturnType<typeof getUseCasesWithCounts>>
-  categories: CategoryWithProductCount[]
-  sortLabel: string
-  filterSummary: string[]
-  headline: string
-  hasActiveFilters: boolean
-  selectedUseCaseLabel?: string
-  selectedCategoryLabel?: string
 }
-
-const CATEGORY_QUERY = {
-  where: {
-    products: {
-      some: {},
-    },
-  },
-  include: { _count: { select: { products: true } } },
-  orderBy: [{ products: { _count: "desc" } }, { name: "asc" }],
-} satisfies Prisma.CategoryFindManyArgs
 
 const normalizeFilters = (filters: BrowsePageFilters): BrowsePageFilters => {
   const page =
@@ -74,96 +41,27 @@ export const getBrowsePagePayload = async (
   input: BrowsePageFilters,
 ): Promise<BrowsePagePayload> => {
   const filters = normalizeFilters(input)
-
-  const [browseResult, featured, useCases, categoriesRaw] = await Promise.all([
-    getBrowseProducts({
-      useCaseSlug: filters.useCase,
-      categorySlug: filters.category,
-      verified: filters.verified,
-      sort: filters.sort,
-      page: filters.page,
-      query: filters.query,
-    }),
-    getProducts("featured"),
-    getUseCasesWithCounts(),
-    getCategories(CATEGORY_QUERY) as Promise<CategoryWithProductCount[]>,
-  ])
-
-  const categories = categoriesRaw
-  const products: ProductCardBase[] = browseResult.products
-  const { hasMore } = browseResult
-
-  const interestMap = await getProductInterestSignalsMap({
-    products: products.map((product) => ({
-      id: product.id,
-      slug: product.slug,
-    })),
+  const response = await getBrowsePageApiV1PublicBrowseGet({
+    useCase: filters.useCase,
+    category: filters.category,
+    verified: filters.verified,
+    sort: filters.sort,
+    page: filters.page,
+    q: filters.query,
   })
-  const productsWithInterest = products.map((product) => ({
-    ...product,
-    interest: interestMap.get(product.id) ?? null,
-  }))
-  const sortLabel = browseSortLabelMap[filters.sort] ?? browseSortLabelMap.new
 
-  const selectedUseCaseLabel = filters.useCase
-    ? useCases.find(
-        (entry: (typeof useCases)[number]) => entry.slug === filters.useCase,
-      )?.label
-    : undefined
-
-  const selectedCategoryLabel = filters.category
-    ? categories.find(
-        (entry: (typeof categories)[number]) => entry.slug === filters.category,
-      )?.name
-    : undefined
-
-  const hasActiveFilters = Boolean(
-    filters.useCase ||
-    filters.category ||
-    filters.verified ||
-    (filters.query && filters.query.length > 0) ||
-    filters.sort !== "new",
-  )
-
-  const filterSummary: string[] = [
-    `Showing ${products.length} ${pluralize(products.length, "result")}`,
-    `Sorted by ${sortLabel}`,
-  ]
-
-  if (selectedUseCaseLabel) {
-    filterSummary.push(`Use case: ${selectedUseCaseLabel}`)
+  const payload = response.data
+  const normalizedFilters: BrowsePageFilters = {
+    useCase: payload.filters.useCase ?? undefined,
+    category: payload.filters.category ?? undefined,
+    verified: Boolean(payload.filters.verified),
+    sort: (payload.filters.sort as BrowseSort) ?? "new",
+    page: payload.filters.page ?? filters.page,
+    query: payload.filters.query ?? undefined,
   }
-
-  if (selectedCategoryLabel) {
-    filterSummary.push(`Category: ${selectedCategoryLabel}`)
-  }
-
-  if (filters.verified) {
-    filterSummary.push("Verified makers only")
-  }
-
-  const headline = filters.query
-    ? `Searching “${filters.query}”`
-    : selectedCategoryLabel
-      ? `${selectedCategoryLabel} launches`
-      : selectedUseCaseLabel
-        ? `${selectedUseCaseLabel} playbook`
-        : filters.verified
-          ? "Verified launches"
-          : "Every Shipyard launch"
 
   return {
-    filters,
-    products: productsWithInterest,
-    hasMore,
-    featured,
-    useCases,
-    categories,
-    sortLabel,
-    filterSummary,
-    headline,
-    hasActiveFilters,
-    selectedUseCaseLabel,
-    selectedCategoryLabel,
+    ...payload,
+    filters: normalizedFilters,
   }
 }
