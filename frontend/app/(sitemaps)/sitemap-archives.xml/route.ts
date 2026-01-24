@@ -1,4 +1,4 @@
-import { getMonthlyLeaderboardMonths } from "@/actions/public/leaderboard/actions"
+import { getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet } from "@/lib/generated/fastapi/public-homepage"
 import {
   LEADERBOARD_MONTHLY_PATH,
   monthlyLeaderboardArchivePath,
@@ -38,7 +38,9 @@ const toMonthDate = (monthKey: string, fallback: Date) => {
 export async function GET() {
   const base = resolveSiteUrl()
 
-  const months = await getMonthlyLeaderboardMonths()
+  const monthsResponse =
+    await getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet()
+  const months = monthsResponse.data
   const now = new Date()
 
   const urls = [

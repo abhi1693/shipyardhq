@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 
-import { getPublicRewardsData } from "@/actions/public/rewards/actions"
+import { getPublicRewardsData } from "@/lib/rewards/public-api"
 import { Badge } from "@/components/atoms/badge"
 import {
   LEADERBOARD_REWARDS_PATH,
@@ -13,7 +13,7 @@ import {
   RedemptionStatus,
   RewardFeatureCategory,
   RewardRuleCategory,
-} from "@/lib/vendor/prisma/client"
+} from "@/lib/generated/fastapi/schemas"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
 
@@ -363,6 +363,7 @@ export async function RewardsPageContent() {
                   const productHref = entry.productSlug
                     ? `/products/${entry.productSlug}`
                     : null
+                  const createdAt = new Date(entry.createdAt)
                   return (
                     <li key={entry.id} className="space-y-2">
                       <div className="flex items-center justify-between gap-3">
@@ -396,8 +397,8 @@ export async function RewardsPageContent() {
                         >
                           {redemptionStatusLabels[entry.status]}
                         </span>
-                        <span>{dateFormatter.format(entry.createdAt)}</span>
-                        <span>{formatRelative(entry.createdAt)}</span>
+                        <span>{dateFormatter.format(createdAt)}</span>
+                        <span>{formatRelative(createdAt)}</span>
                       </div>
                     </li>
                   )
@@ -565,7 +566,9 @@ export async function RewardsPageContent() {
           <div className="mx-auto mt-12 grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {rewardsCatalog.length > 0 ? (
               rewardsCatalog.map((reward) => {
-                const durationLabel = formatDuration(reward.durationSeconds)
+                const durationLabel = formatDuration(
+                  reward.durationSeconds ?? null,
+                )
                 const limitBadges = [
                   reward.maxActivePerUser != null && reward.maxActivePerUser > 1
                     ? `Active limit: ${formatNumber(reward.maxActivePerUser)}`

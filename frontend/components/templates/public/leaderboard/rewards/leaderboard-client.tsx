@@ -4,8 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
-import { getRewardsLeaderboardPage } from "@/actions/public/rewards/actions"
-import type { RewardsLeaderboardDisplayEntry } from "@/lib/rewards/display"
+import { getRewardsLeaderboardPage } from "@/lib/rewards/public-api"
+import type { RewardsLeaderboardEntry } from "@/lib/generated/fastapi/schemas"
 import { cn } from "@/lib/utils"
 import { userPath } from "@/lib/routes"
 import {
@@ -14,10 +14,10 @@ import {
   formatRewards,
 } from "@/lib/rewards/format"
 
-type RankedEntry = RewardsLeaderboardDisplayEntry & { rank: number }
+type RankedEntry = RewardsLeaderboardEntry & { rank: number }
 
 interface RewardsLeaderboardClientProps {
-  initialEntries: RewardsLeaderboardDisplayEntry[]
+  initialEntries: RewardsLeaderboardEntry[]
   initialPage: number
   pageSize: number
   initialHasMore: boolean
@@ -26,7 +26,7 @@ interface RewardsLeaderboardClientProps {
 }
 
 function toRankedEntries(
-  entries: RewardsLeaderboardDisplayEntry[],
+  entries: RewardsLeaderboardEntry[],
   startRank: number,
 ): RankedEntry[] {
   return entries.map((entry, index) => ({
@@ -108,7 +108,7 @@ export function RewardsLeaderboardClient({
       })
 
       setHasMore(result.hasMore)
-      setNextPage(result.nextPage)
+      setNextPage(result.nextPage ?? null)
     } catch {
       setHasMore(false)
     } finally {
@@ -164,10 +164,12 @@ function RewardLeaderRow({
   entry,
   rank,
 }: {
-  entry: RewardsLeaderboardDisplayEntry
+  entry: RewardsLeaderboardEntry
   rank: number
 }) {
-  const lastEarnedLabel = formatRelativeRewardsTime(entry.lastEarnedAt)
+  const lastEarnedLabel = formatRelativeRewardsTime(
+    entry.lastEarnedAt ? new Date(entry.lastEarnedAt) : null,
+  )
   return (
     <Link
       href={userPath(entry.userId)}

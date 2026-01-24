@@ -3,12 +3,19 @@ from __future__ import annotations
 from enum import Enum
 
 from services.schemas.base import BaseSerializer
+from models import RewardFeatureCategory, RewardRuleCategory, RedemptionStatus
 
 
 class HomepageFeedView(str, Enum):
     NEW = "new"
     VERIFIED_REVENUE = "verified-revenue"
     MOST_CLICKED = "most-clicked"
+
+
+class LeaderboardPeriod(str, Enum):
+    DAY = "day"
+    WEEK = "week"
+    MONTH = "month"
 
 
 class ProductInterestSignals(BaseSerializer):
@@ -147,6 +154,176 @@ class PublicProductCard(BaseSerializer):
     revenueCurrencyCode: str | None = None
     scoreCount: int | None = None
     interest: ProductInterestSignals | None = None
+
+
+class LeaderboardArchiveMonth(BaseSerializer):
+    year: int
+    month: int
+
+
+class LeaderboardArchiveWeek(BaseSerializer):
+    year: int
+    week: int
+
+
+class LeaderboardArchive(BaseSerializer):
+    months: list[LeaderboardArchiveMonth] = []
+    weeks: list[LeaderboardArchiveWeek] = []
+
+
+class LeaderboardPageFilters(BaseSerializer):
+    categorySlug: str | None = None
+    limit: int
+    verifiedRevenueOnly: bool = False
+
+
+class LeaderboardPagePayload(BaseSerializer):
+    filters: LeaderboardPageFilters
+    stats: LeaderboardStats
+    categories: list["CategorySummary"]
+    products: list[PublicProductCard]
+    categoryName: str | None = None
+
+
+class PeriodicLeaderboardPayload(BaseSerializer):
+    period: LeaderboardPeriod
+    periodLabel: str
+    periodStart: str
+    periodEnd: str
+    products: list[PublicProductCard]
+    archive: LeaderboardArchive
+
+
+class MonthlyLeaderboardMonth(BaseSerializer):
+    month: str
+    label: str
+
+
+class MonthlyLeaderboardProductAnalytics(BaseSerializer):
+    upvotes: int | None = None
+
+
+class MonthlyLeaderboardProductCategory(BaseSerializer):
+    name: str | None = None
+    slug: str | None = None
+
+
+class MonthlyLeaderboardProductUser(BaseSerializer):
+    firstName: str | None = None
+    lastName: str | None = None
+
+
+class MonthlyLeaderboardProduct(BaseSerializer):
+    id: str
+    slug: str
+    name: str
+    tagline: str
+    logo: str | None = None
+    analytics: MonthlyLeaderboardProductAnalytics | None = None
+    category: MonthlyLeaderboardProductCategory | None = None
+    user: MonthlyLeaderboardProductUser | None = None
+    latestRevenueCents: int | None = None
+    revenueCurrencyCode: str | None = None
+
+
+class MonthlyLeaderboardRanking(BaseSerializer):
+    id: str
+    rank: int | None = None
+    score: int | None = None
+    upvotes: int | None = None
+    product: MonthlyLeaderboardProduct
+
+
+class MonthlyLeaderboardPayload(BaseSerializer):
+    month: str
+    label: str
+    rankings: list[MonthlyLeaderboardRanking]
+
+
+class PublicRewardsStatsWindow(BaseSerializer):
+    rewardAmount: int
+    transactions: int
+
+
+class PublicRewardsSpentWindow(BaseSerializer):
+    rewardAmount: int
+    redemptions: int
+
+
+class PublicRewardsStats(BaseSerializer):
+    membersWithRewards: int
+    activeBalances: int
+    earnedLast30d: PublicRewardsStatsWindow
+    spentLast30d: PublicRewardsSpentWindow
+
+
+class PublicRewardsRule(BaseSerializer):
+    id: str
+    name: str
+    description: str | None = None
+    category: RewardRuleCategory
+    baseRewardAmount: int
+    dailyCap: int | None = None
+    lifetimeCap: int | None = None
+    totalAwarded: int
+    awardCount: int
+
+
+class PublicRewardsReward(BaseSerializer):
+    featureKey: str
+    name: str
+    description: str | None = None
+    category: RewardFeatureCategory
+    baseCost: int
+    durationSeconds: int | None = None
+    requiresProduct: bool
+    maxActivePerUser: int | None = None
+    maxPendingPerUser: int | None = None
+    redemptionCount: int
+
+
+class PublicRewardsRedemption(BaseSerializer):
+    id: str
+    featureKey: str
+    name: str | None = None
+    productName: str | None = None
+    productSlug: str | None = None
+    cost: int
+    status: RedemptionStatus
+    createdAt: str
+
+
+class PublicRewardsData(BaseSerializer):
+    stats: PublicRewardsStats
+    rules: list[PublicRewardsRule]
+    rewards: list[PublicRewardsReward]
+    recentRedemptions: list[PublicRewardsRedemption]
+
+
+class RewardsLeaderboardEntry(BaseSerializer):
+    userId: str
+    balance: int
+    lifetimeEarned: int
+    lifetimeSpent: int
+    lifetimeAdjusted: int
+    lifetimeRefunded: int
+    currentStreakCount: int
+    longestStreakCount: int
+    lastEarnedAt: str | None = None
+    lastRedeemedAt: str | None = None
+    displayName: str
+    initials: str
+    avatarUrl: str | None = None
+    launchCount: int
+
+
+class RewardsLeaderboardPageResult(BaseSerializer):
+    items: list[RewardsLeaderboardEntry]
+    page: int
+    pageSize: int
+    hasMore: bool
+    nextPage: int | None = None
+    total: int
 
 
 class CategorySummary(BaseSerializer):

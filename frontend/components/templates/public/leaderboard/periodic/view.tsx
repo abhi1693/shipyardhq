@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Suspense } from "react"
 
-import type { PeriodicLeaderboardPayload } from "@/actions/public/leaderboard/actions"
+import type { PeriodicLeaderboardPayload } from "@/lib/generated/fastapi/schemas"
 import { Button } from "@/components/atoms/button"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
@@ -9,9 +9,7 @@ import {
   DirectoryHighlightsSidebarSkeleton,
 } from "@/components/templates/public/homepage/directory-highlights"
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
-import { mapProductCardRecordToBase } from "@/lib/products/selects"
 import { BROWSE_PATH, LEADERBOARD_PATH } from "@/lib/routes"
-import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import {
   getIsoWeekKey,
   getIsoWeekYearAndNumber,
@@ -111,29 +109,19 @@ export async function PeriodicLeaderboardView({
   todayUtc.setUTCHours(0, 0, 0, 0)
   const isFutureDate = (date: Date) => date.getTime() > todayUtc.getTime()
   const availableMonthKeys = new Set(
-    archive.months.map((entry) => `${entry.year}-${entry.month}`),
+    (archive.months ?? []).map((entry) => `${entry.year}-${entry.month}`),
   )
   const availableWeekKeys = new Set(
-    archive.weeks.map((entry) => `${entry.year}-${entry.week}`),
+    (archive.weeks ?? []).map((entry) => `${entry.year}-${entry.week}`),
   )
   const shouldFilterMonths = availableMonthKeys.size > 0
   const shouldFilterWeeks = availableWeekKeys.size > 0
 
-  const interestMap = await getProductInterestSignalsMap({
-    products: leaderboard.products.map((product) => ({
-      id: product.id,
-      slug: product.slug,
-    })),
-  })
-
-  const items = leaderboard.products.map((product) => {
-    const base = mapProductCardRecordToBase(product, now)
-    return {
-      ...base,
-      interest: interestMap.get(base.id) ?? null,
-      badges: base.badges ?? undefined,
-    }
-  })
+  const items = leaderboard.products.map((product) => ({
+    ...product,
+    badges: product.badges ?? undefined,
+    scoreCount: product.scoreCount ?? undefined,
+  }))
   const hasProducts = items.length > 0
 
   const daysInMonth = new Date(

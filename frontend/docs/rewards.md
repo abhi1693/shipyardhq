@@ -64,8 +64,8 @@
 ## Public & member experiences
 
 - The member dashboard route loads the snapshot and renders balance cards, active perks, and redemption history with a client-driven redemption dialog (`app/(member)/member/rewards/page.tsx:1`, `components/pages/MemberRewards.tsx:1`).
-- A marketing-facing explainer aggregates stats, featured rules, catalog items, and hero redemptions via `getPublicRewardsData`, which applies cache strategies and aggregates transaction history for recent windows (`app/(public)/rewards/page.tsx:1`, `actions/public/rewards/actions.ts:49`).
-- Public metrics include members with rewards, active balances, and 30-day earn/spend totals. Rule and catalog cards expose base values and caps for transparency (`actions/public/rewards/actions.ts:108`).
+- A marketing-facing explainer aggregates stats, featured rules, catalog items, and hero redemptions via `getPublicRewardsData` in `lib/rewards/public-api.ts`, which calls the backend public rewards endpoints for recent windows (`app/(public)/rewards/page.tsx:1`, `lib/rewards/public-api.ts:1`).
+- Public metrics include members with rewards, active balances, and 30-day earn/spend totals. Rule and catalog cards expose base values and caps for transparency (`lib/rewards/public-api.ts:1`).
 
 ## Seeding & configuration
 

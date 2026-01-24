@@ -5,7 +5,7 @@ import { IconTrophy } from "@tabler/icons-react"
 import {
   getPublicRewardsStats,
   getRewardsLeaderboardPage,
-} from "@/actions/public/rewards/actions"
+} from "@/lib/rewards/public-api"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
@@ -163,7 +163,7 @@ export async function RewardsLeaderboardPageContent({
                     initialPage={page}
                     pageSize={pageSize}
                     initialHasMore={hasMore}
-                    initialNextPage={nextPage}
+                    initialNextPage={nextPage ?? null}
                     total={total}
                   />
                 </div>

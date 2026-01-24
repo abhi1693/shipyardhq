@@ -4,7 +4,7 @@ import {
   getUserProductsPage,
   type UserProductsPageResult,
 } from "@/actions/public/users/actions"
-import { getRewardsLeaderboardPositionForUser } from "@/actions/public/rewards/actions"
+import { getRewardsLeaderboardPositionForUser } from "@/lib/rewards/leaderboard-position"
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import {

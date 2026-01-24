@@ -1,10 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
-import {
-  getPeriodicLeaderboardByParams,
-  resolvePeriodWindowFromParts,
-} from "@/actions/public/leaderboard/actions"
+import { getPeriodicLeaderboardByParams } from "@/lib/leaderboard/periodic"
 import { PeriodicLeaderboardView } from "@/components/templates/public/leaderboard/periodic/view"
 
 export const dynamic = "force-dynamic"
@@ -21,13 +18,13 @@ export async function generateMetadata({
   params: Promise<PageParams>
 }): Promise<Metadata> {
   const { year, month, day } = await params
-  const window = await resolvePeriodWindowFromParts({
+  const leaderboard = await getPeriodicLeaderboardByParams({
     period: "day",
     year: Number(year),
     month: Number(month),
     day: Number(day),
   })
-  const periodLabel = window?.label ?? "Daily leaderboard"
+  const periodLabel = leaderboard?.periodLabel ?? "Daily leaderboard"
   return {
     title: `Daily leaderboard — ${periodLabel}`,
     description: `Top Shipyard products for ${periodLabel}, ranked by points.`,

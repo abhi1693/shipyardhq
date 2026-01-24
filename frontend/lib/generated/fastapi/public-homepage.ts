@@ -41,6 +41,9 @@ import type {
   GetCategoryProductsApiV1PublicCategoriesSlugProductsGetParams,
   GetHomepageFeedAllApiV1PublicHomepageFeedAllGetParams,
   GetHomepageFeedApiV1PublicHomepageFeedGetParams,
+  GetLeaderboardPageApiV1PublicLeaderboardPageGetParams,
+  GetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetParams,
+  GetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetParams,
   GetSponsoredProductsApiV1PublicProductsSponsoredGetParams,
   GetStickyBannerProductsApiV1PublicProductsStickyBannerGetParams,
   GetTagDetailApiV1PublicTagsSlugDetailGetParams,
@@ -50,8 +53,14 @@ import type {
   HTTPValidationError,
   HomepageFeedAllResult,
   HomepageFeedPageResult,
+  LeaderboardPagePayload,
   LeaderboardStats,
+  MonthlyLeaderboardMonth,
+  PeriodicLeaderboardPayload,
+  PublicRewardsData,
+  PublicRewardsStats,
   RealtimeVisitors,
+  RewardsLeaderboardPageResult,
   SponsoredPlacement,
   StickyBannerProduct,
   TagDetailPayload,
@@ -2206,6 +2215,370 @@ export function useGetLeaderboardStatsApiV1PublicLeaderboardStatsGet<TData = Awa
 
 
 /**
+ * @summary Get Leaderboard Page
+ */
+export type getLeaderboardPageApiV1PublicLeaderboardPageGetResponse200 = {
+  data: LeaderboardPagePayload
+  status: 200
+}
+
+export type getLeaderboardPageApiV1PublicLeaderboardPageGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getLeaderboardPageApiV1PublicLeaderboardPageGetResponseSuccess = (getLeaderboardPageApiV1PublicLeaderboardPageGetResponse200) & {
+  headers: Headers;
+};
+export type getLeaderboardPageApiV1PublicLeaderboardPageGetResponseError = (getLeaderboardPageApiV1PublicLeaderboardPageGetResponse422) & {
+  headers: Headers;
+};
+
+export type getLeaderboardPageApiV1PublicLeaderboardPageGetResponse = (getLeaderboardPageApiV1PublicLeaderboardPageGetResponseSuccess | getLeaderboardPageApiV1PublicLeaderboardPageGetResponseError)
+
+export const getGetLeaderboardPageApiV1PublicLeaderboardPageGetUrl = (params?: GetLeaderboardPageApiV1PublicLeaderboardPageGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/public/leaderboard/page?${stringifiedParams}` : `/api/v1/public/leaderboard/page`
+}
+
+export const getLeaderboardPageApiV1PublicLeaderboardPageGet = async (params?: GetLeaderboardPageApiV1PublicLeaderboardPageGetParams, options?: RequestInit): Promise<getLeaderboardPageApiV1PublicLeaderboardPageGetResponse> => {
+  
+  return fastapiFetch<getLeaderboardPageApiV1PublicLeaderboardPageGetResponse>(getGetLeaderboardPageApiV1PublicLeaderboardPageGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetLeaderboardPageApiV1PublicLeaderboardPageGetQueryKey = (params?: GetLeaderboardPageApiV1PublicLeaderboardPageGetParams,) => {
+    return [
+    `/api/v1/public/leaderboard/page`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetLeaderboardPageApiV1PublicLeaderboardPageGetQueryOptions = <TData = Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>, TError = HTTPValidationError>(params?: GetLeaderboardPageApiV1PublicLeaderboardPageGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLeaderboardPageApiV1PublicLeaderboardPageGetQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>> = ({ signal }) => getLeaderboardPageApiV1PublicLeaderboardPageGet(params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetLeaderboardPageApiV1PublicLeaderboardPageGetQueryResult = NonNullable<Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>>
+export type GetLeaderboardPageApiV1PublicLeaderboardPageGetQueryError = HTTPValidationError
+
+
+export function useGetLeaderboardPageApiV1PublicLeaderboardPageGet<TData = Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>, TError = HTTPValidationError>(
+ params: undefined |  GetLeaderboardPageApiV1PublicLeaderboardPageGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>,
+          TError,
+          Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetLeaderboardPageApiV1PublicLeaderboardPageGet<TData = Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>, TError = HTTPValidationError>(
+ params?: GetLeaderboardPageApiV1PublicLeaderboardPageGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>,
+          TError,
+          Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetLeaderboardPageApiV1PublicLeaderboardPageGet<TData = Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>, TError = HTTPValidationError>(
+ params?: GetLeaderboardPageApiV1PublicLeaderboardPageGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Leaderboard Page
+ */
+
+export function useGetLeaderboardPageApiV1PublicLeaderboardPageGet<TData = Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>, TError = HTTPValidationError>(
+ params?: GetLeaderboardPageApiV1PublicLeaderboardPageGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaderboardPageApiV1PublicLeaderboardPageGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetLeaderboardPageApiV1PublicLeaderboardPageGetQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Periodic Leaderboard
+ */
+export type getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetResponse200 = {
+  data: PeriodicLeaderboardPayload
+  status: 200
+}
+
+export type getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetResponseSuccess = (getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetResponse200) & {
+  headers: Headers;
+};
+export type getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetResponseError = (getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetResponse422) & {
+  headers: Headers;
+};
+
+export type getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetResponse = (getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetResponseSuccess | getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetResponseError)
+
+export const getGetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetUrl = (params: GetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/public/leaderboard/periodic?${stringifiedParams}` : `/api/v1/public/leaderboard/periodic`
+}
+
+export const getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet = async (params: GetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetParams, options?: RequestInit): Promise<getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetResponse> => {
+  
+  return fastapiFetch<getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetResponse>(getGetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetQueryKey = (params?: GetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetParams,) => {
+    return [
+    `/api/v1/public/leaderboard/periodic`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetQueryOptions = <TData = Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>, TError = HTTPValidationError>(params: GetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>> = ({ signal }) => getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet(params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetQueryResult = NonNullable<Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>>
+export type GetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetQueryError = HTTPValidationError
+
+
+export function useGetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet<TData = Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>, TError = HTTPValidationError>(
+ params: GetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet<TData = Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>, TError = HTTPValidationError>(
+ params: GetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet<TData = Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>, TError = HTTPValidationError>(
+ params: GetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Periodic Leaderboard
+ */
+
+export function useGetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet<TData = Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>, TError = HTTPValidationError>(
+ params: GetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Leaderboard Months
+ */
+export type getLeaderboardMonthsApiV1PublicLeaderboardMonthsGetResponse200 = {
+  data: MonthlyLeaderboardMonth[]
+  status: 200
+}
+    
+export type getLeaderboardMonthsApiV1PublicLeaderboardMonthsGetResponseSuccess = (getLeaderboardMonthsApiV1PublicLeaderboardMonthsGetResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getLeaderboardMonthsApiV1PublicLeaderboardMonthsGetResponse = (getLeaderboardMonthsApiV1PublicLeaderboardMonthsGetResponseSuccess)
+
+export const getGetLeaderboardMonthsApiV1PublicLeaderboardMonthsGetUrl = () => {
+
+
+  
+
+  return `/api/v1/public/leaderboard/months`
+}
+
+export const getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet = async ( options?: RequestInit): Promise<getLeaderboardMonthsApiV1PublicLeaderboardMonthsGetResponse> => {
+  
+  return fastapiFetch<getLeaderboardMonthsApiV1PublicLeaderboardMonthsGetResponse>(getGetLeaderboardMonthsApiV1PublicLeaderboardMonthsGetUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetLeaderboardMonthsApiV1PublicLeaderboardMonthsGetQueryKey = () => {
+    return [
+    `/api/v1/public/leaderboard/months`
+    ] as const;
+    }
+
+    
+export const getGetLeaderboardMonthsApiV1PublicLeaderboardMonthsGetQueryOptions = <TData = Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLeaderboardMonthsApiV1PublicLeaderboardMonthsGetQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>> = ({ signal }) => getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet({ signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetLeaderboardMonthsApiV1PublicLeaderboardMonthsGetQueryResult = NonNullable<Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>>
+export type GetLeaderboardMonthsApiV1PublicLeaderboardMonthsGetQueryError = unknown
+
+
+export function useGetLeaderboardMonthsApiV1PublicLeaderboardMonthsGet<TData = Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>,
+          TError,
+          Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetLeaderboardMonthsApiV1PublicLeaderboardMonthsGet<TData = Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>,
+          TError,
+          Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetLeaderboardMonthsApiV1PublicLeaderboardMonthsGet<TData = Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Leaderboard Months
+ */
+
+export function useGetLeaderboardMonthsApiV1PublicLeaderboardMonthsGet<TData = Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaderboardMonthsApiV1PublicLeaderboardMonthsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetLeaderboardMonthsApiV1PublicLeaderboardMonthsGetQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
  * @summary Get Realtime Visitors
  */
 export type getRealtimeVisitorsApiV1PublicAnalyticsRealtimeGetResponse200 = {
@@ -2306,6 +2679,356 @@ export function useGetRealtimeVisitorsApiV1PublicAnalyticsRealtimeGet<TData = Aw
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetRealtimeVisitorsApiV1PublicAnalyticsRealtimeGetQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Public Rewards Stats
+ */
+export type getPublicRewardsStatsApiV1PublicRewardsStatsGetResponse200 = {
+  data: PublicRewardsStats
+  status: 200
+}
+    
+export type getPublicRewardsStatsApiV1PublicRewardsStatsGetResponseSuccess = (getPublicRewardsStatsApiV1PublicRewardsStatsGetResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getPublicRewardsStatsApiV1PublicRewardsStatsGetResponse = (getPublicRewardsStatsApiV1PublicRewardsStatsGetResponseSuccess)
+
+export const getGetPublicRewardsStatsApiV1PublicRewardsStatsGetUrl = () => {
+
+
+  
+
+  return `/api/v1/public/rewards/stats`
+}
+
+export const getPublicRewardsStatsApiV1PublicRewardsStatsGet = async ( options?: RequestInit): Promise<getPublicRewardsStatsApiV1PublicRewardsStatsGetResponse> => {
+  
+  return fastapiFetch<getPublicRewardsStatsApiV1PublicRewardsStatsGetResponse>(getGetPublicRewardsStatsApiV1PublicRewardsStatsGetUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetPublicRewardsStatsApiV1PublicRewardsStatsGetQueryKey = () => {
+    return [
+    `/api/v1/public/rewards/stats`
+    ] as const;
+    }
+
+    
+export const getGetPublicRewardsStatsApiV1PublicRewardsStatsGetQueryOptions = <TData = Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPublicRewardsStatsApiV1PublicRewardsStatsGetQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>> = ({ signal }) => getPublicRewardsStatsApiV1PublicRewardsStatsGet({ signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPublicRewardsStatsApiV1PublicRewardsStatsGetQueryResult = NonNullable<Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>>
+export type GetPublicRewardsStatsApiV1PublicRewardsStatsGetQueryError = unknown
+
+
+export function useGetPublicRewardsStatsApiV1PublicRewardsStatsGet<TData = Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicRewardsStatsApiV1PublicRewardsStatsGet<TData = Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicRewardsStatsApiV1PublicRewardsStatsGet<TData = Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Public Rewards Stats
+ */
+
+export function useGetPublicRewardsStatsApiV1PublicRewardsStatsGet<TData = Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicRewardsStatsApiV1PublicRewardsStatsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPublicRewardsStatsApiV1PublicRewardsStatsGetQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Public Rewards Data
+ */
+export type getPublicRewardsDataApiV1PublicRewardsDataGetResponse200 = {
+  data: PublicRewardsData
+  status: 200
+}
+    
+export type getPublicRewardsDataApiV1PublicRewardsDataGetResponseSuccess = (getPublicRewardsDataApiV1PublicRewardsDataGetResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getPublicRewardsDataApiV1PublicRewardsDataGetResponse = (getPublicRewardsDataApiV1PublicRewardsDataGetResponseSuccess)
+
+export const getGetPublicRewardsDataApiV1PublicRewardsDataGetUrl = () => {
+
+
+  
+
+  return `/api/v1/public/rewards/data`
+}
+
+export const getPublicRewardsDataApiV1PublicRewardsDataGet = async ( options?: RequestInit): Promise<getPublicRewardsDataApiV1PublicRewardsDataGetResponse> => {
+  
+  return fastapiFetch<getPublicRewardsDataApiV1PublicRewardsDataGetResponse>(getGetPublicRewardsDataApiV1PublicRewardsDataGetUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetPublicRewardsDataApiV1PublicRewardsDataGetQueryKey = () => {
+    return [
+    `/api/v1/public/rewards/data`
+    ] as const;
+    }
+
+    
+export const getGetPublicRewardsDataApiV1PublicRewardsDataGetQueryOptions = <TData = Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPublicRewardsDataApiV1PublicRewardsDataGetQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>> = ({ signal }) => getPublicRewardsDataApiV1PublicRewardsDataGet({ signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPublicRewardsDataApiV1PublicRewardsDataGetQueryResult = NonNullable<Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>>
+export type GetPublicRewardsDataApiV1PublicRewardsDataGetQueryError = unknown
+
+
+export function useGetPublicRewardsDataApiV1PublicRewardsDataGet<TData = Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicRewardsDataApiV1PublicRewardsDataGet<TData = Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicRewardsDataApiV1PublicRewardsDataGet<TData = Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Public Rewards Data
+ */
+
+export function useGetPublicRewardsDataApiV1PublicRewardsDataGet<TData = Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicRewardsDataApiV1PublicRewardsDataGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPublicRewardsDataApiV1PublicRewardsDataGetQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Rewards Leaderboard Page
+ */
+export type getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetResponse200 = {
+  data: RewardsLeaderboardPageResult
+  status: 200
+}
+
+export type getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetResponseSuccess = (getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetResponse200) & {
+  headers: Headers;
+};
+export type getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetResponseError = (getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetResponse422) & {
+  headers: Headers;
+};
+
+export type getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetResponse = (getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetResponseSuccess | getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetResponseError)
+
+export const getGetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetUrl = (params?: GetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/public/rewards/leaderboard?${stringifiedParams}` : `/api/v1/public/rewards/leaderboard`
+}
+
+export const getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet = async (params?: GetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetParams, options?: RequestInit): Promise<getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetResponse> => {
+  
+  return fastapiFetch<getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetResponse>(getGetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetQueryKey = (params?: GetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetParams,) => {
+    return [
+    `/api/v1/public/rewards/leaderboard`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetQueryOptions = <TData = Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>, TError = HTTPValidationError>(params?: GetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>> = ({ signal }) => getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet(params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetQueryResult = NonNullable<Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>>
+export type GetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetQueryError = HTTPValidationError
+
+
+export function useGetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet<TData = Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>, TError = HTTPValidationError>(
+ params: undefined |  GetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>,
+          TError,
+          Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet<TData = Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>, TError = HTTPValidationError>(
+ params?: GetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>,
+          TError,
+          Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet<TData = Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>, TError = HTTPValidationError>(
+ params?: GetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Rewards Leaderboard Page
+ */
+
+export function useGetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet<TData = Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>, TError = HTTPValidationError>(
+ params?: GetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

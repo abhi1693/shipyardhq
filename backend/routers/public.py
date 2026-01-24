@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, time, timedelta, timezone
+import calendar
 import hashlib
 import random
 import re
@@ -34,11 +35,20 @@ from models import (
     ProductTrafficDaily,
     PricingModel,
     ProductType,
+    ProductUpvote,
     ProductVerification,
+    Redemption,
+    RedemptionStatus,
+    RewardBalance,
+    RewardCatalogItem,
+    RewardRule,
+    RewardTransaction,
+    RewardTransactionType,
     SiteTrafficDaily,
     UseCase,
     UseCaseCategory,
     User,
+    UserStatus,
 )
 from routers.base import api_prefix
 from services.cache import cached_json
@@ -61,11 +71,34 @@ from services.schemas.public import (
     HomepageFeedItem,
     HomepageFeedPageResult,
     HomepageFeedView,
+    LeaderboardArchive,
+    LeaderboardArchiveMonth,
+    LeaderboardArchiveWeek,
+    LeaderboardPageFilters,
+    LeaderboardPagePayload,
+    LeaderboardPeriod,
     LeaderboardStats,
+    MonthlyLeaderboardMonth,
+    MonthlyLeaderboardPayload,
+    MonthlyLeaderboardProduct,
+    MonthlyLeaderboardProductAnalytics,
+    MonthlyLeaderboardProductCategory,
+    MonthlyLeaderboardProductUser,
+    MonthlyLeaderboardRanking,
+    PeriodicLeaderboardPayload,
     ProductCategorySummary,
     ProductInterestSignals,
     PublicProductCard,
+    PublicRewardsData,
+    PublicRewardsRedemption,
+    PublicRewardsReward,
+    PublicRewardsRule,
+    PublicRewardsStats,
+    PublicRewardsStatsWindow,
+    PublicRewardsSpentWindow,
     RealtimeVisitors,
+    RewardsLeaderboardEntry,
+    RewardsLeaderboardPageResult,
     SponsoredPlacement,
     SponsoredPlacementSchedule,
     SponsoredProduct,
@@ -93,6 +126,9 @@ PLACEMENT_CACHE_TTL = 300
 STICKY_BANNER_CACHE_TTL = 600
 LEADERBOARD_STATS_CACHE_TTL = 120
 REALTIME_CACHE_TTL = 60
+LEADERBOARD_PAGE_CACHE_TTL = 120
+LEADERBOARD_PERIODIC_CACHE_TTL = 300
+LEADERBOARD_MONTHS_CACHE_TTL = 3600
 
 PRIORITY_FEATURE_KEY = "priorityPlacement"
 SPONSORED_FEATURE_KEY = "sponsoredProducts"
@@ -108,6 +144,20 @@ CATEGORIES_CACHE_TTL = 600
 USE_CASES_CACHE_TTL = 600
 ALTERNATIVES_CACHE_TTL = 600
 TAGS_CACHE_TTL = 600
+
+LEADERBOARD_DEFAULT_LIMIT = 50
+LEADERBOARD_MAX_LIMIT = 100
+LEADERBOARD_ARCHIVE_LOOKBACK_MONTHS = 12
+LEADERBOARD_SCORE_WEIGHT_VIEWS = 1
+LEADERBOARD_SCORE_WEIGHT_UNIQUE = 3
+LEADERBOARD_SCORE_WEIGHT_UPVOTES = 10
+LEADERBOARD_VERIFIED_MULTIPLIER = 1.4
+
+REWARDS_STATS_CACHE_TTL = 300
+REWARDS_PAGE_CACHE_TTL = 300
+REWARDS_LEADERBOARD_CACHE_TTL = 120
+REWARDS_LEADERBOARD_DEFAULT_PAGE_SIZE = 20
+REWARDS_LEADERBOARD_MAX_PAGE_SIZE = 100
 
 CATEGORY_PRODUCTS_PAGE_SIZE = 20
 CATEGORY_PRODUCTS_MAX_PAGE_SIZE = 50
@@ -337,6 +387,111 @@ def _resolve_product_revenue(connector: PaymentConnector | None) -> tuple[int | 
         latest = max(connector.revenue_history, key=lambda row: row.period_start)
         return latest.all_time_revenue_cents, latest.currency_code
     return None, None
+
+
+def _normalize_leaderboard_limit(value: int | None) -> int:
+    if value is None:
+        return LEADERBOARD_DEFAULT_LIMIT
+    try:
+        normalized = int(value)
+    except (TypeError, ValueError):
+        return LEADERBOARD_DEFAULT_LIMIT
+    return max(1, min(normalized, LEADERBOARD_MAX_LIMIT))
+
+
+def _normalize_rewards_page_size(value: int | None) -> int:
+    if value is None:
+        return REWARDS_LEADERBOARD_DEFAULT_PAGE_SIZE
+    try:
+        normalized = int(value)
+    except (TypeError, ValueError):
+        return REWARDS_LEADERBOARD_DEFAULT_PAGE_SIZE
+    return max(1, min(normalized, REWARDS_LEADERBOARD_MAX_PAGE_SIZE))
+
+
+def _start_of_iso_week(year: int, week: int) -> datetime | None:
+    try:
+        return datetime.fromisocalendar(year, week, 1).replace(tzinfo=timezone.utc)
+    except ValueError:
+        return None
+
+
+def _format_period_label(period: LeaderboardPeriod, start: datetime, end: datetime) -> str:
+    if period == LeaderboardPeriod.DAY:
+        return f"{start.strftime('%B')} {start.day}"
+    if period == LeaderboardPeriod.WEEK:
+        end_day = end - timedelta(days=1)
+        return f"{start.strftime('%b')} {start.day} - {end_day.strftime('%b')} {end_day.day}"
+    return start.strftime("%B %Y")
+
+
+def _resolve_period_window(
+    *,
+    period: LeaderboardPeriod,
+    year: int,
+    month: int | None = None,
+    day: int | None = None,
+    week: int | None = None,
+) -> tuple[datetime, datetime, str] | None:
+    if period == LeaderboardPeriod.DAY:
+        if month is None or day is None:
+            return None
+        try:
+            start = datetime(year, month, day, tzinfo=timezone.utc)
+        except ValueError:
+            return None
+        end = start + timedelta(days=1)
+        return start, end, _format_period_label(period, start, end)
+
+    if period == LeaderboardPeriod.WEEK:
+        if week is None:
+            return None
+        start = _start_of_iso_week(year, week)
+        if not start:
+            return None
+        end = start + timedelta(days=7)
+        return start, end, _format_period_label(period, start, end)
+
+    if month is None:
+        return None
+    try:
+        start = datetime(year, month, 1, tzinfo=timezone.utc)
+    except ValueError:
+        return None
+    if month == 12:
+        end = datetime(year + 1, 1, 1, tzinfo=timezone.utc)
+    else:
+        end = datetime(year, month + 1, 1, tzinfo=timezone.utc)
+    return start, end, _format_period_label(period, start, end)
+
+
+def _month_key(date: datetime) -> str:
+    last_day = calendar.monthrange(date.year, date.month)[1]
+    return f"{last_day:02d}-{date.month:02d}-{date.year}"
+
+
+def _parse_month_key(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    match = re.match(r"^(\d{2})-(\d{2})-(\d{4})$", value)
+    if not match:
+        return None
+    day = int(match.group(1))
+    month = int(match.group(2))
+    year = int(match.group(3))
+    if month < 1 or month > 12:
+        return None
+    last_day = calendar.monthrange(year, month)[1]
+    if day != last_day:
+        return None
+    return datetime(year, month, 1, tzinfo=timezone.utc)
+
+
+def _shift_month(date: datetime, delta: int) -> datetime:
+    total_months = (date.year * 12) + (date.month - 1) + delta
+    year = total_months // 12
+    month = (total_months % 12) + 1
+    return datetime(year, month, 1, tzinfo=timezone.utc)
 
 
 def _resolve_product_badges(product: Product, now: datetime) -> list[str]:
@@ -936,6 +1091,264 @@ async def _fetch_interest_map(
     return signals
 
 
+def _current_leaderboard_window(now: datetime | None = None) -> tuple[datetime, datetime]:
+    now = now or datetime.now(timezone.utc)
+    period_start = datetime(now.year, now.month, 1, tzinfo=timezone.utc)
+    if now.month == 12:
+        period_end = datetime(now.year + 1, 1, 1, tzinfo=timezone.utc)
+    else:
+        period_end = datetime(now.year, now.month + 1, 1, tzinfo=timezone.utc)
+    return period_start, period_end
+
+
+async def _fetch_verified_revenue_product_ids(
+    session: Session, product_ids: Sequence[int] | None = None
+) -> set[int]:
+    stmt = select(PaymentConnector.product_id).where(_verified_revenue_condition())
+    if product_ids:
+        stmt = stmt.where(PaymentConnector.product_id.in_(product_ids))
+    rows = (await session.exec(stmt)).all()
+    return {int(row[0]) for row in rows}
+
+
+async def _fetch_leaderboard_run(
+    session: Session, *, period_start: datetime, period_end: datetime
+) -> LeaderboardRun | None:
+    stmt = select(LeaderboardRun).where(
+        and_(
+            LeaderboardRun.period_start == period_start,
+            LeaderboardRun.period_end == period_end,
+        )
+    )
+    return (await session.exec(stmt)).scalars().one_or_none()
+
+
+async def _fetch_leaderboard_product_ids(
+    session: Session,
+    *,
+    run_id: int,
+    limit: int,
+    category_slug: str | None,
+    verified_revenue_only: bool,
+) -> tuple[list[int], dict[int, int]]:
+    stmt = (
+        select(
+            ProductLeaderboardScore.product_id,
+            ProductLeaderboardScore.score,
+            ProductLeaderboardScore.upvotes,
+        )
+        .join(Product, Product.id == ProductLeaderboardScore.product_id)
+        .where(
+            and_(
+                ProductLeaderboardScore.run_id == run_id,
+                Product.status == ProductStatus.PUBLISHED,
+            )
+        )
+    )
+    if category_slug:
+        stmt = stmt.join(Category, Category.id == Product.category_id).where(
+            Category.slug == category_slug
+        )
+    if verified_revenue_only:
+        stmt = stmt.join(
+            PaymentConnector, PaymentConnector.product_id == Product.id
+        ).where(_verified_revenue_condition())
+
+    stmt = stmt.order_by(
+        ProductLeaderboardScore.score.desc(),
+        ProductLeaderboardScore.upvotes.desc(),
+        ProductLeaderboardScore.product_id.asc(),
+    ).limit(limit)
+
+    rows = (await session.exec(stmt)).all()
+    product_ids = [int(row[0]) for row in rows]
+    score_map = {int(row[0]): int(row[1] or 0) for row in rows}
+    return product_ids, score_map
+
+
+async def _compute_period_scores(
+    session: Session,
+    *,
+    period_start: datetime,
+    period_end: datetime,
+    category_slug: str | None,
+    verified_revenue_only: bool,
+    limit: int | None,
+) -> tuple[list[int], dict[int, int]]:
+    start_date = period_start.date()
+    end_date = (period_end - timedelta(days=1)).date()
+
+    traffic_stmt = (
+        select(
+            ProductTrafficDaily.product_id,
+            func.sum(ProductTrafficDaily.page_views).label("views"),
+            func.sum(ProductTrafficDaily.unique_visitors).label("visitors"),
+        )
+        .join(Product, Product.id == ProductTrafficDaily.product_id)
+        .where(
+            and_(
+                ProductTrafficDaily.date >= start_date,
+                ProductTrafficDaily.date <= end_date,
+                Product.status == ProductStatus.PUBLISHED,
+            )
+        )
+        .group_by(ProductTrafficDaily.product_id)
+    )
+    if category_slug:
+        traffic_stmt = traffic_stmt.join(
+            Category, Category.id == Product.category_id
+        ).where(Category.slug == category_slug)
+    if verified_revenue_only:
+        traffic_stmt = traffic_stmt.join(
+            PaymentConnector, PaymentConnector.product_id == Product.id
+        ).where(_verified_revenue_condition())
+
+    upvote_stmt = (
+        select(
+            ProductUpvote.product_id,
+            func.count(ProductUpvote.id).label("upvotes"),
+        )
+        .join(Product, Product.id == ProductUpvote.product_id)
+        .where(
+            and_(
+                ProductUpvote.created_at >= period_start,
+                ProductUpvote.created_at < period_end,
+                Product.status == ProductStatus.PUBLISHED,
+            )
+        )
+        .group_by(ProductUpvote.product_id)
+    )
+    if category_slug:
+        upvote_stmt = upvote_stmt.join(
+            Category, Category.id == Product.category_id
+        ).where(Category.slug == category_slug)
+    if verified_revenue_only:
+        upvote_stmt = upvote_stmt.join(
+            PaymentConnector, PaymentConnector.product_id == Product.id
+        ).where(_verified_revenue_condition())
+
+    traffic_rows = (await session.exec(traffic_stmt)).all()
+    upvote_rows = (await session.exec(upvote_stmt)).all()
+
+    views_map = {int(row[0]): int(row[1] or 0) for row in traffic_rows}
+    visitors_map = {int(row[0]): int(row[2] or 0) for row in traffic_rows}
+    upvotes_map = {int(row[0]): int(row[1] or 0) for row in upvote_rows}
+
+    product_ids = set(views_map.keys()) | set(visitors_map.keys()) | set(
+        upvotes_map.keys()
+    )
+    if not product_ids:
+        return [], {}
+
+    verified_ids = await _fetch_verified_revenue_product_ids(
+        session, list(product_ids)
+    )
+
+    scored_rows = []
+    for product_id in product_ids:
+        views = views_map.get(product_id, 0)
+        visitors = visitors_map.get(product_id, 0)
+        upvotes = upvotes_map.get(product_id, 0)
+        base_score = (
+            views * LEADERBOARD_SCORE_WEIGHT_VIEWS
+            + visitors * LEADERBOARD_SCORE_WEIGHT_UNIQUE
+            + upvotes * LEADERBOARD_SCORE_WEIGHT_UPVOTES
+        )
+        if base_score <= 0:
+            continue
+        multiplier = (
+            LEADERBOARD_VERIFIED_MULTIPLIER
+            if product_id in verified_ids
+            else 1.0
+        )
+        score = int(round(base_score * multiplier))
+        scored_rows.append((product_id, score, upvotes))
+
+    scored_rows.sort(key=lambda row: (-row[1], -row[2], row[0]))
+    if isinstance(limit, int):
+        scored_rows = scored_rows[:limit]
+
+    ordered_ids = [row[0] for row in scored_rows]
+    score_map = {row[0]: row[1] for row in scored_rows}
+    return ordered_ids, score_map
+
+
+async def _build_leaderboard_archive(session: Session) -> LeaderboardArchive:
+    now = datetime.now(timezone.utc)
+    earliest_month = _shift_month(
+        datetime(now.year, now.month, 1, tzinfo=timezone.utc),
+        -(LEADERBOARD_ARCHIVE_LOOKBACK_MONTHS - 1),
+    )
+
+    months: set[tuple[int, int]] = set()
+    weeks: set[tuple[int, int]] = set()
+
+    score_exists = exists(
+        select(ProductLeaderboardScore.id).where(
+            and_(
+                ProductLeaderboardScore.run_id == LeaderboardRun.id,
+                ProductLeaderboardScore.score > 0,
+            )
+        )
+    )
+    run_stmt = (
+        select(LeaderboardRun.period_start, LeaderboardRun.period_end)
+        .where(
+            and_(
+                LeaderboardRun.period_start >= earliest_month,
+                score_exists,
+            )
+        )
+        .order_by(LeaderboardRun.period_start.desc())
+    )
+
+    runs = (await session.exec(run_stmt)).all()
+    for period_start, period_end in runs:
+        duration_days = int((period_end - period_start).days)
+        if duration_days == 7 or duration_days == 1:
+            iso_year, iso_week, _ = period_start.isocalendar()
+            weeks.add((iso_year, iso_week))
+            months.add((period_start.year, period_start.month))
+        elif 28 <= duration_days <= 32:
+            months.add((period_start.year, period_start.month))
+
+    upvote_stmt = (
+        select(ProductUpvote.created_at)
+        .join(Product, Product.id == ProductUpvote.product_id)
+        .where(
+            and_(
+                ProductUpvote.created_at >= earliest_month,
+                Product.status == ProductStatus.PUBLISHED,
+            )
+        )
+    )
+    upvote_rows = (await session.exec(upvote_stmt)).all()
+    for (created_at,) in upvote_rows:
+        iso_year, iso_week, _ = created_at.isocalendar()
+        weeks.add((iso_year, iso_week))
+        months.add((created_at.year, created_at.month))
+
+    sorted_months = sorted(list(months), key=lambda row: (row[0], row[1]), reverse=True)
+    sorted_weeks = sorted(
+        list(weeks),
+        key=lambda row: (
+            _start_of_iso_week(row[0], row[1]) or datetime.min.replace(tzinfo=timezone.utc)
+        ),
+        reverse=True,
+    )
+
+    return LeaderboardArchive(
+        months=[
+            LeaderboardArchiveMonth(year=year, month=month)
+            for year, month in sorted_months
+        ],
+        weeks=[
+            LeaderboardArchiveWeek(year=year, week=week)
+            for year, week in sorted_weeks
+        ],
+    )
+
+
 def _map_product_to_card(
     product: Product,
     *,
@@ -1230,9 +1643,7 @@ async def _fetch_new_feed_products(
     return rows[:page_size], has_more
 
 
-async def _fetch_verified_revenue_products(
-    session: Session, *, page: int, page_size: int
-) -> tuple[list[Product], bool]:
+def _verified_revenue_condition():
     revenue_exists = exists(
         select(PaymentRevenueSnapshot.id).where(
             and_(
@@ -1241,7 +1652,19 @@ async def _fetch_verified_revenue_products(
             )
         )
     )
+    return and_(
+        PaymentConnector.status == PaymentConnectorStatus.ACTIVE,
+        PaymentConnector.verified_at.isnot(None),
+        or_(
+            PaymentConnector.latest_all_time_revenue_cents > 0,
+            revenue_exists,
+        ),
+    )
 
+
+async def _fetch_verified_revenue_products(
+    session: Session, *, page: int, page_size: int
+) -> tuple[list[Product], bool]:
     stmt = (
         select(Product)
         .join(PaymentConnector, PaymentConnector.product_id == Product.id)
@@ -1249,12 +1672,7 @@ async def _fetch_verified_revenue_products(
         .where(
             and_(
                 Product.status == ProductStatus.PUBLISHED,
-                PaymentConnector.status == PaymentConnectorStatus.ACTIVE,
-                PaymentConnector.verified_at.isnot(None),
-                or_(
-                    PaymentConnector.latest_all_time_revenue_cents > 0,
-                    revenue_exists,
-                ),
+                _verified_revenue_condition(),
             )
         )
         .order_by(
@@ -2510,6 +2928,223 @@ async def get_leaderboard_stats(
     return LeaderboardStats.model_validate(payload)
 
 
+@router.get("/leaderboard/page", response_model=LeaderboardPagePayload)
+async def get_leaderboard_page(
+    request: Request,
+    category: str | None = Query(None),
+    limit: int | None = Query(None),
+    verified: bool | None = Query(None),
+    session: Session = Depends(get_session),
+) -> LeaderboardPagePayload:
+    safe_limit = _normalize_leaderboard_limit(limit)
+    category_slug = category.strip() if category else None
+    verified_revenue_only = bool(verified)
+
+    async def build_payload() -> dict:
+        stats = await _build_leaderboard_stats(session)
+        categories = await _fetch_category_summaries(session)
+        period_start, period_end = _current_leaderboard_window()
+        run = await _fetch_leaderboard_run(
+            session, period_start=period_start, period_end=period_end
+        )
+
+        product_ids: list[int] = []
+        score_map: dict[int, int] = {}
+        if run:
+            product_ids, score_map = await _fetch_leaderboard_product_ids(
+                session,
+                run_id=run.id,
+                limit=safe_limit,
+                category_slug=category_slug,
+                verified_revenue_only=verified_revenue_only,
+            )
+
+        products = await _fetch_products_by_ids(session, product_ids)
+        interest_map = (
+            await _fetch_interest_map(session, product_ids)
+            if product_ids
+            else {}
+        )
+        now = datetime.now(timezone.utc)
+        items = [
+            _map_product_to_card(
+                product,
+                now=now,
+                score_map=score_map,
+                interest_map=interest_map,
+            )
+            for product in products
+        ]
+        category_name = (
+            next((entry.name for entry in categories if entry.slug == category_slug), None)
+            if category_slug
+            else None
+        )
+
+        payload = LeaderboardPagePayload(
+            filters=LeaderboardPageFilters(
+                categorySlug=category_slug,
+                limit=safe_limit,
+                verifiedRevenueOnly=verified_revenue_only,
+            ),
+            stats=stats,
+            categories=categories,
+            products=items,
+            categoryName=category_name,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:leaderboard-page",
+        ttl_seconds=LEADERBOARD_PAGE_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("category", category_slug or ""),
+            ("limit", str(safe_limit)),
+            ("verified", str(verified_revenue_only).lower()),
+        ],
+        builder=build_payload,
+    )
+    return LeaderboardPagePayload.model_validate(payload)
+
+
+@router.get("/leaderboard/periodic", response_model=PeriodicLeaderboardPayload)
+async def get_periodic_leaderboard(
+    request: Request,
+    period: LeaderboardPeriod = Query(LeaderboardPeriod.DAY),
+    year: int = Query(..., ge=1970, le=3000),
+    month: int | None = Query(None, ge=1, le=12),
+    day: int | None = Query(None, ge=1, le=31),
+    week: int | None = Query(None, ge=1, le=53),
+    limit: int | None = Query(None),
+    verified: bool | None = Query(None),
+    category: str | None = Query(None),
+    session: Session = Depends(get_session),
+) -> PeriodicLeaderboardPayload:
+    category_slug = category.strip() if category else None
+    verified_revenue_only = bool(verified)
+    window = _resolve_period_window(
+        period=period, year=year, month=month, day=day, week=week
+    )
+    if not window:
+        raise HTTPException(status_code=404, detail="Period not available")
+    period_start, period_end, period_label = window
+
+    today = datetime.now(timezone.utc)
+    today = datetime.combine(today.date(), time.min, tzinfo=timezone.utc)
+    if period_start > today:
+        raise HTTPException(status_code=404, detail="Period not available")
+
+    safe_limit = (
+        _normalize_leaderboard_limit(limit)
+        if limit is not None
+        else LEADERBOARD_MAX_LIMIT
+    )
+
+    async def build_payload() -> dict:
+        product_ids: list[int] = []
+        score_map: dict[int, int] = {}
+
+        if period == LeaderboardPeriod.MONTH:
+            run = await _fetch_leaderboard_run(
+                session, period_start=period_start, period_end=period_end
+            )
+            if run:
+                product_ids, score_map = await _fetch_leaderboard_product_ids(
+                    session,
+                    run_id=run.id,
+                    limit=safe_limit,
+                    category_slug=category_slug,
+                    verified_revenue_only=verified_revenue_only,
+                )
+
+        if not product_ids:
+            product_ids, score_map = await _compute_period_scores(
+                session,
+                period_start=period_start,
+                period_end=period_end,
+                category_slug=category_slug,
+                verified_revenue_only=verified_revenue_only,
+                limit=safe_limit,
+            )
+
+        products = await _fetch_products_by_ids(session, product_ids)
+        interest_map = (
+            await _fetch_interest_map(session, product_ids)
+            if product_ids
+            else {}
+        )
+        now = datetime.now(timezone.utc)
+        items = [
+            _map_product_to_card(
+                product,
+                now=now,
+                score_map=score_map,
+                interest_map=interest_map,
+            )
+            for product in products
+        ]
+        archive = await _build_leaderboard_archive(session)
+
+        payload = PeriodicLeaderboardPayload(
+            period=period,
+            periodLabel=period_label,
+            periodStart=period_start.isoformat(),
+            periodEnd=period_end.isoformat(),
+            products=items,
+            archive=archive,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:leaderboard-periodic",
+        ttl_seconds=LEADERBOARD_PERIODIC_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("period", period.value),
+            ("year", str(year)),
+            ("month", str(month or "")),
+            ("day", str(day or "")),
+            ("week", str(week or "")),
+            ("limit", str(safe_limit)),
+            ("category", category_slug or ""),
+            ("verified", str(verified_revenue_only).lower()),
+        ],
+        builder=build_payload,
+    )
+    return PeriodicLeaderboardPayload.model_validate(payload)
+
+
+@router.get("/leaderboard/months", response_model=list[MonthlyLeaderboardMonth])
+async def get_leaderboard_months(
+    request: Request,
+    session: Session = Depends(get_session),
+) -> list[MonthlyLeaderboardMonth]:
+    async def build_payload() -> list[dict]:
+        stmt = (
+            select(LeaderboardRun.period_start)
+            .distinct()
+            .order_by(LeaderboardRun.period_start.desc())
+        )
+        rows = (await session.exec(stmt)).all()
+        months = [
+            MonthlyLeaderboardMonth(
+                month=_month_key(period_start),
+                label=period_start.strftime("%B %Y"),
+            )
+            for (period_start,) in rows
+        ]
+        return [month.model_dump(mode="json") for month in months]
+
+    payload = await cached_json(
+        "public:leaderboard-months",
+        ttl_seconds=LEADERBOARD_MONTHS_CACHE_TTL,
+        path=request.url.path,
+        builder=build_payload,
+    )
+    return [MonthlyLeaderboardMonth.model_validate(item) for item in payload]
+
+
 @router.get("/analytics/realtime", response_model=RealtimeVisitors)
 async def get_realtime_visitors(
     request: Request,
@@ -2526,6 +3161,427 @@ async def get_realtime_visitors(
         builder=build_payload,
     )
     return RealtimeVisitors.model_validate(payload)
+
+
+async def _build_public_rewards_stats(session: Session) -> PublicRewardsStats:
+    now = datetime.now(timezone.utc)
+    thirty_days_ago = now - timedelta(days=30)
+
+    members_with_rewards = _scalar_value(
+        (
+            await session.exec(
+                select(func.count(RewardBalance.user_id)).where(
+                    RewardBalance.lifetime_earned > 0
+                )
+            )
+        ).one()
+    )
+    active_balances = _scalar_value(
+        (
+            await session.exec(
+                select(func.count(RewardBalance.user_id)).where(
+                    RewardBalance.balance > 0
+                )
+            )
+        ).one()
+    )
+
+    earned_stmt = (
+        select(
+            func.coalesce(func.sum(RewardTransaction.reward_amount), 0),
+            func.count(RewardTransaction.id),
+        )
+        .where(
+            and_(
+                RewardTransaction.type == RewardTransactionType.EARN,
+                RewardTransaction.created_at >= thirty_days_ago,
+            )
+        )
+        .limit(1)
+    )
+    earned_row = (await session.exec(earned_stmt)).one()
+    earned_amount = int(earned_row[0] or 0)
+    earned_count = int(earned_row[1] or 0)
+
+    spent_stmt = (
+        select(
+            func.coalesce(func.sum(RewardTransaction.reward_amount), 0),
+            func.count(RewardTransaction.id),
+        )
+        .where(
+            and_(
+                RewardTransaction.type == RewardTransactionType.SPEND,
+                RewardTransaction.created_at >= thirty_days_ago,
+            )
+        )
+        .limit(1)
+    )
+    spent_row = (await session.exec(spent_stmt)).one()
+    spent_amount = int(spent_row[0] or 0)
+
+    redeemed_count = _scalar_value(
+        (
+            await session.exec(
+                select(func.count(Redemption.id)).where(
+                    and_(
+                        Redemption.created_at >= thirty_days_ago,
+                        Redemption.status.in_(
+                            [
+                                RedemptionStatus.PENDING,
+                                RedemptionStatus.ACTIVE,
+                                RedemptionStatus.REFUNDED,
+                            ]
+                        ),
+                    )
+                )
+            )
+        ).one()
+    )
+
+    return PublicRewardsStats(
+        membersWithRewards=members_with_rewards,
+        activeBalances=active_balances,
+        earnedLast30d=PublicRewardsStatsWindow(
+            rewardAmount=earned_amount,
+            transactions=earned_count,
+        ),
+        spentLast30d=PublicRewardsSpentWindow(
+            rewardAmount=spent_amount,
+            redemptions=redeemed_count,
+        ),
+    )
+
+
+@router.get("/rewards/stats", response_model=PublicRewardsStats)
+async def get_public_rewards_stats(
+    request: Request,
+    session: Session = Depends(get_session),
+) -> PublicRewardsStats:
+    async def build_payload() -> dict:
+        payload = await _build_public_rewards_stats(session)
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:rewards-stats",
+        ttl_seconds=REWARDS_STATS_CACHE_TTL,
+        path=request.url.path,
+        builder=build_payload,
+    )
+    return PublicRewardsStats.model_validate(payload)
+
+
+@router.get("/rewards/data", response_model=PublicRewardsData)
+async def get_public_rewards_data(
+    request: Request,
+    session: Session = Depends(get_session),
+) -> PublicRewardsData:
+    async def build_payload() -> dict:
+        now = datetime.now(timezone.utc)
+        ninety_days_ago = now - timedelta(days=90)
+
+        stats = await _build_public_rewards_stats(session)
+
+        rule_usage_stmt = (
+            select(
+                RewardTransaction.rule_id,
+                RewardTransaction.rule_key,
+                func.coalesce(func.sum(RewardTransaction.reward_amount), 0).label(
+                    "reward_amount"
+                ),
+                func.count(RewardTransaction.id).label("award_count"),
+            )
+            .where(
+                and_(
+                    RewardTransaction.type == RewardTransactionType.EARN,
+                    RewardTransaction.created_at >= ninety_days_ago,
+                    RewardTransaction.rule_id.isnot(None),
+                )
+            )
+            .group_by(RewardTransaction.rule_id, RewardTransaction.rule_key)
+            .order_by(func.coalesce(func.sum(RewardTransaction.reward_amount), 0).desc())
+            .limit(8)
+        )
+        rule_usage_rows = (await session.exec(rule_usage_stmt)).all()
+
+        rule_stmt = select(RewardRule).where(RewardRule.is_active.is_(True))
+        rule_rows = (await session.exec(rule_stmt)).scalars().all()
+
+        catalog_stmt = (
+            select(RewardCatalogItem)
+            .where(RewardCatalogItem.is_active.is_(True))
+            .order_by(
+                RewardCatalogItem.category.asc(),
+                RewardCatalogItem.base_cost.asc(),
+                RewardCatalogItem.name.asc(),
+            )
+        )
+        catalog_rows = (await session.exec(catalog_stmt)).scalars().all()
+
+        redemption_counts_stmt = (
+            select(
+                Redemption.feature_key,
+                func.count(Redemption.id).label("redemption_count"),
+            )
+            .where(
+                and_(
+                    Redemption.created_at >= ninety_days_ago,
+                    Redemption.status.in_(
+                        [
+                            RedemptionStatus.PENDING,
+                            RedemptionStatus.ACTIVE,
+                            RedemptionStatus.REFUNDED,
+                        ]
+                    ),
+                )
+            )
+            .group_by(Redemption.feature_key)
+        )
+        redemption_count_rows = (await session.exec(redemption_counts_stmt)).all()
+
+        recent_redemptions_stmt = (
+            select(Redemption)
+            .where(
+                Redemption.status.in_(
+                    [
+                        RedemptionStatus.ACTIVE,
+                        RedemptionStatus.PENDING,
+                        RedemptionStatus.REFUNDED,
+                    ]
+                )
+            )
+            .order_by(Redemption.created_at.desc())
+            .limit(4)
+            .options(
+                selectinload(Redemption.catalog_item),
+                selectinload(Redemption.product),
+            )
+        )
+        recent_redemptions = (await session.exec(recent_redemptions_stmt)).scalars().all()
+
+        usage_by_rule_id = {
+            int(row[0]): {"reward_amount": int(row[2] or 0), "award_count": int(row[3] or 0)}
+            for row in rule_usage_rows
+            if row[0] is not None
+        }
+
+        rules = []
+        for rule in rule_rows:
+            usage = usage_by_rule_id.get(rule.id)
+            rules.append(
+                PublicRewardsRule(
+                    id=str(rule.id),
+                    name=rule.name,
+                    description=rule.description,
+                    category=rule.category,
+                    baseRewardAmount=rule.base_reward_amount,
+                    dailyCap=rule.daily_cap,
+                    lifetimeCap=rule.lifetime_cap,
+                    totalAwarded=usage["reward_amount"] if usage else 0,
+                    awardCount=usage["award_count"] if usage else 0,
+                )
+            )
+
+        rules.sort(
+            key=lambda entry: (
+                -entry.baseRewardAmount,
+                -entry.totalAwarded,
+                -entry.awardCount,
+                entry.name,
+            )
+        )
+
+        redemption_counts = {
+            row[0]: int(row[1] or 0) for row in redemption_count_rows
+        }
+
+        rewards = [
+            PublicRewardsReward(
+                featureKey=item.feature_key,
+                name=item.name,
+                description=item.description,
+                category=item.category,
+                baseCost=item.base_cost,
+                durationSeconds=item.duration_seconds,
+                requiresProduct=item.requires_product,
+                maxActivePerUser=item.max_active_per_user,
+                maxPendingPerUser=item.max_pending_per_user,
+                redemptionCount=redemption_counts.get(item.feature_key, 0),
+            )
+            for item in catalog_rows
+        ]
+
+        recent = [
+            PublicRewardsRedemption(
+                id=str(item.id),
+                featureKey=item.feature_key,
+                name=item.catalog_item.name if item.catalog_item else None,
+                productName=item.product.name if item.product else None,
+                productSlug=item.product.slug if item.product else None,
+                cost=item.cost,
+                status=item.status,
+                createdAt=item.created_at.isoformat(),
+            )
+            for item in recent_redemptions
+        ]
+
+        payload = PublicRewardsData(
+            stats=stats,
+            rules=rules,
+            rewards=rewards,
+            recentRedemptions=recent,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:rewards-data",
+        ttl_seconds=REWARDS_PAGE_CACHE_TTL,
+        path=request.url.path,
+        builder=build_payload,
+    )
+    return PublicRewardsData.model_validate(payload)
+
+
+@router.get("/rewards/leaderboard", response_model=RewardsLeaderboardPageResult)
+async def get_rewards_leaderboard_page(
+    request: Request,
+    *,
+    page: int | None = Query(None),
+    page_size: int | None = Query(None, alias="pageSize"),
+    session: Session = Depends(get_session),
+) -> RewardsLeaderboardPageResult:
+    safe_page = _normalize_page(page, 1)
+    safe_page_size = _normalize_rewards_page_size(page_size)
+    offset = (safe_page - 1) * safe_page_size
+
+    async def build_payload() -> dict:
+        launch_counts = (
+            select(
+                Product.user_id,
+                func.count(Product.id).label("launch_count"),
+            )
+            .where(Product.status == ProductStatus.PUBLISHED)
+            .group_by(Product.user_id)
+            .subquery()
+        )
+
+        stmt = (
+            select(
+                RewardBalance.user_id,
+                RewardBalance.balance,
+                RewardBalance.lifetime_earned,
+                RewardBalance.lifetime_spent,
+                RewardBalance.lifetime_adjusted,
+                RewardBalance.lifetime_refunded,
+                RewardBalance.current_streak_count,
+                RewardBalance.longest_streak_count,
+                RewardBalance.last_earned_at,
+                RewardBalance.last_redeemed_at,
+                User.first_name,
+                User.last_name,
+                launch_counts.c.launch_count,
+            )
+            .join(User, User.id == RewardBalance.user_id)
+            .outerjoin(launch_counts, launch_counts.c.user_id == User.id)
+            .where(
+                and_(
+                    RewardBalance.lifetime_earned > 0,
+                    User.status == UserStatus.ACTIVE,
+                )
+            )
+            .order_by(
+                RewardBalance.lifetime_earned.desc(),
+                RewardBalance.updated_at.desc(),
+            )
+            .offset(offset)
+            .limit(safe_page_size)
+        )
+        rows = (await session.exec(stmt)).all()
+
+        total = _scalar_value(
+            (
+                await session.exec(
+                    select(func.count(RewardBalance.user_id))
+                    .join(User, User.id == RewardBalance.user_id)
+                    .where(
+                        and_(
+                            RewardBalance.lifetime_earned > 0,
+                            User.status == UserStatus.ACTIVE,
+                        )
+                    )
+                )
+            ).one()
+        )
+
+        items: list[RewardsLeaderboardEntry] = []
+        for row in rows:
+            (
+                user_id,
+                balance,
+                lifetime_earned,
+                lifetime_spent,
+                lifetime_adjusted,
+                lifetime_refunded,
+                current_streak,
+                longest_streak,
+                last_earned_at,
+                last_redeemed_at,
+                first_name,
+                last_name,
+                launch_count,
+            ) = row
+
+            display_name = f"{first_name or ''} {last_name or ''}".strip()
+            if not display_name:
+                display_name = "Shipyard member"
+            initials = "".join(
+                [part[0].upper() for part in display_name.split()[:2] if part]
+            )
+            if not initials:
+                initials = "SY"
+
+            items.append(
+                RewardsLeaderboardEntry(
+                    userId=str(user_id),
+                    balance=int(balance or 0),
+                    lifetimeEarned=int(lifetime_earned or 0),
+                    lifetimeSpent=int(lifetime_spent or 0),
+                    lifetimeAdjusted=int(lifetime_adjusted or 0),
+                    lifetimeRefunded=int(lifetime_refunded or 0),
+                    currentStreakCount=int(current_streak or 0),
+                    longestStreakCount=int(longest_streak or 0),
+                    lastEarnedAt=last_earned_at.isoformat() if last_earned_at else None,
+                    lastRedeemedAt=last_redeemed_at.isoformat()
+                    if last_redeemed_at
+                    else None,
+                    displayName=display_name,
+                    initials=initials,
+                    avatarUrl=None,
+                    launchCount=int(launch_count or 0),
+                )
+            )
+
+        has_more = offset + len(items) < total
+        payload = RewardsLeaderboardPageResult(
+            items=items,
+            page=safe_page,
+            pageSize=safe_page_size,
+            hasMore=has_more,
+            nextPage=safe_page + 1 if has_more else None,
+            total=total,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:rewards-leaderboard",
+        ttl_seconds=REWARDS_LEADERBOARD_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("page", str(safe_page)),
+            ("pageSize", str(safe_page_size)),
+        ],
+        builder=build_payload,
+    )
+    return RewardsLeaderboardPageResult.model_validate(payload)
 
 
 @router.get("/categories/highlights", response_model=list[CategoryHighlight])

@@ -1,10 +1,6 @@
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
-import {
-  getLeaderboardStats,
-  getTopRankedProducts,
-} from "@/actions/public/leaderboard/actions"
-import { getCategoriesDirectoryApiV1PublicCategoriesDirectoryGet } from "@/lib/generated/fastapi/public-homepage"
-import type { CategorySummary } from "@/lib/generated/fastapi/schemas"
+import { getLeaderboardPageApiV1PublicLeaderboardPageGet } from "@/lib/generated/fastapi/public-homepage"
+import type { LeaderboardPagePayload as ApiLeaderboardPagePayload } from "@/lib/generated/fastapi/schemas"
 
 const DEFAULT_LIMIT = 50
 
@@ -14,22 +10,7 @@ export type LeaderboardFilters = {
   verifiedRevenueOnly?: boolean
 }
 
-type LeaderboardProduct = Awaited<
-  ReturnType<typeof getTopRankedProducts>
->[number]
-type LeaderboardCategory = CategorySummary
-
-export type LeaderboardPagePayload = {
-  filters: LeaderboardFilters
-  stats: Awaited<ReturnType<typeof getLeaderboardStats>>
-  categories: LeaderboardCategory[]
-  products: LeaderboardProduct[]
-  rankLabels: string[]
-  firstPlacement: LeaderboardProduct | null
-  runnerUps: LeaderboardProduct[]
-  rest: LeaderboardProduct[]
-  categoryName?: string
-}
+export type LeaderboardPagePayload = ApiLeaderboardPagePayload
 
 const normalizeFilters = (filters: LeaderboardFilters): LeaderboardFilters => {
   const limit =
@@ -51,39 +32,16 @@ export const getLeaderboardPagePayload = cached(
   async (input: LeaderboardFilters): Promise<LeaderboardPagePayload> => {
     const filters = normalizeFilters(input)
 
-    const [stats, categoriesResponse, products] = await Promise.all([
-      getLeaderboardStats(),
-      getCategoriesDirectoryApiV1PublicCategoriesDirectoryGet(),
-      getTopRankedProducts({
-        limit: filters.limit,
-        categorySlug: filters.categorySlug,
-        verifiedRevenueOnly: filters.verifiedRevenueOnly,
-      }),
-    ])
-    const categories = categoriesResponse.data.categories
-
-    const topThree = products.slice(0, 3)
-    const firstPlacement = topThree[0] ?? null
-    const runnerUps = topThree.slice(1)
-    const rest = products.slice(3)
-    const categoryName = filters.categorySlug
-      ? categories.find(
-          (category: (typeof categories)[number]) =>
-            category.slug === filters.categorySlug,
-        )?.name
-      : undefined
-
-    return {
-      filters,
-      stats,
-      categories,
-      products,
-      rankLabels: ["Top rank", "Second place", "Third place"],
-      firstPlacement,
-      runnerUps,
-      rest,
-      categoryName,
+    const response = await getLeaderboardPageApiV1PublicLeaderboardPageGet({
+      category: filters.categorySlug,
+      limit: filters.limit,
+      verified: filters.verifiedRevenueOnly ? true : undefined,
+    })
+    const data = response.data
+    if (typeof data !== "object" || data === null || !("filters" in data)) {
+      throw new Error("Invalid leaderboard payload.")
     }
+    return data
   },
   "leaderboard:page:payload",
   {
