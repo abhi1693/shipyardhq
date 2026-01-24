@@ -13,17 +13,23 @@ function xml(parts: TemplateStringsArray, ...subs: any[]) {
 export async function generateStaticParams(): Promise<
   Array<{ index: string }>
 > {
-  const response = await getTagDirectoryApiV1PublicTagsDirectoryGet({
-    page: 1,
-    pageSize: PAGE_SIZE,
-    includeTotal: true,
-  })
-  const total = response.data.total ?? response.data.items.length
-  const totalPages = Math.max(Math.ceil(total / PAGE_SIZE), 1)
+  try {
+    const response = await getTagDirectoryApiV1PublicTagsDirectoryGet({
+      page: 1,
+      pageSize: PAGE_SIZE,
+      includeTotal: true,
+    })
+    const items = response.status === 200 ? response.data.items : []
+    const total =
+      response.status === 200 ? (response.data.total ?? items.length) : 0
+    const totalPages = Math.max(Math.ceil(total / PAGE_SIZE), 1)
 
-  return Array.from({ length: totalPages }, (_, pageIndex) => ({
-    index: String(pageIndex + 1),
-  }))
+    return Array.from({ length: totalPages }, (_, pageIndex) => ({
+      index: String(pageIndex + 1),
+    }))
+  } catch {
+    return [{ index: "1" }]
+  }
 }
 
 export async function GET(
@@ -40,7 +46,7 @@ export async function GET(
     page,
     pageSize: PAGE_SIZE,
   })
-  const tags = response.data.items
+  const tags = response.status === 200 ? response.data.items : []
 
   const urls = tags
     .map((tag) => {

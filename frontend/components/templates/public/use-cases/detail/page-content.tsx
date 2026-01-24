@@ -54,7 +54,8 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
     await getHomepageFeedAllApiV1PublicHomepageFeedAllGet({
       view: DEFAULT_HOMEPAGE_FEED_VIEW,
     })
-  const homepageFeedItems = homepageFeedResponse.data.items
+  const homepageFeedItems =
+    homepageFeedResponse.status === 200 ? homepageFeedResponse.data.items : []
   const categorySlugs = new Set(categories.map((c) => c.slug.toLowerCase()))
   const categoryNames = new Set(
     categories.map((c) => c.name?.toLowerCase()).filter(Boolean) as string[],

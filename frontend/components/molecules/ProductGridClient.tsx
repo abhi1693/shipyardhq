@@ -6,8 +6,9 @@ import ProductGrid from "@/components/molecules/ProductGrid"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { toProductCardItem as buildProductCardItem } from "@/lib/products/card-item"
 import { getBrowseProductsApiV1PublicBrowseProductsGet } from "@/lib/generated/fastapi/public-homepage"
+import type { PublicProductCard } from "@/lib/generated/fastapi/schemas"
 
-type BrowseProduct = ProductCardBase
+type BrowseProduct = ProductCardBase | PublicProductCard
 
 interface ProductGridClientProps {
   initialProducts: BrowseProduct[]
@@ -31,8 +32,12 @@ export default function ProductGridClient({
   initialPage,
   searchParams,
 }: ProductGridClientProps) {
+  const toBaseCard = (item: BrowseProduct): ProductCardBase => ({
+    ...item,
+    scoreCount: item.scoreCount ?? undefined,
+  })
   const initialItems = useMemo(
-    () => initialProducts.map((item) => buildProductCardItem(item)),
+    () => initialProducts.map((item) => buildProductCardItem(toBaseCard(item))),
     [initialProducts],
   )
 
@@ -77,10 +82,18 @@ export default function ProductGridClient({
         pricingModel: normalizedSearch.pricingModel,
         productType: normalizedSearch.productType,
       })
+      if (response.status !== 200) {
+        return {
+          items: [],
+          hasMore: false,
+        }
+      }
       const result = response.data
 
       return {
-        items: result.items.map((item) => buildProductCardItem(item)),
+        items: result.items.map((item) =>
+          buildProductCardItem(toBaseCard(item)),
+        ),
         hasMore: result.hasMore,
       }
     },

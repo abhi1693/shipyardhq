@@ -66,7 +66,7 @@ function mapPlacementsToSponsors(
       tagline:
         product.tagline ??
         "Launch with Shipyard and reach thousands of early adopters.",
-      logo: product.logo,
+      logo: product.logo ?? null,
       bannerImage: product.bannerImage ?? null,
       slug: product.slug,
     })
@@ -193,11 +193,16 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
 
 const getCachedSponsorItems = cached(
   async () => {
-    const response = await getSponsoredProductsApiV1PublicProductsSponsoredGet({
-      limit: 1000,
-    })
-    const placements = response.data
-    return withPlaceholders(mapPlacementsToSponsors(placements))
+    try {
+      const response =
+        await getSponsoredProductsApiV1PublicProductsSponsoredGet({
+          limit: 1000,
+        })
+      const placements = response.status === 200 ? response.data : []
+      return withPlaceholders(mapPlacementsToSponsors(placements))
+    } catch {
+      return withPlaceholders([])
+    }
   },
   "sponsored-products:section",
   {

@@ -14,6 +14,15 @@ export type UseCasesPagePayload = UseCasesDirectoryPayload
 export const getUseCasesPagePayload = cached(
   async (): Promise<UseCasesPagePayload> => {
     const response = await getUseCasesDirectoryApiV1PublicUseCasesDirectoryGet()
+    if (response.status !== 200) {
+      return {
+        useCases: [],
+        highlightUseCases: [],
+        useCaseCount: 0,
+        totalProducts: 0,
+        averagePerUseCase: 0,
+      }
+    }
     return response.data
   },
   "usecases:page:payload",
@@ -26,7 +35,11 @@ export const getUseCasesPagePayload = cached(
 export const getUseCasePagePayload = cached(
   async (slug: string): Promise<UseCasePagePayload> => {
     try {
-      const response = await getUseCaseDetailApiV1PublicUseCasesSlugDetailGet(slug)
+      const response =
+        await getUseCaseDetailApiV1PublicUseCasesSlugDetailGet(slug)
+      if (response.status !== 200) {
+        return null
+      }
       if (!response.data || response.data.productCount === 0) {
         return null
       }
@@ -51,6 +64,9 @@ export const getUseCasePagePayload = cached(
 export const getUseCaseStaticParams = cached(
   async () => {
     const response = await getUseCasesDirectoryApiV1PublicUseCasesDirectoryGet()
+    if (response.status !== 200) {
+      return []
+    }
     return response.data.useCases.map((useCase) => ({ slug: useCase.slug }))
   },
   "usecases:static-params",

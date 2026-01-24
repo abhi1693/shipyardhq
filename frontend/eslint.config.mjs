@@ -17,6 +17,7 @@ const eslintConfig = defineConfig([
     "coverage/**",
     "node_modules/**",
     "next-env.d.ts",
+    "lib/generated/**",
     "lib/vendor/**",
   ]),
 ])

@@ -48,11 +48,16 @@ export function AlternativeCatalogGridClient({
 
     startTransition(async () => {
       try {
-        const response = await getAlternativeCatalogApiV1PublicAlternativesCatalogGet({
-          page: nextPage,
-          pageSize,
-          q: query,
-        })
+        const response =
+          await getAlternativeCatalogApiV1PublicAlternativesCatalogGet({
+            page: nextPage,
+            pageSize,
+            q: query,
+          })
+        if (response.status !== 200) {
+          setHasMore(false)
+          return
+        }
         const result = response.data
 
         if (result.items.length) {

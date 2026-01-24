@@ -18,7 +18,9 @@ export async function GET() {
     pageSize: PAGE_SIZE,
     includeTotal: true,
   })
-  const total = response.data.total ?? response.data.items.length
+  const items = response.status === 200 ? response.data.items : []
+  const total =
+    response.status === 200 ? (response.data.total ?? items.length) : 0
   const chunks = Math.ceil(total / PAGE_SIZE)
   const lastmod = new Date().toISOString()
 

@@ -12,16 +12,32 @@ type AlternativesIndexPayload = {
 
 export const getAlternativesIndexPayload = cached(
   async (): Promise<AlternativesIndexPayload> => {
-    const response = await getAlternativeCatalogApiV1PublicAlternativesCatalogGet({
-      page: 1,
-      pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
-    })
-    const result = response.data
+    try {
+      const response =
+        await getAlternativeCatalogApiV1PublicAlternativesCatalogGet({
+          page: 1,
+          pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
+        })
+      if (response.status !== 200) {
+        return {
+          initialItems: [],
+          initialHasMore: false,
+          pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
+        }
+      }
+      const result = response.data
 
-    return {
-      initialItems: result.items,
-      initialHasMore: result.hasMore,
-      pageSize: result.pageSize,
+      return {
+        initialItems: result.items,
+        initialHasMore: result.hasMore,
+        pageSize: result.pageSize,
+      }
+    } catch {
+      return {
+        initialItems: [],
+        initialHasMore: false,
+        pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
+      }
     }
   },
   "alternative-products:index:payload",

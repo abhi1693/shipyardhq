@@ -3,7 +3,10 @@ import {
   getTagDetailApiV1PublicTagsSlugDetailGet,
   getTagDirectoryApiV1PublicTagsDirectoryGet,
 } from "@/lib/generated/fastapi/public-homepage"
-import type { TagDetailPayload, TagSummary } from "@/lib/generated/fastapi/schemas"
+import type {
+  TagDetailPayload,
+  TagSummary,
+} from "@/lib/generated/fastapi/schemas"
 
 type TagsIndexPayload = {
   initialItems: TagSummary[]
@@ -12,12 +15,22 @@ type TagsIndexPayload = {
   pageSize: number
 }
 
+const TAG_DIRECTORY_PAGE_SIZE = 200
+
 export const getTagsIndexPayload = cached(
   async (): Promise<TagsIndexPayload> => {
     const response = await getTagDirectoryApiV1PublicTagsDirectoryGet({
       page: 1,
       includeTotal: true,
     })
+    if (response.status !== 200) {
+      return {
+        initialItems: [],
+        hasMore: false,
+        totalTags: 0,
+        pageSize: TAG_DIRECTORY_PAGE_SIZE,
+      }
+    }
     const result = response.data
 
     const pageSize = result.pageSize
@@ -45,6 +58,9 @@ export const getTagDetailPayload = cached(
       const response = await getTagDetailApiV1PublicTagsSlugDetailGet(slug, {
         page,
       })
+      if (response.status !== 200) {
+        return null
+      }
       return response.data
     } catch {
       return null

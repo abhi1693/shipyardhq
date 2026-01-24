@@ -52,6 +52,9 @@ export async function generateMetadata({
       await getAlternativeDetailApiV1PublicAlternativesSlugDetailGet(slug, {
         pageSize: 1,
       })
+    if (response.status !== 200) {
+      return {}
+    }
     const { alternative, productsPage } = response.data
 
     if (!alternative) {
@@ -123,11 +126,15 @@ export default async function AlternativeDetailPage({
   } catch {
     return notFound()
   }
+  if (response.status !== 200) {
+    return notFound()
+  }
 
   const { alternative, productsPage, featuredAlternatives } = response.data
   if (!alternative || !productsPage) {
     notFound()
   }
+  const safeFeaturedAlternatives = featuredAlternatives ?? []
 
   const curatedCount =
     productsPage.total > 0 ? Math.min(productsPage.total, 8) : 0
@@ -137,7 +144,7 @@ export default async function AlternativeDetailPage({
     : `We're curating the best alternatives to ${alternative.name}.`
 
   const hasProducts = productsPage.items.length > 0
-  const hasFeaturedAlternatives = featuredAlternatives.length > 0
+  const hasFeaturedAlternatives = safeFeaturedAlternatives.length > 0
   const avatarInitials = getInitials(alternative.name)
   const websiteUrl = alternative.websiteUrl?.trim()
   const currentYear = new Date().getFullYear()
@@ -390,7 +397,7 @@ export default async function AlternativeDetailPage({
                 </header>
 
                 <ul className="divide-y divide-border/60 border-y border-border/60">
-                  {featuredAlternatives.map((featured) => {
+                  {safeFeaturedAlternatives.map((featured) => {
                     const count = featured.productCount
                     const countLabel = `${count.toLocaleString()} product${count === 1 ? "" : "s"}`
 

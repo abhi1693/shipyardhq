@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils"
 export type CategoryCardProps = {
   href: string
   name: string
-  icon: string
-  description?: string
+  icon?: string | null
+  description?: string | null
   count?: number
   className?: string
 }

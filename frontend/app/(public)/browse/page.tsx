@@ -28,8 +28,15 @@ export async function generateMetadata(
     try {
       const response =
         await getUseCaseMetaApiV1PublicUseCasesSlugMetaGet(useCaseSlug)
+      if (response.status !== 200) {
+        return {
+          ...baseMetadata,
+          alternates: { canonical: BROWSE_PATH },
+        }
+      }
       const useCaseMeta = response.data
-      if (useCaseMeta && useCaseMeta.productCount > 0) {
+      const productCount = useCaseMeta.productCount ?? 0
+      if (useCaseMeta && productCount > 0) {
         return {
           ...baseMetadata,
           alternates: { canonical: usecasePath(useCaseMeta.slug) },

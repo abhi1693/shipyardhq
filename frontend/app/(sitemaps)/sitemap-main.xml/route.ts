@@ -167,6 +167,9 @@ export async function GET() {
         const response = await getUseCaseMetaApiV1PublicUseCasesSlugMetaGet(
           useCase.slug,
         )
+        if (response.status !== 200) {
+          return
+        }
         useCaseMetaBySlug.set(useCase.slug, response.data)
       } catch {
         return

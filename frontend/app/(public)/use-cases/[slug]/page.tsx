@@ -14,13 +14,16 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = await props.params
   try {
-    const response =
-      await getUseCaseMetaApiV1PublicUseCasesSlugMetaGet(slug)
+    const response = await getUseCaseMetaApiV1PublicUseCasesSlugMetaGet(slug)
+    if (response.status !== 200) {
+      return {}
+    }
     const useCase = response.data
-    if (!useCase || useCase.productCount === 0) return {}
+    const productCount = useCase.productCount ?? 0
+    if (!useCase || productCount === 0) return {}
 
-    const description = `Explore ${useCase.productCount} ${pluralize(
-      useCase.productCount,
+    const description = `Explore ${productCount} ${pluralize(
+      productCount,
       "product",
     )} built for ${useCase.label}.`
 

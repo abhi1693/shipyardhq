@@ -49,6 +49,18 @@ export const getBrowsePagePayload = async (
     page: filters.page,
     q: filters.query,
   })
+  if (response.status !== 200) {
+    return {
+      filters,
+      products: [],
+      hasMore: false,
+      total: 0,
+      useCases: [],
+      categories: [],
+      filterSummary: [],
+      hasActiveFilters: false,
+    }
+  }
 
   const payload = response.data
   const normalizedFilters: BrowsePageFilters = {

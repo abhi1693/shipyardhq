@@ -9,12 +9,15 @@ interface StickyBannerProps {
 
 const getCachedStickyBannerProducts = cached(
   async (limit: number) => {
-    const response = await getStickyBannerProductsApiV1PublicProductsStickyBannerGet(
-      {
-        limit,
-      },
-    )
-    return response.data
+    try {
+      const response =
+        await getStickyBannerProductsApiV1PublicProductsStickyBannerGet({
+          limit,
+        })
+      return response.status === 200 ? response.data : []
+    } catch {
+      return []
+    }
   },
   "sticky-banner:product:v3",
   {

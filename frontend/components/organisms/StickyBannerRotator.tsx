@@ -16,9 +16,9 @@ type StickyBannerProduct = {
   slug: string
   name: string
   logo: string
-  tagline: string | null
-  latestRevenueCents: number | null
-  revenueCurrencyCode: string | null
+  tagline?: string | null
+  latestRevenueCents?: number | null
+  revenueCurrencyCode?: string | null
 }
 
 interface StickyBannerRotatorProps {

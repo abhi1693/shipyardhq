@@ -4,6 +4,7 @@ import { useCallback, useMemo } from "react"
 
 import ProductGrid from "@/components/molecules/ProductGrid"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import type { PublicProductCard } from "@/lib/generated/fastapi/schemas"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { EmptyState } from "@/components/molecules/empty-state"
 import { getTagProductsApiV1PublicTagsSlugProductsGet } from "@/lib/generated/fastapi/public-homepage"
@@ -25,6 +26,10 @@ export function TagProductsClient({
   initialPage,
   total,
 }: TagProductsClientProps) {
+  const toBaseCard = (item: PublicProductCard): ProductCardBase => ({
+    ...item,
+    scoreCount: item.scoreCount ?? undefined,
+  })
   const initialCardItems = useMemo(
     () => initialItems.map((item) => toProductCardItem(item)),
     [initialItems],
@@ -32,12 +37,21 @@ export function TagProductsClient({
 
   const loadPage = useCallback(
     async (page: number) => {
-      const response = await getTagProductsApiV1PublicTagsSlugProductsGet(slug, {
-        page,
-      })
+      const response = await getTagProductsApiV1PublicTagsSlugProductsGet(
+        slug,
+        {
+          page,
+        },
+      )
+      if (response.status !== 200) {
+        return {
+          items: [],
+          hasMore: false,
+        }
+      }
       const result = response.data
       return {
-        items: result.items.map((item) => toProductCardItem(item)),
+        items: result.items.map((item) => toProductCardItem(toBaseCard(item))),
         hasMore: result.hasMore,
       }
     },

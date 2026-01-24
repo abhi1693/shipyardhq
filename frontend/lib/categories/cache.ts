@@ -6,7 +6,8 @@ export type CategoriesPagePayload = CategoriesDirectoryPayload
 
 export const getCategoriesPagePayload = cached(
   async (): Promise<CategoriesPagePayload> => {
-    const response = await getCategoriesDirectoryApiV1PublicCategoriesDirectoryGet()
+    const response =
+      await getCategoriesDirectoryApiV1PublicCategoriesDirectoryGet()
     return response.data
   },
   "categories:page:payload",

@@ -20,6 +20,9 @@ export async function generateMetadata(
       slug,
       { pageSize: 1 },
     )
+    if (response.status !== 200) {
+      return {}
+    }
     const category = response.data.category
     if (!category) return {}
 

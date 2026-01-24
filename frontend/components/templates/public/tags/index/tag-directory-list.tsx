@@ -145,6 +145,10 @@ export function TagDirectoryList({
           page: nextPage,
           pageSize,
         })
+        if (response.status !== 200) {
+          setHasMore(false)
+          return
+        }
         const result = response.data
 
         if (result.items.length) {

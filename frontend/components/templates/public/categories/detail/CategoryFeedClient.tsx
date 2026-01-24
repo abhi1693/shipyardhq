@@ -60,6 +60,10 @@ export function CategoryFeedClient({
           page,
           pageSize: normalizedPageSize,
         })
+      if (response.status !== 200) {
+        setHasMore(false)
+        return
+      }
       const result = response.data
 
       setProducts((previous) => {

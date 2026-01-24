@@ -1,8 +1,5 @@
 import type { NextConfig } from "next"
-import {
-  FASTAPI_PROXY_PATH,
-  getFastApiProxyTarget,
-} from "./lib/fastapi-config"
+import { FASTAPI_PROXY_PATH, getFastApiProxyTarget } from "./lib/fastapi-config"
 
 const fastApiProxyTarget = getFastApiProxyTarget()
 

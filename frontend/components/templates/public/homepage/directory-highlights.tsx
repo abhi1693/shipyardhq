@@ -37,8 +37,8 @@ const bulletClasses =
   "h-1.5 w-1.5 rounded-full bg-[color:var(--brand-1)] opacity-60 group-hover:opacity-100"
 
 export async function DirectoryHighlightsSidebar() {
-  const [categoriesResponse, useCasesResponse, alternativesResponse] =
-    await Promise.all([
+  const [categoriesResult, useCasesResult, alternativesResult] =
+    await Promise.allSettled([
       getCategoryHighlightsApiV1PublicCategoriesHighlightsGet({
         limit: CATEGORY_PREVIEW_LIMIT,
       }),
@@ -49,9 +49,20 @@ export async function DirectoryHighlightsSidebar() {
         limit: ALTERNATIVE_PREVIEW_LIMIT,
       }),
     ])
-  const categories = categoriesResponse.data
-  const useCases = useCasesResponse.data
-  const alternatives = alternativesResponse.data
+  const categories =
+    categoriesResult.status === "fulfilled" &&
+    categoriesResult.value.status === 200
+      ? categoriesResult.value.data
+      : []
+  const useCases =
+    useCasesResult.status === "fulfilled" && useCasesResult.value.status === 200
+      ? useCasesResult.value.data
+      : []
+  const alternatives =
+    alternativesResult.status === "fulfilled" &&
+    alternativesResult.value.status === 200
+      ? alternativesResult.value.data
+      : []
   const hasAlternatives = alternatives.length > 0
 
   return (

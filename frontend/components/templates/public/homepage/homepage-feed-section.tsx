@@ -23,7 +23,7 @@ export async function HomepageFeedSection({ view }: HomepageFeedSectionProps) {
     pageSize: HOMEPAGE_FEED_PAGE_SIZE,
     view,
   })
-  const items = response.data.items
+  const items = response.status === 200 ? response.data.items : []
 
   const viewCopy: Record<HomepageFeedView, string> = {
     new: "Fresh launches, published most recently.",

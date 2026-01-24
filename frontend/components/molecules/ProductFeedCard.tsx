@@ -31,6 +31,11 @@ const CARD_VARIANT_CLASSES: Record<ProductCardVariant, string> = {
     "border-2 border-[#FCD34D]/60 bg-[#FEF3C7] shadow-[4px_12px_28px_-20px_rgba(217,119,6,0.26)] hover:shadow-[14px_30px_60px_-34px_rgba(217,119,6,0.45)]",
 }
 
+const isProductCardVariant = (
+  variant: string | null | undefined,
+): variant is ProductCardVariant =>
+  variant === "default" || variant === "sponsored" || variant === "promoted"
+
 const resolveVariant = ({
   variant,
   itemVariant,
@@ -60,7 +65,7 @@ export function ProductFeedCard({
 }: ProductFeedCardProps) {
   const cardVariant = resolveVariant({
     variant,
-    itemVariant: item.variant,
+    itemVariant: isProductCardVariant(item.variant) ? item.variant : undefined,
     isSponsored: item.isSponsored,
   })
 

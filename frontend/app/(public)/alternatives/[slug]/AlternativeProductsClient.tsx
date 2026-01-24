@@ -4,6 +4,7 @@ import { useCallback, useMemo } from "react"
 
 import type { PublicProductCard } from "@/lib/generated/fastapi/schemas"
 import ProductGrid from "@/components/molecules/ProductGrid"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { getAlternativeProductsApiV1PublicAlternativesSlugProductsGet } from "@/lib/generated/fastapi/public-homepage"
 
@@ -22,8 +23,12 @@ export function AlternativeProductsClient({
   initialPage,
   pageSize,
 }: AlternativeProductsClientProps) {
+  const toBaseCard = (item: PublicProductCard): ProductCardBase => ({
+    ...item,
+    scoreCount: item.scoreCount ?? undefined,
+  })
   const initialCardItems = useMemo(
-    () => initialItems.map((item) => toProductCardItem(item)),
+    () => initialItems.map((item) => toProductCardItem(toBaseCard(item))),
     [initialItems],
   )
 
@@ -34,10 +39,16 @@ export function AlternativeProductsClient({
           slug,
           { page, pageSize },
         )
+      if (response.status !== 200) {
+        return {
+          items: [],
+          hasMore: false,
+        }
+      }
       const result = response.data
 
       return {
-        items: result.items.map((item) => toProductCardItem(item)),
+        items: result.items.map((item) => toProductCardItem(toBaseCard(item))),
         hasMore: result.hasMore,
       }
     },

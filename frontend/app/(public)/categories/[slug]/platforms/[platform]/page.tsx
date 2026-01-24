@@ -97,6 +97,9 @@ export async function generateMetadata(props: {
       slug,
       { pageSize: 1 },
     )
+    if (response.status !== 200) {
+      return {}
+    }
     categoryName = response.data.category.name
     categoryDescription = response.data.category.description ?? ""
   } catch {
@@ -148,6 +151,9 @@ export default async function CategoryPlatformPage({
   } catch {
     return notFound()
   }
+  if (categoryResponse.status !== 200) {
+    return notFound()
+  }
   const category = categoryResponse.data.category
   if (!category) return notFound()
 
@@ -162,6 +168,9 @@ export default async function CategoryPlatformPage({
     page: parsed.page,
     q: parsed.query,
   })
+  if (browseResponse.status !== 200) {
+    return notFound()
+  }
   const payload = browseResponse.data
 
   const baseUrl = (

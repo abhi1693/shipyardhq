@@ -33,11 +33,10 @@ export function RealtimeVisitorsCard({
       try {
         if (controller) controller.abort()
         controller = new AbortController()
-        const response = await getRealtimeVisitorsApiV1PublicAnalyticsRealtimeGet(
-          {
+        const response =
+          await getRealtimeVisitorsApiV1PublicAnalyticsRealtimeGet({
             signal: controller.signal,
-          },
-        )
+          })
         const data = response.data
         if (!canceled && typeof data?.visitors === "number") {
           setValue(data.visitors)

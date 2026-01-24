@@ -10,9 +10,11 @@ export type CategoryDetailPayloadResult = CategoryDetailPayload
 export const getCategoryDetailPayload = cached(
   async (slug: string): Promise<CategoryDetailPayloadResult | null> => {
     try {
-      const response = await getCategoryDetailApiV1PublicCategoriesSlugDetailGet(
-        slug,
-      )
+      const response =
+        await getCategoryDetailApiV1PublicCategoriesSlugDetailGet(slug)
+      if (response.status !== 200) {
+        return null
+      }
       return response.data
     } catch {
       return null
@@ -35,8 +37,11 @@ export const getCategoryStaticParams = cached(
   async () => {
     const response =
       await getCategoriesDirectoryApiV1PublicCategoriesDirectoryGet()
+    if (response.status !== 200) {
+      return []
+    }
     return response.data.categories
-      .filter((category) => category.slug && category.count > 0)
+      .filter((category) => category.slug && (category.count ?? 0) > 0)
       .map((category) => ({
         slug: category.slug,
       }))

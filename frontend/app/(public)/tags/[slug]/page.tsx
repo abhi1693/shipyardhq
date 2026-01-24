@@ -11,7 +11,10 @@ import {
   getTagDetailApiV1PublicTagsSlugDetailGet,
   getTagProductsApiV1PublicTagsSlugProductsGet,
 } from "@/lib/generated/fastapi/public-homepage"
-import type { HomepageFeedItem } from "@/lib/generated/fastapi/schemas"
+import type {
+  HomepageFeedItem,
+  PublicProductCard,
+} from "@/lib/generated/fastapi/schemas"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
@@ -38,7 +41,10 @@ import { buildPageMetadata } from "@/lib/metadata"
 import { getTagDetailPayload } from "@/lib/tags/page-cache"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { toProductCardItem } from "@/lib/products/card-item"
-import type { ProductCardItem } from "@/components/molecules/ProductCard"
+import type {
+  ProductCardBase,
+  ProductCardItem,
+} from "@/components/molecules/ProductCard"
 
 export async function generateMetadata({
   params,
@@ -50,6 +56,9 @@ export async function generateMetadata({
     const response = await getTagDetailApiV1PublicTagsSlugDetailGet(slug, {
       pageSize: 1,
     })
+    if (response.status !== 200) {
+      return {}
+    }
     const summary = response.data.summary
     if (!summary) return {}
 
@@ -128,6 +137,10 @@ function mapProductCardItemToFeedItem(
 }
 
 const MAX_TAG_PAGES = 50
+const toBaseCard = (product: PublicProductCard): ProductCardBase => ({
+  ...product,
+  scoreCount: product.scoreCount ?? undefined,
+})
 
 export default async function TagDetailPage({ params }: TagPageProps) {
   const { slug } = await params
@@ -152,6 +165,9 @@ export default async function TagDetailPage({ params }: TagPageProps) {
         summary.slug,
         { page },
       )
+      if (nextResponse.status !== 200) {
+        break
+      }
       nextPage = nextResponse.data
     } catch {
       break
@@ -169,7 +185,7 @@ export default async function TagDetailPage({ params }: TagPageProps) {
   }
 
   const tagProductItems = collectedProducts.map((product) =>
-    toProductCardItem(product),
+    toProductCardItem(toBaseCard(product)),
   )
   const tagProductIdSet = new Set(tagProductItems.map((item) => item.id))
 
@@ -177,7 +193,8 @@ export default async function TagDetailPage({ params }: TagPageProps) {
     await getHomepageFeedAllApiV1PublicHomepageFeedAllGet({
       view: DEFAULT_HOMEPAGE_FEED_VIEW,
     })
-  const homepageFeedItems = homepageFeedResponse.data.items
+  const homepageFeedItems =
+    homepageFeedResponse.status === 200 ? homepageFeedResponse.data.items : []
 
   const filteredHomepageItems = homepageFeedItems.filter((item) => {
     if (item.isSponsored) {
