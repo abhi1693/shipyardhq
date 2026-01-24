@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
 import type { HomepageFeedItem } from "@/lib/generated/fastapi/schemas"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
-import { getCategoryProductsPage } from "@/actions/public/categories/actions"
+import { getCategoryProductsApiV1PublicCategoriesSlugProductsGet } from "@/lib/generated/fastapi/public-homepage"
 
 interface CategoryFeedClientProps {
   slug: string
@@ -55,15 +55,16 @@ export function CategoryFeedClient({
 
     setIsLoading(true)
     try {
-      const result = await getCategoryProductsPage({
-        slug,
-        page,
-        pageSize: normalizedPageSize,
-      })
+      const response =
+        await getCategoryProductsApiV1PublicCategoriesSlugProductsGet(slug, {
+          page,
+          pageSize: normalizedPageSize,
+        })
+      const result = response.data
 
       setProducts((previous) => {
         const existingIds = new Set(previous.map((item) => item.id))
-        const nextItems = result.products.filter(
+        const nextItems = result.items.filter(
           (product) => !existingIds.has(product.id),
         )
 

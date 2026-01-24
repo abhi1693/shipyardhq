@@ -7,10 +7,10 @@ export const dynamic = "force-dynamic"
 
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
 import {
-  getKeywordTagBySlug,
-  getKeywordTagProducts,
-} from "@/actions/public/tags/actions"
-import { getHomepageFeedAllApiV1PublicHomepageFeedAllGet } from "@/lib/generated/fastapi/public-homepage"
+  getHomepageFeedAllApiV1PublicHomepageFeedAllGet,
+  getTagDetailApiV1PublicTagsSlugDetailGet,
+  getTagProductsApiV1PublicTagsSlugProductsGet,
+} from "@/lib/generated/fastapi/public-homepage"
 import type { HomepageFeedItem } from "@/lib/generated/fastapi/schemas"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
@@ -46,15 +46,22 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const summary = await getKeywordTagBySlug(slug)
-  if (!summary) return {}
+  try {
+    const response = await getTagDetailApiV1PublicTagsSlugDetailGet(slug, {
+      pageSize: 1,
+    })
+    const summary = response.data.summary
+    if (!summary) return {}
 
-  const label = formatTagLabel(summary.canonical || summary.keyword)
-  return buildPageMetadata({
-    title: `${label} Tag`,
-    description: `Discover Shipyard products tagged with “${label}”. Browse the latest launches and tools connected to this keyword.`,
-    section: "Tags",
-  })
+    const label = formatTagLabel(summary.canonical || summary.keyword)
+    return buildPageMetadata({
+      title: `${label} Tag`,
+      description: `Discover Shipyard products tagged with “${label}”. Browse the latest launches and tools connected to this keyword.`,
+      section: "Tags",
+    })
+  } catch {
+    return {}
+  }
 }
 
 interface TagPageProps {
@@ -130,25 +137,35 @@ export default async function TagDetailPage({ params }: TagPageProps) {
     redirect("/tags")
   }
 
-  const { summary, products } = payload
+  const { summary, productsPage } = payload
   const tagLabel = formatTagLabel(summary.canonical || summary.keyword)
   const totalTaggedProducts = summary.productCount
 
-  const collectedProducts = [...products.products]
-  let hasMore = products.hasMore
-  let page = 2
+  const collectedProducts = [...productsPage.items]
+  let hasMore = productsPage.hasMore
+  let page = productsPage.nextPage ?? 2
 
   while (hasMore && page <= MAX_TAG_PAGES) {
-    const nextPage = await getKeywordTagProducts(summary.slug, page)
+    let nextPage = null
+    try {
+      const nextResponse = await getTagProductsApiV1PublicTagsSlugProductsGet(
+        summary.slug,
+        { page },
+      )
+      nextPage = nextResponse.data
+    } catch {
+      break
+    }
+
     if (!nextPage) {
       break
     }
 
-    collectedProducts.push(...nextPage.products)
+    collectedProducts.push(...nextPage.items)
 
     const expectedTotal = nextPage.total ?? totalTaggedProducts
     hasMore = nextPage.hasMore && collectedProducts.length < expectedTotal
-    page += 1
+    page = nextPage.nextPage ?? page + 1
   }
 
   const tagProductItems = collectedProducts.map((product) =>

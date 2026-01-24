@@ -102,7 +102,7 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
             <section className="space-y-6" data-testid="category-feed-section">
               <CategoryFeedClient
                 slug={categorySlug}
-                initialProducts={productsPage.products}
+                initialProducts={productsPage.items}
                 initialPage={initialPage}
                 pageSize={productsPage.pageSize}
                 initialHasMore={productsPage.hasMore}

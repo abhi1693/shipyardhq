@@ -5,7 +5,7 @@ import { Suspense } from "react"
 
 import { CategoryDetailPageContent } from "@/components/templates/public/categories/detail/page-content"
 import { CategoryDetailSkeleton } from "@/components/templates/public/categories/detail/skeleton"
-import { getCategoryMeta } from "@/actions/public/categories/actions"
+import { getCategoryDetailApiV1PublicCategoriesSlugDetailGet } from "@/lib/generated/fastapi/public-homepage"
 import { buildPageMetadata } from "@/lib/metadata"
 import { getCategoryDetailPayload } from "@/lib/categories/page-cache"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
@@ -15,14 +15,22 @@ export async function generateMetadata(
   props: Parameters<typeof CategoryDetailPageContent>[0],
 ): Promise<Metadata> {
   const { slug } = await props.params
-  const category = await getCategoryMeta(slug)
-  if (!category) return {}
+  try {
+    const response = await getCategoryDetailApiV1PublicCategoriesSlugDetailGet(
+      slug,
+      { pageSize: 1 },
+    )
+    const category = response.data.category
+    if (!category) return {}
 
-  return buildPageMetadata({
-    title: category.name,
-    section: "Categories",
-    description: category.description ?? undefined,
-  })
+    return buildPageMetadata({
+      title: category.name,
+      section: "Categories",
+      description: category.description ?? undefined,
+    })
+  } catch {
+    return {}
+  }
 }
 
 export default function CategoryPage(

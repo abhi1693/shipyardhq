@@ -3,12 +3,7 @@ import Link from "next/link"
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
 
-import {
-  ALTERNATIVE_DETAIL_PAGE_SIZE,
-  getAlternativeDetail,
-  getAlternativeProductsPage,
-  getFeaturedAlternatives,
-} from "@/actions/public/alternatives/actions"
+import { getAlternativeDetailApiV1PublicAlternativesSlugDetailGet } from "@/lib/generated/fastapi/public-homepage"
 import AlternativeProductsClient from "@/app/(public)/alternatives/[slug]/AlternativeProductsClient"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { EmptyState } from "@/components/molecules/empty-state"
@@ -44,63 +39,67 @@ import { cn } from "@/lib/utils"
 
 export const dynamic = "force-dynamic"
 
+const ALTERNATIVE_DETAIL_PAGE_SIZE = 8
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const alternative = await getAlternativeDetail(slug)
+  try {
+    const response =
+      await getAlternativeDetailApiV1PublicAlternativesSlugDetailGet(slug, {
+        pageSize: 1,
+      })
+    const { alternative, productsPage } = response.data
 
-  if (!alternative) {
+    if (!alternative) {
+      return {}
+    }
+
+    const linkedCount = productsPage.total
+    const currentYear = new Date().getFullYear()
+    const title =
+      linkedCount > 0
+        ? `Top ${linkedCount} ${alternative.name} Alternatives & Competitors in ${currentYear}`
+        : `Best ${alternative.name} Alternatives & Competitors in ${currentYear}`
+
+    const description = alternative.description?.trim().length
+      ? alternative.description
+      : linkedCount > 0
+        ? `Discover the top ${linkedCount} ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders in ${currentYear}.`
+        : `Discover the best ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders in ${currentYear}.`
+
+    const keywordPhrases = [
+      `best ${alternative.name} alternatives`,
+      `${alternative.name} competitors`,
+      `top tools like ${alternative.name}`,
+      `${alternative.name} replacement software`,
+      `${alternative.name} alternative platforms`,
+      `${alternative.name} competitor comparison ${currentYear}`,
+    ]
+
+    const metadata = buildPageMetadata({
+      title,
+      description,
+      section: "Alternatives",
+      openGraph: {
+        title,
+        description,
+      },
+      twitter: {
+        title,
+        description,
+      },
+    })
+
+    return {
+      ...metadata,
+      keywords: keywordPhrases,
+    }
+  } catch {
     return {}
-  }
-
-  const productsSummary = await getAlternativeProductsPage({
-    alternativeId: alternative.id,
-    page: 1,
-    pageSize: 1,
-  })
-
-  const linkedCount = productsSummary.total
-  const currentYear = new Date().getFullYear()
-  const title =
-    linkedCount > 0
-      ? `Top ${linkedCount} ${alternative.name} Alternatives & Competitors in ${currentYear}`
-      : `Best ${alternative.name} Alternatives & Competitors in ${currentYear}`
-
-  const description = alternative.description?.trim().length
-    ? alternative.description
-    : linkedCount > 0
-      ? `Discover the top ${linkedCount} ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders in ${currentYear}.`
-      : `Discover the best ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders in ${currentYear}.`
-
-  const keywordPhrases = [
-    `best ${alternative.name} alternatives`,
-    `${alternative.name} competitors`,
-    `top tools like ${alternative.name}`,
-    `${alternative.name} replacement software`,
-    `${alternative.name} alternative platforms`,
-    `${alternative.name} competitor comparison ${currentYear}`,
-  ]
-
-  const metadata = buildPageMetadata({
-    title,
-    description,
-    section: "Alternatives",
-    openGraph: {
-      title,
-      description,
-    },
-    twitter: {
-      title,
-      description,
-    },
-  })
-
-  return {
-    ...metadata,
-    keywords: keywordPhrases,
   }
 }
 
@@ -113,22 +112,22 @@ export default async function AlternativeDetailPage({
 }: AlternativeDetailPageProps) {
   const { slug } = await params
 
-  const alternative = await getAlternativeDetail(slug)
-  if (!alternative) {
-    notFound()
+  let response: Awaited<
+    ReturnType<typeof getAlternativeDetailApiV1PublicAlternativesSlugDetailGet>
+  >
+  try {
+    response = await getAlternativeDetailApiV1PublicAlternativesSlugDetailGet(
+      slug,
+      { pageSize: ALTERNATIVE_DETAIL_PAGE_SIZE },
+    )
+  } catch {
+    return notFound()
   }
 
-  const [productsPage, featuredAlternatives] = await Promise.all([
-    getAlternativeProductsPage({
-      alternativeId: alternative.id,
-      page: 1,
-      pageSize: ALTERNATIVE_DETAIL_PAGE_SIZE,
-    }),
-    getFeaturedAlternatives({
-      excludeId: alternative.id,
-      take: 6,
-    }),
-  ])
+  const { alternative, productsPage, featuredAlternatives } = response.data
+  if (!alternative || !productsPage) {
+    notFound()
+  }
 
   const curatedCount =
     productsPage.total > 0 ? Math.min(productsPage.total, 8) : 0
@@ -368,7 +367,7 @@ export default async function AlternativeDetailPage({
 
               {hasProducts ? (
                 <AlternativeProductsClient
-                  alternativeId={alternative.id}
+                  slug={alternative.slug}
                   initialItems={productsPage.items}
                   initialHasMore={productsPage.hasMore}
                   initialPage={productsPage.nextPage ?? 2}
@@ -392,7 +391,7 @@ export default async function AlternativeDetailPage({
 
                 <ul className="divide-y divide-border/60 border-y border-border/60">
                   {featuredAlternatives.map((featured) => {
-                    const count = featured._count.products
+                    const count = featured.productCount
                     const countLabel = `${count.toLocaleString()} product${count === 1 ? "" : "s"}`
 
                     return (

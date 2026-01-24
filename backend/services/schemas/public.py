@@ -158,6 +158,20 @@ class CategorySummary(BaseSerializer):
     count: int = 0
 
 
+class CategoryProductsPageResult(BaseSerializer):
+    items: list[HomepageFeedItem]
+    total: int
+    page: int
+    pageSize: int
+    hasMore: bool
+    nextPage: int | None = None
+
+
+class CategoryDetailPayload(BaseSerializer):
+    category: CategorySummary
+    productsPage: CategoryProductsPageResult
+
+
 class UseCaseSummary(BaseSerializer):
     id: str
     label: str
@@ -172,6 +186,12 @@ class UseCaseMeta(BaseSerializer):
     createdAt: str
     updatedAt: str
     productCount: int = 0
+
+
+class UseCaseDetailPayload(BaseSerializer):
+    useCase: UseCaseMeta
+    categories: list[CategorySummary]
+    productCount: int
 
 
 class BrowseFilters(BaseSerializer):
@@ -231,6 +251,21 @@ class TagSummary(BaseSerializer):
     lastUpdated: str | None = None
 
 
+class TagProductsPageResult(BaseSerializer):
+    summary: TagSummary
+    items: list[PublicProductCard]
+    total: int
+    page: int
+    pageSize: int
+    hasMore: bool
+    nextPage: int | None = None
+
+
+class TagDetailPayload(BaseSerializer):
+    summary: TagSummary
+    productsPage: TagProductsPageResult
+
+
 class TagDirectoryPageResult(BaseSerializer):
     items: list[TagSummary]
     hasMore: bool
@@ -247,6 +282,31 @@ class AlternativeCatalogItem(BaseSerializer):
     websiteUrl: str
     logoUrl: str
     productCount: int
+
+
+class AlternativeDetailSummary(BaseSerializer):
+    id: str
+    name: str
+    slug: str
+    description: str
+    websiteUrl: str
+    logoUrl: str
+    productCount: int
+
+
+class AlternativeProductsPageResult(BaseSerializer):
+    items: list[PublicProductCard]
+    total: int
+    page: int
+    pageSize: int
+    hasMore: bool
+    nextPage: int | None = None
+
+
+class AlternativeDetailPayload(BaseSerializer):
+    alternative: AlternativeDetailSummary
+    productsPage: AlternativeProductsPageResult
+    featuredAlternatives: list[AlternativeCatalogItem] = []
 
 
 class AlternativeCatalogPageResult(BaseSerializer):

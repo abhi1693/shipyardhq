@@ -1,148 +1,21 @@
-import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
-  getCategoriesWithCounts,
-  getCategoryWithProducts,
-} from "@/actions/public/categories/actions"
-import { getFeaturedByCategorySlug } from "@/actions/public/products/featured"
-import { PRIORITY_FEATURE_KEY } from "@/lib/products/selects"
-import type { FeaturedProduct } from "@/types"
+  getCategoriesDirectoryApiV1PublicCategoriesDirectoryGet,
+  getCategoryDetailApiV1PublicCategoriesSlugDetailGet,
+} from "@/lib/generated/fastapi/public-homepage"
+import type { CategoryDetailPayload } from "@/lib/generated/fastapi/schemas"
 
-type CategoryPageResult = NonNullable<
-  Awaited<ReturnType<typeof getCategoryWithProducts>>
->
-
-type CategoryProductsPage = {
-  products: CategoryPageResult["products"]
-  total: number
-  page: number
-  pageSize: number
-  hasMore: boolean
-  nextPage: number | null
-}
-
-type CategoryMetrics = {
-  totalProducts: number
-  totalFeatured: number
-  totalPriority: number
-  totalUpvotes: number
-  averageUpvotes: number
-  latestLaunchName: string | null
-  latestLaunchDate: string | null
-}
-
-export type CategoryDetailPayload = {
-  category: CategoryPageResult["category"]
-  productsPage: CategoryProductsPage
-  featured: FeaturedProduct[]
-  metrics: CategoryMetrics
-}
-
-const formatLatestLaunchDate = (value?: string) => {
-  if (!value) return null
-  const createdAt = new Date(value)
-  if (Number.isNaN(createdAt.getTime())) return null
-
-  return createdAt.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  })
-}
-
-const buildCategoryMetrics = async (
-  slug: string,
-  page: CategoryPageResult,
-  featuredCount: number,
-): Promise<CategoryMetrics> => {
-  const totalProducts = page.total
-  const latestLaunch = page.products.at(0)
-  const latestLaunchDate = formatLatestLaunchDate(latestLaunch?.createdAt)
-
-  if (!totalProducts) {
-    return {
-      totalProducts: 0,
-      totalFeatured: featuredCount,
-      totalPriority: 0,
-      totalUpvotes: 0,
-      averageUpvotes: 0,
-      latestLaunchName: latestLaunch?.name ?? null,
-      latestLaunchDate,
-    }
-  }
-
-  const [priorityCount, upvotes] = await Promise.all([
-    prisma.product.count({
-      where: {
-        status: "published",
-        category: { slug },
-        plan: {
-          is: {
-            assignments: {
-              some: {
-                enabled: true,
-                feature: { key: PRIORITY_FEATURE_KEY },
-              },
-            },
-          },
-        },
-      },
-    }),
-    prisma.productAnalytics.aggregate({
-      _sum: { upvotes: true },
-      where: {
-        product: {
-          status: "published",
-          category: { slug },
-        },
-      },
-    }),
-  ])
-
-  const totalUpvotes = Number(upvotes._sum?.upvotes ?? 0)
-  const averageUpvotes =
-    totalProducts > 0 ? Math.round(totalUpvotes / totalProducts) : 0
-
-  return {
-    totalProducts,
-    totalFeatured: featuredCount,
-    totalPriority: priorityCount,
-    totalUpvotes,
-    averageUpvotes,
-    latestLaunchName: latestLaunch?.name ?? null,
-    latestLaunchDate,
-  }
-}
+export type CategoryDetailPayloadResult = CategoryDetailPayload
 
 export const getCategoryDetailPayload = cached(
-  async (slug: string): Promise<CategoryDetailPayload | null> => {
-    const [categoryData, featured] = await Promise.all([
-      getCategoryWithProducts(slug),
-      getFeaturedByCategorySlug(slug, 7),
-    ])
-
-    if (!categoryData) {
+  async (slug: string): Promise<CategoryDetailPayloadResult | null> => {
+    try {
+      const response = await getCategoryDetailApiV1PublicCategoriesSlugDetailGet(
+        slug,
+      )
+      return response.data
+    } catch {
       return null
-    }
-
-    const metrics = await buildCategoryMetrics(
-      slug,
-      categoryData,
-      featured.length,
-    )
-
-    return {
-      category: categoryData.category,
-      productsPage: {
-        products: categoryData.products,
-        total: categoryData.total,
-        page: categoryData.page,
-        pageSize: categoryData.pageSize,
-        hasMore: categoryData.hasMore,
-        nextPage: categoryData.nextPage,
-      },
-      featured,
-      metrics,
     }
   },
   "category:detail:payload",
@@ -154,20 +27,17 @@ export const getCategoryDetailPayload = cached(
       TAGS.categories,
       TAGS.category(slug),
       TAGS.products,
-      TAGS.featured,
     ],
   },
 )
 
 export const getCategoryStaticParams = cached(
   async () => {
-    const categories = await getCategoriesWithCounts()
-    return categories
-      .filter(
-        (category: (typeof categories)[number]) =>
-          category.slug && category.count > 0,
-      )
-      .map((category: (typeof categories)[number]) => ({
+    const response =
+      await getCategoriesDirectoryApiV1PublicCategoriesDirectoryGet()
+    return response.data.categories
+      .filter((category) => category.slug && category.count > 0)
+      .map((category) => ({
         slug: category.slug,
       }))
   },

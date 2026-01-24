@@ -3,8 +3,10 @@ export const dynamic = "force-dynamic"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { getCategoryMeta } from "@/actions/public/categories/actions"
-import { getBrowseProducts } from "@/actions/public/browse/actions"
+import {
+  getBrowseProductsApiV1PublicBrowseProductsGet,
+  getCategoryDetailApiV1PublicCategoriesSlugDetailGet,
+} from "@/lib/generated/fastapi/public-homepage"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
@@ -85,14 +87,26 @@ export async function generateMetadata(props: {
   params: Promise<CategoryPricingParams>
 }): Promise<ReturnType<typeof buildPageMetadata>> {
   const { slug, pricingModel } = await props.params
-  const category = await getCategoryMeta(slug)
   const pricingModelMeta = getPricingModelMeta(pricingModel)
-  if (!category || !pricingModelMeta) return {}
+  if (!pricingModelMeta) return {}
 
-  const title = `${pricingModelMeta.label} ${category.name} tools`
-  const description = category.description
-    ? `${category.description} Browse ${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} products curated on Shipyard.`
-    : `Discover ${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} software from indie makers.`
+  let categoryName = ""
+  let categoryDescription = ""
+  try {
+    const response = await getCategoryDetailApiV1PublicCategoriesSlugDetailGet(
+      slug,
+      { pageSize: 1 },
+    )
+    categoryName = response.data.category.name
+    categoryDescription = response.data.category.description ?? ""
+  } catch {
+    return {}
+  }
+
+  const title = `${pricingModelMeta.label} ${categoryName} tools`
+  const description = categoryDescription
+    ? `${categoryDescription} Browse ${pricingModelMeta.label.toLowerCase()} ${categoryName.toLowerCase()} products curated on Shipyard.`
+    : `Discover ${pricingModelMeta.label.toLowerCase()} ${categoryName.toLowerCase()} software from indie makers.`
 
   const metadata = buildPageMetadata({
     title,
@@ -105,9 +119,9 @@ export async function generateMetadata(props: {
   return {
     ...metadata,
     keywords: [
-      `${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} tools`,
-      `${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} software`,
-      `${category.name.toLowerCase()} products with ${pricingModelMeta.label.toLowerCase()} pricing`,
+      `${pricingModelMeta.label.toLowerCase()} ${categoryName.toLowerCase()} tools`,
+      `${pricingModelMeta.label.toLowerCase()} ${categoryName.toLowerCase()} software`,
+      `${categoryName.toLowerCase()} products with ${pricingModelMeta.label.toLowerCase()} pricing`,
     ],
   }
 }
@@ -123,20 +137,32 @@ export default async function CategoryPricingPage({
   const pricingModelMeta = getPricingModelMeta(pricingModel)
   if (!pricingModelMeta) return notFound()
 
-  const category = await getCategoryMeta(slug)
+  let categoryResponse: Awaited<
+    ReturnType<typeof getCategoryDetailApiV1PublicCategoriesSlugDetailGet>
+  >
+  try {
+    categoryResponse =
+      await getCategoryDetailApiV1PublicCategoriesSlugDetailGet(slug, {
+        pageSize: 1,
+      })
+  } catch {
+    return notFound()
+  }
+  const category = categoryResponse.data.category
   if (!category) return notFound()
 
   const resolvedSearchParams = await searchParams
   const parsed = parseSearchParams(resolvedSearchParams)
 
-  const payload = await getBrowseProducts({
-    categorySlug: slug,
-    pricingModel: pricingModelMeta.value,
+  const browseResponse = await getBrowseProductsApiV1PublicBrowseProductsGet({
+    category: slug,
+    pricingModel: pricingModelMeta.slug,
     sort: parsed.sort,
     verified: parsed.verified,
     page: parsed.page,
-    query: parsed.query,
+    q: parsed.query,
   })
+  const payload = browseResponse.data
 
   const baseUrl = (
     process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
@@ -163,12 +189,12 @@ export default async function CategoryPricingPage({
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: `${pricingModelMeta.label} ${category.name} products`,
-    description: `Browse ${payload.total ?? payload.products.length} ${pluralize(payload.total ?? payload.products.length, "product")} with ${pricingModelMeta.label.toLowerCase()} pricing in the ${category.name} category.`,
+    description: `Browse ${payload.total ?? payload.items.length} ${pluralize(payload.total ?? payload.items.length, "product")} with ${pricingModelMeta.label.toLowerCase()} pricing in the ${category.name} category.`,
     itemListOrder:
       parsed.sort === "az"
         ? "https://schema.org/ItemListOrderAscending"
         : "https://schema.org/ItemListOrderDescending",
-    itemListElement: payload.products.slice(0, 20).map((product, index) => {
+    itemListElement: payload.items.slice(0, 20).map((product, index) => {
       const productUrl = `${baseUrl}${productPath(product.slug)}`
       return {
         "@type": "ListItem",
@@ -189,7 +215,7 @@ export default async function CategoryPricingPage({
   const resultCount =
     typeof payload.total === "number" && Number.isFinite(payload.total)
       ? payload.total
-      : payload.products.length
+      : payload.items.length
 
   return (
     <main className="relative isolate bg-[#f5f7fb]">
@@ -276,7 +302,7 @@ export default async function CategoryPricingPage({
           </div>
 
           <ProductGridClient
-            initialProducts={payload.products}
+            initialProducts={payload.items}
             initialHasMore={payload.hasMore}
             initialPage={parsed.page}
             searchParams={{

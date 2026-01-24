@@ -6,7 +6,7 @@ import ProductGrid from "@/components/molecules/ProductGrid"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { EmptyState } from "@/components/molecules/empty-state"
-import { getProductFeedPage } from "@/actions/public/products/feedPage"
+import { getTagProductsApiV1PublicTagsSlugProductsGet } from "@/lib/generated/fastapi/public-homepage"
 
 interface TagProductsClientProps {
   slug: string
@@ -32,15 +32,12 @@ export function TagProductsClient({
 
   const loadPage = useCallback(
     async (page: number) => {
-      const result = await getProductFeedPage({
-        kind: "tag",
-        slug,
+      const response = await getTagProductsApiV1PublicTagsSlugProductsGet(slug, {
         page,
       })
+      const result = response.data
       return {
-        items: (result.items as ProductCardBase[]).map((item) =>
-          toProductCardItem(item),
-        ),
+        items: result.items.map((item) => toProductCardItem(item)),
         hasMore: result.hasMore,
       }
     },

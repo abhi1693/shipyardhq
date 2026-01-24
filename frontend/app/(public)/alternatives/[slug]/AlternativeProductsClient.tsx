@@ -2,21 +2,21 @@
 
 import { useCallback, useMemo } from "react"
 
-import type { AlternativeDetailProduct } from "@/actions/public/alternatives/actions"
+import type { PublicProductCard } from "@/lib/generated/fastapi/schemas"
 import ProductGrid from "@/components/molecules/ProductGrid"
 import { toProductCardItem } from "@/lib/products/card-item"
-import { getProductFeedPage } from "@/actions/public/products/feedPage"
+import { getAlternativeProductsApiV1PublicAlternativesSlugProductsGet } from "@/lib/generated/fastapi/public-homepage"
 
 interface AlternativeProductsClientProps {
-  alternativeId: string
-  initialItems: AlternativeDetailProduct[]
+  slug: string
+  initialItems: PublicProductCard[]
   initialHasMore: boolean
   initialPage: number
   pageSize?: number
 }
 
 export function AlternativeProductsClient({
-  alternativeId,
+  slug,
   initialItems,
   initialHasMore,
   initialPage,
@@ -29,19 +29,19 @@ export function AlternativeProductsClient({
 
   const loadPage = useCallback(
     async (page: number) => {
-      const result = await getProductFeedPage({
-        kind: "alternative",
-        alternativeId,
-        page,
-        pageSize,
-      })
+      const response =
+        await getAlternativeProductsApiV1PublicAlternativesSlugProductsGet(
+          slug,
+          { page, pageSize },
+        )
+      const result = response.data
 
       return {
         items: result.items.map((item) => toProductCardItem(item)),
         hasMore: result.hasMore,
       }
     },
-    [alternativeId, pageSize],
+    [pageSize, slug],
   )
 
   return (
@@ -51,7 +51,7 @@ export function AlternativeProductsClient({
         hasMore: initialHasMore,
         initialPage,
         loadPage,
-        resetKey: alternativeId,
+        resetKey: slug,
         loadingSkeletonCount: 3,
       }}
       endMessage={

@@ -46,10 +46,15 @@ from services.schemas.public import (
     AlternativeHighlight,
     AlternativeCatalogItem,
     AlternativeCatalogPageResult,
+    AlternativeDetailPayload,
+    AlternativeDetailSummary,
+    AlternativeProductsPageResult,
     BrowseFilters,
     BrowsePagePayload,
     BrowseProductsPageResult,
     CategoryHighlight,
+    CategoryDetailPayload,
+    CategoryProductsPageResult,
     CategorySummary,
     CategoriesDirectoryPayload,
     HomepageFeedAllResult,
@@ -65,9 +70,12 @@ from services.schemas.public import (
     SponsoredPlacementSchedule,
     SponsoredProduct,
     StickyBannerProduct,
+    TagDetailPayload,
     TagDirectoryPageResult,
+    TagProductsPageResult,
     TagSummary,
     TrafficPoint,
+    UseCaseDetailPayload,
     UseCaseHighlight,
     UseCaseMeta,
     UseCaseSummary,
@@ -101,6 +109,15 @@ USE_CASES_CACHE_TTL = 600
 ALTERNATIVES_CACHE_TTL = 600
 TAGS_CACHE_TTL = 600
 
+CATEGORY_PRODUCTS_PAGE_SIZE = 20
+CATEGORY_PRODUCTS_MAX_PAGE_SIZE = 50
+
+TAG_PRODUCTS_PAGE_SIZE = 24
+TAG_PRODUCTS_MAX_PAGE_SIZE = 50
+
+ALTERNATIVE_DETAIL_PAGE_SIZE = 8
+ALTERNATIVE_DETAIL_MAX_PAGE_SIZE = 48
+
 CATEGORY_HIGHLIGHT_LIMIT = 4
 USE_CASE_HIGHLIGHT_LIMIT = 8
 
@@ -110,6 +127,8 @@ ALTERNATIVE_CATALOG_MAX_PAGE_SIZE = 50
 TAG_DIRECTORY_DEFAULT_PAGE_SIZE = 36
 TAG_LIST_LIMIT = 200
 KEYWORD_SLUG_HASH_LENGTH = 6
+
+TAG_HASH_REGEX = re.compile(r"^[a-f0-9]+$", re.IGNORECASE)
 
 BROWSE_SORT_LABELS = {
     "new": "Newest",
@@ -175,6 +194,10 @@ def _normalize_page(value: int | None, fallback: int = 1) -> int:
 
 
 def _normalize_page_size(value: int | None, fallback: int) -> int:
+    return _normalize_page_size_with_max(value, fallback, HOMEPAGE_FEED_MAX_PAGE_SIZE)
+
+
+def _normalize_page_size_with_max(value: int | None, fallback: int, max_value: int) -> int:
     if value is None:
         return fallback
     try:
@@ -183,7 +206,7 @@ def _normalize_page_size(value: int | None, fallback: int) -> int:
         return fallback
     if parsed <= 0:
         return fallback
-    return min(parsed, HOMEPAGE_FEED_MAX_PAGE_SIZE)
+    return min(parsed, max_value)
 
 
 def _normalize_highlight_limit(value: int | None, fallback: int) -> int:
@@ -231,6 +254,18 @@ def _normalize_query(value: str | None) -> str | None:
         return None
     trimmed = value.strip()
     return trimmed if trimmed else None
+
+
+def _extract_keyword_hash(slug: str) -> str | None:
+    if not slug:
+        return None
+    last_hyphen = slug.rfind("-")
+    if last_hyphen == -1:
+        return None
+    hash_value = slug[last_hyphen + 1 :]
+    if len(hash_value) != KEYWORD_SLUG_HASH_LENGTH or not TAG_HASH_REGEX.match(hash_value):
+        return None
+    return hash_value.lower()
 
 
 def _parse_platform(value: str | None) -> Platform | None:
@@ -396,6 +431,337 @@ async def _fetch_use_case_summaries(session: Session) -> list[UseCaseSummary]:
         )
         for use_case in use_cases
     ]
+
+
+async def _fetch_category_by_slug(session: Session, slug: str) -> Category | None:
+    stmt = select(Category).where(Category.slug == slug)
+    return (await session.exec(stmt)).scalars().one_or_none()
+
+
+async def _fetch_category_products_page(
+    session: Session,
+    *,
+    category_id: int,
+    page: int,
+    page_size: int,
+) -> tuple[list[Product], bool, int]:
+    base_filter = and_(
+        Product.status == ProductStatus.PUBLISHED,
+        Product.category_id == category_id,
+    )
+    total = _scalar_value(
+        (await session.exec(select(func.count(Product.id)).where(base_filter))).one()
+    )
+    offset = (page - 1) * page_size
+    stmt = (
+        select(Product)
+        .where(base_filter)
+        .order_by(Product.created_at.desc())
+        .options(*_product_load_options())
+        .offset(offset)
+        .limit(page_size + 1)
+    )
+    rows = (await session.exec(stmt)).scalars().all()
+    has_more = len(rows) > page_size
+    return rows[:page_size], has_more, total
+
+
+async def _fetch_use_case_categories(
+    session: Session, use_case_id: int
+) -> tuple[list[CategorySummary], int]:
+    stmt = (
+        select(
+            Category.id,
+            Category.name,
+            Category.slug,
+            Category.description,
+            Category.icon,
+            func.count(Product.id).label("product_count"),
+        )
+        .join(UseCaseCategory, UseCaseCategory.category_id == Category.id)
+        .join(Product, Product.category_id == Category.id)
+        .where(
+            and_(
+                UseCaseCategory.use_case_id == use_case_id,
+                Product.status == ProductStatus.PUBLISHED,
+            )
+        )
+        .group_by(Category.id)
+        .order_by(func.count(Product.id).desc(), Category.name.asc())
+    )
+    rows = (await session.exec(stmt)).all()
+    categories: list[CategorySummary] = []
+    total_products = 0
+    for row in rows:
+        count = int(row[5] or 0)
+        total_products += count
+        categories.append(
+            CategorySummary(
+                id=str(row[0]),
+                name=row[1],
+                slug=row[2],
+                description=row[3],
+                icon=row[4],
+                count=count,
+            )
+        )
+    return categories, total_products
+
+
+async def _fetch_tag_summary_by_slug(
+    session: Session, slug: str
+) -> TagSummary | None:
+    hash_value = _extract_keyword_hash(slug)
+    if not hash_value:
+        return None
+
+    stmt = text(
+        f"""
+        WITH expanded AS (
+          SELECT
+            LOWER(TRIM(k)) AS keyword,
+            TRIM(k) AS raw_keyword,
+            SUBSTRING(md5(LOWER(TRIM(k))), 1, {KEYWORD_SLUG_HASH_LENGTH}) AS hash,
+            p.id AS product_id,
+            COALESCE(p.updated_at, p.published_at, p.created_at) AS updated_at
+          FROM product p
+          CROSS JOIN LATERAL UNNEST(p.keywords) AS k
+          WHERE
+            p.status = 'published'
+            AND k IS NOT NULL
+            AND TRIM(k) <> ''
+        )
+        SELECT
+          keyword,
+          MIN(raw_keyword) AS canonical,
+          hash,
+          COUNT(DISTINCT product_id)::int AS product_count,
+          MAX(updated_at) AS last_updated
+        FROM expanded
+        WHERE hash = :hash_value
+        GROUP BY keyword, hash
+        """
+    )
+    rows = (await session.exec(stmt, {"hash_value": hash_value})).all()
+    for row in rows:
+        keyword = row[0]
+        canonical = row[1] or keyword
+        slug_value = _keyword_to_slug(keyword)
+        if slug_value != slug:
+            continue
+        last_updated = row[4]
+        return TagSummary(
+            keyword=keyword,
+            canonical=canonical,
+            hash=row[2],
+            slug=slug_value,
+            productCount=int(row[3] or 0),
+            lastUpdated=last_updated.isoformat() if last_updated else None,
+        )
+    return None
+
+
+async def _fetch_tag_products_page(
+    session: Session,
+    *,
+    slug: str,
+    page: int,
+    page_size: int,
+) -> TagProductsPageResult | None:
+    summary = await _fetch_tag_summary_by_slug(session, slug)
+    if not summary:
+        return None
+
+    normalized_keyword = summary.keyword.strip().lower()
+    offset = (page - 1) * page_size
+
+    stmt = text(
+        """
+        SELECT
+          p.id AS id
+        FROM product p
+        WHERE
+          p.status = 'published'
+          AND EXISTS (
+            SELECT 1
+            FROM UNNEST(p.keywords) AS keyword
+            WHERE LOWER(TRIM(keyword)) = :keyword
+          )
+        ORDER BY COALESCE(p.updated_at, p.published_at, p.created_at) DESC
+        OFFSET :offset
+        LIMIT :limit
+        """
+    )
+    rows = (await session.exec(stmt, {"keyword": normalized_keyword, "offset": offset, "limit": page_size})).all()
+    product_ids = [int(row[0]) for row in rows]
+    products = await _fetch_products_by_ids(session, product_ids)
+    score_map = await _fetch_score_map(session, product_ids)
+    interest_map = await _fetch_interest_map(session, product_ids)
+    now = datetime.now(timezone.utc)
+
+    items = [
+        _map_product_to_card(
+            product,
+            now=now,
+            score_map=score_map,
+            interest_map=interest_map,
+        )
+        for product in products
+    ]
+
+    total = summary.productCount
+    has_more = offset + len(product_ids) < total
+    next_page = page + 1 if has_more else None
+
+    return TagProductsPageResult(
+        summary=summary,
+        items=items,
+        total=total,
+        page=page,
+        pageSize=page_size,
+        hasMore=has_more,
+        nextPage=next_page,
+    )
+
+
+async def _fetch_alternative_by_slug(
+    session: Session, slug: str
+) -> AlternativeProduct | None:
+    stmt = select(AlternativeProduct).where(AlternativeProduct.slug == slug)
+    return (await session.exec(stmt)).scalars().one_or_none()
+
+
+async def _fetch_alternative_products_page(
+    session: Session,
+    *,
+    alternative_id: int,
+    page: int,
+    page_size: int,
+) -> tuple[list[Product], bool, int]:
+    alternative_exists = exists(
+        select(ProductAlternativeProductLink.product_id).where(
+            and_(
+                ProductAlternativeProductLink.product_id == Product.id,
+                ProductAlternativeProductLink.alternative_product_id == alternative_id,
+            )
+        )
+    )
+    base_filter = and_(Product.status == ProductStatus.PUBLISHED, alternative_exists)
+
+    priority_exists = exists(
+        select(PlanFeatureAssignment.id)
+        .join(PlanFeature, PlanFeature.id == PlanFeatureAssignment.feature_id)
+        .where(
+            and_(
+                PlanFeatureAssignment.plan_id == Product.plan_id,
+                PlanFeatureAssignment.enabled.is_(True),
+                PlanFeature.key == PRIORITY_FEATURE_KEY,
+            )
+        )
+    )
+
+    priority_filter = and_(base_filter, priority_exists)
+    regular_filter = and_(base_filter, ~priority_exists)
+
+    total_priority = _scalar_value(
+        (await session.exec(select(func.count(Product.id)).where(priority_filter))).one()
+    )
+    total_regular = _scalar_value(
+        (await session.exec(select(func.count(Product.id)).where(regular_filter))).one()
+    )
+
+    skip = (page - 1) * page_size
+    if skip < total_priority:
+        priority_skip = skip
+        priority_take = min(page_size, total_priority - priority_skip)
+        regular_skip = 0
+        regular_take = max(0, page_size - priority_take)
+    else:
+        priority_skip = total_priority
+        priority_take = 0
+        regular_skip = skip - total_priority
+        regular_take = page_size
+
+    order_by = [
+        func.coalesce(ProductAnalytics.upvotes, 0).desc(),
+        Product.created_at.desc(),
+        Product.name.asc(),
+    ]
+
+    products: list[Product] = []
+
+    if priority_take > 0:
+        priority_stmt = (
+            select(Product)
+            .outerjoin(ProductAnalytics)
+            .where(priority_filter)
+            .order_by(*order_by)
+            .options(*_product_load_options())
+            .offset(priority_skip)
+            .limit(priority_take)
+        )
+        products.extend((await session.exec(priority_stmt)).scalars().all())
+
+    if regular_take > 0:
+        regular_stmt = (
+            select(Product)
+            .outerjoin(ProductAnalytics)
+            .where(regular_filter)
+            .order_by(*order_by)
+            .options(*_product_load_options())
+            .offset(regular_skip)
+            .limit(regular_take)
+        )
+        products.extend((await session.exec(regular_stmt)).scalars().all())
+
+    total = total_priority + total_regular
+    has_more = skip + len(products) < total
+    return products, has_more, total
+
+
+async def _fetch_featured_alternatives(
+    session: Session,
+    *,
+    exclude_id: int | None = None,
+    limit: int = 6,
+) -> list[AlternativeCatalogItem]:
+    safe_limit = max(1, min(int(limit), 12))
+    stmt = (
+        select(
+            AlternativeProduct.id,
+            AlternativeProduct.name,
+            AlternativeProduct.slug,
+            AlternativeProduct.description,
+            AlternativeProduct.website_url,
+            AlternativeProduct.logo_url,
+            func.count(ProductAlternativeProductLink.product_id).label("product_count"),
+        )
+        .join(
+            ProductAlternativeProductLink,
+            ProductAlternativeProductLink.alternative_product_id == AlternativeProduct.id,
+        )
+        .group_by(AlternativeProduct.id)
+        .order_by(AlternativeProduct.name.asc())
+        .limit(safe_limit)
+    )
+    if exclude_id:
+        stmt = stmt.where(AlternativeProduct.id != exclude_id)
+
+    rows = (await session.exec(stmt)).all()
+    items: list[AlternativeCatalogItem] = []
+    for row in rows:
+        items.append(
+            AlternativeCatalogItem(
+                id=str(row[0]),
+                name=row[1],
+                slug=row[2],
+                description=row[3],
+                websiteUrl=row[4],
+                logoUrl=row[5],
+                productCount=int(row[6] or 0),
+            )
+        )
+    return items
 
 
 async def _resolve_browse_category_ids(
@@ -1260,6 +1626,146 @@ async def get_browse_products(
     return BrowseProductsPageResult.model_validate(payload)
 
 
+@router.get("/categories/{slug}/detail", response_model=CategoryDetailPayload)
+async def get_category_detail(
+    request: Request,
+    slug: str,
+    *,
+    page: int | None = Query(None),
+    page_size: int | None = Query(None, alias="pageSize"),
+    session: Session = Depends(get_session),
+) -> CategoryDetailPayload:
+    safe_page = _normalize_page(page, 1)
+    safe_page_size = _normalize_page_size_with_max(
+        page_size, CATEGORY_PRODUCTS_PAGE_SIZE, CATEGORY_PRODUCTS_MAX_PAGE_SIZE
+    )
+
+    async def build_payload() -> dict:
+        category = await _fetch_category_by_slug(session, slug)
+        if not category:
+            raise HTTPException(status_code=404, detail="Category not found")
+
+        products, has_more, total = await _fetch_category_products_page(
+            session,
+            category_id=category.id,
+            page=safe_page,
+            page_size=safe_page_size,
+        )
+
+        product_ids = [product.id for product in products]
+        score_map = await _fetch_score_map(session, product_ids)
+        interest_map = await _fetch_interest_map(session, product_ids)
+        now = datetime.now(timezone.utc)
+
+        items = [
+            _map_product_to_feed_item(
+                product,
+                now=now,
+                score_map=score_map,
+                interest_map=interest_map,
+            )
+            for product in products
+        ]
+
+        payload = CategoryDetailPayload(
+            category=CategorySummary(
+                id=str(category.id),
+                name=category.name,
+                slug=category.slug,
+                description=category.description,
+                icon=category.icon,
+                count=total,
+            ),
+            productsPage=CategoryProductsPageResult(
+                items=items,
+                total=total,
+                page=safe_page,
+                pageSize=safe_page_size,
+                hasMore=has_more,
+                nextPage=safe_page + 1 if has_more else None,
+            ),
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:category-detail",
+        ttl_seconds=CATEGORIES_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("slug", slug),
+            ("page", str(safe_page)),
+            ("pageSize", str(safe_page_size)),
+        ],
+        builder=build_payload,
+    )
+    return CategoryDetailPayload.model_validate(payload)
+
+
+@router.get("/categories/{slug}/products", response_model=CategoryProductsPageResult)
+async def get_category_products(
+    request: Request,
+    slug: str,
+    *,
+    page: int | None = Query(None),
+    page_size: int | None = Query(None, alias="pageSize"),
+    session: Session = Depends(get_session),
+) -> CategoryProductsPageResult:
+    safe_page = _normalize_page(page, 1)
+    safe_page_size = _normalize_page_size_with_max(
+        page_size, CATEGORY_PRODUCTS_PAGE_SIZE, CATEGORY_PRODUCTS_MAX_PAGE_SIZE
+    )
+
+    async def build_payload() -> dict:
+        category = await _fetch_category_by_slug(session, slug)
+        if not category:
+            raise HTTPException(status_code=404, detail="Category not found")
+
+        products, has_more, total = await _fetch_category_products_page(
+            session,
+            category_id=category.id,
+            page=safe_page,
+            page_size=safe_page_size,
+        )
+
+        product_ids = [product.id for product in products]
+        score_map = await _fetch_score_map(session, product_ids)
+        interest_map = await _fetch_interest_map(session, product_ids)
+        now = datetime.now(timezone.utc)
+
+        items = [
+            _map_product_to_feed_item(
+                product,
+                now=now,
+                score_map=score_map,
+                interest_map=interest_map,
+            )
+            for product in products
+        ]
+
+        payload = CategoryProductsPageResult(
+            items=items,
+            total=total,
+            page=safe_page,
+            pageSize=safe_page_size,
+            hasMore=has_more,
+            nextPage=safe_page + 1 if has_more else None,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:category-products",
+        ttl_seconds=CATEGORIES_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("slug", slug),
+            ("page", str(safe_page)),
+            ("pageSize", str(safe_page_size)),
+        ],
+        builder=build_payload,
+    )
+    return CategoryProductsPageResult.model_validate(payload)
+
+
 @router.get("/categories/directory", response_model=CategoriesDirectoryPayload)
 async def get_categories_directory(
     request: Request,
@@ -1365,6 +1871,46 @@ async def get_use_case_meta(
         builder=build_payload,
     )
     return UseCaseMeta.model_validate(payload)
+
+
+@router.get("/use-cases/{slug}/detail", response_model=UseCaseDetailPayload)
+async def get_use_case_detail(
+    request: Request,
+    slug: str,
+    session: Session = Depends(get_session),
+) -> UseCaseDetailPayload:
+    async def build_payload() -> dict:
+        use_case = (
+            await session.exec(select(UseCase).where(UseCase.slug == slug))
+        ).scalars().one_or_none()
+        if not use_case:
+            raise HTTPException(status_code=404, detail="Use case not found")
+
+        categories, product_count = await _fetch_use_case_categories(
+            session, use_case.id
+        )
+        payload = UseCaseDetailPayload(
+            useCase=UseCaseMeta(
+                id=str(use_case.id),
+                label=use_case.label,
+                slug=use_case.slug,
+                createdAt=use_case.created_at.isoformat(),
+                updatedAt=use_case.updated_at.isoformat(),
+                productCount=product_count,
+            ),
+            categories=categories,
+            productCount=product_count,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:use-case-detail",
+        ttl_seconds=USE_CASES_CACHE_TTL,
+        path=request.url.path,
+        params=[("slug", slug)],
+        builder=build_payload,
+    )
+    return UseCaseDetailPayload.model_validate(payload)
 
 
 @router.get("/tags/directory", response_model=TagDirectoryPageResult)
@@ -1492,6 +2038,89 @@ async def get_tag_directory(
     return TagDirectoryPageResult.model_validate(payload)
 
 
+@router.get("/tags/{slug}/detail", response_model=TagDetailPayload)
+async def get_tag_detail(
+    request: Request,
+    slug: str,
+    *,
+    page: int | None = Query(None),
+    page_size: int | None = Query(None, alias="pageSize"),
+    session: Session = Depends(get_session),
+) -> TagDetailPayload:
+    safe_page = _normalize_page(page, 1)
+    safe_page_size = _normalize_page_size_with_max(
+        page_size, TAG_PRODUCTS_PAGE_SIZE, TAG_PRODUCTS_MAX_PAGE_SIZE
+    )
+
+    async def build_payload() -> dict:
+        page_result = await _fetch_tag_products_page(
+            session,
+            slug=slug,
+            page=safe_page,
+            page_size=safe_page_size,
+        )
+        if not page_result:
+            raise HTTPException(status_code=404, detail="Tag not found")
+
+        payload = TagDetailPayload(
+            summary=page_result.summary,
+            productsPage=page_result,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:tag-detail",
+        ttl_seconds=TAGS_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("slug", slug),
+            ("page", str(safe_page)),
+            ("pageSize", str(safe_page_size)),
+        ],
+        builder=build_payload,
+    )
+    return TagDetailPayload.model_validate(payload)
+
+
+@router.get("/tags/{slug}/products", response_model=TagProductsPageResult)
+async def get_tag_products(
+    request: Request,
+    slug: str,
+    *,
+    page: int | None = Query(None),
+    page_size: int | None = Query(None, alias="pageSize"),
+    session: Session = Depends(get_session),
+) -> TagProductsPageResult:
+    safe_page = _normalize_page(page, 1)
+    safe_page_size = _normalize_page_size_with_max(
+        page_size, TAG_PRODUCTS_PAGE_SIZE, TAG_PRODUCTS_MAX_PAGE_SIZE
+    )
+
+    async def build_payload() -> dict:
+        page_result = await _fetch_tag_products_page(
+            session,
+            slug=slug,
+            page=safe_page,
+            page_size=safe_page_size,
+        )
+        if not page_result:
+            raise HTTPException(status_code=404, detail="Tag not found")
+        return page_result.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:tag-products",
+        ttl_seconds=TAGS_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("slug", slug),
+            ("page", str(safe_page)),
+            ("pageSize", str(safe_page_size)),
+        ],
+        builder=build_payload,
+    )
+    return TagProductsPageResult.model_validate(payload)
+
+
 @router.get("/alternatives/catalog", response_model=AlternativeCatalogPageResult)
 async def get_alternative_catalog(
     request: Request,
@@ -1607,6 +2236,152 @@ async def get_alternative_catalog(
         builder=build_payload,
     )
     return AlternativeCatalogPageResult.model_validate(payload)
+
+
+@router.get("/alternatives/{slug}/detail", response_model=AlternativeDetailPayload)
+async def get_alternative_detail(
+    request: Request,
+    slug: str,
+    *,
+    page: int | None = Query(None),
+    page_size: int | None = Query(None, alias="pageSize"),
+    session: Session = Depends(get_session),
+) -> AlternativeDetailPayload:
+    safe_page = _normalize_page(page, 1)
+    safe_page_size = _normalize_page_size_with_max(
+        page_size, ALTERNATIVE_DETAIL_PAGE_SIZE, ALTERNATIVE_DETAIL_MAX_PAGE_SIZE
+    )
+
+    async def build_payload() -> dict:
+        alternative = await _fetch_alternative_by_slug(session, slug)
+        if not alternative:
+            raise HTTPException(status_code=404, detail="Alternative not found")
+
+        products, has_more, total = await _fetch_alternative_products_page(
+            session,
+            alternative_id=alternative.id,
+            page=safe_page,
+            page_size=safe_page_size,
+        )
+        product_ids = [product.id for product in products]
+        score_map = await _fetch_score_map(session, product_ids)
+        interest_map = await _fetch_interest_map(session, product_ids)
+        now = datetime.now(timezone.utc)
+
+        items = [
+            _map_product_to_card(
+                product,
+                now=now,
+                score_map=score_map,
+                interest_map=interest_map,
+            )
+            for product in products
+        ]
+
+        featured = await _fetch_featured_alternatives(
+            session,
+            exclude_id=alternative.id,
+            limit=6,
+        )
+
+        payload = AlternativeDetailPayload(
+            alternative=AlternativeDetailSummary(
+                id=str(alternative.id),
+                name=alternative.name,
+                slug=alternative.slug,
+                description=alternative.description,
+                websiteUrl=alternative.website_url,
+                logoUrl=alternative.logo_url,
+                productCount=total,
+            ),
+            productsPage=AlternativeProductsPageResult(
+                items=items,
+                total=total,
+                page=safe_page,
+                pageSize=safe_page_size,
+                hasMore=has_more,
+                nextPage=safe_page + 1 if has_more else None,
+            ),
+            featuredAlternatives=featured,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:alternative-detail",
+        ttl_seconds=ALTERNATIVES_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("slug", slug),
+            ("page", str(safe_page)),
+            ("pageSize", str(safe_page_size)),
+        ],
+        builder=build_payload,
+    )
+    return AlternativeDetailPayload.model_validate(payload)
+
+
+@router.get("/alternatives/{slug}/products", response_model=AlternativeProductsPageResult)
+async def get_alternative_products(
+    request: Request,
+    slug: str,
+    *,
+    page: int | None = Query(None),
+    page_size: int | None = Query(None, alias="pageSize"),
+    session: Session = Depends(get_session),
+) -> AlternativeProductsPageResult:
+    safe_page = _normalize_page(page, 1)
+    safe_page_size = _normalize_page_size_with_max(
+        page_size, ALTERNATIVE_DETAIL_PAGE_SIZE, ALTERNATIVE_DETAIL_MAX_PAGE_SIZE
+    )
+
+    async def build_payload() -> dict:
+        alternative = await _fetch_alternative_by_slug(session, slug)
+        if not alternative:
+            raise HTTPException(status_code=404, detail="Alternative not found")
+
+        products, has_more, total = await _fetch_alternative_products_page(
+            session,
+            alternative_id=alternative.id,
+            page=safe_page,
+            page_size=safe_page_size,
+        )
+        product_ids = [product.id for product in products]
+        score_map = await _fetch_score_map(session, product_ids)
+        interest_map = await _fetch_interest_map(session, product_ids)
+        now = datetime.now(timezone.utc)
+
+        items = [
+            _map_product_to_card(
+                product,
+                now=now,
+                score_map=score_map,
+                interest_map=interest_map,
+            )
+            for product in products
+        ]
+
+        payload = AlternativeProductsPageResult(
+            items=items,
+            total=total,
+            page=safe_page,
+            pageSize=safe_page_size,
+            hasMore=has_more,
+            nextPage=safe_page + 1 if has_more else None,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:alternative-products",
+        ttl_seconds=ALTERNATIVES_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("slug", slug),
+            ("page", str(safe_page)),
+            ("pageSize", str(safe_page_size)),
+        ],
+        builder=build_payload,
+    )
+    return AlternativeProductsPageResult.model_validate(payload)
 
 
 async def _resolve_realtime_visitors(session: Session) -> int:

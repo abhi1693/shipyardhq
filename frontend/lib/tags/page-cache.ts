@@ -1,12 +1,9 @@
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
-  getKeywordTagSummaries,
-  getKeywordTagProducts,
-  type KeywordTagProductsResult,
-  type KeywordTagSummary,
-} from "@/actions/public/tags/actions"
-import { getTagDirectoryApiV1PublicTagsDirectoryGet } from "@/lib/generated/fastapi/public-homepage"
-import type { TagSummary } from "@/lib/generated/fastapi/schemas"
+  getTagDetailApiV1PublicTagsSlugDetailGet,
+  getTagDirectoryApiV1PublicTagsDirectoryGet,
+} from "@/lib/generated/fastapi/public-homepage"
+import type { TagDetailPayload, TagSummary } from "@/lib/generated/fastapi/schemas"
 
 type TagsIndexPayload = {
   initialItems: TagSummary[]
@@ -42,27 +39,15 @@ export const getTagsIndexPayload = cached(
   },
 )
 
-type TagDetailPayload = {
-  summary: KeywordTagSummary
-  products: KeywordTagProductsResult
-  summaries: KeywordTagSummary[]
-}
-
 export const getTagDetailPayload = cached(
   async (slug: string, page: number = 1): Promise<TagDetailPayload | null> => {
-    const [summaries, products] = await Promise.all([
-      getKeywordTagSummaries(),
-      getKeywordTagProducts(slug, page),
-    ])
-
-    if (!products) {
+    try {
+      const response = await getTagDetailApiV1PublicTagsSlugDetailGet(slug, {
+        page,
+      })
+      return response.data
+    } catch {
       return null
-    }
-
-    return {
-      summary: products.summary,
-      products,
-      summaries,
     }
   },
   "tags:detail:payload",

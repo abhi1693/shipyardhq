@@ -1,16 +1,14 @@
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
-  getPublicUseCaseCategoriesWithCounts,
-  type UseCaseCategoriesWithCounts,
-} from "@/actions/public/use-cases/actions"
-import { getUseCasesDirectoryApiV1PublicUseCasesDirectoryGet } from "@/lib/generated/fastapi/public-homepage"
-import type { UseCasesDirectoryPayload } from "@/lib/generated/fastapi/schemas"
+  getUseCaseDetailApiV1PublicUseCasesSlugDetailGet,
+  getUseCasesDirectoryApiV1PublicUseCasesDirectoryGet,
+} from "@/lib/generated/fastapi/public-homepage"
+import type {
+  UseCaseDetailPayload,
+  UseCasesDirectoryPayload,
+} from "@/lib/generated/fastapi/schemas"
 
-export type UseCasePagePayload =
-  | (UseCaseCategoriesWithCounts & {
-      hasProducts: boolean
-    })
-  | null
+export type UseCasePagePayload = UseCaseDetailPayload | null
 export type UseCasesPagePayload = UseCasesDirectoryPayload
 
 export const getUseCasesPagePayload = cached(
@@ -27,15 +25,14 @@ export const getUseCasesPagePayload = cached(
 
 export const getUseCasePagePayload = cached(
   async (slug: string): Promise<UseCasePagePayload> => {
-    const categoriesResult = await getPublicUseCaseCategoriesWithCounts(slug)
-
-    if (!categoriesResult || categoriesResult.productCount === 0) {
+    try {
+      const response = await getUseCaseDetailApiV1PublicUseCasesSlugDetailGet(slug)
+      if (!response.data || response.data.productCount === 0) {
+        return null
+      }
+      return response.data
+    } catch {
       return null
-    }
-
-    return {
-      ...categoriesResult,
-      hasProducts: categoriesResult.productCount > 0,
     }
   },
   "usecases:detail:payload",
