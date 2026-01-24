@@ -1,6 +1,7 @@
-import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { browseSortLabelMap, type BrowseSort } from "@/lib/browse/cache"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { getBrowseProductsApiV1PublicBrowseProductsGet } from "@/lib/generated/fastapi/public-homepage"
+import type { BrowseProductsPageResult } from "@/lib/generated/fastapi/schemas"
 import { pluralize } from "@/lib/pluralize"
 import {
   getProductTypeMeta,
@@ -18,8 +19,8 @@ export type ProductTypePageFilters = {
 export type ProductTypePagePayload = {
   productType: NonNullable<ReturnType<typeof getProductTypeMeta>>
   filters: ProductTypePageFilters
-  products: Awaited<ReturnType<typeof getBrowseProducts>>["products"]
-  hasMore: Awaited<ReturnType<typeof getBrowseProducts>>["hasMore"]
+  products: BrowseProductsPageResult["items"]
+  hasMore: BrowseProductsPageResult["hasMore"]
   total: number
   sortLabel: string
   filterSummary: string[]
@@ -60,13 +61,24 @@ export const getProductTypePagePayload = cached(
     if (!productType) return null
 
     const filters = normalizeFilters(inputFilters)
-    const { products, hasMore, total } = await getBrowseProducts({
-      type: productType.value,
+    const browseResponse = await getBrowseProductsApiV1PublicBrowseProductsGet({
+      productType: productType.value,
       sort: filters.sort,
       verified: filters.verified,
       page: filters.page,
-      query: filters.query,
+      q: filters.query,
     })
+    const browseResult =
+      browseResponse.status === 200
+        ? browseResponse.data
+        : {
+            items: [],
+            hasMore: false,
+            page: filters.page,
+            pageSize: 0,
+            total: 0,
+          }
+    const { items: products, hasMore, total } = browseResult
 
     const totalResults =
       typeof total === "number" && Number.isFinite(total) ? total : 0
