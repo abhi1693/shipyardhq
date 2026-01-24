@@ -1,10 +1,10 @@
-import { getKeywordTagSitemapStats } from "@/actions/public/tags/actions"
+import { getTagDirectoryApiV1PublicTagsDirectoryGet } from "@/lib/generated/fastapi/public-homepage"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 86400
 
-const CHUNK_SIZE = 50000
+const PAGE_SIZE = 200
 
 function xml(parts: TemplateStringsArray, ...subs: any[]) {
   return parts.map((part, index) => part + (subs[index] ?? "")).join("")
@@ -13,11 +13,14 @@ function xml(parts: TemplateStringsArray, ...subs: any[]) {
 export async function GET() {
   const base = resolveSiteUrl()
 
-  const { total, lastUpdated } = await getKeywordTagSitemapStats()
-
-  const chunks = Math.ceil(total / CHUNK_SIZE)
-  const nowIso = new Date().toISOString()
-  const lastmod = lastUpdated?.toISOString() ?? nowIso
+  const response = await getTagDirectoryApiV1PublicTagsDirectoryGet({
+    page: 1,
+    pageSize: PAGE_SIZE,
+    includeTotal: true,
+  })
+  const total = response.data.total ?? response.data.items.length
+  const chunks = Math.ceil(total / PAGE_SIZE)
+  const lastmod = new Date().toISOString()
 
   const sitemapEntries = Array.from(
     { length: Math.max(chunks, 1) },

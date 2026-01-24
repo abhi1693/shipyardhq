@@ -514,6 +514,7 @@ async def _fetch_tag_summary_by_slug(
     hash_value = _extract_keyword_hash(slug)
     if not hash_value:
         return None
+    status_value = ProductStatus.PUBLISHED.name
 
     stmt = text(
         f"""
@@ -527,7 +528,7 @@ async def _fetch_tag_summary_by_slug(
           FROM product p
           CROSS JOIN LATERAL UNNEST(p.keywords) AS k
           WHERE
-            p.status = 'published'
+            p.status = :status
             AND k IS NOT NULL
             AND TRIM(k) <> ''
         )
@@ -542,7 +543,15 @@ async def _fetch_tag_summary_by_slug(
         GROUP BY keyword, hash
         """
     )
-    rows = (await session.exec(stmt, {"hash_value": hash_value})).all()
+    rows = (
+        await session.exec(
+            stmt,
+            params={
+                "hash_value": hash_value,
+                "status": status_value,
+            },
+        )
+    ).all()
     for row in rows:
         keyword = row[0]
         canonical = row[1] or keyword
@@ -574,6 +583,7 @@ async def _fetch_tag_products_page(
 
     normalized_keyword = summary.keyword.strip().lower()
     offset = (page - 1) * page_size
+    status_value = ProductStatus.PUBLISHED.name
 
     stmt = text(
         """
@@ -581,7 +591,7 @@ async def _fetch_tag_products_page(
           p.id AS id
         FROM product p
         WHERE
-          p.status = 'published'
+          p.status = :status
           AND EXISTS (
             SELECT 1
             FROM UNNEST(p.keywords) AS keyword
@@ -592,7 +602,17 @@ async def _fetch_tag_products_page(
         LIMIT :limit
         """
     )
-    rows = (await session.exec(stmt, {"keyword": normalized_keyword, "offset": offset, "limit": page_size})).all()
+    rows = (
+        await session.exec(
+            stmt,
+            params={
+                "keyword": normalized_keyword,
+                "offset": offset,
+                "limit": page_size,
+                "status": status_value,
+            },
+        )
+    ).all()
     product_ids = [int(row[0]) for row in rows]
     products = await _fetch_products_by_ids(session, product_ids)
     score_map = await _fetch_score_map(session, product_ids)
@@ -1934,6 +1954,7 @@ async def get_tag_directory(
     offset = max(0, (safe_page - 1) * safe_page_size)
 
     async def build_payload() -> dict:
+        status_value = ProductStatus.PUBLISHED.name
         tag_stmt = text(
             """
             WITH expanded AS (
@@ -1946,7 +1967,7 @@ async def get_tag_directory(
               FROM product p
               CROSS JOIN LATERAL UNNEST(p.keywords) AS k
               WHERE
-                p.status = 'published'
+                p.status = :status
                 AND k IS NOT NULL
                 AND TRIM(k) <> ''
             )
@@ -1964,7 +1985,12 @@ async def get_tag_directory(
             """
         )
 
-        rows = (await session.exec(tag_stmt, params={"offset": offset, "limit": limit})).all()
+        rows = (
+            await session.exec(
+                tag_stmt,
+                params={"offset": offset, "limit": limit, "status": status_value},
+            )
+        ).all()
         items: list[TagSummary] = []
 
         for row in rows[:safe_page_size]:
@@ -1997,7 +2023,7 @@ async def get_tag_directory(
                   FROM product p
                   CROSS JOIN LATERAL UNNEST(p.keywords) AS k
                   WHERE
-                    p.status = 'published'
+                    p.status = :status
                     AND k IS NOT NULL
                     AND TRIM(k) <> ''
                 ),
@@ -2012,7 +2038,9 @@ async def get_tag_directory(
                 FROM grouped
                 """
             )
-            total_row = (await session.exec(total_stmt)).one_or_none()
+            total_row = (
+                await session.exec(total_stmt, params={"status": status_value})
+            ).one_or_none()
             total = int(total_row[0] or 0) if total_row else 0
 
         payload = TagDirectoryPageResult(

@@ -22,7 +22,6 @@ import {
   WHY_SHIPYARD_PATH,
 } from "@/lib/routes"
 import { resolveSiteUrl } from "@/lib/siteConfig"
-import { getPublicUseCasesWithCounts } from "@/actions/public/use-cases/actions"
 import {
   PLATFORM_SLUGS,
   platformValueFromSlug,
@@ -38,6 +37,14 @@ import {
   PRODUCT_TYPE_SLUGS,
   type ProductTypeSlug,
 } from "@/lib/product-types/models"
+import {
+  getUseCaseMetaApiV1PublicUseCasesSlugMetaGet,
+  getUseCasesDirectoryApiV1PublicUseCasesDirectoryGet,
+} from "@/lib/generated/fastapi/public-homepage"
+import type {
+  UseCaseMeta,
+  UseCaseSummary,
+} from "@/lib/generated/fastapi/schemas"
 
 type CategorySitemapEntry = Prisma.CategoryGetPayload<{
   select: { id: true; slug: true; updatedAt: true }
@@ -75,7 +82,7 @@ export async function GET() {
 
   const [
     categories,
-    useCases,
+    useCasesResponse,
     platformSlices,
     pricingModelSlices,
     productTypeSlices,
@@ -84,7 +91,7 @@ export async function GET() {
       select: { id: true, slug: true, updatedAt: true },
       orderBy: { updatedAt: "desc" },
     }),
-    getPublicUseCasesWithCounts(),
+    getUseCasesDirectoryApiV1PublicUseCasesDirectoryGet(),
     Promise.all(
       PLATFORM_SLUGS.map(async (slug) => {
         const latest = await prisma.product.findFirst({
@@ -148,6 +155,24 @@ export async function GET() {
       }),
     ),
   ])
+  const useCases = useCasesResponse.data.useCases
+  const useCaseMetaBySlug = new Map<string, UseCaseMeta>()
+
+  await Promise.all(
+    useCases.map(async (useCase) => {
+      if (!useCase.slug) {
+        return
+      }
+      try {
+        const response = await getUseCaseMetaApiV1PublicUseCasesSlugMetaGet(
+          useCase.slug,
+        )
+        useCaseMetaBySlug.set(useCase.slug, response.data)
+      } catch {
+        return
+      }
+    }),
+  )
   type ProductTypeSlice = {
     slug: ProductTypeSlug
     lastmod: Date
@@ -431,9 +456,10 @@ export async function GET() {
       ]
     }),
     ...useCases
-      .filter((useCase: (typeof useCases)[number]) => useCase.productCount > 0)
-      .map((useCase: (typeof useCases)[number]) => {
-        const last = useCase.updatedAt || now
+      .filter((useCase: UseCaseSummary) => (useCase.productCount ?? 0) > 0)
+      .map((useCase: UseCaseSummary) => {
+        const meta = useCaseMetaBySlug.get(useCase.slug)
+        const last = meta?.updatedAt ? new Date(meta.updatedAt) : now
         const days = Math.floor(
           (now.getTime() - new Date(last).getTime()) / 86400000,
         )

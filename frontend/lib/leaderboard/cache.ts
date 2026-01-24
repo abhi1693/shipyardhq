@@ -3,7 +3,8 @@ import {
   getLeaderboardStats,
   getTopRankedProducts,
 } from "@/actions/public/leaderboard/actions"
-import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
+import { getCategoriesDirectoryApiV1PublicCategoriesDirectoryGet } from "@/lib/generated/fastapi/public-homepage"
+import type { CategorySummary } from "@/lib/generated/fastapi/schemas"
 
 const DEFAULT_LIMIT = 50
 
@@ -16,9 +17,7 @@ export type LeaderboardFilters = {
 type LeaderboardProduct = Awaited<
   ReturnType<typeof getTopRankedProducts>
 >[number]
-type LeaderboardCategory = Awaited<
-  ReturnType<typeof getCategoriesWithCounts>
->[number]
+type LeaderboardCategory = CategorySummary
 
 export type LeaderboardPagePayload = {
   filters: LeaderboardFilters
@@ -52,15 +51,16 @@ export const getLeaderboardPagePayload = cached(
   async (input: LeaderboardFilters): Promise<LeaderboardPagePayload> => {
     const filters = normalizeFilters(input)
 
-    const [stats, categories, products] = await Promise.all([
+    const [stats, categoriesResponse, products] = await Promise.all([
       getLeaderboardStats(),
-      getCategoriesWithCounts(),
+      getCategoriesDirectoryApiV1PublicCategoriesDirectoryGet(),
       getTopRankedProducts({
         limit: filters.limit,
         categorySlug: filters.categorySlug,
         verifiedRevenueOnly: filters.verifiedRevenueOnly,
       }),
     ])
+    const categories = categoriesResponse.data.categories
 
     const topThree = products.slice(0, 3)
     const firstPlacement = topThree[0] ?? null

@@ -1,13 +1,10 @@
-import {
-  getKeywordTagSitemapChunk,
-  getKeywordTagSitemapStats,
-} from "@/actions/public/tags/actions"
+import { getTagDirectoryApiV1PublicTagsDirectoryGet } from "@/lib/generated/fastapi/public-homepage"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 86400
 
-const CHUNK_SIZE = 50000
+const PAGE_SIZE = 200
 
 function xml(parts: TemplateStringsArray, ...subs: any[]) {
   return parts.map((part, index) => part + (subs[index] ?? "")).join("")
@@ -16,8 +13,13 @@ function xml(parts: TemplateStringsArray, ...subs: any[]) {
 export async function generateStaticParams(): Promise<
   Array<{ index: string }>
 > {
-  const { total } = await getKeywordTagSitemapStats()
-  const totalPages = Math.max(Math.ceil(total / CHUNK_SIZE), 1)
+  const response = await getTagDirectoryApiV1PublicTagsDirectoryGet({
+    page: 1,
+    pageSize: PAGE_SIZE,
+    includeTotal: true,
+  })
+  const total = response.data.total ?? response.data.items.length
+  const totalPages = Math.max(Math.ceil(total / PAGE_SIZE), 1)
 
   return Array.from({ length: totalPages }, (_, pageIndex) => ({
     index: String(pageIndex + 1),
@@ -34,13 +36,15 @@ export async function GET(
   if (!Number.isFinite(page) || page < 1) {
     return new Response("Invalid index", { status: 400 })
   }
-
-  const offset = (page - 1) * CHUNK_SIZE
-  const tags = await getKeywordTagSitemapChunk(offset, CHUNK_SIZE)
+  const response = await getTagDirectoryApiV1PublicTagsDirectoryGet({
+    page,
+    pageSize: PAGE_SIZE,
+  })
+  const tags = response.data.items
 
   const urls = tags
     .map((tag) => {
-      const last = tag.lastUpdated ?? new Date()
+      const last = tag.lastUpdated ? new Date(tag.lastUpdated) : new Date()
       const days = Math.floor((Date.now() - last.getTime()) / 86400000)
       const changefreq = days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
       const priority = days <= 7 ? "0.9" : days <= 180 ? "0.8" : "0.7"
