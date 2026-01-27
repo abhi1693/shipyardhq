@@ -40,6 +40,7 @@ import { buildPageMetadata } from "@/lib/metadata"
 import { getTagDetailPayload } from "@/lib/tags/page-cache"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { toProductCardItem } from "@/lib/products/card-item"
+import { hasEditorPickBadge } from "@/lib/products/badges"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
 
 export async function generateMetadata({
@@ -83,17 +84,21 @@ function mapProductCardItemToFeedItem(
     return product.category?.slug ?? null
   }
 
-  const isSponsored =
+  const isPriorityPlacement =
     typeof product.isSponsored !== "undefined"
       ? product.isSponsored
       : Boolean(product.sponsored)
+  const isEditorPick = hasEditorPickBadge(product.badges ?? [])
+  const isSponsored = isPriorityPlacement || isEditorPick
 
   const variant =
     typeof product.variant !== "undefined"
       ? product.variant
-      : isSponsored
+      : isPriorityPlacement
         ? "sponsored"
-        : "default"
+        : isEditorPick
+          ? "promoted"
+          : "default"
 
   return {
     id: product.id,

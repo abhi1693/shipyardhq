@@ -12,6 +12,7 @@ import {
 } from "@/lib/products/selects"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
+import { hasEditorPickBadge } from "@/lib/products/badges"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import {
   convertToUsdCents,
@@ -406,7 +407,15 @@ const mapUserProductToFeedItem = (
       : parsed.toISOString()
   }
 
-  const isSponsored = Boolean((product as any).sponsored)
+  const badges = product.badges ?? []
+  const isEditorPick = hasEditorPickBadge(badges)
+  const isPriorityPlacement = Boolean((product as any).sponsored)
+  const isSponsored = isPriorityPlacement || isEditorPick
+  const variant = isPriorityPlacement
+    ? "sponsored"
+    : isEditorPick
+      ? "promoted"
+      : "default"
 
   return {
     id: product.id,
@@ -418,7 +427,7 @@ const mapUserProductToFeedItem = (
     updatedAt: coerceDateString(
       (product as any).updatedAt ?? product.createdAt,
     ),
-    badges: product.badges ?? [],
+    badges,
     category: categoryName,
     categorySlug,
     scoreCount:
@@ -426,7 +435,7 @@ const mapUserProductToFeedItem = (
     isSponsored,
     isVoted: false,
     isVerified: Boolean(product.isVerified),
-    variant: isSponsored ? "sponsored" : "default",
+    variant,
     latestRevenueCents:
       typeof product.latestRevenueCents === "number"
         ? product.latestRevenueCents

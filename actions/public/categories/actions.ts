@@ -12,6 +12,7 @@ import {
 } from "@/lib/products/selects"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
+import { hasEditorPickBadge } from "@/lib/products/badges"
 
 const categoryProductSelect = productCardSelect satisfies Prisma.ProductSelect
 
@@ -95,8 +96,14 @@ const mapProductToFeedItem = (
   const badges = product.badges ?? []
   const categoryName = product.category?.name ?? null
   const categorySlug = product.category?.slug ?? null
-  const isSponsored = Boolean(product.sponsored)
-  const variant = isSponsored ? "sponsored" : "default"
+  const isEditorPick = hasEditorPickBadge(badges)
+  const isPriorityPlacement = Boolean(product.sponsored)
+  const isSponsored = isPriorityPlacement || isEditorPick
+  const variant = isPriorityPlacement
+    ? "sponsored"
+    : isEditorPick
+      ? "promoted"
+      : "default"
 
   return {
     id: product.id,

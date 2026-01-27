@@ -21,6 +21,7 @@ import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import type { ProductInterestSignals } from "@/types/product-interest"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { getMostClickedProductIds } from "@/lib/server/analytics/productInterest"
+import { hasEditorPickBadge } from "@/lib/products/badges"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
 
 const homepageFeedSelect = {
@@ -163,10 +164,17 @@ function mapProductToFeedItem(
       (badge) => !badge.expiresAt || badge.expiresAt > now,
     ).map((badge) => badge.badge) ?? []
 
-  const isSponsored =
+  const isPriorityPlacement =
     product.plan?.assignments?.some(
       (assignment) => assignment.feature?.key === PRIORITY_FEATURE_KEY,
     ) ?? false
+  const isEditorPick = hasEditorPickBadge(activeBadges)
+  const isSponsored = isPriorityPlacement || isEditorPick
+  const variant: ProductCardVariant = isPriorityPlacement
+    ? "sponsored"
+    : isEditorPick
+      ? "promoted"
+      : "default"
 
   const revenue = resolveProductRevenue(product.paymentConnector, {
     rates,
@@ -189,7 +197,7 @@ function mapProductToFeedItem(
     isSponsored,
     isVoted: upvoted.has(product.id),
     isVerified: Boolean(product.verification?.isVerified),
-    variant: isSponsored ? "sponsored" : "default",
+    variant,
     latestRevenueCents: revenue.latestRevenueCents,
     revenueCurrencyCode:
       revenue.latestRevenueCents !== null ? revenue.revenueCurrencyCode : null,
