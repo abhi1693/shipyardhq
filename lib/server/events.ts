@@ -320,18 +320,22 @@ export async function dispatchEvent<K extends keyof AppEvents>(
         error,
       })
       const failureTimestamp = new Date()
-      await prisma.$executeRaw`
-        UPDATE "EventEnvelope"
-        SET "status" = ${"dead_letter"}::"EventEnvelopeStatus",
-            "lastError" =
-              ${
-                error instanceof Error
-                  ? error.message
-                  : DEFAULT_DEAD_LETTER_MESSAGE
-              },
-            "updatedAt" = ${failureTimestamp}
-        WHERE "id" = ${envelopeId}
-      `
+      const errorMessage =
+        error instanceof Error ? error.message : DEFAULT_DEAD_LETTER_MESSAGE
+      try {
+        await prisma.$executeRaw`
+          UPDATE "EventEnvelope"
+          SET "lastError" = ${errorMessage},
+              "nextRunAt" = ${failureTimestamp},
+              "updatedAt" = ${failureTimestamp}
+          WHERE "id" = ${envelopeId}
+        `
+      } catch (updateError) {
+        console.error("[events] failed to record enqueue error", {
+          envelopeId,
+          error: updateError,
+        })
+      }
       if (!IS_PROD) {
         console.warn("[events] falling back to inline async execution", {
           event: key,
@@ -359,15 +363,22 @@ export async function dispatchEvent<K extends keyof AppEvents>(
           }
         }
         const completionTimestamp = new Date()
-        await prisma.$executeRaw`
-          UPDATE "EventEnvelope"
-          SET "status" = ${"completed"}::"EventEnvelopeStatus",
-              "pendingHandlers" = ${[] as string[]},
-              "lastError" = NULL,
-              "processedAt" = ${completionTimestamp},
-              "updatedAt" = ${completionTimestamp}
-          WHERE "id" = ${envelopeId}
-        `
+        try {
+          await prisma.$executeRaw`
+            UPDATE "EventEnvelope"
+            SET "status" = ${"completed"}::"EventEnvelopeStatus",
+                "pendingHandlers" = ${[] as string[]},
+                "lastError" = NULL,
+                "processedAt" = ${completionTimestamp},
+                "updatedAt" = ${completionTimestamp}
+            WHERE "id" = ${envelopeId}
+          `
+        } catch (updateError) {
+          console.error("[events] failed to update fallback completion", {
+            envelopeId,
+            error: updateError,
+          })
+        }
       }
     })
   }
