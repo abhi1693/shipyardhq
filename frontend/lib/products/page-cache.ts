@@ -5,6 +5,7 @@ import {
 } from "@/actions/public/products/actions"
 import { productPath } from "@/lib/routes"
 import { ensureUrlHasSchema } from "@/lib/utils"
+import type { ProductInterestSignals } from "@/types/product-interest"
 
 export type PublicProduct = NonNullable<
   Awaited<ReturnType<typeof getPublicProductBySlug>>
@@ -53,8 +54,14 @@ type SimilarProduct = {
   name: string
   logo: string
   tagline: string
-  analytics?: { upvotes: number }
-  category?: { name: string | null; slug: string | null }
+  category?: { name?: string | null; slug?: string | null }
+  badges?: string[]
+  sponsored?: boolean
+  isVerified?: boolean
+  scoreCount?: number
+  latestRevenueCents?: number | null
+  revenueCurrencyCode?: string | null
+  interest?: ProductInterestSignals | null
 }
 
 export type ProductPagePayload = {
@@ -74,10 +81,14 @@ function mapUseCaseProducts(products: UseCaseProduct[]): SimilarProduct[] {
     name: item.name,
     logo: item.logo ?? "",
     tagline: item.tagline ?? "",
-    analytics: item.analytics
-      ? { upvotes: item.analytics.upvotes ?? 0 }
-      : undefined,
     category: item.category ?? undefined,
+    badges: item.badges ?? [],
+    sponsored: item.sponsored ?? false,
+    isVerified: item.isVerified ?? false,
+    scoreCount: item.scoreCount ?? undefined,
+    latestRevenueCents: item.latestRevenueCents ?? null,
+    revenueCurrencyCode: item.revenueCurrencyCode ?? null,
+    interest: item.interest ?? null,
   }))
 }
 
@@ -99,7 +110,7 @@ export function buildProductStructuredData(product: PublicProduct) {
   const logoUrl = toAbsoluteUrl(product.logo)
   const bannerUrl = toAbsoluteUrl(product.bannerImage)
   const galleryImages =
-    product.ProductMedia?.map((item) => toAbsoluteUrl(item.imageUrl)).filter(
+    product.media?.map((item) => toAbsoluteUrl(item.imageUrl)).filter(
       (value): value is string => Boolean(value),
     ) ?? []
   const screenshotImages = [bannerUrl, ...galleryImages].filter(
@@ -145,17 +156,17 @@ export const getProductPagePayload = cached(
       return null
     }
 
-    const useCaseSlug = product.category.useCases?.[0]?.useCase?.slug ?? null
+    const useCaseSlug = product.category?.useCases?.[0]?.slug ?? null
 
     const similarProductsRaw = useCaseSlug
       ? await getPublicProductsByUseCase(useCaseSlug, product.id)
       : []
 
     const similarProducts = mapUseCaseProducts(similarProductsRaw)
-    const similarUseCase = product.category.useCases?.[0]?.useCase
+    const similarUseCase = product.category?.useCases?.[0]
       ? {
-          slug: product.category.useCases[0].useCase.slug,
-          label: product.category.useCases[0].useCase.label,
+          slug: product.category.useCases[0].slug,
+          label: product.category.useCases[0].label,
         }
       : null
 

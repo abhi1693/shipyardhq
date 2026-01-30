@@ -56,6 +56,7 @@ import {
 import {
   getPublicProductMetaBySlug,
   getPublicProductBySlug,
+  getPublicProductLeaderboard,
   getPublicProductRevenue,
 } from "@/actions/public/products/actions"
 import {
@@ -87,10 +88,8 @@ import {
 } from "@/lib/product-types/models"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { ProductRevenueChart } from "@/components/templates/public/products/detail/ProductRevenueChart"
-import { getProductScoreForCurrentWindow } from "@/lib/server/leaderboard/v2"
 import { buildProductInterestBadges } from "@/lib/products/interest"
 import { Badge } from "@/components/atoms/badge"
-import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -226,22 +225,19 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return notFound()
 
-  const interestMap = await getProductInterestSignalsMap({
-    products: [{ id: product.id, slug: product.slug }],
-  })
-  const interestBadges = buildProductInterestBadges(
-    interestMap.get(product.id) ?? null,
-    { maxBadges: 4, includeBuildersClicked: true, minBuildersClicked: 1 },
-  )
-
   const [sidebarProduct, revenue, leaderboardScore] = await Promise.all([
     getPublicProductBySlug(slug),
     product.pricingModel === "free"
       ? Promise.resolve(null)
       : getPublicProductRevenue(product.id),
-    getProductScoreForCurrentWindow(product.id).catch(() => null),
+    getPublicProductLeaderboard(product.id).catch(() => null),
   ])
   if (!sidebarProduct) return notFound()
+
+  const interestBadges = buildProductInterestBadges(
+    sidebarProduct.interest ?? null,
+    { maxBadges: 4, includeBuildersClicked: true, minBuildersClicked: 1 },
+  )
 
   const canonicalPath = productPath(product.slug)
   const productBreadcrumbs = [
@@ -251,9 +247,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   ]
   const screenshotSources = [
     product.bannerImage,
-    ...(product.ProductMedia ?? []).map(
-      (media: { imageUrl: string | null }) => media.imageUrl,
-    ),
+    ...(product.media ?? []).map((media) => media.imageUrl),
   ].filter((value): value is string => Boolean(value?.trim()))
   const schemaPublishedDateIso =
     product.publishedAt || product.createdAt
@@ -362,7 +356,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   })
 
   const primaryUseCaseSlug =
-    sidebarProduct.category?.useCases?.[0]?.useCase?.slug ?? null
+    sidebarProduct.category?.useCases?.[0]?.slug ?? null
   const publishedSource = product.publishedAt || product.createdAt
   const publishedLabel = publishedSource
     ? new Intl.DateTimeFormat("en-US", {
@@ -404,13 +398,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       }
     },
   )
-  const galleryMedia = (product.ProductMedia ?? [])
-    .map((item: (typeof product.ProductMedia)[number]) => ({
+  const galleryMedia = (product.media ?? [])
+    .map((item) => ({
       id: item.id,
       imageUrl: item.imageUrl,
       altText: item.altText,
     }))
-    .filter((item: { imageUrl: string | null }) => Boolean(item.imageUrl))
+    .filter((item) => Boolean(item.imageUrl))
   const activeBadgeDefs = ((sidebarProduct?.badges ?? []) as string[])
     .map((badgeKey) => BADGE_LOOKUP[badgeKey])
     .filter(Boolean)
@@ -468,22 +462,20 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         productLogoUrl={product.logo}
       />
     ) : null
-  const leaderboardPoints =
-    typeof leaderboardScore?.score === "number" ? leaderboardScore.score : 0
-  const leaderboardRank =
-    typeof leaderboardScore?.rank === "number" ? leaderboardScore.rank : null
-  const leaderboardPayload = {
-    points: leaderboardPoints,
-    rank: leaderboardRank,
-    available: Boolean(leaderboardScore),
-  }
-  const analyticsUpvotes =
-    sidebarProduct.analytics?.upvotes ?? product.analytics?.upvotes ?? 0
-  const sidebarUpvotes = sidebarProduct._count?.ProductUpvote
-  const upvoteCount =
-    typeof sidebarUpvotes === "number"
-      ? Math.max(sidebarUpvotes, analyticsUpvotes)
-      : analyticsUpvotes
+  const leaderboardPayload =
+    leaderboardScore ?? {
+      points: 0,
+      rank: null,
+      available: false,
+    }
+  const upvoteCandidates = [
+    sidebarProduct.upvotesCount,
+    sidebarProduct.analytics?.upvotes,
+    product.analytics?.upvotes,
+  ].filter((value): value is number => typeof value === "number")
+  const upvoteCount = upvoteCandidates.length
+    ? Math.max(...upvoteCandidates)
+    : 0
   const productDetailsCard = (
     <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-5">

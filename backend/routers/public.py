@@ -9,14 +9,17 @@ from typing import Sequence
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy import and_, exists, func, or_, select, text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 from sqlmodel.ext.asyncio.session import AsyncSession as Session
 
+from auth import CurrentUserId, OptionalUserId
 from database import get_session
 from models import (
     AlternativeProduct,
     AlternativeProductCategoryLink,
     Category,
+    FeatureEntitlementStatus,
     LeaderboardRun,
     PaymentConnector,
     PaymentConnectorStatus,
@@ -52,6 +55,7 @@ from models import (
 )
 from routers.base import api_prefix
 from services.cache import cached_json
+from services.revenue import build_revenue_summary
 from services.schemas.public import (
     AlternativeHighlight,
     AlternativeCatalogItem,
@@ -89,6 +93,11 @@ from services.schemas.public import (
     ProductCategorySummary,
     ProductInterestSignals,
     PublicProductCard,
+    PublicProductDetailPayload,
+    PublicProductMetaPayload,
+    PublicProductUpvoteState,
+    PublicProductLeaderboardScore,
+    ProductRevenueSummary,
     PublicRewardsData,
     PublicRewardsRedemption,
     PublicRewardsReward,
@@ -99,6 +108,15 @@ from services.schemas.public import (
     RealtimeVisitors,
     RewardsLeaderboardEntry,
     RewardsLeaderboardPageResult,
+    PublicProductUseCase,
+    PublicProductCategoryDetail,
+    PublicProductUser,
+    PublicProductMetadata,
+    PublicProductMedia,
+    PublicProductAlternative,
+    PublicProductAnalytics,
+    PublicProductVerification,
+    PublicPlanFeatureAssignment,
     SponsoredPlacement,
     SponsoredPlacementSchedule,
     SponsoredProduct,
@@ -114,6 +132,7 @@ from services.schemas.public import (
     UseCaseSummary,
     UseCasesDirectoryPayload,
 )
+from services.users import get_or_create_user_by_clerk_id, get_user_by_clerk_id
 
 router = APIRouter(prefix=api_prefix("public"), tags=["public-homepage"])
 
@@ -158,6 +177,12 @@ REWARDS_PAGE_CACHE_TTL = 300
 REWARDS_LEADERBOARD_CACHE_TTL = 120
 REWARDS_LEADERBOARD_DEFAULT_PAGE_SIZE = 20
 REWARDS_LEADERBOARD_MAX_PAGE_SIZE = 100
+
+PRODUCT_DETAIL_CACHE_TTL = 300
+PRODUCT_META_CACHE_TTL = 300
+PRODUCT_REVENUE_CACHE_TTL = 300
+PRODUCT_SIMILAR_CACHE_TTL = 300
+PRODUCT_LEADERBOARD_CACHE_TTL = 120
 
 CATEGORY_PRODUCTS_PAGE_SIZE = 20
 CATEGORY_PRODUCTS_MAX_PAGE_SIZE = 50
@@ -527,6 +552,275 @@ def _product_load_options():
         .selectinload(PlanFeatureAssignment.feature),
         selectinload(Product.payment_connector).selectinload(PaymentConnector.revenue_history),
     ]
+
+
+def _product_detail_load_options():
+    return [
+        selectinload(Product.category)
+        .selectinload(Category.use_case_categories)
+        .selectinload(UseCaseCategory.use_case),
+        selectinload(Product.analytics),
+        selectinload(Product.product_badges),
+        selectinload(Product.verification),
+        selectinload(Product.plan)
+        .selectinload(Plan.assignments)
+        .selectinload(PlanFeatureAssignment.feature),
+        selectinload(Product.payment_connector).selectinload(PaymentConnector.revenue_history),
+        selectinload(Product.metadata_record),
+        selectinload(Product.product_media),
+        selectinload(Product.alternatives),
+        selectinload(Product.user),
+        selectinload(Product.feature_entitlements),
+    ]
+
+
+def _map_use_cases(category: Category | None) -> list[PublicProductUseCase]:
+    if not category or not category.use_case_categories:
+        return []
+    results: list[PublicProductUseCase] = []
+    seen: set[str] = set()
+    for link in category.use_case_categories:
+        use_case = link.use_case
+        if not use_case or not use_case.slug:
+            continue
+        if use_case.slug in seen:
+            continue
+        seen.add(use_case.slug)
+        results.append(PublicProductUseCase(slug=use_case.slug, label=use_case.label))
+    results.sort(key=lambda item: item.label.lower())
+    return results
+
+
+def _map_plan_assignments(plan: Plan | None) -> list[PublicPlanFeatureAssignment]:
+    if not plan or not plan.assignments:
+        return []
+    assignments: list[PublicPlanFeatureAssignment] = []
+    for assignment in plan.assignments:
+        feature = assignment.feature
+        if not feature:
+            continue
+        assignments.append(
+            PublicPlanFeatureAssignment(
+                key=feature.key,
+                enabled=bool(assignment.enabled),
+            )
+        )
+    return assignments
+
+
+def _map_active_feature_entitlements(product: Product) -> list[str]:
+    entitlements = product.feature_entitlements or []
+    active_keys = {
+        entitlement.feature_key
+        for entitlement in entitlements
+        if entitlement.status
+        in {FeatureEntitlementStatus.ACTIVE, FeatureEntitlementStatus.PENDING}
+    }
+    return sorted(active_keys)
+
+
+async def _fetch_product_upvote_count(session: Session, product_id: int) -> int:
+    stmt = select(func.count(ProductUpvote.id)).where(ProductUpvote.product_id == product_id)
+    return int(_scalar_value((await session.exec(stmt)).first()))
+
+
+async def _fetch_product_by_slug(session: Session, slug: str) -> Product | None:
+    stmt = (
+        select(Product)
+        .where(and_(Product.slug == slug, Product.status == ProductStatus.PUBLISHED))
+        .options(*_product_detail_load_options())
+    )
+    return (await session.exec(stmt)).scalars().one_or_none()
+
+
+async def _fetch_product_by_id(session: Session, product_id: int) -> Product | None:
+    stmt = (
+        select(Product)
+        .where(and_(Product.id == product_id, Product.status == ProductStatus.PUBLISHED))
+        .options(*_product_detail_load_options())
+    )
+    return (await session.exec(stmt)).scalars().one_or_none()
+
+
+def _map_product_user(user: User | None) -> PublicProductUser | None:
+    if not user:
+        return None
+    return PublicProductUser(
+        id=str(user.id),
+        clerkId=user.clerk_id,
+        firstName=user.first_name,
+        lastName=user.last_name,
+        email=user.email,
+        role=user.role.value if user.role else None,
+    )
+
+
+def _map_product_media(product: Product) -> list[PublicProductMedia]:
+    media = product.product_media or []
+    items = [
+        PublicProductMedia(
+            id=str(item.id),
+            imageUrl=item.image_url,
+            altText=item.alt_text,
+        )
+        for item in media
+        if item.image_url
+    ]
+    return items
+
+
+def _map_product_alternatives(product: Product) -> list[PublicProductAlternative]:
+    alternatives = product.alternatives or []
+    return [
+        PublicProductAlternative(
+            id=str(alt.id),
+            slug=alt.slug,
+            name=alt.name,
+            websiteUrl=alt.website_url,
+            logoUrl=alt.logo_url,
+        )
+        for alt in alternatives
+    ]
+
+
+def _map_product_detail_payload(
+    product: Product,
+    *,
+    upvote_count: int | None = None,
+    interest: ProductInterestSignals | None = None,
+) -> PublicProductDetailPayload:
+    now = datetime.now(timezone.utc)
+    badges = _resolve_product_badges(product, now)
+    category = product.category
+    category_payload = (
+        PublicProductCategoryDetail(
+            id=str(category.id),
+            name=category.name,
+            slug=category.slug,
+            useCases=_map_use_cases(category),
+        )
+        if category
+        else None
+    )
+    metadata = (
+        PublicProductMetadata(
+            demoUrl=product.metadata_record.demo_url if product.metadata_record else None,
+            utmCampaign=product.metadata_record.utm_campaign if product.metadata_record else None,
+        )
+        if product.metadata_record
+        else None
+    )
+    analytics = (
+        PublicProductAnalytics(upvotes=product.analytics.upvotes)
+        if product.analytics
+        else None
+    )
+    verification = (
+        PublicProductVerification(isVerified=product.verification.is_verified)
+        if product.verification
+        else None
+    )
+    return PublicProductDetailPayload(
+        id=str(product.id),
+        slug=product.slug,
+        name=product.name,
+        tagline=product.tagline,
+        description=product.description,
+        websiteUrl=product.website_url,
+        logo=product.logo,
+        bannerImage=product.banner_image,
+        pricingModel=product.pricing_model.value if product.pricing_model else None,
+        startingPriceCents=product.starting_price_cents,
+        currencyCode=product.currency_code,
+        platforms=[platform.value for platform in (product.platforms or [])],
+        status=product.status.value if product.status else "published",
+        type=product.type.value if product.type else None,
+        publishedAt=product.published_at.isoformat() if product.published_at else None,
+        createdAt=product.created_at.isoformat() if product.created_at else None,
+        updatedAt=product.updated_at.isoformat() if product.updated_at else None,
+        keywords=product.keywords or [],
+        category=category_payload,
+        alternatives=_map_product_alternatives(product),
+        user=_map_product_user(product.user),
+        metadata=metadata,
+        analytics=analytics,
+        verification=verification,
+        interest=interest,
+        media=_map_product_media(product),
+        badges=badges,
+        planAssignments=_map_plan_assignments(product.plan),
+        activeFeatureEntitlements=_map_active_feature_entitlements(product),
+        upvotesCount=upvote_count,
+    )
+
+
+def _map_product_meta_payload(product: Product) -> PublicProductMetaPayload:
+    category = product.category
+    metadata = (
+        PublicProductMetadata(
+            demoUrl=product.metadata_record.demo_url if product.metadata_record else None,
+            utmCampaign=product.metadata_record.utm_campaign if product.metadata_record else None,
+        )
+        if product.metadata_record
+        else None
+    )
+    analytics = (
+        PublicProductAnalytics(upvotes=product.analytics.upvotes)
+        if product.analytics
+        else None
+    )
+    verification = (
+        PublicProductVerification(isVerified=product.verification.is_verified)
+        if product.verification
+        else None
+    )
+    return PublicProductMetaPayload(
+        id=str(product.id),
+        slug=product.slug,
+        name=product.name,
+        tagline=product.tagline,
+        description=product.description,
+        websiteUrl=product.website_url,
+        logo=product.logo,
+        bannerImage=product.banner_image,
+        pricingModel=product.pricing_model.value if product.pricing_model else None,
+        startingPriceCents=product.starting_price_cents,
+        currencyCode=product.currency_code,
+        platforms=[platform.value for platform in (product.platforms or [])],
+        status=product.status.value if product.status else "published",
+        type=product.type.value if product.type else None,
+        publishedAt=product.published_at.isoformat() if product.published_at else None,
+        createdAt=product.created_at.isoformat() if product.created_at else None,
+        updatedAt=product.updated_at.isoformat() if product.updated_at else None,
+        keywords=product.keywords or [],
+        category=ProductCategorySummary(
+            name=category.name if category else None,
+            slug=category.slug if category else None,
+        ),
+        user=_map_product_user(product.user),
+        metadata=metadata,
+        analytics=analytics,
+        verification=verification,
+        media=_map_product_media(product),
+        planAssignments=_map_plan_assignments(product.plan),
+        activeFeatureEntitlements=_map_active_feature_entitlements(product),
+    )
+
+
+def _parse_product_id(value: str) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=404, detail="Product not found.") from exc
+
+
+async def _assert_published_product(session: Session, product_id: int) -> None:
+    stmt = select(Product.id).where(
+        and_(Product.id == product_id, Product.status == ProductStatus.PUBLISHED)
+    )
+    exists_row = (await session.exec(stmt)).first()
+    if not exists_row:
+        raise HTTPException(status_code=404, detail="Product not found.")
 
 
 async def _fetch_category_summaries(session: Session) -> list[CategorySummary]:
@@ -2828,6 +3122,250 @@ async def get_alternative_products(
         builder=build_payload,
     )
     return AlternativeProductsPageResult.model_validate(payload)
+
+
+@router.get("/products/{slug}/detail", response_model=PublicProductDetailPayload)
+async def get_product_detail(
+    request: Request,
+    slug: str,
+    *,
+    session: Session = Depends(get_session),
+) -> PublicProductDetailPayload:
+    async def build_payload() -> dict:
+        product = await _fetch_product_by_slug(session, slug)
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found.")
+        upvote_count = await _fetch_product_upvote_count(session, product.id)
+        interest_map = await _fetch_interest_map(session, [product.id])
+        payload = _map_product_detail_payload(
+            product,
+            upvote_count=upvote_count,
+            interest=interest_map.get(product.id),
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:product-detail",
+        ttl_seconds=PRODUCT_DETAIL_CACHE_TTL,
+        path=request.url.path,
+        params=[("slug", slug)],
+        builder=build_payload,
+    )
+    return PublicProductDetailPayload.model_validate(payload)
+
+
+@router.get("/products/{slug}/meta", response_model=PublicProductMetaPayload)
+async def get_product_meta(
+    request: Request,
+    slug: str,
+    *,
+    session: Session = Depends(get_session),
+) -> PublicProductMetaPayload:
+    async def build_payload() -> dict:
+        product = await _fetch_product_by_slug(session, slug)
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found.")
+        payload = _map_product_meta_payload(product)
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:product-meta",
+        ttl_seconds=PRODUCT_META_CACHE_TTL,
+        path=request.url.path,
+        params=[("slug", slug)],
+        builder=build_payload,
+    )
+    return PublicProductMetaPayload.model_validate(payload)
+
+
+@router.get("/products/{product_id}/revenue", response_model=ProductRevenueSummary | None)
+async def get_product_revenue(
+    request: Request,
+    product_id: str,
+    *,
+    session: Session = Depends(get_session),
+) -> ProductRevenueSummary | None:
+    product_pk = _parse_product_id(product_id)
+    await _assert_published_product(session, product_pk)
+
+    async def build_payload() -> dict | None:
+        stmt = (
+            select(PaymentConnector)
+            .where(PaymentConnector.product_id == product_pk)
+            .options(selectinload(PaymentConnector.revenue_history))
+        )
+        connector = (await session.exec(stmt)).scalars().one_or_none()
+        if not connector:
+            return None
+        summary = build_revenue_summary(connector)
+        return summary
+
+    payload = await cached_json(
+        "public:product-revenue",
+        ttl_seconds=PRODUCT_REVENUE_CACHE_TTL,
+        path=request.url.path,
+        params=[("productId", str(product_pk))],
+        builder=build_payload,
+    )
+    if payload is None:
+        return None
+    return ProductRevenueSummary.model_validate(payload)
+
+
+@router.get("/products/{product_id}/leaderboard", response_model=PublicProductLeaderboardScore)
+async def get_product_leaderboard_score(
+    request: Request,
+    product_id: str,
+    *,
+    session: Session = Depends(get_session),
+) -> PublicProductLeaderboardScore:
+    product_pk = _parse_product_id(product_id)
+    await _assert_published_product(session, product_pk)
+
+    async def build_payload() -> dict:
+        period_start, period_end = _current_leaderboard_window()
+        run = await _fetch_leaderboard_run(
+            session, period_start=period_start, period_end=period_end
+        )
+        if not run:
+            return PublicProductLeaderboardScore(points=0, rank=None, available=False).model_dump(
+                mode="json"
+            )
+        stmt = select(ProductLeaderboardScore).where(
+            and_(
+                ProductLeaderboardScore.run_id == run.id,
+                ProductLeaderboardScore.product_id == product_pk,
+            )
+        )
+        score = (await session.exec(stmt)).scalars().one_or_none()
+        if not score:
+            return PublicProductLeaderboardScore(points=0, rank=None, available=False).model_dump(
+                mode="json"
+            )
+        return PublicProductLeaderboardScore(
+            points=int(score.score or 0),
+            rank=score.rank,
+            available=True,
+        ).model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:product-leaderboard",
+        ttl_seconds=PRODUCT_LEADERBOARD_CACHE_TTL,
+        path=request.url.path,
+        params=[("productId", str(product_pk))],
+        builder=build_payload,
+    )
+    return PublicProductLeaderboardScore.model_validate(payload)
+
+
+@router.get("/products/{product_id}/upvote-status", response_model=PublicProductUpvoteState)
+async def get_product_upvote_status(
+    product_id: str,
+    *,
+    user_id: OptionalUserId = None,
+    session: Session = Depends(get_session),
+) -> PublicProductUpvoteState:
+    product_pk = _parse_product_id(product_id)
+    await _assert_published_product(session, product_pk)
+
+    upvote_count = await _fetch_product_upvote_count(session, product_pk)
+    if not user_id:
+        return PublicProductUpvoteState(upvoted=False, upvotes=upvote_count)
+
+    user = await get_user_by_clerk_id(session, user_id)
+    if not user or user.status != UserStatus.ACTIVE:
+        return PublicProductUpvoteState(upvoted=False, upvotes=upvote_count)
+
+    stmt = select(ProductUpvote.id).where(
+        and_(ProductUpvote.product_id == product_pk, ProductUpvote.user_id == user.id)
+    )
+    exists_row = (await session.exec(stmt)).first()
+    return PublicProductUpvoteState(upvoted=bool(exists_row), upvotes=upvote_count)
+
+
+@router.post("/products/{product_id}/upvote", response_model=PublicProductUpvoteState)
+async def upvote_product(
+    product_id: str,
+    *,
+    clerk_id: CurrentUserId,
+    session: Session = Depends(get_session),
+) -> PublicProductUpvoteState:
+    product_pk = _parse_product_id(product_id)
+    await _assert_published_product(session, product_pk)
+
+    user = await get_or_create_user_by_clerk_id(session, clerk_id)
+    if user.status != UserStatus.ACTIVE:
+        raise HTTPException(status_code=403, detail="Account is not active.")
+
+    existing_stmt = select(ProductUpvote.id).where(
+        and_(ProductUpvote.product_id == product_pk, ProductUpvote.user_id == user.id)
+    )
+    existing = (await session.exec(existing_stmt)).first()
+    if not existing:
+        session.add(ProductUpvote(product_id=product_pk, user_id=user.id))
+        try:
+            await session.commit()
+        except IntegrityError:
+            await session.rollback()
+
+    upvote_count = await _fetch_product_upvote_count(session, product_pk)
+    return PublicProductUpvoteState(upvoted=True, upvotes=upvote_count)
+
+
+@router.get("/use-cases/{slug}/products", response_model=list[PublicProductCard])
+async def get_use_case_products(
+    request: Request,
+    slug: str,
+    *,
+    exclude_id: str | None = Query(None, alias="excludeId"),
+    limit: int | None = Query(None),
+    session: Session = Depends(get_session),
+) -> list[PublicProductCard]:
+    safe_limit = max(1, min(limit or 6, 12))
+    exclude_pk = _parse_product_id(exclude_id) if exclude_id else None
+
+    async def build_payload() -> list[dict]:
+        stmt = (
+            select(Product.id)
+            .join(Category, Category.id == Product.category_id)
+            .join(UseCaseCategory, UseCaseCategory.category_id == Category.id)
+            .join(UseCase, UseCase.id == UseCaseCategory.use_case_id)
+            .where(
+                and_(
+                    UseCase.slug == slug,
+                    Product.status == ProductStatus.PUBLISHED,
+                )
+            )
+            .order_by(func.random())
+            .limit(safe_limit)
+        )
+        if exclude_pk is not None:
+            stmt = stmt.where(Product.id != exclude_pk)
+        rows = (await session.exec(stmt)).all()
+        product_ids = [int(row[0]) for row in rows]
+        if not product_ids:
+            return []
+        products = await _fetch_products_by_ids(session, product_ids)
+        score_map = await _fetch_score_map(session, product_ids)
+        interest_map = await _fetch_interest_map(session, product_ids)
+        items = [
+            _map_product_to_card(product, score_map=score_map, interest_map=interest_map)
+            for product in products
+        ]
+        return [item.model_dump(mode="json") for item in items]
+
+    payload = await cached_json(
+        "public:use-case-products",
+        ttl_seconds=PRODUCT_SIMILAR_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("slug", slug),
+            ("excludeId", exclude_id or ""),
+            ("limit", str(safe_limit)),
+        ],
+        builder=build_payload,
+    )
+    return [PublicProductCard.model_validate(item) for item in payload]
 
 
 async def _resolve_realtime_visitors(session: Session) -> int:

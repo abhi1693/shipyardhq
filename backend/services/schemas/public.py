@@ -156,6 +156,148 @@ class PublicProductCard(BaseSerializer):
     interest: ProductInterestSignals | None = None
 
 
+class PublicProductUseCase(BaseSerializer):
+    slug: str
+    label: str
+
+
+class PublicProductCategoryDetail(BaseSerializer):
+    id: str
+    name: str
+    slug: str
+    useCases: list[PublicProductUseCase] = []
+
+
+class PublicProductUser(BaseSerializer):
+    id: str
+    clerkId: str | None = None
+    firstName: str | None = None
+    lastName: str | None = None
+    email: str | None = None
+    role: str | None = None
+
+
+class PublicProductMetadata(BaseSerializer):
+    demoUrl: str | None = None
+    utmCampaign: str | None = None
+
+
+class PublicProductMedia(BaseSerializer):
+    id: str
+    imageUrl: str
+    altText: str | None = None
+
+
+class PublicProductAlternative(BaseSerializer):
+    id: str
+    slug: str
+    name: str
+    websiteUrl: str
+    logoUrl: str | None = None
+
+
+class PublicProductAnalytics(BaseSerializer):
+    upvotes: int | None = None
+
+
+class PublicProductVerification(BaseSerializer):
+    isVerified: bool | None = None
+
+
+class PublicPlanFeatureAssignment(BaseSerializer):
+    key: str
+    enabled: bool
+
+
+class PublicProductDetailPayload(BaseSerializer):
+    id: str
+    slug: str
+    name: str
+    tagline: str
+    description: str
+    websiteUrl: str
+    logo: str
+    bannerImage: str | None = None
+    pricingModel: str | None = None
+    startingPriceCents: int | None = None
+    currencyCode: str | None = None
+    platforms: list[str] = []
+    status: str
+    type: str | None = None
+    publishedAt: str | None = None
+    createdAt: str | None = None
+    updatedAt: str | None = None
+    keywords: list[str] = []
+    category: PublicProductCategoryDetail | None = None
+    alternatives: list[PublicProductAlternative] = []
+    user: PublicProductUser | None = None
+    metadata: PublicProductMetadata | None = None
+    analytics: PublicProductAnalytics | None = None
+    verification: PublicProductVerification | None = None
+    interest: ProductInterestSignals | None = None
+    media: list[PublicProductMedia] = []
+    badges: list[str] = []
+    planAssignments: list[PublicPlanFeatureAssignment] = []
+    activeFeatureEntitlements: list[str] = []
+    upvotesCount: int | None = None
+
+
+class PublicProductMetaPayload(BaseSerializer):
+    id: str
+    slug: str
+    name: str
+    tagline: str
+    description: str
+    websiteUrl: str
+    logo: str
+    bannerImage: str | None = None
+    pricingModel: str | None = None
+    startingPriceCents: int | None = None
+    currencyCode: str | None = None
+    platforms: list[str] = []
+    status: str
+    type: str | None = None
+    publishedAt: str | None = None
+    createdAt: str | None = None
+    updatedAt: str | None = None
+    keywords: list[str] = []
+    category: ProductCategorySummary | None = None
+    user: PublicProductUser | None = None
+    metadata: PublicProductMetadata | None = None
+    analytics: PublicProductAnalytics | None = None
+    verification: PublicProductVerification | None = None
+    media: list[PublicProductMedia] = []
+    planAssignments: list[PublicPlanFeatureAssignment] = []
+    activeFeatureEntitlements: list[str] = []
+
+
+class PublicProductUpvoteState(BaseSerializer):
+    upvoted: bool
+    upvotes: int
+
+
+class PublicProductLeaderboardScore(BaseSerializer):
+    points: int
+    rank: int | None = None
+    available: bool = False
+
+
+class ProductRevenuePoint(BaseSerializer):
+    periodStart: str
+    label: str
+    allTimeRevenueCents: int
+    periodRevenueCents: int
+
+
+class ProductRevenueSummary(BaseSerializer):
+    currencyCode: str
+    lastSyncedAt: str | None = None
+    status: str | None = None
+    provider: str | None = None
+    latestAllTimeRevenueCents: int
+    points: list[ProductRevenuePoint] = []
+
+
 class LeaderboardArchiveMonth(BaseSerializer):
     year: int
     month: int

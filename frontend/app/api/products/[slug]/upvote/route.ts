@@ -5,7 +5,7 @@ import {
   toggleProductUpvote,
   UpvoteError,
 } from "@/actions/public/products/upvote"
-import prisma from "@/lib/prisma"
+import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
 
 interface RouteParams {
   params: Promise<{ slug?: string }>
@@ -18,10 +18,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Missing product slug" }, { status: 400 })
   }
 
-  const product = await prisma.product.findUnique({
-    where: { slug },
-    select: { id: true },
-  })
+  const product = await getPublicProductMetaBySlug(slug)
   if (!product) {
     return NextResponse.json({ error: "Product not found" }, { status: 404 })
   }
@@ -30,11 +27,15 @@ export async function POST(_request: Request, { params }: RouteParams) {
   if (!authResult?.userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
+  const token = authResult.getToken ? await authResult.getToken() : null
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
 
   try {
     const result = await toggleProductUpvote({
       productId: product.id,
-      clerkUserId: authResult.userId,
+      authToken: token,
     })
 
     return NextResponse.json(result, { status: 200 })

@@ -1,16 +1,21 @@
-import { toggleVoteState } from "@/lib/server/productVotesStore"
-import { syncUserFromClerk } from "@/actions/member/users/actions"
-import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
+import { resolveApiError } from "@/lib/fastapi"
+import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
 import {
-  getActiveUserByClerkId,
-  INACTIVE_ACCOUNT_MESSAGE,
-} from "@/lib/server/userStatus"
+  parseProductId,
+  type PublicProductUpvoteState,
+} from "@/actions/public/products/actions"
+
+type ApiResponse<T> = {
+  data: T
+  status: number
+  headers: Headers
+}
 
 export type UpvoteState = { upvotes: number; upvoted: boolean; error?: string }
 
 export interface ToggleProductUpvoteOptions {
   productId: string
-  clerkUserId: string
+  authToken: string
 }
 
 export class UpvoteError extends Error {
@@ -28,45 +33,47 @@ export class UpvoteError extends Error {
 
 export async function toggleProductUpvote({
   productId,
-  clerkUserId,
+  authToken,
 }: ToggleProductUpvoteOptions): Promise<UpvoteState> {
-  if (!productId) {
+  const productPk = parseProductId(productId)
+  if (!productPk) {
     throw new UpvoteError("Missing productId", 400)
   }
 
-  if (!clerkUserId) {
+  if (!authToken) {
     throw new UpvoteError("Unauthorized", 401)
   }
 
-  let user = await getActiveUserByClerkId(clerkUserId)
-  if (!user) {
-    try {
-      const clerkUser = await getClerkUserByIdCached(clerkUserId)
-      await syncUserFromClerk(clerkUser)
-      user = await getActiveUserByClerkId(clerkUserId)
-    } catch (error) {
-      console.error("Failed to sync user before upvote", {
-        error,
-        clerkUserId,
-      })
-    }
-  }
-  if (!user) {
-    throw new UpvoteError(INACTIVE_ACCOUNT_MESSAGE, 403)
-  }
-
   try {
-    const { newState, upvotes } = await toggleVoteState({
-      productId,
-      userId: user.id,
-    })
+    const response = await fastapiFetch<ApiResponse<PublicProductUpvoteState>>(
+      `/api/v1/public/products/${productPk}/upvote`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    )
 
-    return { upvotes, upvoted: newState === "upvoted" }
-  } catch (err: any) {
-    if (err?.code === "P2003") {
-      throw new UpvoteError("Not Found", 404, err)
+    if (response.status !== 200) {
+      throw new UpvoteError("Failed", response.status)
     }
-    console.error("Upvote toggle error:", err)
-    throw new UpvoteError(err?.message || "Failed", 500, err)
+
+    return {
+      upvotes: response.data.upvotes ?? 0,
+      upvoted: response.data.upvoted ?? false,
+    }
+  } catch (error) {
+    const status = (error as FastApiError | undefined)?.status ?? 500
+    const message = resolveApiError(error, "Failed to update upvote")
+
+    if (status === 401 || status === 403) {
+      throw new UpvoteError(message || "Unauthorized", status, error)
+    }
+    if (status === 404) {
+      throw new UpvoteError("Not Found", status, error)
+    }
+
+    throw new UpvoteError(message || "Failed", status, error)
   }
 }

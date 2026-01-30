@@ -1,204 +1,312 @@
-import prisma from "@/lib/prisma"
-import { Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
-import { getActiveUserByClerkId } from "@/lib/server/userStatus"
-import { resolveVoteState } from "@/lib/server/productVotesStore"
-import {
-  getCachedRevenueSummary,
-  getRevenueSummaryFromDb,
-} from "@/lib/server/payments/revenue"
+import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
+import type { PublicProductCard } from "@/lib/generated/fastapi/schemas"
+import type { ProductInterestSignals } from "@/types/product-interest"
 
-const publicProductSelect = {
-  id: true,
-  slug: true,
-  name: true,
-  tagline: true,
-  description: true,
-  websiteUrl: true,
-  logo: true,
-  bannerImage: true,
-  pricingModel: true,
-  startingPriceCents: true,
-  currencyCode: true,
-  platforms: true,
-  status: true,
-  type: true,
-  publishedAt: true,
-  createdAt: true,
-  updatedAt: true,
-  category: {
-    include: {
-      useCases: {
-        include: {
-          useCase: {
-            select: {
-              slug: true,
-              label: true,
-            },
-          },
-        },
-      },
-    },
-  },
-  alternatives: {
-    orderBy: { name: "asc" },
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      websiteUrl: true,
-      logoUrl: true,
-    },
-  },
-  user: {
-    select: {
-      id: true,
-      clerkId: true,
-      firstName: true,
-      lastName: true,
-      email: true,
-      role: true,
-    },
-  },
-  metadata: {
-    select: {
-      demoUrl: true,
-      utmCampaign: true,
-    },
-  },
-  analytics: {
-    select: {
-      upvotes: true,
-    },
-  },
-  _count: {
-    select: {
-      ProductUpvote: true,
-    },
-  },
-  verification: {
-    select: {
-      isVerified: true,
-    },
-  },
-  ProductMedia: {
-    orderBy: {
-      createdAt: "asc",
-    },
-    select: {
-      id: true,
-      imageUrl: true,
-      altText: true,
-    },
-  },
-  ProductBadge: {
-    select: {
-      badge: true,
-      expiresAt: true,
-    },
-  },
-  plan: {
-    select: {
-      assignments: {
-        select: {
-          enabled: true,
-          feature: { select: { key: true } },
-        },
-      },
-    },
-  },
-  featureEntitlements: {
-    where: {
-      status: { in: ["active", "pending"] },
-    },
-    select: { featureKey: true },
-  },
-} satisfies Prisma.ProductSelect
+type ApiResponse<T> = {
+  data: T
+  status: number
+  headers: Headers
+}
 
-type PublicProduct = Prisma.ProductGetPayload<{
-  select: typeof publicProductSelect
-}>
+export type PublicProductUseCase = {
+  slug: string
+  label: string
+}
 
-const publicProductMetaSelect = {
-  id: true,
-  slug: true,
-  name: true,
-  tagline: true,
-  description: true,
-  publishedAt: true,
-  createdAt: true,
-  logo: true,
-  bannerImage: true,
-  keywords: true,
-  status: true,
-  type: true,
-  pricingModel: true,
-  platforms: true,
-  websiteUrl: true,
-  verification: {
-    select: {
-      isVerified: true,
-    },
-  },
-  category: { select: { name: true, slug: true } },
-  user: { select: { id: true, firstName: true, lastName: true } },
-  analytics: { select: { upvotes: true } },
-  metadata: { select: { demoUrl: true, utmCampaign: true } },
-  ProductMedia: {
-    select: {
-      id: true,
-      imageUrl: true,
-      altText: true,
-    },
-    orderBy: { createdAt: "asc" },
-  },
-  plan: {
-    select: {
-      assignments: {
-        select: {
-          enabled: true,
-          feature: { select: { key: true } },
-        },
-      },
-    },
-  },
-  featureEntitlements: {
-    where: { status: { in: ["active", "pending"] } },
-    select: { featureKey: true },
-  },
-} satisfies Prisma.ProductSelect
+export type PublicProductCategorySummary = {
+  name?: string | null
+  slug?: string | null
+}
 
-async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
-  const product = await prisma.product.findUnique({
-    where,
-    select: publicProductSelect,
+export type PublicProductCategoryDetail = {
+  id: string
+  name: string
+  slug: string
+  useCases: PublicProductUseCase[]
+}
+
+export type PublicProductUser = {
+  id: string
+  clerkId?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  email?: string | null
+  role?: string | null
+}
+
+export type PublicProductMetadata = {
+  demoUrl?: string | null
+  utmCampaign?: string | null
+}
+
+export type PublicProductAnalytics = {
+  upvotes?: number | null
+}
+
+export type PublicProductVerification = {
+  isVerified?: boolean | null
+}
+
+export type PublicProductMedia = {
+  id: string
+  imageUrl: string
+  altText?: string | null
+}
+
+export type PublicProductAlternative = {
+  id: string
+  slug: string
+  name: string
+  websiteUrl: string
+  logoUrl?: string | null
+}
+
+export type PublicPlanFeatureAssignment = {
+  key: string
+  enabled: boolean
+}
+
+export type PublicProductDetailPayload = {
+  id: string
+  slug: string
+  name: string
+  tagline: string
+  description: string
+  websiteUrl: string
+  logo: string
+  bannerImage?: string | null
+  pricingModel?: string | null
+  startingPriceCents?: number | null
+  currencyCode?: string | null
+  platforms?: string[]
+  status: string
+  type?: string | null
+  publishedAt?: string | null
+  createdAt?: string | null
+  updatedAt?: string | null
+  keywords?: string[]
+  category?: PublicProductCategoryDetail | null
+  alternatives?: PublicProductAlternative[]
+  user?: PublicProductUser | null
+  metadata?: PublicProductMetadata | null
+  analytics?: PublicProductAnalytics | null
+  verification?: PublicProductVerification | null
+  interest?: ProductInterestSignals | null
+  media?: PublicProductMedia[]
+  badges?: string[]
+  planAssignments?: PublicPlanFeatureAssignment[]
+  activeFeatureEntitlements?: string[]
+  upvotesCount?: number | null
+}
+
+export type PublicProductMetaPayload = {
+  id: string
+  slug: string
+  name: string
+  tagline: string
+  description: string
+  websiteUrl: string
+  logo: string
+  bannerImage?: string | null
+  pricingModel?: string | null
+  startingPriceCents?: number | null
+  currencyCode?: string | null
+  platforms?: string[]
+  status: string
+  type?: string | null
+  publishedAt?: string | null
+  createdAt?: string | null
+  updatedAt?: string | null
+  keywords?: string[]
+  category?: PublicProductCategorySummary | null
+  user?: PublicProductUser | null
+  metadata?: PublicProductMetadata | null
+  analytics?: PublicProductAnalytics | null
+  verification?: PublicProductVerification | null
+  media?: PublicProductMedia[]
+  planAssignments?: PublicPlanFeatureAssignment[]
+  activeFeatureEntitlements?: string[]
+}
+
+export type PublicProductUpvoteState = {
+  upvoted: boolean
+  upvotes: number
+}
+
+export type PublicProductLeaderboardScore = {
+  points: number
+  rank: number | null
+  available: boolean
+}
+
+export type ProductRevenuePoint = {
+  periodStart: string
+  label: string
+  allTimeRevenueCents: number
+  periodRevenueCents: number
+}
+
+export type ProductRevenueSummary = {
+  currencyCode: string
+  lastSyncedAt?: string | null
+  status?: string | null
+  provider?: string | null
+  latestAllTimeRevenueCents: number
+  points: ProductRevenuePoint[]
+}
+
+const isFastApiNotFound = (error: unknown) => {
+  const status = (error as FastApiError | undefined)?.status
+  return status === 404 || status === 422
+}
+
+const buildPublicUrl = (
+  path: string,
+  params?: Record<string, string | number | null | undefined>,
+) => {
+  if (!params) return path
+  const search = new URLSearchParams()
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === null || typeof value === "undefined") {
+      return
+    }
+    const normalized = String(value)
+    if (!normalized.length) {
+      return
+    }
+    search.set(key, normalized)
   })
+  const query = search.toString()
+  return query ? `${path}?${query}` : path
+}
 
-  if (!product || product.status !== "published") return null
+export const parseProductId = (
+  value: string | number | null | undefined,
+): number | null => {
+  if (value === null || typeof value === "undefined") return null
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed) || parsed <= 0) return null
+  return Math.floor(parsed)
+}
 
-  const fullProduct = product as PublicProduct
+const fetchPublicProductDetail = async (
+  slug: string,
+): Promise<PublicProductDetailPayload | null> => {
+  try {
+    const response = await fastapiFetch<ApiResponse<PublicProductDetailPayload>>(
+      `/api/v1/public/products/${encodeURIComponent(slug)}/detail`,
+      { method: "GET" },
+    )
+    if (response.status !== 200) {
+      return null
+    }
+    return response.data
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      return null
+    }
+    throw error
+  }
+}
 
-  const activeBadges = fullProduct.ProductBadge.filter(
-    (badge: PublicProduct["ProductBadge"][number]) =>
-      !badge.expiresAt || badge.expiresAt > new Date(),
-  ).map((badge) => badge.badge)
+const fetchPublicProductMeta = async (
+  slug: string,
+): Promise<PublicProductMetaPayload | null> => {
+  try {
+    const response = await fastapiFetch<ApiResponse<PublicProductMetaPayload>>(
+      `/api/v1/public/products/${encodeURIComponent(slug)}/meta`,
+      { method: "GET" },
+    )
+    if (response.status !== 200) {
+      return null
+    }
+    return response.data
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      return null
+    }
+    throw error
+  }
+}
 
-  const activeFeatureEntitlements = (fullProduct.featureEntitlements ?? []).map(
-    (ent) => ent.featureKey,
+const fetchPublicProductsByUseCase = async (
+  useCaseSlug: string,
+  excludeId: string,
+  limit: number,
+): Promise<PublicProductCard[]> => {
+  const path = buildPublicUrl(
+    `/api/v1/public/use-cases/${encodeURIComponent(useCaseSlug)}/products`,
+    {
+      excludeId: excludeId || undefined,
+      limit,
+    },
   )
 
-  const { featureEntitlements: _featureEntitlements, ...rest } = fullProduct
-  void _featureEntitlements
+  try {
+    const response = await fastapiFetch<ApiResponse<PublicProductCard[]>>(path, {
+      method: "GET",
+    })
+    if (response.status !== 200 || !Array.isArray(response.data)) {
+      return []
+    }
+    return response.data
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      return []
+    }
+    throw error
+  }
+}
 
-  return {
-    ...rest,
-    badges: activeBadges,
-    activeFeatureEntitlements,
+const fetchPublicProductRevenue = async (
+  productId: string,
+): Promise<ProductRevenueSummary | null> => {
+  const productPk = parseProductId(productId)
+  if (!productPk) return null
+
+  try {
+    const response = await fastapiFetch<ApiResponse<ProductRevenueSummary | null>>(
+      `/api/v1/public/products/${productPk}/revenue`,
+      { method: "GET" },
+    )
+    if (response.status !== 200) {
+      return null
+    }
+    return response.data ?? null
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      return null
+    }
+    throw error
+  }
+}
+
+const fetchPublicProductLeaderboard = async (
+  productId: string,
+): Promise<PublicProductLeaderboardScore | null> => {
+  const productPk = parseProductId(productId)
+  if (!productPk) return null
+
+  try {
+    const response = await fastapiFetch<ApiResponse<PublicProductLeaderboardScore>>(
+      `/api/v1/public/products/${productPk}/leaderboard`,
+      { method: "GET" },
+    )
+    if (response.status !== 200) {
+      return null
+    }
+    return response.data
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      return null
+    }
+    throw error
   }
 }
 
 export const getPublicProductBySlug = cached(
-  async (slug: string) => fetchPublicProduct({ slug }),
+  async (slug: string) => fetchPublicProductDetail(slug),
   "product:public-by-slug",
   {
     ttl: DEFAULT_TTL.medium,
@@ -207,86 +315,29 @@ export const getPublicProductBySlug = cached(
 )
 
 export const getPublicProductMetaBySlug = cached(
-  async (slug: string) => {
-    const product = await prisma.product.findUnique({
-      where: { slug },
-      select: publicProductMetaSelect,
-    })
-
-    if (!product || product.status !== "published") return null
-
-    return product
-  },
+  async (slug: string) => fetchPublicProductMeta(slug),
   "product:meta-by-slug",
   {
-    ttl: 600,
+    ttl: DEFAULT_TTL.slow,
     tags: ([slug]) => [TAGS.products, TAGS.product(String(slug))],
   },
 )
-
-const compactProductInclude = {
-  analytics: {
-    select: {
-      upvotes: true,
-    },
-  },
-  category: {
-    select: {
-      name: true,
-      slug: true,
-    },
-  },
-  verification: {
-    select: {
-      isVerified: true,
-    },
-  },
-} satisfies Prisma.ProductInclude
-
-type CompactProduct = Prisma.ProductGetPayload<{
-  include: typeof compactProductInclude
-}>
 
 export const getPublicProductsByUseCase = cached(
   async (
     useCaseSlug: string,
     excludeId: string,
     limit = 6,
-  ): Promise<CompactProduct[]> => {
+  ): Promise<PublicProductCard[]> => {
     const effectiveLimit = Math.max(1, Math.min(limit, 12))
-
-    const randomProductIds = await prisma.$queryRaw<{ id: string }[]>`
-      SELECT p.id
-      FROM "Product" AS p
-      INNER JOIN "Category" AS c ON c.id = p."categoryId"
-      INNER JOIN "UseCaseCategory" AS uc ON uc."categoryId" = c.id
-      INNER JOIN "UseCase" AS u ON u.id = uc."useCaseId"
-      WHERE u.slug = ${useCaseSlug}
-        AND p.status = 'published'
-        AND p.id <> ${excludeId}
-      ORDER BY RANDOM()
-      LIMIT ${effectiveLimit}
-    `
-
-    if (!randomProductIds.length) {
-      return []
-    }
-
-    return prisma.product.findMany({
-      where: {
-        id: {
-          in: randomProductIds.map(({ id }: { id: string }) => id),
-        },
-      },
-      include: compactProductInclude,
-    })
+    return fetchPublicProductsByUseCase(useCaseSlug, excludeId, effectiveLimit)
   },
   "products:public-by-usecase",
   {
     ttl: DEFAULT_TTL.medium,
     tags: ([useCaseSlug]) => [
       TAGS.products,
-      TAGS.category(String(useCaseSlug)),
+      TAGS.usecase(String(useCaseSlug)),
     ],
     keyParts: ([useCaseSlug, excludeId, limit]) => [
       `useCase:${useCaseSlug}`,
@@ -296,24 +347,55 @@ export const getPublicProductsByUseCase = cached(
   },
 )
 
-export async function hasUserUpvoted(productId: string, clerkId: string) {
-  const user = await getActiveUserByClerkId(clerkId)
-  if (!user) return false
-  const { currentState } = await resolveVoteState(productId, user.id)
-  return currentState === "upvoted"
-}
+export const getPublicProductRevenue = cached(
+  async (productId: string) => fetchPublicProductRevenue(productId),
+  "product:revenue",
+  {
+    ttl: DEFAULT_TTL.slow,
+    tags: ([productId]) => [TAGS.products, TAGS.product(String(productId))],
+  },
+)
 
-export async function getPublicProductRevenue(productId: string) {
-  const cached = await getCachedRevenueSummary(productId)
-  const summary = cached ?? (await getRevenueSummaryFromDb(productId))
-  if (!summary) return null
+export const getPublicProductLeaderboard = cached(
+  async (productId: string) => fetchPublicProductLeaderboard(productId),
+  "product:leaderboard",
+  {
+    ttl: DEFAULT_TTL.medium,
+    tags: ([productId]) => [
+      TAGS.products,
+      TAGS.product(String(productId)),
+      TAGS.leaderboard,
+    ],
+  },
+)
 
-  return {
-    currencyCode: summary.currencyCode,
-    lastSyncedAt: summary.lastSyncedAt,
-    status: summary.status,
-    provider: summary.provider,
-    latestAllTimeRevenueCents: summary.latestAllTimeRevenueCents,
-    points: summary.points,
+export async function getPublicProductUpvoteStatus(
+  productId: string,
+  authToken?: string | null,
+): Promise<PublicProductUpvoteState | null> {
+  const productPk = parseProductId(productId)
+  if (!productPk) return null
+
+  try {
+    const response = await fastapiFetch<ApiResponse<PublicProductUpvoteState>>(
+      `/api/v1/public/products/${productPk}/upvote-status`,
+      {
+        method: "GET",
+        headers: authToken
+          ? {
+              Authorization: `Bearer ${authToken}`,
+            }
+          : undefined,
+      },
+    )
+    if (response.status !== 200) {
+      return null
+    }
+    return response.data
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      return null
+    }
+    throw error
   }
 }

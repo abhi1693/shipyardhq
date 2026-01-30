@@ -4,11 +4,9 @@ import { auth } from "@clerk/nextjs/server"
 import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
 import { ProductCard } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
-import { getActiveUserByClerkId } from "@/lib/server/userStatus"
-import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import {
   getPublicProductsByUseCase,
-  hasUserUpvoted,
+  getPublicProductUpvoteStatus,
 } from "@/actions/public/products/actions"
 
 export type ViewerProductState = {
@@ -18,19 +16,26 @@ export type ViewerProductState = {
 const getViewerProductState = cache(
   async (productId: string): Promise<ViewerProductState> => {
     const authResult = await auth()
-    const clerkUserId = authResult?.userId ?? null
-    if (!clerkUserId) {
+    if (!authResult?.userId) {
       return { viewerUpvoted: false }
     }
 
-    const viewer = await getActiveUserByClerkId(clerkUserId).catch(() => null)
-    if (!viewer) {
+    let authToken: string | null = null
+    try {
+      authToken = await authResult.getToken()
+    } catch {
+      authToken = null
+    }
+    if (!authToken) {
       return { viewerUpvoted: false }
     }
 
-    const viewerUpvoted = await hasUserUpvoted(productId, clerkUserId)
+    const upvoteState = await getPublicProductUpvoteStatus(
+      productId,
+      authToken,
+    ).catch(() => null)
 
-    return { viewerUpvoted }
+    return { viewerUpvoted: upvoteState?.upvoted ?? false }
   },
 )
 
@@ -75,13 +80,6 @@ export async function SimilarProductsServer({
   )
   if (!similarProducts.length) return null
 
-  const interestMap = await getProductInterestSignalsMap({
-    products: similarProducts.map((product) => ({
-      id: product.id,
-      slug: product.slug,
-    })),
-  })
-
   const cardItems = similarProducts.map((item) =>
     toProductCardItem({
       id: item.id,
@@ -89,17 +87,14 @@ export async function SimilarProductsServer({
       name: item.name,
       logo: item.logo ?? "",
       tagline: item.tagline ?? "",
-      interest: interestMap.get(item.id) ?? null,
-      analytics: item.analytics
-        ? { upvotes: item.analytics.upvotes ?? 0 }
-        : undefined,
-      category: item.category
-        ? {
-            name: item.category.name ?? null,
-            slug: item.category.slug ?? null,
-          }
-        : undefined,
-      isVerified: item.verification?.isVerified ?? false,
+      interest: item.interest ?? null,
+      category: item.category ?? undefined,
+      badges: item.badges ?? [],
+      sponsored: item.sponsored ?? false,
+      scoreCount: item.scoreCount ?? undefined,
+      latestRevenueCents: item.latestRevenueCents ?? undefined,
+      revenueCurrencyCode: item.revenueCurrencyCode ?? undefined,
+      isVerified: item.isVerified ?? false,
     }),
   )
 
