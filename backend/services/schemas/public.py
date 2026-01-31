@@ -519,6 +519,12 @@ class CategoryDetailPayload(BaseSerializer):
     productsPage: CategoryProductsPageResult
 
 
+class CategoryTrendsPayload(BaseSerializer):
+    category: CategorySummary
+    items: list[PublicProductCard]
+    total: int
+
+
 class UseCaseSummary(BaseSerializer):
     id: str
     label: str

@@ -72,6 +72,7 @@ from services.schemas.public import (
     CategoryDetailPayload,
     CategoryProductsPageResult,
     CategorySummary,
+    CategoryTrendsPayload,
     CategoriesDirectoryPayload,
     HomepageFeedAllResult,
     HomepageFeedItem,
@@ -192,6 +193,7 @@ LEADERBOARD_SCORE_WEIGHT_VIEWS = 1
 LEADERBOARD_SCORE_WEIGHT_UNIQUE = 3
 LEADERBOARD_SCORE_WEIGHT_UPVOTES = 10
 LEADERBOARD_VERIFIED_MULTIPLIER = 1.4
+VERIFIED_REVENUE_RANKING_MULTIPLIER = 1.4
 
 REWARDS_STATS_CACHE_TTL = 300
 REWARDS_PAGE_CACHE_TTL = 300
@@ -223,6 +225,10 @@ ALTERNATIVE_CATALOG_MAX_PAGE_SIZE = 50
 TAG_DIRECTORY_DEFAULT_PAGE_SIZE = 36
 TAG_LIST_LIMIT = 200
 KEYWORD_SLUG_HASH_LENGTH = 6
+
+TRENDING_CATEGORY_DAYS = 7
+TRENDING_CATEGORY_DEFAULT_LIMIT = 60
+TRENDING_CATEGORY_MAX_LIMIT = 100
 
 TAG_HASH_REGEX = re.compile(r"^[a-f0-9]+$", re.IGNORECASE)
 
@@ -2661,6 +2667,143 @@ async def get_category_detail(
         builder=build_payload,
     )
     return CategoryDetailPayload.model_validate(payload)
+
+
+@router.get("/trends/categories/{slug}", response_model=CategoryTrendsPayload)
+async def get_category_trends(
+    request: Request,
+    slug: str,
+    *,
+    revenue: str | None = Query(None),
+    limit: int | None = Query(None),
+    session: Session = Depends(get_session),
+) -> CategoryTrendsPayload:
+    safe_limit = max(
+        1,
+        min(limit or TRENDING_CATEGORY_DEFAULT_LIMIT, TRENDING_CATEGORY_MAX_LIMIT),
+    )
+    revenue_filter = (revenue or "").strip().lower()
+    verified_only = revenue_filter == "verified"
+    now = datetime.now(timezone.utc)
+    start_dt, end_dt = _utc_range_for_days(TRENDING_CATEGORY_DAYS, now=now)
+
+    async def build_payload() -> dict:
+        category = await _fetch_category_by_slug(session, slug)
+        if not category:
+            raise HTTPException(status_code=404, detail="Category not found")
+
+        count_stmt = select(func.count(Product.id)).where(
+            and_(
+                Product.status == ProductStatus.PUBLISHED,
+                Product.category_id == category.id,
+            )
+        )
+        total_products = _scalar_value((await session.exec(count_stmt)).one())
+
+        traffic_stmt = (
+            select(
+                ProductTrafficDaily.product_id,
+                func.sum(ProductTrafficDaily.page_views).label("page_views"),
+            )
+            .join(Product, Product.id == ProductTrafficDaily.product_id)
+            .where(
+                and_(
+                    Product.status == ProductStatus.PUBLISHED,
+                    Product.category_id == category.id,
+                    ProductTrafficDaily.date >= start_dt,
+                    ProductTrafficDaily.date <= end_dt,
+                )
+            )
+            .group_by(ProductTrafficDaily.product_id)
+        )
+        rows = (await session.exec(traffic_stmt)).all()
+
+        if not rows:
+            payload = CategoryTrendsPayload(
+                category=CategorySummary(
+                    id=str(category.id),
+                    name=category.name,
+                    slug=category.slug,
+                    description=category.description,
+                    icon=category.icon,
+                    count=total_products,
+                ),
+                items=[],
+                total=0,
+            )
+            return payload.model_dump(mode="json")
+
+        product_ids = [int(row[0]) for row in rows]
+        verified_ids = await _fetch_verified_revenue_product_ids(session, product_ids)
+
+        scored: list[tuple[int, float, int]] = []
+        for product_id, clicks in rows:
+            clicks_value = int(clicks or 0)
+            if clicks_value <= 0:
+                continue
+            is_verified = product_id in verified_ids
+            if verified_only and not is_verified:
+                continue
+            multiplier = VERIFIED_REVENUE_RANKING_MULTIPLIER if is_verified else 1.0
+            scored.append((int(product_id), clicks_value * multiplier, clicks_value))
+
+        scored.sort(key=lambda row: (row[1], row[2]), reverse=True)
+        ordered_ids = [row[0] for row in scored[:safe_limit]]
+
+        if not ordered_ids:
+            payload = CategoryTrendsPayload(
+                category=CategorySummary(
+                    id=str(category.id),
+                    name=category.name,
+                    slug=category.slug,
+                    description=category.description,
+                    icon=category.icon,
+                    count=total_products,
+                ),
+                items=[],
+                total=0,
+            )
+            return payload.model_dump(mode="json")
+
+        products = await _fetch_products_by_ids(session, ordered_ids)
+        score_map = await _fetch_score_map(session, ordered_ids)
+        interest_map = await _fetch_interest_map(session, ordered_ids)
+        items = [
+            _map_product_to_card(
+                product,
+                now=now,
+                score_map=score_map,
+                interest_map=interest_map,
+            )
+            for product in products
+        ]
+
+        payload = CategoryTrendsPayload(
+            category=CategorySummary(
+                id=str(category.id),
+                name=category.name,
+                slug=category.slug,
+                description=category.description,
+                icon=category.icon,
+                count=total_products,
+            ),
+            items=items,
+            total=len(scored),
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:trends-category",
+        ttl_seconds=TRENDING_PRODUCTS_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("slug", slug),
+            ("revenue", revenue_filter),
+            ("limit", str(safe_limit)),
+        ],
+        builder=build_payload,
+    )
+    return CategoryTrendsPayload.model_validate(payload)
 
 
 @router.get("/categories/{slug}/products", response_model=CategoryProductsPageResult)
