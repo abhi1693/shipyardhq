@@ -16,6 +16,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession as Session
 from auth import CurrentUserId, OptionalUserId
 from database import get_session
 from models import (
+    AnalyticsDataSource,
     AlternativeProduct,
     AlternativeProductCategoryLink,
     Category,
@@ -49,6 +50,13 @@ from models import (
     RewardTransaction,
     RewardTransactionType,
     SiteTrafficDaily,
+    SiteTrafficBrowserDaily,
+    SiteTrafficCityDaily,
+    SiteTrafficCountryDaily,
+    SiteTrafficDeviceDaily,
+    SiteTrafficOperatingSystemDaily,
+    SiteTrafficReferrerDaily,
+    SiteTrafficRegionDaily,
     UseCase,
     UseCaseCategory,
     User,
@@ -59,6 +67,17 @@ from services.cache import cached_json
 from services.currency import convert_to_usd_cents, get_usd_conversion_rates
 from services.revenue import build_revenue_summary
 from services.schemas.public import (
+    AnalyticsBrowser,
+    AnalyticsCity,
+    AnalyticsCountry,
+    AnalyticsDevice,
+    AnalyticsOperatingSystem,
+    AnalyticsReferrer,
+    AnalyticsRegion,
+    AnalyticsSnapshot,
+    AnalyticsTimeseriesPoint,
+    AnalyticsTopProductPage,
+    AnalyticsVerifiedRevenue,
     AlternativeHighlight,
     AlternativeCatalogItem,
     AlternativeCatalogPageResult,
@@ -123,6 +142,7 @@ from services.schemas.public import (
     PublicPlanFeatureAssignment,
     PublicPlanFeature,
     PublicPlan,
+    PublicAnalyticsPayload,
     PublicUserMeta,
     PublicUserProfile,
     PublicUserSummary,
@@ -166,6 +186,9 @@ REALTIME_CACHE_TTL = 60
 LEADERBOARD_PAGE_CACHE_TTL = 120
 LEADERBOARD_PERIODIC_CACHE_TTL = 300
 LEADERBOARD_MONTHS_CACHE_TTL = 3600
+ANALYTICS_SUMMARY_CACHE_TTL = 300
+ANALYTICS_TOP_PRODUCTS_DEFAULT_LIMIT = 8
+ANALYTICS_TOP_PRODUCTS_MAX_LIMIT = 20
 
 PRIORITY_FEATURE_KEY = "priorityPlacement"
 SPONSORED_FEATURE_KEY = "sponsoredProducts"
@@ -4595,6 +4618,538 @@ async def get_leaderboard_months(
         builder=build_payload,
     )
     return [MonthlyLeaderboardMonth.model_validate(item) for item in payload]
+
+
+def _analytics_share(value: int, total: int) -> float:
+    return (value / total) * 100 if total > 0 else 0.0
+
+
+def _analytics_label(date_value: datetime) -> str:
+    return f"{date_value.strftime('%b')} {date_value.day}"
+
+
+async def _build_site_analytics_snapshot(
+    session: Session,
+    *,
+    start_dt: datetime,
+    end_dt: datetime,
+    top_product_limit: int,
+) -> AnalyticsSnapshot:
+    daily_rows = (
+        await session.exec(
+            select(SiteTrafficDaily)
+            .where(
+                and_(
+                    SiteTrafficDaily.source == AnalyticsDataSource.GA4,
+                    SiteTrafficDaily.date >= start_dt,
+                    SiteTrafficDaily.date <= end_dt,
+                )
+            )
+            .order_by(SiteTrafficDaily.date.asc())
+        )
+    ).scalars().all()
+
+    daily_by_date = {row.date.date(): row for row in daily_rows}
+    page_views = 0
+    unique_visitors = 0
+    sessions = 0
+    new_users = 0
+    bounce_weighted = 0.0
+    duration_weighted = 0.0
+    engagement_weighted = 0.0
+
+    for row in daily_rows:
+        page_views += int(row.page_views or 0)
+        unique_visitors += int(row.unique_visitors or 0)
+        sessions += int(row.sessions or 0)
+        new_users += int(row.new_users or 0)
+        bounce_weighted += float(row.bounce_rate or 0) * int(row.sessions or 0)
+        duration_weighted += float(row.average_session_duration or 0) * int(
+            row.sessions or 0
+        )
+        engagement_weighted += float(row.engagement_rate or 0) * int(
+            row.sessions or 0
+        )
+
+    bounce_rate = bounce_weighted / sessions if sessions > 0 else 0.0
+    average_session_duration = duration_weighted / sessions if sessions > 0 else 0.0
+    engagement_rate = engagement_weighted / sessions if sessions > 0 else 0.0
+    pages_per_session = page_views / sessions if sessions > 0 else 0.0
+    resolved_new_users = new_users if new_users > 0 else min(unique_visitors, sessions)
+
+    start_date = start_dt.date()
+    end_date = end_dt.date()
+    days = max((end_date - start_date).days + 1, 1)
+    timeseries: list[AnalyticsTimeseriesPoint] = []
+
+    for offset in range(days):
+        current_date = start_date + timedelta(days=offset)
+        row = daily_by_date.get(current_date)
+        day_dt = datetime.combine(current_date, time.min, tzinfo=timezone.utc)
+        timeseries.append(
+            AnalyticsTimeseriesPoint(
+                date=day_dt.isoformat(),
+                label=_analytics_label(day_dt),
+                pageViews=int(row.page_views or 0) if row else 0,
+                uniqueVisitors=int(row.unique_visitors or 0) if row else 0,
+            )
+        )
+
+    referrer_stmt = (
+        select(
+            SiteTrafficReferrerDaily.referrer,
+            func.sum(SiteTrafficReferrerDaily.page_views).label("views"),
+        )
+        .where(
+            and_(
+                SiteTrafficReferrerDaily.source == AnalyticsDataSource.GA4,
+                SiteTrafficReferrerDaily.date >= start_dt,
+                SiteTrafficReferrerDaily.date <= end_dt,
+            )
+        )
+        .group_by(SiteTrafficReferrerDaily.referrer)
+        .order_by(func.sum(SiteTrafficReferrerDaily.page_views).desc())
+        .limit(12)
+    )
+    referrer_rows = (await session.exec(referrer_stmt)).all()
+    referrers = [
+        AnalyticsReferrer(
+            referrer=row[0],
+            views=int(row[1] or 0),
+            share=_analytics_share(int(row[1] or 0), page_views),
+        )
+        for row in referrer_rows
+    ]
+
+    browser_stmt = (
+        select(
+            SiteTrafficBrowserDaily.browser,
+            func.sum(SiteTrafficBrowserDaily.visitors).label("visitors"),
+        )
+        .where(
+            and_(
+                SiteTrafficBrowserDaily.source == AnalyticsDataSource.GA4,
+                SiteTrafficBrowserDaily.date >= start_dt,
+                SiteTrafficBrowserDaily.date <= end_dt,
+            )
+        )
+        .group_by(SiteTrafficBrowserDaily.browser)
+        .order_by(func.sum(SiteTrafficBrowserDaily.visitors).desc())
+        .limit(8)
+    )
+    browser_rows = (await session.exec(browser_stmt)).all()
+    browsers = [
+        AnalyticsBrowser(
+            browser=row[0],
+            visitors=int(row[1] or 0),
+            share=_analytics_share(int(row[1] or 0), unique_visitors),
+        )
+        for row in browser_rows
+    ]
+
+    os_stmt = (
+        select(
+            SiteTrafficOperatingSystemDaily.operating_system,
+            func.sum(SiteTrafficOperatingSystemDaily.visitors).label("visitors"),
+        )
+        .where(
+            and_(
+                SiteTrafficOperatingSystemDaily.source == AnalyticsDataSource.GA4,
+                SiteTrafficOperatingSystemDaily.date >= start_dt,
+                SiteTrafficOperatingSystemDaily.date <= end_dt,
+            )
+        )
+        .group_by(SiteTrafficOperatingSystemDaily.operating_system)
+        .order_by(func.sum(SiteTrafficOperatingSystemDaily.visitors).desc())
+        .limit(8)
+    )
+    os_rows = (await session.exec(os_stmt)).all()
+    operating_systems = [
+        AnalyticsOperatingSystem(
+            os=row[0],
+            visitors=int(row[1] or 0),
+            share=_analytics_share(int(row[1] or 0), unique_visitors),
+        )
+        for row in os_rows
+    ]
+
+    device_stmt = (
+        select(
+            SiteTrafficDeviceDaily.device_category,
+            func.sum(SiteTrafficDeviceDaily.visitors).label("visitors"),
+        )
+        .where(
+            and_(
+                SiteTrafficDeviceDaily.source == AnalyticsDataSource.GA4,
+                SiteTrafficDeviceDaily.date >= start_dt,
+                SiteTrafficDeviceDaily.date <= end_dt,
+            )
+        )
+        .group_by(SiteTrafficDeviceDaily.device_category)
+        .order_by(func.sum(SiteTrafficDeviceDaily.visitors).desc())
+        .limit(5)
+    )
+    device_rows = (await session.exec(device_stmt)).all()
+    devices = [
+        AnalyticsDevice(
+            deviceCategory=row[0],
+            visitors=int(row[1] or 0),
+            share=_analytics_share(int(row[1] or 0), unique_visitors),
+        )
+        for row in device_rows
+    ]
+
+    country_stmt = (
+        select(
+            SiteTrafficCountryDaily.country,
+            SiteTrafficCountryDaily.country_code,
+            func.sum(SiteTrafficCountryDaily.visitors).label("visitors"),
+        )
+        .where(
+            and_(
+                SiteTrafficCountryDaily.source == AnalyticsDataSource.GA4,
+                SiteTrafficCountryDaily.date >= start_dt,
+                SiteTrafficCountryDaily.date <= end_dt,
+            )
+        )
+        .group_by(SiteTrafficCountryDaily.country, SiteTrafficCountryDaily.country_code)
+        .order_by(func.sum(SiteTrafficCountryDaily.visitors).desc())
+        .limit(10)
+    )
+    country_rows = (await session.exec(country_stmt)).all()
+    countries = [
+        AnalyticsCountry(
+            country=row[0],
+            code=row[1] or None,
+            visitors=int(row[2] or 0),
+            share=_analytics_share(int(row[2] or 0), unique_visitors),
+        )
+        for row in country_rows
+    ]
+
+    region_stmt = (
+        select(
+            SiteTrafficRegionDaily.region,
+            SiteTrafficRegionDaily.country,
+            SiteTrafficRegionDaily.country_code,
+            func.sum(SiteTrafficRegionDaily.visitors).label("visitors"),
+        )
+        .where(
+            and_(
+                SiteTrafficRegionDaily.source == AnalyticsDataSource.GA4,
+                SiteTrafficRegionDaily.date >= start_dt,
+                SiteTrafficRegionDaily.date <= end_dt,
+            )
+        )
+        .group_by(
+            SiteTrafficRegionDaily.region,
+            SiteTrafficRegionDaily.country,
+            SiteTrafficRegionDaily.country_code,
+        )
+        .order_by(func.sum(SiteTrafficRegionDaily.visitors).desc())
+        .limit(10)
+    )
+    region_rows = (await session.exec(region_stmt)).all()
+    regions = [
+        AnalyticsRegion(
+            region=row[0],
+            country=row[1] or None,
+            code=row[2] or None,
+            visitors=int(row[3] or 0),
+            share=_analytics_share(int(row[3] or 0), unique_visitors),
+        )
+        for row in region_rows
+    ]
+
+    city_stmt = (
+        select(
+            SiteTrafficCityDaily.city,
+            SiteTrafficCityDaily.region,
+            SiteTrafficCityDaily.country,
+            SiteTrafficCityDaily.country_code,
+            func.sum(SiteTrafficCityDaily.visitors).label("visitors"),
+        )
+        .where(
+            and_(
+                SiteTrafficCityDaily.source == AnalyticsDataSource.GA4,
+                SiteTrafficCityDaily.date >= start_dt,
+                SiteTrafficCityDaily.date <= end_dt,
+            )
+        )
+        .group_by(
+            SiteTrafficCityDaily.city,
+            SiteTrafficCityDaily.region,
+            SiteTrafficCityDaily.country,
+            SiteTrafficCityDaily.country_code,
+        )
+        .order_by(func.sum(SiteTrafficCityDaily.visitors).desc())
+        .limit(10)
+    )
+    city_rows = (await session.exec(city_stmt)).all()
+    cities = [
+        AnalyticsCity(
+            city=row[0],
+            region=row[1] or None,
+            country=row[2] or None,
+            code=row[3] or None,
+            visitors=int(row[4] or 0),
+            share=_analytics_share(int(row[4] or 0), unique_visitors),
+        )
+        for row in city_rows
+    ]
+
+    top_product_limit = max(1, top_product_limit)
+    top_product_stmt = (
+        select(
+            ProductTrafficDaily.product_id,
+            func.sum(ProductTrafficDaily.page_views).label("page_views"),
+        )
+        .join(Product, Product.id == ProductTrafficDaily.product_id)
+        .where(
+            and_(
+                ProductTrafficDaily.source == AnalyticsDataSource.GA4,
+                ProductTrafficDaily.date >= start_dt,
+                ProductTrafficDaily.date <= end_dt,
+                Product.status == ProductStatus.PUBLISHED,
+            )
+        )
+        .group_by(ProductTrafficDaily.product_id)
+        .order_by(func.sum(ProductTrafficDaily.page_views).desc())
+        .limit(top_product_limit)
+    )
+    top_candidate_rows = (await session.exec(top_product_stmt)).all()
+    candidate_ids = [int(row[0]) for row in top_candidate_rows]
+
+    top_product_pages: list[AnalyticsTopProductPage] = []
+    if candidate_ids:
+        metrics_stmt = (
+            select(
+                ProductTrafficDaily.product_id,
+                func.sum(ProductTrafficDaily.page_views).label("page_views"),
+                func.sum(ProductTrafficDaily.unique_visitors).label("unique_visitors"),
+                func.sum(ProductTrafficDaily.sessions).label("sessions"),
+                func.sum(
+                    ProductTrafficDaily.bounce_rate * ProductTrafficDaily.sessions
+                ).label("bounce_weighted"),
+                func.sum(
+                    ProductTrafficDaily.average_session_duration
+                    * ProductTrafficDaily.sessions
+                ).label("duration_weighted"),
+            )
+            .where(
+                and_(
+                    ProductTrafficDaily.product_id.in_(candidate_ids),
+                    ProductTrafficDaily.source == AnalyticsDataSource.GA4,
+                    ProductTrafficDaily.date >= start_dt,
+                    ProductTrafficDaily.date <= end_dt,
+                )
+            )
+            .group_by(ProductTrafficDaily.product_id)
+        )
+        metrics_rows = (await session.exec(metrics_stmt)).all()
+
+        meta_stmt = (
+            select(
+                Product.id,
+                Product.slug,
+                Product.name,
+                ProductAnalytics.upvotes,
+            )
+            .outerjoin(ProductAnalytics, ProductAnalytics.product_id == Product.id)
+            .where(Product.id.in_(candidate_ids))
+        )
+        meta_rows = (await session.exec(meta_stmt)).all()
+        meta_by_id = {
+            int(row[0]): {
+                "slug": row[1],
+                "name": row[2],
+                "upvotes": row[3],
+            }
+            for row in meta_rows
+        }
+
+        for row in metrics_rows:
+            product_id = int(row[0])
+            meta = meta_by_id.get(product_id)
+            if not meta or not meta.get("slug"):
+                continue
+            product_page_views = int(row[1] or 0)
+            product_sessions = int(row[3] or 0)
+            bounce_rate_value = (
+                float(row[4] or 0) / product_sessions
+                if product_sessions > 0
+                else 0.0
+            )
+            avg_session_duration_value = (
+                float(row[5] or 0) / product_sessions
+                if product_sessions > 0
+                else 0.0
+            )
+            top_product_pages.append(
+                AnalyticsTopProductPage(
+                    path=f"/products/{meta['slug']}",
+                    slug=meta["slug"],
+                    name=meta.get("name"),
+                    upvotes=int(meta["upvotes"])
+                    if meta.get("upvotes") is not None
+                    else None,
+                    pageViews=product_page_views,
+                    uniqueVisitors=int(row[2] or 0),
+                    sessions=product_sessions,
+                    bounceRate=bounce_rate_value,
+                    averageSessionDuration=avg_session_duration_value,
+                    shareOfViews=_analytics_share(product_page_views, page_views),
+                )
+            )
+
+        top_product_pages.sort(key=lambda entry: entry.pageViews, reverse=True)
+        top_product_pages = top_product_pages[:top_product_limit]
+
+    return AnalyticsSnapshot(
+        pageViews=page_views,
+        uniqueVisitors=unique_visitors,
+        sessions=sessions,
+        bounceRate=bounce_rate,
+        averageSessionDuration=average_session_duration,
+        newUsers=resolved_new_users,
+        engagementRate=engagement_rate,
+        pagesPerSession=pages_per_session,
+        referrers=referrers,
+        timeseries=timeseries,
+        browsers=browsers,
+        operatingSystems=operating_systems,
+        devices=devices,
+        countries=countries,
+        regions=regions,
+        cities=cities,
+        topProductPages=top_product_pages,
+    )
+
+
+async def _sum_verified_revenue_cents(
+    session: Session,
+    *,
+    start_dt: datetime,
+    end_dt: datetime,
+    rates: dict[str, float],
+) -> int:
+    stmt = (
+        select(
+            PaymentRevenueSnapshot.period_revenue_cents,
+            PaymentRevenueSnapshot.currency_code,
+        )
+        .join(
+            PaymentConnector,
+            PaymentConnector.id == PaymentRevenueSnapshot.connector_id,
+        )
+        .where(
+            and_(
+                PaymentConnector.verified_at.isnot(None),
+                PaymentConnector.status == PaymentConnectorStatus.ACTIVE,
+                PaymentRevenueSnapshot.period_start >= start_dt,
+                PaymentRevenueSnapshot.period_start <= end_dt,
+            )
+        )
+    )
+    rows = (await session.exec(stmt)).all()
+    total = 0
+    for row in rows:
+        amount_cents = int(row[0] or 0)
+        currency_code = (row[1] or "USD").upper()
+        if currency_code == "USD":
+            total += amount_cents
+            continue
+        usd_cents, rate_used = convert_to_usd_cents(amount_cents, currency_code, rates)
+        if rate_used is not None:
+            total += int(usd_cents)
+    return total
+
+
+async def _build_verified_revenue_summary(
+    session: Session,
+    *,
+    current_start: datetime,
+    current_end: datetime,
+    previous_start: datetime,
+    previous_end: datetime,
+) -> AnalyticsVerifiedRevenue:
+    rates = await get_usd_conversion_rates()
+    current_total = await _sum_verified_revenue_cents(
+        session,
+        start_dt=current_start,
+        end_dt=current_end,
+        rates=rates,
+    )
+    previous_total = await _sum_verified_revenue_cents(
+        session,
+        start_dt=previous_start,
+        end_dt=previous_end,
+        rates=rates,
+    )
+    return AnalyticsVerifiedRevenue(
+        currency="USD",
+        rangeCents=current_total,
+        previousRangeCents=previous_total,
+    )
+
+
+@router.get("/analytics/summary", response_model=PublicAnalyticsPayload)
+async def get_public_analytics_summary(
+    request: Request,
+    *,
+    top_product_limit: int | None = Query(None, alias="topProductLimit"),
+    session: Session = Depends(get_session),
+) -> PublicAnalyticsPayload:
+    safe_limit = _normalize_page_size_with_max(
+        top_product_limit,
+        ANALYTICS_TOP_PRODUCTS_DEFAULT_LIMIT,
+        ANALYTICS_TOP_PRODUCTS_MAX_LIMIT,
+    )
+
+    async def build_payload() -> dict:
+        current_start, current_end = _utc_range_for_days(30)
+        previous_end_date = current_start.date() - timedelta(days=1)
+        previous_start_date = previous_end_date - timedelta(days=29)
+        previous_start = datetime.combine(previous_start_date, time.min, tzinfo=timezone.utc)
+        previous_end = datetime.combine(previous_end_date, time.max, tzinfo=timezone.utc)
+
+        snapshot = await _build_site_analytics_snapshot(
+            session,
+            start_dt=current_start,
+            end_dt=current_end,
+            top_product_limit=safe_limit,
+        )
+        previous_snapshot = await _build_site_analytics_snapshot(
+            session,
+            start_dt=previous_start,
+            end_dt=previous_end,
+            top_product_limit=safe_limit,
+        )
+        realtime_visitors = await _resolve_realtime_visitors(session)
+        verified_revenue = await _build_verified_revenue_summary(
+            session,
+            current_start=current_start,
+            current_end=current_end,
+            previous_start=previous_start,
+            previous_end=previous_end,
+        )
+
+        payload = PublicAnalyticsPayload(
+            snapshot=snapshot,
+            previousSnapshot=previous_snapshot,
+            realtimeVisitors=realtime_visitors,
+            verifiedRevenue=verified_revenue,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:analytics-summary",
+        ttl_seconds=ANALYTICS_SUMMARY_CACHE_TTL,
+        path=request.url.path,
+        params=[("topProductLimit", str(safe_limit))],
+        builder=build_payload,
+    )
+    return PublicAnalyticsPayload.model_validate(payload)
 
 
 @router.get("/analytics/realtime", response_model=RealtimeVisitors)

@@ -81,6 +81,107 @@ class RealtimeVisitors(BaseSerializer):
     visitors: int
 
 
+class AnalyticsTimeseriesPoint(BaseSerializer):
+    date: str
+    label: str
+    pageViews: int
+    uniqueVisitors: int
+
+
+class AnalyticsReferrer(BaseSerializer):
+    referrer: str
+    views: int
+    share: float
+
+
+class AnalyticsBrowser(BaseSerializer):
+    browser: str
+    visitors: int
+    share: float
+
+
+class AnalyticsOperatingSystem(BaseSerializer):
+    os: str
+    visitors: int
+    share: float
+
+
+class AnalyticsDevice(BaseSerializer):
+    deviceCategory: str
+    visitors: int
+    share: float
+
+
+class AnalyticsCountry(BaseSerializer):
+    country: str
+    code: str | None = None
+    visitors: int
+    share: float
+
+
+class AnalyticsRegion(BaseSerializer):
+    region: str
+    country: str | None = None
+    code: str | None = None
+    visitors: int
+    share: float
+
+
+class AnalyticsCity(BaseSerializer):
+    city: str
+    region: str | None = None
+    country: str | None = None
+    code: str | None = None
+    visitors: int
+    share: float
+
+
+class AnalyticsTopProductPage(BaseSerializer):
+    path: str
+    slug: str | None = None
+    name: str | None = None
+    upvotes: int | None = None
+    pageViews: int
+    uniqueVisitors: int
+    sessions: int
+    bounceRate: float
+    averageSessionDuration: float
+    shareOfViews: float
+
+
+class AnalyticsSnapshot(BaseSerializer):
+    pageViews: int
+    uniqueVisitors: int
+    sessions: int
+    bounceRate: float
+    averageSessionDuration: float
+    newUsers: int
+    engagementRate: float
+    pagesPerSession: float
+    referrers: list[AnalyticsReferrer]
+    timeseries: list[AnalyticsTimeseriesPoint]
+    browsers: list[AnalyticsBrowser]
+    operatingSystems: list[AnalyticsOperatingSystem]
+    devices: list[AnalyticsDevice]
+    countries: list[AnalyticsCountry]
+    regions: list[AnalyticsRegion]
+    cities: list[AnalyticsCity]
+    topProductPages: list[AnalyticsTopProductPage]
+
+
+class AnalyticsVerifiedRevenue(BaseSerializer):
+    currency: str
+    rangeCents: int
+    previousRangeCents: int
+
+
+class PublicAnalyticsPayload(BaseSerializer):
+    snapshot: AnalyticsSnapshot
+    previousSnapshot: AnalyticsSnapshot
+    realtimeVisitors: int
+    verifiedRevenue: AnalyticsVerifiedRevenue
+
+
 class CategoryHighlight(BaseSerializer):
     id: str
     name: str

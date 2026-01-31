@@ -22,16 +22,10 @@ import { AnalyticsListCard } from "@/components/molecules/AnalyticsListCard"
 import { AnalyticsMetricCard } from "@/components/molecules/AnalyticsMetricCard"
 import { LiveVisitorsPill } from "@/components/molecules/LiveVisitorsPill"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
-import prisma from "@/lib/prisma"
+import { getPublicAnalyticsPayload } from "@/actions/public/analytics/actions"
 import { buildPageMetadata } from "@/lib/metadata"
 import { ANALYTICS_PATH, HOME_PATH } from "@/lib/routes"
-import { getAnalyticsProvider } from "@/lib/server/analytics/store"
-import {
-  convertToUsdCents,
-  getUsdConversionRates,
-} from "@/lib/server/payments/currency"
 import { siteConfig } from "@/lib/siteConfig"
-import { PaymentConnectorStatus } from "@/lib/vendor/prisma/client"
 
 const PAGE_TITLE = "Analytics"
 export const revalidate = 300
@@ -50,18 +44,6 @@ function formatCurrency(amountCents: number, currency: string) {
   }
 }
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000
-
-function startOfUtcDay(date: Date) {
-  return new Date(
-    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
-  )
-}
-
-function addDays(date: Date, days: number) {
-  return new Date(date.getTime() + days * MS_PER_DAY)
-}
-
 function computeDelta(current: number, previous: number) {
   if (!Number.isFinite(previous) || previous === 0) return null
   const delta = ((current - previous) / previous) * 100
@@ -78,68 +60,6 @@ function referrerLabel(value: string) {
   return domain || value
 }
 
-async function getVerifiedRevenueTotals({
-  rangeStart,
-  rangeEnd,
-  previousRangeStart,
-  previousRangeEnd,
-}: {
-  rangeStart: Date
-  rangeEnd: Date
-  previousRangeStart: Date
-  previousRangeEnd: Date
-}) {
-  const ratesPromise = getUsdConversionRates()
-
-  const whereBase = {
-    connector: {
-      verifiedAt: { not: null },
-      status: PaymentConnectorStatus.active,
-    },
-  } as const
-
-  const [currentSnapshots, previousSnapshots, rates] = await Promise.all([
-    prisma.paymentRevenueSnapshot.findMany({
-      where: {
-        ...whereBase,
-        periodStart: { gte: rangeStart, lt: addDays(rangeEnd, 1) },
-      },
-      select: { periodRevenueCents: true, currencyCode: true },
-    }),
-    prisma.paymentRevenueSnapshot.findMany({
-      where: {
-        ...whereBase,
-        periodStart: {
-          gte: previousRangeStart,
-          lt: addDays(previousRangeEnd, 1),
-        },
-      },
-      select: { periodRevenueCents: true, currencyCode: true },
-    }),
-    ratesPromise,
-  ])
-
-  const sumUsd = (
-    snapshots: { periodRevenueCents: number | null; currencyCode: string }[],
-  ) =>
-    snapshots.reduce((total, snapshot) => {
-      const { usdCents, rateUsed } = convertToUsdCents(
-        snapshot.periodRevenueCents ?? 0,
-        snapshot.currencyCode,
-        rates,
-      )
-      const currency = (snapshot.currencyCode || "USD").toUpperCase()
-      const convertible = currency === "USD" || rateUsed !== null
-      return convertible ? total + usdCents : total
-    }, 0)
-
-  return {
-    currency: "USD",
-    rangeCents: sumUsd(currentSnapshots),
-    previousRangeCents: sumUsd(previousSnapshots),
-  }
-}
-
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description:
@@ -149,65 +69,13 @@ export const metadata = buildPageMetadata({
 export default async function AnalyticsPage() {
   const rangeEnd = subDays(new Date(), 0)
   const rangeStart = subDays(rangeEnd, 29)
-  const prevRangeEnd = subDays(rangeStart, 1)
-  const prevRangeStart = subDays(prevRangeEnd, 29)
-  const rangeStartUtc = startOfUtcDay(rangeStart)
-  const rangeEndUtc = startOfUtcDay(rangeEnd)
-  const prevRangeStartUtc = startOfUtcDay(prevRangeStart)
-  const prevRangeEndUtc = startOfUtcDay(prevRangeEnd)
-  const analyticsProvider = getAnalyticsProvider("cache")
+  const { snapshot, previousSnapshot, realtimeVisitors, verifiedRevenue } =
+    await getPublicAnalyticsPayload({ topProductLimit: 8 })
 
-  const [snapshot, previousSnapshot, realtimeVisitors, verifiedRevenue] =
-    await Promise.all([
-      analyticsProvider.getSiteAnalyticsSnapshot({ topProductLimit: 8 }),
-      analyticsProvider.getSiteAnalyticsSnapshot({
-        topProductLimit: 8,
-        dateRange: {
-          startDate: format(prevRangeStart, "yyyy-MM-dd"),
-          endDate: format(prevRangeEnd, "yyyy-MM-dd"),
-        },
-      }),
-      analyticsProvider.getRealtimeVisitors(),
-      getVerifiedRevenueTotals({
-        rangeStart: rangeStartUtc,
-        rangeEnd: rangeEndUtc,
-        previousRangeStart: prevRangeStartUtc,
-        previousRangeEnd: prevRangeEndUtc,
-      }),
-    ])
-
-  const productSlugs = snapshot.topProductPages
-    .map((page) => page.slug?.toLowerCase())
-    .filter((slug): slug is string => Boolean(slug))
-
-  const products =
-    productSlugs.length > 0
-      ? await prisma.product.findMany({
-          where: { slug: { in: productSlugs } },
-          select: {
-            slug: true,
-            name: true,
-            analytics: { select: { upvotes: true } },
-          },
-        })
-      : []
-
-  const productMap = new Map<string, (typeof products)[number]>(
-    products.map((product: (typeof products)[number]) => [
-      product.slug.toLowerCase(),
-      product,
-    ]),
-  )
-
-  const topProducts = snapshot.topProductPages.map((page) => {
-    const slug = page.slug?.toLowerCase()
-    const product = slug ? productMap.get(slug) : null
-    return {
-      ...page,
-      name: product?.name ?? slug ?? page.path,
-      upvotes: product?.analytics?.upvotes ?? null,
-    }
-  })
+  const topProducts = snapshot.topProductPages.map((page) => ({
+    ...page,
+    name: page.name ?? page.slug ?? page.path,
+  }))
 
   const rangeLabel = `${format(rangeStart, "MMM d")} – ${format(rangeEnd, "MMM d")}`
   const totalProductViews = topProducts.reduce((sum, p) => sum + p.pageViews, 0)
