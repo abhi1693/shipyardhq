@@ -1,45 +1,59 @@
 "use server"
 
-import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
-import { Prisma } from "@/lib/vendor/prisma/client"
+import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
 import type { HomepageFeedItem } from "@/lib/generated/fastapi/schemas"
-import type { ProductInterestSignals } from "@/types/product-interest"
-import {
-  mapProductCardRecordToBase,
-  productCardSelect,
-  type ProductCardRecord,
-} from "@/lib/products/selects"
-import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
-import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
-import {
-  convertToUsdCents,
-  getUsdConversionRates,
-} from "@/lib/server/payments/currency"
 
-const publishedProductWhere: Prisma.ProductWhereInput = {
-  status: "published",
-}
-
-const PROFILE_PRODUCTS_PAGE_SIZE = 60
 const USER_PRODUCTS_PAGE_SIZE = 20
 const USER_PRODUCTS_MAX_PAGE_SIZE = 50
 const USERS_PAGE_SIZE = 20
 
-type PublicUserListItem = {
+type ApiResponse<T> = {
+  data: T
+  status: number
+  headers: Headers
+}
+
+export type PublicUserListItem = {
   id: string
   firstName: string | null
   lastName: string | null
   clerkId: string | null
-  _count: { products: number }
+  productCount: number
   avatarUrl: string | null
   latestRevenueCents: number | null
   revenueCurrencyCode: string | null
 }
 
-const FALLBACK_TAGLINE =
-  "Discover launch-ready tools from indie makers worldwide."
+type PublicUserSummary = Omit<PublicUserListItem, "avatarUrl">
+
+export type PublicUsersPageResult = {
+  items: PublicUserListItem[]
+  total: number
+  page: number
+  pageSize: number
+  hasMore: boolean
+  nextPage: number | null
+}
+
+type PublicUsersPageApiResult = Omit<PublicUsersPageResult, "items"> & {
+  items: PublicUserSummary[]
+}
+
+export type PublicUserMeta = {
+  firstName: string | null
+  lastName: string | null
+}
+
+export type UserProductsPageResult = {
+  items: HomepageFeedItem[]
+  total: number
+  page: number
+  pageSize: number
+  hasMore: boolean
+  nextPage: number | null
+}
 
 const normalizePage = (value: unknown, fallback: number) => {
   const parsed = Number(value)
@@ -54,87 +68,90 @@ const normalizePageSize = (value: unknown, fallback: number) => {
   return Math.max(1, clamped)
 }
 
-const publicUserProductSelectFields = {
-  id: true,
-  slug: true,
-  name: true,
-  logo: true,
-  tagline: true,
-  publishedAt: true,
-  createdAt: true,
-  analytics: {
-    select: {
-      upvotes: true,
-    },
-  },
-  verification: {
-    select: {
-      isVerified: true,
-    },
-  },
-  category: {
-    select: {
-      name: true,
-    },
-  },
-  ProductBadge: {
-    select: {
-      badge: true,
-      expiresAt: true,
-    },
-  },
-  paymentConnector: {
-    select: {
-      latestAllTimeRevenueCents: true,
-      latestCurrencyCode: true,
-      verifiedAt: true,
-      status: true,
-      revenueHistory: {
-        orderBy: { periodStart: "desc" },
-        take: 1,
-        select: {
-          allTimeRevenueCents: true,
-          currencyCode: true,
-        },
-      },
-    },
-  },
-} as const
-
-const publicUserProductsSelect = {
-  where: publishedProductWhere,
-  orderBy: { createdAt: "desc" as const },
-  select: publicUserProductSelectFields,
-} satisfies Prisma.User$productsArgs
-
-type PublicUserProfileSelect = {
-  id: true
-  clerkId: true
-  firstName: true
-  lastName: true
-  _count: {
-    select: {
-      products: { where: typeof publishedProductWhere }
-    }
-  }
-  products: typeof publicUserProductsSelect
+const isFastApiNotFound = (error: unknown) => {
+  const status = (error as FastApiError | undefined)?.status
+  return status === 404 || status === 422
 }
 
-type PublicUserProfile = Prisma.UserGetPayload<{
-  select: PublicUserProfileSelect
-}>
+const buildPublicUrl = (
+  path: string,
+  params?: Record<string, string | number | null | undefined>,
+) => {
+  if (!params) return path
+  const search = new URLSearchParams()
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === null || typeof value === "undefined") {
+      return
+    }
+    const normalized = String(value)
+    if (!normalized.length) {
+      return
+    }
+    search.set(key, normalized)
+  })
+  const query = search.toString()
+  return query ? `${path}?${query}` : path
+}
 
-const publicUserProfileSelect: PublicUserProfileSelect = {
-  id: true,
-  clerkId: true,
-  firstName: true,
-  lastName: true,
-  _count: {
-    select: {
-      products: { where: publishedProductWhere },
-    },
-  },
-  products: publicUserProductsSelect,
+const mapUserSummaryToListItem = async (
+  user: PublicUserSummary,
+): Promise<PublicUserListItem> => {
+  let avatarUrl: string | null = null
+  if (user.clerkId) {
+    try {
+      const clerkUser = await getClerkUserByIdCached(user.clerkId)
+      avatarUrl = clerkUser.imageUrl ?? null
+    } catch {
+      avatarUrl = null
+    }
+  }
+
+  return {
+    ...user,
+    avatarUrl,
+  }
+}
+
+const fetchUserProductsPage = async (
+  userId: string,
+  page: number,
+  pageSize: number,
+): Promise<UserProductsPageResult> => {
+  try {
+    const response = await fastapiFetch<ApiResponse<UserProductsPageResult>>(
+      buildPublicUrl(
+        `/api/v1/public/users/${encodeURIComponent(userId)}/products`,
+        {
+          page,
+          pageSize,
+        },
+      ),
+      { method: "GET" },
+    )
+    if (response.status !== 200 || !response.data) {
+      return {
+        items: [],
+        total: 0,
+        page,
+        pageSize,
+        hasMore: false,
+        nextPage: null,
+      }
+    }
+    return response.data
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      return {
+        items: [],
+        total: 0,
+        page,
+        pageSize,
+        hasMore: false,
+        nextPage: null,
+      }
+    }
+    throw error
+  }
 }
 
 const getUserProductsWithPaging = cached(
@@ -145,57 +162,7 @@ const getUserProductsWithPaging = cached(
   ): Promise<UserProductsPageResult> => {
     const safePage = normalizePage(page, 1)
     const safePageSize = normalizePageSize(pageSize, USER_PRODUCTS_PAGE_SIZE)
-    const skip = (safePage - 1) * safePageSize
-    const where: Prisma.ProductWhereInput = {
-      status: "published",
-      userId,
-    }
-
-    const [products, total] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        select: productCardSelect,
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: safePageSize,
-      }),
-      prisma.product.count({ where }),
-    ])
-
-    const typedProducts = products as ProductCardRecord[]
-    const productIds = typedProducts.map((product) => product.id)
-    const scoreMap = productIds.length
-      ? await getCurrentScoreMap(productIds)
-      : new Map<string, number>()
-
-    const now = new Date()
-    const baseProducts = typedProducts.map((product) =>
-      mapProductCardRecordToBase(product, now, {
-        scoreByProductId: scoreMap,
-      }),
-    )
-
-    const interestMap = await getProductInterestSignalsMap({
-      products: baseProducts.map((product) => ({
-        id: product.id,
-        slug: product.slug,
-      })),
-    })
-
-    const items = baseProducts.map((product) =>
-      mapUserProductToFeedItem(product, interestMap),
-    )
-
-    const hasMore = skip + items.length < total
-
-    return {
-      items,
-      total,
-      page: safePage,
-      pageSize: safePageSize,
-      hasMore,
-      nextPage: hasMore ? safePage + 1 : null,
-    }
+    return fetchUserProductsPage(userId, safePage, safePageSize)
   },
   "user:products:page",
   {
@@ -223,6 +190,47 @@ export async function getUserProductsPage(params: {
   return getUserProductsWithPaging(params.userId, safePage, safePageSize)
 }
 
+const fetchPublicUsersPage = async (
+  page: number,
+  pageSize: number,
+): Promise<PublicUsersPageResult> => {
+  try {
+    const response = await fastapiFetch<ApiResponse<PublicUsersPageApiResult>>(
+      buildPublicUrl("/api/v1/public/users", {
+        page,
+        pageSize,
+      }),
+      { method: "GET" },
+    )
+    if (response.status !== 200 || !response.data) {
+      return {
+        items: [],
+        total: 0,
+        page,
+        pageSize,
+        hasMore: false,
+        nextPage: null,
+      }
+    }
+    const items = await Promise.all(
+      response.data.items.map((user) => mapUserSummaryToListItem(user)),
+    )
+    return { ...response.data, items }
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      return {
+        items: [],
+        total: 0,
+        page,
+        pageSize,
+        hasMore: false,
+        nextPage: null,
+      }
+    }
+    throw error
+  }
+}
+
 const getPublicUsersPageCached = cached(
   async (
     page: number = 1,
@@ -230,143 +238,7 @@ const getPublicUsersPageCached = cached(
   ): Promise<PublicUsersPageResult> => {
     const safePage = normalizePage(page, 1)
     const safePageSize = normalizePageSize(pageSize, USERS_PAGE_SIZE)
-    const skip = (safePage - 1) * safePageSize
-
-    const where: Prisma.UserWhereInput = {
-      products: { some: publishedProductWhere },
-    }
-
-    const [users, total] = await Promise.all([
-      prisma.user.findMany({
-        where,
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          clerkId: true,
-          _count: {
-            select: {
-              products: { where: publishedProductWhere },
-            },
-          },
-        },
-        orderBy: { products: { _count: "desc" } },
-        skip,
-        take: safePageSize,
-      }),
-      prisma.user.count({ where }),
-    ])
-
-    const userIds = users.map((user: { id: string }) => user.id)
-    type RevenueConnector = {
-      product: { userId: string } | null
-      latestAllTimeRevenueCents: number | null
-      latestCurrencyCode: string | null
-      revenueHistory: Array<{
-        allTimeRevenueCents: number | null
-        currencyCode: string | null
-      }>
-    }
-
-    const connectors: RevenueConnector[] = userIds.length
-      ? await prisma.paymentConnector.findMany({
-          where: {
-            product: {
-              userId: { in: userIds },
-              status: "published",
-            },
-            status: "active",
-            verifiedAt: { not: null },
-          },
-          select: {
-            product: { select: { userId: true } },
-            latestAllTimeRevenueCents: true,
-            latestCurrencyCode: true,
-            revenueHistory: {
-              orderBy: { periodStart: "desc" },
-              take: 1,
-              select: {
-                allTimeRevenueCents: true,
-                currencyCode: true,
-              },
-            },
-          },
-        })
-      : []
-
-    const needsRates = connectors.some((connector: RevenueConnector) => {
-      const code =
-        connector.latestCurrencyCode ??
-        connector.revenueHistory?.[0]?.currencyCode ??
-        "USD"
-      return code && code.toUpperCase() !== "USD"
-    })
-    const rates = needsRates
-      ? await getUsdConversionRates()
-      : new Map<string, number>([["USD", 1]])
-
-    const revenueByUser = new Map<
-      string,
-      { cents: number; currencyCode: string | null }
-    >()
-
-    for (const connector of connectors) {
-      const userId = connector.product?.userId
-      if (!userId) continue
-
-      const snapshot = connector.revenueHistory?.[0]
-      let amount =
-        typeof connector.latestAllTimeRevenueCents === "number"
-          ? connector.latestAllTimeRevenueCents
-          : typeof snapshot?.allTimeRevenueCents === "number"
-            ? snapshot.allTimeRevenueCents
-            : null
-
-      if (amount === null) continue
-
-      let currencyCode =
-        (
-          connector.latestCurrencyCode ??
-          snapshot?.currencyCode ??
-          "USD"
-        )?.toUpperCase?.() ?? "USD"
-
-      if (currencyCode !== "USD") {
-        const { usdCents, rateUsed } = convertToUsdCents(
-          amount,
-          currencyCode,
-          rates,
-        )
-
-        if (rateUsed !== null) {
-          amount = usdCents
-          currencyCode = "USD"
-        }
-      }
-
-      const existing = revenueByUser.get(userId)
-      const nextCents = (existing?.cents ?? 0) + amount
-      revenueByUser.set(userId, {
-        cents: nextCents,
-        currencyCode: currencyCode ?? existing?.currencyCode ?? "USD",
-      })
-    }
-
-    const items = await Promise.all(
-      users.map((user) =>
-        mapUserSummaryToListItem(user, revenueByUser.get(user.id)),
-      ),
-    )
-    const hasMore = skip + items.length < total
-
-    return {
-      items,
-      total,
-      page: safePage,
-      pageSize: safePageSize,
-      hasMore,
-      nextPage: hasMore ? safePage + 1 : null,
-    }
+    return fetchPublicUsersPage(safePage, safePageSize)
   },
   "users:public:page",
   {
@@ -391,181 +263,39 @@ export async function getPublicUsersPage(
   return getPublicUsersPageCached(safePage, safePageSize)
 }
 
-const mapUserProductToFeedItem = (
-  product: ReturnType<typeof mapProductCardRecordToBase>,
-  interestByProductId?: Map<string, ProductInterestSignals>,
-): HomepageFeedItem => {
-  const categoryName = product.category?.name ?? null
-  const categorySlug = (product.category as any)?.slug ?? null
-  const coerceDateString = (value: any) => {
-    if (!value) return new Date().toISOString()
-    if (value instanceof Date) return value.toISOString()
-    const parsed = new Date(value)
-    return Number.isNaN(parsed.getTime())
-      ? new Date().toISOString()
-      : parsed.toISOString()
-  }
-
-  const isSponsored = Boolean((product as any).sponsored)
-
-  return {
-    id: product.id,
-    slug: product.slug,
-    name: product.name,
-    logo: product.logo,
-    tagline: product.tagline || FALLBACK_TAGLINE,
-    createdAt: coerceDateString(product.createdAt),
-    updatedAt: coerceDateString(
-      (product as any).updatedAt ?? product.createdAt,
-    ),
-    badges: product.badges ?? [],
-    category: categoryName,
-    categorySlug,
-    scoreCount:
-      typeof product.scoreCount === "number" ? product.scoreCount : undefined,
-    isSponsored,
-    isVoted: false,
-    isVerified: Boolean(product.isVerified),
-    variant: isSponsored ? "sponsored" : "default",
-    latestRevenueCents:
-      typeof product.latestRevenueCents === "number"
-        ? product.latestRevenueCents
-        : null,
-    revenueCurrencyCode: product.revenueCurrencyCode ?? null,
-    interest: interestByProductId?.get(product.id) ?? null,
-    shuffleRank: Math.random(),
-  }
-}
-
-const mapUserSummaryToListItem = async (
-  user: {
-    id: string
-    firstName: string | null
-    lastName: string | null
-    clerkId: string | null
-    _count: { products: number }
-  },
-  revenue?: { cents: number; currencyCode: string | null },
-): Promise<PublicUserListItem> => {
-  let avatarUrl: string | null = null
-  if (user.clerkId) {
-    try {
-      const clerkUser = await getClerkUserByIdCached(user.clerkId)
-      avatarUrl = clerkUser.imageUrl ?? null
-    } catch {
-      avatarUrl = null
-    }
-  }
-
-  return {
-    ...user,
-    avatarUrl,
-    latestRevenueCents: revenue?.cents ?? null,
-    revenueCurrencyCode: revenue?.currencyCode ?? null,
-  }
-}
-
-export type UserProductsPageResult = {
-  items: HomepageFeedItem[]
-  total: number
-  page: number
-  pageSize: number
-  hasMore: boolean
-  nextPage: number | null
-}
-
-export type PublicUsersPageResult = {
-  items: PublicUserListItem[]
-  total: number
-  page: number
-  pageSize: number
-  hasMore: boolean
-  nextPage: number | null
-}
-
 export const getPublicUsersWithCounts = cached(
-  async (limit = 48) =>
-    prisma.user.findMany({
-      where: { products: { some: publishedProductWhere } },
-      select: {
-        id: true,
-        clerkId: true,
-        firstName: true,
-        lastName: true,
-        _count: {
-          select: {
-            products: {
-              where: publishedProductWhere,
-            },
-          },
-        },
-      },
-      orderBy: { products: { _count: "desc" } },
-      take: limit,
-    }),
+  async (limit = 48) => {
+    const result = await getPublicUsersPage({
+      page: 1,
+      pageSize: limit,
+    })
+    return result.items
+  },
   "users:with-product-counts",
   { ttl: DEFAULT_TTL.slow, tags: () => [TAGS.users, TAGS.products] },
 )
 
 export const getPublicUserMeta = cached(
-  async (id: string) =>
-    prisma.user.findUnique({
-      where: { id },
-      select: {
-        firstName: true,
-        lastName: true,
-      },
-    }),
+  async (id: string): Promise<PublicUserMeta | null> => {
+    try {
+      const response = await fastapiFetch<ApiResponse<PublicUserMeta>>(
+        `/api/v1/public/users/${encodeURIComponent(id)}/meta`,
+        { method: "GET" },
+      )
+      if (response.status !== 200) {
+        return null
+      }
+      return response.data ?? null
+    } catch (error) {
+      if (isFastApiNotFound(error)) {
+        return null
+      }
+      throw error
+    }
+  },
   "user:public-meta",
   {
     ttl: DEFAULT_TTL.medium,
     tags: ([id]) => [TAGS.users, TAGS.user(String(id))],
-  },
-)
-
-export const getPublicUserProfile = cached(
-  async (
-    id: string,
-    options: { page?: number; pageSize?: number } = {},
-  ): Promise<PublicUserProfile | null> => {
-    const pageSize = Math.max(
-      1,
-      Math.min(options.pageSize ?? PROFILE_PRODUCTS_PAGE_SIZE, 200),
-    )
-    const page = Math.max(options.page ?? 1, 1)
-    const skip = (page - 1) * pageSize
-
-    const select: Prisma.UserSelect = {
-      ...publicUserProfileSelect,
-      products: {
-        ...publicUserProductsSelect,
-        skip,
-        take: pageSize,
-        select: {
-          ...publicUserProductSelectFields,
-          ProductBadge: {
-            ...publicUserProductSelectFields.ProductBadge,
-            where: {
-              OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-            },
-          },
-        },
-      },
-    }
-
-    return prisma.user.findUnique({
-      where: { id },
-      select,
-    }) as Promise<PublicUserProfile | null>
-  },
-  "user:public-profile",
-  {
-    ttl: DEFAULT_TTL.medium,
-    keyParts: ([id, options]) => [
-      String(id),
-      `page:${options?.page ?? 1}`,
-      `pageSize:${options?.pageSize ?? PROFILE_PRODUCTS_PAGE_SIZE}`,
-    ],
-    tags: ([id]) => [TAGS.users, TAGS.products, TAGS.user(String(id))],
   },
 )

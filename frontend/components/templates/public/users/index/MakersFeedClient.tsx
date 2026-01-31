@@ -25,7 +25,7 @@ const mapMakerMeta = (maker: MakerListItem) => {
       .map((segment) => segment.charAt(0).toUpperCase())
       .join("")
       .slice(0, 2) || "SY"
-  const launches = maker._count.products
+  const launches = maker.productCount
 
   return { name, initials, launches }
 }

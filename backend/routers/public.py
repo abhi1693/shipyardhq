@@ -56,6 +56,7 @@ from models import (
 )
 from routers.base import api_prefix
 from services.cache import cached_json
+from services.currency import convert_to_usd_cents, get_usd_conversion_rates
 from services.revenue import build_revenue_summary
 from services.schemas.public import (
     AlternativeHighlight,
@@ -122,10 +123,19 @@ from services.schemas.public import (
     PublicPlanFeatureAssignment,
     PublicPlanFeature,
     PublicPlan,
+    PublicUserMeta,
+    PublicUserProfile,
+    PublicUserSummary,
+    PublicUsersPageResult,
     SponsoredPlacement,
     SponsoredPlacementSchedule,
     SponsoredProduct,
     StickyBannerProduct,
+    UserProductsPageResult,
+    UserProfileBadgeSummary,
+    UserProfileCategoryEntry,
+    UserProfilePayload,
+    RewardsLeaderboardPosition,
     TagDetailPayload,
     TagDirectoryPageResult,
     TagProductsPageResult,
@@ -200,6 +210,14 @@ REWARDS_PAGE_CACHE_TTL = 300
 REWARDS_LEADERBOARD_CACHE_TTL = 120
 REWARDS_LEADERBOARD_DEFAULT_PAGE_SIZE = 20
 REWARDS_LEADERBOARD_MAX_PAGE_SIZE = 100
+USERS_PAGE_SIZE = 20
+USERS_MAX_PAGE_SIZE = 50
+USERS_CACHE_TTL = 300
+USER_PRODUCTS_PAGE_SIZE = 20
+USER_PRODUCTS_MAX_PAGE_SIZE = 50
+USER_PRODUCTS_CACHE_TTL = 120
+USER_PROFILE_CACHE_TTL = 300
+USER_META_CACHE_TTL = 600
 
 PRODUCT_DETAIL_CACHE_TTL = 300
 PRODUCT_META_CACHE_TTL = 300
@@ -904,6 +922,13 @@ def _parse_product_id(value: str) -> int:
         raise HTTPException(status_code=404, detail="Product not found.") from exc
 
 
+def _parse_user_id(value: str) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=404, detail="User not found.") from exc
+
+
 async def _assert_published_product(session: Session, product_id: int) -> None:
     stmt = select(Product.id).where(
         and_(Product.id == product_id, Product.status == ProductStatus.PUBLISHED)
@@ -911,6 +936,173 @@ async def _assert_published_product(session: Session, product_id: int) -> None:
     exists_row = (await session.exec(stmt)).first()
     if not exists_row:
         raise HTTPException(status_code=404, detail="Product not found.")
+
+
+async def _fetch_user_products_page(
+    session: Session,
+    *,
+    user_id: int,
+    page: int,
+    page_size: int,
+) -> tuple[list[Product], bool, int]:
+    base_filter = and_(
+        Product.status == ProductStatus.PUBLISHED,
+        Product.user_id == user_id,
+    )
+    total = _scalar_value(
+        (await session.exec(select(func.count(Product.id)).where(base_filter))).one()
+    )
+    offset = (page - 1) * page_size
+    stmt = (
+        select(Product)
+        .where(base_filter)
+        .order_by(Product.created_at.desc())
+        .options(*_product_load_options())
+        .offset(offset)
+        .limit(page_size + 1)
+    )
+    rows = (await session.exec(stmt)).scalars().all()
+    has_more = len(rows) > page_size
+    return rows[:page_size], has_more, total
+
+
+async def _build_rewards_leaderboard_position(
+    session: Session, *, user_id: int
+) -> RewardsLeaderboardPosition | None:
+    balance_stmt = (
+        select(RewardBalance, User)
+        .join(User, User.id == RewardBalance.user_id)
+        .where(RewardBalance.user_id == user_id)
+    )
+    row = (await session.exec(balance_stmt)).first()
+    if not row:
+        return None
+    balance, user = row
+    if not balance or not user:
+        return None
+    if balance.lifetime_earned <= 0 or user.status != UserStatus.ACTIVE:
+        return None
+
+    ahead_stmt = (
+        select(func.count(RewardBalance.user_id))
+        .join(User, User.id == RewardBalance.user_id)
+        .where(
+            and_(
+                User.status == UserStatus.ACTIVE,
+                RewardBalance.lifetime_earned > 0,
+                or_(
+                    RewardBalance.lifetime_earned > balance.lifetime_earned,
+                    and_(
+                        RewardBalance.lifetime_earned == balance.lifetime_earned,
+                        RewardBalance.updated_at > balance.updated_at,
+                    ),
+                ),
+            )
+        )
+    )
+    eligible_stmt = (
+        select(func.count(RewardBalance.user_id))
+        .join(User, User.id == RewardBalance.user_id)
+        .where(
+            and_(
+                User.status == UserStatus.ACTIVE,
+                RewardBalance.lifetime_earned > 0,
+            )
+        )
+    )
+
+    launch_stmt = select(func.count(Product.id)).where(
+        and_(
+            Product.user_id == user_id,
+            Product.status == ProductStatus.PUBLISHED,
+        )
+    )
+    ahead_count = _scalar_value((await session.exec(ahead_stmt)).one())
+    eligible_count = _scalar_value((await session.exec(eligible_stmt)).one())
+    launch_count = _scalar_value((await session.exec(launch_stmt)).one())
+
+    return RewardsLeaderboardPosition(
+        rank=ahead_count + 1,
+        totalEligible=eligible_count,
+        lifetimeEarned=int(balance.lifetime_earned or 0),
+        launchCount=launch_count,
+    )
+
+
+async def _build_user_revenue_map(
+    session: Session, *, user_ids: Sequence[int]
+) -> dict[int, dict[str, int | str | None]]:
+    if not user_ids:
+        return {}
+
+    stmt = (
+        select(PaymentConnector, Product.user_id)
+        .join(Product, Product.id == PaymentConnector.product_id)
+        .where(
+            and_(
+                Product.user_id.in_(user_ids),
+                Product.status == ProductStatus.PUBLISHED,
+                PaymentConnector.status == PaymentConnectorStatus.ACTIVE,
+                PaymentConnector.verified_at.isnot(None),
+            )
+        )
+        .options(selectinload(PaymentConnector.revenue_history))
+    )
+    rows = (await session.exec(stmt)).all()
+
+    connectors = [row[0] for row in rows]
+    needs_rates = False
+    for connector in connectors:
+        currency = (connector.latest_currency_code or "USD").upper()
+        if currency != "USD":
+            needs_rates = True
+            break
+        history = connector.revenue_history or []
+        if history:
+            latest = max(history, key=lambda entry: entry.period_start)
+            currency = (latest.currency_code or "USD").upper()
+            if currency != "USD":
+                needs_rates = True
+                break
+
+    rates = await get_usd_conversion_rates() if needs_rates else {"USD": 1.0}
+
+    revenue_by_user: dict[int, dict[str, int | str | None]] = {}
+    for connector, user_id in rows:
+        history = connector.revenue_history or []
+        latest_snapshot = (
+            max(history, key=lambda entry: entry.period_start) if history else None
+        )
+        amount = (
+            connector.latest_all_time_revenue_cents
+            if connector.latest_all_time_revenue_cents is not None
+            else latest_snapshot.all_time_revenue_cents
+            if latest_snapshot is not None
+            else None
+        )
+        if amount is None:
+            continue
+
+        currency_code = (
+            connector.latest_currency_code
+            or (latest_snapshot.currency_code if latest_snapshot else None)
+            or "USD"
+        )
+        currency_code = currency_code.upper()
+
+        if currency_code != "USD":
+            amount, rate_used = convert_to_usd_cents(amount, currency_code, rates)
+            if rate_used is not None:
+                currency_code = "USD"
+
+        existing = revenue_by_user.get(int(user_id))
+        current_cents = int(existing["cents"]) if existing else 0
+        revenue_by_user[int(user_id)] = {
+            "cents": current_cents + int(amount),
+            "currency": currency_code or (existing["currency"] if existing else "USD"),
+        }
+
+    return revenue_by_user
 
 
 async def _fetch_category_summaries(session: Session) -> list[CategorySummary]:
@@ -2869,6 +3061,355 @@ async def get_category_products(
         builder=build_payload,
     )
     return CategoryProductsPageResult.model_validate(payload)
+
+
+@router.get("/users", response_model=PublicUsersPageResult)
+async def get_public_users(
+    request: Request,
+    *,
+    page: int | None = Query(None),
+    page_size: int | None = Query(None, alias="pageSize"),
+    session: Session = Depends(get_session),
+) -> PublicUsersPageResult:
+    safe_page = _normalize_page(page, 1)
+    safe_page_size = _normalize_page_size_with_max(
+        page_size, USERS_PAGE_SIZE, USERS_MAX_PAGE_SIZE
+    )
+
+    async def build_payload() -> dict:
+        total_stmt = select(func.count(func.distinct(Product.user_id))).where(
+            Product.status == ProductStatus.PUBLISHED
+        )
+        total = _scalar_value((await session.exec(total_stmt)).one())
+
+        stmt = (
+            select(
+                User.id,
+                User.clerk_id,
+                User.first_name,
+                User.last_name,
+                func.count(Product.id).label("product_count"),
+            )
+            .join(Product, Product.user_id == User.id)
+            .where(Product.status == ProductStatus.PUBLISHED)
+            .group_by(User.id)
+            .order_by(func.count(Product.id).desc())
+            .offset((safe_page - 1) * safe_page_size)
+            .limit(safe_page_size)
+        )
+        rows = (await session.exec(stmt)).all()
+        user_ids = [int(row[0]) for row in rows]
+        revenue_map = await _build_user_revenue_map(session, user_ids=user_ids)
+
+        items = []
+        for row in rows:
+            user_id = int(row[0])
+            revenue = revenue_map.get(user_id) or {}
+            items.append(
+                PublicUserSummary(
+                    id=str(user_id),
+                    clerkId=row[1],
+                    firstName=row[2],
+                    lastName=row[3],
+                    productCount=int(row[4] or 0),
+                    latestRevenueCents=revenue.get("cents"),
+                    revenueCurrencyCode=revenue.get("currency"),
+                )
+            )
+
+        has_more = (safe_page - 1) * safe_page_size + len(items) < total
+        payload = PublicUsersPageResult(
+            items=items,
+            total=total,
+            page=safe_page,
+            pageSize=safe_page_size,
+            hasMore=has_more,
+            nextPage=safe_page + 1 if has_more else None,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:users-page",
+        ttl_seconds=USERS_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("page", str(safe_page)),
+            ("pageSize", str(safe_page_size)),
+        ],
+        builder=build_payload,
+    )
+    return PublicUsersPageResult.model_validate(payload)
+
+
+@router.get("/users/{user_id}/meta", response_model=PublicUserMeta)
+async def get_public_user_meta(
+    request: Request,
+    user_id: str,
+    session: Session = Depends(get_session),
+) -> PublicUserMeta:
+    user_pk = _parse_user_id(user_id)
+
+    async def build_payload() -> dict:
+        user = (await session.exec(select(User).where(User.id == user_pk))).scalars().one_or_none()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        payload = PublicUserMeta(firstName=user.first_name, lastName=user.last_name)
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:user-meta",
+        ttl_seconds=USER_META_CACHE_TTL,
+        path=request.url.path,
+        params=[("userId", str(user_pk))],
+        builder=build_payload,
+    )
+    return PublicUserMeta.model_validate(payload)
+
+
+@router.get("/users/{user_id}/products", response_model=UserProductsPageResult)
+async def get_public_user_products(
+    request: Request,
+    user_id: str,
+    *,
+    page: int | None = Query(None),
+    page_size: int | None = Query(None, alias="pageSize"),
+    session: Session = Depends(get_session),
+) -> UserProductsPageResult:
+    user_pk = _parse_user_id(user_id)
+    safe_page = _normalize_page(page, 1)
+    safe_page_size = _normalize_page_size_with_max(
+        page_size, USER_PRODUCTS_PAGE_SIZE, USER_PRODUCTS_MAX_PAGE_SIZE
+    )
+
+    async def build_payload() -> dict:
+        products, has_more, total = await _fetch_user_products_page(
+            session,
+            user_id=user_pk,
+            page=safe_page,
+            page_size=safe_page_size,
+        )
+        product_ids = [product.id for product in products]
+        score_map = await _fetch_score_map(session, product_ids)
+        interest_map = await _fetch_interest_map(session, product_ids)
+        now = datetime.now(timezone.utc)
+
+        items = [
+            _map_product_to_feed_item(
+                product,
+                now=now,
+                score_map=score_map,
+                interest_map=interest_map,
+            )
+            for product in products
+        ]
+
+        payload = UserProductsPageResult(
+            items=items,
+            total=total,
+            page=safe_page,
+            pageSize=safe_page_size,
+            hasMore=has_more,
+            nextPage=safe_page + 1 if has_more else None,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:user-products",
+        ttl_seconds=USER_PRODUCTS_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("userId", str(user_pk)),
+            ("page", str(safe_page)),
+            ("pageSize", str(safe_page_size)),
+        ],
+        builder=build_payload,
+    )
+    return UserProductsPageResult.model_validate(payload)
+
+
+@router.get("/users/{user_id}/payload", response_model=UserProfilePayload)
+async def get_public_user_payload(
+    request: Request,
+    user_id: str,
+    session: Session = Depends(get_session),
+) -> UserProfilePayload:
+    user_pk = _parse_user_id(user_id)
+
+    async def build_payload() -> dict:
+        user = (await session.exec(select(User).where(User.id == user_pk))).scalars().one_or_none()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        products, has_more, total_products = await _fetch_user_products_page(
+            session,
+            user_id=user_pk,
+            page=1,
+            page_size=USER_PRODUCTS_PAGE_SIZE,
+        )
+        product_ids = [product.id for product in products]
+        score_map = await _fetch_score_map(session, product_ids)
+        interest_map = await _fetch_interest_map(session, product_ids)
+        now = datetime.now(timezone.utc)
+
+        items = [
+            _map_product_to_feed_item(
+                product,
+                now=now,
+                score_map=score_map,
+                interest_map=interest_map,
+            )
+            for product in products
+        ]
+
+        products_page = UserProductsPageResult(
+            items=items,
+            total=total_products,
+            page=1,
+            pageSize=USER_PRODUCTS_PAGE_SIZE,
+            hasMore=has_more,
+            nextPage=2 if has_more else None,
+        )
+
+        upvote_stmt = (
+            select(func.coalesce(func.sum(ProductAnalytics.upvotes), 0))
+            .join(Product, Product.id == ProductAnalytics.product_id)
+            .where(
+                and_(
+                    Product.user_id == user_pk,
+                    Product.status == ProductStatus.PUBLISHED,
+                )
+            )
+        )
+        total_upvotes = _scalar_value((await session.exec(upvote_stmt)).one())
+
+        verified_stmt = select(func.count(Product.id)).where(
+            and_(
+                Product.user_id == user_pk,
+                Product.status == ProductStatus.PUBLISHED,
+                Product.verification.has(ProductVerification.is_verified.is_(True)),
+            )
+        )
+        verified_count = _scalar_value((await session.exec(verified_stmt)).one())
+
+        category_stmt = (
+            select(
+                Category.name,
+                func.count(Product.id).label("product_count"),
+            )
+            .join(Product, Product.category_id == Category.id)
+            .where(
+                and_(
+                    Product.user_id == user_pk,
+                    Product.status == ProductStatus.PUBLISHED,
+                )
+            )
+            .group_by(Category.name)
+        )
+        category_rows = (await session.exec(category_stmt)).all()
+        category_entries = [
+            UserProfileCategoryEntry(name=row[0], count=int(row[1] or 0))
+            for row in category_rows
+        ]
+        category_entries.sort(key=lambda entry: entry.count, reverse=True)
+        focus_categories = [entry.name for entry in category_entries[:4]]
+        extra_category_count = max(len(category_entries) - len(focus_categories), 0)
+
+        badge_stmt = (
+            select(ProductBadge.badge)
+            .join(Product, Product.id == ProductBadge.product_id)
+            .where(
+                and_(
+                    Product.user_id == user_pk,
+                    Product.status == ProductStatus.PUBLISHED,
+                    or_(
+                        ProductBadge.expires_at.is_(None),
+                        ProductBadge.expires_at > now,
+                    ),
+                )
+            )
+            .order_by(ProductBadge.created_at.desc())
+        )
+        badge_rows = (await session.exec(badge_stmt)).all()
+        showcase: list[str] = []
+        overflow = 0
+        seen_badges: set[str] = set()
+        for (badge,) in badge_rows:
+            if badge in seen_badges:
+                continue
+            seen_badges.add(badge)
+            if len(showcase) < 6:
+                showcase.append(badge)
+            else:
+                overflow += 1
+
+        earliest_stmt = text(
+            """
+            SELECT MIN(COALESCE("published_at", "created_at")) AS earliest
+            FROM "product"
+            WHERE "user_id" = :user_id AND "status" = :status
+            """
+        )
+        earliest_row = (await session.exec(earliest_stmt.params(
+            user_id=user_pk, status=ProductStatus.PUBLISHED.value
+        ))).first()
+        earliest_value = earliest_row[0] if earliest_row else None
+        earliest_launch = (
+            earliest_value.isoformat() if isinstance(earliest_value, datetime) else None
+        )
+
+        reward_balance_stmt = select(RewardBalance.balance).where(
+            RewardBalance.user_id == user_pk
+        )
+        reward_balance_row = (await session.exec(reward_balance_stmt)).one_or_none()
+        reward_points = int(reward_balance_row[0]) if reward_balance_row else 0
+
+        revenue_map = await _build_user_revenue_map(session, user_ids=[user_pk])
+        revenue_entry = revenue_map.get(user_pk) or {}
+        total_verified_revenue_cents = int(revenue_entry.get("cents") or 0)
+        total_verified_revenue_currency = (
+            str(revenue_entry.get("currency"))
+            if total_verified_revenue_cents > 0
+            else None
+        )
+
+        leaderboard_position = await _build_rewards_leaderboard_position(
+            session, user_id=user_pk
+        )
+
+        profile = PublicUserProfile(
+            id=str(user.id),
+            clerkId=user.clerk_id,
+            firstName=user.first_name,
+            lastName=user.last_name,
+            productCount=total_products,
+        )
+
+        payload = UserProfilePayload(
+            profile=profile,
+            leaderboardPosition=leaderboard_position,
+            productsPage=products_page,
+            totalProducts=total_products,
+            totalUpvotes=total_upvotes,
+            totalVerifiedRevenueCents=total_verified_revenue_cents,
+            totalVerifiedRevenueCurrency=total_verified_revenue_currency,
+            rewardPoints=reward_points,
+            verifiedCount=verified_count,
+            categories=category_entries,
+            focusCategories=focus_categories,
+            extraCategoryCount=extra_category_count,
+            badges=UserProfileBadgeSummary(showcase=showcase, overflow=overflow),
+            earliestLaunch=earliest_launch,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:user-profile",
+        ttl_seconds=USER_PROFILE_CACHE_TTL,
+        path=request.url.path,
+        params=[("userId", str(user_pk))],
+        builder=build_payload,
+    )
+    return UserProfilePayload.model_validate(payload)
 
 
 @router.get("/categories/directory", response_model=CategoriesDirectoryPayload)

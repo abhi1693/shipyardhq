@@ -156,6 +156,81 @@ class PublicProductCard(BaseSerializer):
     interest: ProductInterestSignals | None = None
 
 
+class PublicUserMeta(BaseSerializer):
+    firstName: str | None = None
+    lastName: str | None = None
+
+
+class PublicUserSummary(BaseSerializer):
+    id: str
+    clerkId: str | None = None
+    firstName: str | None = None
+    lastName: str | None = None
+    productCount: int = 0
+    latestRevenueCents: int | None = None
+    revenueCurrencyCode: str | None = None
+
+
+class PublicUsersPageResult(BaseSerializer):
+    items: list[PublicUserSummary]
+    total: int
+    page: int
+    pageSize: int
+    hasMore: bool
+    nextPage: int | None = None
+
+
+class UserProductsPageResult(BaseSerializer):
+    items: list[HomepageFeedItem]
+    total: int
+    page: int
+    pageSize: int
+    hasMore: bool
+    nextPage: int | None = None
+
+
+class PublicUserProfile(BaseSerializer):
+    id: str
+    clerkId: str | None = None
+    firstName: str | None = None
+    lastName: str | None = None
+    productCount: int = 0
+
+
+class RewardsLeaderboardPosition(BaseSerializer):
+    rank: int
+    totalEligible: int
+    lifetimeEarned: int
+    launchCount: int
+
+
+class UserProfileCategoryEntry(BaseSerializer):
+    name: str
+    count: int
+
+
+class UserProfileBadgeSummary(BaseSerializer):
+    showcase: list[str]
+    overflow: int
+
+
+class UserProfilePayload(BaseSerializer):
+    profile: PublicUserProfile
+    leaderboardPosition: RewardsLeaderboardPosition | None = None
+    productsPage: UserProductsPageResult
+    totalProducts: int
+    totalUpvotes: int
+    totalVerifiedRevenueCents: int
+    totalVerifiedRevenueCurrency: str | None = None
+    rewardPoints: int
+    verifiedCount: int
+    categories: list[UserProfileCategoryEntry]
+    focusCategories: list[str]
+    extraCategoryCount: int
+    badges: UserProfileBadgeSummary
+    earliestLaunch: str | None = None
+
+
 class PublicProductUseCase(BaseSerializer):
     slug: str
     label: str
