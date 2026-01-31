@@ -1,109 +1,92 @@
-import prisma from "@/lib/prisma"
-import { PlanType } from "@/lib/vendor/prisma/client"
-import type { Prisma } from "@/lib/vendor/prisma/client"
+"use server"
 
-export type PublicPlan = Awaited<ReturnType<typeof getPublicPlans>>[number]
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
+import type { PlanType } from "@/lib/generated/fastapi/schemas"
 
-const planSelect = {
-  id: true,
-  name: true,
-  slug: true,
-  description: true,
-  type: true,
-  price: true,
-  discount: true,
-  boostForDays: true,
-  isDefault: true,
-  externalId: true,
-  paymentFrequencyCount: true,
-  paymentFrequencyInterval: true,
-  subscriptionPeriodCount: true,
-  subscriptionPeriodInterval: true,
-  assignments: {
-    select: {
-      featureId: true,
-      enabled: true,
-      isExperimental: true,
-    },
-  },
-  _count: { select: { products: true } },
-} satisfies Prisma.PlanSelect
+export type PublicPlanFeature = {
+  id: string
+  name: string
+  key: string
+  description: string
+  enabled: boolean
+  isExperimental: boolean
+}
 
-type PlanWithAssignments = Prisma.PlanGetPayload<{
-  select: typeof planSelect
-}>
+export type PublicPlan = {
+  id: string
+  name: string
+  slug: string
+  description?: string | null
+  type: PlanType
+  price: number
+  discount?: number | null
+  boostForDays: number
+  isDefault: boolean
+  externalId?: string | null
+  paymentFrequencyCount?: number | null
+  paymentFrequencyInterval?: string | null
+  subscriptionPeriodCount?: number | null
+  subscriptionPeriodInterval?: string | null
+  priceSuffix?: string
+  productCount: number
+  features: PublicPlanFeature[]
+}
 
-const planFeatureSelect = {
-  id: true,
-  name: true,
-  key: true,
-  description: true,
-} satisfies Prisma.PlanFeatureSelect
+type ApiResponse<T> = {
+  data: T
+  status: number
+  headers: Headers
+}
 
-type PlanFeatureRecord = Prisma.PlanFeatureGetPayload<{
-  select: typeof planFeatureSelect
-}>
-export async function getPublicPlans(opts?: { type?: PlanType }) {
-  const planRecordsRaw = await prisma.plan.findMany({
-    where: opts?.type ? { type: opts.type } : undefined,
-    orderBy: [{ price: "asc" }],
-    select: planSelect,
-  })
+const isFastApiNotFound = (error: unknown) => {
+  const status = (error as FastApiError | undefined)?.status
+  return status === 404 || status === 422
+}
 
-  const allFeaturesRaw = await prisma.planFeature.findMany({
-    select: planFeatureSelect,
-    orderBy: { name: "asc" },
-  })
+const buildPublicPlansUrl = (type?: PlanType) => {
+  if (!type) return "/api/v1/public/plans"
+  const search = new URLSearchParams({ type: String(type) })
+  return `/api/v1/public/plans?${search.toString()}`
+}
 
-  const planRecords = planRecordsRaw as unknown as PlanWithAssignments[]
-  const allFeatures = allFeaturesRaw as unknown as PlanFeatureRecord[]
+const computePriceSuffix = (plan: PublicPlan): string | undefined => {
+  if (plan.type !== "recurring_price" || !plan.paymentFrequencyInterval) {
+    return undefined
+  }
+  const count = plan.paymentFrequencyCount ?? 1
+  const interval = String(plan.paymentFrequencyInterval)
+  const human = count === 1 ? interval : `${count} ${interval}s`
+  return `per ${human}`
+}
 
-  return planRecords.map((p) => {
-    const assigned = new Map(
-      p.assignments.map((a) => [
-        a.featureId,
-        { enabled: a.enabled, isExperimental: a.isExperimental },
-      ]),
+const fetchPublicPlans = async (type?: PlanType): Promise<PublicPlan[]> => {
+  try {
+    const response = await fastapiFetch<ApiResponse<PublicPlan[]>>(
+      buildPublicPlansUrl(type),
+      { method: "GET" },
     )
-
-    const features = allFeatures.map((f) => {
-      const a = assigned.get(f.id)
-      return {
-        id: f.id,
-        name: f.name,
-        key: f.key,
-        description: f.description,
-        enabled: a ? a.enabled : false,
-        isExperimental: a ? a.isExperimental : false,
-      }
-    })
-
-    return {
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      description: p.description,
-      type: p.type,
-      price: p.price,
-      discount: p.discount,
-      boostForDays: p.boostForDays ?? 1,
-      isDefault: p.isDefault,
-      externalId: p.externalId,
-      paymentFrequencyCount: p.paymentFrequencyCount ?? undefined,
-      paymentFrequencyInterval: p.paymentFrequencyInterval ?? undefined,
-      subscriptionPeriodCount: p.subscriptionPeriodCount ?? undefined,
-      subscriptionPeriodInterval: p.subscriptionPeriodInterval ?? undefined,
-      priceSuffix:
-        p.type === "recurring_price" && p.paymentFrequencyInterval
-          ? (() => {
-              const c = p.paymentFrequencyCount ?? 1
-              const i = String(p.paymentFrequencyInterval)
-              const human = c === 1 ? i : `${c} ${i}s`
-              return `per ${human}`
-            })()
-          : undefined,
-      productCount: p._count.products,
-      features,
+    if (response.status !== 200 || !Array.isArray(response.data)) {
+      return []
     }
-  })
+    return response.data.map((plan) => ({
+      ...plan,
+      priceSuffix: computePriceSuffix(plan),
+    }))
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      return []
+    }
+    throw error
+  }
+}
+
+const getPublicPlansCached = cached(fetchPublicPlans, "public:plans", {
+  ttl: DEFAULT_TTL.slow,
+  tags: () => [TAGS.plans],
+  keyParts: ([type]) => (type ? [`type:${type}`] : ["type:all"]),
+})
+
+export async function getPublicPlans(opts?: { type?: PlanType }) {
+  return getPublicPlansCached(opts?.type)
 }

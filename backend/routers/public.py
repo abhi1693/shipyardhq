@@ -118,6 +118,8 @@ from services.schemas.public import (
     PublicProductAnalytics,
     PublicProductVerification,
     PublicPlanFeatureAssignment,
+    PublicPlanFeature,
+    PublicPlan,
     SponsoredPlacement,
     SponsoredPlacementSchedule,
     SponsoredProduct,
@@ -163,6 +165,8 @@ BROWSE_CACHE_TTL = 120
 VERIFIED_REVENUE_PAGE_SIZE = 24
 VERIFIED_REVENUE_MAX_PAGE_SIZE = 50
 VERIFIED_REVENUE_CACHE_TTL = 300
+
+PLANS_CACHE_TTL = 300
 
 CATEGORIES_CACHE_TTL = 600
 USE_CASES_CACHE_TTL = 600
@@ -311,6 +315,18 @@ def _normalize_view(value: str | None) -> str:
     }:
         return normalized
     return HomepageFeedView.NEW.value
+
+
+def _normalize_plan_type(value: str | None) -> PlanType | None:
+    if not value:
+        return None
+    normalized = value.strip()
+    if not normalized:
+        return None
+    try:
+        return PlanType(normalized)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail="Plan type not found") from exc
 
 
 def _normalize_filter_slug(value: str | None) -> str | None:
@@ -809,6 +825,57 @@ def _map_product_meta_payload(product: Product) -> PublicProductMetaPayload:
         media=_map_product_media(product),
         planAssignments=_map_plan_assignments(product.plan),
         activeFeatureEntitlements=_map_active_feature_entitlements(product),
+    )
+
+
+def _map_public_plan_features(
+    features: list[PlanFeature],
+    assignments: list[PlanFeatureAssignment],
+) -> list[PublicPlanFeature]:
+    assignment_map = {assignment.feature_id: assignment for assignment in assignments}
+    items: list[PublicPlanFeature] = []
+    for feature in features:
+        assignment = assignment_map.get(feature.id)
+        items.append(
+            PublicPlanFeature(
+                id=str(feature.id),
+                name=feature.name,
+                key=feature.key,
+                description=feature.description,
+                enabled=assignment.enabled if assignment else False,
+                isExperimental=assignment.is_experimental if assignment else False,
+            )
+        )
+    return items
+
+
+def _map_public_plan(
+    plan: Plan,
+    *,
+    features: list[PlanFeature],
+    product_count: int,
+) -> PublicPlan:
+    return PublicPlan(
+        id=str(plan.id),
+        name=plan.name,
+        slug=plan.slug,
+        description=plan.description,
+        type=plan.type.value if plan.type else PlanType.ONE_TIME_PRICE.value,
+        price=plan.price,
+        discount=plan.discount,
+        boostForDays=plan.boost_for_days,
+        isDefault=plan.is_default,
+        externalId=plan.external_id,
+        paymentFrequencyCount=plan.payment_frequency_count,
+        paymentFrequencyInterval=plan.payment_frequency_interval.value
+        if plan.payment_frequency_interval
+        else None,
+        subscriptionPeriodCount=plan.subscription_period_count,
+        subscriptionPeriodInterval=plan.subscription_period_interval.value
+        if plan.subscription_period_interval
+        else None,
+        productCount=product_count,
+        features=_map_public_plan_features(features, plan.assignments or []),
     )
 
 
@@ -2248,6 +2315,59 @@ async def get_verified_revenue_products(
         builder=build_payload,
     )
     return VerifiedRevenueProductsPageResult.model_validate(payload)
+
+
+@router.get("/plans", response_model=list[PublicPlan])
+async def get_public_plans(
+    request: Request,
+    *,
+    type: str | None = Query(None),
+    session: Session = Depends(get_session),
+) -> list[PublicPlan]:
+    plan_type = _normalize_plan_type(type)
+
+    async def build_payload() -> list[dict]:
+        stmt = (
+            select(Plan)
+            .options(
+                selectinload(Plan.assignments),
+            )
+            .order_by(Plan.price.asc())
+        )
+        if plan_type:
+            stmt = stmt.where(Plan.type == plan_type)
+        plans = (await session.exec(stmt)).scalars().all()
+        features = (
+            await session.exec(select(PlanFeature).order_by(PlanFeature.name.asc()))
+        ).scalars().all()
+        count_rows = (
+            await session.exec(
+                select(Product.plan_id, func.count(Product.id))
+                .where(Product.plan_id.is_not(None))
+                .group_by(Product.plan_id)
+            )
+        ).all()
+        product_counts = {
+            int(row[0]): int(row[1] or 0) for row in count_rows if row[0] is not None
+        }
+        payload = [
+            _map_public_plan(
+                plan,
+                features=features,
+                product_count=product_counts.get(plan.id or 0, 0),
+            ).model_dump(mode="json")
+            for plan in plans
+        ]
+        return payload
+
+    payload = await cached_json(
+        "public:plans",
+        ttl_seconds=PLANS_CACHE_TTL,
+        path=request.url.path,
+        params=[("type", plan_type.value if plan_type else "")],
+        builder=build_payload,
+    )
+    return [PublicPlan.model_validate(item) for item in payload]
 
 
 @router.get("/browse", response_model=BrowsePagePayload)

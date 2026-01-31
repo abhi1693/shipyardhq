@@ -209,6 +209,34 @@ class PublicPlanFeatureAssignment(BaseSerializer):
     enabled: bool
 
 
+class PublicPlanFeature(BaseSerializer):
+    id: str
+    name: str
+    key: str
+    description: str
+    enabled: bool
+    isExperimental: bool
+
+
+class PublicPlan(BaseSerializer):
+    id: str
+    name: str
+    slug: str
+    description: str | None = None
+    type: str
+    price: int
+    discount: float | None = None
+    boostForDays: int = 1
+    isDefault: bool = False
+    externalId: str | None = None
+    paymentFrequencyCount: int | None = None
+    paymentFrequencyInterval: str | None = None
+    subscriptionPeriodCount: int | None = None
+    subscriptionPeriodInterval: str | None = None
+    productCount: int = 0
+    features: list[PublicPlanFeature] = []
+
+
 class PublicProductDetailPayload(BaseSerializer):
     id: str
     slug: str
