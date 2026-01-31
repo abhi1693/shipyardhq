@@ -81,6 +81,24 @@ async def get_current_user_id(
     return user_id
 
 
+async def get_optional_user_id(request: Request) -> str | None:
+    try:
+        guard = _build_clerk_http_bearer(auto_error=False)
+    except (RuntimeError, ValueError) as exc:
+        raise HTTPException(status_code=500, detail=AUTH_CONFIG_ERROR_DETAIL) from exc
+    credentials = await guard(request)
+    if not credentials:
+        return None
+    auth_data = _resolve_auth_from_state(request, credentials)
+    try:
+        return _parse_subject(auth_data)
+    except ValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=AUTH_ERROR_DETAIL,
+        ) from exc
+
+
 async def get_current_user(
     clerk_id: Annotated[str, Depends(get_current_user_id)],
     session: Annotated[Session, Depends(get_session)],
@@ -90,3 +108,4 @@ async def get_current_user(
 
 CurrentUserId = Annotated[str, Depends(get_current_user_id)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
+OptionalUserId = Annotated[str | None, Depends(get_optional_user_id)]

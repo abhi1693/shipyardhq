@@ -534,6 +534,15 @@ class BrowseProductsPageResult(BaseSerializer):
     total: int
 
 
+class VerifiedRevenueProductsPageResult(BaseSerializer):
+    items: list[HomepageFeedItem]
+    total: int
+    page: int
+    pageSize: int
+    hasMore: bool
+    nextPage: int | None = None
+
+
 class BrowsePagePayload(BaseSerializer):
     filters: BrowseFilters
     products: list[PublicProductCard]

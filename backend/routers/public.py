@@ -66,6 +66,7 @@ from services.schemas.public import (
     BrowseFilters,
     BrowsePagePayload,
     BrowseProductsPageResult,
+    VerifiedRevenueProductsPageResult,
     CategoryHighlight,
     CategoryDetailPayload,
     CategoryProductsPageResult,
@@ -158,6 +159,10 @@ MAX_HIGHLIGHT_LIMIT = 12
 
 BROWSE_PAGE_SIZE = 20
 BROWSE_CACHE_TTL = 120
+
+VERIFIED_REVENUE_PAGE_SIZE = 24
+VERIFIED_REVENUE_MAX_PAGE_SIZE = 50
+VERIFIED_REVENUE_CACHE_TTL = 300
 
 CATEGORIES_CACHE_TTL = 600
 USE_CASES_CACHE_TTL = 600
@@ -1984,6 +1989,39 @@ async def _fetch_verified_revenue_products(
     return rows[:page_size], has_more
 
 
+async def _fetch_verified_revenue_products_page(
+    session: Session, *, page: int, page_size: int
+) -> tuple[list[Product], bool, int]:
+    conditions = and_(
+        Product.status == ProductStatus.PUBLISHED,
+        _verified_revenue_condition(),
+    )
+    stmt = (
+        select(Product)
+        .join(PaymentConnector, PaymentConnector.product_id == Product.id)
+        .outerjoin(ProductAnalytics, ProductAnalytics.product_id == Product.id)
+        .where(conditions)
+        .order_by(
+            PaymentConnector.latest_all_time_revenue_cents.desc().nullslast(),
+            func.coalesce(ProductAnalytics.upvotes, 0).desc(),
+            Product.created_at.desc(),
+        )
+        .options(*_product_load_options())
+    )
+    count_stmt = (
+        select(func.count(Product.id))
+        .join(PaymentConnector, PaymentConnector.product_id == Product.id)
+        .where(conditions)
+    )
+    total = _scalar_value((await session.exec(count_stmt)).one())
+    offset = (page - 1) * page_size
+    rows = (
+        await session.exec(stmt.offset(offset).limit(page_size + 1))
+    ).scalars().all()
+    has_more = len(rows) > page_size
+    return rows[:page_size], has_more, total
+
+
 async def _fetch_most_clicked_products(
     session: Session, *, page: int, page_size: int, days: int = 7
 ) -> tuple[list[Product], bool]:
@@ -2150,6 +2188,66 @@ async def get_homepage_feed_all(
         builder=build_payload,
     )
     return HomepageFeedAllResult.model_validate(payload)
+
+
+@router.get(
+    "/verified-revenue/products",
+    response_model=VerifiedRevenueProductsPageResult,
+)
+async def get_verified_revenue_products(
+    request: Request,
+    *,
+    page: int | None = Query(None),
+    page_size: int | None = Query(None, alias="pageSize"),
+    session: Session = Depends(get_session),
+) -> VerifiedRevenueProductsPageResult:
+    safe_page = _normalize_page(page, 1)
+    safe_page_size = _normalize_page_size_with_max(
+        page_size,
+        VERIFIED_REVENUE_PAGE_SIZE,
+        VERIFIED_REVENUE_MAX_PAGE_SIZE,
+    )
+
+    async def build_payload() -> dict:
+        products, has_more, total = await _fetch_verified_revenue_products_page(
+            session,
+            page=safe_page,
+            page_size=safe_page_size,
+        )
+        product_ids = [product.id for product in products]
+        score_map = await _fetch_score_map(session, product_ids)
+        interest_map = await _fetch_interest_map(session, product_ids)
+        now = datetime.now(timezone.utc)
+        items = [
+            _map_product_to_feed_item(
+                product,
+                now=now,
+                score_map=score_map,
+                interest_map=interest_map,
+            )
+            for product in products
+        ]
+        payload = VerifiedRevenueProductsPageResult(
+            items=items,
+            total=total,
+            page=safe_page,
+            pageSize=safe_page_size,
+            hasMore=has_more,
+            nextPage=safe_page + 1 if has_more else None,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:verified-revenue-products",
+        ttl_seconds=VERIFIED_REVENUE_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("page", str(safe_page)),
+            ("pageSize", str(safe_page_size)),
+        ],
+        builder=build_payload,
+    )
+    return VerifiedRevenueProductsPageResult.model_validate(payload)
 
 
 @router.get("/browse", response_model=BrowsePagePayload)
