@@ -33,6 +33,7 @@ from models import (
     Product,
     ProductAlternativeProductLink,
     ProductAnalytics,
+    ProductBadge,
     ProductLeaderboardScore,
     ProductStatus,
     ProductTrafficDaily,
@@ -146,6 +147,9 @@ HOMEPAGE_FEED_CACHE_TTL = 300
 HIGHLIGHTS_CACHE_TTL = 600
 PLACEMENT_CACHE_TTL = 300
 STICKY_BANNER_CACHE_TTL = 600
+BADGE_PRODUCTS_CACHE_TTL = 300
+TRENDING_PRODUCTS_CACHE_TTL = 300
+TOP_CATEGORIES_CACHE_TTL = 600
 LEADERBOARD_STATS_CACHE_TTL = 120
 REALTIME_CACHE_TTL = 60
 LEADERBOARD_PAGE_CACHE_TTL = 120
@@ -158,6 +162,14 @@ STICKY_BANNER_FEATURE_KEY = "stickyBanner"
 
 DEFAULT_HIGHLIGHT_LIMIT = 6
 MAX_HIGHLIGHT_LIMIT = 12
+BADGE_PRODUCTS_DEFAULT_LIMIT = 24
+BADGE_PRODUCTS_MAX_LIMIT = 50
+TRENDING_PRODUCTS_DEFAULT_LIMIT = 12
+TRENDING_PRODUCTS_MAX_LIMIT = 50
+TOP_CATEGORIES_DEFAULT_LIMIT = 12
+TOP_CATEGORIES_MAX_LIMIT = 50
+FEATURED_BY_CATEGORY_DEFAULT_LIMIT = 6
+FEATURED_BY_CATEGORY_MAX_LIMIT = 12
 
 BROWSE_PAGE_SIZE = 20
 BROWSE_CACHE_TTL = 120
@@ -4695,3 +4707,200 @@ async def get_sticky_banner_products(
         builder=build_payload,
     )
     return [StickyBannerProduct.model_validate(item) for item in payload]
+
+
+@router.get("/products/badges/{badge}", response_model=list[PublicProductCard])
+async def get_products_by_badge(
+    request: Request,
+    badge: str,
+    *,
+    category_slug: str | None = Query(None, alias="categorySlug"),
+    order: str | None = Query(None),
+    limit: int | None = Query(None),
+    session: Session = Depends(get_session),
+) -> list[PublicProductCard]:
+    normalized_badge = badge.strip()
+    if not normalized_badge:
+        raise HTTPException(status_code=404, detail="Badge not found.")
+
+    safe_limit = max(
+        1, min(limit or BADGE_PRODUCTS_DEFAULT_LIMIT, BADGE_PRODUCTS_MAX_LIMIT)
+    )
+    category_slug = _normalize_filter_slug(category_slug)
+    normalized_order = (order or "asc").strip().lower()
+    order_by = (
+        ProductBadge.created_at.desc()
+        if normalized_order == "desc"
+        else ProductBadge.created_at.asc()
+    )
+    now = datetime.now(timezone.utc)
+
+    async def build_payload() -> list[dict]:
+        stmt = (
+            select(ProductBadge.product_id)
+            .join(Product, Product.id == ProductBadge.product_id)
+            .where(
+                and_(
+                    ProductBadge.badge == normalized_badge,
+                    Product.status == ProductStatus.PUBLISHED,
+                    or_(
+                        ProductBadge.expires_at.is_(None),
+                        ProductBadge.expires_at > now,
+                    ),
+                )
+            )
+            .order_by(order_by)
+            .limit(safe_limit)
+        )
+        if category_slug:
+            stmt = stmt.join(Category, Category.id == Product.category_id).where(
+                Category.slug == category_slug
+            )
+        rows = (await session.exec(stmt)).all()
+        product_ids: list[int] = []
+        seen: set[int] = set()
+        for (product_id,) in rows:
+            if product_id in seen:
+                continue
+            seen.add(product_id)
+            product_ids.append(int(product_id))
+        if not product_ids:
+            return []
+        products = await _fetch_products_by_ids(session, product_ids)
+        score_map = await _fetch_score_map(session, product_ids)
+        interest_map = await _fetch_interest_map(session, product_ids)
+        items = [
+            _map_product_to_card(
+                product,
+                now=now,
+                score_map=score_map,
+                interest_map=interest_map,
+            )
+            for product in products
+        ]
+        return [item.model_dump(mode="json") for item in items]
+
+    payload = await cached_json(
+        "public:products-by-badge",
+        ttl_seconds=BADGE_PRODUCTS_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("badge", normalized_badge),
+            ("categorySlug", category_slug or ""),
+            ("order", normalized_order),
+            ("limit", str(safe_limit)),
+        ],
+        builder=build_payload,
+    )
+    return [PublicProductCard.model_validate(item) for item in payload]
+
+
+@router.get("/products/trending", response_model=list[PublicProductCard])
+async def get_trending_products(
+    request: Request,
+    *,
+    limit: int | None = Query(None),
+    session: Session = Depends(get_session),
+) -> list[PublicProductCard]:
+    safe_limit = max(
+        1, min(limit or TRENDING_PRODUCTS_DEFAULT_LIMIT, TRENDING_PRODUCTS_MAX_LIMIT)
+    )
+    now = datetime.now(timezone.utc)
+    yesterday = now - timedelta(days=1)
+
+    async def build_payload() -> list[dict]:
+        badge_exists = exists(
+            select(ProductBadge.id).where(ProductBadge.product_id == Product.id)
+        )
+        stmt = (
+            select(Product.id)
+            .join(ProductAnalytics, ProductAnalytics.product_id == Product.id)
+            .where(
+                and_(
+                    Product.status == ProductStatus.PUBLISHED,
+                    Product.created_at <= now,
+                    Product.updated_at >= yesterday,
+                    ProductAnalytics.upvotes > 0,
+                    badge_exists,
+                )
+            )
+            .order_by(ProductAnalytics.upvotes.desc())
+            .limit(safe_limit)
+        )
+        rows = (await session.exec(stmt)).all()
+        product_ids = [int(row[0]) for row in rows]
+        if not product_ids:
+            return []
+        products = await _fetch_products_by_ids(session, product_ids)
+        score_map = await _fetch_score_map(session, product_ids)
+        interest_map = await _fetch_interest_map(session, product_ids)
+        items = [
+            _map_product_to_card(
+                product,
+                now=now,
+                score_map=score_map,
+                interest_map=interest_map,
+            )
+            for product in products
+        ]
+        return [item.model_dump(mode="json") for item in items]
+
+    payload = await cached_json(
+        "public:trending-products",
+        ttl_seconds=TRENDING_PRODUCTS_CACHE_TTL,
+        path=request.url.path,
+        params=[("limit", str(safe_limit))],
+        builder=build_payload,
+    )
+    return [PublicProductCard.model_validate(item) for item in payload]
+
+
+@router.get("/categories/top", response_model=list[CategorySummary])
+async def get_top_categories(
+    request: Request,
+    *,
+    limit: int | None = Query(None),
+    session: Session = Depends(get_session),
+) -> list[CategorySummary]:
+    safe_limit = max(
+        1, min(limit or TOP_CATEGORIES_DEFAULT_LIMIT, TOP_CATEGORIES_MAX_LIMIT)
+    )
+
+    async def build_payload() -> list[dict]:
+        stmt = (
+            select(
+                Category.id,
+                Category.name,
+                Category.slug,
+                Category.description,
+                Category.icon,
+                func.count(Product.id).label("product_count"),
+            )
+            .join(Product, Product.category_id == Category.id)
+            .where(Product.status == ProductStatus.PUBLISHED)
+            .group_by(Category.id)
+            .order_by(func.count(Product.id).desc(), Category.name.asc())
+            .limit(safe_limit)
+        )
+        rows = (await session.exec(stmt)).all()
+        items = [
+            CategorySummary(
+                id=str(row[0]),
+                name=row[1],
+                slug=row[2],
+                description=row[3],
+                icon=row[4],
+                count=int(row[5] or 0),
+            )
+            for row in rows
+        ]
+        return [item.model_dump(mode="json") for item in items]
+
+    payload = await cached_json(
+        "public:categories-top",
+        ttl_seconds=TOP_CATEGORIES_CACHE_TTL,
+        path=request.url.path,
+        params=[("limit", str(safe_limit))],
+        builder=build_payload,
+    )
+    return [CategorySummary.model_validate(item) for item in payload]

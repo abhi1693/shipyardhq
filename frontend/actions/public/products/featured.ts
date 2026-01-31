@@ -1,50 +1,157 @@
-import prisma from "@/lib/prisma"
-import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
+"use server"
+
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
-import type { FeaturedProduct } from "@/types"
-import { featuredProductSelect } from "@/types"
-import { getUsdConversionRates } from "@/lib/server/payments/currency"
-import { resolveProductRevenue } from "@/lib/products/revenue"
+import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
+import type {
+  CategorySummary,
+  PublicProductCard,
+  SponsoredPlacement,
+  StickyBannerProduct,
+} from "@/lib/generated/fastapi/schemas"
 
-type SponsoredProduct = Prisma.ProductGetPayload<{
-  select: {
-    id: true
-    slug: true
-    name: true
-    tagline: true
-    logo: true
-    bannerImage: true
+type ApiResponse<T> = {
+  data: T
+  status: number
+  headers: Headers
+}
+
+const isFastApiNotFound = (error: unknown) => {
+  const status = (error as FastApiError | undefined)?.status
+  return status === 404 || status === 422
+}
+
+const buildPublicUrl = (
+  path: string,
+  params?: Record<string, string | number | null | undefined>,
+) => {
+  if (!params) return path
+  const search = new URLSearchParams()
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === null || typeof value === "undefined") {
+      return
+    }
+    const normalized = String(value)
+    if (!normalized.length) {
+      return
+    }
+    search.set(key, normalized)
+  })
+  const query = search.toString()
+  return query ? `${path}?${query}` : path
+}
+
+const fetchProductsByBadge = async (
+  badge: string,
+  limit = 24,
+  categorySlug?: string,
+  order?: "asc" | "desc",
+): Promise<PublicProductCard[]> => {
+  const normalized = badge.trim()
+  if (!normalized) {
+    return []
   }
-}>
 
-export type SponsoredProductPlacement = {
-  id: string
-  product: SponsoredProduct
-  origin: "schedule" | "plan"
-  schedule?: {
-    id: string
-    slotKey: string
-    startsAt: Date
-    endsAt: Date
-    redemptionId: string | null
+  try {
+    const response = await fastapiFetch<ApiResponse<PublicProductCard[]>>(
+      buildPublicUrl(
+        `/api/v1/public/products/badges/${encodeURIComponent(normalized)}`,
+        { limit, categorySlug, order },
+      ),
+      { method: "GET" },
+    )
+    if (response.status !== 200 || !Array.isArray(response.data)) {
+      return []
+    }
+    return response.data
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      return []
+    }
+    throw error
+  }
+}
+
+const fetchTrendingProducts = async (
+  limit = 12,
+): Promise<PublicProductCard[]> => {
+  try {
+    const response = await fastapiFetch<ApiResponse<PublicProductCard[]>>(
+      buildPublicUrl("/api/v1/public/products/trending", { limit }),
+      { method: "GET" },
+    )
+    if (response.status !== 200 || !Array.isArray(response.data)) {
+      return []
+    }
+    return response.data
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      return []
+    }
+    throw error
+  }
+}
+
+const fetchTopCategories = async (limit = 12): Promise<CategorySummary[]> => {
+  try {
+    const response = await fastapiFetch<ApiResponse<CategorySummary[]>>(
+      buildPublicUrl("/api/v1/public/categories/top", { limit }),
+      { method: "GET" },
+    )
+    if (response.status !== 200 || !Array.isArray(response.data)) {
+      return []
+    }
+    return response.data
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      return []
+    }
+    throw error
+  }
+}
+
+const fetchStickyBannerProducts = async (
+  limit = 100,
+): Promise<StickyBannerProduct[]> => {
+  try {
+    const response = await fastapiFetch<ApiResponse<StickyBannerProduct[]>>(
+      buildPublicUrl("/api/v1/public/products/sticky-banner", { limit }),
+      { method: "GET" },
+    )
+    if (response.status !== 200 || !Array.isArray(response.data)) {
+      return []
+    }
+    return response.data
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      return []
+    }
+    throw error
+  }
+}
+
+const fetchSponsoredProducts = async (
+  limit = 12,
+): Promise<SponsoredPlacement[]> => {
+  try {
+    const response = await fastapiFetch<ApiResponse<SponsoredPlacement[]>>(
+      buildPublicUrl("/api/v1/public/products/sponsored", { limit }),
+      { method: "GET" },
+    )
+    if (response.status !== 200 || !Array.isArray(response.data)) {
+      return []
+    }
+    return response.data
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      return []
+    }
+    throw error
   }
 }
 
 export const getProducts = cached(
-  async (badge: string, limit = 24): Promise<FeaturedProduct[]> => {
-    const now = new Date()
-    const entries = await prisma.productBadge.findMany({
-      where: {
-        badge,
-        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-      },
-      take: limit,
-      select: featuredProductSelect,
-      orderBy: { createdAt: "asc" },
-    })
-
-    return entries as unknown as FeaturedProduct[]
-  },
+  async (badge: string, limit = 24): Promise<PublicProductCard[]> =>
+    fetchProductsByBadge(badge, limit),
   "products:by-badge",
   {
     ttl: DEFAULT_TTL.fast,
@@ -60,38 +167,7 @@ export const getProducts = cached(
 )
 
 export const getTrendingProducts = cached(
-  async (limit = 12) => {
-    const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-
-    const trending = await prisma.productBadge.findMany({
-      distinct: ["productId"],
-      take: limit,
-      orderBy: {
-        product: {
-          analytics: {
-            upvotes: "desc",
-          },
-        },
-      },
-      where: {
-        product: {
-          createdAt: { lte: new Date() },
-          updatedAt: { gte: yesterday },
-          analytics: {
-            upvotes: {
-              gt: 0,
-            },
-          },
-        },
-      },
-      select: featuredProductSelect,
-    })
-
-    return trending as unknown as Prisma.ProductBadgeGetPayload<{
-      select: typeof featuredProductSelect
-    }>[]
-  },
+  async (limit = 12) => fetchTrendingProducts(limit),
   "products:trending",
   {
     ttl: DEFAULT_TTL.fast,
@@ -101,52 +177,23 @@ export const getTrendingProducts = cached(
       TAGS.leaderboard,
       TAGS.analytics,
     ],
+    keyParts: ([limit]) => [`limit:${limit ?? 12}`],
   },
 )
 
 export const getTopCategories = cached(
-  async (limit = 12) =>
-    prisma.category.findMany({
-      orderBy: {
-        products: {
-          _count: "desc",
-        },
-      },
-      take: limit,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        icon: true,
-        _count: {
-          select: {
-            products: true,
-          },
-        },
-      },
-    }),
+  async (limit = 12) => fetchTopCategories(limit),
   "categories:top",
-  { ttl: DEFAULT_TTL.slow, tags: () => [TAGS.categories] },
+  {
+    ttl: DEFAULT_TTL.slow,
+    tags: () => [TAGS.categories],
+    keyParts: ([limit]) => [`limit:${limit ?? 12}`],
+  },
 )
 
-// Get featured products filtered by category slug
 export const getFeaturedByCategorySlug = cached(
-  async (slug: string, limit = 6): Promise<FeaturedProduct[]> => {
-    const now = new Date()
-    const entries = await prisma.productBadge.findMany({
-      where: {
-        badge: "featured",
-        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-        product: { category: { slug } },
-      },
-      select: featuredProductSelect,
-      orderBy: { createdAt: "desc" },
-      take: limit,
-    })
-
-    return entries as unknown as FeaturedProduct[]
-  },
+  async (slug: string, limit = 6): Promise<PublicProductCard[]> =>
+    fetchProductsByBadge("featured", limit, slug, "desc"),
   "products:featured-by-category",
   {
     ttl: DEFAULT_TTL.fast,
@@ -156,208 +203,16 @@ export const getFeaturedByCategorySlug = cached(
       TAGS.badges,
       TAGS.category(String(slug)),
     ],
+    keyParts: ([slug, limit]) => [
+      `category:${slug}`,
+      `limit:${limit ?? 6}`,
+    ],
   },
 )
 
-// Get products that have the stickyBanner plan feature enabled
-type StickyBannerProductResult = {
-  id: string
-  slug: string
-  name: string
-  logo: string
-  tagline: string | null
-  latestRevenueCents: number | null
-  revenueCurrencyCode: string | null
-}
-
-type StickyBannerProduct = Prisma.ProductGetPayload<{
-  select: {
-    id: true
-    slug: true
-    name: true
-    logo: true
-    tagline: true
-    paymentConnector: {
-      select: {
-        latestAllTimeRevenueCents: true
-        latestCurrencyCode: true
-        revenueHistory: {
-          orderBy: { periodStart: "desc" }
-          take: 1
-          select: {
-            allTimeRevenueCents: true
-            currencyCode: true
-          }
-        }
-      }
-    }
-  }
-}>
-
 export const getStickyBannerProducts = cached(
-  async (limit = 100): Promise<StickyBannerProductResult[]> => {
-    const now = new Date()
-    const effectiveLimit = Math.max(1, limit)
-
-    const stickyFeatureKey = "stickyBanner"
-    const activeStatus = PlacementStatus.active
-
-    const scheduledIds = await prisma.$queryRaw<{ id: string }[]>(
-      Prisma.sql`
-        SELECT ids.id
-        FROM (
-          SELECT p.id,
-                 MIN(ps."startsAt") AS starts_at,
-                 MIN(ps."createdAt") AS created_at
-          FROM "PlacementSchedule" AS ps
-          INNER JOIN "Product" AS p ON p.id = ps."productId"
-          WHERE ps."featureKey" = ${stickyFeatureKey}
-            AND ps.status = CAST(${activeStatus} AS "PlacementStatus")
-            AND ps."startsAt" <= ${now}
-            AND ps."endsAt" >= ${now}
-            AND p.status = 'published'
-          GROUP BY p.id
-        ) AS ids
-        ORDER BY ids.starts_at ASC, ids.created_at ASC, ids.id ASC
-        LIMIT ${effectiveLimit}
-      `,
-    )
-
-    const remaining = Math.max(effectiveLimit - scheduledIds.length, 0)
-    const scheduledIdValues = scheduledIds.map(
-      (entry: { id: string }) => entry.id,
-    )
-
-    const exclusionClause =
-      scheduledIdValues.length > 0
-        ? Prisma.sql`AND p.id NOT IN (${Prisma.join(scheduledIdValues)})`
-        : Prisma.sql``
-
-    const planIds =
-      remaining > 0
-        ? await prisma.$queryRaw<{ id: string }[]>(
-            Prisma.sql`
-              SELECT ids.id
-              FROM (
-                SELECT p.id,
-                       COALESCE(p."planAssignedAt", p."createdAt") AS assigned_at,
-                       p."createdAt" AS created_at
-                FROM "Product" AS p
-                WHERE p.status = 'published'
-                  AND EXISTS (
-                    SELECT 1
-                    FROM "PlanFeatureAssignment" AS a
-                    INNER JOIN "PlanFeature" AS f
-                      ON f.id = a."featureId"
-                    WHERE a."planId" = p."planId"
-                      AND a.enabled = true
-                      AND f.key = ${stickyFeatureKey}
-                  )
-                  ${exclusionClause}
-              ) AS ids
-              ORDER BY ids.assigned_at DESC, ids.created_at DESC, ids.id ASC
-              LIMIT ${remaining}
-            `,
-          )
-        : []
-
-    const combinedIds = [
-      ...scheduledIdValues,
-      ...planIds.map((entry: { id: string }) => entry.id),
-    ]
-
-    if (!combinedIds.length) {
-      return []
-    }
-
-    const products: StickyBannerProduct[] = await prisma.product.findMany({
-      where: {
-        id: {
-          in: combinedIds,
-        },
-      },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        logo: true,
-        tagline: true,
-        paymentConnector: {
-          select: {
-            latestAllTimeRevenueCents: true,
-            latestCurrencyCode: true,
-            revenueHistory: {
-              orderBy: { periodStart: "desc" },
-              take: 1,
-              select: {
-                allTimeRevenueCents: true,
-                currencyCode: true,
-              },
-            },
-          },
-        },
-      },
-    })
-
-    type FeaturedProductRecord = (typeof products)[number]
-    const productMap: Map<string, FeaturedProductRecord> = new Map(
-      products.map((product) => [product.id, product]),
-    )
-    const ordered: typeof products = []
-    const seen = new Set<string>()
-
-    for (const id of combinedIds) {
-      const product = productMap.get(id)
-      if (!product || seen.has(id)) {
-        continue
-      }
-      ordered.push(product)
-      seen.add(id)
-      if (ordered.length >= effectiveLimit) {
-        break
-      }
-    }
-
-    const pool = ordered.length > 0 ? ordered : products
-
-    if (!pool.length) {
-      return []
-    }
-
-    const needsRates = pool.some((product) => {
-      const currency =
-        product.paymentConnector?.latestCurrencyCode ??
-        product.paymentConnector?.revenueHistory?.[0]?.currencyCode ??
-        null
-      return Boolean(currency && currency.toUpperCase() !== "USD")
-    })
-
-    const rates = needsRates ? await getUsdConversionRates() : undefined
-
-    return pool.map((product) => {
-      const revenue = resolveProductRevenue(
-        product.paymentConnector,
-        rates
-          ? {
-              rates,
-              targetCurrency: "USD",
-            }
-          : {},
-      )
-
-      return {
-        id: product.id,
-        slug: product.slug,
-        name: product.name,
-        logo: product.logo,
-        tagline: product.tagline ?? null,
-        latestRevenueCents: revenue.latestRevenueCents,
-        revenueCurrencyCode: revenue.latestRevenueCents
-          ? revenue.revenueCurrencyCode
-          : null,
-      }
-    })
-  },
+  async (limit = 100): Promise<StickyBannerProduct[]> =>
+    fetchStickyBannerProducts(limit),
   "products:sticky-banner:v2",
   {
     ttl: 600,
@@ -367,158 +222,13 @@ export const getStickyBannerProducts = cached(
       TAGS.planFeature("stickyBanner"),
       TAGS.plans,
     ],
+    keyParts: ([limit]) => [`limit:${limit ?? 100}`],
   },
 )
 
-const SPONSORED_PLACEMENT_FEATURE_KEY = "sponsoredProducts" as const
-
-// Get products that have the sponsored placement plan feature enabled
 export const getSponsoredProducts = cached(
-  async (limit = 12) => {
-    const now = new Date()
-    const effectiveLimit = Math.max(1, limit)
-    const sponsoredFeatureKey = SPONSORED_PLACEMENT_FEATURE_KEY
-    const activeStatus = PlacementStatus.active
-
-    const scheduledRows = await prisma.$queryRaw<
-      {
-        scheduleId: string
-        productId: string
-        slotKey: string
-        startsAt: Date
-        endsAt: Date
-        redemptionId: string | null
-      }[]
-    >(
-      Prisma.sql`
-        SELECT ps.id AS "scheduleId",
-               ps."productId" AS "productId",
-               ps."slotKey" AS "slotKey",
-               ps."startsAt" AS "startsAt",
-               ps."endsAt" AS "endsAt",
-               ps."redemptionId" AS "redemptionId"
-        FROM "PlacementSchedule" AS ps
-        INNER JOIN "Product" AS p ON p.id = ps."productId"
-        WHERE ps."featureKey" = ${sponsoredFeatureKey}
-          AND ps.status = CAST(${activeStatus} AS "PlacementStatus")
-          AND ps."startsAt" <= ${now}
-          AND ps."endsAt" >= ${now}
-          AND p.status = 'published'
-        ORDER BY RANDOM()
-        LIMIT ${effectiveLimit}
-      `,
-    )
-
-    const scheduledProductIds = scheduledRows.map(
-      (row: { productId: string }) => row.productId,
-    )
-    const remaining = Math.max(effectiveLimit - scheduledRows.length, 0)
-
-    const exclusionClause =
-      scheduledProductIds.length > 0
-        ? Prisma.sql`AND p.id NOT IN (${Prisma.join(scheduledProductIds)})`
-        : Prisma.sql``
-
-    const planRows =
-      remaining > 0
-        ? await prisma.$queryRaw<{ id: string }[]>(
-            Prisma.sql`
-              SELECT ids.id
-              FROM (
-                SELECT DISTINCT p.id
-                FROM "Product" AS p
-                WHERE p.status = 'published'
-                  AND p."planId" IS NOT NULL
-                  AND EXISTS (
-                    SELECT 1
-                    FROM "PlanFeatureAssignment" AS a
-                    INNER JOIN "PlanFeature" AS f
-                      ON f.id = a."featureId"
-                    WHERE a."planId" = p."planId"
-                      AND a.enabled = true
-                      AND f.key = ${sponsoredFeatureKey}
-                  )
-                  ${exclusionClause}
-              ) AS ids
-              ORDER BY RANDOM()
-              LIMIT ${remaining}
-            `,
-          )
-        : []
-
-    const productIds = [
-      ...scheduledProductIds,
-      ...planRows.map((row: { id: string }) => row.id),
-    ]
-
-    if (!productIds.length) {
-      return []
-    }
-
-    const products = await prisma.product.findMany({
-      where: {
-        id: {
-          in: productIds,
-        },
-      },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        tagline: true,
-        logo: true,
-        bannerImage: true,
-      },
-    })
-
-    const productMap = new Map(
-      products.map((product: (typeof products)[number]) => [
-        product.id,
-        product,
-      ]),
-    )
-    const placements: SponsoredProductPlacement[] = []
-    const seen = new Set<string>()
-
-    for (const row of scheduledRows) {
-      const product = productMap.get(row.productId) as
-        | SponsoredProduct
-        | undefined
-      if (!product || seen.has(product.id)) continue
-      seen.add(product.id)
-      placements.push({
-        id: `schedule:${row.scheduleId}`,
-        product,
-        origin: "schedule",
-        schedule: {
-          id: row.scheduleId,
-          slotKey: row.slotKey,
-          startsAt: row.startsAt,
-          endsAt: row.endsAt,
-          redemptionId: row.redemptionId ?? null,
-        },
-      })
-      if (placements.length >= effectiveLimit) break
-    }
-
-    if (placements.length < effectiveLimit) {
-      for (const planRow of planRows) {
-        const product = productMap.get(planRow.id) as
-          | SponsoredProduct
-          | undefined
-        if (!product || seen.has(product.id)) continue
-        seen.add(product.id)
-        placements.push({
-          id: `plan:${planRow.id}`,
-          product,
-          origin: "plan",
-        })
-        if (placements.length >= effectiveLimit) break
-      }
-    }
-
-    return placements
-  },
+  async (limit = 12): Promise<SponsoredPlacement[]> =>
+    fetchSponsoredProducts(limit),
   "products:sponsored-products",
   {
     ttl: DEFAULT_TTL.fast,
