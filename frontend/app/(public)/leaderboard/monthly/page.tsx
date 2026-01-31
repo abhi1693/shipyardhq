@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 
-import { getCurrentLeaderboardWindow } from "@/lib/server/leaderboard/v2"
+import { getCurrentLeaderboardWindow } from "@/lib/leaderboard/window"
 import { parseMonthKey, toMonthKey } from "@/lib/server/leaderboard/months"
 
 export default async function MonthlyLeaderboardPage({

@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime, time, timedelta, timezone
+import asyncio
 import calendar
 import hashlib
 import random
 import re
 from typing import Sequence
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy import and_, exists, func, or_, select, text
@@ -64,6 +66,7 @@ from models import (
 )
 from routers.base import api_prefix
 from services.cache import cached_json
+from services.clerk_api import get_clerk_avatar_url
 from services.currency import convert_to_usd_cents, get_usd_conversion_rates
 from services.revenue import build_revenue_summary
 from services.schemas.public import (
@@ -142,6 +145,7 @@ from services.schemas.public import (
     PublicPlanFeatureAssignment,
     PublicPlanFeature,
     PublicPlan,
+    PublicProductRedirectPayload,
     PublicAnalyticsPayload,
     PublicUserMeta,
     PublicUserProfile,
@@ -473,6 +477,40 @@ def _keyword_to_slug(keyword: str) -> str:
     return f"{base}-{hash_suffix}" if base else hash_suffix
 
 
+def _ensure_http_url(raw_url: str) -> str | None:
+    trimmed = raw_url.strip()
+    if not trimmed:
+        return None
+    parsed = urlparse(trimmed)
+    if not parsed.scheme:
+        parsed = urlparse(f"https://{trimmed}")
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return None
+    return urlunparse(parsed)
+
+
+def _add_utm_params(raw_url: str, params: dict[str, str | None]) -> str:
+    try:
+        parsed = urlparse(raw_url)
+        query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+        utm_map = {
+            "utm_source": params.get("source"),
+            "utm_medium": params.get("medium"),
+            "utm_campaign": params.get("campaign"),
+            "utm_content": params.get("content"),
+            "utm_term": params.get("term"),
+        }
+        for key, value in utm_map.items():
+            if not value:
+                continue
+            if key not in query:
+                query[key] = value
+        updated_query = urlencode(query, doseq=True)
+        return urlunparse(parsed._replace(query=updated_query))
+    except Exception:
+        return raw_url
+
+
 def _utc_range_for_days(days: int, *, now: datetime | None = None) -> tuple[datetime, datetime]:
     safe_days = max(int(days), 1)
     now = now or datetime.now(timezone.utc)
@@ -722,7 +760,9 @@ async def _fetch_product_by_id(session: Session, product_id: int) -> Product | N
     return (await session.exec(stmt)).scalars().one_or_none()
 
 
-def _map_product_user(user: User | None) -> PublicProductUser | None:
+def _map_product_user(
+    user: User | None, *, avatar_url: str | None = None
+) -> PublicProductUser | None:
     if not user:
         return None
     return PublicProductUser(
@@ -730,6 +770,7 @@ def _map_product_user(user: User | None) -> PublicProductUser | None:
         clerkId=user.clerk_id,
         firstName=user.first_name,
         lastName=user.last_name,
+        avatarUrl=avatar_url,
         email=user.email,
         role=user.role.value if user.role else None,
     )
@@ -768,6 +809,7 @@ def _map_product_detail_payload(
     *,
     upvote_count: int | None = None,
     interest: ProductInterestSignals | None = None,
+    user_avatar_url: str | None = None,
 ) -> PublicProductDetailPayload:
     now = datetime.now(timezone.utc)
     badges = _resolve_product_badges(product, now)
@@ -821,7 +863,7 @@ def _map_product_detail_payload(
         keywords=product.keywords or [],
         category=category_payload,
         alternatives=_map_product_alternatives(product),
-        user=_map_product_user(product.user),
+        user=_map_product_user(product.user, avatar_url=user_avatar_url),
         metadata=metadata,
         analytics=analytics,
         verification=verification,
@@ -834,7 +876,9 @@ def _map_product_detail_payload(
     )
 
 
-def _map_product_meta_payload(product: Product) -> PublicProductMetaPayload:
+def _map_product_meta_payload(
+    product: Product, *, user_avatar_url: str | None = None
+) -> PublicProductMetaPayload:
     category = product.category
     metadata = (
         PublicProductMetadata(
@@ -877,7 +921,7 @@ def _map_product_meta_payload(product: Product) -> PublicProductMetaPayload:
             name=category.name if category else None,
             slug=category.slug if category else None,
         ),
-        user=_map_product_user(product.user),
+        user=_map_product_user(product.user, avatar_url=user_avatar_url),
         metadata=metadata,
         analytics=analytics,
         verification=verification,
@@ -1050,6 +1094,25 @@ async def _build_rewards_leaderboard_position(
         lifetimeEarned=int(balance.lifetime_earned or 0),
         launchCount=launch_count,
     )
+
+
+async def _resolve_clerk_avatar_map(
+    clerk_ids: Sequence[str | None],
+) -> dict[str, str | None]:
+    unique_ids = [cid for cid in dict.fromkeys(clerk_ids) if cid]
+    if not unique_ids:
+        return {}
+
+    results = await asyncio.gather(
+        *[get_clerk_avatar_url(clerk_id) for clerk_id in unique_ids],
+        return_exceptions=True,
+    )
+    avatar_map: dict[str, str | None] = {}
+    for clerk_id, result in zip(unique_ids, results):
+        if isinstance(result, Exception):
+            continue
+        avatar_map[clerk_id] = result
+    return avatar_map
 
 
 async def _build_user_revenue_map(
@@ -3123,6 +3186,7 @@ async def get_public_users(
         rows = (await session.exec(stmt)).all()
         user_ids = [int(row[0]) for row in rows]
         revenue_map = await _build_user_revenue_map(session, user_ids=user_ids)
+        avatar_map = await _resolve_clerk_avatar_map([row[1] for row in rows])
 
         items = []
         for row in rows:
@@ -3134,6 +3198,7 @@ async def get_public_users(
                     clerkId=row[1],
                     firstName=row[2],
                     lastName=row[3],
+                    avatarUrl=avatar_map.get(row[1]),
                     productCount=int(row[4] or 0),
                     latestRevenueCents=revenue.get("cents"),
                     revenueCurrencyCode=revenue.get("currency"),
@@ -3398,12 +3463,14 @@ async def get_public_user_payload(
         leaderboard_position = await _build_rewards_leaderboard_position(
             session, user_id=user_pk
         )
+        avatar_url = await get_clerk_avatar_url(user.clerk_id)
 
         profile = PublicUserProfile(
             id=str(user.id),
             clerkId=user.clerk_id,
             firstName=user.first_name,
             lastName=user.last_name,
+            avatarUrl=avatar_url,
             productCount=total_products,
         )
 
@@ -4074,10 +4141,14 @@ async def get_product_detail(
             raise HTTPException(status_code=404, detail="Product not found.")
         upvote_count = await _fetch_product_upvote_count(session, product.id)
         interest_map = await _fetch_interest_map(session, [product.id])
+        user_avatar_url = await get_clerk_avatar_url(
+            product.user.clerk_id if product.user else None
+        )
         payload = _map_product_detail_payload(
             product,
             upvote_count=upvote_count,
             interest=interest_map.get(product.id),
+            user_avatar_url=user_avatar_url,
         )
         return payload.model_dump(mode="json")
 
@@ -4102,7 +4173,10 @@ async def get_product_meta(
         product = await _fetch_product_by_slug(session, slug)
         if not product:
             raise HTTPException(status_code=404, detail="Product not found.")
-        payload = _map_product_meta_payload(product)
+        user_avatar_url = await get_clerk_avatar_url(
+            product.user.clerk_id if product.user else None
+        )
+        payload = _map_product_meta_payload(product, user_avatar_url=user_avatar_url)
         return payload.model_dump(mode="json")
 
     payload = await cached_json(
@@ -4113,6 +4187,56 @@ async def get_product_meta(
         builder=build_payload,
     )
     return PublicProductMetaPayload.model_validate(payload)
+
+
+@router.get("/products/{slug}/redirect", response_model=PublicProductRedirectPayload)
+async def get_product_redirect(
+    request: Request,
+    slug: str,
+    *,
+    utm_content: str | None = Query(None, alias="utmContent"),
+    session: Session = Depends(get_session),
+) -> PublicProductRedirectPayload:
+    async def build_payload() -> dict:
+        product = await _fetch_product_by_slug(session, slug)
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found.")
+
+        fallback_path = f"/products/{product.slug}"
+        destination = None
+
+        if product.website_url:
+            normalized = _ensure_http_url(product.website_url)
+            if normalized:
+                destination = _add_utm_params(
+                    normalized,
+                    {
+                        "source": "shipyard",
+                        "medium": "referral",
+                        "campaign": product.metadata_record.utm_campaign
+                        if product.metadata_record
+                        else None,
+                        "content": utm_content,
+                    },
+                )
+
+        payload = PublicProductRedirectPayload(
+            destination=destination,
+            fallbackPath=fallback_path,
+        )
+        return payload.model_dump(mode="json")
+
+    payload = await cached_json(
+        "public:product-redirect",
+        ttl_seconds=PRODUCT_META_CACHE_TTL,
+        path=request.url.path,
+        params=[
+            ("slug", slug),
+            ("utmContent", utm_content or ""),
+        ],
+        builder=build_payload,
+    )
+    return PublicProductRedirectPayload.model_validate(payload)
 
 
 @router.get("/products/{product_id}/revenue", response_model=ProductRevenueSummary | None)

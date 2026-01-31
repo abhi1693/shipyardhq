@@ -6,7 +6,6 @@ import { UserProfilePageContent } from "@/components/templates/public/users/deta
 import { UserProfileSkeleton } from "@/components/templates/public/users/detail/skeleton"
 import { getPublicUserMeta } from "@/actions/public/users/actions"
 import { getUserProfilePayload } from "@/lib/users/page-cache"
-import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildProfilePageJsonLd } from "@/lib/seo/profile-page"
 import { buildPageMetadata } from "@/lib/metadata"
@@ -69,15 +68,7 @@ async function ProfileStructuredData({
     `${payload.profile.firstName ?? ""} ${payload.profile.lastName ?? ""}`.trim() ||
     "Shipyard maker"
 
-  let avatarUrl: string | null = null
-  if (payload.profile.clerkId) {
-    try {
-      const clerkUser = await getClerkUserByIdCached(payload.profile.clerkId)
-      avatarUrl = clerkUser.imageUrl ?? null
-    } catch {
-      avatarUrl = null
-    }
-  }
+  const avatarUrl = payload.profile.avatarUrl ?? null
 
   const profilePath = userPath(id)
   const baseBreadcrumbs = [

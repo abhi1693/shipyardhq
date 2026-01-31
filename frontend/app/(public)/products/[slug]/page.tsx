@@ -86,7 +86,6 @@ import {
   getProductTypeMeta,
   productTypeSlugFromValue,
 } from "@/lib/product-types/models"
-import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { ProductRevenueChart } from "@/components/templates/public/products/detail/ProductRevenueChart"
 import { buildProductInterestBadges } from "@/lib/products/interest"
 import { Badge } from "@/components/atoms/badge"
@@ -337,15 +336,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         .join("")
         .slice(0, 2)
     : "SP"
-  let ownerAvatarUrl: string | null = null
-  if (productOwner?.clerkId) {
-    try {
-      const clerkUser = await getClerkUserByIdCached(productOwner.clerkId)
-      ownerAvatarUrl = clerkUser.imageUrl ?? null
-    } catch {
-      ownerAvatarUrl = null
-    }
-  }
+  const ownerAvatarUrl = productOwner?.avatarUrl ?? null
 
   const productStructuredData = buildProductStructuredData({
     path: canonicalPath,

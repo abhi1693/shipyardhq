@@ -3,7 +3,6 @@
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
 import type { HomepageFeedItem } from "@/lib/generated/fastapi/schemas"
-import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 
 const USER_PRODUCTS_PAGE_SIZE = 20
 const USER_PRODUCTS_MAX_PAGE_SIZE = 50
@@ -26,7 +25,7 @@ export type PublicUserListItem = {
   revenueCurrencyCode: string | null
 }
 
-type PublicUserSummary = Omit<PublicUserListItem, "avatarUrl">
+type PublicUserSummary = PublicUserListItem
 
 export type PublicUsersPageResult = {
   items: PublicUserListItem[]
@@ -37,9 +36,7 @@ export type PublicUsersPageResult = {
   nextPage: number | null
 }
 
-type PublicUsersPageApiResult = Omit<PublicUsersPageResult, "items"> & {
-  items: PublicUserSummary[]
-}
+type PublicUsersPageApiResult = PublicUsersPageResult
 
 export type PublicUserMeta = {
   firstName: string | null
@@ -91,25 +88,6 @@ const buildPublicUrl = (
   })
   const query = search.toString()
   return query ? `${path}?${query}` : path
-}
-
-const mapUserSummaryToListItem = async (
-  user: PublicUserSummary,
-): Promise<PublicUserListItem> => {
-  let avatarUrl: string | null = null
-  if (user.clerkId) {
-    try {
-      const clerkUser = await getClerkUserByIdCached(user.clerkId)
-      avatarUrl = clerkUser.imageUrl ?? null
-    } catch {
-      avatarUrl = null
-    }
-  }
-
-  return {
-    ...user,
-    avatarUrl,
-  }
 }
 
 const fetchUserProductsPage = async (
@@ -212,10 +190,7 @@ const fetchPublicUsersPage = async (
         nextPage: null,
       }
     }
-    const items = await Promise.all(
-      response.data.items.map((user) => mapUserSummaryToListItem(user)),
-    )
-    return { ...response.data, items }
+    return response.data
   } catch (error) {
     if (isFastApiNotFound(error)) {
       return {

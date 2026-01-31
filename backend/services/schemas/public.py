@@ -267,6 +267,7 @@ class PublicUserSummary(BaseSerializer):
     clerkId: str | None = None
     firstName: str | None = None
     lastName: str | None = None
+    avatarUrl: str | None = None
     productCount: int = 0
     latestRevenueCents: int | None = None
     revenueCurrencyCode: str | None = None
@@ -295,6 +296,7 @@ class PublicUserProfile(BaseSerializer):
     clerkId: str | None = None
     firstName: str | None = None
     lastName: str | None = None
+    avatarUrl: str | None = None
     productCount: int = 0
 
 
@@ -349,8 +351,14 @@ class PublicProductUser(BaseSerializer):
     clerkId: str | None = None
     firstName: str | None = None
     lastName: str | None = None
+    avatarUrl: str | None = None
     email: str | None = None
     role: str | None = None
+
+
+class PublicProductRedirectPayload(BaseSerializer):
+    destination: str | None = None
+    fallbackPath: str
 
 
 class PublicProductMetadata(BaseSerializer):

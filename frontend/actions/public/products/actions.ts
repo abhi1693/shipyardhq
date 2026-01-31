@@ -31,6 +31,7 @@ export type PublicProductUser = {
   clerkId?: string | null
   firstName?: string | null
   lastName?: string | null
+  avatarUrl?: string | null
   email?: string | null
   role?: string | null
 }
