@@ -44,6 +44,7 @@ export async function createPlanCheckout({
 
   const session = (await dodoClient.checkoutSessions.create({
     product_cart: [{ product_id: planId, quantity: 1 }],
+    minimal_address: true,
     customer: customerPayload as any,
     metadata,
     return_url: returnUrl,
