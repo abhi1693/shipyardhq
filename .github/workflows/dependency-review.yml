@@ -19,7 +19,7 @@ jobs:
           cache: 'npm'
 
       - name: Install deps
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: npm audit (high+; omit dev)
         run: npm audit --audit-level=high --omit=dev
