@@ -244,7 +244,8 @@ export const getCategoryWithProducts = cached(
 
     const where = {
       status: "published" as const,
-      category: { slug },
+      // Prefer filtering by `categoryId` to avoid an unnecessary join on Category.slug.
+      categoryId: category.id,
     }
 
     const [products, total] = await Promise.all([

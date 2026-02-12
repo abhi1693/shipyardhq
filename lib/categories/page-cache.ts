@@ -51,7 +51,7 @@ const formatLatestLaunchDate = (value?: string) => {
 }
 
 const buildCategoryMetrics = async (
-  slug: string,
+  categoryId: string,
   page: CategoryPageResult,
   featuredCount: number,
 ): Promise<CategoryMetrics> => {
@@ -75,7 +75,7 @@ const buildCategoryMetrics = async (
     prisma.product.count({
       where: {
         status: "published",
-        category: { slug },
+        categoryId,
         plan: {
           is: {
             assignments: {
@@ -93,7 +93,7 @@ const buildCategoryMetrics = async (
       where: {
         product: {
           status: "published",
-          category: { slug },
+          categoryId,
         },
       },
     }),
@@ -126,7 +126,7 @@ export const getCategoryDetailPayload = cached(
     }
 
     const metrics = await buildCategoryMetrics(
-      slug,
+      categoryData.category.id,
       categoryData,
       featured.length,
     )
