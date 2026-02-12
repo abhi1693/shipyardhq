@@ -18,13 +18,13 @@ In GA4 Admin:
 ## 3) Store credentials securely (never commit)
 Recommended env vars:
 - `GA4_PROPERTY_ID` (numeric property id)
-- `GA4_SERVICE_ACCOUNT_JSON_BASE64` (base64-encoded JSON key)
+- `SHIPYARD_GA4_SERVICE_ACCOUNT_JSON_BASE64` (base64-encoded JSON key)
   - avoids multiline private key issues
 
 Example:
 ```bash
 export GA4_PROPERTY_ID="123456789"
-export GA4_SERVICE_ACCOUNT_JSON_BASE64="$(base64 -w0 ./service-account-key.json)"
+export SHIPYARD_GA4_SERVICE_ACCOUNT_JSON_BASE64="$(base64 -w0 ./service-account-key.json)"
 ```
 
 ## 4) Sanity query

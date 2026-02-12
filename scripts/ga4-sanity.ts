@@ -3,7 +3,7 @@
  *
  * Usage:
  *   GA4_PROPERTY_ID=123456789 \
- *   GA4_SERVICE_ACCOUNT_JSON_BASE64=... \
+ *   SHIPYARD_GA4_SERVICE_ACCOUNT_JSON_BASE64=... \
  *   npx tsx scripts/ga4-sanity.ts
  */
 
