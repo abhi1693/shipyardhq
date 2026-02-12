@@ -1,4 +1,4 @@
-name: Dependency Review
+name: Dependency Audit (PR)
 
 on:
   pull_request:
@@ -7,8 +7,19 @@ permissions:
   contents: read
 
 jobs:
-  dependency-review:
+  npm-audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: npm audit (high+; omit dev)
+        run: npm audit --audit-level=high --omit=dev
