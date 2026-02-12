@@ -66,6 +66,8 @@ model Product {
   claimAttempts         ProductClaimAttempt[]
 
   @@index([categoryId, createdAt])
+  @@index([categoryId, status, createdAt])
+  @@index([categoryId, status, publishedAt])
   @@index([status, publishedAt])
   @@index([createdAt])
   @@index([updatedAt])
