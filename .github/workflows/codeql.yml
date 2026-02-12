@@ -10,6 +10,8 @@ on:
 permissions:
   contents: read
   security-events: write
+  actions: read
+  pull-requests: read
 
 jobs:
   analyze:
