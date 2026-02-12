@@ -38,16 +38,13 @@ CI runs GitHub CodeQL for JavaScript/TypeScript.
 
 ## CI security checks
 
-Implemented in `.github/workflows/`:
+Implemented in `.github/workflows/security.yml`:
 
-1) **Dependency review (PR-only)**
-- Blocks introduction of new vulnerable dependencies in PRs.
+1) **Secret scanning (gitleaks)**
+- Scans PRs/pushes for hardcoded secrets.
 
-2) **Secret scanning (gitleaks)**
-- Scans diffs/commits for hardcoded secrets.
-
-3) **Lightweight SAST (CodeQL)**
-- Static analysis for JS/TS security issues.
+2) **Dependency vulnerabilities (npm audit)**
+- Runs `npm audit --audit-level=high --omit=dev` with a stable install (`npm ci --ignore-scripts`).
 
 ## Triage policy
 
