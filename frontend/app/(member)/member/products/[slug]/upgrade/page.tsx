@@ -5,7 +5,6 @@ import { getPublicPlans } from "@/actions/public/plans/actions"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import { memberProductPath, memberProductsStatusPath } from "@/lib/routes"
 import { ProductUpgradePricingTable } from "@/components/organisms/ProductUpgradePricingTable"
-import prisma from "@/lib/prisma"
 
 export default async function ProductUpgradePage({
   params,
@@ -26,21 +25,7 @@ export default async function ProductUpgradePage({
   const allPlans = await getPublicPlans().catch(() => [])
   const paidPlans = allPlans.filter((plan) => (plan.price || 0) > 0)
 
-  const productPlan = await prisma.product.findUnique({
-    where: { id: product.id },
-    select: {
-      plan: {
-        select: {
-          id: true,
-          name: true,
-          type: true,
-          price: true,
-          isDefault: true,
-        },
-      },
-    },
-  })
-  const currentPlan = productPlan?.plan ?? null
+  const currentPlan = product.currentPlan
   const lockedPlanType =
     currentPlan && !currentPlan.isDefault && (currentPlan.price ?? 0) > 0
       ? currentPlan.type

@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     db_pool_timeout_seconds: int = 30
     db_pool_recycle_seconds: int = 1800
     db_pool_pre_ping: bool = True
-    redis_url: str | None = None
+    redis_url: str  = "redis://localhost:6379/0"
     redis_cache_default_ttl_seconds: int = 300
     clerk_jwks_url: str | None = None
     clerk_publishable_key: str | None = None
