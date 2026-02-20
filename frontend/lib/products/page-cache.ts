@@ -139,7 +139,9 @@ export function buildProductStructuredData(product: PublicProduct) {
     image: logoUrl ? [logoUrl] : undefined,
     screenshot: screenshotImages.length ? screenshotImages : undefined,
     url: canonicalUrl,
-    applicationCategory: APPLICATION_CATEGORY_MAP[product.type] || undefined,
+    applicationCategory: product.type
+      ? (APPLICATION_CATEGORY_MAP[product.type] ?? undefined)
+      : undefined,
     operatingSystem: schemaOperatingSystems.length
       ? schemaOperatingSystems
       : undefined,

@@ -248,10 +248,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     product.bannerImage,
     ...(product.media ?? []).map((media) => media.imageUrl),
   ].filter((value): value is string => Boolean(value?.trim()))
-  const schemaPublishedDateIso =
-    product.publishedAt || product.createdAt
-      ? new Date(product.publishedAt || product.createdAt).toISOString()
-      : undefined
+  const schemaPublishedDateValue = product.publishedAt ?? product.createdAt ?? null
+  const schemaPublishedDateIso = schemaPublishedDateValue
+    ? new Date(schemaPublishedDateValue).toISOString()
+    : undefined
   const updatedDateIso = sidebarProduct.updatedAt
     ? new Date(sidebarProduct.updatedAt).toISOString()
     : undefined
@@ -261,7 +261,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   ]
     .join(" ")
     .trim()
-  const productTypeSlug = productTypeSlugFromValue(sidebarProduct?.type)
+  const productTypeSlug = productTypeSlugFromValue(
+    sidebarProduct?.type as Parameters<typeof productTypeSlugFromValue>[0],
+  )
   const productTypeMeta = productTypeSlug
     ? getProductTypeMeta(productTypeSlug)
     : null
@@ -281,7 +283,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     sidebarProduct?.verification?.isVerified,
   )
   const pricingModelSlug = pricingModelSlugFromValue(
-    sidebarProduct?.pricingModel,
+    sidebarProduct?.pricingModel as Parameters<typeof pricingModelSlugFromValue>[0],
   )
   const offer = {
     price: ((sidebarProduct.startingPriceCents ?? 0) / 100).toFixed(2),
@@ -447,7 +449,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           currencyCode: revenue.currencyCode,
           latestAllTimeRevenueCents: revenue.latestAllTimeRevenueCents,
           lastSyncedAt: revenue.lastSyncedAt,
-          provider: revenue.provider,
+          provider: revenue.provider ?? undefined,
         }}
         productName={product.name}
         productLogoUrl={product.logo}
@@ -572,17 +574,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             </div>
           </SidebarInfoRow>
         ) : null}
-        {sidebarProduct?.alternatives.length ? (
+        {sidebarProduct?.alternatives?.length ? (
           <SidebarInfoRow label="Alternative to">
             <div className="flex flex-wrap gap-2">
-              {sidebarProduct?.alternatives.map(
-                (alternative: {
-                  id: string
-                  slug: string
-                  name: string
-                  logoUrl: string
-                }) => {
+              {sidebarProduct.alternatives.map(
+                (alternative) => {
                   const href = alternativePath(alternative.slug as string)
+                  const logoUrl = alternative.logoUrl || product.logo
 
                   return (
                     <Tooltip key={alternative.id}>
@@ -593,7 +591,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                           className="group relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         >
                           <Image
-                            src={alternative.logoUrl}
+                            src={logoUrl}
                             alt={`${alternative.name} logo`}
                             fill
                             sizes="40px"

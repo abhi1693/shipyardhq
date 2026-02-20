@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { type FormEvent, useMemo, useState } from "react"
 import Link from "next/link"
 import { format, formatDistanceToNow } from "date-fns"
 import { toast } from "sonner"
-import { useFormState, useFormStatus } from "react-dom"
+import { useQueryClient } from "@tanstack/react-query"
 
 import {
   Card,
@@ -41,18 +41,11 @@ import {
   TableRow,
 } from "@/components/atoms/table"
 import { cn } from "@/lib/utils"
-import { redeemCatalogItemAction } from "@/actions/member/rewards/actions"
 import {
-  initialRedeemState,
-  type MemberRewardsSnapshot,
-  type RedeemFormState,
-} from "@/actions/member/rewards/types"
-import type {
-  FeatureEntitlementStatus,
-  RewardTransactionType,
-  RedemptionStatus,
-  RewardFeatureCategory,
-} from "@/lib/vendor/prisma/client/enums"
+  getGetMemberRewardsSnapshotApiV1MemberRewardsSnapshotGetQueryKey,
+  useRedeemMemberRewardApiV1MemberRewardsRedeemPost,
+} from "@/lib/generated/fastapi/member"
+import type { MemberRewardsSnapshotPayload } from "@/lib/generated/fastapi/schemas"
 import {
   FeatureEntitlementStatus as FeatureEntitlementStatusEnum,
   RewardTransactionType as RewardTransactionTypeEnum,
@@ -64,15 +57,16 @@ import {
   REWARDS_PATH,
   memberProductPath,
 } from "@/lib/routes"
+import type { FastApiError } from "@/lib/fastapi-fetcher"
 
 type MemberRewardsProps = {
-  snapshot: MemberRewardsSnapshot
+  snapshot: MemberRewardsSnapshotPayload
 }
 
-type CatalogItem = MemberRewardsSnapshot["catalog"][number]
-type ProductOption = MemberRewardsSnapshot["productOptions"][number]
+type CatalogItem = MemberRewardsSnapshotPayload["catalog"][number]
+type ProductOption = MemberRewardsSnapshotPayload["productOptions"][number]
 
-const categoryLabels: Record<RewardFeatureCategory, string> = {
+const categoryLabels: Record<string, string> = {
   [RewardFeatureCategoryEnum.placement]: "Placement",
   [RewardFeatureCategoryEnum.analytics]: "Analytics",
   [RewardFeatureCategoryEnum.insights]: "Insights",
@@ -81,14 +75,14 @@ const categoryLabels: Record<RewardFeatureCategory, string> = {
   [RewardFeatureCategoryEnum.utility]: "Utility",
 }
 
-const transactionTypeLabels: Record<RewardTransactionType, string> = {
+const transactionTypeLabels: Record<string, string> = {
   [RewardTransactionTypeEnum.earn]: "Earned",
   [RewardTransactionTypeEnum.spend]: "Redeemed",
   [RewardTransactionTypeEnum.adjustment]: "Adjusted",
   [RewardTransactionTypeEnum.refund]: "Refunded",
 }
 
-const entitlementStatusTone: Record<FeatureEntitlementStatus, string> = {
+const entitlementStatusTone: Record<string, string> = {
   [FeatureEntitlementStatusEnum.active]: "text-emerald-600",
   [FeatureEntitlementStatusEnum.pending]: "text-amber-600",
   [FeatureEntitlementStatusEnum.paused]: "text-slate-500",
@@ -97,7 +91,7 @@ const entitlementStatusTone: Record<FeatureEntitlementStatus, string> = {
   [FeatureEntitlementStatusEnum.failed]: "text-rose-600",
 }
 
-const redemptionStatusTone: Record<RedemptionStatus, string> = {
+const redemptionStatusTone: Record<string, string> = {
   [RedemptionStatusEnum.pending]: "text-amber-600",
   [RedemptionStatusEnum.active]: "text-emerald-600",
   [RedemptionStatusEnum.expired]: "text-slate-400",
@@ -110,18 +104,42 @@ function formatNumber(value: number) {
   return new Intl.NumberFormat("en-US").format(value)
 }
 
-function formatRelative(date: Date | null) {
+function parseDate(value: string | Date | null | undefined) {
+  if (!value) return null
+  if (value instanceof Date) return value
+  const parsed = new Date(value)
+  return Number.isFinite(parsed.getTime()) ? parsed : null
+}
+
+function formatRelative(value: string | Date | null | undefined) {
+  const date = parseDate(value)
   if (!date) return "—"
   return formatDistanceToNow(date, { addSuffix: true })
 }
 
-function formatDateTime(date: Date | null) {
+function formatDateTime(value: string | Date | null | undefined) {
+  const date = parseDate(value)
   if (!date) return "—"
   return format(date, "MMM d, yyyy • h:mm a")
 }
 
-function RedeemSubmitButton({ disabled }: { disabled?: boolean }) {
-  const { pending } = useFormStatus()
+function getFastApiErrorDetail(error: unknown, fallback: string) {
+  const detail = (error as FastApiError | undefined)?.info as
+    | { detail?: unknown }
+    | undefined
+  if (typeof detail?.detail === "string") {
+    return detail.detail
+  }
+  return fallback
+}
+
+function RedeemSubmitButton({
+  pending,
+  disabled,
+}: {
+  pending: boolean
+  disabled?: boolean
+}) {
   return (
     <Button
       type="submit"
@@ -140,13 +158,10 @@ type RedeemDialogProps = {
 }
 
 function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
-  const [formState, formAction] = useFormState<RedeemFormState, FormData>(
-    redeemCatalogItemAction,
-    initialRedeemState,
-  )
-
-  const requiresProduct = item.requiresProduct
-  const requiresSchedule = item.requiresSchedule
+  const queryClient = useQueryClient()
+  const redeemMutation = useRedeemMemberRewardApiV1MemberRewardsRedeemPost()
+  const requiresProduct = Boolean(item.requiresProduct)
+  const requiresSchedule = Boolean(item.requiresSchedule)
 
   const [productId, setProductId] = useState<string | undefined>(undefined)
 
@@ -155,19 +170,34 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
     [item.featureKey],
   )
 
-  useEffect(() => {
-    if (formState.status === "success") {
-      toast.success(formState.message ?? "Reward redeemed")
-      onClose()
-    } else if (formState.status === "error" && formState.message) {
-      toast.error(formState.message)
-    }
-  }, [formState, onClose])
-
   const productPlaceholder = useMemo(() => {
     if (!requiresProduct) return "Optional"
     return productOptions.length ? "Select a product" : "No eligible products"
   }, [productOptions.length, requiresProduct])
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    try {
+      const result = await redeemMutation.mutateAsync({
+        data: {
+          featureKey: item.featureKey,
+          productId: requiresProduct ? (productId ?? null) : null,
+          slotKey: requiresSchedule ? defaultSlotKey : null,
+        },
+      })
+      if (result.status !== 200) {
+        throw new Error("Reward redemption failed.")
+      }
+      toast.success(result.data.message ?? "Reward redeemed")
+      await queryClient.invalidateQueries({
+        queryKey: getGetMemberRewardsSnapshotApiV1MemberRewardsSnapshotGetQueryKey(),
+      })
+      onClose()
+    } catch (error) {
+      toast.error(getFastApiErrorDetail(error, "Unable to redeem reward."))
+    }
+  }
 
   return (
     <Dialog
@@ -183,18 +213,14 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
             Spend {formatNumber(item.baseCost)} rewards to unlock this perk.
           </DialogDescription>
         </DialogHeader>
-        <form action={formAction} className="space-y-5">
-          <input type="hidden" name="featureKey" value={item.featureKey} />
-          {requiresSchedule ? (
-            <input type="hidden" name="slotKey" value={defaultSlotKey} />
-          ) : null}
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <Label>Reward details</Label>
             <div className="rounded-md border border-slate-200 bg-slate-50/70 p-3 text-sm text-slate-600">
               <p>{item.description ?? "Redeem to enable this capability."}</p>
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
                 <Badge variant="outline" className="bg-white">
-                  {categoryLabels[item.category]}
+                  {categoryLabels[item.category] ?? item.category}
                 </Badge>
                 <span>{formatNumber(item.baseCost)} rewards</span>
                 {item.durationSeconds ? (
@@ -228,18 +254,18 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
                   ))}
                 </SelectContent>
               </Select>
-              <input type="hidden" name="productId" value={productId ?? ""} />
               <p className="text-xs text-muted-foreground">
                 Redemptions attach to a single product for scheduling and
                 auditing.
               </p>
             </div>
-          ) : (
-            <input type="hidden" name="productId" value="" />
-          )}
+          ) : null}
 
           <DialogFooter>
-            <RedeemSubmitButton disabled={requiresProduct && !productId} />
+            <RedeemSubmitButton
+              pending={redeemMutation.isPending}
+              disabled={requiresProduct && !productId}
+            />
           </DialogFooter>
         </form>
       </DialogContent>
@@ -268,7 +294,7 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
   const hasCatalog = catalog.length > 0
 
   const formatAdjustmentDetail = (
-    transaction: MemberRewardsSnapshot["transactions"][number],
+    transaction: MemberRewardsSnapshotPayload["transactions"][number],
   ) => {
     if (transaction.notes && transaction.notes.length) {
       return transaction.notes
@@ -443,7 +469,8 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                     <span
                       className={cn(
                         "text-xs font-semibold uppercase tracking-wider",
-                        entitlementStatusTone[entitlement.status],
+                        entitlementStatusTone[entitlement.status] ??
+                          "text-slate-500",
                       )}
                     >
                       {entitlement.status}
@@ -491,7 +518,8 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                     <span
                       className={cn(
                         "text-xs font-semibold uppercase tracking-wider",
-                        redemptionStatusTone[redemption.status],
+                        redemptionStatusTone[redemption.status] ??
+                          "text-slate-500",
                       )}
                     >
                       {redemption.status}
@@ -548,7 +576,7 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                           {item.name}
                         </h3>
                         <p className="text-xs text-muted-foreground">
-                          {categoryLabels[item.category]}
+                          {categoryLabels[item.category] ?? item.category}
                         </p>
                       </div>
                       <Badge variant="outline" className="bg-slate-50">
@@ -625,7 +653,8 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                       {formatRelative(transaction.createdAt)}
                     </TableCell>
                     <TableCell className="text-sm font-medium">
-                      {transactionTypeLabels[transaction.type]}
+                      {transactionTypeLabels[transaction.type] ??
+                        transaction.type}
                     </TableCell>
                     <TableCell className="text-sm text-slate-600">
                       {transaction.type === RewardTransactionTypeEnum.earn

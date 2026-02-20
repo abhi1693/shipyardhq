@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import os
+import re
+import secrets
 from datetime import datetime, time, timedelta, timezone
 from hashlib import sha256
 from typing import Any
 from urllib.parse import urlparse
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.exc import IntegrityError
@@ -14,11 +18,14 @@ from sqlmodel.ext.asyncio.session import AsyncSession as Session
 from auth import CurrentUser
 from database import get_session
 from models import (
+    FeatureSubjectType,
     FeatureEntitlement,
     FeatureEntitlementStatus,
     MemberFeedback,
     PaymentConnector,
     PaymentCredentialStatus,
+    PlacementSchedule,
+    PlacementStatus,
     Plan,
     PlanFeature,
     PlanFeatureAssignment,
@@ -29,6 +36,7 @@ from models import (
     ProductClaimMethod,
     ProductClaimStatus,
     ProductStatus,
+    ProductTrafficDaily,
     ProductUpvote,
     ProductVerification,
     Redemption,
@@ -45,6 +53,14 @@ from models import (
 from routers.base import api_prefix
 from services.schemas.member import (
     MemberActiveUser,
+    MemberActiveEntitlementPayload,
+    MemberClaimableProductPayload,
+    MemberClaimableProductsPayload,
+    MemberClaimDnsConfirmPayload,
+    MemberClaimOtpRequestInput,
+    MemberClaimOtpRequestPayload,
+    MemberClaimOtpVerifyInput,
+    MemberClaimOtpVerifyPayload,
     MemberFeatureAccessPayload,
     MemberFeedbackCreateInput,
     MemberFeedbackListItem,
@@ -53,8 +69,29 @@ from services.schemas.member import (
     MemberManageableProductSummary,
     MemberOnboardingCompleteInput,
     MemberOnboardingCompletePayload,
+    MemberRewardsRedeemInput,
+    MemberRewardsRedeemPayload,
+    MemberRewardsSnapshotPayload,
     MemberOverviewContextPayload,
+    MemberOverviewSummaryPayload,
+    MemberOverviewSummaryPoint,
     MemberOverviewProduct,
+    MemberOwnedProductPayload,
+    MemberOwnedProductSummary,
+    MemberProductAnalyticsSummary,
+    MemberProductCategorySummary,
+    MemberProductConnectorPayload,
+    MemberProductListItem,
+    MemberProductPlanSummary,
+    MemberProductVerificationSummary,
+    MemberProductsListPayload,
+    MemberRecentRedemptionPayload,
+    MemberRewardCatalogItemPayload,
+    MemberRewardProductOptionPayload,
+    MemberRewardTransactionPayload,
+    MemberRewardsBalancePayload,
+    MemberSetProductPlanInput,
+    MemberSuccessPayload,
     MemberSyncProfileInput,
 )
 
@@ -82,6 +119,7 @@ PRODUCT_STATUS_KEYS = {
 CLAIM_PENDING_WINDOW = timedelta(minutes=15)
 DNS_LOCK_WINDOW = timedelta(minutes=5)
 CLAIM_EMAIL_DOMAIN_SECOND_LEVELS = {"co", "com", "org", "net", "gov", "ac", "edu"}
+CLAIM_OTP_PATTERN = re.compile(r"^[0-9]{6}$")
 
 
 def _ensure_active_user(user: User) -> None:
@@ -251,6 +289,167 @@ def _generate_verification_txt(website_url: str) -> str:
     normalized = website_url.strip().lower()
     digest = sha256(normalized.encode("utf-8")).hexdigest()[:12]
     return f"prod-verif-shipyard-{digest}"
+
+
+def _generate_claim_otp_code() -> str:
+    return f"{secrets.randbelow(1_000_000):06d}"
+
+
+def _hash_claim_otp_code(code: str) -> str:
+    otp_salt = os.getenv("OTP_SALT", "")
+    return sha256(f"{code}:{otp_salt}".encode("utf-8")).hexdigest()
+
+
+def _decode_dns_txt_answer(value: str) -> str:
+    normalized = value.strip()
+    if not normalized:
+        return ""
+    if '"' not in normalized:
+        return normalized
+    matches = re.findall(r'"([^"]*)"', normalized)
+    if matches:
+        return "".join(matches)
+    return normalized.replace('"', "")
+
+
+async def _lookup_dns_txt_values(domain: str) -> list[str]:
+    endpoints = [
+        f"https://cloudflare-dns.com/dns-query?name={domain}&type=TXT",
+        f"https://dns.google/resolve?name={domain}&type=TXT",
+    ]
+    headers = {"accept": "application/dns-json"}
+    values: list[str] = []
+
+    async with httpx.AsyncClient(timeout=6.0) as client:
+        for endpoint in endpoints:
+            try:
+                response = await client.get(endpoint, headers=headers)
+                if response.status_code != 200:
+                    continue
+                payload = response.json()
+                answers = payload.get("Answer") if isinstance(payload, dict) else None
+                if not isinstance(answers, list):
+                    continue
+                for answer in answers:
+                    if not isinstance(answer, dict):
+                        continue
+                    if answer.get("type") != 16:
+                        continue
+                    raw_value = answer.get("data")
+                    if not isinstance(raw_value, str):
+                        continue
+                    decoded = _decode_dns_txt_answer(raw_value)
+                    if decoded:
+                        values.append(decoded)
+            except Exception:
+                continue
+
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        if value in seen:
+            continue
+        seen.add(value)
+        deduped.append(value)
+    return deduped
+
+
+async def _verify_claim_dns_txt_record(
+    website_url: str,
+    expected_txt: str,
+) -> tuple[bool, str | None]:
+    root_domain = _extract_root_domain(website_url)
+    if not root_domain:
+        return False, "Invalid domain."
+
+    records = await _lookup_dns_txt_values(root_domain)
+    expected = expected_txt.strip()
+    if any(record.strip() == expected for record in records):
+        return True, None
+    return False, "Verification TXT record not found in DNS."
+
+
+async def _send_claim_otp_notification(
+    *,
+    subscriber_id: str,
+    email: str,
+    first_name: str | None,
+    last_name: str | None,
+    code: str,
+    domain: str,
+    product_name: str,
+    expires_at: datetime,
+) -> None:
+    novu_secret_key = (
+        os.getenv("NOVU_SECRET_KEY")
+        or os.getenv("NOVU_API_KEY")
+        or ""
+    ).strip()
+    workflow_id = (
+        os.getenv("NOVU_WORKFLOW_PRODUCT_CLAIM_OTP")
+        or "product-claim-otp"
+    ).strip()
+    if not novu_secret_key or not workflow_id:
+        return
+
+    trimmed_subscriber_id = subscriber_id.strip()
+    if not trimmed_subscriber_id:
+        return
+
+    base_url = (os.getenv("NOVU_API_URL") or "https://api.novu.co").rstrip("/")
+    headers = {
+        "Authorization": f"ApiKey {novu_secret_key}",
+        "Content-Type": "application/json",
+    }
+    subscriber_payload: dict[str, Any] = {
+        "subscriberId": trimmed_subscriber_id,
+        "email": email,
+    }
+    if first_name:
+        subscriber_payload["firstName"] = first_name
+    if last_name:
+        subscriber_payload["lastName"] = last_name
+
+    trigger_payload: dict[str, Any] = {
+        "workflowId": workflow_id,
+        "to": trimmed_subscriber_id,
+        "payload": {
+            "notification": {
+                "kind": "product_claim_otp",
+                "code": code,
+                "method": "email_otp",
+                "domain": domain,
+                "productName": product_name,
+                "expiresAt": expires_at.isoformat(),
+                "timestamp": _utc_now().isoformat(),
+            }
+        },
+        "transactionId": (
+            f"product_claim_otp:{trimmed_subscriber_id}:{domain}:"
+            f"{int(expires_at.timestamp())}"
+        ),
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            await client.post(
+                f"{base_url}/v1/subscribers",
+                headers=headers,
+                json=subscriber_payload,
+            )
+            await client.post(
+                f"{base_url}/v1/events/trigger",
+                headers=headers,
+                json=trigger_payload,
+            )
+    except Exception as exc:
+        print(
+            "[novu] failed to send product claim OTP",
+            {
+                "error": str(exc),
+                "subscriberId": trimmed_subscriber_id,
+            },
+        )
 
 
 def _extract_adjustment_amount(metadata: Any) -> float | None:
@@ -527,6 +726,88 @@ async def get_member_overview_context(
     )
 
 
+@router.get("/overview/summary", response_model=MemberOverviewSummaryPayload)
+async def get_member_overview_summary(
+    current_user: CurrentUser,
+    days: int = Query(default=7, ge=1, le=365),
+    session: Session = Depends(get_session),
+) -> MemberOverviewSummaryPayload:
+    _ensure_active_user(current_user)
+
+    products_stmt = select(Product.id).where(Product.user_id == current_user.id)
+    product_rows = (await session.exec(products_stmt)).all()
+    product_ids = [int(product_id) for product_id in product_rows]
+
+    now = _utc_now()
+    today_start = datetime.combine(now.date(), time.min, tzinfo=timezone.utc)
+    range_start = today_start - timedelta(days=days - 1)
+    range_end = today_start + timedelta(days=1)
+
+    daily_totals: dict[str, dict[str, int]] = {}
+
+    if product_ids:
+        traffic_stmt = (
+            select(ProductTrafficDaily)
+            .where(
+                ProductTrafficDaily.product_id.in_(product_ids),
+                ProductTrafficDaily.date >= range_start,
+                ProductTrafficDaily.date < range_end,
+            )
+            .order_by(ProductTrafficDaily.date.asc())
+        )
+        traffic_rows = (await session.exec(traffic_stmt)).all()
+
+        for row in traffic_rows:
+            day_key = row.date.date().isoformat()
+            entry = daily_totals.setdefault(
+                day_key,
+                {"views": 0, "uniqueVisitors": 0},
+            )
+            entry["views"] += int(row.page_views or 0)
+            entry["uniqueVisitors"] += int(row.unique_visitors or 0)
+
+    upvotes_in_range = 0
+    if product_ids:
+        upvotes_stmt = (
+            select(func.count(ProductUpvote.id))
+            .where(
+                ProductUpvote.product_id.in_(product_ids),
+                ProductUpvote.created_at >= range_start,
+                ProductUpvote.created_at < range_end,
+            )
+        )
+        upvotes_in_range = int((await session.exec(upvotes_stmt)).one() or 0)
+
+    views_over_time: list[MemberOverviewSummaryPoint] = []
+    total_views = 0
+    total_unique_visitors = 0
+
+    for index in range(days):
+        cursor = range_start + timedelta(days=index)
+        key = cursor.date().isoformat()
+        totals = daily_totals.get(key, {"views": 0, "uniqueVisitors": 0})
+        day_views = int(totals.get("views", 0))
+        day_unique = int(totals.get("uniqueVisitors", 0))
+        total_views += day_views
+        total_unique_visitors += day_unique
+        views_over_time.append(
+            MemberOverviewSummaryPoint(
+                date=key,
+                label=cursor.strftime("%b %d").replace(" 0", " "),
+                views=day_views,
+                uniqueVisitors=day_unique,
+            )
+        )
+
+    return MemberOverviewSummaryPayload(
+        rangeDays=days,
+        totalViews=total_views,
+        uniqueVisitors=total_unique_visitors,
+        upvotesInRange=upvotes_in_range,
+        viewsOverTime=views_over_time,
+    )
+
+
 @router.get(
     "/features/{feature_key}/has-access",
     response_model=MemberFeatureAccessPayload,
@@ -598,7 +879,7 @@ async def get_member_feature_access(
     )
 
 
-@router.get("/products")
+@router.get("/products", response_model=MemberProductsListPayload)
 async def list_member_products(
     current_user: CurrentUser,
     verification: str | None = Query(default=None),
@@ -608,7 +889,7 @@ async def list_member_products(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=10, ge=1, le=100),
     session: Session = Depends(get_session),
-) -> dict[str, Any]:
+) -> MemberProductsListPayload:
     _ensure_active_user(current_user)
 
     safe_sort = sort if sort in PRODUCT_SORT_KEYS else "new"
@@ -684,7 +965,7 @@ async def list_member_products(
         )
         default_plan = (await session.exec(default_plan_stmt)).first()
 
-    payload_products: list[dict[str, Any]] = []
+    payload_products: list[MemberProductListItem] = []
     for product in products:
         entitlement_features = {
             entitlement.feature_key
@@ -704,67 +985,67 @@ async def list_member_products(
             or "analytics.basic" in entitlement_features
         )
         plan_for_display = product.plan or default_plan
-        plan_payload = (
-            {
-                "id": str(plan_for_display.id),
-                "name": plan_for_display.name,
-            }
-            if plan_for_display
-            else None
-        )
-        category_payload = (
-            {
-                "id": str(product.category.id),
-                "name": product.category.name,
-                "slug": product.category.slug,
-            }
-            if product.category
-            else None
-        )
-        verification_payload = (
-            {"isVerified": bool(product.verification.is_verified)}
-            if product.verification
-            else None
-        )
-        analytics_payload = (
-            {"upvotes": int(product.analytics.upvotes)}
-            if product.analytics
-            else {"upvotes": 0}
-        )
-
         payload_products.append(
-            {
-                "id": str(product.id),
-                "name": product.name,
-                "slug": product.slug,
-                "logo": product.logo,
-                "userId": str(product.user_id),
-                "status": product.status.value if product.status else ProductStatus.PUBLISHED.value,
-                "createdAt": _iso_or_none(product.created_at),
-                "updatedAt": _iso_or_none(product.updated_at),
-                "category": category_payload,
-                "plan": plan_payload,
-                "verification": verification_payload,
-                "analytics": analytics_payload,
-                "canDelete": product.user_id == current_user.id,
-                "canViewAnalytics": can_view_analytics,
-            }
+            MemberProductListItem(
+                id=str(product.id),
+                name=product.name,
+                slug=product.slug,
+                logo=product.logo,
+                userId=str(product.user_id),
+                status=product.status.value
+                if product.status
+                else ProductStatus.PUBLISHED.value,
+                createdAt=_iso_or_none(product.created_at),
+                updatedAt=_iso_or_none(product.updated_at),
+                category=(
+                    MemberProductCategorySummary(
+                        id=str(product.category.id),
+                        name=product.category.name,
+                        slug=product.category.slug,
+                    )
+                    if product.category
+                    else None
+                ),
+                plan=(
+                    MemberProductPlanSummary(
+                        id=str(plan_for_display.id),
+                        name=plan_for_display.name,
+                    )
+                    if plan_for_display
+                    else None
+                ),
+                verification=(
+                    MemberProductVerificationSummary(
+                        isVerified=bool(product.verification.is_verified)
+                    )
+                    if product.verification
+                    else None
+                ),
+                analytics=MemberProductAnalyticsSummary(
+                    upvotes=int(product.analytics.upvotes) if product.analytics else 0
+                ),
+                canDelete=product.user_id == current_user.id,
+                canViewAnalytics=can_view_analytics,
+            )
         )
 
-    return {
-        "products": payload_products,
-        "total": total,
-        "page": page,
-        "limit": limit,
-    }
+    return MemberProductsListPayload(
+        products=payload_products,
+        total=total,
+        page=page,
+        limit=limit,
+    )
 
 
-@router.get("/products/{product_id}/ownership")
+@router.get(
+    "/products/{product_id}/ownership",
+    response_model=MemberOwnedProductPayload,
+)
 async def get_owned_product_context(
     product_id: str,
     current_user: CurrentUser,
     session: Session = Depends(get_session),
-) -> dict[str, Any]:
+) -> MemberOwnedProductPayload:
     _ensure_active_user(current_user)
     product = await _get_owned_product_by_id(
         session,
@@ -773,26 +1054,31 @@ async def get_owned_product_context(
         include_plan_assignments=False,
     )
     current_plan = _map_manageable_plan(product)
-    return {
-        "product": {
-            "id": str(product.id),
-            "name": product.name,
-            "slug": product.slug,
-            "userId": str(product.user_id),
-            "status": product.status.value if product.status else ProductStatus.PUBLISHED.value,
-            "planAssignedAt": _iso_or_none(product.plan_assigned_at),
-            "currentPlan": current_plan.model_dump() if current_plan else None,
-        }
-    }
+    return MemberOwnedProductPayload(
+        product=MemberOwnedProductSummary(
+            id=str(product.id),
+            name=product.name,
+            slug=product.slug,
+            userId=str(product.user_id),
+            status=product.status.value
+            if product.status
+            else ProductStatus.PUBLISHED.value,
+            planAssignedAt=_iso_or_none(product.plan_assigned_at),
+            currentPlan=current_plan,
+        )
+    )
 
 
-@router.post("/products/{product_id}/plan")
+@router.post(
+    "/products/{product_id}/plan",
+    response_model=MemberSuccessPayload,
+)
 async def set_owned_product_plan(
     product_id: str,
-    payload: dict[str, Any],
+    payload: MemberSetProductPlanInput,
     current_user: CurrentUser,
     session: Session = Depends(get_session),
-) -> dict[str, Any]:
+) -> MemberSuccessPayload:
     _ensure_active_user(current_user)
     product = await _get_owned_product_by_id(
         session,
@@ -801,25 +1087,9 @@ async def set_owned_product_plan(
         include_plan_assignments=False,
     )
 
-    raw_plan_id = payload.get("planId")
-    if raw_plan_id is not None and not isinstance(raw_plan_id, str):
-        raise HTTPException(status_code=422, detail="planId must be a string or null.")
-    plan_id = raw_plan_id.strip() if isinstance(raw_plan_id, str) else None
-    if plan_id == "":
-        plan_id = None
-
-    subscription_id_provided = "subscriptionId" in payload
-    raw_subscription_id = payload.get("subscriptionId")
-    if raw_subscription_id is not None and not isinstance(raw_subscription_id, str):
-        raise HTTPException(
-            status_code=422,
-            detail="subscriptionId must be a string or null.",
-        )
-    subscription_id = (
-        raw_subscription_id.strip() if isinstance(raw_subscription_id, str) else None
-    )
-    if subscription_id == "":
-        subscription_id = None
+    plan_id = _normalize_optional(payload.planId)
+    subscription_id = _normalize_optional(payload.subscriptionId)
+    subscription_id_provided = "subscriptionId" in payload.model_fields_set
 
     if not plan_id:
         product.plan_id = None
@@ -854,15 +1124,18 @@ async def set_owned_product_plan(
         await session.rollback()
         raise HTTPException(status_code=409, detail="Unable to update product plan.") from exc
 
-    return {"success": True}
+    return MemberSuccessPayload(success=True)
 
 
-@router.get("/products/{product_id}/connector")
+@router.get(
+    "/products/{product_id}/connector",
+    response_model=MemberProductConnectorPayload | None,
+)
 async def get_member_product_connector(
     product_id: str,
     current_user: CurrentUser,
     session: Session = Depends(get_session),
-) -> dict[str, Any] | None:
+) -> MemberProductConnectorPayload | None:
     _ensure_active_user(current_user)
     product = await _get_owned_product_by_id(
         session,
@@ -894,27 +1167,27 @@ async def get_member_product_connector(
     account_id = config.get("accountId")
     brand_id = config.get("brandId")
 
-    return {
-        "id": str(connector.id),
-        "provider": connector.provider.value if connector.provider else None,
-        "status": connector.status.value if connector.status else None,
-        "lastSyncedAt": _iso_or_none(connector.last_synced_at),
-        "lastSyncError": connector.last_sync_error,
-        "latestAllTimeRevenueCents": connector.latest_all_time_revenue_cents,
-        "latestCurrencyCode": connector.latest_currency_code,
-        "latestPeriodStart": _iso_or_none(connector.latest_period_start),
-        "config": config,
-        "keyHint": key_hint,
-        "accountId": account_id if isinstance(account_id, str) else None,
-        "brandId": brand_id if isinstance(brand_id, str) else None,
-    }
+    return MemberProductConnectorPayload(
+        id=str(connector.id),
+        provider=connector.provider.value if connector.provider else None,
+        status=connector.status.value if connector.status else None,
+        lastSyncedAt=_iso_or_none(connector.last_synced_at),
+        lastSyncError=connector.last_sync_error,
+        latestAllTimeRevenueCents=connector.latest_all_time_revenue_cents,
+        latestCurrencyCode=connector.latest_currency_code,
+        latestPeriodStart=_iso_or_none(connector.latest_period_start),
+        config=config,
+        keyHint=key_hint,
+        accountId=account_id if isinstance(account_id, str) else None,
+        brandId=brand_id if isinstance(brand_id, str) else None,
+    )
 
 
-@router.get("/rewards/snapshot")
+@router.get("/rewards/snapshot", response_model=MemberRewardsSnapshotPayload)
 async def get_member_rewards_snapshot(
     current_user: CurrentUser,
     session: Session = Depends(get_session),
-) -> dict[str, Any]:
+) -> MemberRewardsSnapshotPayload:
     _ensure_active_user(current_user)
     user_id = current_user.id
 
@@ -1016,26 +1289,28 @@ async def get_member_rewards_snapshot(
         if row[0]
     }
 
-    balance_payload = {
-        "balance": int(balance.balance) if balance else 0,
-        "lifetimeEarned": int(balance.lifetime_earned) if balance else 0,
-        "lifetimeSpent": int(balance.lifetime_spent) if balance else 0,
-        "lifetimeAdjusted": int(balance.lifetime_adjusted) if balance else 0,
-        "currentStreakCount": int(balance.current_streak_count) if balance else 0,
-        "longestStreakCount": int(balance.longest_streak_count) if balance else 0,
-        "currentStreakTier": balance.current_streak_tier if balance else None,
-        "streakActiveThrough": _iso_or_none(balance.streak_active_through) if balance else None,
-        "lastEarnedAt": _iso_or_none(balance.last_earned_at) if balance else None,
-        "lastRedeemedAt": _iso_or_none(balance.last_redeemed_at) if balance else None,
-    }
+    balance_payload = MemberRewardsBalancePayload(
+        balance=int(balance.balance) if balance else 0,
+        lifetimeEarned=int(balance.lifetime_earned) if balance else 0,
+        lifetimeSpent=int(balance.lifetime_spent) if balance else 0,
+        lifetimeAdjusted=int(balance.lifetime_adjusted) if balance else 0,
+        currentStreakCount=int(balance.current_streak_count) if balance else 0,
+        longestStreakCount=int(balance.longest_streak_count) if balance else 0,
+        currentStreakTier=balance.current_streak_tier if balance else None,
+        streakActiveThrough=_iso_or_none(balance.streak_active_through)
+        if balance
+        else None,
+        lastEarnedAt=_iso_or_none(balance.last_earned_at) if balance else None,
+        lastRedeemedAt=_iso_or_none(balance.last_redeemed_at) if balance else None,
+    )
 
-    catalog_payload = []
+    catalog_payload: list[MemberRewardCatalogItemPayload] = []
     for item in catalog_items:
         feature_key = item.feature_key
         active_count = active_count_map.get(feature_key, 0)
         pending_count = pending_count_map.get(feature_key, 0)
         reasons: list[str] = []
-        if balance_payload["balance"] < item.base_cost:
+        if balance_payload.balance < item.base_cost:
             reasons.append("Insufficient rewards")
         if (
             item.max_active_per_user is not None
@@ -1051,30 +1326,32 @@ async def get_member_rewards_snapshot(
             reasons.append("Add a product to redeem")
 
         catalog_payload.append(
-            {
-                "id": str(item.id),
-                "featureKey": feature_key,
-                "planFeatureKey": item.plan_feature_key,
-                "name": item.name,
-                "description": item.description,
-                "category": item.category.value if item.category else RewardFeatureCategory.UTILITY.value,
-                "baseCost": item.base_cost,
-                "durationSeconds": item.duration_seconds,
-                "isActive": bool(item.is_active),
-                "maxActivePerUser": item.max_active_per_user,
-                "maxPendingPerUser": item.max_pending_per_user,
-                "requiresProduct": bool(item.requires_product),
-                "metadata": item.metadata_ if item.metadata_ is not None else None,
-                "canAfford": balance_payload["balance"] >= item.base_cost,
-                "canRedeem": len(reasons) == 0,
-                "reasons": reasons,
-                "activeCount": active_count,
-                "pendingCount": pending_count,
-                "requiresSchedule": item.category == RewardFeatureCategory.PLACEMENT,
-            }
+            MemberRewardCatalogItemPayload(
+                id=str(item.id),
+                featureKey=feature_key,
+                planFeatureKey=item.plan_feature_key,
+                name=item.name,
+                description=item.description,
+                category=item.category.value
+                if item.category
+                else RewardFeatureCategory.UTILITY.value,
+                baseCost=item.base_cost,
+                durationSeconds=item.duration_seconds,
+                isActive=bool(item.is_active),
+                maxActivePerUser=item.max_active_per_user,
+                maxPendingPerUser=item.max_pending_per_user,
+                requiresProduct=bool(item.requires_product),
+                metadata=item.metadata_ if item.metadata_ is not None else None,
+                canAfford=balance_payload.balance >= item.base_cost,
+                canRedeem=len(reasons) == 0,
+                reasons=reasons,
+                activeCount=active_count,
+                pendingCount=pending_count,
+                requiresSchedule=item.category == RewardFeatureCategory.PLACEMENT,
+            )
         )
 
-    transactions_payload = []
+    transactions_payload: list[MemberRewardTransactionPayload] = []
     for transaction in transactions:
         adjustment_amount = (
             _extract_adjustment_amount(transaction.metadata_)
@@ -1082,48 +1359,52 @@ async def get_member_rewards_snapshot(
             else None
         )
         transactions_payload.append(
-            {
-                "id": str(transaction.id),
-                "type": transaction.type.value if transaction.type else RewardTransactionType.EARN.value,
-                "rewardAmount": transaction.reward_amount,
-                "balanceAfter": transaction.balance_after,
-                "createdAt": _iso_or_none(transaction.created_at),
-                "ruleKey": transaction.rule.key if transaction.rule else transaction.rule_key,
-                "ruleName": transaction.rule.name if transaction.rule else None,
-                "rewardKey": transaction.catalog_item.feature_key
+            MemberRewardTransactionPayload(
+                id=str(transaction.id),
+                type=transaction.type.value
+                if transaction.type
+                else RewardTransactionType.EARN.value,
+                rewardAmount=transaction.reward_amount,
+                balanceAfter=transaction.balance_after,
+                createdAt=_iso_or_none(transaction.created_at),
+                ruleKey=transaction.rule.key if transaction.rule else transaction.rule_key,
+                ruleName=transaction.rule.name if transaction.rule else None,
+                rewardKey=transaction.catalog_item.feature_key
                 if transaction.catalog_item
                 else transaction.reward_key,
-                "rewardName": transaction.catalog_item.name if transaction.catalog_item else None,
-                "productId": str(transaction.product.id) if transaction.product else None,
-                "productName": transaction.product.name if transaction.product else None,
-                "metadata": transaction.metadata_ if transaction.metadata_ is not None else None,
-                "notes": transaction.notes,
-                "adjustmentAmount": adjustment_amount,
-            }
+                rewardName=transaction.catalog_item.name
+                if transaction.catalog_item
+                else None,
+                productId=str(transaction.product.id) if transaction.product else None,
+                productName=transaction.product.name if transaction.product else None,
+                metadata=transaction.metadata_ if transaction.metadata_ is not None else None,
+                notes=transaction.notes,
+                adjustmentAmount=adjustment_amount,
+            )
         )
 
     active_entitlements_payload = [
-        {
-            "id": str(entitlement.id),
-            "featureKey": entitlement.catalog_item.feature_key
+        MemberActiveEntitlementPayload(
+            id=str(entitlement.id),
+            featureKey=entitlement.catalog_item.feature_key
             if entitlement.catalog_item
             else entitlement.feature_key,
-            "name": entitlement.catalog_item.name
+            name=entitlement.catalog_item.name
             if entitlement.catalog_item
             else entitlement.feature_key,
-            "status": entitlement.status.value
+            status=entitlement.status.value
             if entitlement.status
             else FeatureEntitlementStatus.PENDING.value,
-            "startsAt": _iso_or_none(entitlement.starts_at),
-            "expiresAt": _iso_or_none(entitlement.expires_at),
-            "productId": str(entitlement.product.id) if entitlement.product else None,
-            "productName": entitlement.product.name if entitlement.product else None,
-            "productSlug": entitlement.product.slug if entitlement.product else None,
-        }
+            startsAt=_iso_or_none(entitlement.starts_at),
+            expiresAt=_iso_or_none(entitlement.expires_at),
+            productId=str(entitlement.product.id) if entitlement.product else None,
+            productName=entitlement.product.name if entitlement.product else None,
+            productSlug=entitlement.product.slug if entitlement.product else None,
+        )
         for entitlement in entitlements
     ]
 
-    recent_redemptions_payload = []
+    recent_redemptions_payload: list[MemberRecentRedemptionPayload] = []
     for redemption in redemptions:
         latest_schedule = None
         if redemption.placement_schedules:
@@ -1133,47 +1414,240 @@ async def get_member_rewards_snapshot(
                 reverse=True,
             )[0]
         recent_redemptions_payload.append(
-            {
-                "id": str(redemption.id),
-                "featureKey": redemption.catalog_item.feature_key
+            MemberRecentRedemptionPayload(
+                id=str(redemption.id),
+                featureKey=redemption.catalog_item.feature_key
                 if redemption.catalog_item
                 else redemption.feature_key,
-                "name": redemption.catalog_item.name
+                name=redemption.catalog_item.name
                 if redemption.catalog_item
                 else redemption.feature_key,
-                "status": redemption.status.value if redemption.status else RedemptionStatus.PENDING.value,
-                "cost": redemption.cost,
-                "createdAt": _iso_or_none(redemption.created_at),
-                "startsAt": _iso_or_none(redemption.starts_at),
-                "activatedAt": _iso_or_none(redemption.activated_at),
-                "expiresAt": _iso_or_none(redemption.expires_at),
-                "productId": str(redemption.product.id) if redemption.product else None,
-                "productName": redemption.product.name if redemption.product else None,
-                "productSlug": redemption.product.slug if redemption.product else None,
-                "placementStatus": latest_schedule.status.value
+                status=redemption.status.value
+                if redemption.status
+                else RedemptionStatus.PENDING.value,
+                cost=redemption.cost,
+                createdAt=_iso_or_none(redemption.created_at),
+                startsAt=_iso_or_none(redemption.starts_at),
+                activatedAt=_iso_or_none(redemption.activated_at),
+                expiresAt=_iso_or_none(redemption.expires_at),
+                productId=str(redemption.product.id) if redemption.product else None,
+                productName=redemption.product.name if redemption.product else None,
+                productSlug=redemption.product.slug if redemption.product else None,
+                placementStatus=latest_schedule.status.value
                 if latest_schedule and latest_schedule.status
                 else None,
-            }
+            )
         )
 
     product_options_payload = [
-        {
-            "id": str(product.id),
-            "name": product.name,
-            "slug": product.slug,
-            "status": product.status.value if product.status else ProductStatus.DRAFT.value,
-        }
+        MemberRewardProductOptionPayload(
+            id=str(product.id),
+            name=product.name,
+            slug=product.slug,
+            status=product.status.value
+            if product.status
+            else ProductStatus.DRAFT.value,
+        )
         for product in product_options
     ]
 
-    return {
-        "balance": balance_payload,
-        "transactions": transactions_payload,
-        "catalog": catalog_payload,
-        "activeEntitlements": active_entitlements_payload,
-        "recentRedemptions": recent_redemptions_payload,
-        "productOptions": product_options_payload,
-    }
+    return MemberRewardsSnapshotPayload(
+        balance=balance_payload,
+        transactions=transactions_payload,
+        catalog=catalog_payload,
+        activeEntitlements=active_entitlements_payload,
+        recentRedemptions=recent_redemptions_payload,
+        productOptions=product_options_payload,
+    )
+
+
+@router.post("/rewards/redeem", response_model=MemberRewardsRedeemPayload)
+async def redeem_member_reward(
+    payload: MemberRewardsRedeemInput,
+    current_user: CurrentUser,
+    session: Session = Depends(get_session),
+) -> MemberRewardsRedeemPayload:
+    _ensure_active_user(current_user)
+
+    feature_key = _normalize_optional(payload.featureKey)
+    if not feature_key:
+        raise HTTPException(status_code=400, detail="Missing reward selection.")
+
+    catalog_stmt = (
+        select(RewardCatalogItem)
+        .where(
+            RewardCatalogItem.feature_key == feature_key,
+            RewardCatalogItem.is_active.is_(True),
+        )
+        .limit(1)
+    )
+    catalog_item = (await session.exec(catalog_stmt)).first()
+    if not catalog_item:
+        raise HTTPException(status_code=404, detail="Reward is unavailable.")
+
+    if catalog_item.requires_product and not payload.productId:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Reward '{feature_key}' requires a product context.",
+        )
+
+    owned_product: Product | None = None
+    if payload.productId:
+        owned_product = await _get_owned_product_by_id(
+            session,
+            product_id=payload.productId,
+            user_id=current_user.id,
+            include_plan_assignments=False,
+        )
+
+    active_count_stmt = (
+        select(func.count(FeatureEntitlement.id))
+        .where(
+            FeatureEntitlement.user_id == current_user.id,
+            FeatureEntitlement.feature_key == feature_key,
+            FeatureEntitlement.status.in_(ACTIVE_REWARD_ENTITLEMENT_STATUSES),
+        )
+        .limit(1)
+    )
+    active_count = int((await session.exec(active_count_stmt)).one_or_none() or 0)
+    if (
+        catalog_item.max_active_per_user is not None
+        and active_count >= catalog_item.max_active_per_user
+    ):
+        raise HTTPException(status_code=400, detail="Active limit reached.")
+
+    pending_count_stmt = (
+        select(func.count(Redemption.id))
+        .where(
+            Redemption.user_id == current_user.id,
+            Redemption.feature_key == feature_key,
+            Redemption.status == RedemptionStatus.PENDING,
+        )
+        .limit(1)
+    )
+    pending_count = int((await session.exec(pending_count_stmt)).one_or_none() or 0)
+    if (
+        catalog_item.max_pending_per_user is not None
+        and pending_count >= catalog_item.max_pending_per_user
+    ):
+        raise HTTPException(status_code=400, detail="Pending limit reached.")
+
+    balance_stmt = select(RewardBalance).where(RewardBalance.user_id == current_user.id).limit(1)
+    balance = (await session.exec(balance_stmt)).first()
+    if not balance:
+        balance = RewardBalance(user_id=current_user.id)
+        session.add(balance)
+        await session.flush()
+
+    if balance.balance < catalog_item.base_cost:
+        raise HTTPException(status_code=400, detail="Insufficient rewards.")
+
+    now = _utc_now()
+    requires_schedule = catalog_item.category == RewardFeatureCategory.PLACEMENT
+    auto_activate = not requires_schedule
+    starts_at = now
+    duration_seconds = catalog_item.duration_seconds if catalog_item.duration_seconds and catalog_item.duration_seconds > 0 else None
+    expires_at = (
+        starts_at + timedelta(seconds=duration_seconds)
+        if duration_seconds
+        else None
+    )
+
+    redemption = Redemption(
+        user_id=current_user.id,
+        feature_key=feature_key,
+        product_id=owned_product.id if owned_product else None,
+        status=RedemptionStatus.ACTIVE if auto_activate else RedemptionStatus.PENDING,
+        cost=catalog_item.base_cost,
+        original_cost=catalog_item.base_cost,
+        refunded_rewards=0,
+        starts_at=starts_at,
+        activated_at=starts_at if auto_activate else None,
+        expires_at=expires_at,
+        metadata_={"notes": payload.notes} if payload.notes else None,
+    )
+    session.add(redemption)
+    await session.flush()
+
+    entitlement = FeatureEntitlement(
+        user_id=current_user.id,
+        feature_key=feature_key,
+        redemption_id=redemption.id,
+        product_id=owned_product.id if owned_product else None,
+        subject_type=FeatureSubjectType.PRODUCT if owned_product else FeatureSubjectType.USER,
+        subject_id=str(owned_product.id) if owned_product else str(current_user.id),
+        status=(
+            FeatureEntitlementStatus.ACTIVE
+            if auto_activate
+            else FeatureEntitlementStatus.PENDING
+        ),
+        starts_at=starts_at,
+        activated_at=starts_at if auto_activate else None,
+        expires_at=expires_at,
+        metadata_={"notes": payload.notes} if payload.notes else None,
+    )
+    session.add(entitlement)
+    await session.flush()
+
+    slot_key: str | None = None
+    if requires_schedule:
+        if not owned_product:
+            raise HTTPException(
+                status_code=400,
+                detail="Placement rewards must target a product.",
+            )
+        slot_key = _normalize_optional(payload.slotKey) or f"{feature_key}:default"
+        schedule_ends_at = expires_at or (starts_at + timedelta(days=1))
+        schedule = PlacementSchedule(
+            entitlement_id=entitlement.id,
+            redemption_id=redemption.id,
+            feature_key=feature_key,
+            product_id=owned_product.id,
+            slot_key=slot_key,
+            status=PlacementStatus.PENDING,
+            starts_at=starts_at,
+            ends_at=schedule_ends_at,
+            metadata_={"notes": payload.notes} if payload.notes else None,
+        )
+        session.add(schedule)
+
+    balance.balance -= catalog_item.base_cost
+    balance.lifetime_spent += catalog_item.base_cost
+    balance.last_redeemed_at = now
+    session.add(balance)
+
+    transaction_metadata: dict[str, Any] | None = None
+    if slot_key:
+        transaction_metadata = {"slotKey": slot_key}
+    if payload.notes:
+        transaction_metadata = transaction_metadata or {}
+        transaction_metadata["notes"] = payload.notes
+
+    transaction = RewardTransaction(
+        user_id=current_user.id,
+        type=RewardTransactionType.SPEND,
+        reward_amount=catalog_item.base_cost,
+        balance_after=balance.balance,
+        rule_id=None,
+        rule_key=None,
+        reward_key=feature_key,
+        redemption_id=redemption.id,
+        product_id=owned_product.id if owned_product else None,
+        notes=_normalize_optional(payload.notes),
+        metadata_=transaction_metadata,
+    )
+    session.add(transaction)
+
+    await session.commit()
+    await session.refresh(balance)
+    await session.refresh(redemption)
+
+    return MemberRewardsRedeemPayload(
+        success=True,
+        redemptionId=str(redemption.id),
+        balanceAfter=balance.balance,
+        message=f"Redeemed {catalog_item.name}",
+    )
 
 
 async def _reserve_claim_attempt(
@@ -1255,12 +1729,12 @@ async def _get_claim_product(
     return product
 
 
-@router.get("/claims/products")
+@router.get("/claims/products", response_model=MemberClaimableProductsPayload)
 async def list_claimable_products(
     current_user: CurrentUser,
     q: str | None = Query(default=None),
     session: Session = Depends(get_session),
-) -> dict[str, Any]:
+) -> MemberClaimableProductsPayload:
     _ensure_active_user(current_user)
 
     filters = [
@@ -1285,7 +1759,7 @@ async def list_claimable_products(
         .options(selectinload(Product.verification))
     )
     products = (await session.exec(stmt)).all()
-    payload = []
+    payload: list[MemberClaimableProductPayload] = []
     for product in products:
         domain = _extract_root_domain(product.website_url)
         if not domain:
@@ -1296,42 +1770,60 @@ async def list_claimable_products(
             else _generate_verification_txt(product.website_url or domain)
         )
         payload.append(
-            {
-                "id": str(product.id),
-                "name": product.name,
-                "slug": product.slug,
-                "websiteUrl": product.website_url,
-                "domain": domain,
-                "expectedTxt": expected_txt,
-            }
+            MemberClaimableProductPayload(
+                id=str(product.id),
+                name=product.name,
+                slug=product.slug,
+                websiteUrl=product.website_url,
+                domain=domain,
+                expectedTxt=expected_txt,
+            )
         )
-    return {"products": payload}
+    return MemberClaimableProductsPayload(products=payload)
 
 
-@router.get("/claims/{product_id}/target")
+@router.get(
+    "/claims/{product_id}/target",
+    response_model=MemberClaimableProductPayload,
+)
 async def get_claim_target(
     product_id: str,
     current_user: CurrentUser,
     session: Session = Depends(get_session),
-) -> dict[str, Any]:
+) -> MemberClaimableProductPayload:
     _ensure_active_user(current_user)
     product = await _get_claim_product(session, product_id=product_id)
     if product.user_id == current_user.id:
         raise HTTPException(status_code=400, detail="You already own this product.")
-    return _resolve_claim_target_payload(product)
+    return MemberClaimableProductPayload.model_validate(
+        _resolve_claim_target_payload(product)
+    )
 
 
-@router.post("/claims/{product_id}/dns/confirm")
+@router.post(
+    "/claims/{product_id}/dns/confirm",
+    response_model=MemberClaimDnsConfirmPayload,
+)
 async def confirm_claim_dns(
     product_id: str,
     current_user: CurrentUser,
     session: Session = Depends(get_session),
-) -> dict[str, Any]:
+) -> MemberClaimDnsConfirmPayload:
     _ensure_active_user(current_user)
     product = await _get_claim_product(session, product_id=product_id)
     if product.user_id == current_user.id:
         raise HTTPException(status_code=400, detail="You already own this product.")
-    _resolve_claim_target_payload(product)
+    target = _resolve_claim_target_payload(product)
+
+    dns_ok, dns_error = await _verify_claim_dns_txt_record(
+        target["websiteUrl"],
+        target["expectedTxt"],
+    )
+    if not dns_ok:
+        raise HTTPException(
+            status_code=400,
+            detail=dns_error or "Verification TXT record not found in DNS.",
+        )
 
     lock_expires_at = _utc_now() + DNS_LOCK_WINDOW
     _, reserve_error = await _reserve_claim_attempt(
@@ -1344,26 +1836,43 @@ async def confirm_claim_dns(
     if reserve_error:
         raise HTTPException(status_code=409, detail=reserve_error)
 
-    return {"success": True, "lockExpiresAt": _iso_or_none(lock_expires_at)}
+    return MemberClaimDnsConfirmPayload(
+        success=True,
+        lockExpiresAt=_iso_or_none(lock_expires_at),
+    )
 
 
-@router.post("/claims/{product_id}/otp/request")
+@router.post(
+    "/claims/{product_id}/otp/request",
+    response_model=MemberClaimOtpRequestPayload,
+)
 async def request_claim_otp(
     product_id: str,
-    payload: dict[str, Any],
+    payload: MemberClaimOtpRequestInput,
     current_user: CurrentUser,
     session: Session = Depends(get_session),
-) -> dict[str, Any]:
+) -> MemberClaimOtpRequestPayload:
     _ensure_active_user(current_user)
-    email = _normalize_optional(str(payload.get("email") or ""))
-    otp_hash = _normalize_optional(str(payload.get("otpHash") or ""))
+    email = _normalize_optional(payload.email)
+    otp_hash = _normalize_optional(payload.otpHash)
+    code = _normalize_optional(payload.code)
     if not email or "@" not in email:
         raise HTTPException(status_code=400, detail="Enter a valid email.")
-    if not otp_hash:
-        raise HTTPException(status_code=400, detail="Missing verification code hash.")
+
+    if code and not CLAIM_OTP_PATTERN.match(code):
+        raise HTTPException(
+            status_code=400,
+            detail="Enter the 6-digit code from your email.",
+        )
+
+    if code:
+        otp_hash = _hash_claim_otp_code(code)
+    elif not otp_hash:
+        code = _generate_claim_otp_code()
+        otp_hash = _hash_claim_otp_code(code)
 
     expires_at = _parse_iso_datetime(
-        payload.get("otpExpiresAt") if isinstance(payload.get("otpExpiresAt"), str) else None
+        payload.otpExpiresAt
     ) or (_utc_now() + CLAIM_PENDING_WINDOW)
 
     product = await _get_claim_product(session, product_id=product_id)
@@ -1408,23 +1917,46 @@ async def request_claim_otp(
     if reserve_error:
         raise HTTPException(status_code=409, detail=reserve_error)
 
-    return {
-        "success": True,
-        "expiresAt": _iso_or_none(expires_at),
-        "domain": target["domain"],
-        "productName": target["name"],
-    }
+    if code:
+        await _send_claim_otp_notification(
+            subscriber_id=current_user.clerk_id or str(current_user.id),
+            email=email.lower(),
+            first_name=current_user.first_name,
+            last_name=current_user.last_name,
+            code=code,
+            domain=target["domain"],
+            product_name=target["name"],
+            expires_at=expires_at,
+        )
+
+    return MemberClaimOtpRequestPayload(
+        success=True,
+        expiresAt=_iso_or_none(expires_at),
+        domain=target["domain"],
+        productName=target["name"],
+    )
 
 
-@router.post("/claims/{product_id}/otp/verify")
+@router.post(
+    "/claims/{product_id}/otp/verify",
+    response_model=MemberClaimOtpVerifyPayload,
+)
 async def verify_claim_otp(
     product_id: str,
-    payload: dict[str, Any],
+    payload: MemberClaimOtpVerifyInput,
     current_user: CurrentUser,
     session: Session = Depends(get_session),
-) -> dict[str, Any]:
+) -> MemberClaimOtpVerifyPayload:
     _ensure_active_user(current_user)
-    otp_hash = _normalize_optional(str(payload.get("otpHash") or ""))
+    otp_hash = _normalize_optional(payload.otpHash)
+    code = _normalize_optional(payload.code)
+    if code:
+        if not CLAIM_OTP_PATTERN.match(code):
+            raise HTTPException(
+                status_code=400,
+                detail="Enter the 6-digit code from your email.",
+            )
+        otp_hash = _hash_claim_otp_code(code)
     if not otp_hash:
         raise HTTPException(
             status_code=400,
@@ -1500,8 +2032,8 @@ async def verify_claim_otp(
 
     await session.commit()
 
-    return {
-        "success": True,
-        "slug": product.slug,
-        "previousOwnerId": str(previous_owner_id) if previous_owner_id else None,
-    }
+    return MemberClaimOtpVerifyPayload(
+        success=True,
+        slug=product.slug,
+        previousOwnerId=str(previous_owner_id) if previous_owner_id else None,
+    )

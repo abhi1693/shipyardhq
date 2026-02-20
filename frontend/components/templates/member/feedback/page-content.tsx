@@ -1,10 +1,8 @@
 import MemberFeedback from "@/components/pages/MemberFeedback"
-import { listMyFeedback } from "@/actions/member/feedback/actions"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
 
-export async function MemberFeedbackPageContent() {
-  const entries = await listMyFeedback(25)
-  return <MemberFeedback entries={entries} />
+export function MemberFeedbackPageContent() {
+  return <MemberFeedback />
 }
 
 export function MemberFeedbackPageSkeleton() {

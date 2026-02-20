@@ -84,6 +84,13 @@ export default async function TrendingToolsInCategoryPage({
     { name: "Trending", path },
   ]
 
+  const toggleHref = (nextValue: "all" | "verified") => {
+    const params = new URLSearchParams()
+    if (nextValue === "verified") params.set("revenue", "verified")
+    const qs = params.toString()
+    return qs ? `${path}?${qs}` : path
+  }
+
   if (!payloadItems.length) {
     if (verifiedRevenueOnly) {
       return (
@@ -219,14 +226,12 @@ export default async function TrendingToolsInCategoryPage({
     )
   }
 
-  const toggleHref = (nextValue: "all" | "verified") => {
-    const params = new URLSearchParams()
-    if (nextValue === "verified") params.set("revenue", "verified")
-    const qs = params.toString()
-    return qs ? `${path}?${qs}` : path
-  }
-
-  const items = payloadItems.map((item) => toProductCardItem(item))
+  const items = payloadItems.map((item) =>
+    toProductCardItem({
+      ...item,
+      scoreCount: item.scoreCount ?? undefined,
+    } as Parameters<typeof toProductCardItem>[0]),
+  )
 
   const baseUrl = (
     process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"

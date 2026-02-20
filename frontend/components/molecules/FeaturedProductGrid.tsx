@@ -28,9 +28,15 @@ export function FeaturedProductGrid({
         const badges = filterExpiredBadges
           ? product.badges ?? []
           : product.badges ?? []
-        const productCard: ProductCardItem = toProductCardItem(product, {
+        const productCard: ProductCardItem = toProductCardItem(
+          {
+            ...product,
+            scoreCount: product.scoreCount ?? undefined,
+          },
+          {
           badges,
-        })
+          },
+        )
 
         return (
           <UniformCard key={product.id} size="compact">

@@ -1,11 +1,12 @@
-import { Suspense } from "react"
+"use client"
 
+import { useMemo } from "react"
+import { useUser } from "@clerk/nextjs"
 import { Skeleton } from "@/components/atoms/skeleton"
-
 import { Card, CardContent } from "@/components/atoms/card"
-import { currentUser } from "@clerk/nextjs/server"
-import { getMemberTrafficOverview } from "@/actions/member/overview/actions"
 import { MemberAnalyticsCharts } from "@/components/templates/member/overview/analytics-charts"
+import { useGetMemberOverviewSummaryApiV1MemberOverviewSummaryGet } from "@/lib/generated/fastapi/member"
+import type { MemberOverviewSummaryPayload } from "@/lib/generated/fastapi/schemas"
 
 const AGGREGATION_WINDOW_DAYS = 7
 
@@ -19,16 +20,43 @@ const numberFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 })
 
-export async function MemberOverviewPageContent() {
-  const user = await currentUser()
+export function MemberOverviewPageContent() {
+  const { user } = useUser()
+  const summaryQuery =
+    useGetMemberOverviewSummaryApiV1MemberOverviewSummaryGet<MemberOverviewSummaryPayload | null>(
+      {
+        days: AGGREGATION_WINDOW_DAYS,
+      },
+      {
+        query: {
+          select: (response) => (response.status === 200 ? response.data : null),
+        },
+      },
+    )
 
   const primaryEmail =
     user?.primaryEmailAddress?.emailAddress ??
     user?.emailAddresses?.[0]?.emailAddress ??
     null
   const emailHandle = primaryEmail ? primaryEmail.split("@")[0] : null
-  const displayName =
-    user?.firstName ?? user?.username ?? emailHandle ?? "Shipmate"
+  const displayName = user?.firstName ?? user?.username ?? emailHandle ?? "Shipmate"
+
+  const summary = summaryQuery.data
+  const stats: StatDefinition[] = useMemo(
+    () => [
+      { id: "views", label: "Views", value: summary?.totalViews ?? 0 },
+      {
+        id: "visitors",
+        label: "Unique visitors",
+        value: summary?.uniqueVisitors ?? 0,
+      },
+      { id: "upvotes", label: "Upvotes", value: summary?.upvotesInRange ?? 0 },
+    ],
+    [summary?.totalViews, summary?.uniqueVisitors, summary?.upvotesInRange],
+  )
+
+  const trafficData = summary?.viewsOverTime ?? []
+  const hasTrafficActivity = (summary?.totalViews ?? 0) > 0 || (summary?.uniqueVisitors ?? 0) > 0
 
   return (
     <div className="space-y-8">
@@ -41,45 +69,18 @@ export async function MemberOverviewPageContent() {
         </h1>
       </header>
 
-      <Suspense fallback={<AnalyticsSectionSkeleton />}>
-        <MemberOverviewAnalyticsSection />
-      </Suspense>
+      {summaryQuery.isLoading ? (
+        <AnalyticsSectionSkeleton />
+      ) : (
+        <>
+          <AnalyticsStatRow stats={stats} />
+          <MemberAnalyticsCharts
+            trafficData={trafficData}
+            hasTrafficActivity={hasTrafficActivity}
+          />
+        </>
+      )}
     </div>
-  )
-}
-
-async function MemberOverviewAnalyticsSection() {
-  const summary = await getMemberTrafficOverview(AGGREGATION_WINDOW_DAYS)
-
-  const stats: StatDefinition[] = [
-    { id: "views", label: "Views", value: summary.totalViews },
-    {
-      id: "visitors",
-      label: "Unique visitors",
-      value: summary.uniqueVisitors,
-    },
-    { id: "upvotes", label: "Upvotes", value: summary.upvotesInRange },
-  ]
-
-  const trafficData = summary.viewsOverTime.map((point) => ({
-    date: point.date,
-    label: point.label,
-    views: point.views,
-    uniqueVisitors: point.uniqueVisitors,
-  }))
-
-  const hasTrafficActivity =
-    summary.totalViews > 0 || summary.uniqueVisitors > 0
-
-  return (
-    <>
-      <AnalyticsStatRow stats={stats} />
-
-      <MemberAnalyticsCharts
-        trafficData={trafficData}
-        hasTrafficActivity={hasTrafficActivity}
-      />
-    </>
   )
 }
 

@@ -2,7 +2,6 @@ import { ClaimProductsClient } from "@/components/pages/ClaimProductsClient"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
-import { getClaimableProducts } from "@/actions/member/products/claim"
 
 type SearchParams = Record<string, string | string[] | undefined>
 
@@ -20,7 +19,6 @@ export async function ClaimProductsPageContent({
   const qParam = toParamString(params?.q)
   const q = qParam?.trim()
   const initialSelectedId = toParamString(params?.productId)
-  const { products } = await getClaimableProducts({ q })
 
   return (
     <div className="space-y-6">
@@ -38,7 +36,6 @@ export async function ClaimProductsPageContent({
       </div>
 
       <ClaimProductsClient
-        products={products}
         initialQuery={q ?? ""}
         initialSelectedId={initialSelectedId ?? null}
       />

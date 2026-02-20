@@ -1,11 +1,11 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { formatDistanceToNow } from "date-fns"
 import { useMemo } from "react"
 import { toast } from "sonner"
+import { useQueryClient } from "@tanstack/react-query"
 
 import {
   Form,
@@ -36,13 +36,16 @@ import {
 } from "@/components/atoms/card"
 import { Badge } from "@/components/atoms/badge"
 import {
-  submitMemberFeedback,
-  type MemberFeedbackListItem,
-} from "@/actions/member/feedback/actions"
+  getListMemberFeedbackApiV1MemberFeedbackGetQueryKey,
+  useCreateMemberFeedbackApiV1MemberFeedbackPost,
+  useListMemberFeedbackApiV1MemberFeedbackGet,
+} from "@/lib/generated/fastapi/member"
+import type { MemberFeedbackListItem } from "@/lib/generated/fastapi/schemas"
 import {
   memberFeedbackSchema,
   type MemberFeedbackFormValues,
 } from "@/lib/validation/memberFeedback"
+import type { FastApiError } from "@/lib/fastapi-fetcher"
 
 const ratings = [
   { label: "1 — Needs work", value: "1" },
@@ -52,12 +55,32 @@ const ratings = [
   { label: "5 — Nailed it", value: "5" },
 ]
 
-export default function MemberFeedback({
-  entries,
-}: {
-  entries: MemberFeedbackListItem[]
-}) {
-  const router = useRouter()
+const FEEDBACK_PAGE_LIMIT = 25
+
+function getFastApiErrorDetail(error: unknown, fallback: string) {
+  const detail = (error as FastApiError | undefined)?.info as
+    | { detail?: unknown }
+    | undefined
+  if (typeof detail?.detail === "string") {
+    return detail.detail
+  }
+  return fallback
+}
+
+export default function MemberFeedback() {
+  const queryClient = useQueryClient()
+  const feedbackQuery =
+    useListMemberFeedbackApiV1MemberFeedbackGet<MemberFeedbackListItem[]>(
+      {
+        limit: FEEDBACK_PAGE_LIMIT,
+      },
+      {
+        query: {
+          select: (response) => (response.status === 200 ? response.data : []),
+        },
+      },
+    )
+  const createFeedback = useCreateMemberFeedbackApiV1MemberFeedbackPost()
   const form = useForm<MemberFeedbackFormValues>({
     resolver: zodResolver(memberFeedbackSchema),
     defaultValues: {
@@ -74,6 +97,7 @@ export default function MemberFeedback({
     formState: { isSubmitting },
   } = form
 
+  const entries = feedbackQuery.data ?? []
   const sortedEntries = useMemo(() => {
     return [...entries].sort((a, b) =>
       a.createdAt > b.createdAt ? -1 : a.createdAt < b.createdAt ? 1 : 0,
@@ -81,21 +105,26 @@ export default function MemberFeedback({
   }, [entries])
 
   const onSubmit = async (values: MemberFeedbackFormValues) => {
-    const formData = new FormData()
-    if (values.subject) formData.append("subject", values.subject)
-    formData.append("message", values.message)
-    if (values.rating) formData.append("rating", values.rating)
-
-    const result = await submitMemberFeedback(formData)
-
-    if (result?.error) {
-      toast.error(result.error)
+    try {
+      await createFeedback.mutateAsync({
+        data: {
+          subject: values.subject || null,
+          message: values.message,
+          rating: values.rating ? Number(values.rating) : null,
+        },
+      })
+    } catch (error) {
+      toast.error(getFastApiErrorDetail(error, "Unable to send feedback."))
       return
     }
 
     toast.success("Thanks for the feedback!")
     reset({ subject: "", message: "", rating: undefined })
-    router.refresh()
+    await queryClient.invalidateQueries({
+      queryKey: getListMemberFeedbackApiV1MemberFeedbackGetQueryKey({
+        limit: FEEDBACK_PAGE_LIMIT,
+      }),
+    })
   }
 
   return (
@@ -215,10 +244,10 @@ export default function MemberFeedback({
             </div>
           ) : (
             <ul className="space-y-4">
-              {sortedEntries.map((entry) => {
-                const submittedAt = formatDistanceToNow(
-                  new Date(entry.createdAt),
-                  { addSuffix: true },
+                {sortedEntries.map((entry) => {
+                  const submittedAt = formatDistanceToNow(
+                    new Date(entry.createdAt),
+                    { addSuffix: true },
                 )
                 const rewardGrantedAt = entry.rewardGrantedAt
                   ? formatDistanceToNow(new Date(entry.rewardGrantedAt), {
@@ -288,6 +317,9 @@ export default function MemberFeedback({
               })}
             </ul>
           )}
+          {feedbackQuery.isLoading ? (
+            <p className="mt-4 text-xs text-muted-foreground">Loading feedback…</p>
+          ) : null}
         </CardContent>
       </Card>
     </div>

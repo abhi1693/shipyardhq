@@ -4,6 +4,6 @@
  * ShipyardHQ API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetMemberProductConnectorApiV1MemberProductsProductIdConnectorGet200AnyOf } from './getMemberProductConnectorApiV1MemberProductsProductIdConnectorGet200AnyOf';
+import type { MemberProductConnectorPayload } from './memberProductConnectorPayload';
 
-export type GetMemberProductConnectorApiV1MemberProductsProductIdConnectorGet200 = GetMemberProductConnectorApiV1MemberProductsProductIdConnectorGet200AnyOf | null;
+export type GetMemberProductConnectorApiV1MemberProductsProductIdConnectorGet200 = MemberProductConnectorPayload | null;

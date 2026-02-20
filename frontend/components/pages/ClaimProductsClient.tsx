@@ -11,18 +11,21 @@ import {
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { ColumnDef } from "@tanstack/react-table"
-
-import {
-  claimProductViaDnsAction,
-  sendProductClaimOtpAction,
-  verifyProductClaimOtpAction,
-} from "@/actions/member/products/claim"
+import { useQueryClient } from "@tanstack/react-query"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { Card, CardContent } from "@/components/atoms/card"
 import { Input } from "@/components/atoms/input"
 import { cn } from "@/lib/utils"
 import DataTable from "@/components/molecules/DataTable"
+import {
+  getListClaimableProductsApiV1MemberClaimsProductsGetQueryKey,
+  useConfirmClaimDnsApiV1MemberClaimsProductIdDnsConfirmPost,
+  useListClaimableProductsApiV1MemberClaimsProductsGet,
+  useRequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost,
+  useVerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost,
+} from "@/lib/generated/fastapi/member"
+import type { FastApiError } from "@/lib/fastapi-fetcher"
 
 type ClaimableProduct = {
   id: string
@@ -33,23 +36,41 @@ type ClaimableProduct = {
   expectedTxt: string
 }
 
-function removeProduct(
-  products: ClaimableProduct[],
-  productId: string,
-): ClaimableProduct[] {
-  return products.filter((product) => product.id !== productId)
+function getFastApiErrorDetail(error: unknown, fallback: string) {
+  const detail = (error as FastApiError | undefined)?.info as
+    | { detail?: unknown }
+    | undefined
+  if (typeof detail?.detail === "string") {
+    return detail.detail
+  }
+  return fallback
 }
 
 export function ClaimProductsClient({
-  products: initialProducts,
   initialQuery = "",
   initialSelectedId = null,
 }: {
-  products: ClaimableProduct[]
   initialQuery?: string
   initialSelectedId?: string | null
 }) {
-  const [products, setProducts] = useState<ClaimableProduct[]>(initialProducts)
+  const queryClient = useQueryClient()
+  const claimableProductsQuery =
+    useListClaimableProductsApiV1MemberClaimsProductsGet<ClaimableProduct[]>(
+      undefined,
+      {
+        query: {
+          select: (response) =>
+            response.status === 200 ? response.data.products : [],
+        },
+      },
+    )
+  const confirmDnsMutation =
+    useConfirmClaimDnsApiV1MemberClaimsProductIdDnsConfirmPost()
+  const requestOtpMutation =
+    useRequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost()
+  const verifyOtpMutation =
+    useVerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost()
+  const [claimedProductIds, setClaimedProductIds] = useState<string[]>([])
   const [filter, setFilter] = useState(initialQuery)
   const [selectedId, setSelectedId] = useState<string | null>(
     initialSelectedId ?? null,
@@ -65,6 +86,13 @@ export function ClaimProductsClient({
   const [dnsPending, startDns] = useTransition()
   const [sendPending, startSend] = useTransition()
   const [verifyPending, startVerify] = useTransition()
+
+  const products = useMemo(() => {
+    const claimable = claimableProductsQuery.data ?? []
+    if (!claimedProductIds.length) return claimable
+    const claimedSet = new Set(claimedProductIds)
+    return claimable.filter((product) => !claimedSet.has(product.id))
+  }, [claimableProductsQuery.data, claimedProductIds])
 
   const filteredProducts = useMemo(() => {
     const term = filter.trim().toLowerCase()
@@ -129,6 +157,8 @@ export function ClaimProductsClient({
 
   const nothingToClaim = products.length === 0
   const noMatches = filteredProducts.length === 0 && !nothingToClaim
+  const loadingProducts =
+    claimableProductsQuery.isLoading && !claimableProductsQuery.data
 
   const openVerification = useCallback(
     (productId: string) => {
@@ -142,20 +172,20 @@ export function ClaimProductsClient({
   )
 
   const pickNextProduct = (productId: string) => {
-    setProducts((prev) => {
-      const next = removeProduct(prev, productId)
-      const nextSelectedId = next[0]?.id ?? null
-      resetVerificationFields()
-      setSelectedId((prevSelected) => {
-        if (prevSelected && prevSelected !== productId) return prevSelected
-        return nextSelectedId
-      })
-      const nextParams = new URLSearchParams(searchParams ?? undefined)
-      if (nextSelectedId) nextParams.set("productId", nextSelectedId)
-      else nextParams.delete("productId")
-      router.replace(`?${nextParams.toString()}`, { scroll: false })
-      return next
+    const next = products.filter((product) => product.id !== productId)
+    const nextSelectedId = next[0]?.id ?? null
+    setClaimedProductIds((prev) =>
+      prev.includes(productId) ? prev : [...prev, productId],
+    )
+    resetVerificationFields()
+    setSelectedId((prevSelected) => {
+      if (prevSelected && prevSelected !== productId) return prevSelected
+      return nextSelectedId
     })
+    const nextParams = new URLSearchParams(searchParams ?? undefined)
+    if (nextSelectedId) nextParams.set("productId", nextSelectedId)
+    else nextParams.delete("productId")
+    router.replace(`?${nextParams.toString()}`, { scroll: false })
   }
 
   const columns = useMemo<ColumnDef<ClaimableProduct>[]>(
@@ -241,15 +271,24 @@ export function ClaimProductsClient({
   const handleDnsClaim = () => {
     if (!selected) return
     startDns(async () => {
-      const res = await claimProductViaDnsAction(selected.id)
-      if ("error" in res) {
-        toast.error(res.error)
+      try {
+        const result = await confirmDnsMutation.mutateAsync({
+          productId: selected.id,
+        })
+        if (result.status !== 200) {
+          throw new Error("DNS verification failed.")
+        }
+        setDnsLocks((prev) => ({
+          ...prev,
+          [selected.id]: result.data.lockExpiresAt ?? null,
+        }))
+        toast.success("DNS verified and locked. Continue with email to transfer.")
+      } catch (error) {
+        toast.error(
+          getFastApiErrorDetail(error, "Unable to verify DNS claim right now."),
+        )
         return
       }
-      const lockTime =
-        "lockExpiresAt" in res && res.lockExpiresAt ? res.lockExpiresAt : null
-      setDnsLocks((prev) => ({ ...prev, [selected.id]: lockTime }))
-      toast.success("DNS verified and locked. Continue with email to transfer.")
     })
   }
 
@@ -260,17 +299,28 @@ export function ClaimProductsClient({
       return
     }
     startSend(async () => {
-      const res = await sendProductClaimOtpAction(selected.id, email)
-      if ("error" in res) {
-        toast.error(res.error)
+      const normalizedEmail = email.trim().toLowerCase()
+      if (!normalizedEmail.includes("@")) {
+        toast.error("Enter a valid email.")
         return
       }
-      if ("expiresAt" in res) {
-        setOtpExpiresAt(res.expiresAt ?? null)
-      } else {
-        setOtpExpiresAt(null)
+
+      try {
+        const result = await requestOtpMutation.mutateAsync({
+          productId: selected.id,
+          data: { email: normalizedEmail },
+        })
+        if (result.status !== 200) {
+          throw new Error("OTP request failed.")
+        }
+        setOtpExpiresAt(result.data.expiresAt ?? null)
+        toast.success("Verification code sent.")
+      } catch (error) {
+        toast.error(
+          getFastApiErrorDetail(error, "Unable to send verification email."),
+        )
+        return
       }
-      toast.success("Verification code sent.")
     })
   }
 
@@ -281,12 +331,26 @@ export function ClaimProductsClient({
       return
     }
     startVerify(async () => {
-      const res = await verifyProductClaimOtpAction(selected.id, code)
-      if ("error" in res) {
-        toast.error(res.error)
+      const trimmedCode = code.trim()
+      if (!/^[0-9]{6}$/.test(trimmedCode)) {
+        toast.error("Enter the 6-digit code from your email.")
         return
       }
-      toast.success("Ownership verified via email and transferred.")
+
+      try {
+        await verifyOtpMutation.mutateAsync({
+          productId: selected.id,
+          data: { code: trimmedCode },
+        })
+        await queryClient.invalidateQueries({
+          queryKey: getListClaimableProductsApiV1MemberClaimsProductsGetQueryKey(),
+        })
+        toast.success("Ownership verified via email and transferred.")
+      } catch (error) {
+        toast.error(getFastApiErrorDetail(error, "Unable to verify claim code."))
+        return
+      }
+
       setCode("")
       setEmail("")
       setOtpExpiresAt(null)
@@ -297,6 +361,21 @@ export function ClaimProductsClient({
         return updated
       })
     })
+  }
+
+  if (loadingProducts) {
+    return (
+      <Card className="border border-slate-200 bg-white/90 shadow-none">
+        <CardContent className="space-y-2 p-6">
+          <p className="text-sm font-medium text-slate-900">
+            Loading claimable products…
+          </p>
+          <p className="text-xs text-muted-foreground">
+            We’re fetching unverified listings you can claim.
+          </p>
+        </CardContent>
+      </Card>
+    )
   }
 
   if (nothingToClaim) {

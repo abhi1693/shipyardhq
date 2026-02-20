@@ -24,19 +24,21 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  ConfirmClaimDnsApiV1MemberClaimsProductIdDnsConfirmPost200,
-  GetClaimTargetApiV1MemberClaimsProductIdTargetGet200,
   GetMemberOverviewContextApiV1MemberOverviewContextGetParams,
+  GetMemberOverviewSummaryApiV1MemberOverviewSummaryGetParams,
   GetMemberProductConnectorApiV1MemberProductsProductIdConnectorGet200,
-  GetMemberRewardsSnapshotApiV1MemberRewardsSnapshotGet200,
-  GetOwnedProductContextApiV1MemberProductsProductIdOwnershipGet200,
   HTTPValidationError,
-  ListClaimableProductsApiV1MemberClaimsProductsGet200,
   ListClaimableProductsApiV1MemberClaimsProductsGetParams,
   ListMemberFeedbackApiV1MemberFeedbackGetParams,
-  ListMemberProductsApiV1MemberProductsGet200,
   ListMemberProductsApiV1MemberProductsGetParams,
   MemberActiveUser,
+  MemberClaimDnsConfirmPayload,
+  MemberClaimOtpRequestInput,
+  MemberClaimOtpRequestPayload,
+  MemberClaimOtpVerifyInput,
+  MemberClaimOtpVerifyPayload,
+  MemberClaimableProductPayload,
+  MemberClaimableProductsPayload,
   MemberFeatureAccessPayload,
   MemberFeedbackCreateInput,
   MemberFeedbackListItem,
@@ -44,13 +46,15 @@ import type {
   MemberOnboardingCompleteInput,
   MemberOnboardingCompletePayload,
   MemberOverviewContextPayload,
-  MemberSyncProfileInput,
-  RequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost200,
-  RequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostBody,
-  SetOwnedProductPlanApiV1MemberProductsProductIdPlanPost200,
-  SetOwnedProductPlanApiV1MemberProductsProductIdPlanPostBody,
-  VerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost200,
-  VerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostBody
+  MemberOverviewSummaryPayload,
+  MemberOwnedProductPayload,
+  MemberProductsListPayload,
+  MemberRewardsRedeemInput,
+  MemberRewardsRedeemPayload,
+  MemberRewardsSnapshotPayload,
+  MemberSetProductPlanInput,
+  MemberSuccessPayload,
+  MemberSyncProfileInput
 } from './schemas';
 
 import { fastapiFetch } from '../../fastapi-fetcher';
@@ -815,6 +819,132 @@ export function useGetMemberOverviewContextApiV1MemberOverviewContextGet<TData =
 
 
 /**
+ * @summary Get Member Overview Summary
+ */
+export type getMemberOverviewSummaryApiV1MemberOverviewSummaryGetResponse200 = {
+  data: MemberOverviewSummaryPayload
+  status: 200
+}
+
+export type getMemberOverviewSummaryApiV1MemberOverviewSummaryGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getMemberOverviewSummaryApiV1MemberOverviewSummaryGetResponseSuccess = (getMemberOverviewSummaryApiV1MemberOverviewSummaryGetResponse200) & {
+  headers: Headers;
+};
+export type getMemberOverviewSummaryApiV1MemberOverviewSummaryGetResponseError = (getMemberOverviewSummaryApiV1MemberOverviewSummaryGetResponse422) & {
+  headers: Headers;
+};
+
+export type getMemberOverviewSummaryApiV1MemberOverviewSummaryGetResponse = (getMemberOverviewSummaryApiV1MemberOverviewSummaryGetResponseSuccess | getMemberOverviewSummaryApiV1MemberOverviewSummaryGetResponseError)
+
+export const getGetMemberOverviewSummaryApiV1MemberOverviewSummaryGetUrl = (params?: GetMemberOverviewSummaryApiV1MemberOverviewSummaryGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/member/overview/summary?${stringifiedParams}` : `/api/v1/member/overview/summary`
+}
+
+export const getMemberOverviewSummaryApiV1MemberOverviewSummaryGet = async (params?: GetMemberOverviewSummaryApiV1MemberOverviewSummaryGetParams, options?: RequestInit): Promise<getMemberOverviewSummaryApiV1MemberOverviewSummaryGetResponse> => {
+  
+  return fastapiFetch<getMemberOverviewSummaryApiV1MemberOverviewSummaryGetResponse>(getGetMemberOverviewSummaryApiV1MemberOverviewSummaryGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetMemberOverviewSummaryApiV1MemberOverviewSummaryGetQueryKey = (params?: GetMemberOverviewSummaryApiV1MemberOverviewSummaryGetParams,) => {
+    return [
+    `/api/v1/member/overview/summary`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetMemberOverviewSummaryApiV1MemberOverviewSummaryGetQueryOptions = <TData = Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>, TError = HTTPValidationError>(params?: GetMemberOverviewSummaryApiV1MemberOverviewSummaryGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMemberOverviewSummaryApiV1MemberOverviewSummaryGetQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>> = ({ signal }) => getMemberOverviewSummaryApiV1MemberOverviewSummaryGet(params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetMemberOverviewSummaryApiV1MemberOverviewSummaryGetQueryResult = NonNullable<Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>>
+export type GetMemberOverviewSummaryApiV1MemberOverviewSummaryGetQueryError = HTTPValidationError
+
+
+export function useGetMemberOverviewSummaryApiV1MemberOverviewSummaryGet<TData = Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>, TError = HTTPValidationError>(
+ params: undefined |  GetMemberOverviewSummaryApiV1MemberOverviewSummaryGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>,
+          TError,
+          Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMemberOverviewSummaryApiV1MemberOverviewSummaryGet<TData = Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>, TError = HTTPValidationError>(
+ params?: GetMemberOverviewSummaryApiV1MemberOverviewSummaryGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>,
+          TError,
+          Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMemberOverviewSummaryApiV1MemberOverviewSummaryGet<TData = Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>, TError = HTTPValidationError>(
+ params?: GetMemberOverviewSummaryApiV1MemberOverviewSummaryGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Member Overview Summary
+ */
+
+export function useGetMemberOverviewSummaryApiV1MemberOverviewSummaryGet<TData = Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>, TError = HTTPValidationError>(
+ params?: GetMemberOverviewSummaryApiV1MemberOverviewSummaryGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMemberOverviewSummaryApiV1MemberOverviewSummaryGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetMemberOverviewSummaryApiV1MemberOverviewSummaryGetQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
  * @summary Get Member Feature Access
  */
 export type getMemberFeatureAccessApiV1MemberFeaturesFeatureKeyHasAccessGetResponse200 = {
@@ -937,7 +1067,7 @@ export function useGetMemberFeatureAccessApiV1MemberFeaturesFeatureKeyHasAccessG
  * @summary List Member Products
  */
 export type listMemberProductsApiV1MemberProductsGetResponse200 = {
-  data: ListMemberProductsApiV1MemberProductsGet200
+  data: MemberProductsListPayload
   status: 200
 }
 
@@ -1063,7 +1193,7 @@ export function useListMemberProductsApiV1MemberProductsGet<TData = Awaited<Retu
  * @summary Get Owned Product Context
  */
 export type getOwnedProductContextApiV1MemberProductsProductIdOwnershipGetResponse200 = {
-  data: GetOwnedProductContextApiV1MemberProductsProductIdOwnershipGet200
+  data: MemberOwnedProductPayload
   status: 200
 }
 
@@ -1182,7 +1312,7 @@ export function useGetOwnedProductContextApiV1MemberProductsProductIdOwnershipGe
  * @summary Set Owned Product Plan
  */
 export type setOwnedProductPlanApiV1MemberProductsProductIdPlanPostResponse200 = {
-  data: SetOwnedProductPlanApiV1MemberProductsProductIdPlanPost200
+  data: MemberSuccessPayload
   status: 200
 }
 
@@ -1209,7 +1339,7 @@ export const getSetOwnedProductPlanApiV1MemberProductsProductIdPlanPostUrl = (pr
 }
 
 export const setOwnedProductPlanApiV1MemberProductsProductIdPlanPost = async (productId: string,
-    setOwnedProductPlanApiV1MemberProductsProductIdPlanPostBody: SetOwnedProductPlanApiV1MemberProductsProductIdPlanPostBody, options?: RequestInit): Promise<setOwnedProductPlanApiV1MemberProductsProductIdPlanPostResponse> => {
+    memberSetProductPlanInput: MemberSetProductPlanInput, options?: RequestInit): Promise<setOwnedProductPlanApiV1MemberProductsProductIdPlanPostResponse> => {
   
   return fastapiFetch<setOwnedProductPlanApiV1MemberProductsProductIdPlanPostResponse>(getSetOwnedProductPlanApiV1MemberProductsProductIdPlanPostUrl(productId),
   {      
@@ -1217,7 +1347,7 @@ export const setOwnedProductPlanApiV1MemberProductsProductIdPlanPost = async (pr
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      setOwnedProductPlanApiV1MemberProductsProductIdPlanPostBody,)
+      memberSetProductPlanInput,)
   }
 );}
 
@@ -1225,8 +1355,8 @@ export const setOwnedProductPlanApiV1MemberProductsProductIdPlanPost = async (pr
 
 
 export const getSetOwnedProductPlanApiV1MemberProductsProductIdPlanPostMutationOptions = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setOwnedProductPlanApiV1MemberProductsProductIdPlanPost>>, TError,{productId: string;data: SetOwnedProductPlanApiV1MemberProductsProductIdPlanPostBody}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof setOwnedProductPlanApiV1MemberProductsProductIdPlanPost>>, TError,{productId: string;data: SetOwnedProductPlanApiV1MemberProductsProductIdPlanPostBody}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setOwnedProductPlanApiV1MemberProductsProductIdPlanPost>>, TError,{productId: string;data: MemberSetProductPlanInput}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setOwnedProductPlanApiV1MemberProductsProductIdPlanPost>>, TError,{productId: string;data: MemberSetProductPlanInput}, TContext> => {
 
 const mutationKey = ['setOwnedProductPlanApiV1MemberProductsProductIdPlanPost'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -1238,7 +1368,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setOwnedProductPlanApiV1MemberProductsProductIdPlanPost>>, {productId: string;data: SetOwnedProductPlanApiV1MemberProductsProductIdPlanPostBody}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setOwnedProductPlanApiV1MemberProductsProductIdPlanPost>>, {productId: string;data: MemberSetProductPlanInput}> = (props) => {
           const {productId,data} = props ?? {};
 
           return  setOwnedProductPlanApiV1MemberProductsProductIdPlanPost(productId,data,requestOptions)
@@ -1250,18 +1380,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type SetOwnedProductPlanApiV1MemberProductsProductIdPlanPostMutationResult = NonNullable<Awaited<ReturnType<typeof setOwnedProductPlanApiV1MemberProductsProductIdPlanPost>>>
-    export type SetOwnedProductPlanApiV1MemberProductsProductIdPlanPostMutationBody = SetOwnedProductPlanApiV1MemberProductsProductIdPlanPostBody
+    export type SetOwnedProductPlanApiV1MemberProductsProductIdPlanPostMutationBody = MemberSetProductPlanInput
     export type SetOwnedProductPlanApiV1MemberProductsProductIdPlanPostMutationError = HTTPValidationError
 
     /**
  * @summary Set Owned Product Plan
  */
 export const useSetOwnedProductPlanApiV1MemberProductsProductIdPlanPost = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setOwnedProductPlanApiV1MemberProductsProductIdPlanPost>>, TError,{productId: string;data: SetOwnedProductPlanApiV1MemberProductsProductIdPlanPostBody}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setOwnedProductPlanApiV1MemberProductsProductIdPlanPost>>, TError,{productId: string;data: MemberSetProductPlanInput}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof setOwnedProductPlanApiV1MemberProductsProductIdPlanPost>>,
         TError,
-        {productId: string;data: SetOwnedProductPlanApiV1MemberProductsProductIdPlanPostBody},
+        {productId: string;data: MemberSetProductPlanInput},
         TContext
       > => {
 
@@ -1392,7 +1522,7 @@ export function useGetMemberProductConnectorApiV1MemberProductsProductIdConnecto
  * @summary Get Member Rewards Snapshot
  */
 export type getMemberRewardsSnapshotApiV1MemberRewardsSnapshotGetResponse200 = {
-  data: GetMemberRewardsSnapshotApiV1MemberRewardsSnapshotGet200
+  data: MemberRewardsSnapshotPayload
   status: 200
 }
     
@@ -1501,10 +1631,100 @@ export function useGetMemberRewardsSnapshotApiV1MemberRewardsSnapshotGet<TData =
 
 
 /**
+ * @summary Redeem Member Reward
+ */
+export type redeemMemberRewardApiV1MemberRewardsRedeemPostResponse200 = {
+  data: MemberRewardsRedeemPayload
+  status: 200
+}
+
+export type redeemMemberRewardApiV1MemberRewardsRedeemPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type redeemMemberRewardApiV1MemberRewardsRedeemPostResponseSuccess = (redeemMemberRewardApiV1MemberRewardsRedeemPostResponse200) & {
+  headers: Headers;
+};
+export type redeemMemberRewardApiV1MemberRewardsRedeemPostResponseError = (redeemMemberRewardApiV1MemberRewardsRedeemPostResponse422) & {
+  headers: Headers;
+};
+
+export type redeemMemberRewardApiV1MemberRewardsRedeemPostResponse = (redeemMemberRewardApiV1MemberRewardsRedeemPostResponseSuccess | redeemMemberRewardApiV1MemberRewardsRedeemPostResponseError)
+
+export const getRedeemMemberRewardApiV1MemberRewardsRedeemPostUrl = () => {
+
+
+  
+
+  return `/api/v1/member/rewards/redeem`
+}
+
+export const redeemMemberRewardApiV1MemberRewardsRedeemPost = async (memberRewardsRedeemInput: MemberRewardsRedeemInput, options?: RequestInit): Promise<redeemMemberRewardApiV1MemberRewardsRedeemPostResponse> => {
+  
+  return fastapiFetch<redeemMemberRewardApiV1MemberRewardsRedeemPostResponse>(getRedeemMemberRewardApiV1MemberRewardsRedeemPostUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      memberRewardsRedeemInput,)
+  }
+);}
+
+
+
+
+export const getRedeemMemberRewardApiV1MemberRewardsRedeemPostMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof redeemMemberRewardApiV1MemberRewardsRedeemPost>>, TError,{data: MemberRewardsRedeemInput}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof redeemMemberRewardApiV1MemberRewardsRedeemPost>>, TError,{data: MemberRewardsRedeemInput}, TContext> => {
+
+const mutationKey = ['redeemMemberRewardApiV1MemberRewardsRedeemPost'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof redeemMemberRewardApiV1MemberRewardsRedeemPost>>, {data: MemberRewardsRedeemInput}> = (props) => {
+          const {data} = props ?? {};
+
+          return  redeemMemberRewardApiV1MemberRewardsRedeemPost(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RedeemMemberRewardApiV1MemberRewardsRedeemPostMutationResult = NonNullable<Awaited<ReturnType<typeof redeemMemberRewardApiV1MemberRewardsRedeemPost>>>
+    export type RedeemMemberRewardApiV1MemberRewardsRedeemPostMutationBody = MemberRewardsRedeemInput
+    export type RedeemMemberRewardApiV1MemberRewardsRedeemPostMutationError = HTTPValidationError
+
+    /**
+ * @summary Redeem Member Reward
+ */
+export const useRedeemMemberRewardApiV1MemberRewardsRedeemPost = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof redeemMemberRewardApiV1MemberRewardsRedeemPost>>, TError,{data: MemberRewardsRedeemInput}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof redeemMemberRewardApiV1MemberRewardsRedeemPost>>,
+        TError,
+        {data: MemberRewardsRedeemInput},
+        TContext
+      > => {
+
+      const mutationOptions = getRedeemMemberRewardApiV1MemberRewardsRedeemPostMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
  * @summary List Claimable Products
  */
 export type listClaimableProductsApiV1MemberClaimsProductsGetResponse200 = {
-  data: ListClaimableProductsApiV1MemberClaimsProductsGet200
+  data: MemberClaimableProductsPayload
   status: 200
 }
 
@@ -1630,7 +1850,7 @@ export function useListClaimableProductsApiV1MemberClaimsProductsGet<TData = Awa
  * @summary Get Claim Target
  */
 export type getClaimTargetApiV1MemberClaimsProductIdTargetGetResponse200 = {
-  data: GetClaimTargetApiV1MemberClaimsProductIdTargetGet200
+  data: MemberClaimableProductPayload
   status: 200
 }
 
@@ -1749,7 +1969,7 @@ export function useGetClaimTargetApiV1MemberClaimsProductIdTargetGet<TData = Awa
  * @summary Confirm Claim Dns
  */
 export type confirmClaimDnsApiV1MemberClaimsProductIdDnsConfirmPostResponse200 = {
-  data: ConfirmClaimDnsApiV1MemberClaimsProductIdDnsConfirmPost200
+  data: MemberClaimDnsConfirmPayload
   status: 200
 }
 
@@ -1838,7 +2058,7 @@ export const useConfirmClaimDnsApiV1MemberClaimsProductIdDnsConfirmPost = <TErro
  * @summary Request Claim Otp
  */
 export type requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostResponse200 = {
-  data: RequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost200
+  data: MemberClaimOtpRequestPayload
   status: 200
 }
 
@@ -1865,7 +2085,7 @@ export const getRequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostUrl = (pr
 }
 
 export const requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost = async (productId: string,
-    requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostBody: RequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostBody, options?: RequestInit): Promise<requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostResponse> => {
+    memberClaimOtpRequestInput: MemberClaimOtpRequestInput, options?: RequestInit): Promise<requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostResponse> => {
   
   return fastapiFetch<requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostResponse>(getRequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostUrl(productId),
   {      
@@ -1873,7 +2093,7 @@ export const requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost = async (pr
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostBody,)
+      memberClaimOtpRequestInput,)
   }
 );}
 
@@ -1881,8 +2101,8 @@ export const requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost = async (pr
 
 
 export const getRequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostMutationOptions = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost>>, TError,{productId: string;data: RequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostBody}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost>>, TError,{productId: string;data: RequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostBody}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost>>, TError,{productId: string;data: MemberClaimOtpRequestInput}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost>>, TError,{productId: string;data: MemberClaimOtpRequestInput}, TContext> => {
 
 const mutationKey = ['requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -1894,7 +2114,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost>>, {productId: string;data: RequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostBody}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost>>, {productId: string;data: MemberClaimOtpRequestInput}> = (props) => {
           const {productId,data} = props ?? {};
 
           return  requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost(productId,data,requestOptions)
@@ -1906,18 +2126,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type RequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostMutationResult = NonNullable<Awaited<ReturnType<typeof requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost>>>
-    export type RequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostMutationBody = RequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostBody
+    export type RequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostMutationBody = MemberClaimOtpRequestInput
     export type RequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostMutationError = HTTPValidationError
 
     /**
  * @summary Request Claim Otp
  */
 export const useRequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost>>, TError,{productId: string;data: RequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostBody}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost>>, TError,{productId: string;data: MemberClaimOtpRequestInput}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof requestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost>>,
         TError,
-        {productId: string;data: RequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPostBody},
+        {productId: string;data: MemberClaimOtpRequestInput},
         TContext
       > => {
 
@@ -1929,7 +2149,7 @@ export const useRequestClaimOtpApiV1MemberClaimsProductIdOtpRequestPost = <TErro
  * @summary Verify Claim Otp
  */
 export type verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostResponse200 = {
-  data: VerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost200
+  data: MemberClaimOtpVerifyPayload
   status: 200
 }
 
@@ -1956,7 +2176,7 @@ export const getVerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostUrl = (prod
 }
 
 export const verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost = async (productId: string,
-    verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostBody: VerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostBody, options?: RequestInit): Promise<verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostResponse> => {
+    memberClaimOtpVerifyInput: MemberClaimOtpVerifyInput, options?: RequestInit): Promise<verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostResponse> => {
   
   return fastapiFetch<verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostResponse>(getVerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostUrl(productId),
   {      
@@ -1964,7 +2184,7 @@ export const verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost = async (prod
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostBody,)
+      memberClaimOtpVerifyInput,)
   }
 );}
 
@@ -1972,8 +2192,8 @@ export const verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost = async (prod
 
 
 export const getVerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostMutationOptions = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost>>, TError,{productId: string;data: VerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostBody}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost>>, TError,{productId: string;data: VerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostBody}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost>>, TError,{productId: string;data: MemberClaimOtpVerifyInput}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost>>, TError,{productId: string;data: MemberClaimOtpVerifyInput}, TContext> => {
 
 const mutationKey = ['verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -1985,7 +2205,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost>>, {productId: string;data: VerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostBody}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost>>, {productId: string;data: MemberClaimOtpVerifyInput}> = (props) => {
           const {productId,data} = props ?? {};
 
           return  verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost(productId,data,requestOptions)
@@ -1997,18 +2217,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type VerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostMutationResult = NonNullable<Awaited<ReturnType<typeof verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost>>>
-    export type VerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostMutationBody = VerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostBody
+    export type VerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostMutationBody = MemberClaimOtpVerifyInput
     export type VerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostMutationError = HTTPValidationError
 
     /**
  * @summary Verify Claim Otp
  */
 export const useVerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost>>, TError,{productId: string;data: VerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostBody}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost>>, TError,{productId: string;data: MemberClaimOtpVerifyInput}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof verifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPost>>,
         TError,
-        {productId: string;data: VerifyClaimOtpApiV1MemberClaimsProductIdOtpVerifyPostBody},
+        {productId: string;data: MemberClaimOtpVerifyInput},
         TContext
       > => {
 

@@ -1,4 +1,8 @@
+"use client"
+
 import Link from "next/link"
+import { useMemo } from "react"
+import { useSearchParams } from "next/navigation"
 
 import { Card, CardContent } from "@/components/atoms/card"
 import CreateButton from "@/components/molecules/CreateButton"
@@ -8,7 +12,8 @@ import {
   columns,
   type MemberProductRow,
 } from "@/app/(member)/member/products/columns"
-import { getUserProducts } from "@/actions/member/products/actions"
+import { useListMemberProductsApiV1MemberProductsGet } from "@/lib/generated/fastapi/member"
+import type { MemberProductsListPayload } from "@/lib/generated/fastapi/schemas"
 import {
   MEMBER_PRODUCT_FILTER_ALL,
   getMemberProductSortLabel,
@@ -27,25 +32,47 @@ import { Skeleton } from "@/components/atoms/skeleton"
 
 type SearchParams = Record<string, string | string[] | undefined>
 
-function toParamString(value: string | string[] | undefined) {
-  if (Array.isArray(value)) return value[0]
-  return value
+function toParamString(
+  params: URLSearchParams | null,
+  key: string,
+): string | undefined {
+  const value = params?.get(key)
+  return value ?? undefined
 }
 
-export async function MemberProductsPageContent({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>
-}) {
-  const params = await searchParams
-  const { products, total, limit } = await getUserProducts(params)
-  const perPage = Math.max(1, parseInt(String(limit || 10), 10) || 10)
+export function MemberProductsPageContent() {
+  const searchParams = useSearchParams()
+  const params = useMemo<SearchParams>(
+    () => ({
+      q: toParamString(searchParams, "q"),
+      status: toParamString(searchParams, "status"),
+      verification: toParamString(searchParams, "verification"),
+      sort: toParamString(searchParams, "sort"),
+      page: toParamString(searchParams, "page"),
+      limit: toParamString(searchParams, "limit"),
+    }),
+    [searchParams],
+  )
+
+  const productsQuery =
+    useListMemberProductsApiV1MemberProductsGet<MemberProductsListPayload | null>(
+      params,
+      {
+        query: {
+          select: (response) => (response.status === 200 ? response.data : null),
+        },
+      },
+    )
+  const payload = productsQuery.data
+  const products = payload?.products ?? []
+  const total = payload?.total ?? 0
+  const perPage = Math.max(1, parseInt(String(payload?.limit || 10), 10) || 10)
   const pageCount = Math.max(1, Math.ceil(total / perPage))
 
-  const qParam = toParamString(params?.q)
-  const statusParam = toParamString(params?.status)
-  const verificationParam = toParamString(params?.verification)
-  const sortParam = toParamString(params?.sort)
+  const qParam = toParamString(searchParams, "q")
+  const statusParam = toParamString(searchParams, "status")
+  const verificationParam = toParamString(searchParams, "verification")
+  const sortParam = toParamString(searchParams, "sort")
 
   const q = qParam?.trim() ?? ""
 
@@ -146,11 +173,17 @@ export async function MemberProductsPageContent({
             </div>
           ) : null}
 
-          <EntityList
-            columns={columns}
-            data={products as unknown as MemberProductRow[]}
-            pageCount={pageCount}
-          />
+          {productsQuery.isLoading ? (
+            <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-500">
+              Loading your product fleet…
+            </div>
+          ) : (
+            <EntityList
+              columns={columns}
+              data={products as unknown as MemberProductRow[]}
+              pageCount={pageCount}
+            />
+          )}
         </CardContent>
       </Card>
     </div>

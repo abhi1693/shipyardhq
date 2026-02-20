@@ -4,7 +4,6 @@ import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useRouter } from "next/navigation"
-import { completeOnboarding } from "@/actions/member/onboarding/actions"
 import { toast } from "sonner"
 import { useTransition } from "react"
 import {
@@ -38,6 +37,8 @@ import {
   MEMBER_ONBOARDING_PATH,
   MEMBER_OVERVIEW_PATH,
 } from "@/lib/routes"
+import { useCompleteMemberOnboardingApiV1MemberOnboardingCompletePost } from "@/lib/generated/fastapi/member"
+import type { FastApiError } from "@/lib/fastapi-fetcher"
 
 const roleIntentOptions = [
   {
@@ -77,6 +78,16 @@ const onboardingSchema = z.object({
 
 type OnboardingFormInput = z.input<typeof onboardingSchema>
 
+function getFastApiErrorDetail(error: unknown, fallback: string) {
+  const detail = (error as FastApiError | undefined)?.info as
+    | { detail?: unknown }
+    | undefined
+  if (typeof detail?.detail === "string") {
+    return detail.detail
+  }
+  return fallback
+}
+
 export function OnboardingForm({
   firstName,
   redirectTo,
@@ -88,6 +99,8 @@ export function OnboardingForm({
 }) {
   const router = useRouter()
   const [isNavigating, startTransition] = useTransition()
+  const completeOnboardingMutation =
+    useCompleteMemberOnboardingApiV1MemberOnboardingCompletePost()
 
   const form = useForm<OnboardingFormInput>({
     resolver: zodResolver(onboardingSchema),
@@ -132,14 +145,13 @@ export function OnboardingForm({
   const fromNavbar = redirectSource === "navbar"
 
   const onSubmit = async (values: OnboardingFormInput) => {
-    const formData = new FormData()
-    Object.entries(values).forEach(([key, val]) => {
-      if (val !== undefined) {
-        formData.append(key, val.toString())
-      }
-    })
-    const result = await completeOnboarding(formData)
-    if ("success" in result) {
+    try {
+      await completeOnboardingMutation.mutateAsync({
+        data: {
+          roleIntent: values.roleIntent,
+          heardFrom: values.heardFrom,
+        },
+      })
       toast.success("Welcome aboard!")
       const shouldUseRedirectTarget =
         Boolean(sanitizedRedirectTarget) &&
@@ -152,13 +164,15 @@ export function OnboardingForm({
         router.replace(destination)
         router.refresh()
       })
-    } else {
-      toast.error(result.error)
+    } catch (error) {
+      toast.error(
+        getFastApiErrorDetail(error, "Unable to finish setup right now."),
+      )
     }
   }
 
   const canSubmit = Boolean(roleIntent && heardFrom)
-  const isBusy = isSubmitting || isNavigating
+  const isBusy = isSubmitting || isNavigating || completeOnboardingMutation.isPending
 
   return (
     <div className="flex min-h-[100dvh] items-center justify-center overflow-hidden px-4 lg:px-10">
