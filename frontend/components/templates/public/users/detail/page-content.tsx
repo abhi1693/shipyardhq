@@ -136,8 +136,6 @@ export async function UserProfilePageContent({ params }: PageProps) {
       .join("")
       .slice(0, 2) || "SY"
 
-  const initialFeedPage = productsPage.nextPage ?? productsPage.page + 1
-
   return (
     <main className="relative isolate bg-[#f5f7fb]">
       <PublicTwoColumnLayout
@@ -223,10 +221,10 @@ export async function UserProfilePageContent({ params }: PageProps) {
             <section className="space-y-6" data-testid="user-feed-section">
               <UserFeedClient
                 userId={profile.id}
-                initialItems={productsPage.items}
-                initialPage={initialFeedPage}
-                pageSize={productsPage.pageSize}
-                initialHasMore={productsPage.hasMore}
+                initialPageData={{
+                  ...productsPage,
+                  nextPage: productsPage.nextPage ?? null,
+                }}
               />
             </section>
           </>

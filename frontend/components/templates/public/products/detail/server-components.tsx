@@ -5,9 +5,9 @@ import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
 import { ProductCard } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
 import {
-  getPublicProductsByUseCase,
-  getPublicProductUpvoteStatus,
-} from "@/actions/public/products/actions"
+  getPublicProductUpvoteStatusServer,
+  getPublicProductsByUseCaseServer,
+} from "@/lib/server/generated-public"
 
 export type ViewerProductState = {
   viewerUpvoted: boolean
@@ -30,7 +30,7 @@ const getViewerProductState = cache(
       return { viewerUpvoted: false }
     }
 
-    const upvoteState = await getPublicProductUpvoteStatus(
+    const upvoteState = await getPublicProductUpvoteStatusServer(
       productId,
       authToken,
     ).catch(() => null)
@@ -73,7 +73,7 @@ export async function SimilarProductsServer({
   useCaseSlug: string
 }) {
   if (!useCaseSlug) return null
-  const similarProducts = await getPublicProductsByUseCase(
+  const similarProducts = await getPublicProductsByUseCaseServer(
     useCaseSlug,
     productId,
     4,

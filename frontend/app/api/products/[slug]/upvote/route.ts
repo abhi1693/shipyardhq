@@ -5,7 +5,7 @@ import {
   toggleProductUpvote,
   UpvoteError,
 } from "@/actions/public/products/upvote"
-import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
+import { getPublicProductMetaBySlugServer } from "@/lib/server/generated-public"
 
 interface RouteParams {
   params: Promise<{ slug?: string }>
@@ -18,7 +18,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Missing product slug" }, { status: 400 })
   }
 
-  const product = await getPublicProductMetaBySlug(slug)
+  const product = await getPublicProductMetaBySlugServer(slug)
   if (!product) {
     return NextResponse.json({ error: "Product not found" }, { status: 404 })
   }

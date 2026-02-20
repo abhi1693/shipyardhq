@@ -4,7 +4,7 @@ import { JsonLdScript } from "next-seo"
 
 import { UserProfilePageContent } from "@/components/templates/public/users/detail/page-content"
 import { UserProfileSkeleton } from "@/components/templates/public/users/detail/skeleton"
-import { getPublicUserMeta } from "@/actions/public/users/actions"
+import { getPublicUserMetaServer } from "@/lib/server/generated-public"
 import { getUserProfilePayload } from "@/lib/users/page-cache"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildProfilePageJsonLd } from "@/lib/seo/profile-page"
@@ -17,7 +17,7 @@ export async function generateMetadata(
   props: Parameters<typeof UserProfilePageContent>[0],
 ): Promise<Metadata> {
   const { id } = await props.params
-  const user = await getPublicUserMeta(id)
+  const user = await getPublicUserMetaServer(id)
   if (!user) return {}
 
   const fullName =

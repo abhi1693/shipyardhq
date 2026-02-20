@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server"
 
 import {
-  getPublicProductMetaBySlug,
-  getPublicProductRevenue,
-} from "@/actions/public/products/actions"
+  getPublicProductMetaBySlugServer,
+  getPublicProductRevenueServer,
+} from "@/lib/server/generated-public"
 
 type RevenueResponse = {
   loading: boolean
@@ -19,7 +19,7 @@ export async function GET(
   context: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await context.params
-  const product = await getPublicProductMetaBySlug(slug)
+  const product = await getPublicProductMetaBySlugServer(slug)
   if (
     !product ||
     product.status !== "published" ||
@@ -28,7 +28,7 @@ export async function GET(
     return NextResponse.json<RevenueResponse>({ loading: false, data: [] })
   }
 
-  const revenue = await getPublicProductRevenue(product.id)
+  const revenue = await getPublicProductRevenueServer(product.id)
   if (!revenue || !revenue.points.length) {
     return NextResponse.json<RevenueResponse>({ loading: false, data: [] })
   }

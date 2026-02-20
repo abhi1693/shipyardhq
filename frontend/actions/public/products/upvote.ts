@@ -1,9 +1,7 @@
 import { resolveApiError } from "@/lib/fastapi"
 import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
-import {
-  parseProductId,
-  type PublicProductUpvoteState,
-} from "@/actions/public/products/actions"
+import type { PublicProductUpvoteState } from "@/lib/generated/fastapi/schemas"
+import { parseProductId } from "@/lib/server/generated-public"
 
 type ApiResponse<T> = {
   data: T

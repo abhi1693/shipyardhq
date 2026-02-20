@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { Button } from "@/components/atoms/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/atoms/sheet"
@@ -12,7 +12,6 @@ import clsx from "clsx"
 import { SignOutButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs"
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import SignInButton from "@/components/molecules/SignInButton"
-import { getCurrentUserRewardBalanceAction } from "@/actions/member/rewards/get-reward-balance"
 import {
   ANALYTICS_PATH,
   BROWSE_PATH,
@@ -34,6 +33,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { useRouter } from "next/navigation"
 import { RewardMenuItemContent } from "@/components/molecules/RewardMenuItemContent"
+import { useGetMemberRewardsSnapshotApiV1MemberRewardsSnapshotGet } from "@/lib/generated/fastapi/member"
 
 const navLinks = [
   { label: "Browse", href: BROWSE_PATH },
@@ -49,7 +49,6 @@ export default function PublicHeader() {
   const [open, setOpen] = useState(false)
   const router = useRouter()
   const { user } = useUser()
-  const [rewardBalance, setRewardBalance] = useState<number | null>(null)
 
   const userInitials = (() => {
     const nameInitials = user?.fullName
@@ -80,30 +79,15 @@ export default function PublicHeader() {
   }).toString()
   const navbarAuthRedirectUrl = `${MEMBER_BASE_PATH}?${navbarAuthSearch}`
 
-  const userId = user?.id ?? null
-
-  useEffect(() => {
-    if (!userId) return undefined
-
-    let isCurrent = true
-    async function loadBalance() {
-      try {
-        const balance = await getCurrentUserRewardBalanceAction()
-        if (!isCurrent) return
-        setRewardBalance(balance)
-      } catch {
-        if (isCurrent) {
-          setRewardBalance(null)
-        }
-      }
-    }
-
-    loadBalance()
-
-    return () => {
-      isCurrent = false
-    }
-  }, [userId])
+  const { data: rewardsSnapshot } =
+    useGetMemberRewardsSnapshotApiV1MemberRewardsSnapshotGet({
+      query: {
+        enabled: Boolean(user?.id),
+        retry: false,
+        staleTime: 30_000,
+      },
+    })
+  const rewardBalance = rewardsSnapshot?.data?.balance?.balance ?? 0
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-white shadow-[0_18px_48px_-26px_rgba(17,24,39,0.35)]">
@@ -214,7 +198,7 @@ export default function PublicHeader() {
                         router.push(MEMBER_REWARDS_PATH)
                       }}
                     >
-                      <RewardMenuItemContent balance={rewardBalance ?? 0} />
+                      <RewardMenuItemContent balance={rewardBalance} />
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="cursor-pointer"

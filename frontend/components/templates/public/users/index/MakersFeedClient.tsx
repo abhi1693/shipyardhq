@@ -1,18 +1,19 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useMemo, useRef, useEffect } from "react"
+import { useInfiniteQuery } from "@tanstack/react-query"
 
 import MakerFeedCard from "@/components/molecules/MakerFeedCard"
-import type { PublicUsersPageResult } from "@/actions/public/users/actions"
-import { getPublicUsersPage } from "@/actions/public/users/actions"
+import { getPublicUsersApiV1PublicUsersGet } from "@/lib/generated/fastapi/public-homepage"
+import type { PublicUsersPageResult } from "@/lib/generated/fastapi/schemas"
 
-type MakerListItem = PublicUsersPageResult["items"][number]
+type MakersPage = Omit<PublicUsersPageResult, "nextPage"> & {
+  nextPage: number | null
+}
+type MakerListItem = MakersPage["items"][number]
 
 interface MakersFeedClientProps {
-  initialItems: MakerListItem[]
-  initialPage: number
-  pageSize: number
-  initialHasMore: boolean
+  initialPageData: MakersPage
 }
 
 const mapMakerMeta = (maker: MakerListItem) => {
@@ -25,76 +26,67 @@ const mapMakerMeta = (maker: MakerListItem) => {
       .map((segment) => segment.charAt(0).toUpperCase())
       .join("")
       .slice(0, 2) || "SY"
-  const launches = maker.productCount
+  const launches = maker.productCount ?? 0
 
   return { name, initials, launches }
 }
 
-export function MakersFeedClient({
-  initialItems,
-  initialPage,
-  pageSize,
-  initialHasMore,
-}: MakersFeedClientProps) {
-  const normalizedInitialPage =
-    Number.isFinite(initialPage) && initialPage > 0 ? initialPage : 2
+export function MakersFeedClient({ initialPageData }: MakersFeedClientProps) {
   const normalizedPageSize =
-    Number.isFinite(pageSize) && pageSize > 0 ? Math.floor(pageSize) : 20
-
-  const [items, setItems] = useState<MakerListItem[]>(initialItems)
-  const [page, setPage] = useState<number>(normalizedInitialPage)
-  const [hasMore, setHasMore] = useState<boolean>(initialHasMore)
-  const [isLoading, setIsLoading] = useState(false)
+    Number.isFinite(initialPageData.pageSize) && initialPageData.pageSize > 0
+      ? Math.floor(initialPageData.pageSize)
+      : 20
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
-  const resetKey = useMemo(
-    () =>
-      [
-        normalizedPageSize,
-        normalizedInitialPage,
-        initialItems.map((item) => item.id).join("|"),
-      ].join(":"),
-    [initialItems, normalizedInitialPage, normalizedPageSize],
-  )
-
-  useEffect(() => {
-    setItems(initialItems)
-    setPage(normalizedInitialPage)
-    setHasMore(initialHasMore)
-  }, [initialHasMore, initialItems, normalizedInitialPage, resetKey])
-
-  const loadMore = useCallback(async () => {
-    if (!hasMore || isLoading) return
-
-    setIsLoading(true)
-    try {
-      const result = await getPublicUsersPage({
+  const query = useInfiniteQuery({
+    queryKey: ["public-users", normalizedPageSize],
+    initialPageParam: initialPageData.page,
+    queryFn: async ({ pageParam }) => {
+      const page =
+        typeof pageParam === "number" && Number.isFinite(pageParam) && pageParam > 0
+          ? Math.floor(pageParam)
+          : 1
+      const response = await getPublicUsersApiV1PublicUsersGet({
         page,
         pageSize: normalizedPageSize,
       })
 
-      setItems((previous) => {
-        const existingIds = new Set(previous.map((item) => item.id))
-        const nextItems = result.items.filter(
-          (item) => !existingIds.has(item.id),
-        )
+      if (response.status !== 200) {
+        throw new Error("Failed to fetch makers")
+      }
 
-        if (!nextItems.length) return previous
-        return [...previous, ...nextItems]
-      })
+      return {
+        ...response.data,
+        nextPage: response.data.nextPage ?? null,
+      } as MakersPage
+    },
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.hasMore) return undefined
+      return lastPage.nextPage ?? lastPage.page + 1
+    },
+    initialData: {
+      pages: [initialPageData],
+      pageParams: [initialPageData.page],
+    },
+  })
 
-      setHasMore(result.hasMore)
-      setPage((current) => {
-        if (result.nextPage) return result.nextPage
-        if (result.hasMore) return current + 1
-        return current
-      })
-    } catch {
-      setHasMore(false)
-    } finally {
-      setIsLoading(false)
+  const items = useMemo(() => {
+    const deduped = new Map<string, MakerListItem>()
+    for (const page of query.data?.pages ?? []) {
+      for (const item of page.items ?? []) {
+        deduped.set(item.id, item)
+      }
     }
-  }, [hasMore, isLoading, normalizedPageSize, page])
+    return Array.from(deduped.values())
+  }, [query.data])
+
+  const hasMore = Boolean(query.hasNextPage)
+  const isLoadingMore = query.isFetchingNextPage
+
+  const loadMore = useCallback(() => {
+    if (!hasMore || isLoadingMore) return
+    query.fetchNextPage().catch(() => {})
+  }, [hasMore, isLoadingMore, query])
 
   useEffect(() => {
     const node = sentinelRef.current
@@ -115,7 +107,7 @@ export function MakersFeedClient({
     return () => {
       observer.disconnect()
     }
-  }, [hasMore, loadMore, resetKey])
+  }, [hasMore, loadMore])
 
   if (!items.length && !hasMore) {
     return (
@@ -152,7 +144,7 @@ export function MakersFeedClient({
           ref={sentinelRef}
           className="flex justify-center py-4 text-sm text-muted-foreground"
         >
-          {isLoading ? "Loading more makers…" : "Keep scrolling for more"}
+          {isLoadingMore ? "Loading more makers…" : "Keep scrolling for more"}
         </div>
       ) : null}
     </div>

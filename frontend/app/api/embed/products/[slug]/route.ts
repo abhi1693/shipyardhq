@@ -4,9 +4,9 @@ import { readFileSync } from "node:fs"
 import path from "node:path"
 
 import {
-  getPublicProductMetaBySlug,
-  getPublicProductRevenue,
-} from "@/actions/public/products/actions"
+  getPublicProductMetaBySlugServer,
+  getPublicProductRevenueServer,
+} from "@/lib/server/generated-public"
 import { siteConfig } from "@/lib/siteConfig"
 
 export const runtime = "nodejs"
@@ -251,7 +251,7 @@ async function resolveHref(
 export async function GET(_req: NextRequest, context: { params: RouteParams }) {
   const { slug } = await context.params
   const url = _req.nextUrl
-  const product = await getPublicProductMetaBySlug(slug)
+  const product = await getPublicProductMetaBySlugServer(slug)
   if (!product) {
     return new NextResponse("Badge not found", {
       status: 404,
@@ -283,7 +283,7 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
   let metricValue = "$0"
 
   if (!isFeatured && product?.id) {
-    const revenue = await getPublicProductRevenue(product.id)
+    const revenue = await getPublicProductRevenueServer(product.id)
     const currencyCode = revenue?.currencyCode ?? "USD"
 
     const formatCurrency = (cents: number | null | undefined) =>

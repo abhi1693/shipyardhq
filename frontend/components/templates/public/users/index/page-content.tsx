@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { Suspense } from "react"
 
-import { getPublicUsersPage } from "@/actions/public/users/actions"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
@@ -22,11 +21,11 @@ import {
   HERO_SECONDARY_BUTTON_CLASSES,
 } from "@/components/templates/public/categories/hero-button-classes"
 import MakersFeedClient from "@/components/templates/public/users/index/MakersFeedClient"
+import { getPublicUsersPageServer } from "@/lib/server/generated-public"
 import { LEADERBOARD_REWARDS_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
 export async function UsersIndexPageContent() {
-  const usersPage = await getPublicUsersPage({ page: 1, pageSize: 24 })
-  const initialPage = usersPage.nextPage ?? usersPage.page + 1
+  const usersPage = await getPublicUsersPageServer({ page: 1, pageSize: 24 })
   const totalMakers = usersPage.total
 
   return (
@@ -84,10 +83,7 @@ export async function UsersIndexPageContent() {
                 </Link>
               </div>
               <MakersFeedClient
-                initialItems={usersPage.items}
-                initialPage={initialPage}
-                pageSize={usersPage.pageSize}
-                initialHasMore={usersPage.hasMore}
+                initialPageData={usersPage}
               />
             </section>
           </>

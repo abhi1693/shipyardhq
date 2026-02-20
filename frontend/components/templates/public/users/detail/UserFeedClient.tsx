@@ -1,88 +1,81 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
+import { useInfiniteQuery } from "@tanstack/react-query"
 
 import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
-import type { HomepageFeedItem } from "@/lib/generated/fastapi/schemas"
+import type { UserProductsPageResult } from "@/lib/generated/fastapi/schemas"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
-import { getUserProductsPage } from "@/actions/public/users/actions"
+import { getPublicUserProductsApiV1PublicUsersUserIdProductsGet } from "@/lib/generated/fastapi/public-homepage"
+
+type UserFeedPage = Omit<UserProductsPageResult, "nextPage"> & {
+  nextPage: number | null
+}
 
 interface UserFeedClientProps {
   userId: string
-  initialItems: HomepageFeedItem[]
-  initialPage: number
-  pageSize: number
-  initialHasMore: boolean
+  initialPageData: UserFeedPage
 }
 
-export function UserFeedClient({
-  userId,
-  initialItems,
-  initialPage,
-  pageSize,
-  initialHasMore,
-}: UserFeedClientProps) {
-  const normalizedInitialPage =
-    Number.isFinite(initialPage) && initialPage > 0 ? initialPage : 2
+export function UserFeedClient({ userId, initialPageData }: UserFeedClientProps) {
   const normalizedPageSize =
-    Number.isFinite(pageSize) && pageSize > 0 ? Math.floor(pageSize) : 20
-
-  const [items, setItems] = useState<HomepageFeedItem[]>(initialItems)
-  const [page, setPage] = useState<number>(normalizedInitialPage)
-  const [hasMore, setHasMore] = useState<boolean>(initialHasMore)
-  const [isLoading, setIsLoading] = useState(false)
+    Number.isFinite(initialPageData.pageSize) && initialPageData.pageSize > 0
+      ? Math.floor(initialPageData.pageSize)
+      : 20
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
-  const resetKey = useMemo(
-    () =>
-      [
+  const query = useInfiniteQuery({
+    queryKey: ["public-user-products", userId, normalizedPageSize],
+    initialPageParam: initialPageData.page,
+    queryFn: async ({ pageParam }) => {
+      const page =
+        typeof pageParam === "number" && Number.isFinite(pageParam) && pageParam > 0
+          ? Math.floor(pageParam)
+          : 1
+
+      const response = await getPublicUserProductsApiV1PublicUsersUserIdProductsGet(
         userId,
-        normalizedPageSize,
-        normalizedInitialPage,
-        initialItems.map((item) => item.id).join("|"),
-      ].join(":"),
-    [initialItems, normalizedInitialPage, normalizedPageSize, userId],
-  )
+        {
+          page,
+          pageSize: normalizedPageSize,
+        },
+      )
+      if (response.status !== 200) {
+        throw new Error("Failed to fetch user products")
+      }
+      return {
+        ...response.data,
+        nextPage: response.data.nextPage ?? null,
+      } as UserFeedPage
+    },
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.hasMore) return undefined
+      return lastPage.nextPage ?? lastPage.page + 1
+    },
+    initialData: {
+      pages: [initialPageData],
+      pageParams: [initialPageData.page],
+    },
+    enabled: Boolean(userId),
+  })
 
-  useEffect(() => {
-    setItems(initialItems)
-    setPage(normalizedInitialPage)
-    setHasMore(initialHasMore)
-  }, [initialHasMore, initialItems, normalizedInitialPage, resetKey])
-
-  const loadMore = useCallback(async () => {
-    if (!hasMore || isLoading) return
-
-    setIsLoading(true)
-    try {
-      const result = await getUserProductsPage({
-        userId,
-        page,
-        pageSize: normalizedPageSize,
-      })
-
-      setItems((previous) => {
-        const existingIds = new Set(previous.map((item) => item.id))
-        const nextItems = result.items.filter(
-          (item) => !existingIds.has(item.id),
-        )
-
-        if (!nextItems.length) return previous
-        return [...previous, ...nextItems]
-      })
-
-      setHasMore(result.hasMore)
-      setPage((current) => {
-        if (result.nextPage) return result.nextPage
-        if (result.hasMore) return current + 1
-        return current
-      })
-    } catch {
-      setHasMore(false)
-    } finally {
-      setIsLoading(false)
+  const items = useMemo(() => {
+    const deduped = new Map<string, UserFeedPage["items"][number]>()
+    for (const page of query.data?.pages ?? []) {
+      for (const item of page.items ?? []) {
+        deduped.set(item.id, item)
+      }
     }
-  }, [hasMore, isLoading, normalizedPageSize, page, userId])
+    return Array.from(deduped.values())
+  }, [query.data])
+
+  const hasMore = Boolean(query.hasNextPage)
+  const isLoadingMore = query.isFetchingNextPage
+
+  const loadMore = useCallback(() => {
+    if (!hasMore || isLoadingMore) return
+    query.fetchNextPage().catch(() => {})
+  }, [hasMore, isLoadingMore, query])
 
   useEffect(() => {
     const node = sentinelRef.current
@@ -103,7 +96,7 @@ export function UserFeedClient({
     return () => {
       observer.disconnect()
     }
-  }, [hasMore, loadMore, resetKey])
+  }, [hasMore, loadMore])
 
   if (!items.length && !hasMore) {
     return (
@@ -126,7 +119,7 @@ export function UserFeedClient({
           ref={sentinelRef}
           className="flex justify-center py-4 text-sm text-muted-foreground"
         >
-          {isLoading ? "Loading more launches…" : "Keep scrolling for more"}
+          {isLoadingMore ? "Loading more launches…" : "Keep scrolling for more"}
         </div>
       ) : null}
     </div>

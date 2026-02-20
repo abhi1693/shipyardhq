@@ -6,7 +6,8 @@ import ProductGrid from "@/components/molecules/ProductGrid"
 import { EmptyState } from "@/components/molecules/empty-state"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
-import { getVerifiedRevenueProductsPage } from "@/actions/public/verified-revenue/actions"
+import { getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet } from "@/lib/generated/fastapi/public-homepage"
+import type { HomepageFeedItem } from "@/lib/generated/fastapi/schemas"
 
 interface VerifiedRevenueGridClientProps {
   initialProducts: ProductCardBase[]
@@ -15,6 +16,32 @@ interface VerifiedRevenueGridClientProps {
   total: number
   pageSize: number
 }
+
+const toProductCardBase = (item: HomepageFeedItem): ProductCardBase => ({
+  id: item.id,
+  slug: item.slug,
+  name: item.name,
+  logo: item.logo ?? "",
+  tagline: item.tagline ?? "",
+  badges: item.badges ?? [],
+  category:
+    item.category || item.categorySlug
+      ? {
+          name: item.category ?? null,
+          slug: item.categorySlug ?? null,
+        }
+      : null,
+  sponsored: item.isSponsored,
+  isVerified: item.isVerified,
+  createdAt: item.createdAt,
+  updatedAt: item.updatedAt,
+  latestRevenueCents:
+    typeof item.latestRevenueCents === "number" ? item.latestRevenueCents : null,
+  revenueCurrencyCode: item.revenueCurrencyCode ?? null,
+  scoreCount:
+    typeof item.scoreCount === "number" ? item.scoreCount : undefined,
+  interest: item.interest ?? null,
+})
 
 export function VerifiedRevenueGridClient({
   initialProducts,
@@ -42,17 +69,25 @@ export function VerifiedRevenueGridClient({
 
   const loadPage = useCallback(
     async (page: number) => {
-      const result = await getVerifiedRevenueProductsPage({
-        page,
-        pageSize,
-      })
+      const response = await getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet(
+        {
+          page,
+          pageSize,
+        },
+      )
+      if (response.status !== 200) {
+        return { items: [], hasMore: false }
+      }
+
+      const result = response.data
+      const baseItems = (result.items ?? []).map(toProductCardBase)
       const startRank = (page - 1) * pageSize + 1
 
       return {
-        items: result.items.map((item, index) =>
+        items: baseItems.map((item, index) =>
           toProductCardItem(item, { meta: renderRankMeta(startRank + index) }),
         ),
-        hasMore: result.hasMore,
+        hasMore: Boolean(result.hasMore),
       }
     },
     [pageSize, renderRankMeta],

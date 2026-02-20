@@ -1,6 +1,5 @@
 import { Suspense } from "react"
 
-import { getVerifiedRevenueProductsPage } from "@/actions/public/verified-revenue/actions"
 import { getLeaderboardStatsApiV1PublicLeaderboardStatsGet } from "@/lib/generated/fastapi/public-homepage"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
@@ -20,13 +19,14 @@ import {
 import { VerifiedRevenueGridClient } from "@/components/templates/public/verified-revenue/VerifiedRevenueGridClient"
 import { PAYMENT_PROVIDERS } from "@/lib/paymentProviders"
 import { VERIFIED_REVENUE_PAGE_SIZE } from "@/lib/products/verifiedRevenue"
+import { getVerifiedRevenueProductsPageServer } from "@/lib/server/generated-public"
 
 export async function VerifiedRevenuePageContent() {
   const statsResponse =
     await getLeaderboardStatsApiV1PublicLeaderboardStatsGet()
   const stats = statsResponse.data
   const { items, hasMore, nextPage, total, pageSize } =
-    await getVerifiedRevenueProductsPage()
+    await getVerifiedRevenueProductsPageServer()
 
   const initialPage = nextPage ?? 2
 

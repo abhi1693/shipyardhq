@@ -54,11 +54,11 @@ import {
   SimilarProductsFallback,
 } from "@/components/templates/public/products/detail/product-fallbacks"
 import {
-  getPublicProductMetaBySlug,
-  getPublicProductBySlug,
-  getPublicProductLeaderboard,
-  getPublicProductRevenue,
-} from "@/actions/public/products/actions"
+  getPublicProductBySlugServer,
+  getPublicProductLeaderboardServer,
+  getPublicProductMetaBySlugServer,
+  getPublicProductRevenueServer,
+} from "@/lib/server/generated-public"
 import {
   BROWSE_PATH,
   HOME_PATH,
@@ -100,7 +100,7 @@ export async function generateMetadata(
   props: ProductPageProps,
 ): Promise<Metadata> {
   const { slug } = await props.params
-  const product = await getPublicProductMetaBySlug(slug)
+  const product = await getPublicProductMetaBySlugServer(slug)
   if (!product) return {}
 
   const canonicalPath = productPath(slug)
@@ -221,15 +221,15 @@ function formatCurrency(
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
-  const product = await getPublicProductMetaBySlug(slug)
+  const product = await getPublicProductMetaBySlugServer(slug)
   if (!product) return notFound()
 
   const [sidebarProduct, revenue, leaderboardScore] = await Promise.all([
-    getPublicProductBySlug(slug),
+    getPublicProductBySlugServer(slug),
     product.pricingModel === "free"
       ? Promise.resolve(null)
-      : getPublicProductRevenue(product.id),
-    getPublicProductLeaderboard(product.id).catch(() => null),
+      : getPublicProductRevenueServer(product.id),
+    getPublicProductLeaderboardServer(product.id).catch(() => null),
   ])
   if (!sidebarProduct) return notFound()
 
@@ -455,12 +455,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         productLogoUrl={product.logo}
       />
     ) : null
-  const leaderboardPayload =
-    leaderboardScore ?? {
-      points: 0,
-      rank: null,
-      available: false,
-    }
+  const leaderboardPayload = {
+    points: leaderboardScore?.points ?? 0,
+    rank: leaderboardScore?.rank ?? null,
+    available: leaderboardScore?.available ?? false,
+  }
   const upvoteCandidates = [
     sidebarProduct.upvotesCount,
     sidebarProduct.analytics?.upvotes,

@@ -1,18 +1,18 @@
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
-  getPublicProductBySlug,
-  getPublicProductsByUseCase,
-} from "@/actions/public/products/actions"
+  getPublicProductBySlugServer,
+  getPublicProductsByUseCaseServer,
+} from "@/lib/server/generated-public"
 import { productPath } from "@/lib/routes"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import type { ProductInterestSignals } from "@/types/product-interest"
 
 export type PublicProduct = NonNullable<
-  Awaited<ReturnType<typeof getPublicProductBySlug>>
+  Awaited<ReturnType<typeof getPublicProductBySlugServer>>
 >
 
 type UseCaseProduct = Awaited<
-  ReturnType<typeof getPublicProductsByUseCase>
+  ReturnType<typeof getPublicProductsByUseCaseServer>
 >[number]
 
 export const APPLICATION_CATEGORY_MAP: Record<string, string> = {
@@ -153,7 +153,7 @@ export function buildProductStructuredData(product: PublicProduct) {
 
 export const getProductPagePayload = cached(
   async (slug: string): Promise<ProductPagePayload | null> => {
-    const product = await getPublicProductBySlug(slug)
+    const product = await getPublicProductBySlugServer(slug)
     if (!product) {
       return null
     }
@@ -161,7 +161,7 @@ export const getProductPagePayload = cached(
     const useCaseSlug = product.category?.useCases?.[0]?.slug ?? null
 
     const similarProductsRaw = useCaseSlug
-      ? await getPublicProductsByUseCase(useCaseSlug, product.id)
+      ? await getPublicProductsByUseCaseServer(useCaseSlug, product.id)
       : []
 
     const similarProducts = mapUseCaseProducts(similarProductsRaw)

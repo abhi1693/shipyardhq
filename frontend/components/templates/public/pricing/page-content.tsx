@@ -5,10 +5,12 @@ import { BadgeSkeleton } from "@/components/atoms/badge.skeleton"
 import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 
-import { getPublicPlans } from "@/actions/public/plans/actions"
-import { getProducts } from "@/actions/public/products/featured"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
 import { PricingTable } from "@/components/organisms/PricingTable"
+import {
+  getProductsByBadgeServer,
+  getPublicPlansServer,
+} from "@/lib/server/generated-public"
 
 export const CORE_PERKS = [
   {
@@ -55,7 +57,7 @@ export async function PricingPlansList({
   disableSectionWrapper = false,
   showTypeToggle = false,
 }: { disableSectionWrapper?: boolean; showTypeToggle?: boolean } = {}) {
-  const plans = await getPublicPlans()
+  const plans = await getPublicPlansServer()
   const defaultPlan = plans.find((plan) => plan.isDefault)
   const visiblePlans = defaultPlan
     ? plans.filter((plan) => plan.id !== defaultPlan.id)
@@ -88,7 +90,7 @@ export async function PricingPlansList({
 }
 
 export async function FeaturedProductsList() {
-  const featured = await getProducts("featured")
+  const featured = await getProductsByBadgeServer("featured")
 
   if (!featured.length) {
     return null
