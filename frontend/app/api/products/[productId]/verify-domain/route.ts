@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { verifyProductDomainAction } from "@/actions/admin/products/actions"
+import { verifyProductDomainServer } from "@/lib/server/product-domain"
 
 type RouteContext = {
   params: Promise<{
@@ -14,6 +14,6 @@ export async function POST(_request: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: "Missing product ID" }, { status: 400 })
   }
 
-  const result = await verifyProductDomainAction(productId)
+  const result = await verifyProductDomainServer(productId)
   return NextResponse.json(result)
 }

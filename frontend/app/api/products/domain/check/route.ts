@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { checkDomainTxtAction } from "@/actions/admin/products/actions"
+import { checkDomainTxtServer } from "@/lib/server/product-domain"
 
 type CheckDomainBody = {
   websiteUrl?: string
@@ -14,6 +14,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing website URL" }, { status: 400 })
   }
 
-  const result = await checkDomainTxtAction(websiteUrl)
+  const result = await checkDomainTxtServer(websiteUrl)
   return NextResponse.json(result)
 }

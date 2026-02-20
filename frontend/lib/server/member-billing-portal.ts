@@ -1,13 +1,12 @@
-"use server"
-
 import { auth } from "@clerk/nextjs/server"
+
 import { createDodoCustomerPortalLinkByEmail } from "@/lib/dodoCustomerPortal"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
 
-export async function createBillingPortalAction(sendEmail = false) {
+export async function createBillingPortalLinkServer(sendEmail = false) {
   const { userId } = await auth()
   if (!userId) return { error: "Unauthenticated" }
 

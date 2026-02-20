@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server"
 
-import { createBillingPortalAction } from "@/actions/member/billing/portal"
+import { createBillingPortalLinkServer } from "@/lib/server/member-billing-portal"
 
 export async function POST() {
   try {
-    const result = await createBillingPortalAction(false)
+    const result = await createBillingPortalLinkServer(false)
     const hasError =
       result && typeof result === "object" && "error" in result && result.error
 

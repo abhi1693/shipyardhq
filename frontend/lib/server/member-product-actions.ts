@@ -1,5 +1,6 @@
 import {
   createProductAction,
+  deleteProductAction,
   getProductById,
   getProductForEditWizard,
   resetProductConnectorAction,
@@ -18,6 +19,7 @@ export const setMemberProductStatus = setProductStatusAction
 export const createMemberProduct = createProductAction
 export const updateMemberProduct = updateProductAction
 export const resetMemberProductConnector = resetProductConnectorAction
+export const deleteMemberProduct = deleteProductAction
 export const chooseMemberProductPlan = choosePlanAction
 export const validateMemberProductPayment = validatePaymentAndAttachPlan
 export const validateMemberProductSubscription = validateSubscriptionAndAttachPlan
