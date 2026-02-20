@@ -1,41 +1,106 @@
 "use server"
 
 import { type User as ClerkUser } from "@clerk/backend"
-import prisma from "@/lib/prisma"
+import { auth } from "@clerk/nextjs/server"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
-import { invalidateActiveUserCache } from "@/lib/server/userStatus"
+import {
+  INACTIVE_ACCOUNT_MESSAGE,
+  invalidateActiveUserCache,
+} from "@/lib/server/userStatus"
 import {
   ensureNovuSubscriber,
   isNovuEnabled,
 } from "@/lib/server/notifications/novu"
+import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
+
+type ApiResponse<T> = {
+  data: T
+  status: number
+  headers: Headers
+}
+
+type MemberActiveUser = {
+  id: string
+  status: string
+}
+
+async function getAuthToken() {
+  const authResult = await auth()
+  if (!authResult.userId || !authResult.getToken) return null
+  return authResult.getToken().catch(() => null)
+}
+
+async function getMemberMeByToken(
+  authToken: string,
+): Promise<MemberActiveUser | null> {
+  try {
+    const response = await fastapiFetch<ApiResponse<MemberActiveUser>>(
+      "/api/v1/member/me",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    )
+    if (response.status !== 200 || !response.data) {
+      return null
+    }
+    return response.data
+  } catch (error) {
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403 || status === 404 || status === 422) {
+      return null
+    }
+    throw error
+  }
+}
 
 export async function syncUserFromClerk(clerkUser: ClerkUser) {
   const email = clerkUser.emailAddresses[0]?.emailAddress
-  const firstName = clerkUser.firstName ?? ""
-  const lastName = clerkUser.lastName ?? ""
+  const firstName = clerkUser.firstName ?? null
+  const lastName = clerkUser.lastName ?? null
 
   if (!email) {
     throw new Error("Clerk user email is required but missing.")
   }
 
-  await prisma.user.upsert({
-    where: { email },
-    update: {
-      clerkId: clerkUser.id,
-      firstName,
-      lastName,
-      updatedAt: new Date(),
-    },
-    create: {
-      email,
-      clerkId: clerkUser.id,
-      firstName,
-      lastName,
-    },
-    select: {
-      id: true,
-    },
-  })
+  const authResult = await auth()
+  if (!authResult.userId || authResult.userId !== clerkUser.id) {
+    throw new Error("Unauthenticated")
+  }
+
+  const authToken = await getAuthToken()
+  if (!authToken) {
+    throw new Error("Unauthenticated")
+  }
+
+  try {
+    const response = await fastapiFetch<ApiResponse<MemberActiveUser>>(
+      "/api/v1/member/me/sync",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          firstName,
+          lastName,
+        }),
+      },
+    )
+    if (response.status !== 200 || !response.data) {
+      throw new Error("Unable to sync user profile.")
+    }
+  } catch (error) {
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403) {
+      throw new Error(INACTIVE_ACCOUNT_MESSAGE)
+    }
+    throw error
+  }
 
   if (isNovuEnabled()) {
     try {
@@ -62,10 +127,17 @@ export async function getUserByClerkId(clerkId: string) {
     return null
   }
 
-  const user = await prisma.user.findUnique({
-    where: { clerkId },
-    select: { id: true, status: true },
-  })
+  const authResult = await auth()
+  if (!authResult.userId || authResult.userId !== clerkId) {
+    return null
+  }
+
+  const authToken = await getAuthToken()
+  if (!authToken) {
+    return null
+  }
+
+  const user = await getMemberMeByToken(authToken)
 
   if (user?.status === "active") {
     return { id: user.id }
@@ -79,10 +151,11 @@ export async function getUserByClerkId(clerkId: string) {
     return null
   }
 
-  const refreshedUser = await prisma.user.findUnique({
-    where: { clerkId },
-    select: { id: true, status: true },
-  })
+  const refreshedToken = await getAuthToken()
+  if (!refreshedToken) {
+    return null
+  }
+  const refreshedUser = await getMemberMeByToken(refreshedToken)
 
   if (!refreshedUser || refreshedUser.status !== "active") {
     return null

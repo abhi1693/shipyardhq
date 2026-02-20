@@ -1,72 +1,53 @@
 import { auth } from "@clerk/nextjs/server"
-import prisma from "@/lib/prisma"
+
+import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
 import type { PlanFeatureKey } from "@/lib/constants"
-import { getActiveUserByClerkId } from "@/lib/server/userStatus"
+
+type ApiResponse<T> = {
+  data: T
+  status: number
+  headers: Headers
+}
+
+type MemberFeatureAccessPayload = {
+  featureKey: string
+  hasAccess: boolean
+}
+
+async function getAuthToken() {
+  const authResult = await auth()
+  if (!authResult.userId || !authResult.getToken) {
+    return null
+  }
+  return authResult.getToken().catch(() => null)
+}
 
 // Check if the current member has access to a feature via any paid plan
 export async function memberHasFeature(key: PlanFeatureKey): Promise<boolean> {
   try {
-    const { userId: clerkId } = await auth()
-    if (!clerkId) return false
+    const authToken = await getAuthToken()
+    if (!authToken) return false
 
-    const user = await getActiveUserByClerkId(clerkId)
-    if (!user) return false
-
-    // 1) Any owned product whose plan grants this feature
-    const ownedProductWithFeature = await prisma.product.findFirst({
-      where: {
-        userId: user.id,
-        OR: [
-          {
-            plan: {
-              assignments: {
-                some: { enabled: true, feature: { key } },
-              },
-            },
-          },
-          {
-            featureEntitlements: {
-              some: {
-                featureKey: key,
-                status: { in: ["active", "pending"] },
-              },
-            },
-          },
-        ],
-      },
-      select: { id: true },
-    })
-
-    if (ownedProductWithFeature) return true
-
-    // 2) Any plan the user has purchased that grants this feature
-    const userPurchaseWithFeature = await prisma.userPlanPurchase.findFirst({
-      where: {
-        userId: user.id,
-        plan: {
-          assignments: {
-            some: { enabled: true, feature: { key } },
-          },
+    const response = await fastapiFetch<ApiResponse<MemberFeatureAccessPayload>>(
+      `/api/v1/member/features/${encodeURIComponent(key)}/has-access`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
         },
       },
-      select: { id: true },
-    })
+    )
 
-    if (userPurchaseWithFeature) return true
+    if (response.status !== 200 || !response.data) {
+      return false
+    }
 
-    const directEntitlement = await prisma.featureEntitlement.findFirst({
-      where: {
-        userId: user.id,
-        featureKey: key,
-        status: { in: ["active", "pending"] },
-      },
-      select: { id: true },
-    })
-
-    if (directEntitlement) return true
-
-    return false
-  } catch {
+    return response.data.hasAccess === true
+  } catch (error) {
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403 || status === 404 || status === 422) {
+      return false
+    }
     return false
   }
 }

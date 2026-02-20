@@ -1,76 +1,204 @@
 "use server"
 
 import { auth } from "@clerk/nextjs/server"
-import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
-import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import { createPlanCheckout } from "@/lib/server/dodoCheckout"
 import {
   PaymentConnectorProvider,
-  PaymentCredentialStatus,
-  Prisma,
-  ProductStatus,
+  type PaymentConnectorStatus,
 } from "@/lib/vendor/prisma/client"
-import type { FeatureEntitlementStatus } from "@/lib/vendor/prisma/client"
 import {
   validateConnectorApiKey,
   upsertPaymentConnector,
 } from "@/lib/server/payments/connectors"
-import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
-import {
-  getActiveUserByClerkId,
-  INACTIVE_ACCOUNT_MESSAGE,
-} from "@/lib/server/userStatus"
-import { hasPlanFeature } from "@/lib/features"
 import { memberProductPath } from "@/lib/routes"
 import type { PaymentConnectorConfig } from "@/lib/server/payments/types"
 import { dispatchEventAsync } from "@/lib/server/events"
 import { APP_EVENTS } from "@/lib/server/events/constants"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
+import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
+import { getPublicPlans } from "@/actions/public/plans/actions"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
 type ListParams = Record<string, string | string[] | undefined>
 
-const ACTIVE_ENTITLEMENT_STATUSES: FeatureEntitlementStatus[] = [
-  "active",
-  "pending",
-]
+type ApiResponse<T> = {
+  data: T
+  status: number
+  headers: Headers
+}
+
+type MemberMe = {
+  id: string
+  email: string | null
+  firstName: string | null
+  lastName: string | null
+  status: string
+}
+
+type OwnedPlan = {
+  id: string
+  name: string
+  type: string
+  price: number
+  isDefault: boolean
+}
+
+type OwnedProduct = {
+  id: string
+  name: string
+  slug: string
+  userId: string
+  status: string
+  planAssignedAt: string | null
+  currentPlan: OwnedPlan | null
+}
+
+type OwnedProductPayload = {
+  product: OwnedProduct
+}
+
+type MemberProductsPayload = {
+  products: Array<Record<string, unknown>>
+  total: number
+  page: number
+  limit: number
+}
+
+const INACTIVE_ACCOUNT_MESSAGE = "Account is not active"
 const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active"])
 const SUBSCRIPTION_CHANGE_PRORATION_MODE = "prorated_immediately"
-
-type ProductListItem = Prisma.ProductGetPayload<{
-  include: {
-    category: { select: { id: true; name: true; slug: true } }
-    plan: {
-      select: {
-        id: true
-        name: true
-        isDefault: true
-        assignments: {
-          select: {
-            enabled: true
-            feature: { select: { key: true } }
-          }
-        }
-      }
-    }
-    verification: { select: { isVerified: true } }
-    analytics: { select: { upvotes: true } }
-    featureEntitlements: {
-      where: {
-        status: { in: FeatureEntitlementStatus[] }
-      }
-      select: { featureKey: true; status: true }
-    }
-  }
-}>
 
 function parseIsoDate(value: string | null | undefined): Date | null {
   if (!value) return null
   const parsed = new Date(value)
   return Number.isFinite(parsed.getTime()) ? parsed : null
+}
+
+function getFastApiErrorDetail(error: unknown): string | null {
+  const info = (error as FastApiError | undefined)?.info as
+    | { detail?: unknown }
+    | undefined
+  if (typeof info?.detail === "string") {
+    return info.detail
+  }
+  return null
+}
+
+async function getAuthToken() {
+  const authResult = await auth()
+  if (!authResult.userId || !authResult.getToken) {
+    return null
+  }
+  return authResult.getToken().catch(() => null)
+}
+
+async function getMemberMeByToken(authToken: string): Promise<MemberMe | null> {
+  try {
+    const response = await fastapiFetch<ApiResponse<MemberMe>>("/api/v1/member/me", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
+    if (response.status !== 200 || !response.data) {
+      return null
+    }
+    return response.data
+  } catch (error) {
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403 || status === 404 || status === 422) {
+      return null
+    }
+    throw error
+  }
+}
+
+async function fetchOwnedProductById(
+  productId: string,
+  authToken: string,
+): Promise<ApiResponse<OwnedProductPayload>> {
+  const encodedProductId = encodeURIComponent(productId)
+  return fastapiFetch<ApiResponse<OwnedProductPayload>>(
+    `/api/v1/member/products/${encodedProductId}/ownership`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    },
+  )
+}
+
+async function requireOwnedProduct(productId: string): Promise<
+  | {
+      member: MemberMe
+      product: OwnedProduct
+      authToken: string
+    }
+  | { error: string }
+> {
+  const authToken = await getAuthToken()
+  if (!authToken) {
+    return { error: "Unauthenticated" }
+  }
+
+  const member = await getMemberMeByToken(authToken)
+  if (!member) {
+    return { error: INACTIVE_ACCOUNT_MESSAGE }
+  }
+
+  try {
+    const response = await fetchOwnedProductById(productId, authToken)
+    if (response.status !== 200 || !response.data?.product) {
+      return { error: "Product not found or not owned by user" }
+    }
+    return {
+      member,
+      product: response.data.product,
+      authToken,
+    }
+  } catch (error) {
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403) {
+      return { error: INACTIVE_ACCOUNT_MESSAGE }
+    }
+    if (status === 404 || status === 422) {
+      return { error: "Product not found or not owned by user" }
+    }
+    const detail = getFastApiErrorDetail(error)
+    if (detail) {
+      return { error: detail }
+    }
+    throw error
+  }
+}
+
+function getSingleParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value
+}
+
+function buildMemberProductsQuery(params?: ListParams) {
+  const search = new URLSearchParams()
+
+  const verification = getSingleParam(params?.verification)
+  const status = getSingleParam(params?.status)
+  const q = getSingleParam(params?.q)
+  const sort = getSingleParam(params?.sort)
+  const page = getSingleParam(params?.page)
+  const limit = getSingleParam(params?.limit)
+
+  if (verification) search.set("verification", verification)
+  if (status) search.set("status", status)
+  if (q) search.set("q", q)
+  if (sort) search.set("sort", sort)
+  if (page) search.set("page", page)
+  if (limit) search.set("limit", limit)
+
+  const query = search.toString()
+  return query ? `/api/v1/member/products?${query}` : "/api/v1/member/products"
 }
 
 async function findActiveSubscriptionForProduct(args: {
@@ -109,280 +237,149 @@ async function findActiveSubscriptionForProduct(args: {
   return best
 }
 
-export async function getUserProducts(params?: ListParams) {
-  const { userId } = await auth()
-  if (!userId) throw new Error("Unauthenticated")
-  const user = await getActiveUserByClerkId(userId)
-  if (!user) throw new Error(INACTIVE_ACCOUNT_MESSAGE)
-
-  const verification = (params?.verification as string) || undefined
-  const rawStatus = (params?.status as string) || undefined
-  const validStatuses: readonly ProductStatus[] = [
-    "draft",
-    "published",
-    "archived",
-  ]
-  const status =
-    rawStatus && validStatuses.includes(rawStatus as ProductStatus)
-      ? (rawStatus as ProductStatus)
-      : undefined
-  const q = ((params?.q as string) || "").trim()
-  const sort = (params?.sort as string) || "new"
-  const page = Math.max(1, parseInt((params?.page as string) || "1", 10) || 1)
-  const limit = Math.max(
-    1,
-    parseInt((params?.limit as string) || "10", 10) || 10,
-  )
-  const skip = (page - 1) * limit
-
-  const where: any = { userId: user.id }
-  const andFilters: any[] = []
-
-  if (verification === "verified") {
-    andFilters.push({ verification: { isVerified: true } })
-  } else if (verification === "unverified") {
-    andFilters.push({ verification: { isVerified: false } })
-  }
-
-  if (status) {
-    andFilters.push({ status })
-  }
-
-  if (q.length) {
-    andFilters.push({
-      OR: [
-        { name: { contains: q, mode: "insensitive" } },
-        { slug: { contains: q, mode: "insensitive" } },
-      ],
-    })
-  }
-
-  if (andFilters.length) {
-    where.AND = andFilters
-  }
-
-  let orderBy: any = { createdAt: "desc" as const }
-  switch (sort) {
-    case "updated":
-      orderBy = { updatedAt: "desc" }
-      break
-    case "az":
-      orderBy = { name: "asc" }
-      break
-    case "upvotes":
-      orderBy = { analytics: { upvotes: "desc" } }
-      break
-    case "new":
-    default:
-      orderBy = { createdAt: "desc" }
-  }
-
-  const [products, total] = (await Promise.all([
-    prisma.product.findMany({
-      where,
-      orderBy,
-      skip,
-      take: limit,
-      include: {
-        category: { select: { id: true, name: true, slug: true } },
-        plan: {
-          select: {
-            id: true,
-            name: true,
-            isDefault: true,
-            assignments: {
-              select: {
-                enabled: true,
-                feature: { select: { key: true } },
-              },
-            },
-          },
-        },
-        verification: { select: { isVerified: true } },
-        analytics: { select: { upvotes: true } },
-        featureEntitlements: {
-          where: {
-            status: { in: ACTIVE_ENTITLEMENT_STATUSES },
-          },
-          select: {
-            featureKey: true,
-            status: true,
-          },
-        },
-      },
-    }),
-    prisma.product.count({ where }),
-  ])) as [ProductListItem[], number]
-
-  // Fallback to the default plan's features when a product has no plan attached
-  const defaultPlan = products.some((product) => !product.plan)
-    ? await getDefaultPlanWithFeatures()
-    : null
-
-  const productsWithPermissions = products.map((product: ProductListItem) => {
-    const entitlementFeatures = new Set(
-      (product.featureEntitlements ?? []).map((ent) => ent.featureKey),
-    )
-
-    const planForAccess = product.plan ?? defaultPlan
-
-    const hasAdvancedAnalytics =
-      hasPlanFeature(planForAccess ?? null, "analytics.advanced") ||
-      entitlementFeatures.has("analytics.advanced")
-    const canViewAnalytics =
-      hasAdvancedAnalytics ||
-      hasPlanFeature(planForAccess ?? null, "analytics.basic") ||
-      entitlementFeatures.has("analytics.basic")
-
-    const { plan, featureEntitlements: _featureEntitlements, ...rest } = product
-    void _featureEntitlements
-    const planForDisplay = plan ?? defaultPlan
-    const planSummary = planForDisplay
-      ? {
-          id: planForDisplay.id,
-          name: planForDisplay.name,
-        }
-      : undefined
-
-    return {
-      ...rest,
-      plan: planSummary,
-      canDelete: product.userId === user.id,
-      canViewAnalytics,
+async function buildReturnUrl(productSlug: string): Promise<string | undefined> {
+  try {
+    const hdrs = await headers()
+    const host = hdrs.get("x-forwarded-host") || hdrs.get("host")
+    const proto = (hdrs.get("x-forwarded-proto") || "https").split(",")[0]
+    if (host) {
+      return `${proto}://${host}${memberProductPath(productSlug)}`
     }
-  })
-
-  return { products: productsWithPermissions, total, page, limit }
+  } catch {
+    // noop
+  }
+  return undefined
 }
 
-// Attach or remove a plan from a product owned by the current user
+export async function getUserProducts(params?: ListParams) {
+  const authToken = await getAuthToken()
+  if (!authToken) throw new Error("Unauthenticated")
+
+  try {
+    const response = await fastapiFetch<ApiResponse<MemberProductsPayload>>(
+      buildMemberProductsQuery(params),
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    )
+
+    if (response.status !== 200 || !response.data) {
+      return { products: [], total: 0, page: 1, limit: 10 }
+    }
+
+    return {
+      products: response.data.products,
+      total: response.data.total,
+      page: response.data.page,
+      limit: response.data.limit,
+    }
+  } catch (error) {
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403) {
+      throw new Error(INACTIVE_ACCOUNT_MESSAGE)
+    }
+    if (status === 404 || status === 422) {
+      return { products: [], total: 0, page: 1, limit: 10 }
+    }
+    throw error
+  }
+}
+
 export async function setProductPlanAction(
   productId: string,
   planId: string | null,
   subscriptionId?: string | null,
 ) {
-  const { userId } = await auth()
-  if (!userId) return { error: "Unauthenticated" }
+  const authToken = await getAuthToken()
+  if (!authToken) return { error: "Unauthenticated" }
 
-  const user = await getActiveUserByClerkId(userId)
-  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
+  const body: Record<string, string | null> = {
+    planId,
+  }
+  if (subscriptionId !== undefined) {
+    body.subscriptionId = subscriptionId
+  }
 
-  const product = await prisma.product.findFirst({
-    where: { id: productId, userId: user.id },
-    select: {
-      id: true,
-      planAssignedAt: true,
-      plan: { select: { boostForDays: true, isDefault: true } },
-    },
-  })
-  if (!product) return { error: "Product not found or not owned by user" }
+  try {
+    const response = await fastapiFetch<ApiResponse<{ success: boolean }>>(
+      `/api/v1/member/products/${encodeURIComponent(productId)}/plan`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      },
+    )
 
-  let planAssignedAt: Date | null = null
-  let subscriptionIdUpdate: string | null | undefined
-  if (planId) {
-    const plan = await prisma.plan.findUnique({
-      where: { id: planId },
-      select: { id: true, boostForDays: true, isDefault: true, type: true },
-    })
-    if (!plan) return { error: "Plan not found" }
-    planAssignedAt = resolvePlanAssignedAt({
-      currentPlan: product.plan,
-      currentAssignedAt: product.planAssignedAt,
-      newPlan: plan,
-    })
-    if (plan.type !== "recurring_price") {
-      subscriptionIdUpdate = null
-    } else if (subscriptionId !== undefined) {
-      subscriptionIdUpdate = subscriptionId
+    if (response.status !== 200 || !response.data?.success) {
+      return { error: "Unable to update product plan" }
     }
-  } else {
-    subscriptionIdUpdate = null
-  }
 
-  const data: Prisma.ProductUncheckedUpdateInput = {
-    planId: planId ?? null,
-    planAssignedAt,
+    return { success: true }
+  } catch (error) {
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403) return { error: INACTIVE_ACCOUNT_MESSAGE }
+    if (status === 404 || status === 422) {
+      return { error: "Product not found or not owned by user" }
+    }
+    const detail = getFastApiErrorDetail(error)
+    if (detail) {
+      return { error: detail }
+    }
+    return { error: "Unable to update product plan" }
   }
-  if (subscriptionIdUpdate !== undefined) {
-    data.subscriptionId = subscriptionIdUpdate
-  }
-
-  await prisma.product.update({
-    where: { id: productId },
-    data,
-  })
-
-  return { success: true }
 }
 
-// Start checkout on DodoPayments when plan has externalId
 export async function startPlanCheckoutAction(
   productId: string,
   planId: string,
 ) {
-  const { userId } = await auth()
-  if (!userId) return { error: "Unauthenticated" }
+  const ownership = await requireOwnedProduct(productId)
+  if ("error" in ownership) {
+    return { error: ownership.error }
+  }
 
-  const user = await getActiveUserByClerkId(userId)
-  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
-
-  const product = await prisma.product.findFirst({
-    where: { id: productId, userId: user.id },
-    select: {
-      id: true,
-      slug: true,
-    },
-  })
-  if (!product) return { error: "Product not found or not owned by user" }
-
-  const plan = await prisma.plan.findUnique({
-    where: { id: planId },
-    select: { id: true, externalId: true, price: true, type: true },
-  })
+  const plans = await getPublicPlans()
+  const plan = plans.find((item) => item.id === planId)
   if (!plan) return { error: "Plan not found" }
   if (!plan.externalId || plan.price === 0) {
     return { error: "Checkout not required for this plan" }
   }
 
-  // Build return URL using current host if available
-  let returnUrl: string | undefined
-  try {
-    const hdrs = await headers()
-    const host = hdrs.get("x-forwarded-host") || hdrs.get("host")
-    const proto = (hdrs.get("x-forwarded-proto") || "https").split(",")[0]
-    if (host) returnUrl = `${proto}://${host}${memberProductPath(product.slug)}`
-  } catch {}
+  const returnUrl = await buildReturnUrl(ownership.product.slug)
 
   try {
     const checkout = await createPlanCheckout({
-      plan: { externalId: plan.externalId!, type: plan.type },
+      plan: { externalId: plan.externalId, type: plan.type },
       customer: {
-        email: user.email,
-        name: `${user.firstName} ${user.lastName}`.trim(),
+        email: ownership.member.email ?? "",
+        name: `${ownership.member.firstName ?? ""} ${
+          ownership.member.lastName ?? ""
+        }`.trim(),
       },
       metadata: { productId, planId },
       returnUrl,
     })
     return { redirectUrl: checkout.url }
-  } catch (e) {
-    console.error("Failed to start checkout:", e)
+  } catch (error) {
+    console.error("Failed to start checkout:", error)
     return { error: "Checkout initialization failed" }
   }
 }
 
-// Validate payment by ID and attach plan to product using metadata from Dodo
 export async function validatePaymentAndAttachPlan(paymentId: string) {
-  const { userId } = await auth()
-  if (!userId) return { error: "Unauthenticated" }
-
-  const user = await getActiveUserByClerkId(userId)
-  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
+  const authToken = await getAuthToken()
+  if (!authToken) return { error: "Unauthenticated" }
 
   try {
     const payment = await dodoClient.payments.retrieve(paymentId)
     if (!payment) return { error: "Payment not found" }
 
-    // Only attach on successful payment
     if (payment.status !== "succeeded") {
       return { error: `Payment not succeeded: ${payment.status}` }
     }
@@ -394,49 +391,21 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
       return { error: "Missing metadata for product/plan" }
     }
 
-    // Ownership check
-    const product = await prisma.product.findFirst({
-      where: { id: productId, userId: user.id },
-      select: {
-        id: true,
-        userId: true,
-        planAssignedAt: true,
-        plan: { select: { boostForDays: true, isDefault: true } },
-      },
-    })
-    if (!product) return { error: "Product not found or not owned" }
+    const result = await setProductPlanAction(productId, planId, null)
+    if ("error" in result) return result
 
-    // Attach plan
-    const plan = await prisma.plan.findUnique({
-      where: { id: planId },
-      select: { boostForDays: true, isDefault: true },
-    })
-    if (!plan) return { error: "Plan not found" }
-    const planAssignedAt = resolvePlanAssignedAt({
-      currentPlan: product.plan,
-      currentAssignedAt: product.planAssignedAt,
-      newPlan: plan,
-    })
-    await prisma.product.update({
-      where: { id: productId },
-      data: { planId, planAssignedAt, subscriptionId: null },
-    })
     return { success: true }
-  } catch (e) {
-    console.error("Payment validation failed:", e)
+  } catch (error) {
+    console.error("Payment validation failed:", error)
     return { error: "Payment validation failed" }
   }
 }
 
-// Validate subscription by ID and attach plan to product using metadata from Dodo
 export async function validateSubscriptionAndAttachPlan(
   subscriptionId: string,
 ) {
-  const { userId } = await auth()
-  if (!userId) return { error: "Unauthenticated" }
-
-  const user = await getActiveUserByClerkId(userId)
-  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
+  const authToken = await getAuthToken()
+  if (!authToken) return { error: "Unauthenticated" }
 
   try {
     const subscription = await dodoClient.subscriptions.retrieve(subscriptionId)
@@ -454,47 +423,27 @@ export async function validateSubscriptionAndAttachPlan(
       return { error: "Missing metadata for product/plan" }
     }
 
-    const product = await prisma.product.findFirst({
-      where: { id: productId, userId: user.id },
-      select: {
-        id: true,
-        userId: true,
-        planAssignedAt: true,
-        plan: { select: { boostForDays: true, isDefault: true } },
-      },
-    })
-    if (!product) return { error: "Product not found or not owned" }
-
-    const plan = await prisma.plan.findUnique({
-      where: { id: planId },
-      select: { boostForDays: true, isDefault: true },
-    })
-    if (!plan) return { error: "Plan not found" }
-
-    const planAssignedAt = resolvePlanAssignedAt({
-      currentPlan: product.plan,
-      currentAssignedAt: product.planAssignedAt,
-      newPlan: plan,
-    })
     const rawSubscriptionId =
       (subscription as any)?.subscription_id ||
       (subscription as any)?.id ||
       subscriptionId
     const subscriptionExternalId =
       typeof rawSubscriptionId === "string" ? rawSubscriptionId : subscriptionId
-    await prisma.product.update({
-      where: { id: productId },
-      data: { planId, planAssignedAt, subscriptionId: subscriptionExternalId },
-    })
+
+    const result = await setProductPlanAction(
+      productId,
+      planId,
+      subscriptionExternalId,
+    )
+    if ("error" in result) return result
+
     return { success: true }
-  } catch (e) {
-    console.error("Subscription validation failed:", e)
+  } catch (error) {
+    console.error("Subscription validation failed:", error)
     return { error: "Subscription validation failed" }
   }
 }
 
-// Unified server action to choose/upgrade a plan for a product
-// Usage from a form: const action = choosePlanAction.bind(null, { productId, redirectPath })
 export async function choosePlanAction(
   ctx: { productId: string; redirectPath: string },
   formData: FormData,
@@ -503,25 +452,14 @@ export async function choosePlanAction(
   const planId = formData.get("planId")?.toString() || ""
   if (!planId) return
 
-  // Try to start checkout when plan requires payment
-  const plan = await prisma.plan.findUnique({
-    where: { id: planId },
-    select: { id: true, externalId: true, price: true, type: true },
-  })
+  const plans = await getPublicPlans()
+  const plan = plans.find((item) => item.id === planId)
   if (!plan) return
 
   const ownership = await requireOwnedProduct(ctx.productId)
   if ("error" in ownership) return
 
-  const currentPlan = await prisma.product.findUnique({
-    where: { id: ctx.productId },
-    select: {
-      plan: {
-        select: { type: true, isDefault: true, price: true },
-      },
-    },
-  })
-  const activePlan = currentPlan?.plan
+  const activePlan = ownership.product.currentPlan
   const hasPaidPlan =
     !!activePlan && !activePlan.isDefault && (activePlan.price ?? 0) > 0
   if (hasPaidPlan && activePlan.type !== plan.type) {
@@ -532,13 +470,11 @@ export async function choosePlanAction(
     redirect(`${ctx.redirectPath}?error=must_publish`)
   }
 
-  // Free plans (no price): attach immediately
   if ((plan.price || 0) === 0) {
     await setProductPlanAction(ctx.productId, planId, null)
     redirect(`${ctx.redirectPath}?upgraded=1`)
   }
 
-  // Paid plans must have an externalId to start checkout
   if ((plan.price || 0) > 0 && !plan.externalId) {
     redirect(`${ctx.redirectPath}?error=plan_not_configured`)
   }
@@ -546,30 +482,35 @@ export async function choosePlanAction(
   if (
     (plan.price || 0) > 0 &&
     plan.type === "recurring_price" &&
-    ownership.user.email
+    ownership.member.email
   ) {
     const existingSubscription = await findActiveSubscriptionForProduct({
-      email: ownership.user.email,
+      email: ownership.member.email,
       productId: ctx.productId,
     })
     const rawSubscriptionId =
       (existingSubscription as any)?.subscription_id ||
       (existingSubscription as any)?.id ||
       null
-    const subscriptionId =
+    const normalizedSubscriptionId =
       typeof rawSubscriptionId === "string" ? rawSubscriptionId : null
-    if (subscriptionId) {
+
+    if (normalizedSubscriptionId) {
       try {
         const isSamePlan =
           (existingSubscription as any)?.product_id === plan.externalId
         if (!isSamePlan) {
-          await dodoClient.subscriptions.changePlan(subscriptionId, {
+          await dodoClient.subscriptions.changePlan(normalizedSubscriptionId, {
             product_id: plan.externalId,
             proration_billing_mode: SUBSCRIPTION_CHANGE_PRORATION_MODE,
             quantity: 1,
           } as any)
         }
-        await setProductPlanAction(ctx.productId, planId, subscriptionId)
+        await setProductPlanAction(
+          ctx.productId,
+          planId,
+          normalizedSubscriptionId,
+        )
       } catch (error) {
         const status = (error as any)?.status
         const message = String((error as any)?.error?.message || "")
@@ -586,68 +527,51 @@ export async function choosePlanAction(
     }
   }
 
-  // Start hosted checkout for paid plans
-  const session = await startPlanCheckoutAction(ctx.productId, planId)
-  const redirectUrl = (session as any)?.redirectUrl
+  const checkout = await startPlanCheckoutAction(ctx.productId, planId)
+  const redirectUrl = (checkout as any)?.redirectUrl
   if (redirectUrl) {
     redirect(redirectUrl)
   }
 
-  // If checkout couldn't be created, do NOT grant the plan
   redirect(`${ctx.redirectPath}?error=checkout_init_failed`)
 }
 
-async function requireOwnedProduct(productId: string) {
-  const { userId } = await auth()
-  if (!userId) return { error: "Unauthenticated" as const } as const
-  const user = await getActiveUserByClerkId(userId)
-  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
-
-  const product = await prisma.product.findFirst({
-    where: { id: productId, userId: user.id },
-    select: { id: true, slug: true, userId: true, name: true, status: true },
-  })
-  if (!product)
-    return { error: "Product not found or not owned by user" as const } as const
-
-  return { user, product }
-}
-
 export async function getProductConnectorSummary(productId: string) {
-  const { error } = await requireOwnedProduct(productId)
-  if (error) return null
+  const authToken = await getAuthToken()
+  if (!authToken) return null
 
-  const connector = await prisma.paymentConnector.findUnique({
-    where: { productId },
-    select: {
-      id: true,
-      provider: true,
-      status: true,
-      lastSyncedAt: true,
-      lastSyncError: true,
-      latestAllTimeRevenueCents: true,
-      latestCurrencyCode: true,
-      latestPeriodStart: true,
-      config: true,
-      credentials: {
-        where: { status: PaymentCredentialStatus.active },
-        select: { keyHint: true },
-        orderBy: { createdAt: "desc" },
-        take: 1,
+  try {
+    const response = await fastapiFetch<
+      ApiResponse<{
+        id: string
+        provider: PaymentConnectorProvider
+        status: PaymentConnectorStatus | null
+        lastSyncedAt: string | null
+        lastSyncError: string | null
+        latestAllTimeRevenueCents: number | null
+        latestCurrencyCode: string | null
+        latestPeriodStart: string | null
+        config: PaymentConnectorConfig | null
+        keyHint: string | null
+        accountId: string | null
+        brandId: string | null
+      } | null>
+    >(`/api/v1/member/products/${encodeURIComponent(productId)}/connector`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${authToken}`,
       },
-    },
-  })
+    })
 
-  if (!connector) return null
-  const keyHint = connector.credentials?.[0]?.keyHint || null
-  const { credentials: _creds, ...rest } = connector
-  void _creds
-  const config = connector.config as PaymentConnectorConfig | null
-  const accountId =
-    typeof config?.accountId === "string" ? config.accountId : undefined
-  const brandId =
-    typeof config?.brandId === "string" ? config.brandId : undefined
-  return { ...rest, keyHint, accountId, brandId }
+    if (response.status !== 200) return null
+    return response.data
+  } catch (error) {
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403 || status === 404 || status === 422) {
+      return null
+    }
+    throw error
+  }
 }
 
 export async function saveProductConnectorAction(input: {
@@ -734,7 +658,7 @@ export async function saveProductConnectorAction(input: {
     )
     const summary = await getProductConnectorSummary(input.productId)
     return { ok: true, connectorId: result.connector.id, connector: summary }
-  } catch (e: any) {
-    return { error: e?.message || "Failed to save connector" }
+  } catch (error: any) {
+    return { error: error?.message || "Failed to save connector" }
   }
 }

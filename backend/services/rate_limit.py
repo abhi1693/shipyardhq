@@ -84,8 +84,21 @@ async def _apply_limit(
         )
 
     try:
-        result = await client.eval(_RATE_LIMIT_SCRIPT, 1, key, window_seconds, cost)
-    except RedisError as exc:
+        raw = getattr(client, "raw", None)
+        if callable(raw):
+            result = await raw("eval", _RATE_LIMIT_SCRIPT, 1, key, window_seconds, cost)
+        else:
+            redis_client = getattr(client, "client", None) or getattr(client, "_client", None)
+            if redis_client is None or not hasattr(redis_client, "eval"):
+                raise AttributeError("Redis client does not expose eval")
+            result = await redis_client.eval(
+                _RATE_LIMIT_SCRIPT,
+                1,
+                key,
+                window_seconds,
+                cost,
+            )
+    except (RedisError, AttributeError, TypeError) as exc:
         logger.warning("Rate limit check failed", extra={"error": str(exc)})
         return RateLimitState(
             allowed=True,

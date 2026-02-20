@@ -3,16 +3,28 @@
 import { addDays, format, formatISO, startOfDay, subDays } from "date-fns"
 import { auth } from "@clerk/nextjs/server"
 
-import prisma from "@/lib/prisma"
+import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
 import { productPath } from "@/lib/routes"
 import { getProductTrafficFromGa } from "@/lib/server/analytics/googleAnalytics"
-import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import type {
   ProductEngagementSummaryPoint,
   ProductTrafficSummaryPoint,
 } from "@/types/analytics"
 
-type UserRef = { id: string }
+type ApiResponse<T> = {
+  data: T
+  status: number
+  headers: Headers
+}
+
+type MemberOverviewContextPayload = {
+  rangeDays: number
+  products: Array<{
+    id: string
+    slug: string
+  }>
+  upvoteDates: string[]
+}
 
 type MemberTrafficOverview = {
   rangeDays: number
@@ -23,11 +35,52 @@ type MemberTrafficOverview = {
   engagementOverTime: ProductEngagementSummaryPoint[]
 }
 
-async function getCurrentUser(): Promise<UserRef> {
-  const { userId } = await auth()
-  if (!userId) throw new Error("Unauthenticated")
-  const user = await requireActiveUserOrRedirect(userId)
-  return { id: user.id }
+async function getAuthToken(): Promise<string | null> {
+  const authResult = await auth()
+  if (!authResult.userId || !authResult.getToken) {
+    return null
+  }
+  return authResult.getToken().catch(() => null)
+}
+
+async function getOverviewContext(days: number): Promise<MemberOverviewContextPayload> {
+  const authToken = await getAuthToken()
+  if (!authToken) {
+    throw new Error("Unauthenticated")
+  }
+
+  try {
+    const response =
+      await fastapiFetch<ApiResponse<MemberOverviewContextPayload>>(
+        `/api/v1/member/overview/context?days=${days}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        },
+      )
+
+    if (response.status !== 200 || !response.data) {
+      return {
+        rangeDays: days,
+        products: [],
+        upvoteDates: [],
+      }
+    }
+
+    return response.data
+  } catch (error) {
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403 || status === 404 || status === 422) {
+      return {
+        rangeDays: days,
+        products: [],
+        upvoteDates: [],
+      }
+    }
+    throw error
+  }
 }
 
 function buildGaDateRange(windowDays: number, today: Date) {
@@ -143,18 +196,18 @@ function buildEmptySummary(
 }
 
 async function getEngagementSummary({
-  productIds,
+  upvoteDates,
   windowDays,
   today,
 }: {
-  productIds: string[]
+  upvoteDates: string[]
   windowDays: number
   today: Date
 }): Promise<{
   upvotes: number
   timeline: ProductEngagementSummaryPoint[]
 }> {
-  if (productIds.length === 0) {
+  if (upvoteDates.length === 0) {
     return {
       upvotes: 0,
       timeline: buildEngagementOverTime({
@@ -165,25 +218,26 @@ async function getEngagementSummary({
     }
   }
 
-  const rangeStart = subDays(today, windowDays - 1)
-  const rangeEnd = addDays(today, 1)
+  const rangeStart = subDays(today, windowDays - 1).getTime()
+  const rangeEnd = addDays(today, 1).getTime()
 
-  const upvoteEvents = await prisma.productUpvote.findMany({
-    where: {
-      productId: { in: productIds },
-      createdAt: { gte: rangeStart, lt: rangeEnd },
-    },
-    select: { createdAt: true },
-  })
+  const parsedUpvoteDates = upvoteDates
+    .map((value) => new Date(value))
+    .filter(
+      (value) =>
+        Number.isFinite(value.getTime()) &&
+        value.getTime() >= rangeStart &&
+        value.getTime() < rangeEnd,
+    )
 
   const timeline = buildEngagementOverTime({
     windowDays,
     today,
-    upvotes: upvoteEvents.map((event: { createdAt: Date }) => event.createdAt),
+    upvotes: parsedUpvoteDates,
   })
 
   return {
-    upvotes: upvoteEvents.length,
+    upvotes: parsedUpvoteDates.length,
     timeline,
   }
 }
@@ -191,23 +245,18 @@ async function getEngagementSummary({
 export async function getMemberTrafficOverview(
   days = 7,
 ): Promise<MemberTrafficOverview> {
-  const { id } = await getCurrentUser()
   const windowDays = Math.max(1, days)
   const today = startOfDay(new Date())
-
-  const products = await prisma.product.findMany({
-    where: { userId: id },
-    select: { id: true, slug: true },
-  })
+  const context = await getOverviewContext(windowDays)
+  const products = context.products ?? []
 
   if (products.length === 0) {
     return buildEmptySummary(windowDays, today)
   }
 
-  const productIds = products.map((product: { id: string }) => product.id)
   const pagePaths = Array.from<string>(
     new Set<string>(
-      products.flatMap(({ slug }: { slug: string }) => {
+      products.flatMap(({ slug }) => {
         const base = productPath(slug)
         return [base, `${base}/`]
       }),
@@ -222,7 +271,11 @@ export async function getMemberTrafficOverview(
           includeAdvanced: false,
         })
       : Promise.resolve(null),
-    getEngagementSummary({ productIds, windowDays, today }),
+    getEngagementSummary({
+      upvoteDates: context.upvoteDates ?? [],
+      windowDays,
+      today,
+    }),
   ])
 
   const viewsOverTime = buildViewsOverTime({

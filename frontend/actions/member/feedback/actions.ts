@@ -4,17 +4,21 @@ import { auth } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
 import { MEMBER_FEEDBACK_PATH } from "@/lib/routes"
 
-import prisma from "@/lib/prisma"
-import {
-  getActiveUserByClerkId,
-  INACTIVE_ACCOUNT_MESSAGE,
-} from "@/lib/server/userStatus"
-import type { FeedbackStatus } from "@/lib/vendor/prisma/client"
+import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
 import {
   memberFeedbackSchema,
   type MemberFeedbackFormValues,
 } from "@/lib/validation/memberFeedback"
 type FeedbackFormInput = MemberFeedbackFormValues
+type FeedbackStatus = "received" | "in_review" | "closed"
+
+const INACTIVE_ACCOUNT_MESSAGE = "Account is not active"
+
+type ApiResponse<T> = {
+  data: T
+  status: number
+  headers: Headers
+}
 
 export type MemberFeedbackListItem = {
   id: string
@@ -29,53 +33,50 @@ export type MemberFeedbackListItem = {
   updatedAt: string
 }
 
-async function getCurrentUserContext() {
-  const { userId } = await auth()
-  if (!userId) return { userId: null as string | null, user: null }
-  const user = await getActiveUserByClerkId(userId)
-  return { userId, user }
+async function getAuthToken() {
+  const authResult = await auth()
+  if (!authResult.userId) return null
+  if (!authResult.getToken) return null
+  return authResult.getToken().catch(() => null)
 }
 
 export async function listMyFeedback(
   limit = 20,
 ): Promise<MemberFeedbackListItem[]> {
-  const { user } = await getCurrentUserContext()
-  if (!user) {
+  const authToken = await getAuthToken()
+  if (!authToken) {
     return []
   }
 
   const pageSize = Math.max(1, Math.min(limit, 100))
 
-  const rows = await prisma.memberFeedback.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
-    take: pageSize,
-  })
-
-  type FeedbackRow = (typeof rows)[number]
-  return rows.map((row: FeedbackRow) => ({
-    id: row.id,
-    subject: row.subject,
-    message: row.message,
-    rating: row.rating,
-    status: row.status,
-    adminNote: row.adminNote,
-    rewardEligible: row.rewardEligible,
-    rewardGrantedAt: row.rewardGrantedAt
-      ? row.rewardGrantedAt.toISOString()
-      : null,
-    createdAt: row.createdAt.toISOString(),
-    updatedAt: row.updatedAt.toISOString(),
-  }))
+  try {
+    const response = await fastapiFetch<ApiResponse<MemberFeedbackListItem[]>>(
+      `/api/v1/member/feedback?limit=${pageSize}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    )
+    if (response.status !== 200 || !Array.isArray(response.data)) {
+      return []
+    }
+    return response.data
+  } catch (error) {
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403 || status === 404 || status === 422) {
+      return []
+    }
+    throw error
+  }
 }
 
 export async function submitMemberFeedback(formData: FormData) {
-  const { user, userId } = await getCurrentUserContext()
-  if (!userId) {
+  const authToken = await getAuthToken()
+  if (!authToken) {
     return { error: "Not authenticated" }
-  }
-  if (!user) {
-    return { error: INACTIVE_ACCOUNT_MESSAGE }
   }
 
   const parsed = memberFeedbackSchema.safeParse({
@@ -98,15 +99,29 @@ export async function submitMemberFeedback(formData: FormData) {
   const rating = input.rating ? Number(input.rating) : undefined
 
   try {
-    await prisma.memberFeedback.create({
-      data: {
-        userId: user.id,
-        subject,
-        message: input.message,
-        rating,
+    const response = await fastapiFetch<ApiResponse<MemberFeedbackListItem>>(
+      "/api/v1/member/feedback",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          subject,
+          message: input.message,
+          rating,
+        }),
       },
-    })
+    )
+    if (response.status !== 201 || !response.data) {
+      return { error: "Unable to save your feedback right now." }
+    }
   } catch (error) {
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403) {
+      return { error: INACTIVE_ACCOUNT_MESSAGE }
+    }
     console.error("submitMemberFeedback failed", error)
     return { error: "Unable to save your feedback right now." }
   }

@@ -1,9 +1,7 @@
 "use server"
 
 import { auth } from "@clerk/nextjs/server"
-import prisma from "@/lib/prisma"
 import {
-  getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
   invalidateActiveUserCache,
 } from "@/lib/server/userStatus"
@@ -23,11 +21,34 @@ import {
   guardNovuWorkflow,
   triggerNovuWorkflow,
 } from "@/lib/server/notifications/novu"
+import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
 
 const BUILDER_INTENTS = new Set(["launch-product", "manage-team"])
 const WELCOME_SUBJECT = `Welcome to ${siteConfig.name}`
 const NOVU_WELCOME_WORKFLOW_ID =
   process.env.NOVU_WORKFLOW_WELCOME_USER?.trim() || "welcome-user"
+
+type ApiResponse<T> = {
+  data: T
+  status: number
+  headers: Headers
+}
+
+type MemberOnboardingCompletePayload = {
+  firstTimeOnboarding: boolean
+  user: {
+    id: string
+    email: string | null
+    firstName: string | null
+    lastName: string | null
+  }
+}
+
+async function getAuthToken() {
+  const authResult = await auth()
+  if (!authResult.userId || !authResult.getToken) return null
+  return authResult.getToken().catch(() => null)
+}
 
 export async function completeOnboarding(formData: FormData) {
   const { userId } = await auth()
@@ -37,33 +58,38 @@ export async function completeOnboarding(formData: FormData) {
   const heardFrom = formData.get("heardFrom")?.toString()
   try {
     const clerkUser = await getClerkUserByIdCached(userId)
-
-    // 1. Get the local user by Clerk ID
-    let user = await getActiveUserByClerkId(userId)
-
-    if (!user) {
-      await syncUserFromClerk(clerkUser)
-      user = await getActiveUserByClerkId(userId)
+    const authToken = await getAuthToken()
+    if (!authToken) {
+      return { error: "Not authenticated" }
     }
 
-    if (!user) {
-      return { error: INACTIVE_ACCOUNT_MESSAGE }
+    await syncUserFromClerk(clerkUser)
+
+    const response =
+      await fastapiFetch<ApiResponse<MemberOnboardingCompletePayload>>(
+        "/api/v1/member/onboarding/complete",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            roleIntent: roleIntent ?? null,
+            heardFrom: heardFrom ?? null,
+            email: clerkUser.emailAddresses[0]?.emailAddress ?? null,
+            firstName: clerkUser.firstName ?? null,
+            lastName: clerkUser.lastName ?? null,
+          }),
+        },
+      )
+
+    if (response.status !== 200 || !response.data) {
+      return { error: "Failed to complete onboarding." }
     }
 
-    // 2. Update user data only once; skip downstream work if already onboarded
-    const onboardingUpdate = await prisma.user.updateMany({
-      where: {
-        id: user.id,
-        onboardedAt: null,
-      },
-      data: {
-        roleIntent,
-        heardFrom,
-        onboardedAt: new Date(),
-      },
-    })
-
-    const firstTimeOnboarding = onboardingUpdate.count > 0
+    const memberUser = response.data.user
+    const firstTimeOnboarding = response.data.firstTimeOnboarding
 
     if (!firstTimeOnboarding) {
       console.info(
@@ -71,16 +97,16 @@ export async function completeOnboarding(formData: FormData) {
       )
     }
 
-    if (user.email && firstTimeOnboarding) {
+    if (memberUser.email && firstTimeOnboarding) {
       const isBuilderIntent = roleIntent
         ? BUILDER_INTENTS.has(roleIntent)
         : false
 
       const subscriber = {
         subscriberId: userId,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        email: memberUser.email,
+        firstName: memberUser.firstName,
+        lastName: memberUser.lastName,
         avatar: clerkUser.imageUrl ?? null,
       }
 
@@ -114,7 +140,7 @@ export async function completeOnboarding(formData: FormData) {
               timestamp: new Date().toISOString(),
             },
             onboarding: {
-              firstName: user.firstName ?? null,
+              firstName: memberUser.firstName ?? null,
               isBuilder: isBuilderIntent,
             },
             links,
@@ -134,11 +160,21 @@ export async function completeOnboarding(formData: FormData) {
 
     if (firstTimeOnboarding) {
       await invalidateActiveUserCache(userId)
-      revalidateUser(user.id)
+      revalidateUser(memberUser.id)
     }
 
     return { success: true }
   } catch (error) {
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403) {
+      return { error: INACTIVE_ACCOUNT_MESSAGE }
+    }
+    if (
+      error instanceof Error &&
+      error.message.trim() === INACTIVE_ACCOUNT_MESSAGE
+    ) {
+      return { error: INACTIVE_ACCOUNT_MESSAGE }
+    }
     console.error("Onboarding failed:", error)
     return { error: "Failed to complete onboarding." }
   }

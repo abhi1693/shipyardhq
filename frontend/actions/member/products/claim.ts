@@ -4,33 +4,19 @@ import { createHash, randomInt } from "crypto"
 import { Resolver } from "dns/promises"
 import { auth } from "@clerk/nextjs/server"
 
-import prisma from "@/lib/prisma"
-import { getRootDomain } from "@/lib/domain"
-import { generateVerificationTxtFromWebsite } from "@/lib/products/verification"
 import { revalidateProduct, revalidateUser } from "@/lib/cache/revalidate"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
 import { sendClaimOtpNotification } from "@/lib/server/notifications/novuClaim"
-import type {
-  Prisma,
-  ProductClaimAttempt,
-  ProductClaimStatus,
-} from "@/lib/vendor/prisma/client"
+import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
 
-const CLAIM_PENDING_WINDOW_MS = 15 * 60 * 1000
-const DNS_LOCK_WINDOW_MS = 5 * 60 * 1000
-
-type ClaimableProduct = Prisma.ProductGetPayload<{
-  select: {
-    id: true
-    name: true
-    slug: true
-    websiteUrl: true
-    verification: { select: { verificationTxt: true; isVerified: true } }
-  }
-}>
+type ApiResponse<T> = {
+  data: T
+  status: number
+  headers: Headers
+}
 
 type ClaimableProductSummary = {
   id: string
@@ -40,6 +26,17 @@ type ClaimableProductSummary = {
   domain: string
   expectedTxt: string
 }
+
+type ClaimTarget = {
+  id: string
+  name: string
+  slug: string
+  websiteUrl: string
+  domain: string
+  expectedTxt: string
+}
+
+const CLAIM_PENDING_WINDOW_MS = 15 * 60 * 1000
 
 function normalizeEmail(value: string) {
   return value.trim().toLowerCase()
@@ -66,141 +63,115 @@ function emailMatchesDomain(email: string, rootDomain: string): boolean {
   )
 }
 
-function resolveExpectedTxt(product: ClaimableProduct, domain: string) {
-  return (
-    product.verification?.verificationTxt ??
-    generateVerificationTxtFromWebsite(product.websiteUrl ?? domain)
+async function getAuthToken() {
+  const authResult = await auth()
+  if (!authResult.userId || !authResult.getToken) return null
+  return authResult.getToken().catch(() => null)
+}
+
+function getFastApiErrorDetail(error: unknown): string | null {
+  const info = (error as FastApiError | undefined)?.info as
+    | { detail?: unknown }
+    | undefined
+  if (typeof info?.detail === "string") {
+    return info.detail
+  }
+  return null
+}
+
+async function getClaimTarget(
+  authToken: string,
+  productId: string,
+): Promise<ClaimTarget> {
+  const response = await fastapiFetch<ApiResponse<ClaimTarget>>(
+    `/api/v1/member/claims/${encodeURIComponent(productId)}/target`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    },
   )
+  if (response.status !== 200 || !response.data) {
+    throw new Error("Product not found.")
+  }
+  return response.data
 }
 
-async function getClaimableProductsForViewer(
-  userId: string,
-  q?: string,
-): Promise<ClaimableProductSummary[]> {
-  const where: Prisma.ProductWhereInput = {
-    verification: { isVerified: false },
-    NOT: [{ userId }],
-  }
-
-  const search = q?.trim()
-  if (search) {
-    where.OR = [
-      { name: { contains: search, mode: "insensitive" } },
-      { slug: { contains: search, mode: "insensitive" } },
-      { websiteUrl: { contains: search, mode: "insensitive" } },
-    ]
-  }
-
-  const products = await prisma.product.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      websiteUrl: true,
-      verification: { select: { verificationTxt: true, isVerified: true } },
+async function confirmClaimDns(authToken: string, productId: string) {
+  const response = await fastapiFetch<
+    ApiResponse<{ success: boolean; lockExpiresAt: string | null }>
+  >(`/api/v1/member/claims/${encodeURIComponent(productId)}/dns/confirm`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${authToken}`,
     },
   })
 
-  return products
-    .map((product: ClaimableProduct) => {
-      const domain = getRootDomain(product.websiteUrl)
-      if (!domain) return null
-      return {
-        id: product.id,
-        name: product.name,
-        slug: product.slug,
-        websiteUrl: product.websiteUrl!,
-        domain,
-        expectedTxt: resolveExpectedTxt(product, domain),
-      }
-    })
-    .filter(Boolean) as ClaimableProductSummary[]
+  if (response.status !== 200 || !response.data?.success) {
+    throw new Error("Unable to start claim verification.")
+  }
+
+  return response.data
 }
 
-async function getClaimTarget(productId: string) {
-  const product = await prisma.product.findUnique({
-    where: { id: productId },
-    include: {
-      verification: true,
+async function requestClaimOtp(
+  authToken: string,
+  productId: string,
+  payload: {
+    email: string
+    otpHash: string
+    otpExpiresAt: string
+  },
+) {
+  const response = await fastapiFetch<
+    ApiResponse<{
+      success: boolean
+      expiresAt: string | null
+      domain: string
+      productName: string
+    }>
+  >(`/api/v1/member/claims/${encodeURIComponent(productId)}/otp/request`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+      "Content-Type": "application/json",
     },
+    body: JSON.stringify(payload),
   })
-  if (!product) return { error: "Product not found." }
-  if (!product.websiteUrl) {
-    return { error: "Product is missing a website URL." }
+
+  if (response.status !== 200 || !response.data?.success) {
+    throw new Error("Unable to send verification code.")
   }
-  if (product.verification?.isVerified) {
-    return { error: "This product is already verified." }
-  }
-  const domain = getRootDomain(product.websiteUrl)
-  if (!domain) return { error: "Unable to derive domain from website." }
-  const expectedTxt =
-    product.verification?.verificationTxt ??
-    generateVerificationTxtFromWebsite(product.websiteUrl)
-  return { product, domain, expectedTxt }
+
+  return response.data
 }
 
-async function ensureNotOwner(product: { userId: string }, viewerId: string) {
-  if (product.userId === viewerId) {
-    return { error: "You already own this product." }
-  }
-  return {}
-}
-
-async function reserveClaimAttempt(opts: {
-  productId: string
-  userId: string
-  method: "dns" | "email_otp"
-  email?: string
-  otpHash?: string | null
-  expiresAt?: Date | null
-}): Promise<{ attempt?: ProductClaimAttempt; error?: string }> {
-  const now = new Date()
-  return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-    const active = await tx.productClaimAttempt.findFirst({
-      where: {
-        productId: opts.productId,
-        status: "pending",
-        otpExpiresAt: { gt: now },
-      },
-      orderBy: { updatedAt: "desc" },
-    })
-
-    if (active && active.userId !== opts.userId) {
-      return {
-        error:
-          "Another claim attempt is already running for this product. Try again shortly.",
-      }
-    }
-
-    if (active) {
-      const updated = await tx.productClaimAttempt.update({
-        where: { id: active.id },
-        data: {
-          method: opts.method,
-          email: opts.email ?? active.email,
-          otpHash: opts.otpHash ?? active.otpHash,
-          otpExpiresAt: opts.expiresAt ?? active.otpExpiresAt,
-          status: "pending",
-        },
-      })
-      return { attempt: updated }
-    }
-
-    const created = await tx.productClaimAttempt.create({
-      data: {
-        productId: opts.productId,
-        userId: opts.userId,
-        method: opts.method,
-        email: opts.email,
-        otpHash: opts.otpHash ?? null,
-        otpExpiresAt: opts.expiresAt,
-        status: "pending",
-      },
-    })
-    return { attempt: created }
+async function verifyClaimOtp(
+  authToken: string,
+  productId: string,
+  otpHash: string,
+) {
+  const response = await fastapiFetch<
+    ApiResponse<{
+      success: boolean
+      slug: string
+      previousOwnerId: string | null
+    }>
+  >(`/api/v1/member/claims/${encodeURIComponent(productId)}/otp/verify`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ otpHash }),
   })
+
+  if (response.status !== 200 || !response.data?.success) {
+    throw new Error("Unable to verify claim code.")
+  }
+
+  return response.data
 }
 
 async function checkDnsTxtRecord(
@@ -208,12 +179,12 @@ async function checkDnsTxtRecord(
   expected: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const domain = getRootDomain(websiteUrl)
-    if (!domain) return { success: false, error: "Invalid domain." }
+    const host = new URL(websiteUrl).hostname
+    if (!host) return { success: false, error: "Invalid domain." }
 
     const resolver = new Resolver()
     resolver.setServers(["1.1.1.1", "8.8.8.8"])
-    const txtRecords = await resolver.resolveTxt(domain)
+    const txtRecords = await resolver.resolveTxt(host)
     const flattened = txtRecords.flat().map((txt) => txt.trim())
     const matched = flattened.some((txt) => txt === expected.trim())
 
@@ -223,59 +194,6 @@ async function checkDnsTxtRecord(
   } catch (error) {
     const code = (error as { code?: string })?.code ?? "UNKNOWN"
     return { success: false, error: `DNS check failed: ${code}` }
-  }
-}
-
-async function finalizeClaim(
-  productId: string,
-  claimantId: string,
-  verificationTxt: string,
-  tx?: Prisma.TransactionClient,
-): Promise<
-  | { error: string }
-  | { success: true; slug: string; previousOwnerId: string | null }
-> {
-  const now = new Date()
-  const client = tx ?? prisma
-
-  const product = await client.product.findUnique({
-    where: { id: productId },
-    include: { verification: true },
-  })
-  if (!product) return { error: "Product not found." }
-  if (product.verification?.isVerified) {
-    return { error: "This product is already verified." }
-  }
-
-  await client.product.update({
-    where: { id: product.id },
-    data: { userId: claimantId },
-  })
-
-  await client.productVerification.upsert({
-    where: { productId: product.id },
-    create: {
-      productId: product.id,
-      verificationTxt,
-      isVerified: true,
-      verifiedAt: now,
-    },
-    update: {
-      verificationTxt,
-      isVerified: true,
-      verifiedAt: now,
-    },
-  })
-
-  await client.productClaimAttempt.updateMany({
-    where: { productId: product.id, status: "pending" },
-    data: { status: "fulfilled" as ProductClaimStatus, otpHash: null },
-  })
-
-  return {
-    success: true,
-    slug: product.slug,
-    previousOwnerId: product.userId,
   }
 }
 
@@ -294,58 +212,73 @@ function revalidateAfterClaim(
 }
 
 export async function getClaimableProducts(params?: { q?: string | string[] }) {
-  const { userId: clerkId } = await auth()
-  if (!clerkId) throw new Error("Unauthenticated")
-  const user = await getActiveUserByClerkId(clerkId)
-  if (!user) throw new Error(INACTIVE_ACCOUNT_MESSAGE)
+  const authToken = await getAuthToken()
+  if (!authToken) throw new Error("Unauthenticated")
 
   const qParam = Array.isArray(params?.q) ? params?.q[0] : params?.q
   const q = qParam?.trim()
+  const query = q ? `?q=${encodeURIComponent(q)}` : ""
 
-  const products = await getClaimableProductsForViewer(user.id, q)
-  return { products }
+  try {
+    const response = await fastapiFetch<
+      ApiResponse<{ products: ClaimableProductSummary[] }>
+    >(`/api/v1/member/claims/products${query}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
+
+    if (response.status !== 200 || !response.data) {
+      return { products: [] as ClaimableProductSummary[] }
+    }
+
+    return { products: response.data.products || [] }
+  } catch (error) {
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403) {
+      throw new Error(INACTIVE_ACCOUNT_MESSAGE)
+    }
+    if (status === 404 || status === 422) {
+      return { products: [] as ClaimableProductSummary[] }
+    }
+    throw error
+  }
 }
 
 export async function claimProductViaDnsAction(productId: string) {
   if (!productId) return { error: "Missing product identifier." }
+
   const { userId } = await auth()
   if (!userId) return { error: "Please sign in to continue." }
   const viewer = await getActiveUserByClerkId(userId)
   if (!viewer) return { error: INACTIVE_ACCOUNT_MESSAGE }
 
-  const target = await getClaimTarget(productId)
-  if ("error" in target) return target
+  const authToken = await getAuthToken()
+  if (!authToken) return { error: "Please sign in to continue." }
 
-  const ownershipCheck = await ensureNotOwner(target.product, viewer.id)
-  if ("error" in ownershipCheck) return ownershipCheck
+  try {
+    const target = await getClaimTarget(authToken, productId)
 
-  const lockResult = await reserveClaimAttempt({
-    productId,
-    userId: viewer.id,
-    method: "dns",
-    expiresAt: new Date(Date.now() + DNS_LOCK_WINDOW_MS),
-  })
-  if ("error" in lockResult) return lockResult
+    const dnsResult = await checkDnsTxtRecord(target.websiteUrl, target.expectedTxt)
+    if (!dnsResult.success) {
+      return { error: dnsResult.error ?? "DNS check failed." }
+    }
 
-  const dnsResult = await checkDnsTxtRecord(
-    target.product.websiteUrl,
-    target.expectedTxt,
-  )
-  if (!dnsResult.success) {
-    return { error: dnsResult.error ?? "DNS check failed." }
+    const result = await confirmClaimDns(authToken, productId)
+    return { success: true, lockExpiresAt: result.lockExpiresAt }
+  } catch (error) {
+    const detail = getFastApiErrorDetail(error)
+    if (detail) return { error: detail }
+
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403) {
+      return { error: INACTIVE_ACCOUNT_MESSAGE }
+    }
+
+    console.error("Failed to confirm DNS product claim", { error, productId })
+    return { error: "Unable to verify DNS claim right now." }
   }
-
-  const lockExpiresAt = new Date(Date.now() + CLAIM_PENDING_WINDOW_MS)
-  await prisma.productClaimAttempt.updateMany({
-    where: {
-      productId: target.product.id,
-      userId: viewer.id,
-      status: "pending",
-    },
-    data: { otpExpiresAt: lockExpiresAt, method: "dns" },
-  })
-
-  return { success: true, lockExpiresAt: lockExpiresAt.toISOString() }
 }
 
 export async function sendProductClaimOtpAction(
@@ -361,71 +294,63 @@ export async function sendProductClaimOtpAction(
   const viewer = await getActiveUserByClerkId(userId)
   if (!viewer) return { error: INACTIVE_ACCOUNT_MESSAGE }
 
-  const target = await getClaimTarget(productId)
-  if ("error" in target) return target
-
-  if (!emailMatchesDomain(normalizedEmail, target.domain)) {
-    return {
-      error: `Email must use ${target.domain}.`,
-    }
-  }
-
-  const ownershipCheck = await ensureNotOwner(target.product, viewer.id)
-  if ("error" in ownershipCheck) return ownershipCheck
-
-  const lock = await prisma.productClaimAttempt.findFirst({
-    where: {
-      productId,
-      userId: viewer.id,
-      method: "dns",
-      status: "pending",
-      otpExpiresAt: { gt: new Date() },
-    },
-    orderBy: { updatedAt: "desc" },
-  })
-  if (!lock) {
-    return { error: "Verify DNS first to lock this domain before emailing." }
-  }
-
-  const code = generateOtpCode()
-  const hashed = hashOtp(code)
-  const expiresAt = new Date(Date.now() + CLAIM_PENDING_WINDOW_MS)
-
-  const reserve = await reserveClaimAttempt({
-    productId,
-    userId: viewer.id,
-    method: "email_otp",
-    email: normalizedEmail,
-    otpHash: hashed,
-    expiresAt,
-  })
-  if ("error" in reserve) return reserve
+  const authToken = await getAuthToken()
+  if (!authToken) return { error: "Please sign in to continue." }
 
   try {
-    await sendClaimOtpNotification({
-      recipient: {
-        subscriberId: userId,
-        email: normalizedEmail,
-        firstName: viewer.firstName,
-        lastName: viewer.lastName,
-      },
-      payload: {
-        code,
-        productName: target.product.name,
-        domain: target.domain,
-        expiresAt: expiresAt.toISOString(),
-        method: "email_otp",
-      },
-      transactionId: `product_claim_otp:${productId}:${viewer.id}:${
-        reserve.attempt?.id ?? "new"
-      }`,
-    })
-  } catch (error) {
-    console.error("Failed to send claim OTP email", { error })
-    return { error: "Failed to send verification email. Try again." }
-  }
+    const target = await getClaimTarget(authToken, productId)
 
-  return { success: true, expiresAt: expiresAt.toISOString() }
+    if (!emailMatchesDomain(normalizedEmail, target.domain)) {
+      return {
+        error: `Email must use ${target.domain}.`,
+      }
+    }
+
+    const code = generateOtpCode()
+    const hashed = hashOtp(code)
+    const expiresAt = new Date(Date.now() + CLAIM_PENDING_WINDOW_MS)
+
+    await requestClaimOtp(authToken, productId, {
+      email: normalizedEmail,
+      otpHash: hashed,
+      otpExpiresAt: expiresAt.toISOString(),
+    })
+
+    try {
+      await sendClaimOtpNotification({
+        recipient: {
+          subscriberId: userId,
+          email: normalizedEmail,
+          firstName: viewer.firstName,
+          lastName: viewer.lastName,
+        },
+        payload: {
+          code,
+          productName: target.name,
+          domain: target.domain,
+          expiresAt: expiresAt.toISOString(),
+          method: "email_otp",
+        },
+        transactionId: `product_claim_otp:${productId}:${viewer.id}:${Date.now()}`,
+      })
+    } catch (error) {
+      console.error("Failed to send claim OTP email", { error })
+      return { error: "Failed to send verification email. Try again." }
+    }
+
+    return { success: true, expiresAt: expiresAt.toISOString() }
+  } catch (error) {
+    const detail = getFastApiErrorDetail(error)
+    if (detail) return { error: detail }
+
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403) {
+      return { error: INACTIVE_ACCOUNT_MESSAGE }
+    }
+
+    console.error("Failed to request product claim OTP", { error, productId })
+    return { error: "Unable to send verification email right now." }
+  }
 }
 
 export async function verifyProductClaimOtpAction(
@@ -443,66 +368,23 @@ export async function verifyProductClaimOtpAction(
   const viewer = await getActiveUserByClerkId(userId)
   if (!viewer) return { error: INACTIVE_ACCOUNT_MESSAGE }
 
-  const target = await getClaimTarget(productId)
-  if ("error" in target) return target
+  const authToken = await getAuthToken()
+  if (!authToken) return { error: "Please sign in to continue." }
 
-  const ownershipCheck = await ensureNotOwner(target.product, viewer.id)
-  if ("error" in ownershipCheck) return ownershipCheck
+  try {
+    const result = await verifyClaimOtp(authToken, productId, hashOtp(trimmedCode))
+    revalidateAfterClaim(result.slug, result.previousOwnerId, viewer.id)
+    return { success: true, slug: result.slug }
+  } catch (error) {
+    const detail = getFastApiErrorDetail(error)
+    if (detail) return { error: detail }
 
-  const now = new Date()
-  const hashed = hashOtp(trimmedCode)
+    const status = (error as FastApiError | undefined)?.status
+    if (status === 403) {
+      return { error: INACTIVE_ACCOUNT_MESSAGE }
+    }
 
-  const result = await prisma.$transaction(
-    async (tx: Prisma.TransactionClient) => {
-      const attempt = await tx.productClaimAttempt.findFirst({
-        where: {
-          productId,
-          userId: viewer.id,
-          method: "email_otp",
-          status: "pending",
-        },
-        orderBy: { updatedAt: "desc" },
-      })
-
-      if (!attempt) {
-        return { error: "No active email verification found. Send a new code." }
-      }
-
-      if (attempt.otpExpiresAt && attempt.otpExpiresAt < now) {
-        await tx.productClaimAttempt.update({
-          where: { id: attempt.id },
-          data: { status: "expired" as ProductClaimStatus },
-        })
-        return { error: "That code has expired. Send a new code." }
-      }
-
-      if (attempt.otpHash !== hashed) {
-        return { error: "Invalid code. Double-check and try again." }
-      }
-
-      const claim = await finalizeClaim(
-        target.product.id,
-        viewer.id,
-        target.expectedTxt,
-        tx,
-      )
-      if ("error" in claim) return claim
-
-      await tx.productClaimAttempt.update({
-        where: { id: attempt.id },
-        data: { status: "fulfilled" as ProductClaimStatus, otpHash: null },
-      })
-
-      return {
-        success: true,
-        slug: claim.slug,
-        previousOwnerId: claim.previousOwnerId,
-      }
-    },
-  )
-
-  if ("error" in result) return result
-
-  revalidateAfterClaim(result.slug, result.previousOwnerId, viewer.id)
-  return { success: true, slug: result.slug }
+    console.error("Failed to verify product claim OTP", { error, productId })
+    return { error: "Unable to verify claim code." }
+  }
 }
