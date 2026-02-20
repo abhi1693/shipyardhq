@@ -6,7 +6,7 @@
 - The system is orchestrated through Prisma models for balances, rules, catalog items, transactions, redemptions, entitlements, and placement schedules (`prisma/schema.prisma:644`).
 - Core domain logic lives in the rewards engine service, which exposes idempotent helpers for awarding, redeeming, refunding, and adjusting balances (`lib/rewards/engine.ts:116`).
 - Automation hooks (event listeners, cron jobs, and scheduled placement processing) call into the engine to keep balances synchronized with product activity (`lib/server/rewards`).
-- Admin and member surfaces consume typed selectors that aggregate balance snapshots, catalog availability, and transaction history for both auditing and self-service redemption flows (`actions/member/rewards/actions.ts:90`).
+- Member and internal service surfaces consume typed selectors that aggregate balance snapshots, catalog availability, and transaction history for self-service redemption and auditing flows (`actions/member/rewards/actions.ts:90`).
 
 ## Core Prisma models
 
@@ -30,7 +30,7 @@
 
 - **Product engagement:** Listeners on the internal event bus award points for upvotes and new product launches while ignoring self-awards and handling soft failures (`lib/server/rewards/listeners.ts:13`).
 - **Daily login:** `ensureDailyLoginReward` now checks both pending envelopes and prior reward transactions before queueing work, then caches the day locally to avoid repeat grants (`lib/server/rewards/loginReward.ts:30`). Integrate this helper in auth flows to keep streaks alive without flooding the queue.
-- **Feedback closure:** Admins granting feedback rewards trigger `awardRewards` with feedback metadata when statuses transition to `closed` (`actions/admin/feedback/actions.ts:115`).
+- **Feedback closure:** Feedback workflows can trigger `awardRewards` with feedback metadata when statuses transition to `closed`.
 - **Backlink verification:** The cron worker crawls member sites, validates backlinks, and awards the `rewards.backlink.verify` rule once per product using a deterministic `eventId` (`lib/server/rewards/backlinkVerification.ts:336`).
 
 ## Redeeming rewards & entitlements
@@ -45,18 +45,18 @@
 
 - `refundRedemption` returns unused rewards, optionally reverting entitlements/placements when the perk should be canceled (`lib/rewards/engine.ts:473`). The call is idempotent via `eventHash` and logs refund metadata.
 - Partial refunds accumulate in `redemption.refundedRewards`; once the refunded total reaches the original cost the redemption transitions to `refunded` status automatically (`lib/rewards/engine.ts:508`).
-- Admins issue refunds through `refundRedemptionAction`, which validates reason/reference input before invoking the engine (`actions/admin/rewards/actions.ts:544`).
-- Manual adjustments (positive or negative) rely on `adjustRewards`, which inserts synthetic transactions with actor metadata and safeguards against overdrafting (`lib/rewards/engine.ts:604`). Admin UI wraps the helper in `adjustUserRewardsAction`, capturing reason/reference data for audit trails (`actions/admin/rewards/actions.ts:458`).
+- Refunds are handled by `refundRedemption`, which validates eligibility, applies idempotency safeguards, and records metadata (`lib/rewards/engine.ts:473`).
+- Manual adjustments (positive or negative) rely on `adjustRewards`, which inserts synthetic transactions with actor metadata and safeguards against overdrafting (`lib/rewards/engine.ts:604`).
 
-## Admin tooling
+## Operator tooling
 
-- Rule and catalog CRUD lives in `actions/admin/rewards/actions.ts:120`, with shared parsing helpers for JSON metadata and numeric fields (`actions/admin/rewards/utils.ts:1`).
-- Admin UI routes are currently disabled/removed. Keep using the server actions as the canonical management surface until the admin frontend is reintroduced.
+- Admin UI routes and admin reward action wrappers are currently removed.
+- Use the rewards engine helpers and backend APIs as the canonical management surface until the admin frontend is reintroduced.
 
 ## Background jobs & scheduling
 
 - **Placement scheduler:** Cron endpoint `/api/cron/rewards/placements` authorizes with `CRON_SECRET` and activates or expires placement schedules, updating entitlements, redemptions, and product badges in a single transaction (`app/api/cron/rewards/placements/route.ts:1`, `lib/server/rewards/placementScheduler.ts:20`). Cache revalidation ensures public surfaces reflect placement changes immediately (`lib/server/rewards/placementScheduler.ts:186`).
-- **Backlink verifier:** `/api/cron/rewards/backlinks` runs backlink checks with controlled concurrency, awarding the verification rule on success and logging failures for admin review (`app/api/cron/rewards/backlinks/route.ts:1`, `lib/server/rewards/backlinkVerification.ts:35`).
+- **Backlink verifier:** `/api/cron/rewards/backlinks` runs backlink checks with controlled concurrency, awarding the verification rule on success and logging failures for operator review (`app/api/cron/rewards/backlinks/route.ts:1`, `lib/server/rewards/backlinkVerification.ts:35`).
 - Cron schedules are wired in `vercel.json` for production deployments (`vercel.json:6`).
 
 ## Public & member experiences
@@ -75,7 +75,7 @@
 ## Extending the system
 
 1. **Add a new earn rule:** Seed or insert a `RewardRule`, then trigger `awardRewards` from either an event listener or a direct call with a stable `eventId` to keep grants idempotent. Populate metadata with contextual fields consumers might need (`lib/rewards/engine.ts:146`).
-2. **Introduce a new perk:** Create a `RewardCatalogItem` with pricing, limits, and metadata tags. If the perk should schedule automatically, ensure `requiresPlacementSchedule` recognizes it either via category or metadata (`lib/rewards/engine.ts:86`). Update member/admin UIs as needed to surface descriptive copy.
+2. **Introduce a new perk:** Create a `RewardCatalogItem` with pricing, limits, and metadata tags. If the perk should schedule automatically, ensure `requiresPlacementSchedule` recognizes it either via category or metadata (`lib/rewards/engine.ts:86`). Update member UI and operator-facing docs/tools as needed to surface descriptive copy.
 3. **Launch automated jobs:** Build a worker that queries eligible subjects, call the appropriate engine helper inside a transaction, and wrap the endpoint in `ensureCronAuthorized`/`CRON_SECRET` patterns for safety (`app/api/cron/rewards/backlinks/route.ts:1`).
 
 ## Operational tips

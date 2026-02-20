@@ -14,20 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/atoms/select"
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/atoms/form"
-import ProductBadgeCelebrationDialog from "@/components/molecules/ProductBadgeCelebrationDialog"
 import ProductConnectorFields from "@/components/pages/products/_components/ProductConnectorFields"
 import ProductWizardAccordion from "@/components/pages/products/_components/ProductWizardAccordion"
 import ProductWizardFooter from "@/components/pages/products/_components/ProductWizardFooter"
@@ -43,40 +29,23 @@ import {
   getInitialValuesForAdd,
   toCreateFormData,
 } from "@/lib/productWizard/mappers"
+import { addProductSchema } from "@/lib/productWizard/schema"
 import {
-  addProductSchema,
-  makeAdminAddProductSchema,
-} from "@/lib/productWizard/schema"
-import {
-  adminPath,
   MEMBER_PRODUCTS_PATH,
   memberProductUpgradePath,
-  productPath,
 } from "@/lib/routes"
 import type {
-  ProductWizardAdminUserOption,
   ProductWizardAlternativeOption,
   ProductWizardCategoryOption,
 } from "@/types/product-wizard"
 import type { ProductWizardInputAdd } from "@/lib/productWizard/schema"
 
-type BaseProps = {
+export type AddProductWizardProps = {
   categories: ProductWizardCategoryOption[]
-  onCreateProduct: (formData: FormData) => Promise<unknown>
-}
-
-type MemberProps = BaseProps & {
-  mode: "member"
   userId: string
   alternatives: ProductWizardAlternativeOption[]
+  onCreateProduct: (formData: FormData) => Promise<unknown>
 }
-
-type AdminProps = BaseProps & {
-  mode: "admin"
-  users: ProductWizardAdminUserOption[]
-}
-
-export type AddProductWizardProps = MemberProps | AdminProps
 
 export type ProductWizardInput = ProductWizardInputAdd
 
@@ -92,8 +61,6 @@ function makeClientProductId() {
 
 export default function AddProductWizard(props: AddProductWizardProps) {
   const router = useRouter()
-  const schema =
-    props.mode === "admin" ? makeAdminAddProductSchema() : addProductSchema
   const {
     openSections,
     setOpenSections,
@@ -104,22 +71,11 @@ export default function AddProductWizard(props: AddProductWizardProps) {
   } = useWizardNavigation()
 
   const [newProductId] = useState(makeClientProductId)
-  const form = useForm<ProductWizardInput & { ownerId?: string }>({
-    resolver: zodResolver(schema) as any,
+  const form = useForm<ProductWizardInput>({
+    resolver: zodResolver(addProductSchema) as any,
     defaultValues: getInitialValuesForAdd(),
     mode: "onBlur",
   })
-
-  const [showCelebration, setShowCelebration] = useState(false)
-  const [isCompletionPending, setIsCompletionPending] = useState(false)
-  const [celebrationProductSlug, setCelebrationProductSlug] = useState<
-    string | null
-  >(null)
-
-  const ownerId = useWatch({
-    control: form.control,
-    name: "ownerId" as any,
-  }) as string | undefined
 
   const connectorProvider = useWatch({
     control: form.control,
@@ -159,13 +115,6 @@ export default function AddProductWizard(props: AddProductWizardProps) {
   }) as string[] | undefined
   const galleryCount = Array.isArray(galleryUrls) ? galleryUrls.length : 0
 
-  const ownerClerkId =
-    props.mode === "admin"
-      ? ownerId?.length
-        ? props.users.find((u) => u.id === ownerId)?.clerkId
-        : undefined
-      : undefined
-
   const connectorFields = useMemo(() => {
     return <ProductConnectorFields form={form} />
   }, [form])
@@ -173,30 +122,9 @@ export default function AddProductWizard(props: AddProductWizardProps) {
   async function submitAll(
     values: ProductWizardInput & {
       status?: "draft" | "published"
-      ownerId?: string
     },
   ) {
     try {
-      if (props.mode === "admin") {
-        const nextOwnerId = values.ownerId ?? ""
-        const fd = toCreateFormData(values, nextOwnerId, newProductId)
-        const result = await props.onCreateProduct(fd)
-        if ((result as any)?.error) {
-          toast.error((result as any).error)
-          return
-        }
-        const nextSlug =
-          typeof (result as any)?.slug === "string" &&
-          (result as any).slug.length
-            ? (result as any).slug
-            : null
-        setCelebrationProductSlug(nextSlug)
-        toast.success("Product created successfully!")
-        setIsCompletionPending(true)
-        setShowCelebration(true)
-        return
-      }
-
       const fd = toCreateFormData(values, props.userId, newProductId)
       const result = await props.onCreateProduct(fd)
       if ((result as any)?.error) {
@@ -221,9 +149,6 @@ export default function AddProductWizard(props: AddProductWizardProps) {
     needsPricingDetails && (!startingPriceCents || !currencyCode)
 
   const smartNextAction = (() => {
-    if (props.mode === "admin" && !ownerId?.length) {
-      return { label: "Select an owner", onClick: () => jumpTo("core") }
-    }
     if (missingPricingDetails) {
       return { label: "Set pricing", onClick: () => jumpTo("pricing") }
     }
@@ -256,136 +181,68 @@ export default function AddProductWizard(props: AddProductWizardProps) {
       },
     )
 
-  const ownerNode =
-    props.mode === "admin" ? (
-      <FormField
-        control={form.control}
-        name={"ownerId" as any}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Owner (user)</FormLabel>
-            <Select value={field.value || ""} onValueChange={field.onChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select owner" />
-              </SelectTrigger>
-              <SelectContent>
-                {props.users.map((u) => (
-                  <SelectItem key={u.id} value={u.id}>
-                    {u.email}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ) : null
-
   const core = (
     <Step1
       categories={props.categories}
       platforms={PLATFORMS as any}
       lockWebsiteUrl={false}
-      rightOfWebsite={ownerNode}
       enableAutofill
       autofillNotice={PRODUCT_AUTOFILL_NOTICE}
     />
   )
-  const media =
-    props.mode === "admin" ? (
-      <Step2
-        productId={newProductId}
-        uploadAsClerkId={ownerClerkId}
-        requireUploadAsClerkId
-      />
-    ) : (
-      <Step2 productId={newProductId} />
-    )
+  const media = <Step2 productId={newProductId} />
   const pricing = <Step3 />
   const verification = (
     <Step4 productId={newProductId} persistOnVerify={false} />
   )
-  const details = (
-    <Step5 alternatives={props.mode === "member" ? props.alternatives : []} />
-  )
+  const details = <Step5 alternatives={props.alternatives} />
 
-  const detailsSubcopy =
-    props.mode === "member"
-      ? "Social links and competitor alternatives."
-      : "Social links and positioning details."
   const description =
-    props.mode === "member"
-      ? "Fill the essentials, then optionally add verification and alternatives to boost visibility."
-      : "Fill the essentials, then optionally add verification and connect revenue for higher visibility."
-  const formId =
-    props.mode === "admin" ? "admin-add-product-form" : "add-product-form"
+    "Fill the essentials, then optionally add verification and alternatives to boost visibility."
+  const formId = "add-product-form"
 
   return (
-    <>
-      <Card className="mx-auto w-full max-w-4xl">
-        <CardHeader>
-          <CardTitle className="text-left text-2xl font-bold">
-            Add product
-          </CardTitle>
-          <CardDescription>{description}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <FormProvider {...form}>
-            <form
-              id={formId}
-              onSubmit={submitWithStatus("published")}
-              className="space-y-6 pb-24"
-            >
-              <ProductWizardAccordion
-                openSections={openSections}
-                onOpenSectionsChange={setOpenSections}
-                openBoostPanel={openBoostPanel}
-                onToggleBoostPanel={toggleBoostPanel}
-                hasRevenueSetupDraft={hasRevenueSetupDraft}
-                domainChecked={Boolean(domainChecked)}
-                domainVerified={Boolean(domainVerified)}
-                core={core}
-                media={media}
-                pricing={pricing}
-                connectorFields={connectorFields}
-                verification={verification}
-                details={details}
-                detailsSubcopy={detailsSubcopy}
-              />
-            </form>
-          </FormProvider>
-        </CardContent>
-        <CardFooter className="sticky bottom-0 z-10 border-t bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-          <ProductWizardFooter
-            formId={formId}
-            isSubmitting={form.formState.isSubmitting}
-            smartNextAction={smartNextAction}
-            onSaveDraft={() => submitWithStatus("draft")()}
-          />
-        </CardFooter>
-      </Card>
-
-      {props.mode === "admin" ? (
-        <ProductBadgeCelebrationDialog
-          open={showCelebration}
-          onOpenChange={(open) => {
-            setShowCelebration(open)
-            if (!open) {
-              setCelebrationProductSlug(null)
-              if (isCompletionPending) {
-                setIsCompletionPending(false)
-                router.push(adminPath("products"))
-              }
-            }
-          }}
-          productPublicPath={
-            celebrationProductSlug
-              ? productPath(celebrationProductSlug)
-              : undefined
-          }
+    <Card className="mx-auto w-full max-w-4xl">
+      <CardHeader>
+        <CardTitle className="text-left text-2xl font-bold">
+          Add product
+        </CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <FormProvider {...form}>
+          <form
+            id={formId}
+            onSubmit={submitWithStatus("published")}
+            className="space-y-6 pb-24"
+          >
+            <ProductWizardAccordion
+              openSections={openSections}
+              onOpenSectionsChange={setOpenSections}
+              openBoostPanel={openBoostPanel}
+              onToggleBoostPanel={toggleBoostPanel}
+              hasRevenueSetupDraft={hasRevenueSetupDraft}
+              domainChecked={Boolean(domainChecked)}
+              domainVerified={Boolean(domainVerified)}
+              core={core}
+              media={media}
+              pricing={pricing}
+              connectorFields={connectorFields}
+              verification={verification}
+              details={details}
+              detailsSubcopy="Social links and competitor alternatives."
+            />
+          </form>
+        </FormProvider>
+      </CardContent>
+      <CardFooter className="sticky bottom-0 z-10 border-t bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+        <ProductWizardFooter
+          formId={formId}
+          isSubmitting={form.formState.isSubmitting}
+          smartNextAction={smartNextAction}
+          onSaveDraft={() => submitWithStatus("draft")()}
         />
-      ) : null}
-    </>
+      </CardFooter>
+    </Card>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
@@ -14,19 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/atoms/select"
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/atoms/form"
 import ProductConnectorFields from "@/components/pages/products/_components/ProductConnectorFields"
 import ProductWizardAccordion from "@/components/pages/products/_components/ProductWizardAccordion"
 import ProductWizardFooter from "@/components/pages/products/_components/ProductWizardFooter"
@@ -45,17 +32,14 @@ import {
 } from "@/lib/productWizard/mappers"
 import {
   editProductSchema,
-  makeAdminEditProductSchema,
   type ProductWizardInputEdit,
 } from "@/lib/productWizard/schema"
-import { adminPath, memberProductPath } from "@/lib/routes"
+import { memberProductPath } from "@/lib/routes"
 import type { ProductForEditWizard } from "@/types/product-wizard"
 import type {
-  ProductWizardAdminEditUserOption,
   ProductWizardAlternativeOption,
   ProductWizardCategoryOption,
 } from "@/types/product-wizard"
-import { Badge } from "@/components/atoms/badge"
 
 type ConnectorSummary = {
   provider?: string | null
@@ -65,9 +49,10 @@ type ConnectorSummary = {
   keyHint?: string | null
 } | null
 
-type BaseProps = {
+export type EditProductWizardProps = {
   product: ProductForEditWizard
   categories: ProductWizardCategoryOption[]
+  alternatives: ProductWizardAlternativeOption[]
   onUpdateProduct: (
     productId: string,
     payload: any,
@@ -85,24 +70,10 @@ type BaseProps = {
   } | null
 }
 
-type MemberProps = BaseProps & {
-  mode: "member"
-  alternatives: ProductWizardAlternativeOption[]
-}
-
-type AdminProps = BaseProps & {
-  mode: "admin"
-  users: ProductWizardAdminEditUserOption[]
-}
-
-export type EditProductWizardProps = MemberProps | AdminProps
-
 export type ProductWizardInput = ProductWizardInputEdit
 
 export default function EditProductWizard(props: EditProductWizardProps) {
   const router = useRouter()
-  const schema =
-    props.mode === "admin" ? makeAdminEditProductSchema() : editProductSchema
   const {
     openSections,
     setOpenSections,
@@ -116,24 +87,18 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     props.connector ?? null,
   )
 
-  const form = useForm<ProductWizardInput & { ownerId?: string }>({
-    resolver: zodResolver(schema) as any,
+  const form = useForm<ProductWizardInput>({
+    resolver: zodResolver(editProductSchema) as any,
     defaultValues: {
       ...getInitialValuesFromProduct(
         props.product,
         (props.connector as any) || undefined,
       ),
-      ...(props.mode === "admin" ? { ownerId: props.product.userId } : {}),
     },
     mode: "onBlur",
   })
 
   useUnsavedChangesWarning(form.formState.isDirty)
-
-  const ownerId = useWatch({
-    control: form.control,
-    name: "ownerId" as any,
-  }) as string | undefined
 
   const connectorProvider = useWatch({
     control: form.control,
@@ -183,68 +148,52 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     ? props.product.ProductMedia.length
     : 0
 
-  const ownerClerkId =
-    props.mode === "admin"
-      ? ownerId?.length
-        ? props.users.find((u) => u.id === ownerId)?.clerkId
-        : undefined
-      : undefined
-
-  const connectorFields = useMemo(() => {
-    return (
-      <ProductConnectorFields
-        form={form}
-        providerFallback={connectorState?.provider as any}
-        lockedProvider={connectorState?.provider as any}
-        keyHint={connectorState?.keyHint ?? null}
-        status={(connectorState?.status as any) ?? null}
-        lastSyncedAt={connectorState?.lastSyncedAt ?? null}
-        lastSyncError={connectorState?.lastSyncError ?? null}
-        onReset={
-          connectorState
-            ? async () => {
-                const res = await props.onResetConnector(props.product.id)
-                if ((res as any)?.error) {
-                  toast.error((res as any).error)
-                  return
-                }
-                form.setValue("connectorProvider" as any, undefined as any, {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                })
-                form.setValue("connectorApiKey" as any, "", {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                })
-                form.setValue("connectorAccountId" as any, "", {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                })
-                form.setValue("connectorBrandId" as any, "", {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                })
-                setConnectorState(null)
-                toast.success(
-                  "Removed connector configuration. Enter new details to reconnect.",
-                )
+  const connectorFields = (
+    <ProductConnectorFields
+      form={form}
+      providerFallback={connectorState?.provider as any}
+      lockedProvider={connectorState?.provider as any}
+      keyHint={connectorState?.keyHint ?? null}
+      status={(connectorState?.status as any) ?? null}
+      lastSyncedAt={connectorState?.lastSyncedAt ?? null}
+      lastSyncError={connectorState?.lastSyncError ?? null}
+      onReset={
+        connectorState
+          ? async () => {
+              const res = await props.onResetConnector(props.product.id)
+              if ((res as any)?.error) {
+                toast.error((res as any).error)
+                return
               }
-            : undefined
-        }
-      />
-    )
-  }, [
-    connectorState,
-    form,
-    props.onResetConnector,
-    props.product.id,
-    setConnectorState,
-  ])
+              form.setValue("connectorProvider" as any, undefined as any, {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+              form.setValue("connectorApiKey" as any, "", {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+              form.setValue("connectorAccountId" as any, "", {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+              form.setValue("connectorBrandId" as any, "", {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+              setConnectorState(null)
+              toast.success(
+                "Removed connector configuration. Enter new details to reconnect.",
+              )
+            }
+          : undefined
+      }
+    />
+  )
 
   async function submitAll(
     values: ProductWizardInput & {
       status?: "draft" | "published"
-      ownerId?: string
     },
   ) {
     try {
@@ -255,11 +204,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
         return
       }
       toast.success("Product updated successfully")
-      if (props.mode === "admin") {
-        router.push(adminPath("products", props.product.id))
-      } else {
-        router.push(memberProductPath(props.product.slug))
-      }
+      router.push(memberProductPath(props.product.slug))
     } catch (e: any) {
       toast.error(e?.message || "Failed to update product")
     }
@@ -271,9 +216,6 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     needsPricingDetails && (!startingPriceCents || !currencyCode)
 
   const smartNextAction = (() => {
-    if (props.mode === "admin" && !ownerId?.length) {
-      return { label: "Select an owner", onClick: () => jumpTo("core") }
-    }
     if (missingPricingDetails) {
       return { label: "Set pricing", onClick: () => jumpTo("pricing") }
     }
@@ -306,41 +248,11 @@ export default function EditProductWizard(props: EditProductWizardProps) {
       },
     )
 
-  const ownerNode =
-    props.mode === "admin" ? (
-      <FormField
-        control={form.control}
-        name={"ownerId" as any}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="flex items-center justify-between gap-2">
-              <span>Owner (user)</span>
-              <Badge variant="secondary">Admin</Badge>
-            </FormLabel>
-            <Select value={field.value || ""} onValueChange={field.onChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select owner" />
-              </SelectTrigger>
-              <SelectContent>
-                {props.users.map((u) => (
-                  <SelectItem key={u.id} value={u.id}>
-                    {u.email}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ) : null
-
   const core = (
     <Step1
       categories={props.categories}
       platforms={PLATFORMS as any}
-      lockWebsiteUrl={props.mode === "member"}
-      rightOfWebsite={ownerNode}
+      lockWebsiteUrl
       enableAutofill
       autofillNotice={PRODUCT_AUTOFILL_NOTICE}
     />
@@ -357,25 +269,15 @@ export default function EditProductWizard(props: EditProductWizardProps) {
       }
       canEditGallery
       maxGallery={6}
-      uploadAsClerkId={ownerClerkId}
     />
   )
   const pricing = <Step3 />
   const verification = <Step4 productId={props.product.id} persistOnVerify />
-  const details = (
-    <Step5 alternatives={props.mode === "member" ? props.alternatives : []} />
-  )
+  const details = <Step5 alternatives={props.alternatives} />
 
-  const detailsSubcopy =
-    props.mode === "member"
-      ? "Social links and competitor alternatives."
-      : "Social links and positioning details."
   const description =
-    props.mode === "member"
-      ? "Update the essentials, then optionally edit verification and alternatives to boost visibility."
-      : "Update the essentials, then optionally edit verification and connect revenue for higher visibility."
-  const formId =
-    props.mode === "admin" ? "admin-edit-product-form" : "edit-product-form"
+    "Update the essentials, then optionally edit verification and alternatives to boost visibility."
+  const formId = "edit-product-form"
 
   return (
     <Card className="mx-auto w-full max-w-4xl">
@@ -406,7 +308,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
               connectorFields={connectorFields}
               verification={verification}
               details={details}
-              detailsSubcopy={detailsSubcopy}
+              detailsSubcopy="Social links and competitor alternatives."
             />
           </form>
         </FormProvider>

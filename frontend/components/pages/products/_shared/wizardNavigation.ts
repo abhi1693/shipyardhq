@@ -12,7 +12,6 @@ export type WizardBoostPanel = null | "revenue" | "domain"
 
 const SECTION_FIELDS: Record<WizardSectionKey, readonly string[]> = {
   core: [
-    "ownerId",
     "websiteUrl",
     "name",
     "tagline",

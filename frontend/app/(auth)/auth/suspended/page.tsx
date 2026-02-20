@@ -13,8 +13,8 @@ export default function SuspendedAccountPage() {
       </h1>
       <p className="text-muted-foreground">
         Please contact support if you believe this is a mistake. You no longer
-        have access to member or admin features while your account is suspended
-        or terminated.
+        have access to member features while your account is suspended or
+        terminated.
       </p>
       <Link
         href="mailto:support@shipyardhq.dev"

@@ -479,8 +479,8 @@ export default async function AnalyticsPage() {
 
           <div className="mt-10 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
             <div>
-              Data is aggregated/anonymized and excludes PII. Admin/internal
-              traffic is filtered out. See our{" "}
+              Data is aggregated/anonymized and excludes PII. Internal traffic
+              is filtered out. See our{" "}
               <a
                 href="/legal/privacy-policy"
                 className="font-semibold text-slate-900 underline-offset-4 hover:underline"

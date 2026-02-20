@@ -349,8 +349,8 @@ export default function Step4({
 
                 {!alternatives.length ? (
                   <p className="text-xs text-muted-foreground">
-                    No alternatives available yet. Ask an admin to add them from
-                    the catalog.
+                    No alternatives available yet. Check back later as the
+                    catalog expands.
                   </p>
                 ) : null}
               </div>

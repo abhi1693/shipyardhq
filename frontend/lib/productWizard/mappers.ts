@@ -14,8 +14,6 @@ type ConnectorDefaults = {
   brandId?: string | null
 }
 
-type OwnerIdValues = { ownerId?: string }
-
 export function getInitialValuesForAdd(): ProductWizardInputAdd {
   return {
     name: "",
@@ -53,7 +51,7 @@ export function getInitialValuesForAdd(): ProductWizardInputAdd {
 export function getInitialValuesFromProduct(
   product: ProductForEditWizard,
   connector?: ConnectorDefaults,
-): ProductWizardInputEdit & OwnerIdValues {
+): ProductWizardInputEdit {
   return {
     name: product.name,
     tagline: product.tagline ?? "",
@@ -91,7 +89,7 @@ export function getInitialValuesFromProduct(
 }
 
 export function toCreateFormData(
-  values: ProductWizardInputAdd & OwnerIdValues,
+  values: ProductWizardInputAdd,
   userId: string,
   productId?: string,
 ): FormData {
@@ -145,20 +143,16 @@ export function toCreateFormData(
 }
 
 export function toUpdatePayload(
-  values: ProductWizardInputEdit & OwnerIdValues,
+  values: ProductWizardInputEdit,
   product: ProductForEditWizard,
 ) {
   const v0 = sanitizeTextFields(values)
   const v = coercePricing(v0)
   const keywords = parseKeywords(v.keywordsText)
-  const nextOwnerId =
-    typeof values.ownerId === "string" && values.ownerId.length
-      ? values.ownerId
-      : product.userId
   return {
     name: v.name,
     categoryId: v.categoryId,
-    userId: nextOwnerId,
+    userId: product.userId,
     description: v.description,
     tagline: v.tagline,
     websiteUrl: normalizeUrl(v.websiteUrl) || v.websiteUrl,

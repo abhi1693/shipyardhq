@@ -46,18 +46,6 @@ export type ProductWizardAlternativeOption = {
   websiteUrl?: string | null
 }
 
-export type ProductWizardAdminUserOption = {
-  id: string
-  email: string
-  clerkId: string
-}
-
-export type ProductWizardAdminEditUserOption = {
-  id: string
-  email: string
-  clerkId: string
-}
-
 export type ProductForEditWizard = Prisma.ProductGetPayload<{
   select: typeof productForEditWizardSelect
 }>

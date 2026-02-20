@@ -20,7 +20,6 @@ export default function AddProductForm({
 }) {
   return (
     <AddProductWizard
-      mode="member"
       categories={categories}
       userId={userId}
       alternatives={alternatives}

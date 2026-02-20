@@ -37,7 +37,6 @@ export default function EditProductForm({
 }) {
   return (
     <EditProductWizard
-      mode="member"
       product={product}
       categories={categories}
       alternatives={alternatives}
