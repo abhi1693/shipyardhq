@@ -1,8 +1,11 @@
-import { getCategories } from "@/actions/admin/categories/actions"
 import AddProductForm from "./form"
-import { getUserByClerkId } from "@/actions/member/users/actions"
 import { auth } from "@clerk/nextjs/server"
-import { getAlternativeProducts } from "@/actions/admin/alternative-products/actions"
+import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
+import {
+  getAlternativeOptionsServer,
+  getCategoryOptionsServer,
+} from "@/lib/server/generated-member"
+import { createMemberProduct } from "@/lib/server/member-product-actions"
 
 export default async function AddProductPage() {
   const { userId: clerkId } = await auth()
@@ -14,8 +17,8 @@ export default async function AddProductPage() {
     )
   }
 
-  const dbUser = await getUserByClerkId(clerkId)
-  if (!dbUser) {
+  const activeUser = await requireActiveUserOrRedirect(clerkId).catch(() => null)
+  if (!activeUser) {
     return (
       <div className="text-center mt-12 text-destructive">
         User not found in database
@@ -24,18 +27,16 @@ export default async function AddProductPage() {
   }
 
   const [categories, alternatives] = await Promise.all([
-    getCategories({ orderBy: { name: "asc" } }).catch(() => []),
-    getAlternativeProducts({
-      select: { id: true, slug: true, name: true, websiteUrl: true },
-      orderBy: { name: "asc" },
-    }).catch(() => []),
+    getCategoryOptionsServer().catch(() => []),
+    getAlternativeOptionsServer().catch(() => []),
   ])
 
   return (
     <AddProductForm
       categories={categories}
-      userId={dbUser.id}
+      userId={String(activeUser.id)}
       alternatives={alternatives}
+      onCreateProduct={createMemberProduct}
     />
   )
 }

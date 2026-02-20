@@ -7,10 +7,6 @@ import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 
 import {
-  resetProductConnectorAction,
-  updateProductAction,
-} from "@/actions/admin/products/actions"
-import {
   Card,
   CardContent,
   CardDescription,
@@ -53,10 +49,6 @@ import {
   type ProductWizardInputEdit,
 } from "@/lib/productWizard/schema"
 import { adminPath, memberProductPath } from "@/lib/routes"
-import type {
-  PaymentConnectorProvider,
-  PaymentConnectorStatus,
-} from "@/lib/vendor/prisma/client/enums"
 import type { ProductForEditWizard } from "@/types/product-wizard"
 import type {
   ProductWizardAdminEditUserOption,
@@ -66,8 +58,8 @@ import type {
 import { Badge } from "@/components/atoms/badge"
 
 type ConnectorSummary = {
-  provider?: PaymentConnectorProvider
-  status?: PaymentConnectorStatus | null
+  provider?: string | null
+  status?: string | null
   lastSyncedAt?: Date | string | null
   lastSyncError?: string | null
   keyHint?: string | null
@@ -76,10 +68,15 @@ type ConnectorSummary = {
 type BaseProps = {
   product: ProductForEditWizard
   categories: ProductWizardCategoryOption[]
+  onUpdateProduct: (
+    productId: string,
+    payload: any,
+  ) => Promise<unknown>
+  onResetConnector: (productId: string) => Promise<unknown>
   connector?: {
     id: string
-    provider: PaymentConnectorProvider
-    status: PaymentConnectorStatus | null
+    provider?: string | null
+    status?: string | null
     lastSyncedAt?: Date | string | null
     lastSyncError?: string | null
     keyHint?: string | null
@@ -124,7 +121,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     defaultValues: {
       ...getInitialValuesFromProduct(
         props.product,
-        props.connector || undefined,
+        (props.connector as any) || undefined,
       ),
       ...(props.mode === "admin" ? { ownerId: props.product.userId } : {}),
     },
@@ -197,16 +194,16 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     return (
       <ProductConnectorFields
         form={form}
-        providerFallback={connectorState?.provider}
-        lockedProvider={connectorState?.provider}
+        providerFallback={connectorState?.provider as any}
+        lockedProvider={connectorState?.provider as any}
         keyHint={connectorState?.keyHint ?? null}
-        status={connectorState?.status ?? null}
+        status={(connectorState?.status as any) ?? null}
         lastSyncedAt={connectorState?.lastSyncedAt ?? null}
         lastSyncError={connectorState?.lastSyncError ?? null}
         onReset={
           connectorState
             ? async () => {
-                const res = await resetProductConnectorAction(props.product.id)
+                const res = await props.onResetConnector(props.product.id)
                 if ((res as any)?.error) {
                   toast.error((res as any).error)
                   return
@@ -236,7 +233,13 @@ export default function EditProductWizard(props: EditProductWizardProps) {
         }
       />
     )
-  }, [connectorState, form, props.product.id, setConnectorState])
+  }, [
+    connectorState,
+    form,
+    props.onResetConnector,
+    props.product.id,
+    setConnectorState,
+  ])
 
   async function submitAll(
     values: ProductWizardInput & {
@@ -246,7 +249,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
   ) {
     try {
       const payload = toUpdatePayload(values, props.product)
-      const res = await updateProductAction(props.product.id, payload)
+      const res = await props.onUpdateProduct(props.product.id, payload)
       if ((res as any)?.error) {
         toast.error((res as any).error)
         return

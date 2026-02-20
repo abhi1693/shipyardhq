@@ -1,10 +1,6 @@
 "use client"
 
 import EditProductWizard from "@/components/pages/products/EditProductWizard"
-import type {
-  PaymentConnectorProvider,
-  PaymentConnectorStatus,
-} from "@/lib/vendor/prisma/client/enums"
 import type { ProductForEditWizard } from "@/types/product-wizard"
 
 export default function EditProductForm({
@@ -12,6 +8,8 @@ export default function EditProductForm({
   categories,
   alternatives,
   connector,
+  onUpdateProduct,
+  onResetConnector,
 }: {
   product: ProductForEditWizard
   categories: { id: string; name: string; icon?: string | null }[]
@@ -23,14 +21,19 @@ export default function EditProductForm({
   }[]
   connector?: {
     id: string
-    provider: PaymentConnectorProvider
-    status: PaymentConnectorStatus | null
+    provider?: string | null
+    status?: string | null
     lastSyncedAt?: Date | string | null
     lastSyncError?: string | null
     keyHint?: string | null
     accountId?: string | null
     brandId?: string | null
   } | null
+  onUpdateProduct: (
+    productId: string,
+    payload: any,
+  ) => Promise<unknown>
+  onResetConnector: (productId: string) => Promise<unknown>
 }) {
   return (
     <EditProductWizard
@@ -39,6 +42,8 @@ export default function EditProductForm({
       categories={categories}
       alternatives={alternatives}
       connector={connector}
+      onUpdateProduct={onUpdateProduct}
+      onResetConnector={onResetConnector}
     />
   )
 }

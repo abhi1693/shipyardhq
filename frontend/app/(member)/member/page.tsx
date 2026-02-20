@@ -1,7 +1,6 @@
 import type { User as ClerkUser } from "@clerk/backend"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
-import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import {
   HOME_PATH,
@@ -9,6 +8,7 @@ import {
   MEMBER_OVERVIEW_PATH,
 } from "@/lib/routes"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
+import { syncMemberFromClerkUser } from "@/lib/server/generated-member"
 
 type MemberIndexPageSearchParams = {
   redirectTo?: string | string[]
@@ -37,7 +37,7 @@ export default async function MemberIndexPage({
     redirect(signInPath)
   }
 
-  await syncUserFromClerk(clerkUser)
+  await syncMemberFromClerkUser(clerkUser)
 
   const activeUser = await requireActiveUserOrRedirect(userId)
 

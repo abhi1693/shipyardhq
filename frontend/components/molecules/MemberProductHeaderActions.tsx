@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { toast } from "sonner"
+import { useMutation } from "@tanstack/react-query"
 
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
@@ -16,7 +17,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/atoms/dropdown-menu"
 import { BADGE_CELEBRATION_EVENT } from "@/components/molecules/ProductBadgeCelebrationGate"
-import { setProductStatusAction } from "@/actions/admin/products/actions"
 import { cn } from "@/lib/utils"
 import {
   Archive,
@@ -72,9 +72,37 @@ export default function MemberProductHeaderActions({
   className?: string
 }) {
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
   const [statusChangeAllowed, setStatusChangeAllowed] =
     useState(canChangeStatus)
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async (nextStatus: ProductStatus) => {
+      const response = await fetch("/api/member/products/status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId,
+          status: nextStatus,
+        }),
+      })
+      const payload = (await response.json()) as {
+        error?: string
+      }
+      if (!response.ok || payload?.error) {
+        throw new Error(payload?.error || "Failed to update status")
+      }
+      return nextStatus
+    },
+    onSuccess: (nextStatus) => {
+      toast.success(`Status set to ${nextStatus}`)
+      router.refresh()
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update status",
+      )
+    },
+  })
 
   useEffect(() => {
     setStatusChangeAllowed(canChangeStatus)
@@ -95,12 +123,7 @@ export default function MemberProductHeaderActions({
     : "default"
 
   function updateStatus(next: ProductStatus) {
-    startTransition(async () => {
-      const res = (await setProductStatusAction(productId, next)) as any
-      if (res?.error) toast.error(res.error)
-      else toast.success(`Status set to ${next}`)
-      router.refresh()
-    })
+    updateStatusMutation.mutate(next)
   }
 
   function shareOnX() {
@@ -164,7 +187,7 @@ export default function MemberProductHeaderActions({
             variant="ghost"
             size="sm"
             className="h-9 px-3"
-            disabled={isPending}
+            disabled={updateStatusMutation.isPending}
           >
             <MoreHorizontal className="h-4 w-4 mr-2" />
             Actions

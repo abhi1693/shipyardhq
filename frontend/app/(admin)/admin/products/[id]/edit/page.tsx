@@ -6,6 +6,10 @@ import {
 import { getCategories } from "@/actions/admin/categories/actions"
 import { getUsers } from "@/actions/admin/users/actions"
 import EditProductForm from "./form"
+import {
+  resetMemberProductConnector,
+  updateMemberProduct,
+} from "@/lib/server/member-product-actions"
 
 export default async function EditProductPage({
   params,
@@ -30,6 +34,8 @@ export default async function EditProductPage({
       categories={categories}
       users={users}
       connector={connector}
+      onUpdateProduct={updateMemberProduct}
+      onResetConnector={resetMemberProductConnector}
     />
   )
 }

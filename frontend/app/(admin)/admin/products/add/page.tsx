@@ -1,6 +1,7 @@
 import { getCategories } from "@/actions/admin/categories/actions"
 import AddProductForm from "./form"
 import { getUsers } from "@/actions/admin/users/actions"
+import { createMemberProduct } from "@/lib/server/member-product-actions"
 
 export default async function AddProductPage() {
   const categories = await getCategories({
@@ -10,5 +11,11 @@ export default async function AddProductPage() {
     select: { id: true, email: true, clerkId: true },
   })
 
-  return <AddProductForm categories={categories} users={users} />
+  return (
+    <AddProductForm
+      categories={categories}
+      users={users}
+      onCreateProduct={createMemberProduct}
+    />
+  )
 }

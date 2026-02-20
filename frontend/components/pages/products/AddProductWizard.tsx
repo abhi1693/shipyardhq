@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 
-import { createProductAction } from "@/actions/admin/products/actions"
 import {
   Card,
   CardContent,
@@ -63,6 +62,7 @@ import type { ProductWizardInputAdd } from "@/lib/productWizard/schema"
 
 type BaseProps = {
   categories: ProductWizardCategoryOption[]
+  onCreateProduct: (formData: FormData) => Promise<unknown>
 }
 
 type MemberProps = BaseProps & {
@@ -180,7 +180,7 @@ export default function AddProductWizard(props: AddProductWizardProps) {
       if (props.mode === "admin") {
         const nextOwnerId = values.ownerId ?? ""
         const fd = toCreateFormData(values, nextOwnerId, newProductId)
-        const result = await createProductAction(fd)
+        const result = await props.onCreateProduct(fd)
         if ((result as any)?.error) {
           toast.error((result as any).error)
           return
@@ -198,7 +198,7 @@ export default function AddProductWizard(props: AddProductWizardProps) {
       }
 
       const fd = toCreateFormData(values, props.userId, newProductId)
-      const result = await createProductAction(fd)
+      const result = await props.onCreateProduct(fd)
       if ((result as any)?.error) {
         toast.error((result as any).error)
         return

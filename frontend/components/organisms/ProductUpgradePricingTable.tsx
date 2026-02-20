@@ -1,12 +1,10 @@
 "use client"
 
-import { useMemo } from "react"
 import { IconArrowUpRight } from "@tabler/icons-react"
 
 import { PricingTable } from "@/components/organisms/PricingTable"
-import type { PublicPlan } from "@/actions/public/plans/actions"
-import { choosePlanAction } from "@/actions/member/products/actions"
 import { Button } from "@/components/atoms/button"
+import type { PublicPlan } from "@/lib/generated/fastapi/schemas"
 
 export function ProductUpgradePricingTable({
   plans,
@@ -14,20 +12,15 @@ export function ProductUpgradePricingTable({
   redirectPath,
   currentPlanId,
   showTypeToggle = false,
+  planAction,
 }: {
   plans: PublicPlan[]
   productId: string
   redirectPath: string
   currentPlanId?: string | null
   showTypeToggle?: boolean
+  planAction: (formData: FormData) => void | Promise<void>
 }) {
-  const choosePlan = useMemo(() => {
-    return choosePlanAction.bind(null, {
-      productId,
-      redirectPath,
-    })
-  }, [productId, redirectPath])
-
   return (
     <PricingTable
       plans={plans}
@@ -44,7 +37,9 @@ export function ProductUpgradePricingTable({
         }
 
         return (
-          <form action={choosePlan} className="group w-full">
+          <form action={planAction} className="group w-full">
+            <input type="hidden" name="productId" value={productId} />
+            <input type="hidden" name="redirectPath" value={redirectPath} />
             <input type="hidden" name="planId" value={plan.id} />
             <Button
               type="submit"

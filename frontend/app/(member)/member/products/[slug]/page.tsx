@@ -24,20 +24,11 @@ import {
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
-import {
-  getProductById,
-  setProductStatusAction,
-} from "@/actions/admin/products/actions"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import CopyButton from "@/components/molecules/CopyButton"
 import Link from "next/link"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
-import {
-  choosePlanAction,
-  validatePaymentAndAttachPlan,
-  validateSubscriptionAndAttachPlan,
-} from "@/actions/member/products/actions"
 import {
   memberProductAnalyticsPath,
   memberProductDeletePath,
@@ -56,7 +47,6 @@ import {
   Video,
 } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
-import { getPublicPlans } from "@/actions/public/plans/actions"
 // startPlanCheckoutAction and setProductPlanAction are used inside choosePlanAction
 import { hasPlanFeature } from "@/lib/features"
 import { resolveProductAnalyticsAccess } from "@/lib/server/analytics/productAnalytics"
@@ -65,6 +55,13 @@ import ProductBadgeCelebrationGate from "@/components/molecules/ProductBadgeCele
 import { JSX } from "react"
 import { getRecentProductUpvoters } from "@/lib/server/productUpvotes"
 import MemberProductHeaderActions from "@/components/molecules/MemberProductHeaderActions"
+import { getPublicPlansServer } from "@/lib/server/generated-member"
+import {
+  chooseMemberProductPlan,
+  getMemberProductById,
+  validateMemberProductPayment,
+  validateMemberProductSubscription,
+} from "@/lib/server/member-product-actions"
 
 const chipIconClass = "h-3.5 w-3.5 text-muted-foreground"
 const dashedCalloutClass =
@@ -88,12 +85,12 @@ export default async function ViewUserProductPage({
     : celebrateValue === "1"
 
   if (paymentId && status) {
-    await validatePaymentAndAttachPlan(paymentId)
+    await validateMemberProductPayment(paymentId)
     // Clean URL params regardless of outcome
     redirect(memberProductPath(slug))
   }
   if (subscriptionId) {
-    await validateSubscriptionAndAttachPlan(subscriptionId)
+    await validateMemberProductSubscription(subscriptionId)
     redirect(memberProductPath(slug))
   }
   const { product: manageableProduct, currentUser } =
@@ -102,7 +99,7 @@ export default async function ViewUserProductPage({
       missingRedirect: null,
     })
 
-  const product = await getProductById(manageableProduct.id)
+  const product = await getMemberProductById(manageableProduct.id)
   if (!product) return notFound()
   const productId = product.id
   const productSlug = product.slug
@@ -118,7 +115,7 @@ export default async function ViewUserProductPage({
   const upvoters = await getRecentProductUpvoters(productId, 8).catch(() => [])
   const isFreePlan = !product.plan || product.plan.isDefault
 
-  const allPlans = await getPublicPlans().catch(() => [])
+  const allPlans = await getPublicPlansServer().catch(() => [])
   const currentPlanPublic = allPlans.find((p) => p.id === product.plan?.id)
   const sortedPlans = [...allPlans].sort(
     (a, b) => (a.price ?? 0) - (b.price ?? 0),
@@ -146,7 +143,7 @@ export default async function ViewUserProductPage({
   })()
   const nextPlan = upgradeCandidates[0]
   const nextPlanNewBenefits = nextPlan
-    ? nextPlan.features
+    ? (nextPlan.features ?? [])
         .filter((feature) => feature.enabled)
         .filter((feature) => !hasPlanFeature(product.plan ?? null, feature.key))
     : []
@@ -177,7 +174,7 @@ export default async function ViewUserProductPage({
     }
   }
 
-  const choosePlan = choosePlanAction.bind(null, {
+  const choosePlan = chooseMemberProductPlan.bind(null, {
     productId,
     redirectPath: memberProductPath(productSlug),
   })
@@ -361,18 +358,6 @@ export default async function ViewUserProductPage({
     .filter((item) => item.key !== "publish")
     .every((item) => item.complete)
 
-  const publishAndBoost = async (formData: FormData) => {
-    "use server"
-    const result = await setProductStatusAction(productId, "published")
-    if (result && typeof result === "object" && "error" in result) {
-      redirect(`${memberProductPath(productSlug)}?error=publish_failed`)
-    }
-    await choosePlanAction(
-      { productId, redirectPath: memberProductPath(productSlug) },
-      formData,
-    )
-  }
-
   const boostMode =
     product.status !== "published"
       ? publishPrereqsComplete
@@ -406,7 +391,9 @@ export default async function ViewUserProductPage({
       ? "Starts immediately"
       : "Starts after publish"
   const boostFormAction =
-    boostMode === "publish_and_boost" ? publishAndBoost : choosePlan
+    boostMode === "publish_and_boost"
+      ? "/api/member/products/publish-and-boost"
+      : choosePlan
   const boostSetupHref = nextChecklistHref ?? editPath
 
   return (
@@ -588,6 +575,12 @@ export default async function ViewUserProductPage({
                       </Button>
                     ) : (
                       <form action={boostFormAction}>
+                        <input type="hidden" name="productId" value={productId} />
+                        <input
+                          type="hidden"
+                          name="redirectPath"
+                          value={memberProductPath(productSlug)}
+                        />
                         <input
                           type="hidden"
                           name="planId"

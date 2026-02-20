@@ -10,9 +10,9 @@ import { syncCurrentUserBilling } from "@/lib/server/billing"
 import MemberFooter from "@/components/layout/footers/member-footer"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { IS_PROD } from "@/lib/constants"
-import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { buildSectionMetadata } from "@/lib/metadata"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
+import { syncMemberFromClerkUser } from "@/lib/server/generated-member"
 import {
   ADMIN_OVERVIEW_PATH,
   HOME_PATH,
@@ -75,7 +75,7 @@ export default async function MemberLayout({
 
   try {
     const clerkUser = await getClerkUserByIdCached(userId)
-    await syncUserFromClerk(clerkUser)
+    await syncMemberFromClerkUser(clerkUser)
   } catch (error) {
     console.error("Failed to load active member context", error)
     redirect(signInPath)

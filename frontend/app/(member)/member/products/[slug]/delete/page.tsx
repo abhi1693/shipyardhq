@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
-import { deleteProductAction } from "@/actions/admin/products/actions"
 import {
   Card,
   CardContent,
@@ -30,18 +29,8 @@ export default async function DeleteMemberProductPage({
 
   const productId = product.id
   const productName = product.name
-
-  async function handleDelete() {
-    "use server"
-
-    const result = await deleteProductAction(productId)
-
-    if (result && typeof result === "object" && "error" in result) {
-      redirect(memberProductsStatusPath("error"))
-    }
-
-    redirect(memberProductsStatusPath("deleted"))
-  }
+  const successPath = memberProductsStatusPath("deleted")
+  const errorPath = memberProductsStatusPath("error")
 
   return (
     <div className="mx-auto w-full max-w-xl py-8">
@@ -59,7 +48,10 @@ export default async function DeleteMemberProductPage({
           <Button asChild variant="outline">
             <Link href={MEMBER_PRODUCTS_PATH}>Cancel</Link>
           </Button>
-          <form action={handleDelete}>
+          <form action="/api/member/products/delete" method="post">
+            <input type="hidden" name="productId" value={productId} />
+            <input type="hidden" name="successPath" value={successPath} />
+            <input type="hidden" name="errorPath" value={errorPath} />
             <Button type="submit" variant="destructive">
               Delete product
             </Button>

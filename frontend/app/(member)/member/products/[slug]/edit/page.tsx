@@ -1,10 +1,16 @@
 import { notFound } from "next/navigation"
-import { getCategories } from "@/actions/admin/categories/actions"
 import EditProductForm from "./form"
-import { getProductForEditWizard } from "@/actions/admin/products/actions"
 import { requireManageableProduct } from "@/lib/server/productAccess"
-import { getAlternativeProducts } from "@/actions/admin/alternative-products/actions"
-import { getProductConnectorSummary } from "@/actions/member/products/actions"
+import {
+  getAlternativeOptionsServer,
+  getCategoryOptionsServer,
+  getMemberProductConnectorServer,
+} from "@/lib/server/generated-member"
+import {
+  getMemberProductForEditWizard,
+  resetMemberProductConnector,
+  updateMemberProduct,
+} from "@/lib/server/member-product-actions"
 
 export default async function EditProductPage({
   params,
@@ -17,16 +23,13 @@ export default async function EditProductPage({
     missingRedirect: null,
   })
 
-  const product = await getProductForEditWizard(summary.id)
+  const product = await getMemberProductForEditWizard(summary.id)
   if (!product) return notFound()
 
   const [categories, alternatives, connector] = await Promise.all([
-    getCategories({ orderBy: { name: "asc" } }),
-    getAlternativeProducts({
-      select: { id: true, slug: true, name: true, websiteUrl: true },
-      orderBy: { name: "asc" },
-    }).catch(() => []),
-    getProductConnectorSummary(product.id).catch(() => null),
+    getCategoryOptionsServer().catch(() => []),
+    getAlternativeOptionsServer().catch(() => []),
+    getMemberProductConnectorServer(String(product.id)).catch(() => null),
   ])
 
   return (
@@ -35,6 +38,8 @@ export default async function EditProductPage({
       categories={categories}
       alternatives={alternatives}
       connector={connector}
+      onUpdateProduct={updateMemberProduct}
+      onResetConnector={resetMemberProductConnector}
     />
   )
 }

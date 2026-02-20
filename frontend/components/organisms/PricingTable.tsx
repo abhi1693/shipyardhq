@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import clsx from "clsx"
 import { PricingCard } from "@/components/molecules/PricingCard"
-import type { PublicPlan } from "@/actions/public/plans/actions"
+import type { PublicPlan } from "@/lib/generated/fastapi/schemas"
 
 const PLAN_TYPE_OPTIONS = [
   { value: "recurring_price", label: "Subscription" },
@@ -109,7 +109,7 @@ export function PricingTable({
                   priceSuffix={priceSuffix}
                   discount={p.discount}
                   isPopular={p.price > 0 && p.id === popularPlanId}
-                  features={p.features}
+                  features={p.features ?? []}
                   boostForDays={p.boostForDays}
                   ctaSlot={renderPlanCTA?.(p)}
                 />

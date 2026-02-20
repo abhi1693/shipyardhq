@@ -7,10 +7,6 @@ import { FormItem, FormLabel } from "@/components/atoms/form"
 import { Badge } from "@/components/atoms/badge"
 import { toast } from "sonner"
 import { Check, Copy, Loader2 } from "lucide-react"
-import {
-  checkDomainTxtAction,
-  verifyProductDomainAction,
-} from "@/actions/admin/products/actions"
 import { getRootDomain } from "@/lib/domain"
 import {
   Accordion,
@@ -88,8 +84,17 @@ export default function Step3({
 
       // Also attempt DNS check (best effort) and keep expected in sync
       try {
-        const res = await checkDomainTxtAction(website)
-        if (active && "expected" in res && res.expected) {
+        const dnsResponse = await fetch("/api/products/domain/check", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ websiteUrl: website }),
+        })
+        const res = (await dnsResponse.json().catch(() => null)) as
+          | { expected?: string; success?: boolean; error?: string }
+          | null
+        if (active && res?.expected) {
           form.setValue("verificationExpectedTxt", res.expected)
         }
       } catch {}
@@ -109,15 +114,32 @@ export default function Step3({
     if (!website) return toast.error("Enter a valid Website URL first")
     setVerifying(true)
     try {
-      const res = await checkDomainTxtAction(website)
-      if ("error" in res) return toast.error(res.error)
+      const dnsResponse = await fetch("/api/products/domain/check", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ websiteUrl: website }),
+      })
+      const res = (await dnsResponse.json().catch(() => null)) as
+        | { success?: boolean; expected?: string; error?: string }
+        | null
+      if (!res || res.error) return toast.error(res?.error || "DNS check failed.")
       form.setValue("verificationChecked", true)
       form.setValue("verificationSuccess", !!res.success)
       if (res.expected) form.setValue("verificationExpectedTxt", res.expected)
       if (res.success) {
         // Persist verification for existing products (edit flow only)
         if (persistOnVerify && productId) {
-          const persist = await verifyProductDomainAction(productId)
+          const persistResponse = await fetch(
+            `/api/products/${encodeURIComponent(productId)}/verify-domain`,
+            {
+              method: "POST",
+            },
+          )
+          const persist = (await persistResponse
+            .json()
+            .catch(() => null)) as { success?: boolean; error?: string } | null
           if (persist?.success) {
             toast.success("Domain verified and saved.")
           } else if (persist?.error) {

@@ -6,6 +6,7 @@ export default function AddProductForm({
   categories,
   userId,
   alternatives,
+  onCreateProduct,
 }: {
   categories: { id: string; name: string; icon?: string | null }[]
   userId: string
@@ -15,6 +16,7 @@ export default function AddProductForm({
     name: string
     websiteUrl?: string | null
   }[]
+  onCreateProduct: (formData: FormData) => Promise<unknown>
 }) {
   return (
     <AddProductWizard
@@ -22,6 +24,7 @@ export default function AddProductForm({
       categories={categories}
       userId={userId}
       alternatives={alternatives}
+      onCreateProduct={onCreateProduct}
     />
   )
 }

@@ -1,7 +1,8 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { useMemo, useTransition } from "react"
+import { useMemo } from "react"
+import { useMutation } from "@tanstack/react-query"
 import {
   Sidebar,
   SidebarContent,
@@ -27,7 +28,6 @@ import { IconChevronRight } from "@tabler/icons-react"
 import Link from "next/link"
 import { NavItem } from "@/types"
 import { toast } from "sonner"
-import { createBillingPortalAction } from "@/actions/member/billing/portal"
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import {
   ADMIN_BASE_PATH,
@@ -48,19 +48,40 @@ export default function AppSidebar(props: SidebarProps) {
   const pathname = usePathname() ?? "/"
   const { navItems = [], showBillingPortal = false } = props
 
-  const [isPortalPending, startPortal] = useTransition()
+  const billingPortalMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/member/billing/portal", {
+        method: "POST",
+      })
+      const payload = (await response.json()) as {
+        link?: string
+        error?: string
+      }
+      if (!response.ok || payload?.error) {
+        throw new Error(payload?.error || "Unable to open billing portal")
+      }
+      return payload
+    },
+    onSuccess: (payload) => {
+      if (payload?.link) {
+        try {
+          window.open(payload.link, "_blank", "noopener,noreferrer")
+          return
+        } catch {}
+      }
+      toast.error("Unable to open billing portal")
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Unable to open billing portal",
+      )
+    },
+  })
 
   function openBillingPortal() {
-    startPortal(async () => {
-      const res = (await createBillingPortalAction(false)) as any
-      if (res?.link) {
-        try {
-          window.open(res.link, "_blank", "noopener,noreferrer")
-        } catch {}
-      } else {
-        toast.error(res?.error || "Unable to open billing portal")
-      }
-    })
+    billingPortalMutation.mutate()
   }
 
   const isActivePath = (url?: string) => {
@@ -249,7 +270,7 @@ export default function AppSidebar(props: SidebarProps) {
                 <SidebarMenuButton
                   tooltip="Billing Portal"
                   onClick={openBillingPortal}
-                  disabled={isPortalPending}
+                  disabled={billingPortalMutation.isPending}
                   size="lg"
                   className={topLevelButtonClasses}
                 >

@@ -3,7 +3,6 @@ import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { auth } from "@clerk/nextjs/server"
 
-import { syncUserFromClerk } from "@/actions/member/users/actions"
 import {
   HOME_PATH,
   MEMBER_BASE_PATH,
@@ -12,6 +11,7 @@ import {
 } from "@/lib/routes"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
+import { syncMemberFromClerkUser } from "@/lib/server/generated-member"
 
 function resolvePostOnboardingDestination(nextUrl: string) {
   if (!nextUrl) {
@@ -55,7 +55,7 @@ export default async function MemberOnboardingLayout({
 
   try {
     const clerkUser = await getClerkUserByIdCached(userId)
-    await syncUserFromClerk(clerkUser)
+    await syncMemberFromClerkUser(clerkUser)
   } catch (error) {
     console.error("Failed to prepare onboarding user context", error)
     redirect(signInPath)
