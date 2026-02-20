@@ -1,6 +1,6 @@
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
-import type { UserProductsPageResult } from "@/actions/public/users/actions"
+import type { UserProductsPageResult } from "@/lib/generated/fastapi/schemas"
 
 type ApiResponse<T> = {
   data: T

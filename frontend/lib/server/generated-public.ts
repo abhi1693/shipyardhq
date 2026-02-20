@@ -1,9 +1,11 @@
 import {
+  getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet,
   getProductDetailApiV1PublicProductsSlugDetailGet,
   getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet,
   getProductMetaApiV1PublicProductsSlugMetaGet,
   getProductRevenueApiV1PublicProductsProductIdRevenueGet,
   getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet,
+  getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet,
   getProductsByBadgeApiV1PublicProductsBadgesBadgeGet,
   getPublicPlansApiV1PublicPlansGet,
   getPublicUserMetaApiV1PublicUsersUserIdMetaGet,
@@ -11,12 +13,15 @@ import {
   getPublicUsersApiV1PublicUsersGet,
   getUseCaseProductsApiV1PublicUseCasesSlugProductsGet,
   getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet,
+  upvoteProductApiV1PublicProductsProductIdUpvotePost,
 } from "@/lib/generated/fastapi/public-homepage"
 import type { FastApiError } from "@/lib/fastapi-fetcher"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import type {
+  CategoryTrendsPayload,
   HomepageFeedItem,
   PlanType,
+  PublicAnalyticsPayload,
   PublicPlan,
   PublicProductCard,
   PublicProductDetailPayload,
@@ -45,6 +50,25 @@ export interface VerifiedRevenuePageResult {
   hasMore: boolean
   nextPage: number | null
   total: number
+}
+
+export interface TogglePublicProductUpvoteOptions {
+  productId: string
+  authToken: string
+}
+
+export class UpvoteServerError extends Error {
+  status: number
+
+  constructor(
+    message: string,
+    status: number,
+    public cause?: unknown,
+  ) {
+    super(message)
+    this.name = "UpvoteServerError"
+    this.status = status
+  }
 }
 
 export type ProductRevenueSummaryServer = Omit<ProductRevenueSummary, "points"> & {
@@ -128,6 +152,51 @@ export async function getPublicUsersPageServer(params?: {
   return {
     ...response.data,
     nextPage: response.data.nextPage ?? null,
+  }
+}
+
+export async function getCategoryTrendsServer(params: {
+  slug: string
+  revenue?: "verified"
+  limit?: number
+}): Promise<CategoryTrendsPayload | null> {
+  const normalizedSlug = params.slug.trim()
+  if (!normalizedSlug) return null
+
+  try {
+    const response = await getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet(
+      normalizedSlug,
+      {
+        revenue: params.revenue === "verified" ? "verified" : undefined,
+        limit: params.limit,
+      },
+    )
+    if (response.status !== 200) return null
+    return response.data
+  } catch (error) {
+    if (isFastApiNotFound(error)) return null
+    throw error
+  }
+}
+
+export async function getPublicAnalyticsPayloadServer(options?: {
+  topProductLimit?: number
+}): Promise<PublicAnalyticsPayload> {
+  try {
+    const response = await getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet(
+      {
+        topProductLimit: options?.topProductLimit,
+      },
+    )
+    if (response.status !== 200 || !response.data) {
+      throw new Error("Failed to fetch analytics payload")
+    }
+    return response.data
+  } catch (error) {
+    if (isFastApiNotFound(error)) {
+      throw new Error("Analytics payload not found")
+    }
+    throw error
   }
 }
 
@@ -344,6 +413,48 @@ export async function getPublicProductUpvoteStatusServer(
   } catch (error) {
     if (isFastApiNotFound(error)) return null
     throw error
+  }
+}
+
+export async function togglePublicProductUpvoteServer({
+  productId,
+  authToken,
+}: TogglePublicProductUpvoteOptions): Promise<PublicProductUpvoteState> {
+  const productPk = parseProductId(productId)
+  if (!productPk) {
+    throw new UpvoteServerError("Missing productId", 400)
+  }
+  if (!authToken) {
+    throw new UpvoteServerError("Unauthorized", 401)
+  }
+
+  try {
+    const response = await upvoteProductApiV1PublicProductsProductIdUpvotePost(
+      String(productPk),
+      {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    )
+
+    if (response.status !== 200 || !response.data) {
+      throw new UpvoteServerError("Failed", response.status)
+    }
+
+    return {
+      upvoted: response.data.upvoted ?? false,
+      upvotes: response.data.upvotes ?? 0,
+    }
+  } catch (error) {
+    const status = (error as FastApiError | undefined)?.status ?? 500
+    if (status === 401 || status === 403) {
+      throw new UpvoteServerError("Unauthorized", status, error)
+    }
+    if (status === 404) {
+      throw new UpvoteServerError("Not Found", status, error)
+    }
+    throw new UpvoteServerError("Failed", status, error)
   }
 }
 

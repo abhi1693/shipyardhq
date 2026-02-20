@@ -2,10 +2,10 @@ import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 
 import {
-  toggleProductUpvote,
-  UpvoteError,
-} from "@/actions/public/products/upvote"
-import { getPublicProductMetaBySlugServer } from "@/lib/server/generated-public"
+  getPublicProductMetaBySlugServer,
+  togglePublicProductUpvoteServer,
+  UpvoteServerError,
+} from "@/lib/server/generated-public"
 
 interface RouteParams {
   params: Promise<{ slug?: string }>
@@ -33,14 +33,14 @@ export async function POST(_request: Request, { params }: RouteParams) {
   }
 
   try {
-    const result = await toggleProductUpvote({
+    const result = await togglePublicProductUpvoteServer({
       productId: product.id,
       authToken: token,
     })
 
     return NextResponse.json(result, { status: 200 })
   } catch (error) {
-    if (error instanceof UpvoteError) {
+    if (error instanceof UpvoteServerError) {
       return NextResponse.json(
         { error: error.message },
         { status: error.status ?? 500 },

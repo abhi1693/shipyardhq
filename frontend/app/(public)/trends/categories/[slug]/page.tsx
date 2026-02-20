@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { Suspense } from "react"
 import Link from "next/link"
 
-import { getCategoryTrends } from "@/actions/public/trends/actions"
+import { getCategoryTrendsServer } from "@/lib/server/generated-public"
 import { toProductCardItem } from "@/lib/products/card-item"
 import ProductGrid from "@/components/molecules/ProductGrid"
 import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
@@ -44,7 +44,7 @@ export async function generateMetadata(
   props: CategoryTrendsPageProps,
 ): Promise<Metadata> {
   const { slug } = await props.params
-  const payload = await getCategoryTrends({ slug })
+  const payload = await getCategoryTrendsServer({ slug })
   const category = payload?.category
 
   if (!category) return {}
@@ -68,7 +68,7 @@ export default async function TrendingToolsInCategoryPage({
   const { slug } = await params
   const sp = await searchParams
   const verifiedRevenueOnly = sp?.revenue === "verified"
-  const payload = await getCategoryTrends({
+  const payload = await getCategoryTrendsServer({
     slug,
     revenue: verifiedRevenueOnly ? "verified" : undefined,
   })

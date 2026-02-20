@@ -17,7 +17,7 @@ import { dispatchEventAsync } from "@/lib/server/events"
 import { APP_EVENTS } from "@/lib/server/events/constants"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
 import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
-import { getPublicPlans } from "@/actions/public/plans/actions"
+import { getPublicPlansServer } from "@/lib/server/generated-member"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -344,7 +344,7 @@ export async function startPlanCheckoutAction(
     return { error: ownership.error }
   }
 
-  const plans = await getPublicPlans()
+  const plans = await getPublicPlansServer()
   const plan = plans.find((item) => item.id === planId)
   if (!plan) return { error: "Plan not found" }
   if (!plan.externalId || plan.price === 0) {
@@ -452,7 +452,7 @@ export async function choosePlanAction(
   const planId = formData.get("planId")?.toString() || ""
   if (!planId) return
 
-  const plans = await getPublicPlans()
+  const plans = await getPublicPlansServer()
   const plan = plans.find((item) => item.id === planId)
   if (!plan) return
 

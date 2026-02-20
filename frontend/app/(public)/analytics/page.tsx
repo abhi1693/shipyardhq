@@ -22,7 +22,7 @@ import { AnalyticsListCard } from "@/components/molecules/AnalyticsListCard"
 import { AnalyticsMetricCard } from "@/components/molecules/AnalyticsMetricCard"
 import { LiveVisitorsPill } from "@/components/molecules/LiveVisitorsPill"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
-import { getPublicAnalyticsPayload } from "@/actions/public/analytics/actions"
+import { getPublicAnalyticsPayloadServer } from "@/lib/server/generated-public"
 import { buildPageMetadata } from "@/lib/metadata"
 import { ANALYTICS_PATH, HOME_PATH } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
@@ -70,7 +70,7 @@ export default async function AnalyticsPage() {
   const rangeEnd = subDays(new Date(), 0)
   const rangeStart = subDays(rangeEnd, 29)
   const { snapshot, previousSnapshot, realtimeVisitors, verifiedRevenue } =
-    await getPublicAnalyticsPayload({ topProductLimit: 8 })
+    await getPublicAnalyticsPayloadServer({ topProductLimit: 8 })
 
   const topProducts = snapshot.topProductPages.map((page) => ({
     ...page,
