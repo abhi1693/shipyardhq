@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation"
 import { Card, CardContent } from "@/components/atoms/card"
 import CreateButton from "@/components/molecules/CreateButton"
 import MemberProductFilters from "@/components/molecules/MemberProductFilters"
-import { EntityList } from "@/components/pages/admin/shared/EntityList"
+import { EntityList } from "@/components/pages/shared/EntityList"
 import {
   columns,
   type MemberProductRow,

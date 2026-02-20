@@ -14,7 +14,6 @@ import { buildSectionMetadata } from "@/lib/metadata"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { syncMemberFromClerkUser } from "@/lib/server/generated-member"
 import {
-  ADMIN_OVERVIEW_PATH,
   HOME_PATH,
   MEMBER_FEEDBACK_PATH,
   MEMBER_ONBOARDING_PATH,
@@ -108,8 +107,6 @@ export default async function MemberLayout({
 
     redirect(onboardingDestination)
   }
-  const role = activeUser.role ?? "member"
-
   const items: NavItem[] = [...navItems]
 
   const isBillingPortalEnvEnabled = !(
@@ -122,20 +119,6 @@ export default async function MemberLayout({
   }
 
   const shouldShowBillingPortal = isBillingPortalEnvEnabled && hasBillingPortal
-
-  if (
-    role === "admin" &&
-    !items.some(
-      (item) => item.title === "Admin" || item.url === ADMIN_OVERVIEW_PATH,
-    )
-  ) {
-    items.push({
-      title: "Admin",
-      url: ADMIN_OVERVIEW_PATH,
-      icon: "settings",
-      isActive: false,
-    })
-  }
 
   return (
     <SidebarProvider defaultOpen>

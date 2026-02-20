@@ -51,9 +51,7 @@
 ## Admin tooling
 
 - Rule and catalog CRUD lives in `actions/admin/rewards/actions.ts:120`, with shared parsing helpers for JSON metadata and numeric fields (`actions/admin/rewards/utils.ts:1`).
-- Server components under `app/(admin)/admin/rewards/*` render listings and forms that call the server actions; e.g., rules table columns surface enable/disable controls tied to `toggleRewardRuleAction` (`app/(admin)/admin/rewards/rules/columns.tsx`).
-- Adjustment and refund flows are implemented as client components with optimistic toasts (`components/pages/admin/rewards/AdjustRewardsForm.tsx:1`, `components/pages/admin/rewards/RefundRedemptionForm.tsx:1`).
-- The admin navigation registers rewards management in the primary menu (`app/(admin)/admin/layout.tsx:38`).
+- Admin UI routes are currently disabled/removed. Keep using the server actions as the canonical management surface until the admin frontend is reintroduced.
 
 ## Background jobs & scheduling
 

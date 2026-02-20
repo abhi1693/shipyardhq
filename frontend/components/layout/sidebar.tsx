@@ -30,8 +30,6 @@ import { NavItem } from "@/types"
 import { toast } from "sonner"
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import {
-  ADMIN_BASE_PATH,
-  ADMIN_OVERVIEW_PATH,
   HOME_PATH,
   MEMBER_BASE_PATH,
   MEMBER_OVERVIEW_PATH,
@@ -127,7 +125,6 @@ export default function AppSidebar(props: SidebarProps) {
       }
     }
     if (pathname.startsWith(MEMBER_BASE_PATH)) return MEMBER_OVERVIEW_PATH
-    if (pathname.startsWith(ADMIN_BASE_PATH)) return ADMIN_OVERVIEW_PATH
     return HOME_PATH
   }, [navItems, pathname])
 
@@ -146,7 +143,7 @@ export default function AppSidebar(props: SidebarProps) {
       <SidebarContent className="overflow-x-hidden">
         <SidebarGroup>
           <SidebarGroupLabel className="px-3 py-1.5 text-sm font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/85 group-data-[collapsible=icon]:hidden">
-            Admin
+            Navigation
           </SidebarGroupLabel>
           <SidebarMenu>
             {filteredNav.map((item) => {
