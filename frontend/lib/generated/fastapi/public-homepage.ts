@@ -5,16 +5,20 @@
  * OpenAPI spec version: 0.1.0
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
@@ -30,6 +34,8 @@ import type {
   CategoryDetailPayload,
   CategoryHighlight,
   CategoryProductsPageResult,
+  CategorySummary,
+  CategoryTrendsPayload,
   GetAlternativeCatalogApiV1PublicAlternativesCatalogGetParams,
   GetAlternativeDetailApiV1PublicAlternativesSlugDetailGetParams,
   GetAlternativeHighlightsApiV1PublicAlternativesFeaturedGetParams,
@@ -39,17 +45,29 @@ import type {
   GetCategoryDetailApiV1PublicCategoriesSlugDetailGetParams,
   GetCategoryHighlightsApiV1PublicCategoriesHighlightsGetParams,
   GetCategoryProductsApiV1PublicCategoriesSlugProductsGetParams,
+  GetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetParams,
   GetHomepageFeedAllApiV1PublicHomepageFeedAllGetParams,
   GetHomepageFeedApiV1PublicHomepageFeedGetParams,
   GetLeaderboardPageApiV1PublicLeaderboardPageGetParams,
   GetPeriodicLeaderboardApiV1PublicLeaderboardPeriodicGetParams,
+  GetProductRedirectApiV1PublicProductsSlugRedirectGetParams,
+  GetProductRevenueApiV1PublicProductsProductIdRevenueGet200,
+  GetProductsByBadgeApiV1PublicProductsBadgesBadgeGetParams,
+  GetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetParams,
+  GetPublicPlansApiV1PublicPlansGetParams,
+  GetPublicUserProductsApiV1PublicUsersUserIdProductsGetParams,
+  GetPublicUsersApiV1PublicUsersGetParams,
   GetRewardsLeaderboardPageApiV1PublicRewardsLeaderboardGetParams,
   GetSponsoredProductsApiV1PublicProductsSponsoredGetParams,
   GetStickyBannerProductsApiV1PublicProductsStickyBannerGetParams,
   GetTagDetailApiV1PublicTagsSlugDetailGetParams,
   GetTagDirectoryApiV1PublicTagsDirectoryGetParams,
   GetTagProductsApiV1PublicTagsSlugProductsGetParams,
+  GetTopCategoriesApiV1PublicCategoriesTopGetParams,
+  GetTrendingProductsApiV1PublicProductsTrendingGetParams,
   GetUseCaseHighlightsApiV1PublicUseCasesHighlightsGetParams,
+  GetUseCaseProductsApiV1PublicUseCasesSlugProductsGetParams,
+  GetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetParams,
   HTTPValidationError,
   HomepageFeedAllResult,
   HomepageFeedPageResult,
@@ -57,8 +75,18 @@ import type {
   LeaderboardStats,
   MonthlyLeaderboardMonth,
   PeriodicLeaderboardPayload,
+  PublicAnalyticsPayload,
+  PublicPlan,
+  PublicProductCard,
+  PublicProductDetailPayload,
+  PublicProductLeaderboardScore,
+  PublicProductMetaPayload,
+  PublicProductRedirectPayload,
+  PublicProductUpvoteState,
   PublicRewardsData,
   PublicRewardsStats,
+  PublicUserMeta,
+  PublicUsersPageResult,
   RealtimeVisitors,
   RewardsLeaderboardPageResult,
   SponsoredPlacement,
@@ -69,7 +97,10 @@ import type {
   UseCaseDetailPayload,
   UseCaseHighlight,
   UseCaseMeta,
-  UseCasesDirectoryPayload
+  UseCasesDirectoryPayload,
+  UserProductsPageResult,
+  UserProfilePayload,
+  VerifiedRevenueProductsPageResult
 } from './schemas';
 
 import { fastapiFetch } from '../../fastapi-fetcher';
@@ -321,6 +352,258 @@ export function useGetHomepageFeedAllApiV1PublicHomepageFeedAllGet<TData = Await
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetHomepageFeedAllApiV1PublicHomepageFeedAllGetQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Verified Revenue Products
+ */
+export type getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetResponse200 = {
+  data: VerifiedRevenueProductsPageResult
+  status: 200
+}
+
+export type getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetResponseSuccess = (getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetResponse200) & {
+  headers: Headers;
+};
+export type getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetResponseError = (getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetResponse422) & {
+  headers: Headers;
+};
+
+export type getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetResponse = (getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetResponseSuccess | getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetResponseError)
+
+export const getGetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetUrl = (params?: GetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/public/verified-revenue/products?${stringifiedParams}` : `/api/v1/public/verified-revenue/products`
+}
+
+export const getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet = async (params?: GetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetParams, options?: RequestInit): Promise<getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetResponse> => {
+  
+  return fastapiFetch<getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetResponse>(getGetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetQueryKey = (params?: GetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetParams,) => {
+    return [
+    `/api/v1/public/verified-revenue/products`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetQueryOptions = <TData = Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>, TError = HTTPValidationError>(params?: GetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>> = ({ signal }) => getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet(params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetQueryResult = NonNullable<Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>>
+export type GetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetQueryError = HTTPValidationError
+
+
+export function useGetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet<TData = Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>, TError = HTTPValidationError>(
+ params: undefined |  GetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>,
+          TError,
+          Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet<TData = Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>, TError = HTTPValidationError>(
+ params?: GetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>,
+          TError,
+          Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet<TData = Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>, TError = HTTPValidationError>(
+ params?: GetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Verified Revenue Products
+ */
+
+export function useGetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet<TData = Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>, TError = HTTPValidationError>(
+ params?: GetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetVerifiedRevenueProductsApiV1PublicVerifiedRevenueProductsGetQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Public Plans
+ */
+export type getPublicPlansApiV1PublicPlansGetResponse200 = {
+  data: PublicPlan[]
+  status: 200
+}
+
+export type getPublicPlansApiV1PublicPlansGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getPublicPlansApiV1PublicPlansGetResponseSuccess = (getPublicPlansApiV1PublicPlansGetResponse200) & {
+  headers: Headers;
+};
+export type getPublicPlansApiV1PublicPlansGetResponseError = (getPublicPlansApiV1PublicPlansGetResponse422) & {
+  headers: Headers;
+};
+
+export type getPublicPlansApiV1PublicPlansGetResponse = (getPublicPlansApiV1PublicPlansGetResponseSuccess | getPublicPlansApiV1PublicPlansGetResponseError)
+
+export const getGetPublicPlansApiV1PublicPlansGetUrl = (params?: GetPublicPlansApiV1PublicPlansGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/public/plans?${stringifiedParams}` : `/api/v1/public/plans`
+}
+
+export const getPublicPlansApiV1PublicPlansGet = async (params?: GetPublicPlansApiV1PublicPlansGetParams, options?: RequestInit): Promise<getPublicPlansApiV1PublicPlansGetResponse> => {
+  
+  return fastapiFetch<getPublicPlansApiV1PublicPlansGetResponse>(getGetPublicPlansApiV1PublicPlansGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetPublicPlansApiV1PublicPlansGetQueryKey = (params?: GetPublicPlansApiV1PublicPlansGetParams,) => {
+    return [
+    `/api/v1/public/plans`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetPublicPlansApiV1PublicPlansGetQueryOptions = <TData = Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>, TError = HTTPValidationError>(params?: GetPublicPlansApiV1PublicPlansGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPublicPlansApiV1PublicPlansGetQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>> = ({ signal }) => getPublicPlansApiV1PublicPlansGet(params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPublicPlansApiV1PublicPlansGetQueryResult = NonNullable<Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>>
+export type GetPublicPlansApiV1PublicPlansGetQueryError = HTTPValidationError
+
+
+export function useGetPublicPlansApiV1PublicPlansGet<TData = Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>, TError = HTTPValidationError>(
+ params: undefined |  GetPublicPlansApiV1PublicPlansGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicPlansApiV1PublicPlansGet<TData = Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>, TError = HTTPValidationError>(
+ params?: GetPublicPlansApiV1PublicPlansGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicPlansApiV1PublicPlansGet<TData = Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>, TError = HTTPValidationError>(
+ params?: GetPublicPlansApiV1PublicPlansGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Public Plans
+ */
+
+export function useGetPublicPlansApiV1PublicPlansGet<TData = Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>, TError = HTTPValidationError>(
+ params?: GetPublicPlansApiV1PublicPlansGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicPlansApiV1PublicPlansGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPublicPlansApiV1PublicPlansGetQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -719,6 +1002,140 @@ export function useGetCategoryDetailApiV1PublicCategoriesSlugDetailGet<TData = A
 
 
 /**
+ * @summary Get Category Trends
+ */
+export type getCategoryTrendsApiV1PublicTrendsCategoriesSlugGetResponse200 = {
+  data: CategoryTrendsPayload
+  status: 200
+}
+
+export type getCategoryTrendsApiV1PublicTrendsCategoriesSlugGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getCategoryTrendsApiV1PublicTrendsCategoriesSlugGetResponseSuccess = (getCategoryTrendsApiV1PublicTrendsCategoriesSlugGetResponse200) & {
+  headers: Headers;
+};
+export type getCategoryTrendsApiV1PublicTrendsCategoriesSlugGetResponseError = (getCategoryTrendsApiV1PublicTrendsCategoriesSlugGetResponse422) & {
+  headers: Headers;
+};
+
+export type getCategoryTrendsApiV1PublicTrendsCategoriesSlugGetResponse = (getCategoryTrendsApiV1PublicTrendsCategoriesSlugGetResponseSuccess | getCategoryTrendsApiV1PublicTrendsCategoriesSlugGetResponseError)
+
+export const getGetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetUrl = (slug: string,
+    params?: GetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/public/trends/categories/${slug}?${stringifiedParams}` : `/api/v1/public/trends/categories/${slug}`
+}
+
+export const getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet = async (slug: string,
+    params?: GetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetParams, options?: RequestInit): Promise<getCategoryTrendsApiV1PublicTrendsCategoriesSlugGetResponse> => {
+  
+  return fastapiFetch<getCategoryTrendsApiV1PublicTrendsCategoriesSlugGetResponse>(getGetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetUrl(slug,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetQueryKey = (slug?: string,
+    params?: GetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetParams,) => {
+    return [
+    `/api/v1/public/trends/categories/${slug}`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetQueryOptions = <TData = Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>, TError = HTTPValidationError>(slug: string,
+    params?: GetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetQueryKey(slug,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>> = ({ signal }) => getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet(slug,params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(slug), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetQueryResult = NonNullable<Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>>
+export type GetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetQueryError = HTTPValidationError
+
+
+export function useGetCategoryTrendsApiV1PublicTrendsCategoriesSlugGet<TData = Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>, TError = HTTPValidationError>(
+ slug: string,
+    params: undefined |  GetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>,
+          TError,
+          Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCategoryTrendsApiV1PublicTrendsCategoriesSlugGet<TData = Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>, TError = HTTPValidationError>(
+ slug: string,
+    params?: GetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>,
+          TError,
+          Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCategoryTrendsApiV1PublicTrendsCategoriesSlugGet<TData = Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>, TError = HTTPValidationError>(
+ slug: string,
+    params?: GetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Category Trends
+ */
+
+export function useGetCategoryTrendsApiV1PublicTrendsCategoriesSlugGet<TData = Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>, TError = HTTPValidationError>(
+ slug: string,
+    params?: GetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCategoryTrendsApiV1PublicTrendsCategoriesSlugGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetCategoryTrendsApiV1PublicTrendsCategoriesSlugGetQueryOptions(slug,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
  * @summary Get Category Products
  */
 export type getCategoryProductsApiV1PublicCategoriesSlugProductsGetResponse200 = {
@@ -841,6 +1258,504 @@ export function useGetCategoryProductsApiV1PublicCategoriesSlugProductsGet<TData
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetCategoryProductsApiV1PublicCategoriesSlugProductsGetQueryOptions(slug,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Public Users
+ */
+export type getPublicUsersApiV1PublicUsersGetResponse200 = {
+  data: PublicUsersPageResult
+  status: 200
+}
+
+export type getPublicUsersApiV1PublicUsersGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getPublicUsersApiV1PublicUsersGetResponseSuccess = (getPublicUsersApiV1PublicUsersGetResponse200) & {
+  headers: Headers;
+};
+export type getPublicUsersApiV1PublicUsersGetResponseError = (getPublicUsersApiV1PublicUsersGetResponse422) & {
+  headers: Headers;
+};
+
+export type getPublicUsersApiV1PublicUsersGetResponse = (getPublicUsersApiV1PublicUsersGetResponseSuccess | getPublicUsersApiV1PublicUsersGetResponseError)
+
+export const getGetPublicUsersApiV1PublicUsersGetUrl = (params?: GetPublicUsersApiV1PublicUsersGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/public/users?${stringifiedParams}` : `/api/v1/public/users`
+}
+
+export const getPublicUsersApiV1PublicUsersGet = async (params?: GetPublicUsersApiV1PublicUsersGetParams, options?: RequestInit): Promise<getPublicUsersApiV1PublicUsersGetResponse> => {
+  
+  return fastapiFetch<getPublicUsersApiV1PublicUsersGetResponse>(getGetPublicUsersApiV1PublicUsersGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetPublicUsersApiV1PublicUsersGetQueryKey = (params?: GetPublicUsersApiV1PublicUsersGetParams,) => {
+    return [
+    `/api/v1/public/users`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetPublicUsersApiV1PublicUsersGetQueryOptions = <TData = Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>, TError = HTTPValidationError>(params?: GetPublicUsersApiV1PublicUsersGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPublicUsersApiV1PublicUsersGetQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>> = ({ signal }) => getPublicUsersApiV1PublicUsersGet(params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPublicUsersApiV1PublicUsersGetQueryResult = NonNullable<Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>>
+export type GetPublicUsersApiV1PublicUsersGetQueryError = HTTPValidationError
+
+
+export function useGetPublicUsersApiV1PublicUsersGet<TData = Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>, TError = HTTPValidationError>(
+ params: undefined |  GetPublicUsersApiV1PublicUsersGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicUsersApiV1PublicUsersGet<TData = Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>, TError = HTTPValidationError>(
+ params?: GetPublicUsersApiV1PublicUsersGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicUsersApiV1PublicUsersGet<TData = Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>, TError = HTTPValidationError>(
+ params?: GetPublicUsersApiV1PublicUsersGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Public Users
+ */
+
+export function useGetPublicUsersApiV1PublicUsersGet<TData = Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>, TError = HTTPValidationError>(
+ params?: GetPublicUsersApiV1PublicUsersGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUsersApiV1PublicUsersGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPublicUsersApiV1PublicUsersGetQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Public User Meta
+ */
+export type getPublicUserMetaApiV1PublicUsersUserIdMetaGetResponse200 = {
+  data: PublicUserMeta
+  status: 200
+}
+
+export type getPublicUserMetaApiV1PublicUsersUserIdMetaGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getPublicUserMetaApiV1PublicUsersUserIdMetaGetResponseSuccess = (getPublicUserMetaApiV1PublicUsersUserIdMetaGetResponse200) & {
+  headers: Headers;
+};
+export type getPublicUserMetaApiV1PublicUsersUserIdMetaGetResponseError = (getPublicUserMetaApiV1PublicUsersUserIdMetaGetResponse422) & {
+  headers: Headers;
+};
+
+export type getPublicUserMetaApiV1PublicUsersUserIdMetaGetResponse = (getPublicUserMetaApiV1PublicUsersUserIdMetaGetResponseSuccess | getPublicUserMetaApiV1PublicUsersUserIdMetaGetResponseError)
+
+export const getGetPublicUserMetaApiV1PublicUsersUserIdMetaGetUrl = (userId: string,) => {
+
+
+  
+
+  return `/api/v1/public/users/${userId}/meta`
+}
+
+export const getPublicUserMetaApiV1PublicUsersUserIdMetaGet = async (userId: string, options?: RequestInit): Promise<getPublicUserMetaApiV1PublicUsersUserIdMetaGetResponse> => {
+  
+  return fastapiFetch<getPublicUserMetaApiV1PublicUsersUserIdMetaGetResponse>(getGetPublicUserMetaApiV1PublicUsersUserIdMetaGetUrl(userId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetPublicUserMetaApiV1PublicUsersUserIdMetaGetQueryKey = (userId?: string,) => {
+    return [
+    `/api/v1/public/users/${userId}/meta`
+    ] as const;
+    }
+
+    
+export const getGetPublicUserMetaApiV1PublicUsersUserIdMetaGetQueryOptions = <TData = Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>, TError = HTTPValidationError>(userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPublicUserMetaApiV1PublicUsersUserIdMetaGetQueryKey(userId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>> = ({ signal }) => getPublicUserMetaApiV1PublicUsersUserIdMetaGet(userId, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(userId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPublicUserMetaApiV1PublicUsersUserIdMetaGetQueryResult = NonNullable<Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>>
+export type GetPublicUserMetaApiV1PublicUsersUserIdMetaGetQueryError = HTTPValidationError
+
+
+export function useGetPublicUserMetaApiV1PublicUsersUserIdMetaGet<TData = Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>, TError = HTTPValidationError>(
+ userId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicUserMetaApiV1PublicUsersUserIdMetaGet<TData = Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>, TError = HTTPValidationError>(
+ userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicUserMetaApiV1PublicUsersUserIdMetaGet<TData = Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>, TError = HTTPValidationError>(
+ userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Public User Meta
+ */
+
+export function useGetPublicUserMetaApiV1PublicUsersUserIdMetaGet<TData = Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>, TError = HTTPValidationError>(
+ userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserMetaApiV1PublicUsersUserIdMetaGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPublicUserMetaApiV1PublicUsersUserIdMetaGetQueryOptions(userId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Public User Products
+ */
+export type getPublicUserProductsApiV1PublicUsersUserIdProductsGetResponse200 = {
+  data: UserProductsPageResult
+  status: 200
+}
+
+export type getPublicUserProductsApiV1PublicUsersUserIdProductsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getPublicUserProductsApiV1PublicUsersUserIdProductsGetResponseSuccess = (getPublicUserProductsApiV1PublicUsersUserIdProductsGetResponse200) & {
+  headers: Headers;
+};
+export type getPublicUserProductsApiV1PublicUsersUserIdProductsGetResponseError = (getPublicUserProductsApiV1PublicUsersUserIdProductsGetResponse422) & {
+  headers: Headers;
+};
+
+export type getPublicUserProductsApiV1PublicUsersUserIdProductsGetResponse = (getPublicUserProductsApiV1PublicUsersUserIdProductsGetResponseSuccess | getPublicUserProductsApiV1PublicUsersUserIdProductsGetResponseError)
+
+export const getGetPublicUserProductsApiV1PublicUsersUserIdProductsGetUrl = (userId: string,
+    params?: GetPublicUserProductsApiV1PublicUsersUserIdProductsGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/public/users/${userId}/products?${stringifiedParams}` : `/api/v1/public/users/${userId}/products`
+}
+
+export const getPublicUserProductsApiV1PublicUsersUserIdProductsGet = async (userId: string,
+    params?: GetPublicUserProductsApiV1PublicUsersUserIdProductsGetParams, options?: RequestInit): Promise<getPublicUserProductsApiV1PublicUsersUserIdProductsGetResponse> => {
+  
+  return fastapiFetch<getPublicUserProductsApiV1PublicUsersUserIdProductsGetResponse>(getGetPublicUserProductsApiV1PublicUsersUserIdProductsGetUrl(userId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetPublicUserProductsApiV1PublicUsersUserIdProductsGetQueryKey = (userId?: string,
+    params?: GetPublicUserProductsApiV1PublicUsersUserIdProductsGetParams,) => {
+    return [
+    `/api/v1/public/users/${userId}/products`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetPublicUserProductsApiV1PublicUsersUserIdProductsGetQueryOptions = <TData = Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>, TError = HTTPValidationError>(userId: string,
+    params?: GetPublicUserProductsApiV1PublicUsersUserIdProductsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPublicUserProductsApiV1PublicUsersUserIdProductsGetQueryKey(userId,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>> = ({ signal }) => getPublicUserProductsApiV1PublicUsersUserIdProductsGet(userId,params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(userId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPublicUserProductsApiV1PublicUsersUserIdProductsGetQueryResult = NonNullable<Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>>
+export type GetPublicUserProductsApiV1PublicUsersUserIdProductsGetQueryError = HTTPValidationError
+
+
+export function useGetPublicUserProductsApiV1PublicUsersUserIdProductsGet<TData = Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>, TError = HTTPValidationError>(
+ userId: string,
+    params: undefined |  GetPublicUserProductsApiV1PublicUsersUserIdProductsGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicUserProductsApiV1PublicUsersUserIdProductsGet<TData = Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>, TError = HTTPValidationError>(
+ userId: string,
+    params?: GetPublicUserProductsApiV1PublicUsersUserIdProductsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicUserProductsApiV1PublicUsersUserIdProductsGet<TData = Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>, TError = HTTPValidationError>(
+ userId: string,
+    params?: GetPublicUserProductsApiV1PublicUsersUserIdProductsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Public User Products
+ */
+
+export function useGetPublicUserProductsApiV1PublicUsersUserIdProductsGet<TData = Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>, TError = HTTPValidationError>(
+ userId: string,
+    params?: GetPublicUserProductsApiV1PublicUsersUserIdProductsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserProductsApiV1PublicUsersUserIdProductsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPublicUserProductsApiV1PublicUsersUserIdProductsGetQueryOptions(userId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Public User Payload
+ */
+export type getPublicUserPayloadApiV1PublicUsersUserIdPayloadGetResponse200 = {
+  data: UserProfilePayload
+  status: 200
+}
+
+export type getPublicUserPayloadApiV1PublicUsersUserIdPayloadGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getPublicUserPayloadApiV1PublicUsersUserIdPayloadGetResponseSuccess = (getPublicUserPayloadApiV1PublicUsersUserIdPayloadGetResponse200) & {
+  headers: Headers;
+};
+export type getPublicUserPayloadApiV1PublicUsersUserIdPayloadGetResponseError = (getPublicUserPayloadApiV1PublicUsersUserIdPayloadGetResponse422) & {
+  headers: Headers;
+};
+
+export type getPublicUserPayloadApiV1PublicUsersUserIdPayloadGetResponse = (getPublicUserPayloadApiV1PublicUsersUserIdPayloadGetResponseSuccess | getPublicUserPayloadApiV1PublicUsersUserIdPayloadGetResponseError)
+
+export const getGetPublicUserPayloadApiV1PublicUsersUserIdPayloadGetUrl = (userId: string,) => {
+
+
+  
+
+  return `/api/v1/public/users/${userId}/payload`
+}
+
+export const getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet = async (userId: string, options?: RequestInit): Promise<getPublicUserPayloadApiV1PublicUsersUserIdPayloadGetResponse> => {
+  
+  return fastapiFetch<getPublicUserPayloadApiV1PublicUsersUserIdPayloadGetResponse>(getGetPublicUserPayloadApiV1PublicUsersUserIdPayloadGetUrl(userId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetPublicUserPayloadApiV1PublicUsersUserIdPayloadGetQueryKey = (userId?: string,) => {
+    return [
+    `/api/v1/public/users/${userId}/payload`
+    ] as const;
+    }
+
+    
+export const getGetPublicUserPayloadApiV1PublicUsersUserIdPayloadGetQueryOptions = <TData = Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>, TError = HTTPValidationError>(userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPublicUserPayloadApiV1PublicUsersUserIdPayloadGetQueryKey(userId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>> = ({ signal }) => getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet(userId, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(userId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPublicUserPayloadApiV1PublicUsersUserIdPayloadGetQueryResult = NonNullable<Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>>
+export type GetPublicUserPayloadApiV1PublicUsersUserIdPayloadGetQueryError = HTTPValidationError
+
+
+export function useGetPublicUserPayloadApiV1PublicUsersUserIdPayloadGet<TData = Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>, TError = HTTPValidationError>(
+ userId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicUserPayloadApiV1PublicUsersUserIdPayloadGet<TData = Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>, TError = HTTPValidationError>(
+ userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicUserPayloadApiV1PublicUsersUserIdPayloadGet<TData = Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>, TError = HTTPValidationError>(
+ userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Public User Payload
+ */
+
+export function useGetPublicUserPayloadApiV1PublicUsersUserIdPayloadGet<TData = Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>, TError = HTTPValidationError>(
+ userId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicUserPayloadApiV1PublicUsersUserIdPayloadGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPublicUserPayloadApiV1PublicUsersUserIdPayloadGetQueryOptions(userId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -2103,6 +3018,958 @@ export function useGetAlternativeProductsApiV1PublicAlternativesSlugProductsGet<
 
 
 /**
+ * @summary Get Product Detail
+ */
+export type getProductDetailApiV1PublicProductsSlugDetailGetResponse200 = {
+  data: PublicProductDetailPayload
+  status: 200
+}
+
+export type getProductDetailApiV1PublicProductsSlugDetailGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getProductDetailApiV1PublicProductsSlugDetailGetResponseSuccess = (getProductDetailApiV1PublicProductsSlugDetailGetResponse200) & {
+  headers: Headers;
+};
+export type getProductDetailApiV1PublicProductsSlugDetailGetResponseError = (getProductDetailApiV1PublicProductsSlugDetailGetResponse422) & {
+  headers: Headers;
+};
+
+export type getProductDetailApiV1PublicProductsSlugDetailGetResponse = (getProductDetailApiV1PublicProductsSlugDetailGetResponseSuccess | getProductDetailApiV1PublicProductsSlugDetailGetResponseError)
+
+export const getGetProductDetailApiV1PublicProductsSlugDetailGetUrl = (slug: string,) => {
+
+
+  
+
+  return `/api/v1/public/products/${slug}/detail`
+}
+
+export const getProductDetailApiV1PublicProductsSlugDetailGet = async (slug: string, options?: RequestInit): Promise<getProductDetailApiV1PublicProductsSlugDetailGetResponse> => {
+  
+  return fastapiFetch<getProductDetailApiV1PublicProductsSlugDetailGetResponse>(getGetProductDetailApiV1PublicProductsSlugDetailGetUrl(slug),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetProductDetailApiV1PublicProductsSlugDetailGetQueryKey = (slug?: string,) => {
+    return [
+    `/api/v1/public/products/${slug}/detail`
+    ] as const;
+    }
+
+    
+export const getGetProductDetailApiV1PublicProductsSlugDetailGetQueryOptions = <TData = Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>, TError = HTTPValidationError>(slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProductDetailApiV1PublicProductsSlugDetailGetQueryKey(slug);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>> = ({ signal }) => getProductDetailApiV1PublicProductsSlugDetailGet(slug, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(slug), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductDetailApiV1PublicProductsSlugDetailGetQueryResult = NonNullable<Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>>
+export type GetProductDetailApiV1PublicProductsSlugDetailGetQueryError = HTTPValidationError
+
+
+export function useGetProductDetailApiV1PublicProductsSlugDetailGet<TData = Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>, TError = HTTPValidationError>(
+ slug: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductDetailApiV1PublicProductsSlugDetailGet<TData = Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>, TError = HTTPValidationError>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductDetailApiV1PublicProductsSlugDetailGet<TData = Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>, TError = HTTPValidationError>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Product Detail
+ */
+
+export function useGetProductDetailApiV1PublicProductsSlugDetailGet<TData = Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>, TError = HTTPValidationError>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductDetailApiV1PublicProductsSlugDetailGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProductDetailApiV1PublicProductsSlugDetailGetQueryOptions(slug,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Product Meta
+ */
+export type getProductMetaApiV1PublicProductsSlugMetaGetResponse200 = {
+  data: PublicProductMetaPayload
+  status: 200
+}
+
+export type getProductMetaApiV1PublicProductsSlugMetaGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getProductMetaApiV1PublicProductsSlugMetaGetResponseSuccess = (getProductMetaApiV1PublicProductsSlugMetaGetResponse200) & {
+  headers: Headers;
+};
+export type getProductMetaApiV1PublicProductsSlugMetaGetResponseError = (getProductMetaApiV1PublicProductsSlugMetaGetResponse422) & {
+  headers: Headers;
+};
+
+export type getProductMetaApiV1PublicProductsSlugMetaGetResponse = (getProductMetaApiV1PublicProductsSlugMetaGetResponseSuccess | getProductMetaApiV1PublicProductsSlugMetaGetResponseError)
+
+export const getGetProductMetaApiV1PublicProductsSlugMetaGetUrl = (slug: string,) => {
+
+
+  
+
+  return `/api/v1/public/products/${slug}/meta`
+}
+
+export const getProductMetaApiV1PublicProductsSlugMetaGet = async (slug: string, options?: RequestInit): Promise<getProductMetaApiV1PublicProductsSlugMetaGetResponse> => {
+  
+  return fastapiFetch<getProductMetaApiV1PublicProductsSlugMetaGetResponse>(getGetProductMetaApiV1PublicProductsSlugMetaGetUrl(slug),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetProductMetaApiV1PublicProductsSlugMetaGetQueryKey = (slug?: string,) => {
+    return [
+    `/api/v1/public/products/${slug}/meta`
+    ] as const;
+    }
+
+    
+export const getGetProductMetaApiV1PublicProductsSlugMetaGetQueryOptions = <TData = Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>, TError = HTTPValidationError>(slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProductMetaApiV1PublicProductsSlugMetaGetQueryKey(slug);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>> = ({ signal }) => getProductMetaApiV1PublicProductsSlugMetaGet(slug, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(slug), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductMetaApiV1PublicProductsSlugMetaGetQueryResult = NonNullable<Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>>
+export type GetProductMetaApiV1PublicProductsSlugMetaGetQueryError = HTTPValidationError
+
+
+export function useGetProductMetaApiV1PublicProductsSlugMetaGet<TData = Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>, TError = HTTPValidationError>(
+ slug: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductMetaApiV1PublicProductsSlugMetaGet<TData = Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>, TError = HTTPValidationError>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductMetaApiV1PublicProductsSlugMetaGet<TData = Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>, TError = HTTPValidationError>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Product Meta
+ */
+
+export function useGetProductMetaApiV1PublicProductsSlugMetaGet<TData = Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>, TError = HTTPValidationError>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductMetaApiV1PublicProductsSlugMetaGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProductMetaApiV1PublicProductsSlugMetaGetQueryOptions(slug,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Product Redirect
+ */
+export type getProductRedirectApiV1PublicProductsSlugRedirectGetResponse200 = {
+  data: PublicProductRedirectPayload
+  status: 200
+}
+
+export type getProductRedirectApiV1PublicProductsSlugRedirectGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getProductRedirectApiV1PublicProductsSlugRedirectGetResponseSuccess = (getProductRedirectApiV1PublicProductsSlugRedirectGetResponse200) & {
+  headers: Headers;
+};
+export type getProductRedirectApiV1PublicProductsSlugRedirectGetResponseError = (getProductRedirectApiV1PublicProductsSlugRedirectGetResponse422) & {
+  headers: Headers;
+};
+
+export type getProductRedirectApiV1PublicProductsSlugRedirectGetResponse = (getProductRedirectApiV1PublicProductsSlugRedirectGetResponseSuccess | getProductRedirectApiV1PublicProductsSlugRedirectGetResponseError)
+
+export const getGetProductRedirectApiV1PublicProductsSlugRedirectGetUrl = (slug: string,
+    params?: GetProductRedirectApiV1PublicProductsSlugRedirectGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/public/products/${slug}/redirect?${stringifiedParams}` : `/api/v1/public/products/${slug}/redirect`
+}
+
+export const getProductRedirectApiV1PublicProductsSlugRedirectGet = async (slug: string,
+    params?: GetProductRedirectApiV1PublicProductsSlugRedirectGetParams, options?: RequestInit): Promise<getProductRedirectApiV1PublicProductsSlugRedirectGetResponse> => {
+  
+  return fastapiFetch<getProductRedirectApiV1PublicProductsSlugRedirectGetResponse>(getGetProductRedirectApiV1PublicProductsSlugRedirectGetUrl(slug,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetProductRedirectApiV1PublicProductsSlugRedirectGetQueryKey = (slug?: string,
+    params?: GetProductRedirectApiV1PublicProductsSlugRedirectGetParams,) => {
+    return [
+    `/api/v1/public/products/${slug}/redirect`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetProductRedirectApiV1PublicProductsSlugRedirectGetQueryOptions = <TData = Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>, TError = HTTPValidationError>(slug: string,
+    params?: GetProductRedirectApiV1PublicProductsSlugRedirectGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProductRedirectApiV1PublicProductsSlugRedirectGetQueryKey(slug,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>> = ({ signal }) => getProductRedirectApiV1PublicProductsSlugRedirectGet(slug,params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(slug), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductRedirectApiV1PublicProductsSlugRedirectGetQueryResult = NonNullable<Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>>
+export type GetProductRedirectApiV1PublicProductsSlugRedirectGetQueryError = HTTPValidationError
+
+
+export function useGetProductRedirectApiV1PublicProductsSlugRedirectGet<TData = Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>, TError = HTTPValidationError>(
+ slug: string,
+    params: undefined |  GetProductRedirectApiV1PublicProductsSlugRedirectGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductRedirectApiV1PublicProductsSlugRedirectGet<TData = Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>, TError = HTTPValidationError>(
+ slug: string,
+    params?: GetProductRedirectApiV1PublicProductsSlugRedirectGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductRedirectApiV1PublicProductsSlugRedirectGet<TData = Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>, TError = HTTPValidationError>(
+ slug: string,
+    params?: GetProductRedirectApiV1PublicProductsSlugRedirectGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Product Redirect
+ */
+
+export function useGetProductRedirectApiV1PublicProductsSlugRedirectGet<TData = Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>, TError = HTTPValidationError>(
+ slug: string,
+    params?: GetProductRedirectApiV1PublicProductsSlugRedirectGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductRedirectApiV1PublicProductsSlugRedirectGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProductRedirectApiV1PublicProductsSlugRedirectGetQueryOptions(slug,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Product Revenue
+ */
+export type getProductRevenueApiV1PublicProductsProductIdRevenueGetResponse200 = {
+  data: GetProductRevenueApiV1PublicProductsProductIdRevenueGet200
+  status: 200
+}
+
+export type getProductRevenueApiV1PublicProductsProductIdRevenueGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getProductRevenueApiV1PublicProductsProductIdRevenueGetResponseSuccess = (getProductRevenueApiV1PublicProductsProductIdRevenueGetResponse200) & {
+  headers: Headers;
+};
+export type getProductRevenueApiV1PublicProductsProductIdRevenueGetResponseError = (getProductRevenueApiV1PublicProductsProductIdRevenueGetResponse422) & {
+  headers: Headers;
+};
+
+export type getProductRevenueApiV1PublicProductsProductIdRevenueGetResponse = (getProductRevenueApiV1PublicProductsProductIdRevenueGetResponseSuccess | getProductRevenueApiV1PublicProductsProductIdRevenueGetResponseError)
+
+export const getGetProductRevenueApiV1PublicProductsProductIdRevenueGetUrl = (productId: string,) => {
+
+
+  
+
+  return `/api/v1/public/products/${productId}/revenue`
+}
+
+export const getProductRevenueApiV1PublicProductsProductIdRevenueGet = async (productId: string, options?: RequestInit): Promise<getProductRevenueApiV1PublicProductsProductIdRevenueGetResponse> => {
+  
+  return fastapiFetch<getProductRevenueApiV1PublicProductsProductIdRevenueGetResponse>(getGetProductRevenueApiV1PublicProductsProductIdRevenueGetUrl(productId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetProductRevenueApiV1PublicProductsProductIdRevenueGetQueryKey = (productId?: string,) => {
+    return [
+    `/api/v1/public/products/${productId}/revenue`
+    ] as const;
+    }
+
+    
+export const getGetProductRevenueApiV1PublicProductsProductIdRevenueGetQueryOptions = <TData = Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>, TError = HTTPValidationError>(productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProductRevenueApiV1PublicProductsProductIdRevenueGetQueryKey(productId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>> = ({ signal }) => getProductRevenueApiV1PublicProductsProductIdRevenueGet(productId, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(productId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductRevenueApiV1PublicProductsProductIdRevenueGetQueryResult = NonNullable<Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>>
+export type GetProductRevenueApiV1PublicProductsProductIdRevenueGetQueryError = HTTPValidationError
+
+
+export function useGetProductRevenueApiV1PublicProductsProductIdRevenueGet<TData = Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>, TError = HTTPValidationError>(
+ productId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductRevenueApiV1PublicProductsProductIdRevenueGet<TData = Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>, TError = HTTPValidationError>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductRevenueApiV1PublicProductsProductIdRevenueGet<TData = Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>, TError = HTTPValidationError>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Product Revenue
+ */
+
+export function useGetProductRevenueApiV1PublicProductsProductIdRevenueGet<TData = Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>, TError = HTTPValidationError>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductRevenueApiV1PublicProductsProductIdRevenueGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProductRevenueApiV1PublicProductsProductIdRevenueGetQueryOptions(productId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Product Leaderboard Score
+ */
+export type getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetResponse200 = {
+  data: PublicProductLeaderboardScore
+  status: 200
+}
+
+export type getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetResponseSuccess = (getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetResponse200) & {
+  headers: Headers;
+};
+export type getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetResponseError = (getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetResponse422) & {
+  headers: Headers;
+};
+
+export type getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetResponse = (getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetResponseSuccess | getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetResponseError)
+
+export const getGetProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetUrl = (productId: string,) => {
+
+
+  
+
+  return `/api/v1/public/products/${productId}/leaderboard`
+}
+
+export const getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet = async (productId: string, options?: RequestInit): Promise<getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetResponse> => {
+  
+  return fastapiFetch<getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetResponse>(getGetProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetUrl(productId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetQueryKey = (productId?: string,) => {
+    return [
+    `/api/v1/public/products/${productId}/leaderboard`
+    ] as const;
+    }
+
+    
+export const getGetProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetQueryOptions = <TData = Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>, TError = HTTPValidationError>(productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetQueryKey(productId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>> = ({ signal }) => getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet(productId, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(productId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetQueryResult = NonNullable<Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>>
+export type GetProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetQueryError = HTTPValidationError
+
+
+export function useGetProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet<TData = Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>, TError = HTTPValidationError>(
+ productId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet<TData = Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>, TError = HTTPValidationError>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet<TData = Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>, TError = HTTPValidationError>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Product Leaderboard Score
+ */
+
+export function useGetProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet<TData = Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>, TError = HTTPValidationError>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProductLeaderboardScoreApiV1PublicProductsProductIdLeaderboardGetQueryOptions(productId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Product Upvote Status
+ */
+export type getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetResponse200 = {
+  data: PublicProductUpvoteState
+  status: 200
+}
+
+export type getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetResponseSuccess = (getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetResponse200) & {
+  headers: Headers;
+};
+export type getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetResponseError = (getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetResponse422) & {
+  headers: Headers;
+};
+
+export type getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetResponse = (getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetResponseSuccess | getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetResponseError)
+
+export const getGetProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetUrl = (productId: string,) => {
+
+
+  
+
+  return `/api/v1/public/products/${productId}/upvote-status`
+}
+
+export const getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet = async (productId: string, options?: RequestInit): Promise<getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetResponse> => {
+  
+  return fastapiFetch<getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetResponse>(getGetProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetUrl(productId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetQueryKey = (productId?: string,) => {
+    return [
+    `/api/v1/public/products/${productId}/upvote-status`
+    ] as const;
+    }
+
+    
+export const getGetProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetQueryOptions = <TData = Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>, TError = HTTPValidationError>(productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetQueryKey(productId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>> = ({ signal }) => getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet(productId, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(productId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetQueryResult = NonNullable<Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>>
+export type GetProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetQueryError = HTTPValidationError
+
+
+export function useGetProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet<TData = Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>, TError = HTTPValidationError>(
+ productId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet<TData = Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>, TError = HTTPValidationError>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet<TData = Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>, TError = HTTPValidationError>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Product Upvote Status
+ */
+
+export function useGetProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet<TData = Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>, TError = HTTPValidationError>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProductUpvoteStatusApiV1PublicProductsProductIdUpvoteStatusGetQueryOptions(productId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Upvote Product
+ */
+export type upvoteProductApiV1PublicProductsProductIdUpvotePostResponse200 = {
+  data: PublicProductUpvoteState
+  status: 200
+}
+
+export type upvoteProductApiV1PublicProductsProductIdUpvotePostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type upvoteProductApiV1PublicProductsProductIdUpvotePostResponseSuccess = (upvoteProductApiV1PublicProductsProductIdUpvotePostResponse200) & {
+  headers: Headers;
+};
+export type upvoteProductApiV1PublicProductsProductIdUpvotePostResponseError = (upvoteProductApiV1PublicProductsProductIdUpvotePostResponse422) & {
+  headers: Headers;
+};
+
+export type upvoteProductApiV1PublicProductsProductIdUpvotePostResponse = (upvoteProductApiV1PublicProductsProductIdUpvotePostResponseSuccess | upvoteProductApiV1PublicProductsProductIdUpvotePostResponseError)
+
+export const getUpvoteProductApiV1PublicProductsProductIdUpvotePostUrl = (productId: string,) => {
+
+
+  
+
+  return `/api/v1/public/products/${productId}/upvote`
+}
+
+export const upvoteProductApiV1PublicProductsProductIdUpvotePost = async (productId: string, options?: RequestInit): Promise<upvoteProductApiV1PublicProductsProductIdUpvotePostResponse> => {
+  
+  return fastapiFetch<upvoteProductApiV1PublicProductsProductIdUpvotePostResponse>(getUpvoteProductApiV1PublicProductsProductIdUpvotePostUrl(productId),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+
+export const getUpvoteProductApiV1PublicProductsProductIdUpvotePostMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upvoteProductApiV1PublicProductsProductIdUpvotePost>>, TError,{productId: string}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof upvoteProductApiV1PublicProductsProductIdUpvotePost>>, TError,{productId: string}, TContext> => {
+
+const mutationKey = ['upvoteProductApiV1PublicProductsProductIdUpvotePost'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof upvoteProductApiV1PublicProductsProductIdUpvotePost>>, {productId: string}> = (props) => {
+          const {productId} = props ?? {};
+
+          return  upvoteProductApiV1PublicProductsProductIdUpvotePost(productId,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpvoteProductApiV1PublicProductsProductIdUpvotePostMutationResult = NonNullable<Awaited<ReturnType<typeof upvoteProductApiV1PublicProductsProductIdUpvotePost>>>
+    
+    export type UpvoteProductApiV1PublicProductsProductIdUpvotePostMutationError = HTTPValidationError
+
+    /**
+ * @summary Upvote Product
+ */
+export const useUpvoteProductApiV1PublicProductsProductIdUpvotePost = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upvoteProductApiV1PublicProductsProductIdUpvotePost>>, TError,{productId: string}, TContext>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof upvoteProductApiV1PublicProductsProductIdUpvotePost>>,
+        TError,
+        {productId: string},
+        TContext
+      > => {
+
+      const mutationOptions = getUpvoteProductApiV1PublicProductsProductIdUpvotePostMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * @summary Get Use Case Products
+ */
+export type getUseCaseProductsApiV1PublicUseCasesSlugProductsGetResponse200 = {
+  data: PublicProductCard[]
+  status: 200
+}
+
+export type getUseCaseProductsApiV1PublicUseCasesSlugProductsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getUseCaseProductsApiV1PublicUseCasesSlugProductsGetResponseSuccess = (getUseCaseProductsApiV1PublicUseCasesSlugProductsGetResponse200) & {
+  headers: Headers;
+};
+export type getUseCaseProductsApiV1PublicUseCasesSlugProductsGetResponseError = (getUseCaseProductsApiV1PublicUseCasesSlugProductsGetResponse422) & {
+  headers: Headers;
+};
+
+export type getUseCaseProductsApiV1PublicUseCasesSlugProductsGetResponse = (getUseCaseProductsApiV1PublicUseCasesSlugProductsGetResponseSuccess | getUseCaseProductsApiV1PublicUseCasesSlugProductsGetResponseError)
+
+export const getGetUseCaseProductsApiV1PublicUseCasesSlugProductsGetUrl = (slug: string,
+    params?: GetUseCaseProductsApiV1PublicUseCasesSlugProductsGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/public/use-cases/${slug}/products?${stringifiedParams}` : `/api/v1/public/use-cases/${slug}/products`
+}
+
+export const getUseCaseProductsApiV1PublicUseCasesSlugProductsGet = async (slug: string,
+    params?: GetUseCaseProductsApiV1PublicUseCasesSlugProductsGetParams, options?: RequestInit): Promise<getUseCaseProductsApiV1PublicUseCasesSlugProductsGetResponse> => {
+  
+  return fastapiFetch<getUseCaseProductsApiV1PublicUseCasesSlugProductsGetResponse>(getGetUseCaseProductsApiV1PublicUseCasesSlugProductsGetUrl(slug,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetUseCaseProductsApiV1PublicUseCasesSlugProductsGetQueryKey = (slug?: string,
+    params?: GetUseCaseProductsApiV1PublicUseCasesSlugProductsGetParams,) => {
+    return [
+    `/api/v1/public/use-cases/${slug}/products`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetUseCaseProductsApiV1PublicUseCasesSlugProductsGetQueryOptions = <TData = Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>, TError = HTTPValidationError>(slug: string,
+    params?: GetUseCaseProductsApiV1PublicUseCasesSlugProductsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetUseCaseProductsApiV1PublicUseCasesSlugProductsGetQueryKey(slug,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>> = ({ signal }) => getUseCaseProductsApiV1PublicUseCasesSlugProductsGet(slug,params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(slug), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetUseCaseProductsApiV1PublicUseCasesSlugProductsGetQueryResult = NonNullable<Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>>
+export type GetUseCaseProductsApiV1PublicUseCasesSlugProductsGetQueryError = HTTPValidationError
+
+
+export function useGetUseCaseProductsApiV1PublicUseCasesSlugProductsGet<TData = Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>, TError = HTTPValidationError>(
+ slug: string,
+    params: undefined |  GetUseCaseProductsApiV1PublicUseCasesSlugProductsGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>,
+          TError,
+          Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetUseCaseProductsApiV1PublicUseCasesSlugProductsGet<TData = Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>, TError = HTTPValidationError>(
+ slug: string,
+    params?: GetUseCaseProductsApiV1PublicUseCasesSlugProductsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>,
+          TError,
+          Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetUseCaseProductsApiV1PublicUseCasesSlugProductsGet<TData = Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>, TError = HTTPValidationError>(
+ slug: string,
+    params?: GetUseCaseProductsApiV1PublicUseCasesSlugProductsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Use Case Products
+ */
+
+export function useGetUseCaseProductsApiV1PublicUseCasesSlugProductsGet<TData = Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>, TError = HTTPValidationError>(
+ slug: string,
+    params?: GetUseCaseProductsApiV1PublicUseCasesSlugProductsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUseCaseProductsApiV1PublicUseCasesSlugProductsGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetUseCaseProductsApiV1PublicUseCasesSlugProductsGetQueryOptions(slug,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
  * @summary Get Leaderboard Stats
  */
 export type getLeaderboardStatsApiV1PublicLeaderboardStatsGetResponse200 = {
@@ -2567,6 +4434,132 @@ export function useGetLeaderboardMonthsApiV1PublicLeaderboardMonthsGet<TData = A
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetLeaderboardMonthsApiV1PublicLeaderboardMonthsGetQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Public Analytics Summary
+ */
+export type getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetResponse200 = {
+  data: PublicAnalyticsPayload
+  status: 200
+}
+
+export type getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetResponseSuccess = (getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetResponse200) & {
+  headers: Headers;
+};
+export type getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetResponseError = (getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetResponse422) & {
+  headers: Headers;
+};
+
+export type getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetResponse = (getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetResponseSuccess | getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetResponseError)
+
+export const getGetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetUrl = (params?: GetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/public/analytics/summary?${stringifiedParams}` : `/api/v1/public/analytics/summary`
+}
+
+export const getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet = async (params?: GetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetParams, options?: RequestInit): Promise<getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetResponse> => {
+  
+  return fastapiFetch<getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetResponse>(getGetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetQueryKey = (params?: GetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetParams,) => {
+    return [
+    `/api/v1/public/analytics/summary`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetQueryOptions = <TData = Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>, TError = HTTPValidationError>(params?: GetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>> = ({ signal }) => getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet(params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetQueryResult = NonNullable<Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>>
+export type GetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetQueryError = HTTPValidationError
+
+
+export function useGetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet<TData = Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>, TError = HTTPValidationError>(
+ params: undefined |  GetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet<TData = Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>, TError = HTTPValidationError>(
+ params?: GetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>,
+          TError,
+          Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet<TData = Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>, TError = HTTPValidationError>(
+ params?: GetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Public Analytics Summary
+ */
+
+export function useGetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet<TData = Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>, TError = HTTPValidationError>(
+ params?: GetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPublicAnalyticsSummaryApiV1PublicAnalyticsSummaryGetQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -3659,6 +5652,392 @@ export function useGetStickyBannerProductsApiV1PublicProductsStickyBannerGet<TDa
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetStickyBannerProductsApiV1PublicProductsStickyBannerGetQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Products By Badge
+ */
+export type getProductsByBadgeApiV1PublicProductsBadgesBadgeGetResponse200 = {
+  data: PublicProductCard[]
+  status: 200
+}
+
+export type getProductsByBadgeApiV1PublicProductsBadgesBadgeGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getProductsByBadgeApiV1PublicProductsBadgesBadgeGetResponseSuccess = (getProductsByBadgeApiV1PublicProductsBadgesBadgeGetResponse200) & {
+  headers: Headers;
+};
+export type getProductsByBadgeApiV1PublicProductsBadgesBadgeGetResponseError = (getProductsByBadgeApiV1PublicProductsBadgesBadgeGetResponse422) & {
+  headers: Headers;
+};
+
+export type getProductsByBadgeApiV1PublicProductsBadgesBadgeGetResponse = (getProductsByBadgeApiV1PublicProductsBadgesBadgeGetResponseSuccess | getProductsByBadgeApiV1PublicProductsBadgesBadgeGetResponseError)
+
+export const getGetProductsByBadgeApiV1PublicProductsBadgesBadgeGetUrl = (badge: string,
+    params?: GetProductsByBadgeApiV1PublicProductsBadgesBadgeGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/public/products/badges/${badge}?${stringifiedParams}` : `/api/v1/public/products/badges/${badge}`
+}
+
+export const getProductsByBadgeApiV1PublicProductsBadgesBadgeGet = async (badge: string,
+    params?: GetProductsByBadgeApiV1PublicProductsBadgesBadgeGetParams, options?: RequestInit): Promise<getProductsByBadgeApiV1PublicProductsBadgesBadgeGetResponse> => {
+  
+  return fastapiFetch<getProductsByBadgeApiV1PublicProductsBadgesBadgeGetResponse>(getGetProductsByBadgeApiV1PublicProductsBadgesBadgeGetUrl(badge,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetProductsByBadgeApiV1PublicProductsBadgesBadgeGetQueryKey = (badge?: string,
+    params?: GetProductsByBadgeApiV1PublicProductsBadgesBadgeGetParams,) => {
+    return [
+    `/api/v1/public/products/badges/${badge}`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetProductsByBadgeApiV1PublicProductsBadgesBadgeGetQueryOptions = <TData = Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>, TError = HTTPValidationError>(badge: string,
+    params?: GetProductsByBadgeApiV1PublicProductsBadgesBadgeGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProductsByBadgeApiV1PublicProductsBadgesBadgeGetQueryKey(badge,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>> = ({ signal }) => getProductsByBadgeApiV1PublicProductsBadgesBadgeGet(badge,params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(badge), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductsByBadgeApiV1PublicProductsBadgesBadgeGetQueryResult = NonNullable<Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>>
+export type GetProductsByBadgeApiV1PublicProductsBadgesBadgeGetQueryError = HTTPValidationError
+
+
+export function useGetProductsByBadgeApiV1PublicProductsBadgesBadgeGet<TData = Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>, TError = HTTPValidationError>(
+ badge: string,
+    params: undefined |  GetProductsByBadgeApiV1PublicProductsBadgesBadgeGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductsByBadgeApiV1PublicProductsBadgesBadgeGet<TData = Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>, TError = HTTPValidationError>(
+ badge: string,
+    params?: GetProductsByBadgeApiV1PublicProductsBadgesBadgeGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductsByBadgeApiV1PublicProductsBadgesBadgeGet<TData = Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>, TError = HTTPValidationError>(
+ badge: string,
+    params?: GetProductsByBadgeApiV1PublicProductsBadgesBadgeGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Products By Badge
+ */
+
+export function useGetProductsByBadgeApiV1PublicProductsBadgesBadgeGet<TData = Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>, TError = HTTPValidationError>(
+ badge: string,
+    params?: GetProductsByBadgeApiV1PublicProductsBadgesBadgeGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductsByBadgeApiV1PublicProductsBadgesBadgeGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProductsByBadgeApiV1PublicProductsBadgesBadgeGetQueryOptions(badge,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Trending Products
+ */
+export type getTrendingProductsApiV1PublicProductsTrendingGetResponse200 = {
+  data: PublicProductCard[]
+  status: 200
+}
+
+export type getTrendingProductsApiV1PublicProductsTrendingGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getTrendingProductsApiV1PublicProductsTrendingGetResponseSuccess = (getTrendingProductsApiV1PublicProductsTrendingGetResponse200) & {
+  headers: Headers;
+};
+export type getTrendingProductsApiV1PublicProductsTrendingGetResponseError = (getTrendingProductsApiV1PublicProductsTrendingGetResponse422) & {
+  headers: Headers;
+};
+
+export type getTrendingProductsApiV1PublicProductsTrendingGetResponse = (getTrendingProductsApiV1PublicProductsTrendingGetResponseSuccess | getTrendingProductsApiV1PublicProductsTrendingGetResponseError)
+
+export const getGetTrendingProductsApiV1PublicProductsTrendingGetUrl = (params?: GetTrendingProductsApiV1PublicProductsTrendingGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/public/products/trending?${stringifiedParams}` : `/api/v1/public/products/trending`
+}
+
+export const getTrendingProductsApiV1PublicProductsTrendingGet = async (params?: GetTrendingProductsApiV1PublicProductsTrendingGetParams, options?: RequestInit): Promise<getTrendingProductsApiV1PublicProductsTrendingGetResponse> => {
+  
+  return fastapiFetch<getTrendingProductsApiV1PublicProductsTrendingGetResponse>(getGetTrendingProductsApiV1PublicProductsTrendingGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetTrendingProductsApiV1PublicProductsTrendingGetQueryKey = (params?: GetTrendingProductsApiV1PublicProductsTrendingGetParams,) => {
+    return [
+    `/api/v1/public/products/trending`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetTrendingProductsApiV1PublicProductsTrendingGetQueryOptions = <TData = Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>, TError = HTTPValidationError>(params?: GetTrendingProductsApiV1PublicProductsTrendingGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTrendingProductsApiV1PublicProductsTrendingGetQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>> = ({ signal }) => getTrendingProductsApiV1PublicProductsTrendingGet(params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetTrendingProductsApiV1PublicProductsTrendingGetQueryResult = NonNullable<Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>>
+export type GetTrendingProductsApiV1PublicProductsTrendingGetQueryError = HTTPValidationError
+
+
+export function useGetTrendingProductsApiV1PublicProductsTrendingGet<TData = Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>, TError = HTTPValidationError>(
+ params: undefined |  GetTrendingProductsApiV1PublicProductsTrendingGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>,
+          TError,
+          Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTrendingProductsApiV1PublicProductsTrendingGet<TData = Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>, TError = HTTPValidationError>(
+ params?: GetTrendingProductsApiV1PublicProductsTrendingGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>,
+          TError,
+          Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTrendingProductsApiV1PublicProductsTrendingGet<TData = Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>, TError = HTTPValidationError>(
+ params?: GetTrendingProductsApiV1PublicProductsTrendingGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Trending Products
+ */
+
+export function useGetTrendingProductsApiV1PublicProductsTrendingGet<TData = Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>, TError = HTTPValidationError>(
+ params?: GetTrendingProductsApiV1PublicProductsTrendingGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrendingProductsApiV1PublicProductsTrendingGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetTrendingProductsApiV1PublicProductsTrendingGetQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary Get Top Categories
+ */
+export type getTopCategoriesApiV1PublicCategoriesTopGetResponse200 = {
+  data: CategorySummary[]
+  status: 200
+}
+
+export type getTopCategoriesApiV1PublicCategoriesTopGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getTopCategoriesApiV1PublicCategoriesTopGetResponseSuccess = (getTopCategoriesApiV1PublicCategoriesTopGetResponse200) & {
+  headers: Headers;
+};
+export type getTopCategoriesApiV1PublicCategoriesTopGetResponseError = (getTopCategoriesApiV1PublicCategoriesTopGetResponse422) & {
+  headers: Headers;
+};
+
+export type getTopCategoriesApiV1PublicCategoriesTopGetResponse = (getTopCategoriesApiV1PublicCategoriesTopGetResponseSuccess | getTopCategoriesApiV1PublicCategoriesTopGetResponseError)
+
+export const getGetTopCategoriesApiV1PublicCategoriesTopGetUrl = (params?: GetTopCategoriesApiV1PublicCategoriesTopGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/public/categories/top?${stringifiedParams}` : `/api/v1/public/categories/top`
+}
+
+export const getTopCategoriesApiV1PublicCategoriesTopGet = async (params?: GetTopCategoriesApiV1PublicCategoriesTopGetParams, options?: RequestInit): Promise<getTopCategoriesApiV1PublicCategoriesTopGetResponse> => {
+  
+  return fastapiFetch<getTopCategoriesApiV1PublicCategoriesTopGetResponse>(getGetTopCategoriesApiV1PublicCategoriesTopGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetTopCategoriesApiV1PublicCategoriesTopGetQueryKey = (params?: GetTopCategoriesApiV1PublicCategoriesTopGetParams,) => {
+    return [
+    `/api/v1/public/categories/top`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetTopCategoriesApiV1PublicCategoriesTopGetQueryOptions = <TData = Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>, TError = HTTPValidationError>(params?: GetTopCategoriesApiV1PublicCategoriesTopGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTopCategoriesApiV1PublicCategoriesTopGetQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>> = ({ signal }) => getTopCategoriesApiV1PublicCategoriesTopGet(params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetTopCategoriesApiV1PublicCategoriesTopGetQueryResult = NonNullable<Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>>
+export type GetTopCategoriesApiV1PublicCategoriesTopGetQueryError = HTTPValidationError
+
+
+export function useGetTopCategoriesApiV1PublicCategoriesTopGet<TData = Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>, TError = HTTPValidationError>(
+ params: undefined |  GetTopCategoriesApiV1PublicCategoriesTopGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>,
+          TError,
+          Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTopCategoriesApiV1PublicCategoriesTopGet<TData = Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>, TError = HTTPValidationError>(
+ params?: GetTopCategoriesApiV1PublicCategoriesTopGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>,
+          TError,
+          Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetTopCategoriesApiV1PublicCategoriesTopGet<TData = Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>, TError = HTTPValidationError>(
+ params?: GetTopCategoriesApiV1PublicCategoriesTopGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Top Categories
+ */
+
+export function useGetTopCategoriesApiV1PublicCategoriesTopGet<TData = Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>, TError = HTTPValidationError>(
+ params?: GetTopCategoriesApiV1PublicCategoriesTopGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTopCategoriesApiV1PublicCategoriesTopGet>>, TError, TData>>, request?: SecondParameter<typeof fastapiFetch>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetTopCategoriesApiV1PublicCategoriesTopGetQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
