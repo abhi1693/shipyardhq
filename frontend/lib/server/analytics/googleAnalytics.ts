@@ -918,19 +918,6 @@ async function fetchSiteAnalyticsSnapshot({
                 },
               },
             },
-            {
-              notExpression: {
-                filter: {
-                  fieldName: "pagePath",
-                  stringFilter: {
-                    matchType:
-                      protos.google.analytics.data.v1beta.Filter.StringFilter
-                        .MatchType.BEGINS_WITH,
-                    value: "/admin",
-                  },
-                },
-              },
-            },
           ],
         },
       },

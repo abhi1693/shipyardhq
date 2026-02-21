@@ -6,5 +6,4 @@ export {
   resetProductConnectorAction,
   setProductStatusAction,
   updateProductAction,
-} from "@/lib/server/admin-products"
-
+} from "@/lib/server/product-actions"

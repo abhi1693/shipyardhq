@@ -50,8 +50,8 @@
 
 ## Operator tooling
 
-- Admin UI routes and admin reward action wrappers are currently removed.
-- Use the rewards engine helpers and backend APIs as the canonical management surface until the admin frontend is reintroduced.
+- Operator UI routes and operator reward action wrappers are currently removed.
+- Use the rewards engine helpers and backend APIs as the canonical management surface until dedicated operator frontend surfaces are reintroduced.
 
 ## Background jobs & scheduling
 
