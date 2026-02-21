@@ -5,7 +5,6 @@ import { requireManageableProduct } from "@/lib/server/productAccess"
 import { memberProductPath, memberProductsStatusPath } from "@/lib/routes"
 import { ProductUpgradePricingTable } from "@/components/organisms/ProductUpgradePricingTable"
 import { getPublicPlansServer } from "@/lib/server/generated-member"
-import { chooseMemberProductPlan } from "@/lib/server/member-product-actions"
 
 export default async function ProductUpgradePage({
   params,
@@ -37,10 +36,6 @@ export default async function ProductUpgradePage({
 
   const productHref = memberProductPath(product.slug)
   const celebrateHref = `${productHref}?celebrate=1`
-  const choosePlan = chooseMemberProductPlan.bind(null, {
-    productId: product.id,
-    redirectPath: productHref,
-  })
 
   return (
     <div className="px-4 py-8 md:px-8">
@@ -70,7 +65,6 @@ export default async function ProductUpgradePage({
               redirectPath={productHref}
               currentPlanId={currentPlan?.id}
               showTypeToggle={!lockedPlanType}
-              planAction={choosePlan}
             />
           </div>
         ) : (

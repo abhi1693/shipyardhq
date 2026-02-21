@@ -18,7 +18,6 @@ import { fastapiFetch, type FastApiError } from "@/lib/fastapi-fetcher"
 import { getPublicPlansServer } from "@/lib/server/generated-member"
 
 import { headers } from "next/headers"
-import { redirect } from "next/navigation"
 
 type ListParams = Record<string, string | string[] | undefined>
 
@@ -68,6 +67,23 @@ type MemberProductsPayload = {
 const INACTIVE_ACCOUNT_MESSAGE = "Account is not active"
 const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active"])
 const SUBSCRIPTION_CHANGE_PRORATION_MODE = "prorated_immediately"
+
+const appendQueryParam = (path: string, key: string, value: string) => {
+  const separator = path.includes("?") ? "&" : "?"
+  return `${path}${separator}${key}=${encodeURIComponent(value)}`
+}
+
+const buildUpgradeRedirect = (path: string) => appendQueryParam(path, "upgraded", "1")
+
+const buildErrorRedirect = (path: string, errorCode: string) =>
+  appendQueryParam(path, "error", errorCode)
+
+const mapOwnershipErrorCode = (error: string) => {
+  if (error === "Unauthenticated") return "unauthenticated"
+  if (error === INACTIVE_ACCOUNT_MESSAGE) return "inactive_account"
+  if (error === "Product not found or not owned by user") return "product_not_found"
+  return "ownership_check_failed"
+}
 
 function parseIsoDate(value: string | null | undefined): Date | null {
   if (!value) return null
@@ -442,39 +458,57 @@ export async function validateSubscriptionAndAttachPlan(
   }
 }
 
-export async function choosePlanAction(
-  ctx: { productId: string; redirectPath: string },
-  formData: FormData,
-) {
-  "use server"
-  const planId = formData.get("planId")?.toString() || ""
-  if (!planId) return
+export async function resolveChoosePlanRedirect(ctx: {
+  productId: string
+  redirectPath: string
+  planId: string
+}) {
+  const planId = ctx.planId.trim()
+  if (!planId) {
+    return { redirectUrl: buildErrorRedirect(ctx.redirectPath, "plan_required") }
+  }
 
   const plans = await getPublicPlansServer()
   const plan = plans.find((item) => item.id === planId)
-  if (!plan) return
+  if (!plan) {
+    return { redirectUrl: buildErrorRedirect(ctx.redirectPath, "plan_not_found") }
+  }
 
   const ownership = await requireOwnedProduct(ctx.productId)
-  if ("error" in ownership) return
+  if ("error" in ownership) {
+    return {
+      redirectUrl: buildErrorRedirect(
+        ctx.redirectPath,
+        mapOwnershipErrorCode(ownership.error),
+      ),
+    }
+  }
 
   const activePlan = ownership.product.currentPlan
   const hasPaidPlan =
     !!activePlan && !activePlan.isDefault && (activePlan.price ?? 0) > 0
   if (hasPaidPlan && activePlan.type !== plan.type) {
-    redirect(`${ctx.redirectPath}?error=plan_type_locked`)
+    return { redirectUrl: buildErrorRedirect(ctx.redirectPath, "plan_type_locked") }
   }
 
   if ((plan.price || 0) > 0 && ownership.product.status !== "published") {
-    redirect(`${ctx.redirectPath}?error=must_publish`)
+    return { redirectUrl: buildErrorRedirect(ctx.redirectPath, "must_publish") }
   }
 
   if ((plan.price || 0) === 0) {
-    await setProductPlanAction(ctx.productId, planId, null)
-    redirect(`${ctx.redirectPath}?upgraded=1`)
+    const result = await setProductPlanAction(ctx.productId, planId, null)
+    if ("error" in result) {
+      return {
+        redirectUrl: buildErrorRedirect(ctx.redirectPath, "plan_update_failed"),
+      }
+    }
+    return { redirectUrl: buildUpgradeRedirect(ctx.redirectPath) }
   }
 
   if ((plan.price || 0) > 0 && !plan.externalId) {
-    redirect(`${ctx.redirectPath}?error=plan_not_configured`)
+    return {
+      redirectUrl: buildErrorRedirect(ctx.redirectPath, "plan_not_configured"),
+    }
   }
 
   if (
@@ -504,11 +538,19 @@ export async function choosePlanAction(
             quantity: 1,
           } as any)
         }
-        await setProductPlanAction(
+        const result = await setProductPlanAction(
           ctx.productId,
           planId,
           normalizedSubscriptionId,
         )
+        if ("error" in result) {
+          return {
+            redirectUrl: buildErrorRedirect(
+              ctx.redirectPath,
+              "plan_update_failed",
+            ),
+          }
+        }
       } catch (error) {
         const status = (error as any)?.status
         const message = String((error as any)?.error?.message || "")
@@ -516,22 +558,34 @@ export async function choosePlanAction(
           .toLowerCase()
         if (status === 409 && message.includes("previous payment")) {
           console.warn("Subscription change blocked by pending payment")
-          redirect(`${ctx.redirectPath}?error=subscription_payment_pending`)
+          return {
+            redirectUrl: buildErrorRedirect(
+              ctx.redirectPath,
+              "subscription_payment_pending",
+            ),
+          }
         }
         console.error("Failed to change subscription plan:", error)
-        redirect(`${ctx.redirectPath}?error=subscription_change_failed`)
+        return {
+          redirectUrl: buildErrorRedirect(
+            ctx.redirectPath,
+            "subscription_change_failed",
+          ),
+        }
       }
-      redirect(`${ctx.redirectPath}?upgraded=1`)
+      return { redirectUrl: buildUpgradeRedirect(ctx.redirectPath) }
     }
   }
 
   const checkout = await startPlanCheckoutAction(ctx.productId, planId)
   const redirectUrl = (checkout as any)?.redirectUrl
-  if (redirectUrl) {
-    redirect(redirectUrl)
+  if (typeof redirectUrl === "string" && redirectUrl.trim()) {
+    return { redirectUrl }
   }
 
-  redirect(`${ctx.redirectPath}?error=checkout_init_failed`)
+  return {
+    redirectUrl: buildErrorRedirect(ctx.redirectPath, "checkout_init_failed"),
+  }
 }
 
 export async function getProductConnectorSummary(productId: string) {

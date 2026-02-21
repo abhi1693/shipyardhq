@@ -6,11 +6,7 @@ import {
   getCategoryOptionsServer,
   getMemberProductConnectorServer,
 } from "@/lib/server/generated-member"
-import {
-  getMemberProductForEditWizard,
-  resetMemberProductConnector,
-  updateMemberProduct,
-} from "@/lib/server/member-product-actions"
+import { getProductForEditWizard } from "@/lib/server/product-management"
 
 export default async function EditProductPage({
   params,
@@ -23,7 +19,7 @@ export default async function EditProductPage({
     missingRedirect: null,
   })
 
-  const product = await getMemberProductForEditWizard(summary.id)
+  const product = await getProductForEditWizard(summary.id)
   if (!product) return notFound()
 
   const [categories, alternatives, connector] = await Promise.all([
@@ -38,8 +34,6 @@ export default async function EditProductPage({
       categories={categories}
       alternatives={alternatives}
       connector={connector}
-      onUpdateProduct={updateMemberProduct}
-      onResetConnector={resetMemberProductConnector}
     />
   )
 }

@@ -47,21 +47,20 @@ import {
   Video,
 } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
-// startPlanCheckoutAction and setProductPlanAction are used inside choosePlanAction
 import { hasPlanFeature } from "@/lib/features"
 import { resolveProductAnalyticsAccess } from "@/lib/server/analytics/productAnalytics"
 import PurchasePlanToast from "@/components/molecules/PurchasePlanToast"
 import ProductBadgeCelebrationGate from "@/components/molecules/ProductBadgeCelebrationGate"
+import MemberChoosePlanButton from "@/components/molecules/MemberChoosePlanButton"
 import { JSX } from "react"
 import { getRecentProductUpvoters } from "@/lib/server/productUpvotes"
 import MemberProductHeaderActions from "@/components/molecules/MemberProductHeaderActions"
 import { getPublicPlansServer } from "@/lib/server/generated-member"
+import { getProductById } from "@/lib/server/product-management"
 import {
-  chooseMemberProductPlan,
-  getMemberProductById,
-  validateMemberProductPayment,
-  validateMemberProductSubscription,
-} from "@/lib/server/member-product-actions"
+  validatePaymentAndAttachPlan,
+  validateSubscriptionAndAttachPlan,
+} from "@/lib/server/member-products"
 
 const chipIconClass = "h-3.5 w-3.5 text-muted-foreground"
 const dashedCalloutClass =
@@ -85,12 +84,12 @@ export default async function ViewUserProductPage({
     : celebrateValue === "1"
 
   if (paymentId && status) {
-    await validateMemberProductPayment(paymentId)
+    await validatePaymentAndAttachPlan(paymentId)
     // Clean URL params regardless of outcome
     redirect(memberProductPath(slug))
   }
   if (subscriptionId) {
-    await validateMemberProductSubscription(subscriptionId)
+    await validateSubscriptionAndAttachPlan(subscriptionId)
     redirect(memberProductPath(slug))
   }
   const { product: manageableProduct, currentUser } =
@@ -99,7 +98,7 @@ export default async function ViewUserProductPage({
       missingRedirect: null,
     })
 
-  const product = await getMemberProductById(manageableProduct.id)
+  const product = await getProductById(manageableProduct.id)
   if (!product) return notFound()
   const productId = product.id
   const productSlug = product.slug
@@ -174,10 +173,6 @@ export default async function ViewUserProductPage({
     }
   }
 
-  const choosePlan = chooseMemberProductPlan.bind(null, {
-    productId,
-    redirectPath: memberProductPath(productSlug),
-  })
   const upgradePath = memberProductUpgradePath(productSlug)
   const boostAssignedAt = product.planAssignedAt
   const boostDays = product.plan?.boostForDays ?? 0
@@ -390,10 +385,7 @@ export default async function ViewUserProductPage({
     product.status === "published"
       ? "Starts immediately"
       : "Starts after publish"
-  const boostFormAction =
-    boostMode === "publish_and_boost"
-      ? "/api/member/products/publish-and-boost"
-      : choosePlan
+  const boostPublishFormAction = "/api/member/products/publish-and-boost"
   const boostSetupHref = nextChecklistHref ?? editPath
 
   return (
@@ -573,8 +565,8 @@ export default async function ViewUserProductPage({
                       <Button size="sm" className="h-9 px-4" asChild>
                         <Link href={boostSetupHref}>{boostCtaLabel}</Link>
                       </Button>
-                    ) : (
-                      <form action={boostFormAction}>
+                    ) : boostMode === "publish_and_boost" ? (
+                      <form action={boostPublishFormAction} method="POST">
                         <input type="hidden" name="productId" value={productId} />
                         <input
                           type="hidden"
@@ -590,6 +582,16 @@ export default async function ViewUserProductPage({
                           {boostCtaLabel}
                         </Button>
                       </form>
+                    ) : (
+                      <MemberChoosePlanButton
+                        productId={productId}
+                        planId={nextPlan.id}
+                        redirectPath={memberProductPath(productSlug)}
+                        size="sm"
+                        className="h-9 px-4"
+                      >
+                        {boostCtaLabel}
+                      </MemberChoosePlanButton>
                     )}
                     <Link
                       href={upgradePath}

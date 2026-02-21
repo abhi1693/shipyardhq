@@ -8,8 +8,6 @@ export default function EditProductForm({
   categories,
   alternatives,
   connector,
-  onUpdateProduct,
-  onResetConnector,
 }: {
   product: ProductForEditWizard
   categories: { id: string; name: string; icon?: string | null }[]
@@ -29,12 +27,36 @@ export default function EditProductForm({
     accountId?: string | null
     brandId?: string | null
   } | null
-  onUpdateProduct: (
-    productId: string,
-    payload: any,
-  ) => Promise<unknown>
-  onResetConnector: (productId: string) => Promise<unknown>
 }) {
+  const onUpdateProduct = async (productId: string, payload: any) => {
+    const response = await fetch("/api/member/products/update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productId,
+        payload,
+      }),
+    })
+    const result = (await response.json()) as { error?: string }
+    if (!response.ok && !result.error) {
+      return { error: "Failed to update product" }
+    }
+    return result
+  }
+
+  const onResetConnector = async (productId: string) => {
+    const response = await fetch("/api/member/products/reset-connector", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId }),
+    })
+    const result = (await response.json()) as { error?: string }
+    if (!response.ok && !result.error) {
+      return { error: "Failed to reset connector" }
+    }
+    return result
+  }
+
   return (
     <EditProductWizard
       product={product}

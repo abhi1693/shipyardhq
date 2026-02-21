@@ -3,7 +3,7 @@
 import { IconArrowUpRight } from "@tabler/icons-react"
 
 import { PricingTable } from "@/components/organisms/PricingTable"
-import { Button } from "@/components/atoms/button"
+import MemberChoosePlanButton from "@/components/molecules/MemberChoosePlanButton"
 import type { PublicPlan } from "@/lib/generated/fastapi/schemas"
 
 export function ProductUpgradePricingTable({
@@ -12,14 +12,12 @@ export function ProductUpgradePricingTable({
   redirectPath,
   currentPlanId,
   showTypeToggle = false,
-  planAction,
 }: {
   plans: PublicPlan[]
   productId: string
   redirectPath: string
   currentPlanId?: string | null
   showTypeToggle?: boolean
-  planAction: (formData: FormData) => void | Promise<void>
 }) {
   return (
     <PricingTable
@@ -37,18 +35,15 @@ export function ProductUpgradePricingTable({
         }
 
         return (
-          <form action={planAction} className="group w-full">
-            <input type="hidden" name="productId" value={productId} />
-            <input type="hidden" name="redirectPath" value={redirectPath} />
-            <input type="hidden" name="planId" value={plan.id} />
-            <Button
-              type="submit"
-              className="group w-full justify-center gap-2 shadow-[0px_22px_55px_-32px_rgba(7,58,104,0.65)] transition hover:shadow-[0px_30px_70px_-38px_rgba(7,78,134,0.7)]"
-            >
-              Choose {plan.name}
-              <IconArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </form>
+          <MemberChoosePlanButton
+            productId={productId}
+            planId={plan.id}
+            redirectPath={redirectPath}
+            className="group w-full justify-center gap-2 shadow-[0px_22px_55px_-32px_rgba(7,58,104,0.65)] transition hover:shadow-[0px_30px_70px_-38px_rgba(7,78,134,0.7)]"
+          >
+            Choose {plan.name}
+            <IconArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </MemberChoosePlanButton>
         )
       }}
     />

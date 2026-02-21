@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { deleteMemberProduct } from "@/lib/server/member-product-actions"
+import { deleteProductAction } from "@/lib/server/product-management"
 import { memberProductsStatusPath } from "@/lib/routes"
 
 const DEFAULT_SUCCESS_PATH = memberProductsStatusPath("deleted")
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.redirect(new URL(errorPath, request.url), 303)
   }
 
-  const result = await deleteMemberProduct(productId)
+  const result = await deleteProductAction(productId)
   const destination =
     result && typeof result === "object" && "error" in result
       ? errorPath

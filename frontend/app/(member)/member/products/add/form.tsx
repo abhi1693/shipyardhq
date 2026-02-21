@@ -6,7 +6,6 @@ export default function AddProductForm({
   categories,
   userId,
   alternatives,
-  onCreateProduct,
 }: {
   categories: { id: string; name: string; icon?: string | null }[]
   userId: string
@@ -16,8 +15,23 @@ export default function AddProductForm({
     name: string
     websiteUrl?: string | null
   }[]
-  onCreateProduct: (formData: FormData) => Promise<unknown>
 }) {
+  const onCreateProduct = async (formData: FormData) => {
+    const response = await fetch("/api/member/products/create", {
+      method: "POST",
+      body: formData,
+    })
+    const payload = (await response.json()) as {
+      error?: string
+      slug?: string
+      success?: boolean
+    }
+    if (!response.ok && !payload.error) {
+      return { error: "Failed to create product" }
+    }
+    return payload
+  }
+
   return (
     <AddProductWizard
       categories={categories}

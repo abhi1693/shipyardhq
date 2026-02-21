@@ -5,7 +5,6 @@ import {
   getAlternativeOptionsServer,
   getCategoryOptionsServer,
 } from "@/lib/server/generated-member"
-import { createMemberProduct } from "@/lib/server/member-product-actions"
 
 export default async function AddProductPage() {
   const { userId: clerkId } = await auth()
@@ -36,7 +35,6 @@ export default async function AddProductPage() {
       categories={categories}
       userId={String(activeUser.id)}
       alternatives={alternatives}
-      onCreateProduct={createMemberProduct}
     />
   )
 }
