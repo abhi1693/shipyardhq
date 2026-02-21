@@ -20,7 +20,7 @@ import { brandGradient, gradientTint } from "@/lib/ui/tints"
 const ruleCategoryLabels: Record<RewardRuleCategory, string> = {
   [RewardRuleCategory.engagement]: "Engagement",
   [RewardRuleCategory.streak]: "Streaks",
-  [RewardRuleCategory.admin]: "Admin",
+  [RewardRuleCategory.admin]: "Manual",
   [RewardRuleCategory.system]: "System",
   [RewardRuleCategory.bonus]: "Bonus",
 }

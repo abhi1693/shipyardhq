@@ -8,7 +8,7 @@ import {
   resetProductConnectorAction as resetProductConnectorServer,
   setProductStatusAction as setProductStatusServer,
   updateProductAction as updateProductServer,
-} from "@/lib/server/admin-products"
+} from "@/lib/server/product-management"
 import {
   choosePlanAction as choosePlanServer,
   validatePaymentAndAttachPlan as validatePaymentServer,

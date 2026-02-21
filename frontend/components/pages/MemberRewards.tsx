@@ -301,12 +301,12 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
     }
     const amount = transaction.adjustmentAmount
     if (typeof amount === "number" && Number.isFinite(amount)) {
-      const tone = amount >= 0 ? "Admin credit" : "Admin deduction"
+      const tone = amount >= 0 ? "Manual credit" : "Manual deduction"
       const formattedAmount = formatNumber(Math.abs(amount))
       const sign = amount >= 0 ? "+" : "-"
       return `${tone} (${sign}${formattedAmount} rewards)`
     }
-    return "Admin adjustment"
+    return "Manual adjustment"
   }
 
   return (
@@ -353,7 +353,7 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
               </span>
             </div>
             <div className="flex items-baseline justify-between text-sm">
-              <span className="text-muted-foreground">Admin adjustments</span>
+              <span className="text-muted-foreground">Manual adjustments</span>
               <span
                 className={cn(
                   "font-medium",
