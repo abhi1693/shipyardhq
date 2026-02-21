@@ -9,6 +9,7 @@ import { NOVU_BROADCAST_TOPIC_KEY } from "@/lib/server/notifications/novuBroadca
 
 const NOVU_SYSTEM_UPDATES_WORKFLOW_ID =
   process.env.NOVU_WORKFLOW_SYSTEM_UPDATES?.trim() ||
+  process.env.NOVU_WORKFLOW_OPERATOR_BROADCAST?.trim() ||
   process.env.NOVU_WORKFLOW_ADMIN_BROADCAST?.trim() ||
   "system-updates"
 

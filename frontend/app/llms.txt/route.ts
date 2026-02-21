@@ -46,7 +46,7 @@ export async function GET() {
     `- [Verified revenue](${url(VERIFIED_REVENUE_PATH)}): Verified revenue highlights`,
     "",
     "## Contact",
-    `- [Support email](mailto:${siteConfig.adminEmail})`,
+    `- [Support email](mailto:${siteConfig.supportEmail})`,
     "",
     "## Optional",
     `- [Why ShipYard](${url("/why-shipyard")}): Positioning and product overview`,

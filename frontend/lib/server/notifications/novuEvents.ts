@@ -251,7 +251,7 @@ export async function notifyNovuRewardAdjusted(
       source:
         metadataRecord && typeof metadataRecord.source === "string"
           ? metadataRecord.source
-          : "admin.adjustment",
+          : "manual.adjustment",
       grantedAt: event.createdAt.toISOString(),
     }
 

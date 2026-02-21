@@ -102,7 +102,7 @@ export async function postLinkedInUpdate(
       notifyLinkedInAuthNeeded({
         trigger: "missing-access-token",
       }).catch((error) =>
-        console.error("[linkedin] failed to notify admin about missing token", {
+        console.error("[linkedin] failed to notify support contact about missing token", {
           error: error instanceof Error ? error.message : error,
         }),
       )
@@ -177,7 +177,7 @@ export async function postLinkedInUpdate(
           detail: parsed.detail,
         },
       }).catch((error) =>
-        console.error("[linkedin] failed to notify admin about auth issue", {
+        console.error("[linkedin] failed to notify support contact about auth issue", {
           error: error instanceof Error ? error.message : error,
         }),
       )

@@ -34,6 +34,14 @@ alembic revision --autogenerate -m "init"
 alembic upgrade head
 ```
 
+## OpenAPI Export (CLI)
+
+```bash
+python scripts/export_openapi.py --output openapi.json
+```
+
+This exports the OpenAPI schema without starting the HTTP server.
+
 ## Admin
 
 Visit `http://localhost:8000/admin` after starting the server.

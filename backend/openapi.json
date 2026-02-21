@@ -294,6 +294,124 @@
         }
       }
     },
+    "/api/v1/public/verified-revenue/products": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Verified Revenue Products",
+        "operationId": "get_verified_revenue_products_api_v1_public_verified_revenue_products_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Pagesize"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifiedRevenueProductsPageResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/plans": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Public Plans",
+        "operationId": "get_public_plans_api_v1_public_plans_get",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicPlan"
+                  },
+                  "title": "Response Get Public Plans Api V1 Public Plans Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/public/browse": {
       "get": {
         "tags": [
@@ -754,6 +872,80 @@
         }
       }
     },
+    "/api/v1/public/trends/categories/{slug}": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Category Trends",
+        "operationId": "get_category_trends_api_v1_public_trends_categories__slug__get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          },
+          {
+            "name": "revenue",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Revenue"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryTrendsPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/public/categories/{slug}/products": {
       "get": {
         "tags": [
@@ -811,6 +1003,229 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CategoryProductsPageResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/users": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Public Users",
+        "operationId": "get_public_users_api_v1_public_users_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Pagesize"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicUsersPageResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/users/{user_id}/meta": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Public User Meta",
+        "operationId": "get_public_user_meta_api_v1_public_users__user_id__meta_get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicUserMeta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/users/{user_id}/products": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Public User Products",
+        "operationId": "get_public_user_products_api_v1_public_users__user_id__products_get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Pagesize"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProductsPageResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/users/{user_id}/payload": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Public User Payload",
+        "operationId": "get_public_user_payload_api_v1_public_users__user_id__payload_get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfilePayload"
                 }
               }
             }
@@ -1412,6 +1827,402 @@
         }
       }
     },
+    "/api/v1/public/products/{slug}/detail": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Product Detail",
+        "operationId": "get_product_detail_api_v1_public_products__slug__detail_get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicProductDetailPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/products/{slug}/meta": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Product Meta",
+        "operationId": "get_product_meta_api_v1_public_products__slug__meta_get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicProductMetaPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/products/{slug}/redirect": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Product Redirect",
+        "operationId": "get_product_redirect_api_v1_public_products__slug__redirect_get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          },
+          {
+            "name": "utmContent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Utmcontent"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicProductRedirectPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/products/{product_id}/revenue": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Product Revenue",
+        "operationId": "get_product_revenue_api_v1_public_products__product_id__revenue_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ProductRevenueSummary"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Product Revenue Api V1 Public Products  Product Id  Revenue Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/products/{product_id}/leaderboard": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Product Leaderboard Score",
+        "operationId": "get_product_leaderboard_score_api_v1_public_products__product_id__leaderboard_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicProductLeaderboardScore"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/products/{product_id}/upvote-status": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Product Upvote Status",
+        "operationId": "get_product_upvote_status_api_v1_public_products__product_id__upvote_status_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicProductUpvoteState"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/products/{product_id}/upvote": {
+      "post": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Upvote Product",
+        "operationId": "upvote_product_api_v1_public_products__product_id__upvote_post",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicProductUpvoteState"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/use-cases/{slug}/products": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Use Case Products",
+        "operationId": "get_use_case_products_api_v1_public_use_cases__slug__products_get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          },
+          {
+            "name": "excludeId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Excludeid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicProductCard"
+                  },
+                  "title": "Response Get Use Case Products Api V1 Public Use Cases  Slug  Products Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/public/leaderboard/stats": {
       "get": {
         "tags": [
@@ -1433,6 +2244,316 @@
         }
       }
     },
+    "/api/v1/public/leaderboard/page": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Leaderboard Page",
+        "operationId": "get_leaderboard_page_api_v1_public_leaderboard_page_get",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "verified",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Verified"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaderboardPagePayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/leaderboard/periodic": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Periodic Leaderboard",
+        "operationId": "get_periodic_leaderboard_api_v1_public_leaderboard_periodic_get",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/LeaderboardPeriod",
+              "default": "day"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 3000,
+              "minimum": 1970,
+              "title": "Year"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 12,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Month"
+            }
+          },
+          {
+            "name": "day",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 31,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Day"
+            }
+          },
+          {
+            "name": "week",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 53,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Week"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "verified",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Verified"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeriodicLeaderboardPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/leaderboard/months": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Leaderboard Months",
+        "operationId": "get_leaderboard_months_api_v1_public_leaderboard_months_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MonthlyLeaderboardMonth"
+                  },
+                  "type": "array",
+                  "title": "Response Get Leaderboard Months Api V1 Public Leaderboard Months Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/analytics/summary": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Public Analytics Summary",
+        "operationId": "get_public_analytics_summary_api_v1_public_analytics_summary_get",
+        "parameters": [
+          {
+            "name": "topProductLimit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Topproductlimit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicAnalyticsPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/public/analytics/realtime": {
       "get": {
         "tags": [
@@ -1447,6 +2568,113 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RealtimeVisitors"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/rewards/stats": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Public Rewards Stats",
+        "operationId": "get_public_rewards_stats_api_v1_public_rewards_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicRewardsStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/rewards/data": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Public Rewards Data",
+        "operationId": "get_public_rewards_data_api_v1_public_rewards_data_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicRewardsData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/rewards/leaderboard": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Rewards Leaderboard Page",
+        "operationId": "get_rewards_leaderboard_page_api_v1_public_rewards_leaderboard_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Pagesize"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewardsLeaderboardPageResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -1702,6 +2930,1128 @@
                     "$ref": "#/components/schemas/StickyBannerProduct"
                   },
                   "title": "Response Get Sticky Banner Products Api V1 Public Products Sticky Banner Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/products/badges/{badge}": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Products By Badge",
+        "operationId": "get_products_by_badge_api_v1_public_products_badges__badge__get",
+        "parameters": [
+          {
+            "name": "badge",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Badge"
+            }
+          },
+          {
+            "name": "categorySlug",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Categoryslug"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Order"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicProductCard"
+                  },
+                  "title": "Response Get Products By Badge Api V1 Public Products Badges  Badge  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/products/trending": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Trending Products",
+        "operationId": "get_trending_products_api_v1_public_products_trending_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicProductCard"
+                  },
+                  "title": "Response Get Trending Products Api V1 Public Products Trending Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/categories/top": {
+      "get": {
+        "tags": [
+          "public-homepage"
+        ],
+        "summary": "Get Top Categories",
+        "operationId": "get_top_categories_api_v1_public_categories_top_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategorySummary"
+                  },
+                  "title": "Response Get Top Categories Api V1 Public Categories Top Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/products/{slug}/manageable": {
+      "get": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Get Manageable Product",
+        "operationId": "get_manageable_product_api_v1_member_products__slug__manageable_get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberManageableProductPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/me": {
+      "get": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Get Member Me",
+        "operationId": "get_member_me_api_v1_member_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberActiveUser"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/me/sync": {
+      "post": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Sync Member Me",
+        "operationId": "sync_member_me_api_v1_member_me_sync_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberSyncProfileInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberActiveUser"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/feedback": {
+      "get": {
+        "tags": [
+          "member"
+        ],
+        "summary": "List Member Feedback",
+        "operationId": "list_member_feedback_api_v1_member_feedback_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MemberFeedbackListItem"
+                  },
+                  "title": "Response List Member Feedback Api V1 Member Feedback Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Create Member Feedback",
+        "operationId": "create_member_feedback_api_v1_member_feedback_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberFeedbackCreateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberFeedbackListItem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/onboarding/complete": {
+      "post": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Complete Member Onboarding",
+        "operationId": "complete_member_onboarding_api_v1_member_onboarding_complete_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberOnboardingCompleteInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberOnboardingCompletePayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/overview/context": {
+      "get": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Get Member Overview Context",
+        "operationId": "get_member_overview_context_api_v1_member_overview_context_get",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 365,
+              "minimum": 1,
+              "default": 7,
+              "title": "Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberOverviewContextPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/overview/summary": {
+      "get": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Get Member Overview Summary",
+        "operationId": "get_member_overview_summary_api_v1_member_overview_summary_get",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 365,
+              "minimum": 1,
+              "default": 7,
+              "title": "Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberOverviewSummaryPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/features/{feature_key}/has-access": {
+      "get": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Get Member Feature Access",
+        "operationId": "get_member_feature_access_api_v1_member_features__feature_key__has_access_get",
+        "parameters": [
+          {
+            "name": "feature_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Feature Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberFeatureAccessPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/products": {
+      "get": {
+        "tags": [
+          "member"
+        ],
+        "summary": "List Member Products",
+        "operationId": "list_member_products_api_v1_member_products_get",
+        "parameters": [
+          {
+            "name": "verification",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Verification"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "new",
+              "title": "Sort"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberProductsListPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/products/{product_id}/ownership": {
+      "get": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Get Owned Product Context",
+        "operationId": "get_owned_product_context_api_v1_member_products__product_id__ownership_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberOwnedProductPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/products/{product_id}/plan": {
+      "post": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Set Owned Product Plan",
+        "operationId": "set_owned_product_plan_api_v1_member_products__product_id__plan_post",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberSetProductPlanInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberSuccessPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/products/{product_id}/connector": {
+      "get": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Get Member Product Connector",
+        "operationId": "get_member_product_connector_api_v1_member_products__product_id__connector_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/MemberProductConnectorPayload"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Member Product Connector Api V1 Member Products  Product Id  Connector Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/rewards/snapshot": {
+      "get": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Get Member Rewards Snapshot",
+        "operationId": "get_member_rewards_snapshot_api_v1_member_rewards_snapshot_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberRewardsSnapshotPayload"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/rewards/redeem": {
+      "post": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Redeem Member Reward",
+        "operationId": "redeem_member_reward_api_v1_member_rewards_redeem_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberRewardsRedeemInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberRewardsRedeemPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/claims/products": {
+      "get": {
+        "tags": [
+          "member"
+        ],
+        "summary": "List Claimable Products",
+        "operationId": "list_claimable_products_api_v1_member_claims_products_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberClaimableProductsPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/claims/{product_id}/target": {
+      "get": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Get Claim Target",
+        "operationId": "get_claim_target_api_v1_member_claims__product_id__target_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberClaimableProductPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/claims/{product_id}/dns/confirm": {
+      "post": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Confirm Claim Dns",
+        "operationId": "confirm_claim_dns_api_v1_member_claims__product_id__dns_confirm_post",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberClaimDnsConfirmPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/claims/{product_id}/otp/request": {
+      "post": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Request Claim Otp",
+        "operationId": "request_claim_otp_api_v1_member_claims__product_id__otp_request_post",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberClaimOtpRequestInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberClaimOtpRequestPayload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member/claims/{product_id}/otp/verify": {
+      "post": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Verify Claim Otp",
+        "operationId": "verify_claim_otp_api_v1_member_claims__product_id__otp_verify_post",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberClaimOtpVerifyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberClaimOtpVerifyPayload"
                 }
               }
             }
@@ -16876,12 +19226,148 @@
         ],
         "title": "AlternativeProductsPageResult"
       },
+      "AnalyticsBrowser": {
+        "properties": {
+          "browser": {
+            "type": "string",
+            "title": "Browser"
+          },
+          "visitors": {
+            "type": "integer",
+            "title": "Visitors"
+          },
+          "share": {
+            "type": "number",
+            "title": "Share"
+          }
+        },
+        "type": "object",
+        "required": [
+          "browser",
+          "visitors",
+          "share"
+        ],
+        "title": "AnalyticsBrowser"
+      },
+      "AnalyticsCity": {
+        "properties": {
+          "city": {
+            "type": "string",
+            "title": "City"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "visitors": {
+            "type": "integer",
+            "title": "Visitors"
+          },
+          "share": {
+            "type": "number",
+            "title": "Share"
+          }
+        },
+        "type": "object",
+        "required": [
+          "city",
+          "visitors",
+          "share"
+        ],
+        "title": "AnalyticsCity"
+      },
+      "AnalyticsCountry": {
+        "properties": {
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "visitors": {
+            "type": "integer",
+            "title": "Visitors"
+          },
+          "share": {
+            "type": "number",
+            "title": "Share"
+          }
+        },
+        "type": "object",
+        "required": [
+          "country",
+          "visitors",
+          "share"
+        ],
+        "title": "AnalyticsCountry"
+      },
       "AnalyticsDataSource": {
         "type": "string",
         "enum": [
           "ga4"
         ],
         "title": "AnalyticsDataSource"
+      },
+      "AnalyticsDevice": {
+        "properties": {
+          "deviceCategory": {
+            "type": "string",
+            "title": "Devicecategory"
+          },
+          "visitors": {
+            "type": "integer",
+            "title": "Visitors"
+          },
+          "share": {
+            "type": "number",
+            "title": "Share"
+          }
+        },
+        "type": "object",
+        "required": [
+          "deviceCategory",
+          "visitors",
+          "share"
+        ],
+        "title": "AnalyticsDevice"
       },
       "AnalyticsIngestionJob": {
         "type": "string",
@@ -17188,6 +19674,344 @@
           "failed"
         ],
         "title": "AnalyticsIngestionStatus"
+      },
+      "AnalyticsOperatingSystem": {
+        "properties": {
+          "os": {
+            "type": "string",
+            "title": "Os"
+          },
+          "visitors": {
+            "type": "integer",
+            "title": "Visitors"
+          },
+          "share": {
+            "type": "number",
+            "title": "Share"
+          }
+        },
+        "type": "object",
+        "required": [
+          "os",
+          "visitors",
+          "share"
+        ],
+        "title": "AnalyticsOperatingSystem"
+      },
+      "AnalyticsReferrer": {
+        "properties": {
+          "referrer": {
+            "type": "string",
+            "title": "Referrer"
+          },
+          "views": {
+            "type": "integer",
+            "title": "Views"
+          },
+          "share": {
+            "type": "number",
+            "title": "Share"
+          }
+        },
+        "type": "object",
+        "required": [
+          "referrer",
+          "views",
+          "share"
+        ],
+        "title": "AnalyticsReferrer"
+      },
+      "AnalyticsRegion": {
+        "properties": {
+          "region": {
+            "type": "string",
+            "title": "Region"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "visitors": {
+            "type": "integer",
+            "title": "Visitors"
+          },
+          "share": {
+            "type": "number",
+            "title": "Share"
+          }
+        },
+        "type": "object",
+        "required": [
+          "region",
+          "visitors",
+          "share"
+        ],
+        "title": "AnalyticsRegion"
+      },
+      "AnalyticsSnapshot": {
+        "properties": {
+          "pageViews": {
+            "type": "integer",
+            "title": "Pageviews"
+          },
+          "uniqueVisitors": {
+            "type": "integer",
+            "title": "Uniquevisitors"
+          },
+          "sessions": {
+            "type": "integer",
+            "title": "Sessions"
+          },
+          "bounceRate": {
+            "type": "number",
+            "title": "Bouncerate"
+          },
+          "averageSessionDuration": {
+            "type": "number",
+            "title": "Averagesessionduration"
+          },
+          "newUsers": {
+            "type": "integer",
+            "title": "Newusers"
+          },
+          "engagementRate": {
+            "type": "number",
+            "title": "Engagementrate"
+          },
+          "pagesPerSession": {
+            "type": "number",
+            "title": "Pagespersession"
+          },
+          "referrers": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsReferrer"
+            },
+            "type": "array",
+            "title": "Referrers"
+          },
+          "timeseries": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsTimeseriesPoint"
+            },
+            "type": "array",
+            "title": "Timeseries"
+          },
+          "browsers": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsBrowser"
+            },
+            "type": "array",
+            "title": "Browsers"
+          },
+          "operatingSystems": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsOperatingSystem"
+            },
+            "type": "array",
+            "title": "Operatingsystems"
+          },
+          "devices": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsDevice"
+            },
+            "type": "array",
+            "title": "Devices"
+          },
+          "countries": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsCountry"
+            },
+            "type": "array",
+            "title": "Countries"
+          },
+          "regions": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsRegion"
+            },
+            "type": "array",
+            "title": "Regions"
+          },
+          "cities": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsCity"
+            },
+            "type": "array",
+            "title": "Cities"
+          },
+          "topProductPages": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsTopProductPage"
+            },
+            "type": "array",
+            "title": "Topproductpages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pageViews",
+          "uniqueVisitors",
+          "sessions",
+          "bounceRate",
+          "averageSessionDuration",
+          "newUsers",
+          "engagementRate",
+          "pagesPerSession",
+          "referrers",
+          "timeseries",
+          "browsers",
+          "operatingSystems",
+          "devices",
+          "countries",
+          "regions",
+          "cities",
+          "topProductPages"
+        ],
+        "title": "AnalyticsSnapshot"
+      },
+      "AnalyticsTimeseriesPoint": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "pageViews": {
+            "type": "integer",
+            "title": "Pageviews"
+          },
+          "uniqueVisitors": {
+            "type": "integer",
+            "title": "Uniquevisitors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "label",
+          "pageViews",
+          "uniqueVisitors"
+        ],
+        "title": "AnalyticsTimeseriesPoint"
+      },
+      "AnalyticsTopProductPage": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "upvotes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upvotes"
+          },
+          "pageViews": {
+            "type": "integer",
+            "title": "Pageviews"
+          },
+          "uniqueVisitors": {
+            "type": "integer",
+            "title": "Uniquevisitors"
+          },
+          "sessions": {
+            "type": "integer",
+            "title": "Sessions"
+          },
+          "bounceRate": {
+            "type": "number",
+            "title": "Bouncerate"
+          },
+          "averageSessionDuration": {
+            "type": "number",
+            "title": "Averagesessionduration"
+          },
+          "shareOfViews": {
+            "type": "number",
+            "title": "Shareofviews"
+          }
+        },
+        "type": "object",
+        "required": [
+          "path",
+          "pageViews",
+          "uniqueVisitors",
+          "sessions",
+          "bounceRate",
+          "averageSessionDuration",
+          "shareOfViews"
+        ],
+        "title": "AnalyticsTopProductPage"
+      },
+      "AnalyticsVerifiedRevenue": {
+        "properties": {
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "rangeCents": {
+            "type": "integer",
+            "title": "Rangecents"
+          },
+          "previousRangeCents": {
+            "type": "integer",
+            "title": "Previousrangecents"
+          }
+        },
+        "type": "object",
+        "required": [
+          "currency",
+          "rangeCents",
+          "previousRangeCents"
+        ],
+        "title": "AnalyticsVerifiedRevenue"
       },
       "BrowseFilters": {
         "properties": {
@@ -17627,6 +20451,31 @@
           "slug"
         ],
         "title": "CategorySummary"
+      },
+      "CategoryTrendsPayload": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/CategorySummary"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PublicProductCard"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "category",
+          "items",
+          "total"
+        ],
+        "title": "CategoryTrendsPayload"
       },
       "CategoryUpdateSchema": {
         "properties": {
@@ -19020,6 +21869,145 @@
         ],
         "title": "IdentityWebhookResponse"
       },
+      "LeaderboardArchive": {
+        "properties": {
+          "months": {
+            "items": {
+              "$ref": "#/components/schemas/LeaderboardArchiveMonth"
+            },
+            "type": "array",
+            "title": "Months",
+            "default": []
+          },
+          "weeks": {
+            "items": {
+              "$ref": "#/components/schemas/LeaderboardArchiveWeek"
+            },
+            "type": "array",
+            "title": "Weeks",
+            "default": []
+          }
+        },
+        "type": "object",
+        "title": "LeaderboardArchive"
+      },
+      "LeaderboardArchiveMonth": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "month": {
+            "type": "integer",
+            "title": "Month"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "month"
+        ],
+        "title": "LeaderboardArchiveMonth"
+      },
+      "LeaderboardArchiveWeek": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "week": {
+            "type": "integer",
+            "title": "Week"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "week"
+        ],
+        "title": "LeaderboardArchiveWeek"
+      },
+      "LeaderboardPageFilters": {
+        "properties": {
+          "categorySlug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categoryslug"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "verifiedRevenueOnly": {
+            "type": "boolean",
+            "title": "Verifiedrevenueonly",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "limit"
+        ],
+        "title": "LeaderboardPageFilters"
+      },
+      "LeaderboardPagePayload": {
+        "properties": {
+          "filters": {
+            "$ref": "#/components/schemas/LeaderboardPageFilters"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/LeaderboardStats"
+          },
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/CategorySummary"
+            },
+            "type": "array",
+            "title": "Categories"
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/PublicProductCard"
+            },
+            "type": "array",
+            "title": "Products"
+          },
+          "categoryName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categoryname"
+          }
+        },
+        "type": "object",
+        "required": [
+          "filters",
+          "stats",
+          "categories",
+          "products"
+        ],
+        "title": "LeaderboardPagePayload"
+      },
+      "LeaderboardPeriod": {
+        "type": "string",
+        "enum": [
+          "day",
+          "week",
+          "month"
+        ],
+        "title": "LeaderboardPeriod"
+      },
       "LeaderboardRunCreateSchema": {
         "properties": {
           "period_start": {
@@ -19195,6 +22183,428 @@
         ],
         "title": "LeaderboardStats"
       },
+      "MemberActiveEntitlementPayload": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "featureKey": {
+            "type": "string",
+            "title": "Featurekey"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "startsAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Startsat"
+          },
+          "expiresAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiresat"
+          },
+          "productId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Productid"
+          },
+          "productName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Productname"
+          },
+          "productSlug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Productslug"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "featureKey",
+          "name",
+          "status"
+        ],
+        "title": "MemberActiveEntitlementPayload"
+      },
+      "MemberActiveUser": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "firstName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firstname"
+          },
+          "lastName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastname"
+          },
+          "onboardedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Onboardedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status"
+        ],
+        "title": "MemberActiveUser"
+      },
+      "MemberClaimDnsConfirmPayload": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "lockExpiresAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lockexpiresat"
+          }
+        },
+        "type": "object",
+        "title": "MemberClaimDnsConfirmPayload"
+      },
+      "MemberClaimOtpRequestInput": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "otpHash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Otphash"
+          },
+          "otpExpiresAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Otpexpiresat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "MemberClaimOtpRequestInput"
+      },
+      "MemberClaimOtpRequestPayload": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "expiresAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiresat"
+          },
+          "domain": {
+            "type": "string",
+            "title": "Domain"
+          },
+          "productName": {
+            "type": "string",
+            "title": "Productname"
+          }
+        },
+        "type": "object",
+        "required": [
+          "domain",
+          "productName"
+        ],
+        "title": "MemberClaimOtpRequestPayload"
+      },
+      "MemberClaimOtpVerifyInput": {
+        "properties": {
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "otpHash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Otphash"
+          }
+        },
+        "type": "object",
+        "title": "MemberClaimOtpVerifyInput"
+      },
+      "MemberClaimOtpVerifyPayload": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "previousOwnerId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previousownerid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug"
+        ],
+        "title": "MemberClaimOtpVerifyPayload"
+      },
+      "MemberClaimableProductPayload": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "websiteUrl": {
+            "type": "string",
+            "title": "Websiteurl"
+          },
+          "domain": {
+            "type": "string",
+            "title": "Domain"
+          },
+          "expectedTxt": {
+            "type": "string",
+            "title": "Expectedtxt"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "websiteUrl",
+          "domain",
+          "expectedTxt"
+        ],
+        "title": "MemberClaimableProductPayload"
+      },
+      "MemberClaimableProductsPayload": {
+        "properties": {
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/MemberClaimableProductPayload"
+            },
+            "type": "array",
+            "title": "Products"
+          }
+        },
+        "type": "object",
+        "required": [
+          "products"
+        ],
+        "title": "MemberClaimableProductsPayload"
+      },
+      "MemberFeatureAccessPayload": {
+        "properties": {
+          "featureKey": {
+            "type": "string",
+            "title": "Featurekey"
+          },
+          "hasAccess": {
+            "type": "boolean",
+            "title": "Hasaccess"
+          }
+        },
+        "type": "object",
+        "required": [
+          "featureKey",
+          "hasAccess"
+        ],
+        "title": "MemberFeatureAccessPayload"
+      },
+      "MemberFeedbackCreateInput": {
+        "properties": {
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "MemberFeedbackCreateInput"
+      },
       "MemberFeedbackCreateSchema": {
         "properties": {
           "user_id": {
@@ -19266,6 +22676,88 @@
           "message"
         ],
         "title": "MemberFeedbackCreateSchema"
+      },
+      "MemberFeedbackListItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "adminNote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adminnote"
+          },
+          "rewardEligible": {
+            "type": "boolean",
+            "title": "Rewardeligible",
+            "default": false
+          },
+          "rewardGrantedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rewardgrantedat"
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Createdat"
+          },
+          "updatedAt": {
+            "type": "string",
+            "title": "Updatedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "message",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ],
+        "title": "MemberFeedbackListItem"
       },
       "MemberFeedbackReadSchema": {
         "properties": {
@@ -19453,6 +22945,1418 @@
         },
         "type": "object",
         "title": "MemberFeedbackUpdateSchema"
+      },
+      "MemberManageablePlanSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "price": {
+            "type": "integer",
+            "title": "Price"
+          },
+          "isDefault": {
+            "type": "boolean",
+            "title": "Isdefault",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "type",
+          "price"
+        ],
+        "title": "MemberManageablePlanSummary"
+      },
+      "MemberManageableProductPayload": {
+        "properties": {
+          "product": {
+            "$ref": "#/components/schemas/MemberManageableProductSummary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product"
+        ],
+        "title": "MemberManageableProductPayload"
+      },
+      "MemberManageableProductSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "userId": {
+            "type": "string",
+            "title": "Userid"
+          },
+          "currentPlan": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MemberManageablePlanSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "userId"
+        ],
+        "title": "MemberManageableProductSummary"
+      },
+      "MemberOnboardingCompleteInput": {
+        "properties": {
+          "roleIntent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roleintent"
+          },
+          "heardFrom": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Heardfrom"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "firstName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firstname"
+          },
+          "lastName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastname"
+          }
+        },
+        "type": "object",
+        "title": "MemberOnboardingCompleteInput"
+      },
+      "MemberOnboardingCompletePayload": {
+        "properties": {
+          "firstTimeOnboarding": {
+            "type": "boolean",
+            "title": "Firsttimeonboarding"
+          },
+          "user": {
+            "$ref": "#/components/schemas/MemberActiveUser"
+          }
+        },
+        "type": "object",
+        "required": [
+          "firstTimeOnboarding",
+          "user"
+        ],
+        "title": "MemberOnboardingCompletePayload"
+      },
+      "MemberOverviewContextPayload": {
+        "properties": {
+          "rangeDays": {
+            "type": "integer",
+            "title": "Rangedays"
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/MemberOverviewProduct"
+            },
+            "type": "array",
+            "title": "Products"
+          },
+          "upvoteDates": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Upvotedates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rangeDays",
+          "products",
+          "upvoteDates"
+        ],
+        "title": "MemberOverviewContextPayload"
+      },
+      "MemberOverviewProduct": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "slug"
+        ],
+        "title": "MemberOverviewProduct"
+      },
+      "MemberOverviewSummaryPayload": {
+        "properties": {
+          "rangeDays": {
+            "type": "integer",
+            "title": "Rangedays"
+          },
+          "totalViews": {
+            "type": "integer",
+            "title": "Totalviews"
+          },
+          "uniqueVisitors": {
+            "type": "integer",
+            "title": "Uniquevisitors"
+          },
+          "upvotesInRange": {
+            "type": "integer",
+            "title": "Upvotesinrange"
+          },
+          "viewsOverTime": {
+            "items": {
+              "$ref": "#/components/schemas/MemberOverviewSummaryPoint"
+            },
+            "type": "array",
+            "title": "Viewsovertime"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rangeDays",
+          "totalViews",
+          "uniqueVisitors",
+          "upvotesInRange",
+          "viewsOverTime"
+        ],
+        "title": "MemberOverviewSummaryPayload"
+      },
+      "MemberOverviewSummaryPoint": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "views": {
+            "type": "integer",
+            "title": "Views"
+          },
+          "uniqueVisitors": {
+            "type": "integer",
+            "title": "Uniquevisitors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "label",
+          "views",
+          "uniqueVisitors"
+        ],
+        "title": "MemberOverviewSummaryPoint"
+      },
+      "MemberOwnedProductPayload": {
+        "properties": {
+          "product": {
+            "$ref": "#/components/schemas/MemberOwnedProductSummary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product"
+        ],
+        "title": "MemberOwnedProductPayload"
+      },
+      "MemberOwnedProductSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "userId": {
+            "type": "string",
+            "title": "Userid"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "planAssignedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planassignedat"
+          },
+          "currentPlan": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MemberManageablePlanSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "userId",
+          "status"
+        ],
+        "title": "MemberOwnedProductSummary"
+      },
+      "MemberProductAnalyticsSummary": {
+        "properties": {
+          "upvotes": {
+            "type": "integer",
+            "title": "Upvotes",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "MemberProductAnalyticsSummary"
+      },
+      "MemberProductCategorySummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ],
+        "title": "MemberProductCategorySummary"
+      },
+      "MemberProductConnectorPayload": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "lastSyncedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastsyncedat"
+          },
+          "lastSyncError": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastsyncerror"
+          },
+          "latestAllTimeRevenueCents": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latestalltimerevenuecents"
+          },
+          "latestCurrencyCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latestcurrencycode"
+          },
+          "latestPeriodStart": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latestperiodstart"
+          },
+          "config": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Config"
+          },
+          "keyHint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Keyhint"
+          },
+          "accountId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accountid"
+          },
+          "brandId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brandid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "MemberProductConnectorPayload"
+      },
+      "MemberProductListItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "logo": {
+            "type": "string",
+            "title": "Logo"
+          },
+          "userId": {
+            "type": "string",
+            "title": "Userid"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "createdAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Createdat"
+          },
+          "updatedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updatedat"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MemberProductCategorySummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "plan": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MemberProductPlanSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MemberProductVerificationSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "analytics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MemberProductAnalyticsSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "canDelete": {
+            "type": "boolean",
+            "title": "Candelete",
+            "default": false
+          },
+          "canViewAnalytics": {
+            "type": "boolean",
+            "title": "Canviewanalytics",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "logo",
+          "userId",
+          "status"
+        ],
+        "title": "MemberProductListItem"
+      },
+      "MemberProductPlanSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "MemberProductPlanSummary"
+      },
+      "MemberProductVerificationSummary": {
+        "properties": {
+          "isVerified": {
+            "type": "boolean",
+            "title": "Isverified",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "MemberProductVerificationSummary"
+      },
+      "MemberProductsListPayload": {
+        "properties": {
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/MemberProductListItem"
+            },
+            "type": "array",
+            "title": "Products"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "products",
+          "total",
+          "page",
+          "limit"
+        ],
+        "title": "MemberProductsListPayload"
+      },
+      "MemberRecentRedemptionPayload": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "featureKey": {
+            "type": "string",
+            "title": "Featurekey"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "cost": {
+            "type": "integer",
+            "title": "Cost"
+          },
+          "createdAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Createdat"
+          },
+          "startsAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Startsat"
+          },
+          "activatedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activatedat"
+          },
+          "expiresAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiresat"
+          },
+          "productId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Productid"
+          },
+          "productName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Productname"
+          },
+          "productSlug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Productslug"
+          },
+          "placementStatus": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Placementstatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "featureKey",
+          "name",
+          "status",
+          "cost"
+        ],
+        "title": "MemberRecentRedemptionPayload"
+      },
+      "MemberRewardCatalogItemPayload": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "featureKey": {
+            "type": "string",
+            "title": "Featurekey"
+          },
+          "planFeatureKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planfeaturekey"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "baseCost": {
+            "type": "integer",
+            "title": "Basecost"
+          },
+          "durationSeconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Durationseconds"
+          },
+          "isActive": {
+            "type": "boolean",
+            "title": "Isactive",
+            "default": true
+          },
+          "maxActivePerUser": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxactiveperuser"
+          },
+          "maxPendingPerUser": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxpendingperuser"
+          },
+          "requiresProduct": {
+            "type": "boolean",
+            "title": "Requiresproduct",
+            "default": false
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          },
+          "canAfford": {
+            "type": "boolean",
+            "title": "Canafford",
+            "default": false
+          },
+          "canRedeem": {
+            "type": "boolean",
+            "title": "Canredeem",
+            "default": false
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "activeCount": {
+            "type": "integer",
+            "title": "Activecount"
+          },
+          "pendingCount": {
+            "type": "integer",
+            "title": "Pendingcount"
+          },
+          "requiresSchedule": {
+            "type": "boolean",
+            "title": "Requiresschedule",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "featureKey",
+          "name",
+          "category",
+          "baseCost",
+          "reasons",
+          "activeCount",
+          "pendingCount"
+        ],
+        "title": "MemberRewardCatalogItemPayload"
+      },
+      "MemberRewardProductOptionPayload": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "status"
+        ],
+        "title": "MemberRewardProductOptionPayload"
+      },
+      "MemberRewardTransactionPayload": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "rewardAmount": {
+            "type": "integer",
+            "title": "Rewardamount"
+          },
+          "balanceAfter": {
+            "type": "integer",
+            "title": "Balanceafter"
+          },
+          "createdAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Createdat"
+          },
+          "ruleKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rulekey"
+          },
+          "ruleName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rulename"
+          },
+          "rewardKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rewardkey"
+          },
+          "rewardName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rewardname"
+          },
+          "productId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Productid"
+          },
+          "productName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Productname"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "adjustmentAmount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adjustmentamount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "rewardAmount",
+          "balanceAfter"
+        ],
+        "title": "MemberRewardTransactionPayload"
+      },
+      "MemberRewardsBalancePayload": {
+        "properties": {
+          "balance": {
+            "type": "integer",
+            "title": "Balance"
+          },
+          "lifetimeEarned": {
+            "type": "integer",
+            "title": "Lifetimeearned"
+          },
+          "lifetimeSpent": {
+            "type": "integer",
+            "title": "Lifetimespent"
+          },
+          "lifetimeAdjusted": {
+            "type": "integer",
+            "title": "Lifetimeadjusted"
+          },
+          "currentStreakCount": {
+            "type": "integer",
+            "title": "Currentstreakcount"
+          },
+          "longestStreakCount": {
+            "type": "integer",
+            "title": "Longeststreakcount"
+          },
+          "currentStreakTier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currentstreaktier"
+          },
+          "streakActiveThrough": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Streakactivethrough"
+          },
+          "lastEarnedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastearnedat"
+          },
+          "lastRedeemedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastredeemedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "balance",
+          "lifetimeEarned",
+          "lifetimeSpent",
+          "lifetimeAdjusted",
+          "currentStreakCount",
+          "longestStreakCount"
+        ],
+        "title": "MemberRewardsBalancePayload"
+      },
+      "MemberRewardsRedeemInput": {
+        "properties": {
+          "featureKey": {
+            "type": "string",
+            "title": "Featurekey"
+          },
+          "productId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Productid"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "slotKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slotkey"
+          }
+        },
+        "type": "object",
+        "required": [
+          "featureKey"
+        ],
+        "title": "MemberRewardsRedeemInput"
+      },
+      "MemberRewardsRedeemPayload": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "redemptionId": {
+            "type": "string",
+            "title": "Redemptionid"
+          },
+          "balanceAfter": {
+            "type": "integer",
+            "title": "Balanceafter"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "redemptionId",
+          "balanceAfter",
+          "message"
+        ],
+        "title": "MemberRewardsRedeemPayload"
+      },
+      "MemberRewardsSnapshotPayload": {
+        "properties": {
+          "balance": {
+            "$ref": "#/components/schemas/MemberRewardsBalancePayload"
+          },
+          "transactions": {
+            "items": {
+              "$ref": "#/components/schemas/MemberRewardTransactionPayload"
+            },
+            "type": "array",
+            "title": "Transactions"
+          },
+          "catalog": {
+            "items": {
+              "$ref": "#/components/schemas/MemberRewardCatalogItemPayload"
+            },
+            "type": "array",
+            "title": "Catalog"
+          },
+          "activeEntitlements": {
+            "items": {
+              "$ref": "#/components/schemas/MemberActiveEntitlementPayload"
+            },
+            "type": "array",
+            "title": "Activeentitlements"
+          },
+          "recentRedemptions": {
+            "items": {
+              "$ref": "#/components/schemas/MemberRecentRedemptionPayload"
+            },
+            "type": "array",
+            "title": "Recentredemptions"
+          },
+          "productOptions": {
+            "items": {
+              "$ref": "#/components/schemas/MemberRewardProductOptionPayload"
+            },
+            "type": "array",
+            "title": "Productoptions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "balance",
+          "transactions",
+          "catalog",
+          "activeEntitlements",
+          "recentRedemptions",
+          "productOptions"
+        ],
+        "title": "MemberRewardsSnapshotPayload"
+      },
+      "MemberSetProductPlanInput": {
+        "properties": {
+          "planId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planid"
+          },
+          "subscriptionId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subscriptionid"
+          }
+        },
+        "type": "object",
+        "title": "MemberSetProductPlanInput"
+      },
+      "MemberSuccessPayload": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "MemberSuccessPayload"
+      },
+      "MemberSyncProfileInput": {
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "firstName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firstname"
+          },
+          "lastName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastname"
+          }
+        },
+        "type": "object",
+        "title": "MemberSyncProfileInput"
+      },
+      "MonthlyLeaderboardMonth": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "title": "Month"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "month",
+          "label"
+        ],
+        "title": "MonthlyLeaderboardMonth"
       },
       "MonthlyLeaderboardNotificationCreateSchema": {
         "properties": {
@@ -22305,6 +27209,45 @@
         "type": "object",
         "title": "PaymentRevenueSnapshotUpdateSchema"
       },
+      "PeriodicLeaderboardPayload": {
+        "properties": {
+          "period": {
+            "$ref": "#/components/schemas/LeaderboardPeriod"
+          },
+          "periodLabel": {
+            "type": "string",
+            "title": "Periodlabel"
+          },
+          "periodStart": {
+            "type": "string",
+            "title": "Periodstart"
+          },
+          "periodEnd": {
+            "type": "string",
+            "title": "Periodend"
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/PublicProductCard"
+            },
+            "type": "array",
+            "title": "Products"
+          },
+          "archive": {
+            "$ref": "#/components/schemas/LeaderboardArchive"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period",
+          "periodLabel",
+          "periodStart",
+          "periodEnd",
+          "products",
+          "archive"
+        ],
+        "title": "PeriodicLeaderboardPayload"
+      },
       "PlacementScheduleCreateSchema": {
         "properties": {
           "entitlement_id": {
@@ -24787,6 +29730,93 @@
         ],
         "title": "ProductReadSchema"
       },
+      "ProductRevenuePoint": {
+        "properties": {
+          "periodStart": {
+            "type": "string",
+            "title": "Periodstart"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "allTimeRevenueCents": {
+            "type": "integer",
+            "title": "Alltimerevenuecents"
+          },
+          "periodRevenueCents": {
+            "type": "integer",
+            "title": "Periodrevenuecents"
+          }
+        },
+        "type": "object",
+        "required": [
+          "periodStart",
+          "label",
+          "allTimeRevenueCents",
+          "periodRevenueCents"
+        ],
+        "title": "ProductRevenuePoint"
+      },
+      "ProductRevenueSummary": {
+        "properties": {
+          "currencyCode": {
+            "type": "string",
+            "title": "Currencycode"
+          },
+          "lastSyncedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastsyncedat"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "latestAllTimeRevenueCents": {
+            "type": "integer",
+            "title": "Latestalltimerevenuecents"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/ProductRevenuePoint"
+            },
+            "type": "array",
+            "title": "Points",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "currencyCode",
+          "latestAllTimeRevenueCents"
+        ],
+        "title": "ProductRevenueSummary"
+      },
       "ProductStatus": {
         "type": "string",
         "enum": [
@@ -27100,6 +32130,276 @@
         "type": "object",
         "title": "ProductVerificationUpdateSchema"
       },
+      "PublicAnalyticsPayload": {
+        "properties": {
+          "snapshot": {
+            "$ref": "#/components/schemas/AnalyticsSnapshot"
+          },
+          "previousSnapshot": {
+            "$ref": "#/components/schemas/AnalyticsSnapshot"
+          },
+          "realtimeVisitors": {
+            "type": "integer",
+            "title": "Realtimevisitors"
+          },
+          "verifiedRevenue": {
+            "$ref": "#/components/schemas/AnalyticsVerifiedRevenue"
+          }
+        },
+        "type": "object",
+        "required": [
+          "snapshot",
+          "previousSnapshot",
+          "realtimeVisitors",
+          "verifiedRevenue"
+        ],
+        "title": "PublicAnalyticsPayload"
+      },
+      "PublicPlan": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "price": {
+            "type": "integer",
+            "title": "Price"
+          },
+          "discount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discount"
+          },
+          "boostForDays": {
+            "type": "integer",
+            "title": "Boostfordays",
+            "default": 1
+          },
+          "isDefault": {
+            "type": "boolean",
+            "title": "Isdefault",
+            "default": false
+          },
+          "externalId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Externalid"
+          },
+          "paymentFrequencyCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paymentfrequencycount"
+          },
+          "paymentFrequencyInterval": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paymentfrequencyinterval"
+          },
+          "subscriptionPeriodCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subscriptionperiodcount"
+          },
+          "subscriptionPeriodInterval": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subscriptionperiodinterval"
+          },
+          "productCount": {
+            "type": "integer",
+            "title": "Productcount",
+            "default": 0
+          },
+          "features": {
+            "items": {
+              "$ref": "#/components/schemas/PublicPlanFeature"
+            },
+            "type": "array",
+            "title": "Features",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "type",
+          "price"
+        ],
+        "title": "PublicPlan"
+      },
+      "PublicPlanFeature": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "isExperimental": {
+            "type": "boolean",
+            "title": "Isexperimental"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "key",
+          "description",
+          "enabled",
+          "isExperimental"
+        ],
+        "title": "PublicPlanFeature"
+      },
+      "PublicPlanFeatureAssignment": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "enabled"
+        ],
+        "title": "PublicPlanFeatureAssignment"
+      },
+      "PublicProductAlternative": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "websiteUrl": {
+            "type": "string",
+            "title": "Websiteurl"
+          },
+          "logoUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logourl"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "websiteUrl"
+        ],
+        "title": "PublicProductAlternative"
+      },
+      "PublicProductAnalytics": {
+        "properties": {
+          "upvotes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upvotes"
+          }
+        },
+        "type": "object",
+        "title": "PublicProductAnalytics"
+      },
       "PublicProductCard": {
         "properties": {
           "id": {
@@ -27225,6 +32525,1303 @@
           "tagline"
         ],
         "title": "PublicProductCard"
+      },
+      "PublicProductCategoryDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "useCases": {
+            "items": {
+              "$ref": "#/components/schemas/PublicProductUseCase"
+            },
+            "type": "array",
+            "title": "Usecases",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ],
+        "title": "PublicProductCategoryDetail"
+      },
+      "PublicProductDetailPayload": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "tagline": {
+            "type": "string",
+            "title": "Tagline"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "websiteUrl": {
+            "type": "string",
+            "title": "Websiteurl"
+          },
+          "logo": {
+            "type": "string",
+            "title": "Logo"
+          },
+          "bannerImage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bannerimage"
+          },
+          "pricingModel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pricingmodel"
+          },
+          "startingPriceCents": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Startingpricecents"
+          },
+          "currencyCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currencycode"
+          },
+          "platforms": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Platforms",
+            "default": []
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          },
+          "publishedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publishedat"
+          },
+          "createdAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Createdat"
+          },
+          "updatedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updatedat"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Keywords",
+            "default": []
+          },
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicProductCategoryDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "alternatives": {
+            "items": {
+              "$ref": "#/components/schemas/PublicProductAlternative"
+            },
+            "type": "array",
+            "title": "Alternatives",
+            "default": []
+          },
+          "user": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicProductUser"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicProductMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "analytics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicProductAnalytics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicProductVerification"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "interest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProductInterestSignals"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "media": {
+            "items": {
+              "$ref": "#/components/schemas/PublicProductMedia"
+            },
+            "type": "array",
+            "title": "Media",
+            "default": []
+          },
+          "badges": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Badges",
+            "default": []
+          },
+          "planAssignments": {
+            "items": {
+              "$ref": "#/components/schemas/PublicPlanFeatureAssignment"
+            },
+            "type": "array",
+            "title": "Planassignments",
+            "default": []
+          },
+          "activeFeatureEntitlements": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Activefeatureentitlements",
+            "default": []
+          },
+          "upvotesCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upvotescount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "tagline",
+          "description",
+          "websiteUrl",
+          "logo",
+          "status"
+        ],
+        "title": "PublicProductDetailPayload"
+      },
+      "PublicProductLeaderboardScore": {
+        "properties": {
+          "points": {
+            "type": "integer",
+            "title": "Points"
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "points"
+        ],
+        "title": "PublicProductLeaderboardScore"
+      },
+      "PublicProductMedia": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "imageUrl": {
+            "type": "string",
+            "title": "Imageurl"
+          },
+          "altText": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alttext"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "imageUrl"
+        ],
+        "title": "PublicProductMedia"
+      },
+      "PublicProductMetaPayload": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "tagline": {
+            "type": "string",
+            "title": "Tagline"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "websiteUrl": {
+            "type": "string",
+            "title": "Websiteurl"
+          },
+          "logo": {
+            "type": "string",
+            "title": "Logo"
+          },
+          "bannerImage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bannerimage"
+          },
+          "pricingModel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pricingmodel"
+          },
+          "startingPriceCents": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Startingpricecents"
+          },
+          "currencyCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currencycode"
+          },
+          "platforms": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Platforms",
+            "default": []
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          },
+          "publishedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publishedat"
+          },
+          "createdAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Createdat"
+          },
+          "updatedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updatedat"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Keywords",
+            "default": []
+          },
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProductCategorySummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "user": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicProductUser"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicProductMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "analytics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicProductAnalytics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicProductVerification"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "media": {
+            "items": {
+              "$ref": "#/components/schemas/PublicProductMedia"
+            },
+            "type": "array",
+            "title": "Media",
+            "default": []
+          },
+          "planAssignments": {
+            "items": {
+              "$ref": "#/components/schemas/PublicPlanFeatureAssignment"
+            },
+            "type": "array",
+            "title": "Planassignments",
+            "default": []
+          },
+          "activeFeatureEntitlements": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Activefeatureentitlements",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "tagline",
+          "description",
+          "websiteUrl",
+          "logo",
+          "status"
+        ],
+        "title": "PublicProductMetaPayload"
+      },
+      "PublicProductMetadata": {
+        "properties": {
+          "demoUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Demourl"
+          },
+          "utmCampaign": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Utmcampaign"
+          }
+        },
+        "type": "object",
+        "title": "PublicProductMetadata"
+      },
+      "PublicProductRedirectPayload": {
+        "properties": {
+          "destination": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Destination"
+          },
+          "fallbackPath": {
+            "type": "string",
+            "title": "Fallbackpath"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fallbackPath"
+        ],
+        "title": "PublicProductRedirectPayload"
+      },
+      "PublicProductUpvoteState": {
+        "properties": {
+          "upvoted": {
+            "type": "boolean",
+            "title": "Upvoted"
+          },
+          "upvotes": {
+            "type": "integer",
+            "title": "Upvotes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "upvoted",
+          "upvotes"
+        ],
+        "title": "PublicProductUpvoteState"
+      },
+      "PublicProductUseCase": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "label"
+        ],
+        "title": "PublicProductUseCase"
+      },
+      "PublicProductUser": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "clerkId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clerkid"
+          },
+          "firstName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firstname"
+          },
+          "lastName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastname"
+          },
+          "avatarUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatarurl"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "PublicProductUser"
+      },
+      "PublicProductVerification": {
+        "properties": {
+          "isVerified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Isverified"
+          }
+        },
+        "type": "object",
+        "title": "PublicProductVerification"
+      },
+      "PublicRewardsData": {
+        "properties": {
+          "stats": {
+            "$ref": "#/components/schemas/PublicRewardsStats"
+          },
+          "rules": {
+            "items": {
+              "$ref": "#/components/schemas/PublicRewardsRule"
+            },
+            "type": "array",
+            "title": "Rules"
+          },
+          "rewards": {
+            "items": {
+              "$ref": "#/components/schemas/PublicRewardsReward"
+            },
+            "type": "array",
+            "title": "Rewards"
+          },
+          "recentRedemptions": {
+            "items": {
+              "$ref": "#/components/schemas/PublicRewardsRedemption"
+            },
+            "type": "array",
+            "title": "Recentredemptions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stats",
+          "rules",
+          "rewards",
+          "recentRedemptions"
+        ],
+        "title": "PublicRewardsData"
+      },
+      "PublicRewardsRedemption": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "featureKey": {
+            "type": "string",
+            "title": "Featurekey"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "productName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Productname"
+          },
+          "productSlug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Productslug"
+          },
+          "cost": {
+            "type": "integer",
+            "title": "Cost"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RedemptionStatus"
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Createdat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "featureKey",
+          "cost",
+          "status",
+          "createdAt"
+        ],
+        "title": "PublicRewardsRedemption"
+      },
+      "PublicRewardsReward": {
+        "properties": {
+          "featureKey": {
+            "type": "string",
+            "title": "Featurekey"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "category": {
+            "$ref": "#/components/schemas/RewardFeatureCategory"
+          },
+          "baseCost": {
+            "type": "integer",
+            "title": "Basecost"
+          },
+          "durationSeconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Durationseconds"
+          },
+          "requiresProduct": {
+            "type": "boolean",
+            "title": "Requiresproduct"
+          },
+          "maxActivePerUser": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxactiveperuser"
+          },
+          "maxPendingPerUser": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxpendingperuser"
+          },
+          "redemptionCount": {
+            "type": "integer",
+            "title": "Redemptioncount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "featureKey",
+          "name",
+          "category",
+          "baseCost",
+          "requiresProduct",
+          "redemptionCount"
+        ],
+        "title": "PublicRewardsReward"
+      },
+      "PublicRewardsRule": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "category": {
+            "$ref": "#/components/schemas/RewardRuleCategory"
+          },
+          "baseRewardAmount": {
+            "type": "integer",
+            "title": "Baserewardamount"
+          },
+          "dailyCap": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dailycap"
+          },
+          "lifetimeCap": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lifetimecap"
+          },
+          "totalAwarded": {
+            "type": "integer",
+            "title": "Totalawarded"
+          },
+          "awardCount": {
+            "type": "integer",
+            "title": "Awardcount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "category",
+          "baseRewardAmount",
+          "totalAwarded",
+          "awardCount"
+        ],
+        "title": "PublicRewardsRule"
+      },
+      "PublicRewardsSpentWindow": {
+        "properties": {
+          "rewardAmount": {
+            "type": "integer",
+            "title": "Rewardamount"
+          },
+          "redemptions": {
+            "type": "integer",
+            "title": "Redemptions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rewardAmount",
+          "redemptions"
+        ],
+        "title": "PublicRewardsSpentWindow"
+      },
+      "PublicRewardsStats": {
+        "properties": {
+          "membersWithRewards": {
+            "type": "integer",
+            "title": "Memberswithrewards"
+          },
+          "activeBalances": {
+            "type": "integer",
+            "title": "Activebalances"
+          },
+          "earnedLast30d": {
+            "$ref": "#/components/schemas/PublicRewardsStatsWindow"
+          },
+          "spentLast30d": {
+            "$ref": "#/components/schemas/PublicRewardsSpentWindow"
+          }
+        },
+        "type": "object",
+        "required": [
+          "membersWithRewards",
+          "activeBalances",
+          "earnedLast30d",
+          "spentLast30d"
+        ],
+        "title": "PublicRewardsStats"
+      },
+      "PublicRewardsStatsWindow": {
+        "properties": {
+          "rewardAmount": {
+            "type": "integer",
+            "title": "Rewardamount"
+          },
+          "transactions": {
+            "type": "integer",
+            "title": "Transactions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rewardAmount",
+          "transactions"
+        ],
+        "title": "PublicRewardsStatsWindow"
+      },
+      "PublicUserMeta": {
+        "properties": {
+          "firstName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firstname"
+          },
+          "lastName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastname"
+          }
+        },
+        "type": "object",
+        "title": "PublicUserMeta"
+      },
+      "PublicUserProfile": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "clerkId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clerkid"
+          },
+          "firstName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firstname"
+          },
+          "lastName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastname"
+          },
+          "avatarUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatarurl"
+          },
+          "productCount": {
+            "type": "integer",
+            "title": "Productcount",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "PublicUserProfile"
+      },
+      "PublicUserSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "clerkId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clerkid"
+          },
+          "firstName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firstname"
+          },
+          "lastName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastname"
+          },
+          "avatarUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatarurl"
+          },
+          "productCount": {
+            "type": "integer",
+            "title": "Productcount",
+            "default": 0
+          },
+          "latestRevenueCents": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latestrevenuecents"
+          },
+          "revenueCurrencyCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revenuecurrencycode"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "PublicUserSummary"
+      },
+      "PublicUsersPageResult": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PublicUserSummary"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "pageSize": {
+            "type": "integer",
+            "title": "Pagesize"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "title": "Hasmore"
+          },
+          "nextPage": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextpage"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize",
+          "hasMore"
+        ],
+        "title": "PublicUsersPageResult"
       },
       "RealtimeVisitors": {
         "properties": {
@@ -29102,6 +35699,177 @@
         },
         "type": "object",
         "title": "RewardTransactionUpdateSchema"
+      },
+      "RewardsLeaderboardEntry": {
+        "properties": {
+          "userId": {
+            "type": "string",
+            "title": "Userid"
+          },
+          "balance": {
+            "type": "integer",
+            "title": "Balance"
+          },
+          "lifetimeEarned": {
+            "type": "integer",
+            "title": "Lifetimeearned"
+          },
+          "lifetimeSpent": {
+            "type": "integer",
+            "title": "Lifetimespent"
+          },
+          "lifetimeAdjusted": {
+            "type": "integer",
+            "title": "Lifetimeadjusted"
+          },
+          "lifetimeRefunded": {
+            "type": "integer",
+            "title": "Lifetimerefunded"
+          },
+          "currentStreakCount": {
+            "type": "integer",
+            "title": "Currentstreakcount"
+          },
+          "longestStreakCount": {
+            "type": "integer",
+            "title": "Longeststreakcount"
+          },
+          "lastEarnedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastearnedat"
+          },
+          "lastRedeemedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastredeemedat"
+          },
+          "displayName": {
+            "type": "string",
+            "title": "Displayname"
+          },
+          "initials": {
+            "type": "string",
+            "title": "Initials"
+          },
+          "avatarUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatarurl"
+          },
+          "launchCount": {
+            "type": "integer",
+            "title": "Launchcount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "userId",
+          "balance",
+          "lifetimeEarned",
+          "lifetimeSpent",
+          "lifetimeAdjusted",
+          "lifetimeRefunded",
+          "currentStreakCount",
+          "longestStreakCount",
+          "displayName",
+          "initials",
+          "launchCount"
+        ],
+        "title": "RewardsLeaderboardEntry"
+      },
+      "RewardsLeaderboardPageResult": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RewardsLeaderboardEntry"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "pageSize": {
+            "type": "integer",
+            "title": "Pagesize"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "title": "Hasmore"
+          },
+          "nextPage": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextpage"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "hasMore",
+          "total"
+        ],
+        "title": "RewardsLeaderboardPageResult"
+      },
+      "RewardsLeaderboardPosition": {
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "totalEligible": {
+            "type": "integer",
+            "title": "Totaleligible"
+          },
+          "lifetimeEarned": {
+            "type": "integer",
+            "title": "Lifetimeearned"
+          },
+          "launchCount": {
+            "type": "integer",
+            "title": "Launchcount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rank",
+          "totalEligible",
+          "lifetimeEarned",
+          "launchCount"
+        ],
+        "title": "RewardsLeaderboardPosition"
       },
       "SiteTrafficBrowserDailyCreateSchema": {
         "properties": {
@@ -31498,6 +38266,190 @@
         "type": "object",
         "title": "UserPlanPurchaseUpdateSchema"
       },
+      "UserProductsPageResult": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/HomepageFeedItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "pageSize": {
+            "type": "integer",
+            "title": "Pagesize"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "title": "Hasmore"
+          },
+          "nextPage": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextpage"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize",
+          "hasMore"
+        ],
+        "title": "UserProductsPageResult"
+      },
+      "UserProfileBadgeSummary": {
+        "properties": {
+          "showcase": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Showcase"
+          },
+          "overflow": {
+            "type": "integer",
+            "title": "Overflow"
+          }
+        },
+        "type": "object",
+        "required": [
+          "showcase",
+          "overflow"
+        ],
+        "title": "UserProfileBadgeSummary"
+      },
+      "UserProfileCategoryEntry": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "count"
+        ],
+        "title": "UserProfileCategoryEntry"
+      },
+      "UserProfilePayload": {
+        "properties": {
+          "profile": {
+            "$ref": "#/components/schemas/PublicUserProfile"
+          },
+          "leaderboardPosition": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RewardsLeaderboardPosition"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "productsPage": {
+            "$ref": "#/components/schemas/UserProductsPageResult"
+          },
+          "totalProducts": {
+            "type": "integer",
+            "title": "Totalproducts"
+          },
+          "totalUpvotes": {
+            "type": "integer",
+            "title": "Totalupvotes"
+          },
+          "totalVerifiedRevenueCents": {
+            "type": "integer",
+            "title": "Totalverifiedrevenuecents"
+          },
+          "totalVerifiedRevenueCurrency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totalverifiedrevenuecurrency"
+          },
+          "rewardPoints": {
+            "type": "integer",
+            "title": "Rewardpoints"
+          },
+          "verifiedCount": {
+            "type": "integer",
+            "title": "Verifiedcount"
+          },
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/UserProfileCategoryEntry"
+            },
+            "type": "array",
+            "title": "Categories"
+          },
+          "focusCategories": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Focuscategories"
+          },
+          "extraCategoryCount": {
+            "type": "integer",
+            "title": "Extracategorycount"
+          },
+          "badges": {
+            "$ref": "#/components/schemas/UserProfileBadgeSummary"
+          },
+          "earliestLaunch": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Earliestlaunch"
+          }
+        },
+        "type": "object",
+        "required": [
+          "profile",
+          "productsPage",
+          "totalProducts",
+          "totalUpvotes",
+          "totalVerifiedRevenueCents",
+          "rewardPoints",
+          "verifiedCount",
+          "categories",
+          "focusCategories",
+          "extraCategoryCount",
+          "badges"
+        ],
+        "title": "UserProfilePayload"
+      },
       "UserReadSchema": {
         "properties": {
           "id": {
@@ -31808,6 +38760,53 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VerifiedRevenueProductsPageResult": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/HomepageFeedItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "pageSize": {
+            "type": "integer",
+            "title": "Pagesize"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "title": "Hasmore"
+          },
+          "nextPage": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextpage"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize",
+          "hasMore"
+        ],
+        "title": "VerifiedRevenueProductsPageResult"
       }
     }
   }

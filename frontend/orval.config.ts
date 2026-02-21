@@ -33,7 +33,7 @@ const omitWebhookPaths = (schema: OpenAPIObject): OpenAPIObject => {
 export default defineConfig({
   fastapi: {
     input: {
-      target: "http://localhost:8000/openapi.json",
+      target: "../backend/openapi.json",
       filters: {
         mode: "exclude",
         tags: [/webhooks?/i],

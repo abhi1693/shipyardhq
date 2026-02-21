@@ -7,20 +7,20 @@ import {
 } from "@/lib/server/social/linkedinAuth"
 import { buildCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
-import { sendSystemUpdateNotification } from "@/lib/server/notifications/novuAdmin"
+import { sendSystemUpdateNotification } from "@/lib/server/notifications/novuSystemUpdates"
 
 const MIN_NOTIFY_INTERVAL_MS = 30 * 60 * 1000 // 30 minutes
 const NOTIFY_THROTTLE_KEY = buildCacheKey("linkedin", "auth-notify", "last")
 const notifyFallback: { last?: number } = {}
 
 type NotifyResult =
-  | { sent: true; adminEmail: string; authUrl: string }
+  | { sent: true; supportEmail: string; authUrl: string }
   | {
       sent: false
       reason:
-        | "missing-admin-email"
-        | "missing-admin-user"
-        | "missing-admin-clerk-id"
+        | "missing-support-email"
+        | "missing-support-user"
+        | "missing-support-clerk-id"
         | "token-present"
         | "throttled"
         | "email-failed"
@@ -79,23 +79,23 @@ async function recordNotificationTimestamp() {
 export async function notifyLinkedInAuthNeeded(
   options: NotifyOptions = {},
 ): Promise<NotifyResult> {
-  const adminEmail = siteConfig.adminEmail?.trim()
-  if (!adminEmail) {
-    return { sent: false, reason: "missing-admin-email" }
+  const supportEmail = siteConfig.supportEmail?.trim()
+  if (!supportEmail) {
+    return { sent: false, reason: "missing-support-email" }
   }
 
-  const adminUser = await prisma.user.findFirst({
-    where: { email: { equals: adminEmail, mode: "insensitive" } },
+  const supportUser = await prisma.user.findFirst({
+    where: { email: { equals: supportEmail, mode: "insensitive" } },
     select: { clerkId: true, email: true, firstName: true, lastName: true },
   })
 
-  if (!adminUser) {
-    return { sent: false, reason: "missing-admin-user" }
+  if (!supportUser) {
+    return { sent: false, reason: "missing-support-user" }
   }
 
-  const adminClerkId = adminUser.clerkId?.trim()
-  if (!adminClerkId) {
-    return { sent: false, reason: "missing-admin-clerk-id" }
+  const supportClerkId = supportUser.clerkId?.trim()
+  if (!supportClerkId) {
+    return { sent: false, reason: "missing-support-clerk-id" }
   }
 
   const baseUrl = getAppBaseUrl()
@@ -129,10 +129,10 @@ export async function notifyLinkedInAuthNeeded(
   try {
     await sendSystemUpdateNotification({
       recipient: {
-        subscriberId: adminClerkId,
-        email: adminEmail,
-        firstName: adminUser.firstName,
-        lastName: adminUser.lastName,
+        subscriberId: supportClerkId,
+        email: supportEmail,
+        firstName: supportUser.firstName,
+        lastName: supportUser.lastName,
       },
       payload: {
         subject: "LinkedIn OAuth approval needed",
@@ -145,7 +145,7 @@ export async function notifyLinkedInAuthNeeded(
       transactionId: `system_update:linkedin_auth_alert:${options.trigger ?? "unknown"}`,
     })
     await recordNotificationTimestamp()
-    return { sent: true, adminEmail, authUrl }
+    return { sent: true, supportEmail, authUrl }
   } catch (error) {
     console.error("[novu] failed to send LinkedIn auth alert", error)
     return { sent: false, reason: "email-failed" }
