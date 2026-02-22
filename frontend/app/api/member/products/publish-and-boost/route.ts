@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
-import { setProductStatusAction } from "@/lib/server/product-management"
+import { updateOwnedProductStatus } from "@/lib/server/member-product-mutations"
 import { resolveChoosePlanRedirect } from "@/lib/server/member-products"
 
 const safePath = (value: FormDataEntryValue | null, fallback: string) => {
@@ -25,8 +25,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.redirect(new URL(redirectPath, request.url), 303)
   }
 
-  const statusResult = await setProductStatusAction(productId, "published")
-  if (statusResult && typeof statusResult === "object" && "error" in statusResult) {
+  const statusResult = await updateOwnedProductStatus({
+    productId,
+    status: "published",
+  })
+  if ("error" in statusResult) {
     return NextResponse.redirect(
       new URL(`${redirectPath}?error=publish_failed`, request.url),
       303,

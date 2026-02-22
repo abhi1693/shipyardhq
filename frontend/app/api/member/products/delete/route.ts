@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { deleteProductAction } from "@/lib/server/product-management"
+import { deleteOwnedProduct } from "@/lib/server/member-product-mutations"
 import { memberProductsStatusPath } from "@/lib/routes"
 
 const DEFAULT_SUCCESS_PATH = memberProductsStatusPath("deleted")
@@ -25,11 +25,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.redirect(new URL(errorPath, request.url), 303)
   }
 
-  const result = await deleteProductAction(productId)
-  const destination =
-    result && typeof result === "object" && "error" in result
-      ? errorPath
-      : successPath
+  try {
+    const result = await deleteOwnedProduct({ productId })
+    const destination = "error" in result ? errorPath : successPath
 
-  return NextResponse.redirect(new URL(destination, request.url), 303)
+    return NextResponse.redirect(new URL(destination, request.url), 303)
+  } catch {
+    return NextResponse.redirect(new URL(errorPath, request.url), 303)
+  }
 }

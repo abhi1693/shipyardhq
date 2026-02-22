@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { setProductStatusAction } from "@/lib/server/product-management"
+import { updateOwnedProductStatus } from "@/lib/server/member-product-mutations"
 
 const VALID_STATUSES = new Set(["draft", "published", "archived"])
+type StatusPayload = Parameters<typeof updateOwnedProductStatus>[0]["status"]
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,9 +19,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid request payload" }, { status: 400 })
     }
 
-    const result = await setProductStatusAction(productId, status as any)
-    if (result && typeof result === "object" && "error" in result) {
-      return NextResponse.json({ error: result.error }, { status: 400 })
+    const result = await updateOwnedProductStatus({
+      productId,
+      status: status as StatusPayload,
+    })
+    if ("error" in result) {
+      return NextResponse.json({ error: result.error }, { status: result.status })
     }
 
     return NextResponse.json(result, { status: 200 })
