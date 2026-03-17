@@ -61,7 +61,7 @@
     "html-to-image": "^1.11.13",
     "jsonrepair": "^3.13.1",
     "lucide-react": "^0.562.0",
-    "next": "16.1.6",
+    "next": "16.1.7",
     "next-seo": "^7.0.1",
     "openai": "^6.15.0",
     "pg": "^8.16.3",
