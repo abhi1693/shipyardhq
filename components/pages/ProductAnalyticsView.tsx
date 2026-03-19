@@ -147,15 +147,11 @@ function SummaryCards({
                 </div>
                 {card.tooltip ? (
                   <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span
-                        className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-slate-200/70 focus:ring-offset-2 cursor-help"
-                        tabIndex={0}
-                        role="button"
-                        aria-label={`More info about ${card.title}`}
-                      >
+                    <TooltipTrigger
+                      className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-slate-200/70 focus:ring-offset-2 cursor-help"
+                      aria-label={`More info about ${card.title}`}
+                    >
                         <Info className="h-4 w-4" aria-hidden />
-                      </span>
                     </TooltipTrigger>
                     <TooltipContent sideOffset={6}>
                       {card.tooltip}

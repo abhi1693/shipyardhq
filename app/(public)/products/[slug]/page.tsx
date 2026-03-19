@@ -575,13 +575,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             <div className="flex flex-wrap gap-2">
               {activeBadgeDefs.map((badge) => (
                 <Tooltip key={badge.value}>
-                  <TooltipTrigger asChild>
-                    <span
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-white text-sm shadow-sm"
-                      aria-label={badge.label}
-                    >
+                  <TooltipTrigger
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-white text-sm shadow-sm"
+                    aria-label={badge.label}
+                  >
                       <span aria-hidden>{badge.icon}</span>
-                    </span>
                   </TooltipTrigger>
                   <TooltipContent sideOffset={6}>{badge.label}</TooltipContent>
                 </Tooltip>
@@ -602,26 +600,21 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   const href = alternativePath(alternative.slug as string)
 
                   return (
-                    <Tooltip key={alternative.id}>
-                      <TooltipTrigger asChild>
-                        <Link
-                          href={href}
-                          aria-label={`View ${alternative.name} alternative`}
-                          className="group relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        >
-                          <Image
-                            src={alternative.logoUrl}
-                            alt={`${alternative.name} logo`}
-                            fill
-                            sizes="40px"
-                            className="object-cover"
-                          />
-                        </Link>
-                      </TooltipTrigger>
-                      <TooltipContent sideOffset={6}>
-                        <span className="font-medium">{alternative.name}</span>
-                      </TooltipContent>
-                    </Tooltip>
+                    <Link
+                      key={alternative.id}
+                      href={href}
+                      title={alternative.name}
+                      aria-label={`View ${alternative.name} alternative`}
+                      className="group relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    >
+                      <Image
+                        src={alternative.logoUrl}
+                        alt={`${alternative.name} logo`}
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
+                    </Link>
                   )
                 },
               )}

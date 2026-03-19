@@ -2,11 +2,6 @@ import Link from "next/link"
 import { Megaphone, Sparkles } from "lucide-react"
 
 import { Image } from "@/components/atoms/image"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/atoms/tooltip"
 import { getSponsoredProducts } from "@/actions/public/products/featured"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
@@ -180,14 +175,7 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
     return link
   }
 
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>{link}</TooltipTrigger>
-      <TooltipContent side="top" sideOffset={6} className="max-w-xs">
-        {displayTagline}
-      </TooltipContent>
-    </Tooltip>
-  )
+  return link
 }
 
 const getCachedSponsorItems = cached(

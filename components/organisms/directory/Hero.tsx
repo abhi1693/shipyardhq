@@ -177,9 +177,13 @@ export function Hero({
             </p>
             <ul className="mt-3 flex flex-wrap items-center justify-center gap-3">
               {providers.map((provider) => (
-                <Tooltip key={provider.name}>
-                  <TooltipTrigger asChild>
-                    <li className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-white">
+                <li key={provider.name}>
+                  <Tooltip>
+                    <TooltipTrigger
+                      type="button"
+                      aria-label={provider.name}
+                      className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-white"
+                    >
                       {provider.logoSrc ? (
                         <SquareImage
                           src={provider.logoSrc}
@@ -192,15 +196,15 @@ export function Hero({
                           {provider.name} logo placeholder
                         </span>
                       )}
-                    </li>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    sideOffset={6}
-                    className="text-xs font-semibold"
-                  >
-                    {provider.name}
-                  </TooltipContent>
-                </Tooltip>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      sideOffset={6}
+                      className="text-xs font-semibold"
+                    >
+                      {provider.name}
+                    </TooltipContent>
+                  </Tooltip>
+                </li>
               ))}
             </ul>
           </section>
