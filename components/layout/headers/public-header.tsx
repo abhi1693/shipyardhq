@@ -9,7 +9,7 @@ import { Menu, LayoutDashboard, LogOut, UserRound, Rocket } from "lucide-react"
 import SignInCtaButton from "@/components/molecules/SignInCtaButton"
 import NovuInbox from "@/components/molecules/NovuInbox"
 import clsx from "clsx"
-import { SignOutButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs"
+import { Show, SignOutButton, useUser } from "@clerk/nextjs"
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import SignInButton from "@/components/molecules/SignInButton"
 import { getCurrentUserRewardBalanceAction } from "@/actions/member/rewards/get-reward-balance"
@@ -137,7 +137,7 @@ export default function PublicHeader() {
             <Rocket className="h-4 w-4" aria-hidden="true" />
             Submit product
           </Link>
-          <SignedOut>
+          <Show when="signed-out">
             <div className="flex items-center gap-2">
               <SignInButton
                 mode="modal"
@@ -165,8 +165,8 @@ export default function PublicHeader() {
                 />
               </SignInButton>
             </div>
-          </SignedOut>
-          <SignedIn>
+          </Show>
+          <Show when="signed-in">
             <div className="flex items-center gap-2">
               <NovuInbox />
               {user ? (
@@ -240,7 +240,7 @@ export default function PublicHeader() {
                 </DropdownMenu>
               ) : null}
             </div>
-          </SignedIn>
+          </Show>
         </div>
 
         <div className="flex items-center md:hidden">
@@ -296,7 +296,7 @@ export default function PublicHeader() {
                     <Rocket className="h-4 w-4" aria-hidden="true" />
                     Submit product
                   </Link>
-                  <SignedOut>
+                  <Show when="signed-out">
                     <SignInButton
                       mode="modal"
                       forceRedirectUrl={navbarAuthRedirectUrl}
@@ -304,8 +304,8 @@ export default function PublicHeader() {
                     >
                       <SignInCtaButton className="w-full rounded-full" />
                     </SignInButton>
-                  </SignedOut>
-                  <SignedIn>
+                  </Show>
+                  <Show when="signed-in">
                     <div className="flex flex-col gap-2">
                       <Link
                         href={MEMBER_REWARDS_PATH}
@@ -338,7 +338,7 @@ export default function PublicHeader() {
                         </button>
                       </SignOutButton>
                     </div>
-                  </SignedIn>
+                  </Show>
                 </div>
               </div>
             </SheetContent>
