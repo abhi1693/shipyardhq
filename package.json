@@ -41,7 +41,7 @@
     "test:ci": "vitest run"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.0.5",
+    "@clerk/nextjs": "^7.2.1",
     "@google-analytics/data": "^5.2.1",
     "@hookform/resolvers": "^5.2.2",
     "@next/env": "16.2.0",
