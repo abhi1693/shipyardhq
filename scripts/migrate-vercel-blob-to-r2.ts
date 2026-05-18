@@ -4,6 +4,7 @@ import { putBlob } from "@/lib/blob"
 const SOURCE_HOST_PATTERN = "vercel-storage.com"
 
 type Args = {
+  concurrency: number
   limit?: number
   write: boolean
 }
@@ -27,7 +28,7 @@ type MediaReference =
 
 function parseArgs(): Args {
   const [, , ...rawArgs] = process.argv
-  const args: Args = { write: false }
+  const args: Args = { concurrency: 5, write: false }
 
   for (let i = 0; i < rawArgs.length; i += 1) {
     const current = rawArgs[i]
@@ -44,6 +45,17 @@ function parseArgs(): Args {
       continue
     }
 
+    if (current === "--concurrency" && next) {
+      args.concurrency = Number(next)
+      i += 1
+      continue
+    }
+
+    if (current.startsWith("--concurrency=")) {
+      args.concurrency = Number(current.replace("--concurrency=", ""))
+      continue
+    }
+
     if (current.startsWith("--limit=")) {
       args.limit = Number(current.replace("--limit=", ""))
       continue
@@ -52,7 +64,7 @@ function parseArgs(): Args {
     if (current === "-h" || current === "--help") {
       console.info(
         [
-          "Usage: npm run media:migrate-r2 -- [--write] [--limit N]",
+          "Usage: npm run media:migrate-r2 -- [--write] [--limit N] [--concurrency N]",
           "",
           "Dry-run is the default. Set DATABASE_URL or DIRECT_DATABASE_URL,",
           "R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and optionally R2_BUCKET,",
@@ -65,6 +77,10 @@ function parseArgs(): Args {
 
   if (args.limit !== undefined && (!Number.isFinite(args.limit) || args.limit < 1)) {
     throw new Error("--limit must be a positive number")
+  }
+
+  if (!Number.isFinite(args.concurrency) || args.concurrency < 1) {
+    throw new Error("--concurrency must be a positive number")
   }
 
   return args
@@ -178,6 +194,26 @@ async function updateReference(reference: MediaReference, nextUrl: string) {
   })
 }
 
+async function runLimited<T>(
+  items: T[],
+  concurrency: number,
+  handler: (item: T) => Promise<void>,
+) {
+  let nextIndex = 0
+  const workers = Array.from(
+    { length: Math.min(concurrency, items.length) },
+    async () => {
+      while (nextIndex < items.length) {
+        const item = items[nextIndex]
+        nextIndex += 1
+        await handler(item)
+      }
+    },
+  )
+
+  await Promise.all(workers)
+}
+
 async function main() {
   const args = parseArgs()
   const references = await collectReferences(args.limit)
@@ -205,19 +241,39 @@ async function main() {
 
   let copied = 0
   let updated = 0
+  const failures: Array<{ error: string; url: string }> = []
 
-  for (const [url, refs] of uniqueUrls) {
-    const { key, nextUrl } = await copyUrl(url)
-    copied += 1
-    console.info(`[copy] ${key}`)
+  await runLimited(
+    Array.from(uniqueUrls.entries()),
+    args.concurrency,
+    async ([url, refs]) => {
+      try {
+        const { key, nextUrl } = await copyUrl(url)
+        copied += 1
+        console.info(`[copy] ${key}`)
 
-    for (const reference of refs) {
-      await updateReference(reference, nextUrl)
-      updated += 1
+        for (const reference of refs) {
+          await updateReference(reference, nextUrl)
+          updated += 1
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        failures.push({ error: message, url })
+        console.warn(`[skip] ${message}`)
+      }
+    },
+  )
+
+  console.info(
+    `[media:migrate-r2] copied ${copied} object(s), updated ${updated} row(s), failed ${failures.length} object(s)`,
+  )
+
+  if (failures.length) {
+    console.info("[media:migrate-r2] failed URLs:")
+    for (const failure of failures) {
+      console.info(`- ${failure.url}`)
     }
   }
-
-  console.info(`[media:migrate-r2] copied ${copied} object(s), updated ${updated} row(s)`)
 }
 
 main()
