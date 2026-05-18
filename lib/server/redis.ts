@@ -1,6 +1,8 @@
-import { createClient } from "redis"
+import { createClient, createSentinel } from "redis"
 
-export type RedisClient = ReturnType<typeof createClient>
+export type RedisClient =
+  | ReturnType<typeof createClient>
+  | ReturnType<typeof createSentinel>
 
 const globalForRedis = globalThis as unknown as {
   __redisClient?: RedisClient | null
@@ -17,14 +19,50 @@ function resolveRedisUrl(): string | null {
   )
 }
 
-export async function getRedisClient(): Promise<RedisClient | null> {
-  // Build should remain resilient even when external Redis isn't reachable.
-  if (process.env.NEXT_PHASE === NEXT_BUILD_PHASE) {
-    return null
+function parseInteger(value: string | undefined): number | undefined {
+  if (!value?.trim()) {
+    return undefined
+  }
+
+  const parsed = Number.parseInt(value, 10)
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : undefined
+}
+
+function parseSentinelNodes() {
+  return process.env.REDIS_SENTINEL_NODES?.split(",")
+    .map((node) => node.trim())
+    .filter(Boolean)
+    .map((node) => {
+      const [host, port] = node.split(":")
+      return {
+        host,
+        port: Number.parseInt(port || "26379", 10),
+      }
+    })
+    .filter((node) => node.host && Number.isInteger(node.port))
+}
+
+function createRedisClient(): RedisClient | null {
+  const sentinelName = process.env.REDIS_SENTINEL_NAME?.trim()
+  const sentinelRootNodes = parseSentinelNodes()
+
+  if (sentinelName && sentinelRootNodes && sentinelRootNodes.length > 0) {
+    return createSentinel({
+      name: sentinelName,
+      sentinelRootNodes,
+      nodeClientOptions: {
+        database: parseInteger(process.env.REDIS_DB),
+      },
+    })
   }
 
   const redisUrl = resolveRedisUrl()
-  if (!redisUrl) {
+  return redisUrl ? createClient({ url: redisUrl }) : null
+}
+
+export async function getRedisClient(): Promise<RedisClient | null> {
+  // Build should remain resilient even when external Redis isn't reachable.
+  if (process.env.NEXT_PHASE === NEXT_BUILD_PHASE) {
     return null
   }
 
@@ -38,7 +76,11 @@ export async function getRedisClient(): Promise<RedisClient | null> {
   }
 
   if (!globalForRedis.__redisClientPromise) {
-    const client = createClient({ url: redisUrl })
+    const client = createRedisClient()
+    if (!client) {
+      return null
+    }
+
     let didLogClientError = false
     client.on("error", (error) => {
       if (didLogClientError) return
