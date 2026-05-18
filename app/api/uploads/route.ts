@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server"
-import { putBlob, deleteBlob } from "@/lib/blob"
+import { putBlob, deleteBlob, isManagedBlobUrl } from "@/lib/blob"
 import { toWebpIfPossible } from "@/lib/server/image"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
@@ -93,10 +93,9 @@ export async function DELETE(req: Request) {
       return new Response("Forbidden", { status: 403 })
     }
 
-    // Only allow deleting blobs under the current user's prefix on Vercel Blob
+    // Only allow deleting blobs under the current user's prefix on managed R2.
     try {
       const u = new URL(url)
-      const isVercelHost = u.hostname.includes("vercel-storage.com")
       const pathname = u.pathname
       const globalScoped = pathname.startsWith("/global/")
       const allowedUserPrefixes = new Set<string>([userId])
@@ -104,7 +103,7 @@ export async function DELETE(req: Request) {
       const userScoped = Array.from(allowedUserPrefixes).some((prefix) =>
         pathname.startsWith(`/${prefix}/`),
       )
-      if (!isVercelHost) {
+      if (!isManagedBlobUrl(url)) {
         return new Response("Forbidden", { status: 403 })
       }
       if (globalScoped) {

@@ -1,10 +1,94 @@
-// Thin wrappers around Vercel Blob to keep imports isolated
-// and provide helpful errors if not configured yet.
+import {
+  DeleteObjectCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3"
 
 type PutOptions = {
   access?: "public" | "private"
-  token?: string
   contentType?: string
+}
+
+type R2Config = {
+  accessKeyId: string
+  bucket: string
+  endpoint: string
+  publicBaseUrl: string
+  secretAccessKey: string
+}
+
+let client: S3Client | null = null
+
+function trimSlashes(value: string) {
+  return value.replace(/^\/+|\/+$/g, "")
+}
+
+function requireEnv(name: string) {
+  const value = process.env[name]?.trim()
+  if (!value) throw new Error(`Missing ${name}`)
+  return value
+}
+
+function getR2Config(): R2Config {
+  const bucket = process.env.R2_BUCKET?.trim() || "shipyard-member-images-prod"
+  const rawEndpoint =
+    process.env.R2_ENDPOINT?.trim() ||
+    "https://492e25f5f18ef59e38763f58a78362f7.r2.cloudflarestorage.com"
+
+  const endpoint = rawEndpoint.endsWith(`/${bucket}`)
+    ? rawEndpoint.slice(0, -1 * (`/${bucket}`.length))
+    : rawEndpoint
+
+  return {
+    accessKeyId: requireEnv("R2_ACCESS_KEY_ID"),
+    bucket,
+    endpoint,
+    publicBaseUrl: (
+      process.env.R2_PUBLIC_BASE_URL?.trim() || "https://media.shipyardhq.dev"
+    ).replace(/\/+$/g, ""),
+    secretAccessKey: requireEnv("R2_SECRET_ACCESS_KEY"),
+  }
+}
+
+function getS3Client() {
+  if (client) return client
+
+  const config = getR2Config()
+  client = new S3Client({
+    credentials: {
+      accessKeyId: config.accessKeyId,
+      secretAccessKey: config.secretAccessKey,
+    },
+    endpoint: config.endpoint,
+    forcePathStyle: true,
+    region: "auto",
+  })
+  return client
+}
+
+function toPublicUrl(key: string) {
+  const config = getR2Config()
+  return `${config.publicBaseUrl}/${trimSlashes(key)}`
+}
+
+function keyFromUrlOrPath(value: string) {
+  const config = getR2Config()
+  const normalized = value.trim()
+  let url: URL
+
+  try {
+    url = new URL(normalized)
+  } catch {
+    return trimSlashes(normalized)
+  }
+
+  const publicBaseUrl = new URL(config.publicBaseUrl)
+  if (url.hostname !== publicBaseUrl.hostname) {
+    throw new Error(`Unsupported blob host: ${url.hostname}`)
+  }
+
+  return trimSlashes(decodeURIComponent(url.pathname))
 }
 
 export async function putBlob(
@@ -12,57 +96,84 @@ export async function putBlob(
   data: ArrayBuffer | Blob | Buffer,
   opts: PutOptions = {},
 ) {
-  const token = opts.token || process.env.BLOB_READ_WRITE_TOKEN
-  if (!token) {
-    throw new Error(
-      "Missing BLOB_READ_WRITE_TOKEN. Configure Vercel Blob to enable uploads.",
-    )
-  }
+  const config = getR2Config()
+  const normalizedKey = trimSlashes(key)
+  const body =
+    data instanceof Blob
+      ? Buffer.from(await data.arrayBuffer())
+      : Buffer.isBuffer(data)
+        ? data
+        : Buffer.from(data)
 
-  // Dynamically import to avoid build errors if the package isn't installed yet.
-  const mod = (await import("@vercel/blob")) as any
-  if (!mod?.put) {
-    throw new Error(
-      'Vercel Blob client not available. Install "@vercel/blob" and redeploy.',
-    )
-  }
+  await getS3Client().send(
+    new PutObjectCommand({
+      Body: body,
+      Bucket: config.bucket,
+      CacheControl: "public, max-age=31536000, immutable",
+      ContentType: opts.contentType,
+      Key: normalizedKey,
+    }),
+  )
 
-  const res = await mod.put(key, data, {
-    access: opts.access || "public",
-    token,
+  return {
+    url: toPublicUrl(normalizedKey),
+    pathname: normalizedKey,
+    size: body.byteLength,
     contentType: opts.contentType,
-    addRandomSuffix: true,
-  })
-  return res as {
-    url: string
-    pathname: string
-    size: number
-    contentType?: string
   }
 }
 
 export async function deleteBlob(pathname: string) {
-  const token = process.env.BLOB_READ_WRITE_TOKEN
-  if (!token) throw new Error("Missing BLOB_READ_WRITE_TOKEN")
-  const mod = (await import("@vercel/blob")) as any
-  if (!mod?.del) throw new Error("Vercel Blob delete not available")
-  await mod.del(pathname, { token })
+  const config = getR2Config()
+  const key = keyFromUrlOrPath(pathname)
+  if (!key) return
+
+  await getS3Client().send(
+    new DeleteObjectCommand({
+      Bucket: config.bucket,
+      Key: key,
+    }),
+  )
 }
 
 export async function deleteBlobPrefix(prefix: string) {
-  const token = process.env.BLOB_READ_WRITE_TOKEN
-  if (!token) throw new Error("Missing BLOB_READ_WRITE_TOKEN")
-  const mod = (await import("@vercel/blob")) as any
-  if (!mod?.list || !mod?.del)
-    throw new Error("Vercel Blob list/delete not available")
+  const config = getR2Config()
+  const normalizedPrefix = trimSlashes(prefix)
+  let continuationToken: string | undefined
 
-  const norm = prefix.replace(/^\//, "")
-  let cursor: string | undefined
-  const urls: string[] = []
   do {
-    const res = await mod.list({ prefix: norm, token, cursor })
-    if (res?.blobs?.length) urls.push(...res.blobs.map((b: any) => b.url))
-    cursor = res?.cursor
-  } while (cursor)
-  if (urls.length) await mod.del(urls, { token })
+    const listed = await getS3Client().send(
+      new ListObjectsV2Command({
+        Bucket: config.bucket,
+        ContinuationToken: continuationToken,
+        Prefix: normalizedPrefix,
+      }),
+    )
+
+    await Promise.all(
+      (listed.Contents ?? [])
+        .map((item) => item.Key)
+        .filter((key): key is string => Boolean(key))
+        .map((key) =>
+          getS3Client().send(
+            new DeleteObjectCommand({
+              Bucket: config.bucket,
+              Key: key,
+            }),
+          ),
+        ),
+    )
+
+    continuationToken = listed.NextContinuationToken
+  } while (continuationToken)
+}
+
+export function isManagedBlobUrl(value: string) {
+  try {
+    const url = new URL(value)
+    const publicBaseUrl = new URL(getR2Config().publicBaseUrl)
+    return url.hostname === publicBaseUrl.hostname
+  } catch {
+    return false
+  }
 }

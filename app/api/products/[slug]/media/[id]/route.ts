@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
-import { deleteBlob } from "@/lib/blob"
+import { deleteBlob, isManagedBlobUrl } from "@/lib/blob"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 export const dynamic = "force-dynamic"
@@ -44,7 +44,7 @@ export async function DELETE(
       const url = new URL(media.imageUrl)
       const expectedPrefix = `${ownerClerkId}/products/${product.id}/media/`
       if (
-        url.hostname.includes("vercel-storage.com") &&
+        isManagedBlobUrl(media.imageUrl) &&
         url.pathname.slice(1).startsWith(expectedPrefix)
       ) {
         await deleteBlob(media.imageUrl)
