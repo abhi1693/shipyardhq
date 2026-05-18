@@ -1,0 +1,177 @@
+from django.urls import path
+
+from catalog.views_admin import (
+    AdminAlternativeProductCreateView,
+    AdminAlternativeProductDeleteView,
+    AdminAlternativeProductDetailView,
+    AdminAlternativeProductListView,
+    AdminAlternativeProductUpdateView,
+    AdminCategoryCreateView,
+    AdminCategoryDeleteView,
+    AdminCategoryDetailView,
+    AdminCategoryListView,
+    AdminCategoryUpdateView,
+    AdminFeedbackDetailView,
+    AdminFeedbackListView,
+    AdminPlanAssignmentCreateView,
+    AdminPlanAssignmentDeleteView,
+    AdminPlanAssignmentDetailView,
+    AdminPlanAssignmentListView,
+    AdminPlanAssignmentUpdateView,
+    AdminPlanCreateView,
+    AdminPlanDeleteView,
+    AdminPlanDetailView,
+    AdminPlanFeatureCreateView,
+    AdminPlanFeatureDeleteView,
+    AdminPlanFeatureDetailView,
+    AdminPlanFeatureListView,
+    AdminPlanFeatureUpdateView,
+    AdminPlanListView,
+    AdminPlanUpdateView,
+    AdminProductAnalyticsView,
+    AdminProductBadgeCreateView,
+    AdminProductBadgeDetailView,
+    AdminProductBadgeListView,
+    AdminProductCreateView,
+    AdminProductDeleteView,
+    AdminProductDetailView,
+    AdminProductListView,
+    AdminProductUpdateView,
+    AdminUseCaseAssignmentCreateView,
+    AdminUseCaseAssignmentDeleteView,
+    AdminUseCaseAssignmentDetailView,
+    AdminUseCaseAssignmentListView,
+    AdminUseCaseAssignmentUpdateView,
+    AdminUseCaseCreateView,
+    AdminUseCaseDeleteView,
+    AdminUseCaseDetailView,
+    AdminUseCaseListView,
+    AdminUseCaseUpdateView,
+)
+
+app_name = "admin"
+
+urlpatterns = [
+    path("categories", AdminCategoryListView.as_view(), name="categories"),
+    path("categories/add", AdminCategoryCreateView.as_view(), name="category-add"),
+    path("categories/<int:pk>", AdminCategoryDetailView.as_view(), name="category-detail"),
+    path("categories/<int:pk>/edit", AdminCategoryUpdateView.as_view(), name="category-edit"),
+    path("categories/<int:pk>/delete", AdminCategoryDeleteView.as_view(), name="category-delete"),
+    path("categories/use-cases", AdminUseCaseListView.as_view(), name="use-cases"),
+    path("categories/use-cases/add", AdminUseCaseCreateView.as_view(), name="use-case-add"),
+    path("categories/use-cases/<int:pk>", AdminUseCaseDetailView.as_view(), name="use-case-detail"),
+    path(
+        "categories/use-cases/<int:pk>/edit", AdminUseCaseUpdateView.as_view(), name="use-case-edit"
+    ),
+    path(
+        "categories/use-cases/<int:pk>/delete",
+        AdminUseCaseDeleteView.as_view(),
+        name="use-case-delete",
+    ),
+    path(
+        "categories/use-cases/assignments",
+        AdminUseCaseAssignmentListView.as_view(),
+        name="use-case-assignments",
+    ),
+    path(
+        "categories/use-cases/assignments/add",
+        AdminUseCaseAssignmentCreateView.as_view(),
+        name="use-case-assignment-add",
+    ),
+    path(
+        "categories/use-cases/assignments/<int:pk>",
+        AdminUseCaseAssignmentDetailView.as_view(),
+        name="use-case-assignment-detail",
+    ),
+    path(
+        "categories/use-cases/assignments/<int:pk>/edit",
+        AdminUseCaseAssignmentUpdateView.as_view(),
+        name="use-case-assignment-edit",
+    ),
+    path(
+        "categories/use-cases/assignments/<int:pk>/delete",
+        AdminUseCaseAssignmentDeleteView.as_view(),
+        name="use-case-assignment-delete",
+    ),
+    path("plans", AdminPlanListView.as_view(), name="plans"),
+    path("plans/add", AdminPlanCreateView.as_view(), name="plan-add"),
+    path("plans/<int:pk>", AdminPlanDetailView.as_view(), name="plan-detail"),
+    path("plans/<int:pk>/edit", AdminPlanUpdateView.as_view(), name="plan-edit"),
+    path("plans/<int:pk>/delete", AdminPlanDeleteView.as_view(), name="plan-delete"),
+    path("plans/features", AdminPlanFeatureListView.as_view(), name="plan-features"),
+    path("plans/features/add", AdminPlanFeatureCreateView.as_view(), name="plan-feature-add"),
+    path(
+        "plans/features/<int:pk>", AdminPlanFeatureDetailView.as_view(), name="plan-feature-detail"
+    ),
+    path(
+        "plans/features/<int:pk>/edit",
+        AdminPlanFeatureUpdateView.as_view(),
+        name="plan-feature-edit",
+    ),
+    path(
+        "plans/features/<int:pk>/delete",
+        AdminPlanFeatureDeleteView.as_view(),
+        name="plan-feature-delete",
+    ),
+    path("plans/assignments", AdminPlanAssignmentListView.as_view(), name="plan-assignments"),
+    path(
+        "plans/assignments/add", AdminPlanAssignmentCreateView.as_view(), name="plan-assignment-add"
+    ),
+    path(
+        "plans/assignments/<int:pk>",
+        AdminPlanAssignmentDetailView.as_view(),
+        name="plan-assignment-detail",
+    ),
+    path(
+        "plans/assignments/<int:pk>/edit",
+        AdminPlanAssignmentUpdateView.as_view(),
+        name="plan-assignment-edit",
+    ),
+    path(
+        "plans/assignments/<int:pk>/delete",
+        AdminPlanAssignmentDeleteView.as_view(),
+        name="plan-assignment-delete",
+    ),
+    path("products", AdminProductListView.as_view(), name="products"),
+    path("products/add", AdminProductCreateView.as_view(), name="product-add"),
+    path("products/<int:pk>", AdminProductDetailView.as_view(), name="product-detail"),
+    path("products/<int:pk>/edit", AdminProductUpdateView.as_view(), name="product-edit"),
+    path("products/<int:pk>/delete", AdminProductDeleteView.as_view(), name="product-delete"),
+    path(
+        "products/<int:pk>/analytics", AdminProductAnalyticsView.as_view(), name="product-analytics"
+    ),
+    path("products/alternatives", AdminAlternativeProductListView.as_view(), name="alternatives"),
+    path(
+        "products/alternatives/add",
+        AdminAlternativeProductCreateView.as_view(),
+        name="alternative-add",
+    ),
+    path(
+        "products/alternatives/<int:pk>",
+        AdminAlternativeProductDetailView.as_view(),
+        name="alternative-detail",
+    ),
+    path(
+        "products/alternatives/<int:pk>/edit",
+        AdminAlternativeProductUpdateView.as_view(),
+        name="alternative-edit",
+    ),
+    path(
+        "products/alternatives/<int:pk>/delete",
+        AdminAlternativeProductDeleteView.as_view(),
+        name="alternative-delete",
+    ),
+    path("products/assignments/badges", AdminProductBadgeListView.as_view(), name="product-badges"),
+    path(
+        "products/assignments/badges/add",
+        AdminProductBadgeCreateView.as_view(),
+        name="product-badge-add",
+    ),
+    path(
+        "products/assignments/badges/<int:pk>",
+        AdminProductBadgeDetailView.as_view(),
+        name="product-badge-detail",
+    ),
+    path("feedback", AdminFeedbackListView.as_view(), name="feedback"),
+    path("feedback/<int:pk>", AdminFeedbackDetailView.as_view(), name="feedback-detail"),
+]

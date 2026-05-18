@@ -1,0 +1,42 @@
+{% extends base_template|default:"base/private.html" %}
+
+{% block content %}
+  <section class="card">
+    {% if section_eyebrow %}
+      <div class="eyebrow">{{ section_eyebrow }}</div>
+    {% endif %}
+    <h1>{{ page_title }}</h1>
+    {% if page_description %}
+      <p>{{ page_description }}</p>
+    {% endif %}
+  </section>
+
+  {% if metrics %}
+    <section class="metric-grid">
+      {% for metric in metrics %}
+        <article class="card">
+          <div class="eyebrow">{{ metric.label }}</div>
+          <h2>{{ metric.value }}</h2>
+          {% if metric.help_text %}
+            <p>{{ metric.help_text }}</p>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </section>
+  {% endif %}
+
+  {% if cards %}
+    <section class="stack">
+      {% for card in cards %}
+        <article class="card">
+          <div class="eyebrow">{{ card.label }}</div>
+          <h2>{{ card.title }}</h2>
+          <p>{{ card.body }}</p>
+          {% if card.url %}
+            <a class="button secondary" href="{{ card.url }}">{{ card.cta|default:"Open" }}</a>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </section>
+  {% endif %}
+{% endblock %}

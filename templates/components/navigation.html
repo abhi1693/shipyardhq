@@ -1,0 +1,22 @@
+{% if navigation_items %}
+  {% for menu in navigation_items %}
+    <section class="menu">
+      <div class="menu-label">{{ menu.label }}</div>
+      {% for group in menu.groups %}
+        <div class="menu-items">
+          {% for item in group.items %}
+            <a href="{{ item.url }}" class="sidebar-link {% if item.active %}active{% endif %}">
+              {{ item.label }}
+            </a>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </section>
+  {% endfor %}
+{% else %}
+  <div class="card">
+    <div class="eyebrow">Navigation</div>
+    <p>Sign in to access member and admin navigation.</p>
+  </div>
+{% endif %}
+

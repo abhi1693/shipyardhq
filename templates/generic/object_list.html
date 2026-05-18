@@ -1,0 +1,43 @@
+{% extends base_template|default:"base/private.html" %}
+
+{% block content %}
+  <section class="card">
+    {% if section_eyebrow %}
+      <div class="eyebrow">{{ section_eyebrow }}</div>
+    {% endif %}
+    <h1>{{ page_title }}</h1>
+    {% if page_description %}
+      <p>{{ page_description }}</p>
+    {% endif %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            {% for field in table_fields %}
+              <th>{{ field|title }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in table_rows %}
+            <tr>
+              {% for cell in row.cells %}
+                <td>
+                  {% if forloop.first and row.detail_url %}
+                    <a href="{{ row.detail_url }}">{{ cell }}</a>
+                  {% else %}
+                    {{ cell }}
+                  {% endif %}
+                </td>
+              {% endfor %}
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="{{ table_fields|length }}">No records yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

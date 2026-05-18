@@ -1,0 +1,13 @@
+{% extends base_template|default:"base/private.html" %}
+
+{% block content %}
+  <section class="card narrow">
+    <div class="eyebrow">Account</div>
+    <h1>{{ page_title|default:"Profile" }}</h1>
+    <form method="post" class="stack">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="button">Save profile</button>
+    </form>
+  </section>
+{% endblock %}

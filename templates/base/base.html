@@ -1,0 +1,18 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ shipyard_ui.app_name }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ shipyard_ui.tagline }}{% endblock %}">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  </head>
+  <body>
+    <div class="shell">
+      {% include "components/messages.html" %}
+      {% block body %}{% endblock %}
+    </div>
+  </body>
+</html>
+

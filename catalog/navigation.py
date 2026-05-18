@@ -1,0 +1,90 @@
+from core.navigation import Menu, MenuGroup, MenuItem, register_navigation_provider
+
+
+def catalog_navigation(_request):
+    return [
+        Menu(
+            label="Catalog",
+            icon="package",
+            auth_required=True,
+            groups=[
+                MenuGroup(
+                    label="Member",
+                    items=[
+                        MenuItem(
+                            label="Products",
+                            route_name="member:products",
+                            active_names=(
+                                "member:products",
+                                "member:product-add",
+                                "member:product-detail",
+                                "member:product-edit",
+                                "member:product-delete",
+                                "member:product-analytics",
+                                "member:product-upgrade",
+                                "member:product-claim",
+                            ),
+                            auth_required=True,
+                        ),
+                        MenuItem(
+                            label="Feedback",
+                            route_name="member:feedback",
+                            active_names=("member:feedback",),
+                            auth_required=True,
+                        ),
+                    ],
+                ),
+                MenuGroup(
+                    label="Admin",
+                    items=[
+                        MenuItem(
+                            label="Products",
+                            route_name="admin:products",
+                            active_names=(
+                                "admin:products",
+                                "admin:product-add",
+                                "admin:product-detail",
+                                "admin:product-edit",
+                                "admin:product-delete",
+                                "admin:product-analytics",
+                            ),
+                            staff_only=True,
+                        ),
+                        MenuItem(
+                            label="Categories",
+                            route_name="admin:categories",
+                            active_names=(
+                                "admin:categories",
+                                "admin:category-add",
+                                "admin:category-detail",
+                                "admin:category-edit",
+                                "admin:category-delete",
+                            ),
+                            staff_only=True,
+                        ),
+                        MenuItem(
+                            label="Plans",
+                            route_name="admin:plans",
+                            active_names=(
+                                "admin:plans",
+                                "admin:plan-add",
+                                "admin:plan-detail",
+                                "admin:plan-edit",
+                                "admin:plan-delete",
+                            ),
+                            staff_only=True,
+                        ),
+                        MenuItem(
+                            label="Feedback",
+                            route_name="admin:feedback",
+                            active_names=("admin:feedback", "admin:feedback-detail"),
+                            staff_only=True,
+                        ),
+                    ],
+                ),
+            ],
+        )
+    ]
+
+
+register_navigation_provider(catalog_navigation)

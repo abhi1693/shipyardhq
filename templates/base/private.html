@@ -1,0 +1,32 @@
+{% extends "base/base.html" %}
+
+{% block body %}
+  <header class="private-header">
+    <div class="container">
+      <div class="row" style="padding: 18px 0;">
+        <div>
+          <a href="{% url 'public:home' %}" class="brand">{{ shipyard_ui.app_name }}</a>
+          <div class="tagline">{{ shipyard_ui.tagline }}</div>
+        </div>
+        <div class="page-actions">
+          {% if request.user.is_staff or request.user.role == "admin" %}
+            <a class="button secondary" href="{% url 'admin:account-profile' %}">Profile</a>
+          {% else %}
+            <a class="button secondary" href="{% url 'member:account-profile' %}">Profile</a>
+          {% endif %}
+          <a class="button secondary" href="{% url 'public:home' %}">Public site</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="page-grid">
+    <aside class="sidebar">
+      {% include "components/navigation.html" %}
+    </aside>
+    <main class="content">
+      <div class="container stack">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+{% endblock %}
