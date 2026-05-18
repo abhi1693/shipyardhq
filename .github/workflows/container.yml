@@ -1,0 +1,176 @@
+name: Container Image
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Write production env file
+        env:
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+          CACHE_ENV_PREFIX: ${{ secrets.CACHE_ENV_PREFIX }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          CLERK_WEBHOOK_SIGNING_SECRET: ${{ secrets.CLERK_WEBHOOK_SIGNING_SECRET }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DODO_API_KEY: ${{ secrets.DODO_API_KEY }}
+          DODO_ENV: ${{ secrets.DODO_ENV }}
+          DODO_WEBHOOK_SECRET: ${{ secrets.DODO_WEBHOOK_SECRET }}
+          GA_CREDENTIALS_JSON: ${{ secrets.GA_CREDENTIALS_JSON }}
+          GA_PROPERTY_ID: ${{ secrets.GA_PROPERTY_ID }}
+          GOOGLE_ANALYTICS_API_SECRET: ${{ secrets.GOOGLE_ANALYTICS_API_SECRET }}
+          GOOGLE_ANALYTICS_ID: ${{ secrets.GOOGLE_ANALYTICS_ID }}
+          LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+          LINKEDIN_COMPANY_PAGE_URL: ${{ secrets.LINKEDIN_COMPANY_PAGE_URL }}
+          LINKEDIN_ORGANIZATION_URN: ${{ secrets.LINKEDIN_ORGANIZATION_URN }}
+          MONTHLY_WINNER_PLAN_SLUG: ${{ secrets.MONTHLY_WINNER_PLAN_SLUG }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          NEXT_PUBLIC_CLARITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_CLARITY_PROJECT_ID }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: ${{ secrets.NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL }}
+          NEXT_PUBLIC_CLERK_SIGN_IN_URL: ${{ secrets.NEXT_PUBLIC_CLERK_SIGN_IN_URL }}
+          NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: ${{ secrets.NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL }}
+          NEXT_PUBLIC_CLERK_SIGN_UP_URL: ${{ secrets.NEXT_PUBLIC_CLERK_SIGN_UP_URL }}
+          NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER: ${{ secrets.NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER }}
+          NEXT_TELEMETRY_DISABLED: ${{ secrets.NEXT_TELEMETRY_DISABLED }}
+          NOVU_BROADCAST_TOPIC_KEY: ${{ secrets.NOVU_BROADCAST_TOPIC_KEY }}
+          NOVU_SECRET_KEY: ${{ secrets.NOVU_SECRET_KEY }}
+          NOVU_WORKFLOW_ADMIN_BROADCAST: ${{ secrets.NOVU_WORKFLOW_ADMIN_BROADCAST }}
+          NOVU_WORKFLOW_PRODUCT_CLAIM_OTP: ${{ secrets.NOVU_WORKFLOW_PRODUCT_CLAIM_OTP }}
+          NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS: ${{ secrets.NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS }}
+          NOVU_WORKFLOW_PROMOTIONS_FEATURED: ${{ secrets.NOVU_WORKFLOW_PROMOTIONS_FEATURED }}
+          NOVU_WORKFLOW_RECOMMENDATIONS: ${{ secrets.NOVU_WORKFLOW_RECOMMENDATIONS }}
+          NOVU_WORKFLOW_REWARDS_NOTIFICATIONS: ${{ secrets.NOVU_WORKFLOW_REWARDS_NOTIFICATIONS }}
+          NOVU_WORKFLOW_WEEKLY_NEWSLETTER: ${{ secrets.NOVU_WORKFLOW_WEEKLY_NEWSLETTER }}
+          NOVU_WORKFLOW_WELCOME_USER: ${{ secrets.NOVU_WORKFLOW_WELCOME_USER }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PAYMENT_CONNECTOR_SECRET_KEY: ${{ secrets.PAYMENT_CONNECTOR_SECRET_KEY }}
+          PRISMA_GENERATE_NO_ENGINE: ${{ secrets.PRISMA_GENERATE_NO_ENGINE }}
+          PRODUCT_HUNT_APP_ID: ${{ secrets.PRODUCT_HUNT_APP_ID }}
+          PRODUCT_HUNT_INDEX_NAME: ${{ secrets.PRODUCT_HUNT_INDEX_NAME }}
+          PRODUCT_HUNT_SEARCH_KEY: ${{ secrets.PRODUCT_HUNT_SEARCH_KEY }}
+          REDDIT_BOT_SUBREDDIT: ${{ secrets.REDDIT_BOT_SUBREDDIT }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+          TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
+          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_APP_KEY: ${{ secrets.TWITTER_APP_KEY }}
+          TWITTER_APP_SECRET: ${{ secrets.TWITTER_APP_SECRET }}
+          TWITTER_BOT_ENABLED: ${{ secrets.TWITTER_BOT_ENABLED }}
+        run: |
+          node <<'NODE'
+          const fs = require("fs");
+
+          const keys = [
+            "BLOB_READ_WRITE_TOKEN",
+            "CACHE_ENV_PREFIX",
+            "CLERK_SECRET_KEY",
+            "CLERK_WEBHOOK_SIGNING_SECRET",
+            "CRON_SECRET",
+            "DATABASE_URL",
+            "DODO_API_KEY",
+            "DODO_ENV",
+            "DODO_WEBHOOK_SECRET",
+            "GA_CREDENTIALS_JSON",
+            "GA_PROPERTY_ID",
+            "GOOGLE_ANALYTICS_API_SECRET",
+            "GOOGLE_ANALYTICS_ID",
+            "LINKEDIN_CLIENT_ID",
+            "LINKEDIN_CLIENT_SECRET",
+            "LINKEDIN_COMPANY_PAGE_URL",
+            "LINKEDIN_ORGANIZATION_URN",
+            "MONTHLY_WINNER_PLAN_SLUG",
+            "NEXT_PUBLIC_APP_URL",
+            "NEXT_PUBLIC_CLARITY_PROJECT_ID",
+            "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+            "NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL",
+            "NEXT_PUBLIC_CLERK_SIGN_IN_URL",
+            "NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL",
+            "NEXT_PUBLIC_CLERK_SIGN_UP_URL",
+            "NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER",
+            "NEXT_TELEMETRY_DISABLED",
+            "NOVU_BROADCAST_TOPIC_KEY",
+            "NOVU_SECRET_KEY",
+            "NOVU_WORKFLOW_ADMIN_BROADCAST",
+            "NOVU_WORKFLOW_PRODUCT_CLAIM_OTP",
+            "NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS",
+            "NOVU_WORKFLOW_PROMOTIONS_FEATURED",
+            "NOVU_WORKFLOW_RECOMMENDATIONS",
+            "NOVU_WORKFLOW_REWARDS_NOTIFICATIONS",
+            "NOVU_WORKFLOW_WEEKLY_NEWSLETTER",
+            "NOVU_WORKFLOW_WELCOME_USER",
+            "OPENAI_API_KEY",
+            "PAYMENT_CONNECTOR_SECRET_KEY",
+            "PRISMA_GENERATE_NO_ENGINE",
+            "PRODUCT_HUNT_APP_ID",
+            "PRODUCT_HUNT_INDEX_NAME",
+            "PRODUCT_HUNT_SEARCH_KEY",
+            "REDDIT_BOT_SUBREDDIT",
+            "REDDIT_CLIENT_ID",
+            "REDDIT_CLIENT_SECRET",
+            "REDIS_URL",
+            "RESEND_API_KEY",
+            "RESEND_FROM_EMAIL",
+            "TWITTER_ACCESS_SECRET",
+            "TWITTER_ACCESS_TOKEN",
+            "TWITTER_APP_KEY",
+            "TWITTER_APP_SECRET",
+            "TWITTER_BOT_ENABLED",
+          ];
+
+          const lines = keys
+            .filter((key) => process.env[key] !== undefined)
+            .map((key) => `${key}=${JSON.stringify(process.env[key])}`);
+
+          fs.writeFileSync(".env.production.local", `${lines.join("\n")}\n`, { mode: 0o600 });
+          NODE
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=sha-,format=long
+            type=raw,value=master,enable={{is_default_branch}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          secret-files: |
+            vercel_env=.env.production.local

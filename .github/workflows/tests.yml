@@ -21,7 +21,7 @@ jobs:
           cache: 'npm'
 
       - name: Install deps (ignore scripts)
-        run: npm ci --ignore-scripts
+        run: npm ci --ignore-scripts --legacy-peer-deps
 
       - name: Run tests
         run: npm run test:ci
