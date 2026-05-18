@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1048.0",
-    "@clerk/nextjs": "^7.0.5",
+    "@clerk/nextjs": "^7.2.4",
     "@google-analytics/data": "^5.2.1",
     "@hookform/resolvers": "^5.2.2",
     "@next/env": "16.2.0",
