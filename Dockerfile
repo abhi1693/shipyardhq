@@ -29,6 +29,8 @@ ARG BUILD_DIRECT_DATABASE_URL=$BUILD_DATABASE_URL
 ARG BUILD_DODO_ENV=test_mode
 ARG BUILD_DODO_VALUE=dodo_build_placeholder
 
+ENV NODE_OPTIONS=--max-old-space-size=4096
+
 RUN --mount=type=secret,id=vercel_env,required=false \
   node -e '\
     const fs = require("fs");\
