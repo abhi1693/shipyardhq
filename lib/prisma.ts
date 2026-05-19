@@ -4,7 +4,6 @@ import path from "path"
 import { PrismaClient } from "@/lib/vendor/prisma/client"
 import { IS_PROD } from "@/lib/constants"
 import { PrismaPg } from "@prisma/adapter-pg"
-import { withAccelerate } from "@prisma/extension-accelerate"
 import { loadEnvConfig } from "@next/env"
 
 // if .env.local exists, load it
@@ -15,7 +14,6 @@ if (fs.existsSync(envLocalPath)) {
   loadEnvConfig(projectRoot)
 }
 
-const accelerateUrl = process.env.DATABASE_URL
 const directDatabaseUrl =
   process.env.DIRECT_DATABASE_URL ?? process.env.DATABASE_URL
 
@@ -25,18 +23,7 @@ if (!directDatabaseUrl) {
   )
 }
 
-const isAccelerateUrl =
-  typeof accelerateUrl === "string" &&
-  (accelerateUrl.startsWith("prisma://") ||
-    accelerateUrl.startsWith("prisma+postgres://"))
-
 const createPrismaClient = (): PrismaClient => {
-  if (isAccelerateUrl && accelerateUrl) {
-    return new PrismaClient({ accelerateUrl }).$extends(
-      withAccelerate(),
-    ) as unknown as PrismaClient
-  }
-
   const adapter = new PrismaPg({ connectionString: directDatabaseUrl })
   return new PrismaClient({ adapter })
 }
