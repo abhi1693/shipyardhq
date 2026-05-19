@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Suspense } from "react"
 
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import PublicHeaderActions from "./public-header-actions"
@@ -24,7 +25,9 @@ export default function PublicHeader() {
           </nav>
         </div>
 
-        <PublicHeaderActions />
+        <Suspense fallback={null}>
+          <PublicHeaderActions />
+        </Suspense>
       </div>
     </header>
   )
