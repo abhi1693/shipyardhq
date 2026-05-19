@@ -40,6 +40,20 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 - Lint: `npm run lint`
 - Format: `npm run format`
 
+## Media Storage
+
+Shipyard stores uploaded product media in Cloudflare R2 through the S3 API.
+Configure these server-side env vars in production:
+
+- `R2_ACCESS_KEY_ID`
+- `R2_SECRET_ACCESS_KEY`
+- `R2_BUCKET` (defaults to `shipyard-member-images-prod`)
+- `R2_ENDPOINT`
+- `R2_PUBLIC_BASE_URL` (defaults to `https://media.shipyardhq.dev`)
+
+Existing Vercel Blob URLs can be copied into R2 and rewritten in the database
+with `npm run media:migrate-r2 -- --write`. Omit `--write` for a dry run.
+
 ## Novu Inbox
 
 - In-app notifications render via `<Inbox />` from `components/molecules/NovuInbox.tsx` with `NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER`.

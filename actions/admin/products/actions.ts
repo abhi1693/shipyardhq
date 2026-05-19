@@ -6,7 +6,7 @@ import prisma from "@/lib/prisma"
 import { dispatchEventAsync } from "@/lib/server/events"
 import { APP_EVENTS } from "@/lib/server/events/constants"
 import "@/lib/server/badges" // register badge listeners
-import { deleteBlob, deleteBlobPrefix } from "@/lib/blob"
+import { deleteBlob, deleteBlobPrefix, isManagedBlobUrl } from "@/lib/blob"
 import "@/lib/server/plans" // register default-plan listeners
 import "@/lib/server/social/twitterBot"
 import "@/lib/server/rewards/listeners"
@@ -921,29 +921,19 @@ export async function updateProductAction(
       { context: { productId: id } },
     )
 
-    // Cleanup old blobs if logo/banner changed and were hosted on Vercel Blob
-    const isVercelBlobUrl = (u?: string | null) => {
-      if (!u) return false
-      try {
-        const host = new URL(u).hostname
-        return host.includes("vercel-storage.com")
-      } catch {
-        return false
-      }
-    }
-
+    // Cleanup old blobs if logo/banner changed and are hosted in managed R2.
     const deletions: Promise<any>[] = []
     if (
       prev?.logo &&
       prev.logo !== updated.logo &&
-      isVercelBlobUrl(prev.logo)
+      isManagedBlobUrl(prev.logo)
     ) {
       deletions.push(deleteBlob(prev.logo).catch(() => {}))
     }
     if (
       prev?.bannerImage &&
       prev.bannerImage !== updated.bannerImage &&
-      isVercelBlobUrl(prev.bannerImage)
+      isManagedBlobUrl(prev.bannerImage)
     ) {
       deletions.push(deleteBlob(prev.bannerImage).catch(() => {}))
     }
