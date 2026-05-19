@@ -34,11 +34,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { useRouter } from "next/navigation"
 import { RewardMenuItemContent } from "@/components/molecules/RewardMenuItemContent"
-import {
-  AUTH_DISABLED_MESSAGE,
-  AUTH_DISABLED_SHORT_LABEL,
-  AUTH_TEMPORARILY_DISABLED,
-} from "@/lib/auth/availability"
 
 const navLinks = [
   { label: "Browse", href: BROWSE_PATH },
@@ -143,42 +138,33 @@ export default function PublicHeader() {
             Submit product
           </Link>
           <Show when="signed-out">
-            {AUTH_TEMPORARILY_DISABLED ? (
-              <span
-                title={AUTH_DISABLED_MESSAGE}
-                className="inline-flex h-8 items-center rounded-full border border-slate-200 bg-slate-100 px-3 text-xs font-semibold text-slate-500"
+            <div className="flex items-center gap-2">
+              <SignInButton
+                mode="modal"
+                forceRedirectUrl={navbarAuthRedirectUrl}
+                signUpForceRedirectUrl={navbarAuthRedirectUrl}
               >
-                {AUTH_DISABLED_SHORT_LABEL}
-              </span>
-            ) : (
-              <div className="flex items-center gap-2">
-                <SignInButton
-                  mode="modal"
-                  forceRedirectUrl={navbarAuthRedirectUrl}
-                  signUpForceRedirectUrl={navbarAuthRedirectUrl}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="px-4 text-sm font-semibold"
                 >
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="px-4 text-sm font-semibold"
-                  >
-                    Log in
-                  </Button>
-                </SignInButton>
-                <SignInButton
-                  mode="modal"
-                  forceRedirectUrl={navbarAuthRedirectUrl}
-                  signUpForceRedirectUrl={navbarAuthRedirectUrl}
-                >
-                  <SignInCtaButton
-                    size="sm"
-                    className="px-4 text-sm font-semibold"
-                    label="Sign up"
-                  />
-                </SignInButton>
-              </div>
-            )}
+                  Log in
+                </Button>
+              </SignInButton>
+              <SignInButton
+                mode="modal"
+                forceRedirectUrl={navbarAuthRedirectUrl}
+                signUpForceRedirectUrl={navbarAuthRedirectUrl}
+              >
+                <SignInCtaButton
+                  size="sm"
+                  className="px-4 text-sm font-semibold"
+                  label="Sign up"
+                />
+              </SignInButton>
+            </div>
           </Show>
           <Show when="signed-in">
             <div className="flex items-center gap-2">
@@ -311,24 +297,13 @@ export default function PublicHeader() {
                     Submit product
                   </Link>
                   <Show when="signed-out">
-                    <div
-                      title={AUTH_DISABLED_MESSAGE}
-                      className={clsx(
-                        "inline-flex w-full items-center justify-center rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-500",
-                        !AUTH_TEMPORARILY_DISABLED && "hidden",
-                      )}
+                    <SignInButton
+                      mode="modal"
+                      forceRedirectUrl={navbarAuthRedirectUrl}
+                      signUpForceRedirectUrl={navbarAuthRedirectUrl}
                     >
-                      {AUTH_DISABLED_SHORT_LABEL}
-                    </div>
-                    {!AUTH_TEMPORARILY_DISABLED ? (
-                      <SignInButton
-                        mode="modal"
-                        forceRedirectUrl={navbarAuthRedirectUrl}
-                        signUpForceRedirectUrl={navbarAuthRedirectUrl}
-                      >
-                        <SignInCtaButton className="w-full rounded-full" />
-                      </SignInButton>
-                    ) : null}
+                      <SignInCtaButton className="w-full rounded-full" />
+                    </SignInButton>
                   </Show>
                   <Show when="signed-in">
                     <div className="flex flex-col gap-2">
