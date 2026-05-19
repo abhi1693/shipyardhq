@@ -10,6 +10,8 @@ import { BROWSE_PATH, HOME_PATH, usecasePath } from "@/lib/routes"
 
 const PAGE_TITLE = "Browse Products"
 
+export const dynamic = "force-dynamic"
+
 const baseMetadata = buildPageMetadata({
   title: PAGE_TITLE,
   description: "Explore tools, startups, and products by use case or category.",

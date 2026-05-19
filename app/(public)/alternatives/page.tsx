@@ -31,7 +31,7 @@ import {
   MEMBER_PRODUCTS_PATH,
 } from "@/lib/routes"
 
-export const dynamic = "force-static"
+export const dynamic = "force-dynamic"
 export const revalidate = 300
 
 const PAGE_TITLE = "Browse SaaS Alternatives"

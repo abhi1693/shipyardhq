@@ -34,6 +34,7 @@ import { siteConfig } from "@/lib/siteConfig"
 import { PaymentConnectorStatus } from "@/lib/vendor/prisma/client"
 
 const PAGE_TITLE = "Analytics"
+export const dynamic = "force-dynamic"
 export const revalidate = 300
 
 const numberFormatter = new Intl.NumberFormat("en-US")

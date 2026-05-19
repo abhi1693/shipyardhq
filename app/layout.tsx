@@ -53,6 +53,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <link rel="preconnect" href="https://media.shipyardhq.dev" />
         <link rel="preconnect" href="https://www.google-analytics.com" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
       </head>
@@ -64,7 +65,7 @@ export default function RootLayout({
         <Script
           src="https://trustviews.io/script.js"
           data-token="f13fd5a1-f111-40c9-86b5-53287e59d23e"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
       </body>
       {IS_PROD && process.env.GOOGLE_ANALYTICS_ID && (

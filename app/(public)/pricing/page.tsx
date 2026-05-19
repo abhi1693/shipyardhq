@@ -22,6 +22,8 @@ import { HOME_PATH, PRICING_PATH, REWARDS_PATH } from "@/lib/routes"
 
 const PAGE_TITLE = "Pricing"
 
+export const dynamic = "force-dynamic"
+
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description: "Transparent pricing for every stage.",

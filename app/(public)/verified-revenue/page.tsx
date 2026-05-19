@@ -8,6 +8,8 @@ import { HOME_PATH, VERIFIED_REVENUE_PATH } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
 
 const PAGE_TITLE = "Revenue verified products"
+export const dynamic = "force-dynamic"
+
 const OG_IMAGE_URL = new URL(
   "/opengraph-verified-revenue.png",
   siteConfig.url,

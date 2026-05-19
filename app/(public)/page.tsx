@@ -31,6 +31,7 @@ import { buildPageMetadata } from "@/lib/metadata"
 import { siteConfig } from "@/lib/siteConfig"
 import { HOME_PATH } from "@/lib/routes"
 
+export const dynamic = "force-dynamic"
 export const revalidate = 60
 
 const HOMEPAGE_TITLE = "Shipyard shows what builders are actually clicking on"

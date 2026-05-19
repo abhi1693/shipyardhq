@@ -8,6 +8,8 @@ import { HOME_PATH, REWARDS_PATH } from "@/lib/routes"
 
 const PAGE_TITLE = "Shipyard Rewards"
 
+export const dynamic = "force-dynamic"
+
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   section: "Public",
