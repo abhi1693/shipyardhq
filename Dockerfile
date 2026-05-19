@@ -31,21 +31,21 @@ ARG BUILD_DODO_VALUE=dodo_build_placeholder
 
 ENV NODE_OPTIONS=--max-old-space-size=4096
 
-RUN --mount=type=secret,id=vercel_env,required=false \
+RUN --mount=type=secret,id=build_env,required=false \
   node -e '\
     const fs = require("fs");\
     const { spawnSync } = require("child_process");\
-    if (fs.existsSync("/run/secrets/vercel_env")) require("dotenv").config({ path: "/run/secrets/vercel_env" });\
+    if (fs.existsSync("/run/secrets/build_env")) require("dotenv").config({ path: "/run/secrets/build_env" });\
     process.env.DATABASE_URL ||= process.env.BUILD_DATABASE_URL;\
     process.env.DIRECT_DATABASE_URL ||= process.env.DATABASE_URL || process.env.BUILD_DIRECT_DATABASE_URL || process.env.BUILD_DATABASE_URL;\
     const result = spawnSync("npx", ["prisma", "generate"], { stdio: "inherit", env: process.env });\
     process.exit(result.status ?? 1);\
   '
-RUN --mount=type=secret,id=vercel_env,required=false \
+RUN --mount=type=secret,id=build_env,required=false \
   node -e '\
     const fs = require("fs");\
     const { spawnSync } = require("child_process");\
-    if (fs.existsSync("/run/secrets/vercel_env")) require("dotenv").config({ path: "/run/secrets/vercel_env" });\
+    if (fs.existsSync("/run/secrets/build_env")) require("dotenv").config({ path: "/run/secrets/build_env" });\
     process.env.DATABASE_URL ||= process.env.BUILD_DATABASE_URL;\
     process.env.DIRECT_DATABASE_URL ||= process.env.DATABASE_URL || process.env.BUILD_DIRECT_DATABASE_URL || process.env.BUILD_DATABASE_URL;\
     process.env.DODO_ENV ||= process.env.BUILD_DODO_ENV;\

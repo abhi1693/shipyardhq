@@ -28,7 +28,6 @@ jobs:
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
           CLERK_WEBHOOK_SIGNING_SECRET: ${{ secrets.CLERK_WEBHOOK_SIGNING_SECRET }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DODO_API_KEY: ${{ secrets.DODO_API_KEY }}
           DODO_ENV: ${{ secrets.DODO_ENV }}
           DODO_WEBHOOK_SECRET: ${{ secrets.DODO_WEBHOOK_SECRET }}
@@ -86,7 +85,6 @@ jobs:
             "CLERK_SECRET_KEY",
             "CLERK_WEBHOOK_SIGNING_SECRET",
             "CRON_SECRET",
-            "DATABASE_URL",
             "DODO_API_KEY",
             "DODO_ENV",
             "DODO_WEBHOOK_SECRET",
@@ -169,4 +167,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           secret-files: |
-            vercel_env=.env.production.local
+            build_env=.env.production.local

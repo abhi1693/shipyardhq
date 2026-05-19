@@ -6,6 +6,8 @@ import { buildSectionMetadata } from "@/lib/metadata"
 
 export const metadata = buildSectionMetadata()
 
+export const dynamic = "force-dynamic"
+
 export default function PublicLayout({
   children,
 }: {

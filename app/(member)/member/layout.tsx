@@ -27,6 +27,8 @@ import { redirect } from "next/navigation"
 
 export const metadata = buildSectionMetadata({ section: "Member" })
 
+export const dynamic = "force-dynamic"
+
 const navItems: NavItem[] = [
   {
     title: "Overview",

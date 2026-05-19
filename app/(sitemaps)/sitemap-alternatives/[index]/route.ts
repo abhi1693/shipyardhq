@@ -10,15 +10,8 @@ function xml(parts: TemplateStringsArray, ...subs: unknown[]) {
   return parts.map((part, index) => part + (subs[index] ?? "")).join("")
 }
 
-export async function generateStaticParams(): Promise<
-  Array<{ index: string }>
-> {
-  const total = await prisma.alternativeProduct.count()
-  const totalPages = Math.max(Math.ceil(total / CHUNK_SIZE), 1)
-
-  return Array.from({ length: totalPages }, (_, pageIndex) => ({
-    index: String(pageIndex + 1),
-  }))
+export function generateStaticParams(): Array<{ index: string }> {
+  return []
 }
 
 export async function GET(

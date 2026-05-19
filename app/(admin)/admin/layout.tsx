@@ -20,6 +20,8 @@ export const metadata = buildSectionMetadata({
   description: "Admin dashboard for managing ShipYardHQ.",
 })
 
+export const dynamic = "force-dynamic"
+
 const baseNavItems: NavItem[] = [
   {
     title: "Overview",

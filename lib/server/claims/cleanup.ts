@@ -58,7 +58,9 @@ registerEventHandler({
   },
 })
 
-// Kick off the first scheduled run if none exists.
-void scheduleNextRun(new Date()).catch((error) => {
-  console.error("[claims.cleanup] failed to schedule initial run", { error })
-})
+if (process.env.NEXT_PHASE !== "phase-production-build") {
+  // Kick off the first scheduled run if none exists.
+  void scheduleNextRun(new Date()).catch((error) => {
+    console.error("[claims.cleanup] failed to schedule initial run", { error })
+  })
+}

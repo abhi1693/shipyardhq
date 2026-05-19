@@ -13,6 +13,8 @@ import {
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 
+export const dynamic = "force-dynamic"
+
 function resolvePostOnboardingDestination(nextUrl: string) {
   if (!nextUrl) {
     return MEMBER_OVERVIEW_PATH

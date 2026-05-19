@@ -15,17 +15,8 @@ function xml(parts: TemplateStringsArray, ...subs: any[]) {
 
 const CHUNK_SIZE = 50000
 
-export async function generateStaticParams(): Promise<
-  Array<{ index: string }>
-> {
-  const total = await prisma.product.count({
-    where: { status: "published" as any },
-  })
-  const totalPages = Math.max(Math.ceil(total / CHUNK_SIZE), 1)
-
-  return Array.from({ length: totalPages }, (_, pageIndex) => ({
-    index: String(pageIndex + 1),
-  }))
+export function generateStaticParams(): Array<{ index: string }> {
+  return []
 }
 
 export async function GET(

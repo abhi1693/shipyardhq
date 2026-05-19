@@ -1,6 +1,5 @@
 import {
   getKeywordTagSitemapChunk,
-  getKeywordTagSitemapStats,
 } from "@/actions/public/tags/actions"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 
@@ -13,15 +12,8 @@ function xml(parts: TemplateStringsArray, ...subs: any[]) {
   return parts.map((part, index) => part + (subs[index] ?? "")).join("")
 }
 
-export async function generateStaticParams(): Promise<
-  Array<{ index: string }>
-> {
-  const { total } = await getKeywordTagSitemapStats()
-  const totalPages = Math.max(Math.ceil(total / CHUNK_SIZE), 1)
-
-  return Array.from({ length: totalPages }, (_, pageIndex) => ({
-    index: String(pageIndex + 1),
-  }))
+export function generateStaticParams(): Array<{ index: string }> {
+  return []
 }
 
 export async function GET(
