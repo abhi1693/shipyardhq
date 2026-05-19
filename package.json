@@ -21,7 +21,6 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "novu:clear-subscribers": "tsx scripts/clear-novu-subscribers.ts",
-    "media:migrate-r2": "tsx scripts/migrate-vercel-blob-to-r2.ts",
     "prisma:migrate:reset": "prisma migrate reset --force",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate",

@@ -51,9 +51,6 @@ Configure these server-side env vars in production:
 - `R2_ENDPOINT`
 - `R2_PUBLIC_BASE_URL` (defaults to `https://media.shipyardhq.dev`)
 
-Existing Vercel Blob URLs can be copied into R2 and rewritten in the database
-with `npm run media:migrate-r2 -- --write`. Omit `--write` for a dry run.
-
 ## Novu Inbox
 
 - In-app notifications render via `<Inbox />` from `components/molecules/NovuInbox.tsx` with `NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER`.
