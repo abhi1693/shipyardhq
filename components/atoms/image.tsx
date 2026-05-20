@@ -1,10 +1,5 @@
 import NextImage, { type ImageProps as NextImageProps } from "next/image"
 
-import {
-  cloudflareMediaImageLoader,
-  isCloudflareMediaImageSrc,
-} from "@/lib/images/cloudflare"
-
 const DEFAULT_BLUR_DATA_URL =
   "data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjZWVlZWVlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIHJ4PSIwLjIiLz48L3N2Zz4="
 
@@ -47,7 +42,6 @@ export function Image({
   blurDataURL,
   fallbackBlurDataURL = DEFAULT_BLUR_DATA_URL,
   sources,
-  loader,
   unoptimized,
   ...props
 }: Props) {
@@ -62,17 +56,11 @@ export function Image({
     resolvedPlaceholder === "blur"
       ? blurDataURL || fallbackBlurDataURL
       : undefined
-  const resolvedLoader =
-    loader ??
-    (!unoptimized && isCloudflareMediaImageSrc(props.src)
-      ? cloudflareMediaImageLoader
-      : undefined)
 
   const imageNode = (
     <NextImage
       {...props}
       alt={alt}
-      loader={resolvedLoader}
       unoptimized={unoptimized}
       loading={resolvedLoading}
       fetchPriority={resolvedFetchPriority}

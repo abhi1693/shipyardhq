@@ -62,6 +62,8 @@ const nextConfig: NextConfig = {
   },
   allowedDevOrigins: ["localhost", "192.168.1.101"],
   images: {
+    loader: "custom",
+    loaderFile: "./imageLoader.ts",
     deviceSizes: [360, 414, 640, 768, 1024, 1280, 1536, 1920],
     imageSizes: [16, 24, 32, 40, 48, 60, 64, 80, 96, 128, 160, 220, 256, 320],
     remotePatterns: [

@@ -4,6 +4,7 @@ import {
   buildCloudflareMediaImageUrl,
   isCloudflareMediaImageSrc,
 } from "@/lib/images/cloudflare"
+import shipyardImageLoader from "@/imageLoader"
 
 describe("Cloudflare media image URLs", () => {
   it("builds a Cloudflare transformation URL for managed media images", () => {
@@ -39,5 +40,27 @@ describe("Cloudflare media image URLs", () => {
         width: 64,
       }),
     ).toBe("https://example.com/logo.jpg")
+  })
+
+  it("uses Next image optimization for non-managed sources", () => {
+    expect(
+      shipyardImageLoader({
+        src: "/brand.png",
+        width: 64,
+        quality: 75,
+      }),
+    ).toBe("/_next/image?url=%2Fbrand.png&w=64&q=75")
+  })
+
+  it("uses Cloudflare transformations from the global loader for managed media", () => {
+    expect(
+      shipyardImageLoader({
+        src: "https://media.shipyardhq.dev/logo.jpg",
+        width: 64,
+        quality: 75,
+      }),
+    ).toBe(
+      "https://media.shipyardhq.dev/cdn-cgi/image/width=64,quality=75,format=auto,metadata=none,onerror=redirect/logo.jpg",
+    )
   })
 })
