@@ -5,6 +5,7 @@ import {
   estimateMarkdownTokens,
   hasExplicitMarkdownAccept,
 } from "@/lib/server/markdownForAgents"
+import { buildProductMarkdownDocument } from "@/lib/server/productMarkdownDocument"
 
 describe("markdown for agents", () => {
   it("detects explicit text/markdown negotiation", () => {
@@ -51,5 +52,54 @@ describe("markdown for agents", () => {
     expect(markdown).toContain("| Feature | Shipyard |")
     expect(markdown).not.toContain("/cdn-cgi/content")
     expect(markdown).not.toContain("__NEXT_DATA__")
+  })
+
+  it("renders product markdown from product data without page chrome", () => {
+    const product = {
+      id: "prod_1",
+      slug: "embed-bot",
+      name: "Embed-Bot",
+      tagline: "AI Customer Support for Chat & Email that lives in Slack",
+      description:
+        "Embed-Bot integrates with Slack and email.\n\n- Handles support conversations\n- Escalates important replies",
+      websiteUrl: "https://www.embed-bot.com",
+      pricingModel: "freemium",
+      startingPriceCents: 3900,
+      currencyCode: "USD",
+      platforms: ["web"],
+      type: "saas",
+      publishedAt: new Date("2026-05-20T00:00:00.000Z"),
+      createdAt: new Date("2026-05-20T00:00:00.000Z"),
+      updatedAt: new Date("2026-05-20T00:00:00.000Z"),
+      category: { slug: "customer-support" },
+      user: { firstName: "Aminu", lastName: "Example" },
+      metadata: { demoUrl: null },
+      verification: { isVerified: false },
+      _count: { ProductUpvote: 0 },
+    } as unknown as Parameters<typeof buildProductMarkdownDocument>[0]
+    const meta = {
+      slug: "embed-bot",
+      name: "Embed-Bot",
+      tagline: "AI Customer Support for Chat & Email that lives in Slack",
+      description: product.description,
+      logo: "https://media.shipyardhq.dev/logo.webp",
+      bannerImage: "https://media.shipyardhq.dev/banner.webp",
+      keywords: ["AI customer support", "Slack integration"],
+      ProductMedia: [{ imageUrl: "https://media.shipyardhq.dev/screen.webp" }],
+      category: { name: "Customer Support", slug: "customer-support" },
+    } as unknown as Parameters<typeof buildProductMarkdownDocument>[1]
+
+    const markdown = buildProductMarkdownDocument(product, meta)
+
+    expect(markdown).toContain("# Embed-Bot")
+    expect(markdown).toContain(
+      "Canonical Shipyard page: http://localhost:3000/products/embed-bot",
+    )
+    expect(markdown).toContain("Starting price: $39.00")
+    expect(markdown).toContain("Embed-Bot integrates with Slack and email.")
+    expect(markdown).toContain("- Handles support conversations")
+    expect(markdown).toContain("- AI customer support")
+    expect(markdown).not.toContain("Discover")
+    expect(markdown).not.toContain("Show more")
   })
 })

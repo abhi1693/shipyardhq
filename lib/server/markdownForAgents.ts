@@ -97,6 +97,17 @@ export async function renderMarkdownForPath(
     return null
   }
 
+  const { renderProductMarkdownForPath } = await import(
+    "@/lib/server/productMarkdown"
+  )
+  const productMarkdown = await renderProductMarkdownForPath(targetUrl.pathname)
+  if (productMarkdown) {
+    return {
+      body: productMarkdown,
+      status: 200,
+    }
+  }
+
   const response = await fetch(targetUrl, {
     headers: {
       Accept: HTML_ACCEPT_HEADER,
