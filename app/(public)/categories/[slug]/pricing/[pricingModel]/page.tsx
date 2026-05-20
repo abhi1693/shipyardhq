@@ -98,6 +98,7 @@ export async function generateMetadata(props: {
     title,
     description,
     section: "Categories",
+    canonical: categoryPricingPath(slug, pricingModelMeta.slug),
     openGraph: { title, description },
     twitter: { title, description },
   })

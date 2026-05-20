@@ -6,6 +6,7 @@ import { UseCaseDetailSkeleton } from "@/components/templates/public/use-cases/d
 import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
 import { buildPageMetadata } from "@/lib/metadata"
 import { pluralize } from "@/lib/pluralize"
+import { usecasePath } from "@/lib/routes"
 
 export const dynamic = "force-dynamic"
 
@@ -25,6 +26,7 @@ export async function generateMetadata(
     title: `${useCase.label} Use Case`,
     section: "Use Cases",
     description,
+    canonical: usecasePath(useCase.slug),
   })
 }
 

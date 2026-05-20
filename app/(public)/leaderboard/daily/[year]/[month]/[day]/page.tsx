@@ -6,6 +6,7 @@ import {
   resolvePeriodWindowFromParts,
 } from "@/actions/public/leaderboard/actions"
 import { PeriodicLeaderboardView } from "@/components/templates/public/leaderboard/periodic/view"
+import { dailyLeaderboardPath } from "@/lib/routes"
 
 export const dynamic = "force-dynamic"
 
@@ -31,6 +32,7 @@ export async function generateMetadata({
   return {
     title: `Daily leaderboard — ${periodLabel}`,
     description: `Top Shipyard products for ${periodLabel}, ranked by points.`,
+    alternates: { canonical: dailyLeaderboardPath(year, month, day) },
   }
 }
 

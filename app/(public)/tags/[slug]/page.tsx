@@ -34,7 +34,7 @@ import {
   HERO_PRIMARY_BUTTON_CLASSES,
   HERO_SECONDARY_BUTTON_CLASSES,
 } from "@/components/templates/public/categories/hero-button-classes"
-import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
+import { MEMBER_PRODUCTS_PATH, PRICING_PATH, tagPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { buildPageMetadata } from "@/lib/metadata"
 import { getTagDetailPayload } from "@/lib/tags/page-cache"
@@ -57,6 +57,7 @@ export async function generateMetadata({
     title: `${label} Tag`,
     description: `Discover Shipyard products tagged with “${label}”. Browse the latest launches and tools connected to this keyword.`,
     section: "Tags",
+    canonical: tagPath(summary.slug),
   })
 }
 

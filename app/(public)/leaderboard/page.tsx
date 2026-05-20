@@ -16,6 +16,7 @@ export const metadata = buildPageMetadata({
   title: `${PAGE_TITLE} — Ranked by real builder interest`,
   description:
     "Revenue verified products rank higher by default. Products without verified revenue are ranked lower.",
+  canonical: LEADERBOARD_PATH,
 })
 
 export default function LeaderboardPage(

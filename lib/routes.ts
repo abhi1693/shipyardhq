@@ -46,6 +46,19 @@ export const LEADERBOARD_PATH = "/leaderboard" as const
 export const LEADERBOARD_MONTHLY_PATH = `${LEADERBOARD_PATH}/monthly` as const
 export const LEADERBOARD_GUIDE_PATH = `${LEADERBOARD_PATH}/about` as const
 export const LEADERBOARD_REWARDS_PATH = `${LEADERBOARD_PATH}/rewards` as const
+export const dailyLeaderboardPath = (
+  year: string | number,
+  month: string | number,
+  day: string | number,
+) => `${LEADERBOARD_PATH}/daily/${year}/${month}/${day}`
+export const weeklyLeaderboardPath = (
+  year: string | number,
+  week: string | number,
+) => `${LEADERBOARD_PATH}/weekly/${year}/${week}`
+export const monthlyLeaderboardPath = (
+  year: string | number,
+  month: string | number,
+) => `${LEADERBOARD_MONTHLY_PATH}/${year}/${month}`
 
 const MONTH_KEY_PATTERN = /^(\d{2})-(\d{2})-(\d{4})$/
 
@@ -112,6 +125,7 @@ export const categoryPricingPath = (
 export const categoryPlatformPath = (categorySlug: string, platform: string) =>
   `${categoryPath(categorySlug)}/platforms/${platform}`
 export const usecasePath = (slug: string) => `${USE_CASES_PATH}/${slug}`
+export const tagPath = (slug: string) => `${TAGS_PATH}/${slug}`
 export const productPath = (slug: string) => `/products/${slug}`
 export const userPath = (id: string) => `${USERS_PATH}/${id}`
 

@@ -4,6 +4,12 @@ import robots from "@/app/robots"
 import { buildProductListItem } from "@/lib/seo/product-list"
 import { toAbsoluteUrlFromSite } from "@/lib/seo/base"
 import nextConfig from "@/next.config"
+import {
+  dailyLeaderboardPath,
+  monthlyLeaderboardPath,
+  tagPath,
+  weeklyLeaderboardPath,
+} from "@/lib/routes"
 
 describe("toAbsoluteUrlFromSite", () => {
   it("returns undefined for empty input", () => {
@@ -134,5 +140,23 @@ describe("crawler directives", () => {
         }),
       ]),
     )
+  })
+})
+
+describe("canonical route helpers", () => {
+  it("builds clean canonical paths for leaderboard archives", () => {
+    expect(dailyLeaderboardPath(2025, 12, 29)).toBe(
+      "/leaderboard/daily/2025/12/29",
+    )
+    expect(weeklyLeaderboardPath(2025, 52)).toBe(
+      "/leaderboard/weekly/2025/52",
+    )
+    expect(monthlyLeaderboardPath(2025, 12)).toBe(
+      "/leaderboard/monthly/2025/12",
+    )
+  })
+
+  it("builds clean canonical paths for tag detail pages", () => {
+    expect(tagPath("ai-tools")).toBe("/tags/ai-tools")
   })
 })

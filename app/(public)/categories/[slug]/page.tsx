@@ -22,6 +22,7 @@ export async function generateMetadata(
     title: category.name,
     section: "Categories",
     description: category.description ?? undefined,
+    canonical: categoryPath(slug),
   })
 }
 

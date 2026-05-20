@@ -40,6 +40,7 @@ export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description:
     "Explore Shipyard products by their top keywords and discover new tools aligned with your interests.",
+  canonical: TAGS_PATH,
 })
 
 type TagsSearchParams = {
