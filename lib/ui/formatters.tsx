@@ -1,8 +1,8 @@
 import Link from "next/link"
 import { ReactNode } from "react"
 import { format } from "date-fns"
-import Image from "next/image"
 import { Badge } from "@/components/atoms/badge"
+import { Image } from "@/components/atoms/image"
 import { formatDistanceToNow as fdn } from "date-fns"
 
 type LinkItem = {

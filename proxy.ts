@@ -4,6 +4,7 @@ import {
   type NextFetchEvent,
   type NextRequest,
 } from "next/server"
+import { buildCloudflareMediaImageUrl } from "@/lib/images/cloudflare"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
 
 const isMemberRoute = createRouteMatcher([`${MEMBER_BASE_PATH}(.*)`])
@@ -46,6 +47,30 @@ function redirectLegacyBlobImageRequest(req: NextRequest) {
   )
 
   return NextResponse.redirect(nextImageUrl, 308)
+}
+
+function redirectMediaImageOptimizationRequest(req: NextRequest) {
+  const url = new URL(req.url)
+  if (url.pathname !== "/_next/image") {
+    return null
+  }
+
+  const imageUrl = url.searchParams.get("url")
+  const width = Number(url.searchParams.get("w"))
+  if (!imageUrl || !Number.isFinite(width) || width <= 0) {
+    return null
+  }
+
+  const transformedUrl = buildCloudflareMediaImageUrl({
+    src: imageUrl,
+    width,
+    quality: url.searchParams.get("q") ?? undefined,
+  })
+  if (transformedUrl === imageUrl) {
+    return null
+  }
+
+  return NextResponse.redirect(transformedUrl, 308)
 }
 
 function hasExplicitMarkdownAccept(req: NextRequest) {
@@ -183,6 +208,11 @@ const handleClerkMiddleware = clerkMiddleware(async (auth, req) => {
 })
 
 export default async function proxy(req: NextRequest, event: NextFetchEvent) {
+  const mediaImageRedirect = redirectMediaImageOptimizationRequest(req)
+  if (mediaImageRedirect) {
+    return mediaImageRedirect
+  }
+
   const legacyBlobImageRedirect = redirectLegacyBlobImageRequest(req)
   if (legacyBlobImageRedirect) {
     return legacyBlobImageRedirect

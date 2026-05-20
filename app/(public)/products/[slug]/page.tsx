@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import Image from "next/image"
 import Link from "next/link"
 import {
   Suspense,
@@ -33,6 +32,7 @@ import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
+import { Image } from "@/components/atoms/image"
 import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import ProductShareBar from "@/components/molecules/ProductShareBar"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"

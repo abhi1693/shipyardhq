@@ -1,0 +1,43 @@
+import { describe, expect, it } from "vitest"
+
+import {
+  buildCloudflareMediaImageUrl,
+  isCloudflareMediaImageSrc,
+} from "@/lib/images/cloudflare"
+
+describe("Cloudflare media image URLs", () => {
+  it("builds a Cloudflare transformation URL for managed media images", () => {
+    expect(
+      buildCloudflareMediaImageUrl({
+        src: "https://media.shipyardhq.dev/user_1/products/p1/logos/logo.jpg?etag=abc",
+        width: 64,
+        quality: 80,
+      }),
+    ).toBe(
+      "https://media.shipyardhq.dev/cdn-cgi/image/width=64,quality=80,format=auto,metadata=none,onerror=redirect/user_1/products/p1/logos/logo.jpg?etag=abc",
+    )
+  })
+
+  it("rounds widths and defaults quality", () => {
+    expect(
+      buildCloudflareMediaImageUrl({
+        src: "https://media.shipyardhq.dev/logo.webp",
+        width: 63.5,
+      }),
+    ).toBe(
+      "https://media.shipyardhq.dev/cdn-cgi/image/width=64,quality=75,format=auto,metadata=none,onerror=redirect/logo.webp",
+    )
+  })
+
+  it("leaves unsupported sources alone", () => {
+    expect(isCloudflareMediaImageSrc("https://example.com/logo.jpg")).toBe(
+      false,
+    )
+    expect(
+      buildCloudflareMediaImageUrl({
+        src: "https://example.com/logo.jpg",
+        width: 64,
+      }),
+    ).toBe("https://example.com/logo.jpg")
+  })
+})
