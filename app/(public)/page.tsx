@@ -1,10 +1,6 @@
 import { Suspense } from "react"
 
 import {
-  HeroSection,
-  HeroSectionSkeleton,
-} from "@/components/templates/public/homepage/hero-section"
-import {
   HomepageFeedSection,
   HomepageFeedSkeleton,
 } from "@/components/templates/public/homepage/homepage-feed-section"
@@ -66,9 +62,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         mainClassName="gap-12"
         main={
           <>
-            <Suspense fallback={<HeroSectionSkeleton />}>
-              <HeroSection />
-            </Suspense>
             <Suspense
               fallback={
                 <div className="lg:hidden">
