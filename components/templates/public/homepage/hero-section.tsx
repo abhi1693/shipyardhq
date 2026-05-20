@@ -1,14 +1,10 @@
-import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import Hero from "@/components/organisms/directory/Hero"
 import HeroSkeleton from "@/components/organisms/directory/Hero.skeleton"
 import { PAYMENT_PROVIDERS } from "@/lib/paymentProviders"
 
-export async function HeroSection() {
-  const stats = await getLeaderboardStats()
-
+export function HeroSection() {
   return (
     <Hero
-      stats={stats}
       supportedProviders={PAYMENT_PROVIDERS.map(({ name, logoSrc }) => ({
         name,
         logoSrc,

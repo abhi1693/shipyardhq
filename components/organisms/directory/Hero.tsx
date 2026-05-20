@@ -43,7 +43,7 @@ type ProviderDescriptor = {
 }
 
 interface HeroProps {
-  stats: StatsShape
+  stats?: StatsShape
   title?: string
   description?: string
   primaryAction?: HeaderActionConfig | null
@@ -212,7 +212,7 @@ export function Hero({
         {hasMetrics ? (
           <dl className="grid gap-4 border-t border-border/60 pt-6 text-center sm:grid-cols-2 xl:grid-cols-4">
             {metrics.map((metric) => {
-              const rawValue = stats[metric.key]
+              const rawValue = stats?.[metric.key]
               const numericValue =
                 typeof rawValue === "number"
                   ? rawValue
