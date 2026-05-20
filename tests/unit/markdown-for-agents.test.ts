@@ -30,6 +30,7 @@ describe("markdown for agents", () => {
           <body>
             <main>
               <h1>Shipyard</h1>
+              <a href="/cdn-cgi/content"></a>
               <p>Launch data for <a href="/products/example">Example</a>.</p>
               <table>
                 <thead><tr><th>Feature</th><th>Shipyard</th></tr></thead>
@@ -48,6 +49,7 @@ describe("markdown for agents", () => {
       "[Example](https://shipyardhq.dev/products/example)",
     )
     expect(markdown).toContain("| Feature | Shipyard |")
+    expect(markdown).not.toContain("/cdn-cgi/content")
     expect(markdown).not.toContain("__NEXT_DATA__")
   })
 })

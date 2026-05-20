@@ -73,6 +73,7 @@ function absolutizeMarkdownLinks(markdown: string, baseUrl: URL) {
 function normalizeMarkdown(markdown: string, baseUrl: URL) {
   return (
     absolutizeMarkdownLinks(markdown, baseUrl)
+      .replace(/\[\]\([^)]+\)/g, "")
       .replace(/\n{3,}/g, "\n\n")
       .replace(/[ \t]+\n/g, "\n")
       .trim() + "\n"
