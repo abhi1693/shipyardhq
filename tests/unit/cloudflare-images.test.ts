@@ -42,14 +42,14 @@ describe("Cloudflare media image URLs", () => {
     ).toBe("https://example.com/logo.jpg")
   })
 
-  it("uses Next image optimization for non-managed sources", () => {
+  it("leaves non-managed sources untouched", () => {
     expect(
       shipyardImageLoader({
         src: "/brand.png",
         width: 64,
         quality: 75,
       }),
-    ).toBe("/_next/image?url=%2Fbrand.png&w=64&q=75")
+    ).toBe("/brand.png")
   })
 
   it("uses Cloudflare transformations from the global loader for managed media", () => {

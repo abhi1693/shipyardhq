@@ -52,6 +52,7 @@ export async function UserProfilePageContent({ params }: PageProps) {
     badges,
     earliestLaunch,
   } = payload
+  const referenceDateIso = new Date().toISOString()
 
   const leaderboardTitle =
     leaderboardPosition && leaderboardPosition.totalEligible > 0
@@ -216,6 +217,7 @@ export async function UserProfilePageContent({ params }: PageProps) {
                 initialItems={productsPage.items}
                 initialPage={initialFeedPage}
                 pageSize={productsPage.pageSize}
+                referenceDateIso={referenceDateIso}
                 initialHasMore={productsPage.hasMore}
               />
             </section>

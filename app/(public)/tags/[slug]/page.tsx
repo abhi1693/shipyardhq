@@ -162,6 +162,7 @@ export default async function TagDetailPage({ params }: TagPageProps) {
   const homepageFeedItems = await getHomepageFeedViewAll({
     view: DEFAULT_HOMEPAGE_FEED_VIEW,
   })
+  const referenceDateIso = new Date().toISOString()
 
   const filteredHomepageItems = homepageFeedItems.filter((item) => {
     if (item.isSponsored) {
@@ -254,6 +255,7 @@ export default async function TagDetailPage({ params }: TagPageProps) {
                 <ProductFeedList
                   activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
                   items={combinedFeedItems}
+                  referenceDateIso={referenceDateIso}
                   showRemaining
                 />
               ) : (

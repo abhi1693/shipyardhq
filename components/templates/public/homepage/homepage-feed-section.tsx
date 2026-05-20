@@ -23,6 +23,7 @@ export async function HomepageFeedSection({ view }: HomepageFeedSectionProps) {
     pageSize: HOMEPAGE_FEED_PAGE_SIZE,
     view,
   })
+  const referenceDateIso = new Date().toISOString()
 
   const viewCopy: Record<HomepageFeedView, string> = {
     new: "Fresh launches, published most recently.",
@@ -63,7 +64,11 @@ export async function HomepageFeedSection({ view }: HomepageFeedSectionProps) {
         </p>
       </div>
       <StickyBanner />
-      <ProductFeedList activeFilter={view} items={items} />
+      <ProductFeedList
+        activeFilter={view}
+        items={items}
+        referenceDateIso={referenceDateIso}
+      />
     </section>
   )
 }

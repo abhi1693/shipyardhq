@@ -42,6 +42,7 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
   const { category, productsPage } = data
   const initialPage = productsPage.nextPage ?? productsPage.page + 1
   const categorySlug = category.slug ?? slug
+  const referenceDateIso = new Date().toISOString()
 
   return (
     <main className="relative isolate bg-[#f5f7fb]">
@@ -105,6 +106,7 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
                 initialProducts={productsPage.products}
                 initialPage={initialPage}
                 pageSize={productsPage.pageSize}
+                referenceDateIso={referenceDateIso}
                 initialHasMore={productsPage.hasMore}
               />
             </section>

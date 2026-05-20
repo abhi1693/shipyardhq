@@ -12,6 +12,7 @@ interface CategoryFeedClientProps {
   initialProducts: HomepageFeedItem[]
   initialPage: number
   pageSize: number
+  referenceDateIso: string
   initialHasMore: boolean
 }
 
@@ -20,6 +21,7 @@ export function CategoryFeedClient({
   initialProducts,
   initialPage,
   pageSize,
+  referenceDateIso,
   initialHasMore,
 }: CategoryFeedClientProps) {
   const normalizedInitialPage =
@@ -110,6 +112,7 @@ export function CategoryFeedClient({
       <ProductFeedList
         activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
         items={products}
+        referenceDateIso={referenceDateIso}
         showRemaining
       />
 

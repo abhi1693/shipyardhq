@@ -17,6 +17,7 @@ export interface ProductFeedListProps {
   activeFilter: HomepageFeedView
   items: HomepageFeedItem[]
   className?: string
+  referenceDateIso: string
   showRemaining?: boolean
 }
 
@@ -69,13 +70,15 @@ function compareBucketItems(a: HomepageFeedItem, b: HomepageFeedItem) {
   return a.name.localeCompare(b.name)
 }
 
-function buildNewViewSections(items: HomepageFeedItem[]): FeedSection[] {
+function buildNewViewSections(
+  items: HomepageFeedItem[],
+  referenceDate: Date,
+): FeedSection[] {
   if (items.length === 0) {
     return []
   }
 
-  const now = new Date()
-  const startToday = startOfDay(now)
+  const startToday = startOfDay(referenceDate)
   const startYesterday = addDays(startToday, -1)
   const startLastSevenDays = addDays(startToday, -7)
 
@@ -208,6 +211,7 @@ export function ProductFeedList({
   activeFilter,
   items,
   className,
+  referenceDateIso,
   showRemaining = false,
 }: ProductFeedListProps) {
   const view = activeFilter
@@ -256,13 +260,18 @@ export function ProductFeedList({
     })
   }, [items, view])
 
+  const referenceDate = useMemo(() => {
+    const parsed = new Date(referenceDateIso)
+    return Number.isNaN(parsed.getTime()) ? new Date(0) : parsed
+  }, [referenceDateIso])
+
   const sections = useMemo(() => {
     if (view !== "new") {
       return [] as FeedSection[]
     }
 
-    return buildNewViewSections(sortedItems)
-  }, [sortedItems, view])
+    return buildNewViewSections(sortedItems, referenceDate)
+  }, [referenceDate, sortedItems, view])
 
   const sectionProductIds = useMemo(() => {
     if (view !== "new" || !showRemaining) {

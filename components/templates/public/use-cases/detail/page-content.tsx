@@ -53,6 +53,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
   const homepageFeedItems = await getHomepageFeedViewAll({
     view: DEFAULT_HOMEPAGE_FEED_VIEW,
   })
+  const referenceDateIso = new Date().toISOString()
   const categorySlugs = new Set(categories.map((c) => c.slug.toLowerCase()))
   const categoryNames = new Set(
     categories.map((c) => c.name?.toLowerCase()).filter(Boolean) as string[],
@@ -174,6 +175,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
               <ProductFeedList
                 activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
                 items={useCaseFeedItems}
+                referenceDateIso={referenceDateIso}
                 showRemaining
               />
             </section>

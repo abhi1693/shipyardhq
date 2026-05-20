@@ -12,6 +12,7 @@ interface UserFeedClientProps {
   initialItems: HomepageFeedItem[]
   initialPage: number
   pageSize: number
+  referenceDateIso: string
   initialHasMore: boolean
 }
 
@@ -20,6 +21,7 @@ export function UserFeedClient({
   initialItems,
   initialPage,
   pageSize,
+  referenceDateIso,
   initialHasMore,
 }: UserFeedClientProps) {
   const normalizedInitialPage =
@@ -118,6 +120,7 @@ export function UserFeedClient({
       <ProductFeedList
         activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
         items={items}
+        referenceDateIso={referenceDateIso}
         showRemaining
       />
 
