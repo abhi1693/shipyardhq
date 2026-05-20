@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/atoms/skeleton"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
 import { PRICING_PATH } from "@/lib/routes"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { isOptimizedImageSrc } from "@/lib/images/sources"
 
 const SPONSOR_SLOT_COUNT = 3
 
@@ -95,9 +96,14 @@ function withPlaceholders(items: SponsorListItem[]): SponsorListItem[] {
 }
 
 function SponsorCard({ item }: { item: SponsorListItem }) {
-  const bannerSrc = item.isPlaceholder ? null : item.bannerImage || null
-  const logoFallbackSrc = item.isPlaceholder ? null : item.logo || null
+  const bannerSrc =
+    !item.isPlaceholder && isOptimizedImageSrc(item.bannerImage)
+      ? item.bannerImage
+      : null
+  const logoFallbackSrc =
+    !item.isPlaceholder && isOptimizedImageSrc(item.logo) ? item.logo : null
   const displayTagline = item.tagline?.trim()
+  const logoFallback = item.name.slice(0, 1).toUpperCase()
   const titleClassName = item.isPlaceholder
     ? "line-clamp-1 text-base font-medium leading-snug tracking-tight text-muted-foreground"
     : "line-clamp-1 text-base font-semibold leading-[1.25] tracking-tight text-foreground underline-offset-4 decoration-foreground/25 group-hover:underline"
@@ -134,7 +140,11 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
             sizes="(min-width: 1024px) 220px, 100vw"
             className="object-contain p-3"
           />
-        ) : null}
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-[#A33105]">
+            {logoFallback}
+          </div>
+        )}
       </div>
 
       <div className="space-y-1 px-3 py-2.5">

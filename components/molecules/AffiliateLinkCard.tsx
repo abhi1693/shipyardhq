@@ -5,32 +5,18 @@ import {
   AFFILIATE_SIDEBAR_OFFERS,
   type AffiliateSidebarOffer,
 } from "@/lib/marketing/affiliates"
+import { pickWeightedBySeed } from "@/lib/stable-random"
 import { cn } from "@/lib/utils"
 
 function pickWeightedOffer(
   offers: readonly AffiliateSidebarOffer[],
 ): AffiliateSidebarOffer | null {
-  if (!offers.length) return null
-
-  const weighted = offers
-    .map((offer) => ({
-      offer,
-      weight: Math.max(0, Number(offer.weight ?? 1)),
-    }))
-    .filter((item) => item.weight > 0)
-
-  const totalWeight = weighted.reduce((sum, item) => sum + item.weight, 0)
-  if (totalWeight <= 0) return offers[0] ?? null
-
-  const pick = Math.random() * totalWeight
-  let cursor = 0
-
-  for (const item of weighted) {
-    cursor += item.weight
-    if (pick < cursor) return item.offer
-  }
-
-  return weighted.at(-1)?.offer ?? offers[0] ?? null
+  const dayKey = new Date().toISOString().slice(0, 10)
+  return pickWeightedBySeed(
+    offers,
+    `affiliate-sidebar:${dayKey}`,
+    (offer) => offer.weight ?? 1,
+  )
 }
 
 export function AffiliateLinkCard({ className }: { className?: string }) {

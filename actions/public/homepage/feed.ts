@@ -16,6 +16,7 @@ import type { ProductInterestSignals } from "@/types/product-interest"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { getMostClickedProductIds } from "@/lib/server/analytics/productInterest"
 import { hasEditorPickBadge } from "@/lib/products/badges"
+import { stableUnitInterval } from "@/lib/stable-random"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
 
 const homepageFeedSelect = {
@@ -160,6 +161,7 @@ function mapProductToFeedItem(
       : "default"
 
   const scoreCount = scoreByProductId?.get(product.id)
+  const shuffleKey = now.toISOString().slice(0, 10)
 
   return {
     id: product.id,
@@ -181,7 +183,7 @@ function mapProductToFeedItem(
     isVerified: Boolean(product.verification?.isVerified),
     variant,
     interest: interestByProductId?.get(product.id) ?? null,
-    shuffleRank: Math.random(),
+    shuffleRank: stableUnitInterval(`${shuffleKey}:${product.id}`),
   }
 }
 

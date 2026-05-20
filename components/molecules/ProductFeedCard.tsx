@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import type { ProductCardVariant } from "@/types/product-card"
 import { buildProductInterestBadges } from "@/lib/products/interest"
+import { isOptimizedImageSrc } from "@/lib/images/sources"
 
 const LOGO_SIZE = 60
 
@@ -157,21 +158,23 @@ export function ProductFeedCard({
       ? item.scoreCount
       : null
   const scoreLabel = "points"
+  const logoSrc = isOptimizedImageSrc(item.logo) ? item.logo : null
+  const logoFallback = item.name.slice(0, 1).toUpperCase()
   const cardContent = (
     <article className="flex flex-1 flex-col gap-4">
       <div className="flex w-full flex-wrap items-start gap-4">
         <div className="flex min-w-0 flex-1 items-start gap-4">
           <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border/50 bg-muted/40">
-            {item.logo ? (
+            {logoSrc ? (
               <SquareImage
-                src={item.logo}
+                src={logoSrc}
                 alt={`${item.name} logo`}
                 size={LOGO_SIZE}
                 className="h-full w-full object-cover"
               />
             ) : (
               <span className="text-lg font-semibold text-foreground">
-                {item.name.slice(0, 1).toUpperCase()}
+                {logoFallback}
               </span>
             )}
           </span>

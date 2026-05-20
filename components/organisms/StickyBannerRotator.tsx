@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import { Badge } from "@/components/atoms/badge"
 import { SquareImage } from "@/components/molecules/SquareImage"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
+import { isOptimizedImageSrc } from "@/lib/images/sources"
 import { cn } from "@/lib/utils"
 
 const ROTATION_INTERVAL_MS = 15000
@@ -48,6 +49,8 @@ export function StickyBannerRotator({
   }
 
   const tagline = product.tagline?.trim()
+  const logoSrc = isOptimizedImageSrc(product.logo) ? product.logo : null
+  const logoFallback = product.name.slice(0, 1).toUpperCase()
 
   return (
     <div className={cn("w-full", className)}>
@@ -64,13 +67,19 @@ export function StickyBannerRotator({
           >
             <div className="flex min-w-0 items-center gap-3">
               <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#FEF3C7] bg-white shadow-[0_16px_32px_-28px_rgba(7,68,134,0.2)]">
-                <SquareImage
-                  src={product.logo}
-                  alt={product.name}
-                  size={44}
-                  eager
-                  className="h-full w-full object-cover"
-                />
+                {logoSrc ? (
+                  <SquareImage
+                    src={logoSrc}
+                    alt={product.name}
+                    size={44}
+                    eager
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="text-sm font-semibold text-[#A33105]">
+                    {logoFallback}
+                  </span>
+                )}
               </span>
               <div className="min-w-0 space-y-1">
                 <span className="block truncate text-sm font-semibold text-[#422006]">
