@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest"
 
+import robots from "@/app/robots"
 import { buildProductListItem } from "@/lib/seo/product-list"
 import { toAbsoluteUrlFromSite } from "@/lib/seo/base"
+import nextConfig from "@/next.config"
 
 describe("toAbsoluteUrlFromSite", () => {
   it("returns undefined for empty input", () => {
@@ -102,5 +104,35 @@ describe("buildProductListItem", () => {
       "@id": "https://shipyard.example/products/custom-tool#thing",
     })
     expect(listItem.item).not.toHaveProperty("offers")
+  })
+})
+
+describe("crawler directives", () => {
+  it("blocks redirect tracking paths from robots.txt", () => {
+    const rules = robots().rules
+    const publicRule = Array.isArray(rules) ? rules[0] : rules
+
+    expect(publicRule.disallow).toContain("/r/")
+  })
+
+  it("marks redirect and static asset endpoints as non-indexable", async () => {
+    const headers = await nextConfig.headers?.()
+
+    expect(headers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: "/_next/static/:path*",
+          headers: expect.arrayContaining([
+            { key: "X-Robots-Tag", value: "noindex" },
+          ]),
+        }),
+        expect.objectContaining({
+          source: "/r/:path*",
+          headers: expect.arrayContaining([
+            { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          ]),
+        }),
+      ]),
+    )
   })
 })

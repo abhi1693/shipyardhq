@@ -14,6 +14,13 @@ const isSafeHttpUrl = (rawUrl: string): rawUrl is string => {
   }
 }
 
+const buildNoIndexRedirect = (destination: string | URL, status?: number) => {
+  const response = NextResponse.redirect(destination, status)
+  response.headers.set("Cache-Control", "no-store")
+  response.headers.set("X-Robots-Tag", "noindex, nofollow")
+  return response
+}
+
 export async function redirectToProductWebsite(
   request: NextRequest,
   {
@@ -39,7 +46,7 @@ export async function redirectToProductWebsite(
   const fallback = new URL(productPath(slug), request.url)
 
   if (!product?.websiteUrl) {
-    return NextResponse.redirect(fallback)
+    return buildNoIndexRedirect(fallback)
   }
 
   const destination = addUtmParams(ensureUrlHasSchema(product.websiteUrl), {
@@ -50,10 +57,8 @@ export async function redirectToProductWebsite(
   })
 
   if (!isSafeHttpUrl(destination)) {
-    return NextResponse.redirect(fallback)
+    return buildNoIndexRedirect(fallback)
   }
 
-  const response = NextResponse.redirect(destination, 307)
-  response.headers.set("Cache-Control", "no-store")
-  return response
+  return buildNoIndexRedirect(destination, 307)
 }
