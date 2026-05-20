@@ -38,6 +38,20 @@ const nextConfig: NextConfig = {
       },
     ]
   },
+  async headers() {
+    return [
+      {
+        source: "/",
+        headers: [
+          {
+            key: "Link",
+            value:
+              '</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"; profile="https://www.rfc-editor.org/info/rfc9727", </llms.txt>; rel="service-doc"; type="text/plain"',
+          },
+        ],
+      },
+    ]
+  },
   allowedDevOrigins: ["localhost", "192.168.1.101"],
   images: {
     remotePatterns: [
