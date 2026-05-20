@@ -26,6 +26,7 @@ export function BrandLogo({
   const shared = {
     ...restProps,
     eager,
+    unoptimized: true,
     loading: loading ?? (eager ? "eager" : undefined),
     fetchPriority: fetchPriority ?? (eager ? "high" : undefined),
     width: width ?? 32,
@@ -37,13 +38,13 @@ export function BrandLogo({
     <>
       <Image
         {...shared}
-        src="/brand.png"
+        src="/brand.svg"
         alt={alt}
         className={clsx("object-contain", className, "dark:hidden")}
       />
       <Image
         {...shared}
-        src="/brand-white.png"
+        src="/brand-white.svg"
         alt={alt}
         className={clsx("object-contain", className, "hidden dark:block")}
       />
