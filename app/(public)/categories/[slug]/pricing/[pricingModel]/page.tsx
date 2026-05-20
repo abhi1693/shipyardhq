@@ -13,10 +13,10 @@ import {
   HOME_PATH,
   categoryPath,
   categoryPricingPath,
-  productPath,
 } from "@/lib/routes"
 import { buildQuery, type StrOrArr } from "@/lib/urlParams"
 import { getPricingModelMeta } from "@/lib/pricing/models"
+import { buildProductListItem } from "@/lib/seo/product-list"
 import { pluralize } from "@/lib/pluralize"
 import { cn } from "@/lib/utils"
 
@@ -150,15 +150,6 @@ export default async function CategoryPricingPage({
       page: "1",
     })
 
-  const toAbsoluteUrl = (value?: string | null) => {
-    if (!value) return undefined
-    const trimmed = value.trim()
-    if (!trimmed) return undefined
-    if (/^https?:\/\//i.test(trimmed)) return trimmed
-    if (trimmed.startsWith("/")) return `${baseUrl}${trimmed}`
-    return `${baseUrl}/${trimmed}`
-  }
-
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -168,22 +159,16 @@ export default async function CategoryPricingPage({
       parsed.sort === "az"
         ? "https://schema.org/ItemListOrderAscending"
         : "https://schema.org/ItemListOrderDescending",
-    itemListElement: payload.products.slice(0, 20).map((product, index) => {
-      const productUrl = `${baseUrl}${productPath(product.slug)}`
-      return {
-        "@type": "ListItem",
-        position: index + 1,
-        url: productUrl,
-        item: {
-          "@type": "Product",
-          name: product.name,
-          description: product.tagline,
-          image: toAbsoluteUrl(product.logo),
-          url: productUrl,
-          category: category.name,
-        },
-      }
-    }),
+    itemListElement: payload.products
+      .slice(0, 20)
+      .map((product, index) =>
+        buildProductListItem({
+          product,
+          position: index + 1,
+          siteUrl: baseUrl,
+          categoryName: category.name,
+        }),
+      ),
   }
 
   const resultCount =

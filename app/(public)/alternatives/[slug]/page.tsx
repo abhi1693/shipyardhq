@@ -37,8 +37,8 @@ import {
   BROWSE_PATH,
   MEMBER_PRODUCTS_PATH,
   alternativePath,
-  productPath,
 } from "@/lib/routes"
+import { buildProductListItem } from "@/lib/seo/product-list"
 import { siteConfig } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
 
@@ -157,38 +157,13 @@ export default async function AlternativeDetailPage({
     siteConfig.url,
   ).toString()
 
-  const itemListElements = productsPage.items.map((product, index) => {
-    const productUrl = new URL(
-      productPath(product.slug),
-      siteConfig.url,
-    ).toString()
-
-    const productNode: Record<string, unknown> = {
-      "@type": "Product",
-      name: product.name,
-      url: productUrl,
-    }
-
-    if (product.logo) {
-      productNode.image = product.logo
-    }
-
-    const categoryName = product.category?.name
-    if (categoryName) {
-      productNode.category = categoryName
-    }
-
-    if (product.tagline) {
-      productNode.description = product.tagline
-    }
-
-    return {
-      "@type": "ListItem",
+  const itemListElements = productsPage.items.map((product, index) =>
+    buildProductListItem({
+      product,
       position: index + 1,
-      url: productUrl,
-      item: productNode,
-    }
-  })
+      siteUrl: siteConfig.url,
+    }),
+  )
 
   const structuredDescription = hasProducts
     ? `Compare the top ${productsPage.total} ${alternative.name} alternatives, competitors, and similar tools Shipyard makers rely on in ${currentYear}.`
@@ -206,7 +181,7 @@ export default async function AlternativeDetailPage({
     keywords: seoKeywords.join(", "),
     alternateName: `Best ${alternative.name} alternatives and competitors`,
     about: {
-      "@type": "Product",
+      "@type": "Thing",
       name: alternative.name,
       ...(websiteUrl ? { url: websiteUrl } : {}),
     },

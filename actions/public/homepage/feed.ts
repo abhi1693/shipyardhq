@@ -30,6 +30,9 @@ const homepageFeedSelect = {
   name: true,
   logo: true,
   tagline: true,
+  pricingModel: true,
+  startingPriceCents: true,
+  currencyCode: true,
   createdAt: true,
   updatedAt: true,
   analytics: {
@@ -95,6 +98,9 @@ export interface HomepageFeedItem {
   name: string
   logo: string
   tagline: string
+  pricingModel?: "free" | "freemium" | "subscription" | "one_time" | "custom"
+  startingPriceCents?: number | null
+  currencyCode?: string | null
   createdAt: string
   updatedAt: string
   badges: string[]
@@ -188,6 +194,9 @@ function mapProductToFeedItem(
     name: product.name,
     logo: product.logo,
     tagline: product.tagline ?? "",
+    pricingModel: product.pricingModel,
+    startingPriceCents: product.startingPriceCents,
+    currencyCode: product.currencyCode,
     createdAt: product.createdAt.toISOString(),
     updatedAt: product.updatedAt.toISOString(),
     badges: activeBadges,

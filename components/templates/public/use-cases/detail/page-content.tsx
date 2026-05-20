@@ -33,9 +33,9 @@ import {
   MEMBER_PRODUCTS_PATH,
   USE_CASES_PATH,
   categoryPath,
-  productPath,
   usecasePath,
 } from "@/lib/routes"
+import { buildProductListItem } from "@/lib/seo/product-list"
 import { getUseCasePagePayload } from "@/lib/useCases/page-cache"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 
@@ -77,26 +77,16 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
     productCount,
     "product",
   )} built for ${useCase.label}.`
-  const toAbsoluteUrl = (input?: string | null) => {
-    if (!input) return undefined
-    if (input.startsWith("http://") || input.startsWith("https://")) {
-      return input
-    }
-    return `${baseUrl}${input.startsWith("/") ? input : `/${input}`}`
-  }
-  const productList = useCaseFeedItems.slice(0, 20).map((product, index) => ({
-    "@type": "ListItem",
-    position: index + 1,
-    url: `${baseUrl}${productPath(product.slug)}`,
-    item: {
-      "@type": "Product",
-      name: product.name,
-      description: product.tagline,
-      image: toAbsoluteUrl(product.logo),
-      url: `${baseUrl}${productPath(product.slug)}`,
-      category: product.category,
-    },
-  }))
+  const productList = useCaseFeedItems
+    .slice(0, 20)
+    .map((product, index) =>
+      buildProductListItem({
+        product,
+        position: index + 1,
+        siteUrl: baseUrl,
+        categoryName: product.category,
+      }),
+    )
   const categoryMentions = categories.map((category) => ({
     "@type": "Thing",
     name: category.name,

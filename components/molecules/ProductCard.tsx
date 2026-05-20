@@ -12,6 +12,9 @@ export type ProductCardBase = {
   name: string
   logo: string
   tagline: string
+  pricingModel?: "free" | "freemium" | "subscription" | "one_time" | "custom"
+  startingPriceCents?: number | null
+  currencyCode?: string | null
   analytics?: { upvotes?: number | null } | null
   category?: { name?: string | null; slug?: string | null } | null
   badges?: string[] | null

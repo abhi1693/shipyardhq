@@ -17,9 +17,9 @@ import {
   BROWSE_PATH,
   HOME_PATH,
   MEMBER_PRODUCTS_PATH,
-  productPath,
   productTypePath,
 } from "@/lib/routes"
+import { buildProductListItem } from "@/lib/seo/product-list"
 import { cn } from "@/lib/utils"
 import { pluralize } from "@/lib/pluralize"
 
@@ -109,15 +109,6 @@ export async function ProductTypePageContent({
       page: "1",
     })
 
-  const toAbsoluteUrl = (value?: string | null) => {
-    if (!value) return undefined
-    const trimmed = value.trim()
-    if (!trimmed) return undefined
-    if (/^https?:\/\//i.test(trimmed)) return trimmed
-    if (trimmed.startsWith("/")) return `${baseUrl}${trimmed}`
-    return `${baseUrl}/${trimmed}`
-  }
-
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -127,22 +118,15 @@ export async function ProductTypePageContent({
       parsed.sort === "az"
         ? "https://schema.org/ItemListOrderAscending"
         : "https://schema.org/ItemListOrderDescending",
-    itemListElement: payload.products.slice(0, 20).map((product, index) => {
-      const productUrl = `${baseUrl}${productPath(product.slug)}`
-      return {
-        "@type": "ListItem",
-        position: index + 1,
-        url: productUrl,
-        item: {
-          "@type": "Product",
-          name: product.name,
-          description: product.tagline,
-          image: toAbsoluteUrl(product.logo),
-          url: productUrl,
-          category: product.category?.name,
-        },
-      }
-    }),
+    itemListElement: payload.products
+      .slice(0, 20)
+      .map((product, index) =>
+        buildProductListItem({
+          product,
+          position: index + 1,
+          siteUrl: baseUrl,
+        }),
+      ),
   }
 
   return (

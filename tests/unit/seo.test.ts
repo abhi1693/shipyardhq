@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 
+import { buildProductListItem } from "@/lib/seo/product-list"
 import { toAbsoluteUrlFromSite } from "@/lib/seo/base"
 
 describe("toAbsoluteUrlFromSite", () => {
@@ -27,5 +28,79 @@ describe("toAbsoluteUrlFromSite", () => {
 
     // It should return undefined when the base site URL is invalid.
     expect(toAbsoluteUrlFromSite("/pricing", "not a url")).toBeUndefined()
+  })
+})
+
+describe("buildProductListItem", () => {
+  it("adds an offer for free products so Product snippets are valid", () => {
+    const listItem = buildProductListItem({
+      siteUrl: "https://shipyard.example",
+      position: 1,
+      product: {
+        slug: "free-tool",
+        name: "Free Tool",
+        logo: "/logo.png",
+        tagline: "A free tool",
+        pricingModel: "free",
+      },
+    })
+
+    expect(listItem.item).toMatchObject({
+      "@type": "Product",
+      "@id": "https://shipyard.example/products/free-tool#product",
+      image: "https://shipyard.example/logo.png",
+      offers: {
+        "@type": "Offer",
+        url: "https://shipyard.example/products/free-tool",
+        price: "0",
+        priceCurrency: "USD",
+        availability: "https://schema.org/OnlineOnly",
+      },
+    })
+  })
+
+  it("uses concrete starting prices when present", () => {
+    const listItem = buildProductListItem({
+      siteUrl: "https://shipyard.example",
+      position: 1,
+      product: {
+        slug: "paid-tool",
+        name: "Paid Tool",
+        logo: "https://cdn.example/logo.png",
+        tagline: "A paid tool",
+        pricingModel: "subscription",
+        startingPriceCents: 1299,
+        currencyCode: "eur",
+      },
+    })
+
+    expect(listItem.item).toMatchObject({
+      "@type": "Product",
+      image: "https://cdn.example/logo.png",
+      offers: {
+        price: "12.99",
+        priceCurrency: "EUR",
+      },
+    })
+  })
+
+  it("does not emit invalid Product markup when no offer price exists", () => {
+    const listItem = buildProductListItem({
+      siteUrl: "https://shipyard.example",
+      position: 1,
+      product: {
+        slug: "custom-tool",
+        name: "Custom Tool",
+        logo: "/logo.png",
+        tagline: "Custom pricing",
+        pricingModel: "custom",
+      },
+    })
+
+    expect(listItem.item).toMatchObject({
+      "@type": "Thing",
+      "@id": "https://shipyard.example/products/custom-tool#thing",
+    })
+    expect(listItem.item).not.toHaveProperty("offers")
   })
 })

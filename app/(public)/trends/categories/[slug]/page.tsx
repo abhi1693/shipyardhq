@@ -21,8 +21,8 @@ import {
   CATEGORIES_PATH,
   HOME_PATH,
   categoryPath,
-  productPath,
 } from "@/lib/routes"
+import { buildProductListItem } from "@/lib/seo/product-list"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
@@ -277,37 +277,22 @@ export default async function TrendingToolsInCategoryPage({
   const baseUrl = (
     process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
   ).replace(/\/$/, "")
-  const toAbsoluteUrl = (value?: string | null) => {
-    if (!value) return undefined
-    const trimmed = value.trim()
-    if (!trimmed) return undefined
-    if (/^https?:\/\//i.test(trimmed)) return trimmed
-    if (trimmed.startsWith("/")) return `${baseUrl}${trimmed}`
-    return `${baseUrl}/${trimmed}`
-  }
-
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: `Trending tools in ${category.name}`,
     description: `Browse ${items.length} trending ${pluralize(items.length, "tool")} in ${category.name}.`,
     itemListOrder: "https://schema.org/ItemListOrderDescending",
-    itemListElement: ordered.slice(0, 20).map((product, index) => {
-      const url = `${baseUrl}${productPath(product.slug)}`
-      return {
-        "@type": "ListItem",
-        position: index + 1,
-        url,
-        item: {
-          "@type": "Product",
-          name: product.name,
-          description: product.tagline ?? undefined,
-          image: toAbsoluteUrl(product.logo),
-          url,
-          category: category.name,
-        },
-      }
-    }),
+    itemListElement: items
+      .slice(0, 20)
+      .map((product, index) =>
+        buildProductListItem({
+          product,
+          position: index + 1,
+          siteUrl: baseUrl,
+          categoryName: category.name,
+        }),
+      ),
   }
 
   return (
