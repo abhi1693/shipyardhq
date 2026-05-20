@@ -88,6 +88,8 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
     "tldts": "^7.0.19",
+    "turndown": "^7.2.4",
+    "turndown-plugin-gfm": "^1.0.2",
     "twitter-api-v2": "^1.28.0",
     "xml2js": "^0.6.2",
     "zod": "^4.2.1"
@@ -102,6 +104,7 @@
     "@types/pg": "^8.16.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/turndown": "^5.0.6",
     "@types/xml2js": "^0.4.14",
     "@vitejs/plugin-react": "^5.1.4",
     "autoprefixer": "^10.4.23",
