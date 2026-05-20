@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { Image } from "@/components/atoms/image"
+import { buildCloudflareMediaImageUrl } from "@/lib/images/cloudflare"
 import { cn } from "@/lib/utils"
 
 interface MediaItem {
@@ -17,6 +18,9 @@ interface ProductMediaGalleryProps {
   media: MediaItem[]
   productName: string
 }
+
+const THUMBNAIL_IMAGE_WIDTH = 320
+const THUMBNAIL_IMAGE_QUALITY = 60
 
 export function ProductMediaGallery({
   bannerImage,
@@ -87,8 +91,8 @@ export function ProductMediaGallery({
               src={currentItem.imageUrl}
               alt={currentItem.altText || productName}
               fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1100px"
-              quality={95}
+              sizes="(max-width: 768px) calc(100vw - 2rem), (max-width: 1280px) 68vw, 900px"
+              quality={85}
               className="object-contain transition-opacity duration-200"
               eager={currentIndex === 0}
               loading={currentIndex === 0 ? "eager" : "lazy"}
@@ -129,32 +133,67 @@ export function ProductMediaGallery({
             )}
           >
             {mediaItems.map((item, index) => (
-              <button
+              <GalleryThumbnailButton
                 key={item.id}
-                type="button"
-                onClick={() => setSelectedIndex(index)}
-                className={cn(
-                  "group relative h-20 w-full overflow-hidden rounded-2xl border border-border bg-muted transition hover:border-border/80",
-                  "sm:h-20 sm:w-32 sm:shrink-0",
-                  index === currentIndex
-                    ? "border-border/60 bg-white outline outline-2 outline-offset-2 outline-foreground/10"
-                    : undefined,
-                )}
-                aria-label={`View image ${index + 1}`}
-              >
-                <Image
-                  src={item.imageUrl}
-                  alt={item.altText || productName}
-                  fill
-                  sizes="128px"
-                  quality={80}
-                  className="object-contain"
-                />
-              </button>
+                item={item}
+                index={index}
+                isSelected={index === currentIndex}
+                productName={productName}
+                onSelect={() => setSelectedIndex(index)}
+              />
             ))}
           </div>
         ) : null}
       </div>
     </section>
+  )
+}
+
+function GalleryThumbnailButton({
+  item,
+  index,
+  isSelected,
+  productName,
+  onSelect,
+}: {
+  item: MediaItem
+  index: number
+  isSelected: boolean
+  productName: string
+  onSelect: () => void
+}) {
+  const thumbnailSrc = buildCloudflareMediaImageUrl({
+    src: item.imageUrl,
+    width: THUMBNAIL_IMAGE_WIDTH,
+    quality: THUMBNAIL_IMAGE_QUALITY,
+  })
+  const usesManagedThumbnail = thumbnailSrc !== item.imageUrl
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        "group relative h-20 w-full overflow-hidden rounded-2xl border border-border bg-muted transition hover:border-border/80",
+        "sm:h-20 sm:w-32 sm:shrink-0",
+        isSelected
+          ? "border-border/60 bg-white outline outline-2 outline-offset-2 outline-foreground/10"
+          : undefined,
+      )}
+      aria-label={`View image ${index + 1}`}
+    >
+      <Image
+        src={thumbnailSrc}
+        alt={item.altText || productName}
+        fill
+        sizes="160px"
+        quality={THUMBNAIL_IMAGE_QUALITY}
+        className="object-contain"
+        loading="lazy"
+        fetchPriority="low"
+        placeholder="empty"
+        unoptimized={usesManagedThumbnail}
+      />
+    </button>
   )
 }
