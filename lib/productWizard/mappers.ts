@@ -8,12 +8,6 @@ import {
 import type { ProductWizardInputAdd, ProductWizardInputEdit } from "./schema"
 import type { ProductForEditWizard } from "@/types/product-wizard"
 
-type ConnectorDefaults = {
-  provider?: ProductWizardInputEdit["connectorProvider"] | null
-  accountId?: string | null
-  brandId?: string | null
-}
-
 type OwnerIdValues = { ownerId?: string }
 
 export function getInitialValuesForAdd(): ProductWizardInputAdd {
@@ -38,10 +32,6 @@ export function getInitialValuesForAdd(): ProductWizardInputAdd {
     contactEmail: "",
     utmCampaign: "",
     alternativeIds: [],
-    connectorProvider: undefined,
-    connectorApiKey: "",
-    connectorAccountId: "",
-    connectorBrandId: "",
     verificationExpectedTxt: "",
     verificationChecked: false,
     verificationSuccess: false,
@@ -52,7 +42,6 @@ export function getInitialValuesForAdd(): ProductWizardInputAdd {
 
 export function getInitialValuesFromProduct(
   product: ProductForEditWizard,
-  connector?: ConnectorDefaults,
 ): ProductWizardInputEdit & OwnerIdValues {
   return {
     name: product.name,
@@ -77,10 +66,6 @@ export function getInitialValuesFromProduct(
     alternativeIds: Array.isArray(product.alternatives)
       ? product.alternatives.map((alt) => alt.id)
       : [],
-    connectorProvider: connector?.provider ?? undefined,
-    connectorApiKey: "",
-    connectorAccountId: connector?.accountId ?? "",
-    connectorBrandId: connector?.brandId ?? "",
     status: product.status,
     verificationExpectedTxt: "",
     verificationChecked: false,
@@ -133,11 +118,6 @@ export function toCreateFormData(
   if (Array.isArray(v.alternativeIds) && v.alternativeIds.length) {
     fd.append("alternativeIds", JSON.stringify(v.alternativeIds))
   }
-  if (v.connectorProvider) fd.append("connectorProvider", v.connectorProvider)
-  if (v.connectorApiKey) fd.append("connectorApiKey", v.connectorApiKey)
-  if (v.connectorAccountId)
-    fd.append("connectorAccountId", v.connectorAccountId)
-  if (v.connectorBrandId) fd.append("connectorBrandId", v.connectorBrandId)
 
   fd.append("userId", userId)
   if (v.status) fd.append("status", v.status)
@@ -180,12 +160,5 @@ export function toUpdatePayload(
     contactEmail: v.contactEmail || null,
     utmCampaign: v.utmCampaign || null,
     alternativeIds: Array.isArray(v.alternativeIds) ? v.alternativeIds : [],
-    connectorProvider: v.connectorProvider || null,
-    connectorApiKey: v.connectorApiKey || "",
-    connectorAccountId: v.connectorAccountId || "",
-    connectorBrandId:
-      v.connectorBrandId !== undefined && v.connectorBrandId !== null
-        ? v.connectorBrandId
-        : undefined,
   }
 }

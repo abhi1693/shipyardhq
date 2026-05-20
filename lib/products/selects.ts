@@ -1,6 +1,5 @@
 import { Prisma } from "@/lib/vendor/prisma/client"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
-import { resolveProductRevenue } from "@/lib/products/revenue"
 
 const PRIORITY_PLACEMENT_FEATURE_KEY = "priorityPlacement"
 
@@ -51,20 +50,6 @@ export const productCardSelect = {
       },
     },
   },
-  paymentConnector: {
-    select: {
-      latestAllTimeRevenueCents: true,
-      latestCurrencyCode: true,
-      revenueHistory: {
-        orderBy: { periodStart: "desc" },
-        take: 1,
-        select: {
-          allTimeRevenueCents: true,
-          currencyCode: true,
-        },
-      },
-    },
-  },
 } satisfies Prisma.ProductSelect
 
 export type ProductCardSelect = typeof productCardSelect
@@ -94,7 +79,6 @@ export const mapProductCardRecordToBase = (
   now: Date = new Date(),
   options?: { scoreByProductId?: Map<string, number> },
 ): ProductCardBase => {
-  const revenue = resolveProductRevenue(product.paymentConnector)
   const scoreOverride = options?.scoreByProductId?.get(product.id)
   const scoreCount =
     typeof scoreOverride === "number"
@@ -119,8 +103,6 @@ export const mapProductCardRecordToBase = (
     isVerified: Boolean(product.verification?.isVerified),
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,
-    latestRevenueCents: revenue.latestRevenueCents,
-    revenueCurrencyCode: revenue.revenueCurrencyCode,
     scoreCount,
   }
 }

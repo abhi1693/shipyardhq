@@ -5,17 +5,11 @@ import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { HOMEPAGE_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
-import { getUsdConversionRates } from "@/lib/server/payments/currency"
 import {
   DEFAULT_HOMEPAGE_FEED_VIEW,
   type HomepageFeedView,
   normalizeHomepageFeedView,
 } from "@/lib/homepage/feed-views"
-import {
-  VERIFIED_REVENUE_ORDER_BY,
-  buildVerifiedRevenueWhere,
-} from "@/lib/products/verifiedRevenue"
-import { resolveProductRevenue } from "@/lib/products/revenue"
 import type { ProductCardVariant } from "@/types/product-card"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import type { ProductInterestSignals } from "@/types/product-interest"
@@ -72,20 +66,6 @@ const homepageFeedSelect = {
       },
     },
   },
-  paymentConnector: {
-    select: {
-      latestAllTimeRevenueCents: true,
-      latestCurrencyCode: true,
-      revenueHistory: {
-        orderBy: { periodStart: "desc" },
-        take: 1,
-        select: {
-          currencyCode: true,
-          allTimeRevenueCents: true,
-        },
-      },
-    },
-  },
 } satisfies Prisma.ProductSelect
 
 type HomepageFeedProduct = Prisma.ProductGetPayload<{
@@ -112,8 +92,6 @@ export interface HomepageFeedItem {
   isVoted: boolean
   isVerified: boolean
   variant?: ProductCardVariant
-  latestRevenueCents?: number | null
-  revenueCurrencyCode?: string | null
   interest?: ProductInterestSignals | null
   shuffleRank: number
 }
@@ -161,7 +139,6 @@ function mapProductToFeedItem(
   product: HomepageFeedProduct,
   upvoted: Set<string>,
   now: Date,
-  rates: Map<string, number>,
   scoreByProductId?: Map<string, number>,
   interestByProductId?: Map<string, ProductInterestSignals>,
 ): HomepageFeedItem {
@@ -182,10 +159,6 @@ function mapProductToFeedItem(
       ? "promoted"
       : "default"
 
-  const revenue = resolveProductRevenue(product.paymentConnector, {
-    rates,
-    targetCurrency: "USD",
-  })
   const scoreCount = scoreByProductId?.get(product.id)
 
   return {
@@ -207,9 +180,6 @@ function mapProductToFeedItem(
     isVoted: upvoted.has(product.id),
     isVerified: Boolean(product.verification?.isVerified),
     variant,
-    latestRevenueCents: revenue.latestRevenueCents,
-    revenueCurrencyCode:
-      revenue.latestRevenueCents !== null ? revenue.revenueCurrencyCode : null,
     interest: interestByProductId?.get(product.id) ?? null,
     shuffleRank: Math.random(),
   }
@@ -260,19 +230,8 @@ async function buildFeedItemsFromProducts(
       slug: product.slug,
     })),
   })
-  const needsRates = products.some((product) => {
-    const code =
-      product.paymentConnector?.latestCurrencyCode ??
-      product.paymentConnector?.revenueHistory?.[0]?.currencyCode ??
-      "USD"
-    return code.toUpperCase() !== "USD"
-  })
-  const rates = needsRates
-    ? await getUsdConversionRates()
-    : new Map<string, number>([["USD", 1]])
-
   return products.map((product) =>
-    mapProductToFeedItem(product, upvoted, now, rates, scoreMap, interestMap),
+    mapProductToFeedItem(product, upvoted, now, scoreMap, interestMap),
   )
 }
 
@@ -330,19 +289,6 @@ export async function getHomepageNewFeedPage(
     pageSize,
     clerkUserId,
     orderBy: [{ createdAt: "desc" }, { analytics: { upvotes: "desc" } }],
-  })
-}
-
-export async function getHomepageVerifiedRevenueFeedPage(
-  params: GetHomepageFeedPageParams = {},
-): Promise<HomepageFeedPageResult> {
-  const { page, pageSize, clerkUserId } = params
-  return getOrderedHomepageFeedPage({
-    page,
-    pageSize,
-    clerkUserId,
-    where: buildVerifiedRevenueWhere(),
-    orderBy: VERIFIED_REVENUE_ORDER_BY,
   })
 }
 
@@ -434,10 +380,6 @@ async function getHomepageFeedViewImpl(
     DEFAULT_HOMEPAGE_FEED_VIEW,
   )
 
-  if (normalizedView === "verified-revenue") {
-    return getHomepageVerifiedRevenueFeedPage(baseParams)
-  }
-
   if (normalizedView === "most-clicked") {
     return getHomepageMostClickedFeedPage(baseParams)
   }
@@ -462,10 +404,7 @@ export async function getHomepageFeedViewAll(
   const baseParams = { ...params, view: normalizedView }
   let page = normalizePage(params.page, 1)
   let iterations = 0
-  const MAX_PAGES =
-    normalizedView === "verified-revenue" || normalizedView === "most-clicked"
-      ? 5
-      : 100
+  const MAX_PAGES = normalizedView === "most-clicked" ? 5 : 100
 
   while (iterations < MAX_PAGES) {
     const result = await getHomepageFeedView({
@@ -485,26 +424,6 @@ export async function getHomepageFeedViewAll(
     }
 
     page = result.nextPage
-  }
-
-  if (normalizedView === "verified-revenue") {
-    items.sort((a, b) => {
-      const aRevenue = a.latestRevenueCents ?? 0
-      const bRevenue = b.latestRevenueCents ?? 0
-      if (bRevenue !== aRevenue) {
-        return bRevenue - aRevenue
-      }
-
-      const bScore = b.scoreCount ?? 0
-      const aScore = a.scoreCount ?? 0
-      if (bScore !== aScore) {
-        return bScore - aScore
-      }
-
-      const aCreated = new Date(a.createdAt).getTime() || 0
-      const bCreated = new Date(b.createdAt).getTime() || 0
-      return bCreated - aCreated
-    })
   }
 
   return items

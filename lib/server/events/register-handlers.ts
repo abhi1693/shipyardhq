@@ -25,10 +25,6 @@ export async function registerEventHandlers(): Promise<void> {
       load: () => import("@/lib/server/social/linkedinBot"),
     },
     {
-      path: "@/lib/server/payments/listeners",
-      load: () => import("@/lib/server/payments/listeners"),
-    },
-    {
       path: "@/lib/server/leaderboard/listeners",
       load: () => import("@/lib/server/leaderboard/listeners"),
     },

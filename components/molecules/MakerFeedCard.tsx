@@ -1,10 +1,9 @@
 import Link from "next/link"
 
 import { SquareImage } from "@/components/molecules/SquareImage"
-import { BadgeCheck, Banknote } from "lucide-react"
+import { BadgeCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { userPath } from "@/lib/routes"
-import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
 
 type MakerCardVariant = "default" | "sponsored"
 
@@ -25,8 +24,6 @@ export type MakerFeedItem = {
   initials: string
   rank?: number
   variant?: MakerCardVariant
-  latestRevenueCents?: number | null
-  revenueCurrencyCode?: string | null
   isVerified?: boolean
 }
 
@@ -40,18 +37,6 @@ export function MakerFeedCard({ item, className }: MakerFeedCardProps) {
   const launchesLabel = `${item.launches.toLocaleString()} launch${
     item.launches === 1 ? "" : "es"
   }`
-  const revenueCents =
-    typeof item.latestRevenueCents === "number" ? item.latestRevenueCents : null
-  const hasRevenue = revenueCents !== null && revenueCents > 0
-  const revenueLabel = hasRevenue
-    ? new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: item.revenueCurrencyCode ?? "USD",
-        notation: "compact",
-        maximumFractionDigits: 1,
-      }).format(revenueCents / 100)
-    : null
-
   const cardClasses = cn(
     "group relative flex h-full flex-col rounded-2xl p-5 text-left transition-shadow duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18]",
     CARD_VARIANT_CLASSES[variant],
@@ -96,17 +81,6 @@ export function MakerFeedCard({ item, className }: MakerFeedCardProps) {
             <span className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-800 shadow-sm">
               <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
               <span className="hidden sm:inline">Verified</span>
-            </span>
-          ) : null}
-          {revenueLabel ? (
-            <span
-              className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-semibold text-sky-900 shadow-sm"
-              title={`Verified revenue (boosts click-based ranking by ${VERIFIED_REVENUE_RANKING_MULTIPLIER.toFixed(
-                1,
-              )}×). Products without verified revenue are ranked lower by default.`}
-            >
-              <Banknote className="h-3.5 w-3.5" aria-hidden="true" />
-              <span className="whitespace-nowrap">{revenueLabel}</span>
             </span>
           ) : null}
         </div>

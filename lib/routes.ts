@@ -41,7 +41,6 @@ export const ALTERNATIVES_PATH = "/alternatives" as const
 export const PLATFORMS_PATH = "/platforms" as const
 
 export const BROWSE_PATH = "/browse" as const
-export const VERIFIED_REVENUE_PATH = "/verified-revenue" as const
 export const LEADERBOARD_PATH = "/leaderboard" as const
 export const LEADERBOARD_MONTHLY_PATH = `${LEADERBOARD_PATH}/monthly` as const
 export const LEADERBOARD_GUIDE_PATH = `${LEADERBOARD_PATH}/about` as const

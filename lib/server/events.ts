@@ -54,10 +54,6 @@ export type ProductUpvotedEvent = {
   occurredAt: Date
 }
 
-export type PaymentConnectorSyncEvent = {
-  connectorId: string
-}
-
 export type LeaderboardMonthlyWinnersEvent = {
   monthKey: string
   monthLabel: string
@@ -159,7 +155,6 @@ type AppEvents = {
   [APP_EVENTS.PRODUCT_DELETED]: ProductDeletedEvent
   [APP_EVENTS.PRODUCT_UPVOTED]: ProductUpvotedEvent
   [APP_EVENTS.LEADERBOARD_REFRESH]: LeaderboardRefreshEvent
-  [APP_EVENTS.PAYMENTS_CONNECTOR_SYNC]: PaymentConnectorSyncEvent
   [APP_EVENTS.BADGE_ASSIGNED]: BadgeAssignedEvent
   [APP_EVENTS.BADGE_REMOVED]: BadgeRemovedEvent
   [APP_EVENTS.LEADERBOARD_MONTHLY_WINNERS]: LeaderboardMonthlyWinnersEvent

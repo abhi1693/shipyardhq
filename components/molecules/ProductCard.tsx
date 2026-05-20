@@ -22,8 +22,6 @@ export type ProductCardBase = {
   isVerified?: boolean
   createdAt?: string | Date | null
   updatedAt?: string | Date | null
-  latestRevenueCents?: number | null
-  revenueCurrencyCode?: string | null
   scoreCount?: number
   interest?: ProductInterestSignals | null
 }
@@ -68,11 +66,6 @@ function toFeedItem(product: ProductCardItem): HomepageFeedItem {
     isSponsored,
     isVoted: Boolean(product.isVoted),
     variant,
-    latestRevenueCents:
-      typeof product.latestRevenueCents === "number"
-        ? product.latestRevenueCents
-        : null,
-    revenueCurrencyCode: product.revenueCurrencyCode ?? null,
     isVerified: Boolean(product.isVerified),
     interest: product.interest ?? null,
     shuffleRank: Math.random(),

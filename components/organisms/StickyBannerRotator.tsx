@@ -1,12 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Banknote } from "lucide-react"
 
 import { Badge } from "@/components/atoms/badge"
 import { SquareImage } from "@/components/molecules/SquareImage"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
-import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
 import { cn } from "@/lib/utils"
 
 const ROTATION_INTERVAL_MS = 15000
@@ -17,8 +15,6 @@ type StickyBannerProduct = {
   name: string
   logo: string
   tagline: string | null
-  latestRevenueCents: number | null
-  revenueCurrencyCode: string | null
 }
 
 interface StickyBannerRotatorProps {
@@ -51,18 +47,7 @@ export function StickyBannerRotator({
     return null
   }
 
-  const latestRevenueCents = product.latestRevenueCents
   const tagline = product.tagline?.trim()
-  const hasRevenue =
-    typeof latestRevenueCents === "number" && latestRevenueCents > 0
-  const revenueLabel = hasRevenue
-    ? new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: product.revenueCurrencyCode ?? "USD",
-        notation: "compact",
-        maximumFractionDigits: 1,
-      }).format(latestRevenueCents / 100)
-    : null
 
   return (
     <div className={cn("w-full", className)}>
@@ -99,18 +84,6 @@ export function StickyBannerRotator({
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              {revenueLabel ? (
-                <span
-                  className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-white/80 px-3 py-1 text-[11px] font-semibold text-[#0c4a6e] shadow-sm"
-                  title={`Verified revenue (boosts click-based ranking by ${VERIFIED_REVENUE_RANKING_MULTIPLIER.toFixed(
-                    1,
-                  )}×). Products without verified revenue are ranked lower by default.`}
-                >
-                  <Banknote className="h-3.5 w-3.5" aria-hidden="true" />
-                  <span className="sr-only">Revenue</span>
-                  <span className="whitespace-nowrap">{revenueLabel}</span>
-                </span>
-              ) : null}
               <Badge
                 variant="outline"
                 className="shrink-0 rounded-full border-[#F97316]/40 bg-[#FDEADF] px-3 py-1 text-[11px] font-semibold text-[#A33105]"

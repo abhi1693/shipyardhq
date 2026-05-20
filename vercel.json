@@ -43,10 +43,6 @@
     { "path": "/api/cron/rewards/backlinks", "schedule": "0 5 * * *" },
     { "path": "/api/cron/rewards/streak", "schedule": "0 4 * * *" },
     {
-      "path": "/api/cron/payments/resync",
-      "schedule": "0 6 * * *"
-    },
-    {
       "path": "/api/cron/leaderboard-refresh",
       "schedule": "0 */1 * * *"
     },

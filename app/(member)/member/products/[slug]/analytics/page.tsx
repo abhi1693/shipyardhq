@@ -55,7 +55,6 @@ import { AnalyticsValueList } from "@/components/molecules/AnalyticsValueList"
 import { TrafficTimeseriesChart } from "@/components/molecules/TrafficTimeseriesChart"
 import { Link2 } from "lucide-react"
 import { Button } from "@/components/atoms/button"
-import { getRevenueVerificationRankingNotice } from "@/lib/server/analytics/revenueVerificationNotice"
 
 type RangeKey =
   | "today"
@@ -244,12 +243,9 @@ export default async function ProductAnalyticsPage({
 
   const resolvedRange = resolveRange(sp?.range, product.createdAt)
   const previousRange = resolvePreviousRange(resolvedRange.dateRange)
-  const rankingNoticePromise = getRevenueVerificationRankingNotice({
-    productId: product.id,
-  }).catch(() => null)
   const analyticsProvider = getAnalyticsProvider("cache")
 
-  const [gaTraffic, gaTrafficPrevious, rankingNotice] = await Promise.all([
+  const [gaTraffic, gaTrafficPrevious] = await Promise.all([
     analyticsProvider.getProductTraffic({
       pagePaths: buildProductPagePaths(product.slug),
       dateRange: resolvedRange.dateRange,
@@ -260,7 +256,6 @@ export default async function ProductAnalyticsPage({
       dateRange: previousRange,
       includeAdvanced: hasAdvancedAnalytics,
     }),
-    rankingNoticePromise,
   ])
   const upvotes = product.analytics?.upvotes ?? 0
   const formatter = new Intl.NumberFormat("en-US")
@@ -335,11 +330,6 @@ export default async function ProductAnalyticsPage({
       }
       relationships={
         <div className="space-y-6">
-          {rankingNotice ? (
-            <div className="rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-900 shadow-sm">
-              {rankingNotice}
-            </div>
-          ) : null}
           <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
             <AnalyticsMetricCard
               label="Views"

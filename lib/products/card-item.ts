@@ -21,8 +21,6 @@ export const toProductCardItem = (
     isSponsored: overrideIsSponsored,
     badges: overrideBadges,
     variant: overrideVariant,
-    latestRevenueCents: overrideLatestRevenueCents,
-    revenueCurrencyCode: overrideRevenueCurrencyCode,
     isVerified: overrideIsVerified,
     ...restOverrides
   } = overrides
@@ -71,20 +69,6 @@ export const toProductCardItem = (
       : base.isVerified,
   )
 
-  const latestRevenueCents =
-    typeof overrideLatestRevenueCents !== "undefined"
-      ? overrideLatestRevenueCents
-      : typeof base.latestRevenueCents !== "undefined"
-        ? base.latestRevenueCents
-        : null
-
-  const revenueCurrencyCode =
-    typeof overrideRevenueCurrencyCode !== "undefined"
-      ? overrideRevenueCurrencyCode
-      : typeof base.revenueCurrencyCode !== "undefined"
-        ? base.revenueCurrencyCode
-        : null
-
   return {
     ...base,
     badges,
@@ -96,8 +80,6 @@ export const toProductCardItem = (
     isSponsored,
     variant,
     isVerified,
-    latestRevenueCents,
-    revenueCurrencyCode,
     ...restOverrides,
   }
 }

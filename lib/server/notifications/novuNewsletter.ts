@@ -21,7 +21,6 @@ type SponsoredProduct = {
   url: string
   category: string | null
   publishedAt: string | null
-  revenueLabel?: string | null
 }
 
 type ProductOfTheWeek = {
@@ -35,7 +34,6 @@ type ProductOfTheWeek = {
   ownerUrl: string | null
   upvotes: number
   points: number
-  revenueLabel?: string | null
 }
 
 type TrendingProduct = ProductOfTheWeek & { rank: number }

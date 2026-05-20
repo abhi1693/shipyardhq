@@ -1,15 +1,11 @@
 "use client"
 
-import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 
-import {
-  resetProductConnectorAction,
-  updateProductAction,
-} from "@/actions/admin/products/actions"
+import { updateProductAction } from "@/actions/admin/products/actions"
 import {
   Card,
   CardContent,
@@ -31,7 +27,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/atoms/form"
-import ProductConnectorFields from "@/components/pages/products/_components/ProductConnectorFields"
 import ProductWizardAccordion from "@/components/pages/products/_components/ProductWizardAccordion"
 import ProductWizardFooter from "@/components/pages/products/_components/ProductWizardFooter"
 import { PRODUCT_AUTOFILL_NOTICE } from "@/components/pages/products/_shared/autofillText"
@@ -53,10 +48,6 @@ import {
   type ProductWizardInputEdit,
 } from "@/lib/productWizard/schema"
 import { adminPath, memberProductPath } from "@/lib/routes"
-import type {
-  PaymentConnectorProvider,
-  PaymentConnectorStatus,
-} from "@/lib/vendor/prisma/client/enums"
 import type { ProductForEditWizard } from "@/types/product-wizard"
 import type {
   ProductWizardAdminEditUserOption,
@@ -65,27 +56,9 @@ import type {
 } from "@/types/product-wizard"
 import { Badge } from "@/components/atoms/badge"
 
-type ConnectorSummary = {
-  provider?: PaymentConnectorProvider
-  status?: PaymentConnectorStatus | null
-  lastSyncedAt?: Date | string | null
-  lastSyncError?: string | null
-  keyHint?: string | null
-} | null
-
 type BaseProps = {
   product: ProductForEditWizard
   categories: ProductWizardCategoryOption[]
-  connector?: {
-    id: string
-    provider: PaymentConnectorProvider
-    status: PaymentConnectorStatus | null
-    lastSyncedAt?: Date | string | null
-    lastSyncError?: string | null
-    keyHint?: string | null
-    accountId?: string | null
-    brandId?: string | null
-  } | null
 }
 
 type MemberProps = BaseProps & {
@@ -115,17 +88,10 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     openFromErrors,
   } = useWizardNavigation()
 
-  const [connectorState, setConnectorState] = useState<ConnectorSummary>(
-    props.connector ?? null,
-  )
-
   const form = useForm<ProductWizardInput & { ownerId?: string }>({
     resolver: zodResolver(schema) as any,
     defaultValues: {
-      ...getInitialValuesFromProduct(
-        props.product,
-        props.connector || undefined,
-      ),
+      ...getInitialValuesFromProduct(props.product),
       ...(props.mode === "admin" ? { ownerId: props.product.userId } : {}),
     },
     mode: "onBlur",
@@ -138,14 +104,6 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     name: "ownerId" as any,
   }) as string | undefined
 
-  const connectorProvider = useWatch({
-    control: form.control,
-    name: "connectorProvider" as any,
-  }) as string | undefined
-  const connectorApiKey = useWatch({
-    control: form.control,
-    name: "connectorApiKey" as any,
-  }) as string | undefined
   const domainChecked = useWatch({
     control: form.control,
     name: "verificationChecked" as any,
@@ -164,10 +122,6 @@ export default function EditProductWizard(props: EditProductWizardProps) {
   const domainVerifiedEffective = productAlreadyVerified
     ? true
     : Boolean(domainVerified)
-
-  const hasRevenueSetupDraft = Boolean(
-    connectorState?.provider || (connectorProvider && connectorApiKey?.length),
-  )
 
   const pricingModel = useWatch({
     control: form.control,
@@ -192,51 +146,6 @@ export default function EditProductWizard(props: EditProductWizardProps) {
         ? props.users.find((u) => u.id === ownerId)?.clerkId
         : undefined
       : undefined
-
-  const connectorFields = useMemo(() => {
-    return (
-      <ProductConnectorFields
-        form={form}
-        providerFallback={connectorState?.provider}
-        lockedProvider={connectorState?.provider}
-        keyHint={connectorState?.keyHint ?? null}
-        status={connectorState?.status ?? null}
-        lastSyncedAt={connectorState?.lastSyncedAt ?? null}
-        lastSyncError={connectorState?.lastSyncError ?? null}
-        onReset={
-          connectorState
-            ? async () => {
-                const res = await resetProductConnectorAction(props.product.id)
-                if ((res as any)?.error) {
-                  toast.error((res as any).error)
-                  return
-                }
-                form.setValue("connectorProvider" as any, undefined as any, {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                })
-                form.setValue("connectorApiKey" as any, "", {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                })
-                form.setValue("connectorAccountId" as any, "", {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                })
-                form.setValue("connectorBrandId" as any, "", {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                })
-                setConnectorState(null)
-                toast.success(
-                  "Removed connector configuration. Enter new details to reconnect.",
-                )
-              }
-            : undefined
-        }
-      />
-    )
-  }, [connectorState, form, props.product.id, setConnectorState])
 
   async function submitAll(
     values: ProductWizardInput & {
@@ -273,12 +182,6 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     }
     if (missingPricingDetails) {
       return { label: "Set pricing", onClick: () => jumpTo("pricing") }
-    }
-    if (!hasRevenueSetupDraft) {
-      return {
-        label: "Connect revenue (+40% ranking)",
-        onClick: () => jumpTo("boost", { boostPanel: "revenue" }),
-      }
     }
     if (!domainVerifiedEffective) {
       return {
@@ -370,7 +273,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
   const description =
     props.mode === "member"
       ? "Update the essentials, then optionally edit verification and alternatives to boost visibility."
-      : "Update the essentials, then optionally edit verification and connect revenue for higher visibility."
+      : "Update the essentials, then optionally edit verification for higher visibility."
   const formId =
     props.mode === "admin" ? "admin-edit-product-form" : "edit-product-form"
 
@@ -394,13 +297,11 @@ export default function EditProductWizard(props: EditProductWizardProps) {
               onOpenSectionsChange={setOpenSections}
               openBoostPanel={openBoostPanel}
               onToggleBoostPanel={toggleBoostPanel}
-              hasRevenueSetupDraft={hasRevenueSetupDraft}
               domainChecked={domainCheckedEffective}
               domainVerified={domainVerifiedEffective}
               core={core}
               media={media}
               pricing={pricing}
-              connectorFields={connectorFields}
               verification={verification}
               details={details}
               detailsSubcopy={detailsSubcopy}

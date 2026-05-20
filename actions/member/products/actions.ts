@@ -5,17 +5,8 @@ import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import { createPlanCheckout } from "@/lib/server/dodoCheckout"
-import {
-  PaymentConnectorProvider,
-  PaymentCredentialStatus,
-  Prisma,
-  ProductStatus,
-} from "@/lib/vendor/prisma/client"
+import { Prisma, ProductStatus } from "@/lib/vendor/prisma/client"
 import type { FeatureEntitlementStatus } from "@/lib/vendor/prisma/client"
-import {
-  validateConnectorApiKey,
-  upsertPaymentConnector,
-} from "@/lib/server/payments/connectors"
 import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
 import {
   getActiveUserByClerkId,
@@ -23,9 +14,6 @@ import {
 } from "@/lib/server/userStatus"
 import { hasPlanFeature } from "@/lib/features"
 import { memberProductPath } from "@/lib/routes"
-import type { PaymentConnectorConfig } from "@/lib/server/payments/types"
-import { dispatchEventAsync } from "@/lib/server/events"
-import { APP_EVENTS } from "@/lib/server/events/constants"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
 
 import { headers } from "next/headers"
@@ -611,130 +599,4 @@ async function requireOwnedProduct(productId: string) {
     return { error: "Product not found or not owned by user" as const } as const
 
   return { user, product }
-}
-
-export async function getProductConnectorSummary(productId: string) {
-  const { error } = await requireOwnedProduct(productId)
-  if (error) return null
-
-  const connector = await prisma.paymentConnector.findUnique({
-    where: { productId },
-    select: {
-      id: true,
-      provider: true,
-      status: true,
-      lastSyncedAt: true,
-      lastSyncError: true,
-      latestAllTimeRevenueCents: true,
-      latestCurrencyCode: true,
-      latestPeriodStart: true,
-      config: true,
-      credentials: {
-        where: { status: PaymentCredentialStatus.active },
-        select: { keyHint: true },
-        orderBy: { createdAt: "desc" },
-        take: 1,
-      },
-    },
-  })
-
-  if (!connector) return null
-  const keyHint = connector.credentials?.[0]?.keyHint || null
-  const { credentials: _creds, ...rest } = connector
-  void _creds
-  const config = connector.config as PaymentConnectorConfig | null
-  const accountId =
-    typeof config?.accountId === "string" ? config.accountId : undefined
-  const brandId =
-    typeof config?.brandId === "string" ? config.brandId : undefined
-  return { ...rest, keyHint, accountId, brandId }
-}
-
-export async function saveProductConnectorAction(input: {
-  productId: string
-  provider: PaymentConnectorProvider | string
-  apiKey: string
-  accountId?: string
-  brandId?: string
-}) {
-  const guard = await requireOwnedProduct(input.productId)
-  if ("error" in guard) return guard
-
-  const provider =
-    typeof input.provider === "string"
-      ? (input.provider as PaymentConnectorProvider)
-      : input.provider
-  if (!Object.values(PaymentConnectorProvider).includes(provider)) {
-    return { error: "Unsupported payment provider" }
-  }
-  const apiKey = input.apiKey?.trim()
-  if (!apiKey) return { error: "API key is required" }
-  const accountId = input.accountId?.trim()
-  const brandId = input.brandId?.trim()
-  if (provider === PaymentConnectorProvider.polar && !accountId) {
-    return { error: "Polar organization ID is required" }
-  }
-  if (provider === PaymentConnectorProvider.revenuecat && !accountId) {
-    return { error: "RevenueCat project ID is required" }
-  }
-  if (provider === PaymentConnectorProvider.lemonsqueezy && !accountId) {
-    return { error: "Lemon Squeezy store ID is required" }
-  }
-  if (
-    provider === PaymentConnectorProvider.paystack &&
-    accountId &&
-    !accountId.toUpperCase().startsWith("ACCT_")
-  ) {
-    return { error: "Paystack subaccount codes must start with ACCT_" }
-  }
-  if (brandId && !brandId.startsWith("brnd_") && !brandId.startsWith("bus_")) {
-    return { error: "Dodo brand IDs must start with brnd_ or bus_" }
-  }
-  if (brandId && provider !== PaymentConnectorProvider.dodo) {
-    return { error: "Brand ID is only supported for Dodo" }
-  }
-  if (provider === PaymentConnectorProvider.dodo && !brandId) {
-    return { error: "Brand ID is required for Dodo" }
-  }
-
-  try {
-    await validateConnectorApiKey({
-      productId: input.productId,
-      provider,
-      apiKey,
-      config:
-        accountId || brandId
-          ? {
-              ...(accountId ? { accountId } : {}),
-              ...(brandId ? { brandId } : {}),
-            }
-          : undefined,
-    })
-    const result = await upsertPaymentConnector({
-      productId: input.productId,
-      provider,
-      apiKey,
-      config:
-        accountId || brandId
-          ? {
-              ...(accountId ? { accountId } : {}),
-              ...(brandId ? { brandId } : {}),
-            }
-          : undefined,
-    })
-    dispatchEventAsync(
-      APP_EVENTS.PAYMENTS_CONNECTOR_SYNC,
-      { connectorId: result.connector.id },
-      {
-        context: {
-          productId: input.productId,
-          connectorId: result.connector.id,
-        },
-      },
-    )
-    const summary = await getProductConnectorSummary(input.productId)
-    return { ok: true, connectorId: result.connector.id, connector: summary }
-  } catch (e: any) {
-    return { error: e?.message || "Failed to save connector" }
-  }
 }

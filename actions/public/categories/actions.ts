@@ -122,11 +122,6 @@ const mapProductToFeedItem = (
     isVoted: false,
     isVerified: Boolean(product.isVerified),
     variant,
-    latestRevenueCents:
-      typeof product.latestRevenueCents === "number"
-        ? product.latestRevenueCents
-        : null,
-    revenueCurrencyCode: product.revenueCurrencyCode ?? null,
     interest: interestByProductId?.get(product.id) ?? null,
     shuffleRank: Math.random(),
   }

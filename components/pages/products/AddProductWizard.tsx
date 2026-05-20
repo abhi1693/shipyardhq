@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
@@ -29,7 +29,6 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import ProductBadgeCelebrationDialog from "@/components/molecules/ProductBadgeCelebrationDialog"
-import ProductConnectorFields from "@/components/pages/products/_components/ProductConnectorFields"
 import ProductWizardAccordion from "@/components/pages/products/_components/ProductWizardAccordion"
 import ProductWizardFooter from "@/components/pages/products/_components/ProductWizardFooter"
 import { PRODUCT_AUTOFILL_NOTICE } from "@/components/pages/products/_shared/autofillText"
@@ -121,14 +120,6 @@ export default function AddProductWizard(props: AddProductWizardProps) {
     name: "ownerId" as any,
   }) as string | undefined
 
-  const connectorProvider = useWatch({
-    control: form.control,
-    name: "connectorProvider" as any,
-  }) as string | undefined
-  const connectorApiKey = useWatch({
-    control: form.control,
-    name: "connectorApiKey" as any,
-  }) as string | undefined
   const domainChecked = useWatch({
     control: form.control,
     name: "verificationChecked" as any,
@@ -138,9 +129,6 @@ export default function AddProductWizard(props: AddProductWizardProps) {
     name: "verificationSuccess" as any,
   }) as boolean | undefined
 
-  const hasRevenueSetupDraft = Boolean(
-    connectorProvider && connectorApiKey?.length,
-  )
   const pricingModel = useWatch({
     control: form.control,
     name: "pricingModel" as any,
@@ -165,10 +153,6 @@ export default function AddProductWizard(props: AddProductWizardProps) {
         ? props.users.find((u) => u.id === ownerId)?.clerkId
         : undefined
       : undefined
-
-  const connectorFields = useMemo(() => {
-    return <ProductConnectorFields form={form} />
-  }, [form])
 
   async function submitAll(
     values: ProductWizardInput & {
@@ -226,12 +210,6 @@ export default function AddProductWizard(props: AddProductWizardProps) {
     }
     if (missingPricingDetails) {
       return { label: "Set pricing", onClick: () => jumpTo("pricing") }
-    }
-    if (!hasRevenueSetupDraft) {
-      return {
-        label: "Connect revenue (+40% ranking)",
-        onClick: () => jumpTo("boost", { boostPanel: "revenue" }),
-      }
     }
     if (!domainVerified) {
       return {
@@ -317,7 +295,7 @@ export default function AddProductWizard(props: AddProductWizardProps) {
   const description =
     props.mode === "member"
       ? "Fill the essentials, then optionally add verification and alternatives to boost visibility."
-      : "Fill the essentials, then optionally add verification and connect revenue for higher visibility."
+      : "Fill the essentials, then optionally add verification for higher visibility."
   const formId =
     props.mode === "admin" ? "admin-add-product-form" : "add-product-form"
 
@@ -342,13 +320,11 @@ export default function AddProductWizard(props: AddProductWizardProps) {
                 onOpenSectionsChange={setOpenSections}
                 openBoostPanel={openBoostPanel}
                 onToggleBoostPanel={toggleBoostPanel}
-                hasRevenueSetupDraft={hasRevenueSetupDraft}
                 domainChecked={Boolean(domainChecked)}
                 domainVerified={Boolean(domainVerified)}
                 core={core}
                 media={media}
                 pricing={pricing}
-                connectorFields={connectorFields}
                 verification={verification}
                 details={details}
                 detailsSubcopy={detailsSubcopy}

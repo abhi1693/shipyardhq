@@ -1,5 +1,4 @@
 import { z } from "zod"
-import { IS_PROD } from "@/lib/constants"
 import { PRODUCT_TYPES, PRICING_MODELS, PLATFORMS } from "./constants"
 
 export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
@@ -68,24 +67,6 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       utmCampaign: z.string().optional().or(z.literal("")),
       status: z.enum(statusValues).optional(),
 
-      // Payment connector (optional, saved with product)
-      connectorProvider: z
-        .enum([
-          "dodo",
-          "abacatepay",
-          "creem",
-          "polar",
-          "revenuecat",
-          "stripe",
-          "lemonsqueezy",
-          "paddle",
-          "paystack",
-        ])
-        .optional(),
-      connectorApiKey: z.string().optional().or(z.literal("")),
-      connectorAccountId: z.string().optional().or(z.literal("")),
-      connectorBrandId: z.string().optional().or(z.literal("")),
-
       // Verification (client-side check state)
       verificationExpectedTxt: z.string().optional(),
       verificationChecked: z.boolean().optional(),
@@ -149,157 +130,6 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
             code: z.ZodIssueCode.custom,
             message:
               "Demo URL must be different from Website URL. Try using a full path like 'https://example.com/demo' or 'https://example.com/app'.",
-          })
-        }
-      }
-
-      if (val.connectorApiKey && !val.connectorProvider) {
-        ctx.addIssue({
-          path: ["connectorProvider"],
-          code: z.ZodIssueCode.custom,
-          message: "Choose a provider when adding an API key",
-        })
-      }
-
-      const brandId = val.connectorBrandId?.trim()
-      if (val.connectorProvider === "dodo" && val.connectorApiKey) {
-        if (!brandId) {
-          ctx.addIssue({
-            path: ["connectorBrandId"],
-            code: z.ZodIssueCode.custom,
-            message: "Brand ID is required for Dodo",
-          })
-        }
-      }
-      if (brandId) {
-        if (val.connectorProvider && val.connectorProvider !== "dodo") {
-          ctx.addIssue({
-            path: ["connectorProvider"],
-            code: z.ZodIssueCode.custom,
-            message: "Brand ID is only supported for Dodo",
-          })
-        }
-        const hasValidPrefix =
-          brandId.startsWith("brnd_") || brandId.startsWith("bus_")
-        if (!hasValidPrefix) {
-          ctx.addIssue({
-            path: ["connectorBrandId"],
-            code: z.ZodIssueCode.custom,
-            message: "Dodo brand IDs must start with brnd_ or bus_",
-          })
-        }
-      }
-
-      if (val.connectorProvider === "stripe" && val.connectorApiKey) {
-        const key = val.connectorApiKey.trim()
-        const expectedPrefix = IS_PROD ? "rk_live_" : "rk_test_"
-        if (!key.startsWith(expectedPrefix)) {
-          ctx.addIssue({
-            path: ["connectorApiKey"],
-            code: z.ZodIssueCode.custom,
-            message: IS_PROD
-              ? "Use a Stripe restricted key starting with rk_live_"
-              : "Use a Stripe restricted key starting with rk_test_",
-          })
-        }
-        const acct = val.connectorAccountId?.trim()
-        if (acct && !acct.startsWith("acct_")) {
-          ctx.addIssue({
-            path: ["connectorAccountId"],
-            code: z.ZodIssueCode.custom,
-            message: "Stripe connected account IDs start with acct_",
-          })
-        }
-      }
-
-      if (val.connectorProvider === "polar") {
-        const orgId = val.connectorAccountId?.trim()
-        if (val.connectorApiKey && !orgId) {
-          ctx.addIssue({
-            path: ["connectorAccountId"],
-            code: z.ZodIssueCode.custom,
-            message: "Polar organization ID is required",
-          })
-        }
-      }
-
-      if (val.connectorProvider === "abacatepay") {
-        const key = val.connectorApiKey?.trim() ?? ""
-        if (key && !key.startsWith("mrr_")) {
-          ctx.addIssue({
-            path: ["connectorApiKey"],
-            code: z.ZodIssueCode.custom,
-            message: "AbacatePay tokens must start with mrr_",
-          })
-        }
-      }
-
-      if (val.connectorProvider === "creem") {
-        const key = val.connectorApiKey?.trim() ?? ""
-        if (key && !key.startsWith("creem_")) {
-          ctx.addIssue({
-            path: ["connectorApiKey"],
-            code: z.ZodIssueCode.custom,
-            message: "Creem API keys must start with creem_",
-          })
-        }
-      }
-
-      if (val.connectorProvider === "revenuecat") {
-        const projectId = val.connectorAccountId?.trim()
-        if (val.connectorApiKey && !projectId) {
-          ctx.addIssue({
-            path: ["connectorAccountId"],
-            code: z.ZodIssueCode.custom,
-            message: "RevenueCat project ID is required",
-          })
-        }
-      }
-
-      if (val.connectorProvider === "lemonsqueezy") {
-        const storeId = val.connectorAccountId?.trim()
-        if (val.connectorApiKey && !storeId) {
-          ctx.addIssue({
-            path: ["connectorAccountId"],
-            code: z.ZodIssueCode.custom,
-            message: "Lemon Squeezy store ID is required",
-          })
-        }
-      }
-
-      if (val.connectorProvider === "paddle" && val.connectorApiKey) {
-        const key = val.connectorApiKey.trim()
-        const expectedPrefix = IS_PROD ? "pdl_live_apikey_" : "pdl_sdbx_apikey_"
-        if (!key.startsWith(expectedPrefix)) {
-          ctx.addIssue({
-            path: ["connectorApiKey"],
-            code: z.ZodIssueCode.custom,
-            message: IS_PROD
-              ? "Use a Paddle live key starting with pdl_live_apikey_"
-              : "Use a Paddle sandbox key starting with pdl_sdbx_apikey_",
-          })
-        }
-      }
-
-      if (val.connectorProvider === "paystack" && val.connectorApiKey) {
-        const key = val.connectorApiKey.trim()
-        const expectedPrefix = IS_PROD ? "sk_live_" : "sk_test_"
-        if (!key.startsWith(expectedPrefix)) {
-          ctx.addIssue({
-            path: ["connectorApiKey"],
-            code: z.ZodIssueCode.custom,
-            message: IS_PROD
-              ? "Use a Paystack live secret key starting with sk_live_"
-              : "Use a Paystack test secret key starting with sk_test_",
-          })
-        }
-
-        const subaccount = val.connectorAccountId?.trim()
-        if (subaccount && !/^ACCT_/i.test(subaccount)) {
-          ctx.addIssue({
-            path: ["connectorAccountId"],
-            code: z.ZodIssueCode.custom,
-            message: "Paystack subaccount codes start with ACCT_",
           })
         }
       }

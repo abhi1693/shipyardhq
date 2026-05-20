@@ -10,7 +10,6 @@ describe("homepage feed view normalization", () => {
   it("recognizes known views", () => {
     expect(isHomepageFeedView("new")).toBe(true)
     expect(isHomepageFeedView("most-clicked")).toBe(true)
-    expect(isHomepageFeedView("verified-revenue")).toBe(true)
   })
 
   it("rejects unknown views", () => {
@@ -25,6 +24,8 @@ describe("homepage feed view normalization", () => {
   })
 
   it("normalizes missing to default", () => {
-    expect(normalizeHomepageFeedView(undefined)).toBe(DEFAULT_HOMEPAGE_FEED_VIEW)
+    expect(normalizeHomepageFeedView(undefined)).toBe(
+      DEFAULT_HOMEPAGE_FEED_VIEW,
+    )
   })
 })

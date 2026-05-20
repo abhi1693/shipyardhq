@@ -1,56 +1,17 @@
-import { Suspense } from "react"
+import { permanentRedirect } from "next/navigation"
 
-import { VerifiedRevenuePageContent } from "@/components/templates/public/verified-revenue/page-content"
-import { VerifiedRevenuePageSkeleton } from "@/components/templates/public/verified-revenue/skeleton"
-import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
-import { HOME_PATH, VERIFIED_REVENUE_PATH } from "@/lib/routes"
-import { siteConfig } from "@/lib/siteConfig"
+import { LEADERBOARD_PATH } from "@/lib/routes"
 
-const PAGE_TITLE = "Revenue verified products"
+const PAGE_TITLE = "Shipyard Leaderboard"
 export const dynamic = "force-dynamic"
 
-const OG_IMAGE_URL = new URL(
-  "/opengraph-verified-revenue.png",
-  siteConfig.url,
-).toString()
-
 export const metadata = buildPageMetadata({
-  title: `${PAGE_TITLE} — proof you can trust`,
-  description:
-    "Explore products with verified revenue pulled directly from their payment providers, ranked in descending order.",
-  canonical: VERIFIED_REVENUE_PATH,
-  openGraph: {
-    url: VERIFIED_REVENUE_PATH,
-    images: [
-      {
-        url: OG_IMAGE_URL,
-        alt: "Revenue verified products preview",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    images: [OG_IMAGE_URL],
-  },
+  title: PAGE_TITLE,
+  description: "This page has moved to the Shipyard leaderboard.",
+  canonical: LEADERBOARD_PATH,
 })
 
 export default function VerifiedRevenuePage() {
-  return (
-    <>
-      <CoreStructuredData
-        scriptKeyPrefix="verified-revenue"
-        webPage={{ path: VERIFIED_REVENUE_PATH, name: PAGE_TITLE }}
-        breadcrumbs={{
-          items: [
-            { name: "Home", path: HOME_PATH },
-            { name: PAGE_TITLE, path: VERIFIED_REVENUE_PATH },
-          ],
-        }}
-      />
-      <Suspense fallback={<VerifiedRevenuePageSkeleton />}>
-        <VerifiedRevenuePageContent />
-      </Suspense>
-    </>
-  )
+  permanentRedirect(LEADERBOARD_PATH)
 }

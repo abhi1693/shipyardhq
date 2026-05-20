@@ -46,8 +46,6 @@ export async function UserProfilePageContent({ params }: PageProps) {
     productsPage,
     totalProducts,
     totalUpvotes,
-    totalVerifiedRevenueCents,
-    totalVerifiedRevenueCurrency,
     rewardPoints,
     focusCategories,
     extraCategoryCount,
@@ -80,17 +78,9 @@ export async function UserProfilePageContent({ params }: PageProps) {
 
   const profilePath = userPath(profile.id)
 
-  const verifiedRevenueDisplay = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: totalVerifiedRevenueCurrency ?? "USD",
-    notation: "compact",
-    maximumFractionDigits: 1,
-  }).format((totalVerifiedRevenueCents ?? 0) / 100)
-
   const stats: Array<{ label: string; value?: number; display?: string }> = [
     { label: "Published launches", value: totalProducts },
     { label: "Community upvotes", value: totalUpvotes },
-    { label: "Verified revenue", display: verifiedRevenueDisplay },
     { label: "Reward points", value: rewardPoints },
   ]
   const statFormatter = new Intl.NumberFormat("en-US", {

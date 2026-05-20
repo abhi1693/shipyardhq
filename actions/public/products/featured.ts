@@ -3,8 +3,6 @@ import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import type { FeaturedProduct } from "@/types"
 import { featuredProductSelect } from "@/types"
-import { getUsdConversionRates } from "@/lib/server/payments/currency"
-import { resolveProductRevenue } from "@/lib/products/revenue"
 
 type SponsoredProduct = Prisma.ProductGetPayload<{
   select: {
@@ -166,8 +164,6 @@ type StickyBannerProductResult = {
   name: string
   logo: string
   tagline: string | null
-  latestRevenueCents: number | null
-  revenueCurrencyCode: string | null
 }
 
 type StickyBannerProduct = Prisma.ProductGetPayload<{
@@ -177,20 +173,6 @@ type StickyBannerProduct = Prisma.ProductGetPayload<{
     name: true
     logo: true
     tagline: true
-    paymentConnector: {
-      select: {
-        latestAllTimeRevenueCents: true
-        latestCurrencyCode: true
-        revenueHistory: {
-          orderBy: { periodStart: "desc" }
-          take: 1
-          select: {
-            allTimeRevenueCents: true
-            currencyCode: true
-          }
-        }
-      }
-    }
   }
 }>
 
@@ -282,20 +264,6 @@ export const getStickyBannerProducts = cached(
         name: true,
         logo: true,
         tagline: true,
-        paymentConnector: {
-          select: {
-            latestAllTimeRevenueCents: true,
-            latestCurrencyCode: true,
-            revenueHistory: {
-              orderBy: { periodStart: "desc" },
-              take: 1,
-              select: {
-                allTimeRevenueCents: true,
-                currencyCode: true,
-              },
-            },
-          },
-        },
       },
     })
 
@@ -324,39 +292,13 @@ export const getStickyBannerProducts = cached(
       return []
     }
 
-    const needsRates = pool.some((product) => {
-      const currency =
-        product.paymentConnector?.latestCurrencyCode ??
-        product.paymentConnector?.revenueHistory?.[0]?.currencyCode ??
-        null
-      return Boolean(currency && currency.toUpperCase() !== "USD")
-    })
-
-    const rates = needsRates ? await getUsdConversionRates() : undefined
-
-    return pool.map((product) => {
-      const revenue = resolveProductRevenue(
-        product.paymentConnector,
-        rates
-          ? {
-              rates,
-              targetCurrency: "USD",
-            }
-          : {},
-      )
-
-      return {
-        id: product.id,
-        slug: product.slug,
-        name: product.name,
-        logo: product.logo,
-        tagline: product.tagline ?? null,
-        latestRevenueCents: revenue.latestRevenueCents,
-        revenueCurrencyCode: revenue.latestRevenueCents
-          ? revenue.revenueCurrencyCode
-          : null,
-      }
-    })
+    return pool.map((product) => ({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      logo: product.logo,
+      tagline: product.tagline ?? null,
+    }))
   },
   "products:sticky-banner:v2",
   {

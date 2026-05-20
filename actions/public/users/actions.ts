@@ -14,10 +14,6 @@ import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { hasEditorPickBadge } from "@/lib/products/badges"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
-import {
-  convertToUsdCents,
-  getUsdConversionRates,
-} from "@/lib/server/payments/currency"
 
 const publishedProductWhere: Prisma.ProductWhereInput = {
   status: "published",
@@ -35,8 +31,6 @@ type PublicUserListItem = {
   clerkId: string | null
   _count: { products: number }
   avatarUrl: string | null
-  latestRevenueCents: number | null
-  revenueCurrencyCode: string | null
 }
 
 const FALLBACK_TAGLINE =
@@ -82,22 +76,6 @@ const publicUserProductSelectFields = {
     select: {
       badge: true,
       expiresAt: true,
-    },
-  },
-  paymentConnector: {
-    select: {
-      latestAllTimeRevenueCents: true,
-      latestCurrencyCode: true,
-      verifiedAt: true,
-      status: true,
-      revenueHistory: {
-        orderBy: { periodStart: "desc" },
-        take: 1,
-        select: {
-          allTimeRevenueCents: true,
-          currencyCode: true,
-        },
-      },
     },
   },
 } as const
@@ -258,105 +236,8 @@ const getPublicUsersPageCached = cached(
       prisma.user.count({ where }),
     ])
 
-    const userIds = users.map((user: { id: string }) => user.id)
-    type RevenueConnector = {
-      product: { userId: string } | null
-      latestAllTimeRevenueCents: number | null
-      latestCurrencyCode: string | null
-      revenueHistory: Array<{
-        allTimeRevenueCents: number | null
-        currencyCode: string | null
-      }>
-    }
-
-    const connectors: RevenueConnector[] = userIds.length
-      ? await prisma.paymentConnector.findMany({
-          where: {
-            product: {
-              userId: { in: userIds },
-              status: "published",
-            },
-            status: "active",
-            verifiedAt: { not: null },
-          },
-          select: {
-            product: { select: { userId: true } },
-            latestAllTimeRevenueCents: true,
-            latestCurrencyCode: true,
-            revenueHistory: {
-              orderBy: { periodStart: "desc" },
-              take: 1,
-              select: {
-                allTimeRevenueCents: true,
-                currencyCode: true,
-              },
-            },
-          },
-        })
-      : []
-
-    const needsRates = connectors.some((connector: RevenueConnector) => {
-      const code =
-        connector.latestCurrencyCode ??
-        connector.revenueHistory?.[0]?.currencyCode ??
-        "USD"
-      return code && code.toUpperCase() !== "USD"
-    })
-    const rates = needsRates
-      ? await getUsdConversionRates()
-      : new Map<string, number>([["USD", 1]])
-
-    const revenueByUser = new Map<
-      string,
-      { cents: number; currencyCode: string | null }
-    >()
-
-    for (const connector of connectors) {
-      const userId = connector.product?.userId
-      if (!userId) continue
-
-      const snapshot = connector.revenueHistory?.[0]
-      let amount =
-        typeof connector.latestAllTimeRevenueCents === "number"
-          ? connector.latestAllTimeRevenueCents
-          : typeof snapshot?.allTimeRevenueCents === "number"
-            ? snapshot.allTimeRevenueCents
-            : null
-
-      if (amount === null) continue
-
-      let currencyCode =
-        (
-          connector.latestCurrencyCode ??
-          snapshot?.currencyCode ??
-          "USD"
-        )?.toUpperCase?.() ?? "USD"
-
-      if (currencyCode !== "USD") {
-        const { usdCents, rateUsed } = convertToUsdCents(
-          amount,
-          currencyCode,
-          rates,
-        )
-
-        if (rateUsed !== null) {
-          amount = usdCents
-          currencyCode = "USD"
-        }
-      }
-
-      const existing = revenueByUser.get(userId)
-      const nextCents = (existing?.cents ?? 0) + amount
-      revenueByUser.set(userId, {
-        cents: nextCents,
-        currencyCode: currencyCode ?? existing?.currencyCode ?? "USD",
-      })
-    }
-
     const items = await Promise.all(
-      users.map((user) =>
-        mapUserSummaryToListItem(user, revenueByUser.get(user.id)),
-      ),
+      users.map((user) => mapUserSummaryToListItem(user)),
     )
     const hasMore = skip + items.length < total
 
@@ -436,26 +317,18 @@ const mapUserProductToFeedItem = (
     isVoted: false,
     isVerified: Boolean(product.isVerified),
     variant,
-    latestRevenueCents:
-      typeof product.latestRevenueCents === "number"
-        ? product.latestRevenueCents
-        : null,
-    revenueCurrencyCode: product.revenueCurrencyCode ?? null,
     interest: interestByProductId?.get(product.id) ?? null,
     shuffleRank: Math.random(),
   }
 }
 
-const mapUserSummaryToListItem = async (
-  user: {
-    id: string
-    firstName: string | null
-    lastName: string | null
-    clerkId: string | null
-    _count: { products: number }
-  },
-  revenue?: { cents: number; currencyCode: string | null },
-): Promise<PublicUserListItem> => {
+const mapUserSummaryToListItem = async (user: {
+  id: string
+  firstName: string | null
+  lastName: string | null
+  clerkId: string | null
+  _count: { products: number }
+}): Promise<PublicUserListItem> => {
   let avatarUrl: string | null = null
   if (user.clerkId) {
     try {
@@ -469,8 +342,6 @@ const mapUserSummaryToListItem = async (
   return {
     ...user,
     avatarUrl,
-    latestRevenueCents: revenue?.cents ?? null,
-    revenueCurrencyCode: revenue?.currencyCode ?? null,
   }
 }
 

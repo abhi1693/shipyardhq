@@ -2,7 +2,7 @@
 
 import { type ReactNode } from "react"
 
-import { ArrowUpRight, BadgeCheck, Banknote, Flame } from "lucide-react"
+import { ArrowUpRight, BadgeCheck, Flame } from "lucide-react"
 
 import { Badge } from "@/components/atoms/badge"
 import { SquareImage } from "@/components/molecules/SquareImage"
@@ -18,7 +18,6 @@ import { cn } from "@/lib/utils"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import type { ProductCardVariant } from "@/types/product-card"
 import { buildProductInterestBadges } from "@/lib/products/interest"
-import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
 
 const LOGO_SIZE = 60
 
@@ -63,18 +62,6 @@ export function ProductFeedCard({
     itemVariant: item.variant,
     isSponsored: item.isSponsored,
   })
-
-  const revenueCents =
-    typeof item.latestRevenueCents === "number" ? item.latestRevenueCents : null
-  const hasRevenue = revenueCents !== null && revenueCents > 0
-  const revenueLabel = hasRevenue
-    ? new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: item.revenueCurrencyCode ?? "USD",
-        notation: "compact",
-        maximumFractionDigits: 1,
-      }).format(revenueCents / 100)
-    : null
 
   const cardClasses = cn(
     "group relative flex h-full flex-col rounded-2xl p-5 text-left transition-shadow duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18]",
@@ -147,19 +134,6 @@ export function ProductFeedCard({
     "product-of-month-3": "Ranked #3 on the monthly leaderboard",
   }
 
-  const revenueBadge = revenueLabel ? (
-    <span
-      className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-900 shadow-sm dark:border-sky-900/60 dark:bg-sky-950/40 dark:text-sky-100"
-      title={`Verified revenue (boosts click-based ranking by ${VERIFIED_REVENUE_RANKING_MULTIPLIER.toFixed(
-        1,
-      )}×). Products without verified revenue are ranked lower by default.`}
-    >
-      <Banknote className="h-3.5 w-3.5" aria-hidden="true" />
-      <span className="sr-only">Revenue</span>
-      <span className="whitespace-nowrap">{revenueLabel}</span>
-    </span>
-  ) : null
-
   const resolvedBadges = item.badges.map((rawBadge, index) => {
     const normalized = rawBadge.trim()
     const match = BADGE_OPTIONS.find((option) => {
@@ -223,9 +197,6 @@ export function ProductFeedCard({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:ml-auto sm:flex-nowrap sm:justify-end">
-          {revenueBadge ? (
-            <span className="hidden sm:inline-flex">{revenueBadge}</span>
-          ) : null}
           {meta ? <span className="shrink-0">{meta}</span> : null}
           <ProductScore
             count={scoreCount ?? 0}
@@ -256,9 +227,6 @@ export function ProductFeedCard({
                 </Badge>
               ))
             : null}
-          {revenueBadge ? (
-            <span className="sm:hidden">{revenueBadge}</span>
-          ) : null}
         </div>
         <div className="flex flex-col items-end gap-2">
           {hasBadges ? (

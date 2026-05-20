@@ -41,7 +41,6 @@ function buildPath(
 }
 
 type PeriodicLeaderboardFilters = {
-  verifiedRevenueOnly: boolean
   categorySlug?: string | null
 }
 
@@ -51,12 +50,6 @@ function withLeaderboardFilters(
 ): string {
   const [basePath, existingQuery] = path.split("?")
   const params = new URLSearchParams(existingQuery ?? "")
-
-  if (filters.verifiedRevenueOnly) {
-    params.set("revenue", "verified")
-  } else {
-    params.delete("revenue")
-  }
 
   const categorySlug =
     typeof filters.categorySlug === "string" &&
@@ -92,18 +85,14 @@ function getAdjacentStart(
 
 export async function PeriodicLeaderboardView({
   leaderboard,
-  verifiedRevenueOnly = false,
   categorySlug,
 }: {
   leaderboard: PeriodicLeaderboardPayload
-  verifiedRevenueOnly?: boolean
   categorySlug?: string | null
 }) {
   const archive = leaderboard.archive ?? { months: [], weeks: [] }
   const start = new Date(leaderboard.periodStart)
-  const basePath = buildPath(leaderboard.period, start)
   const filters: PeriodicLeaderboardFilters = {
-    verifiedRevenueOnly,
     categorySlug,
   }
   const now = new Date()
@@ -375,37 +364,6 @@ export async function PeriodicLeaderboardView({
                     Monthly
                   </Link>
                 </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <Link
-                  href={withLeaderboardFilters(basePath, {
-                    verifiedRevenueOnly: false,
-                    categorySlug: filters.categorySlug,
-                  })}
-                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                    !verifiedRevenueOnly
-                      ? "border-[color:var(--brand-1)] bg-[color:var(--brand-1)] text-white"
-                      : "border-border/70 bg-white text-[#1C2333] hover:border-[color:var(--brand-1)]/60 hover:bg-[color:var(--brand-1)/0.06] hover:text-[color:var(--brand-1)]"
-                  }`}
-                  scroll={false}
-                >
-                  All products
-                </Link>
-                <Link
-                  href={withLeaderboardFilters(basePath, {
-                    verifiedRevenueOnly: true,
-                    categorySlug: filters.categorySlug,
-                  })}
-                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                    verifiedRevenueOnly
-                      ? "border-[color:var(--brand-1)] bg-[color:var(--brand-1)] text-white"
-                      : "border-border/70 bg-white text-[#1C2333] hover:border-[color:var(--brand-1)]/60 hover:bg-[color:var(--brand-1)/0.06] hover:text-[color:var(--brand-1)]"
-                  }`}
-                  scroll={false}
-                >
-                  Revenue verified only
-                </Link>
               </div>
 
               {leaderboard.period === "day" ? (

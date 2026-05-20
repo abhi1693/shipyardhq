@@ -56,7 +56,6 @@ import {
 import {
   getPublicProductMetaBySlug,
   getPublicProductBySlug,
-  getPublicProductRevenue,
 } from "@/actions/public/products/actions"
 import {
   BROWSE_PATH,
@@ -86,7 +85,6 @@ import {
   productTypeSlugFromValue,
 } from "@/lib/product-types/models"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
-import { ProductRevenueChart } from "@/components/templates/public/products/detail/ProductRevenueChart"
 import { getProductScoreForCurrentWindow } from "@/lib/server/leaderboard/v2"
 import { buildProductInterestBadges } from "@/lib/products/interest"
 import { Badge } from "@/components/atoms/badge"
@@ -234,11 +232,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     { maxBadges: 4, includeBuildersClicked: true, minBuildersClicked: 1 },
   )
 
-  const [sidebarProduct, revenue, leaderboardScore] = await Promise.all([
+  const [sidebarProduct, leaderboardScore] = await Promise.all([
     getPublicProductBySlug(slug),
-    product.pricingModel === "free"
-      ? Promise.resolve(null)
-      : getPublicProductRevenue(product.id),
     getProductScoreForCurrentWindow(product.id).catch(() => null),
   ])
   if (!sidebarProduct) return notFound()
@@ -454,20 +449,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     quickLinkCount === 2 ? "grid-cols-2" : "grid-cols-1"
   const quickLinkClass =
     "inline-flex w-full items-center gap-1.5 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-sm shadow-black/5 transition-colors hover:bg-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto"
-  const revenueSection =
-    revenue && revenue.points.length ? (
-      <ProductRevenueChart
-        points={revenue.points}
-        summary={{
-          currencyCode: revenue.currencyCode,
-          latestAllTimeRevenueCents: revenue.latestAllTimeRevenueCents,
-          lastSyncedAt: revenue.lastSyncedAt,
-          provider: revenue.provider,
-        }}
-        productName={product.name}
-        productLogoUrl={product.logo}
-      />
-    ) : null
   const leaderboardPoints =
     typeof leaderboardScore?.score === "number" ? leaderboardScore.score : 0
   const leaderboardRank =
@@ -579,7 +560,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-white text-sm shadow-sm"
                     aria-label={badge.label}
                   >
-                      <span aria-hidden>{badge.icon}</span>
+                    <span aria-hidden>{badge.icon}</span>
                   </TooltipTrigger>
                   <TooltipContent sideOffset={6}>{badge.label}</TooltipContent>
                 </Tooltip>
@@ -811,7 +792,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               productName={product.name}
             />
             <ProductDescriptionCard description={product.description} />
-            {revenueSection}
             <div className="lg:hidden">{productDetailsCard}</div>
             {keywordTagItems.length ? (
               <div className="space-y-3">

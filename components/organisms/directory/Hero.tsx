@@ -3,12 +3,6 @@ import { Play, Rocket } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
-import { SquareImage } from "@/components/molecules/SquareImage"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/atoms/tooltip"
 
 type HeaderActionConfig = {
   label: string
@@ -37,11 +31,6 @@ type MetricConfig = {
   formatter?: (value: number) => string
 }
 
-type ProviderDescriptor = {
-  name: string
-  logoSrc?: string
-}
-
 interface HeroProps {
   stats?: StatsShape
   title?: string
@@ -50,7 +39,6 @@ interface HeroProps {
   secondaryAction?: HeaderActionConfig | null
   tertiaryAction?: HeaderActionConfig | null
   metrics?: readonly MetricConfig[]
-  supportedProviders?: (string | ProviderDescriptor)[]
 }
 
 const HERO_PRIMARY_CLASSES =
@@ -67,7 +55,6 @@ export function Hero({
   secondaryAction,
   tertiaryAction,
   metrics = [],
-  supportedProviders,
 }: HeroProps) {
   const resolvedTitle = title ?? "Shipyard homepage"
   const isDefaultHeadline = title === undefined
@@ -98,23 +85,6 @@ export function Hero({
     secondaryAction === undefined ? defaultSecondary : secondaryAction
   const resolvedTertiary = tertiaryAction ?? null
 
-  const providers =
-    supportedProviders
-      ?.map((provider): ProviderDescriptor | null => {
-        if (typeof provider === "string") {
-          const name = provider.trim()
-          return name.length > 0 ? { name } : null
-        }
-        const name = provider.name?.trim() ?? ""
-        const logoSrc = provider.logoSrc?.trim()
-        if (!name) return null
-        const normalizedLogo =
-          logoSrc && !logoSrc.startsWith("/") ? `/${logoSrc}` : logoSrc
-        return { name, logoSrc: normalizedLogo }
-      })
-      .filter(
-        (provider): provider is ProviderDescriptor => provider !== null,
-      ) ?? []
   const renderAction = (action: HeaderActionConfig, index: number) => {
     const variant = action.variant ?? (index === 0 ? "default" : "outline")
     const baseClass =
@@ -130,7 +100,6 @@ export function Hero({
     )
   }
 
-  const hasProviders = providers.length > 0
   const hasMetrics = metrics.length > 0
   return (
     <div className="space-y-6">
@@ -166,48 +135,6 @@ export function Hero({
             {resolvedSecondary ? renderAction(resolvedSecondary, 1) : null}
             {resolvedTertiary ? renderAction(resolvedTertiary, 2) : null}
           </div>
-        ) : null}
-        {hasProviders ? (
-          <section
-            aria-label="Supported payment providers"
-            className="flex flex-col items-center gap-3 px-4 py-3 sm:px-6"
-          >
-            <p className="text-center text-sm text-[#3B4256]">
-              We sync revenue directly from your payment stack.
-            </p>
-            <ul className="mt-3 flex flex-wrap items-center justify-center gap-3">
-              {providers.map((provider) => (
-                <li key={provider.name}>
-                  <Tooltip>
-                    <TooltipTrigger
-                      type="button"
-                      aria-label={provider.name}
-                      className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-white"
-                    >
-                      {provider.logoSrc ? (
-                        <SquareImage
-                          src={provider.logoSrc}
-                          alt={`${provider.name} logo`}
-                          size={44}
-                          className="h-10 w-10 object-contain"
-                        />
-                      ) : (
-                        <span className="sr-only">
-                          {provider.name} logo placeholder
-                        </span>
-                      )}
-                    </TooltipTrigger>
-                    <TooltipContent
-                      sideOffset={6}
-                      className="text-xs font-semibold"
-                    >
-                      {provider.name}
-                    </TooltipContent>
-                  </Tooltip>
-                </li>
-              ))}
-            </ul>
-          </section>
         ) : null}
         {hasMetrics ? (
           <dl className="grid gap-4 border-t border-border/60 pt-6 text-center sm:grid-cols-2 xl:grid-cols-4">

@@ -119,11 +119,6 @@ function mapProductCardItemToFeedItem(
     isVoted: Boolean(product.isVoted),
     isVerified: Boolean(product.isVerified),
     variant,
-    latestRevenueCents:
-      typeof product.latestRevenueCents === "number"
-        ? product.latestRevenueCents
-        : null,
-    revenueCurrencyCode: product.revenueCurrencyCode ?? null,
     shuffleRank: Math.random(),
   }
 }

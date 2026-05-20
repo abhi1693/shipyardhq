@@ -139,8 +139,6 @@ export function MakersFeedClient({
                 initials,
                 launches,
                 avatarUrl: maker.avatarUrl,
-                latestRevenueCents: maker.latestRevenueCents ?? undefined,
-                revenueCurrencyCode: maker.revenueCurrencyCode ?? undefined,
               }}
             />
           )

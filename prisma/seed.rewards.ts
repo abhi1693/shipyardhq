@@ -95,19 +95,6 @@ const RULES: RuleSeed[] = [
     metadata: { event: "productCreate" },
   },
   {
-    key: "rewards.payment.connector",
-    name: "Connect payments",
-    description:
-      "Awarded when a payment connector credential is added with real revenue.",
-    category: RewardRuleCategory.engagement,
-    baseRewardAmount: 50,
-    lifetimeCap: 50,
-    metadata: {
-      event: "paymentConnector",
-      requiresPositiveRevenue: true,
-    },
-  },
-  {
     key: "rewards.streak.maintain",
     name: "Streak maintenance",
     description: "Issued by the nightly job when a streak tier is maintained.",

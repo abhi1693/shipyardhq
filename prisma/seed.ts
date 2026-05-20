@@ -4,9 +4,6 @@ import {
   ProductStatus,
   ProductType,
   PricingModel,
-  PaymentConnectorProvider,
-  PaymentConnectorStatus,
-  PaymentCredentialStatus,
 } from "@/lib/vendor/prisma/client"
 import type { PrismaClient } from "@/lib/vendor/prisma/client"
 import {
@@ -20,10 +17,6 @@ import {
   startOfWeek,
 } from "date-fns"
 
-import {
-  buildConnectorKeyHint,
-  encryptConnectorSecret,
-} from "@/lib/server/payments/connectorSecrets"
 import { generateVerificationTxtFromWebsite } from "@/lib/products/verification"
 
 import { seedAlternatives } from "./seed.alternatives"
@@ -71,55 +64,6 @@ type SeedContext = {
   userIdByClerkId: Map<string, string>
   categoryIdBySlug: Map<string, string>
   planIdBySlug: Map<string, string>
-}
-
-function buildRevenueSnapshots(options: {
-  currencyCode: string
-  days: number
-  baseDailyCents: number
-}): {
-  snapshots: Array<{
-    currencyCode: string
-    periodStart: Date
-    periodRevenueCents: number
-    allTimeRevenueCents: number
-    data: { provider: string; charges: number }
-  }>
-} {
-  const { currencyCode, days, baseDailyCents } = options
-  const start = addDays(startOfDay(new Date()), -(days - 1))
-  const snapshots: Array<{
-    currencyCode: string
-    periodStart: Date
-    periodRevenueCents: number
-    allTimeRevenueCents: number
-    data: { provider: string; charges: number }
-  }> = []
-
-  let runningTotal = 0
-
-  for (let i = 0; i < days; i += 1) {
-    const periodStart = addDays(start, i)
-    const trendBoost = Math.floor(i / 21) * 700
-    const seasonal = Math.round(Math.sin(i / 7) * 500)
-    const dailyJitter = (i % 5) * 120
-    const periodRevenueCents = Math.max(
-      2000,
-      baseDailyCents + trendBoost + seasonal + dailyJitter,
-    )
-    const charges = Math.max(1, Math.round(periodRevenueCents / 5000))
-
-    runningTotal += periodRevenueCents
-    snapshots.push({
-      currencyCode,
-      periodStart,
-      periodRevenueCents,
-      allTimeRevenueCents: runningTotal,
-      data: { provider: "seed", charges },
-    })
-  }
-
-  return { snapshots }
 }
 
 function buildProductCreateInput(
@@ -573,144 +517,6 @@ async function main() {
   const productIdBySlug = new Map(
     products.map((product) => [product.slug, product.id]),
   )
-
-  await seedPaymentConnectors()
-
-  async function seedPaymentConnectors() {
-    const secret = process.env.PAYMENT_CONNECTOR_SECRET_KEY?.trim()
-    if (!secret) {
-      console.warn(
-        "[seed] Skipping payment connector seeds because PAYMENT_CONNECTOR_SECRET_KEY is missing",
-      )
-      return
-    }
-
-    const connectorSeeds = [
-      {
-        productSlug: "shipyardhq",
-        provider: PaymentConnectorProvider.dodo,
-        currencyCode: "USD",
-        days: 150,
-        baseDailyCents: 32000,
-      },
-      {
-        productSlug: "shitposts",
-        provider: PaymentConnectorProvider.dodo,
-        currencyCode: "USD",
-        days: 120,
-        baseDailyCents: 18000,
-      },
-      {
-        productSlug: "indexly",
-        provider: PaymentConnectorProvider.dodo,
-        currencyCode: "USD",
-        days: 120,
-        baseDailyCents: 24000,
-      },
-    ] as const
-
-    const connectorRows: Array<{ productSlug: string; action: string }> = []
-    for (const seed of connectorSeeds) {
-      const productId = productIdBySlug.get(seed.productSlug)
-      if (!productId) {
-        console.warn(
-          `[seed] Skipping connector for '${seed.productSlug}' (product not found)`,
-        )
-        continue
-      }
-
-      const { snapshots } = buildRevenueSnapshots({
-        currencyCode: seed.currencyCode,
-        days: seed.days,
-        baseDailyCents: seed.baseDailyCents,
-      })
-
-      const latest = snapshots[snapshots.length - 1]
-      const apiKey = `sk_test_seed_${seed.productSlug}_key`
-      const encryptedKey = encryptConnectorSecret(apiKey)
-      const keyHint = buildConnectorKeyHint(apiKey)
-      const nowTimestamp = new Date()
-
-      const existingConnector = await prisma.paymentConnector.findUnique({
-        where: { productId },
-        select: { id: true },
-      })
-
-      const connector = await prisma.paymentConnector.upsert({
-        where: { productId },
-        update: {
-          provider: seed.provider,
-          status: PaymentConnectorStatus.active,
-          lastSyncedAt: nowTimestamp,
-          verifiedAt: nowTimestamp,
-          latestAllTimeRevenueCents: latest?.allTimeRevenueCents ?? 0,
-          latestCurrencyCode: latest?.currencyCode,
-          latestPeriodStart: latest?.periodStart,
-        },
-        create: {
-          productId,
-          provider: seed.provider,
-          status: PaymentConnectorStatus.active,
-          lastSyncedAt: nowTimestamp,
-          verifiedAt: nowTimestamp,
-          latestAllTimeRevenueCents: latest?.allTimeRevenueCents ?? 0,
-          latestCurrencyCode: latest?.currencyCode,
-          latestPeriodStart: latest?.periodStart,
-        },
-      })
-
-      await prisma.paymentConnectorCredential.updateMany({
-        where: {
-          connectorId: connector.id,
-          status: PaymentCredentialStatus.active,
-        },
-        data: { status: PaymentCredentialStatus.revoked },
-      })
-
-      await prisma.paymentConnectorCredential.create({
-        data: {
-          connectorId: connector.id,
-          status: PaymentCredentialStatus.active,
-          encryptedKey,
-          keyHint,
-        },
-      })
-
-      for (const snapshot of snapshots) {
-        await prisma.paymentRevenueSnapshot.upsert({
-          where: {
-            connectorId_periodStart_currencyCode: {
-              connectorId: connector.id,
-              periodStart: snapshot.periodStart,
-              currencyCode: snapshot.currencyCode,
-            },
-          },
-          update: {
-            periodRevenueCents: snapshot.periodRevenueCents,
-            allTimeRevenueCents: snapshot.allTimeRevenueCents,
-            data: snapshot.data,
-          },
-          create: {
-            connectorId: connector.id,
-            currencyCode: snapshot.currencyCode,
-            periodStart: snapshot.periodStart,
-            periodRevenueCents: snapshot.periodRevenueCents,
-            allTimeRevenueCents: snapshot.allTimeRevenueCents,
-            data: snapshot.data,
-          },
-        })
-      }
-
-      connectorRows.push({
-        productSlug: seed.productSlug,
-        action: existingConnector ? "update" : "create",
-      })
-    }
-
-    if (connectorRows.length) {
-      console.table(connectorRows)
-    }
-  }
 
   await seedAlternatives(prisma, {
     categoryIdBySlug,

@@ -2,7 +2,6 @@ import { format, subDays } from "date-fns"
 import {
   Activity,
   Clock3,
-  DollarSign,
   MousePointer2,
   TrendingUp,
   Users,
@@ -26,42 +25,13 @@ import prisma from "@/lib/prisma"
 import { buildPageMetadata } from "@/lib/metadata"
 import { ANALYTICS_PATH, HOME_PATH } from "@/lib/routes"
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
-import {
-  convertToUsdCents,
-  getUsdConversionRates,
-} from "@/lib/server/payments/currency"
 import { siteConfig } from "@/lib/siteConfig"
-import { PaymentConnectorStatus } from "@/lib/vendor/prisma/client"
 
 const PAGE_TITLE = "Analytics"
 export const dynamic = "force-dynamic"
 export const revalidate = 300
 
 const numberFormatter = new Intl.NumberFormat("en-US")
-
-function formatCurrency(amountCents: number, currency: string) {
-  try {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 0,
-    }).format((amountCents || 0) / 100)
-  } catch {
-    return `$${((amountCents || 0) / 100).toFixed(0)}`
-  }
-}
-
-const MS_PER_DAY = 24 * 60 * 60 * 1000
-
-function startOfUtcDay(date: Date) {
-  return new Date(
-    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
-  )
-}
-
-function addDays(date: Date, days: number) {
-  return new Date(date.getTime() + days * MS_PER_DAY)
-}
 
 function computeDelta(current: number, previous: number) {
   if (!Number.isFinite(previous) || previous === 0) return null
@@ -79,68 +49,6 @@ function referrerLabel(value: string) {
   return domain || value
 }
 
-async function getVerifiedRevenueTotals({
-  rangeStart,
-  rangeEnd,
-  previousRangeStart,
-  previousRangeEnd,
-}: {
-  rangeStart: Date
-  rangeEnd: Date
-  previousRangeStart: Date
-  previousRangeEnd: Date
-}) {
-  const ratesPromise = getUsdConversionRates()
-
-  const whereBase = {
-    connector: {
-      verifiedAt: { not: null },
-      status: PaymentConnectorStatus.active,
-    },
-  } as const
-
-  const [currentSnapshots, previousSnapshots, rates] = await Promise.all([
-    prisma.paymentRevenueSnapshot.findMany({
-      where: {
-        ...whereBase,
-        periodStart: { gte: rangeStart, lt: addDays(rangeEnd, 1) },
-      },
-      select: { periodRevenueCents: true, currencyCode: true },
-    }),
-    prisma.paymentRevenueSnapshot.findMany({
-      where: {
-        ...whereBase,
-        periodStart: {
-          gte: previousRangeStart,
-          lt: addDays(previousRangeEnd, 1),
-        },
-      },
-      select: { periodRevenueCents: true, currencyCode: true },
-    }),
-    ratesPromise,
-  ])
-
-  const sumUsd = (
-    snapshots: { periodRevenueCents: number | null; currencyCode: string }[],
-  ) =>
-    snapshots.reduce((total, snapshot) => {
-      const { usdCents, rateUsed } = convertToUsdCents(
-        snapshot.periodRevenueCents ?? 0,
-        snapshot.currencyCode,
-        rates,
-      )
-      const currency = (snapshot.currencyCode || "USD").toUpperCase()
-      const convertible = currency === "USD" || rateUsed !== null
-      return convertible ? total + usdCents : total
-    }, 0)
-
-  return {
-    currency: "USD",
-    rangeCents: sumUsd(currentSnapshots),
-    previousRangeCents: sumUsd(previousSnapshots),
-  }
-}
-
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description:
@@ -152,30 +60,19 @@ export default async function AnalyticsPage() {
   const rangeStart = subDays(rangeEnd, 29)
   const prevRangeEnd = subDays(rangeStart, 1)
   const prevRangeStart = subDays(prevRangeEnd, 29)
-  const rangeStartUtc = startOfUtcDay(rangeStart)
-  const rangeEndUtc = startOfUtcDay(rangeEnd)
-  const prevRangeStartUtc = startOfUtcDay(prevRangeStart)
-  const prevRangeEndUtc = startOfUtcDay(prevRangeEnd)
   const analyticsProvider = getAnalyticsProvider("cache")
 
-  const [snapshot, previousSnapshot, realtimeVisitors, verifiedRevenue] =
-    await Promise.all([
-      analyticsProvider.getSiteAnalyticsSnapshot({ topProductLimit: 8 }),
-      analyticsProvider.getSiteAnalyticsSnapshot({
-        topProductLimit: 8,
-        dateRange: {
-          startDate: format(prevRangeStart, "yyyy-MM-dd"),
-          endDate: format(prevRangeEnd, "yyyy-MM-dd"),
-        },
-      }),
-      analyticsProvider.getRealtimeVisitors(),
-      getVerifiedRevenueTotals({
-        rangeStart: rangeStartUtc,
-        rangeEnd: rangeEndUtc,
-        previousRangeStart: prevRangeStartUtc,
-        previousRangeEnd: prevRangeEndUtc,
-      }),
-    ])
+  const [snapshot, previousSnapshot, realtimeVisitors] = await Promise.all([
+    analyticsProvider.getSiteAnalyticsSnapshot({ topProductLimit: 8 }),
+    analyticsProvider.getSiteAnalyticsSnapshot({
+      topProductLimit: 8,
+      dateRange: {
+        startDate: format(prevRangeStart, "yyyy-MM-dd"),
+        endDate: format(prevRangeEnd, "yyyy-MM-dd"),
+      },
+    }),
+    analyticsProvider.getRealtimeVisitors(),
+  ])
 
   const productSlugs = snapshot.topProductPages
     .map((page) => page.slug?.toLowerCase())
@@ -237,10 +134,6 @@ export default async function AnalyticsPage() {
     engagementRate: computeDelta(
       snapshot.engagementRate,
       previousSnapshot.engagementRate,
-    ),
-    revenue: computeDelta(
-      verifiedRevenue.rangeCents,
-      verifiedRevenue.previousRangeCents,
     ),
   }
 
@@ -311,7 +204,7 @@ export default async function AnalyticsPage() {
             />
           </div>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <AnalyticsMetricCard
               label="Pages per session"
               value={snapshot.pagesPerSession.toFixed(2)}
@@ -372,16 +265,6 @@ export default async function AnalyticsPage() {
                 tone="indigo"
               />
             </div>
-            <AnalyticsMetricCard
-              label="Verified revenue"
-              value={formatCurrency(
-                verifiedRevenue.rangeCents,
-                verifiedRevenue.currency,
-              )}
-              delta={deltas.revenue}
-              icon={<DollarSign className="h-4 w-4" aria-hidden />}
-              helper="Revenue from connected providers with verified payouts."
-            />
           </div>
 
           <section className="mt-8 space-y-3">

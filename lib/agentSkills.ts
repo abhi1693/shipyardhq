@@ -7,7 +7,7 @@ export const AGENT_SKILLS_SCHEMA =
 
 export const SHIPYARD_DISCOVERY_SKILL_NAME = "shipyard-product-discovery"
 export const SHIPYARD_DISCOVERY_SKILL_DESCRIPTION =
-  "Find, compare, and summarize Shipyard product listings, categories, alternatives, leaderboards, and verified revenue pages."
+  "Find, compare, and summarize Shipyard product listings, categories, alternatives, and leaderboards."
 
 export function buildShipyardDiscoverySkill() {
   return (
@@ -19,14 +19,14 @@ export function buildShipyardDiscoverySkill() {
       "",
       "# Shipyard Product Discovery",
       "",
-      "Use this skill when an agent needs to discover products, categories, alternatives, launch rankings, pricing signals, or verified revenue information from Shipyard.",
+      "Use this skill when an agent needs to discover products, categories, alternatives, launch rankings, or pricing signals from Shipyard.",
       "",
       "## Retrieval Order",
       "",
       "1. Start with the sitemap index for canonical public URLs.",
       "2. Fetch pages with `Accept: text/markdown` when concise page content is needed.",
       "3. Use the API catalog only for documented JSON endpoints.",
-      "4. Prefer canonical product, category, tag, alternative, leaderboard, and verified revenue pages over navigation or redirect URLs.",
+      "4. Prefer canonical product, category, tag, alternative, and leaderboard pages over navigation or redirect URLs.",
       "",
       "## Primary Resources",
       "",
@@ -38,7 +38,6 @@ export function buildShipyardDiscoverySkill() {
       "- Tags: /tags",
       "- Alternatives: /alternatives",
       "- Leaderboard: /leaderboard",
-      "- Verified revenue: /verified-revenue",
       "",
       "## Markdown Negotiation",
       "",
@@ -56,7 +55,6 @@ export function buildShipyardDiscoverySkill() {
       "",
       `- Cite ${siteConfig.name} product pages for product-specific claims.`,
       "- Include the page URL used for each product, category, or ranking claim.",
-      "- Do not infer verified revenue unless the page explicitly states it.",
       "- Treat leaderboard placement as time-sensitive; include the page date or archive period when present.",
       "- Respect robots.txt and content signals before using content for training or redistribution.",
     ].join("\n") + "\n"

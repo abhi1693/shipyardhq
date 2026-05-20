@@ -16,7 +16,6 @@ import CopyButton from "@/components/molecules/CopyButton"
 import { siteConfig } from "@/lib/siteConfig"
 
 type BadgeTheme = "light" | "dark"
-type BadgeVariant = "featured" | "revenue"
 type BadgeFormat = "svg" | "png"
 
 const BADGE_THEMES: Array<{
@@ -33,23 +32,6 @@ const BADGE_THEMES: Array<{
     id: "dark",
     label: "Dark theme",
     description: "Use on lighter backgrounds",
-  },
-]
-
-const BADGE_VARIANTS: Array<{
-  id: BadgeVariant
-  label: string
-  description: string
-}> = [
-  {
-    id: "featured",
-    label: "Featured badge",
-    description: "Shows your feature on Shipyard",
-  },
-  {
-    id: "revenue",
-    label: "Total revenue",
-    description: "Shows lifetime revenue and verification",
   },
 ]
 
@@ -80,7 +62,6 @@ export function ProductBadgeCelebrationDialog({
   productPublicPath?: string
 }) {
   const [theme, setTheme] = useState<BadgeTheme>("light")
-  const [badgeVariant, setBadgeVariant] = useState<BadgeVariant>("featured")
   const [format, setFormat] = useState<BadgeFormat>("svg")
   const origin = useMemo(() => {
     if (typeof window !== "undefined" && window.location?.origin) {
@@ -115,12 +96,12 @@ export function ProductBadgeCelebrationDialog({
     try {
       const url = new URL(`/api/embed/products/${productSlug}`, origin)
       url.searchParams.set("theme", theme)
-      url.searchParams.set("type", badgeVariant)
+      url.searchParams.set("type", "featured")
       return url.toString()
     } catch {
       return null
     }
-  }, [badgeVariant, origin, productSlug, theme])
+  }, [origin, productSlug, theme])
 
   const svgBadgeUrl = useMemo(() => {
     if (!baseBadgeUrl) return null
@@ -158,10 +139,6 @@ export function ProductBadgeCelebrationDialog({
     setTheme(nextTheme)
   }, [])
 
-  const handleVariantSelect = useCallback((nextVariant: BadgeVariant) => {
-    setBadgeVariant(nextVariant)
-  }, [])
-
   const handleFormatSelect = useCallback((nextFormat: BadgeFormat) => {
     setFormat(nextFormat)
   }, [])
@@ -175,34 +152,13 @@ export function ProductBadgeCelebrationDialog({
           <DialogTitle>Congratulations on the new launch!</DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
             Pick a badge style and copy the embed. The badge stays in sync with
-            your stats.
+            your listing status.
           </DialogDescription>
         </DialogHeader>
 
         <div className="w-full space-y-4">
           <section className="rounded-lg border bg-muted/50 p-4">
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Badge type
-                </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  {BADGE_VARIANTS.map((variant) => (
-                    <Button
-                      key={variant.id}
-                      type="button"
-                      size="sm"
-                      variant={
-                        badgeVariant === variant.id ? "default" : "outline"
-                      }
-                      onClick={() => handleVariantSelect(variant.id)}
-                      className="h-9 px-3 text-sm"
-                    >
-                      {variant.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
+            <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Theme

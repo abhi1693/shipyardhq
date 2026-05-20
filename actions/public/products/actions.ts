@@ -3,10 +3,6 @@ import { Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { resolveVoteState } from "@/lib/server/productVotesStore"
-import {
-  getCachedRevenueSummary,
-  getRevenueSummaryFromDb,
-} from "@/lib/server/payments/revenue"
 
 const publicProductSelect = {
   id: true,
@@ -304,16 +300,6 @@ export async function hasUserUpvoted(productId: string, clerkId: string) {
 }
 
 export async function getPublicProductRevenue(productId: string) {
-  const cached = await getCachedRevenueSummary(productId)
-  const summary = cached ?? (await getRevenueSummaryFromDb(productId))
-  if (!summary) return null
-
-  return {
-    currencyCode: summary.currencyCode,
-    lastSyncedAt: summary.lastSyncedAt,
-    status: summary.status,
-    provider: summary.provider,
-    latestAllTimeRevenueCents: summary.latestAllTimeRevenueCents,
-    points: summary.points,
-  }
+  void productId
+  return null
 }

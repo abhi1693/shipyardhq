@@ -3,17 +3,14 @@ import { NextRequest, NextResponse } from "next/server"
 import { readFileSync } from "node:fs"
 import path from "node:path"
 
-import {
-  getPublicProductMetaBySlug,
-  getPublicProductRevenue,
-} from "@/actions/public/products/actions"
+import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
 import { siteConfig } from "@/lib/siteConfig"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 type Theme = "light" | "dark"
-type BadgeType = "featured" | "revenue"
+type BadgeType = "featured"
 type Format = "svg" | "png"
 
 type RouteParams = Promise<{ slug: string }>
@@ -142,18 +139,9 @@ function buildBaseSvg(options: {
   format: Format
   slug: string
   productName: string
-  metricValue: string
   productLogo?: string | null
 }): string {
-  const {
-    theme,
-    badgeType,
-    format,
-    slug,
-    productName,
-    metricValue,
-    productLogo,
-  } = options
+  const { theme, badgeType, format, slug, productName, productLogo } = options
   const palette = THEME_STYLES[theme]
   const leftWidth = 170
   const logoFallbackBase =
@@ -171,10 +159,9 @@ function buildBaseSvg(options: {
   const headingSize = 16
   const subheadingSize = 46
   const gap = 26
-  const headingText = badgeType === "featured" ? "Featured On" : "Total Revenue"
-  const subheadingText =
-    badgeType === "featured" ? siteConfig.name : metricValue
-  const showVerification = badgeType !== "featured"
+  const headingText = "Featured On"
+  const subheadingText = siteConfig.name
+  const showVerification = false
   const subtextSize = 14
   const verificationGap = 6
   const blockHeight =
@@ -195,8 +182,7 @@ function buildBaseSvg(options: {
 		    <rect x="0" y="0" rx="12" ry="12" width="${WIDTH}" height="${HEIGHT}" fill="${palette.card}" stroke="${palette.border}" stroke-width="2" />
 		    <g aria-label="Logo area">
 		      ${
-            (badgeType === "featured" || badgeType === "revenue") &&
-            format === "svg"
+            badgeType === "featured" && format === "svg"
               ? renderBrandMark({
                   x: logoX + 10,
                   y: logoY + 10,
@@ -266,7 +252,7 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
   )
   const badgeType = parseParam<BadgeType>(
     url.searchParams.get("type"),
-    ["featured", "revenue"],
+    ["featured"],
     DEFAULT_TYPE,
   )
   const format = parseParam<Format>(
@@ -279,23 +265,6 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
     format === "png"
       ? await resolveHref(brandLogoPath, url.origin, format)
       : null
-  const isFeatured = badgeType === "featured"
-  let metricValue = "$0"
-
-  if (!isFeatured && product?.id) {
-    const revenue = await getPublicProductRevenue(product.id)
-    const currencyCode = revenue?.currencyCode ?? "USD"
-
-    const formatCurrency = (cents: number | null | undefined) =>
-      new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: currencyCode,
-        maximumFractionDigits: 0,
-        minimumFractionDigits: 0,
-      }).format((cents ?? 0) / 100)
-
-    metricValue = formatCurrency(revenue?.latestAllTimeRevenueCents)
-  }
 
   const svg = buildBaseSvg({
     theme,
@@ -303,7 +272,6 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
     format,
     slug,
     productName,
-    metricValue,
     productLogo: brandLogoHref,
   })
 

@@ -1,5 +1,4 @@
 import prisma from "@/lib/prisma"
-import { getCachedRevenueSummary } from "@/lib/server/payments/revenue"
 import { computeLeaderboardWindow } from "@/lib/server/leaderboard/v2"
 import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
 import { resolveSiteUrl } from "@/lib/siteConfig"
@@ -90,9 +89,7 @@ function toDigestProduct(row: {
   }
 }
 
-type DigestProduct = ReturnType<typeof toDigestProduct> & {
-  revenueLabel?: string | null
-}
+type DigestProduct = ReturnType<typeof toDigestProduct>
 
 type ProductOwner = {
   id: string
@@ -111,7 +108,6 @@ type ProductOfTheWeek = {
   ownerUrl: string | null
   upvotes: number
   points: number
-  revenueLabel?: string | null
 }
 
 type TrendingProduct = ProductOfTheWeek & { rank: number }
@@ -125,53 +121,6 @@ function formatOwnerName(owner: ProductOwner): string | null {
   const parts = [owner.firstName, owner.lastName].filter(Boolean)
   const name = parts.join(" ").trim()
   return name.length ? name : null
-}
-
-function formatRevenueLabel(
-  amountCents: number,
-  currencyCode: string | null | undefined,
-) {
-  if (!Number.isFinite(amountCents) || amountCents <= 0) return null
-
-  const amount = amountCents / 100
-  try {
-    const formatter = new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currencyCode || "USD",
-      notation: amount >= 1000 ? "compact" : "standard",
-      maximumFractionDigits: amount >= 1000 ? 1 : 0,
-    })
-    return `${formatter.format(amount)} revenue`
-  } catch {
-    return null
-  }
-}
-
-async function loadRevenueLabels(productIds: string[]) {
-  const uniqueIds = Array.from(new Set(productIds.filter(Boolean)))
-  const revenueEntries = await Promise.all(
-    uniqueIds.map(async (id) => {
-      const summary = await getCachedRevenueSummary(id).catch(() => null)
-      if (!summary) return null
-      const label = formatRevenueLabel(
-        summary.latestAllTimeRevenueCents,
-        summary.currencyCode,
-      )
-      return label ? ([id, label] as const) : null
-    }),
-  )
-
-  return new Map(revenueEntries.filter(Boolean) as Array<[string, string]>)
-}
-
-function applyRevenueLabel(
-  products: DigestProduct[],
-  revenueMap: Map<string, string>,
-): DigestProduct[] {
-  return products.map((product) => ({
-    ...product,
-    revenueLabel: revenueMap.get(product.id) ?? product.revenueLabel ?? null,
-  }))
 }
 
 function collectUniqueProducts<T>(
@@ -301,30 +250,17 @@ export async function sendWeeklyNewsletterEmails(now: Date = new Date()) {
     })
     .filter((product): product is TrendingProduct => Boolean(product))
 
-  const revenueIds = new Set<string>()
-  newsletterProducts.forEach((product) => revenueIds.add(product.id))
-  leaderboardProducts.forEach((product) => revenueIds.add(product.id))
-  const revenueMap = await loadRevenueLabels(Array.from(revenueIds))
-
-  const sponsoredProductsWithRevenue: SponsoredProduct[] = applyRevenueLabel(
-    newsletterProducts,
-    revenueMap,
-  ).map((item) => ({
-    ...item,
-    publishedAt: formatPublishedDate(item.publishedAt),
-  }))
-
-  const trendingProductsWithRevenue: TrendingProduct[] = trendingProducts.map(
-    (product) => ({
-      ...product,
-      revenueLabel: revenueMap.get(product.id) ?? null,
+  const sponsoredProducts: SponsoredProduct[] = newsletterProducts.map(
+    (item) => ({
+      ...item,
+      publishedAt: formatPublishedDate(item.publishedAt),
     }),
   )
 
   const productOfTheWeek: ProductOfTheWeek | null =
-    trendingProductsWithRevenue.length > 0
+    trendingProducts.length > 0
       ? (() => {
-          const { rank, ...rest } = trendingProductsWithRevenue[0]
+          const { rank, ...rest } = trendingProducts[0]
           void rank
           return rest
         })()
@@ -334,9 +270,9 @@ export async function sendWeeklyNewsletterEmails(now: Date = new Date()) {
     weekRange,
     issueNumber,
     ctaUrl: buildBrowseUrl(),
-    sponsoredProducts: sponsoredProductsWithRevenue,
+    sponsoredProducts,
     productOfTheWeek,
-    trending: trendingProductsWithRevenue,
+    trending: trendingProducts,
   }
 
   const topicSent = await sendWeeklyNewsletterToSubscribers(

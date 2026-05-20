@@ -29,13 +29,11 @@ export default function ProductWizardAccordion({
   onOpenSectionsChange,
   openBoostPanel,
   onToggleBoostPanel,
-  hasRevenueSetupDraft,
   domainChecked,
   domainVerified,
   core,
   media,
   pricing,
-  connectorFields,
   verification,
   details,
   detailsSubcopy,
@@ -44,13 +42,11 @@ export default function ProductWizardAccordion({
   onOpenSectionsChange: (next: WizardSectionKey[]) => void
   openBoostPanel: WizardBoostPanel
   onToggleBoostPanel: (panel: Exclude<WizardBoostPanel, null>) => void
-  hasRevenueSetupDraft: boolean
   domainChecked: boolean
   domainVerified: boolean
   core: ReactNode
   media: ReactNode
   pricing: ReactNode
-  connectorFields: ReactNode
   verification: ReactNode
   details: ReactNode
   detailsSubcopy: string
@@ -121,7 +117,7 @@ export default function ProductWizardAccordion({
                 Boost visibility
               </span>
               <span className="text-xs font-normal text-muted-foreground">
-                Verified revenue (+40%) and domain badge.
+                Verify domain ownership and show a trust badge.
               </span>
             </div>
             <div className="pt-0.5 shrink-0">
@@ -132,91 +128,6 @@ export default function ProductWizardAccordion({
         <AccordionContent className="pt-4 pb-6">
           <div className="rounded-xl border bg-white/70 overflow-hidden">
             <div className="divide-y divide-border/60">
-              <div>
-                <div
-                  role="button"
-                  tabIndex={0}
-                  aria-expanded={openBoostPanel === "revenue"}
-                  className="cursor-pointer px-4 py-4 outline-none transition-colors hover:bg-muted/30 focus-visible:ring-[3px] focus-visible:ring-ring/40 sm:px-5"
-                  onClick={() => onToggleBoostPanel("revenue")}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault()
-                      onToggleBoostPanel("revenue")
-                    }
-                  }}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 space-y-1">
-                      <div className="flex min-w-0 items-center gap-2">
-                        <span className="text-sm font-semibold text-slate-900">
-                          Verified revenue
-                        </span>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              type="button"
-                              className={INFO_TRIGGER_CLASS}
-                              aria-label="Verified revenue help"
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                              }}
-                            >
-                              <Info
-                                className="h-3.5 w-3.5"
-                                aria-hidden="true"
-                              />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" sideOffset={6}>
-                            Connect a payment provider to become eligible for
-                            the verified revenue ranking boost.
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {openBoostPanel !== "revenue" ? (
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          className="sm:hidden"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            onToggleBoostPanel("revenue")
-                          }}
-                        >
-                          Set up
-                        </Button>
-                      ) : null}
-                      <div className="flex flex-wrap items-center justify-end gap-2">
-                        <Badge variant="outline">Up to +40% ranking</Badge>
-                        {hasRevenueSetupDraft ? (
-                          <Badge variant="success">Connected</Badge>
-                        ) : (
-                          <Badge variant="secondary">Incomplete</Badge>
-                        )}
-                      </div>
-                      <ChevronDown
-                        className={[
-                          "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
-                          openBoostPanel === "revenue" ? "rotate-180" : "",
-                        ].join(" ")}
-                        aria-hidden="true"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {openBoostPanel === "revenue" ? (
-                  <div className="px-4 pb-4 sm:px-5">{connectorFields}</div>
-                ) : null}
-              </div>
-
               <div>
                 <div
                   role="button"

@@ -7,7 +7,6 @@ import {
   LEADERBOARD_PATH,
   PRICING_PATH,
   TAGS_PATH,
-  VERIFIED_REVENUE_PATH,
 } from "@/lib/routes"
 
 export const dynamic = "force-static"
@@ -24,7 +23,7 @@ export async function GET() {
     "",
     `> ${siteConfig.tagline} (${base})`,
     "",
-    "Preferred content for retrieval: product pages (descriptions, pricing model + starting price, keywords/tags, platforms, category), product badges, and verified revenue summaries (when available).",
+    "Preferred content for retrieval: product pages (descriptions, pricing model + starting price, keywords/tags, platforms, category), product badges, and leaderboard context.",
     "For dynamic content, prefer using the sitemap indexes below to discover canonical URLs.",
     "",
     "## Indexes",
@@ -43,7 +42,6 @@ export async function GET() {
     `- [Alternatives](${url(ALTERNATIVES_PATH)}): Alternatives directory`,
     `- [Pricing](${url(PRICING_PATH)}): Plans and pricing`,
     `- [Leaderboard](${url(LEADERBOARD_PATH)}): Rankings and archives`,
-    `- [Verified revenue](${url(VERIFIED_REVENUE_PATH)}): Verified revenue highlights`,
     "",
     "## Contact",
     `- [Support email](mailto:${siteConfig.adminEmail})`,

@@ -8,7 +8,7 @@ export type WizardSectionKey =
   | "pricing"
   | "boost"
   | "details"
-export type WizardBoostPanel = null | "revenue" | "domain"
+export type WizardBoostPanel = null | "domain"
 
 const SECTION_FIELDS: Record<WizardSectionKey, readonly string[]> = {
   core: [
@@ -25,10 +25,6 @@ const SECTION_FIELDS: Record<WizardSectionKey, readonly string[]> = {
   media: ["logo", "bannerImage"],
   pricing: ["pricingModel", "startingPriceCents", "currencyCode"],
   boost: [
-    "connectorProvider",
-    "connectorApiKey",
-    "connectorAccountId",
-    "connectorBrandId",
     "verificationExpectedTxt",
     "verificationChecked",
     "verificationSuccess",
@@ -118,10 +114,8 @@ export function useWizardNavigation(
       ),
     )
     if (sectionsToOpen.includes("boost")) {
-      const hasRevenueError = keys.some((k) => k.startsWith("connector"))
       const hasDomainError = keys.some((k) => k.startsWith("verification"))
-      if (hasRevenueError) setOpenBoostPanel("revenue")
-      else if (hasDomainError) setOpenBoostPanel("domain")
+      if (hasDomainError) setOpenBoostPanel("domain")
     }
   }
 

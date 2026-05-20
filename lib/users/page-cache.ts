@@ -7,10 +7,6 @@ import {
 import { getRewardsLeaderboardPositionForUser } from "@/actions/public/rewards/actions"
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
-import {
-  convertToUsdCents,
-  getUsdConversionRates,
-} from "@/lib/server/payments/currency"
 
 type PublicUserProfile = NonNullable<
   Awaited<ReturnType<typeof getPublicUserProfile>>
@@ -68,7 +64,6 @@ export const getUserProfilePayload = cached(
       activeBadges,
       earliestLaunchRow,
       productsPage,
-      verifiedRevenueConnectors,
       rewardBalance,
     ] = await Promise.all([
       getRewardsLeaderboardPositionForUser(profile.id),
@@ -113,28 +108,6 @@ export const getUserProfilePayload = cached(
         WHERE "userId" = ${profile.id} AND "status" = 'published'
       `,
       getUserProductsPage({ userId: profile.id }),
-      prisma.paymentConnector.findMany({
-        where: {
-          product: {
-            userId: profile.id,
-            status: "published",
-          },
-          status: "active",
-          verifiedAt: { not: null },
-        },
-        select: {
-          latestAllTimeRevenueCents: true,
-          latestCurrencyCode: true,
-          revenueHistory: {
-            orderBy: { periodStart: "desc" },
-            take: 1,
-            select: {
-              allTimeRevenueCents: true,
-              currencyCode: true,
-            },
-          },
-        },
-      }),
       prisma.rewardBalance.findUnique({
         where: { userId: profile.id },
         select: { balance: true },
@@ -191,74 +164,14 @@ export const getUserProfilePayload = cached(
       ? new Date(earliestLaunchValue).toISOString()
       : null
 
-    const needsRates = verifiedRevenueConnectors.some(
-      (connector: {
-        latestCurrencyCode?: string | null
-        revenueHistory?: Array<{ currencyCode?: string | null }> | null
-      }) => {
-        const code =
-          connector.latestCurrencyCode ??
-          connector.revenueHistory?.[0]?.currencyCode ??
-          "USD"
-        return code && code.toUpperCase() !== "USD"
-      },
-    )
-    const rates = needsRates
-      ? await getUsdConversionRates()
-      : new Map<string, number>([["USD", 1]])
-
-    let totalVerifiedRevenueCents = 0
-    for (const connector of verifiedRevenueConnectors as Array<{
-      latestAllTimeRevenueCents?: number | null
-      latestCurrencyCode?: string | null
-      revenueHistory?: Array<{
-        allTimeRevenueCents?: number | null
-        currencyCode?: string | null
-      }> | null
-    }>) {
-      const snapshot = connector.revenueHistory?.[0]
-      const amount =
-        typeof connector.latestAllTimeRevenueCents === "number"
-          ? connector.latestAllTimeRevenueCents
-          : typeof snapshot?.allTimeRevenueCents === "number"
-            ? snapshot.allTimeRevenueCents
-            : null
-
-      if (amount === null) continue
-
-      const currency =
-        connector.latestCurrencyCode ?? snapshot?.currencyCode ?? "USD"
-      const currencyCode = currency?.toUpperCase?.() ?? "USD"
-
-      if (currencyCode === "USD") {
-        totalVerifiedRevenueCents += amount
-        continue
-      }
-
-      const { usdCents, rateUsed } = convertToUsdCents(
-        amount,
-        currencyCode,
-        rates,
-      )
-
-      if (rateUsed === null) {
-        continue
-      }
-
-      totalVerifiedRevenueCents += usdCents
-    }
-
-    const totalVerifiedRevenueCurrency =
-      totalVerifiedRevenueCents > 0 ? "USD" : null
-
     return {
       profile,
       leaderboardPosition,
       productsPage,
       totalProducts,
       totalUpvotes,
-      totalVerifiedRevenueCents,
-      totalVerifiedRevenueCurrency,
+      totalVerifiedRevenueCents: 0,
+      totalVerifiedRevenueCurrency: null,
       rewardPoints: rewardBalance?.balance ?? 0,
       verifiedCount,
       categories: categoryEntries,

@@ -4,8 +4,6 @@ import prisma from "@/lib/prisma"
 import type { ProductInterestSignals } from "@/types/product-interest"
 import { buildCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
-import { VERIFIED_REVENUE_RANKING_MULTIPLIER } from "@/lib/ranking/verifiedRevenue"
-import { buildVerifiedRevenueWhere } from "@/lib/products/verifiedRevenue"
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import type { GaDateRange } from "./googleAnalytics"
 
@@ -391,14 +389,6 @@ export async function refreshProductInterestCache(args?: {
     categorySlug: product.category?.slug ?? null,
   }))
 
-  const verifiedRevenueRows = await prisma.product.findMany({
-    where: { AND: [{ status: "published" }, buildVerifiedRevenueWhere()] },
-    select: { id: true },
-  })
-  const verifiedRevenueIds = new Set(
-    verifiedRevenueRows.map((row: { id: string }) => row.id),
-  )
-
   const currentRange = resolveRangeForLastNDays(days)
   const previousRange = resolvePreviousRange(currentRange, days)
   const analyticsProvider = getAnalyticsProvider("cache")
@@ -448,18 +438,11 @@ export async function refreshProductInterestCache(args?: {
   const mostClickedScored = Array.from(signalsByProductId.entries())
     .map(([productId, signals]) => {
       const clicks = signals?.clicks7d ?? 0
-      const multiplier = verifiedRevenueIds.has(productId)
-        ? VERIFIED_REVENUE_RANKING_MULTIPLIER
-        : 1
-      const score = verifiedRevenueIds.has(productId)
-        ? Math.ceil(clicks * multiplier)
-        : clicks
       return {
         productId,
         clicks,
         clickVelocityWoW: signals?.clickVelocityWoW ?? 0,
-        score,
-        revenueVerified: verifiedRevenueIds.has(productId),
+        score: clicks,
       }
     })
     .filter((entry) => entry.clicks > 0)
@@ -505,19 +488,8 @@ export async function refreshProductInterestCache(args?: {
         const aClicks = a.signals.clicks7d ?? 0
         const bClicks = b.signals.clicks7d ?? 0
 
-        const aMultiplier = verifiedRevenueIds.has(a.id)
-          ? VERIFIED_REVENUE_RANKING_MULTIPLIER
-          : 1
-        const bMultiplier = verifiedRevenueIds.has(b.id)
-          ? VERIFIED_REVENUE_RANKING_MULTIPLIER
-          : 1
-
-        const aScore = verifiedRevenueIds.has(a.id)
-          ? Math.ceil(aClicks * aMultiplier)
-          : aClicks
-        const bScore = verifiedRevenueIds.has(b.id)
-          ? Math.ceil(bClicks * bMultiplier)
-          : bClicks
+        const aScore = aClicks
+        const bScore = bClicks
 
         if (bScore !== aScore) return bScore - aScore
         if (bClicks !== aClicks) return bClicks - aClicks

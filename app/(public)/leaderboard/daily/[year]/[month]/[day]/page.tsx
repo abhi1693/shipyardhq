@@ -41,17 +41,15 @@ export default async function DailyLeaderboardPage({
   searchParams,
 }: {
   params: Promise<PageParams>
-  searchParams?: Promise<{ revenue?: string; category?: string }>
+  searchParams?: Promise<{ category?: string }>
 }) {
   const { year, month, day } = await params
   const sp = await searchParams
-  const verifiedRevenueOnly = sp?.revenue === "verified"
   const leaderboard = await getPeriodicLeaderboardByParams({
     period: "day",
     year: Number(year),
     month: Number(month),
     day: Number(day),
-    verifiedRevenueOnly,
     categorySlug: sp?.category,
   })
 
@@ -62,7 +60,6 @@ export default async function DailyLeaderboardPage({
   return (
     <PeriodicLeaderboardView
       leaderboard={leaderboard}
-      verifiedRevenueOnly={verifiedRevenueOnly}
       categorySlug={sp?.category}
     />
   )

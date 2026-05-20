@@ -4,7 +4,6 @@ import { Resolver } from "node:dns/promises"
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dispatchEventAsync } from "@/lib/server/events"
-import { APP_EVENTS } from "@/lib/server/events/constants"
 import "@/lib/server/badges" // register badge listeners
 import { deleteBlob, deleteBlobPrefix, isManagedBlobUrl } from "@/lib/blob"
 import "@/lib/server/plans" // register default-plan listeners
@@ -14,8 +13,6 @@ import { sendProductPublishedEmail } from "@/lib/server/email/productPublished"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import {
   FeatureEntitlementStatus,
-  PaymentConnectorProvider,
-  PaymentCredentialStatus,
   Prisma,
   PricingModel,
   ProductType,
@@ -32,20 +29,13 @@ import {
   revalidateAlternativeProduct,
   revalidateAlternativeProducts,
 } from "@/lib/cache/revalidate"
-import {
-  validateConnectorApiKey,
-  upsertPaymentConnector,
-} from "@/lib/server/payments/connectors"
 import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
-import { cacheRevenueSummary } from "@/lib/server/payments/revenue"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
 import { getRootDomain } from "@/lib/domain"
 import { productForEditWizardSelect } from "@/types/product-wizard"
-import type { ProductWizardConnectorSummary } from "@/types/product-connector"
-import type { PaymentConnectorConfig } from "@/lib/server/payments/types"
 
 async function generateUniqueSlug(base: string): Promise<string> {
   const clean = slugify(base)
@@ -61,23 +51,6 @@ async function generateUniqueSlug(base: string): Promise<string> {
     if (!existing) return candidate
     candidate = `${clean}-${i++}`
   }
-}
-
-async function queuePaymentConnectorResync(productId: string) {
-  const connector = await prisma.paymentConnector.findUnique({
-    where: { productId },
-    select: { id: true },
-  })
-  if (!connector?.id) {
-    console.warn("[payments] no connector found to resync", { productId })
-    return
-  }
-
-  dispatchEventAsync(
-    APP_EVENTS.PAYMENTS_CONNECTOR_SYNC,
-    { connectorId: connector.id },
-    { context: { productId, connectorId: connector.id } },
-  )
 }
 
 export async function getProducts(args: Prisma.ProductFindManyArgs = {}) {
@@ -146,22 +119,6 @@ export async function getProductById(id: string) {
             categories: true,
           },
         },
-        paymentConnector: {
-          select: {
-            id: true,
-            provider: true,
-            status: true,
-            lastSyncedAt: true,
-            lastSyncError: true,
-            config: true,
-            credentials: {
-              where: { status: PaymentCredentialStatus.active },
-              select: { keyHint: true },
-              orderBy: { createdAt: "desc" },
-              take: 1,
-            },
-          },
-        },
       },
     })
     if (product && !product.plan) {
@@ -186,51 +143,6 @@ export async function getProductForEditWizard(id: string) {
   } catch (error) {
     console.error("Error fetching product for wizard:", error)
     throw new Error("Failed to fetch product")
-  }
-}
-
-export async function getProductConnectorSummaryForAdmin(
-  productId: string,
-): Promise<ProductWizardConnectorSummary> {
-  try {
-    const connector = await prisma.paymentConnector.findUnique({
-      where: { productId },
-      select: {
-        id: true,
-        provider: true,
-        status: true,
-        lastSyncedAt: true,
-        lastSyncError: true,
-        config: true,
-        credentials: {
-          where: { status: PaymentCredentialStatus.active },
-          select: { keyHint: true },
-          orderBy: { createdAt: "desc" },
-          take: 1,
-        },
-      },
-    })
-    if (!connector) return null
-
-    const keyHint = connector.credentials?.[0]?.keyHint || null
-    const config = connector.config as PaymentConnectorConfig | null
-    const accountId =
-      typeof config?.accountId === "string" ? config.accountId : undefined
-    const brandId =
-      typeof config?.brandId === "string" ? config.brandId : undefined
-    return {
-      id: connector.id,
-      provider: connector.provider,
-      status: connector.status,
-      lastSyncedAt: connector.lastSyncedAt,
-      lastSyncError: connector.lastSyncError,
-      keyHint,
-      accountId,
-      brandId,
-    }
-  } catch (error) {
-    console.error("Error fetching connector summary:", error)
-    throw new Error("Failed to fetch connector summary")
   }
 }
 
@@ -268,12 +180,6 @@ export async function createProductAction(formData: FormData) {
   const demoUrl = formData.get("demoUrl")?.toString().trim()
   const contactEmail = formData.get("contactEmail")?.toString().trim()
   const utmCampaign = formData.get("utmCampaign")?.toString().trim()
-  const connectorProvider = formData.get("connectorProvider")?.toString().trim()
-  const connectorApiKey = formData.get("connectorApiKey")?.toString().trim()
-  const connectorAccountId =
-    formData.get("connectorAccountId")?.toString().trim() || undefined
-  const connectorBrandId =
-    formData.get("connectorBrandId")?.toString().trim() || undefined
 
   const startingPriceCentsRaw = formData.get("startingPriceCents")?.toString()
   const startingPriceCents = startingPriceCentsRaw
@@ -413,79 +319,6 @@ export async function createProductAction(formData: FormData) {
           : undefined,
       },
     })
-    if (connectorApiKey && connectorProvider) {
-      const providerEnum =
-        (PaymentConnectorProvider as any)[connectorProvider] ??
-        connectorProvider
-      if (
-        connectorBrandId &&
-        !connectorBrandId.startsWith("brnd_") &&
-        !connectorBrandId.startsWith("bus_")
-      ) {
-        return { error: "Dodo brand IDs must start with brnd_ or bus_" }
-      }
-
-      const connectorConfig =
-        connectorAccountId || connectorBrandId
-          ? {
-              ...(connectorAccountId ? { accountId: connectorAccountId } : {}),
-              ...(connectorBrandId ? { brandId: connectorBrandId } : {}),
-            }
-          : undefined
-      if (
-        providerEnum === PaymentConnectorProvider.polar &&
-        !connectorAccountId
-      ) {
-        return { error: "Polar organization ID is required" }
-      }
-      if (
-        providerEnum === PaymentConnectorProvider.revenuecat &&
-        !connectorAccountId
-      ) {
-        return { error: "RevenueCat project ID is required" }
-      }
-      if (
-        providerEnum === PaymentConnectorProvider.lemonsqueezy &&
-        !connectorAccountId
-      ) {
-        return { error: "Lemon Squeezy store ID is required" }
-      }
-      if (
-        Object.values(PaymentConnectorProvider).includes(
-          providerEnum as PaymentConnectorProvider,
-        )
-      ) {
-        if (
-          connectorBrandId &&
-          providerEnum !== PaymentConnectorProvider.dodo
-        ) {
-          return { error: "Brand ID is only supported for Dodo" }
-        }
-        if (
-          providerEnum === PaymentConnectorProvider.dodo &&
-          !connectorBrandId
-        ) {
-          return { error: "Brand ID is required for Dodo" }
-        }
-        await validateConnectorApiKey({
-          productId: created.id,
-          provider: providerEnum as PaymentConnectorProvider,
-          apiKey: connectorApiKey,
-          config: connectorConfig,
-        })
-        const { connector } = await upsertPaymentConnector({
-          productId: created.id,
-          provider: providerEnum as PaymentConnectorProvider,
-          apiKey: connectorApiKey,
-          config: connectorConfig,
-        })
-        dispatchEventAsync(
-          APP_EVENTS.PAYMENTS_CONNECTOR_SYNC,
-          { connectorId: connector.id },
-          { context: { productId: created.id, connectorId: connector.id } },
-        )
-      }
-    }
     // Fire domain event for listeners (e.g., auto badges) without blocking the response
     dispatchEventAsync(
       "product.created",
@@ -518,7 +351,6 @@ export async function createProductAction(formData: FormData) {
         { context: { productId: created.id } },
       )
       sideEffects.push(sendProductPublishedEmail(created.id))
-      sideEffects.push(queuePaymentConnectorResync(created.id))
     }
 
     const results = await Promise.allSettled(sideEffects)
@@ -544,7 +376,7 @@ export async function createProductAction(formData: FormData) {
     }
     const message = error instanceof Error ? error.message : null
     return {
-      error: message || "Failed to create product or set up payment connector",
+      error: message || "Failed to create product",
     }
   }
 }
@@ -585,10 +417,6 @@ export async function updateProductAction(
     utmCampaign?: string | null
     planId?: string | null
     alternativeIds?: string[]
-    connectorProvider?: string | null
-    connectorApiKey?: string
-    connectorAccountId?: string | null
-    connectorBrandId?: string | null
   },
 ) {
   // Determine role for permission-sensitive updates
@@ -617,9 +445,6 @@ export async function updateProductAction(
     type,
     pricingModel,
   } = data
-  const connectorApiKey = data.connectorApiKey?.trim()
-  const connectorAccountId = data.connectorAccountId?.trim() || undefined
-  const connectorBrandId = data.connectorBrandId?.trim() || undefined
 
   // Load current product for comparisons
   const current = await prisma.product.findUnique({
@@ -773,147 +598,6 @@ export async function updateProductAction(
       },
     })
 
-    const connectorInputProvided =
-      connectorApiKey ||
-      data.connectorProvider ||
-      connectorAccountId ||
-      connectorBrandId
-    if (connectorInputProvided) {
-      const existingConnector = await prisma.paymentConnector.findUnique({
-        where: { productId: id },
-        select: { id: true, provider: true, config: true },
-      })
-      const existingBrandId = (() => {
-        const cfg = existingConnector?.config as
-          | { brandId?: unknown }
-          | undefined
-        return typeof cfg?.brandId === "string" ? cfg.brandId : undefined
-      })()
-      const providerValue =
-        data.connectorProvider || existingConnector?.provider || undefined
-      const providerEnum =
-        providerValue &&
-        (Object.values(PaymentConnectorProvider).includes(
-          providerValue as PaymentConnectorProvider,
-        )
-          ? (providerValue as PaymentConnectorProvider)
-          : (PaymentConnectorProvider as any)[providerValue])
-
-      if (
-        connectorBrandId &&
-        !connectorBrandId.startsWith("brnd_") &&
-        !connectorBrandId.startsWith("bus_")
-      ) {
-        return { error: "Dodo brand IDs must start with brnd_ or bus_" }
-      }
-
-      const targetProvider = providerEnum || existingConnector?.provider
-      if (
-        connectorBrandId &&
-        targetProvider &&
-        targetProvider !== PaymentConnectorProvider.dodo
-      ) {
-        return { error: "Brand ID is only supported for Dodo" }
-      }
-      if (
-        targetProvider === PaymentConnectorProvider.dodo &&
-        !(connectorBrandId || existingBrandId)
-      ) {
-        return { error: "Brand ID is required for Dodo" }
-      }
-
-      if (providerEnum && connectorApiKey) {
-        if (
-          providerEnum === PaymentConnectorProvider.polar &&
-          !connectorAccountId
-        ) {
-          return { error: "Polar organization ID is required" }
-        }
-        if (
-          providerEnum === PaymentConnectorProvider.revenuecat &&
-          !connectorAccountId
-        ) {
-          return { error: "RevenueCat project ID is required" }
-        }
-        if (
-          providerEnum === PaymentConnectorProvider.lemonsqueezy &&
-          !connectorAccountId
-        ) {
-          return { error: "Lemon Squeezy store ID is required" }
-        }
-        if (
-          providerEnum === PaymentConnectorProvider.dodo &&
-          !connectorBrandId
-        ) {
-          return { error: "Brand ID is required for Dodo" }
-        }
-        if (
-          connectorBrandId &&
-          providerEnum !== PaymentConnectorProvider.dodo
-        ) {
-          return { error: "Brand ID is only supported for Dodo" }
-        }
-        const connectorConfig =
-          connectorAccountId || connectorBrandId
-            ? {
-                ...(connectorAccountId
-                  ? { accountId: connectorAccountId }
-                  : {}),
-                ...(connectorBrandId ? { brandId: connectorBrandId } : {}),
-              }
-            : undefined
-        await validateConnectorApiKey({
-          productId: id,
-          provider: providerEnum as PaymentConnectorProvider,
-          apiKey: connectorApiKey,
-          config: connectorConfig,
-        })
-        const { connector } = await upsertPaymentConnector({
-          productId: id,
-          provider: providerEnum as PaymentConnectorProvider,
-          apiKey: connectorApiKey,
-          config: connectorConfig,
-        })
-        dispatchEventAsync(
-          APP_EVENTS.PAYMENTS_CONNECTOR_SYNC,
-          { connectorId: connector.id },
-          { context: { productId: id, connectorId: connector.id } },
-        )
-      } else if (
-        (connectorAccountId !== undefined || connectorBrandId !== undefined) &&
-        existingConnector?.id
-      ) {
-        // Update config to include the connected account/brand without requiring a new key.
-        const isJsonObject = (
-          value: Prisma.JsonValue | null,
-        ): value is Prisma.JsonObject =>
-          typeof value === "object" && value !== null && !Array.isArray(value)
-        const existingConfig = isJsonObject(existingConnector.config)
-          ? existingConnector.config
-          : {}
-        const nextConfig: Prisma.InputJsonValue = {
-          ...existingConfig,
-          ...(connectorAccountId !== undefined
-            ? { accountId: connectorAccountId }
-            : {}),
-          ...(connectorBrandId !== undefined
-            ? { brandId: connectorBrandId }
-            : {}),
-        }
-        await prisma.paymentConnector.update({
-          where: { id: existingConnector.id },
-          data: {
-            config: nextConfig,
-          },
-        })
-        dispatchEventAsync(
-          APP_EVENTS.PAYMENTS_CONNECTOR_SYNC,
-          { connectorId: existingConnector.id },
-          { context: { productId: id, connectorId: existingConnector.id } },
-        )
-      }
-    }
-
     // Fire update event (available for future listeners)
     dispatchEventAsync(
       "product.updated",
@@ -963,64 +647,12 @@ export async function updateProductAction(
       await sendProductPublishedEmail(updated.id)
     }
 
-    if (updated.status === "published") {
-      await queuePaymentConnectorResync(updated.id)
-    }
-
     return updated
   } catch (error) {
     console.error("Error updating product:", error)
     const message = error instanceof Error ? error.message : null
     return { error: message || "Failed to update product" }
   }
-}
-
-export async function resetProductConnectorAction(productId: string) {
-  const isAdmin = await checkRole("admin")
-  let currentUser: Awaited<ReturnType<typeof getActiveUserByClerkId>> | null =
-    null
-  if (!isAdmin) {
-    const { userId: clerkId } = await auth()
-    if (!clerkId) return { error: "Unauthenticated" }
-    currentUser = await getActiveUserByClerkId(clerkId)
-    if (!currentUser) return { error: INACTIVE_ACCOUNT_MESSAGE }
-  }
-
-  const product = await prisma.product.findUnique({
-    where: { id: productId },
-    select: {
-      id: true,
-      userId: true,
-      categoryId: true,
-    },
-  })
-  if (!product) {
-    return { error: "Product not found" }
-  }
-
-  if (!isAdmin && currentUser) {
-    const ownsProduct = product.userId === currentUser.id
-    if (!ownsProduct) {
-      return { error: "Not authorized to edit this product" }
-    }
-  }
-
-  await prisma.paymentConnector.deleteMany({ where: { productId } })
-  await cacheRevenueSummary({
-    productId,
-    connectorId: undefined,
-    provider: undefined,
-    status: undefined,
-    currencyCode: "USD",
-    lastSyncedAt: null,
-    latestAllTimeRevenueCents: 0,
-    points: [],
-  })
-  revalidateProduct(productId)
-  if (product.categoryId) revalidateCategory(product.categoryId)
-  revalidateLeaderboard()
-
-  return { ok: true }
 }
 
 export async function deleteProductAction(id: string) {

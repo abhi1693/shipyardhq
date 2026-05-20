@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic"
 export const metadata = buildPageMetadata({
   title: `${PAGE_TITLE} — Ranked by real builder interest`,
   description:
-    "Revenue verified products rank higher by default. Products without verified revenue are ranked lower.",
+    "Shipyard products ranked by real builder interest, traffic, and community support.",
   canonical: LEADERBOARD_PATH,
 })
 
