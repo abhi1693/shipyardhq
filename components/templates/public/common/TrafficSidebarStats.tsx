@@ -63,7 +63,10 @@ function TrafficCard({
         <Icon className="h-4 w-4" aria-hidden />
         <span>{title}</span>
       </div>
-      <p className="mt-3 text-3xl font-semibold text-foreground">
+      <p
+        className="mt-3 text-3xl font-semibold text-foreground"
+        suppressHydrationWarning
+      >
         {formatNumber(value)}
       </p>
       <p className="text-xs text-muted-foreground">{label}</p>
