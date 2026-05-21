@@ -52,6 +52,7 @@ export function ProductScore({
           "leading-none transition-transform duration-150",
           compact ? "text-sm" : "text-base",
         )}
+        suppressHydrationWarning
       >
         {count}
       </span>
