@@ -74,10 +74,7 @@ export function RealtimeVisitorsCard({
         <span>Live visitors</span>
       </div>
       <div className="text-right">
-        <p
-          className="text-lg font-semibold text-foreground"
-          suppressHydrationWarning
-        >
+        <p className="text-lg font-semibold text-foreground">
           {formatNumber(value)}
         </p>
       </div>
