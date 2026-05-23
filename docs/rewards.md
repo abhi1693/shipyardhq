@@ -5,7 +5,7 @@
 - Rewards are Shipyard's internal currency. Members earn points via engagement events and spend them on placements, analytics, and perks managed by the rewards engine (`lib/rewards/engine.ts`).
 - The system is orchestrated through Prisma models for balances, rules, catalog items, transactions, redemptions, entitlements, and placement schedules (`prisma/schema.prisma:644`).
 - Core domain logic lives in the rewards engine service, which exposes idempotent helpers for awarding, redeeming, refunding, and adjusting balances (`lib/rewards/engine.ts:116`).
-- Automation hooks (event listeners, cron jobs, and scheduled placement processing) call into the engine to keep balances synchronized with product activity (`lib/server/rewards`).
+- Automation hooks (event listeners and BullMQ scheduled jobs) call into the engine to keep balances synchronized with product activity (`lib/server/rewards`, `lib/server/jobs/scheduledRunner.ts`).
 - Admin and member surfaces consume typed selectors that aggregate balance snapshots, catalog availability, and transaction history for both auditing and self-service redemption flows (`actions/member/rewards/actions.ts:90`).
 
 ## Core Prisma models
@@ -16,7 +16,7 @@
 - `RewardTransaction` – immutable record of every balance mutation (earn, spend, adjust, refund) plus linkage back to rules, catalog items, redemptions, and products (`prisma/schema.prisma:721`).
 - `Redemption` – tracks the lifecycle of a redeemed perk and its activation window (`prisma/schema.prisma:735`).
 - `FeatureEntitlement` – enables features for users/products once a redemption is active; placement schedules and entitlements stay in sync (`prisma/schema.prisma:765`).
-- `PlacementSchedule` – (see schema) controls timed product placements that pair with certain catalog items and feed the placement scheduler cron.
+- `PlacementSchedule` – (see schema) controls timed product placements that pair with certain catalog items and feed the placement scheduler.
 
 ## Awarding rewards
 
@@ -31,7 +31,7 @@
 - **Product engagement:** Listeners on the internal event bus award points for upvotes and new product launches while ignoring self-awards and handling soft failures (`lib/server/rewards/listeners.ts:13`).
 - **Daily login:** `ensureDailyLoginReward` now checks both pending envelopes and prior reward transactions before queueing work, then caches the day locally to avoid repeat grants (`lib/server/rewards/loginReward.ts:30`). Integrate this helper in auth flows to keep streaks alive without flooding the queue.
 - **Feedback closure:** Admins granting feedback rewards trigger `awardRewards` with feedback metadata when statuses transition to `closed` (`actions/admin/feedback/actions.ts:115`).
-- **Backlink verification:** The cron worker crawls member sites, validates backlinks, and awards the `rewards.backlink.verify` rule once per product using a deterministic `eventId` (`lib/server/rewards/backlinkVerification.ts:336`).
+- **Backlink verification:** The scheduled worker crawls member sites, validates backlinks, and awards the `rewards.backlink.verify` rule once per product using a deterministic `eventId` (`lib/server/rewards/backlinkVerification.ts:336`).
 
 ## Redeeming rewards & entitlements
 
@@ -57,8 +57,8 @@
 
 ## Background jobs & scheduling
 
-- **Placement scheduler:** Cron endpoint `/api/cron/rewards/placements` authorizes with `CRON_SECRET` and activates or expires placement schedules, updating entitlements, redemptions, and product badges in a single transaction (`app/api/cron/rewards/placements/route.ts:1`, `lib/server/rewards/placementScheduler.ts:20`). Cache revalidation ensures public surfaces reflect placement changes immediately (`lib/server/rewards/placementScheduler.ts:186`).
-- **Backlink verifier:** `/api/cron/rewards/backlinks` runs backlink checks with controlled concurrency, awarding the verification rule on success and logging failures for admin review (`app/api/cron/rewards/backlinks/route.ts:1`, `lib/server/rewards/backlinkVerification.ts:35`).
+- **Placement scheduler:** The `rewards-placements` scheduled job activates or expires placement schedules, updating entitlements, redemptions, and product badges in a single transaction (`lib/server/jobs/scheduledRunner.ts:185`, `lib/server/rewards/placementScheduler.ts:20`). Cache revalidation ensures public surfaces reflect placement changes immediately (`lib/server/rewards/placementScheduler.ts:186`).
+- **Backlink verifier:** The `rewards-backlinks` scheduled job runs backlink checks with controlled concurrency, awarding the verification rule on success and logging failures for admin review (`lib/server/jobs/scheduledRunner.ts:206`, `lib/server/rewards/backlinkVerification.ts:35`).
 - Production schedules are declared in the BullMQ scheduler definitions (`lib/server/jobs/scheduled.ts:19`) and run from the self-hosted worker.
 
 ## Public & member experiences
@@ -71,18 +71,18 @@
 
 - `prisma/seed.rewards.ts` seeds canonical rules and catalog items, including priority placements and analytics perks. It links catalog entries to plan features when available and warns if plan keys are missing (`prisma/seed.rewards.ts:24`).
 - Seeded rules encode default caps/cooldowns (e.g., daily login, upvote) and can be extended without manual DB work.
-- The placement scheduler cron requires `CRON_SECRET` in the environment to reject unauthorized calls (`app/api/cron/rewards/placements/route.ts:9`).
+- The placement scheduler runs inside the trusted worker process; no public cron secret or HTTP endpoint is required.
 - Rewards-specific events rely on the in-memory event bus; ensure listeners are registered during app bootstrap (`lib/server/rewards/listeners.ts:43`).
 
 ## Extending the system
 
 1. **Add a new earn rule:** Seed or insert a `RewardRule`, then trigger `awardRewards` from either an event listener or a direct call with a stable `eventId` to keep grants idempotent. Populate metadata with contextual fields consumers might need (`lib/rewards/engine.ts:146`).
 2. **Introduce a new perk:** Create a `RewardCatalogItem` with pricing, limits, and metadata tags. If the perk should schedule automatically, ensure `requiresPlacementSchedule` recognizes it either via category or metadata (`lib/rewards/engine.ts:86`). Update member/admin UIs as needed to surface descriptive copy.
-3. **Launch automated jobs:** Build a worker that queries eligible subjects, call the appropriate engine helper inside a transaction, and wrap the endpoint in `ensureCronAuthorized`/`CRON_SECRET` patterns for safety (`app/api/cron/rewards/backlinks/route.ts:1`).
+3. **Launch automated jobs:** Build a scheduled job handler that queries eligible subjects, call the appropriate engine helper inside a transaction, and register the schedule in `lib/server/jobs/scheduled.ts` plus the handler in `lib/server/jobs/scheduledRunner.ts`.
 
 ## Operational tips
 
 - Always call engine helpers (award, redeem, adjust, refund) within API routes or actions that can bubble up `RewardsError` so the UI can present friendly messaging (`lib/rewards/errors.ts:1`).
 - When deducting rewards manually, prefetch the user balance to anticipate insufficiency errors and surface clearer guidance (`lib/rewards/engine.ts:610`).
-- For scheduled perks, pair redemptions with placement slots and ensure cron cadence is frequent enough to activate upcoming placements before their start time (`lib/server/rewards/placementScheduler.ts:44`).
+- For scheduled perks, pair redemptions with placement slots and ensure worker cadence is frequent enough to activate upcoming placements before their start time (`lib/server/rewards/placementScheduler.ts:44`).
 - Monitor the backlink verification summary to catch systemic failures; the job returns aggregate counts that can be wired into ops dashboards (`lib/server/rewards/backlinkVerification.ts:312`).

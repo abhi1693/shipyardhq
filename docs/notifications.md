@@ -16,19 +16,10 @@ Founders respond to visibility signals more reliably than requests for updates. 
 - “Your product moved up 6 places”
 - “You are now top 3 in category X”
 
-### Cron Endpoint
+### Scheduled Job
 
-- `GET /api/cron/founder-visibility`
-  - Query params:
-    - `audience=owner|all` (default `owner`)
-    - `topN=<int>` (default `10`) – “trending” threshold (entered top N overall week-over-week)
-    - `minMove=<int>` (default `6`) – minimum rank improvement to notify
-    - `max=<int>` (default `200`) – cap notifications per run
-    - `dryRun=1` – compute candidates without sending
-
-Scheduled by the self-hosted BullMQ worker:
-
-- `/api/cron/founder-visibility?audience=owner` (Mondays at 00:00 UTC)
+- `founder-visibility-owner` runs in the self-hosted BullMQ worker on Mondays at 00:00 UTC.
+- The production schedule uses the owner audience. Tune limits and thresholds in `runFounderVisibilityEngagement` when the campaign strategy changes.
 
 ### Implementation Notes
 
@@ -41,18 +32,10 @@ Micro leaderboards send category-based weekly nudges to product owners:
 
 - Mid-week competitive nudge: “You are close to the top”
 
-### Cron Endpoints
+### Scheduled Job
 
-- `GET /api/cron/micro-leaderboards/midweek`
-  - Query params:
-    - `rankMin=<int>` (default `2`)
-    - `rankMax=<int>` (default `5`)
-    - `max=<int>` (default `200`)
-    - `dryRun=1`
-
-Scheduled by the self-hosted BullMQ worker:
-
-- `/api/cron/micro-leaderboards/midweek` (Wednesdays at 12:00 UTC)
+- `micro-leaderboards-midweek` runs in the self-hosted BullMQ worker on Wednesdays at 12:00 UTC.
+- Tune rank windows and notification caps in `runMicroLeaderboardEngagement` when the nudge strategy changes.
 
 ### Implementation Notes
 

@@ -8,7 +8,7 @@ import {
   createBullMqConnection,
   getBullMqPrefix,
 } from "@/lib/server/jobs/connection"
-import { runScheduledCronJob } from "@/lib/server/jobs/cronRunner"
+import { runScheduledJob } from "@/lib/server/jobs/scheduledRunner"
 import {
   EVENT_ENVELOPE_JOB_NAME,
   EVENT_ENVELOPE_QUEUE_NAME,
@@ -78,7 +78,7 @@ export async function startShipyardWorker(
 
   const scheduledWorker = new Worker<
     ScheduledJobData,
-    Awaited<ReturnType<typeof runScheduledCronJob>>,
+    Awaited<ReturnType<typeof runScheduledJob>>,
     string
   >(
     SCHEDULED_JOB_QUEUE_NAME,
@@ -89,7 +89,7 @@ export async function startShipyardWorker(
         throw new Error(`Unsupported scheduled job "${String(jobName)}"`)
       }
 
-      return runScheduledCronJob(jobName)
+      return runScheduledJob(jobName)
     },
     {
       concurrency: parsePositiveIntegerEnv(

@@ -11,7 +11,6 @@ export const SCHEDULED_JOB_TIMEZONE = "Etc/UTC"
 
 export type ScheduledJobDefinition = {
   id: string
-  path: string
   pattern: string
   description: string
 }
@@ -19,97 +18,81 @@ export type ScheduledJobDefinition = {
 export const SCHEDULED_JOB_DEFINITIONS = [
   {
     id: "expire-plans",
-    path: "/api/cron/expire-plans",
     pattern: "0 0 6 * * *",
     description: "Expire boosted and recurring plans.",
   },
   {
     id: "weekly-newsletter",
-    path: "/api/cron/weekly-newsletter",
     pattern: "0 0 9 * * 4",
     description: "Send the weekly newsletter.",
   },
   {
     id: "monthly-leaderboard",
-    path: "/api/cron/monthly-leaderboard",
     pattern: "0 0 8 1 * *",
     description: "Generate and announce monthly leaderboard winners.",
   },
   {
     id: "leaderboard-highlights-day",
-    path: "/api/cron/leaderboard-highlights?period=day",
     pattern: "0 55 23 * * *",
     description: "Announce daily leaderboard highlights.",
   },
   {
     id: "leaderboard-highlights-week",
-    path: "/api/cron/leaderboard-highlights?period=week",
     pattern: "0 55 23 * * 0",
     description: "Announce weekly leaderboard highlights.",
   },
   {
     id: "micro-leaderboards-midweek",
-    path: "/api/cron/micro-leaderboards/midweek",
     pattern: "0 0 12 * * 3",
     description: "Send midweek micro-leaderboard nudges.",
   },
   {
     id: "rewards-placements",
-    path: "/api/cron/rewards/placements",
     pattern: "0 */5 * * * *",
     description: "Activate and expire reward placement schedules.",
   },
   {
     id: "rewards-backlinks",
-    path: "/api/cron/rewards/backlinks",
     pattern: "0 0 5 * * *",
     description: "Verify product backlinks for rewards.",
   },
   {
     id: "rewards-streak",
-    path: "/api/cron/rewards/streak",
     pattern: "0 0 4 * * *",
     description: "Maintain reward streaks.",
   },
   {
     id: "leaderboard-refresh",
-    path: "/api/cron/leaderboard-refresh",
     pattern: "0 0 */1 * * *",
     description: "Enqueue leaderboard refresh events.",
   },
   {
     id: "badges-trending",
-    path: "/api/cron/badges/trending",
     pattern: "0 0 */12 * * *",
     description: "Assign trending badges.",
   },
   {
     id: "analytics-product-interest",
-    path: "/api/cron/analytics/product-interest",
     pattern: "0 0 */3 * * *",
     description: "Refresh product interest analytics cache.",
   },
   {
     id: "analytics-sync",
-    path: "/api/cron/analytics/sync?job=all&days=1",
     pattern: "0 0 2 * * *",
     description: "Sync analytics rollups.",
   },
   {
     id: "promotions-featured",
-    path: "/api/cron/promotions/featured",
     pattern: "0 15 6 * * *",
     description: "Prepare featured plan promotion notifications.",
   },
   {
     id: "founder-visibility-owner",
-    path: "/api/cron/founder-visibility?audience=owner",
     pattern: "0 0 0 * * 1",
     description: "Send owner founder-visibility engagement.",
   },
   {
     id: "dodo-discounts-cleanup",
-    path: "/api/cron/dodo/discounts/cleanup",
     pattern: "0 0 3 * * 0",
     description: "Clean up expired unused Dodo discounts.",
   },
@@ -119,7 +102,6 @@ export type ScheduledJobName = (typeof SCHEDULED_JOB_DEFINITIONS)[number]["id"]
 
 export type ScheduledJobData = {
   jobName: ScheduledJobName
-  path: string
 }
 
 const globalForScheduledQueue = globalThis as unknown as {
@@ -175,7 +157,6 @@ export async function upsertScheduledJobs(): Promise<void> {
         name: SCHEDULED_JOB_NAME,
         data: {
           jobName: definition.id,
-          path: definition.path,
         },
         opts: SCHEDULED_JOB_OPTIONS,
       },

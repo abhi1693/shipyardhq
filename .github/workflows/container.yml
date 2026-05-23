@@ -27,7 +27,6 @@ jobs:
           CACHE_ENV_PREFIX: ${{ secrets.CACHE_ENV_PREFIX }}
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
           CLERK_WEBHOOK_SIGNING_SECRET: ${{ secrets.CLERK_WEBHOOK_SIGNING_SECRET }}
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
           DODO_API_KEY: ${{ secrets.DODO_API_KEY }}
           DODO_ENV: ${{ secrets.DODO_ENV }}
           DODO_WEBHOOK_SECRET: ${{ secrets.DODO_WEBHOOK_SECRET }}
@@ -83,7 +82,6 @@ jobs:
             "CACHE_ENV_PREFIX",
             "CLERK_SECRET_KEY",
             "CLERK_WEBHOOK_SIGNING_SECRET",
-            "CRON_SECRET",
             "DODO_API_KEY",
             "DODO_ENV",
             "DODO_WEBHOOK_SECRET",

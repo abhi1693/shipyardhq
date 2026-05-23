@@ -20,7 +20,7 @@ import {
   type SiteTrafficBreakdownSyncResult,
 } from "@/lib/server/analytics/ingestion/siteTrafficBreakdowns"
 
-type IngestionJobKey =
+export type IngestionJobKey =
   | "product_traffic_daily"
   | "product_traffic_breakdowns"
   | "site_traffic_daily"

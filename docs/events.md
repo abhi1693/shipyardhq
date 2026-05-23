@@ -7,7 +7,7 @@ Shipyard now routes non-critical product events through a durable outbox so UI c
 - **Dispatcher** – `dispatchEvent(event, payload)` (see `lib/server/events.ts`) persists an `EventEnvelope` row for every handler group and marks it ready for the worker.
 - **Outbox** – Backed by the Prisma models `EventEnvelope` and `EventAttempt` (see migration `20251020120000_add_event_envelopes`). Each envelope stores the event payload, pending handler ids, status, attempt count, queue assignment, and timestamps for observability.
 - **Priority queues** – Queue metadata lives in `lib/server/events/queues.ts`. Shipyard ships three tiers (`high` → 5 min, `default` → 15 min, `low` → 30 min) and envelopes land in the fastest tier referenced by their handlers. Add new queues by extending this config.
-- **BullMQ worker** – `npm run worker` starts `bin/shipyard-worker.ts`, subscribes to the `shipyardhq-events` queue, hydrates envelopes by id, and executes pending handlers sequentially with retry/backoff semantics (`lib/server/events/worker.ts`). Postgres remains the source of truth: event jobs are added when envelopes are created, and the worker periodically reconciles due/stale envelopes back into BullMQ if enqueueing was missed.
+- **BullMQ worker** – `npm run worker` starts `bin/shipyard-worker.ts`, subscribes to the `shipyardhq-events` queue, hydrates envelopes by id, and executes pending handlers sequentially with retry/backoff semantics (`lib/server/events/worker.ts`). Postgres remains the source of truth: event jobs are added when envelopes are created, and the worker periodically reconciles due/stale envelopes back into BullMQ if enqueueing was missed. The same process owns maintenance schedules from `lib/server/jobs/scheduled.ts` and runs their handlers in `lib/server/jobs/scheduledRunner.ts`.
 - **Handler registry** – Modules register with `registerEventHandler({ event, id, handler, queue })`. Use stable `id` strings so retries can resume partially processed envelopes and assign handlers to the queue that best matches their latency requirements (defaults to the `default` queue).
 
 ## Adding / Updating Handlers
@@ -37,4 +37,4 @@ Shipyard now routes non-critical product events through a durable outbox so UI c
 - Run `npm run prisma:migrate` to apply the new outbox tables, followed by `npm run prisma:generate`.
 - Run a dedicated worker process with `npm run worker`. It consumes event jobs and upserts BullMQ schedulers for maintenance jobs declared in `lib/server/jobs/scheduled.ts`.
 - Set `SHIPYARD_EVENT_RECONCILE_INTERVAL_MS` only if the default 60 second outbox reconciliation cadence needs tuning.
-- Keep `/api/cron/events/drain/[queue]` available as a manual fallback for old envelopes or break-glass diagnosis; it is no longer part of the normal schedule.
+- Use the admin operations event queue screens to inspect, requeue, or delete envelopes; legacy HTTP drain endpoints have been removed.

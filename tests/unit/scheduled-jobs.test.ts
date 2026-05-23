@@ -19,11 +19,9 @@ describe("scheduled BullMQ jobs", () => {
     }
   })
 
-  it("does not reschedule legacy event drain cron endpoints", () => {
-    expect(
-      SCHEDULED_JOB_DEFINITIONS.some((definition) =>
-        definition.path.startsWith("/api/cron/events/drain"),
-      ),
-    ).toBe(false)
+  it("does not expose legacy HTTP cron paths", () => {
+    for (const definition of SCHEDULED_JOB_DEFINITIONS) {
+      expect("path" in definition).toBe(false)
+    }
   })
 })
