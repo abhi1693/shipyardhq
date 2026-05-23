@@ -59,7 +59,7 @@
 
 - **Placement scheduler:** Cron endpoint `/api/cron/rewards/placements` authorizes with `CRON_SECRET` and activates or expires placement schedules, updating entitlements, redemptions, and product badges in a single transaction (`app/api/cron/rewards/placements/route.ts:1`, `lib/server/rewards/placementScheduler.ts:20`). Cache revalidation ensures public surfaces reflect placement changes immediately (`lib/server/rewards/placementScheduler.ts:186`).
 - **Backlink verifier:** `/api/cron/rewards/backlinks` runs backlink checks with controlled concurrency, awarding the verification rule on success and logging failures for admin review (`app/api/cron/rewards/backlinks/route.ts:1`, `lib/server/rewards/backlinkVerification.ts:35`).
-- Cron schedules are wired in `vercel.json` for production deployments (`vercel.json:6`).
+- Production schedules are declared in the BullMQ scheduler definitions (`lib/server/jobs/scheduled.ts:19`) and run from the self-hosted worker.
 
 ## Public & member experiences
 

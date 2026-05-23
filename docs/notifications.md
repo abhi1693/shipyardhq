@@ -26,7 +26,7 @@ Founders respond to visibility signals more reliably than requests for updates. 
     - `max=<int>` (default `200`) – cap notifications per run
     - `dryRun=1` – compute candidates without sending
 
-Scheduled in `vercel.json` as a weekly job:
+Scheduled by the self-hosted BullMQ worker:
 
 - `/api/cron/founder-visibility?audience=owner` (Mondays at 00:00 UTC)
 
@@ -50,7 +50,7 @@ Micro leaderboards send category-based weekly nudges to product owners:
     - `max=<int>` (default `200`)
     - `dryRun=1`
 
-Scheduled in `vercel.json`:
+Scheduled by the self-hosted BullMQ worker:
 
 - `/api/cron/micro-leaderboards/midweek` (Wednesdays at 12:00 UTC)
 

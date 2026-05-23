@@ -45,6 +45,14 @@ export async function registerEventHandlers(): Promise<void> {
       })
     }
   })
+
+  const failures = results.filter((result) => result.status === "rejected")
+  if (failures.length > 0) {
+    throw new AggregateError(
+      failures.map((result) => result.reason),
+      "Failed to register one or more event handler modules",
+    )
+  }
 }
 
 export default registerEventHandlers

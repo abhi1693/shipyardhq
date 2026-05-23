@@ -29,7 +29,6 @@ function logCacheEvent(
 
 const CACHE_ENV_PREFIX =
   process.env.CACHE_ENV_PREFIX?.trim() ||
-  process.env.NEXT_PUBLIC_VERCEL_ENV?.trim() ||
   process.env.NODE_ENV?.trim()
 let cachedClientPromise: Promise<CacheClient | null> | null = null
 

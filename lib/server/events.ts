@@ -24,9 +24,11 @@ type ListenerRegistry = Map<string, Array<RegisteredHandler<keyof AppEvents>>>
 
 const DEFAULT_HANDLER_MODE: HandlerMode = "async"
 const LISTENERS: ListenerRegistry = new Map()
+let handlerRegistrationError: unknown
 
 // Register handlers once on module load; listeners are side-effectful imports.
-void registerEventHandlers().catch((error) => {
+const handlerRegistrationPromise = registerEventHandlers().catch((error) => {
+  handlerRegistrationError = error
   console.error("[events] failed to register handlers", { error })
 })
 
@@ -146,7 +148,9 @@ export type RewardsDailyLoginEvent = {
   awardedAt: string
 }
 
-export type ClaimAttemptsCleanupEvent = Record<string, never>
+export type ClaimAttemptsCleanupEvent = {
+  readonly __envelopeId?: string
+}
 
 type AppEvents = {
   [APP_EVENTS.PRODUCT_CREATED]: ProductCreatedEvent
@@ -221,10 +225,19 @@ export function registerEventHandler<K extends keyof AppEvents>({
   }
 }
 
+export async function ensureEventHandlersRegistered(): Promise<void> {
+  await handlerRegistrationPromise
+  if (handlerRegistrationError) {
+    throw handlerRegistrationError
+  }
+}
+
 export async function dispatchEvent<K extends keyof AppEvents>(
   event: K,
   payload: AppEvents[K],
 ): Promise<void> {
+  await ensureEventHandlersRegistered()
+
   const key = String(event)
   const handlers = LISTENERS.get(key) ?? []
 
@@ -307,7 +320,9 @@ export async function dispatchEvent<K extends keyof AppEvents>(
       handlers: handlerIds,
     })
 
-    void enqueueEvent(envelopeId).catch(async (error) => {
+    try {
+      await enqueueEvent(envelopeId, queueName)
+    } catch (error) {
       console.error("[events] enqueue failed", {
         event: key,
         envelopeId,
@@ -375,7 +390,7 @@ export async function dispatchEvent<K extends keyof AppEvents>(
           })
         }
       }
-    })
+    }
   }
 }
 

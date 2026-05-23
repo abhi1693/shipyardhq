@@ -135,9 +135,8 @@ function shouldDeleteSubscriber(
 
 function ensureSafeToRun(confirm: boolean) {
   const env = process.env.NODE_ENV?.trim().toLowerCase() || "development"
-  const vercelEnv = process.env.VERCEL_ENV?.trim().toLowerCase()
 
-  if ((env === "production" || vercelEnv === "production") && confirm) {
+  if (env === "production" && confirm) {
     throw new Error("Refusing to delete Novu subscribers in production.")
   }
 }

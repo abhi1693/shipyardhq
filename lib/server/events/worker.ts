@@ -1,15 +1,21 @@
-import "@/lib/server/events/register-handlers"
-
 import { randomUUID } from "crypto"
 
 import prisma from "@/lib/prisma"
-import { resolveRegisteredHandler, type AppEvents } from "@/lib/server/events"
+import {
+  ensureEventHandlersRegistered,
+  resolveRegisteredHandler,
+  type AppEvents,
+} from "@/lib/server/events"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 import type { EventQueueName } from "@/lib/server/events/queues"
+import {
+  EVENT_ENVELOPE_JOB_TIMEOUT_MS,
+  EVENT_ENVELOPE_PROCESSING_STALE_MS,
+} from "@/lib/server/events/timing"
 
-const JOB_TIMEOUT_MS = 15 * 60 * 1000
 const MAX_ATTEMPTS = 5
 const RETRY_DELAY_MS = 30 * 1000
+const CLAIMABLE_STATUSES = ["pending", "retrying"] as const
 
 type EventEnvelopeRow = {
   id: string
@@ -38,8 +44,26 @@ class HandlerTimeoutError extends Error {
   }
 }
 
+export class EnvelopeAlreadyProcessingError extends Error {
+  constructor(envelopeId: string) {
+    super(`Event envelope "${envelopeId}" is already being processed`)
+    this.name = "EnvelopeAlreadyProcessingError"
+  }
+}
+
 export async function processEnvelope(envelopeId: string): Promise<void> {
-  const envelope = await fetchEnvelope(envelopeId)
+  await ensureEventHandlersRegistered()
+
+  const claimTimestamp = new Date()
+  const staleProcessingBefore = new Date(
+    claimTimestamp.getTime() - EVENT_ENVELOPE_PROCESSING_STALE_MS,
+  )
+  const envelope = await claimEnvelope(
+    envelopeId,
+    claimTimestamp,
+    staleProcessingBefore,
+  )
+
   if (!envelope) return
 
   if (envelope.status === "completed" || envelope.status === "dead_letter") {
@@ -50,14 +74,7 @@ export async function processEnvelope(envelopeId: string): Promise<void> {
     return
   }
 
-  const attemptNumber = envelope.attempts + 1
-  if (attemptNumber > MAX_ATTEMPTS) {
-    await markDeadLetter(
-      envelopeId,
-      "Maximum attempt threshold exceeded before processing",
-    )
-    return
-  }
+  const attemptNumber = envelope.attempts
 
   console.debug("[events] worker processing", {
     envelopeId,
@@ -68,34 +85,11 @@ export async function processEnvelope(envelopeId: string): Promise<void> {
   })
 
   const startTime = Date.now()
-  const deadline = startTime + JOB_TIMEOUT_MS
-  const now = new Date()
-
-  await prisma.$executeRaw`
-    UPDATE "EventEnvelope"
-    SET "status" = ${"processing"}::"EventEnvelopeStatus",
-        "processingStarted" = ${now},
-        "attempts" = ${attemptNumber},
-        "lastError" = NULL,
-        "nextRunAt" = NULL,
-        "updatedAt" = ${now}
-    WHERE "id" = ${envelopeId}
-  `
+  const deadline = startTime + EVENT_ENVELOPE_JOB_TIMEOUT_MS
 
   let pendingHandlers = [...envelope.pendingHandlers]
   const payload = hydratePayload(envelope.event, envelope.payload)
-  try {
-    Object.defineProperty(payload as Record<string, unknown>, "__enqueuedAt", {
-      value: envelope.enqueuedAt,
-      enumerable: false,
-      configurable: true,
-    })
-  } catch (error) {
-    console.warn("[events] failed to attach enqueue metadata", {
-      envelopeId,
-      error,
-    })
-  }
+  attachEnvelopeMetadata(payload, envelope)
 
   for (const handlerId of pendingHandlers) {
     console.debug("[events] handler execution start", {
@@ -112,7 +106,7 @@ export async function processEnvelope(envelopeId: string): Promise<void> {
         handlerId,
         attemptNumber,
         "timed_out",
-        JOB_TIMEOUT_MS,
+        EVENT_ENVELOPE_JOB_TIMEOUT_MS,
         "Job deadline exceeded before handler execution",
       )
       await scheduleRetry(
@@ -229,6 +223,83 @@ export async function processEnvelope(envelopeId: string): Promise<void> {
   })
 }
 
+async function claimEnvelope(
+  envelopeId: string,
+  claimTimestamp: Date,
+  staleProcessingBefore: Date,
+): Promise<EventEnvelopeRow | null> {
+  const rows = await prisma.$queryRaw<EventEnvelopeRow[]>`
+    UPDATE "EventEnvelope"
+    SET "status" = ${"processing"}::"EventEnvelopeStatus",
+        "processingStarted" = ${claimTimestamp},
+        "attempts" = "attempts" + 1,
+        "lastError" = NULL,
+        "nextRunAt" = NULL,
+        "updatedAt" = ${claimTimestamp}
+    WHERE "id" = ${envelopeId}
+      AND (
+        "status" = ANY (${CLAIMABLE_STATUSES}::"EventEnvelopeStatus"[])
+        OR (
+          "status" = ${"processing"}::"EventEnvelopeStatus"
+          AND (
+            "processingStarted" IS NULL
+            OR "processingStarted" <= ${staleProcessingBefore}
+          )
+        )
+      )
+      AND "attempts" < ${MAX_ATTEMPTS}
+    RETURNING
+      "id",
+      "event",
+      "payload",
+      "asyncHandlers",
+      "pendingHandlers",
+      "status",
+      "attempts",
+      "lastError",
+      "enqueuedAt",
+      "processingStarted",
+      "processedAt",
+      "nextRunAt",
+      "createdAt",
+      "updatedAt",
+      "queue"
+  `
+
+  const claimed = rows[0]
+  if (claimed) return claimed
+
+  const current = await fetchEnvelope(envelopeId)
+  if (!current) return null
+
+  if (current.status === "completed" || current.status === "dead_letter") {
+    console.debug("[events] envelope already handled", {
+      envelopeId,
+      status: current.status,
+    })
+    return null
+  }
+
+  if (current.attempts >= MAX_ATTEMPTS) {
+    await markDeadLetter(
+      envelopeId,
+      "Maximum attempt threshold exceeded before processing",
+    )
+    return null
+  }
+
+  if (current.status === "processing") {
+    throw new EnvelopeAlreadyProcessingError(envelopeId)
+  }
+
+  console.warn("[events] envelope was not claimable", {
+    envelopeId,
+    status: current.status,
+    attempts: current.attempts,
+  })
+  return null
+}
+
 async function fetchEnvelope(
   envelopeId: string,
 ): Promise<EventEnvelopeRow | null> {
@@ -254,6 +325,33 @@ async function fetchEnvelope(
     LIMIT 1
   `
   return rows[0] ?? null
+}
+
+function attachEnvelopeMetadata(
+  payload: AppEvents[keyof AppEvents],
+  envelope: EventEnvelopeRow,
+): void {
+  if (!payload || typeof payload !== "object") return
+
+  try {
+    Object.defineProperties(payload as Record<string, unknown>, {
+      __enqueuedAt: {
+        value: envelope.enqueuedAt,
+        enumerable: false,
+        configurable: true,
+      },
+      __envelopeId: {
+        value: envelope.id,
+        enumerable: false,
+        configurable: true,
+      },
+    })
+  } catch (error) {
+    console.warn("[events] failed to attach envelope metadata", {
+      envelopeId: envelope.id,
+      error,
+    })
+  }
 }
 
 async function recordAttempt(

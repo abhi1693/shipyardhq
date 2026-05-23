@@ -60,17 +60,11 @@ async function requeueRemaining(
 export async function drainEventQueue(
   options: DrainEventQueueOptions = {},
 ): Promise<DrainEventQueueResult> {
-  const isVercel = Boolean(process.env.VERCEL)
   const maxEvents = options.maxEvents ?? DEFAULT_MAX_EVENTS
   const configuredMaxDurationMs =
     options.maxDurationMs ?? DEFAULT_MAX_DURATION_MS
   const gracePeriodMs = options.gracePeriodMs ?? DEFAULT_DURATION_GRACE_MS
-  // Cap duration/events on Vercel to stay under the 60s execution window.
-  const effectiveMaxDurationMs = isVercel
-    ? Math.min(configuredMaxDurationMs, 50_000)
-    : configuredMaxDurationMs
-  const effectiveMaxEvents = isVercel ? Math.min(maxEvents, 200) : maxEvents
-  const maxDurationMs = Math.max(0, effectiveMaxDurationMs - gracePeriodMs)
+  const maxDurationMs = Math.max(0, configuredMaxDurationMs - gracePeriodMs)
   const getNow = options.now ?? Date.now
   const queue = options.queue ?? DEFAULT_EVENT_QUEUE
   const startedAt = getNow()
@@ -84,7 +78,7 @@ export async function drainEventQueue(
   let eventLimitReached = false
 
   while (true) {
-    if (attempted >= effectiveMaxEvents) {
+    if (attempted >= maxEvents) {
       eventLimitReached = true
       break
     }
@@ -95,7 +89,7 @@ export async function drainEventQueue(
       break
     }
 
-    const remainingEvents = Math.max(0, effectiveMaxEvents - attempted)
+    const remainingEvents = Math.max(0, maxEvents - attempted)
     if (remainingEvents <= 0) {
       eventLimitReached = true
       break
@@ -123,7 +117,7 @@ export async function drainEventQueue(
 
       const elapsed = getNow() - startedAt
       const hitDurationLimit = elapsed >= maxDurationMs
-      const hitEventLimit = attempted >= effectiveMaxEvents
+      const hitEventLimit = attempted >= maxEvents
 
       if (hitDurationLimit || hitEventLimit) {
         if (hitDurationLimit) durationExceeded = true
@@ -154,7 +148,7 @@ export async function drainEventQueue(
     durationMs,
     queue,
     limitHit: {
-      events: eventLimitReached || attempted >= effectiveMaxEvents,
+      events: eventLimitReached || attempted >= maxEvents,
       duration: durationExceeded || durationMs >= maxDurationMs,
     },
   }

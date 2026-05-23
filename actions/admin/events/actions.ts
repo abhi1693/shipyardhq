@@ -566,6 +566,7 @@ export async function requeueEnvelopeAction(formData: FormData): Promise<void> {
       select: {
         id: true,
         asyncHandlers: true,
+        queue: true,
       },
     })
 
@@ -585,7 +586,11 @@ export async function requeueEnvelopeAction(formData: FormData): Promise<void> {
       },
     })
 
-    await enqueueEvent(envelopeId)
+    await enqueueEvent(
+      envelopeId,
+      isEventQueue(envelope.queue) ? envelope.queue : DEFAULT_EVENT_QUEUE,
+      { replaceExisting: true },
+    )
     revalidatePath(ADMIN_EVENTS_PATH)
     revalidatePath(ADMIN_EVENTS_ANALYTICS_PATH)
     revalidatePath(adminPath("operations", "events", envelopeId))

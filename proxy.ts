@@ -8,46 +8,7 @@ import { buildCloudflareMediaImageUrl } from "@/lib/images/cloudflare"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
 
 const isMemberRoute = createRouteMatcher([`${MEMBER_BASE_PATH}(.*)`])
-const LEGACY_VERCEL_BLOB_HOST_SUFFIX = ".public.blob.vercel-storage.com"
-const DEFAULT_MEDIA_BASE_URL = "https://media.shipyardhq.dev"
 const PUBLIC_FILE_EXTENSION = /\.[^/]+$/
-
-function redirectLegacyBlobImageRequest(req: NextRequest) {
-  const url = new URL(req.url)
-  if (url.pathname !== "/_next/image") {
-    return null
-  }
-
-  const imageUrl = url.searchParams.get("url")
-  if (!imageUrl) {
-    return null
-  }
-
-  let sourceUrl: URL
-  try {
-    sourceUrl = new URL(imageUrl)
-  } catch {
-    return null
-  }
-
-  if (
-    sourceUrl.protocol !== "https:" ||
-    !sourceUrl.hostname.endsWith(LEGACY_VERCEL_BLOB_HOST_SUFFIX)
-  ) {
-    return null
-  }
-
-  const mediaBaseUrl = new URL(
-    process.env.R2_PUBLIC_BASE_URL || DEFAULT_MEDIA_BASE_URL,
-  )
-  const nextImageUrl = new URL(url)
-  nextImageUrl.searchParams.set(
-    "url",
-    `${mediaBaseUrl.origin}${sourceUrl.pathname}${sourceUrl.search}`,
-  )
-
-  return NextResponse.redirect(nextImageUrl, 308)
-}
 
 function redirectMediaImageOptimizationRequest(req: NextRequest) {
   const url = new URL(req.url)
@@ -211,11 +172,6 @@ export default async function proxy(req: NextRequest, event: NextFetchEvent) {
   const mediaImageRedirect = redirectMediaImageOptimizationRequest(req)
   if (mediaImageRedirect) {
     return mediaImageRedirect
-  }
-
-  const legacyBlobImageRedirect = redirectLegacyBlobImageRequest(req)
-  if (legacyBlobImageRedirect) {
-    return legacyBlobImageRedirect
   }
 
   const markdownRewrite = rewriteMarkdownRequest(req)
