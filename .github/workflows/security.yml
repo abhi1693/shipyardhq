@@ -3,11 +3,14 @@ name: Security Checks
 on:
   pull_request:
   push:
-    branches: [ master ]
+    branches: [master]
 
 permissions:
   contents: read
   pull-requests: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   secret-scan:
@@ -36,7 +39,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install deps (ignore scripts)
         run: npm ci --ignore-scripts --legacy-peer-deps
