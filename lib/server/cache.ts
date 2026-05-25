@@ -17,19 +17,23 @@ type CacheKeyInput = string | CacheKeyArray
 type InProcessCacheEntry = { value: unknown; expiresAt: number }
 
 const inProcessCache = new Map<string, InProcessCacheEntry>()
+const CACHE_DEBUG = process.env.CACHE_DEBUG?.trim() === "true"
 
 function logCacheEvent(
   event: string,
   key: string,
   extra?: Record<string, unknown>,
 ) {
+  if (!CACHE_DEBUG && event !== "error") {
+    return
+  }
+
   const context = { key, ...(extra ?? {}) }
   console.debug(`[cache] ${event}`, context)
 }
 
 const CACHE_ENV_PREFIX =
-  process.env.CACHE_ENV_PREFIX?.trim() ||
-  process.env.NODE_ENV?.trim()
+  process.env.CACHE_ENV_PREFIX?.trim() || process.env.NODE_ENV?.trim()
 let cachedClientPromise: Promise<CacheClient | null> | null = null
 
 function clientIsOpen(client: CacheClient | null): client is CacheClient {

@@ -14,11 +14,8 @@ import {
   computeLeaderboardWindow,
   getCurrentLeaderboardWindow,
 } from "@/lib/server/leaderboard/v2"
-import {
-  getHomepageTrafficFromGa,
-  getRealtimeVisitorsFromGa,
-  GA_MIN_START_DATE,
-} from "@/lib/server/analytics/googleAnalytics"
+import { GA_MIN_START_DATE } from "@/lib/server/analytics/googleAnalytics"
+import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import {
   productCardSelect,
   type ProductCardRecord,
@@ -335,6 +332,7 @@ const getPeriodicArchive = cached(
 
 export const getLeaderboardStats = cached(
   async () => {
+    const analyticsProvider = getAnalyticsProvider("cache")
     const [
       totalProducts,
       totalCreators,
@@ -352,8 +350,8 @@ export const getLeaderboardStats = cached(
         orderBy: { upvotes: "desc" },
         select: { upvotes: true },
       }),
-      getHomepageTrafficFromGa(),
-      getRealtimeVisitorsFromGa(),
+      analyticsProvider.getHomepageTraffic(),
+      analyticsProvider.getRealtimeVisitors(),
     ])
 
     return {

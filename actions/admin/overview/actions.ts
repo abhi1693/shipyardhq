@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 import { addDays, format, startOfDay, subDays } from "date-fns"
-import { getSiteAnalyticsSnapshot } from "@/lib/server/analytics/googleAnalytics"
+import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 
 export interface DashboardStats {
   totalProducts: number
@@ -213,6 +213,7 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
     startDate: format(prevSince, "yyyy-MM-dd"),
     endDate: format(subDays(since, 1), "yyyy-MM-dd"),
   }
+  const analyticsProvider = getAnalyticsProvider("cache")
 
   const [
     currentSnapshot,
@@ -221,8 +222,8 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
     previousUpvotes,
     totalUpvotes,
   ] = await Promise.all([
-    getSiteAnalyticsSnapshot({ dateRange: currentRange }),
-    getSiteAnalyticsSnapshot({ dateRange: previousRange }),
+    analyticsProvider.getSiteAnalyticsSnapshot({ dateRange: currentRange }),
+    analyticsProvider.getSiteAnalyticsSnapshot({ dateRange: previousRange }),
     prisma.productUpvote.count({
       where: { createdAt: { gte: since } },
     }),

@@ -147,6 +147,7 @@ async function fetchRealtimeVisitorsWithCache(): Promise<number> {
     console.error("[analytics] failed to fetch realtime visitors from GA", {
       error,
     })
+    await storeRealtimeVisitors(0)
     return normalizeRealtimeVisitors(0)
   }
 }

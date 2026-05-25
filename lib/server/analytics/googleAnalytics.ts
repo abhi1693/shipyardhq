@@ -82,6 +82,8 @@ const SITE_SNAPSHOT_CACHE_TTL_SECONDS = 900
 const PRODUCT_TRAFFIC_CACHE_PREFIX = "analytics:product:traffic:v1"
 const PRODUCT_TRAFFIC_CACHE_TTL_SECONDS = 300
 const PRODUCT_TRAFFIC_IN_PROCESS_TTL_MS = 60_000
+const DEFAULT_GA_REPORT_TIMEOUT_MS = 10_000
+const DEFAULT_GA_REALTIME_REPORT_TIMEOUT_MS = 4_000
 const CACHE_KEY_JITTER_BUCKETS = Math.max(
   1,
   Number.isFinite(
@@ -92,6 +94,14 @@ const CACHE_KEY_JITTER_BUCKETS = Math.max(
 )
 const CACHE_KEY_JITTER_BUCKET = Math.floor(
   Math.random() * CACHE_KEY_JITTER_BUCKETS,
+)
+const GA_REPORT_TIMEOUT_MS = parsePositiveIntegerEnv(
+  "GA_REPORT_TIMEOUT_MS",
+  DEFAULT_GA_REPORT_TIMEOUT_MS,
+)
+const GA_REALTIME_REPORT_TIMEOUT_MS = parsePositiveIntegerEnv(
+  "GA_REALTIME_REPORT_TIMEOUT_MS",
+  DEFAULT_GA_REALTIME_REPORT_TIMEOUT_MS,
 )
 let clientPromise: Promise<BetaAnalyticsDataClient> | null = null
 
@@ -155,6 +165,14 @@ export type GaProductTrafficSummary = {
 
 function jitterCacheKey(baseKey: string) {
   return `${baseKey}:j${CACHE_KEY_JITTER_BUCKET}`
+}
+
+function parsePositiveIntegerEnv(name: string, fallback: number): number {
+  const raw = process.env[name]?.trim()
+  if (!raw) return fallback
+
+  const parsed = Number.parseInt(raw, 10)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback
 }
 
 function normalizeGaDateRange(range: GaDateRange): GaDateRange {
@@ -232,10 +250,13 @@ async function runReportWithQuota(
   client: BetaAnalyticsDataClient,
   request: Parameters<BetaAnalyticsDataClient["runReport"]>[0],
 ): Promise<protos.google.analytics.data.v1beta.IRunReportResponse> {
-  const [response] = await client.runReport({
-    ...request,
-    returnPropertyQuota: true,
-  })
+  const [response] = await client.runReport(
+    {
+      ...request,
+      returnPropertyQuota: true,
+    },
+    { timeout: GA_REPORT_TIMEOUT_MS },
+  )
   return response
 }
 
@@ -243,10 +264,13 @@ async function runRealtimeReportWithQuota(
   client: BetaAnalyticsDataClient,
   request: Parameters<BetaAnalyticsDataClient["runRealtimeReport"]>[0],
 ): Promise<protos.google.analytics.data.v1beta.IRunRealtimeReportResponse> {
-  const [response] = await client.runRealtimeReport({
-    ...request,
-    returnPropertyQuota: true,
-  })
+  const [response] = await client.runRealtimeReport(
+    {
+      ...request,
+      returnPropertyQuota: true,
+    },
+    { timeout: GA_REALTIME_REPORT_TIMEOUT_MS },
+  )
   return response
 }
 

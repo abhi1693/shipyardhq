@@ -126,8 +126,8 @@ export function ProductBadgeCelebrationDialog({
   }, [baseBadgeUrl])
 
   const previewBadgeUrl = useMemo(() => {
-    return pngBadgeUrl
-  }, [pngBadgeUrl])
+    return format === "png" ? pngBadgeUrl : svgBadgeUrl
+  }, [format, pngBadgeUrl, svgBadgeUrl])
 
   const embedCode = useMemo(() => {
     const badgeUrl = format === "png" ? pngBadgeUrl : svgBadgeUrl
