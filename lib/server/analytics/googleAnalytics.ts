@@ -105,6 +105,52 @@ const GA_REALTIME_REPORT_TIMEOUT_MS = parsePositiveIntegerEnv(
 )
 let clientPromise: Promise<BetaAnalyticsDataClient> | null = null
 
+type ErrorLike = {
+  code?: unknown
+  details?: unknown
+  message?: unknown
+}
+
+const TRANSIENT_GA_ERROR_CODES = new Set<unknown>([
+  4,
+  8,
+  10,
+  13,
+  14,
+  "4",
+  "8",
+  "10",
+  "13",
+  "14",
+  "DEADLINE_EXCEEDED",
+  "RESOURCE_EXHAUSTED",
+  "ABORTED",
+  "INTERNAL",
+  "UNAVAILABLE",
+])
+const TRANSIENT_GA_ERROR_PATTERNS = [
+  "deadline exceeded",
+  "econnreset",
+  "etimedout",
+  "socket hang up",
+  "unavailable",
+  "resource exhausted",
+]
+
+export function isTransientGaError(error: unknown): boolean {
+  const errorLike = error as ErrorLike
+  if (TRANSIENT_GA_ERROR_CODES.has(errorLike?.code)) {
+    return true
+  }
+
+  const detailText = `${errorLike?.details ?? ""} ${errorLike?.message ?? ""}`
+    .trim()
+    .toLowerCase()
+  return TRANSIENT_GA_ERROR_PATTERNS.some((pattern) =>
+    detailText.includes(pattern),
+  )
+}
+
 export type GaDateRange = {
   startDate: string
   endDate: string
@@ -1501,7 +1547,9 @@ export async function getRealtimeVisitorsFromGa(): Promise<number> {
     }
     return normalizeRealtimeVisitors(fresh)
   } catch (error) {
-    console.error("[analytics] failed to fetch GA realtime visitors", error)
+    if (!isTransientGaError(error)) {
+      console.error("[analytics] failed to fetch GA realtime visitors", error)
+    }
     const fallback = cachedValue ?? 0
     return normalizeRealtimeVisitors(fallback)
   }

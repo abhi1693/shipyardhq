@@ -23,6 +23,15 @@ vi.mock("@/lib/server/cache", () => cacheMocks)
 
 vi.mock("@/lib/server/analytics/googleAnalytics", () => ({
   fetchRealtimeVisitorsFromGa: gaMocks.fetchRealtimeVisitorsFromGa,
+  isTransientGaError: (error: unknown) => {
+    const errorLike = error as { code?: unknown; message?: unknown }
+    return (
+      errorLike.code === 14 ||
+      String(errorLike.message ?? "")
+        .toLowerCase()
+        .includes("deadline exceeded")
+    )
+  },
 }))
 
 vi.mock("@/lib/server/analytics/providers/db", () => ({
@@ -72,6 +81,31 @@ describe("cacheAnalyticsProvider realtime visitors", () => {
 
     await expect(cacheAnalyticsProvider.getRealtimeVisitors()).resolves.toBe(1)
 
+    expect(errorSpy).not.toHaveBeenCalled()
+    expect(cacheMocks.cacheMiss).toHaveBeenCalledWith(
+      expect.objectContaining({
+        key: "analytics:realtime:visitors:v1",
+        value: 0,
+        ttlSeconds: 120,
+        inProcessTtlMs: 30_000,
+      }),
+    )
+
+    errorSpy.mockRestore()
+  })
+
+  it("logs unexpected GA realtime failures before falling back", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+    const error = new Error("GA_PROPERTY_ID is missing")
+    cacheMocks.cacheHit.mockResolvedValueOnce(null)
+    gaMocks.fetchRealtimeVisitorsFromGa.mockRejectedValueOnce(error)
+
+    await expect(cacheAnalyticsProvider.getRealtimeVisitors()).resolves.toBe(1)
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      "[analytics] failed to fetch realtime visitors from GA",
+      { error },
+    )
     expect(cacheMocks.cacheMiss).toHaveBeenCalledWith(
       expect.objectContaining({
         key: "analytics:realtime:visitors:v1",

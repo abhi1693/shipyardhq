@@ -12,6 +12,7 @@ import { dbAnalyticsProvider } from "@/lib/server/analytics/providers/db"
 import { gaAnalyticsProvider } from "@/lib/server/analytics/providers/ga"
 import {
   fetchRealtimeVisitorsFromGa,
+  isTransientGaError,
   type HomepageTraffic,
   type SiteAnalyticsSnapshot,
 } from "@/lib/server/analytics/googleAnalytics"
@@ -144,9 +145,11 @@ async function fetchRealtimeVisitorsWithCache(): Promise<number> {
     await storeRealtimeVisitors(fresh)
     return normalizeRealtimeVisitors(fresh)
   } catch (error) {
-    console.error("[analytics] failed to fetch realtime visitors from GA", {
-      error,
-    })
+    if (!isTransientGaError(error)) {
+      console.error("[analytics] failed to fetch realtime visitors from GA", {
+        error,
+      })
+    }
     await storeRealtimeVisitors(0)
     return normalizeRealtimeVisitors(0)
   }
