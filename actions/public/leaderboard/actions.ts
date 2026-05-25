@@ -531,6 +531,7 @@ async function resolveProductOfThePeriod(
   const rankedRows = await computeLeaderboardWindow({
     periodStart,
     periodEnd,
+    asOf: now,
   })
   const winners = rankedRows.slice(0, limit)
   const productIds = winners.map((row) => row.productId)
@@ -770,6 +771,7 @@ export const getPeriodicLeaderboard = cached(
       computeLeaderboardWindow({
         periodStart: args.periodStart,
         periodEnd: args.periodEnd,
+        asOf: new Date(),
         limit,
         productIds: filteredProductIds ?? undefined,
       }),
@@ -787,7 +789,7 @@ export const getPeriodicLeaderboard = cached(
   },
   "leaderboard:periodic",
   {
-    ttl: DEFAULT_TTL.fast,
+    ttl: DEFAULT_TTL.slow,
     keyParts: ([args]) =>
       [
         args.period,
