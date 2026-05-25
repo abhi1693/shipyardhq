@@ -13,12 +13,17 @@ import {
 
 describe("toAbsoluteUrlFromSite", () => {
   it("returns undefined for empty input", () => {
-    expect(toAbsoluteUrlFromSite("", "https://shipyard.example")).toBeUndefined()
+    expect(
+      toAbsoluteUrlFromSite("", "https://shipyard.example"),
+    ).toBeUndefined()
   })
 
   it("keeps absolute URLs", () => {
     expect(
-      toAbsoluteUrlFromSite("https://example.com/a", "https://shipyard.example"),
+      toAbsoluteUrlFromSite(
+        "https://example.com/a",
+        "https://shipyard.example",
+      ),
     ).toBe("https://example.com/a")
   })
 
@@ -119,6 +124,7 @@ describe("crawler directives", () => {
     const publicRule = Array.isArray(rules) ? rules[0] : rules
 
     expect(publicRule.disallow).toContain("/r/")
+    expect(publicRule.disallow).toContain("/_next/static/")
   })
 
   it("marks redirect and static asset endpoints as non-indexable", async () => {
@@ -148,9 +154,7 @@ describe("canonical route helpers", () => {
     expect(dailyLeaderboardPath(2025, 12, 29)).toBe(
       "/leaderboard/daily/2025/12/29",
     )
-    expect(weeklyLeaderboardPath(2025, 52)).toBe(
-      "/leaderboard/weekly/2025/52",
-    )
+    expect(weeklyLeaderboardPath(2025, 52)).toBe("/leaderboard/weekly/2025/52")
     expect(monthlyLeaderboardPath(2025, 12)).toBe(
       "/leaderboard/monthly/2025/12",
     )
