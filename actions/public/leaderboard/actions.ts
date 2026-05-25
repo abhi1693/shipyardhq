@@ -772,6 +772,7 @@ export const getPeriodicLeaderboard = cached(
         periodStart: args.periodStart,
         periodEnd: args.periodEnd,
         asOf: new Date(),
+        trafficLookup: "stored",
         limit,
         productIds: filteredProductIds ?? undefined,
       }),

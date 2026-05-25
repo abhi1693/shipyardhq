@@ -7,6 +7,8 @@ type MetricMaps = {
   upvotes: Map<string, number>
 }
 
+type TrafficLookupMode = "analytics" | "stored"
+
 export type LeaderboardWeights = {
   views: number
   uniqueVisitors: number
@@ -174,18 +176,21 @@ export async function computeLeaderboardWindow(options: {
   asOf?: Date
   productIds?: string[]
   limit?: number
+  trafficLookup?: TrafficLookupMode
 }): Promise<LeaderboardScoreRow[]> {
   const windowEnd = resolveWindowEnd(options.periodEnd, options.asOf)
   const weights = options.weights ?? DEFAULT_WEIGHTS
   const productIds = options.productIds?.filter(Boolean)
+  const trafficLookup = options.trafficLookup ?? "analytics"
 
   const metrics = productIds?.length
     ? await collectMetricsForProducts(
         productIds,
         options.periodStart,
         windowEnd,
+        trafficLookup,
       )
-    : await collectMetrics(options.periodStart, windowEnd)
+    : await collectMetrics(options.periodStart, windowEnd, trafficLookup)
 
   const hasActivity = metricsHaveActivity(metrics)
   if (!hasActivity) return []
@@ -303,19 +308,76 @@ function resolveWindowEnd(periodEnd: Date, asOf?: Date): Date {
 async function collectMetrics(
   periodStart: Date,
   periodEnd: Date,
+  trafficLookup: TrafficLookupMode = "analytics",
 ): Promise<MetricMaps> {
-  const analyticsProvider = getAnalyticsProvider("cache")
   const products: Array<{ id: string; slug: string }> =
     await prisma.product.findMany({
       where: { status: "published" },
       select: { id: true, slug: true },
     })
 
-  const dateRange = buildDateRange(periodStart, periodEnd)
-  const gaMap = await analyticsProvider.getProductTrafficMap({
+  return collectMetricsForProductList(
     products,
-    dateRange,
-  })
+    periodStart,
+    periodEnd,
+    trafficLookup,
+  )
+}
+
+async function collectMetricsForProducts(
+  productIds: string[],
+  periodStart: Date,
+  periodEnd: Date,
+  trafficLookup: TrafficLookupMode = "analytics",
+): Promise<MetricMaps> {
+  const products: Array<{ id: string; slug: string }> =
+    await prisma.product.findMany({
+      where: { id: { in: productIds }, status: "published" },
+      select: { id: true, slug: true },
+    })
+
+  return collectMetricsForProductList(
+    products,
+    periodStart,
+    periodEnd,
+    trafficLookup,
+  )
+}
+
+async function collectMetricsForProductList(
+  products: Array<{ id: string; slug: string }>,
+  periodStart: Date,
+  periodEnd: Date,
+  trafficLookup: TrafficLookupMode,
+): Promise<MetricMaps> {
+  const productIds = products.map((product: { id: string }) => product.id)
+  if (!productIds.length) {
+    return {
+      views: new Map(),
+      uniqueVisitors: new Map(),
+      upvotes: new Map(),
+    }
+  }
+
+  const dateRange = buildDateRange(periodStart, periodEnd)
+  const [trafficMap, upvotes] = await Promise.all([
+    getProductTrafficMapForLeaderboard({
+      products,
+      dateRange,
+      periodStart,
+      periodEnd,
+      trafficLookup,
+    }),
+    prisma.productUpvote.groupBy({
+      by: ["productId"],
+      where: {
+        productId: { in: productIds },
+        createdAt: { gte: periodStart, lt: periodEnd },
+        product: { status: "published" },
+      },
+      _count: { productId: true },
+    }),
+  ])
 
   const metrics: MetricMaps = {
     views: new Map(),
@@ -323,22 +385,10 @@ async function collectMetrics(
     upvotes: new Map(),
   }
 
-  for (const [productId, values] of gaMap.entries()) {
+  for (const [productId, values] of trafficMap.entries()) {
     metrics.views.set(productId, values.pageViews)
     metrics.uniqueVisitors.set(productId, values.uniqueVisitors)
   }
-
-  const productIds = products.map((product: { id: string }) => product.id)
-
-  const upvotes = await prisma.productUpvote.groupBy({
-    by: ["productId"],
-    where: {
-      productId: { in: productIds },
-      createdAt: { gte: periodStart, lt: periodEnd },
-      product: { status: "published" },
-    },
-    _count: { productId: true },
-  })
 
   for (const entry of upvotes) {
     metrics.upvotes.set(entry.productId, Number(entry._count?.productId ?? 0))
@@ -347,50 +397,65 @@ async function collectMetrics(
   return metrics
 }
 
-async function collectMetricsForProducts(
+async function getProductTrafficMapForLeaderboard(args: {
+  products: Array<{ id: string; slug: string }>
+  dateRange: { startDate: string; endDate: string }
+  periodStart: Date
+  periodEnd: Date
+  trafficLookup: TrafficLookupMode
+}) {
+  if (args.trafficLookup === "stored") {
+    return getStoredProductTrafficMap(
+      args.products.map((product) => product.id),
+      args.periodStart,
+      args.periodEnd,
+    )
+  }
+
+  const analyticsProvider = getAnalyticsProvider("cache")
+  return analyticsProvider.getProductTrafficMap({
+    products: args.products,
+    dateRange: args.dateRange,
+  })
+}
+
+async function getStoredProductTrafficMap(
   productIds: string[],
   periodStart: Date,
   periodEnd: Date,
-): Promise<MetricMaps> {
-  const analyticsProvider = getAnalyticsProvider("cache")
-  const products: Array<{ id: string; slug: string }> =
-    await prisma.product.findMany({
-      where: { id: { in: productIds }, status: "published" },
-      select: { id: true, slug: true },
-    })
-
-  const dateRange = buildDateRange(periodStart, periodEnd)
-  const gaMap = await analyticsProvider.getProductTrafficMap({
-    products,
-    dateRange,
-  })
-
-  const metrics: MetricMaps = {
-    views: new Map(),
-    uniqueVisitors: new Map(),
-    upvotes: new Map(),
-  }
-
-  for (const [productId, values] of gaMap.entries()) {
-    metrics.views.set(productId, values.pageViews)
-    metrics.uniqueVisitors.set(productId, values.uniqueVisitors)
-  }
-
-  const upvotes = await prisma.productUpvote.groupBy({
+) {
+  const rows = await prisma.productTrafficDaily.groupBy({
     by: ["productId"],
     where: {
       productId: { in: productIds },
-      createdAt: { gte: periodStart, lt: periodEnd },
-      product: { status: "published" },
+      source: "ga4",
+      date: { gte: periodStart, lt: periodEnd },
     },
-    _count: { productId: true },
+    _sum: {
+      pageViews: true,
+      uniqueVisitors: true,
+      sessions: true,
+    },
   })
 
-  for (const entry of upvotes) {
-    metrics.upvotes.set(entry.productId, Number(entry._count?.productId ?? 0))
+  const results = new Map<
+    string,
+    { pageViews: number; uniqueVisitors: number; sessions: number }
+  >()
+
+  for (const productId of productIds) {
+    results.set(productId, { pageViews: 0, uniqueVisitors: 0, sessions: 0 })
   }
 
-  return metrics
+  for (const row of rows) {
+    results.set(row.productId, {
+      pageViews: Number(row._sum.pageViews ?? 0),
+      uniqueVisitors: Number(row._sum.uniqueVisitors ?? 0),
+      sessions: Number(row._sum.sessions ?? 0),
+    })
+  }
+
+  return results
 }
 
 function buildDateRange(periodStart: Date, periodEnd: Date) {
