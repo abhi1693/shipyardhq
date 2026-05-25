@@ -54,7 +54,7 @@ function cacheKeyForProductTraffic(args: {
   const paths = normalizeKeyParts(args.pagePaths)
   const advancedKey = args.includeAdvanced === false ? "basic" : "advanced"
   return buildCacheKey(
-    "analytics:cache:product-traffic:v1",
+    "analytics:cache:product-traffic:v2",
     args.dateRange.startDate,
     args.dateRange.endDate,
     advancedKey,
@@ -69,7 +69,7 @@ function cacheKeyForProductTrafficMap(args: {
   const ids = normalizeKeyParts(args.products.map((product) => product.id))
   const signature = ids.length > 0 ? hashValues(ids) : "empty"
   return buildCacheKey(
-    "analytics:cache:product-traffic-map:v1",
+    "analytics:cache:product-traffic-map:v2",
     args.dateRange.startDate,
     args.dateRange.endDate,
     `n${ids.length}`,
@@ -93,7 +93,7 @@ function cacheKeyForSiteSnapshot(args?: {
   const range = args?.dateRange ?? defaultSiteDateRange()
   const topProductLimit = Math.max(1, args?.topProductLimit ?? 6)
   return buildCacheKey(
-    "analytics:cache:site-snapshot:v1",
+    "analytics:cache:site-snapshot:v2",
     range.startDate,
     range.endDate,
     `top${topProductLimit}`,
@@ -101,7 +101,7 @@ function cacheKeyForSiteSnapshot(args?: {
 }
 
 const HOMEPAGE_TRAFFIC_CACHE_KEY = buildCacheKey(
-  "analytics:cache:homepage-traffic:v1",
+  "analytics:cache:homepage-traffic:v2",
 )
 
 async function getCachedRealtimeVisitors(): Promise<number | null> {

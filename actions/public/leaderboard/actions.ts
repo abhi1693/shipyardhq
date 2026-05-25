@@ -697,6 +697,10 @@ async function mapRunRowsToProducts(params: {
   })) as unknown as ProductCardRecord[]
 }
 
+function isClosedLeaderboardWindow(periodEnd: Date) {
+  return periodEnd.getTime() <= Date.now()
+}
+
 export const getPeriodicLeaderboard = cached(
   async (args: {
     period: LeaderboardHighlightPeriod
@@ -710,11 +714,31 @@ export const getPeriodicLeaderboard = cached(
     const periodLabel =
       args.label ??
       formatPeriodLabel(args.period, args.periodStart, args.periodEnd)
-    const archive = await getPeriodicArchive()
+    const archivePromise = getPeriodicArchive()
     const categorySlug =
       typeof args.categorySlug === "string" && args.categorySlug.trim().length
         ? args.categorySlug.trim()
         : null
+
+    const runProducts = await mapRunRowsToProducts({
+      periodStart: args.periodStart,
+      periodEnd: args.periodEnd,
+      limit,
+      categorySlug,
+    })
+    if (
+      runProducts &&
+      (runProducts.length > 0 || isClosedLeaderboardWindow(args.periodEnd))
+    ) {
+      return {
+        period: args.period,
+        periodLabel,
+        periodStart: args.periodStart,
+        periodEnd: args.periodEnd,
+        products: runProducts,
+        archive: await archivePromise,
+      }
+    }
 
     const filteredProductIds = categorySlug
       ? (
@@ -737,35 +761,19 @@ export const getPeriodicLeaderboard = cached(
         periodStart: args.periodStart,
         periodEnd: args.periodEnd,
         products: [],
-        archive,
+        archive: await archivePromise,
       }
     }
 
-    if (args.period === "month") {
-      const runProducts = await mapRunRowsToProducts({
+    const [archive, rankedRows] = await Promise.all([
+      archivePromise,
+      computeLeaderboardWindow({
         periodStart: args.periodStart,
         periodEnd: args.periodEnd,
         limit,
-        categorySlug,
-      })
-      if (runProducts?.length) {
-        return {
-          period: args.period,
-          periodLabel,
-          periodStart: args.periodStart,
-          periodEnd: args.periodEnd,
-          products: runProducts,
-          archive,
-        }
-      }
-    }
-
-    const rankedRows = await computeLeaderboardWindow({
-      periodStart: args.periodStart,
-      periodEnd: args.periodEnd,
-      limit,
-      productIds: filteredProductIds ?? undefined,
-    })
+        productIds: filteredProductIds ?? undefined,
+      }),
+    ])
     const products = await mapRowsToProducts(rankedRows, limit)
 
     return {

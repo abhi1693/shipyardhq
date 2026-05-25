@@ -10,7 +10,7 @@ import { HOME_PATH, LEADERBOARD_PATH } from "@/lib/routes"
 
 const PAGE_TITLE = "Shipyard Leaderboard"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 
 export const metadata = buildPageMetadata({
   title: `${PAGE_TITLE} — Ranked by real builder interest`,

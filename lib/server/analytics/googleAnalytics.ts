@@ -5,7 +5,9 @@ import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import { productPath } from "@/lib/routes"
 import {
+  andGaDimensionFilters,
   buildPagePathFilter,
+  buildGaHostnameExclusionFilter,
   extractProductSlug,
   normalizeBounceRate,
   normalizePath,
@@ -73,13 +75,13 @@ export type SiteAnalyticsSnapshot = {
   }>
 }
 
-const CACHE_KEY = buildCacheKey("analytics:homepage:traffic:v1")
+const CACHE_KEY = buildCacheKey("analytics:homepage:traffic:v2")
 const CACHE_TTL_SECONDS = 900
 const REALTIME_CACHE_KEY = buildCacheKey("analytics:homepage:realtime:v1")
 const REALTIME_CACHE_TTL_SECONDS = 120
-const SITE_SNAPSHOT_CACHE_PREFIX = "analytics:site:snapshot:v2"
+const SITE_SNAPSHOT_CACHE_PREFIX = "analytics:site:snapshot:v3"
 const SITE_SNAPSHOT_CACHE_TTL_SECONDS = 900
-const PRODUCT_TRAFFIC_CACHE_PREFIX = "analytics:product:traffic:v1"
+const PRODUCT_TRAFFIC_CACHE_PREFIX = "analytics:product:traffic:v2"
 const PRODUCT_TRAFFIC_CACHE_TTL_SECONDS = 300
 const PRODUCT_TRAFFIC_IN_PROCESS_TTL_MS = 60_000
 const DEFAULT_GA_REPORT_TIMEOUT_MS = 10_000
@@ -296,9 +298,14 @@ async function runReportWithQuota(
   client: BetaAnalyticsDataClient,
   request: Parameters<BetaAnalyticsDataClient["runReport"]>[0],
 ): Promise<protos.google.analytics.data.v1beta.IRunReportResponse> {
+  const hostnameExclusionFilter = buildGaHostnameExclusionFilter()
   const [response] = await client.runReport(
     {
       ...request,
+      dimensionFilter: andGaDimensionFilters(
+        request.dimensionFilter,
+        hostnameExclusionFilter,
+      ),
       returnPropertyQuota: true,
     },
     { timeout: GA_REPORT_TIMEOUT_MS },

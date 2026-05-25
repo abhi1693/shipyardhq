@@ -8,7 +8,7 @@ import {
 import { PeriodicLeaderboardView } from "@/components/templates/public/leaderboard/periodic/view"
 import { monthlyLeaderboardPath } from "@/lib/routes"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 
 type PageParams = {
   year: string

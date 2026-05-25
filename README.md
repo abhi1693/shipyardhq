@@ -70,6 +70,7 @@ Configure these server-side env vars in production:
 ## Analytics Instrumentation
 
 - Product detail pages rely on GA-based reporting; the legacy `/api/analytics/ingest` beacon has been removed.
+- GA reporting excludes local hostnames by default (`localhost`, `127.0.0.1`, and `::1`). Add comma-separated values to `GA_EXCLUDED_HOSTNAMES` for staging or preview hosts that should not count in analytics.
 - Members can review per-product charts at `/member/products/[slug]/analytics` (owner access only) to explore views, devices, geo, referrers, and browser breakdowns.
 - Access to the analytics dashboard is gated by the `analytics.basic` plan feature; products without it redirect back to the main member view.
 

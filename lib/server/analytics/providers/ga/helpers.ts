@@ -1,5 +1,14 @@
 import { protos } from "@google-analytics/data"
 
+import {
+  normalizeGaHostname,
+  resolveExcludedGaHostnames,
+} from "@/lib/analytics/gaHostnames"
+
+type FilterExpression = protos.google.analytics.data.v1beta.IFilterExpression
+
+export { normalizeGaHostname, resolveExcludedGaHostnames }
+
 export function parseDateString(
   value: string | null | undefined,
 ): string | null {
@@ -50,9 +59,7 @@ export function extractProductSlug(path: string | null | undefined) {
   return match ? match[1]!.toLowerCase() : null
 }
 
-export function buildPagePathFilter(
-  pagePaths: string[],
-): protos.google.analytics.data.v1beta.IFilterExpression {
+export function buildPagePathFilter(pagePaths: string[]): FilterExpression {
   if (pagePaths.length === 0) {
     throw new Error("No page paths provided for GA product traffic")
   }
@@ -84,6 +91,47 @@ export function buildPagePathFilter(
           },
         },
       })),
+    },
+  }
+}
+
+export function buildGaHostnameExclusionFilter(
+  hostnames = resolveExcludedGaHostnames(),
+): FilterExpression | null {
+  const values = Array.from(
+    new Set(
+      hostnames
+        .map((hostname) => normalizeGaHostname(hostname))
+        .filter((hostname): hostname is string => Boolean(hostname)),
+    ),
+  )
+
+  if (values.length === 0) return null
+
+  return {
+    notExpression: {
+      filter: {
+        fieldName: "hostName",
+        inListFilter: {
+          values,
+          caseSensitive: false,
+        },
+      },
+    },
+  }
+}
+
+export function andGaDimensionFilters(
+  first: FilterExpression | null | undefined,
+  second: FilterExpression | null | undefined,
+): FilterExpression | undefined {
+  if (!first && !second) return undefined
+  if (!first) return second ?? undefined
+  if (!second) return first
+
+  return {
+    andGroup: {
+      expressions: [first, second],
     },
   }
 }

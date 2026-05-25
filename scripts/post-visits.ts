@@ -3,7 +3,6 @@ import { randomUUID } from "node:crypto"
 const MAX_VISITS_PER_RUN = 100
 const DEFAULT_ORIGIN = "http://localhost:3000"
 const DEFAULT_TIMEOUT_MS = 10_000
-const DEFAULT_SRC = "https://trustviews.io/script.js"
 const DEFAULT_PAGE_ORIGIN = "https://shipyardhq.dev"
 const DEFAULT_REFERER = "https://shipyardhq.dev"
 const DEFAULT_DELAY_MS = 30_000
@@ -186,7 +185,7 @@ function parseArgs(): ParsedArgs {
   }
 
   if (!parsed.src && !parsed.origin) {
-    parsed.src = DEFAULT_SRC
+    parsed.origin = DEFAULT_ORIGIN
   }
   if (!parsed.pageOrigin) {
     parsed.pageOrigin = DEFAULT_PAGE_ORIGIN
@@ -269,7 +268,7 @@ async function main() {
         `  --delay-ms <ms>     Fixed delay between requests (default: ${DEFAULT_DELAY_MS})`,
         "  --jitter-ms <ms>    Adds +/- jitter to --delay-ms (default: 10% of --delay-ms)",
         `  --timeout-ms <ms>   Per-request timeout (default: ${DEFAULT_TIMEOUT_MS})`,
-        `  --src <url>         Script URL for deriving /api/visits (default: ${DEFAULT_SRC})`,
+        "  --src <url>         Script URL for deriving /api/visits",
         `  --page-origin <url> Set the Origin header (default: ${DEFAULT_PAGE_ORIGIN})`,
         `  --referer <url>     Set the Referer header (default: ${DEFAULT_REFERER})`,
         "  --allow-remote      Allow non-local origins (default: true)",

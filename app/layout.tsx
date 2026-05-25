@@ -1,11 +1,13 @@
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import Script from "next/script"
 import { Toaster } from "@/components/atoms/sonner"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import Providers from "@/components/layout/providers"
 import "./globals.css"
 import { IS_PROD } from "@/lib/constants"
 import "./theme.css"
+import { resolveExcludedGaHostnames } from "@/lib/analytics/gaHostnames"
 import { buildSiteSeo, siteConfig } from "@/lib/siteConfig"
 
 const geistSans = Geist({
@@ -40,11 +42,25 @@ export const viewport: Viewport = {
   themeColor: "#ffffff",
 }
 
+function buildGaHostnameGuardScript(gaId: string) {
+  const disabledKey = `ga-disable-${gaId}`
+  const excludedHostnames = resolveExcludedGaHostnames()
+
+  return `(() => {
+  const hostname = window.location.hostname.toLowerCase().replace(/^\\[|\\]$/g, "");
+  if (${JSON.stringify(excludedHostnames)}.includes(hostname)) {
+    window[${JSON.stringify(disabledKey)}] = true;
+  }
+})();`
+}
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const gaId = IS_PROD ? process.env.GOOGLE_ANALYTICS_ID?.trim() : null
+
   return (
     <html
       lang="en"
@@ -55,6 +71,15 @@ export default function RootLayout({
         <link rel="preconnect" href="https://media.shipyardhq.dev" />
         <link rel="preconnect" href="https://www.google-analytics.com" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
+        {gaId && (
+          <Script
+            id="ga-hostname-exclusions"
+            strategy="beforeInteractive"
+            dangerouslySetInnerHTML={{
+              __html: buildGaHostnameGuardScript(gaId),
+            }}
+          />
+        )}
       </head>
       <body className="min-h-screen antialiased bg-[var(--background)] text-[var(--foreground)]">
         <Providers>
@@ -62,9 +87,7 @@ export default function RootLayout({
           {children}
         </Providers>
       </body>
-      {IS_PROD && process.env.GOOGLE_ANALYTICS_ID && (
-        <GoogleAnalytics gaId={process.env.GOOGLE_ANALYTICS_ID} />
-      )}
+      {gaId && <GoogleAnalytics gaId={gaId} />}
     </html>
   )
 }
