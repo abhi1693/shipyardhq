@@ -11,7 +11,6 @@ export const dynamic = "force-dynamic"
 
 type Theme = "light" | "dark"
 type BadgeType = "featured"
-type Format = "svg" | "png"
 
 type RouteParams = Promise<{ slug: string }>
 
@@ -20,7 +19,6 @@ const HEIGHT = 162
 const OUTER_PADDING = 1
 const DEFAULT_THEME: Theme = "light"
 const DEFAULT_TYPE: BadgeType = "featured"
-const DEFAULT_FORMAT: Format = "svg"
 
 const CACHE_CONTROL =
   "public, max-age=300, s-maxage=300, stale-while-revalidate=600"
@@ -28,7 +26,6 @@ const BADGE_FONT_FAMILY =
   "'ShipyardBadge', 'DejaVu Sans', Arial, Helvetica, sans-serif"
 
 let cachedBrandPathData: string | null = null
-let cachedBadgeFontCss: string | null | undefined
 
 function getBrandPathData(): string | null {
   if (cachedBrandPathData) return cachedBrandPathData
@@ -42,38 +39,6 @@ function getBrandPathData(): string | null {
   } catch {
     return null
   }
-}
-
-function getBadgeFontCss(): string {
-  if (typeof cachedBadgeFontCss !== "undefined") {
-    return cachedBadgeFontCss ?? ""
-  }
-
-  try {
-    const filePath = path.join(
-      process.cwd(),
-      "node_modules",
-      "next",
-      "dist",
-      "compiled",
-      "@vercel",
-      "og",
-      "Geist-Regular.ttf",
-    )
-    const fontBase64 = readFileSync(filePath).toString("base64")
-    cachedBadgeFontCss = `
-      @font-face {
-        font-family: 'ShipyardBadge';
-        src: url('data:font/truetype;charset=utf-8;base64,${fontBase64}') format('truetype');
-        font-style: normal;
-        font-weight: 400 900;
-      }
-    `.trim()
-  } catch {
-    cachedBadgeFontCss = null
-  }
-
-  return cachedBadgeFontCss ?? ""
 }
 
 const THEME_STYLES: Record<
@@ -133,15 +98,8 @@ function buildBaseSvg(options: {
   badgeType: BadgeType
   slug: string
   productName: string
-  includeEmbeddedFont?: boolean
 }): string {
-  const {
-    theme,
-    badgeType,
-    slug,
-    productName,
-    includeEmbeddedFont = false,
-  } = options
+  const { theme, badgeType, slug, productName } = options
   const palette = THEME_STYLES[theme]
   const leftWidth = 170
   const logoFallbackBase =
@@ -173,14 +131,10 @@ function buildBaseSvg(options: {
     subheadingSize +
     (showVerification ? verificationGap + subtextSize : 0)
   const contentY = logoY + (logoSize - blockHeight) / 2
-  const fontStyle = includeEmbeddedFont
-    ? `<style>${getBadgeFontCss()}</style>`
-    : ""
 
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH + OUTER_PADDING * 2}" height="${HEIGHT + OUTER_PADDING * 2}" role="img" aria-label="Shipyard badge placeholder">
   <defs>
-    ${fontStyle}
     <clipPath id="${clipId}">
       <rect x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" rx="16" ry="16" />
     </clipPath>
@@ -242,43 +196,6 @@ export async function GET(_req: NextRequest, context: { params: RouteParams }) {
     ["featured"],
     DEFAULT_TYPE,
   )
-  const format = parseParam<Format>(
-    url.searchParams.get("format"),
-    ["svg", "png"],
-    DEFAULT_FORMAT,
-  )
-
-  if (format === "png") {
-    try {
-      const svg = buildBaseSvg({
-        theme,
-        badgeType,
-        slug,
-        productName,
-        includeEmbeddedFont: true,
-      })
-      const sharp = (await import("sharp")).default
-      const pngBuffer = await sharp(Buffer.from(svg))
-        .png({
-          compressionLevel: 9,
-        })
-        .toBuffer()
-      const pngArray = new Uint8Array(pngBuffer)
-      const pngHeaders = new Headers({
-        "Cache-Control": CACHE_CONTROL,
-        "Content-Type": "image/png",
-        "Content-Length": `${pngArray.byteLength}`,
-      })
-      return new NextResponse(pngArray, { status: 200, headers: pngHeaders })
-    } catch (err) {
-      console.error("[badge] Failed to render PNG badge, falling back to SVG", {
-        error: err,
-        slug,
-        badgeType,
-        theme,
-      })
-    }
-  }
 
   const svg = buildBaseSvg({
     theme,

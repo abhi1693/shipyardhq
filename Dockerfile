@@ -68,16 +68,12 @@ FROM base AS runner
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
-ENV XDG_CACHE_HOME=/home/nextjs/.cache
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates fontconfig fonts-dejavu-core openssl \
+  && apt-get install -y --no-install-recommends ca-certificates openssl \
   && rm -rf /var/lib/apt/lists/* \
   && groupadd --system --gid 1001 nodejs \
-  && useradd --system --uid 1001 --gid nodejs --home-dir /home/nextjs --create-home nextjs \
-  && mkdir -p /var/cache/fontconfig /home/nextjs/.cache/fontconfig \
-  && fc-cache -fs \
-  && chown -R nextjs:nodejs /var/cache/fontconfig /home/nextjs
+  && useradd --system --uid 1001 --gid nodejs nextjs
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./

@@ -16,7 +16,6 @@ import CopyButton from "@/components/molecules/CopyButton"
 import { siteConfig } from "@/lib/siteConfig"
 
 type BadgeTheme = "light" | "dark"
-type BadgeFormat = "svg" | "png"
 
 const BADGE_THEMES: Array<{
   id: BadgeTheme
@@ -35,23 +34,6 @@ const BADGE_THEMES: Array<{
   },
 ]
 
-const BADGE_FORMATS: Array<{
-  id: BadgeFormat
-  label: string
-  description: string
-}> = [
-  {
-    id: "svg",
-    label: "SVG",
-    description: "Image tag embed (SVG URL)",
-  },
-  {
-    id: "png",
-    label: "PNG",
-    description: "Image tag embed",
-  },
-]
-
 export function ProductBadgeCelebrationDialog({
   open,
   onOpenChange,
@@ -62,7 +44,6 @@ export function ProductBadgeCelebrationDialog({
   productPublicPath?: string
 }) {
   const [theme, setTheme] = useState<BadgeTheme>("light")
-  const [format, setFormat] = useState<BadgeFormat>("svg")
   const origin = useMemo(() => {
     if (typeof window !== "undefined" && window.location?.origin) {
       return window.location.origin
@@ -97,50 +78,20 @@ export function ProductBadgeCelebrationDialog({
       const url = new URL(`/api/embed/products/${productSlug}`, origin)
       url.searchParams.set("theme", theme)
       url.searchParams.set("type", "featured")
+      url.searchParams.set("format", "svg")
       return url.toString()
     } catch {
       return null
     }
   }, [origin, productSlug, theme])
 
-  const svgBadgeUrl = useMemo(() => {
-    if (!baseBadgeUrl) return null
-    try {
-      const url = new URL(baseBadgeUrl)
-      url.searchParams.set("format", "svg")
-      return url.toString()
-    } catch {
-      return baseBadgeUrl
-    }
-  }, [baseBadgeUrl])
-
-  const pngBadgeUrl = useMemo(() => {
-    if (!baseBadgeUrl) return null
-    try {
-      const url = new URL(baseBadgeUrl)
-      url.searchParams.set("format", "png")
-      return url.toString()
-    } catch {
-      return baseBadgeUrl
-    }
-  }, [baseBadgeUrl])
-
-  const previewBadgeUrl = useMemo(() => {
-    return format === "png" ? pngBadgeUrl : svgBadgeUrl
-  }, [format, pngBadgeUrl, svgBadgeUrl])
-
   const embedCode = useMemo(() => {
-    const badgeUrl = format === "png" ? pngBadgeUrl : svgBadgeUrl
-    if (!badgeUrl) return ""
-    return `<a href="${productUrl}" target="_blank" rel="noopener">\n  <img src="${badgeUrl}" alt="Shipyard badge" style="max-width: 500px; width: 100%; height: auto;" />\n</a>`
-  }, [format, pngBadgeUrl, productUrl, svgBadgeUrl])
+    if (!baseBadgeUrl) return ""
+    return `<a href="${productUrl}" target="_blank" rel="noopener">\n  <img src="${baseBadgeUrl}" alt="Shipyard badge" style="max-width: 500px; width: 100%; height: auto;" />\n</a>`
+  }, [baseBadgeUrl, productUrl])
 
   const handleThemeSelect = useCallback((nextTheme: BadgeTheme) => {
     setTheme(nextTheme)
-  }, [])
-
-  const handleFormatSelect = useCallback((nextFormat: BadgeFormat) => {
-    setFormat(nextFormat)
   }, [])
 
   const canCopyEmbed = Boolean(embedCode)
@@ -158,7 +109,7 @@ export function ProductBadgeCelebrationDialog({
 
         <div className="w-full space-y-4">
           <section className="rounded-lg border bg-muted/50 p-4">
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Theme
@@ -180,34 +131,13 @@ export function ProductBadgeCelebrationDialog({
                   ))}
                 </div>
               </div>
-              <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Format
-                </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  {BADGE_FORMATS.map((formatOption) => (
-                    <Button
-                      key={formatOption.id}
-                      type="button"
-                      size="sm"
-                      variant={
-                        format === formatOption.id ? "secondary" : "outline"
-                      }
-                      onClick={() => handleFormatSelect(formatOption.id)}
-                      className="h-9 px-3 text-sm"
-                    >
-                      {formatOption.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
             </div>
           </section>
 
           <section className="rounded-lg border bg-background/80 p-4">
             <div className="flex flex-col items-center gap-3">
               <Image
-                src={previewBadgeUrl ?? svgBadgeUrl ?? ""}
+                src={baseBadgeUrl ?? ""}
                 alt={
                   productSlug
                     ? `Badge preview for ${productSlug}`
