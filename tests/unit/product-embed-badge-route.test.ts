@@ -33,12 +33,30 @@ describe("product embed badge route", () => {
     const pngSignature = buffer.subarray(0, 8).toString("hex")
     const sharp = (await import("sharp")).default
     const metadata = await sharp(buffer).metadata()
+    const { data, info } = await sharp(buffer)
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true })
+    let darkTextPixels = 0
+    for (let y = 64; y < 130; y += 1) {
+      for (let x = 185; x < 390; x += 1) {
+        const offset = (y * info.width + x) * info.channels
+        const red = data[offset]
+        const green = data[offset + 1]
+        const blue = data[offset + 2]
+        const alpha = data[offset + 3]
+        if (alpha > 128 && red < 90 && green < 100 && blue < 125) {
+          darkTextPixels += 1
+        }
+      }
+    }
 
     expect(response.status).toBe(200)
     expect(response.headers.get("content-type")).toBe("image/png")
     expect(pngSignature).toBe("89504e470d0a1a0a")
     expect(metadata.width).toBe(502)
     expect(metadata.height).toBe(164)
+    expect(darkTextPixels).toBeGreaterThan(200)
   })
 
   it("renders compact SVG badges without embedding PNG font payloads", async () => {
@@ -53,6 +71,7 @@ describe("product embed badge route", () => {
     expect(svg).toContain("ShipYard HQ")
     expect(svg).toContain("textLength=")
     expect(svg).toContain("clip-path=")
+    expect(svg).toContain('x="190" y="39"')
     expect(svg).not.toContain("data:font/truetype")
   })
 

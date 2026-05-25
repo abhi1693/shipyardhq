@@ -203,9 +203,9 @@ function buildBaseSvg(options: {
               : `<rect x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" rx="16" ry="16" fill="${palette.border}" /><text x="${leftWidth / 2}" y="${HEIGHT / 2 + 12}" fill="${palette.text}" font-family="${BADGE_FONT_FAMILY}" font-size="46" font-weight="900" text-anchor="middle">${logoInitial}</text>`
           }
 		    </g>
-    <g aria-label="Content area" clip-path="url(#${contentClipId})" transform="translate(${contentX}, ${contentY})">
-      <text x="0" y="0" fill="${palette.muted}" font-family="${BADGE_FONT_FAMILY}" font-size="${headingSize}" font-weight="600" letter-spacing="1.4" dominant-baseline="hanging">${headingText.toUpperCase()}</text>
-      <g transform="translate(0, ${gap})">
+    <g aria-label="Content area" clip-path="url(#${contentClipId})">
+      <text x="${contentX}" y="${contentY}" fill="${palette.muted}" font-family="${BADGE_FONT_FAMILY}" font-size="${headingSize}" font-weight="600" letter-spacing="1.4" dominant-baseline="hanging">${headingText.toUpperCase()}</text>
+      <g transform="translate(${contentX}, ${contentY + gap})">
         <text x="0" y="0" fill="${palette.text}" font-family="${BADGE_FONT_FAMILY}" font-size="${subheadingSize}" font-weight="900" dominant-baseline="hanging" textLength="${contentMaxWidth}" lengthAdjust="spacingAndGlyphs">${subheadingText}</text>
 		        ${
               showVerification
