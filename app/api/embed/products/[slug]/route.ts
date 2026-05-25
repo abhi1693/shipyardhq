@@ -24,7 +24,8 @@ const DEFAULT_FORMAT: Format = "svg"
 
 const CACHE_CONTROL =
   "public, max-age=300, s-maxage=300, stale-while-revalidate=600"
-const BADGE_FONT_FAMILY = "'ShipyardBadge', Arial, sans-serif"
+const BADGE_FONT_FAMILY =
+  "'ShipyardBadge', 'DejaVu Sans', Arial, Helvetica, sans-serif"
 
 let cachedBrandPathData: string | null = null
 let cachedBadgeFontCss: string | null | undefined
@@ -151,12 +152,15 @@ function buildBaseSvg(options: {
     siteConfig.name?.trim()?.[0]?.toUpperCase() ||
     "S"
   const clipId = `logo-clip-${slug}`
+  const contentClipId = `content-clip-${slug}`
   const logoSize = 136
   const logoX = (leftWidth - logoSize) / 2
   const logoY = (HEIGHT - logoSize) / 2
   const rightInset = 20
+  const contentX = leftWidth + rightInset
+  const contentMaxWidth = WIDTH - contentX - 20
   const headingSize = 16
-  const subheadingSize = 46
+  const subheadingSize = 42
   const gap = 26
   const headingText = "Featured On"
   const subheadingText = siteConfig.name
@@ -180,6 +184,9 @@ function buildBaseSvg(options: {
     <clipPath id="${clipId}">
       <rect x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" rx="16" ry="16" />
     </clipPath>
+    <clipPath id="${contentClipId}">
+      <rect x="${contentX}" y="0" width="${contentMaxWidth}" height="${HEIGHT}" />
+    </clipPath>
   </defs>
   <g transform="translate(${OUTER_PADDING}, ${OUTER_PADDING})">
 		    <rect x="0" y="0" rx="12" ry="12" width="${WIDTH}" height="${HEIGHT}" fill="${palette.card}" stroke="${palette.border}" stroke-width="2" />
@@ -196,10 +203,10 @@ function buildBaseSvg(options: {
               : `<rect x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" rx="16" ry="16" fill="${palette.border}" /><text x="${leftWidth / 2}" y="${HEIGHT / 2 + 12}" fill="${palette.text}" font-family="${BADGE_FONT_FAMILY}" font-size="46" font-weight="900" text-anchor="middle">${logoInitial}</text>`
           }
 		    </g>
-    <g aria-label="Content area" transform="translate(${leftWidth + rightInset}, ${contentY})">
+    <g aria-label="Content area" clip-path="url(#${contentClipId})" transform="translate(${contentX}, ${contentY})">
       <text x="0" y="0" fill="${palette.muted}" font-family="${BADGE_FONT_FAMILY}" font-size="${headingSize}" font-weight="600" letter-spacing="1.4" dominant-baseline="hanging">${headingText.toUpperCase()}</text>
       <g transform="translate(0, ${gap})">
-        <text x="0" y="0" fill="${palette.text}" font-family="${BADGE_FONT_FAMILY}" font-size="${subheadingSize}" font-weight="900" dominant-baseline="hanging">${subheadingText}</text>
+        <text x="0" y="0" fill="${palette.text}" font-family="${BADGE_FONT_FAMILY}" font-size="${subheadingSize}" font-weight="900" dominant-baseline="hanging" textLength="${contentMaxWidth}" lengthAdjust="spacingAndGlyphs">${subheadingText}</text>
 		        ${
               showVerification
                 ? `<g transform="translate(0, ${subheadingSize + verificationGap})" aria-label="Verification text">

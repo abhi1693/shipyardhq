@@ -51,6 +51,8 @@ describe("product embed badge route", () => {
     expect(response.headers.get("content-type")).toBe("image/svg+xml")
     expect(svg).toContain("FEATURED ON")
     expect(svg).toContain("ShipYard HQ")
+    expect(svg).toContain("textLength=")
+    expect(svg).toContain("clip-path=")
     expect(svg).not.toContain("data:font/truetype")
   })
 
