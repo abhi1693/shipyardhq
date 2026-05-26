@@ -1,0 +1,8 @@
+<section class="ui-empty-state{% if extra_class %} {{ extra_class }}{% endif %}">
+  {% if eyebrow %}<p class="eyebrow">{{ eyebrow }}</p>{% endif %}
+  <h2>{{ title }}</h2>
+  {% if text %}<p>{{ text }}</p>{% endif %}
+  {% if action_label and action_href %}
+    {% include "components/ui/button.html" with label=action_label href=action_href variant=action_variant|default:"primary" %}
+  {% endif %}
+</section>

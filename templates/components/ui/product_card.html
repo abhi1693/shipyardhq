@@ -1,0 +1,15 @@
+<article class="ui-product-card{% if extra_class %} {{ extra_class }}{% endif %}">
+  <div class="ui-product-card-mark ui-product-card-mark-{{ accent|default:'orange' }}" aria-hidden="true">
+    {{ initial|default:title|slice:":1" }}
+  </div>
+  <div class="ui-product-card-body">
+    <div class="ui-product-card-header">
+      <div>
+        <h3>{{ title }}</h3>
+        {% if tagline %}<p>{{ tagline }}</p>{% endif %}
+      </div>
+      {% if metric %}<strong>{{ metric }}</strong>{% endif %}
+    </div>
+    {% if meta %}<small>{{ meta }}</small>{% endif %}
+  </div>
+</article>

@@ -1,0 +1,11 @@
+{% with variant=variant|default:"primary" size=size|default:"md" %}
+  {% if href %}
+    <a class="ui-button ui-button-{{ variant }} ui-button-{{ size }}{% if extra_class %} {{ extra_class }}{% endif %}" href="{{ href }}"{% if aria_label %} aria-label="{{ aria_label }}"{% endif %}{% if data_clerk_launch %} data-clerk-launch{% endif %}>
+      {{ label }}
+    </a>
+  {% else %}
+    <button class="ui-button ui-button-{{ variant }} ui-button-{{ size }}{% if extra_class %} {{ extra_class }}{% endif %}" type="{{ button_type|default:'button' }}"{% if aria_label %} aria-label="{{ aria_label }}"{% endif %}{% if data_clerk_launch %} data-clerk-launch{% endif %}{% if disabled %} disabled{% endif %}>
+      {{ label }}
+    </button>
+  {% endif %}
+{% endwith %}

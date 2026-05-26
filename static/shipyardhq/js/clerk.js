@@ -29,7 +29,7 @@
     }
 
     var button = document.createElement("button");
-    button.className = "nav-auth-button";
+    button.className = "ui-button ui-button-inverse ui-button-md nav-auth-button";
     button.type = "button";
     button.textContent = "Sign in";
     button.addEventListener("click", function (event) {

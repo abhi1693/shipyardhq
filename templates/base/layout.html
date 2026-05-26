@@ -21,7 +21,7 @@
           <a href="{% url 'home' %}">Categories</a>
         </nav>
         <div class="header-actions">
-          <button class="launch-button" type="button" data-clerk-launch>+ Launch</button>
+          {% include "components/ui/button.html" with label="+ Launch" variant="outline-inverse" data_clerk_launch=True extra_class="launch-button" %}
           <span class="auth-slot" data-clerk-auth></span>
         </div>
       </div>

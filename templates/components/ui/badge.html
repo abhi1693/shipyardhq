@@ -1,0 +1,6 @@
+{% with variant=variant|default:"neutral" %}
+  <span class="ui-badge ui-badge-{{ variant }}{% if extra_class %} {{ extra_class }}{% endif %}">
+    {% if dot %}<span class="ui-badge-dot" aria-hidden="true"></span>{% endif %}
+    {{ label }}
+  </span>
+{% endwith %}

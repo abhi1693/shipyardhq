@@ -6,15 +6,12 @@
   <section class="home-hero">
     <div class="home-hero-inner">
       <div class="home-hero-copy">
-        <div class="hero-kicker">
-          <span aria-hidden="true">●</span>
-          Products moving today
-        </div>
+        {% include "components/ui/badge.html" with label="Products moving today" variant="success" dot=True extra_class="hero-kicker" %}
         <h1>What builders are actually clicking.</h1>
         <p>Discover indie products, useful alternatives, and focused launch paths without digging through noise.</p>
         <div class="hero-actions">
-          <a class="hero-primary-action" href="#products">Browse products</a>
-          <button class="hero-secondary-action" type="button" data-clerk-launch>Submit your tool</button>
+          {% include "components/ui/button.html" with label="Browse products" href="#products" variant="inverse" size="lg" %}
+          {% include "components/ui/button.html" with label="Submit your tool" variant="outline-inverse" size="lg" data_clerk_launch=True %}
         </div>
         <div class="hero-meta" aria-label="Community highlights">
           <span><strong>Curated</strong> product discovery</span>
@@ -45,7 +42,6 @@
   </section>
 
   <section class="home-placeholder" id="products">
-    <p class="eyebrow">Next</p>
-    <h2>Product sections will build from here.</h2>
+    {% include "components/ui/empty_state.html" with eyebrow="Fresh launches" title="Products will appear here first." text="We're preparing the first boards for founders, teams, and practical software buyers." %}
   </section>
 {% endblock %}

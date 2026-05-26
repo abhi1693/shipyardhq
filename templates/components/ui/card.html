@@ -1,0 +1,6 @@
+<article class="ui-card{% if extra_class %} {{ extra_class }}{% endif %}">
+  {% if eyebrow %}<p class="ui-card-eyebrow">{{ eyebrow }}</p>{% endif %}
+  {% if title %}<h3>{{ title }}</h3>{% endif %}
+  {% if text %}<p>{{ text }}</p>{% endif %}
+  {% if meta %}<small>{{ meta }}</small>{% endif %}
+</article>
