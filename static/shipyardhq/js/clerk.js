@@ -39,6 +39,21 @@
     slot.appendChild(button);
   }
 
+  function bindLaunchButton() {
+    var button = document.querySelector("[data-clerk-launch]");
+    if (!button) {
+      return;
+    }
+
+    button.addEventListener("click", function (event) {
+      if (window.Clerk.isSignedIn) {
+        return;
+      }
+      event.preventDefault();
+      openSignInModal(currentRedirectUrl());
+    });
+  }
+
   function openSignInModal(redirectUrl) {
     window.Clerk.openSignIn({
       fallbackRedirectUrl: redirectUrl,
@@ -57,5 +72,6 @@
 
     await window.Clerk.load(clerkLoadOptions());
     mountAuthSlot();
+    bindLaunchButton();
   });
 })();

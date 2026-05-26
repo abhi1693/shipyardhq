@@ -9,10 +9,22 @@
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="{% url 'home' %}">Shipyard HQ</a>
-      <nav class="nav" aria-label="Primary navigation">
-        <span class="auth-slot" data-clerk-auth></span>
-      </nav>
+      <div class="site-header-inner">
+        <a class="brand" href="{% url 'home' %}">
+          <span class="brand-mark" aria-hidden="true">⚓</span>
+          <span>ShipyardHQ</span>
+        </a>
+        <nav class="primary-nav" aria-label="Primary navigation">
+          <a class="is-active" href="{% url 'home' %}">Discover</a>
+          <a href="{% url 'home' %}">Trending</a>
+          <a href="{% url 'home' %}">New</a>
+          <a href="{% url 'home' %}">Categories</a>
+        </nav>
+        <div class="header-actions">
+          <button class="launch-button" type="button" data-clerk-launch>+ Launch</button>
+          <span class="auth-slot" data-clerk-auth></span>
+        </div>
+      </div>
     </header>
     <main class="page">
       {% block content %}{% endblock %}

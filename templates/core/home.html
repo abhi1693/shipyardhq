@@ -3,9 +3,49 @@
 {% block title %}Shipyard HQ{% endblock %}
 
 {% block content %}
-  <section class="page-header">
-    <p class="eyebrow">Discover better tools</p>
-    <h1>Shipyard HQ</h1>
-    <p>A curated home for products, makers, and useful alternatives.</p>
+  <section class="home-hero">
+    <div class="home-hero-inner">
+      <div class="home-hero-copy">
+        <div class="hero-kicker">
+          <span aria-hidden="true">●</span>
+          Products moving today
+        </div>
+        <h1>What builders are actually clicking.</h1>
+        <p>Discover indie products, useful alternatives, and focused launch paths without digging through noise.</p>
+        <div class="hero-actions">
+          <a class="hero-primary-action" href="#products">Browse products</a>
+          <button class="hero-secondary-action" type="button" data-clerk-launch>Submit your tool</button>
+        </div>
+        <div class="hero-meta" aria-label="Community highlights">
+          <span><strong>Curated</strong> product discovery</span>
+          <span>Built for indie builders</span>
+        </div>
+      </div>
+
+      <aside class="hero-activity" aria-label="Live activity">
+        <div class="activity-label">Live activity</div>
+        <div class="activity-row">
+          <span class="activity-logo activity-logo-purple" aria-hidden="true"></span>
+          <span>
+            <strong>Lumina AI</strong>
+            <small>AI workspace for teams</small>
+          </span>
+          <em>Trending</em>
+        </div>
+        <div class="activity-row">
+          <span class="activity-logo activity-logo-blue" aria-hidden="true"></span>
+          <span>
+            <strong>ClipForge</strong>
+            <small>Video tools for creators</small>
+          </span>
+          <em>New</em>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="home-placeholder" id="products">
+    <p class="eyebrow">Next</p>
+    <h2>Product sections will build from here.</h2>
   </section>
 {% endblock %}
