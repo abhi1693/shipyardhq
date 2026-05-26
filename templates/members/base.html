@@ -33,7 +33,7 @@
       {% block member_header %}
         <header class="member-main-header">
           <div>
-            <p class="eyebrow">Member</p>
+            {% include "components/ui/breadcrumb.html" %}
             <h1>{{ member_title }}</h1>
           </div>
           <span class="member-dashboard-auth" data-clerk-auth></span>

@@ -9,7 +9,7 @@
     <div class="member-dashboard">
       <header class="member-dashboard-topbar">
         <div>
-          <p class="member-breadcrumb">Home / Member / Dashboard</p>
+          {% include "components/ui/breadcrumb.html" %}
           <h1>Welcome back, {{ first_name }}</h1>
           {% if member_product_count != 0 %}
             <p>Keep improving the products you have already launched.</p>

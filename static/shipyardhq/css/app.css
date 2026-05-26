@@ -710,6 +710,42 @@ button {
   margin: 0;
 }
 
+.ui-breadcrumb {
+  color: #a1a1aa;
+  font-size: 14px;
+  margin: 0 0 18px;
+}
+
+.ui-breadcrumb ol {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ui-breadcrumb li {
+  align-items: center;
+  display: inline-flex;
+  gap: 10px;
+}
+
+.ui-breadcrumb li:not(:last-child)::after {
+  color: #52525b;
+  content: "/";
+}
+
+.ui-breadcrumb a {
+  color: #a1a1aa;
+}
+
+.ui-breadcrumb a:hover,
+.ui-breadcrumb span[aria-current="page"] {
+  color: #fff;
+}
+
 .member-main .ui-card,
 .member-main .ui-empty-state {
   background: rgba(255, 255, 255, 0.05);
@@ -740,12 +776,6 @@ button {
   justify-content: space-between;
 }
 
-.member-breadcrumb {
-  color: #a1a1aa;
-  font-size: 14px;
-  margin: 0 0 18px;
-}
-
 .member-dashboard-topbar h1 {
   color: #fff;
   font-size: 40px;
@@ -755,7 +785,7 @@ button {
   margin: 0;
 }
 
-.member-dashboard-topbar p:not(.member-breadcrumb) {
+.member-dashboard-topbar p {
   color: #a1a1aa;
   margin: 8px 0 0;
 }
