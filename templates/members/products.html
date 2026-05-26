@@ -1,0 +1,21 @@
+{% extends "members/base.html" %}
+{% load django_tables2 %}
+
+{% block member_content %}
+  {% url 'member_launch' as launch_url %}
+  <div class="member-products-page">
+    {% if member_product_count == 0 %}
+      {% include "components/tables/empty.html" %}
+    {% else %}
+      <section class="member-table-panel">
+        <div class="member-panel-heading">
+          <div>
+            <h2>Your products</h2>
+            <p>Products you create and manage will appear here.</p>
+          </div>
+        </div>
+        {% render_table table %}
+      </section>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -207,6 +207,7 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django.contrib.postgres",
     "django.forms",
+    "django_tables2",
     "taggit",
     "django_rq",
     "core",
@@ -251,6 +252,7 @@ TEMPLATES = [
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 WSGI_APPLICATION = "shipyardhq.wsgi.application"
 ASGI_APPLICATION = "shipyardhq.asgi.application"
+DJANGO_TABLES2_TEMPLATE = "components/tables/table.html"
 
 USE_I18N = True
 USE_TZ = True

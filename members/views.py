@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.views.generic import RedirectView, TemplateView
 
 from catalog.models import Product
+from catalog.tables import ProductTable
 
 
 class MemberRequiredMixin:
@@ -57,11 +58,58 @@ class MemberDashboardRedirectView(MemberRequiredMixin, RedirectView):
 
 class MemberLaunchView(MemberPageMixin, TemplateView):
     template_name = "members/launch.html"
-    active_member_nav = "launch"
-    member_title = "Products"
+    active_member_nav = "products"
+    member_title = "Launch"
 
 
 class MemberProfileView(MemberPageMixin, TemplateView):
     template_name = "members/profile.html"
     active_member_nav = "profile"
     member_title = "Profile"
+
+
+class MemberProductsView(MemberPageMixin, TemplateView):
+    template_name = "members/products.html"
+    active_member_nav = "products"
+    member_title = "Products"
+    empty_table_tips = (
+        {
+            "icon": "image",
+            "variant": "blue",
+            "title": "Great visuals win",
+            "text": "Add clear screenshots and a focused product image.",
+        },
+        {
+            "icon": "writing",
+            "variant": "green",
+            "title": "Strong messaging",
+            "text": "Write a clear tagline and explain the job your product does.",
+        },
+        {
+            "icon": "rocket",
+            "variant": "orange",
+            "title": "Share widely",
+            "text": "Give people one simple link when the launch is ready.",
+        },
+    )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = Product.objects.none()
+        if self.request.user.pk is not None:
+            queryset = (
+                Product.objects.filter(owner=self.request.user)
+                .select_related("category", "product_type", "pricing_model")
+                .order_by("-last_updated", "-created", "name")
+            )
+        product_count = queryset.count()
+        context["member_product_count"] = product_count
+        context["table"] = ProductTable(queryset).configure(self.request)
+        context["empty_table_mark"] = "S"
+        context["empty_table_title"] = "No products yet"
+        context["empty_table_text"] = "Your shipyard is ready. Launch your first product and start building momentum."
+        context["empty_table_action_label"] = "Create Your First Product"
+        context["empty_table_action_url"] = reverse("member_launch")
+        context["empty_table_note"] = "Takes less than 5 minutes"
+        context["empty_table_tips"] = self.empty_table_tips
+        return context

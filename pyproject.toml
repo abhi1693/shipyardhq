@@ -9,6 +9,7 @@ dependencies = [
     "django-redis>=5.4,<6.0",
     "django-rq>=2.10,<4.0",
     "django-taggit>=6.1,<7.0",
+    "django-tables2>=2.8,<3.0",
     "gunicorn>=23.0,<24.0",
     "psycopg[binary]>=3.2,<4.0",
 ]

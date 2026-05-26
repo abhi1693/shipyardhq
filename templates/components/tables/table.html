@@ -1,0 +1,55 @@
+{% load django_tables2 i18n l10n %}
+<div class="ship-table-container">
+  <table {% render_attrs table.attrs %}>
+    {% if table.show_header %}
+      <thead {{ table.attrs.thead.as_html }}>
+        <tr>
+          {% for column in table.columns %}
+            <th {{ column.attrs.th.as_html }}>
+              {% if column.orderable %}
+                <a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a>
+              {% else %}
+                {{ column.header }}
+              {% endif %}
+            </th>
+          {% endfor %}
+        </tr>
+      </thead>
+    {% endif %}
+    <tbody {{ table.attrs.tbody.as_html }}>
+      {% for row in table.paginated_rows %}
+        <tr {{ row.attrs.as_html }}>
+          {% for column, cell in row.items %}
+            <td {{ column.attrs.td.as_html }}>{% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}{{ cell|localize }}{% else %}{{ cell|unlocalize }}{% endif %}{% endif %}</td>
+          {% endfor %}
+        </tr>
+      {% empty %}
+        {% if table.empty_text %}
+          <tr>
+            <td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if table.page and table.paginator.num_pages > 1 %}
+    <nav class="ship-table-pagination" aria-label="Table pagination">
+      {% if table.page.has_previous %}
+        <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">{% trans "Previous" %}</a>
+      {% endif %}
+      {% for p in table.page|table_page_range:table.paginator %}
+        {% if p == "..." %}
+          <span>{{ p }}</span>
+        {% elif p == table.page.number %}
+          <span aria-current="page">{{ p }}</span>
+        {% else %}
+          <a href="{% querystring table.prefixed_page_field=p %}">{{ p }}</a>
+        {% endif %}
+      {% endfor %}
+      {% if table.page.has_next %}
+        <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">{% trans "Next" %}</a>
+      {% endif %}
+    </nav>
+  {% endif %}
+</div>
