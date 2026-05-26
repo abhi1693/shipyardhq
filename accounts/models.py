@@ -1,7 +1,7 @@
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 
 
@@ -18,6 +18,49 @@ class UserQuerySet(models.QuerySet):
 
 
 class UserManager(BaseUserManager.from_queryset(UserQuerySet)):
+    def sync_from_clerk(self, *, clerk_id, email, first_name="", last_name=""):
+        if not clerk_id:
+            raise ValueError("Clerk ID must be set.")
+        if not email:
+            raise ValueError("Email must be set.")
+
+        email = self.normalize_email(email)
+        with transaction.atomic(using=self.db):
+            user = self.select_for_update().filter(clerk_id=clerk_id).first()
+            if user is None:
+                user = self.select_for_update().filter(email__iexact=email).first()
+                if user is None:
+                    user = self.model(clerk_id=clerk_id, email=email, is_active=True)
+                    user.set_unusable_password()
+                elif user.clerk_id and user.clerk_id != clerk_id:
+                    raise ValidationError({"email": "A user with that email address already exists."})
+                else:
+                    user.clerk_id = clerk_id
+
+            changed_fields = []
+            for field_name, value in {
+                "email": email,
+                "first_name": first_name or "",
+                "last_name": last_name or "",
+            }.items():
+                if getattr(user, field_name) != value:
+                    setattr(user, field_name, value)
+                    changed_fields.append(field_name)
+
+            if user.clerk_id != clerk_id:
+                user.clerk_id = clerk_id
+                changed_fields.append("clerk_id")
+
+            if self.exclude(pk=user.pk).filter(email__iexact=email).exists():
+                raise ValidationError({"email": "A user with that email address already exists."})
+
+            if user._state.adding:
+                user.save(using=self.db)
+            elif changed_fields:
+                user.save(using=self.db, update_fields=changed_fields)
+
+            return user
+
     def create_user(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(email, password, **extra_fields)
@@ -66,6 +109,7 @@ class UserManager(BaseUserManager.from_queryset(UserQuerySet)):
 
 
 class User(AbstractBaseUser):
+    clerk_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
     email = models.EmailField(
         unique=True,
         error_messages={

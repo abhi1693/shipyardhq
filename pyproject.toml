@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Shipyard HQ Django rebuild"
 requires-python = ">=3.12"
 dependencies = [
+    "clerk-backend-api>=5.0,<6.0",
     "Django>=5.2,<6.0",
     "django-redis>=5.4,<6.0",
     "django-rq>=2.10,<4.0",

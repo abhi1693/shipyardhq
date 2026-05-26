@@ -45,10 +45,30 @@ a {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
+  margin-left: auto;
 }
 
 .nav a {
   color: #dbeafe;
+}
+
+.auth-slot {
+  align-items: center;
+  display: inline-flex;
+  min-height: 32px;
+}
+
+.nav-auth-button {
+  background: transparent;
+  border: 0;
+  color: #dbeafe;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.nav-auth-button:hover {
+  color: #fff;
 }
 
 .page {

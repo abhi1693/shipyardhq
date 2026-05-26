@@ -6,6 +6,8 @@ import importlib
 import os
 import platform
 import sys
+from base64 import urlsafe_b64decode
+from binascii import Error as BinasciiError
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
@@ -21,6 +23,22 @@ if sys.version_info < (3, 12):  # noqa: UP036
 def _trailing_slash(value: str) -> str:
     value = str(value or "").strip("/")
     return f"{value}/" if value else ""
+
+
+def _clerk_frontend_api_url(publishable_key: str) -> str:
+    if not publishable_key:
+        return ""
+
+    try:
+        encoded = publishable_key.split("_", 2)[2]
+    except IndexError:
+        return ""
+
+    padding = "=" * (-len(encoded) % 4)
+    try:
+        return urlsafe_b64decode(f"{encoded}{padding}").decode().rstrip("$")
+    except (BinasciiError, UnicodeDecodeError):
+        return ""
 
 
 config_path = os.getenv("SHIPYARDHQ_CONFIGURATION", "shipyardhq.configuration")
@@ -59,11 +77,24 @@ AUTH_PASSWORD_VALIDATORS = getattr(
         {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     ],
 )
+AUTHENTICATION_BACKENDS = ["accounts.backends.ClerkOnlyBackend"]
 BASE_PATH = _trailing_slash(getattr(configuration, "BASE_PATH", ""))
 CSRF_COOKIE_NAME = getattr(configuration, "CSRF_COOKIE_NAME", "csrftoken")
 CSRF_COOKIE_PATH = f"/{BASE_PATH.rstrip('/')}" or "/"
 CSRF_COOKIE_SECURE = getattr(configuration, "CSRF_COOKIE_SECURE", False)
 CSRF_TRUSTED_ORIGINS = getattr(configuration, "CSRF_TRUSTED_ORIGINS", [])
+CLERK_AUTHORIZED_PARTIES = getattr(configuration, "CLERK_AUTHORIZED_PARTIES", [])
+CLERK_JWT_KEY = getattr(configuration, "CLERK_JWT_KEY", os.getenv("CLERK_JWT_KEY", ""))
+CLERK_PUBLISHABLE_KEY = getattr(
+    configuration,
+    "CLERK_PUBLISHABLE_KEY",
+    os.getenv("CLERK_PUBLISHABLE_KEY", os.getenv("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", "")),
+)
+CLERK_SECRET_KEY = getattr(configuration, "CLERK_SECRET_KEY", os.getenv("CLERK_SECRET_KEY", ""))
+CLERK_FRONTEND_API_URL = getattr(configuration, "CLERK_FRONTEND_API_URL", "") or _clerk_frontend_api_url(
+    CLERK_PUBLISHABLE_KEY
+)
+CLERK_FRONTEND_API_URL = str(CLERK_FRONTEND_API_URL).removeprefix("https://").removeprefix("http://").strip("/")
 DATABASES = getattr(configuration, "DATABASES", {"default": getattr(configuration, "DATABASE", None)})
 DEBUG = getattr(configuration, "DEBUG", False)
 EMAIL = getattr(configuration, "EMAIL", {})
@@ -191,6 +222,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "accounts.middleware.ClerkAuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -222,7 +254,7 @@ ASGI_APPLICATION = "shipyardhq.asgi.application"
 USE_I18N = True
 USE_TZ = True
 
-LOGIN_URL = f"/{BASE_PATH}login/"
+LOGIN_URL = f"/{BASE_PATH}"
 LOGIN_REDIRECT_URL = f"/{BASE_PATH}"
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
