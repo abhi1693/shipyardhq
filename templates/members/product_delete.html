@@ -1,0 +1,34 @@
+{% extends "members/base.html" %}
+
+{% block member_content %}
+  <div class="member-object-page">
+    <section class="member-delete-panel">
+      <div class="member-panel-heading">
+        <div>
+          <h2>Delete product</h2>
+          <p>This will remove {{ target_product.name }} from Shipyard.</p>
+        </div>
+      </div>
+
+      <div class="member-delete-summary">
+        <span class="member-object-avatar" aria-hidden="true">{{ target_product_initial }}</span>
+        <div>
+          <strong>{{ target_product.name }}</strong>
+          <p>{{ target_product.slug }}</p>
+        </div>
+      </div>
+
+      {% if delete_error %}
+        <div class="member-form-errors">
+          <p>{{ delete_error }}</p>
+        </div>
+      {% endif %}
+
+      <form class="member-form-actions" method="post" action="{{ request.path }}">
+        {% csrf_token %}
+        <a class="ui-button ui-button-outline-inverse ui-button-md" href="{% url 'member_product' target_product.pk %}">Cancel</a>
+        <button class="ui-button ui-button-danger ui-button-md" type="submit">Delete</button>
+      </form>
+    </section>
+  </div>
+{% endblock %}

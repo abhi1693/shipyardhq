@@ -98,6 +98,7 @@ class UseCaseTable(PrimaryModelTable):
 
 class ProductTable(PrimaryModelTable):
     name = tables.Column(verbose_name="Product")
+    owner = tables.Column(verbose_name="Builder")
     status = tables.Column(verbose_name="Status")
     category = tables.Column(verbose_name="Category")
     product_type = tables.Column(verbose_name="Type")
@@ -108,6 +109,7 @@ class ProductTable(PrimaryModelTable):
         model = Product
         fields = (
             "name",
+            "owner",
             "tagline",
             "status",
             "category",
@@ -117,9 +119,25 @@ class ProductTable(PrimaryModelTable):
         )
         sequence = fields
         empty_text = "No products found."
+        row_attrs = {
+            "class": "ship-table-row-clickable",
+            "data-href": lambda record: reverse("member_product", kwargs={"pk": record.pk}),
+        }
+
+    def __init__(self, *args, show_owner=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not show_owner:
+            self.columns.hide("owner")
 
     def render_name(self, record):
         return format_html("<strong>{}</strong>", record.name)
 
-    def render_status(self, value):
-        return format_html('<span class="ship-table-badge ship-table-badge-{}">{}</span>', value, value.title())
+    def render_owner(self, value):
+        return value.get_full_name() or value.email
+
+    def render_status(self, value, record):
+        return format_html(
+            '<span class="ship-table-badge ship-table-badge-{}">{}</span>',
+            value,
+            record.get_status_display(),
+        )

@@ -8,7 +8,7 @@ from django.views.generic import RedirectView, TemplateView
 from accounts.forms import UserEditForm
 from accounts.models import User
 from accounts.tables import UserTable
-from catalog.forms import CategoryEditForm, UseCaseEditForm
+from catalog.forms import CategoryEditForm, ProductEditForm, UseCaseEditForm
 from catalog.models import Category, Product, UseCase
 from catalog.tables import CategoryTable, ProductTable, UseCaseTable
 
@@ -85,10 +85,9 @@ class MemberDashboardRedirectView(MemberRequiredMixin, RedirectView):
     permanent = False
 
 
-class MemberLaunchView(MemberPageMixin, TemplateView):
-    template_name = "members/launch.html"
-    active_member_nav = "products"
-    member_title = "Launch"
+class MemberLaunchView(MemberRequiredMixin, RedirectView):
+    pattern_name = "member_product_add"
+    permanent = False
 
 
 class MemberProfileView(MemberPageMixin, TemplateView):
@@ -97,9 +96,22 @@ class MemberProfileView(MemberPageMixin, TemplateView):
     member_title = "Profile"
 
 
-class MemberProductsView(MemberPageMixin, TemplateView):
-    template_name = "members/products.html"
+class MemberProductAccessMixin(MemberPageMixin):
     active_member_nav = "products"
+
+    def get_product_queryset(self):
+        queryset = (
+            Product.objects.select_related("owner", "category", "product_type", "pricing_model")
+            .prefetch_related("platform_assignments__platform", "use_case_assignments__use_case")
+            .order_by("-last_updated", "-created", "name")
+        )
+        if not self.request.user.is_superuser:
+            queryset = queryset.filter(owner=self.request.user)
+        return queryset
+
+
+class MemberProductsView(MemberProductAccessMixin, TemplateView):
+    template_name = "members/products.html"
     member_title = "Products"
     empty_table_tips = (
         {
@@ -124,24 +136,129 @@ class MemberProductsView(MemberPageMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        queryset = Product.objects.none()
-        if self.request.user.pk is not None:
-            queryset = (
-                Product.objects.filter(owner=self.request.user)
-                .select_related("category", "product_type", "pricing_model")
-                .order_by("-last_updated", "-created", "name")
-            )
+        queryset = self.get_product_queryset()
         product_count = queryset.count()
         context["member_product_count"] = product_count
-        context["table"] = ProductTable(queryset).configure(self.request)
+        context["table"] = ProductTable(queryset, show_owner=self.request.user.is_superuser).configure(self.request)
         context["empty_table_mark"] = "S"
         context["empty_table_title"] = "No products yet"
         context["empty_table_text"] = "Your shipyard is ready. Launch your first product and start building momentum."
         context["empty_table_action_label"] = "Create Your First Product"
-        context["empty_table_action_url"] = reverse("member_launch")
+        context["empty_table_action_url"] = reverse("member_product_add")
         context["empty_table_note"] = "Takes less than 5 minutes"
         context["empty_table_tips"] = self.empty_table_tips
         return context
+
+
+class MemberProductAddView(MemberProductAccessMixin, TemplateView):
+    template_name = "members/product_add.html"
+    member_title = "Add a new product"
+
+    def get_breadcrumbs(self):
+        return (
+            {"label": "Home", "url": reverse("home")},
+            {"label": "Member", "url": reverse("member_overview")},
+            {"label": "Products", "url": reverse("member_products")},
+            {"label": "Add", "url": ""},
+        )
+
+    def get_form(self):
+        return ProductEditForm(self.request.POST or None, user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = kwargs.get("form") or self.get_form()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            product = form.save()
+            return redirect("member_product", pk=product.pk)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class MemberProductObjectMixin(MemberProductAccessMixin):
+    member_title = "Product"
+
+    @cached_property
+    def target_product(self):
+        return get_object_or_404(self.get_product_queryset(), pk=self.kwargs["pk"])
+
+    @cached_property
+    def target_product_platforms(self):
+        return [assignment.platform for assignment in self.target_product.platform_assignments.all()]
+
+    @cached_property
+    def target_product_use_cases(self):
+        return [assignment.use_case for assignment in self.target_product.use_case_assignments.all()]
+
+    def get_breadcrumbs(self):
+        return (
+            {"label": "Home", "url": reverse("home")},
+            {"label": "Member", "url": reverse("member_overview")},
+            {"label": "Products", "url": reverse("member_products")},
+            {"label": self.target_product.name, "url": ""},
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["target_product"] = self.target_product
+        context["target_product_initial"] = self.target_product.name[:1].upper()
+        context["target_product_platforms"] = self.target_product_platforms
+        context["target_product_use_cases"] = self.target_product_use_cases
+        return context
+
+
+class MemberProductDetailView(MemberProductObjectMixin, TemplateView):
+    template_name = "members/product_detail.html"
+
+
+class MemberProductEditView(MemberProductObjectMixin, TemplateView):
+    template_name = "members/product_edit.html"
+    member_title = "Editing product"
+
+    def get_breadcrumbs(self):
+        return (*super().get_breadcrumbs(), {"label": "Edit", "url": ""})
+
+    def get_form(self):
+        return ProductEditForm(self.request.POST or None, instance=self.target_product, user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["member_title"] = f"Editing product {self.target_product.name}"
+        context["form"] = kwargs.get("form") or self.get_form()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            product = form.save()
+            return redirect("member_product", pk=product.pk)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class MemberProductDeleteView(MemberProductObjectMixin, TemplateView):
+    template_name = "members/product_delete.html"
+    member_title = "Delete product"
+
+    def get_breadcrumbs(self):
+        return (*super().get_breadcrumbs(), {"label": "Delete", "url": ""})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["delete_error"] = kwargs.get("delete_error", "")
+        return context
+
+    def post(self, request, *args, **kwargs):
+        try:
+            self.target_product.delete()
+        except ProtectedError:
+            return self.render_to_response(
+                self.get_context_data(delete_error="This product is still connected to items that must be moved first.")
+            )
+
+        return redirect("member_products")
 
 
 class MemberCategoriesView(MemberSuperuserRequiredMixin, TemplateView):

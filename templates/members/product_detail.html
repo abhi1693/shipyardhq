@@ -1,0 +1,113 @@
+{% extends "members/base.html" %}
+
+{% block member_content %}
+  <div class="member-object-profile">
+    <section class="member-object-card">
+      <header class="member-object-heading">
+        <div class="member-object-identity">
+          <span class="member-object-avatar" aria-hidden="true">{{ target_product_initial }}</span>
+          <div>
+            <h2>{{ target_product.name }}</h2>
+            <p>{{ target_product.slug }}</p>
+          </div>
+        </div>
+        <div class="member-object-actions">
+          <a class="member-action-button" href="{% url 'member_product_edit' target_product.pk %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="m16.5 3.5 4 4L7 21H3v-4L16.5 3.5Z"></path></svg>
+            Edit
+          </a>
+          <a class="member-action-button member-action-button-danger" href="{% url 'member_product_delete' target_product.pk %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg>
+            Delete
+          </a>
+        </div>
+      </header>
+
+      <dl class="member-object-details">
+        <div>
+          <dt>Status</dt>
+          <dd><span class="ship-table-badge ship-table-badge-{{ target_product.status }}">{{ target_product.get_status_display }}</span></dd>
+        </div>
+        <div>
+          <dt>Visibility</dt>
+          <dd>
+            {% if target_product.is_listed %}
+              <span class="ship-table-badge ship-table-badge-active">Listed</span>
+            {% else %}
+              <span class="ship-table-badge ship-table-badge-inactive">Unlisted</span>
+            {% endif %}
+          </dd>
+        </div>
+        {% if request.user.is_superuser %}
+          <div>
+            <dt>Builder</dt>
+            <dd>
+              {% with owner_name=target_product.owner.get_full_name %}
+                {% if owner_name %}{{ owner_name }}{% else %}{{ target_product.owner.email }}{% endif %}
+              {% endwith %}
+            </dd>
+          </div>
+        {% endif %}
+        <div>
+          <dt>Category</dt>
+          <dd>{{ target_product.category }}</dd>
+        </div>
+        <div>
+          <dt>Type</dt>
+          <dd>{{ target_product.product_type }}</dd>
+        </div>
+        <div>
+          <dt>Pricing</dt>
+          <dd>{{ target_product.pricing_model }}</dd>
+        </div>
+        <div>
+          <dt>Website</dt>
+          <dd><a href="{{ target_product.website_url }}" target="_blank" rel="noopener">{{ target_product.website_url }}</a></dd>
+        </div>
+      </dl>
+
+      {% if target_product_platforms %}
+        <div class="member-object-description">
+          <h3>Platforms</h3>
+          <p class="ship-table-chip-list">
+            {% for platform in target_product_platforms %}
+              <span class="ship-table-chip">{{ platform.name }}</span>
+            {% endfor %}
+          </p>
+        </div>
+      {% endif %}
+
+      {% if target_product_use_cases %}
+        <div class="member-object-description">
+          <h3>Use cases</h3>
+          <p class="ship-table-chip-list">
+            {% for use_case in target_product_use_cases %}
+              <span class="ship-table-chip">{{ use_case.name }}</span>
+            {% endfor %}
+          </p>
+        </div>
+      {% endif %}
+
+      {% if target_product.tagline %}
+        <div class="member-object-description">
+          <h3>Tagline</h3>
+          <p>{{ target_product.tagline }}</p>
+        </div>
+      {% endif %}
+
+      {% if target_product.summary %}
+        <div class="member-object-description">
+          <h3>Summary</h3>
+          <p>{{ target_product.summary }}</p>
+        </div>
+      {% endif %}
+
+      {% if target_product.description %}
+        <div class="member-object-description">
+          <h3>Description</h3>
+          <p>{{ target_product.description }}</p>
+        </div>
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}

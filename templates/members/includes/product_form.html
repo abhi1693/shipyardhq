@@ -1,0 +1,222 @@
+<ul class="member-object-edit-tabs" role="tablist">
+  <li role="presentation">
+    <button type="button" role="tab" aria-selected="true">{{ tab_label }}</button>
+  </li>
+</ul>
+
+<form class="member-object-form member-object-edit-form" method="post" action="{{ request.path }}" novalidate>
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="member-form-errors">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  <div class="member-field-group" role="group" aria-label="Product">
+    <div class="member-form-row member-form-row-heading">
+      <div></div>
+      <h2>Product</h2>
+    </div>
+
+    {% if form.owner %}
+      <div class="member-form-row">
+        <label class="member-form-row-label" for="{{ form.owner.id_for_label }}">{{ form.owner.label }}</label>
+        <div class="member-form-row-control">
+          {{ form.owner }}
+          {% for error in form.owner.errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.name }}
+        {% for error in form.name.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if form.slug %}
+      <div class="member-form-row">
+        <label class="member-form-row-label" for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
+        <div class="member-form-row-control">
+          {{ form.slug }}
+          {% for error in form.slug.errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.tagline.id_for_label }}">{{ form.tagline.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.tagline }}
+        {% for error in form.tagline.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="member-field-group" role="group" aria-label="Classification">
+    <div class="member-form-row member-form-row-heading">
+      <div></div>
+      <h2>Classification</h2>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.category }}
+        {% for error in form.category.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.product_type.id_for_label }}">{{ form.product_type.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.product_type }}
+        {% for error in form.product_type.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.pricing_model.id_for_label }}">{{ form.pricing_model.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.pricing_model }}
+        {% for error in form.pricing_model.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.platforms.id_for_label }}">{{ form.platforms.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.platforms }}
+        {% for error in form.platforms.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.use_cases.id_for_label }}">{{ form.use_cases.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.use_cases }}
+        {% for error in form.use_cases.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="member-field-group" role="group" aria-label="Links">
+    <div class="member-form-row member-form-row-heading">
+      <div></div>
+      <h2>Links</h2>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.website_url.id_for_label }}">{{ form.website_url.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.website_url }}
+        {% for error in form.website_url.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.logo_url.id_for_label }}">{{ form.logo_url.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.logo_url }}
+        {% for error in form.logo_url.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.hero_image_url.id_for_label }}">{{ form.hero_image_url.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.hero_image_url }}
+        {% for error in form.hero_image_url.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="member-field-group" role="group" aria-label="Description">
+    <div class="member-form-row member-form-row-heading">
+      <div></div>
+      <h2>Description</h2>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.summary.id_for_label }}">{{ form.summary.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.summary }}
+        {% for error in form.summary.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.description }}
+        {% for error in form.description.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="member-field-group" role="group" aria-label="Publishing">
+    <div class="member-form-row member-form-row-heading">
+      <div></div>
+      <h2>Publishing</h2>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.status }}
+        {% for error in form.status.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="member-form-row">
+      <div></div>
+      <div class="member-form-row-control">
+        <label class="member-form-check member-form-check-plain" for="{{ form.is_listed.id_for_label }}">
+          {{ form.is_listed }}
+          <span>{{ form.is_listed.label }}</span>
+        </label>
+        {% for error in form.is_listed.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="member-form-actions member-object-edit-actions">
+    <a class="ui-button ui-button-outline-inverse ui-button-md" href="{{ cancel_url }}">Cancel</a>
+    <button class="ui-button ui-button-inverse ui-button-md" type="submit">{{ submit_label }}</button>
+  </div>
+</form>
