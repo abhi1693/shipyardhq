@@ -8,6 +8,7 @@ urlpatterns = [
     path("dashboard/", views.MemberDashboardRedirectView.as_view(), name="member_dashboard"),
     path("products/", views.MemberProductsView.as_view(), name="member_products"),
     path("users/", views.MemberUsersView.as_view(), name="member_users"),
+    path("users/<int:pk>/", views.MemberUserDetailView.as_view(), name="member_user"),
     path("launch/", views.MemberLaunchView.as_view(), name="member_launch"),
     path("profile/", views.MemberProfileView.as_view(), name="member_profile"),
 ]

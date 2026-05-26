@@ -1,0 +1,57 @@
+{% extends "members/base.html" %}
+{% load django_tables2 %}
+
+{% block member_content %}
+  <div class="member-user-profile">
+    <section class="member-user-card">
+      <header class="member-user-heading">
+        <span class="member-user-avatar" aria-hidden="true">{{ target_user_initial }}</span>
+        <div>
+          <h2>{{ target_user_display_name }}</h2>
+          <p>{{ target_user.email }}</p>
+        </div>
+      </header>
+
+      <dl class="member-user-details">
+        <div>
+          <dt>Status</dt>
+          <dd>
+            {% if target_user.is_active %}
+              <span class="ship-table-badge ship-table-badge-active">Active</span>
+            {% else %}
+              <span class="ship-table-badge ship-table-badge-inactive">Inactive</span>
+            {% endif %}
+          </dd>
+        </div>
+        <div>
+          <dt>Products</dt>
+          <dd>{{ target_user.product_count }}</dd>
+        </div>
+        <div>
+          <dt>Joined</dt>
+          <dd>{{ target_user.date_joined|date:"M j, Y" }}</dd>
+        </div>
+        <div>
+          <dt>Last login</dt>
+          <dd>
+            {% if target_user.last_login %}
+              {{ target_user.last_login|date:"M j, Y" }}
+            {% else %}
+              Never
+            {% endif %}
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="member-table-panel">
+      <div class="member-panel-heading">
+        <div>
+          <h2>Products</h2>
+          <p>Products connected to this user.</p>
+        </div>
+      </div>
+      {% render_table target_user_products_table %}
+    </section>
+  </div>
+{% endblock %}

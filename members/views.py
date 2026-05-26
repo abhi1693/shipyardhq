@@ -1,6 +1,7 @@
 from django.db.models import Count
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django.views.generic import RedirectView, TemplateView
 
 from accounts.models import User
@@ -150,4 +151,39 @@ class MemberUsersView(MemberSuperuserRequiredMixin, TemplateView):
         queryset = User.objects.annotate(product_count=Count("products")).order_by("email")
         context["member_user_count"] = queryset.count()
         context["table"] = UserTable(queryset).configure(self.request)
+        return context
+
+
+class MemberUserDetailView(MemberSuperuserRequiredMixin, TemplateView):
+    template_name = "members/user_detail.html"
+    active_member_nav = "users"
+    member_title = "User"
+
+    @cached_property
+    def target_user(self):
+        return get_object_or_404(
+            User.objects.annotate(product_count=Count("products")),
+            pk=self.kwargs["pk"],
+        )
+
+    def get_breadcrumbs(self):
+        return (
+            {"label": "Home", "url": reverse("home")},
+            {"label": "Member", "url": reverse("member_overview")},
+            {"label": "Users", "url": reverse("member_users")},
+            {"label": self.target_user.email, "url": ""},
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        display_name = self.target_user.get_full_name() or self.target_user.email
+        products = (
+            Product.objects.filter(owner=self.target_user)
+            .select_related("category", "product_type", "pricing_model")
+            .order_by("-last_updated", "-created", "name")
+        )
+        context["target_user"] = self.target_user
+        context["target_user_display_name"] = display_name
+        context["target_user_initial"] = display_name[:1].upper()
+        context["target_user_products_table"] = ProductTable(products).configure(self.request)
         return context

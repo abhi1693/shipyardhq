@@ -33,6 +33,7 @@
     </main>
     <script defer crossorigin="anonymous" src="https://{{ clerk.frontend_api_url }}/npm/@clerk/ui@1/dist/ui.browser.js"></script>
     <script defer crossorigin="anonymous" data-clerk-publishable-key="{{ clerk.publishable_key }}" src="https://{{ clerk.frontend_api_url }}/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
+    <script defer src="{% static 'shipyardhq/js/app.js' %}"></script>
     <script defer src="{% static 'shipyardhq/js/clerk.js' %}"></script>
   </body>
 </html>

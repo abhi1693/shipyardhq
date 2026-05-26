@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.urls import reverse
 from django.utils.html import format_html
 
 from core.tables import BaseTable
@@ -19,6 +20,10 @@ class UserTable(BaseTable):
         fields = ("email", "name", "status", "products", "date_joined", "last_login")
         sequence = fields
         empty_text = "No users found."
+        row_attrs = {
+            "class": "ship-table-row-clickable",
+            "data-href": lambda record: reverse("member_user", kwargs={"pk": record.pk}),
+        }
 
     def render_email(self, value):
         return format_html("<strong>{}</strong>", value)
