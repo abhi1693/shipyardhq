@@ -343,6 +343,103 @@ button {
   min-height: 42px;
 }
 
+.user-menu {
+  position: relative;
+}
+
+.user-menu-trigger {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-lg);
+  color: #fff;
+  display: inline-flex;
+  gap: 9px;
+  min-height: 42px;
+  padding: 5px 10px 5px 6px;
+}
+
+.user-menu-trigger:hover,
+.user-menu-trigger[aria-expanded="true"] {
+  border-color: rgba(255, 255, 255, 0.34);
+}
+
+.user-menu-trigger:focus-visible,
+.user-menu-item:focus-visible {
+  outline: 3px solid rgba(251, 146, 60, 0.35);
+  outline-offset: 2px;
+}
+
+.user-menu-avatar {
+  align-items: center;
+  background: #fb923c;
+  border-radius: 12px;
+  color: #111;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 800;
+  height: 30px;
+  justify-content: center;
+  object-fit: cover;
+  width: 30px;
+}
+
+.user-menu-name {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 14px;
+  font-weight: 700;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-menu-icon {
+  flex: 0 0 auto;
+  height: 17px;
+  width: 17px;
+}
+
+.user-menu-content {
+  background: #111113;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.32);
+  display: grid;
+  gap: 4px;
+  min-width: 210px;
+  padding: 8px;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 60;
+}
+
+.user-menu-content[hidden] {
+  display: none;
+}
+
+.user-menu-item {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  color: rgba(255, 255, 255, 0.82);
+  display: flex;
+  font-size: 14px;
+  font-weight: 650;
+  gap: 11px;
+  min-height: 40px;
+  padding: 0 10px;
+  text-align: left;
+  width: 100%;
+}
+
+.user-menu-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+
 .page {
   margin: 0 auto;
   max-width: 1180px;
@@ -566,6 +663,14 @@ button {
 
   .nav-auth-button {
     padding: 9px 18px;
+  }
+
+  .user-menu-name {
+    display: none;
+  }
+
+  .user-menu-content {
+    min-width: 190px;
   }
 
   .page {
