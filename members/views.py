@@ -8,8 +8,9 @@ from django.views.generic import RedirectView, TemplateView
 from accounts.forms import UserEditForm
 from accounts.models import User
 from accounts.tables import UserTable
-from catalog.models import Product
-from catalog.tables import ProductTable
+from catalog.forms import CategoryEditForm
+from catalog.models import Category, Product
+from catalog.tables import CategoryTable, ProductTable
 
 
 class MemberRequiredMixin:
@@ -141,6 +142,146 @@ class MemberProductsView(MemberPageMixin, TemplateView):
         context["empty_table_note"] = "Takes less than 5 minutes"
         context["empty_table_tips"] = self.empty_table_tips
         return context
+
+
+class MemberCategoriesView(MemberSuperuserRequiredMixin, TemplateView):
+    template_name = "members/categories.html"
+    active_member_nav = "categories"
+    member_title = "Categories"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = (
+            Category.objects.select_related("parent")
+            .annotate(product_count=Count("products", distinct=True), child_count=Count("children", distinct=True))
+            .order_by("name")
+        )
+        context["member_category_count"] = queryset.count()
+        context["table"] = CategoryTable(queryset).configure(self.request)
+        return context
+
+
+class MemberCategoryAddView(MemberSuperuserRequiredMixin, TemplateView):
+    template_name = "members/category_add.html"
+    active_member_nav = "categories"
+    member_title = "Add category"
+
+    def get_breadcrumbs(self):
+        return (
+            {"label": "Home", "url": reverse("home")},
+            {"label": "Member", "url": reverse("member_overview")},
+            {"label": "Categories", "url": reverse("member_categories")},
+            {"label": "Add", "url": ""},
+        )
+
+    def get_form(self):
+        return CategoryEditForm(self.request.POST or None)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = kwargs.get("form") or self.get_form()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            category = form.save()
+            return redirect("member_category", pk=category.pk)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class MemberCategoryObjectMixin(MemberSuperuserRequiredMixin):
+    active_member_nav = "categories"
+    member_title = "Category"
+
+    @cached_property
+    def target_category(self):
+        return get_object_or_404(
+            Category.objects.select_related("parent").annotate(
+                product_count=Count("products", distinct=True),
+                child_count=Count("children", distinct=True),
+            ),
+            pk=self.kwargs["pk"],
+        )
+
+    def get_breadcrumbs(self):
+        return (
+            {"label": "Home", "url": reverse("home")},
+            {"label": "Member", "url": reverse("member_overview")},
+            {"label": "Categories", "url": reverse("member_categories")},
+            {"label": self.target_category.name, "url": ""},
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["target_category"] = self.target_category
+        context["target_category_initial"] = self.target_category.name[:1].upper()
+        return context
+
+
+class MemberCategoryDetailView(MemberCategoryObjectMixin, TemplateView):
+    template_name = "members/category_detail.html"
+
+
+class MemberCategoryEditView(MemberCategoryObjectMixin, TemplateView):
+    template_name = "members/category_edit.html"
+    member_title = "Edit category"
+
+    def get_breadcrumbs(self):
+        return (*super().get_breadcrumbs(), {"label": "Edit", "url": ""})
+
+    def get_form(self):
+        return CategoryEditForm(self.request.POST or None, instance=self.target_category)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = kwargs.get("form") or self.get_form()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            category = form.save()
+            return redirect("member_category", pk=category.pk)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class MemberCategoryDeleteView(MemberCategoryObjectMixin, TemplateView):
+    template_name = "members/category_delete.html"
+    member_title = "Delete category"
+
+    def get_breadcrumbs(self):
+        return (*super().get_breadcrumbs(), {"label": "Delete", "url": ""})
+
+    def get_delete_blockers(self):
+        blockers = []
+        if self.target_category.child_count:
+            blockers.append("Move or remove child categories before deleting this category.")
+        if self.target_category.product_count:
+            blockers.append("Move or remove products before deleting this category.")
+        return blockers
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["delete_blockers"] = kwargs.get("delete_blockers", self.get_delete_blockers())
+        context["delete_error"] = kwargs.get("delete_error", "")
+        return context
+
+    def post(self, request, *args, **kwargs):
+        blockers = self.get_delete_blockers()
+        if blockers:
+            return self.render_to_response(self.get_context_data(delete_blockers=blockers))
+
+        try:
+            self.target_category.delete()
+        except ProtectedError:
+            return self.render_to_response(
+                self.get_context_data(
+                    delete_error="This category is still connected to items that must be moved first."
+                )
+            )
+
+        return redirect("member_categories")
 
 
 class MemberUsersView(MemberSuperuserRequiredMixin, TemplateView):

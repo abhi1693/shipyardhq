@@ -1,0 +1,26 @@
+{% load category_icons %}
+
+{% with selected_icon=field.value|default:"tool" %}
+  <div class="member-icon-select" data-icon-select>
+    <input type="hidden" name="{{ field.html_name }}" id="{{ field.id_for_label }}" value="{{ selected_icon }}" data-icon-value>
+    <button class="member-icon-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" data-icon-trigger>
+      {% for value, label in field.field.choices %}
+        <span class="member-icon-select-current{% if value != selected_icon %} is-hidden{% endif %}" data-icon-current="{{ value }}">
+          {% category_icon value "member-icon-select-svg" %}
+          <span>{{ label }}</span>
+        </span>
+      {% endfor %}
+      <svg class="member-icon-select-caret" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m6 9 6 6 6-6"></path>
+      </svg>
+    </button>
+    <div class="member-icon-select-menu" role="listbox" data-icon-menu hidden>
+      {% for value, label in field.field.choices %}
+        <button class="member-icon-select-option" type="button" role="option" data-icon-option data-value="{{ value }}" aria-selected="{% if value == selected_icon %}true{% else %}false{% endif %}">
+          {% category_icon value "member-icon-select-svg" %}
+          <span>{{ label }}</span>
+        </button>
+      {% endfor %}
+    </div>
+  </div>
+{% endwith %}

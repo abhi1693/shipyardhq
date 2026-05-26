@@ -5,8 +5,8 @@
     <section class="member-form-panel">
       <div class="member-panel-heading">
         <div>
-          <h2>Edit user</h2>
-          <p>Update this member's profile and access.</p>
+          <h2>Edit category</h2>
+          <p>Update this category's details.</p>
         </div>
       </div>
 
@@ -21,28 +21,44 @@
 
         <div class="member-form-grid">
           <div class="member-form-field">
-            <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
-            {{ form.email }}
-            {% for error in form.email.errors %}
+            <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+            {{ form.name }}
+            {% for error in form.name.errors %}
               <p>{{ error }}</p>
             {% endfor %}
           </div>
 
           <div class="member-form-field">
-            <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
-            {{ form.first_name }}
-            {% for error in form.first_name.errors %}
+            <label for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
+            {{ form.slug }}
+            {% for error in form.slug.errors %}
               <p>{{ error }}</p>
             {% endfor %}
           </div>
 
           <div class="member-form-field">
-            <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
-            {{ form.last_name }}
-            {% for error in form.last_name.errors %}
+            <label for="{{ form.icon.id_for_label }}">{{ form.icon.label }}</label>
+            {% include "components/forms/icon_select.html" with field=form.icon %}
+            {% for error in form.icon.errors %}
               <p>{{ error }}</p>
             {% endfor %}
           </div>
+
+          <div class="member-form-field">
+            <label for="{{ form.parent.id_for_label }}">{{ form.parent.label }}</label>
+            {{ form.parent }}
+            {% for error in form.parent.errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="member-form-field">
+          <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+          {{ form.description }}
+          {% for error in form.description.errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
         </div>
 
         <div class="member-form-checks">
@@ -53,18 +69,10 @@
           {% for error in form.is_active.errors %}
             <p>{{ error }}</p>
           {% endfor %}
-
-          <label class="member-form-check" for="{{ form.is_superuser.id_for_label }}">
-            {{ form.is_superuser }}
-            <span>{{ form.is_superuser.label }}</span>
-          </label>
-          {% for error in form.is_superuser.errors %}
-            <p>{{ error }}</p>
-          {% endfor %}
         </div>
 
         <div class="member-form-actions">
-          <a class="ui-button ui-button-outline-inverse ui-button-md" href="{% url 'member_user' target_user.pk %}">Cancel</a>
+          <a class="ui-button ui-button-outline-inverse ui-button-md" href="{% url 'member_category' target_category.pk %}">Cancel</a>
           <button class="ui-button ui-button-inverse ui-button-md" type="submit">Save</button>
         </div>
       </form>
