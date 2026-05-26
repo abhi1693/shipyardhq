@@ -1,0 +1,42 @@
+{% extends "members/base.html" %}
+
+{% block member_content %}
+  <div class="member-object-page">
+    <section class="member-delete-panel">
+      <div class="member-panel-heading">
+        <div>
+          <h2>Delete user</h2>
+          <p>This will remove {{ target_user_display_name }} from Shipyard.</p>
+        </div>
+      </div>
+
+      <div class="member-delete-summary">
+        <span class="member-user-avatar" aria-hidden="true">{{ target_user_initial }}</span>
+        <div>
+          <strong>{{ target_user_display_name }}</strong>
+          <p>{{ target_user.email }}</p>
+        </div>
+      </div>
+
+      {% if delete_error %}
+        <div class="member-form-errors">
+          <p>{{ delete_error }}</p>
+        </div>
+      {% endif %}
+
+      {% if delete_blockers %}
+        <div class="member-delete-warning">
+          {% for blocker in delete_blockers %}
+            <p>{{ blocker }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form class="member-form-actions" method="post">
+        {% csrf_token %}
+        <a class="ui-button ui-button-outline-inverse ui-button-md" href="{% url 'member_user' target_user.pk %}">Cancel</a>
+        <button class="ui-button ui-button-danger ui-button-md" type="submit"{% if delete_blockers %} disabled{% endif %}>Delete</button>
+      </form>
+    </section>
+  </div>
+{% endblock %}

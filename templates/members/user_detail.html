@@ -5,10 +5,22 @@
   <div class="member-user-profile">
     <section class="member-user-card">
       <header class="member-user-heading">
-        <span class="member-user-avatar" aria-hidden="true">{{ target_user_initial }}</span>
-        <div>
-          <h2>{{ target_user_display_name }}</h2>
-          <p>{{ target_user.email }}</p>
+        <div class="member-user-identity">
+          <span class="member-user-avatar" aria-hidden="true">{{ target_user_initial }}</span>
+          <div>
+            <h2>{{ target_user_display_name }}</h2>
+            <p>{{ target_user.email }}</p>
+          </div>
+        </div>
+        <div class="member-object-actions">
+          <a class="member-action-button" href="{% url 'member_user_edit' target_user.pk %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="m16.5 3.5 4 4L7 21H3v-4L16.5 3.5Z"></path></svg>
+            Edit
+          </a>
+          <a class="member-action-button member-action-button-danger" href="{% url 'member_user_delete' target_user.pk %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg>
+            Delete
+          </a>
         </div>
       </header>
 

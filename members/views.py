@@ -1,9 +1,11 @@
 from django.db.models import Count
+from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.views.generic import RedirectView, TemplateView
 
+from accounts.forms import UserEditForm
 from accounts.models import User
 from accounts.tables import UserTable
 from catalog.models import Product
@@ -154,8 +156,7 @@ class MemberUsersView(MemberSuperuserRequiredMixin, TemplateView):
         return context
 
 
-class MemberUserDetailView(MemberSuperuserRequiredMixin, TemplateView):
-    template_name = "members/user_detail.html"
+class MemberUserObjectMixin(MemberSuperuserRequiredMixin):
     active_member_nav = "users"
     member_title = "User"
 
@@ -165,6 +166,10 @@ class MemberUserDetailView(MemberSuperuserRequiredMixin, TemplateView):
             User.objects.annotate(product_count=Count("products")),
             pk=self.kwargs["pk"],
         )
+
+    @cached_property
+    def target_user_display_name(self):
+        return self.target_user.get_full_name() or self.target_user.email
 
     def get_breadcrumbs(self):
         return (
@@ -176,14 +181,87 @@ class MemberUserDetailView(MemberSuperuserRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        display_name = self.target_user.get_full_name() or self.target_user.email
+        display_name = self.target_user_display_name
+        context["target_user"] = self.target_user
+        context["target_user_display_name"] = display_name
+        context["target_user_initial"] = display_name[:1].upper()
+        return context
+
+
+class MemberUserDetailView(MemberUserObjectMixin, TemplateView):
+    template_name = "members/user_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         products = (
             Product.objects.filter(owner=self.target_user)
             .select_related("category", "product_type", "pricing_model")
             .order_by("-last_updated", "-created", "name")
         )
-        context["target_user"] = self.target_user
-        context["target_user_display_name"] = display_name
-        context["target_user_initial"] = display_name[:1].upper()
         context["target_user_products_table"] = ProductTable(products).configure(self.request)
         return context
+
+
+class MemberUserEditView(MemberUserObjectMixin, TemplateView):
+    template_name = "members/user_edit.html"
+    member_title = "Edit user"
+
+    def get_breadcrumbs(self):
+        return (*super().get_breadcrumbs(), {"label": "Edit", "url": ""})
+
+    def get_form(self):
+        return UserEditForm(
+            self.request.POST or None,
+            instance=self.target_user,
+            changed_by=self.request.user,
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = kwargs.get("form") or self.get_form()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            form.save()
+            return redirect("member_user", pk=self.target_user.pk)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class MemberUserDeleteView(MemberUserObjectMixin, TemplateView):
+    template_name = "members/user_delete.html"
+    member_title = "Delete user"
+
+    def get_breadcrumbs(self):
+        return (*super().get_breadcrumbs(), {"label": "Delete", "url": ""})
+
+    def get_delete_blockers(self):
+        blockers = []
+        if self.target_user.pk == self.request.user.pk:
+            blockers.append("You cannot delete your own account.")
+        if self.target_user.product_count:
+            blockers.append("Reassign or remove this user's products before deleting this account.")
+        return blockers
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["delete_blockers"] = kwargs.get("delete_blockers", self.get_delete_blockers())
+        context["delete_error"] = kwargs.get("delete_error", "")
+        return context
+
+    def post(self, request, *args, **kwargs):
+        blockers = self.get_delete_blockers()
+        if blockers:
+            return self.render_to_response(self.get_context_data(delete_blockers=blockers))
+
+        try:
+            self.target_user.delete()
+        except ProtectedError:
+            return self.render_to_response(
+                self.get_context_data(
+                    delete_error="This account is still connected to items that must be reassigned first."
+                )
+            )
+
+        return redirect("member_users")
