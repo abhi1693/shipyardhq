@@ -164,7 +164,7 @@ class MemberCategoriesView(MemberSuperuserRequiredMixin, TemplateView):
 class MemberCategoryAddView(MemberSuperuserRequiredMixin, TemplateView):
     template_name = "members/category_add.html"
     active_member_nav = "categories"
-    member_title = "Add category"
+    member_title = "Add a new category"
 
     def get_breadcrumbs(self):
         return (
@@ -222,10 +222,20 @@ class MemberCategoryObjectMixin(MemberSuperuserRequiredMixin):
 class MemberCategoryDetailView(MemberCategoryObjectMixin, TemplateView):
     template_name = "members/category_detail.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = (
+            Product.objects.filter(category=self.target_category)
+            .select_related("category", "product_type", "pricing_model")
+            .order_by("-last_updated", "-created", "name")
+        )
+        context["target_category_products_table"] = ProductTable(queryset).configure(self.request)
+        return context
+
 
 class MemberCategoryEditView(MemberCategoryObjectMixin, TemplateView):
     template_name = "members/category_edit.html"
-    member_title = "Edit category"
+    member_title = "Editing category"
 
     def get_breadcrumbs(self):
         return (*super().get_breadcrumbs(), {"label": "Edit", "url": ""})
@@ -235,6 +245,7 @@ class MemberCategoryEditView(MemberCategoryObjectMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["member_title"] = f"Editing category {self.target_category.name}"
         context["form"] = kwargs.get("form") or self.get_form()
         return context
 

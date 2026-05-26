@@ -1017,6 +1017,67 @@ button {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
+.member-object-edit-tabs {
+  border-bottom: 1px solid #27272a;
+  display: flex;
+  list-style: none;
+  margin: -28px -28px 28px;
+  padding: 0 28px;
+}
+
+.member-object-edit-tabs button {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid #fb923c;
+  color: #fff;
+  font-weight: 800;
+  min-height: 52px;
+  padding: 0 4px;
+}
+
+.member-object-edit-form {
+  gap: 0;
+}
+
+.member-field-group {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+.member-form-row {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(140px, 240px) minmax(0, 1fr);
+}
+
+.member-form-row-heading {
+  margin-bottom: 2px;
+}
+
+.member-form-row-heading h2 {
+  color: #fff;
+  font-size: 20px;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.member-form-row-label {
+  align-self: start;
+  color: #d4d4d8;
+  font-size: 14px;
+  font-weight: 800;
+  min-height: 44px;
+  padding-top: 10px;
+  text-align: right;
+}
+
+.member-form-row-control {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
 .member-form-field {
   display: grid;
   gap: 8px;
@@ -1165,6 +1226,7 @@ button {
 }
 
 .member-form-field p,
+.member-form-row-control p,
 .member-form-checks p,
 .member-form-errors p,
 .member-form-errors li {
@@ -1191,6 +1253,15 @@ button {
   padding: 0 16px;
 }
 
+.member-form-check-plain {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  justify-content: flex-start;
+  min-height: 44px;
+  padding: 0;
+}
+
 .member-form-checkbox {
   accent-color: #fb923c;
   height: 18px;
@@ -1215,6 +1286,12 @@ button {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
+}
+
+.member-object-edit-actions {
+  border-top: 1px solid #27272a;
+  margin: 4px -28px -28px;
+  padding: 20px 28px;
 }
 
 .member-delete-summary {
@@ -2199,6 +2276,30 @@ button {
 
   .member-form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .member-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .member-form-row-label {
+    min-height: 0;
+    padding-top: 0;
+    text-align: left;
+  }
+
+  .member-form-row-heading {
+    display: block;
+  }
+
+  .member-object-edit-tabs {
+    margin: -22px -22px 22px;
+    padding: 0 22px;
+  }
+
+  .member-object-edit-actions {
+    margin: 4px -22px -22px;
+    padding: 18px 22px;
   }
 
   .member-form-panel,

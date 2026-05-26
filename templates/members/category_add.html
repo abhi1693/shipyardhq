@@ -3,79 +3,8 @@
 {% block member_content %}
   <div class="member-object-page">
     <section class="member-form-panel">
-      <div class="member-panel-heading">
-        <div>
-          <h2>Add category</h2>
-          <p>Create a new category.</p>
-        </div>
-      </div>
-
-      <form class="member-object-form" method="post" action="{{ request.path }}" novalidate>
-        {% csrf_token %}
-
-        {% if form.non_field_errors %}
-          <div class="member-form-errors">
-            {{ form.non_field_errors }}
-          </div>
-        {% endif %}
-
-        <div class="member-form-grid">
-          <div class="member-form-field">
-            <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
-            {{ form.name }}
-            {% for error in form.name.errors %}
-              <p>{{ error }}</p>
-            {% endfor %}
-          </div>
-
-          <div class="member-form-field">
-            <label for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
-            {{ form.slug }}
-            {% for error in form.slug.errors %}
-              <p>{{ error }}</p>
-            {% endfor %}
-          </div>
-
-          <div class="member-form-field">
-            <label for="{{ form.icon.id_for_label }}">{{ form.icon.label }}</label>
-            {% include "components/forms/icon_select.html" with field=form.icon %}
-            {% for error in form.icon.errors %}
-              <p>{{ error }}</p>
-            {% endfor %}
-          </div>
-
-          <div class="member-form-field">
-            <label for="{{ form.parent.id_for_label }}">{{ form.parent.label }}</label>
-            {{ form.parent }}
-            {% for error in form.parent.errors %}
-              <p>{{ error }}</p>
-            {% endfor %}
-          </div>
-        </div>
-
-        <div class="member-form-field">
-          <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
-          {{ form.description }}
-          {% for error in form.description.errors %}
-            <p>{{ error }}</p>
-          {% endfor %}
-        </div>
-
-        <div class="member-form-checks">
-          <label class="member-form-check" for="{{ form.is_active.id_for_label }}">
-            {{ form.is_active }}
-            <span>{{ form.is_active.label }}</span>
-          </label>
-          {% for error in form.is_active.errors %}
-            <p>{{ error }}</p>
-          {% endfor %}
-        </div>
-
-        <div class="member-form-actions">
-          <a class="ui-button ui-button-outline-inverse ui-button-md" href="{% url 'member_categories' %}">Cancel</a>
-          <button class="ui-button ui-button-inverse ui-button-md" type="submit">Save</button>
-        </div>
-      </form>
+      {% url 'member_categories' as cancel_url %}
+      {% include "members/includes/category_form.html" with form=form cancel_url=cancel_url submit_label="Create" tab_label="Create" %}
     </section>
   </div>
 {% endblock %}

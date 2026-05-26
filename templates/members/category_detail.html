@@ -1,4 +1,5 @@
 {% extends "members/base.html" %}
+{% load django_tables2 %}
 {% load category_icons %}
 
 {% block member_content %}
@@ -61,6 +62,16 @@
           <p>{{ target_category.description }}</p>
         </div>
       {% endif %}
+    </section>
+
+    <section class="member-table-panel">
+      <div class="member-panel-heading">
+        <div>
+          <h2>Products</h2>
+          <p>Products in this category.</p>
+        </div>
+      </div>
+      {% render_table target_category_products_table %}
     </section>
   </div>
 {% endblock %}
