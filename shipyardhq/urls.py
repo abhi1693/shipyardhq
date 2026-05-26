@@ -5,6 +5,7 @@ from core import views
 
 _patterns = [
     path("", views.HomeView.as_view(), name="home"),
+    path("member/", include("members.urls")),
     path("", include("core.urls")),
 ]
 

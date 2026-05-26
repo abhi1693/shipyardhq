@@ -25,6 +25,8 @@ include = [
     "core.*",
     "accounts",
     "accounts.*",
+    "members",
+    "members.*",
     "catalog",
     "catalog.*",
     "extras",

@@ -1,0 +1,14 @@
+{% extends "base/layout.html" %}
+
+{% block title %}Sign in - ShipyardHQ{% endblock %}
+
+{% block content %}
+  <section class="member-auth-required">
+    <div class="member-auth-card">
+      <p class="eyebrow">Member</p>
+      <h1>Sign in to continue.</h1>
+      <p>Your member workspace is available after sign in.</p>
+      <span data-clerk-auth></span>
+    </div>
+  </section>
+{% endblock %}

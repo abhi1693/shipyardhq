@@ -211,6 +211,7 @@ INSTALLED_APPS = [
     "django_rq",
     "core",
     "accounts",
+    "members",
     "extras",
     "catalog",
     *PLUGINS,

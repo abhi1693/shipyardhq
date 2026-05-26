@@ -1,0 +1,8 @@
+{% extends "members/base.html" %}
+
+{% block member_content %}
+  <div class="member-grid">
+    {% include "components/ui/card.html" with title="Name" text=request.user.get_full_name|default:"Not set" %}
+    {% include "components/ui/card.html" with title="Email" text=request.user.email %}
+  </div>
+{% endblock %}

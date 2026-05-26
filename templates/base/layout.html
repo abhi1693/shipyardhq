@@ -7,25 +7,27 @@
     <title>{% block title %}Shipyard HQ{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'shipyardhq/css/app.css' %}">
   </head>
-  <body>
-    <header class="site-header">
-      <div class="site-header-inner">
-        <a class="brand" href="{% url 'home' %}">
-          <span class="brand-mark" aria-hidden="true">⚓</span>
-          <span>ShipyardHQ</span>
-        </a>
-        <nav class="primary-nav" aria-label="Primary navigation">
-          <a class="is-active" href="{% url 'home' %}">Discover</a>
-          <a href="{% url 'home' %}">Trending</a>
-          <a href="{% url 'home' %}">New</a>
-          <a href="{% url 'home' %}">Categories</a>
-        </nav>
-        <div class="header-actions">
-          {% include "components/ui/button.html" with label="+ Launch" variant="outline-inverse" data_clerk_launch=True extra_class="launch-button" %}
-          <span class="auth-slot" data-clerk-auth></span>
+  <body class="{% block body_class %}{% endblock %}">
+    {% block site_header %}
+      <header class="site-header">
+        <div class="site-header-inner">
+          <a class="brand" href="{% url 'home' %}">
+            <span class="brand-mark" aria-hidden="true">⚓</span>
+            <span>ShipyardHQ</span>
+          </a>
+          <nav class="primary-nav" aria-label="Primary navigation">
+            <a class="is-active" href="{% url 'home' %}">Discover</a>
+            <a href="{% url 'home' %}">Trending</a>
+            <a href="{% url 'home' %}">New</a>
+            <a href="{% url 'home' %}">Categories</a>
+          </nav>
+          <div class="header-actions">
+            {% include "components/ui/button.html" with label="+ Launch" variant="outline-inverse" data_clerk_launch=True extra_class="launch-button" %}
+            <span class="auth-slot" data-clerk-auth></span>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    {% endblock %}
     <main class="page">
       {% block content %}{% endblock %}
     </main>

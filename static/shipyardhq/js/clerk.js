@@ -15,11 +15,17 @@
   }
 
   function mountAuthSlot() {
-    var slot = document.querySelector("[data-clerk-auth]");
-    if (!slot) {
+    var slots = document.querySelectorAll("[data-clerk-auth]");
+    if (!slots.length) {
       return;
     }
 
+    slots.forEach(function (slot) {
+      mountAuthControl(slot);
+    });
+  }
+
+  function mountAuthControl(slot) {
     slot.replaceChildren();
     if (window.Clerk.isSignedIn) {
       slot.appendChild(createUserMenu());
@@ -55,9 +61,9 @@
     menu.className = "user-menu-content";
     menu.setAttribute("role", "menu");
     menu.hidden = true;
-    menu.appendChild(menuLink("Dashboard", "/dashboard/", "dashboard"));
-    menu.appendChild(menuLink("Launch", "/launch/", "rocket"));
-    menu.appendChild(menuLink("Profile", "/profile/", "user"));
+    menu.appendChild(menuLink("Dashboard", "/member/overview/", "dashboard"));
+    menu.appendChild(menuLink("Launch", "/member/launch/", "rocket"));
+    menu.appendChild(menuLink("Profile", "/member/profile/", "user"));
     menu.appendChild(menuButton("Sign Out", "log-out", function () {
       closeUserMenu(trigger, menu);
       window.Clerk.signOut({ redirectUrl: "/" });
@@ -160,7 +166,7 @@
 
     button.addEventListener("click", function (event) {
       if (window.Clerk.isSignedIn) {
-        window.location.assign("/launch/");
+        window.location.assign("/member/launch/");
         return;
       }
       event.preventDefault();

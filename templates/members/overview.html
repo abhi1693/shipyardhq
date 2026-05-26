@@ -1,0 +1,95 @@
+{% extends "members/base.html" %}
+
+{% block member_header %}{% endblock %}
+
+{% block member_content %}
+  {% url 'member_launch' as launch_url %}
+  {% url 'member_profile' as profile_url %}
+  {% with first_name=request.user.first_name|default:"there" %}
+    <div class="member-dashboard">
+      <header class="member-dashboard-topbar">
+        <div>
+          <p class="member-breadcrumb">Home / Member / Dashboard</p>
+          <h1>Welcome back, {{ first_name }}</h1>
+          {% if member_product_count != 0 %}
+            <p>Keep improving the products you have already launched.</p>
+          {% endif %}
+        </div>
+        <div class="member-dashboard-actions">
+          <span class="member-dashboard-filter">
+            <span aria-hidden="true"></span>
+            {{ member_product_count }} product{{ member_product_count|pluralize }}
+          </span>
+          <span class="member-dashboard-auth" data-clerk-auth></span>
+        </div>
+      </header>
+
+      {% if member_product_count == 0 %}
+        <section class="member-empty-hero">
+          <h2>It is time to launch your first product.</h2>
+          <p>Start with one focused listing for a micro-SaaS, tool, template, or side project you want the right people to discover.</p>
+          {% include "components/ui/button.html" with label="Launch Your First Product" href=launch_url variant="inverse" size="lg" %}
+          <small>Free to launch. You can keep refining before publishing.</small>
+        </section>
+
+        <section class="member-inspiration">
+          <div class="member-section-heading">
+            <h2>What a strong launch page includes</h2>
+            <p>These are the parts worth getting right before you publish.</p>
+          </div>
+          <div class="member-inspiration-grid">
+            <article class="member-inspiration-card">
+              <div class="member-inspiration-art member-inspiration-art-purple"></div>
+              <h3>Clear positioning</h3>
+              <p>Say who the product is for and what outcome it helps them reach.</p>
+            </article>
+            <article class="member-inspiration-card">
+              <div class="member-inspiration-art member-inspiration-art-blue"></div>
+              <h3>Useful context</h3>
+              <p>Explain the problem, category, pricing model, and best-fit use case.</p>
+            </article>
+            <article class="member-inspiration-card">
+              <div class="member-inspiration-art member-inspiration-art-orange"></div>
+              <h3>Obvious next step</h3>
+              <p>Give visitors one clear place to go when they are ready to try it.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="member-benefit-grid">
+          <article>
+            <span class="member-card-icon member-card-icon-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
+            </span>
+            <h3>Learn what resonates</h3>
+            <p>Once products are live, the dashboard can surface the signals that help you improve the listing.</p>
+          </article>
+          <article>
+            <span class="member-card-icon member-card-icon-green" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h6"></path><path d="m17 8 2 2 4-4"></path></svg>
+            </span>
+            <h3>Get better feedback</h3>
+            <p>A focused product page makes it easier for builders and buyers to respond with something useful.</p>
+          </article>
+          <article>
+            <span class="member-card-icon member-card-icon-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </span>
+            <h3>Build momentum</h3>
+            <p>Start with one product, then keep improving the story as you learn from the market.</p>
+          </article>
+        </section>
+      {% else %}
+        <section class="member-products-panel">
+          <div class="member-panel-heading">
+            <div>
+              <h2>Your products</h2>
+              <p>Manage and improve the products you have already started.</p>
+            </div>
+            <a href="{{ launch_url }}">Create product</a>
+          </div>
+        </section>
+      {% endif %}
+    </div>
+  {% endwith %}
+{% endblock %}
