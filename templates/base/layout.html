@@ -1,0 +1,18 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Shipyard HQ{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'shipyardhq/css/app.css' %}">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="{% url 'home' %}">Shipyard HQ</a>
+    </header>
+    <main class="page">
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>
