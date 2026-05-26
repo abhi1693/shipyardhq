@@ -8,9 +8,16 @@ from django.views.generic import RedirectView, TemplateView
 from accounts.forms import UserEditForm
 from accounts.models import User
 from accounts.tables import UserTable
-from catalog.forms import CategoryEditForm, ProductEditForm, UseCaseEditForm
-from catalog.models import Category, Product, UseCase
-from catalog.tables import CategoryTable, ProductTable, UseCaseTable
+from catalog.forms import (
+    CategoryEditForm,
+    PlatformEditForm,
+    PricingModelEditForm,
+    ProductEditForm,
+    ProductTypeEditForm,
+    UseCaseEditForm,
+)
+from catalog.models import Category, Platform, PricingModel, Product, ProductType, UseCase
+from catalog.tables import CategoryTable, PlatformTable, PricingModelTable, ProductTable, ProductTypeTable, UseCaseTable
 
 
 class MemberRequiredMixin:
@@ -564,6 +571,286 @@ class MemberUseCaseDeleteView(MemberUseCaseObjectMixin, TemplateView):
             )
 
         return redirect("member_use_cases")
+
+
+class MemberFacetConfigMixin:
+    model = None
+    form_class = None
+    table_class = None
+    active_member_nav = ""
+    member_title = ""
+    singular_label = ""
+    plural_label = ""
+    form_heading = ""
+    list_route_name = ""
+    detail_route_name = ""
+    add_route_name = ""
+    edit_route_name = ""
+    delete_route_name = ""
+    product_count_lookup = "products"
+    product_filter_lookup = ""
+
+    def get_facet_queryset(self):
+        return self.model.objects.annotate(
+            product_count=Count(self.product_count_lookup, distinct=True),
+        ).order_by("name")
+
+
+class MemberFacetListView(MemberFacetConfigMixin, MemberSuperuserRequiredMixin, TemplateView):
+    template_name = "members/facet_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_facet_queryset()
+        context["member_facet_count"] = queryset.count()
+        context["member_facet_title"] = self.member_title
+        context["member_facet_count_label"] = self.singular_label
+        context["member_facet_add_url"] = reverse(self.add_route_name)
+        context["table"] = self.table_class(queryset).configure(self.request)
+        return context
+
+
+class MemberFacetAddView(MemberFacetConfigMixin, MemberSuperuserRequiredMixin, TemplateView):
+    template_name = "members/facet_add.html"
+
+    def get_breadcrumbs(self):
+        return (
+            {"label": "Home", "url": reverse("home")},
+            {"label": "Member", "url": reverse("member_overview")},
+            {"label": self.plural_label, "url": reverse(self.list_route_name)},
+            {"label": "Add", "url": ""},
+        )
+
+    def get_form(self):
+        return self.form_class(self.request.POST or None)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = kwargs.get("form") or self.get_form()
+        context["facet_cancel_url"] = reverse(self.list_route_name)
+        context["facet_form_heading"] = self.form_heading
+        context["facet_submit_label"] = "Create"
+        context["facet_tab_label"] = "Create"
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            facet = form.save()
+            return redirect(self.detail_route_name, pk=facet.pk)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class MemberFacetObjectMixin(MemberFacetConfigMixin, MemberSuperuserRequiredMixin):
+    @cached_property
+    def target_facet(self):
+        return get_object_or_404(self.get_facet_queryset(), pk=self.kwargs["pk"])
+
+    def get_breadcrumbs(self):
+        return (
+            {"label": "Home", "url": reverse("home")},
+            {"label": "Member", "url": reverse("member_overview")},
+            {"label": self.plural_label, "url": reverse(self.list_route_name)},
+            {"label": self.target_facet.name, "url": ""},
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["target_facet"] = self.target_facet
+        context["target_facet_initial"] = self.target_facet.name[:1].upper()
+        context["facet_singular_label"] = self.singular_label
+        context["facet_plural_label"] = self.plural_label
+        context["facet_detail_url"] = reverse(self.detail_route_name, kwargs={"pk": self.target_facet.pk})
+        context["facet_edit_url"] = reverse(self.edit_route_name, kwargs={"pk": self.target_facet.pk})
+        context["facet_delete_url"] = reverse(self.delete_route_name, kwargs={"pk": self.target_facet.pk})
+        return context
+
+
+class MemberFacetDetailView(MemberFacetObjectMixin, TemplateView):
+    template_name = "members/facet_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        products = (
+            Product.objects.filter(**{self.product_filter_lookup: self.target_facet})
+            .select_related("owner", "category", "product_type", "pricing_model")
+            .distinct()
+            .order_by("-last_updated", "-created", "name")
+        )
+        context["target_facet_products_table"] = ProductTable(products, show_owner=True).configure(self.request)
+        return context
+
+
+class MemberFacetEditView(MemberFacetObjectMixin, TemplateView):
+    template_name = "members/facet_edit.html"
+
+    def get_breadcrumbs(self):
+        return (*super().get_breadcrumbs(), {"label": "Edit", "url": ""})
+
+    def get_form(self):
+        return self.form_class(self.request.POST or None, instance=self.target_facet)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["member_title"] = f"Editing {self.singular_label} {self.target_facet.name}"
+        context["form"] = kwargs.get("form") or self.get_form()
+        context["facet_cancel_url"] = reverse(self.detail_route_name, kwargs={"pk": self.target_facet.pk})
+        context["facet_form_heading"] = self.form_heading
+        context["facet_submit_label"] = "Save"
+        context["facet_tab_label"] = "Edit"
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            facet = form.save()
+            return redirect(self.detail_route_name, pk=facet.pk)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class MemberFacetDeleteView(MemberFacetObjectMixin, TemplateView):
+    template_name = "members/facet_delete.html"
+
+    def get_breadcrumbs(self):
+        return (*super().get_breadcrumbs(), {"label": "Delete", "url": ""})
+
+    def get_delete_blockers(self):
+        blockers = []
+        if self.target_facet.product_count:
+            blockers.append(f"Remove connected products before deleting this {self.singular_label}.")
+        return blockers
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["delete_blockers"] = kwargs.get("delete_blockers", self.get_delete_blockers())
+        context["delete_error"] = kwargs.get("delete_error", "")
+        return context
+
+    def post(self, request, *args, **kwargs):
+        blockers = self.get_delete_blockers()
+        if blockers:
+            return self.render_to_response(self.get_context_data(delete_blockers=blockers))
+
+        try:
+            self.target_facet.delete()
+        except ProtectedError:
+            return self.render_to_response(
+                self.get_context_data(delete_error=f"This {self.singular_label} is still connected to products.")
+            )
+
+        return redirect(self.list_route_name)
+
+
+class ProductTypePageConfig(MemberFacetConfigMixin):
+    model = ProductType
+    form_class = ProductTypeEditForm
+    table_class = ProductTypeTable
+    active_member_nav = "product_types"
+    member_title = "Product types"
+    singular_label = "product type"
+    plural_label = "Product types"
+    form_heading = "Product type"
+    list_route_name = "member_product_types"
+    detail_route_name = "member_product_type"
+    add_route_name = "member_product_type_add"
+    edit_route_name = "member_product_type_edit"
+    delete_route_name = "member_product_type_delete"
+    product_filter_lookup = "product_type"
+
+
+class MemberProductTypesView(ProductTypePageConfig, MemberFacetListView):
+    pass
+
+
+class MemberProductTypeAddView(ProductTypePageConfig, MemberFacetAddView):
+    member_title = "Add a new product type"
+
+
+class MemberProductTypeDetailView(ProductTypePageConfig, MemberFacetDetailView):
+    member_title = "Product type"
+
+
+class MemberProductTypeEditView(ProductTypePageConfig, MemberFacetEditView):
+    member_title = "Editing product type"
+
+
+class MemberProductTypeDeleteView(ProductTypePageConfig, MemberFacetDeleteView):
+    member_title = "Delete product type"
+
+
+class PricingModelPageConfig(MemberFacetConfigMixin):
+    model = PricingModel
+    form_class = PricingModelEditForm
+    table_class = PricingModelTable
+    active_member_nav = "pricing"
+    member_title = "Pricing"
+    singular_label = "pricing model"
+    plural_label = "Pricing"
+    form_heading = "Pricing"
+    list_route_name = "member_pricing_models"
+    detail_route_name = "member_pricing_model"
+    add_route_name = "member_pricing_model_add"
+    edit_route_name = "member_pricing_model_edit"
+    delete_route_name = "member_pricing_model_delete"
+    product_filter_lookup = "pricing_model"
+
+
+class MemberPricingModelsView(PricingModelPageConfig, MemberFacetListView):
+    pass
+
+
+class MemberPricingModelAddView(PricingModelPageConfig, MemberFacetAddView):
+    member_title = "Add pricing"
+
+
+class MemberPricingModelDetailView(PricingModelPageConfig, MemberFacetDetailView):
+    member_title = "Pricing"
+
+
+class MemberPricingModelEditView(PricingModelPageConfig, MemberFacetEditView):
+    member_title = "Editing pricing"
+
+
+class MemberPricingModelDeleteView(PricingModelPageConfig, MemberFacetDeleteView):
+    member_title = "Delete pricing"
+
+
+class PlatformPageConfig(MemberFacetConfigMixin):
+    model = Platform
+    form_class = PlatformEditForm
+    table_class = PlatformTable
+    active_member_nav = "platforms"
+    member_title = "Platforms"
+    singular_label = "platform"
+    plural_label = "Platforms"
+    form_heading = "Platform"
+    list_route_name = "member_platforms"
+    detail_route_name = "member_platform"
+    add_route_name = "member_platform_add"
+    edit_route_name = "member_platform_edit"
+    delete_route_name = "member_platform_delete"
+    product_count_lookup = "product_assignments"
+    product_filter_lookup = "platform_assignments__platform"
+
+
+class MemberPlatformsView(PlatformPageConfig, MemberFacetListView):
+    pass
+
+
+class MemberPlatformAddView(PlatformPageConfig, MemberFacetAddView):
+    member_title = "Add a new platform"
+
+
+class MemberPlatformDetailView(PlatformPageConfig, MemberFacetDetailView):
+    member_title = "Platform"
+
+
+class MemberPlatformEditView(PlatformPageConfig, MemberFacetEditView):
+    member_title = "Editing platform"
+
+
+class MemberPlatformDeleteView(PlatformPageConfig, MemberFacetDeleteView):
+    member_title = "Delete platform"
 
 
 class MemberUsersView(MemberSuperuserRequiredMixin, TemplateView):

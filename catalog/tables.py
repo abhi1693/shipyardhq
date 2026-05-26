@@ -5,7 +5,7 @@ from django.utils.html import format_html, format_html_join
 from catalog.category_icons import CATEGORY_ICON_LABELS, render_category_icon
 from core.tables import PrimaryModelTable
 
-from .models import Category, Product, UseCase
+from .models import Category, Platform, PricingModel, Product, ProductType, UseCase
 
 
 class CategoryTable(PrimaryModelTable):
@@ -86,6 +86,90 @@ class UseCaseTable(PrimaryModelTable):
                 ((category.name,) for category in categories),
             ),
         )
+
+    def render_products(self, record):
+        return record.product_count
+
+    def render_is_active(self, value):
+        if value:
+            return format_html('<span class="ship-table-badge ship-table-badge-active">Active</span>')
+        return format_html('<span class="ship-table-badge ship-table-badge-inactive">Inactive</span>')
+
+
+class ProductTypeTable(PrimaryModelTable):
+    name = tables.Column(verbose_name="Type")
+    products = tables.Column(empty_values=(), orderable=False, verbose_name="Products")
+    is_active = tables.Column(verbose_name="Active")
+    last_updated = tables.DateTimeColumn(format="M j, Y", verbose_name="Updated")
+
+    class Meta(PrimaryModelTable.Meta):
+        model = ProductType
+        fields = ("name", "slug", "products", "is_active", "last_updated")
+        sequence = fields
+        empty_text = "No product types found."
+        row_attrs = {
+            "class": "ship-table-row-clickable",
+            "data-href": lambda record: reverse("member_product_type", kwargs={"pk": record.pk}),
+        }
+
+    def render_name(self, record):
+        return format_html("<strong>{}</strong>", record.name)
+
+    def render_products(self, record):
+        return record.product_count
+
+    def render_is_active(self, value):
+        if value:
+            return format_html('<span class="ship-table-badge ship-table-badge-active">Active</span>')
+        return format_html('<span class="ship-table-badge ship-table-badge-inactive">Inactive</span>')
+
+
+class PricingModelTable(PrimaryModelTable):
+    name = tables.Column(verbose_name="Pricing")
+    products = tables.Column(empty_values=(), orderable=False, verbose_name="Products")
+    is_active = tables.Column(verbose_name="Active")
+    last_updated = tables.DateTimeColumn(format="M j, Y", verbose_name="Updated")
+
+    class Meta(PrimaryModelTable.Meta):
+        model = PricingModel
+        fields = ("name", "slug", "products", "is_active", "last_updated")
+        sequence = fields
+        empty_text = "No pricing models found."
+        row_attrs = {
+            "class": "ship-table-row-clickable",
+            "data-href": lambda record: reverse("member_pricing_model", kwargs={"pk": record.pk}),
+        }
+
+    def render_name(self, record):
+        return format_html("<strong>{}</strong>", record.name)
+
+    def render_products(self, record):
+        return record.product_count
+
+    def render_is_active(self, value):
+        if value:
+            return format_html('<span class="ship-table-badge ship-table-badge-active">Active</span>')
+        return format_html('<span class="ship-table-badge ship-table-badge-inactive">Inactive</span>')
+
+
+class PlatformTable(PrimaryModelTable):
+    name = tables.Column(verbose_name="Platform")
+    products = tables.Column(empty_values=(), orderable=False, verbose_name="Products")
+    is_active = tables.Column(verbose_name="Active")
+    last_updated = tables.DateTimeColumn(format="M j, Y", verbose_name="Updated")
+
+    class Meta(PrimaryModelTable.Meta):
+        model = Platform
+        fields = ("name", "slug", "products", "is_active", "last_updated")
+        sequence = fields
+        empty_text = "No platforms found."
+        row_attrs = {
+            "class": "ship-table-row-clickable",
+            "data-href": lambda record: reverse("member_platform", kwargs={"pk": record.pk}),
+        }
+
+    def render_name(self, record):
+        return format_html("<strong>{}</strong>", record.name)
 
     def render_products(self, record):
         return record.product_count

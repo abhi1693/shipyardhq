@@ -31,6 +31,18 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect></svg>
             Categories
           </a>
+          <a class="{% if active_member_nav == 'product_types' %}is-active{% endif %}" href="{% url 'member_product_types' %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h10"></path></svg>
+            Product types
+          </a>
+          <a class="{% if active_member_nav == 'pricing' %}is-active{% endif %}" href="{% url 'member_pricing_models' %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            Pricing
+          </a>
+          <a class="{% if active_member_nav == 'platforms' %}is-active{% endif %}" href="{% url 'member_platforms' %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="12" x="3" y="4" rx="2"></rect><path d="M8 20h8"></path><path d="M12 16v4"></path></svg>
+            Platforms
+          </a>
           <a class="{% if active_member_nav == 'use_cases' %}is-active{% endif %}" href="{% url 'member_use_cases' %}">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle><path d="M12 3v3"></path><path d="M21 12h-3"></path><path d="M12 21v-3"></path><path d="M3 12h3"></path></svg>
             Use cases

@@ -74,6 +74,51 @@ class UseCaseEditForm(forms.ModelForm):
         return use_case
 
 
+class ProductTypeEditForm(forms.ModelForm):
+    class Meta:
+        model = ProductType
+        fields = ("name", "slug", "description", "is_active")
+        labels = {
+            "is_active": "Active",
+        }
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "member-form-control", "data-slug-source": "id_slug"}),
+            "slug": forms.TextInput(attrs={"class": "member-form-control", "data-slug-target": "id_name"}),
+            "description": forms.Textarea(attrs={"class": "member-form-control member-form-textarea", "rows": 5}),
+            "is_active": forms.CheckboxInput(attrs={"class": "member-form-checkbox"}),
+        }
+
+
+class PricingModelEditForm(forms.ModelForm):
+    class Meta:
+        model = PricingModel
+        fields = ("name", "slug", "description", "is_active")
+        labels = {
+            "is_active": "Active",
+        }
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "member-form-control", "data-slug-source": "id_slug"}),
+            "slug": forms.TextInput(attrs={"class": "member-form-control", "data-slug-target": "id_name"}),
+            "description": forms.Textarea(attrs={"class": "member-form-control member-form-textarea", "rows": 5}),
+            "is_active": forms.CheckboxInput(attrs={"class": "member-form-checkbox"}),
+        }
+
+
+class PlatformEditForm(forms.ModelForm):
+    class Meta:
+        model = Platform
+        fields = ("name", "slug", "description", "is_active")
+        labels = {
+            "is_active": "Active",
+        }
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "member-form-control", "data-slug-source": "id_slug"}),
+            "slug": forms.TextInput(attrs={"class": "member-form-control", "data-slug-target": "id_name"}),
+            "description": forms.Textarea(attrs={"class": "member-form-control member-form-textarea", "rows": 5}),
+            "is_active": forms.CheckboxInput(attrs={"class": "member-form-checkbox"}),
+        }
+
+
 class ProductEditForm(forms.ModelForm):
     owner = forms.ModelChoiceField(
         queryset=User.objects.none(),

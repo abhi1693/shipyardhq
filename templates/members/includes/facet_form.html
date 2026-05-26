@@ -1,0 +1,70 @@
+<ul class="member-object-edit-tabs" role="tablist">
+  <li role="presentation">
+    <button type="button" role="tab" aria-selected="true">{{ facet_tab_label }}</button>
+  </li>
+</ul>
+
+<form class="member-object-form member-object-edit-form" method="post" action="{{ request.path }}" novalidate>
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="member-form-errors">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  <div class="member-field-group" role="group" aria-label="{{ facet_form_heading }}">
+    <div class="member-form-row member-form-row-heading">
+      <div></div>
+      <h2>{{ facet_form_heading }}</h2>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.name }}
+        {% for error in form.name.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.slug }}
+        {% for error in form.slug.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+      <div class="member-form-row-control">
+        {{ form.description }}
+        {% for error in form.description.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="member-form-row">
+      <div></div>
+      <div class="member-form-row-control">
+        <label class="member-form-check member-form-check-plain" for="{{ form.is_active.id_for_label }}">
+          {{ form.is_active }}
+          <span>{{ form.is_active.label }}</span>
+        </label>
+        {% for error in form.is_active.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="member-form-actions member-object-edit-actions">
+    <a class="ui-button ui-button-outline-inverse ui-button-md" href="{{ facet_cancel_url }}">Cancel</a>
+    <button class="ui-button ui-button-inverse ui-button-md" type="submit">{{ facet_submit_label }}</button>
+  </div>
+</form>
