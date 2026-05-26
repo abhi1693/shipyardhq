@@ -746,6 +746,49 @@ button {
   color: #fff;
 }
 
+.member-topbar {
+  align-items: center;
+  background: #09090b;
+  border-bottom: 1px solid #27272a;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  margin: -32px -32px 32px;
+  padding: 20px 32px;
+}
+
+.member-topbar .ui-breadcrumb {
+  margin: 0;
+}
+
+.member-list-page {
+  display: grid;
+  gap: 22px;
+  width: 100%;
+}
+
+.member-list-heading {
+  align-items: center;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+}
+
+.member-list-heading h1 {
+  color: #fff;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.member-list-heading span {
+  color: #a1a1aa;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .member-main .ui-card,
 .member-main .ui-empty-state {
   background: rgba(255, 255, 255, 0.05);
@@ -1197,12 +1240,20 @@ button {
   vertical-align: top;
 }
 
+.ship-table-mono {
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+
 .ship-table tbody tr:hover td {
   background: rgba(255, 255, 255, 0.03);
 }
 
 .ship-table td strong {
   color: #fff;
+}
+
+.ship-table-muted {
+  color: #71717a;
 }
 
 .ship-table-badge {
@@ -1231,6 +1282,26 @@ button {
 .ship-table-badge-archived {
   background: rgba(245, 158, 11, 0.12);
   color: #f59e0b;
+}
+
+.ship-table-badge-admin {
+  background: rgba(249, 115, 22, 0.12);
+  color: #fb923c;
+}
+
+.ship-table-badge-member {
+  background: rgba(14, 165, 233, 0.12);
+  color: #38bdf8;
+}
+
+.ship-table-badge-active {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+}
+
+.ship-table-badge-inactive {
+  background: rgba(161, 161, 170, 0.12);
+  color: #a1a1aa;
 }
 
 .ship-table-pagination {
@@ -1583,6 +1654,16 @@ button {
 
   .member-main {
     padding: 22px 16px 40px;
+  }
+
+  .member-topbar {
+    margin: -22px -16px 24px;
+    padding: 16px;
+  }
+
+  .member-list-heading {
+    align-items: start;
+    display: grid;
   }
 
   .member-nav {

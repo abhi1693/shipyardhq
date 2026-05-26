@@ -26,6 +26,12 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21a7 7 0 0 0-14 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
           Profile
         </a>
+        {% if request.user.is_superuser %}
+          <a class="{% if active_member_nav == 'users' %}is-active{% endif %}" href="{% url 'member_users' %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Users
+          </a>
+        {% endif %}
       </nav>
     </aside>
 

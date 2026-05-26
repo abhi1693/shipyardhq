@@ -1,7 +1,10 @@
+from django.db.models import Count
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import RedirectView, TemplateView
 
+from accounts.models import User
+from accounts.tables import UserTable
 from catalog.models import Product
 from catalog.tables import ProductTable
 
@@ -30,6 +33,28 @@ class MemberPageMixin(MemberRequiredMixin):
             {"label": "Member", "url": reverse("member_overview")},
             {"label": self.member_title, "url": ""},
         )
+
+
+class MemberSuperuserRequiredMixin(MemberPageMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return render(request, "members/auth_required.html", status=403)
+        if not request.user.is_active or not request.user.is_superuser:
+            return render(
+                request,
+                "members/permission_denied.html",
+                {
+                    "active_member_nav": "",
+                    "member_title": "Not available",
+                    "breadcrumbs": (
+                        {"label": "Home", "url": reverse("home")},
+                        {"label": "Member", "url": reverse("member_overview")},
+                        {"label": "Not available", "url": ""},
+                    ),
+                },
+                status=403,
+            )
+        return super().dispatch(request, *args, **kwargs)
 
 
 class MemberHomeView(MemberRequiredMixin, TemplateView):
@@ -112,4 +137,17 @@ class MemberProductsView(MemberPageMixin, TemplateView):
         context["empty_table_action_url"] = reverse("member_launch")
         context["empty_table_note"] = "Takes less than 5 minutes"
         context["empty_table_tips"] = self.empty_table_tips
+        return context
+
+
+class MemberUsersView(MemberSuperuserRequiredMixin, TemplateView):
+    template_name = "members/users.html"
+    active_member_nav = "users"
+    member_title = "Users"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = User.objects.annotate(product_count=Count("products")).order_by("email")
+        context["member_user_count"] = queryset.count()
+        context["table"] = UserTable(queryset).configure(self.request)
         return context

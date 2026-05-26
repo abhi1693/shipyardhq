@@ -4,6 +4,7 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
+from django.utils import timezone
 
 from .auth import ClerkUserSyncError, authenticate_clerk_request, get_user_from_clerk_state
 
@@ -44,6 +45,7 @@ class ClerkAuthenticationMiddleware:
             return
 
         if user.is_active:
+            self._update_last_login(request, user)
             request.user = user
             request._cached_user = user
         else:
@@ -56,3 +58,16 @@ class ClerkAuthenticationMiddleware:
     def _should_skip(self, request):
         path = request.path
         return path.startswith(settings.STATIC_URL) or path.startswith(settings.MEDIA_URL)
+
+    def _update_last_login(self, request, user):
+        session_id = request.clerk_session_id
+        if not session_id:
+            return
+
+        session_key = f"clerk_last_login_session:{user.pk}"
+        if request.session.get(session_key) == session_id:
+            return
+
+        user.last_login = timezone.now()
+        user.save(update_fields=("last_login",))
+        request.session[session_key] = session_id
