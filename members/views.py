@@ -8,9 +8,9 @@ from django.views.generic import RedirectView, TemplateView
 from accounts.forms import UserEditForm
 from accounts.models import User
 from accounts.tables import UserTable
-from catalog.forms import CategoryEditForm
-from catalog.models import Category, Product
-from catalog.tables import CategoryTable, ProductTable
+from catalog.forms import CategoryEditForm, UseCaseEditForm
+from catalog.models import Category, Product, UseCase
+from catalog.tables import CategoryTable, ProductTable, UseCaseTable
 
 
 class MemberRequiredMixin:
@@ -293,6 +293,160 @@ class MemberCategoryDeleteView(MemberCategoryObjectMixin, TemplateView):
             )
 
         return redirect("member_categories")
+
+
+class MemberUseCasesView(MemberSuperuserRequiredMixin, TemplateView):
+    template_name = "members/use_cases.html"
+    active_member_nav = "use_cases"
+    member_title = "Use cases"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = (
+            UseCase.objects.prefetch_related("categories")
+            .annotate(
+                product_count=Count("product_assignments", distinct=True),
+                category_count=Count("category_links", distinct=True),
+            )
+            .order_by("name")
+        )
+        context["member_use_case_count"] = queryset.count()
+        context["table"] = UseCaseTable(queryset).configure(self.request)
+        return context
+
+
+class MemberUseCaseAddView(MemberSuperuserRequiredMixin, TemplateView):
+    template_name = "members/use_case_add.html"
+    active_member_nav = "use_cases"
+    member_title = "Add a new use case"
+
+    def get_breadcrumbs(self):
+        return (
+            {"label": "Home", "url": reverse("home")},
+            {"label": "Member", "url": reverse("member_overview")},
+            {"label": "Use cases", "url": reverse("member_use_cases")},
+            {"label": "Add", "url": ""},
+        )
+
+    def get_form(self):
+        return UseCaseEditForm(self.request.POST or None)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = kwargs.get("form") or self.get_form()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            use_case = form.save()
+            return redirect("member_use_case", pk=use_case.pk)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class MemberUseCaseObjectMixin(MemberSuperuserRequiredMixin):
+    active_member_nav = "use_cases"
+    member_title = "Use case"
+
+    @cached_property
+    def target_use_case(self):
+        return get_object_or_404(
+            UseCase.objects.prefetch_related("categories").annotate(
+                product_count=Count("product_assignments", distinct=True),
+                category_count=Count("category_links", distinct=True),
+            ),
+            pk=self.kwargs["pk"],
+        )
+
+    def get_breadcrumbs(self):
+        return (
+            {"label": "Home", "url": reverse("home")},
+            {"label": "Member", "url": reverse("member_overview")},
+            {"label": "Use cases", "url": reverse("member_use_cases")},
+            {"label": self.target_use_case.name, "url": ""},
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["target_use_case"] = self.target_use_case
+        context["target_use_case_categories"] = self.target_use_case.categories.all()
+        context["target_use_case_initial"] = self.target_use_case.name[:1].upper()
+        return context
+
+
+class MemberUseCaseDetailView(MemberUseCaseObjectMixin, TemplateView):
+    template_name = "members/use_case_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        products = (
+            Product.objects.filter(use_case_assignments__use_case=self.target_use_case)
+            .select_related("category", "product_type", "pricing_model")
+            .distinct()
+            .order_by("-last_updated", "-created", "name")
+        )
+        context["target_use_case_products_table"] = ProductTable(products).configure(self.request)
+        return context
+
+
+class MemberUseCaseEditView(MemberUseCaseObjectMixin, TemplateView):
+    template_name = "members/use_case_edit.html"
+    member_title = "Editing use case"
+
+    def get_breadcrumbs(self):
+        return (*super().get_breadcrumbs(), {"label": "Edit", "url": ""})
+
+    def get_form(self):
+        return UseCaseEditForm(self.request.POST or None, instance=self.target_use_case)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["member_title"] = f"Editing use case {self.target_use_case.name}"
+        context["form"] = kwargs.get("form") or self.get_form()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            use_case = form.save()
+            return redirect("member_use_case", pk=use_case.pk)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class MemberUseCaseDeleteView(MemberUseCaseObjectMixin, TemplateView):
+    template_name = "members/use_case_delete.html"
+    member_title = "Delete use case"
+
+    def get_breadcrumbs(self):
+        return (*super().get_breadcrumbs(), {"label": "Delete", "url": ""})
+
+    def get_delete_blockers(self):
+        blockers = []
+        if self.target_use_case.product_count:
+            blockers.append("Remove connected products before deleting this use case.")
+        return blockers
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["delete_blockers"] = kwargs.get("delete_blockers", self.get_delete_blockers())
+        context["delete_error"] = kwargs.get("delete_error", "")
+        return context
+
+    def post(self, request, *args, **kwargs):
+        blockers = self.get_delete_blockers()
+        if blockers:
+            return self.render_to_response(self.get_context_data(delete_blockers=blockers))
+
+        try:
+            self.target_use_case.delete()
+        except ProtectedError:
+            return self.render_to_response(
+                self.get_context_data(
+                    delete_error="This use case is still connected to products."
+                )
+            )
+
+        return redirect("member_use_cases")
 
 
 class MemberUsersView(MemberSuperuserRequiredMixin, TemplateView):

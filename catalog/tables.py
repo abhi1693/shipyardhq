@@ -1,11 +1,11 @@
 import django_tables2 as tables
 from django.urls import reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 
 from catalog.category_icons import CATEGORY_ICON_LABELS, render_category_icon
 from core.tables import PrimaryModelTable
 
-from .models import Category, Product
+from .models import Category, Product, UseCase
 
 
 class CategoryTable(PrimaryModelTable):
@@ -52,6 +52,48 @@ class CategoryTable(PrimaryModelTable):
 
     def render_children(self, record):
         return record.child_count
+
+
+class UseCaseTable(PrimaryModelTable):
+    name = tables.Column(verbose_name="Use case")
+    categories = tables.Column(empty_values=(), orderable=False, verbose_name="Categories")
+    products = tables.Column(empty_values=(), orderable=False, verbose_name="Products")
+    is_active = tables.Column(verbose_name="Active")
+    last_updated = tables.DateTimeColumn(format="M j, Y", verbose_name="Updated")
+
+    class Meta(PrimaryModelTable.Meta):
+        model = UseCase
+        fields = ("name", "slug", "categories", "products", "is_active", "last_updated")
+        sequence = fields
+        empty_text = "No use cases found."
+        row_attrs = {
+            "class": "ship-table-row-clickable",
+            "data-href": lambda record: reverse("member_use_case", kwargs={"pk": record.pk}),
+        }
+
+    def render_name(self, record):
+        return format_html("<strong>{}</strong>", record.name)
+
+    def render_categories(self, record):
+        categories = list(record.categories.all())
+        if not categories:
+            return format_html('<span class="ship-table-muted">None</span>')
+        return format_html(
+            '<span class="ship-table-chip-list">{}</span>',
+            format_html_join(
+                "",
+                '<span class="ship-table-chip">{}</span>',
+                ((category.name,) for category in categories),
+            ),
+        )
+
+    def render_products(self, record):
+        return record.product_count
+
+    def render_is_active(self, value):
+        if value:
+            return format_html('<span class="ship-table-badge ship-table-badge-active">Active</span>')
+        return format_html('<span class="ship-table-badge ship-table-badge-inactive">Inactive</span>')
 
 
 class ProductTable(PrimaryModelTable):

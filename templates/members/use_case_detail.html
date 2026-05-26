@@ -1,0 +1,77 @@
+{% extends "members/base.html" %}
+{% load django_tables2 %}
+
+{% block member_content %}
+  <div class="member-object-profile">
+    <section class="member-object-card">
+      <header class="member-object-heading">
+        <div class="member-object-identity">
+          <span class="member-object-avatar" aria-hidden="true">{{ target_use_case_initial }}</span>
+          <div>
+            <h2>{{ target_use_case.name }}</h2>
+            <p>{{ target_use_case.slug }}</p>
+          </div>
+        </div>
+        <div class="member-object-actions">
+          <a class="member-action-button" href="{% url 'member_use_case_edit' target_use_case.pk %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="m16.5 3.5 4 4L7 21H3v-4L16.5 3.5Z"></path></svg>
+            Edit
+          </a>
+          <a class="member-action-button member-action-button-danger" href="{% url 'member_use_case_delete' target_use_case.pk %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg>
+            Delete
+          </a>
+        </div>
+      </header>
+
+      <dl class="member-object-details">
+        <div>
+          <dt>Status</dt>
+          <dd>
+            {% if target_use_case.is_active %}
+              <span class="ship-table-badge ship-table-badge-active">Active</span>
+            {% else %}
+              <span class="ship-table-badge ship-table-badge-inactive">Inactive</span>
+            {% endif %}
+          </dd>
+        </div>
+        <div>
+          <dt>Products</dt>
+          <dd>{{ target_use_case.product_count }}</dd>
+        </div>
+        <div>
+          <dt>Categories</dt>
+          <dd>{{ target_use_case.category_count }}</dd>
+        </div>
+      </dl>
+
+      {% if target_use_case_categories %}
+        <div class="member-object-description">
+          <h3>Categories</h3>
+          <p class="ship-table-chip-list">
+            {% for category in target_use_case_categories %}
+              <span class="ship-table-chip">{{ category.name }}</span>
+            {% endfor %}
+          </p>
+        </div>
+      {% endif %}
+
+      {% if target_use_case.description %}
+        <div class="member-object-description">
+          <h3>Description</h3>
+          <p>{{ target_use_case.description }}</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="member-table-panel">
+      <div class="member-panel-heading">
+        <div>
+          <h2>Products</h2>
+          <p>Products connected to this use case.</p>
+        </div>
+      </div>
+      {% render_table target_use_case_products_table %}
+    </section>
+  </div>
+{% endblock %}

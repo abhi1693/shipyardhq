@@ -1122,6 +1122,16 @@ button {
   color: #fff;
 }
 
+.member-form-multiselect {
+  color-scheme: dark;
+  min-height: 132px;
+  padding: 10px 14px;
+}
+
+.member-form-multiselect option {
+  padding: 8px;
+}
+
 .member-icon-select {
   position: relative;
 }
@@ -1819,6 +1829,24 @@ button {
 
 .ship-table-muted {
   color: #71717a;
+}
+
+.ship-table-chip-list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ship-table-chip {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid #27272a;
+  border-radius: var(--radius-pill);
+  color: #d4d4d8;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 6px 10px;
 }
 
 .ship-table-badge {
