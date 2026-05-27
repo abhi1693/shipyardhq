@@ -107,6 +107,12 @@ MEDIA_ROOT = getattr(configuration, "MEDIA_ROOT", BASE_DIR / "media")
 METRICS_ENABLED = getattr(configuration, "METRICS_ENABLED", False)
 PLUGINS = getattr(configuration, "PLUGINS", [])
 PLUGINS_CONFIG = getattr(configuration, "PLUGINS_CONFIG", {})
+OPENAI_API_KEY = getattr(configuration, "OPENAI_API_KEY", os.getenv("OPENAI_API_KEY", ""))
+OPENAI_AUTOFILL_MODEL = getattr(
+    configuration,
+    "OPENAI_AUTOFILL_MODEL",
+    os.getenv("OPENAI_AUTOFILL_MODEL", "gpt-4o-mini"),
+)
 R2 = getattr(configuration, "R2", {})
 R2_ACCESS_KEY_ID = getattr(configuration, "R2_ACCESS_KEY_ID", os.getenv("R2_ACCESS_KEY_ID", ""))
 R2_SECRET_ACCESS_KEY = getattr(configuration, "R2_SECRET_ACCESS_KEY", os.getenv("R2_SECRET_ACCESS_KEY", ""))

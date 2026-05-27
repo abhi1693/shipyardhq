@@ -1,8 +1,15 @@
+from decimal import ROUND_HALF_UP, Decimal
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 
-from .media_storage import MediaUploadError, delete_blob_if_managed, upload_product_image, validate_image_upload
+from .media_storage import (
+    MediaUploadError,
+    delete_blob_if_managed,
+    upload_product_image,
+    validate_image_upload,
+)
 from .models import (
     Category,
     Platform,
@@ -16,6 +23,21 @@ from .models import (
 )
 
 User = get_user_model()
+
+PRICE_REQUIRED_PRICING_SLUGS = {"subscription", "one-time", "one_time"}
+PRICE_DISABLED_PRICING_SLUGS = {"free", "custom"}
+CURRENCY_CHOICES = (
+    ("", "Select currency"),
+    ("USD", "USD"),
+    ("EUR", "EUR"),
+    ("GBP", "GBP"),
+    ("CAD", "CAD"),
+    ("AUD", "AUD"),
+    ("INR", "INR"),
+    ("JPY", "JPY"),
+    ("CHF", "CHF"),
+    ("SGD", "SGD"),
+)
 
 
 class MultipleFileInput(forms.ClearableFileInput):
@@ -155,15 +177,40 @@ class ProductEditForm(forms.ModelForm):
         required=False,
         widget=forms.SelectMultiple(attrs={"class": "member-form-control member-form-multiselect"}),
     )
+    starting_price = forms.DecimalField(
+        label="Starting price",
+        required=False,
+        max_digits=10,
+        decimal_places=2,
+        min_value=Decimal("0.00"),
+        widget=forms.NumberInput(
+            attrs={
+                "class": "member-form-control",
+                "data-pricing-price": "",
+                "min": "0",
+                "step": "0.01",
+            }
+        ),
+    )
+    currency_code = forms.ChoiceField(
+        label="Currency",
+        required=False,
+        choices=CURRENCY_CHOICES,
+        widget=forms.Select(attrs={"class": "member-form-control member-form-select", "data-pricing-currency": ""}),
+    )
     logo_file = forms.FileField(
         label="Logo",
         required=False,
-        widget=forms.FileInput(attrs={"class": "member-form-control member-form-file", "accept": "image/*"}),
+        widget=forms.FileInput(
+            attrs={"class": "member-form-control member-form-file", "accept": "image/*", "data-file-input": ""}
+        ),
     )
     hero_image_file = forms.FileField(
         label="Hero image",
         required=False,
-        widget=forms.FileInput(attrs={"class": "member-form-control member-form-file", "accept": "image/*"}),
+        widget=forms.FileInput(
+            attrs={"class": "member-form-control member-form-file", "accept": "image/*", "data-file-input": ""}
+        ),
     )
     media_files = MultipleFileField(
         label="Gallery images",
@@ -172,9 +219,20 @@ class ProductEditForm(forms.ModelForm):
             attrs={
                 "class": "member-form-control member-form-file",
                 "accept": "image/*",
+                "data-gallery-input": "",
                 "multiple": True,
             }
         ),
+    )
+    remove_logo = forms.BooleanField(
+        label="Remove current logo",
+        required=False,
+        widget=forms.CheckboxInput(attrs={"class": "member-form-checkbox"}),
+    )
+    remove_hero_image = forms.BooleanField(
+        label="Remove current hero image",
+        required=False,
+        widget=forms.CheckboxInput(attrs={"class": "member-form-checkbox"}),
     )
 
     class Meta:
@@ -187,6 +245,7 @@ class ProductEditForm(forms.ModelForm):
             "categories",
             "product_type",
             "pricing_model",
+            "currency_code",
             "platforms",
             "website_url",
             "summary",
@@ -197,6 +256,7 @@ class ProductEditForm(forms.ModelForm):
         labels = {
             "is_listed": "Listed",
             "pricing_model": "Pricing",
+            "currency_code": "Currency",
             "product_type": "Type",
             "categories": "Categories",
             "website_url": "Website",
@@ -206,7 +266,9 @@ class ProductEditForm(forms.ModelForm):
             "slug": forms.TextInput(attrs={"class": "member-form-control", "data-slug-target": "id_name"}),
             "tagline": forms.TextInput(attrs={"class": "member-form-control"}),
             "product_type": forms.Select(attrs={"class": "member-form-control member-form-select"}),
-            "pricing_model": forms.Select(attrs={"class": "member-form-control member-form-select"}),
+            "pricing_model": forms.Select(
+                attrs={"class": "member-form-control member-form-select", "data-pricing-model": ""}
+            ),
             "website_url": forms.URLInput(attrs={"class": "member-form-control"}),
             "summary": forms.Textarea(attrs={"class": "member-form-control member-form-textarea", "rows": 4}),
             "description": forms.Textarea(attrs={"class": "member-form-control member-form-textarea", "rows": 6}),
@@ -224,6 +286,10 @@ class ProductEditForm(forms.ModelForm):
         self.fields["pricing_model"].empty_label = "Select pricing"
         self.fields["platforms"].queryset = Platform.objects.order_by("name")
 
+        if self.instance.pk and self.instance.starting_price_cents is not None:
+            self.fields["starting_price"].initial = Decimal(self.instance.starting_price_cents) / Decimal("100")
+            self.fields["currency_code"].initial = self.instance.currency_code
+
         if user.is_superuser:
             self.fields["owner"].queryset = User.objects.filter(is_active=True).order_by("email")
             if not self.instance.pk:
@@ -235,6 +301,31 @@ class ProductEditForm(forms.ModelForm):
         if self.instance.pk:
             self.fields["categories"].initial = Category.objects.filter(product_assignments__product=self.instance)
             self.fields["platforms"].initial = Platform.objects.filter(product_assignments__product=self.instance)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        pricing_model = cleaned_data.get("pricing_model")
+        starting_price = cleaned_data.get("starting_price")
+        currency_code = cleaned_data.get("currency_code", "")
+        pricing_slug = pricing_model.slug if pricing_model else ""
+
+        if pricing_slug in PRICE_DISABLED_PRICING_SLUGS:
+            cleaned_data["starting_price"] = None
+            cleaned_data["currency_code"] = ""
+            return cleaned_data
+
+        if pricing_slug in PRICE_REQUIRED_PRICING_SLUGS and starting_price is None:
+            self.add_error("starting_price", "Starting price is required for this pricing model.")
+
+        if starting_price is not None and not currency_code:
+            self.add_error("currency_code", "Select a currency.")
+        elif currency_code and starting_price is None:
+            self.add_error("starting_price", "Enter a starting price.")
+
+        if currency_code:
+            cleaned_data["currency_code"] = currency_code.upper()
+
+        return cleaned_data
 
     def clean_logo_file(self):
         uploaded_file = self.cleaned_data["logo_file"]
@@ -264,6 +355,7 @@ class ProductEditForm(forms.ModelForm):
             product.owner = self.user
         if "slug" not in self.fields:
             product.slug = self.instance.slug if self.instance.pk else self._generate_unique_slug(product.name)
+        self._sync_pricing(product)
 
         if commit:
             product.save()
@@ -296,6 +388,24 @@ class ProductEditForm(forms.ModelForm):
             for platform in self.cleaned_data["platforms"]
         ])
 
+    def _sync_pricing(self, product):
+        starting_price = self.cleaned_data.get("starting_price")
+        currency_code = self.cleaned_data.get("currency_code", "")
+        pricing_slug = product.pricing_model.slug if product.pricing_model_id else ""
+
+        if pricing_slug in PRICE_DISABLED_PRICING_SLUGS:
+            product.starting_price_cents = None
+            product.currency_code = ""
+            return
+
+        if starting_price is None:
+            product.starting_price_cents = None
+            product.currency_code = ""
+            return
+
+        product.starting_price_cents = int((starting_price * Decimal("100")).quantize(Decimal("1"), ROUND_HALF_UP))
+        product.currency_code = currency_code.upper()
+
     def _sync_media(self, product):
         changed_fields = []
 
@@ -304,17 +414,21 @@ class ProductEditForm(forms.ModelForm):
             ("hero_image_file", "hero_image_url", "hero"),
         ):
             uploaded_file = self.cleaned_data.get(form_field)
-            if not uploaded_file:
-                continue
-
             old_url = getattr(product, model_field)
-            try:
-                url, _prepared = upload_product_image(product, uploaded_file, folder)
-            except MediaUploadError as exc:
-                raise forms.ValidationError("Media uploads are not available right now.") from exc
-            setattr(product, model_field, url)
-            changed_fields.append(model_field)
-            delete_blob_if_managed(old_url)
+            remove_field = "remove_logo" if model_field == "logo_url" else "remove_hero_image"
+
+            if uploaded_file:
+                try:
+                    url, _prepared = upload_product_image(product, uploaded_file, folder)
+                except MediaUploadError as exc:
+                    raise forms.ValidationError("Media uploads are not available right now.") from exc
+                setattr(product, model_field, url)
+                changed_fields.append(model_field)
+                delete_blob_if_managed(old_url)
+            elif old_url and self.cleaned_data.get(remove_field):
+                setattr(product, model_field, "")
+                changed_fields.append(model_field)
+                delete_blob_if_managed(old_url)
 
         if changed_fields:
             product.save(update_fields=[*changed_fields, "last_updated"])

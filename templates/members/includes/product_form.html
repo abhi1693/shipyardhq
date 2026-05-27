@@ -1,10 +1,13 @@
-<ul class="member-object-edit-tabs" role="tablist">
-  <li role="presentation">
-    <button type="button" role="tab" aria-selected="true">{{ tab_label }}</button>
-  </li>
-</ul>
-
-<form class="member-object-form member-object-edit-form" method="post" action="{{ request.path }}" enctype="multipart/form-data" novalidate>
+<form
+  class="member-object-form member-object-edit-form member-product-editor-form"
+  method="post"
+  action="{{ request.path }}"
+  enctype="multipart/form-data"
+  data-product-editor
+  data-product-flow
+  data-autofill-url="{% url 'member_product_autofill' %}"
+  novalidate
+>
   {% csrf_token %}
 
   {% if form.non_field_errors %}
@@ -13,232 +16,400 @@
     </div>
   {% endif %}
 
-  <div class="member-field-group" role="group" aria-label="Product">
-    <div class="member-form-row member-form-row-heading">
-      <div></div>
-      <h2>Product</h2>
-    </div>
-
-    {% if form.owner %}
-      <div class="member-form-row">
-        <label class="member-form-row-label" for="{{ form.owner.id_for_label }}">{{ form.owner.label }}</label>
-        <div class="member-form-row-control">
-          {{ form.owner }}
-          {% for error in form.owner.errors %}
-            <p>{{ error }}</p>
-          {% endfor %}
-        </div>
+  <div class="member-product-flow">
+    <header class="member-product-flow-header">
+      <div>
+        <p class="member-product-flow-kicker">Product listing</p>
+        <h2>{% if form.instance.pk %}Edit {{ form.instance.name }}{% else %}Launch a product{% endif %}</h2>
       </div>
-    {% endif %}
-
-    <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
-      <div class="member-form-row-control">
-        {{ form.name }}
-        {% for error in form.name.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
-      </div>
-    </div>
-
-    {% if form.slug %}
-      <div class="member-form-row">
-        <label class="member-form-row-label" for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
-        <div class="member-form-row-control">
-          {{ form.slug }}
-          {% for error in form.slug.errors %}
-            <p>{{ error }}</p>
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
-
-    <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.tagline.id_for_label }}">{{ form.tagline.label }}</label>
-      <div class="member-form-row-control">
-        {{ form.tagline }}
-        {% for error in form.tagline.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-
-  <div class="member-field-group" role="group" aria-label="Classification">
-    <div class="member-form-row member-form-row-heading">
-      <div></div>
-      <h2>Classification</h2>
-    </div>
-
-    <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.categories.id_for_label }}">{{ form.categories.label }}</label>
-      <div class="member-form-row-control">
-        {{ form.categories }}
-        {% for error in form.categories.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
-      </div>
-    </div>
-
-    <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.product_type.id_for_label }}">{{ form.product_type.label }}</label>
-      <div class="member-form-row-control">
-        {{ form.product_type }}
-        {% for error in form.product_type.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
-      </div>
-    </div>
-
-    <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.pricing_model.id_for_label }}">{{ form.pricing_model.label }}</label>
-      <div class="member-form-row-control">
-        {{ form.pricing_model }}
-        {% for error in form.pricing_model.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
-      </div>
-    </div>
-
-    <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.platforms.id_for_label }}">{{ form.platforms.label }}</label>
-      <div class="member-form-row-control">
-        {{ form.platforms }}
-        {% for error in form.platforms.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
-      </div>
-    </div>
-
-  </div>
-
-  <div class="member-field-group" role="group" aria-label="Links">
-    <div class="member-form-row member-form-row-heading">
-      <div></div>
-      <h2>Links</h2>
-    </div>
-
-    <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.website_url.id_for_label }}">{{ form.website_url.label }}</label>
-      <div class="member-form-row-control">
-        {{ form.website_url }}
-        {% for error in form.website_url.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
-      </div>
-    </div>
-
-  </div>
-
-  <div class="member-field-group" role="group" aria-label="Media">
-    <div class="member-form-row member-form-row-heading">
-      <div></div>
-      <h2>Media</h2>
-    </div>
-
-    <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.logo_file.id_for_label }}">{{ form.logo_file.label }}</label>
-      <div class="member-form-row-control">
+      <div class="member-editor-preview">
         {% if form.instance.logo_url %}
-          <img class="member-form-image-preview member-form-image-preview-logo" src="{{ form.instance.logo_url }}" alt="">
+          <img src="{{ form.instance.logo_url }}" alt="">
+        {% else %}
+          <span aria-hidden="true">S</span>
         {% endif %}
-        {{ form.logo_file }}
-        {% for error in form.logo_file.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
+        <div>
+          <strong data-product-preview-name>{% if form.instance.pk %}{{ form.instance.name }}{% else %}New product{% endif %}</strong>
+          <small data-product-preview-meta>{% if form.instance.pk %}{{ form.instance.slug }}{% else %}Draft listing{% endif %}</small>
+        </div>
       </div>
-    </div>
+    </header>
 
-    <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.hero_image_file.id_for_label }}">{{ form.hero_image_file.label }}</label>
-      <div class="member-form-row-control">
-        {% if form.instance.hero_image_url %}
-          <img class="member-form-image-preview member-form-image-preview-hero" src="{{ form.instance.hero_image_url }}" alt="">
-        {% endif %}
-        {{ form.hero_image_file }}
-        {% for error in form.hero_image_file.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
-      </div>
-    </div>
+    <ol class="member-product-flow-steps" aria-label="Product form steps">
+      <li data-step-indicator>
+        <span>1</span>
+        <strong>Website</strong>
+      </li>
+      <li data-step-indicator>
+        <span>2</span>
+        <strong>Product</strong>
+      </li>
+      <li data-step-indicator>
+        <span>3</span>
+        <strong>Placement</strong>
+      </li>
+      <li data-step-indicator>
+        <span>4</span>
+        <strong>Pricing</strong>
+      </li>
+      <li data-step-indicator>
+        <span>5</span>
+        <strong>Media</strong>
+      </li>
+      <li data-step-indicator>
+        <span>6</span>
+        <strong>Story</strong>
+      </li>
+      <li data-step-indicator>
+        <span>7</span>
+        <strong>Publish</strong>
+      </li>
+    </ol>
 
-    <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.media_files.id_for_label }}">{{ form.media_files.label }}</label>
-      <div class="member-form-row-control">
-        {% if form.instance.pk and form.instance.media.exists %}
-          <div class="member-form-media-preview">
-            {% for media in form.instance.media.all %}
-              <img src="{{ media.url }}" alt="{{ media.alt_text }}">
-            {% endfor %}
+    <div class="member-product-flow-card">
+      <section
+        id="section-links"
+        class="member-field-group member-editor-section"
+        role="group"
+        aria-label="Website"
+        data-step-panel
+      >
+        <header class="member-editor-section-heading">
+          <div>
+            <p class="member-step-count">Step 1 of 7</p>
+            <h2>Start with the website</h2>
+            <p>Add the product URL. Autofill can pull a first draft from the page, then you can clean it up.</p>
+          </div>
+        </header>
+
+        <div class="member-product-url-focus">
+          <label for="{{ form.website_url.id_for_label }}">{{ form.website_url.label }}</label>
+          <div class="member-autofill-row">
+            {{ form.website_url }}
+            <button class="ui-button ui-button-inverse ui-button-md" type="button" data-autofill-trigger>Autofill</button>
+          </div>
+          <p class="member-editor-autofill-status" data-autofill-status aria-live="polite"></p>
+          {% for error in form.website_url.errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+      </section>
+
+      <section
+        id="section-core"
+        class="member-field-group member-editor-section"
+        role="group"
+        aria-label="Product"
+        data-step-panel
+        hidden
+      >
+        <header class="member-editor-section-heading">
+          <div>
+            <p class="member-step-count">Step 2 of 7</p>
+            <h2>Name the product</h2>
+            <p>Keep this tight. Visitors should understand the product before they scroll.</p>
+          </div>
+        </header>
+
+        {% if form.owner %}
+          <div class="member-form-row">
+            <label class="member-form-row-label" for="{{ form.owner.id_for_label }}">{{ form.owner.label }}</label>
+            <div class="member-form-row-control">
+              {{ form.owner }}
+              {% for error in form.owner.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
           </div>
         {% endif %}
-        {{ form.media_files }}
-        {% for error in form.media_files.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
 
-  <div class="member-field-group" role="group" aria-label="Description">
-    <div class="member-form-row member-form-row-heading">
-      <div></div>
-      <h2>Description</h2>
+        <div class="member-form-row">
+          <label class="member-form-row-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+          <div class="member-form-row-control">
+            {{ form.name }}
+            {% for error in form.name.errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+
+        {% if form.slug %}
+          <div class="member-form-row">
+            <label class="member-form-row-label" for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
+            <div class="member-form-row-control">
+              {{ form.slug }}
+              {% for error in form.slug.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="member-form-row">
+          <label class="member-form-row-label" for="{{ form.tagline.id_for_label }}">{{ form.tagline.label }}</label>
+          <div class="member-form-row-control">
+            {{ form.tagline }}
+            {% for error in form.tagline.errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="section-classification"
+        class="member-field-group member-editor-section"
+        role="group"
+        aria-label="Placement"
+        data-step-panel
+        hidden
+      >
+        <header class="member-editor-section-heading">
+          <div>
+            <p class="member-step-count">Step 3 of 7</p>
+            <h2>Place it in the directory</h2>
+            <p>Choose where people should find it and which platforms it supports.</p>
+          </div>
+        </header>
+
+        <div class="member-form-row">
+          <label class="member-form-row-label" for="{{ form.categories.id_for_label }}">{{ form.categories.label }}</label>
+          <div class="member-form-row-control">
+            {{ form.categories }}
+            {% for error in form.categories.errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+
+        <div class="member-form-row">
+          <label class="member-form-row-label" for="{{ form.product_type.id_for_label }}">{{ form.product_type.label }}</label>
+          <div class="member-form-row-control">
+            {{ form.product_type }}
+            {% for error in form.product_type.errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+
+        <div class="member-form-row">
+          <label class="member-form-row-label" for="{{ form.platforms.id_for_label }}">{{ form.platforms.label }}</label>
+          <div class="member-form-row-control">
+            {{ form.platforms }}
+            {% for error in form.platforms.errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="section-pricing"
+        class="member-field-group member-editor-section"
+        role="group"
+        aria-label="Pricing"
+        data-step-panel
+        hidden
+      >
+        <header class="member-editor-section-heading">
+          <div>
+            <p class="member-step-count">Step 4 of 7</p>
+            <h2>Set the pricing</h2>
+            <p>Give visitors enough context to know whether the product fits their budget.</p>
+          </div>
+        </header>
+
+        <div class="member-form-row">
+          <label class="member-form-row-label" for="{{ form.pricing_model.id_for_label }}">{{ form.pricing_model.label }}</label>
+          <div class="member-form-row-control">
+            {{ form.pricing_model }}
+            {% for error in form.pricing_model.errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+
+        <div class="member-form-row" data-pricing-details>
+          <span class="member-form-row-label">Price</span>
+          <div class="member-form-row-control member-pricing-grid">
+            <div>
+              <label class="member-form-field-label" for="{{ form.starting_price.id_for_label }}">{{ form.starting_price.label }}</label>
+              {{ form.starting_price }}
+              {% for error in form.starting_price.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+            <div>
+              <label class="member-form-field-label" for="{{ form.currency_code.id_for_label }}">{{ form.currency_code.label }}</label>
+              {{ form.currency_code }}
+              {% for error in form.currency_code.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="section-media"
+        class="member-field-group member-editor-section"
+        role="group"
+        aria-label="Media"
+        data-step-panel
+        hidden
+      >
+        <header class="member-editor-section-heading">
+          <div>
+            <p class="member-step-count">Step 5 of 7</p>
+            <h2>Add visuals</h2>
+            <p>Use a clear logo, a strong hero image, and gallery shots that explain the product fast.</p>
+          </div>
+        </header>
+
+        <div class="member-media-workspace">
+          <article class="member-media-hero-card" data-file-dropzone>
+            <div class="member-media-current member-media-current-hero">
+              {% if form.instance.hero_image_url %}
+                <img class="member-form-image-preview member-form-image-preview-hero" src="{{ form.instance.hero_image_url }}" alt="">
+              {% else %}
+                <span aria-hidden="true">Hero image</span>
+              {% endif %}
+            </div>
+            <div class="member-media-copy">
+              <h3>Hero image</h3>
+              <p>A wide product shot or screenshot for the top of the listing.</p>
+              <label class="member-media-picker" for="{{ form.hero_image_file.id_for_label }}">Choose hero image</label>
+              {{ form.hero_image_file }}
+              <div class="member-selected-preview" data-file-preview></div>
+              {% if form.instance.hero_image_url %}
+                <label class="member-form-check member-form-check-plain" for="{{ form.remove_hero_image.id_for_label }}">
+                  {{ form.remove_hero_image }}
+                  <span>{{ form.remove_hero_image.label }}</span>
+                </label>
+              {% endif %}
+              {% for error in form.hero_image_file.errors %}<p>{{ error }}</p>{% endfor %}
+              {% for error in form.remove_hero_image.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          </article>
+
+          <div class="member-media-secondary-grid">
+            <article class="member-media-logo-card" data-file-dropzone>
+              <div class="member-media-current member-media-current-logo">
+                {% if form.instance.logo_url %}
+                  <img class="member-form-image-preview member-form-image-preview-logo" src="{{ form.instance.logo_url }}" alt="">
+                {% else %}
+                  <span aria-hidden="true">Logo</span>
+                {% endif %}
+              </div>
+              <div class="member-media-copy">
+                <h3>Logo</h3>
+                <p>Square mark for cards, tables, and search results.</p>
+                <label class="member-media-picker" for="{{ form.logo_file.id_for_label }}">Choose logo</label>
+                {{ form.logo_file }}
+                <div class="member-selected-preview" data-file-preview></div>
+                {% if form.instance.logo_url %}
+                  <label class="member-form-check member-form-check-plain" for="{{ form.remove_logo.id_for_label }}">
+                    {{ form.remove_logo }}
+                    <span>{{ form.remove_logo.label }}</span>
+                  </label>
+                {% endif %}
+                {% for error in form.logo_file.errors %}<p>{{ error }}</p>{% endfor %}
+                {% for error in form.remove_logo.errors %}<p>{{ error }}</p>{% endfor %}
+              </div>
+            </article>
+
+            <article class="member-gallery-manager">
+              <div class="member-gallery-heading">
+                <div>
+                  <h3>Gallery</h3>
+                  <p>{% if form.instance.pk %}{{ form.instance.media.count }}{% else %}0{% endif %}/6 images added</p>
+                </div>
+                <label class="member-media-picker" for="{{ form.media_files.id_for_label }}">Add images</label>
+              </div>
+
+              <div class="member-gallery-grid">
+                {% if form.instance.pk and form.instance.media.exists %}
+                  {% for media in form.instance.media.all %}
+                    <figure class="member-gallery-item">
+                      <img src="{{ media.url }}" alt="{{ media.alt_text }}">
+                      <button
+                        class="member-form-media-remove"
+                        type="submit"
+                        formaction="{% url 'member_product_media_delete' form.instance.pk media.pk %}"
+                        formnovalidate
+                      >
+                        Remove
+                      </button>
+                    </figure>
+                  {% endfor %}
+                {% endif %}
+
+                <label class="member-gallery-dropzone" data-gallery-dropzone>
+                  {{ form.media_files }}
+                  <span>Add gallery images</span>
+                  <small>Up to 6 total</small>
+                </label>
+              </div>
+              <div class="member-gallery-selected" data-gallery-preview></div>
+              {% for error in form.media_files.errors %}<p>{{ error }}</p>{% endfor %}
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="section-description"
+        class="member-field-group member-editor-section"
+        role="group"
+        aria-label="Story"
+        data-step-panel
+        hidden
+      >
+        <header class="member-editor-section-heading">
+          <div>
+            <p class="member-step-count">Step 6 of 7</p>
+            <h2>Tell the story</h2>
+            <p>Explain the product clearly enough that a visitor can decide whether to click through.</p>
+          </div>
+        </header>
+
+        <div class="member-form-row">
+          <label class="member-form-row-label" for="{{ form.summary.id_for_label }}">{{ form.summary.label }}</label>
+          <div class="member-form-row-control">
+            {{ form.summary }}
+            {% for error in form.summary.errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+
+        <div class="member-form-row">
+          <label class="member-form-row-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+          <div class="member-form-row-control">
+            {{ form.description }}
+            {% for error in form.description.errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="section-publishing"
+        class="member-field-group member-editor-section"
+        role="group"
+        aria-label="Publish"
+        data-step-panel
+        hidden
+      >
+        <header class="member-editor-section-heading">
+          <div>
+            <p class="member-step-count">Step 7 of 7</p>
+            <h2>Review and publish</h2>
+            <p>Choose whether this listing should appear publicly now.</p>
+          </div>
+        </header>
+
+        <div class="member-form-row">
+          <label class="member-form-row-label" for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+          <div class="member-form-row-control">
+            {{ form.status }}
+            {% for error in form.status.errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+
+        <div class="member-form-row">
+          <div></div>
+          <div class="member-form-row-control">
+            <label class="member-form-check member-form-check-plain" for="{{ form.is_listed.id_for_label }}">
+              {{ form.is_listed }}
+              <span>{{ form.is_listed.label }}</span>
+            </label>
+            {% for error in form.is_listed.errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+      </section>
     </div>
 
-    <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.summary.id_for_label }}">{{ form.summary.label }}</label>
-      <div class="member-form-row-control">
-        {{ form.summary }}
-        {% for error in form.summary.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
-      </div>
+    <div class="member-form-actions member-product-flow-actions">
+      <a class="ui-button ui-button-outline-inverse ui-button-md" href="{{ cancel_url }}">Cancel</a>
+      <button class="ui-button ui-button-outline-inverse ui-button-md" type="button" data-step-back>Back</button>
+      <button class="ui-button ui-button-inverse ui-button-md" type="button" data-step-next>Next</button>
+      <button class="ui-button ui-button-inverse ui-button-md" type="submit" data-step-submit hidden>{{ submit_label }}</button>
     </div>
-
-    <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
-      <div class="member-form-row-control">
-        {{ form.description }}
-        {% for error in form.description.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-
-  <div class="member-field-group" role="group" aria-label="Publishing">
-    <div class="member-form-row member-form-row-heading">
-      <div></div>
-      <h2>Publishing</h2>
-    </div>
-
-    <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
-      <div class="member-form-row-control">
-        {{ form.status }}
-        {% for error in form.status.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
-      </div>
-    </div>
-
-    <div class="member-form-row">
-      <div></div>
-      <div class="member-form-row-control">
-        <label class="member-form-check member-form-check-plain" for="{{ form.is_listed.id_for_label }}">
-          {{ form.is_listed }}
-          <span>{{ form.is_listed.label }}</span>
-        </label>
-        {% for error in form.is_listed.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-
-  <div class="member-form-actions member-object-edit-actions">
-    <a class="ui-button ui-button-outline-inverse ui-button-md" href="{{ cancel_url }}">Cancel</a>
-    <button class="ui-button ui-button-inverse ui-button-md" type="submit">{{ submit_label }}</button>
   </div>
 </form>

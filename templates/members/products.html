@@ -10,11 +10,73 @@
 
 {% block member_content %}
   <div class="member-list-page">
-    {% if member_product_count == 0 %}
+    {% if member_all_product_count == 0 and not member_product_has_filters %}
       {% include "components/tables/empty.html" %}
     {% else %}
+      <header class="member-list-heading">
+        <div>
+          <h1>Products</h1>
+          <span>{{ member_product_count }} product{{ member_product_count|pluralize }}</span>
+        </div>
+        <div class="member-list-actions">
+          <a class="member-action-button" href="{% url 'member_product_add' %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+            Add product
+          </a>
+        </div>
+      </header>
+
       <section class="member-table-panel">
-        {% render_table table %}
+        <form class="member-product-filters" method="get" action="{% url 'member_products' %}">
+          <label>
+            <span>Search</span>
+            <input
+              class="member-form-control"
+              type="search"
+              name="q"
+              value="{{ member_product_filter_values.q }}"
+              placeholder="Search name, slug, or tagline"
+            >
+          </label>
+          <label>
+            <span>Status</span>
+            <select class="member-form-control member-form-select" name="status">
+              {% for value, label in member_product_status_options %}
+                <option value="{{ value }}"{% if member_product_filter_values.status == value %} selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>
+            <span>Sort</span>
+            <select class="member-form-control member-form-select" name="sort">
+              {% for value, label in member_product_sort_options %}
+                <option value="{{ value }}"{% if member_product_filter_values.sort == value %} selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <div class="member-product-filter-actions">
+            <button class="ui-button ui-button-inverse ui-button-md" type="submit">Apply</button>
+            {% if member_product_has_filters %}
+              <a class="ui-button ui-button-outline-inverse ui-button-md" href="{% url 'member_products' %}">Clear</a>
+            {% endif %}
+          </div>
+        </form>
+
+        {% if member_product_active_filters %}
+          <div class="member-active-filters" aria-label="Active filters">
+            {% for filter in member_product_active_filters %}
+              <span>{{ filter }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if member_product_count == 0 %}
+          <div class="member-filter-empty">
+            No products match the current filters.
+          </div>
+        {% else %}
+          {% render_table table %}
+        {% endif %}
       </section>
     {% endif %}
   </div>

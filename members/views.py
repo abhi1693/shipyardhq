@@ -1,15 +1,20 @@
+import json
+
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db.models.deletion import ProtectedError
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.functional import cached_property
+from django.views import View
 from django.views.generic import RedirectView, TemplateView
 
 from accounts.forms import UserEditForm
 from accounts.models import User
 from accounts.tables import UserTable
+from catalog.autofill import build_product_autofill
 from catalog.forms import (
     CategoryEditForm,
     PlatformEditForm,
@@ -19,7 +24,7 @@ from catalog.forms import (
     UseCaseEditForm,
 )
 from catalog.media_storage import delete_media_urls, product_media_urls
-from catalog.models import Category, Platform, PricingModel, Product, ProductType, UseCase
+from catalog.models import Category, Platform, PricingModel, Product, ProductMedia, ProductType, UseCase
 from catalog.tables import CategoryTable, PlatformTable, PricingModelTable, ProductTable, ProductTypeTable, UseCaseTable
 
 
@@ -100,6 +105,29 @@ class MemberLaunchView(MemberRequiredMixin, RedirectView):
     permanent = False
 
 
+class MemberProductAutofillView(MemberRequiredMixin, View):
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            payload = json.loads(request.body.decode("utf-8"))
+            url = payload.get("url", "")
+            suggestion = build_product_autofill(
+                url,
+                categories=Category.objects.filter(is_active=True).order_by("name"),
+                product_types=ProductType.objects.filter(is_active=True).order_by("name"),
+                pricing_models=PricingModel.objects.filter(is_active=True).order_by("name"),
+                platforms=Platform.objects.filter(is_active=True).order_by("name"),
+            )
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return JsonResponse({"error": "Autofill could not read this request."}, status=400)
+        except ValidationError as exc:
+            message = exc.messages[0] if exc.messages else "Autofill could not read this website."
+            return JsonResponse({"error": message}, status=400)
+
+        return JsonResponse({"suggestion": suggestion})
+
+
 class MemberProfileView(MemberPageMixin, TemplateView):
     template_name = "members/profile.html"
     active_member_nav = "profile"
@@ -127,6 +155,19 @@ class MemberProductAccessMixin(MemberPageMixin):
 class MemberProductsView(MemberProductAccessMixin, TemplateView):
     template_name = "members/products.html"
     member_title = "Products"
+    filter_all_value = "__all__"
+    status_options = (
+        (filter_all_value, "All status"),
+        (Product.Status.DRAFT, "Draft"),
+        (Product.Status.REVIEW, "In review"),
+        (Product.Status.PUBLISHED, "Published"),
+        (Product.Status.ARCHIVED, "Archived"),
+    )
+    sort_options = (
+        ("new", "Newest"),
+        ("updated", "Recently updated"),
+        ("az", "A-Z"),
+    )
     empty_table_tips = (
         {
             "icon": "image",
@@ -150,10 +191,24 @@ class MemberProductsView(MemberProductAccessMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        queryset = self.get_product_queryset()
+        base_queryset = self.get_product_queryset()
+        all_product_count = base_queryset.count()
+        queryset = self.apply_filters(base_queryset)
         product_count = queryset.count()
+        filter_values = self.get_filter_values()
         context["member_product_count"] = product_count
-        context["table"] = ProductTable(queryset, show_owner=self.request.user.is_superuser).configure(self.request)
+        context["member_all_product_count"] = all_product_count
+        context["member_product_has_filters"] = self.has_active_filters(filter_values)
+        context["member_product_filter_values"] = filter_values
+        context["member_product_status_options"] = self.status_options
+        context["member_product_sort_options"] = self.sort_options
+        context["member_product_active_filters"] = self.get_active_filter_labels(filter_values)
+        context["table"] = ProductTable(
+            queryset,
+            show_owner=self.request.user.is_superuser,
+            show_actions=True,
+            order_by_field="table_sort",
+        ).configure(self.request)
         context["empty_table_mark"] = "S"
         context["empty_table_title"] = "No products yet"
         context["empty_table_text"] = "Your shipyard is ready. Launch your first product and start building momentum."
@@ -162,6 +217,53 @@ class MemberProductsView(MemberProductAccessMixin, TemplateView):
         context["empty_table_note"] = "Takes less than 5 minutes"
         context["empty_table_tips"] = self.empty_table_tips
         return context
+
+    def get_filter_values(self):
+        q = self.request.GET.get("q", "").strip()
+        status = self.request.GET.get("status", self.filter_all_value)
+        sort = self.request.GET.get("sort", "new")
+
+        valid_statuses = {value for value, _label in self.status_options}
+        valid_sorts = {value for value, _label in self.sort_options}
+        if status not in valid_statuses:
+            status = self.filter_all_value
+        if sort not in valid_sorts:
+            sort = "new"
+
+        return {"q": q, "status": status, "sort": sort}
+
+    def apply_filters(self, queryset):
+        values = self.get_filter_values()
+        if values["q"]:
+            queryset = queryset.filter(
+                Q(name__icontains=values["q"])
+                | Q(slug__icontains=values["q"])
+                | Q(tagline__icontains=values["q"])
+            )
+
+        if values["status"] != self.filter_all_value:
+            queryset = queryset.filter(status=values["status"])
+
+        match values["sort"]:
+            case "updated":
+                return queryset.order_by("-last_updated", "-created", "name")
+            case "az":
+                return queryset.order_by("name")
+            case _:
+                return queryset.order_by("-created", "name")
+
+    def has_active_filters(self, values):
+        return bool(values["q"] or values["status"] != self.filter_all_value or values["sort"] != "new")
+
+    def get_active_filter_labels(self, values):
+        labels = []
+        if values["q"]:
+            labels.append(f'Search: "{values["q"]}"')
+        if values["status"] != self.filter_all_value:
+            labels.append(f"Status: {dict(self.status_options).get(values['status'], values['status'])}")
+        if values["sort"] != "new":
+            labels.append(f"Sort: {dict(self.sort_options).get(values['sort'], values['sort'])}")
+        return labels
 
 
 class MemberProductAddView(MemberProductAccessMixin, TemplateView):
@@ -220,6 +322,69 @@ class MemberProductObjectMixin(MemberProductAccessMixin):
             .order_by("name")
         )
 
+    @cached_property
+    def target_product_readiness(self):
+        edit_url = reverse("member_product_edit", kwargs={"pk": self.target_product.pk})
+        description_length = len((self.target_product.description or self.target_product.summary or "").strip())
+        gallery_count = self.target_product.media.count()
+        pricing_slug = self.target_product.pricing_model.slug if self.target_product.pricing_model_id else ""
+        price_required = pricing_slug in {"subscription", "one-time", "one_time"}
+        pricing_complete = bool(self.target_product.pricing_model_id) and (
+            not price_required or bool(self.target_product.starting_price_display)
+        )
+        pricing_note = self.target_product.starting_price_display or str(self.target_product.pricing_model)
+        items = (
+            {
+                "label": "Core details",
+                "note": "Name, tagline, and website",
+                "complete": all(
+                    (
+                        self.target_product.name,
+                        self.target_product.tagline,
+                        self.target_product.website_url,
+                    )
+                ),
+                "href": f"{edit_url}#section-core",
+            },
+            {
+                "label": "Description is strong",
+                "note": f"{description_length} chars (aim for 200+)",
+                "complete": description_length >= 200,
+                "href": f"{edit_url}#section-description",
+            },
+            {
+                "label": "Add gallery images",
+                "note": f"{gallery_count}/6 images",
+                "complete": gallery_count >= 3,
+                "href": f"{edit_url}#section-media",
+            },
+            {
+                "label": "Set hero image",
+                "note": "Recommended for stronger presentation",
+                "complete": bool(self.target_product.hero_image_url),
+                "href": f"{edit_url}#section-media",
+            },
+            {
+                "label": "Categories selected",
+                "note": f"{len(self.target_product_categories)} selected",
+                "complete": bool(self.target_product_categories),
+                "href": f"{edit_url}#section-classification",
+            },
+            {
+                "label": "Pricing is clear",
+                "note": pricing_note,
+                "complete": pricing_complete,
+                "href": f"{edit_url}#section-pricing",
+            },
+            {
+                "label": "Publish listing",
+                "note": self.target_product.get_status_display(),
+                "complete": self.target_product.status == Product.Status.PUBLISHED and self.target_product.is_listed,
+                "href": f"{edit_url}#section-publishing",
+            },
+        )
+        return items
+
     def get_breadcrumbs(self):
         return (
             {"label": "Home", "url": reverse("home")},
@@ -236,6 +401,12 @@ class MemberProductObjectMixin(MemberProductAccessMixin):
         context["target_product_platforms"] = self.target_product_platforms
         context["target_product_use_cases"] = self.target_product_use_cases
         context["target_product_media"] = self.target_product.media.all()
+        readiness = self.target_product_readiness
+        readiness_complete = sum(1 for item in readiness if item["complete"])
+        context["target_product_readiness"] = readiness
+        context["target_product_readiness_complete"] = readiness_complete
+        context["target_product_readiness_total"] = len(readiness)
+        context["target_product_readiness_percent"] = round((readiness_complete / len(readiness)) * 100)
         return context
 
 
@@ -300,6 +471,17 @@ class MemberProductDeleteView(MemberProductObjectMixin, TemplateView):
 
         delete_media_urls(media_urls)
         return redirect("member_products")
+
+
+class MemberProductMediaDeleteView(MemberProductObjectMixin, TemplateView):
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        media = get_object_or_404(ProductMedia, pk=self.kwargs["media_pk"], product=self.target_product)
+        media_url = media.url
+        media.delete()
+        delete_media_urls([media_url])
+        return redirect("member_product_edit", pk=self.target_product.pk)
 
 
 class MemberCategoriesView(MemberSuperuserRequiredMixin, TemplateView):

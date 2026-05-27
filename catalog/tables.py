@@ -181,6 +181,7 @@ class PlatformTable(PrimaryModelTable):
 
 
 class ProductTable(PrimaryModelTable):
+    logo = tables.Column(empty_values=(), orderable=False, verbose_name="")
     name = tables.Column(verbose_name="Product")
     owner = tables.Column(verbose_name="Builder")
     status = tables.Column(verbose_name="Status")
@@ -188,18 +189,20 @@ class ProductTable(PrimaryModelTable):
     product_type = tables.Column(verbose_name="Type")
     pricing_model = tables.Column(verbose_name="Pricing")
     last_updated = tables.DateTimeColumn(format="M j, Y", verbose_name="Updated")
+    actions = tables.Column(empty_values=(), orderable=False, verbose_name="")
 
     class Meta(PrimaryModelTable.Meta):
         model = Product
         fields = (
+            "logo",
             "name",
             "owner",
-            "tagline",
             "status",
             "categories",
             "product_type",
             "pricing_model",
             "last_updated",
+            "actions",
         )
         sequence = fields
         empty_text = "No products found."
@@ -208,13 +211,28 @@ class ProductTable(PrimaryModelTable):
             "data-href": lambda record: reverse("member_product", kwargs={"pk": record.pk}),
         }
 
-    def __init__(self, *args, show_owner=False, **kwargs):
+    def __init__(self, *args, show_owner=False, show_actions=False, **kwargs):
         super().__init__(*args, **kwargs)
         if not show_owner:
             self.columns.hide("owner")
+        if not show_actions:
+            self.columns.hide("actions")
+
+    def render_logo(self, record):
+        if record.logo_url:
+            return format_html('<img class="ship-table-product-logo" src="{}" alt="">', record.logo_url)
+        return format_html(
+            '<span class="ship-table-product-logo ship-table-product-logo-fallback">{}</span>',
+            record.name[:1],
+        )
 
     def render_name(self, record):
-        return format_html("<strong>{}</strong>", record.name)
+        return format_html(
+            '<span class="ship-table-product-name"><strong>{}</strong><small>{}</small><em>{}</em></span>',
+            record.name,
+            record.slug,
+            record.tagline,
+        )
 
     def render_owner(self, value):
         return value.get_full_name() or value.email
@@ -225,6 +243,15 @@ class ProductTable(PrimaryModelTable):
             value,
             record.get_status_display(),
         )
+
+    def render_pricing_model(self, value, record):
+        if record.starting_price_display:
+            return format_html(
+                '<span class="ship-table-product-name"><strong>{}</strong><small>{}</small></span>',
+                value,
+                record.starting_price_display,
+            )
+        return value
 
     def render_categories(self, record):
         categories = [assignment.category for assignment in record.category_assignments.all()]
@@ -237,4 +264,14 @@ class ProductTable(PrimaryModelTable):
                 '<span class="ship-table-chip">{}</span>',
                 ((category.name,) for category in categories),
             ),
+        )
+
+    def render_actions(self, record):
+        return format_html(
+            '<span class="ship-table-actions">'
+            '<a href="{}">Edit</a>'
+            '<a class="ship-table-action-danger" href="{}">Delete</a>'
+            "</span>",
+            reverse("member_product_edit", kwargs={"pk": record.pk}),
+            reverse("member_product_delete", kwargs={"pk": record.pk}),
         )

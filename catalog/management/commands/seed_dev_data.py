@@ -516,6 +516,8 @@ SAMPLE_PRODUCTS = (
         "categories": ("ai-machine-learning", "productivity"),
         "product_type": "saas",
         "pricing_model": "freemium",
+        "starting_price_cents": 0,
+        "currency_code": "USD",
         "platforms": ("web", "mac"),
     },
     {
@@ -530,6 +532,8 @@ SAMPLE_PRODUCTS = (
         "categories": ("video-audio", "creator-economy"),
         "product_type": "saas",
         "pricing_model": "subscription",
+        "starting_price_cents": 1200,
+        "currency_code": "USD",
         "platforms": ("web",),
     },
     {
@@ -545,6 +549,8 @@ SAMPLE_PRODUCTS = (
         "categories": ("finance-accounting", "automation-workflow"),
         "product_type": "saas",
         "pricing_model": "subscription",
+        "starting_price_cents": 900,
+        "currency_code": "USD",
         "platforms": ("web",),
     },
     {
@@ -557,6 +563,8 @@ SAMPLE_PRODUCTS = (
         "categories": ("productivity", "product-management"),
         "product_type": "mobile-app",
         "pricing_model": "freemium",
+        "starting_price_cents": 0,
+        "currency_code": "USD",
         "platforms": ("web", "ios", "android"),
     },
     {
@@ -571,6 +579,8 @@ SAMPLE_PRODUCTS = (
         "categories": ("security-privacy", "monitoring-observability"),
         "product_type": "saas",
         "pricing_model": "custom",
+        "starting_price_cents": None,
+        "currency_code": "",
         "platforms": ("web",),
     },
     {
@@ -583,6 +593,8 @@ SAMPLE_PRODUCTS = (
         "categories": ("content-writing", "video-audio"),
         "product_type": "mobile-app",
         "pricing_model": "free",
+        "starting_price_cents": None,
+        "currency_code": "",
         "platforms": ("ios", "android"),
     },
 )
@@ -728,6 +740,8 @@ class Command(BaseCommand):
                     "published_at": now - timedelta(days=index),
                     "product_type": product_types[row["product_type"]],
                     "pricing_model": pricing_models[row["pricing_model"]],
+                    "starting_price_cents": row.get("starting_price_cents"),
+                    "currency_code": row.get("currency_code", ""),
                 },
             )
             self._sync_product_categories(product, [categories[slug] for slug in row["categories"]])

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.conf import settings
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
@@ -34,6 +36,12 @@ class Product(PrimaryModel):
     website_url = models.URLField()
     logo_url = models.URLField(blank=True)
     hero_image_url = models.URLField(blank=True)
+    starting_price_cents = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+    )
+    currency_code = models.CharField(max_length=3, blank=True)
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.DRAFT)
     is_listed = models.BooleanField(default=True)
     submitted_at = models.DateTimeField(null=True, blank=True)
@@ -55,6 +63,19 @@ class Product(PrimaryModel):
 
     def __str__(self):
         return self.name
+
+    @property
+    def starting_price_amount(self):
+        if self.starting_price_cents is None:
+            return None
+        return Decimal(self.starting_price_cents) / Decimal("100")
+
+    @property
+    def starting_price_display(self):
+        amount = self.starting_price_amount
+        if amount is None or not self.currency_code:
+            return ""
+        return f"{self.currency_code} {amount:.2f}"
 
 
 class ProductAlternativeAssignment(ChangeLoggedModel):
