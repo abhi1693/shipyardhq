@@ -30,7 +30,14 @@ Then run:
 
 ```bash
 python manage.py migrate
+python manage.py seed_dev_data
 python manage.py runserver
+```
+
+To seed sample products for a specific existing user:
+
+```bash
+python manage.py seed_dev_data --with-products --user-email desk.abhimanyu@gmail.com
 ```
 
 Set `SHIPYARDHQ_CONFIGURATION` to a dotted Python module path to load a configuration file other than `shipyardhq.configuration`.
