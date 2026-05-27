@@ -992,6 +992,48 @@ button {
   margin: 10px 0 0;
 }
 
+.member-object-media {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  margin-top: 14px;
+}
+
+.member-object-media-item {
+  background: #09090b;
+  border: 1px solid #27272a;
+  border-radius: var(--radius-lg);
+  margin: 0;
+  overflow: hidden;
+}
+
+.member-object-media-item img {
+  aspect-ratio: 4 / 3;
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+.member-object-media-logo img {
+  object-fit: contain;
+  padding: 18px;
+}
+
+.member-object-media-hero {
+  grid-column: span 2;
+}
+
+.member-object-media-hero img {
+  aspect-ratio: 16 / 9;
+}
+
+.member-object-media-item figcaption {
+  color: #a1a1aa;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 10px 12px;
+}
+
 .member-object-page {
   display: grid;
   gap: 22px;
@@ -1233,6 +1275,59 @@ button {
 .member-form-control:focus {
   border-color: #fb923c;
   box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.16);
+}
+
+.member-form-file {
+  color: #d4d4d8;
+  min-height: 48px;
+  padding: 8px 10px;
+}
+
+.member-form-file::file-selector-button {
+  background: #fff;
+  border: 0;
+  border-radius: var(--radius-md);
+  color: #000;
+  cursor: pointer;
+  font-weight: 800;
+  margin-right: 14px;
+  min-height: 32px;
+  padding: 0 14px;
+}
+
+.member-form-image-preview {
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: var(--radius-lg);
+  display: block;
+  object-fit: cover;
+}
+
+.member-form-image-preview-logo {
+  height: 76px;
+  width: 76px;
+}
+
+.member-form-image-preview-hero {
+  aspect-ratio: 16 / 9;
+  max-height: 240px;
+  width: min(100%, 520px);
+}
+
+.member-form-media-preview {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  max-width: 640px;
+}
+
+.member-form-media-preview img {
+  aspect-ratio: 4 / 3;
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  width: 100%;
 }
 
 .member-form-field p,

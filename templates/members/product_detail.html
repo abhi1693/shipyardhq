@@ -49,8 +49,18 @@
           </div>
         {% endif %}
         <div>
-          <dt>Category</dt>
-          <dd>{{ target_product.category }}</dd>
+          <dt>Categories</dt>
+          <dd>
+            {% if target_product_categories %}
+              <span class="ship-table-chip-list">
+                {% for category in target_product_categories %}
+                  <span class="ship-table-chip">{{ category.name }}</span>
+                {% endfor %}
+              </span>
+            {% else %}
+              None
+            {% endif %}
+          </dd>
         </div>
         <div>
           <dt>Type</dt>
@@ -65,6 +75,32 @@
           <dd><a href="{{ target_product.website_url }}" target="_blank" rel="noopener">{{ target_product.website_url }}</a></dd>
         </div>
       </dl>
+
+      {% if target_product.logo_url or target_product.hero_image_url or target_product_media %}
+        <div class="member-object-description">
+          <h3>Media</h3>
+          <div class="member-object-media">
+            {% if target_product.logo_url %}
+              <figure class="member-object-media-item member-object-media-logo">
+                <img src="{{ target_product.logo_url }}" alt="">
+                <figcaption>Logo</figcaption>
+              </figure>
+            {% endif %}
+            {% if target_product.hero_image_url %}
+              <figure class="member-object-media-item member-object-media-hero">
+                <img src="{{ target_product.hero_image_url }}" alt="">
+                <figcaption>Hero image</figcaption>
+              </figure>
+            {% endif %}
+            {% for media in target_product_media %}
+              <figure class="member-object-media-item">
+                <img src="{{ media.url }}" alt="{{ media.alt_text }}">
+                <figcaption>Gallery image</figcaption>
+              </figure>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
 
       {% if target_product_platforms %}
         <div class="member-object-description">

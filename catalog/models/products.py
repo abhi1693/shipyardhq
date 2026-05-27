@@ -24,7 +24,6 @@ class Product(PrimaryModel):
         ARCHIVED = "archived", "Archived"
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="products", on_delete=models.PROTECT)
-    category = models.ForeignKey("catalog.Category", related_name="products", on_delete=models.PROTECT)
     product_type = models.ForeignKey("catalog.ProductType", related_name="products", on_delete=models.PROTECT)
     pricing_model = models.ForeignKey("catalog.PricingModel", related_name="products", on_delete=models.PROTECT)
     name = models.CharField(max_length=160)
@@ -49,7 +48,6 @@ class Product(PrimaryModel):
         indexes = [
             models.Index(fields=("status", "published_at")),
             models.Index(fields=("is_listed", "status", "published_at")),
-            models.Index(fields=("category", "status", "published_at")),
             models.Index(fields=("pricing_model", "status", "published_at")),
             models.Index(fields=("product_type", "status", "published_at")),
             GinIndex(fields=("search_document",)),
@@ -87,6 +85,27 @@ class ProductAlternativeAssignment(ChangeLoggedModel):
 
     def __str__(self):
         return f"{self.alternative} alternative to {self.product}"
+
+
+class ProductCategoryAssignment(ChangeLoggedModel):
+    product = models.ForeignKey("catalog.Product", related_name="category_assignments", on_delete=models.CASCADE)
+    category = models.ForeignKey("catalog.Category", related_name="product_assignments", on_delete=models.PROTECT)
+
+    class Meta:
+        ordering = ("category", "product", "pk")
+        indexes = [
+            models.Index(fields=("category", "product", "id")),
+            models.Index(fields=("product", "category")),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=("product", "category"),
+                name="%(app_label)s_%(class)s_unique_product_category",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.product}: {self.category}"
 
 
 class ProductLink(ChangeLoggedModel):
@@ -155,24 +174,3 @@ class ProductPlatformAssignment(ChangeLoggedModel):
 
     def __str__(self):
         return f"{self.product}: {self.platform}"
-
-
-class ProductUseCaseAssignment(ChangeLoggedModel):
-    product = models.ForeignKey("catalog.Product", related_name="use_case_assignments", on_delete=models.CASCADE)
-    use_case = models.ForeignKey("catalog.UseCase", related_name="product_assignments", on_delete=models.PROTECT)
-
-    class Meta:
-        ordering = ("use_case", "product", "pk")
-        indexes = [
-            models.Index(fields=("use_case", "product", "id")),
-            models.Index(fields=("product", "use_case")),
-        ]
-        constraints = [
-            models.UniqueConstraint(
-                fields=("product", "use_case"),
-                name="%(app_label)s_%(class)s_unique_product_use_case",
-            ),
-        ]
-
-    def __str__(self):
-        return f"{self.product}: {self.use_case}"

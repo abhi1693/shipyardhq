@@ -184,7 +184,7 @@ class ProductTable(PrimaryModelTable):
     name = tables.Column(verbose_name="Product")
     owner = tables.Column(verbose_name="Builder")
     status = tables.Column(verbose_name="Status")
-    category = tables.Column(verbose_name="Category")
+    categories = tables.Column(empty_values=(), orderable=False, verbose_name="Categories")
     product_type = tables.Column(verbose_name="Type")
     pricing_model = tables.Column(verbose_name="Pricing")
     last_updated = tables.DateTimeColumn(format="M j, Y", verbose_name="Updated")
@@ -196,7 +196,7 @@ class ProductTable(PrimaryModelTable):
             "owner",
             "tagline",
             "status",
-            "category",
+            "categories",
             "product_type",
             "pricing_model",
             "last_updated",
@@ -224,4 +224,17 @@ class ProductTable(PrimaryModelTable):
             '<span class="ship-table-badge ship-table-badge-{}">{}</span>',
             value,
             record.get_status_display(),
+        )
+
+    def render_categories(self, record):
+        categories = [assignment.category for assignment in record.category_assignments.all()]
+        if not categories:
+            return format_html('<span class="ship-table-muted">None</span>')
+        return format_html(
+            '<span class="ship-table-chip-list">{}</span>',
+            format_html_join(
+                "",
+                '<span class="ship-table-chip">{}</span>',
+                ((category.name,) for category in categories),
+            ),
         )

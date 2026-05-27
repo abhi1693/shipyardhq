@@ -3,10 +3,10 @@ from .facets import Platform, PricingModel, ProductType
 from .products import (
     Product,
     ProductAlternativeAssignment,
+    ProductCategoryAssignment,
     ProductLink,
     ProductMedia,
     ProductPlatformAssignment,
-    ProductUseCaseAssignment,
 )
 from .use_cases import UseCase, UseCaseCategory
 
@@ -16,11 +16,11 @@ __all__ = (
     "PricingModel",
     "Product",
     "ProductAlternativeAssignment",
+    "ProductCategoryAssignment",
     "ProductLink",
     "ProductMedia",
     "ProductPlatformAssignment",
     "ProductType",
-    "ProductUseCaseAssignment",
     "UseCase",
     "UseCaseCategory",
 )

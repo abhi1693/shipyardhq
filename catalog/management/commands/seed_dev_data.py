@@ -10,9 +10,9 @@ from catalog.models import (
     Platform,
     PricingModel,
     Product,
+    ProductCategoryAssignment,
     ProductPlatformAssignment,
     ProductType,
-    ProductUseCaseAssignment,
     UseCase,
 )
 
@@ -513,11 +513,10 @@ SAMPLE_PRODUCTS = (
             "Lumina AI helps founders turn notes, documents, and customer context into usable team workspaces."
         ),
         "website_url": "https://lumina.example.com",
-        "category": "ai-machine-learning",
+        "categories": ("ai-machine-learning", "productivity"),
         "product_type": "saas",
         "pricing_model": "freemium",
         "platforms": ("web", "mac"),
-        "use_cases": ("launch-saas", "empower-remote-teams"),
     },
     {
         "name": "ClipForge",
@@ -528,11 +527,10 @@ SAMPLE_PRODUCTS = (
             "ClipForge gives creators a focused editor for launch videos, tutorials, and short-form product content."
         ),
         "website_url": "https://clipforge.example.com",
-        "category": "video-audio",
+        "categories": ("video-audio", "creator-economy"),
         "product_type": "saas",
         "pricing_model": "subscription",
         "platforms": ("web",),
-        "use_cases": ("monetize-content", "grow-your-audience"),
     },
     {
         "name": "InvoiceFlow",
@@ -544,11 +542,10 @@ SAMPLE_PRODUCTS = (
             "without building a finance department."
         ),
         "website_url": "https://invoiceflow.example.com",
-        "category": "finance-accounting",
+        "categories": ("finance-accounting", "automation-workflow"),
         "product_type": "saas",
         "pricing_model": "subscription",
         "platforms": ("web",),
-        "use_cases": ("automate-finance-ops",),
     },
     {
         "name": "Taskora",
@@ -557,11 +554,10 @@ SAMPLE_PRODUCTS = (
         "summary": "Turn customer signals and product ideas into focused execution lists.",
         "description": "Taskora keeps planning lightweight while giving teams enough structure to ship reliably.",
         "website_url": "https://taskora.example.com",
-        "category": "productivity",
+        "categories": ("productivity", "product-management"),
         "product_type": "mobile-app",
         "pricing_model": "freemium",
         "platforms": ("web", "ios", "android"),
-        "use_cases": ("ship-faster", "empower-remote-teams"),
     },
     {
         "name": "BrandGuard",
@@ -572,11 +568,10 @@ SAMPLE_PRODUCTS = (
             "BrandGuard gives operators a clean view of brand exposure, impersonation risk, and customer-facing issues."
         ),
         "website_url": "https://brandguard.example.com",
-        "category": "security-privacy",
+        "categories": ("security-privacy", "monitoring-observability"),
         "product_type": "saas",
         "pricing_model": "custom",
         "platforms": ("web",),
-        "use_cases": ("secure-your-stack",),
     },
     {
         "name": "EchoNotes",
@@ -585,11 +580,10 @@ SAMPLE_PRODUCTS = (
         "summary": "Capture thoughts, clean them up, and publish them into docs or tasks.",
         "description": "EchoNotes turns spoken notes into structured drafts, follow-ups, and searchable knowledge.",
         "website_url": "https://echonotes.example.com",
-        "category": "content-writing",
+        "categories": ("content-writing", "video-audio"),
         "product_type": "mobile-app",
         "pricing_model": "free",
         "platforms": ("ios", "android"),
-        "use_cases": ("monetize-content", "empower-remote-teams"),
     },
 )
 
@@ -645,7 +639,6 @@ class Command(BaseCommand):
                     product_types,
                     pricing_models,
                     platforms,
-                    use_cases,
                 )
         elif options.get("user_email"):
             self.stdout.write(self.style.WARNING("--user-email was ignored because --with-products was not set."))
@@ -715,7 +708,7 @@ class Command(BaseCommand):
             return queryset.filter(email__iexact=email).first()
         return queryset.order_by("-is_superuser", "date_joined", "pk").first()
 
-    def _seed_products(self, owner, categories, product_types, pricing_models, platforms, use_cases):
+    def _seed_products(self, owner, categories, product_types, pricing_models, platforms):
         now = timezone.now()
         count = 0
 
@@ -733,13 +726,12 @@ class Command(BaseCommand):
                     "is_listed": True,
                     "submitted_at": now,
                     "published_at": now - timedelta(days=index),
-                    "category": categories[row["category"]],
                     "product_type": product_types[row["product_type"]],
                     "pricing_model": pricing_models[row["pricing_model"]],
                 },
             )
+            self._sync_product_categories(product, [categories[slug] for slug in row["categories"]])
             self._sync_product_platforms(product, [platforms[slug] for slug in row["platforms"]])
-            self._sync_product_use_cases(product, [use_cases[slug] for slug in row["use_cases"]])
             count += 1
 
         return count
@@ -751,12 +743,12 @@ class Command(BaseCommand):
         queryset.delete()
         return product_count
 
+    def _sync_product_categories(self, product, categories):
+        ProductCategoryAssignment.objects.filter(product=product).exclude(category__in=categories).delete()
+        for category in categories:
+            ProductCategoryAssignment.objects.get_or_create(product=product, category=category)
+
     def _sync_product_platforms(self, product, platforms):
         ProductPlatformAssignment.objects.filter(product=product).exclude(platform__in=platforms).delete()
         for platform in platforms:
             ProductPlatformAssignment.objects.get_or_create(product=product, platform=platform)
-
-    def _sync_product_use_cases(self, product, use_cases):
-        ProductUseCaseAssignment.objects.filter(product=product).exclude(use_case__in=use_cases).delete()
-        for use_case in use_cases:
-            ProductUseCaseAssignment.objects.get_or_create(product=product, use_case=use_case)

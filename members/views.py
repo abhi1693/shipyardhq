@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import Count
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
@@ -16,6 +18,7 @@ from catalog.forms import (
     ProductTypeEditForm,
     UseCaseEditForm,
 )
+from catalog.media_storage import delete_media_urls, product_media_urls
 from catalog.models import Category, Platform, PricingModel, Product, ProductType, UseCase
 from catalog.tables import CategoryTable, PlatformTable, PricingModelTable, ProductTable, ProductTypeTable, UseCaseTable
 
@@ -108,8 +111,12 @@ class MemberProductAccessMixin(MemberPageMixin):
 
     def get_product_queryset(self):
         queryset = (
-            Product.objects.select_related("owner", "category", "product_type", "pricing_model")
-            .prefetch_related("platform_assignments__platform", "use_case_assignments__use_case")
+            Product.objects.select_related("owner", "product_type", "pricing_model")
+            .prefetch_related(
+                "category_assignments__category",
+                "platform_assignments__platform",
+                "media",
+            )
             .order_by("-last_updated", "-created", "name")
         )
         if not self.request.user.is_superuser:
@@ -170,7 +177,7 @@ class MemberProductAddView(MemberProductAccessMixin, TemplateView):
         )
 
     def get_form(self):
-        return ProductEditForm(self.request.POST or None, user=self.request.user)
+        return ProductEditForm(self.request.POST or None, self.request.FILES or None, user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -180,8 +187,13 @@ class MemberProductAddView(MemberProductAccessMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         form = self.get_form()
         if form.is_valid():
-            product = form.save()
-            return redirect("member_product", pk=product.pk)
+            try:
+                with transaction.atomic():
+                    product = form.save()
+            except ValidationError as exc:
+                form.add_error(None, exc)
+            else:
+                return redirect("member_product", pk=product.pk)
         return self.render_to_response(self.get_context_data(form=form))
 
 
@@ -197,8 +209,16 @@ class MemberProductObjectMixin(MemberProductAccessMixin):
         return [assignment.platform for assignment in self.target_product.platform_assignments.all()]
 
     @cached_property
+    def target_product_categories(self):
+        return [assignment.category for assignment in self.target_product.category_assignments.all()]
+
+    @cached_property
     def target_product_use_cases(self):
-        return [assignment.use_case for assignment in self.target_product.use_case_assignments.all()]
+        return (
+            UseCase.objects.filter(categories__product_assignments__product=self.target_product)
+            .distinct()
+            .order_by("name")
+        )
 
     def get_breadcrumbs(self):
         return (
@@ -212,8 +232,10 @@ class MemberProductObjectMixin(MemberProductAccessMixin):
         context = super().get_context_data(**kwargs)
         context["target_product"] = self.target_product
         context["target_product_initial"] = self.target_product.name[:1].upper()
+        context["target_product_categories"] = self.target_product_categories
         context["target_product_platforms"] = self.target_product_platforms
         context["target_product_use_cases"] = self.target_product_use_cases
+        context["target_product_media"] = self.target_product.media.all()
         return context
 
 
@@ -229,7 +251,12 @@ class MemberProductEditView(MemberProductObjectMixin, TemplateView):
         return (*super().get_breadcrumbs(), {"label": "Edit", "url": ""})
 
     def get_form(self):
-        return ProductEditForm(self.request.POST or None, instance=self.target_product, user=self.request.user)
+        return ProductEditForm(
+            self.request.POST or None,
+            self.request.FILES or None,
+            instance=self.target_product,
+            user=self.request.user,
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -240,8 +267,13 @@ class MemberProductEditView(MemberProductObjectMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         form = self.get_form()
         if form.is_valid():
-            product = form.save()
-            return redirect("member_product", pk=product.pk)
+            try:
+                with transaction.atomic():
+                    product = form.save()
+            except ValidationError as exc:
+                form.add_error(None, exc)
+            else:
+                return redirect("member_product", pk=product.pk)
         return self.render_to_response(self.get_context_data(form=form))
 
 
@@ -258,6 +290,7 @@ class MemberProductDeleteView(MemberProductObjectMixin, TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        media_urls = product_media_urls(self.target_product)
         try:
             self.target_product.delete()
         except ProtectedError:
@@ -265,6 +298,7 @@ class MemberProductDeleteView(MemberProductObjectMixin, TemplateView):
                 self.get_context_data(delete_error="This product is still connected to items that must be moved first.")
             )
 
+        delete_media_urls(media_urls)
         return redirect("member_products")
 
 
@@ -277,7 +311,10 @@ class MemberCategoriesView(MemberSuperuserRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         queryset = (
             Category.objects.select_related("parent")
-            .annotate(product_count=Count("products", distinct=True), child_count=Count("children", distinct=True))
+            .annotate(
+                product_count=Count("product_assignments", distinct=True),
+                child_count=Count("children", distinct=True),
+            )
             .order_by("name")
         )
         context["member_category_count"] = queryset.count()
@@ -322,7 +359,7 @@ class MemberCategoryObjectMixin(MemberSuperuserRequiredMixin):
     def target_category(self):
         return get_object_or_404(
             Category.objects.select_related("parent").annotate(
-                product_count=Count("products", distinct=True),
+                product_count=Count("product_assignments", distinct=True),
                 child_count=Count("children", distinct=True),
             ),
             pk=self.kwargs["pk"],
@@ -349,8 +386,10 @@ class MemberCategoryDetailView(MemberCategoryObjectMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = (
-            Product.objects.filter(category=self.target_category)
-            .select_related("category", "product_type", "pricing_model")
+            Product.objects.filter(category_assignments__category=self.target_category)
+            .select_related("owner", "product_type", "pricing_model")
+            .prefetch_related("category_assignments__category")
+            .distinct()
             .order_by("-last_updated", "-created", "name")
         )
         context["target_category_products_table"] = ProductTable(queryset).configure(self.request)
@@ -429,7 +468,7 @@ class MemberUseCasesView(MemberSuperuserRequiredMixin, TemplateView):
         queryset = (
             UseCase.objects.prefetch_related("categories")
             .annotate(
-                product_count=Count("product_assignments", distinct=True),
+                product_count=Count("categories__product_assignments__product", distinct=True),
                 category_count=Count("category_links", distinct=True),
             )
             .order_by("name")
@@ -476,7 +515,7 @@ class MemberUseCaseObjectMixin(MemberSuperuserRequiredMixin):
     def target_use_case(self):
         return get_object_or_404(
             UseCase.objects.prefetch_related("categories").annotate(
-                product_count=Count("product_assignments", distinct=True),
+                product_count=Count("categories__product_assignments__product", distinct=True),
                 category_count=Count("category_links", distinct=True),
             ),
             pk=self.kwargs["pk"],
@@ -504,8 +543,9 @@ class MemberUseCaseDetailView(MemberUseCaseObjectMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         products = (
-            Product.objects.filter(use_case_assignments__use_case=self.target_use_case)
-            .select_related("category", "product_type", "pricing_model")
+            Product.objects.filter(category_assignments__category__use_cases=self.target_use_case)
+            .select_related("owner", "product_type", "pricing_model")
+            .prefetch_related("category_assignments__category")
             .distinct()
             .order_by("-last_updated", "-created", "name")
         )
@@ -545,10 +585,7 @@ class MemberUseCaseDeleteView(MemberUseCaseObjectMixin, TemplateView):
         return (*super().get_breadcrumbs(), {"label": "Delete", "url": ""})
 
     def get_delete_blockers(self):
-        blockers = []
-        if self.target_use_case.product_count:
-            blockers.append("Remove connected products before deleting this use case.")
-        return blockers
+        return []
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -566,7 +603,7 @@ class MemberUseCaseDeleteView(MemberUseCaseObjectMixin, TemplateView):
         except ProtectedError:
             return self.render_to_response(
                 self.get_context_data(
-                    delete_error="This use case is still connected to products."
+                    delete_error="This use case is still connected to items that must be moved first."
                 )
             )
 
@@ -673,7 +710,8 @@ class MemberFacetDetailView(MemberFacetObjectMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         products = (
             Product.objects.filter(**{self.product_filter_lookup: self.target_facet})
-            .select_related("owner", "category", "product_type", "pricing_model")
+            .select_related("owner", "product_type", "pricing_model")
+            .prefetch_related("category_assignments__category")
             .distinct()
             .order_by("-last_updated", "-created", "name")
         )
@@ -905,7 +943,8 @@ class MemberUserDetailView(MemberUserObjectMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         products = (
             Product.objects.filter(owner=self.target_user)
-            .select_related("category", "product_type", "pricing_model")
+            .select_related("product_type", "pricing_model")
+            .prefetch_related("category_assignments__category")
             .order_by("-last_updated", "-created", "name")
         )
         context["target_user_products_table"] = ProductTable(products).configure(self.request)

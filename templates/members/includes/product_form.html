@@ -4,7 +4,7 @@
   </li>
 </ul>
 
-<form class="member-object-form member-object-edit-form" method="post" action="{{ request.path }}" novalidate>
+<form class="member-object-form member-object-edit-form" method="post" action="{{ request.path }}" enctype="multipart/form-data" novalidate>
   {% csrf_token %}
 
   {% if form.non_field_errors %}
@@ -71,10 +71,10 @@
     </div>
 
     <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+      <label class="member-form-row-label" for="{{ form.categories.id_for_label }}">{{ form.categories.label }}</label>
       <div class="member-form-row-control">
-        {{ form.category }}
-        {% for error in form.category.errors %}
+        {{ form.categories }}
+        {% for error in form.categories.errors %}
           <p>{{ error }}</p>
         {% endfor %}
       </div>
@@ -110,15 +110,6 @@
       </div>
     </div>
 
-    <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.use_cases.id_for_label }}">{{ form.use_cases.label }}</label>
-      <div class="member-form-row-control">
-        {{ form.use_cases }}
-        {% for error in form.use_cases.errors %}
-          <p>{{ error }}</p>
-        {% endfor %}
-      </div>
-    </div>
   </div>
 
   <div class="member-field-group" role="group" aria-label="Links">
@@ -137,21 +128,52 @@
       </div>
     </div>
 
+  </div>
+
+  <div class="member-field-group" role="group" aria-label="Media">
+    <div class="member-form-row member-form-row-heading">
+      <div></div>
+      <h2>Media</h2>
+    </div>
+
     <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.logo_url.id_for_label }}">{{ form.logo_url.label }}</label>
+      <label class="member-form-row-label" for="{{ form.logo_file.id_for_label }}">{{ form.logo_file.label }}</label>
       <div class="member-form-row-control">
-        {{ form.logo_url }}
-        {% for error in form.logo_url.errors %}
+        {% if form.instance.logo_url %}
+          <img class="member-form-image-preview member-form-image-preview-logo" src="{{ form.instance.logo_url }}" alt="">
+        {% endif %}
+        {{ form.logo_file }}
+        {% for error in form.logo_file.errors %}
           <p>{{ error }}</p>
         {% endfor %}
       </div>
     </div>
 
     <div class="member-form-row">
-      <label class="member-form-row-label" for="{{ form.hero_image_url.id_for_label }}">{{ form.hero_image_url.label }}</label>
+      <label class="member-form-row-label" for="{{ form.hero_image_file.id_for_label }}">{{ form.hero_image_file.label }}</label>
       <div class="member-form-row-control">
-        {{ form.hero_image_url }}
-        {% for error in form.hero_image_url.errors %}
+        {% if form.instance.hero_image_url %}
+          <img class="member-form-image-preview member-form-image-preview-hero" src="{{ form.instance.hero_image_url }}" alt="">
+        {% endif %}
+        {{ form.hero_image_file }}
+        {% for error in form.hero_image_file.errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="member-form-row">
+      <label class="member-form-row-label" for="{{ form.media_files.id_for_label }}">{{ form.media_files.label }}</label>
+      <div class="member-form-row-control">
+        {% if form.instance.pk and form.instance.media.exists %}
+          <div class="member-form-media-preview">
+            {% for media in form.instance.media.all %}
+              <img src="{{ media.url }}" alt="{{ media.alt_text }}">
+            {% endfor %}
+          </div>
+        {% endif %}
+        {{ form.media_files }}
+        {% for error in form.media_files.errors %}
           <p>{{ error }}</p>
         {% endfor %}
       </div>

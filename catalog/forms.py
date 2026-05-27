@@ -2,18 +2,39 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 
+from .media_storage import MediaUploadError, delete_blob_if_managed, upload_product_image, validate_image_upload
 from .models import (
     Category,
     Platform,
     PricingModel,
     Product,
+    ProductCategoryAssignment,
+    ProductMedia,
     ProductPlatformAssignment,
     ProductType,
-    ProductUseCaseAssignment,
     UseCase,
 )
 
 User = get_user_model()
+
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    widget = MultipleFileInput
+
+    def clean(self, data, initial=None):
+        if not data:
+            return []
+
+        files = data if isinstance(data, (list, tuple)) else [data]
+        cleaned_files = []
+        for item in files:
+            if item:
+                cleaned_files.append(super().clean(item, initial))
+        return cleaned_files
 
 
 class CategoryEditForm(forms.ModelForm):
@@ -125,15 +146,35 @@ class ProductEditForm(forms.ModelForm):
         label="Builder",
         widget=forms.Select(attrs={"class": "member-form-control member-form-select"}),
     )
+    categories = forms.ModelMultipleChoiceField(
+        queryset=Category.objects.none(),
+        widget=forms.SelectMultiple(attrs={"class": "member-form-control member-form-multiselect"}),
+    )
     platforms = forms.ModelMultipleChoiceField(
         queryset=Platform.objects.none(),
         required=False,
         widget=forms.SelectMultiple(attrs={"class": "member-form-control member-form-multiselect"}),
     )
-    use_cases = forms.ModelMultipleChoiceField(
-        queryset=UseCase.objects.none(),
+    logo_file = forms.FileField(
+        label="Logo",
         required=False,
-        widget=forms.SelectMultiple(attrs={"class": "member-form-control member-form-multiselect"}),
+        widget=forms.FileInput(attrs={"class": "member-form-control member-form-file", "accept": "image/*"}),
+    )
+    hero_image_file = forms.FileField(
+        label="Hero image",
+        required=False,
+        widget=forms.FileInput(attrs={"class": "member-form-control member-form-file", "accept": "image/*"}),
+    )
+    media_files = MultipleFileField(
+        label="Gallery images",
+        required=False,
+        widget=MultipleFileInput(
+            attrs={
+                "class": "member-form-control member-form-file",
+                "accept": "image/*",
+                "multiple": True,
+            }
+        ),
     )
 
     class Meta:
@@ -143,14 +184,11 @@ class ProductEditForm(forms.ModelForm):
             "name",
             "slug",
             "tagline",
-            "category",
+            "categories",
             "product_type",
             "pricing_model",
             "platforms",
-            "use_cases",
             "website_url",
-            "logo_url",
-            "hero_image_url",
             "summary",
             "description",
             "status",
@@ -160,20 +198,16 @@ class ProductEditForm(forms.ModelForm):
             "is_listed": "Listed",
             "pricing_model": "Pricing",
             "product_type": "Type",
+            "categories": "Categories",
             "website_url": "Website",
-            "logo_url": "Logo URL",
-            "hero_image_url": "Hero image URL",
         }
         widgets = {
             "name": forms.TextInput(attrs={"class": "member-form-control", "data-slug-source": "id_slug"}),
             "slug": forms.TextInput(attrs={"class": "member-form-control", "data-slug-target": "id_name"}),
             "tagline": forms.TextInput(attrs={"class": "member-form-control"}),
-            "category": forms.Select(attrs={"class": "member-form-control member-form-select"}),
             "product_type": forms.Select(attrs={"class": "member-form-control member-form-select"}),
             "pricing_model": forms.Select(attrs={"class": "member-form-control member-form-select"}),
             "website_url": forms.URLInput(attrs={"class": "member-form-control"}),
-            "logo_url": forms.URLInput(attrs={"class": "member-form-control"}),
-            "hero_image_url": forms.URLInput(attrs={"class": "member-form-control"}),
             "summary": forms.Textarea(attrs={"class": "member-form-control member-form-textarea", "rows": 4}),
             "description": forms.Textarea(attrs={"class": "member-form-control member-form-textarea", "rows": 6}),
             "status": forms.Select(attrs={"class": "member-form-control member-form-select"}),
@@ -183,14 +217,12 @@ class ProductEditForm(forms.ModelForm):
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
-        self.fields["category"].queryset = Category.objects.order_by("name")
-        self.fields["category"].empty_label = "Select a category"
+        self.fields["categories"].queryset = Category.objects.order_by("name")
         self.fields["product_type"].queryset = ProductType.objects.order_by("name")
         self.fields["product_type"].empty_label = "Select a type"
         self.fields["pricing_model"].queryset = PricingModel.objects.order_by("name")
         self.fields["pricing_model"].empty_label = "Select pricing"
         self.fields["platforms"].queryset = Platform.objects.order_by("name")
-        self.fields["use_cases"].queryset = UseCase.objects.order_by("name")
 
         if user.is_superuser:
             self.fields["owner"].queryset = User.objects.filter(is_active=True).order_by("email")
@@ -201,8 +233,30 @@ class ProductEditForm(forms.ModelForm):
             self.fields.pop("slug")
 
         if self.instance.pk:
+            self.fields["categories"].initial = Category.objects.filter(product_assignments__product=self.instance)
             self.fields["platforms"].initial = Platform.objects.filter(product_assignments__product=self.instance)
-            self.fields["use_cases"].initial = UseCase.objects.filter(product_assignments__product=self.instance)
+
+    def clean_logo_file(self):
+        uploaded_file = self.cleaned_data["logo_file"]
+        if uploaded_file:
+            validate_image_upload(uploaded_file)
+        return uploaded_file
+
+    def clean_hero_image_file(self):
+        uploaded_file = self.cleaned_data["hero_image_file"]
+        if uploaded_file:
+            validate_image_upload(uploaded_file)
+        return uploaded_file
+
+    def clean_media_files(self):
+        uploaded_files = self.cleaned_data["media_files"]
+        existing_count = self.instance.media.count() if self.instance.pk else 0
+        if existing_count + len(uploaded_files) > 6:
+            raise forms.ValidationError("A product can have up to 6 gallery images.")
+
+        for uploaded_file in uploaded_files:
+            validate_image_upload(uploaded_file)
+        return uploaded_files
 
     def save(self, commit=True):
         product = super().save(commit=False)
@@ -213,8 +267,9 @@ class ProductEditForm(forms.ModelForm):
 
         if commit:
             product.save()
+            self._sync_categories(product)
             self._sync_platforms(product)
-            self._sync_use_cases(product)
+            self._sync_media(product)
 
         return product
 
@@ -227,6 +282,13 @@ class ProductEditForm(forms.ModelForm):
             counter += 1
         return slug
 
+    def _sync_categories(self, product):
+        ProductCategoryAssignment.objects.filter(product=product).delete()
+        ProductCategoryAssignment.objects.bulk_create([
+            ProductCategoryAssignment(product=product, category=category)
+            for category in self.cleaned_data["categories"]
+        ])
+
     def _sync_platforms(self, product):
         ProductPlatformAssignment.objects.filter(product=product).delete()
         ProductPlatformAssignment.objects.bulk_create([
@@ -234,9 +296,45 @@ class ProductEditForm(forms.ModelForm):
             for platform in self.cleaned_data["platforms"]
         ])
 
-    def _sync_use_cases(self, product):
-        ProductUseCaseAssignment.objects.filter(product=product).delete()
-        ProductUseCaseAssignment.objects.bulk_create([
-            ProductUseCaseAssignment(product=product, use_case=use_case)
-            for use_case in self.cleaned_data["use_cases"]
-        ])
+    def _sync_media(self, product):
+        changed_fields = []
+
+        for form_field, model_field, folder in (
+            ("logo_file", "logo_url", "logo"),
+            ("hero_image_file", "hero_image_url", "hero"),
+        ):
+            uploaded_file = self.cleaned_data.get(form_field)
+            if not uploaded_file:
+                continue
+
+            old_url = getattr(product, model_field)
+            try:
+                url, _prepared = upload_product_image(product, uploaded_file, folder)
+            except MediaUploadError as exc:
+                raise forms.ValidationError("Media uploads are not available right now.") from exc
+            setattr(product, model_field, url)
+            changed_fields.append(model_field)
+            delete_blob_if_managed(old_url)
+
+        if changed_fields:
+            product.save(update_fields=[*changed_fields, "last_updated"])
+
+        media_records = []
+        for uploaded_file in self.cleaned_data.get("media_files", []):
+            try:
+                url, prepared = upload_product_image(product, uploaded_file, "media")
+            except MediaUploadError as exc:
+                raise forms.ValidationError("Media uploads are not available right now.") from exc
+            media_records.append(
+                ProductMedia(
+                    product=product,
+                    media_type=ProductMedia.MediaType.IMAGE,
+                    url=url,
+                    alt_text=product.name,
+                    width=prepared.width,
+                    height=prepared.height,
+                )
+            )
+
+        if media_records:
+            ProductMedia.objects.bulk_create(media_records)
