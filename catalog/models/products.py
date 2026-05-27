@@ -26,6 +26,7 @@ class Product(PrimaryModel):
         ARCHIVED = "archived", "Archived"
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="products", on_delete=models.PROTECT)
+    plan = models.ForeignKey("billing.Plan", related_name="products", on_delete=models.SET_NULL, null=True, blank=True)
     product_type = models.ForeignKey("catalog.ProductType", related_name="products", on_delete=models.PROTECT)
     pricing_model = models.ForeignKey("catalog.PricingModel", related_name="products", on_delete=models.PROTECT)
     name = models.CharField(max_length=160)
@@ -47,7 +48,11 @@ class Product(PrimaryModel):
     submitted_at = models.DateTimeField(null=True, blank=True)
     published_at = models.DateTimeField(null=True, blank=True)
     archived_at = models.DateTimeField(null=True, blank=True)
+    plan_assigned_at = models.DateTimeField(null=True, blank=True)
     paid_publish_at = models.DateTimeField(null=True, blank=True)
+    paid_publish_checkout_id = models.CharField(max_length=255, blank=True)
+    paid_publish_payment_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
+    paid_publish_subscription_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
     featured_badge_verified_at = models.DateTimeField(null=True, blank=True)
     search_document = SearchVectorField(null=True, editable=False)
 

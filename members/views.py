@@ -1,5 +1,6 @@
 import json
 
+from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Count, Q
@@ -14,6 +15,10 @@ from django.views.generic import RedirectView, TemplateView
 from accounts.forms import UserEditForm
 from accounts.models import User
 from accounts.tables import UserTable
+from billing.dodo import DodoSyncError, archive_plan_in_dodo, dodo_configured, sync_plan_to_dodo
+from billing.forms import PlanEditForm
+from billing.models import Plan
+from billing.tables import PlanTable
 from catalog.autofill import build_product_autofill
 from catalog.forms import (
     CategoryEditForm,
@@ -25,6 +30,13 @@ from catalog.forms import (
 )
 from catalog.media_storage import delete_media_urls, product_media_urls
 from catalog.models import Category, Platform, PricingModel, Product, ProductMedia, ProductType, UseCase
+from catalog.payments import (
+    ProductPaymentError,
+    confirm_paid_publish_return,
+    create_paid_publish_checkout,
+    get_paid_publish_plans,
+    paid_publish_checkout_available,
+)
 from catalog.tables import CategoryTable, PlatformTable, PricingModelTable, ProductTable, ProductTypeTable, UseCaseTable
 
 
@@ -139,7 +151,7 @@ class MemberProductAccessMixin(MemberPageMixin):
 
     def get_product_queryset(self):
         queryset = (
-            Product.objects.select_related("owner", "product_type", "pricing_model")
+            Product.objects.select_related("owner", "plan", "product_type", "pricing_model")
             .prefetch_related(
                 "category_assignments__category",
                 "platform_assignments__platform",
@@ -405,6 +417,8 @@ class MemberProductObjectMixin(MemberProductAccessMixin):
         context["target_product_platforms"] = self.target_product_platforms
         context["target_product_use_cases"] = self.target_product_use_cases
         context["target_product_media"] = self.target_product.media.all()
+        context["paid_publish_checkout_available"] = paid_publish_checkout_available()
+        context["paid_publish_plans"] = get_paid_publish_plans()
         readiness = self.target_product_readiness
         readiness_complete = sum(1 for item in readiness if item["complete"])
         context["target_product_readiness"] = readiness
@@ -452,6 +466,45 @@ class MemberProductEditView(MemberProductObjectMixin, TemplateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
+class MemberProductPaidPublishCheckoutView(MemberProductObjectMixin, View):
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            checkout_url = create_paid_publish_checkout(
+                request,
+                self.target_product,
+                plan_id=request.POST.get("plan_id", ""),
+            )
+        except ProductPaymentError as exc:
+            messages.error(request, str(exc))
+            return redirect("member_product_edit", pk=self.target_product.pk)
+
+        return redirect(checkout_url)
+
+
+class MemberProductPaidPublishReturnView(MemberProductObjectMixin, View):
+    http_method_names = ["get"]
+
+    def get(self, request, *args, **kwargs):
+        checkout_session_id = (
+            request.GET.get("checkout_session_id", "") or request.GET.get("session_id", "")
+        )
+        try:
+            confirm_paid_publish_return(
+                self.target_product,
+                payment_id=request.GET.get("payment_id", ""),
+                subscription_id=request.GET.get("subscription_id", ""),
+                checkout_session_id=checkout_session_id,
+            )
+        except ProductPaymentError as exc:
+            messages.error(request, str(exc))
+        else:
+            messages.success(request, "Paid launch is confirmed. Your product is published.")
+
+        return redirect("member_product", pk=self.target_product.pk)
+
+
 class MemberProductDeleteView(MemberProductObjectMixin, TemplateView):
     template_name = "members/product_delete.html"
     member_title = "Delete product"
@@ -486,6 +539,154 @@ class MemberProductMediaDeleteView(MemberProductObjectMixin, TemplateView):
         media.delete()
         delete_media_urls([media_url])
         return redirect("member_product_edit", pk=self.target_product.pk)
+
+
+class MemberPlansView(MemberSuperuserRequiredMixin, TemplateView):
+    template_name = "members/plans.html"
+    active_member_nav = "plans"
+    member_title = "Plans"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = Plan.objects.order_by("price_cents", "name")
+        context["member_plan_count"] = queryset.count()
+        context["table"] = PlanTable(queryset).configure(self.request)
+        return context
+
+
+class MemberPlanAddView(MemberSuperuserRequiredMixin, TemplateView):
+    template_name = "members/plan_add.html"
+    active_member_nav = "plans"
+    member_title = "Add a new plan"
+
+    def get_breadcrumbs(self):
+        return (
+            {"label": "Home", "url": reverse("home")},
+            {"label": "Member", "url": reverse("member_overview")},
+            {"label": "Plans", "url": reverse("member_plans")},
+            {"label": "Add", "url": ""},
+        )
+
+    def get_form(self):
+        return PlanEditForm(self.request.POST or None)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = kwargs.get("form") or self.get_form()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            plan = form.save()
+            self.sync_plan(plan)
+            return redirect("member_plan", pk=plan.pk)
+        return self.render_to_response(self.get_context_data(form=form))
+
+    def sync_plan(self, plan):
+        if not dodo_configured() or plan.price_cents == 0:
+            return
+        try:
+            sync_plan_to_dodo(plan)
+        except DodoSyncError as exc:
+            messages.error(self.request, str(exc))
+
+
+class MemberPlanObjectMixin(MemberSuperuserRequiredMixin):
+    active_member_nav = "plans"
+    member_title = "Plan"
+
+    @cached_property
+    def target_plan(self):
+        return get_object_or_404(
+            Plan.objects.annotate(product_count=Count("products", distinct=True)),
+            pk=self.kwargs["pk"],
+        )
+
+    def get_breadcrumbs(self):
+        return (
+            {"label": "Home", "url": reverse("home")},
+            {"label": "Member", "url": reverse("member_overview")},
+            {"label": "Plans", "url": reverse("member_plans")},
+            {"label": self.target_plan.name, "url": ""},
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["target_plan"] = self.target_plan
+        context["target_plan_initial"] = self.target_plan.name[:1].upper()
+        return context
+
+
+class MemberPlanDetailView(MemberPlanObjectMixin, TemplateView):
+    template_name = "members/plan_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        products = (
+            Product.objects.filter(plan=self.target_plan)
+            .select_related("owner", "product_type", "pricing_model")
+            .prefetch_related("category_assignments__category")
+            .order_by("-plan_assigned_at", "-last_updated", "name")
+        )
+        context["target_plan_products_table"] = ProductTable(products, show_owner=True).configure(self.request)
+        return context
+
+
+class MemberPlanEditView(MemberPlanObjectMixin, TemplateView):
+    template_name = "members/plan_edit.html"
+    member_title = "Editing plan"
+
+    def get_breadcrumbs(self):
+        return (*super().get_breadcrumbs(), {"label": "Edit", "url": ""})
+
+    def get_form(self):
+        return PlanEditForm(self.request.POST or None, instance=self.target_plan)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["member_title"] = f"Editing plan {self.target_plan.name}"
+        context["form"] = kwargs.get("form") or self.get_form()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            plan = form.save()
+            if dodo_configured() and plan.price_cents > 0:
+                try:
+                    sync_plan_to_dodo(plan)
+                except DodoSyncError as exc:
+                    messages.error(request, str(exc))
+            return redirect("member_plan", pk=plan.pk)
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+class MemberPlanDeleteView(MemberPlanObjectMixin, TemplateView):
+    template_name = "members/plan_delete.html"
+    member_title = "Delete plan"
+
+    def get_breadcrumbs(self):
+        return (*super().get_breadcrumbs(), {"label": "Delete", "url": ""})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["delete_error"] = kwargs.get("delete_error", "")
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if self.target_plan.external_id:
+            if not dodo_configured():
+                return self.render_to_response(
+                    self.get_context_data(delete_error="Connect Dodo before deleting this plan.")
+                )
+            try:
+                archive_plan_in_dodo(self.target_plan)
+            except DodoSyncError as exc:
+                return self.render_to_response(self.get_context_data(delete_error=str(exc)))
+
+        self.target_plan.delete()
+        return redirect("member_plans")
 
 
 class MemberCategoriesView(MemberSuperuserRequiredMixin, TemplateView):

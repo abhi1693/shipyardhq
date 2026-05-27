@@ -1,0 +1,34 @@
+{% extends "members/base.html" %}
+
+{% block member_content %}
+  <div class="member-object-page">
+    <section class="member-object-card member-delete-card">
+      <header class="member-object-heading">
+        <div>
+          <h2>Delete {{ target_plan.name }}</h2>
+          <p>This removes the local plan. If it is linked to Dodo, the Dodo product is archived first.</p>
+        </div>
+      </header>
+
+      <div class="member-delete-summary">
+        <span class="member-object-avatar" aria-hidden="true">{{ target_plan_initial }}</span>
+        <div>
+          <strong>{{ target_plan.name }}</strong>
+          <p>{{ target_plan.price_display }}</p>
+        </div>
+      </div>
+
+      {% if delete_error %}
+        <div class="member-form-errors">
+          <p>{{ delete_error }}</p>
+        </div>
+      {% endif %}
+
+      <form class="member-form-actions" method="post" action="{{ request.path }}">
+        {% csrf_token %}
+        <a class="ui-button ui-button-outline-inverse ui-button-md" href="{% url 'member_plan' target_plan.pk %}">Cancel</a>
+        <button class="ui-button ui-button-danger ui-button-md" type="submit">Delete</button>
+      </form>
+    </section>
+  </div>
+{% endblock %}

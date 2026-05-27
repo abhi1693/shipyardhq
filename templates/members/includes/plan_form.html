@@ -1,0 +1,80 @@
+<ul class="member-object-edit-tabs" role="tablist">
+  <li role="presentation">
+    <button type="button" role="tab" aria-selected="true">{{ tab_label }}</button>
+  </li>
+</ul>
+
+<form class="member-object-form member-object-edit-form" method="post" action="{{ request.path }}" data-plan-form novalidate>
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="member-form-errors">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  <div class="member-field-group" role="group" aria-label="Plan">
+    <div class="member-form-row member-form-row-heading">
+      <div></div>
+      <h2>Plan</h2>
+    </div>
+
+    {% for field in form %}
+      {% if field.name in "name slug description type price discount_percent boost_for_days" %}
+        <div class="member-form-row">
+          <label class="member-form-row-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          <div class="member-form-row-control">
+            {{ field }}
+            {% for error in field.errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="member-field-group" role="group" aria-label="Availability">
+    <div class="member-form-row member-form-row-heading">
+      <div></div>
+      <h2>Availability</h2>
+    </div>
+
+    {% for field in form %}
+      {% if field.name in "is_default is_active" %}
+        <div class="member-form-row">
+          <div></div>
+          <div class="member-form-row-control">
+            <label class="member-form-check member-form-check-plain" for="{{ field.id_for_label }}">
+              {{ field }}
+              <span>{{ field.label }}</span>
+            </label>
+            {% for error in field.errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="member-field-group" role="group" aria-label="Recurring billing" data-plan-recurring{% if form.type.value != "recurring_price" %} hidden{% endif %}>
+    <div class="member-form-row member-form-row-heading">
+      <div></div>
+      <h2>Recurring billing</h2>
+    </div>
+
+    {% for field in form %}
+      {% if field.name in "payment_frequency_count payment_frequency_interval subscription_period_count subscription_period_interval" %}
+        <div class="member-form-row">
+          <label class="member-form-row-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          <div class="member-form-row-control">
+            {{ field }}
+            {% for error in field.errors %}<p>{{ error }}</p>{% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="member-form-actions member-object-edit-actions">
+    <a class="ui-button ui-button-outline-inverse ui-button-md" href="{{ cancel_url }}">Cancel</a>
+    <button class="ui-button ui-button-inverse ui-button-md" type="submit">{{ submit_label }}</button>
+  </div>
+</form>

@@ -97,6 +97,23 @@ CLERK_FRONTEND_API_URL = getattr(configuration, "CLERK_FRONTEND_API_URL", "") or
 CLERK_FRONTEND_API_URL = str(CLERK_FRONTEND_API_URL).removeprefix("https://").removeprefix("http://").strip("/")
 DATABASES = getattr(configuration, "DATABASES", {"default": getattr(configuration, "DATABASE", None)})
 DEBUG = getattr(configuration, "DEBUG", False)
+DODO = getattr(configuration, "DODO", {})
+DODO_API_KEY = DODO.get(
+    "API_KEY",
+    getattr(configuration, "DODO_API_KEY", os.getenv("DODO_API_KEY", os.getenv("DODO_PAYMENTS_API_KEY", ""))),
+)
+DODO_ENV = DODO.get(
+    "ENV",
+    getattr(configuration, "DODO_ENV", os.getenv("DODO_ENV", os.getenv("DODO_PAYMENTS_ENVIRONMENT", "test_mode"))),
+)
+DODO_WEBHOOK_SECRET = DODO.get(
+    "WEBHOOK_SECRET",
+    getattr(
+        configuration,
+        "DODO_WEBHOOK_SECRET",
+        os.getenv("DODO_WEBHOOK_SECRET", os.getenv("DODO_PAYMENTS_WEBHOOK_KEY", "")),
+    ),
+)
 EMAIL = getattr(configuration, "EMAIL", {})
 INTERNAL_IPS = getattr(configuration, "INTERNAL_IPS", ("127.0.0.1", "::1"))
 LANGUAGE_CODE = getattr(configuration, "DEFAULT_LANGUAGE", "en-us")
@@ -226,6 +243,7 @@ INSTALLED_APPS = [
     "accounts",
     "members",
     "extras",
+    "billing",
     "catalog",
     *PLUGINS,
 ]

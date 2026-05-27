@@ -719,6 +719,35 @@ button {
   margin: 0;
 }
 
+.member-messages {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 20px;
+}
+
+.member-message {
+  background: #18181b;
+  border: 1px solid #3f3f46;
+  border-radius: var(--radius-lg);
+  color: #e4e4e7;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 14px 16px;
+}
+
+.member-message-success {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #a7f3d0;
+}
+
+.member-message-error,
+.member-message-danger {
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(248, 113, 113, 0.3);
+  color: #fecaca;
+}
+
 .ui-breadcrumb {
   color: #a1a1aa;
   font-size: 14px;
@@ -1245,6 +1274,11 @@ button {
   display: grid;
   gap: 14px;
   margin-bottom: 30px;
+}
+
+.member-field-group[hidden],
+[data-plan-recurring][hidden] {
+  display: none;
 }
 
 .member-form-row {
@@ -2192,22 +2226,45 @@ button {
   margin: 8px 0 0;
 }
 
-.member-publish-gate > span {
+.member-publish-gate-action {
+  align-items: flex-end;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.member-publish-gate-action > span {
   background: #18181b;
   border: 1px solid #27272a;
   border-radius: var(--radius-pill);
   color: #a1a1aa;
-  flex: 0 0 auto;
   font-size: 12px;
   font-weight: 900;
   padding: 6px 10px;
+  white-space: nowrap;
+}
+
+.member-publish-gate-button {
+  margin-top: 14px;
+}
+
+.member-publish-plan-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.member-publish-plan-list .member-publish-gate-button {
+  margin-top: 0;
 }
 
 .member-publish-gate.is-complete {
   border-color: rgba(16, 185, 129, 0.34);
 }
 
-.member-publish-gate.is-complete > span {
+.member-publish-gate.is-complete .member-publish-gate-action > span {
   background: rgba(16, 185, 129, 0.12);
   border-color: rgba(16, 185, 129, 0.24);
   color: #34d399;

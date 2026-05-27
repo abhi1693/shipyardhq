@@ -13,6 +13,15 @@
             </div>
           </div>
           <div class="member-object-actions">
+            {% if paid_publish_checkout_available and not target_product.paid_publish_at and target_product.status != "archived" %}
+              <form method="post" action="{% url 'member_product_paid_publish_checkout' target_product.pk %}">
+                {% csrf_token %}
+                <button class="member-action-button" type="submit">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                  Pay to publish
+                </button>
+              </form>
+            {% endif %}
             <a class="member-action-button" href="{% url 'member_product_edit' target_product.pk %}">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="m16.5 3.5 4 4L7 21H3v-4L16.5 3.5Z"></path></svg>
               Edit

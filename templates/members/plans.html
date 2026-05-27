@@ -1,0 +1,28 @@
+{% extends "members/base.html" %}
+{% load django_tables2 %}
+
+{% block member_header %}
+  <header class="member-topbar">
+    {% include "components/ui/breadcrumb.html" %}
+    <span class="member-dashboard-auth" data-clerk-auth></span>
+  </header>
+{% endblock %}
+
+{% block member_content %}
+  <div class="member-list-page">
+    <header class="member-list-heading">
+      <h1>Plans</h1>
+      <div class="member-list-actions">
+        <span>{{ member_plan_count }} plan{{ member_plan_count|pluralize }}</span>
+        <a class="member-action-button" href="{% url 'member_plan_add' %}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+          Add
+        </a>
+      </div>
+    </header>
+
+    <section class="member-table-panel">
+      {% render_table table %}
+    </section>
+  </div>
+{% endblock %}

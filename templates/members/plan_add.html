@@ -1,0 +1,10 @@
+{% extends "members/base.html" %}
+
+{% block member_content %}
+  <div class="member-object-page">
+    <section class="member-form-panel">
+      {% url 'member_plans' as cancel_url %}
+      {% include "members/includes/plan_form.html" with form=form cancel_url=cancel_url submit_label="Create" tab_label="Create" %}
+    </section>
+  </div>
+{% endblock %}

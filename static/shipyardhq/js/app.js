@@ -104,6 +104,28 @@
     });
   }
 
+  function bindPlanForms() {
+    var forms = document.querySelectorAll("[data-plan-form]");
+    forms.forEach(function (form) {
+      var typeField = form.querySelector("[data-plan-type]");
+      var recurringSection = form.querySelector("[data-plan-recurring]");
+      if (!(typeField instanceof HTMLSelectElement) || !recurringSection) {
+        return;
+      }
+
+      function syncRecurringFields() {
+        var isRecurring = typeField.value === "recurring_price";
+        recurringSection.hidden = !isRecurring;
+        recurringSection.querySelectorAll("[data-plan-recurring-field]").forEach(function (field) {
+          field.disabled = !isRecurring;
+        });
+      }
+
+      typeField.addEventListener("change", syncRecurringFields);
+      syncRecurringFields();
+    });
+  }
+
   function bindProductAutofill(editor) {
     var triggers = editor.querySelectorAll("[data-autofill-trigger]");
     var urlField = editor.querySelector("#id_website_url");
@@ -528,5 +550,6 @@
     bindSlugFields();
     bindIconSelects();
     bindProductEditors();
+    bindPlanForms();
   });
 })();

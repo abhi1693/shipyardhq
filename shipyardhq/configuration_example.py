@@ -60,6 +60,11 @@ CLERK_PUBLISHABLE_KEY = ""
 CLERK_SECRET_KEY = ""
 DEBUG = False
 DEFAULT_LANGUAGE = "en-us"
+DODO = {
+    "API_KEY": "",
+    "ENV": "test_mode",
+    "WEBHOOK_SECRET": "",
+}
 EMAIL = {
     "SERVER": "localhost",
     "PORT": 25,

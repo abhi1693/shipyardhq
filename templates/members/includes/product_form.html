@@ -389,12 +389,27 @@
             <div>
               <h3>Paid launch</h3>
               <p>Publish after paid placement is confirmed.</p>
+              {% if not form.instance.paid_publish_at and form.instance.pk and paid_publish_plans %}
+                <div class="member-publish-plan-list">
+                  {% for plan in paid_publish_plans %}
+                    <button class="ui-button ui-button-inverse ui-button-sm member-publish-gate-button" type="submit" form="member-paid-publish-form-{{ plan.pk }}">
+                      {{ plan.name }} · {{ plan.price_display }}
+                    </button>
+                  {% endfor %}
+                </div>
+              {% endif %}
             </div>
-            {% if form.instance.paid_publish_at %}
-              <span>Ready</span>
-            {% else %}
-              <span>Not confirmed</span>
-            {% endif %}
+            <div class="member-publish-gate-action">
+              {% if form.instance.paid_publish_at %}
+                <span>Ready</span>
+              {% elif not form.instance.pk %}
+                <span>Save first</span>
+              {% elif paid_publish_checkout_available %}
+                <span>Available</span>
+              {% else %}
+                <span>Not available</span>
+              {% endif %}
+            </div>
           </article>
 
           <article class="member-publish-gate {% if form.instance.featured_badge_verified_at %}is-complete{% endif %}">
@@ -402,11 +417,13 @@
               <h3>Featured badge</h3>
               <p>Publish after the ShipyardHQ badge is verified on the product website.</p>
             </div>
-            {% if form.instance.featured_badge_verified_at %}
-              <span>Ready</span>
-            {% else %}
-              <span>Not verified</span>
-            {% endif %}
+            <div class="member-publish-gate-action">
+              {% if form.instance.featured_badge_verified_at %}
+                <span>Ready</span>
+              {% else %}
+                <span>Not verified</span>
+              {% endif %}
+            </div>
           </article>
         </div>
 
