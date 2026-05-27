@@ -47,6 +47,8 @@ class Product(PrimaryModel):
     submitted_at = models.DateTimeField(null=True, blank=True)
     published_at = models.DateTimeField(null=True, blank=True)
     archived_at = models.DateTimeField(null=True, blank=True)
+    paid_publish_at = models.DateTimeField(null=True, blank=True)
+    featured_badge_verified_at = models.DateTimeField(null=True, blank=True)
     search_document = SearchVectorField(null=True, editable=False)
 
     objects = ProductQuerySet.as_manager()
@@ -76,6 +78,18 @@ class Product(PrimaryModel):
         if amount is None or not self.currency_code:
             return ""
         return f"{self.currency_code} {amount:.2f}"
+
+    @property
+    def can_publish(self):
+        return bool(self.paid_publish_at or self.featured_badge_verified_at)
+
+    @property
+    def publish_gate_display(self):
+        if self.paid_publish_at:
+            return "Paid launch"
+        if self.featured_badge_verified_at:
+            return "Featured badge"
+        return ""
 
 
 class ProductAlternativeAssignment(ChangeLoggedModel):

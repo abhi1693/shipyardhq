@@ -378,8 +378,12 @@ class MemberProductObjectMixin(MemberProductAccessMixin):
             },
             {
                 "label": "Publish listing",
-                "note": self.target_product.get_status_display(),
-                "complete": self.target_product.status == Product.Status.PUBLISHED and self.target_product.is_listed,
+                "note": self.target_product.publish_gate_display or "Publish path required",
+                "complete": (
+                    self.target_product.status == Product.Status.PUBLISHED
+                    and self.target_product.is_listed
+                    and self.target_product.can_publish
+                ),
                 "href": f"{edit_url}#section-publishing",
             },
         )

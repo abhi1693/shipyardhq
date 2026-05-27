@@ -738,6 +738,7 @@ class Command(BaseCommand):
                     "is_listed": True,
                     "submitted_at": now,
                     "published_at": now - timedelta(days=index),
+                    "featured_badge_verified_at": now - timedelta(days=index),
                     "product_type": product_types[row["product_type"]],
                     "pricing_model": pricing_models[row["pricing_model"]],
                     "starting_price_cents": row.get("starting_price_cents"),

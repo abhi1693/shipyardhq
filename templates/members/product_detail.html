@@ -39,6 +39,16 @@
               {% endif %}
             </dd>
           </div>
+          <div>
+            <dt>Publish access</dt>
+            <dd>
+              {% if target_product.can_publish %}
+                <span class="ship-table-badge ship-table-badge-active">{{ target_product.publish_gate_display }}</span>
+              {% else %}
+                <span class="ship-table-badge ship-table-badge-inactive">Locked</span>
+              {% endif %}
+            </dd>
+          </div>
           {% if request.user.is_superuser %}
             <div>
               <dt>Builder</dt>

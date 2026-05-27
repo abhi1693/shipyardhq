@@ -2,6 +2,7 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from django import forms
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from django.utils.text import slugify
 
 from .media_storage import (
@@ -234,6 +235,16 @@ class ProductEditForm(forms.ModelForm):
         required=False,
         widget=forms.CheckboxInput(attrs={"class": "member-form-checkbox"}),
     )
+    paid_publish = forms.BooleanField(
+        label="Paid launch confirmed",
+        required=False,
+        widget=forms.CheckboxInput(attrs={"class": "member-form-checkbox"}),
+    )
+    featured_badge_verified = forms.BooleanField(
+        label="Featured badge verified",
+        required=False,
+        widget=forms.CheckboxInput(attrs={"class": "member-form-checkbox"}),
+    )
 
     class Meta:
         model = Product
@@ -250,11 +261,8 @@ class ProductEditForm(forms.ModelForm):
             "website_url",
             "summary",
             "description",
-            "status",
-            "is_listed",
         )
         labels = {
-            "is_listed": "Listed",
             "pricing_model": "Pricing",
             "currency_code": "Currency",
             "product_type": "Type",
@@ -272,8 +280,6 @@ class ProductEditForm(forms.ModelForm):
             "website_url": forms.URLInput(attrs={"class": "member-form-control"}),
             "summary": forms.Textarea(attrs={"class": "member-form-control member-form-textarea", "rows": 4}),
             "description": forms.Textarea(attrs={"class": "member-form-control member-form-textarea", "rows": 6}),
-            "status": forms.Select(attrs={"class": "member-form-control member-form-select"}),
-            "is_listed": forms.CheckboxInput(attrs={"class": "member-form-checkbox"}),
         }
 
     def __init__(self, *args, user, **kwargs):
@@ -289,6 +295,8 @@ class ProductEditForm(forms.ModelForm):
         if self.instance.pk and self.instance.starting_price_cents is not None:
             self.fields["starting_price"].initial = Decimal(self.instance.starting_price_cents) / Decimal("100")
             self.fields["currency_code"].initial = self.instance.currency_code
+            self.fields["paid_publish"].initial = bool(self.instance.paid_publish_at)
+            self.fields["featured_badge_verified"].initial = bool(self.instance.featured_badge_verified_at)
 
         if user.is_superuser:
             self.fields["owner"].queryset = User.objects.filter(is_active=True).order_by("email")
@@ -297,6 +305,8 @@ class ProductEditForm(forms.ModelForm):
         else:
             self.fields.pop("owner")
             self.fields.pop("slug")
+            self.fields.pop("paid_publish")
+            self.fields.pop("featured_badge_verified")
 
         if self.instance.pk:
             self.fields["categories"].initial = Category.objects.filter(product_assignments__product=self.instance)
@@ -312,7 +322,6 @@ class ProductEditForm(forms.ModelForm):
         if pricing_slug in PRICE_DISABLED_PRICING_SLUGS:
             cleaned_data["starting_price"] = None
             cleaned_data["currency_code"] = ""
-            return cleaned_data
 
         if pricing_slug in PRICE_REQUIRED_PRICING_SLUGS and starting_price is None:
             self.add_error("starting_price", "Starting price is required for this pricing model.")
@@ -356,6 +365,9 @@ class ProductEditForm(forms.ModelForm):
         if "slug" not in self.fields:
             product.slug = self.instance.slug if self.instance.pk else self._generate_unique_slug(product.name)
         self._sync_pricing(product)
+        self._sync_publish_gate(product)
+        self._sync_workflow_status(product)
+        self._sync_status_dates(product)
 
         if commit:
             product.save()
@@ -405,6 +417,47 @@ class ProductEditForm(forms.ModelForm):
 
         product.starting_price_cents = int((starting_price * Decimal("100")).quantize(Decimal("1"), ROUND_HALF_UP))
         product.currency_code = currency_code.upper()
+
+    def _can_publish(self, cleaned_data):
+        paid_publish = cleaned_data.get("paid_publish") if "paid_publish" in self.fields else False
+        featured_badge_verified = (
+            cleaned_data.get("featured_badge_verified") if "featured_badge_verified" in self.fields else False
+        )
+        return bool(
+            paid_publish
+            or featured_badge_verified
+            or self.instance.paid_publish_at
+            or self.instance.featured_badge_verified_at
+        )
+
+    def _sync_publish_gate(self, product):
+        if "paid_publish" in self.fields:
+            product.paid_publish_at = timezone.now() if self.cleaned_data.get("paid_publish") else None
+        if "featured_badge_verified" in self.fields:
+            product.featured_badge_verified_at = (
+                timezone.now() if self.cleaned_data.get("featured_badge_verified") else None
+            )
+
+    def _sync_workflow_status(self, product):
+        if not product.pk:
+            product.status = Product.Status.REVIEW
+        elif product.status == Product.Status.PUBLISHED and not product.can_publish:
+            product.status = Product.Status.REVIEW
+
+    def _sync_status_dates(self, product):
+        now = timezone.now()
+        if product.status == Product.Status.PUBLISHED and not product.published_at:
+            product.published_at = now
+        elif product.status != Product.Status.PUBLISHED:
+            product.published_at = None
+
+        if product.status == Product.Status.REVIEW and not product.submitted_at:
+            product.submitted_at = now
+
+        if product.status == Product.Status.ARCHIVED and not product.archived_at:
+            product.archived_at = now
+        elif product.status != Product.Status.ARCHIVED:
+            product.archived_at = None
 
     def _sync_media(self, product):
         changed_fields = []
