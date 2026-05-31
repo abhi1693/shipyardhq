@@ -74,8 +74,7 @@ export default function PrivacyPolicyPage() {
                   </li>
                   <li>
                     <strong>Community interactions:</strong> Reviews, upvotes,
-                    feedback messages, support requests, surveys, and newsletter
-                    subscriptions and notifications routed through Novu.
+                    feedback messages, support requests, and surveys.
                   </li>
                 </ul>
               </div>
@@ -190,9 +189,8 @@ export default function PrivacyPolicyPage() {
                 <strong>Service providers:</strong> We partner with vendors who
                 support hosting, authentication, email delivery, analytics, AI
                 processing, file storage, and payments. Key providers include
-                Cloudflare R2 (file storage), Clerk (identity management), Novu
-                (notifications and email delivery), OpenAI (AI features), and
-                Dodo Payments (billing).
+                Cloudflare R2 (file storage), Clerk (identity management),
+                OpenAI (AI features), and Dodo Payments (billing).
               </li>
               <li>
                 <strong>Teams and community:</strong> Content you publish—such

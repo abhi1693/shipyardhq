@@ -263,7 +263,6 @@ export type UserWhereInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionListRelationFilter
   redemptions?: Prisma.RedemptionListRelationFilter
   featureEntitlements?: Prisma.FeatureEntitlementListRelationFilter
-  productClaimAttempts?: Prisma.ProductClaimAttemptListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -290,7 +289,6 @@ export type UserOrderByWithRelationInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionOrderByRelationAggregateInput
   redemptions?: Prisma.RedemptionOrderByRelationAggregateInput
   featureEntitlements?: Prisma.FeatureEntitlementOrderByRelationAggregateInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -320,7 +318,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   rewardTransactionsActed?: Prisma.RewardTransactionListRelationFilter
   redemptions?: Prisma.RedemptionListRelationFilter
   featureEntitlements?: Prisma.FeatureEntitlementListRelationFilter
-  productClaimAttempts?: Prisma.ProductClaimAttemptListRelationFilter
 }, "id" | "clerkId" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -387,7 +384,6 @@ export type UserCreateInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -414,7 +410,6 @@ export type UserUncheckedCreateInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -441,7 +436,6 @@ export type UserUpdateInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -468,7 +462,6 @@ export type UserUncheckedUpdateInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -595,20 +588,6 @@ export type UserUpdateOneRequiredWithoutProductsNestedInput = {
   upsert?: Prisma.UserUpsertWithoutProductsInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProductsInput, Prisma.UserUpdateWithoutProductsInput>, Prisma.UserUncheckedUpdateWithoutProductsInput>
-}
-
-export type UserCreateNestedOneWithoutProductClaimAttemptsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutProductClaimAttemptsInput, Prisma.UserUncheckedCreateWithoutProductClaimAttemptsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutProductClaimAttemptsInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutProductClaimAttemptsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutProductClaimAttemptsInput, Prisma.UserUncheckedCreateWithoutProductClaimAttemptsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutProductClaimAttemptsInput
-  upsert?: Prisma.UserUpsertWithoutProductClaimAttemptsInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProductClaimAttemptsInput, Prisma.UserUpdateWithoutProductClaimAttemptsInput>, Prisma.UserUncheckedUpdateWithoutProductClaimAttemptsInput>
 }
 
 export type UserCreateNestedOneWithoutProductUpvoteInput = {
@@ -752,7 +731,6 @@ export type UserCreateWithoutProductsInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutProductsInput = {
@@ -778,7 +756,6 @@ export type UserUncheckedCreateWithoutProductsInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutProductsInput = {
@@ -820,7 +797,6 @@ export type UserUpdateWithoutProductsInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProductsInput = {
@@ -838,127 +814,6 @@ export type UserUncheckedUpdateWithoutProductsInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
-  feedback?: Prisma.MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
-  purchases?: Prisma.UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
-  rewardBalance?: Prisma.RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
-  rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
-  rewardTransactionsActed?: Prisma.RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
-  redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutUserNestedInput
-  featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutProductClaimAttemptsInput = {
-  id?: string
-  clerkId: string
-  email: string
-  firstName: string
-  lastName: string
-  role?: string
-  roleIntent?: string | null
-  heardFrom?: string | null
-  status?: $Enums.UserStatus
-  onboardedAt?: Date | string | null
-  suspendedAt?: Date | string | null
-  terminatedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  products?: Prisma.ProductCreateNestedManyWithoutUserInput
-  ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
-  feedback?: Prisma.MemberFeedbackCreateNestedManyWithoutUserInput
-  purchases?: Prisma.UserPlanPurchaseCreateNestedManyWithoutUserInput
-  rewardBalance?: Prisma.RewardBalanceCreateNestedOneWithoutUserInput
-  rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutUserInput
-  rewardTransactionsActed?: Prisma.RewardTransactionCreateNestedManyWithoutActedByInput
-  redemptions?: Prisma.RedemptionCreateNestedManyWithoutUserInput
-  featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutProductClaimAttemptsInput = {
-  id?: string
-  clerkId: string
-  email: string
-  firstName: string
-  lastName: string
-  role?: string
-  roleIntent?: string | null
-  heardFrom?: string | null
-  status?: $Enums.UserStatus
-  onboardedAt?: Date | string | null
-  suspendedAt?: Date | string | null
-  terminatedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
-  ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
-  feedback?: Prisma.MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
-  purchases?: Prisma.UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
-  rewardBalance?: Prisma.RewardBalanceUncheckedCreateNestedOneWithoutUserInput
-  rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutUserInput
-  rewardTransactionsActed?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
-  redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutUserInput
-  featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutProductClaimAttemptsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutProductClaimAttemptsInput, Prisma.UserUncheckedCreateWithoutProductClaimAttemptsInput>
-}
-
-export type UserUpsertWithoutProductClaimAttemptsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutProductClaimAttemptsInput, Prisma.UserUncheckedUpdateWithoutProductClaimAttemptsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutProductClaimAttemptsInput, Prisma.UserUncheckedCreateWithoutProductClaimAttemptsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutProductClaimAttemptsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutProductClaimAttemptsInput, Prisma.UserUncheckedUpdateWithoutProductClaimAttemptsInput>
-}
-
-export type UserUpdateWithoutProductClaimAttemptsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
-  roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  products?: Prisma.ProductUpdateManyWithoutUserNestedInput
-  ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
-  feedback?: Prisma.MemberFeedbackUpdateManyWithoutUserNestedInput
-  purchases?: Prisma.UserPlanPurchaseUpdateManyWithoutUserNestedInput
-  rewardBalance?: Prisma.RewardBalanceUpdateOneWithoutUserNestedInput
-  rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutUserNestedInput
-  rewardTransactionsActed?: Prisma.RewardTransactionUpdateManyWithoutActedByNestedInput
-  redemptions?: Prisma.RedemptionUpdateManyWithoutUserNestedInput
-  featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutProductClaimAttemptsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
-  roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
   feedback?: Prisma.MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
   purchases?: Prisma.UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
@@ -992,7 +847,6 @@ export type UserCreateWithoutProductUpvoteInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutProductUpvoteInput = {
@@ -1018,7 +872,6 @@ export type UserUncheckedCreateWithoutProductUpvoteInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutProductUpvoteInput = {
@@ -1060,7 +913,6 @@ export type UserUpdateWithoutProductUpvoteInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProductUpvoteInput = {
@@ -1086,7 +938,6 @@ export type UserUncheckedUpdateWithoutProductUpvoteInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFeedbackInput = {
@@ -1112,7 +963,6 @@ export type UserCreateWithoutFeedbackInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFeedbackInput = {
@@ -1138,7 +988,6 @@ export type UserUncheckedCreateWithoutFeedbackInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFeedbackInput = {
@@ -1180,7 +1029,6 @@ export type UserUpdateWithoutFeedbackInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFeedbackInput = {
@@ -1206,7 +1054,6 @@ export type UserUncheckedUpdateWithoutFeedbackInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPurchasesInput = {
@@ -1232,7 +1079,6 @@ export type UserCreateWithoutPurchasesInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPurchasesInput = {
@@ -1258,7 +1104,6 @@ export type UserUncheckedCreateWithoutPurchasesInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPurchasesInput = {
@@ -1300,7 +1145,6 @@ export type UserUpdateWithoutPurchasesInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPurchasesInput = {
@@ -1326,7 +1170,6 @@ export type UserUncheckedUpdateWithoutPurchasesInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRewardBalanceInput = {
@@ -1352,7 +1195,6 @@ export type UserCreateWithoutRewardBalanceInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRewardBalanceInput = {
@@ -1378,7 +1220,6 @@ export type UserUncheckedCreateWithoutRewardBalanceInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRewardBalanceInput = {
@@ -1420,7 +1261,6 @@ export type UserUpdateWithoutRewardBalanceInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRewardBalanceInput = {
@@ -1446,7 +1286,6 @@ export type UserUncheckedUpdateWithoutRewardBalanceInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRewardTransactionsInput = {
@@ -1472,7 +1311,6 @@ export type UserCreateWithoutRewardTransactionsInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRewardTransactionsInput = {
@@ -1498,7 +1336,6 @@ export type UserUncheckedCreateWithoutRewardTransactionsInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRewardTransactionsInput = {
@@ -1529,7 +1366,6 @@ export type UserCreateWithoutRewardTransactionsActedInput = {
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutUserInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRewardTransactionsActedInput = {
@@ -1555,7 +1391,6 @@ export type UserUncheckedCreateWithoutRewardTransactionsActedInput = {
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutUserInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutUserInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRewardTransactionsActedInput = {
@@ -1597,7 +1432,6 @@ export type UserUpdateWithoutRewardTransactionsInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRewardTransactionsInput = {
@@ -1623,7 +1457,6 @@ export type UserUncheckedUpdateWithoutRewardTransactionsInput = {
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutRewardTransactionsActedInput = {
@@ -1660,7 +1493,6 @@ export type UserUpdateWithoutRewardTransactionsActedInput = {
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutUserNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRewardTransactionsActedInput = {
@@ -1686,7 +1518,6 @@ export type UserUncheckedUpdateWithoutRewardTransactionsActedInput = {
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutUserNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRedemptionsInput = {
@@ -1712,7 +1543,6 @@ export type UserCreateWithoutRedemptionsInput = {
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutUserInput
   rewardTransactionsActed?: Prisma.RewardTransactionCreateNestedManyWithoutActedByInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRedemptionsInput = {
@@ -1738,7 +1568,6 @@ export type UserUncheckedCreateWithoutRedemptionsInput = {
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutUserInput
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRedemptionsInput = {
@@ -1780,7 +1609,6 @@ export type UserUpdateWithoutRedemptionsInput = {
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutUserNestedInput
   rewardTransactionsActed?: Prisma.RewardTransactionUpdateManyWithoutActedByNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRedemptionsInput = {
@@ -1806,7 +1634,6 @@ export type UserUncheckedUpdateWithoutRedemptionsInput = {
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFeatureEntitlementsInput = {
@@ -1832,7 +1659,6 @@ export type UserCreateWithoutFeatureEntitlementsInput = {
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutUserInput
   rewardTransactionsActed?: Prisma.RewardTransactionCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFeatureEntitlementsInput = {
@@ -1858,7 +1684,6 @@ export type UserUncheckedCreateWithoutFeatureEntitlementsInput = {
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutUserInput
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutUserInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFeatureEntitlementsInput = {
@@ -1900,7 +1725,6 @@ export type UserUpdateWithoutFeatureEntitlementsInput = {
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutUserNestedInput
   rewardTransactionsActed?: Prisma.RewardTransactionUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFeatureEntitlementsInput = {
@@ -1926,7 +1750,6 @@ export type UserUncheckedUpdateWithoutFeatureEntitlementsInput = {
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutUserNestedInput
-  productClaimAttempts?: Prisma.ProductClaimAttemptUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1943,7 +1766,6 @@ export type UserCountOutputType = {
   rewardTransactionsActed: number
   redemptions: number
   featureEntitlements: number
-  productClaimAttempts: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1955,7 +1777,6 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   rewardTransactionsActed?: boolean | UserCountOutputTypeCountRewardTransactionsActedArgs
   redemptions?: boolean | UserCountOutputTypeCountRedemptionsArgs
   featureEntitlements?: boolean | UserCountOutputTypeCountFeatureEntitlementsArgs
-  productClaimAttempts?: boolean | UserCountOutputTypeCountProductClaimAttemptsArgs
 }
 
 /**
@@ -2024,13 +1845,6 @@ export type UserCountOutputTypeCountFeatureEntitlementsArgs<ExtArgs extends runt
   where?: Prisma.FeatureEntitlementWhereInput
 }
 
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountProductClaimAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProductClaimAttemptWhereInput
-}
-
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2056,7 +1870,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   rewardTransactionsActed?: boolean | Prisma.User$rewardTransactionsActedArgs<ExtArgs>
   redemptions?: boolean | Prisma.User$redemptionsArgs<ExtArgs>
   featureEntitlements?: boolean | Prisma.User$featureEntitlementsArgs<ExtArgs>
-  productClaimAttempts?: boolean | Prisma.User$productClaimAttemptsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2122,7 +1935,6 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   rewardTransactionsActed?: boolean | Prisma.User$rewardTransactionsActedArgs<ExtArgs>
   redemptions?: boolean | Prisma.User$redemptionsArgs<ExtArgs>
   featureEntitlements?: boolean | Prisma.User$featureEntitlementsArgs<ExtArgs>
-  productClaimAttempts?: boolean | Prisma.User$productClaimAttemptsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2140,7 +1952,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     rewardTransactionsActed: Prisma.$RewardTransactionPayload<ExtArgs>[]
     redemptions: Prisma.$RedemptionPayload<ExtArgs>[]
     featureEntitlements: Prisma.$FeatureEntitlementPayload<ExtArgs>[]
-    productClaimAttempts: Prisma.$ProductClaimAttemptPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2560,7 +2371,6 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   rewardTransactionsActed<T extends Prisma.User$rewardTransactionsActedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$rewardTransactionsActedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   redemptions<T extends Prisma.User$redemptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$redemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   featureEntitlements<T extends Prisma.User$featureEntitlementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$featureEntitlementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeatureEntitlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  productClaimAttempts<T extends Prisma.User$productClaimAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$productClaimAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductClaimAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3205,30 +3015,6 @@ export type User$featureEntitlementsArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.FeatureEntitlementScalarFieldEnum | Prisma.FeatureEntitlementScalarFieldEnum[]
-}
-
-/**
- * User.productClaimAttempts
- */
-export type User$productClaimAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ProductClaimAttempt
-   */
-  select?: Prisma.ProductClaimAttemptSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ProductClaimAttempt
-   */
-  omit?: Prisma.ProductClaimAttemptOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProductClaimAttemptInclude<ExtArgs> | null
-  where?: Prisma.ProductClaimAttemptWhereInput
-  orderBy?: Prisma.ProductClaimAttemptOrderByWithRelationInput | Prisma.ProductClaimAttemptOrderByWithRelationInput[]
-  cursor?: Prisma.ProductClaimAttemptWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ProductClaimAttemptScalarFieldEnum | Prisma.ProductClaimAttemptScalarFieldEnum[]
 }
 
 /**

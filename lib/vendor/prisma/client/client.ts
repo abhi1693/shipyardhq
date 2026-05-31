@@ -77,11 +77,6 @@ export type LeaderboardRun = Prisma.LeaderboardRunModel
  */
 export type ProductLeaderboardScore = Prisma.ProductLeaderboardScoreModel
 /**
- * Model MonthlyLeaderboardNotification
- *
- */
-export type MonthlyLeaderboardNotification = Prisma.MonthlyLeaderboardNotificationModel
-/**
  * Model ProductMedia
  *
  */
@@ -91,11 +86,6 @@ export type ProductMedia = Prisma.ProductMediaModel
  *
  */
 export type ProductVerification = Prisma.ProductVerificationModel
-/**
- * Model ProductClaimAttempt
- *
- */
-export type ProductClaimAttempt = Prisma.ProductClaimAttemptModel
 /**
  * Model ProductMetadata
  *

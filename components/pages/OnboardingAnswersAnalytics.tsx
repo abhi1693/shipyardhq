@@ -7,12 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
-import {
-  ChartContainer,
-  ChartTooltip,
-  type ChartConfig,
-} from "@/components/atoms/chart"
-import { AnalyticsBarChart } from "@/components/molecules/AnalyticsBarChart"
+import { type ChartConfig } from "@/components/atoms/chart"
 import { AnalyticsChartCard } from "@/components/molecules/AnalyticsChartCard"
 import {
   AnalyticsLineChart,
@@ -23,13 +18,6 @@ import type {
   OnboardingOutcomeDeltaItem,
 } from "@/types/analytics"
 import { formatDistanceToNow } from "date-fns"
-import {
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Cell,
-  Tooltip as RechartsTooltip,
-} from "recharts"
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("en-US").format(value)
@@ -88,60 +76,6 @@ function BreakdownList({
   )
 }
 
-function NewsletterIntentBreakdown({
-  items,
-}: {
-  items: OnboardingAnswersSummary["newsletterIntentBreakdown"]
-}) {
-  if (!items.length) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        No onboarded members have newsletter preferences yet.
-      </p>
-    )
-  }
-
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {items.map((item) => {
-        const clampedPercent = Math.max(
-          0,
-          Math.min(100, item.subscribedPercentage),
-        )
-
-        return (
-          <div
-            key={item.id}
-            className="space-y-2 rounded-xl border border-slate-200/70 bg-white p-4 shadow-[0_12px_30px_-26px_rgba(15,23,42,0.35)]"
-          >
-            <div className="flex items-baseline justify-between gap-3 text-sm">
-              <span className="font-medium text-foreground">{item.label}</span>
-              <span className="text-xs text-muted-foreground">
-                {formatNumber(item.total)}{" "}
-                {item.total === 1 ? "member" : "members"}
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {formatNumber(item.subscribed)} subscribed •{" "}
-              {formatPercent(item.subscribedPercentage)} opt-in
-            </p>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
-              <div
-                className="h-full rounded-full bg-emerald-500"
-                style={{ width: `${clampedPercent}%` }}
-                aria-hidden
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {formatNumber(item.optedOut)} opted out
-            </p>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
 export function OnboardingAnswersAnalytics({
   summary,
 }: {
@@ -189,75 +123,6 @@ export function OnboardingAnswersAnalytics({
   const signupLineDefinition: AnalyticsLineDefinition<
     (typeof summary.signupTimeline)[number]
   >[] = [{ dataKey: "signups" }]
-
-  const newsletterTotal =
-    summary.newsletterSubscribed + summary.newsletterOptedOut
-
-  const newsletterConfig: ChartConfig = {
-    subscribed: { label: "Subscribed", color: "#0ea5e9" },
-    optedOut: { label: "Opted out", color: "#e11d48" },
-  }
-
-  const newsletterChartData = [
-    {
-      key: "subscribed",
-      label: "Subscribed",
-      value: summary.newsletterSubscribed,
-      percentage:
-        newsletterTotal === 0
-          ? 0
-          : (summary.newsletterSubscribed / newsletterTotal) * 100,
-    },
-    {
-      key: "optedOut",
-      label: "Opted out",
-      value: summary.newsletterOptedOut,
-      percentage:
-        newsletterTotal === 0
-          ? 0
-          : (summary.newsletterOptedOut / newsletterTotal) * 100,
-    },
-  ]
-
-  const newsletterCompositionConfig: ChartConfig = {
-    subscribed: { label: "Subscribed", color: "#0ea5e9" },
-    unsubscribed: { label: "Not subscribed", color: "#f97316" },
-  }
-
-  const newsletterCompositionData = [
-    {
-      segment: "Registered accounts",
-      subscribed: summary.newsletterRegisteredSubscribers,
-      unsubscribed: summary.newsletterRegisteredNotSubscribed,
-    },
-    {
-      segment: "Newsletter-only",
-      subscribed: summary.newsletterUnregisteredSubscribers,
-      unsubscribed: 0,
-    },
-  ]
-
-  const hasNewsletterCompositionData = newsletterCompositionData.some(
-    (item) => item.subscribed + item.unsubscribed > 0,
-  )
-
-  const newsletterAudienceStats = [
-    {
-      label: "Registered & subscribed",
-      value: summary.newsletterRegisteredSubscribers,
-      helper: "Members opted into the newsletter",
-    },
-    {
-      label: "Registered & unsubscribed",
-      value: summary.newsletterRegisteredNotSubscribed,
-      helper: "Members without newsletter access",
-    },
-    {
-      label: "Newsletter-only contacts",
-      value: summary.newsletterUnregisteredSubscribers,
-      helper: "Emails without Shipyard accounts",
-    },
-  ]
 
   const intentOutcomeSections: Array<{
     title: string
@@ -343,145 +208,6 @@ export function OnboardingAnswersAnalytics({
           />
         </div>
       </AnalyticsChartCard>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Newsletter engagement</CardTitle>
-          <CardDescription>
-            Opt-in preferences from onboarded members and overall coverage.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-3">
-            {newsletterAudienceStats.map((item) => (
-              <div key={item.label} className="space-y-1">
-                <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                  {item.label}
-                </div>
-                <div className="text-lg font-semibold text-foreground">
-                  {formatNumber(item.value)}
-                </div>
-                {item.helper ? (
-                  <p className="text-xs text-muted-foreground">{item.helper}</p>
-                ) : null}
-              </div>
-            ))}
-          </div>
-
-          {hasNewsletterCompositionData ? (
-            <AnalyticsBarChart
-              data={newsletterCompositionData}
-              config={newsletterCompositionConfig}
-              bars={[
-                {
-                  dataKey: "subscribed",
-                  barProps: {
-                    stackId: "newsletter-composition",
-                    radius: [4, 4, 0, 0],
-                  },
-                },
-                {
-                  dataKey: "unsubscribed",
-                  barProps: {
-                    stackId: "newsletter-composition",
-                    radius: [4, 4, 0, 0],
-                  },
-                },
-              ]}
-              showLegend
-              className="border border-slate-200/70 bg-white/95"
-              xAxis={{ dataKey: "segment" }}
-              tooltip={{
-                labelFormatter: (label) => String(label),
-              }}
-            />
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              No newsletter audience data available yet.
-            </p>
-          )}
-
-          <ChartContainer
-            config={newsletterConfig}
-            showLegend
-            className="min-h-[260px] border border-slate-200/70 bg-white/95"
-          >
-            {newsletterTotal === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                No onboarded members have set newsletter preferences yet.
-              </p>
-            ) : (
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
-                <div className="h-48 w-full lg:h-[220px] lg:w-1/2">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <RechartsTooltip
-                        content={
-                          <ChartTooltip
-                            valueFormatter={(value) => {
-                              const base = formatNumber(value)
-                              if (!newsletterTotal) return base
-                              const percent =
-                                (value / Math.max(newsletterTotal, 1)) * 100
-                              return `${base} (${formatPercent(percent)})`
-                            }}
-                          />
-                        }
-                      />
-                      <Pie
-                        data={newsletterChartData}
-                        dataKey="value"
-                        nameKey="label"
-                        innerRadius={60}
-                        strokeWidth={2}
-                      >
-                        {newsletterChartData.map((item) => (
-                          <Cell
-                            key={item.key}
-                            fill={`var(--chart-${item.key})`}
-                            name={item.label}
-                          />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="flex-1 space-y-3">
-                  {newsletterChartData.map((item) => (
-                    <div
-                      key={item.key}
-                      className="flex items-center gap-3 rounded-lg border border-slate-200/70 bg-white px-3 py-2"
-                    >
-                      <span
-                        className="h-2.5 w-2.5 rounded-full"
-                        style={{
-                          backgroundColor:
-                            newsletterConfig[item.key]?.color ?? "#94a3b8",
-                        }}
-                      />
-                      <div className="flex flex-1 flex-col">
-                        <span className="text-sm font-medium text-foreground">
-                          {item.label}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatNumber(item.value)} members
-                        </span>
-                      </div>
-                      <span className="text-sm font-semibold text-foreground">
-                        {formatPercent(item.percentage)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </ChartContainer>
-
-          <NewsletterIntentBreakdown
-            items={summary.newsletterIntentBreakdown}
-          />
-        </CardContent>
-      </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>

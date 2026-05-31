@@ -22,11 +22,6 @@ export const SCHEDULED_JOB_DEFINITIONS = [
     description: "Expire boosted and recurring plans.",
   },
   {
-    id: "weekly-newsletter",
-    pattern: "0 0 9 * * 4",
-    description: "Send the weekly newsletter.",
-  },
-  {
     id: "monthly-leaderboard",
     pattern: "0 0 8 1 * *",
     description: "Generate and announce monthly leaderboard winners.",
@@ -40,11 +35,6 @@ export const SCHEDULED_JOB_DEFINITIONS = [
     id: "leaderboard-highlights-week",
     pattern: "0 55 23 * * 0",
     description: "Announce weekly leaderboard highlights.",
-  },
-  {
-    id: "micro-leaderboards-midweek",
-    pattern: "0 0 12 * * 3",
-    description: "Send midweek micro-leaderboard nudges.",
   },
   {
     id: "rewards-placements",
@@ -80,16 +70,6 @@ export const SCHEDULED_JOB_DEFINITIONS = [
     id: "analytics-sync",
     pattern: "0 0 2 * * *",
     description: "Sync analytics rollups.",
-  },
-  {
-    id: "promotions-featured",
-    pattern: "0 15 6 * * *",
-    description: "Prepare featured plan promotion notifications.",
-  },
-  {
-    id: "founder-visibility-owner",
-    pattern: "0 0 0 * * 1",
-    description: "Send owner founder-visibility engagement.",
   },
   {
     id: "dodo-discounts-cleanup",

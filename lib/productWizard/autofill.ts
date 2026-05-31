@@ -1,5 +1,5 @@
 import { PRODUCT_TYPES, PRICING_MODELS, PLATFORMS } from "./constants"
-import { validateSingleEmail } from "@/lib/email/list-parser"
+import { validateSingleEmail } from "@/lib/emailValidation"
 
 export type ProductAutofillModelOutput = {
   name?: string | null

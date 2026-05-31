@@ -15,7 +15,7 @@ export default function PurchasePlanToast() {
     const error = sp.get("error")
     const upgraded = sp.get("upgraded")
 
-    let didNotify = false
+    let didShowToast = false
     if (error) {
       const msg =
         error === "plan_not_configured"
@@ -34,13 +34,13 @@ export default function PurchasePlanToast() {
                       ? "Publish your listing before boosting."
                       : "Something went wrong. Please try again."
       toast.error(msg)
-      didNotify = true
+      didShowToast = true
     } else if (upgraded === "1") {
       toast.success("Plan applied to your product.")
-      didNotify = true
+      didShowToast = true
     }
 
-    if (didNotify) {
+    if (didShowToast) {
       // Clean the query string to avoid repeat toasts on refresh
       router.replace(pathname)
     }

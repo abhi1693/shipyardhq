@@ -15,10 +15,6 @@ const REWARD_FEATURE_DEFINITIONS = {
     value: "stickyBanner",
     label: "Sticky banner",
   },
-  newsletterPromotion: {
-    value: "newsletterPromotion",
-    label: "Newsletter promotion",
-  },
   analyticsAdvanced: {
     value: "analytics.advanced",
     label: "Advanced analytics",

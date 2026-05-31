@@ -7,7 +7,7 @@ import {
   RewardRuleInactiveError,
   RewardRuleNotFoundError,
 } from "@/lib/rewards/errors"
-import { getAppBaseUrl } from "@/lib/email/utils"
+import { getAppBaseUrl } from "@/lib/app-url"
 import { productPath } from "@/lib/routes"
 import prisma from "@/lib/prisma"
 import { ProductStatus, type Prisma } from "@/lib/vendor/prisma/client"

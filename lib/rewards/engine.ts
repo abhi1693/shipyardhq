@@ -3,10 +3,6 @@ import crypto from "node:crypto"
 import { revalidateRewardsLeaderboard } from "@/lib/cache/revalidate"
 import prisma from "@/lib/prisma"
 import {
-  notifyNovuRewardAdjusted,
-  notifyNovuRewardAwarded,
-} from "@/lib/server/notifications/novuEvents"
-import {
   FeatureEntitlementStatus,
   PlacementStatus,
   RewardTransactionType,
@@ -58,11 +54,9 @@ const SCHEDULED_REWARD_KEYS = new Set<RewardFeatureKey>([
   REWARD_FEATURE_KEY.sponsoredProducts,
   REWARD_FEATURE_KEY.stickyBanner,
   REWARD_FEATURE_KEY.priorityPlacement,
-  REWARD_FEATURE_KEY.newsletterPromotion,
 ])
 
 const SCHEDULED_SURFACES = new Set(["sponsored-products", "sticky-banner"])
-const SCHEDULED_CHANNELS = new Set(["newsletter"])
 
 type TransactionArg = Parameters<typeof prisma.$transaction>[0]
 type TxClient = TransactionArg extends (
@@ -88,10 +82,6 @@ function extractSurface(metadata: JsonValue | null | undefined): string | null {
   return extractMetadataString(metadata, "surface")
 }
 
-function extractChannel(metadata: JsonValue | null | undefined): string | null {
-  return extractMetadataString(metadata, "channel")
-}
-
 export function requiresPlacementSchedule(
   catalogItem: RewardCatalogItem,
 ): boolean {
@@ -106,10 +96,6 @@ export function requiresPlacementSchedule(
   }
   const surface = extractSurface(catalogItem.metadata)
   if (surface && SCHEDULED_SURFACES.has(surface)) {
-    return true
-  }
-  const channel = extractChannel(catalogItem.metadata)
-  if (channel && SCHEDULED_CHANNELS.has(channel)) {
     return true
   }
   return false
@@ -213,23 +199,6 @@ export async function awardRewards(
     )
 
     if (result.created) {
-      const awardedEvent = {
-        transactionId: result.transaction.id,
-        userId,
-        rewardAmount: result.transaction.rewardAmount,
-        ruleKey: result.rule.key,
-        ruleName: result.rule.name,
-        balanceAfter: result.transaction.balanceAfter,
-        createdAt: result.transaction.createdAt,
-        metadata: result.transaction.metadata,
-        sourceType: result.transaction.sourceType,
-        sourceId: result.transaction.sourceId,
-        targetType: result.transaction.targetType,
-        targetId: result.transaction.targetId,
-        productId: result.transaction.productId,
-      }
-
-      await notifyNovuRewardAwarded(awardedEvent)
       revalidateRewardsLeaderboard("revalidate")
     }
 
@@ -725,18 +694,6 @@ export async function adjustRewards(
   )
 
   if (result.created) {
-    const adjustedEvent = {
-      transactionId: result.transaction.id,
-      userId,
-      amount,
-      balanceAfter: result.transaction.balanceAfter,
-      createdAt: result.transaction.createdAt,
-      actorUserId: result.transaction.actedByUserId,
-      metadata: result.transaction.metadata,
-      notes: result.transaction.notes,
-    }
-
-    await notifyNovuRewardAdjusted(adjustedEvent)
     revalidateRewardsLeaderboard("revalidate")
   }
 

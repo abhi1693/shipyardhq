@@ -157,18 +157,6 @@ const CATALOG: CatalogSeed[] = [
     metadata: { surface: "sticky-banner" },
   },
   {
-    featureKey: REWARD_FEATURE_KEY.newsletterPromotion,
-    planFeatureKey: REWARD_FEATURE_KEY.newsletterPromotion,
-    name: "Newsletter promotion",
-    description: "Reserve a slot in the next weekly newsletter.",
-    category: RewardFeatureCategory.exposure,
-    baseCost: 350,
-    durationSeconds: 7 * DAY,
-    requiresProduct: true,
-    maxPendingPerUser: 1,
-    metadata: { channel: "newsletter" },
-  },
-  {
     featureKey: REWARD_FEATURE_KEY.analyticsAdvanced,
     planFeatureKey: REWARD_FEATURE_KEY.analyticsAdvanced,
     name: "Advanced analytics",

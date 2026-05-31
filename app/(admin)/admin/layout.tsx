@@ -67,18 +67,6 @@ const baseNavItems: NavItem[] = [
     icon: "user",
   },
   {
-    title: "Notifications",
-    url: "#",
-    icon: "bell",
-    items: [
-      {
-        title: "Email broadcasts",
-        url: adminPath("notifications"),
-        icon: "bell",
-      },
-    ],
-  },
-  {
     title: "Feedback",
     url: adminPath("feedback"),
     icon: "feedback",

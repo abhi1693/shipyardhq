@@ -18,7 +18,6 @@ import {
 } from "@/components/atoms/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import SignInCtaButton from "@/components/molecules/SignInCtaButton"
-import NovuInbox from "@/components/molecules/NovuInbox"
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import SignInButton from "@/components/molecules/SignInButton"
 import { RewardMenuItemContent } from "@/components/molecules/RewardMenuItemContent"
@@ -134,7 +133,6 @@ export default function PublicHeaderActions() {
         </Show>
         <Show when="signed-in">
           <div className="flex items-center gap-2">
-            <NovuInbox />
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

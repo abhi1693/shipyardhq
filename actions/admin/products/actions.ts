@@ -7,9 +7,7 @@ import { dispatchEventAsync } from "@/lib/server/events"
 import "@/lib/server/badges" // register badge listeners
 import { deleteBlob, deleteBlobPrefix, isManagedBlobUrl } from "@/lib/blob"
 import "@/lib/server/plans" // register default-plan listeners
-import "@/lib/server/social/twitterBot"
 import "@/lib/server/rewards/listeners"
-import { sendProductPublishedEmail } from "@/lib/server/email/productPublished"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import {
   FeatureEntitlementStatus,
@@ -350,7 +348,6 @@ export async function createProductAction(formData: FormData) {
         { productId: created.id },
         { context: { productId: created.id } },
       )
-      sideEffects.push(sendProductPublishedEmail(created.id))
     }
 
     const results = await Promise.allSettled(sideEffects)
@@ -644,7 +641,6 @@ export async function updateProductAction(
         { productId: updated.id },
         { context: { productId: updated.id } },
       )
-      await sendProductPublishedEmail(updated.id)
     }
 
     return updated
@@ -895,7 +891,6 @@ export async function setProductStatusAction(
         { productId: id },
         { context: { productId: id } },
       )
-      await sendProductPublishedEmail(id)
     }
 
     return result

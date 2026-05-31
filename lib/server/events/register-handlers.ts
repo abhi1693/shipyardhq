@@ -5,10 +5,6 @@ export async function registerEventHandlers(): Promise<void> {
     { path: "@/lib/server/plans", load: () => import("@/lib/server/plans") },
     { path: "@/lib/server/badges", load: () => import("@/lib/server/badges") },
     {
-      path: "@/lib/server/promotions/trendingBoostPromo",
-      load: () => import("@/lib/server/promotions/trendingBoostPromo"),
-    },
-    {
       path: "@/lib/server/rewards/listeners",
       load: () => import("@/lib/server/rewards/listeners"),
     },
@@ -17,20 +13,8 @@ export async function registerEventHandlers(): Promise<void> {
       load: () => import("@/lib/server/rewards/loginReward"),
     },
     {
-      path: "@/lib/server/social/twitterBot",
-      load: () => import("@/lib/server/social/twitterBot"),
-    },
-    {
-      path: "@/lib/server/social/linkedinBot",
-      load: () => import("@/lib/server/social/linkedinBot"),
-    },
-    {
       path: "@/lib/server/leaderboard/listeners",
       load: () => import("@/lib/server/leaderboard/listeners"),
-    },
-    {
-      path: "@/lib/server/claims/cleanup",
-      load: () => import("@/lib/server/claims/cleanup"),
     },
   ]
 

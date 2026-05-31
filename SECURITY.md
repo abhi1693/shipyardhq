@@ -1,6 +1,6 @@
 # Security
 
-This repo is a **Next.js + TypeScript** app with **Clerk auth**, **Prisma/Postgres**, and integrations (e.g., analytics, notifications).
+This repo is a **Next.js + TypeScript** app with **Clerk auth**, **Prisma/Postgres**, and integrations (e.g., analytics and payments).
 
 ## Quick start (local)
 

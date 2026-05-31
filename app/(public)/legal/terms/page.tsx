@@ -78,9 +78,8 @@ export default function TermsOfServicePage() {
               </li>
               <li>
                 Features may include product submissions, leaderboard
-                placements, automated insights, AI-assisted content, out-of-band
-                notifications, and third-party integrations (such as email or
-                social sharing).
+                placements, automated insights, AI-assisted content, and
+                third-party integrations such as social sharing.
               </li>
               <li>
                 We may update or discontinue any feature, and we reserve the
@@ -269,7 +268,7 @@ export default function TermsOfServicePage() {
             </h2>
             <p>
               The Service may link to third-party websites or integrate with
-              vendors such as Clerk, Dodo Payments, Novu, OpenAI, or social
+              vendors such as Clerk, Dodo Payments, OpenAI, or social
               networks. Your use of those services is subject to their own terms
               and privacy policies. We do not control and are not responsible
               for third-party services.
@@ -288,7 +287,7 @@ export default function TermsOfServicePage() {
                 We may suspend or terminate access immediately for violation of
                 these Terms, suspected fraud, non-payment, or to protect the
                 Service or other users. We will make reasonable efforts to
-                notify you unless prohibited by law or security concerns.
+                contact you unless prohibited by law or security concerns.
               </li>
               <li>
                 Upon termination, sections that by nature should survive

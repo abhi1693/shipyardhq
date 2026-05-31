@@ -7,7 +7,7 @@ import {
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
 
-export async function createBillingPortalAction(sendEmail = false) {
+export async function createBillingPortalAction() {
   const { userId } = await auth()
   if (!userId) return { error: "Unauthenticated" }
 
@@ -15,9 +15,7 @@ export async function createBillingPortalAction(sendEmail = false) {
   if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
   if (!user.email) return { error: "User email not found" }
 
-  const link = await createDodoCustomerPortalLinkByEmail(user.email, {
-    sendEmail,
-  })
+  const link = await createDodoCustomerPortalLinkByEmail(user.email)
   if (!link) return { error: "Unable to create billing portal session" }
   return { link }
 }

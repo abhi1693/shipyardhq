@@ -57,7 +57,6 @@ model Product {
   featureEntitlements   FeatureEntitlement[]
   alternatives          AlternativeProduct[] @relation("ProductAlternativeProducts")
   paymentConnector      PaymentConnector?
-  claimAttempts         ProductClaimAttempt[]
 
   @@index([categoryId, createdAt])
   @@index([categoryId, status, createdAt])
@@ -211,16 +210,6 @@ model ProductLeaderboardScore {
   @@index([updatedAt])
 }
 
-model MonthlyLeaderboardNotification {
-  id        String   @id @default(cuid())
-  month     DateTime @unique // normalized month date
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([createdAt])
-  @@index([updatedAt])
-}
-
 enum ProductType {
   saas
   browser_extension
@@ -270,19 +259,6 @@ model ProductMedia {
   @@index([updatedAt])
 }
 
-enum ProductClaimMethod {
-  dns
-  email_otp
-}
-
-enum ProductClaimStatus {
-  pending
-  fulfilled
-  expired
-  cancelled
-  failed
-}
-
 model ProductVerification {
   id                    String    @id @default(cuid())
   productId             String    @unique
@@ -301,25 +277,6 @@ model ProductVerification {
 
   @@index([createdAt])
   @@index([updatedAt])
-}
-
-model ProductClaimAttempt {
-  id           String              @id @default(cuid())
-  productId    String
-  userId       String
-  method       ProductClaimMethod
-  status       ProductClaimStatus  @default(pending)
-  email        String?
-  otpHash      String?
-  otpExpiresAt DateTime?
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([productId, status])
-  @@index([userId, status])
 }
 
 model ProductMetadata {
@@ -761,7 +718,6 @@ model User {
   rewardTransactionsActed RewardTransaction[]      @relation("RewardTransactionActor")
   redemptions             Redemption[]
   featureEntitlements     FeatureEntitlement[]
-  productClaimAttempts    ProductClaimAttempt[]
 
   @@index([status])
   @@index([roleIntent])

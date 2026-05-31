@@ -58,10 +58,8 @@ export const ModelName = {
   AlternativeProduct: 'AlternativeProduct',
   LeaderboardRun: 'LeaderboardRun',
   ProductLeaderboardScore: 'ProductLeaderboardScore',
-  MonthlyLeaderboardNotification: 'MonthlyLeaderboardNotification',
   ProductMedia: 'ProductMedia',
   ProductVerification: 'ProductVerification',
-  ProductClaimAttempt: 'ProductClaimAttempt',
   ProductMetadata: 'ProductMetadata',
   ProductAnalytics: 'ProductAnalytics',
   AnalyticsIngestionRun: 'AnalyticsIngestionRun',
@@ -239,16 +237,6 @@ export const ProductLeaderboardScoreScalarFieldEnum = {
 export type ProductLeaderboardScoreScalarFieldEnum = (typeof ProductLeaderboardScoreScalarFieldEnum)[keyof typeof ProductLeaderboardScoreScalarFieldEnum]
 
 
-export const MonthlyLeaderboardNotificationScalarFieldEnum = {
-  id: 'id',
-  month: 'month',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type MonthlyLeaderboardNotificationScalarFieldEnum = (typeof MonthlyLeaderboardNotificationScalarFieldEnum)[keyof typeof MonthlyLeaderboardNotificationScalarFieldEnum]
-
-
 export const ProductMediaScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
@@ -277,22 +265,6 @@ export const ProductVerificationScalarFieldEnum = {
 } as const
 
 export type ProductVerificationScalarFieldEnum = (typeof ProductVerificationScalarFieldEnum)[keyof typeof ProductVerificationScalarFieldEnum]
-
-
-export const ProductClaimAttemptScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  userId: 'userId',
-  method: 'method',
-  status: 'status',
-  email: 'email',
-  otpHash: 'otpHash',
-  otpExpiresAt: 'otpExpiresAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductClaimAttemptScalarFieldEnum = (typeof ProductClaimAttemptScalarFieldEnum)[keyof typeof ProductClaimAttemptScalarFieldEnum]
 
 
 export const ProductMetadataScalarFieldEnum = {

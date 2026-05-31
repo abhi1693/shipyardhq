@@ -163,15 +163,6 @@ export interface OnboardingAnswerBreakdownItem {
   percentage: number
 }
 
-export interface NewsletterIntentBreakdownItem {
-  id: string
-  label: string
-  subscribed: number
-  optedOut: number
-  total: number
-  subscribedPercentage: number
-}
-
 export interface OnboardingAnswersSummary {
   rangeDays: number
   totalActiveUsers: number
@@ -182,12 +173,6 @@ export interface OnboardingAnswersSummary {
   lastResponseAt: string | null
   roleIntentBreakdown: OnboardingAnswerBreakdownItem[]
   heardFromBreakdown: OnboardingAnswerBreakdownItem[]
-  newsletterSubscribed: number
-  newsletterOptedOut: number
-  newsletterIntentBreakdown: NewsletterIntentBreakdownItem[]
-  newsletterRegisteredSubscribers: number
-  newsletterRegisteredNotSubscribed: number
-  newsletterUnregisteredSubscribers: number
   roleIntentOutcomes: OnboardingOutcomeDeltaItem[]
   heardFromOutcomes: OnboardingOutcomeDeltaItem[]
   signupTimeline: OnboardingSignupPoint[]

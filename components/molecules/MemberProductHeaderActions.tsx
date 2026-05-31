@@ -28,7 +28,6 @@ import {
   Rocket,
   Sparkles,
   Trash2,
-  Twitter,
   Undo2,
 } from "lucide-react"
 
@@ -42,8 +41,6 @@ function getStatusBadgeVariant(status: ProductStatus) {
 
 export default function MemberProductHeaderActions({
   productId,
-  productName,
-  tagline,
   status,
   canChangeStatus,
   statusChangeUnlockAt,
@@ -57,8 +54,6 @@ export default function MemberProductHeaderActions({
   className,
 }: {
   productId: string
-  productName: string
-  tagline?: string | null
   status: ProductStatus
   canChangeStatus: boolean
   statusChangeUnlockAt?: number | null
@@ -101,21 +96,6 @@ export default function MemberProductHeaderActions({
       else toast.success(`Status set to ${next}`)
       router.refresh()
     })
-  }
-
-  function shareOnX() {
-    try {
-      const origin = typeof window !== "undefined" ? window.location.origin : ""
-      const absolute = new URL(publicPath, origin).toString()
-      const intent = new URL("https://x.com/intent/tweet")
-      const cleanedTagline = typeof tagline === "string" ? tagline.trim() : ""
-      const headline = cleanedTagline
-        ? `${productName} — ${cleanedTagline}`
-        : productName
-      intent.searchParams.set("text", `Check out ${headline} on ShipYardHQ`)
-      intent.searchParams.set("url", absolute)
-      window.open(intent.toString(), "_blank")
-    } catch {}
   }
 
   return (
@@ -175,12 +155,6 @@ export default function MemberProductHeaderActions({
           <DropdownMenuItem onSelect={() => router.push(upgradePath)}>
             <Sparkles className="h-4 w-4" />
             Boost & upgrades
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>Share</DropdownMenuLabel>
-          <DropdownMenuItem onSelect={shareOnX}>
-            <Twitter className="h-4 w-4" />
-            Share on X
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() => {

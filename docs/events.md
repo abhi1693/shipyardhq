@@ -1,6 +1,6 @@
 # Event Dispatch Pipeline
 
-Shipyard now routes non-critical product events through a durable outbox so UI calls stay snappy while background work (emails, social posts, analytics refreshes) runs off-thread.
+Shipyard routes non-critical product events through a durable outbox so UI calls stay snappy while background work such as analytics refreshes runs off-thread.
 
 ## Anatomy
 
@@ -13,8 +13,8 @@ Shipyard now routes non-critical product events through a durable outbox so UI c
 ## Adding / Updating Handlers
 
 1. Import `registerEventHandler` from `@/lib/server/events`.
-2. Choose an idempotent `id` (e.g. `notifications.product-upvote`).
-3. Ensure the handler is idempotent. For non-repeatable side effects (emails, tweets) store delivery receipts keyed by `envelopeId + handlerId` or guard with existing uniqueness constraints.
+2. Choose an idempotent `id` (e.g. `products.product-upvote`).
+3. Ensure the handler is idempotent. For non-repeatable side effects, store delivery receipts keyed by `envelopeId + handlerId` or guard with existing uniqueness constraints.
 4. Update publishers to call `dispatchEvent`. All handlers now execute through the async queue.
 
 ## Worker Behaviour

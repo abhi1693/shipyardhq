@@ -10,8 +10,6 @@ export const MEMBER_REWARDS_PATH = `${MEMBER_BASE_PATH}/rewards` as const
 
 export const MEMBER_PRODUCTS_PATH = `${MEMBER_BASE_PATH}/products` as const
 export const MEMBER_PRODUCTS_ADD_PATH = `${MEMBER_PRODUCTS_PATH}/add` as const
-export const MEMBER_PRODUCTS_CLAIM_PATH =
-  `${MEMBER_PRODUCTS_PATH}/claim` as const
 
 export const ADMIN_BASE_PATH = "/admin" as const
 

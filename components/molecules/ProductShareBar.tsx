@@ -11,10 +11,8 @@ import {
 import {
   IconBrandBluesky,
   IconBrandFacebook,
-  IconBrandLinkedin,
   IconBrandReddit,
   IconBrandWhatsapp,
-  IconBrandX,
   IconBrandYcombinator,
   IconLink,
 } from "@tabler/icons-react"
@@ -29,9 +27,7 @@ import { cn } from "@/lib/utils"
 type ShareTarget = {
   key:
     | "copy"
-    | "x"
     | "bluesky"
-    | "linkedin"
     | "facebook"
     | "ycombinator"
     | "reddit"
@@ -108,25 +104,11 @@ export function ProductShareBar({
         iconHoverClass: "group-hover:text-primary",
       },
       {
-        key: "x",
-        label: "Share on X",
-        href: `https://x.com/intent/post?text=${encodeURIComponent(shareText)}`,
-        icon: IconBrandX,
-        iconHoverClass: "group-hover:text-[#0F1419]",
-      },
-      {
         key: "bluesky",
         label: "Share on Bluesky",
         href: `https://bsky.app/intent/compose?text=${encodeURIComponent(shareText)}`,
         icon: IconBrandBluesky,
         iconHoverClass: "group-hover:text-[#1185FE]",
-      },
-      {
-        key: "linkedin",
-        label: "Share on LinkedIn",
-        href: `https://linkedin.com/sharing/share-offsite?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}&utm_source=shipyardhq`,
-        icon: IconBrandLinkedin,
-        iconHoverClass: "group-hover:text-[#0A66C2]",
       },
       {
         key: "facebook",

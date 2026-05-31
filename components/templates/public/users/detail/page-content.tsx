@@ -4,7 +4,6 @@ import { Suspense } from "react"
 import { format } from "date-fns"
 
 import CopyButton from "@/components/molecules/CopyButton"
-import ShareProfileButton from "@/components/molecules/ShareProfileButton"
 import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
@@ -22,10 +21,7 @@ import {
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
 import { UserFeedClient } from "@/components/templates/public/users/detail/UserFeedClient"
-import {
-  HERO_PRIMARY_BUTTON_CLASSES,
-  HERO_SECONDARY_BUTTON_CLASSES,
-} from "@/components/templates/public/categories/hero-button-classes"
+import { HERO_SECONDARY_BUTTON_CLASSES } from "@/components/templates/public/categories/hero-button-classes"
 import { LEADERBOARD_REWARDS_PATH, userPath } from "@/lib/routes"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { getUserProfilePayload } from "@/lib/users/page-cache"
@@ -174,12 +170,6 @@ export async function UserProfilePageContent({ params }: PageProps) {
                 </div>
 
                 <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
-                  <ShareProfileButton
-                    path={profilePath}
-                    fullName={fullName}
-                    productCount={totalProducts}
-                    className={HERO_PRIMARY_BUTTON_CLASSES}
-                  />
                   <CopyButton
                     text={profilePath}
                     resolveAbsolute

@@ -32,7 +32,7 @@ export const PRICING_FAQS = [
   {
     question: "Can I start for free and upgrade later?",
     answer:
-      "Absolutely. Every maker can list for free. Upgrade any product for extra reach—featured badges, sponsored placements, newsletter spots—whenever you need a boost.",
+      "Absolutely. Every maker can list for free. Upgrade any product for extra reach with featured badges and sponsored placements whenever you need a boost.",
   },
   {
     question: "Do plans renew automatically?",

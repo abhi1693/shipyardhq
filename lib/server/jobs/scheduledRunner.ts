@@ -6,9 +6,6 @@ import {
   type IngestionJobKey,
 } from "@/lib/server/analytics/ingestion"
 import { cleanupExpiredUnusedDodoDiscounts } from "@/lib/server/dodoDiscountCleanup"
-import { sendWeeklyNewsletterEmails } from "@/lib/server/email/weeklyNewsletter"
-import { runFounderVisibilityEngagement } from "@/lib/server/engagement/founderVisibility"
-import { runMicroLeaderboardEngagement } from "@/lib/server/engagement/microLeaderboards"
 import { dispatchEvent } from "@/lib/server/events"
 import { APP_EVENTS } from "@/lib/server/events/constants"
 import {
@@ -21,12 +18,11 @@ import {
   generateLeaderboardRun,
 } from "@/lib/server/leaderboard/v2"
 import {
-  announceLeaderboardPeriodWinners,
-  announceLeaderboardWinnersForRun,
+  processLeaderboardPeriodWinners,
+  processLeaderboardWinnersForRun,
   type PeriodCadence,
 } from "@/lib/server/leaderboard/winners"
 import { expireBoostedPlans } from "@/lib/server/planExpiration"
-import { runFeaturedPlanPromoCron } from "@/lib/server/promotions/featuredPlanPromo"
 import {
   BACKLINK_CRON_LOG_PREFIX,
   runBacklinkVerification,
@@ -63,17 +59,13 @@ const SCHEDULED_JOB_HANDLERS = {
   "badges-trending": runBadgesTrendingJob,
   "dodo-discounts-cleanup": runDodoDiscountsCleanupJob,
   "expire-plans": runExpirePlansJob,
-  "founder-visibility-owner": runFounderVisibilityOwnerJob,
   "leaderboard-highlights-day": () => runLeaderboardHighlightsJob("day"),
   "leaderboard-highlights-week": () => runLeaderboardHighlightsJob("week"),
   "leaderboard-refresh": runLeaderboardRefreshJob,
-  "micro-leaderboards-midweek": runMicroLeaderboardsMidweekJob,
   "monthly-leaderboard": runMonthlyLeaderboardJob,
-  "promotions-featured": runPromotionsFeaturedJob,
   "rewards-backlinks": runRewardsBacklinksJob,
   "rewards-placements": runRewardsPlacementsJob,
   "rewards-streak": runRewardsStreakJob,
-  "weekly-newsletter": runWeeklyNewsletterJob,
 } satisfies Record<ScheduledJobName, ScheduledJobHandler>
 
 export async function runScheduledJob(
@@ -118,16 +110,6 @@ async function runExpirePlansJob() {
   return { success: true, ...result }
 }
 
-async function runWeeklyNewsletterJob() {
-  console.info("[scheduled.weekly-newsletter] run started")
-  const result = await sendWeeklyNewsletterEmails()
-  console.info("[scheduled.weekly-newsletter] run completed", {
-    sent: result.sent,
-    skipped: result.skipped,
-  })
-  return { success: true, ...result }
-}
-
 async function runMonthlyLeaderboardJob() {
   const targetMonth = getPreviousMonth(new Date())
   const periodStart = normalizeMonth(targetMonth)
@@ -151,21 +133,20 @@ async function runMonthlyLeaderboardJob() {
     windowEnd: result.windowEnd.toISOString(),
   })
   revalidateMonthlyLeaderboard(monthKey, "revalidate")
-  const notification = await announceLeaderboardWinnersForRun(result.runId)
-  console.info("[scheduled.monthly-leaderboard] winner notification", {
+  const winners = await processLeaderboardWinnersForRun(result.runId)
+  console.info("[scheduled.monthly-leaderboard] winner processing", {
     monthKey,
-    notified: notification.notified,
-    alreadyNotified: notification.alreadyNotified,
-    recipientCount: notification.recipients.length,
-    skipped: notification.skipped,
+    processed: winners.processed,
+    alreadyProcessed: winners.alreadyProcessed,
+    skipped: winners.skipped,
   })
 
-  return { success: true, notification, result }
+  return { success: true, winners, result }
 }
 
 async function runLeaderboardHighlightsJob(period: PeriodCadence) {
   const limit = 3
-  const result = await announceLeaderboardPeriodWinners({ period, limit })
+  const result = await processLeaderboardPeriodWinners({ period, limit })
   return {
     success: true,
     limit,
@@ -180,21 +161,6 @@ async function runLeaderboardRefreshJob() {
     asOf: now.toISOString(),
   })
   return { success: true, enqueued: true, asOf: now.toISOString() }
-}
-
-async function runMicroLeaderboardsMidweekJob() {
-  console.info("[scheduled.micro-leaderboards.midweek] run started")
-  const result = await runMicroLeaderboardEngagement({
-    mode: "midweek",
-  })
-  console.info("[scheduled.micro-leaderboards.midweek] run completed", {
-    weekKey: result.weekKey,
-    candidates: result.candidates,
-    sent: result.sent,
-    skipped: result.skipped,
-    reasons: result.reasons,
-  })
-  return { success: true, ...result }
 }
 
 async function runRewardsPlacementsJob() {
@@ -364,50 +330,6 @@ async function runAnalyticsSyncJob() {
     days: 1,
     jobs: ANALYTICS_SYNC_JOBS,
   })
-}
-
-async function runPromotionsFeaturedJob() {
-  console.info("[scheduled.promotions.featured] run started")
-  const result = await runFeaturedPlanPromoCron()
-  console.info("[scheduled.promotions.featured] run completed", {
-    success: result.success,
-    dryRun: result.dryRun,
-    runDay: result.runDay,
-    availableSlots: result.slots.available,
-    paidFeaturedCustomers: result.slots.paidFeaturedCustomers,
-    candidates: result.candidates,
-    pendingOffers: result.pendingOffers,
-    prepared: result.prepared,
-    notified: result.notified,
-    skipped: result.skipped,
-    reasons: result.reasons,
-  })
-
-  if (!result.success) {
-    throw new Error(
-      `Featured promotion job failed: ${JSON.stringify(result.reasons)}`,
-    )
-  }
-
-  return result
-}
-
-async function runFounderVisibilityOwnerJob() {
-  console.info("[scheduled.founder-visibility] run started", {
-    audience: "owner",
-  })
-  const result = await runFounderVisibilityEngagement({
-    audience: "owner",
-  })
-  console.info("[scheduled.founder-visibility] run completed", {
-    audience: result.audience,
-    weekKey: result.window.weekKey,
-    candidates: result.candidates,
-    sent: result.sent,
-    skipped: result.skipped,
-    reasons: result.reasons,
-  })
-  return { success: true, ...result }
 }
 
 async function runDodoDiscountsCleanupJob() {

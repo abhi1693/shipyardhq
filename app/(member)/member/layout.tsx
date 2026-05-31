@@ -19,7 +19,6 @@ import {
   MEMBER_FEEDBACK_PATH,
   MEMBER_ONBOARDING_PATH,
   MEMBER_OVERVIEW_PATH,
-  MEMBER_PRODUCTS_CLAIM_PATH,
   MEMBER_PRODUCTS_PATH,
   MEMBER_REWARDS_PATH,
 } from "@/lib/routes"
@@ -45,11 +44,6 @@ const navItems: NavItem[] = [
     title: "Products",
     url: MEMBER_PRODUCTS_PATH,
     icon: "product",
-  },
-  {
-    title: "Claim products",
-    url: MEMBER_PRODUCTS_CLAIM_PATH,
-    icon: "link",
   },
   {
     title: "Feedback",

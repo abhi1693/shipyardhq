@@ -297,7 +297,7 @@ export function LeaderboardGuidePageContent() {
                   </h3>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                     Featured placements keep your product in the spotlight
-                    across sponsored placements, newsletters, and leaderboard
+                    across sponsored placements and leaderboard
                     hero cards. It’s the fastest way to convert momentum into
                     lasting visibility.
                   </p>
@@ -348,7 +348,7 @@ export function LeaderboardGuidePageContent() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="mt-1 h-2 w-2 rounded-full bg-[color:var(--brand-1)]" />
-                        Newsletter and social shout-outs to the community
+                        Social shout-outs to the community
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="mt-1 h-2 w-2 rounded-full bg-[color:var(--brand-1)]" />

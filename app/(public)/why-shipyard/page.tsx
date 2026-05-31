@@ -60,7 +60,7 @@ const CORE_REASONS = [
     icon: <IconRocket size={24} />,
     title: "Promotion on your terms",
     description:
-      "Upgrade placements instantly—sponsored placements, newsletter features, leaderboard boosts—without rebuilding your listing.",
+      "Upgrade placements instantly with sponsored placements and leaderboard boosts without rebuilding your listing.",
   },
 ]
 
@@ -124,7 +124,7 @@ const COMPARISON_POINTS = [
   {
     feature: "Post-launch momentum",
     shipyard:
-      "Ongoing community spotlights, editorial newsletters, and syndication keep traction compounding.",
+      "Ongoing community spotlights and syndication keep traction compounding.",
     others:
       "After launch day your listing sinks down-page with little ongoing amplification.",
   },

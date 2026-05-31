@@ -391,10 +391,8 @@ export const ModelName = {
   AlternativeProduct: 'AlternativeProduct',
   LeaderboardRun: 'LeaderboardRun',
   ProductLeaderboardScore: 'ProductLeaderboardScore',
-  MonthlyLeaderboardNotification: 'MonthlyLeaderboardNotification',
   ProductMedia: 'ProductMedia',
   ProductVerification: 'ProductVerification',
-  ProductClaimAttempt: 'ProductClaimAttempt',
   ProductMetadata: 'ProductMetadata',
   ProductAnalytics: 'ProductAnalytics',
   AnalyticsIngestionRun: 'AnalyticsIngestionRun',
@@ -449,7 +447,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "monthlyLeaderboardNotification" | "productMedia" | "productVerification" | "productClaimAttempt" | "productMetadata" | "productAnalytics" | "analyticsIngestionRun" | "productTrafficDaily" | "productTrafficReferrerDaily" | "productTrafficChannelDaily" | "productTrafficBrowserDaily" | "productTrafficOperatingSystemDaily" | "productTrafficDeviceDaily" | "productTrafficCountryDaily" | "productTrafficCityDaily" | "siteTrafficDaily" | "siteTrafficReferrerDaily" | "siteTrafficBrowserDaily" | "siteTrafficOperatingSystemDaily" | "siteTrafficDeviceDaily" | "siteTrafficCountryDaily" | "siteTrafficRegionDaily" | "siteTrafficCityDaily" | "productUpvote" | "user" | "memberFeedback" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "analyticsIngestionRun" | "productTrafficDaily" | "productTrafficReferrerDaily" | "productTrafficChannelDaily" | "productTrafficBrowserDaily" | "productTrafficOperatingSystemDaily" | "productTrafficDeviceDaily" | "productTrafficCountryDaily" | "productTrafficCityDaily" | "siteTrafficDaily" | "siteTrafficReferrerDaily" | "siteTrafficBrowserDaily" | "siteTrafficOperatingSystemDaily" | "siteTrafficDeviceDaily" | "siteTrafficCountryDaily" | "siteTrafficRegionDaily" | "siteTrafficCityDaily" | "productUpvote" | "user" | "memberFeedback" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -971,80 +969,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    MonthlyLeaderboardNotification: {
-      payload: Prisma.$MonthlyLeaderboardNotificationPayload<ExtArgs>
-      fields: Prisma.MonthlyLeaderboardNotificationFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.MonthlyLeaderboardNotificationFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.MonthlyLeaderboardNotificationFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>
-        }
-        findFirst: {
-          args: Prisma.MonthlyLeaderboardNotificationFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.MonthlyLeaderboardNotificationFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>
-        }
-        findMany: {
-          args: Prisma.MonthlyLeaderboardNotificationFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>[]
-        }
-        create: {
-          args: Prisma.MonthlyLeaderboardNotificationCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>
-        }
-        createMany: {
-          args: Prisma.MonthlyLeaderboardNotificationCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.MonthlyLeaderboardNotificationCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>[]
-        }
-        delete: {
-          args: Prisma.MonthlyLeaderboardNotificationDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>
-        }
-        update: {
-          args: Prisma.MonthlyLeaderboardNotificationUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>
-        }
-        deleteMany: {
-          args: Prisma.MonthlyLeaderboardNotificationDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.MonthlyLeaderboardNotificationUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.MonthlyLeaderboardNotificationUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>[]
-        }
-        upsert: {
-          args: Prisma.MonthlyLeaderboardNotificationUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>
-        }
-        aggregate: {
-          args: Prisma.MonthlyLeaderboardNotificationAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateMonthlyLeaderboardNotification>
-        }
-        groupBy: {
-          args: Prisma.MonthlyLeaderboardNotificationGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MonthlyLeaderboardNotificationGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.MonthlyLeaderboardNotificationCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MonthlyLeaderboardNotificationCountAggregateOutputType> | number
-        }
-      }
-    }
     ProductMedia: {
       payload: Prisma.$ProductMediaPayload<ExtArgs>
       fields: Prisma.ProductMediaFieldRefs
@@ -1190,80 +1114,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductVerificationCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductVerificationCountAggregateOutputType> | number
-        }
-      }
-    }
-    ProductClaimAttempt: {
-      payload: Prisma.$ProductClaimAttemptPayload<ExtArgs>
-      fields: Prisma.ProductClaimAttemptFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ProductClaimAttemptFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ProductClaimAttemptFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>
-        }
-        findFirst: {
-          args: Prisma.ProductClaimAttemptFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ProductClaimAttemptFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>
-        }
-        findMany: {
-          args: Prisma.ProductClaimAttemptFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>[]
-        }
-        create: {
-          args: Prisma.ProductClaimAttemptCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>
-        }
-        createMany: {
-          args: Prisma.ProductClaimAttemptCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ProductClaimAttemptCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>[]
-        }
-        delete: {
-          args: Prisma.ProductClaimAttemptDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>
-        }
-        update: {
-          args: Prisma.ProductClaimAttemptUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>
-        }
-        deleteMany: {
-          args: Prisma.ProductClaimAttemptDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ProductClaimAttemptUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ProductClaimAttemptUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>[]
-        }
-        upsert: {
-          args: Prisma.ProductClaimAttemptUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductClaimAttemptPayload>
-        }
-        aggregate: {
-          args: Prisma.ProductClaimAttemptAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProductClaimAttempt>
-        }
-        groupBy: {
-          args: Prisma.ProductClaimAttemptGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductClaimAttemptGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ProductClaimAttemptCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductClaimAttemptCountAggregateOutputType> | number
         }
       }
     }
@@ -4312,16 +4162,6 @@ export const ProductLeaderboardScoreScalarFieldEnum = {
 export type ProductLeaderboardScoreScalarFieldEnum = (typeof ProductLeaderboardScoreScalarFieldEnum)[keyof typeof ProductLeaderboardScoreScalarFieldEnum]
 
 
-export const MonthlyLeaderboardNotificationScalarFieldEnum = {
-  id: 'id',
-  month: 'month',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type MonthlyLeaderboardNotificationScalarFieldEnum = (typeof MonthlyLeaderboardNotificationScalarFieldEnum)[keyof typeof MonthlyLeaderboardNotificationScalarFieldEnum]
-
-
 export const ProductMediaScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
@@ -4350,22 +4190,6 @@ export const ProductVerificationScalarFieldEnum = {
 } as const
 
 export type ProductVerificationScalarFieldEnum = (typeof ProductVerificationScalarFieldEnum)[keyof typeof ProductVerificationScalarFieldEnum]
-
-
-export const ProductClaimAttemptScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  userId: 'userId',
-  method: 'method',
-  status: 'status',
-  email: 'email',
-  otpHash: 'otpHash',
-  otpExpiresAt: 'otpExpiresAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductClaimAttemptScalarFieldEnum = (typeof ProductClaimAttemptScalarFieldEnum)[keyof typeof ProductClaimAttemptScalarFieldEnum]
 
 
 export const ProductMetadataScalarFieldEnum = {
@@ -5241,34 +5065,6 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'ProductClaimMethod'
- */
-export type EnumProductClaimMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductClaimMethod'>
-
-
-
-/**
- * Reference to a field of type 'ProductClaimMethod[]'
- */
-export type ListEnumProductClaimMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductClaimMethod[]'>
-
-
-
-/**
- * Reference to a field of type 'ProductClaimStatus'
- */
-export type EnumProductClaimStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductClaimStatus'>
-
-
-
-/**
- * Reference to a field of type 'ProductClaimStatus[]'
- */
-export type ListEnumProductClaimStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductClaimStatus[]'>
-
-
-
-/**
  * Reference to a field of type 'AnalyticsDataSource'
  */
 export type EnumAnalyticsDataSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AnalyticsDataSource'>
@@ -5622,10 +5418,8 @@ export type GlobalOmitConfig = {
   alternativeProduct?: Prisma.AlternativeProductOmit
   leaderboardRun?: Prisma.LeaderboardRunOmit
   productLeaderboardScore?: Prisma.ProductLeaderboardScoreOmit
-  monthlyLeaderboardNotification?: Prisma.MonthlyLeaderboardNotificationOmit
   productMedia?: Prisma.ProductMediaOmit
   productVerification?: Prisma.ProductVerificationOmit
-  productClaimAttempt?: Prisma.ProductClaimAttemptOmit
   productMetadata?: Prisma.ProductMetadataOmit
   productAnalytics?: Prisma.ProductAnalyticsOmit
   analyticsIngestionRun?: Prisma.AnalyticsIngestionRunOmit

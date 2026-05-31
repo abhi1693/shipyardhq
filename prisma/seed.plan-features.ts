@@ -50,11 +50,6 @@ const FEATURES = [
     name: "Sticky Banner",
     description: "Sticky header visibility",
   },
-  {
-    key: "newsletterPromotion",
-    name: "Newsletter Promotion",
-    description: "Promoted in email campaigns",
-  },
 ]
 
 export async function seedPlanFeatures(prisma: PrismaClient) {

@@ -65,7 +65,6 @@ export type LeaderboardMonthlyWinnersEvent = {
     rank: number
     name: string
     slug: string
-    twitterHandle?: string | null
   }>
 }
 
@@ -83,7 +82,6 @@ export type LeaderboardPeriodicWinnersEvent = {
     rank: number
     name: string
     slug: string
-    twitterHandle?: string | null
   }>
 }
 
@@ -148,10 +146,6 @@ export type RewardsDailyLoginEvent = {
   awardedAt: string
 }
 
-export type ClaimAttemptsCleanupEvent = {
-  readonly __envelopeId?: string
-}
-
 type AppEvents = {
   [APP_EVENTS.PRODUCT_CREATED]: ProductCreatedEvent
   [APP_EVENTS.PRODUCT_UPDATED]: ProductUpdatedEvent
@@ -168,7 +162,6 @@ type AppEvents = {
   [APP_EVENTS.REWARDS_ADJUSTED]: RewardsAdjustedEvent
   [APP_EVENTS.REWARDS_REFUNDED]: RewardsRefundedEvent
   [APP_EVENTS.REWARDS_DAILY_LOGIN]: RewardsDailyLoginEvent
-  [APP_EVENTS.CLAIM_ATTEMPTS_CLEANUP]: ClaimAttemptsCleanupEvent
 }
 
 type Handler<K extends keyof AppEvents> = (

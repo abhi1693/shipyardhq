@@ -4,14 +4,12 @@ import prisma from "@/lib/prisma"
 import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 import type {
-  NewsletterIntentBreakdownItem,
   OnboardingAnswerBreakdownItem,
   OnboardingAnswersSummary,
   OnboardingOutcomeDeltaItem,
   OnboardingSignupPoint,
 } from "@/types/analytics"
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
-import { fetchAllNovuSubscriberEmails } from "@/lib/server/notifications/novu"
 
 const ROLE_INTENT_LABELS: Record<string, string> = {
   "launch-product": "Launch a product",
@@ -29,23 +27,6 @@ const HEARD_FROM_LABELS: Record<string, string> = {
   friend: "Friend or colleague",
   other: "Other",
 }
-
-const NEWSLETTER_INTENT_GROUPS: {
-  id: string
-  label: string
-  intents: Set<string>
-}[] = [
-  {
-    id: "builder",
-    label: "Builders",
-    intents: new Set(["launch-product", "manage-team"]),
-  },
-  {
-    id: "explorer",
-    label: "Explorers",
-    intents: new Set(["explore"]),
-  },
-]
 
 const SIGNUP_TIMELINE_LABEL_FORMAT = "MMM d"
 
@@ -88,14 +69,9 @@ type RecentOnboardingUser = Prisma.UserGetPayload<{
 type CompletedMember = Prisma.UserGetPayload<{
   select: {
     id: true
-    email: true
     roleIntent: true
     heardFrom: true
   }
-}>
-
-type RegisteredUserEmail = Prisma.UserGetPayload<{
-  select: { email: true }
 }>
 
 type DistinctUserSelection = { userId: string }
@@ -259,8 +235,6 @@ export async function getOnboardingAnswersSummary(
     pendingInRange,
     latestCompleted,
     completedMembers,
-    newsletterSubscriberEmails,
-    registeredUsers,
     signupRecords,
   ] = await Promise.all([
     prisma.user.count({
@@ -293,15 +267,10 @@ export async function getOnboardingAnswersSummary(
       where: completedRangeWhere,
       select: {
         id: true,
-        email: true,
         roleIntent: true,
         heardFrom: true,
       },
     }) as Promise<CompletedMember[]>,
-    fetchAllNovuSubscriberEmails(),
-    prisma.user.findMany({
-      select: { email: true },
-    }) as Promise<RegisteredUserEmail[]>,
     prisma.user.findMany({
       where: {
         status: "active" as const,
@@ -360,88 +329,6 @@ export async function getOnboardingAnswersSummary(
   const pendingUsers = pendingInRange
 
   const lastResponseAt = latestCompleted?.updatedAt?.toISOString() ?? null
-
-  const newsletterEmailSet = new Set(
-    newsletterSubscriberEmails.map((email: string) => email.toLowerCase()),
-  )
-
-  const registeredEmailSet = new Set(
-    registeredUsers
-      .map((user: RegisteredUserEmail) => user.email?.toLowerCase())
-      .filter(Boolean) as string[],
-  )
-
-  let newsletterRegisteredSubscribers = 0
-
-  for (const email of registeredEmailSet) {
-    if (newsletterEmailSet.has(email)) {
-      newsletterRegisteredSubscribers += 1
-    }
-  }
-
-  const newsletterRegisteredNotSubscribed = Math.max(
-    registeredEmailSet.size - newsletterRegisteredSubscribers,
-    0,
-  )
-
-  const newsletterUnregisteredSubscribers = Math.max(
-    newsletterEmailSet.size - newsletterRegisteredSubscribers,
-    0,
-  )
-
-  let newsletterSubscribed = 0
-  let newsletterOptedOut = 0
-
-  const intentTallies = new Map<string, NewsletterIntentBreakdownItem>()
-
-  for (const member of completedMembers) {
-    const email = member.email?.toLowerCase()
-    if (!email) continue
-
-    const isSubscribed = newsletterEmailSet.has(email)
-    if (isSubscribed) {
-      newsletterSubscribed += 1
-    } else {
-      newsletterOptedOut += 1
-    }
-
-    const intent = member.roleIntent
-    if (!intent) continue
-
-    const group = NEWSLETTER_INTENT_GROUPS.find((item) =>
-      item.intents.has(intent),
-    )
-
-    if (!group) continue
-
-    const existing = intentTallies.get(group.id) ?? {
-      id: group.id,
-      label: group.label,
-      subscribed: 0,
-      optedOut: 0,
-      total: 0,
-      subscribedPercentage: 0,
-    }
-
-    if (isSubscribed) {
-      existing.subscribed += 1
-    } else {
-      existing.optedOut += 1
-    }
-
-    intentTallies.set(group.id, existing)
-  }
-
-  const newsletterIntentBreakdown = Array.from(intentTallies.values())
-    .map((item) => {
-      const total = item.subscribed + item.optedOut
-      return {
-        ...item,
-        total,
-        subscribedPercentage: total === 0 ? 0 : (item.subscribed / total) * 100,
-      }
-    })
-    .sort((a, b) => b.total - a.total)
 
   const completedUserIds = completedMembers
     .map((member: (typeof completedMembers)[number]) => member.id)
@@ -603,12 +490,6 @@ export async function getOnboardingAnswersSummary(
     lastResponseAt,
     roleIntentBreakdown,
     heardFromBreakdown,
-    newsletterSubscribed,
-    newsletterOptedOut,
-    newsletterIntentBreakdown,
-    newsletterRegisteredSubscribers,
-    newsletterRegisteredNotSubscribed,
-    newsletterUnregisteredSubscribers,
     roleIntentOutcomes,
     heardFromOutcomes,
     signupTimeline,

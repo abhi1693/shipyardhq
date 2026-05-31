@@ -6,7 +6,6 @@ import {
   trackLoginInGa,
   trackSignupInGa,
 } from "@/lib/server/analytics/loginTracking"
-import { subscribeUserToBroadcastTopic } from "@/lib/server/notifications/novuBroadcast"
 
 export const dynamic = "force-dynamic"
 
@@ -53,16 +52,12 @@ async function handleSessionCreated(event: WebhookEvent) {
   }
 
   await trackLoginInGa({ method })
-
-  await subscribeClerkUserToBroadcast(user)
 }
 
 async function handleUserCreated(event: WebhookEvent) {
   if (event.type !== "user.created") return
 
   const user = event.data as SessionUserPayload
-
-  await subscribeClerkUserToBroadcast(user)
 
   const method = pickMethodFromUser(user)
   if (!method) {
@@ -87,11 +82,7 @@ type SessionEmailAddress = {
 
 type SessionUserPayload = {
   id?: string
-  primary_email_address_id?: string | null
   email_addresses?: SessionEmailAddress[]
-  first_name?: string | null
-  last_name?: string | null
-  image_url?: string | null
 }
 
 function pickMethodFromUser(user?: SessionUserPayload) {
@@ -123,45 +114,4 @@ function sanitizeLinkedType(value: unknown) {
 
   const lower = provider.toLowerCase()
   return `${lower.charAt(0).toUpperCase()}${lower.slice(1)}`
-}
-
-async function subscribeClerkUserToBroadcast(
-  user?: SessionUserPayload,
-): Promise<void> {
-  const subscriberId = sanitizeClerkString(user?.id)
-  const email = getPrimaryEmailFromUser(user)
-
-  if (!subscriberId || !email) return
-
-  await subscribeUserToBroadcastTopic({
-    subscriberId,
-    email,
-    firstName: sanitizeClerkString(user?.first_name),
-    lastName: sanitizeClerkString(user?.last_name),
-    avatar: sanitizeClerkString(user?.image_url),
-  })
-}
-
-function sanitizeClerkString(value?: string | null): string | undefined {
-  const raw = typeof value === "string" ? value.trim() : ""
-  return raw || undefined
-}
-
-function getPrimaryEmailFromUser(
-  user?: SessionUserPayload,
-): string | undefined {
-  const emails: SessionEmailAddress[] = Array.isArray(user?.email_addresses)
-    ? user?.email_addresses || []
-    : []
-
-  if (emails.length === 0) return undefined
-
-  const primaryId = sanitizeClerkString(user?.primary_email_address_id)
-  const primary =
-    (primaryId &&
-      emails.find((email) => sanitizeClerkString(email?.id) === primaryId)) ||
-    emails[0]
-
-  const email = sanitizeClerkString(primary?.email_address)
-  return email
 }

@@ -498,8 +498,6 @@ export default async function ViewUserProductPage({
         headingActionsLeft={
           <MemberProductHeaderActions
             productId={product.id}
-            productName={product.name}
-            tagline={product.tagline}
             status={product.status as any}
             canChangeStatus={isFreePlan}
             statusChangeUnlockAt={statusChangeUnlockAt}

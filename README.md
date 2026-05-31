@@ -51,22 +51,6 @@ Configure these server-side env vars in production:
 - `R2_ENDPOINT`
 - `R2_PUBLIC_BASE_URL` (defaults to `https://media.shipyardhq.dev`)
 
-## Novu Inbox
-
-- In-app notifications render via `<Inbox />` from `components/molecules/NovuInbox.tsx` with `NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER`.
-- Enable Security HMAC in the Novu In-App provider; `NovuInbox` fetches the per-user subscriber hash from `GET /api/novu/hmac` (derived from `NOVU_SECRET_KEY` and the Clerk user id) before mounting the widget.
-- Server triggers live in `lib/server/notifications/novu.ts`; call `triggerNovuWorkflow` with the Novu workflow id and subscriber id to send directly (no event bus hop).
-- Configure `NOVU_SECRET_KEY` for access. Set `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` to the workflow id for product-related Novu notifications (upvotes, reviews).
-- Product publish confirmations also flow through `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` (kind `product_published`) so they render in inbox and email.
-- Rewards notifications route through Novu as well; set `NOVU_WORKFLOW_REWARDS_NOTIFICATIONS` and they will appear under the Rewards inbox tab (tagged `rewards`).
-- Payment connector sync errors send via `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` with kind `product_payment_sync_error`.
-- Leaderboard winners send via `NOVU_WORKFLOW_PRODUCT_NOTIFICATIONS` with kind `leaderboard_monthly_winner`.
-- Weekly newsletter now sends via Novu workflow `weekly-newsletter` (override with `NOVU_WORKFLOW_WEEKLY_NEWSLETTER`); kind `weekly_newsletter`, email-only.
-- New member onboarding uses the Novu workflow id `welcome-user`; override with `NOVU_WORKFLOW_WELCOME_USER` if your workflow id differs.
-- Backlink reminders now send through the rewards workflow with kind `reward_backlink_reminder` and tag `backlink`.
-- System updates from the Notification Center use the Novu workflow id `system-updates`; override with `NOVU_WORKFLOW_SYSTEM_UPDATES` (falls back to `NOVU_WORKFLOW_ADMIN_BROADCAST` for legacy setups).
-- Use `ensureNovuSubscriber` when you need to upsert subscriber profile data before triggering.
-
 ## Analytics Instrumentation
 
 - Product detail pages rely on GA-based reporting; the legacy `/api/analytics/ingest` beacon has been removed.
@@ -77,22 +61,6 @@ Configure these server-side env vars in production:
 ## Contact
 
 Questions or feedback? Email `support@shipyardhq.dev` or say hi on X: https://x.com/shipyardhq
-
-## Twitter Bot
-
-- Automation: Shipyard can announce major milestones on X (Twitter) when a product launches, earns featured/trending badges, or wins the monthly leaderboard. Set `TWITTER_BOT_ENABLED=true` to activate the bot once credentials are in place.
-- Credentials: Provide `TWITTER_APP_KEY`, `TWITTER_APP_SECRET`, `TWITTER_ACCESS_TOKEN`, and `TWITTER_ACCESS_SECRET` in `.env.local` (long-lived access tokens with write scope).
-- Safety: Add `TWITTER_BOT_DRY_RUN=true` to log outbound tweets without publishing—handy for staging checks.
-- The bot respects a per-event cooldown, so the same product will not be tweeted repeatedly within a short window even if badges are reassigned.
-
-## LinkedIn Bot
-
-- Automation: Mirrors the Twitter bot for launches, featured/trending/editor's pick badges, and leaderboard wins. It is always on; add credentials to start posting.
-- Credentials: Supply `LINKEDIN_CLIENT_ID` and `LINKEDIN_CLIENT_SECRET` in `.env.local`. Optional: `LINKEDIN_STATE_SECRET` (uses `LINKEDIN_CLIENT_SECRET` as a fallback), `LINKEDIN_REDIRECT_URI` (defaults to `/api/linkedin/oauth` on the app host), `LINKEDIN_COMPANY_PAGE_URL` (defaults to Shipyard HQ), and `LINKEDIN_ORGANIZATION_URN` to skip HTML scraping.
-- Token bootstrap: Hit `/api/linkedin/oauth` to mint a signed, short-lived `state` and log the authorization URL. After approving, LinkedIn redirects back with the `code` and `state` and renders a success page once the token is stored. The bot automatically reads the cached token and resolves the org URN.
-- Safety: Add `LINKEDIN_BOT_DRY_RUN=true` to log outbound posts without publishing—useful for staging checks.
-- Cooldown: Shares reuse the same 6-hour per-event throttle to avoid duplicate announcements. Throttle state is stored in Redis when available, so it survives restarts; if Redis is unavailable, throttling falls back to in-process memory.
-- Troubleshooting: If LinkedIn returns `401 unauthorized` with `Member is restricted`, the member who approved OAuth may not be allowed to post on behalf of the organization (or the token was revoked). Re-run `/api/linkedin/oauth` and approve with a LinkedIn account that is an admin of the target organization page.
 
 ## Reddit Outreach Bot
 
