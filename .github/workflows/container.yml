@@ -1,9 +1,8 @@
 name: Container Image
 
 on:
-  push:
-    branches: [master]
-  workflow_dispatch:
+  release:
+    types: [published]
 
 permissions:
   contents: read
@@ -151,8 +150,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=sha,prefix=sha-,format=long
-            type=raw,value=master,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
 
       - name: Build and push
         uses: docker/build-push-action@v7
