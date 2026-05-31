@@ -235,17 +235,6 @@ class ProductEditForm(forms.ModelForm):
         required=False,
         widget=forms.CheckboxInput(attrs={"class": "member-form-checkbox"}),
     )
-    paid_publish = forms.BooleanField(
-        label="Paid launch confirmed",
-        required=False,
-        widget=forms.CheckboxInput(attrs={"class": "member-form-checkbox"}),
-    )
-    featured_badge_verified = forms.BooleanField(
-        label="Featured badge verified",
-        required=False,
-        widget=forms.CheckboxInput(attrs={"class": "member-form-checkbox"}),
-    )
-
     class Meta:
         model = Product
         fields = (
@@ -295,8 +284,6 @@ class ProductEditForm(forms.ModelForm):
         if self.instance.pk and self.instance.starting_price_cents is not None:
             self.fields["starting_price"].initial = Decimal(self.instance.starting_price_cents) / Decimal("100")
             self.fields["currency_code"].initial = self.instance.currency_code
-            self.fields["paid_publish"].initial = bool(self.instance.paid_publish_at)
-            self.fields["featured_badge_verified"].initial = bool(self.instance.featured_badge_verified_at)
 
         if user.is_superuser:
             self.fields["owner"].queryset = User.objects.filter(is_active=True).order_by("email")
@@ -305,8 +292,6 @@ class ProductEditForm(forms.ModelForm):
         else:
             self.fields.pop("owner")
             self.fields.pop("slug")
-            self.fields.pop("paid_publish")
-            self.fields.pop("featured_badge_verified")
 
         if self.instance.pk:
             self.fields["categories"].initial = Category.objects.filter(product_assignments__product=self.instance)
@@ -365,7 +350,6 @@ class ProductEditForm(forms.ModelForm):
         if "slug" not in self.fields:
             product.slug = self.instance.slug if self.instance.pk else self._generate_unique_slug(product.name)
         self._sync_pricing(product)
-        self._sync_publish_gate(product)
         self._sync_workflow_status(product)
         self._sync_status_dates(product)
 
@@ -417,26 +401,6 @@ class ProductEditForm(forms.ModelForm):
 
         product.starting_price_cents = int((starting_price * Decimal("100")).quantize(Decimal("1"), ROUND_HALF_UP))
         product.currency_code = currency_code.upper()
-
-    def _can_publish(self, cleaned_data):
-        paid_publish = cleaned_data.get("paid_publish") if "paid_publish" in self.fields else False
-        featured_badge_verified = (
-            cleaned_data.get("featured_badge_verified") if "featured_badge_verified" in self.fields else False
-        )
-        return bool(
-            paid_publish
-            or featured_badge_verified
-            or self.instance.paid_publish_at
-            or self.instance.featured_badge_verified_at
-        )
-
-    def _sync_publish_gate(self, product):
-        if "paid_publish" in self.fields:
-            product.paid_publish_at = timezone.now() if self.cleaned_data.get("paid_publish") else None
-        if "featured_badge_verified" in self.fields:
-            product.featured_badge_verified_at = (
-                timezone.now() if self.cleaned_data.get("featured_badge_verified") else None
-            )
 
     def _sync_workflow_status(self, product):
         if not product.pk:

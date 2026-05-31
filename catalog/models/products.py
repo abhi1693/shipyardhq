@@ -53,6 +53,7 @@ class Product(PrimaryModel):
     paid_publish_checkout_id = models.CharField(max_length=255, blank=True)
     paid_publish_payment_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
     paid_publish_subscription_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
+    featured_badge_requested_at = models.DateTimeField(null=True, blank=True)
     featured_badge_verified_at = models.DateTimeField(null=True, blank=True)
     search_document = SearchVectorField(null=True, editable=False)
 

@@ -60,10 +60,6 @@
         <span>6</span>
         <strong>Story</strong>
       </li>
-      <li data-step-indicator>
-        <span>7</span>
-        <strong>Publish</strong>
-      </li>
     </ol>
 
     <div class="member-product-flow-card">
@@ -76,7 +72,7 @@
       >
         <header class="member-editor-section-heading">
           <div>
-            <p class="member-step-count">Step 1 of 7</p>
+            <p class="member-step-count">Step 1 of 6</p>
             <h2>Start with the website</h2>
             <p>Add the product URL. Autofill can pull a first draft from the page, then you can clean it up.</p>
           </div>
@@ -103,7 +99,7 @@
       >
         <header class="member-editor-section-heading">
           <div>
-            <p class="member-step-count">Step 2 of 7</p>
+            <p class="member-step-count">Step 2 of 6</p>
             <h2>Name the product</h2>
             <p>Keep this tight. Visitors should understand the product before they scroll.</p>
           </div>
@@ -156,7 +152,7 @@
       >
         <header class="member-editor-section-heading">
           <div>
-            <p class="member-step-count">Step 3 of 7</p>
+            <p class="member-step-count">Step 3 of 6</p>
             <h2>Place it in the directory</h2>
             <p>Choose where people should find it and which platforms it supports.</p>
           </div>
@@ -197,7 +193,7 @@
       >
         <header class="member-editor-section-heading">
           <div>
-            <p class="member-step-count">Step 4 of 7</p>
+            <p class="member-step-count">Step 4 of 6</p>
             <h2>Set the pricing</h2>
             <p>Give visitors enough context to know whether the product fits their budget.</p>
           </div>
@@ -238,7 +234,7 @@
       >
         <header class="member-editor-section-heading">
           <div>
-            <p class="member-step-count">Step 5 of 7</p>
+            <p class="member-step-count">Step 5 of 6</p>
             <h2>Add visuals</h2>
             <p>Use a clear logo, a strong hero image, and gallery shots that explain the product fast.</p>
           </div>
@@ -345,7 +341,7 @@
       >
         <header class="member-editor-section-heading">
           <div>
-            <p class="member-step-count">Step 6 of 7</p>
+            <p class="member-step-count">Step 6 of 6</p>
             <h2>Tell the story</h2>
             <p>Explain the product clearly enough that a visitor can decide whether to click through.</p>
           </div>
@@ -365,99 +361,6 @@
             {{ form.description }}
             {% for error in form.description.errors %}<p>{{ error }}</p>{% endfor %}
           </div>
-        </div>
-      </section>
-
-      <section
-        id="section-publishing"
-        class="member-field-group member-editor-section"
-        role="group"
-        aria-label="Publish"
-        data-step-panel
-        hidden
-      >
-        <header class="member-editor-section-heading">
-          <div>
-            <p class="member-step-count">Step 7 of 7</p>
-            <h2>Review and publish</h2>
-            <p>Save as a draft, submit for review, or publish after one publish path is ready.</p>
-          </div>
-        </header>
-
-        <div class="member-publish-gates">
-          <article class="member-publish-gate {% if form.instance.paid_publish_at %}is-complete{% endif %}">
-            <div>
-              <h3>Paid launch</h3>
-              <p>Publish after paid placement is confirmed.</p>
-              {% if not form.instance.paid_publish_at and form.instance.pk and paid_publish_plans %}
-                <div class="member-publish-plan-list">
-                  {% for plan in paid_publish_plans %}
-                    <button class="ui-button ui-button-inverse ui-button-sm member-publish-gate-button" type="submit" form="member-paid-publish-form-{{ plan.pk }}">
-                      {{ plan.name }} · {{ plan.price_display }}
-                    </button>
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </div>
-            <div class="member-publish-gate-action">
-              {% if form.instance.paid_publish_at %}
-                <span>Ready</span>
-              {% elif not form.instance.pk %}
-                <span>Save first</span>
-              {% elif paid_publish_checkout_available %}
-                <span>Available</span>
-              {% else %}
-                <span>Not available</span>
-              {% endif %}
-            </div>
-          </article>
-
-          <article class="member-publish-gate {% if form.instance.featured_badge_verified_at %}is-complete{% endif %}">
-            <div>
-              <h3>Featured badge</h3>
-              <p>Publish after the ShipyardHQ badge is verified on the product website.</p>
-            </div>
-            <div class="member-publish-gate-action">
-              {% if form.instance.featured_badge_verified_at %}
-                <span>Ready</span>
-              {% else %}
-                <span>Not verified</span>
-              {% endif %}
-            </div>
-          </article>
-        </div>
-
-        {% if form.paid_publish or form.featured_badge_verified %}
-          <div class="member-form-row">
-            <span class="member-form-row-label">Publish access</span>
-            <div class="member-form-row-control member-form-checks">
-              {% if form.paid_publish %}
-                <label class="member-form-check member-form-check-plain" for="{{ form.paid_publish.id_for_label }}">
-                  {{ form.paid_publish }}
-                  <span>{{ form.paid_publish.label }}</span>
-                </label>
-                {% for error in form.paid_publish.errors %}<p>{{ error }}</p>{% endfor %}
-              {% endif %}
-              {% if form.featured_badge_verified %}
-                <label class="member-form-check member-form-check-plain" for="{{ form.featured_badge_verified.id_for_label }}">
-                  {{ form.featured_badge_verified }}
-                  <span>{{ form.featured_badge_verified.label }}</span>
-                </label>
-                {% for error in form.featured_badge_verified.errors %}<p>{{ error }}</p>{% endfor %}
-              {% endif %}
-            </div>
-          </div>
-        {% endif %}
-
-        <div class="member-status-summary">
-          <span class="ship-table-badge ship-table-badge-{{ form.instance.status }}">
-            {{ form.instance.get_status_display }}
-          </span>
-          {% if not form.instance.can_publish %}
-            <p>You can submit for review now. Publishing unlocks after paid launch confirmation or badge verification.</p>
-          {% else %}
-            <p>Publishing is unlocked for this listing.</p>
-          {% endif %}
         </div>
       </section>
     </div>

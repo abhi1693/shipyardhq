@@ -21,6 +21,11 @@ urlpatterns = [
         views.MemberProductPaidPublishReturnView.as_view(),
         name="member_product_paid_publish_return",
     ),
+    path(
+        "products/<int:pk>/featured-badge/request/",
+        views.MemberProductFeaturedBadgeRequestView.as_view(),
+        name="member_product_featured_badge_request",
+    ),
     path("products/<int:pk>/delete/", views.MemberProductDeleteView.as_view(), name="member_product_delete"),
     path(
         "products/<int:pk>/media/<int:media_pk>/delete/",

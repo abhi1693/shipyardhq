@@ -6,13 +6,5 @@
       {% url 'member_product' target_product.pk as cancel_url %}
       {% include "members/includes/product_form.html" with form=form cancel_url=cancel_url submit_label="Save" tab_label="Edit" %}
     </section>
-    {% if paid_publish_checkout_available and not target_product.paid_publish_at and target_product.status != "archived" %}
-      {% for plan in paid_publish_plans %}
-        <form id="member-paid-publish-form-{{ plan.pk }}" method="post" action="{% url 'member_product_paid_publish_checkout' target_product.pk %}">
-          {% csrf_token %}
-          <input type="hidden" name="plan_id" value="{{ plan.pk }}">
-        </form>
-      {% endfor %}
-    {% endif %}
   </div>
 {% endblock %}

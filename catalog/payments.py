@@ -61,7 +61,7 @@ def create_paid_publish_checkout(request, product, plan_id=None):
     return_url = request.build_absolute_uri(
         reverse("member_product_paid_publish_return", kwargs={"pk": product.pk})
     )
-    cancel_url = request.build_absolute_uri(reverse("member_product_edit", kwargs={"pk": product.pk}))
+    cancel_url = request.build_absolute_uri(reverse("member_product", kwargs={"pk": product.pk}))
 
     try:
         checkout_args = {

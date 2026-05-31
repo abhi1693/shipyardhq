@@ -8,6 +8,7 @@ from django.db.models.deletion import ProtectedError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.views import View
 from django.views.generic import RedirectView, TemplateView
@@ -334,73 +335,6 @@ class MemberProductObjectMixin(MemberProductAccessMixin):
             .order_by("name")
         )
 
-    @cached_property
-    def target_product_readiness(self):
-        edit_url = reverse("member_product_edit", kwargs={"pk": self.target_product.pk})
-        description_length = len((self.target_product.description or self.target_product.summary or "").strip())
-        gallery_count = self.target_product.media.count()
-        pricing_slug = self.target_product.pricing_model.slug if self.target_product.pricing_model_id else ""
-        price_required = pricing_slug in {"subscription", "one-time", "one_time"}
-        pricing_complete = bool(self.target_product.pricing_model_id) and (
-            not price_required or bool(self.target_product.starting_price_display)
-        )
-        pricing_note = self.target_product.starting_price_display or str(self.target_product.pricing_model)
-        items = (
-            {
-                "label": "Core details",
-                "note": "Name, tagline, and website",
-                "complete": all(
-                    (
-                        self.target_product.name,
-                        self.target_product.tagline,
-                        self.target_product.website_url,
-                    )
-                ),
-                "href": f"{edit_url}#section-core",
-            },
-            {
-                "label": "Description is strong",
-                "note": f"{description_length} chars (aim for 200+)",
-                "complete": description_length >= 200,
-                "href": f"{edit_url}#section-description",
-            },
-            {
-                "label": "Add gallery images",
-                "note": f"{gallery_count}/6 images",
-                "complete": gallery_count >= 3,
-                "href": f"{edit_url}#section-media",
-            },
-            {
-                "label": "Set hero image",
-                "note": "Recommended for stronger presentation",
-                "complete": bool(self.target_product.hero_image_url),
-                "href": f"{edit_url}#section-media",
-            },
-            {
-                "label": "Categories selected",
-                "note": f"{len(self.target_product_categories)} selected",
-                "complete": bool(self.target_product_categories),
-                "href": f"{edit_url}#section-classification",
-            },
-            {
-                "label": "Pricing is clear",
-                "note": pricing_note,
-                "complete": pricing_complete,
-                "href": f"{edit_url}#section-pricing",
-            },
-            {
-                "label": "Publish listing",
-                "note": self.target_product.publish_gate_display or "Publish path required",
-                "complete": (
-                    self.target_product.status == Product.Status.PUBLISHED
-                    and self.target_product.is_listed
-                    and self.target_product.can_publish
-                ),
-                "href": f"{edit_url}#section-publishing",
-            },
-        )
-        return items
-
     def get_breadcrumbs(self):
         return (
             {"label": "Home", "url": reverse("home")},
@@ -419,13 +353,16 @@ class MemberProductObjectMixin(MemberProductAccessMixin):
         context["target_product_media"] = self.target_product.media.all()
         context["paid_publish_checkout_available"] = paid_publish_checkout_available()
         context["paid_publish_plans"] = get_paid_publish_plans()
-        readiness = self.target_product_readiness
-        readiness_complete = sum(1 for item in readiness if item["complete"])
-        context["target_product_readiness"] = readiness
-        context["target_product_readiness_complete"] = readiness_complete
-        context["target_product_readiness_total"] = len(readiness)
-        context["target_product_readiness_percent"] = round((readiness_complete / len(readiness)) * 100)
+        context["featured_badge_code"] = self.get_featured_badge_code()
         return context
+
+    def get_featured_badge_code(self):
+        badge_url = f"{self.request.build_absolute_uri(reverse('home'))}?ref={self.target_product.slug}"
+        return (
+            f'<a href="{badge_url}" target="_blank" rel="noopener">'
+            "Featured on ShipyardHQ"
+            "</a>"
+        )
 
 
 class MemberProductDetailView(MemberProductObjectMixin, TemplateView):
@@ -502,6 +439,35 @@ class MemberProductPaidPublishReturnView(MemberProductObjectMixin, View):
         else:
             messages.success(request, "Paid launch is confirmed. Your product is published.")
 
+        return redirect("member_product", pk=self.target_product.pk)
+
+
+class MemberProductFeaturedBadgeRequestView(MemberProductObjectMixin, View):
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        if self.target_product.status == Product.Status.ARCHIVED:
+            messages.error(request, "This product cannot be published right now.")
+            return redirect("member_product", pk=self.target_product.pk)
+
+        now = timezone.now()
+        update_fields = []
+        if not self.target_product.featured_badge_requested_at:
+            self.target_product.featured_badge_requested_at = now
+            update_fields.append("featured_badge_requested_at")
+
+        if self.target_product.status == Product.Status.DRAFT:
+            self.target_product.status = Product.Status.REVIEW
+            update_fields.append("status")
+
+        if not self.target_product.submitted_at:
+            self.target_product.submitted_at = now
+            update_fields.append("submitted_at")
+
+        if update_fields:
+            self.target_product.save(update_fields=sorted(set(update_fields)))
+
+        messages.success(request, "Badge review requested.")
         return redirect("member_product", pk=self.target_product.pk)
 
 

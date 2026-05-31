@@ -126,6 +126,21 @@
     });
   }
 
+  function bindCopyButtons() {
+    var buttons = document.querySelectorAll("[data-copy-text]");
+    buttons.forEach(function (button) {
+      button.addEventListener("click", async function () {
+        var status = findCopyStatus(button);
+        try {
+          await navigator.clipboard.writeText(button.dataset.copyText || "");
+          setCopyStatus(status, button.dataset.copySuccess || "Copied.", false);
+        } catch (_error) {
+          setCopyStatus(status, "Copy failed.", true);
+        }
+      });
+    });
+  }
+
   function bindProductAutofill(editor) {
     var triggers = editor.querySelectorAll("[data-autofill-trigger]");
     var urlField = editor.querySelector("#id_website_url");
@@ -414,7 +429,8 @@
     var backButton = editor.querySelector("[data-step-back]");
     var nextButton = editor.querySelector("[data-step-next]");
     var submitButton = editor.querySelector("[data-step-submit]");
-    var currentIndex = firstPanelWithErrors(panels);
+    var errorIndex = firstPanelWithErrors(panels);
+    var currentIndex = errorIndex === -1 ? panelIndexFromHash(panels) : errorIndex;
 
     if (!panels.length || !backButton || !nextButton || !submitButton) {
       return;
@@ -478,6 +494,20 @@
         return index;
       }
     }
+    return -1;
+  }
+
+  function panelIndexFromHash(panels) {
+    var hash = window.location.hash || "";
+    if (!hash) {
+      return 0;
+    }
+
+    for (var index = 0; index < panels.length; index += 1) {
+      if ("#" + panels[index].id === hash) {
+        return index;
+      }
+    }
     return 0;
   }
 
@@ -513,6 +543,19 @@
     if (field && typeof field.focus === "function") {
       field.focus();
     }
+  }
+
+  function findCopyStatus(button) {
+    var container = button.closest(".member-placement-card") || document;
+    return container.querySelector("[data-copy-status]");
+  }
+
+  function setCopyStatus(status, message, isError) {
+    if (!status) {
+      return;
+    }
+    status.textContent = message;
+    status.classList.toggle("is-error", Boolean(isError));
   }
 
   function openIconSelect(trigger, menu) {
@@ -551,5 +594,6 @@
     bindIconSelects();
     bindProductEditors();
     bindPlanForms();
+    bindCopyButtons();
   });
 })();
