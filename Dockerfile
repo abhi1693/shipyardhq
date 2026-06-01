@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_IMAGE=node:22.21.1-bookworm-slim
-FROM ${NODE_IMAGE} AS base
+FROM node:22.21.1-bookworm-slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV NEXT_TELEMETRY_DISABLED=1

@@ -131,8 +131,6 @@ jobs:
           context: .
           platforms: ${{ matrix.platform }}
           push: true
-          build-args: |
-            NODE_IMAGE=${{ env.REGISTRY }}/docker.io/library/node:22.21.1-bookworm-slim
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           secret-files: |
