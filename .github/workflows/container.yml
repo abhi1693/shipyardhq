@@ -148,6 +148,7 @@ jobs:
           set -euo pipefail
           regctl_config="${RUNNER_TEMP}/regctl"
           mkdir -p "${regctl_config}"
+          chmod 0777 "${regctl_config}"
           printf '%s' "${REGISTRY_PASSWORD}" \
             | docker run --rm -i \
                 -e REGCTL_CONFIG=/config/config.json \
