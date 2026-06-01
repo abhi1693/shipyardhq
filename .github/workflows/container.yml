@@ -159,21 +159,15 @@ jobs:
             -e REGCTL_CONFIG=/config/config.json \
             -v "${regctl_config}:/config" \
             regclient/regctl:latest \
-            registry set "${REGISTRY}" --blob-chunk 10485760 --blob-max 1
+            registry set "${REGISTRY}" --blob-chunk 52428800 --blob-max 1
           while IFS= read -r image_tag; do
             [ -n "${image_tag}" ] || continue
-            for attempt in 1 2 3; do
-              docker run --rm \
-                -e REGCTL_CONFIG=/config/config.json \
-                -v "${regctl_config}:/config" \
-                -v "${RUNNER_TEMP}:${RUNNER_TEMP}" \
-                regclient/regctl:latest \
-                image import "${image_tag}" "${IMAGE_ARCHIVE}" -v info && break
-              if [ "${attempt}" -eq 3 ]; then
-                exit 1
-              fi
-              sleep $((attempt * 15))
-            done
+            docker run --rm \
+              -e REGCTL_CONFIG=/config/config.json \
+              -v "${regctl_config}:/config" \
+              -v "${RUNNER_TEMP}:${RUNNER_TEMP}" \
+              regclient/regctl:latest \
+              image import "${image_tag}" "${IMAGE_ARCHIVE}" -v info
           done <<< "${IMAGE_TAGS}"
 
   manifest:
