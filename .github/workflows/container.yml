@@ -125,18 +125,47 @@ jobs:
             type=raw,value=${{ inputs.version }}-${{ matrix.suffix }},enable=${{ github.event_name == 'workflow_dispatch' }}
             type=raw,value=latest-${{ matrix.suffix }}
 
-      - name: Build and push
+      - name: Build image archive
         uses: docker/build-push-action@v7
         with:
           context: .
           platforms: ${{ matrix.platform }}
-          push: true
           build-args: |
             NODE_IMAGE=${{ env.REGISTRY }}/docker.io/library/node:22.21.1-bookworm-slim
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=oci,dest=${{ runner.temp }}/shipyardhq-${{ matrix.suffix }}.oci.tar
           secret-files: |
             build_env=.env.production.local
+
+      - name: Publish with regctl
+        env:
+          IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
+          IMAGE_ARCHIVE: ${{ runner.temp }}/shipyardhq-${{ matrix.suffix }}.oci.tar
+        run: |
+          set -euo pipefail
+          regctl_config="${RUNNER_TEMP}/regctl"
+          mkdir -p "${regctl_config}"
+          printf '%s' "${{ secrets.DOCKER_PASSWORD }}" \
+            | docker run --rm -i \
+                -e REGCTL_CONFIG=/config/config.json \
+                -v "${regctl_config}:/config" \
+                regclient/regctl:latest \
+                registry login "${REGISTRY}" -u "${{ secrets.DOCKER_USERNAME }}" --pass-stdin
+          docker run --rm \
+            -e REGCTL_CONFIG=/config/config.json \
+            -v "${regctl_config}:/config" \
+            regclient/regctl:latest \
+            registry set "${REGISTRY}" --blob-chunk 52428800 --blob-max 1
+          while IFS= read -r image_tag; do
+            [ -n "${image_tag}" ] || continue
+            docker run --rm \
+              -e REGCTL_CONFIG=/config/config.json \
+              -v "${regctl_config}:/config" \
+              -v "${RUNNER_TEMP}:${RUNNER_TEMP}" \
+              regclient/regctl:latest \
+              image import "${image_tag}" "${IMAGE_ARCHIVE}" -v info
+          done <<< "${IMAGE_TAGS}"
 
   manifest:
     name: Publish manifest
