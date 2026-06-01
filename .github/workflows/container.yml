@@ -142,16 +142,18 @@ jobs:
         env:
           IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
           IMAGE_ARCHIVE: ${{ runner.temp }}/shipyardhq-${{ matrix.suffix }}.oci.tar
+          REGISTRY_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           set -euo pipefail
           regctl_config="${RUNNER_TEMP}/regctl"
           mkdir -p "${regctl_config}"
-          printf '%s' "${{ secrets.DOCKER_PASSWORD }}" \
+          printf '%s' "${REGISTRY_PASSWORD}" \
             | docker run --rm -i \
                 -e REGCTL_CONFIG=/config/config.json \
                 -v "${regctl_config}:/config" \
                 regclient/regctl:latest \
-                registry login "${REGISTRY}" -u "${{ secrets.DOCKER_USERNAME }}" --pass-stdin
+                registry login "${REGISTRY}" -u "${REGISTRY_USERNAME}" --pass-stdin
           docker run --rm \
             -e REGCTL_CONFIG=/config/config.json \
             -v "${regctl_config}:/config" \
