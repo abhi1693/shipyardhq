@@ -237,41 +237,48 @@ async function buildFeedItemsFromProducts(
   )
 }
 
-interface GetOrderedHomepageFeedParams extends GetHomepageFeedPageParams {
-  orderBy: Prisma.ProductOrderByWithRelationInput[]
-  where?: Prisma.ProductWhereInput
-}
-
-async function getOrderedHomepageFeedPage({
-  orderBy,
-  where,
-  page = 1,
-  pageSize = HOMEPAGE_FEED_PAGE_SIZE,
-  clerkUserId,
-}: GetOrderedHomepageFeedParams): Promise<HomepageFeedPageResult> {
+export async function getHomepageNewFeedPage(
+  params: GetHomepageFeedPageParams = {},
+): Promise<HomepageFeedPageResult> {
+  const { page, pageSize, clerkUserId } = params
   const safePage = normalizePage(page, 1)
   const safePageSize = normalizePageSize(pageSize, HOMEPAGE_FEED_PAGE_SIZE)
   const skip = (safePage - 1) * safePageSize
+  const shuffleKey = new Date().toISOString().slice(0, 10)
 
-  const baseWhere = buildBaseWhere()
-  const combinedWhere =
-    where && Object.keys(where).length > 0
-      ? { AND: [baseWhere, where] }
-      : baseWhere
+  const productsForOrder = await prisma.product.findMany({
+    where: buildBaseWhere(),
+    select: {
+      id: true,
+    },
+  })
 
-  const [products, total] = await Promise.all([
-    prisma.product.findMany({
-      where: combinedWhere,
-      orderBy,
-      skip,
-      take: safePageSize,
-      select: homepageFeedSelect,
-    }),
-    prisma.product.count({ where: combinedWhere }),
-  ])
+  const orderedIds = productsForOrder
+    .map((product) => product.id)
+    .sort((a, b) => {
+      const rankDelta =
+        stableUnitInterval(`${shuffleKey}:${a}`) -
+        stableUnitInterval(`${shuffleKey}:${b}`)
 
-  const items = await buildFeedItemsFromProducts(products, clerkUserId)
-  const hasMore = skip + products.length < total
+      return rankDelta || a.localeCompare(b)
+    })
+
+  const pageIds = orderedIds.slice(skip, skip + safePageSize)
+  const products = pageIds.length
+    ? await prisma.product.findMany({
+        where: {
+          id: { in: pageIds },
+          status: "published",
+        },
+        select: homepageFeedSelect,
+      })
+    : []
+  const productMap = new Map(products.map((product) => [product.id, product]))
+  const orderedProducts = pageIds
+    .map((id) => productMap.get(id))
+    .filter((product): product is HomepageFeedProduct => Boolean(product))
+  const items = await buildFeedItemsFromProducts(orderedProducts, clerkUserId)
+  const hasMore = skip + pageIds.length < orderedIds.length
 
   return {
     items,
@@ -280,18 +287,6 @@ async function getOrderedHomepageFeedPage({
     hasMore,
     nextPage: hasMore ? safePage + 1 : null,
   }
-}
-
-export async function getHomepageNewFeedPage(
-  params: GetHomepageFeedPageParams = {},
-): Promise<HomepageFeedPageResult> {
-  const { page, pageSize, clerkUserId } = params
-  return getOrderedHomepageFeedPage({
-    page,
-    pageSize,
-    clerkUserId,
-    orderBy: [{ createdAt: "desc" }, { analytics: { upvotes: "desc" } }],
-  })
 }
 
 export async function getHomepageMostClickedFeedPage(
@@ -394,6 +389,12 @@ export const getHomepageFeedView = unstable_cache(
   ["homepage-feed-view"],
   { revalidate: 300, tags: ["homepage-feed"] },
 )
+
+export async function getHomepageFeedPage(
+  params: GetHomepageFeedViewParams = {},
+): Promise<HomepageFeedPageResult> {
+  return getHomepageFeedView(params)
+}
 
 export async function getHomepageFeedViewAll(
   params: GetHomepageFeedViewParams = {},

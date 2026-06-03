@@ -1,6 +1,7 @@
 import Link from "next/link"
 
-import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
+import { getHomepageFeedPage } from "@/actions/public/homepage/feed"
+import { HomepageFeedClient } from "@/components/templates/public/homepage/homepage-feed-client"
 import { HOMEPAGE_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 import {
   DEFAULT_HOMEPAGE_FEED_VIEW,
@@ -11,7 +12,6 @@ import {
 import { HOME_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
-import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 
 interface HomepageFeedSectionProps {
@@ -19,7 +19,8 @@ interface HomepageFeedSectionProps {
 }
 
 export async function HomepageFeedSection({ view }: HomepageFeedSectionProps) {
-  const items = await getHomepageFeedViewAll({
+  const feedPage = await getHomepageFeedPage({
+    page: 1,
     pageSize: HOMEPAGE_FEED_PAGE_SIZE,
     view,
   })
@@ -64,9 +65,12 @@ export async function HomepageFeedSection({ view }: HomepageFeedSectionProps) {
         </p>
       </div>
       <StickyBanner />
-      <ProductFeedList
+      <HomepageFeedClient
         activeFilter={view}
-        items={items}
+        initialItems={feedPage.items}
+        initialHasMore={feedPage.hasMore}
+        initialPage={feedPage.nextPage ?? feedPage.page + 1}
+        pageSize={feedPage.pageSize}
         referenceDateIso={referenceDateIso}
       />
     </section>

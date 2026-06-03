@@ -19,6 +19,7 @@ export interface ProductFeedListProps {
   className?: string
   referenceDateIso: string
   showRemaining?: boolean
+  newViewOrder?: "createdAt" | "shuffle"
 }
 
 type BucketRow =
@@ -213,6 +214,7 @@ export function ProductFeedList({
   className,
   referenceDateIso,
   showRemaining = false,
+  newViewOrder = "createdAt",
 }: ProductFeedListProps) {
   const view = activeFilter
   const [remainingPages, setRemainingPages] = useState<Record<string, number>>(
@@ -239,6 +241,10 @@ export function ProductFeedList({
       return [...items]
     }
 
+    if (newViewOrder === "shuffle") {
+      return [...items].sort(compareBucketItems)
+    }
+
     return [...items].sort((a, b) => {
       const aTime = new Date(a.createdAt ?? "").getTime()
       const bTime = new Date(b.createdAt ?? "").getTime()
@@ -258,7 +264,7 @@ export function ProductFeedList({
 
       return a.name.localeCompare(b.name)
     })
-  }, [items, view])
+  }, [items, newViewOrder, view])
 
   const referenceDate = useMemo(() => {
     const parsed = new Date(referenceDateIso)
