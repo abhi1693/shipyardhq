@@ -85,14 +85,14 @@ jobs:
             .filter((key) => process.env[key] !== undefined)
             .map((key) => `${key}=${JSON.stringify(process.env[key])}`);
 
-          fs.writeFileSync(".env.production.local", `${lines.join("\n")}\n`, { mode: 0o600 });
+          fs.writeFileSync("build-secret.env", `${lines.join("\n")}\n`, { mode: 0o600 });
           NODE
 
       - name: Upload build secret
         uses: actions/upload-artifact@v7
         with:
           name: shipyardhq-build-secret
-          path: .env.production.local
+          path: build-secret.env
           retention-days: 1
 
   build:
@@ -107,7 +107,7 @@ jobs:
       platforms: linux/arm64
       cache-scope: shipyardhq-arm64
       build-secret-artifact: shipyardhq-build-secret
-      build-secret-file: .env.production.local
+      build-secret-file: build-secret.env
       build-secret-id: build_env
       tags: |
         type=semver,pattern={{version}}
