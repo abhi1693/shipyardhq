@@ -581,12 +581,7 @@ export default async function HomePage() {
                   View Product
                 </Link>
               </Button>
-              <div className="ml-auto flex items-center gap-2">
-                <AvatarStack
-                  compact
-                  avatarUrls={launch.recommenderAvatarUrls}
-                  featuredAvatarUrl={topFounderAvatarUrl}
-                />
+              <div className="ml-auto flex items-center">
                 <span className="text-[11px] font-medium leading-[14px] text-[#43474c]">
                   {formatBuildersClickedLabel(launchBuildersClickedCount)}
                 </span>
