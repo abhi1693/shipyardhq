@@ -19,7 +19,6 @@ export interface ProductFeedListProps {
   className?: string
   referenceDateIso: string
   showRemaining?: boolean
-  newViewOrder?: "createdAt" | "shuffle"
 }
 
 type BucketRow =
@@ -48,6 +47,10 @@ type FeedSection =
       items: HomepageFeedItem[]
     }
 
+function getFeedItemDate(item: HomepageFeedItem) {
+  return item.publishedAt ?? item.createdAt
+}
+
 function compareBucketItems(a: HomepageFeedItem, b: HomepageFeedItem) {
   const aRank = Number.isFinite(a.shuffleRank) ? a.shuffleRank : null
   const bRank = Number.isFinite(b.shuffleRank) ? b.shuffleRank : null
@@ -59,8 +62,8 @@ function compareBucketItems(a: HomepageFeedItem, b: HomepageFeedItem) {
   if (aRank !== null) return -1
   if (bRank !== null) return 1
 
-  const aTime = new Date(a.createdAt ?? "").getTime()
-  const bTime = new Date(b.createdAt ?? "").getTime()
+  const aTime = new Date(getFeedItemDate(a) ?? "").getTime()
+  const bTime = new Date(getFeedItemDate(b) ?? "").getTime()
   const aHasTime = !Number.isNaN(aTime)
   const bHasTime = !Number.isNaN(bTime)
 
@@ -96,9 +99,9 @@ function buildNewViewSections(
 
   const organicItems = items.filter((item) => !item.isSponsored)
   organicItems.forEach((item) => {
-    const created = new Date(item.createdAt)
-    const createdTime = created.getTime()
-    const resolvedDate = Number.isNaN(createdTime) ? startToday : created
+    const published = new Date(getFeedItemDate(item))
+    const publishedTime = published.getTime()
+    const resolvedDate = Number.isNaN(publishedTime) ? startToday : published
 
     let bucketKey: BucketKey | null = null
     if (resolvedDate >= startToday) {
@@ -214,7 +217,6 @@ export function ProductFeedList({
   className,
   referenceDateIso,
   showRemaining = false,
-  newViewOrder = "createdAt",
 }: ProductFeedListProps) {
   const view = activeFilter
   const [remainingPages, setRemainingPages] = useState<Record<string, number>>(
@@ -241,13 +243,9 @@ export function ProductFeedList({
       return [...items]
     }
 
-    if (newViewOrder === "shuffle") {
-      return [...items].sort(compareBucketItems)
-    }
-
     return [...items].sort((a, b) => {
-      const aTime = new Date(a.createdAt ?? "").getTime()
-      const bTime = new Date(b.createdAt ?? "").getTime()
+      const aTime = new Date(getFeedItemDate(a) ?? "").getTime()
+      const bTime = new Date(getFeedItemDate(b) ?? "").getTime()
 
       const aHasTime = !Number.isNaN(aTime)
       const bHasTime = !Number.isNaN(bTime)
@@ -264,7 +262,7 @@ export function ProductFeedList({
 
       return a.name.localeCompare(b.name)
     })
-  }, [items, newViewOrder, view])
+  }, [items, view])
 
   const referenceDate = useMemo(() => {
     const parsed = new Date(referenceDateIso)

@@ -116,7 +116,6 @@ export function HomepageFeedClient({
         activeFilter={activeFilter}
         items={items}
         referenceDateIso={referenceDateIso}
-        newViewOrder="shuffle"
         showRemaining
       />
 

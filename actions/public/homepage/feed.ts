@@ -2,7 +2,7 @@
 
 import { unstable_cache } from "next/cache"
 import prisma from "@/lib/prisma"
-import { Prisma } from "@/lib/vendor/prisma/client"
+import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { HOMEPAGE_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 import {
@@ -18,6 +18,16 @@ import { getMostClickedProductIds } from "@/lib/server/analytics/productInterest
 import { hasEditorPickBadge } from "@/lib/products/badges"
 import { stableUnitInterval } from "@/lib/stable-random"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
+const SPONSORED_PLACEMENT_FEATURE_KEY = "sponsoredProducts"
+const SPONSORED_PLAN_FEATURE_KEYS = [
+  PRIORITY_FEATURE_KEY,
+  SPONSORED_PLACEMENT_FEATURE_KEY,
+] as const
+const SPONSORED_PLAN_FEATURE_KEY_SET = new Set<string>(
+  SPONSORED_PLAN_FEATURE_KEYS,
+)
+const EDITOR_PICK_BADGE = "editor-pick"
+const HOMEPAGE_SPONSORED_LIMIT = 12
 
 const homepageFeedSelect = {
   id: true,
@@ -28,6 +38,7 @@ const homepageFeedSelect = {
   pricingModel: true,
   startingPriceCents: true,
   currencyCode: true,
+  publishedAt: true,
   createdAt: true,
   updatedAt: true,
   analytics: {
@@ -50,6 +61,16 @@ const homepageFeedSelect = {
     select: {
       badge: true,
       expiresAt: true,
+    },
+  },
+  placementSchedules: {
+    where: {
+      featureKey: SPONSORED_PLACEMENT_FEATURE_KEY,
+      status: PlacementStatus.active,
+    },
+    select: {
+      startsAt: true,
+      endsAt: true,
     },
   },
   plan: {
@@ -82,6 +103,7 @@ export interface HomepageFeedItem {
   pricingModel?: "free" | "freemium" | "subscription" | "one_time" | "custom"
   startingPriceCents?: number | null
   currencyCode?: string | null
+  publishedAt?: string | null
   createdAt: string
   updatedAt: string
   badges: string[]
@@ -136,6 +158,45 @@ function buildBaseWhere(): Prisma.ProductWhereInput {
   }
 }
 
+function buildSponsoredPlacementWhere(now: Date): Prisma.ProductWhereInput {
+  return {
+    OR: [
+      {
+        plan: {
+          is: {
+            assignments: {
+              some: {
+                enabled: true,
+                feature: {
+                  is: { key: { in: [...SPONSORED_PLAN_FEATURE_KEYS] } },
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        ProductBadge: {
+          some: {
+            badge: EDITOR_PICK_BADGE,
+            OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+          },
+        },
+      },
+      {
+        placementSchedules: {
+          some: {
+            featureKey: SPONSORED_PLACEMENT_FEATURE_KEY,
+            status: PlacementStatus.active,
+            startsAt: { lte: now },
+            endsAt: { gte: now },
+          },
+        },
+      },
+    ],
+  }
+}
+
 function mapProductToFeedItem(
   product: HomepageFeedProduct,
   upvoted: Set<string>,
@@ -148,13 +209,20 @@ function mapProductToFeedItem(
       (badge) => !badge.expiresAt || badge.expiresAt > now,
     ).map((badge) => badge.badge) ?? []
 
-  const isPriorityPlacement =
+  const isSponsoredPlan =
     product.plan?.assignments?.some(
-      (assignment) => assignment.feature?.key === PRIORITY_FEATURE_KEY,
+      (assignment) =>
+        typeof assignment.feature?.key === "string" &&
+        SPONSORED_PLAN_FEATURE_KEY_SET.has(assignment.feature.key),
+    ) ?? false
+  const hasActiveSponsoredSchedule =
+    product.placementSchedules?.some(
+      (schedule) => schedule.startsAt <= now && schedule.endsAt >= now,
     ) ?? false
   const isEditorPick = hasEditorPickBadge(activeBadges)
-  const isSponsored = isPriorityPlacement || isEditorPick
-  const variant: ProductCardVariant = isPriorityPlacement
+  const isSponsored = isSponsoredPlan || hasActiveSponsoredSchedule || isEditorPick
+  const variant: ProductCardVariant =
+    isSponsoredPlan || hasActiveSponsoredSchedule
     ? "sponsored"
     : isEditorPick
       ? "promoted"
@@ -172,6 +240,7 @@ function mapProductToFeedItem(
     pricingModel: product.pricingModel,
     startingPriceCents: product.startingPriceCents,
     currencyCode: product.currencyCode,
+    publishedAt: product.publishedAt?.toISOString() ?? null,
     createdAt: product.createdAt.toISOString(),
     updatedAt: product.updatedAt.toISOString(),
     badges: activeBadges,
@@ -237,48 +306,41 @@ async function buildFeedItemsFromProducts(
   )
 }
 
-export async function getHomepageNewFeedPage(
-  params: GetHomepageFeedPageParams = {},
-): Promise<HomepageFeedPageResult> {
-  const { page, pageSize, clerkUserId } = params
+interface GetOrderedHomepageFeedParams extends GetHomepageFeedPageParams {
+  orderBy: Prisma.ProductOrderByWithRelationInput[]
+  where?: Prisma.ProductWhereInput
+}
+
+async function getOrderedHomepageFeedPage({
+  orderBy,
+  where,
+  page = 1,
+  pageSize = HOMEPAGE_FEED_PAGE_SIZE,
+  clerkUserId,
+}: GetOrderedHomepageFeedParams): Promise<HomepageFeedPageResult> {
   const safePage = normalizePage(page, 1)
   const safePageSize = normalizePageSize(pageSize, HOMEPAGE_FEED_PAGE_SIZE)
   const skip = (safePage - 1) * safePageSize
-  const shuffleKey = new Date().toISOString().slice(0, 10)
 
-  const productsForOrder = await prisma.product.findMany({
-    where: buildBaseWhere(),
-    select: {
-      id: true,
-    },
-  })
+  const baseWhere = buildBaseWhere()
+  const combinedWhere =
+    where && Object.keys(where).length > 0
+      ? { AND: [baseWhere, where] }
+      : baseWhere
 
-  const orderedIds = productsForOrder
-    .map((product) => product.id)
-    .sort((a, b) => {
-      const rankDelta =
-        stableUnitInterval(`${shuffleKey}:${a}`) -
-        stableUnitInterval(`${shuffleKey}:${b}`)
+  const [products, total] = await Promise.all([
+    prisma.product.findMany({
+      where: combinedWhere,
+      orderBy,
+      skip,
+      take: safePageSize,
+      select: homepageFeedSelect,
+    }),
+    prisma.product.count({ where: combinedWhere }),
+  ])
 
-      return rankDelta || a.localeCompare(b)
-    })
-
-  const pageIds = orderedIds.slice(skip, skip + safePageSize)
-  const products = pageIds.length
-    ? await prisma.product.findMany({
-        where: {
-          id: { in: pageIds },
-          status: "published",
-        },
-        select: homepageFeedSelect,
-      })
-    : []
-  const productMap = new Map(products.map((product) => [product.id, product]))
-  const orderedProducts = pageIds
-    .map((id) => productMap.get(id))
-    .filter((product): product is HomepageFeedProduct => Boolean(product))
-  const items = await buildFeedItemsFromProducts(orderedProducts, clerkUserId)
-  const hasMore = skip + pageIds.length < orderedIds.length
+  const items = await buildFeedItemsFromProducts(products, clerkUserId)
+  const hasMore = skip + products.length < total
 
   return {
     items,
@@ -286,6 +348,50 @@ export async function getHomepageNewFeedPage(
     pageSize: safePageSize,
     hasMore,
     nextPage: hasMore ? safePage + 1 : null,
+  }
+}
+
+export async function getHomepageNewFeedPage(
+  params: GetHomepageFeedPageParams = {},
+): Promise<HomepageFeedPageResult> {
+  const { page, pageSize, clerkUserId } = params
+  const safePage = normalizePage(page, 1)
+  const now = new Date()
+  const sponsoredPlacementWhere = buildSponsoredPlacementWhere(now)
+  const orderBy: Prisma.ProductOrderByWithRelationInput[] = [
+    { publishedAt: { sort: "desc", nulls: "last" } },
+    { createdAt: "desc" },
+    { analytics: { upvotes: "desc" } },
+  ]
+
+  const organicPage = await getOrderedHomepageFeedPage({
+    page,
+    pageSize,
+    clerkUserId,
+    where: { NOT: sponsoredPlacementWhere },
+    orderBy,
+  })
+
+  if (safePage !== 1) {
+    return organicPage
+  }
+
+  const sponsoredProducts = await prisma.product.findMany({
+    where: {
+      AND: [buildBaseWhere(), sponsoredPlacementWhere],
+    },
+    orderBy,
+    take: HOMEPAGE_SPONSORED_LIMIT,
+    select: homepageFeedSelect,
+  })
+  const sponsoredItems = await buildFeedItemsFromProducts(
+    sponsoredProducts,
+    clerkUserId,
+  )
+
+  return {
+    ...organicPage,
+    items: [...sponsoredItems, ...organicPage.items],
   }
 }
 
