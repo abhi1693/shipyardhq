@@ -13,10 +13,8 @@ import {
   SponsoredProductsSection,
   SponsoredProductsSkeleton,
 } from "@/components/templates/public/homepage/sponsored-products"
-import {
-  TrafficSidebarStats,
-  TrafficSidebarStatsSkeleton,
-} from "@/components/templates/public/common/TrafficSidebarStats"
+import { DeferredTrafficSidebarStats } from "@/components/templates/public/common/DeferredTrafficSidebarStats"
+import { TrafficSidebarStatsSkeleton } from "@/components/templates/public/common/TrafficSidebarStatsSkeleton"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import {
   DEFAULT_HOMEPAGE_FEED_VIEW,
@@ -81,7 +79,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         sidebar={
           <>
             <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
-              <TrafficSidebarStats />
+              <DeferredTrafficSidebarStats />
             </Suspense>
             <Suspense
               fallback={
