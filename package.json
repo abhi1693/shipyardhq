@@ -42,6 +42,7 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
     "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:seed:dev": "tsx prisma/seed.dev.ts",
     "prisma:seed:categories": "tsx prisma/seed.categories.ts",
     "prisma:seed:usecases": "tsx prisma/seed.use-cases.ts",
     "prisma:seed:plan-features": "tsx prisma/seed.plan-features.ts",
