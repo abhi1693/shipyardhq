@@ -1,9 +1,18 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useUser } from "@clerk/nextjs"
-import { Activity, ChevronUp, Handshake, Users, X, Zap } from "lucide-react"
+import {
+  Activity,
+  BadgeCheck,
+  Bolt,
+  ChevronUp,
+  Handshake,
+  Users,
+  X,
+  Zap,
+} from "lucide-react"
 import {
   Line,
   LineChart,
@@ -14,8 +23,14 @@ import {
 import { ChartContainer, ChartTooltip } from "@/components/atoms/chart"
 import { Card, CardContent } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
+import { Image } from "@/components/atoms/image"
 import SignInButton from "@/components/molecules/SignInButton"
+import type {
+  HomepageFeedItem,
+  HomepageFeedPageResult,
+} from "@/actions/public/homepage/feed"
 import type { TrafficSidebarStatsPayload } from "@/components/templates/public/common/TrafficSidebarStatsContent"
+import { BROWSE_PATH, productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 const formatter = new Intl.NumberFormat("en-US")
@@ -209,6 +224,295 @@ function formatDelta(value: number | null) {
   return `${sign}${value.toFixed(1)}%`
 }
 
+export type HomepageDropListItem = {
+  id?: string
+  slug?: string
+  name: string
+  tagline: string
+  logo?: string | null
+  category?: string | null
+  upvoteCount: number
+  isSponsored?: boolean
+  isVoted?: boolean
+}
+
+function toDropListItem(item: HomepageFeedItem): HomepageDropListItem {
+  return {
+    id: item.id,
+    slug: item.slug,
+    name: item.name,
+    tagline: item.tagline,
+    logo: item.logo,
+    category: item.category,
+    upvoteCount: item.upvoteCount,
+    isSponsored: item.isSponsored,
+    isVoted: item.isVoted,
+  }
+}
+
+function dropKey(product: HomepageDropListItem) {
+  return product.id ?? product.slug ?? product.name
+}
+
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((segment) => segment[0]?.toUpperCase() ?? "")
+    .join("")
+}
+
+function DropProductLogo({
+  product,
+  sponsored,
+}: {
+  product: HomepageDropListItem
+  sponsored: boolean
+}) {
+  return (
+    <div
+      className={cn(
+        "flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg text-sm font-black shadow-sm",
+        sponsored
+          ? "border border-white/20 bg-white/10 text-white"
+          : "bg-[#e5eeff] text-[#061d31]",
+      )}
+    >
+      {product.logo ? (
+        <Image
+          src={product.logo}
+          alt={`${product.name} logo`}
+          width={56}
+          height={56}
+          sizes="56px"
+          className={cn(
+            "h-full w-full object-cover",
+            sponsored ? "contrast-125" : "h-10 w-10",
+          )}
+          unoptimized
+        />
+      ) : (
+        <span>{initials(product.name)}</span>
+      )}
+    </div>
+  )
+}
+
+function DropSparkline({ sponsored }: { sponsored: boolean }) {
+  return (
+    <svg
+      className={cn(
+        "h-10 w-full",
+        sponsored ? "text-[#C0FF00]" : "text-[#16a34a]",
+      )}
+      fill="none"
+      viewBox="0 0 100 40"
+      aria-hidden="true"
+    >
+      <path
+        d={
+          sponsored
+            ? "M0 30L20 28L40 32L60 15L80 5L100 12"
+            : "M0 35C20 32 30 10 50 15C70 20 80 5 100 2"
+        }
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2"
+      />
+    </svg>
+  )
+}
+
+function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
+  const sponsored = Boolean(product.isSponsored)
+  const href = product.slug ? productPath(product.slug) : BROWSE_PATH
+
+  return (
+    <Card
+      className={cn(
+        "group relative gap-0 rounded-xl py-0 shadow-none transition-all",
+        sponsored
+          ? "border-white/10 bg-[#213145] text-white hover:shadow-lg"
+          : "border-[#E2E8F0] bg-white hover:shadow-sm",
+      )}
+    >
+      <CardContent className="flex items-center gap-4 p-5 sm:gap-6">
+        {sponsored ? (
+          <div className="absolute right-2 top-2 flex items-center gap-1 text-white/60">
+            <span className="text-[9px] font-extrabold uppercase leading-[10px] tracking-widest">
+              Sponsored
+            </span>
+            <BadgeCheck className="size-3" aria-hidden />
+          </div>
+        ) : null}
+        <DropProductLogo product={product} sponsored={sponsored} />
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex min-w-0 items-center gap-2">
+            <Link
+              href={href}
+              className="truncate text-lg font-semibold leading-6 hover:underline"
+            >
+              {product.name}
+            </Link>
+            <span
+              className={cn(
+                "shrink-0 rounded px-2 py-0.5 text-[9px] font-extrabold uppercase leading-[10px]",
+                sponsored
+                  ? "bg-[#C0FF00] text-black"
+                  : "bg-[#F8FAFC] text-[#74777d]",
+              )}
+            >
+              {product.category ?? "New Tool"}
+            </span>
+          </div>
+          <p
+            className={cn(
+              "truncate text-sm leading-5",
+              sponsored ? "text-white/70" : "text-[#43474c]",
+            )}
+          >
+            {product.tagline}
+          </p>
+        </div>
+        <div className="hidden w-32 px-4 md:block">
+          <DropSparkline sponsored={sponsored} />
+        </div>
+        {sponsored ? (
+          <Button
+            asChild
+            className="h-14 min-w-16 rounded-l-none rounded-r-xl border-0 border-l border-white/10 bg-transparent pl-6 text-[#C0FF00] shadow-none hover:bg-white/10"
+          >
+            <Link href={href}>
+              <Bolt className="size-4" aria-hidden />
+              Deploy
+            </Link>
+          </Button>
+        ) : (
+          <div className="border-l border-[#E2E8F0] pl-4 sm:pl-6">
+            <HomepageUpvoteButton
+              productSlug={product.slug}
+              initialCount={product.upvoteCount}
+              initialUpvoted={product.isVoted}
+              className="min-w-16 flex-col gap-0 rounded-r-xl bg-transparent px-3 py-2 text-[#0051d5] shadow-none hover:bg-[#EFF6FF]"
+            />
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+export function HomepageDropsInfiniteList({
+  initialItems,
+  initialHasMore,
+  initialNextPage,
+  pageSize,
+  excludedSlug,
+}: {
+  initialItems: HomepageDropListItem[]
+  initialHasMore: boolean
+  initialNextPage: number | null
+  pageSize: number
+  excludedSlug?: string
+}) {
+  const [items, setItems] = useState(initialItems)
+  const [hasMore, setHasMore] = useState(initialHasMore)
+  const [nextPage, setNextPage] = useState(initialNextPage)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+  const seenKeysRef = useRef(new Set(initialItems.map(dropKey)))
+
+  const loadMore = useCallback(async () => {
+    if (loading || error || !hasMore || !nextPage) return
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const params = new URLSearchParams({
+        page: String(nextPage),
+        pageSize: String(pageSize),
+      })
+      const response = await fetch(`/api/homepage/feed?${params.toString()}`, {
+        headers: { accept: "application/json" },
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to load drops")
+      }
+
+      const payload = (await response.json()) as HomepageFeedPageResult
+      const nextItems = payload.items
+        .filter((item) => !excludedSlug || item.slug !== excludedSlug)
+        .map(toDropListItem)
+        .filter((item) => {
+          const key = dropKey(item)
+          if (seenKeysRef.current.has(key)) return false
+          seenKeysRef.current.add(key)
+          return true
+        })
+
+      setItems((current) => [...current, ...nextItems])
+      setHasMore(payload.hasMore)
+      setNextPage(payload.nextPage)
+    } catch {
+      setError("More drops could not be loaded.")
+    } finally {
+      setLoading(false)
+    }
+  }, [error, excludedSlug, hasMore, loading, nextPage, pageSize])
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel || !hasMore) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          void loadMore()
+        }
+      },
+      { rootMargin: "480px 0px" },
+    )
+
+    observer.observe(sentinel)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [hasMore, loadMore])
+
+  if (items.length === 0 && !hasMore) {
+    return (
+      <Card className="rounded-xl border-[#E2E8F0] bg-white py-0 shadow-sm">
+        <CardContent className="p-5 text-sm text-[#43474c]">
+          No drops are live yet.
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      {items.map((product) => (
+        <HomepageDropRow key={dropKey(product)} product={product} />
+      ))}
+
+      <div ref={sentinelRef} className="min-h-10" aria-hidden />
+
+      <div className="pt-2 text-center text-xs font-semibold uppercase tracking-[0.12em] text-[#74777d]">
+        {loading ? "Loading more drops..." : null}
+        {!loading && error ? error : null}
+        {!loading && !error && !hasMore && items.length > 0
+          ? "You've reached the end of today's drops."
+          : null}
+      </div>
+    </div>
+  )
+}
+
 function MetricSparkline({
   color,
   data,
@@ -263,8 +567,7 @@ export function HomepageAnalyticsGrid({
 }: {
   initialStats: TrafficSidebarStatsPayload
 }) {
-  const [stats, setStats] =
-    useState<TrafficSidebarStatsPayload>(initialStats)
+  const [stats, setStats] = useState<TrafficSidebarStatsPayload>(initialStats)
   const [activeBuilderCount, setActiveBuilderCount] = useState(
     Math.max(1, initialStats.realtimeVisitors ?? 1),
   )
@@ -452,8 +755,7 @@ export function PartnerSpotlight() {
             </span>
           </div>
           <p className="hidden truncate text-sm text-white/90 lg:block">
-            Scale your infrastructure with our new Enterprise Cloud
-            integration.
+            Scale your infrastructure with our new Enterprise Cloud integration.
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-3">

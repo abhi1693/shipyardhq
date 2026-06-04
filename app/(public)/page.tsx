@@ -1,11 +1,5 @@
 import Link from "next/link"
-import {
-  ArrowRight,
-  BadgeCheck,
-  Bolt,
-  Rocket,
-  TrendingUp,
-} from "lucide-react"
+import { ArrowRight, Rocket, TrendingUp } from "lucide-react"
 
 import {
   getHomepageFeedPage,
@@ -16,6 +10,7 @@ import { getHomepageBuilderSummary } from "@/actions/public/users/actions"
 import { Button } from "@/components/atoms/button"
 import { Image } from "@/components/atoms/image"
 import {
+  HomepageDropsInfiniteList,
   HomepageAnalyticsGrid,
   HomepageUpvoteButton,
   PartnerSpotlight,
@@ -45,6 +40,7 @@ export const metadata = buildPageMetadata({
 })
 
 type DisplayDrop = {
+  id?: string
   slug?: string
   name: string
   tagline: string
@@ -155,6 +151,7 @@ function toDisplayDrop(
   item: Awaited<ReturnType<typeof getHomepageFeedPage>>["items"][number],
 ): DisplayDrop {
   return {
+    id: item.id,
     slug: item.slug,
     name: item.name,
     tagline: item.tagline,
@@ -210,117 +207,6 @@ function ProductLogo({
   )
 }
 
-function Sparkline({ sponsored = false }: { sponsored?: boolean }) {
-  return (
-    <svg
-      className={cn(
-        "h-10 w-full",
-        sponsored ? "text-[#C0FF00]" : "text-[#16a34a]",
-      )}
-      fill="none"
-      viewBox="0 0 100 40"
-      aria-hidden="true"
-    >
-      <path
-        d={
-          sponsored
-            ? "M0 30L20 28L40 32L60 15L80 5L100 12"
-            : "M0 35C20 32 30 10 50 15C70 20 80 5 100 2"
-        }
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="2"
-      />
-    </svg>
-  )
-}
-
-function DropRow({ product, index }: { product: DisplayDrop; index: number }) {
-  const sponsored = Boolean(product.isSponsored) || index === 2
-  const href = product.slug ? productPath(product.slug) : BROWSE_PATH
-
-  return (
-    <article
-      className={cn(
-        "group relative flex cursor-pointer items-center gap-4 rounded-xl p-5 transition-all sm:gap-6",
-        sponsored
-          ? "border border-white/10 bg-[#213145] text-white hover:shadow-lg"
-          : "border border-[#E2E8F0] bg-white hover:shadow-sm",
-      )}
-    >
-      {sponsored ? (
-        <div className="absolute right-2 top-2 flex items-center gap-1 text-white/60">
-          <span className="text-[9px] font-extrabold uppercase leading-[10px] tracking-widest">
-            Sponsored
-          </span>
-          <BadgeCheck className="size-3" aria-hidden />
-        </div>
-      ) : null}
-      <ProductLogo
-        product={product}
-        className={cn(
-          "size-14",
-          sponsored
-            ? "border border-white/20 bg-white/10"
-            : "bg-[#e5eeff] text-[#061d31]",
-        )}
-        imageClassName={sponsored ? "contrast-125" : "h-10 w-10 object-cover"}
-      />
-      <div className="min-w-0 flex-1">
-        <div className="mb-1 flex items-center gap-2">
-          <Link
-            href={href}
-            className="truncate text-lg font-semibold leading-6 hover:underline"
-          >
-            {product.name}
-          </Link>
-          <span
-            className={cn(
-              "rounded px-2 py-0.5 text-[9px] font-extrabold uppercase leading-[10px]",
-              sponsored
-                ? "bg-[#C0FF00] text-black"
-                : "bg-[#F8FAFC] text-[#74777d]",
-            )}
-          >
-            {product.category ?? "New Tool"}
-          </span>
-        </div>
-        <p
-          className={cn(
-            "truncate text-sm leading-5",
-            sponsored ? "text-white/70" : "text-[#43474c]",
-          )}
-        >
-          {product.tagline}
-        </p>
-      </div>
-      <div className="hidden w-32 px-4 md:block">
-        <Sparkline sponsored={sponsored} />
-      </div>
-      {sponsored ? (
-        <Button
-          asChild
-          className="h-14 min-w-16 rounded-r-xl rounded-l-none border-0 border-l border-white/10 bg-transparent pl-6 text-[#C0FF00] shadow-none hover:bg-white/10"
-        >
-          <Link href={href}>
-            <Bolt className="size-4" aria-hidden />
-            Deploy
-          </Link>
-        </Button>
-      ) : (
-        <div className="border-l border-[#E2E8F0] pl-4 sm:pl-6">
-          <HomepageUpvoteButton
-            productSlug={product.slug}
-            initialCount={product.upvoteCount}
-            initialUpvoted={product.isVoted}
-            className="min-w-16 flex-col gap-0 rounded-r-xl bg-transparent px-3 py-2 text-[#0051d5] shadow-none hover:bg-[#EFF6FF]"
-          />
-        </div>
-      )}
-    </article>
-  )
-}
-
 export default async function HomePage() {
   const [feedPage, launchOfDay, builderSummary, homepageStats] =
     await Promise.all([
@@ -369,13 +255,9 @@ export default async function HomePage() {
   const feedDrops = feedProducts.filter(
     (product) => !launch.slug || product.slug !== launch.slug,
   )
-  const organicDrops = feedDrops.filter((product) => !product.isSponsored)
-  const sponsoredDrop = feedDrops.find((product) => product.isSponsored)
-  const drops = [
-    organicDrops[0] ?? fallbackDrops[0],
-    organicDrops[1] ?? fallbackDrops[1],
-    sponsoredDrop ?? fallbackDrops[2],
-  ]
+  const usingFallbackDrops = feedPage.items.length === 0
+  const drops =
+    feedDrops.length > 0 ? feedDrops : usingFallbackDrops ? fallbackDrops : []
   const launchGrowth = launch.upvoteGrowthPercent
   const launchBuildersClickedCount = launch.buildersClickedCount ?? 0
   const launchSignalLabel =
@@ -406,11 +288,8 @@ export default async function HomePage() {
             </span>
           </div>
           <h1 className="mx-auto mb-6 max-w-4xl text-[40px] font-bold leading-[1.1] tracking-tight text-black md:text-[64px]">
-            Ship the Next Big Thing.{" "}
-            <br className="hidden md:block" />
-            <span className="text-[#0051d5]">
-              Discover the Best New Tools.
-            </span>
+            Ship the Next Big Thing. <br className="hidden md:block" />
+            <span className="text-[#0051d5]">Discover the Best New Tools.</span>
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-base leading-relaxed text-[#43474c]">
             Stop hunting through noise. Shipyard HQ is the high-performance
@@ -530,7 +409,9 @@ export default async function HomePage() {
                 asChild
                 className="h-10 rounded-lg border border-[#c4c6cd] bg-white px-6 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC]"
               >
-                <Link href={launch.slug ? productPath(launch.slug) : BROWSE_PATH}>
+                <Link
+                  href={launch.slug ? productPath(launch.slug) : BROWSE_PATH}
+                >
                   View Product
                 </Link>
               </Button>
@@ -575,20 +456,13 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="space-y-3">
-            {drops.map((product, index) => (
-              <DropRow key={`${product.name}-${index}`} product={product} index={index} />
-            ))}
-          </div>
-
-          <div className="mt-12 text-center">
-            <Button
-              asChild
-              className="h-12 rounded-lg border border-[#c4c6cd] bg-white px-8 text-lg font-semibold text-black shadow-none hover:bg-[#F8FAFC]"
-            >
-              <Link href={BROWSE_PATH}>Load more drops</Link>
-            </Button>
-          </div>
+          <HomepageDropsInfiniteList
+            initialItems={drops}
+            initialHasMore={!usingFallbackDrops && feedPage.hasMore}
+            initialNextPage={feedPage.nextPage}
+            pageSize={feedPage.pageSize}
+            excludedSlug={launch.slug}
+          />
         </section>
       </div>
 
