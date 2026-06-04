@@ -210,53 +210,6 @@ function ProductLogo({
   )
 }
 
-function AvatarStack({
-  compact = false,
-  featuredAvatarUrl,
-  avatarUrls,
-  countLabel,
-}: {
-  compact?: boolean
-  featuredAvatarUrl?: string | null
-  avatarUrls?: string[]
-  countLabel?: string
-}) {
-  const sources = Array.from(
-    new Set(
-      [
-        ...(avatarUrls ?? []),
-        featuredAvatarUrl,
-        ...fallbackAvatarUrls,
-      ].filter(Boolean),
-    ),
-  ).slice(0, 3) as string[]
-
-  return (
-    <div className={cn("flex", compact ? "-space-x-1.5" : "-space-x-3")}>
-      {sources.map((src) => (
-        <Image
-          key={src}
-          src={src}
-          alt=""
-          width={compact ? 24 : 40}
-          height={compact ? 24 : 40}
-          sizes={compact ? "24px" : "40px"}
-          className={cn(
-            "rounded-full border-2 border-white bg-[#d3e4fe]",
-            compact ? "size-6" : "size-10",
-          )}
-          unoptimized
-        />
-      ))}
-      {!compact ? (
-        <div className="flex size-10 items-center justify-center rounded-full border-2 border-white bg-[#d3e4fe] text-[11px] font-medium text-[#43474c]">
-          +{countLabel ?? "0"}
-        </div>
-      ) : null}
-    </div>
-  )
-}
-
 function Sparkline({ sponsored = false }: { sponsored?: boolean }) {
   return (
     <svg
