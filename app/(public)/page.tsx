@@ -7,7 +7,10 @@ import {
   TrendingUp,
 } from "lucide-react"
 
-import { getHomepageFeedPage } from "@/actions/public/homepage/feed"
+import {
+  getHomepageFeedPage,
+  getHomepageLaunchOfDay,
+} from "@/actions/public/homepage/feed"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { getHomepageBuilderSummary } from "@/actions/public/users/actions"
 import { Button } from "@/components/atoms/button"
@@ -48,6 +51,12 @@ type DisplayDrop = {
   logo?: string | null
   category?: string | null
   upvoteCount: number
+  score?: number | null
+  rank?: number | null
+  upvoteGrowthPercent?: number | null
+  recommenderCount?: number
+  recommenderAvatarUrls?: string[]
+  buildersClickedCount?: number | null
   isSponsored?: boolean
   isVoted?: boolean
 }
@@ -60,6 +69,12 @@ const fallbackLaunch: DisplayDrop = {
   logo: null,
   category: "Dev Tools",
   upvoteCount: 1242,
+  score: null,
+  rank: null,
+  upvoteGrowthPercent: null,
+  recommenderCount: 1242,
+  recommenderAvatarUrls: [],
+  buildersClickedCount: null,
 }
 
 const fallbackDrops: DisplayDrop[] = [
@@ -84,7 +99,7 @@ const fallbackDrops: DisplayDrop[] = [
   },
 ]
 
-const avatarUrls = [
+const fallbackAvatarUrls = [
   "https://api.dicebear.com/9.x/adventurer/svg?seed=Marcus",
   "https://api.dicebear.com/9.x/adventurer/svg?seed=Ada",
   "https://api.dicebear.com/9.x/adventurer/svg?seed=Lin",
@@ -96,8 +111,22 @@ function formatCount(value: number) {
   return numberFormatter.format(Math.max(0, value))
 }
 
+function formatPercent(value: number) {
+  const sign = value > 0 ? "+" : ""
+  return `${sign}${value.toFixed(0)}%`
+}
+
 function pluralize(value: number, singular: string, plural: string) {
   return value === 1 ? singular : plural
+}
+
+function formatBuildersClickedLabel(value: number) {
+  const safeValue = Math.max(0, value)
+  return `${formatCount(safeValue)} ${pluralize(
+    safeValue,
+    "builder",
+    "builders",
+  )} clicked`
 }
 
 function formatFounderLine(founder: {
@@ -122,7 +151,9 @@ function formatFounderLine(founder: {
   )} other ${pluralize(remainingDrops, "drop", "drops")}`
 }
 
-function toDisplayDrop(item: Awaited<ReturnType<typeof getHomepageFeedPage>>["items"][number]): DisplayDrop {
+function toDisplayDrop(
+  item: Awaited<ReturnType<typeof getHomepageFeedPage>>["items"][number],
+): DisplayDrop {
   return {
     slug: item.slug,
     name: item.name,
@@ -130,6 +161,8 @@ function toDisplayDrop(item: Awaited<ReturnType<typeof getHomepageFeedPage>>["it
     logo: item.logo,
     category: item.category,
     upvoteCount: item.upvoteCount,
+    score: item.scoreCount,
+    buildersClickedCount: item.interest?.uniqueVisitors7d ?? null,
     isSponsored: item.isSponsored,
     isVoted: item.isVoted,
   }
@@ -180,14 +213,22 @@ function ProductLogo({
 function AvatarStack({
   compact = false,
   featuredAvatarUrl,
+  avatarUrls,
   countLabel,
 }: {
   compact?: boolean
   featuredAvatarUrl?: string | null
+  avatarUrls?: string[]
   countLabel?: string
 }) {
   const sources = Array.from(
-    new Set([featuredAvatarUrl, ...avatarUrls].filter(Boolean)),
+    new Set(
+      [
+        ...(avatarUrls ?? []),
+        featuredAvatarUrl,
+        ...fallbackAvatarUrls,
+      ].filter(Boolean),
+    ),
   ).slice(0, 3) as string[]
 
   return (
@@ -328,49 +369,70 @@ function DropRow({ product, index }: { product: DisplayDrop; index: number }) {
 }
 
 export default async function HomePage() {
-  const [feedPage, builderSummary, homepageStats] = await Promise.all([
-    getHomepageFeedPage({ page: 1, pageSize: 6 }).catch(() => ({
-      items: [],
-      page: 1,
-      pageSize: 6,
-      hasMore: false,
-      nextPage: null,
-    })),
-    getHomepageBuilderSummary().catch(() => ({
-      builderCount: 0,
-      topFounder: null,
-    })),
-    getLeaderboardStats().catch(() => ({
-      pageViews30: 0,
-      visitors30: 0,
-      trafficSeries: [],
-      realtimeVisitors: 1,
-    })),
-  ])
+  const [feedPage, launchOfDay, builderSummary, homepageStats] =
+    await Promise.all([
+      getHomepageFeedPage({ page: 1, pageSize: 6 }).catch(() => ({
+        items: [],
+        page: 1,
+        pageSize: 6,
+        hasMore: false,
+        nextPage: null,
+      })),
+      getHomepageLaunchOfDay().catch(() => null),
+      getHomepageBuilderSummary().catch(() => ({
+        builderCount: 0,
+        topFounder: null,
+      })),
+      getLeaderboardStats().catch(() => ({
+        pageViews30: 0,
+        visitors30: 0,
+        trafficSeries: [],
+        realtimeVisitors: 1,
+      })),
+    ])
 
   const feedProducts = feedPage.items.map(toDisplayDrop)
-  const launch = feedProducts[0] ?? fallbackLaunch
+  const launch = launchOfDay
+    ? {
+        ...toDisplayDrop(launchOfDay),
+        rank: launchOfDay.rank,
+        score: launchOfDay.score,
+        upvoteGrowthPercent: launchOfDay.upvoteGrowthPercent,
+        recommenderCount: launchOfDay.recommenderCount,
+        recommenderAvatarUrls: launchOfDay.recommenderAvatarUrls,
+        buildersClickedCount: launchOfDay.buildersClickedCount,
+      }
+    : (feedProducts[0] ?? fallbackLaunch)
   const builderCount = builderSummary.builderCount
   const builderCountLabel = formatCount(builderCount)
   const builderNoun = pluralize(builderCount, "builder", "builders")
   const topFounder = builderSummary.topFounder
   const topFounderHref = topFounder ? userPath(topFounder.id) : "/users"
-  const topFounderAvatarUrl = topFounder?.avatarUrl ?? avatarUrls[0]
+  const topFounderAvatarUrl = topFounder?.avatarUrl ?? fallbackAvatarUrls[0]
   const topFounderName = topFounder?.name ?? "Shipyard makers"
   const topFounderLine = topFounder
     ? formatFounderLine(topFounder)
     : "No public launches yet"
-  const organicDrops = feedProducts
-    .slice(1)
-    .filter((product) => !product.isSponsored)
-  const sponsoredDrop = feedProducts
-    .slice(1)
-    .find((product) => product.isSponsored)
+  const feedDrops = feedProducts.filter(
+    (product) => !launch.slug || product.slug !== launch.slug,
+  )
+  const organicDrops = feedDrops.filter((product) => !product.isSponsored)
+  const sponsoredDrop = feedDrops.find((product) => product.isSponsored)
   const drops = [
     organicDrops[0] ?? fallbackDrops[0],
     organicDrops[1] ?? fallbackDrops[1],
     sponsoredDrop ?? fallbackDrops[2],
   ]
+  const launchGrowth = launch.upvoteGrowthPercent
+  const launchBuildersClickedCount = launch.buildersClickedCount ?? 0
+  const launchSignalLabel =
+    typeof launchGrowth === "number"
+      ? formatPercent(launchGrowth)
+      : launch.rank
+        ? `#${launch.rank}`
+        : "New"
+  const launchSignalIsPositive =
+    typeof launchGrowth !== "number" || launchGrowth >= 0
 
   return (
     <div className="relative isolate bg-[#F8FAFC] pb-16 text-[#0b1c30]">
@@ -474,10 +536,31 @@ export default async function HomePage() {
                 </div>
               </div>
               <div className="hidden flex-col items-end sm:flex">
-                <div className="flex items-center gap-1.5 rounded bg-[#16a34a]/5 px-2 py-1">
-                  <TrendingUp className="size-[18px] text-[#16a34a]" />
-                  <span className="text-xs font-semibold uppercase tracking-[0.05em] text-[#16a34a]">
-                    +42%
+                <div
+                  className={cn(
+                    "flex items-center gap-1.5 rounded px-2 py-1",
+                    launchSignalIsPositive
+                      ? "bg-[#16a34a]/5"
+                      : "bg-[#ba1a1a]/5",
+                  )}
+                >
+                  <TrendingUp
+                    className={cn(
+                      "size-[18px]",
+                      launchSignalIsPositive
+                        ? "text-[#16a34a]"
+                        : "text-[#ba1a1a]",
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "text-xs font-semibold uppercase tracking-[0.05em]",
+                      launchSignalIsPositive
+                        ? "text-[#16a34a]"
+                        : "text-[#ba1a1a]",
+                    )}
+                  >
+                    {launchSignalLabel}
                   </span>
                 </div>
               </div>
@@ -499,9 +582,13 @@ export default async function HomePage() {
                 </Link>
               </Button>
               <div className="ml-auto flex items-center gap-2">
-                <AvatarStack compact featuredAvatarUrl={topFounderAvatarUrl} />
+                <AvatarStack
+                  compact
+                  avatarUrls={launch.recommenderAvatarUrls}
+                  featuredAvatarUrl={topFounderAvatarUrl}
+                />
                 <span className="text-[11px] font-medium leading-[14px] text-[#43474c]">
-                  24+ Recommend
+                  {formatBuildersClickedLabel(launchBuildersClickedCount)}
                 </span>
               </div>
             </div>

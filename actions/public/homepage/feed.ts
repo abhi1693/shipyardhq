@@ -12,6 +12,8 @@ import type { ProductInterestSignals } from "@/types/product-interest"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { hasEditorPickBadge } from "@/lib/products/badges"
 import { stableUnitInterval } from "@/lib/stable-random"
+import { getCurrentLeaderboardRun } from "@/lib/server/leaderboard/v2"
+import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
 const SPONSORED_PLACEMENT_FEATURE_KEY = "sponsoredProducts"
 const SPONSORED_PLAN_FEATURE_KEYS = [
@@ -123,6 +125,15 @@ export interface HomepageFeedPageResult {
   nextPage: number | null
 }
 
+export type HomepageLaunchOfDay = HomepageFeedItem & {
+  rank: number | null
+  score: number | null
+  upvoteGrowthPercent: number | null
+  buildersClickedCount: number
+  recommenderCount: number
+  recommenderAvatarUrls: string[]
+}
+
 interface GetHomepageFeedPageParams {
   page?: number
   pageSize?: number
@@ -152,6 +163,17 @@ function buildBaseWhere(): Prisma.ProductWhereInput {
   return {
     status: "published",
   }
+}
+
+function daysAgo(days: number) {
+  const date = new Date()
+  date.setUTCDate(date.getUTCDate() - days)
+  return date
+}
+
+function calculatePercentChange(current: number, previous: number) {
+  if (previous === 0) return current > 0 ? 100 : null
+  return ((current - previous) / previous) * 100
 }
 
 function buildSponsoredPlacementWhere(now: Date): Prisma.ProductWhereInput {
@@ -410,6 +432,146 @@ export async function getHomepageFeedPage(
 ): Promise<HomepageFeedPageResult> {
   return getHomepageFeedView(params)
 }
+
+async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
+  const run = await getCurrentLeaderboardRun()
+  const topScore = run
+    ? await prisma.productLeaderboardScore.findFirst({
+        where: {
+          runId: run.id,
+          product: buildBaseWhere(),
+        },
+        orderBy: [
+          { score: "desc" },
+          { upvotes: "desc" },
+          { uniqueVisitors: "desc" },
+          { views: "desc" },
+        ],
+        select: {
+          rank: true,
+          score: true,
+          product: { select: homepageFeedSelect },
+        },
+      })
+    : null
+
+  const fallbackProduct = topScore
+    ? null
+    : await prisma.product.findFirst({
+        where: buildBaseWhere(),
+        orderBy: [
+          { analytics: { upvotes: "desc" } },
+          { publishedAt: { sort: "desc", nulls: "last" } },
+          { createdAt: "desc" },
+        ],
+        select: homepageFeedSelect,
+      })
+
+  const product = topScore?.product ?? fallbackProduct
+  if (!product) return null
+
+  const item = (
+    await buildFeedItemsFromProducts([product], null)
+  )[0]
+  if (!item) return null
+
+  const currentStart = daysAgo(7)
+  const previousStart = daysAgo(14)
+  const cachedBuildersClicked = item.interest?.uniqueVisitors7d
+
+  const [
+    recommenderCount,
+    currentUpvotes,
+    previousUpvotes,
+    recentRecommenders,
+    trafficBuildersClicked,
+  ] = await Promise.all([
+    prisma.productUpvote.count({
+      where: { productId: product.id },
+    }),
+    prisma.productUpvote.count({
+      where: {
+        productId: product.id,
+        createdAt: { gte: currentStart },
+      },
+    }),
+    prisma.productUpvote.count({
+      where: {
+        productId: product.id,
+        createdAt: { gte: previousStart, lt: currentStart },
+      },
+    }),
+    prisma.productUpvote.findMany({
+      where: { productId: product.id },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+      select: {
+        user: {
+          select: {
+            clerkId: true,
+          },
+        },
+      },
+    }),
+    cachedBuildersClicked == null
+      ? prisma.productTrafficDaily.aggregate({
+          where: {
+            productId: product.id,
+            date: { gte: currentStart },
+          },
+          _sum: {
+            uniqueVisitors: true,
+          },
+        })
+      : Promise.resolve(null),
+  ])
+
+  const recommenderAvatarUrls = (
+    await Promise.all(
+      recentRecommenders.map(async (vote) => {
+        const clerkId = vote.user.clerkId
+        if (!clerkId) return null
+
+        try {
+          const clerkUser = await getClerkUserByIdCached(clerkId)
+          return clerkUser.imageUrl ?? null
+        } catch {
+          return null
+        }
+      }),
+    )
+  ).filter((url): url is string => Boolean(url))
+
+  return {
+    ...item,
+    rank: topScore?.rank ?? null,
+    score: topScore?.score ?? item.scoreCount ?? null,
+    upvoteGrowthPercent: calculatePercentChange(
+      currentUpvotes,
+      previousUpvotes,
+    ),
+    buildersClickedCount:
+      cachedBuildersClicked ?? trafficBuildersClicked?._sum.uniqueVisitors ?? 0,
+    recommenderCount,
+    recommenderAvatarUrls,
+  }
+}
+
+export const getHomepageLaunchOfDay = unstable_cache(
+  getLaunchOfDayImpl,
+  ["homepage-launch-of-day"],
+  {
+    revalidate: 60,
+    tags: [
+      "homepage-feed",
+      "homepage",
+      "products",
+      "leaderboard",
+      "analytics",
+      "upvotes",
+    ],
+  },
+)
 
 export async function getHomepageFeedViewAll(
   params: GetHomepageFeedViewParams = {},
