@@ -33,6 +33,18 @@ type PublicUserListItem = {
   avatarUrl: string | null
 }
 
+export type HomepageBuilderSummary = {
+  builderCount: number
+  topFounder: {
+    id: string
+    name: string
+    avatarUrl: string | null
+    productCount: number
+    topProductName: string | null
+    topProductSlug: string | null
+  } | null
+}
+
 const FALLBACK_TAGLINE =
   "Discover launch-ready tools from indie makers worldwide."
 
@@ -272,6 +284,93 @@ export async function getPublicUsersPage(
 
   return getPublicUsersPageCached(safePage, safePageSize)
 }
+
+export const getHomepageBuilderSummary = cached(
+  async (): Promise<HomepageBuilderSummary> => {
+    const where: Prisma.UserWhereInput = {
+      status: "active",
+      products: { some: publishedProductWhere },
+    }
+
+    const [builderCount, topFounder] = await Promise.all([
+      prisma.user.count({ where }),
+      prisma.user.findFirst({
+        where,
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          clerkId: true,
+          _count: {
+            select: {
+              products: { where: publishedProductWhere },
+            },
+          },
+          products: {
+            where: publishedProductWhere,
+            select: {
+              name: true,
+              slug: true,
+              analytics: {
+                select: {
+                  upvotes: true,
+                },
+              },
+              createdAt: true,
+            },
+            orderBy: [
+              { analytics: { upvotes: "desc" } },
+              { createdAt: "desc" },
+            ],
+            take: 1,
+          },
+        },
+        orderBy: [{ products: { _count: "desc" } }, { createdAt: "asc" }],
+      }),
+    ])
+
+    if (!topFounder) {
+      return {
+        builderCount,
+        topFounder: null,
+      }
+    }
+
+    let avatarUrl: string | null = null
+    if (topFounder.clerkId) {
+      try {
+        const clerkUser = await getClerkUserByIdCached(topFounder.clerkId)
+        avatarUrl = clerkUser.imageUrl ?? null
+      } catch {
+        avatarUrl = null
+      }
+    }
+
+    const name = [topFounder.firstName, topFounder.lastName]
+      .map((segment) => segment?.trim())
+      .filter(Boolean)
+      .join(" ")
+
+    const topProduct = topFounder.products[0] ?? null
+
+    return {
+      builderCount,
+      topFounder: {
+        id: topFounder.id,
+        name: name || "Shipyard maker",
+        avatarUrl,
+        productCount: topFounder._count.products,
+        topProductName: topProduct?.name ?? null,
+        topProductSlug: topProduct?.slug ?? null,
+      },
+    }
+  },
+  "homepage:builder-summary",
+  {
+    ttl: DEFAULT_TTL.slow,
+    tags: () => [TAGS.homepage, TAGS.users, TAGS.products],
+  },
+)
 
 const mapUserProductToFeedItem = (
   product: ReturnType<typeof mapProductCardRecordToBase>,

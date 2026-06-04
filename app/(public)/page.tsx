@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 
 import { getHomepageFeedPage } from "@/actions/public/homepage/feed"
+import { getHomepageBuilderSummary } from "@/actions/public/users/actions"
 import { Button } from "@/components/atoms/button"
 import { Image } from "@/components/atoms/image"
 import {
@@ -23,6 +24,7 @@ import {
   LEADERBOARD_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
   productPath,
+  userPath,
 } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
@@ -87,6 +89,38 @@ const avatarUrls = [
   "https://api.dicebear.com/9.x/adventurer/svg?seed=Lin",
 ]
 
+const numberFormatter = new Intl.NumberFormat("en-US")
+
+function formatCount(value: number) {
+  return numberFormatter.format(Math.max(0, value))
+}
+
+function pluralize(value: number, singular: string, plural: string) {
+  return value === 1 ? singular : plural
+}
+
+function formatFounderLine(founder: {
+  productCount: number
+  topProductName: string | null
+}) {
+  if (!founder.topProductName) {
+    return `${formatCount(founder.productCount)} published ${pluralize(
+      founder.productCount,
+      "drop",
+      "drops",
+    )}`
+  }
+
+  const remainingDrops = Math.max(0, founder.productCount - 1)
+  if (remainingDrops === 0) {
+    return `Built ${founder.topProductName}`
+  }
+
+  return `Built ${founder.topProductName} & ${formatCount(
+    remainingDrops,
+  )} other ${pluralize(remainingDrops, "drop", "drops")}`
+}
+
 function toDisplayDrop(item: Awaited<ReturnType<typeof getHomepageFeedPage>>["items"][number]): DisplayDrop {
   return {
     slug: item.slug,
@@ -142,10 +176,22 @@ function ProductLogo({
   )
 }
 
-function AvatarStack({ compact = false }: { compact?: boolean }) {
+function AvatarStack({
+  compact = false,
+  featuredAvatarUrl,
+  countLabel,
+}: {
+  compact?: boolean
+  featuredAvatarUrl?: string | null
+  countLabel?: string
+}) {
+  const sources = Array.from(
+    new Set([featuredAvatarUrl, ...avatarUrls].filter(Boolean)),
+  ).slice(0, 3) as string[]
+
   return (
     <div className={cn("flex", compact ? "-space-x-1.5" : "-space-x-3")}>
-      {avatarUrls.map((src) => (
+      {sources.map((src) => (
         <Image
           key={src}
           src={src}
@@ -162,7 +208,7 @@ function AvatarStack({ compact = false }: { compact?: boolean }) {
       ))}
       {!compact ? (
         <div className="flex size-10 items-center justify-center rounded-full border-2 border-white bg-[#d3e4fe] text-[11px] font-medium text-[#43474c]">
-          +50k
+          +{countLabel ?? "0"}
         </div>
       ) : null}
     </div>
@@ -281,18 +327,32 @@ function DropRow({ product, index }: { product: DisplayDrop; index: number }) {
 }
 
 export default async function HomePage() {
-  const feedPage = await getHomepageFeedPage({ page: 1, pageSize: 6 }).catch(
-    () => ({
+  const [feedPage, builderSummary] = await Promise.all([
+    getHomepageFeedPage({ page: 1, pageSize: 6 }).catch(() => ({
       items: [],
       page: 1,
       pageSize: 6,
       hasMore: false,
       nextPage: null,
-    }),
-  )
+    })),
+    getHomepageBuilderSummary().catch(() => ({
+      builderCount: 0,
+      topFounder: null,
+    })),
+  ])
 
   const feedProducts = feedPage.items.map(toDisplayDrop)
   const launch = feedProducts[0] ?? fallbackLaunch
+  const builderCount = builderSummary.builderCount
+  const builderCountLabel = formatCount(builderCount)
+  const builderNoun = pluralize(builderCount, "builder", "builders")
+  const topFounder = builderSummary.topFounder
+  const topFounderHref = topFounder ? userPath(topFounder.id) : "/users"
+  const topFounderAvatarUrl = topFounder?.avatarUrl ?? avatarUrls[0]
+  const topFounderName = topFounder?.name ?? "Shipyard makers"
+  const topFounderLine = topFounder
+    ? formatFounderLine(topFounder)
+    : "No public launches yet"
   const organicDrops = feedProducts
     .slice(1)
     .filter((product) => !product.isSponsored)
@@ -320,7 +380,7 @@ export default async function HomePage() {
           <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-[#16a34a]/10 px-4 py-1.5 text-[#16a34a]">
             <Rocket className="size-[18px] fill-current" aria-hidden />
             <span className="text-xs font-semibold uppercase tracking-wider">
-              Join 50,000+ top builders
+              Join {builderCountLabel} top {builderNoun}
             </span>
           </div>
           <h1 className="mx-auto mb-6 max-w-4xl text-[40px] font-bold leading-[1.1] tracking-tight text-black md:text-[64px]">
@@ -352,14 +412,14 @@ export default async function HomePage() {
 
           <div className="mt-12 flex items-center justify-center">
             <Link
-              href="/users"
+              href={topFounderHref}
               className="group flex items-center gap-3 rounded-full border border-[#E2E8F0] bg-[#eff4ff] py-2 pl-2 pr-6 transition-colors hover:bg-[#dce9ff]"
             >
               <div className="relative">
                 <Image
                   className="size-10 rounded-full border-2 border-white bg-[#d3e4fe] shadow-sm"
-                  src={avatarUrls[0]}
-                  alt=""
+                  src={topFounderAvatarUrl}
+                  alt={topFounder ? `${topFounder.name} avatar` : ""}
                   width={40}
                   height={40}
                   sizes="40px"
@@ -370,14 +430,14 @@ export default async function HomePage() {
               <div className="text-left">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-black">
-                    Marcus Chen
+                    {topFounderName}
                   </span>
                   <span className="rounded-full bg-[#0051d5]/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-[#0051d5]">
-                    Top 1% Maker
+                    {topFounder ? "Top Maker" : "Makers"}
                   </span>
                 </div>
                 <p className="text-[11px] font-medium leading-[14px] text-[#43474c]">
-                  Built VectorFlow AI &amp; 12 other drops
+                  {topFounderLine}
                 </p>
               </div>
               <ArrowRight className="size-[18px] text-[#74777d] transition-all group-hover:translate-x-0.5 group-hover:text-[#0051d5]" />
@@ -432,7 +492,7 @@ export default async function HomePage() {
                 </Link>
               </Button>
               <div className="ml-auto flex items-center gap-2">
-                <AvatarStack compact />
+                <AvatarStack compact featuredAvatarUrl={topFounderAvatarUrl} />
                 <span className="text-[11px] font-medium leading-[14px] text-[#43474c]">
                   24+ Recommend
                 </span>
@@ -449,10 +509,15 @@ export default async function HomePage() {
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <section className="mb-12 flex flex-col items-center justify-between gap-6 border-y border-[#E2E8F0] py-6 md:flex-row">
           <div className="flex items-center gap-3">
-            <AvatarStack />
+            <AvatarStack
+              featuredAvatarUrl={topFounderAvatarUrl}
+              countLabel={builderCountLabel}
+            />
             <p className="text-sm leading-5 text-[#43474c]">
               Trusted by{" "}
-              <span className="font-bold text-black">50,000+ builders</span>{" "}
+              <span className="font-bold text-black">
+                {builderCountLabel} {builderNoun}
+              </span>{" "}
               worldwide
             </p>
           </div>
