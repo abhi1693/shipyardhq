@@ -9,7 +9,7 @@ import {
 describe("homepage feed view normalization", () => {
   it("recognizes known views", () => {
     expect(isHomepageFeedView("new")).toBe(true)
-    expect(isHomepageFeedView("most-clicked")).toBe(true)
+    expect(isHomepageFeedView("most-clicked")).toBe(false)
   })
 
   it("rejects unknown views", () => {
@@ -18,9 +18,7 @@ describe("homepage feed view normalization", () => {
   })
 
   it("normalizes unknown to fallback", () => {
-    expect(normalizeHomepageFeedView("bogus", "most-clicked")).toBe(
-      "most-clicked",
-    )
+    expect(normalizeHomepageFeedView("bogus", "new")).toBe("new")
   })
 
   it("normalizes missing to default", () => {

@@ -5,16 +5,11 @@ import prisma from "@/lib/prisma"
 import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { HOMEPAGE_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
-import {
-  DEFAULT_HOMEPAGE_FEED_VIEW,
-  type HomepageFeedView,
-  normalizeHomepageFeedView,
-} from "@/lib/homepage/feed-views"
+import type { HomepageFeedView } from "@/lib/homepage/feed-views"
 import type { ProductCardVariant } from "@/types/product-card"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import type { ProductInterestSignals } from "@/types/product-interest"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
-import { getMostClickedProductIds } from "@/lib/server/analytics/productInterest"
 import { hasEditorPickBadge } from "@/lib/products/badges"
 import { stableUnitInterval } from "@/lib/stable-random"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
@@ -220,13 +215,14 @@ function mapProductToFeedItem(
       (schedule) => schedule.startsAt <= now && schedule.endsAt >= now,
     ) ?? false
   const isEditorPick = hasEditorPickBadge(activeBadges)
-  const isSponsored = isSponsoredPlan || hasActiveSponsoredSchedule || isEditorPick
+  const isSponsored =
+    isSponsoredPlan || hasActiveSponsoredSchedule || isEditorPick
   const variant: ProductCardVariant =
     isSponsoredPlan || hasActiveSponsoredSchedule
-    ? "sponsored"
-    : isEditorPick
-      ? "promoted"
-      : "default"
+      ? "sponsored"
+      : isEditorPick
+        ? "promoted"
+        : "default"
 
   const scoreCount = scoreByProductId?.get(product.id)
   const shuffleKey = now.toISOString().slice(0, 10)
@@ -395,99 +391,10 @@ export async function getHomepageNewFeedPage(
   }
 }
 
-export async function getHomepageMostClickedFeedPage(
-  params: GetHomepageFeedPageParams = {},
-): Promise<HomepageFeedPageResult> {
-  const safePage = normalizePage(params.page, 1)
-  const safePageSize = normalizePageSize(
-    params.pageSize,
-    HOMEPAGE_FEED_PAGE_SIZE,
-  )
-
-  const ids = await getMostClickedProductIds({
-    days: 7,
-    limit: Math.max(200, safePage * safePageSize * 5),
-  })
-
-  if (!ids.length) {
-    return {
-      items: [],
-      page: safePage,
-      pageSize: safePageSize,
-      hasMore: false,
-      nextPage: null,
-    }
-  }
-
-  const interestMap = await getProductInterestSignalsMap({
-    products: ids.map((id) => ({ id, slug: "" })),
-    days: 7,
-  })
-
-  const nonZeroIds = ids.filter(
-    (id) => (interestMap.get(id)?.clicks7d ?? 0) > 0,
-  )
-  if (!nonZeroIds.length) {
-    return {
-      items: [],
-      page: safePage,
-      pageSize: safePageSize,
-      hasMore: false,
-      nextPage: null,
-    }
-  }
-
-  const skip = (safePage - 1) * safePageSize
-  const pageIds = nonZeroIds.slice(skip, skip + safePageSize)
-  if (!pageIds.length) {
-    return {
-      items: [],
-      page: safePage,
-      pageSize: safePageSize,
-      hasMore: false,
-      nextPage: null,
-    }
-  }
-
-  const records = (await prisma.product.findMany({
-    where: { id: { in: pageIds }, status: "published" },
-    select: homepageFeedSelect,
-  })) as unknown as HomepageFeedProduct[]
-
-  const recordMap = new Map<string, HomepageFeedProduct>(
-    records.map((record) => [record.id, record]),
-  )
-  const ordered = pageIds
-    .map((id) => recordMap.get(id))
-    .filter((record): record is HomepageFeedProduct => Boolean(record))
-
-  const items = await buildFeedItemsFromProducts(ordered, params.clerkUserId)
-  const hasMore = skip + pageIds.length < nonZeroIds.length
-
-  return {
-    items,
-    page: safePage,
-    pageSize: safePageSize,
-    hasMore,
-    nextPage: hasMore ? safePage + 1 : null,
-  }
-}
-
 async function getHomepageFeedViewImpl(
   params: GetHomepageFeedViewParams = {},
 ): Promise<HomepageFeedPageResult> {
-  const { view, ...rest } = params
-  const baseParams: GetHomepageFeedPageParams = rest
-  const normalizedView = normalizeHomepageFeedView(
-    view,
-    DEFAULT_HOMEPAGE_FEED_VIEW,
-  )
-
-  if (normalizedView === "most-clicked") {
-    return getHomepageMostClickedFeedPage(baseParams)
-  }
-
-  return getHomepageNewFeedPage(baseParams)
+  return getHomepageNewFeedPage(params)
 }
 
 export const getHomepageFeedView = unstable_cache(
@@ -506,18 +413,13 @@ export async function getHomepageFeedViewAll(
   params: GetHomepageFeedViewParams = {},
 ): Promise<HomepageFeedItem[]> {
   const items: HomepageFeedItem[] = []
-  const normalizedView = normalizeHomepageFeedView(
-    params.view,
-    DEFAULT_HOMEPAGE_FEED_VIEW,
-  )
-  const baseParams = { ...params, view: normalizedView }
   let page = normalizePage(params.page, 1)
   let iterations = 0
-  const MAX_PAGES = normalizedView === "most-clicked" ? 5 : 100
+  const MAX_PAGES = 100
 
   while (iterations < MAX_PAGES) {
     const result = await getHomepageFeedView({
-      ...baseParams,
+      ...params,
       page,
     })
 

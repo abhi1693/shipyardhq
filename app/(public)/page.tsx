@@ -16,16 +16,11 @@ import {
 import { DeferredTrafficSidebarStats } from "@/components/templates/public/common/DeferredTrafficSidebarStats"
 import { TrafficSidebarStatsSkeleton } from "@/components/templates/public/common/TrafficSidebarStatsSkeleton"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
-import {
-  DEFAULT_HOMEPAGE_FEED_VIEW,
-  normalizeHomepageFeedView,
-} from "@/lib/homepage/feed-views"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
 import { siteConfig } from "@/lib/siteConfig"
 import { HOME_PATH } from "@/lib/routes"
 
-export const dynamic = "force-dynamic"
 export const revalidate = 60
 
 const HOMEPAGE_TITLE = "Shipyard shows what builders are actually clicking on"
@@ -36,16 +31,7 @@ export const metadata = buildPageMetadata({
   canonical: HOME_PATH,
 })
 
-interface HomePageProps {
-  searchParams: Promise<{ view?: string | string[] }>
-}
-
-export default async function HomePage({ searchParams }: HomePageProps) {
-  const params = await searchParams
-  const feedView = normalizeHomepageFeedView(
-    params?.view,
-    DEFAULT_HOMEPAGE_FEED_VIEW,
-  )
+export default async function HomePage() {
   return (
     <div className="relative isolate bg-[#f5f7fb]">
       <CoreStructuredData
@@ -72,7 +58,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               </div>
             </Suspense>
             <Suspense fallback={<HomepageFeedSkeleton />}>
-              <HomepageFeedSection view={feedView} />
+              <HomepageFeedSection />
             </Suspense>
           </>
         }
