@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 
 import { useVisibilityGate } from "@/hooks/use-visibility-gate"
+import { cn } from "@/lib/utils"
 import { TrafficSidebarStatsSkeleton } from "./TrafficSidebarStatsSkeleton"
 import type { TrafficSidebarStatsPayload } from "./TrafficSidebarStatsContent"
 
@@ -82,14 +83,14 @@ export function DeferredTrafficSidebarStats({
   }, [isActive])
 
   return (
-    <div ref={ref}>
+    <div ref={ref} className={cn("min-h-[454px]", className)}>
       {stats ? (
         <DeferredTrafficSidebarStatsContent
           stats={stats}
-          className={className}
+          className="min-h-[454px]"
         />
       ) : (
-        <TrafficSidebarStatsSkeleton className={className} />
+        <TrafficSidebarStatsSkeleton className="min-h-[454px]" />
       )}
     </div>
   )

@@ -21,11 +21,22 @@ const EMPTY_FEED_PAGE: HomepageFeedPageResult = {
 
 function HomepageFeedLoading() {
   return (
-    <div className="space-y-6">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <ProductFeedCardSkeleton key={`feed-loader-skeleton-${index}`} />
-      ))}
-    </div>
+    <section className="space-y-10" aria-busy="true">
+      <div className="space-y-5">
+        <div className="space-y-3">
+          <div className="h-6 w-40 rounded-full bg-slate-200/80 animate-pulse" />
+          <span
+            aria-hidden="true"
+            className="block h-px w-full rounded-full bg-[#E5E8F5]"
+          />
+        </div>
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <ProductFeedCardSkeleton key={`feed-loader-skeleton-${index}`} />
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }
 

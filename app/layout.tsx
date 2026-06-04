@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import Script from "next/script"
+import { DeferredGoogleAnalytics } from "@/components/analytics/DeferredGoogleAnalytics"
 import { Toaster } from "@/components/atoms/sonner"
-import { GoogleAnalytics } from "@next/third-parties/google"
 import Providers from "@/components/layout/providers"
 import "./globals.css"
 import { IS_PROD } from "@/lib/constants"
@@ -69,8 +69,6 @@ export default function RootLayout({
     >
       <head>
         <link rel="preconnect" href="https://media.shipyardhq.dev" />
-        <link rel="preconnect" href="https://www.google-analytics.com" />
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
         {gaId && (
           <Script
             id="ga-hostname-exclusions"
@@ -86,8 +84,8 @@ export default function RootLayout({
           <Toaster position="top-right" />
           {children}
         </Providers>
+        {gaId && <DeferredGoogleAnalytics gaId={gaId} />}
       </body>
-      {gaId && <GoogleAnalytics gaId={gaId} />}
     </html>
   )
 }

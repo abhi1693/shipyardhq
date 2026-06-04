@@ -6,11 +6,11 @@ export function TrafficSidebarStatsSkeleton({
   className?: string
 }) {
   return (
-    <div className={cn("space-y-3", className)}>
+    <div className={cn("min-h-[454px] space-y-3", className)}>
       {[1, 2].map((key) => (
         <div
           key={key}
-          className="rounded-2xl border border-border/60 bg-white p-4 shadow-sm"
+          className="min-h-[158px] rounded-2xl border border-border/60 bg-white p-4 shadow-sm"
         >
           <div className="flex items-center gap-2">
             <span className="h-4 w-4 rounded bg-muted animate-pulse" />
@@ -21,7 +21,7 @@ export function TrafficSidebarStatsSkeleton({
           <div className="mt-3 h-12 w-full rounded bg-muted animate-pulse" />
         </div>
       ))}
-      <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-white p-4 shadow-sm">
+      <div className="min-h-[60px] flex items-center justify-between rounded-2xl border border-border/60 bg-white p-4 shadow-sm">
         <div className="flex items-center gap-2">
           <span className="h-3 w-3 rounded-full bg-muted animate-pulse" />
           <span className="h-4 w-24 rounded bg-muted animate-pulse" />

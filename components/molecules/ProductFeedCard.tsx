@@ -65,7 +65,7 @@ export function ProductFeedCard({
   })
 
   const cardClasses = cn(
-    "group relative flex h-full flex-col rounded-2xl p-5 text-left transition-shadow duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18]",
+    "group relative flex h-full min-h-[184px] flex-col rounded-2xl p-5 text-left transition-shadow duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18] sm:min-h-[164px]",
     CARD_VARIANT_CLASSES[cardVariant],
     className,
   )

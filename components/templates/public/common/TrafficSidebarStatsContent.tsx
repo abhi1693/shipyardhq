@@ -37,7 +37,7 @@ function TrafficCard({
   points: SparklinePoint[]
 }) {
   return (
-    <div className="rounded-2xl border border-border/60 bg-white p-4 shadow-sm">
+    <div className="min-h-[158px] rounded-2xl border border-border/60 bg-white p-4 shadow-sm">
       <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
         <Icon className="h-4 w-4" aria-hidden />
         <span>{title}</span>
@@ -89,7 +89,7 @@ export function TrafficSidebarStatsContent({
       : [{ label: "Last 30d", value: stats.visitors30 ?? 0 }]
 
   return (
-    <div className={cn("space-y-3", className)}>
+    <div className={cn("min-h-[454px] space-y-3", className)}>
       <TrafficCard
         title="Monthly page views"
         value={stats.pageViews30 ?? 0}

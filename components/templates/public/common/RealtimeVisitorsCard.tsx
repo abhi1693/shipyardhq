@@ -62,7 +62,7 @@ export function RealtimeVisitorsCard({
     <div
       ref={containerRef}
       className={cn(
-        "flex items-center justify-between rounded-2xl border border-border/60 bg-white p-4 shadow-sm",
+        "min-h-[60px] flex items-center justify-between rounded-2xl border border-border/60 bg-white p-4 shadow-sm",
         className,
       )}
     >

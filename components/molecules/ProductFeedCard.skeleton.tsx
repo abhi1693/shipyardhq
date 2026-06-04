@@ -17,7 +17,7 @@ export function ProductFeedCardSkeleton({
   return (
     <div
       className={cn(
-        "flex h-full flex-col rounded-2xl border-2 border-slate-200/80 bg-white px-5 py-5",
+        "flex h-full min-h-[184px] flex-col rounded-2xl border-2 border-slate-200/80 bg-white px-5 py-5 sm:min-h-[164px]",
         className,
       )}
       data-testid="homepage-feed-card-skeleton"
