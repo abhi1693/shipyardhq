@@ -596,32 +596,6 @@ export default async function HomePage() {
       </section>
 
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-        <section className="mb-12 flex flex-col items-center justify-between gap-6 border-y border-[#E2E8F0] py-6 md:flex-row">
-          <div className="flex items-center gap-3">
-            <AvatarStack
-              featuredAvatarUrl={topFounderAvatarUrl}
-              countLabel={builderCountLabel}
-            />
-            <p className="text-sm leading-5 text-[#43474c]">
-              Trusted by{" "}
-              <span className="font-bold text-black">
-                {builderCountLabel} {builderNoun}
-              </span>{" "}
-              worldwide
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-6 opacity-40 grayscale contrast-125">
-            {["TECHR", "FORBES", "PRODUCT", "WIRED"].map((brand) => (
-              <span
-                key={brand}
-                className="text-lg font-black tracking-tighter text-black"
-              >
-                {brand}
-              </span>
-            ))}
-          </div>
-        </section>
-
         <section className="mb-12" id="drops">
           <div className="mb-8 flex items-end justify-between gap-4">
             <div>
