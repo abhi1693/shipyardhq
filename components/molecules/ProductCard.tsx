@@ -61,6 +61,7 @@ function toFeedItem(product: ProductCardItem): HomepageFeedItem {
     badges: product.badges ?? [],
     category: categoryName,
     categorySlug: product.categorySlug ?? null,
+    upvoteCount: product.analytics?.upvotes ?? 0,
     scoreCount: product.scoreCount,
     updatesCount: product.updatesCount,
     isSponsored,

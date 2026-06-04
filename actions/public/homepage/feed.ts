@@ -104,6 +104,7 @@ export interface HomepageFeedItem {
   badges: string[]
   category: string | null
   categorySlug: string | null
+  upvoteCount: number
   scoreCount?: number
   updatesCount?: number
   isSponsored: boolean
@@ -242,6 +243,7 @@ function mapProductToFeedItem(
     badges: activeBadges,
     category: product.category?.name ?? null,
     categorySlug: product.category?.slug ?? null,
+    upvoteCount: product.analytics?.upvotes ?? 0,
     scoreCount: typeof scoreCount === "number" ? scoreCount : undefined,
     isSponsored,
     isVoted: upvoted.has(product.id),

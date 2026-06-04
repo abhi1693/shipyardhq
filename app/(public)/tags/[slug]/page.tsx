@@ -112,6 +112,7 @@ function mapProductCardItemToFeedItem(
     badges: product.badges ?? [],
     category: resolveCategoryName(),
     categorySlug: resolveCategorySlug(),
+    upvoteCount: product.analytics?.upvotes ?? 0,
     scoreCount:
       typeof product.scoreCount === "number" ? product.scoreCount : undefined,
     updatesCount: product.updatesCount,
