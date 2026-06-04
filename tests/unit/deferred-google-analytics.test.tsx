@@ -10,11 +10,9 @@ const GA_ID = "G-TEST123"
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true
 
-type DataLayerCommand = [string, ...unknown[]]
-
 interface AnalyticsTestWindow extends Window {
-  dataLayer?: DataLayerCommand[]
-  gtag?: (...args: DataLayerCommand) => void
+  dataLayer?: IArguments[]
+  gtag?: (...args: [string, ...unknown[]]) => void
 }
 
 function queryGaScript() {
@@ -76,6 +74,15 @@ describe("DeferredGoogleAnalytics", () => {
       `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`,
     )
     expect(script?.async).toBe(true)
+
+    const analyticsWindow = window as AnalyticsTestWindow
+    expect(analyticsWindow.dataLayer).toHaveLength(2)
+    expect(Object.prototype.toString.call(analyticsWindow.dataLayer?.[0])).toBe(
+      "[object Arguments]",
+    )
+    expect(analyticsWindow.dataLayer?.[0]?.[0]).toBe("js")
+    expect(analyticsWindow.dataLayer?.[1]?.[0]).toBe("config")
+    expect(analyticsWindow.dataLayer?.[1]?.[1]).toBe(GA_ID)
   })
 
   it("loads immediately when mounted after the page has already loaded", () => {

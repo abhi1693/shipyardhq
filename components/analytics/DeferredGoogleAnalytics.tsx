@@ -2,11 +2,12 @@
 
 import { useEffect } from "react"
 
-type DataLayerCommand = [string, ...unknown[]]
+type GtagCommand = [string, ...unknown[]]
+type Gtag = (...args: GtagCommand) => void
 
 interface AnalyticsWindow extends Window {
-  dataLayer?: DataLayerCommand[]
-  gtag?: (...args: DataLayerCommand) => void
+  dataLayer?: IArguments[]
+  gtag?: Gtag
 }
 
 function loadGoogleAnalytics(gaId: string) {
@@ -20,12 +21,11 @@ function loadGoogleAnalytics(gaId: string) {
   analyticsWindow.dataLayer = analyticsWindow.dataLayer ?? []
   analyticsWindow.gtag =
     analyticsWindow.gtag ??
-    ((...args: DataLayerCommand) => {
-      analyticsWindow.dataLayer?.push(args)
-    })
-
-  analyticsWindow.gtag("js", new Date())
-  analyticsWindow.gtag("config", gaId)
+    function gtag() {
+      // gtag.js expects queued commands to match the standard snippet shape.
+      // eslint-disable-next-line prefer-rest-params
+      analyticsWindow.dataLayer?.push(arguments)
+    }
 
   const script = document.createElement("script")
   script.async = true
@@ -34,6 +34,9 @@ function loadGoogleAnalytics(gaId: string) {
   )}`
   script.dataset.shipyardGa = gaId
   document.head.appendChild(script)
+
+  analyticsWindow.gtag("js", new Date())
+  analyticsWindow.gtag("config", gaId)
 }
 
 export function DeferredGoogleAnalytics({ gaId }: { gaId: string }) {
