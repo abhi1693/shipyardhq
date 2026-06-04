@@ -1,6 +1,6 @@
 {
   "name": "shipyardhq",
-  "version": "1.3.9",
+  "version": "1.3.10",
   "private": true,
   "engines": {
     "node": ">=22.0.0"

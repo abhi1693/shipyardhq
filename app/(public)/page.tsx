@@ -4,15 +4,7 @@ import {
   HomepageFeedSection,
   HomepageFeedSkeleton,
 } from "@/components/templates/public/homepage/homepage-feed-section"
-import {
-  DirectoryHighlightsSidebar,
-  DirectoryHighlightsSidebarSkeleton,
-} from "@/components/templates/public/homepage/directory-highlights"
 import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
-import {
-  SponsoredProductsSection,
-  SponsoredProductsSkeleton,
-} from "@/components/templates/public/homepage/sponsored-products"
 import { DeferredTrafficSidebarStats } from "@/components/templates/public/common/DeferredTrafficSidebarStats"
 import { TrafficSidebarStatsSkeleton } from "@/components/templates/public/common/TrafficSidebarStatsSkeleton"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
@@ -46,17 +38,6 @@ export default async function HomePage() {
         mainClassName="gap-12"
         main={
           <>
-            <Suspense
-              fallback={
-                <div className="lg:hidden">
-                  <SponsoredProductsSkeleton />
-                </div>
-              }
-            >
-              <div className="lg:hidden">
-                <SponsoredProductsSection />
-              </div>
-            </Suspense>
             <Suspense fallback={<HomepageFeedSkeleton />}>
               <HomepageFeedSection />
             </Suspense>
@@ -66,20 +47,6 @@ export default async function HomePage() {
           <>
             <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
               <DeferredTrafficSidebarStats />
-            </Suspense>
-            <Suspense
-              fallback={
-                <div className="hidden lg:block">
-                  <SponsoredProductsSkeleton />
-                </div>
-              }
-            >
-              <div className="hidden lg:block">
-                <SponsoredProductsSection />
-              </div>
-            </Suspense>
-            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
-              <DirectoryHighlightsSidebar />
             </Suspense>
             <div className="hidden lg:block">
               <AffiliateLinkCard />
