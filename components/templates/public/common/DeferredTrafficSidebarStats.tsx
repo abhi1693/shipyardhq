@@ -69,7 +69,7 @@ export function DeferredTrafficSidebarStats({
               pageViews30: 0,
               visitors30: 0,
               trafficSeries: [],
-              realtimeVisitors: 0,
+              realtimeVisitors: 1,
             })
           }
         })

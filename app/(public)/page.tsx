@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 
 import { getHomepageFeedPage } from "@/actions/public/homepage/feed"
+import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { getHomepageBuilderSummary } from "@/actions/public/users/actions"
 import { Button } from "@/components/atoms/button"
 import { Image } from "@/components/atoms/image"
@@ -327,7 +328,7 @@ function DropRow({ product, index }: { product: DisplayDrop; index: number }) {
 }
 
 export default async function HomePage() {
-  const [feedPage, builderSummary] = await Promise.all([
+  const [feedPage, builderSummary, homepageStats] = await Promise.all([
     getHomepageFeedPage({ page: 1, pageSize: 6 }).catch(() => ({
       items: [],
       page: 1,
@@ -338,6 +339,12 @@ export default async function HomePage() {
     getHomepageBuilderSummary().catch(() => ({
       builderCount: 0,
       topFounder: null,
+    })),
+    getLeaderboardStats().catch(() => ({
+      pageViews30: 0,
+      visitors30: 0,
+      trafficSeries: [],
+      realtimeVisitors: 1,
     })),
   ])
 
@@ -501,7 +508,7 @@ export default async function HomePage() {
           </article>
 
           <div className="col-span-12 lg:col-span-4">
-            <HomepageAnalyticsGrid />
+            <HomepageAnalyticsGrid initialStats={homepageStats} />
           </div>
         </div>
       </section>
