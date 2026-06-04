@@ -25,7 +25,8 @@ export function DomainRatingBadge({ className }: { className?: string }) {
         alt="Domain Rating badge for shipyardhq.dev"
         width={280}
         height={64}
-        className="h-auto w-[280px]"
+        className="block"
+        style={{ width: 280, height: "auto" }}
         loading="lazy"
         unoptimized
       />

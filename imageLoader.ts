@@ -11,14 +11,18 @@ export default function shipyardImageLoader({
   width,
   quality,
 }: ImageLoaderParams) {
+  const normalizedWidth = Math.max(1, Math.round(width))
+  const normalizedQuality =
+    typeof quality === "number" && Number.isFinite(quality) ? quality : 75
   const transformedUrl = buildCloudflareMediaImageUrl({
     src,
-    width,
-    quality,
+    width: normalizedWidth,
+    quality: normalizedQuality,
   })
   if (transformedUrl !== src) {
     return transformedUrl
   }
 
-  return src
+  const separator = src.includes("?") ? "&" : "?"
+  return `${src}${separator}w=${normalizedWidth}&q=${normalizedQuality}`
 }

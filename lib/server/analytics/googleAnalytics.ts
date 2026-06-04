@@ -294,6 +294,10 @@ function resolveProperty(): string | null {
   return raw.startsWith("properties/") ? raw : `properties/${raw}`
 }
 
+export function hasGaAnalyticsConfig(): boolean {
+  return Boolean(process.env.GA_CREDENTIALS_JSON?.trim() && resolveProperty())
+}
+
 async function runReportWithQuota(
   client: BetaAnalyticsDataClient,
   request: Parameters<BetaAnalyticsDataClient["runReport"]>[0],

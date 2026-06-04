@@ -51,3 +51,6 @@ bot/venv
 bot/*.sh
 bot/*.json
 preflight.yml
+
+# clerk configuration (can include secrets)
+/.clerk/

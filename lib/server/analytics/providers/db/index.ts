@@ -7,6 +7,7 @@ import type {
   AnalyticsProvider,
   ProductTrafficSummary,
 } from "@/lib/server/analytics/providerTypes"
+import type { HomepageTraffic } from "@/lib/server/analytics/googleAnalytics"
 import { gaAnalyticsProvider } from "@/lib/server/analytics/providers/ga"
 import { extractProductSlug } from "@/lib/server/analytics/providers/ga/helpers"
 
@@ -817,6 +818,21 @@ async function getProductTrafficMapFromDb(args: {
   return results
 }
 
+async function getHomepageTrafficFromDb(): Promise<HomepageTraffic | null> {
+  const snapshot = await getSiteAnalyticsSnapshotFromDb()
+  if (!snapshot) return null
+
+  return {
+    pageViews30: snapshot.pageViews,
+    visitors30: snapshot.uniqueVisitors,
+    trafficSeries: snapshot.timeseries.map((point) => ({
+      date: point.date,
+      pageViews: point.pageViews,
+      visitors: point.uniqueVisitors,
+    })),
+  }
+}
+
 export const dbAnalyticsProvider: AnalyticsProvider = {
   async getProductTraffic(args) {
     try {
@@ -851,6 +867,16 @@ export const dbAnalyticsProvider: AnalyticsProvider = {
     }
     return gaAnalyticsProvider.getSiteAnalyticsSnapshot(args)
   },
-  getHomepageTraffic: () => gaAnalyticsProvider.getHomepageTraffic(),
+  async getHomepageTraffic() {
+    try {
+      const dbResult = await getHomepageTrafficFromDb()
+      if (dbResult) {
+        return dbResult
+      }
+    } catch (error) {
+      console.error("[analytics] DB homepage traffic lookup failed", { error })
+    }
+    return gaAnalyticsProvider.getHomepageTraffic()
+  },
   getRealtimeVisitors: () => gaAnalyticsProvider.getRealtimeVisitors(),
 }

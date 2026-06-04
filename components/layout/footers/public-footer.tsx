@@ -118,7 +118,8 @@ export default function PublicFooter() {
                 width={200}
                 height={50}
                 loading="lazy"
-                className="block h-auto w-[200px]"
+                className="block"
+                style={{ width: 200, height: "auto" }}
                 sizes="200px"
                 unoptimized
               />

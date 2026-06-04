@@ -12,6 +12,7 @@ import { dbAnalyticsProvider } from "@/lib/server/analytics/providers/db"
 import { gaAnalyticsProvider } from "@/lib/server/analytics/providers/ga"
 import {
   fetchRealtimeVisitorsFromGa,
+  hasGaAnalyticsConfig,
   isTransientGaError,
   type HomepageTraffic,
   type SiteAnalyticsSnapshot,
@@ -138,6 +139,11 @@ async function fetchRealtimeVisitorsWithCache(): Promise<number> {
   const cached = await getCachedRealtimeVisitors()
   if (cached !== null) {
     return normalizeRealtimeVisitors(cached)
+  }
+
+  if (!hasGaAnalyticsConfig()) {
+    await storeRealtimeVisitors(0)
+    return normalizeRealtimeVisitors(0)
   }
 
   try {
@@ -319,8 +325,12 @@ async function fetchHomepageTrafficWithCache(): Promise<HomepageTraffic> {
   try {
     fresh = await dbAnalyticsProvider.getHomepageTraffic()
   } catch (error) {
-    console.error("[analytics] failed to fetch homepage traffic", { error })
-    fresh = await gaAnalyticsProvider.getHomepageTraffic()
+    if (!hasGaAnalyticsConfig()) {
+      fresh = { pageViews30: 0, visitors30: 0, trafficSeries: [] }
+    } else {
+      console.error("[analytics] failed to fetch homepage traffic", { error })
+      fresh = await gaAnalyticsProvider.getHomepageTraffic()
+    }
   }
 
   await cacheMiss({
