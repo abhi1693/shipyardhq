@@ -455,7 +455,10 @@ export default async function HomePage() {
           </article>
 
           <div className="col-span-12 lg:col-span-4">
-            <HomepageAnalyticsGrid initialStats={homepageStats} />
+            <HomepageAnalyticsGrid
+              initialStats={homepageStats}
+              className="h-full"
+            />
           </div>
         </div>
       </section>
