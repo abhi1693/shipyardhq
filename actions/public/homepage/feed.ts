@@ -513,8 +513,7 @@ function interleaveSponsoredItems(
     if (globalOrganicPosition % HOMEPAGE_SPONSORED_INTERVAL === 0) {
       const sponsoredSlotIndex =
         globalOrganicPosition / HOMEPAGE_SPONSORED_INTERVAL - 1
-      const sponsoredItem =
-        sponsoredItems[sponsoredSlotIndex % sponsoredItems.length]
+      const sponsoredItem = sponsoredItems[sponsoredSlotIndex]
 
       if (sponsoredItem) {
         mixedItems.push(sponsoredItem)

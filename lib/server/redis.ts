@@ -12,6 +12,8 @@ const globalForRedis = globalThis as unknown as {
 
 const REDIS_RETRY_BACKOFF_MS = 30_000
 const NEXT_BUILD_PHASE = "phase-production-build"
+const DEFAULT_REDIS_CONNECT_TIMEOUT_MS = 250
+const REDIS_DEBUG = process.env.REDIS_DEBUG?.trim() === "true"
 
 function resolveRedisUrl(): string | null {
   return (
@@ -26,6 +28,20 @@ function parseInteger(value: string | undefined): number | undefined {
 
   const parsed = Number.parseInt(value, 10)
   return Number.isInteger(parsed) && parsed >= 0 ? parsed : undefined
+}
+
+function resolveConnectTimeoutMs() {
+  return (
+    parseInteger(process.env.REDIS_CONNECT_TIMEOUT_MS) ??
+    DEFAULT_REDIS_CONNECT_TIMEOUT_MS
+  )
+}
+
+function createRedisSocketOptions() {
+  return {
+    connectTimeout: resolveConnectTimeoutMs(),
+    reconnectStrategy: false as const,
+  }
 }
 
 function parseSentinelNodes() {
@@ -52,12 +68,45 @@ function createRedisClient(): RedisClient | null {
       sentinelRootNodes,
       nodeClientOptions: {
         database: parseInteger(process.env.REDIS_DB),
+        socket: createRedisSocketOptions(),
       },
     })
   }
 
   const redisUrl = resolveRedisUrl()
-  return redisUrl ? createClient({ url: redisUrl }) : null
+  return redisUrl
+    ? createClient({
+        url: redisUrl,
+        socket: createRedisSocketOptions(),
+      })
+    : null
+}
+
+function connectWithTimeout(client: RedisClient): Promise<RedisClient> {
+  const timeoutMs = resolveConnectTimeoutMs()
+
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      try {
+        client.destroy()
+      } catch {
+        // Ignore cleanup failures; the caller will fall back without Redis.
+      }
+
+      reject(new Error(`Redis connection timed out after ${timeoutMs}ms`))
+    }, timeoutMs)
+
+    client
+      .connect()
+      .then(() => {
+        clearTimeout(timeout)
+        resolve(client)
+      })
+      .catch((error) => {
+        clearTimeout(timeout)
+        reject(error)
+      })
+  })
 }
 
 export async function getRedisClient(): Promise<RedisClient | null> {
@@ -81,15 +130,13 @@ export async function getRedisClient(): Promise<RedisClient | null> {
       return null
     }
 
-    let didLogClientError = false
     client.on("error", (error) => {
-      if (didLogClientError) return
-      didLogClientError = true
-      console.error("Redis client error", error)
+      if (REDIS_DEBUG) {
+        console.error("Redis client error", error)
+      }
     })
 
-    globalForRedis.__redisClientPromise = client
-      .connect()
+    globalForRedis.__redisClientPromise = connectWithTimeout(client)
       .then(() => {
         globalForRedis.__redisDisabledUntil = 0
         globalForRedis.__redisClient = client
@@ -100,7 +147,9 @@ export async function getRedisClient(): Promise<RedisClient | null> {
         globalForRedis.__redisClient = null
         globalForRedis.__redisDisabledUntil =
           Date.now() + REDIS_RETRY_BACKOFF_MS
-        console.error("Failed to connect to Redis", error)
+        if (REDIS_DEBUG) {
+          console.error("Failed to connect to Redis", error)
+        }
         throw error
       })
   }
@@ -108,7 +157,9 @@ export async function getRedisClient(): Promise<RedisClient | null> {
   try {
     return await globalForRedis.__redisClientPromise
   } catch (error) {
-    console.error("Redis connection attempt failed", error)
+    if (REDIS_DEBUG) {
+      console.error("Redis connection attempt failed", error)
+    }
     return null
   }
 }

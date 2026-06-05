@@ -187,7 +187,7 @@ const devUsers = (): DevUserSeed[] => [
   },
 ]
 
-const devProducts: DevProductSeed[] = [
+const baseDevProducts: DevProductSeed[] = [
   {
     slug: "dev-dockpilot",
     name: "DockPilot",
@@ -617,6 +617,153 @@ const devProducts: DevProductSeed[] = [
   },
 ]
 
+const GENERATED_DEV_PRODUCT_MINIMUM = 500
+
+function resolveGeneratedProductCount() {
+  const configured = Number.parseInt(
+    process.env.DEV_GENERATED_PRODUCT_COUNT ?? "",
+    10,
+  )
+
+  if (!Number.isFinite(configured) || configured <= 0) {
+    return GENERATED_DEV_PRODUCT_MINIMUM
+  }
+
+  return Math.max(GENERATED_DEV_PRODUCT_MINIMUM, configured)
+}
+
+function generatedPublishedDaysAgo(index: number) {
+  if (index < 80) return 0
+  if (index < 160) return 1
+  return 2 + (index % 5)
+}
+
+function generatedDevProducts(): DevProductSeed[] {
+  const categories = [
+    "developer-tools",
+    "analytics",
+    "customer-support",
+    "ecommerce",
+    "marketing",
+    "apis-and-integrations",
+    "sales",
+    "product-management",
+    "monitoring-and-observability",
+    "automation-and-workflow",
+  ]
+  const logos = [
+    "/brand.png",
+    "/brand.svg",
+    "/analytics-1.png",
+    "/analytics-2.png",
+    "/analytics-3.png",
+    "/opengraph.png",
+    "/providers/dodo.jpeg",
+    "/providers/paddle.png",
+  ]
+  const banners = [
+    "/analytics-1.png",
+    "/analytics-2.png",
+    "/analytics-3.png",
+    "/insights-demo.png",
+    "/featured-on-light.png",
+    "/featured-on-dark.png",
+    "/opengraph.png",
+    "/opengraph-verified-revenue.png",
+  ]
+  const users = [
+    process.env.DEV_ADMIN_EMAIL?.trim() || DEV_SEED_DEFAULTS.adminEmail,
+    process.env.DEV_MEMBER_EMAIL?.trim() || DEV_SEED_DEFAULTS.memberEmail,
+    "dev.growth@shipyard.local",
+  ]
+  const productTypes = [
+    ProductType.saas,
+    ProductType.api,
+    ProductType.mobile_app,
+    ProductType.browser_extension,
+  ]
+  const pricingModels = [
+    PricingModel.free,
+    PricingModel.freemium,
+    PricingModel.subscription,
+    PricingModel.one_time,
+  ]
+  const descriptors = [
+    "Harbor",
+    "Beacon",
+    "Current",
+    "Forge",
+    "Pilot",
+    "Lens",
+    "Signal",
+    "Bridge",
+    "Pulse",
+    "Stack",
+  ]
+  const nouns = [
+    "Launch",
+    "Revenue",
+    "Feedback",
+    "Workflow",
+    "Support",
+    "Roadmap",
+    "Insights",
+    "Docs",
+    "Pipeline",
+    "Uptime",
+  ]
+
+  return Array.from({ length: resolveGeneratedProductCount() }, (_, index) => {
+    const number = index + 1
+    const paddedNumber = String(number).padStart(3, "0")
+    const descriptor = descriptors[index % descriptors.length]
+    const noun = nouns[Math.floor(index / descriptors.length) % nouns.length]
+    const name = `${noun} ${descriptor} ${paddedNumber}`
+    const publishedDaysAgo = generatedPublishedDaysAgo(index)
+    const pricingModel = pricingModels[index % pricingModels.length]
+    const isPaid =
+      pricingModel === PricingModel.subscription ||
+      pricingModel === PricingModel.one_time
+
+    return {
+      slug: `dev-launch-${paddedNumber}`,
+      name,
+      tagline: `A seeded ${noun.toLowerCase()} tool for testing large homepage launch feeds.`,
+      description:
+        `${name} is a generated development product used to exercise homepage pagination, launch sections, analytics, and cache behavior at realistic scale.`,
+      websiteUrl: `https://dev-launch-${paddedNumber}.localhost`,
+      logo: logos[index % logos.length],
+      bannerImage: banners[index % banners.length],
+      type: productTypes[index % productTypes.length],
+      pricingModel,
+      status: ProductStatus.published,
+      startingPriceCents: isPaid ? 900 + (index % 12) * 500 : null,
+      currencyCode: "USD",
+      keywords: [
+        noun.toLowerCase(),
+        descriptor.toLowerCase(),
+        "dev-seed",
+        "homepage-scale",
+      ],
+      platforms:
+        index % 7 === 0 ? [Platform.web, Platform.mac] : [Platform.web],
+      userEmail: users[index % users.length],
+      categorySlug: categories[index % categories.length],
+      planSlug: null,
+      createdDaysAgo: publishedDaysAgo + 7 + (index % 21),
+      publishedDaysAgo,
+      upvoteBase: 5 + ((index * 7) % 95),
+      verified: index % 3 !== 0,
+      backlinkVerified: index % 5 === 0,
+    }
+  })
+}
+
+const devProducts: DevProductSeed[] = [
+  ...baseDevProducts,
+  ...generatedDevProducts(),
+]
+
 async function seedReferenceData(prisma: PrismaClient) {
   await seedCategories(prisma)
   await seedUseCases(prisma)
@@ -689,7 +836,12 @@ async function upsertDevUsers(prisma: PrismaClient, today: Date) {
     }
   }
 
-  console.table(rows)
+  if (rows.length > 50) {
+    console.table(rows.slice(0, 25))
+    console.info(`Seeded ${rows.length} products total.`)
+  } else {
+    console.table(rows)
+  }
 }
 
 function buildProductData(
@@ -834,7 +986,12 @@ async function upsertDevProducts(
     })
   }
 
-  console.table(rows)
+  if (rows.length > 50) {
+    console.table(rows.slice(0, 25))
+    console.info(`Seeded ${rows.length} products total.`)
+  } else {
+    console.table(rows)
+  }
 }
 
 async function resetProductDecorations(
@@ -1256,228 +1413,254 @@ async function seedTraffic(
     }),
   ])
 
-  const productDaily: Prisma.ProductTrafficDailyCreateManyInput[] = []
-  const productReferrers: Prisma.ProductTrafficReferrerDailyCreateManyInput[] =
-    []
-  const productChannels: Prisma.ProductTrafficChannelDailyCreateManyInput[] = []
-  const productBrowsers: Prisma.ProductTrafficBrowserDailyCreateManyInput[] = []
-  const productOs: Prisma.ProductTrafficOperatingSystemDailyCreateManyInput[] =
-    []
-  const productDevices: Prisma.ProductTrafficDeviceDailyCreateManyInput[] = []
-  const productCountries: Prisma.ProductTrafficCountryDailyCreateManyInput[] =
-    []
-  const productCities: Prisma.ProductTrafficCityDailyCreateManyInput[] = []
-
   const siteDailyByDate = new Map<string, SiteTrafficTotals>()
+  const productEntries = devProducts.flatMap((product) => {
+    const productId = productIdBySlug.get(product.slug)
+    return productId ? [{ product, productId }] : []
+  })
+  const productChunkSize = 50
 
-  for (let index = 0; index < 60; index += 1) {
-    const date = addUtcDays(windowStart, index)
-    const dateKey = date.toISOString()
+  for (
+    let chunkStart = 0;
+    chunkStart < productEntries.length;
+    chunkStart += productChunkSize
+  ) {
+    const productDaily: Prisma.ProductTrafficDailyCreateManyInput[] = []
+    const productReferrers: Prisma.ProductTrafficReferrerDailyCreateManyInput[] =
+      []
+    const productChannels: Prisma.ProductTrafficChannelDailyCreateManyInput[] =
+      []
+    const productBrowsers: Prisma.ProductTrafficBrowserDailyCreateManyInput[] =
+      []
+    const productOs: Prisma.ProductTrafficOperatingSystemDailyCreateManyInput[] =
+      []
+    const productDevices: Prisma.ProductTrafficDeviceDailyCreateManyInput[] = []
+    const productCountries: Prisma.ProductTrafficCountryDailyCreateManyInput[] =
+      []
+    const productCities: Prisma.ProductTrafficCityDailyCreateManyInput[] = []
+    const productChunk = productEntries.slice(
+      chunkStart,
+      chunkStart + productChunkSize,
+    )
 
-    for (const product of devProducts) {
-      const productId = productIdBySlug.get(product.slug)
-      if (!productId) continue
-      const metrics = productTrafficForDay(product, index)
+    for (let index = 0; index < 60; index += 1) {
+      const date = addUtcDays(windowStart, index)
+      const dateKey = date.toISOString()
 
-      productDaily.push({
-        productId,
-        date,
-        source: AnalyticsDataSource.ga4,
-        ...metrics,
-      })
+      for (const { product, productId } of productChunk) {
+        const metrics = productTrafficForDay(product, index)
 
-      productReferrers.push(
-        {
+        productDaily.push({
           productId,
           date,
           source: AnalyticsDataSource.ga4,
-          referrer: "google.com",
-          pageViews: Math.round(metrics.pageViews * 0.36),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          referrer: "x.com",
-          pageViews: Math.round(metrics.pageViews * 0.18),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          referrer: "(direct)",
-          pageViews: Math.round(metrics.pageViews * 0.24),
-        },
-      )
+          ...metrics,
+        })
 
-      productChannels.push(
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          channel: "Organic Search",
-          pageViews: Math.round(metrics.pageViews * 0.42),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          channel: "Social",
-          pageViews: Math.round(metrics.pageViews * 0.22),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          channel: "Direct",
-          pageViews: Math.round(metrics.pageViews * 0.26),
-        },
-      )
+        productReferrers.push(
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            referrer: "google.com",
+            pageViews: Math.round(metrics.pageViews * 0.36),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            referrer: "x.com",
+            pageViews: Math.round(metrics.pageViews * 0.18),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            referrer: "(direct)",
+            pageViews: Math.round(metrics.pageViews * 0.24),
+          },
+        )
 
-      productBrowsers.push(
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          browser: "Chrome",
-          visitors: Math.round(metrics.uniqueVisitors * 0.58),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          browser: "Safari",
-          visitors: Math.round(metrics.uniqueVisitors * 0.27),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          browser: "Firefox",
-          visitors: Math.round(metrics.uniqueVisitors * 0.11),
-        },
-      )
+        productChannels.push(
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            channel: "Organic Search",
+            pageViews: Math.round(metrics.pageViews * 0.42),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            channel: "Social",
+            pageViews: Math.round(metrics.pageViews * 0.22),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            channel: "Direct",
+            pageViews: Math.round(metrics.pageViews * 0.26),
+          },
+        )
 
-      productOs.push(
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          operatingSystem: "macOS",
-          visitors: Math.round(metrics.uniqueVisitors * 0.43),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          operatingSystem: "Windows",
-          visitors: Math.round(metrics.uniqueVisitors * 0.31),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          operatingSystem: "iOS",
-          visitors: Math.round(metrics.uniqueVisitors * 0.16),
-        },
-      )
+        productBrowsers.push(
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            browser: "Chrome",
+            visitors: Math.round(metrics.uniqueVisitors * 0.58),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            browser: "Safari",
+            visitors: Math.round(metrics.uniqueVisitors * 0.27),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            browser: "Firefox",
+            visitors: Math.round(metrics.uniqueVisitors * 0.11),
+          },
+        )
 
-      productDevices.push(
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          deviceCategory: "desktop",
-          visitors: Math.round(metrics.uniqueVisitors * 0.62),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          deviceCategory: "mobile",
-          visitors: Math.round(metrics.uniqueVisitors * 0.32),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          deviceCategory: "tablet",
-          visitors: Math.round(metrics.uniqueVisitors * 0.06),
-        },
-      )
+        productOs.push(
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            operatingSystem: "macOS",
+            visitors: Math.round(metrics.uniqueVisitors * 0.43),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            operatingSystem: "Windows",
+            visitors: Math.round(metrics.uniqueVisitors * 0.31),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            operatingSystem: "iOS",
+            visitors: Math.round(metrics.uniqueVisitors * 0.16),
+          },
+        )
 
-      productCountries.push(
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          country: "United States",
-          countryCode: "US",
-          visitors: Math.round(metrics.uniqueVisitors * 0.45),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          country: "India",
-          countryCode: "IN",
-          visitors: Math.round(metrics.uniqueVisitors * 0.25),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          country: "United Kingdom",
-          countryCode: "GB",
-          visitors: Math.round(metrics.uniqueVisitors * 0.12),
-        },
-      )
+        productDevices.push(
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            deviceCategory: "desktop",
+            visitors: Math.round(metrics.uniqueVisitors * 0.62),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            deviceCategory: "mobile",
+            visitors: Math.round(metrics.uniqueVisitors * 0.32),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            deviceCategory: "tablet",
+            visitors: Math.round(metrics.uniqueVisitors * 0.06),
+          },
+        )
 
-      productCities.push(
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          city: "San Francisco",
-          region: "California",
-          country: "United States",
-          countryCode: "US",
-          visitors: Math.round(metrics.uniqueVisitors * 0.18),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          city: "Bengaluru",
-          region: "Karnataka",
-          country: "India",
-          countryCode: "IN",
-          visitors: Math.round(metrics.uniqueVisitors * 0.14),
-        },
-      )
+        productCountries.push(
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            country: "United States",
+            countryCode: "US",
+            visitors: Math.round(metrics.uniqueVisitors * 0.45),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            country: "India",
+            countryCode: "IN",
+            visitors: Math.round(metrics.uniqueVisitors * 0.25),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            country: "United Kingdom",
+            countryCode: "GB",
+            visitors: Math.round(metrics.uniqueVisitors * 0.12),
+          },
+        )
 
-      const siteMetrics = siteDailyByDate.get(dateKey) ?? {
-        pageViews: 180,
-        uniqueVisitors: 92,
-        sessions: 120,
-        bounceRate: 0,
-        averageSessionDuration: 0,
-        newUsers: 48,
-        returningVisitors: 44,
-        engagementRate: 0,
-        pagesPerSession: 0,
+        productCities.push(
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            city: "San Francisco",
+            region: "California",
+            country: "United States",
+            countryCode: "US",
+            visitors: Math.round(metrics.uniqueVisitors * 0.18),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            city: "Bengaluru",
+            region: "Karnataka",
+            country: "India",
+            countryCode: "IN",
+            visitors: Math.round(metrics.uniqueVisitors * 0.14),
+          },
+        )
+
+        const siteMetrics = siteDailyByDate.get(dateKey) ?? {
+          pageViews: 180,
+          uniqueVisitors: 92,
+          sessions: 120,
+          bounceRate: 0,
+          averageSessionDuration: 0,
+          newUsers: 48,
+          returningVisitors: 44,
+          engagementRate: 0,
+          pagesPerSession: 0,
+        }
+        siteMetrics.pageViews += metrics.pageViews
+        siteMetrics.uniqueVisitors += metrics.uniqueVisitors
+        siteMetrics.sessions += metrics.sessions
+        siteMetrics.newUsers += metrics.newUsers
+        siteMetrics.returningVisitors += metrics.returningVisitors
+        siteMetrics.bounceRate += metrics.bounceRate * metrics.sessions
+        siteMetrics.averageSessionDuration +=
+          metrics.averageSessionDuration * metrics.sessions
+        siteMetrics.engagementRate += metrics.engagementRate * metrics.sessions
+        siteDailyByDate.set(dateKey, siteMetrics)
       }
-      siteMetrics.pageViews += metrics.pageViews
-      siteMetrics.uniqueVisitors += metrics.uniqueVisitors
-      siteMetrics.sessions += metrics.sessions
-      siteMetrics.newUsers += metrics.newUsers
-      siteMetrics.returningVisitors += metrics.returningVisitors
-      siteMetrics.bounceRate += metrics.bounceRate * metrics.sessions
-      siteMetrics.averageSessionDuration +=
-        metrics.averageSessionDuration * metrics.sessions
-      siteMetrics.engagementRate += metrics.engagementRate * metrics.sessions
-      siteDailyByDate.set(dateKey, siteMetrics)
     }
+
+    await Promise.all([
+      prisma.productTrafficDaily.createMany({ data: productDaily }),
+      prisma.productTrafficReferrerDaily.createMany({ data: productReferrers }),
+      prisma.productTrafficChannelDaily.createMany({ data: productChannels }),
+      prisma.productTrafficBrowserDaily.createMany({ data: productBrowsers }),
+      prisma.productTrafficOperatingSystemDaily.createMany({ data: productOs }),
+      prisma.productTrafficDeviceDaily.createMany({ data: productDevices }),
+      prisma.productTrafficCountryDaily.createMany({ data: productCountries }),
+      prisma.productTrafficCityDaily.createMany({ data: productCities }),
+    ])
   }
 
   const siteDaily = Array.from(siteDailyByDate.entries()).map(
@@ -1508,17 +1691,7 @@ async function seedTraffic(
     },
   )
 
-  await Promise.all([
-    prisma.productTrafficDaily.createMany({ data: productDaily }),
-    prisma.productTrafficReferrerDaily.createMany({ data: productReferrers }),
-    prisma.productTrafficChannelDaily.createMany({ data: productChannels }),
-    prisma.productTrafficBrowserDaily.createMany({ data: productBrowsers }),
-    prisma.productTrafficOperatingSystemDaily.createMany({ data: productOs }),
-    prisma.productTrafficDeviceDaily.createMany({ data: productDevices }),
-    prisma.productTrafficCountryDaily.createMany({ data: productCountries }),
-    prisma.productTrafficCityDaily.createMany({ data: productCities }),
-    prisma.siteTrafficDaily.createMany({ data: siteDaily }),
-  ])
+  await prisma.siteTrafficDaily.createMany({ data: siteDaily })
 
   const siteBreakdownRows = siteDaily.flatMap((row) => [
     {

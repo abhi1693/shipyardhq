@@ -293,41 +293,6 @@ function addUtcDays(time: number, days: number) {
   return time + days * 24 * 60 * 60 * 1000
 }
 
-function compareDropItems(
-  a: HomepageDropListItem,
-  b: HomepageDropListItem,
-) {
-  const aRank =
-    typeof a.shuffleRank === "number" && Number.isFinite(a.shuffleRank)
-      ? a.shuffleRank
-      : null
-  const bRank =
-    typeof b.shuffleRank === "number" && Number.isFinite(b.shuffleRank)
-      ? b.shuffleRank
-      : null
-
-  if (aRank !== null && bRank !== null && aRank !== bRank) {
-    return aRank - bRank
-  }
-
-  if (aRank !== null) return -1
-  if (bRank !== null) return 1
-
-  const aTime = new Date(getDropDate(a) ?? "").getTime()
-  const bTime = new Date(getDropDate(b) ?? "").getTime()
-  const aHasTime = !Number.isNaN(aTime)
-  const bHasTime = !Number.isNaN(bTime)
-
-  if (aHasTime && bHasTime && aTime !== bTime) {
-    return bTime - aTime
-  }
-
-  if (aHasTime) return -1
-  if (bHasTime) return 1
-
-  return a.name.localeCompare(b.name)
-}
-
 function buildDropSections(
   items: HomepageDropListItem[],
   referenceDateIso: string,
@@ -339,9 +304,7 @@ function buildDropSections(
   const startToday = startOfUtcDay(new Date(referenceTime))
   const startYesterday = addUtcDays(startToday, -1)
   const startThisWeek = addUtcDays(startToday, -7)
-  const sponsoredItems = items
-    .filter((item) => item.isSponsored)
-    .sort(compareDropItems)
+  const sponsoredItems = items.filter((item) => item.isSponsored)
 
   type BucketKey = "today" | "yesterday" | "thisWeek"
   const bucketOrder: Array<{ key: BucketKey; title: string }> = [
@@ -380,9 +343,7 @@ function buildDropSections(
   let sponsoredIndex = 0
 
   bucketOrder.forEach((bucket) => {
-    const organicItems = [...(buckets.get(bucket.key) ?? [])].sort(
-      compareDropItems,
-    )
+    const organicItems = buckets.get(bucket.key) ?? []
     const sectionItems: HomepageDropListItem[] = []
     organicItems.forEach((item) => {
       sectionItems.push(item)
@@ -413,6 +374,17 @@ function buildDropSections(
   }
 
   return sections
+}
+
+function uniqueDropItems(items: HomepageDropListItem[]) {
+  const seen = new Set<string>()
+
+  return items.filter((item) => {
+    const key = dropKey(item)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
 }
 
 function DropProductLogo({
@@ -578,13 +550,18 @@ export function HomepageDropsInfiniteList({
   excludedSlug?: string
   referenceDateIso: string
 }) {
-  const [items, setItems] = useState(initialItems)
+  const initialUniqueItems = useMemo(
+    () => uniqueDropItems(initialItems),
+    [initialItems],
+  )
+  const [items, setItems] = useState(initialUniqueItems)
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [nextPage, setNextPage] = useState(initialNextPage)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
-  const seenKeysRef = useRef(new Set(initialItems.map(dropKey)))
+  const sentinelVisibleRef = useRef(false)
+  const seenKeysRef = useRef(new Set(initialUniqueItems.map(dropKey)))
   const sections = useMemo(
     () =>
       buildDropSections(items, referenceDateIso).filter(
@@ -639,11 +616,19 @@ export function HomepageDropsInfiniteList({
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting) {
+        const isIntersecting = entries.some((entry) => entry.isIntersecting)
+
+        if (!isIntersecting) {
+          sentinelVisibleRef.current = false
+          return
+        }
+
+        if (!sentinelVisibleRef.current) {
+          sentinelVisibleRef.current = true
           void loadMore()
         }
       },
-      { rootMargin: "480px 0px" },
+      { rootMargin: "160px 0px" },
     )
 
     observer.observe(sentinel)
