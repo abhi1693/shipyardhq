@@ -4,7 +4,7 @@ import type { Metadata } from "next"
 import { Suspense } from "react"
 
 import { CategoryDetailPageContent } from "@/components/templates/public/categories/detail/page-content"
-import { CategoryDetailSkeleton } from "@/components/templates/public/categories/detail/skeleton"
+import { TaxonomyDetailSkeleton } from "@/components/templates/public/common/TaxonomyDetailSkeleton"
 import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { buildPageMetadata } from "@/lib/metadata"
 import { getCategoryDetailPayload } from "@/lib/categories/page-cache"
@@ -31,7 +31,7 @@ export default function CategoryPage(
 ) {
   const paramsPromise = props.params
   return (
-    <Suspense fallback={<CategoryDetailSkeleton />}>
+    <Suspense fallback={<TaxonomyDetailSkeleton />}>
       <CategoryStructuredData params={paramsPromise} />
       <CategoryDetailPageContent {...props} />
     </Suspense>

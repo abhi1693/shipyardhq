@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/atoms/skeleton"
 import { TrafficSidebarStatsSkeleton } from "@/components/templates/public/common/TrafficSidebarStats"
 
-export function CategoryDetailSkeleton() {
+export function TaxonomyDetailSkeleton() {
   return (
     <main className="bg-[#f8fafc] text-[#0b1c30]">
       <section className="bg-[#061d31] px-4 py-16 text-white md:px-6">

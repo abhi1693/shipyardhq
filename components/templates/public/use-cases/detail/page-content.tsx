@@ -1,36 +1,23 @@
 import { notFound } from "next/navigation"
-import Link from "next/link"
-import { Suspense } from "react"
 
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
-import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
-import {
-  DirectoryHighlightsSidebar,
-  DirectoryHighlightsSidebarSkeleton,
-} from "@/components/templates/public/homepage/directory-highlights"
-import {
-  SponsoredProductsSection,
-  SponsoredProductsSkeleton,
-} from "@/components/templates/public/homepage/sponsored-products"
-import {
-  HERO_PRIMARY_BUTTON_CLASSES,
-  HERO_SECONDARY_BUTTON_CLASSES,
-} from "@/components/templates/public/categories/hero-button-classes"
-import { StickyBanner } from "@/components/organisms/StickyBanner"
-import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import {
-  TrafficSidebarStats,
-  TrafficSidebarStatsSkeleton,
-} from "@/components/templates/public/common/TrafficSidebarStats"
-import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
-import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
+  TaxonomyDetailPage,
+  type TaxonomySponsorProduct,
+} from "@/components/templates/public/common/TaxonomyDetailPage"
+import { TaxonomyHomepageRowsClient } from "@/components/templates/public/common/TaxonomyProductRows"
+import {
+  getHomepageFeedViewAll,
+  type HomepageFeedItem,
+} from "@/actions/public/homepage/feed"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { pluralize } from "@/lib/pluralize"
 import {
   BROWSE_PATH,
   HOME_PATH,
-  MEMBER_PRODUCTS_PATH,
+  MEMBER_PRODUCTS_ADD_PATH,
+  PRICING_PATH,
   USE_CASES_PATH,
   categoryPath,
   usecasePath,
@@ -41,6 +28,18 @@ import { resolveSiteUrl } from "@/lib/siteConfig"
 
 interface UseCasePageProps {
   params: Promise<{ slug: string }>
+}
+
+function toSponsorProduct(
+  item: HomepageFeedItem | null | undefined,
+): TaxonomySponsorProduct | null {
+  if (!item) return null
+
+  return {
+    slug: item.slug,
+    name: item.name,
+    tagline: item.tagline,
+  }
 }
 
 export async function UseCasePageContent({ params }: UseCasePageProps) {
@@ -117,85 +116,64 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
       url: baseUrl,
     },
   }
+  const firstOrganicItem =
+    useCaseFeedItems.find((item) => !item.isSponsored) ?? useCaseFeedItems[0]
+  const secondOrganicItem =
+    useCaseFeedItems.find(
+      (item) => !item.isSponsored && item.id !== firstOrganicItem?.id,
+    ) ?? useCaseFeedItems.find((item) => item.id !== firstOrganicItem?.id)
 
   return (
-    <main className="relative isolate bg-[#f5f7fb]">
-      <script
-        type="application/ld+json"
-        suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <CoreStructuredData
-        scriptKeyPrefix={`use-case-${slug}`}
-        webPage={{ path, name: `${useCase.label} Use Case` }}
-        breadcrumbs={{ items: breadcrumbs }}
-      />
-
-      <PublicTwoColumnLayout
-        className="pb-24 pt-12"
-        mainClassName="gap-10"
-        main={
-          <>
-            <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
-              <div className="mx-auto flex max-w-2xl flex-col items-center gap-6">
-                <span className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-border/40 bg-muted/40 text-[color:var(--brand-1)] shadow-[0_18px_42px_-28px_rgba(7,68,134,0.35)]">
-                  <CategoryIcon
-                    icon={categories[0]?.icon ?? "target"}
-                    size={28}
-                  />
-                </span>
-                <div className="space-y-4">
-                  <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-                    {useCase.label}
-                  </h1>
-                  <p className="text-base text-muted-foreground">
-                    {description}
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
-                  <Link
-                    href={`${BROWSE_PATH}?useCase=${useCase.slug}`}
-                    className={`${HERO_PRIMARY_BUTTON_CLASSES} w-full justify-center sm:w-auto`}
-                  >
-                    Launch for this use case
-                  </Link>
-                  <Link
-                    href={MEMBER_PRODUCTS_PATH}
-                    className={`${HERO_SECONDARY_BUTTON_CLASSES} w-full justify-center sm:w-auto`}
-                  >
-                    Explore promotion tiers
-                  </Link>
-                </div>
-              </div>
-            </section>
-
-            <StickyBanner className="mx-auto w-full rounded-2xl" />
-
-            <section className="space-y-6" data-testid="use-case-feed-section">
-              <ProductFeedList
-                activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
-                items={useCaseFeedItems}
-                referenceDateIso={referenceDateIso}
-                showRemaining
-              />
-            </section>
-          </>
-        }
-        sidebar={
-          <>
-            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
-              <TrafficSidebarStats />
-            </Suspense>
-            <Suspense fallback={<SponsoredProductsSkeleton />}>
-              <SponsoredProductsSection />
-            </Suspense>
-            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
-              <DirectoryHighlightsSidebar />
-            </Suspense>
-            <AffiliateLinkCard />
-          </>
-        }
-      />
-    </main>
+    <TaxonomyDetailPage
+      title={useCase.label}
+      description={description}
+      icon={
+        <CategoryIcon
+          icon={categories[0]?.icon ?? "target"}
+          size={40}
+          className="text-[#c0ff00]"
+        />
+      }
+      primaryCta={{
+        href: MEMBER_PRODUCTS_ADD_PATH,
+        label: "Launch for this use case",
+      }}
+      secondaryCta={{
+        href: PRICING_PATH,
+        label: "Explore promotion tiers",
+      }}
+      tertiaryCta={{
+        href: `${BROWSE_PATH}?useCase=${encodeURIComponent(useCase.slug)}`,
+        label: "Trending this week",
+      }}
+      stats={[
+        { label: "Total Products", value: productCount },
+        { label: "Categories", value: categories.length },
+        { label: "Launches", value: useCaseFeedItems.length },
+      ]}
+      feed={
+        <TaxonomyHomepageRowsClient
+          products={useCaseFeedItems}
+          referenceDateIso={referenceDateIso}
+        />
+      }
+      feedTestId="use-case-feed-section"
+      structuredData={
+        <>
+          <script
+            type="application/ld+json"
+            suppressHydrationWarning
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          />
+          <CoreStructuredData
+            scriptKeyPrefix={`use-case-${slug}`}
+            webPage={{ path, name: `${useCase.label} Use Case` }}
+            breadcrumbs={{ items: breadcrumbs }}
+          />
+        </>
+      }
+      sponsorProduct={toSponsorProduct(firstOrganicItem)}
+      secondarySponsor={toSponsorProduct(secondOrganicItem)}
+    />
   )
 }

@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
-import Link from "next/link"
-import { Suspense } from "react"
 import { redirect } from "next/navigation"
+import { Hash } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -14,28 +13,17 @@ import {
   getHomepageFeedViewAll,
   type HomepageFeedItem,
 } from "@/actions/public/homepage/feed"
-import { StickyBanner } from "@/components/organisms/StickyBanner"
-import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
-import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
-import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import {
-  DirectoryHighlightsSidebar,
-  DirectoryHighlightsSidebarSkeleton,
-} from "@/components/templates/public/homepage/directory-highlights"
+  TaxonomyDetailPage,
+  type TaxonomySponsorProduct,
+} from "@/components/templates/public/common/TaxonomyDetailPage"
+import { TaxonomyHomepageRowsClient } from "@/components/templates/public/common/TaxonomyProductRows"
 import {
-  SponsoredProductsSection,
-  SponsoredProductsSkeleton,
-} from "@/components/templates/public/homepage/sponsored-products"
-import {
-  TrafficSidebarStats,
-  TrafficSidebarStatsSkeleton,
-} from "@/components/templates/public/common/TrafficSidebarStats"
-import {
-  HERO_PRIMARY_BUTTON_CLASSES,
-  HERO_SECONDARY_BUTTON_CLASSES,
-} from "@/components/templates/public/categories/hero-button-classes"
-import { MEMBER_PRODUCTS_PATH, PRICING_PATH, tagPath } from "@/lib/routes"
-import { cn } from "@/lib/utils"
+  BROWSE_PATH,
+  MEMBER_PRODUCTS_ADD_PATH,
+  PRICING_PATH,
+  tagPath,
+} from "@/lib/routes"
 import { buildPageMetadata } from "@/lib/metadata"
 import { getTagDetailPayload } from "@/lib/tags/page-cache"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
@@ -126,6 +114,18 @@ function mapProductCardItemToFeedItem(
 
 const MAX_TAG_PAGES = 50
 
+function toSponsorProduct(
+  item: HomepageFeedItem | ProductCardItem | null | undefined,
+): TaxonomySponsorProduct | null {
+  if (!item) return null
+
+  return {
+    slug: item.slug,
+    name: item.name,
+    tagline: item.tagline,
+  }
+}
+
 export default async function TagDetailPage({ params }: TagPageProps) {
   const { slug } = await params
 
@@ -202,92 +202,59 @@ export default async function TagDetailPage({ params }: TagPageProps) {
   }
 
   const taggedCount = tagProductIdSet.size
+  const firstOrganicItem =
+    combinedFeedItems.find((item) => !item.isSponsored) ?? combinedFeedItems[0]
+  const secondOrganicItem =
+    combinedFeedItems.find(
+      (item) => !item.isSponsored && item.id !== firstOrganicItem?.id,
+    ) ?? combinedFeedItems.find((item) => item.id !== firstOrganicItem?.id)
 
   return (
-    <main className="relative isolate bg-[#f5f7fb]">
-      <PublicTwoColumnLayout
-        className="pb-24 pt-12"
-        mainClassName="gap-10"
-        main={
-          <>
-            <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
-              <div className="mx-auto flex max-w-2xl flex-col items-center gap-6">
-                <div className="space-y-4">
-                  <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-                    {tagLabel}
-                  </h1>
-                  <p className="text-base text-muted-foreground">
-                    Explore launches using the “{tagLabel}” keyword.
-                  </p>
-                </div>
-                <p className="text-sm font-medium text-muted-foreground/80">
-                  {new Intl.NumberFormat().format(totalTaggedProducts)}{" "}
-                  {totalTaggedProducts === 1 ? "product" : "products"} currently
-                  include this tag.
-                </p>
-                <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
-                  <Link
-                    href={MEMBER_PRODUCTS_PATH}
-                    className={cn(
-                      HERO_PRIMARY_BUTTON_CLASSES,
-                      "w-full justify-center sm:w-auto",
-                    )}
-                  >
-                    Launch with this keyword
-                  </Link>
-                  <Link
-                    href={PRICING_PATH}
-                    className={cn(
-                      HERO_SECONDARY_BUTTON_CLASSES,
-                      "w-full justify-center sm:w-auto",
-                    )}
-                  >
-                    Explore promotion tiers
-                  </Link>
-                </div>
-              </div>
-            </section>
-
-            <StickyBanner className="mx-auto w-full rounded-2xl" />
-
-            <section className="space-y-6" data-testid="tag-feed-section">
-              <h2 className="sr-only">Tag feed</h2>
-              {combinedFeedItems.length > 0 ? (
-                <ProductFeedList
-                  activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
-                  items={combinedFeedItems}
-                  referenceDateIso={referenceDateIso}
-                  showRemaining
-                />
-              ) : (
-                <div className="rounded-3xl border border-dashed border-border/40 bg-white/70 px-6 py-12 text-center text-sm font-medium text-muted-foreground">
-                  No launches use this keyword yet. Check back soon.
-                </div>
-              )}
-              {taggedCount > 0 ? (
-                <p className="text-center text-xs uppercase tracking-[0.2em] text-muted-foreground/80">
-                  Showing {new Intl.NumberFormat().format(taggedCount)} tagged
-                  product{taggedCount === 1 ? "" : "s"}
-                </p>
-              ) : null}
-            </section>
-          </>
-        }
-        sidebar={
-          <>
-            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
-              <TrafficSidebarStats />
-            </Suspense>
-            <Suspense fallback={<SponsoredProductsSkeleton />}>
-              <SponsoredProductsSection />
-            </Suspense>
-            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
-              <DirectoryHighlightsSidebar />
-            </Suspense>
-            <AffiliateLinkCard />
-          </>
-        }
-      />
-    </main>
+    <TaxonomyDetailPage
+      title={tagLabel}
+      description={`Explore launches using the “${tagLabel}” keyword.`}
+      icon={<Hash className="h-10 w-10 text-[#c0ff00]" aria-hidden />}
+      primaryCta={{
+        href: MEMBER_PRODUCTS_ADD_PATH,
+        label: "Launch with this keyword",
+      }}
+      secondaryCta={{
+        href: PRICING_PATH,
+        label: "Explore promotion tiers",
+      }}
+      tertiaryCta={{
+        href: `${BROWSE_PATH}?tag=${encodeURIComponent(summary.slug)}`,
+        label: "Trending this week",
+      }}
+      stats={[
+        { label: "Total Products", value: totalTaggedProducts },
+        { label: "Tagged", value: taggedCount },
+        { label: "Launches", value: combinedFeedItems.length },
+      ]}
+      feed={
+        <div className="space-y-6">
+          <h2 className="sr-only">Tag feed</h2>
+          {combinedFeedItems.length > 0 ? (
+            <TaxonomyHomepageRowsClient
+              products={combinedFeedItems}
+              referenceDateIso={referenceDateIso}
+            />
+          ) : (
+            <div className="rounded-lg border border-[#e2e8f0] bg-white p-8 text-center text-sm text-[#43474c]">
+              No launches use this keyword yet. Check back soon.
+            </div>
+          )}
+          {taggedCount > 0 ? (
+            <p className="text-center text-xs uppercase tracking-[0.2em] text-muted-foreground/80">
+              Showing {new Intl.NumberFormat().format(taggedCount)} tagged
+              product{taggedCount === 1 ? "" : "s"}
+            </p>
+          ) : null}
+        </div>
+      }
+      feedTestId="tag-feed-section"
+      sponsorProduct={toSponsorProduct(firstOrganicItem)}
+      secondarySponsor={toSponsorProduct(secondOrganicItem)}
+    />
   )
 }
