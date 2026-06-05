@@ -16,8 +16,6 @@ import type {
 import { BROWSE_PATH, categoryPath, productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
-export { HomepageAnalyticsGrid } from "@/components/templates/public/common/HomepageAnalyticsGrid"
-
 const formatter = new Intl.NumberFormat("en-US")
 const SPONSORED_DROP_INTERVAL = 4
 
@@ -214,11 +212,7 @@ function getDropDate(item: HomepageDropListItem) {
 }
 
 function startOfUtcDay(date: Date) {
-  return Date.UTC(
-    date.getUTCFullYear(),
-    date.getUTCMonth(),
-    date.getUTCDate(),
-  )
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
 }
 
 function addUtcDays(time: number, days: number) {

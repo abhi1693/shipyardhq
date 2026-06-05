@@ -4,8 +4,8 @@ import { useEffect, useState } from "react"
 import { Activity, Users, Zap } from "lucide-react"
 import type { TooltipProps } from "recharts"
 import {
-  Line,
-  LineChart,
+  Area,
+  AreaChart,
   ResponsiveContainer,
   Tooltip as RechartsTooltip,
 } from "recharts"
@@ -13,7 +13,7 @@ import {
 import { Card, CardContent } from "@/components/atoms/card"
 import { cn } from "@/lib/utils"
 
-export interface TrafficSidebarStatsPayload {
+export interface TrafficStatsPayload {
   pageViews30?: number | null
   visitors30?: number | null
   trafficSeries?: Array<{
@@ -44,7 +44,7 @@ function formatMetricDate(value: string) {
 }
 
 function normalizeMetricSeries(
-  series: TrafficSidebarStatsPayload["trafficSeries"],
+  series: TrafficStatsPayload["trafficSeries"],
 ): TrafficMetricPoint[] {
   return (series ?? [])
     .map((point) => ({
@@ -127,10 +127,22 @@ function MetricSparkline({
       role="img"
     >
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart
+        <AreaChart
           data={data}
           margin={{ top: 5, right: 4, bottom: 5, left: 4 }}
         >
+          <defs>
+            <linearGradient
+              id={`traffic-gradient-${dataKey}`}
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop offset="5%" stopColor={color} stopOpacity={0.22} />
+              <stop offset="95%" stopColor={color} stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
           <RechartsTooltip
             allowEscapeViewBox={{ x: true, y: true }}
             cursor={{ stroke: color, strokeOpacity: 0.18 }}
@@ -138,17 +150,19 @@ function MetricSparkline({
             content={<TrafficSparklineTooltip />}
             wrapperStyle={{ pointerEvents: "none", zIndex: 50 }}
           />
-          <Line
+          <Area
             type="monotone"
             dataKey={dataKey}
             name={label}
             stroke={color}
             strokeWidth={2}
+            fill={`url(#traffic-gradient-${dataKey})`}
+            fillOpacity={1}
             dot={false}
             activeDot={{ r: 3, stroke: color, strokeWidth: 0 }}
             isAnimationActive={false}
           />
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   )
@@ -237,7 +251,7 @@ export function TrafficStatsPanel({
   className,
   showDashboardLink = false,
 }: {
-  initialStats: TrafficSidebarStatsPayload
+  initialStats: TrafficStatsPayload
   className?: string
   showDashboardLink?: boolean
 }) {

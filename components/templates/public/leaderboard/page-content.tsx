@@ -16,7 +16,7 @@ import { Button } from "@/components/atoms/button"
 import { Card, CardContent } from "@/components/atoms/card"
 import { Image } from "@/components/atoms/image"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
-import { HomepageAnalyticsGrid } from "@/components/templates/public/common/HomepageAnalyticsGrid"
+import { TrafficStatsPanel } from "@/components/templates/public/common/TrafficStatsPanel"
 import { LeaderboardUpvoteButton } from "@/components/templates/public/leaderboard/leaderboard-upvote-button"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { DODO_AFFILIATE_URL } from "@/lib/marketing/affiliates"
@@ -62,11 +62,13 @@ function LeaderboardHero({
   return (
     <section className="rounded-xl border border-[#E2E8F0] bg-[radial-gradient(at_0%_0%,rgba(208,228,255,0.5)_0px,transparent_50%),radial-gradient(at_100%_0%,rgba(219,225,255,0.5)_0px,transparent_50%)] px-6 py-12 text-center md:px-10">
       <h1 className="mb-1 text-[32px] font-bold leading-10 tracking-tight text-black">
-        {categoryName ? `${categoryName} leaderboard` : "This month's leaderboard"}
+        {categoryName
+          ? `${categoryName} leaderboard`
+          : "This month's leaderboard"}
       </h1>
       <p className="mx-auto mb-8 max-w-2xl text-[16px] leading-6 text-[#43474c]">
-        Products are ranked by monthly upvotes, unique visitors, and page
-        views. Updated every 6 hours.
+        Products are ranked by monthly upvotes, unique visitors, and page views.
+        Updated every 6 hours.
       </p>
       <div className="flex flex-wrap justify-center gap-4">
         <Button
@@ -187,7 +189,10 @@ function LeaderboardProductCard({ item }: { item: LeaderboardListItem }) {
               >
                 #{item.rank}
               </span>
-              <LeaderboardUpvoteButton productSlug={item.slug} count={upvotes} />
+              <LeaderboardUpvoteButton
+                productSlug={item.slug}
+                count={upvotes}
+              />
             </div>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -365,7 +370,11 @@ function DodoPaymentsCard() {
           asChild
           className="h-12 w-full rounded-lg bg-white text-[12px] font-semibold uppercase tracking-[0.05em] text-black hover:bg-[#C0FF00]"
         >
-          <a href={DODO_AFFILIATE_URL} target="_blank" rel="noopener noreferrer">
+          <a
+            href={DODO_AFFILIATE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Get started
             <ArrowRight className="size-4" aria-hidden />
           </a>
@@ -386,9 +395,8 @@ export async function LeaderboardPageContent({
     limit: Number(sp?.limit ?? 50),
   }
 
-  const { stats, products, categoryName } = await getLeaderboardPagePayload(
-    filters,
-  )
+  const { stats, products, categoryName } =
+    await getLeaderboardPagePayload(filters)
   const now = new Date()
   const [interestMap, sponsoredPlacements] = await Promise.all([
     getProductInterestSignalsMap({
@@ -441,7 +449,7 @@ export async function LeaderboardPageContent({
             )}
           </section>
           <aside className="space-y-6 lg:col-span-4">
-            <HomepageAnalyticsGrid initialStats={stats} />
+            <TrafficStatsPanel initialStats={stats} />
             <PromotedShips placements={sponsoredPlacements} />
             <DodoPaymentsCard />
           </aside>

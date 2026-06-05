@@ -11,9 +11,9 @@ import { Button } from "@/components/atoms/button"
 import { Image } from "@/components/atoms/image"
 import {
   HomepageDropsInfiniteList,
-  HomepageAnalyticsGrid,
   HomepageUpvoteButton,
 } from "@/components/templates/public/homepage/homepage-client"
+import { TrafficStatsPanel } from "@/components/templates/public/common/TrafficStatsPanel"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
@@ -215,35 +215,31 @@ function ProductLogo({
 }
 
 export default async function HomePage() {
-  const [
-    feedPage,
-    launchOfDay,
-    builderSummary,
-    homepageStats,
-  ] = await Promise.all([
-    getHomepageFeedPage({
-      page: 1,
-      pageSize: 20,
-      launchWindow: "week",
-    }).catch(() => ({
-      items: [],
-      page: 1,
-      pageSize: 20,
-      hasMore: false,
-      nextPage: null,
-    })),
-    getHomepageLaunchOfDay().catch(() => null),
-    getHomepageBuilderSummary().catch(() => ({
-      builderCount: 0,
-      topFounder: null,
-    })),
-    getLeaderboardStats().catch(() => ({
-      pageViews30: 0,
-      visitors30: 0,
-      trafficSeries: [],
-      realtimeVisitors: 1,
-    })),
-  ])
+  const [feedPage, launchOfDay, builderSummary, homepageStats] =
+    await Promise.all([
+      getHomepageFeedPage({
+        page: 1,
+        pageSize: 20,
+        launchWindow: "week",
+      }).catch(() => ({
+        items: [],
+        page: 1,
+        pageSize: 20,
+        hasMore: false,
+        nextPage: null,
+      })),
+      getHomepageLaunchOfDay().catch(() => null),
+      getHomepageBuilderSummary().catch(() => ({
+        builderCount: 0,
+        topFounder: null,
+      })),
+      getLeaderboardStats().catch(() => ({
+        pageViews30: 0,
+        visitors30: 0,
+        trafficSeries: [],
+        realtimeVisitors: 1,
+      })),
+    ])
 
   const feedProducts = feedPage.items.map(toDisplayDrop)
   const launch = launchOfDay
@@ -272,11 +268,7 @@ export default async function HomePage() {
   )
   const usingFallbackDrops = feedPage.items.length === 0
   const drops =
-    feedDrops.length > 0
-      ? feedDrops
-      : usingFallbackDrops
-        ? fallbackDrops
-        : []
+    feedDrops.length > 0 ? feedDrops : usingFallbackDrops ? fallbackDrops : []
   const referenceDateIso = new Date().toISOString()
   const launchGrowth = launch.upvoteGrowthPercent
   const launchBuildersClickedCount = launch.buildersClickedCount ?? 0
@@ -444,7 +436,7 @@ export default async function HomePage() {
           </article>
 
           <div className="col-span-12 lg:col-span-4">
-            <HomepageAnalyticsGrid
+            <TrafficStatsPanel
               initialStats={homepageStats}
               className="h-full"
             />

@@ -1,5 +1,5 @@
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
-import { TrafficSidebarStatsContent } from "./TrafficSidebarStatsContent"
+import { TrafficStatsPanel } from "./TrafficStatsPanel"
 import { TrafficSidebarStatsSkeleton } from "./TrafficSidebarStatsSkeleton"
 
 export { TrafficSidebarStatsSkeleton }
@@ -10,5 +10,11 @@ export async function TrafficSidebarStats({
   className?: string
 }) {
   const stats = await getLeaderboardStats()
-  return <TrafficSidebarStatsContent stats={stats} className={className} />
+  return (
+    <TrafficStatsPanel
+      initialStats={stats}
+      className={className}
+      showDashboardLink
+    />
+  )
 }
