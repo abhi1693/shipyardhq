@@ -1,51 +1,64 @@
-import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
-import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
-import { SponsoredProductsSkeleton } from "@/components/templates/public/homepage/sponsored-products"
-import { HomepageFeedSkeleton } from "@/components/templates/public/homepage/homepage-feed-section"
+import { TrafficSidebarStatsSkeleton } from "@/components/templates/public/common/TrafficSidebarStats"
 
 export function CategoryDetailSkeleton() {
   return (
-    <main className="relative isolate bg-[#f5f7fb]">
-      <div className="relative mx-auto w-full max-w-7xl px-4 pb-24 pt-12 md:px-6">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,2.6fr)_minmax(240px,0.9fr)]">
-          <div className="flex flex-col gap-10">
-            <HeroSkeleton />
-            <Skeleton className="h-20 rounded-3xl border border-border/40 bg-white shadow-sm" />
-            <ProductsSkeleton />
+    <main className="bg-[#f8fafc] text-[#0b1c30]">
+      <section className="bg-[#061d31] px-4 py-16 text-white md:px-6">
+        <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-6 text-center">
+          <Skeleton className="h-16 w-16 rounded-lg bg-white/15" />
+          <div className="w-full space-y-3">
+            <Skeleton className="mx-auto h-12 w-full max-w-xl rounded bg-white/15" />
+            <Skeleton className="mx-auto h-4 w-full max-w-2xl rounded bg-white/10" />
+            <Skeleton className="mx-auto h-4 w-10/12 max-w-xl rounded bg-white/10" />
           </div>
-          <aside className="flex w-full max-w-sm flex-col gap-6 lg:ml-auto">
-            <SponsoredProductsSkeleton />
-          </aside>
+          <div className="flex w-full flex-col justify-center gap-3 sm:flex-row sm:flex-wrap">
+            <Skeleton className="h-12 w-full rounded-lg bg-white/20 sm:w-48" />
+            <Skeleton className="h-12 w-full rounded-lg bg-white/10 sm:w-52" />
+            <Skeleton className="h-12 w-full rounded-lg bg-white/10 sm:w-44" />
+          </div>
+          <div className="mt-4 flex flex-wrap justify-center gap-8 border-t border-white/10 pt-8">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="space-y-2 text-center">
+                <Skeleton className="mx-auto h-8 w-20 rounded bg-white/15" />
+                <Skeleton className="mx-auto h-3 w-24 rounded bg-white/10" />
+              </div>
+            ))}
+          </div>
         </div>
+      </section>
+
+      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-12 md:px-6 lg:grid-cols-12">
+        <div className="space-y-12 lg:col-span-8">
+          <Skeleton className="h-24 rounded-lg border border-[#e2e8f0] bg-white" />
+          <section className="space-y-3">
+            <div className="flex items-center justify-between border-b border-[#e2e8f0] pb-4">
+              <Skeleton className="h-8 w-48 rounded" />
+              <Skeleton className="h-4 w-28 rounded" />
+            </div>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-4 rounded-lg border border-[#e2e8f0] bg-white p-4"
+              >
+                <Skeleton className="h-14 w-14 rounded-lg" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Skeleton className="h-5 w-48 rounded" />
+                  <Skeleton className="h-4 w-full rounded" />
+                  <Skeleton className="h-5 w-36 rounded" />
+                </div>
+                <Skeleton className="h-14 w-16 rounded-lg" />
+              </div>
+            ))}
+          </section>
+        </div>
+
+        <aside className="space-y-6 lg:col-span-4">
+          <TrafficSidebarStatsSkeleton />
+          <Skeleton className="h-96 rounded-lg border border-[#e2e8f0] bg-white" />
+          <Skeleton className="h-64 rounded-lg bg-[#0051d5]" />
+        </aside>
       </div>
     </main>
-  )
-}
-
-function HeroSkeleton() {
-  return (
-    <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
-      <div className="mx-auto flex max-w-2xl flex-col items-center gap-6">
-        <Skeleton className="h-16 w-16 rounded-2xl border border-border/40 bg-muted/40 shadow-[0_18px_42px_-28px_rgba(7,68,134,0.35)]" />
-        <div className="w-full space-y-4">
-          <HeadingSkeleton lines={2} centered className="text-foreground" />
-          <Skeleton className="mx-auto h-3 w-4/5 rounded-full" tone="muted" />
-        </div>
-        <Skeleton className="h-3 w-40 rounded-full" tone="muted" />
-        <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row sm:justify-center sm:gap-4">
-          <ButtonSkeleton size="lg" labelWidth="10rem" />
-          <ButtonSkeleton size="lg" variant="outline" labelWidth="12rem" />
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function ProductsSkeleton() {
-  return (
-    <section className="space-y-6">
-      <HomepageFeedSkeleton />
-    </section>
   )
 }
