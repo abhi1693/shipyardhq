@@ -423,31 +423,6 @@ function DropProductLogo({
   )
 }
 
-function DropSparkline({ sponsored }: { sponsored: boolean }) {
-  return (
-    <svg
-      className={cn(
-        "h-10 w-full",
-        sponsored ? "text-[#C0FF00]" : "text-[#16a34a]",
-      )}
-      fill="none"
-      viewBox="0 0 100 40"
-      aria-hidden="true"
-    >
-      <path
-        d={
-          sponsored
-            ? "M0 30L20 28L40 32L60 15L80 5L100 12"
-            : "M0 35C20 32 30 10 50 15C70 20 80 5 100 2"
-        }
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="2"
-      />
-    </svg>
-  )
-}
-
 function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
   const sponsored = Boolean(product.isSponsored)
   const href = product.slug ? productPath(product.slug) : BROWSE_PATH
@@ -505,9 +480,6 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
           >
             {product.tagline}
           </p>
-        </div>
-        <div className="hidden w-32 px-4 md:block">
-          <DropSparkline sponsored={sponsored} />
         </div>
         <div
           className={cn(
