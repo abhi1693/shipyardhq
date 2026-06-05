@@ -1,156 +1,93 @@
-import { BadgeSkeleton } from "@/components/atoms/badge.skeleton"
-import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
-import { CardSkeleton } from "@/components/atoms/card.skeleton"
-import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
-import ProductListSkeleton from "@/components/molecules/ProductList.skeleton"
-import { DirectoryProductListSkeleton } from "@/components/organisms/directory/DirectoryProductList.skeleton"
 
 export function RewardsPageSkeleton() {
   return (
-    <main className="relative isolate overflow-hidden bg-white">
-      <section className="relative overflow-hidden border border-[color:var(--brand-1)/0.18] py-24 shadow-[0px_70px_160px_-70px_rgba(18,66,112,0.65)]">
-        <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-10 px-4 text-center text-white md:px-8">
-          <BadgeSkeleton
-            variant="outline"
-            labelWidth="10rem"
-            leadingIcon
-            className="h-8 bg-white/15"
-          />
-          <div className="space-y-6 text-balance">
-            <HeadingSkeleton lines={3} centered className="text-white" />
-            <Skeleton
-              className="mx-auto h-3 w-11/12 rounded-full md:w-4/5"
-              tone="muted"
-            />
-            <Skeleton
-              className="mx-auto h-3 w-3/4 rounded-full md:w-2/3"
-              tone="muted"
-            />
+    <main className="bg-[#f8f9ff] text-[#0b1c30]">
+      <section className="relative overflow-hidden bg-[#061d31] px-4 pb-48 pt-16 text-white md:px-6 md:pb-16">
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-15 [background-image:radial-gradient(circle_at_2px_2px,#ffffff_1px,transparent_0)] [background-size:40px_40px]"
+        />
+        <div className="relative z-10 mx-auto max-w-4xl text-center">
+          <Skeleton className="mx-auto h-7 w-44 rounded-full bg-white/15" />
+          <Skeleton className="mx-auto mt-6 h-12 w-full max-w-3xl rounded bg-white/15" />
+          <Skeleton className="mx-auto mt-3 h-12 w-10/12 max-w-2xl rounded bg-white/15" />
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Skeleton className="h-12 w-full rounded-full bg-white/20 sm:w-44" />
+            <Skeleton className="h-12 w-full rounded-full bg-white/10 sm:w-40" />
           </div>
-          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
-            <ButtonSkeleton
-              size="lg"
-              labelWidth="9.5rem"
-              icon
-              className="px-8"
-            />
-            <ButtonSkeleton size="lg" variant="outline" labelWidth="8.5rem" />
-            <ButtonSkeleton
-              size="lg"
-              variant="outline"
-              labelWidth="10rem"
-              className="bg-white/20 text-white"
-            />
-          </div>
-          <div className="mt-12 grid w-full grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid grid-cols-2 gap-4 text-left lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
-              <CardSkeleton
+              <div
                 key={index}
-                lines={2}
-                tone="soft"
-                className="rounded-2xl border-white/25 bg-white/80"
-                showHeader={false}
-              />
+                className="rounded-lg border border-white/10 bg-white/[0.06] p-6"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <Skeleton className="h-4 w-28 rounded bg-white/15" />
+                  <Skeleton className="h-5 w-5 rounded bg-white/15" />
+                </div>
+                <Skeleton className="mt-4 h-8 w-24 rounded bg-white/15" />
+                <Skeleton className="mt-2 h-3 w-28 rounded bg-white/10" />
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      <div className="mx-auto max-w-[84rem] px-4 py-16 md:px-8 space-y-12">
-        <section className="rounded-[32px] bg-white/80 p-6 shadow-[0px_40px_120px_-60px_rgba(7,58,104,0.55)] ring-1 ring-[rgba(7,58,104,0.08)] backdrop-blur md:p-10">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="space-y-2 text-left">
-              <BadgeSkeleton
-                variant="outline"
-                labelWidth="6rem"
-                leadingIcon
-                className="h-7"
-              />
-              <HeadingSkeleton
-                lines={2}
-                centered={false}
-                className="max-w-xl"
-              />
-            </div>
-            <BadgeSkeleton
-              variant="outline"
-              labelWidth="5rem"
-              className="h-7 uppercase tracking-[0.2em]"
-            />
+      <section className="mx-auto max-w-[1200px] px-4 py-16 md:px-6">
+        <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="space-y-3">
+            <Skeleton className="h-4 w-48 rounded" />
+            <Skeleton className="h-10 w-80 max-w-full rounded" />
           </div>
-          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-            <div className="space-y-6">
-              <CardSkeleton
-                lines={3}
-                tone="soft"
-                className="rounded-[28px] border border-border/70 bg-white/90"
-                showHeader={false}
-              />
-              <div className="grid gap-4 sm:grid-cols-3">
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <CardSkeleton
-                    key={index}
-                    lines={1}
-                    tone="soft"
-                    className="rounded-2xl border border-border/60 bg-white/90"
-                    showHeader={false}
-                  />
-                ))}
+          <Skeleton className="h-16 w-full max-w-md rounded" />
+        </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="rounded-lg bg-[#061d31] p-6">
+              <div className="mb-8 flex items-start justify-between gap-3">
+                <Skeleton className="h-10 w-10 rounded-lg bg-white/15" />
+                <Skeleton className="h-6 w-24 rounded bg-white/10" />
+              </div>
+              <Skeleton className="h-6 w-3/4 rounded bg-white/15" />
+              <Skeleton className="mt-3 h-4 w-full rounded bg-white/10" />
+              <Skeleton className="mt-2 h-4 w-10/12 rounded bg-white/10" />
+              <div className="mt-8 border-t border-white/10 pt-5">
+                <Skeleton className="h-7 w-32 rounded bg-white/15" />
               </div>
             </div>
-            <CardSkeleton
-              lines={4}
-              tone="soft"
-              className="rounded-[28px] border border-border/70 bg-white/90"
-              showHeader={false}
-            />
-          </div>
-        </section>
+          ))}
+        </div>
+      </section>
 
-        <section className="space-y-10 rounded-3xl border border-border bg-white p-6 shadow-sm md:p-8">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.6fr)]">
-            <div className="space-y-6">
-              <HeadingSkeleton lines={2} centered={false} />
-              <Skeleton className="h-3 w-11/12 rounded-full" tone="muted" />
-              <DirectoryProductListSkeleton
-                count={6}
-                columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                showMetaBadge
-              />
-            </div>
-            <CardSkeleton
-              lines={6}
-              tone="soft"
-              className="rounded-2xl border border-border/70 bg-white/90"
-              showHeader={false}
-            />
+      <section className="bg-[#f8fafc] px-4 py-20 md:px-6">
+        <div className="mx-auto max-w-[1200px]">
+          <div className="mx-auto mb-16 max-w-2xl space-y-3 text-center">
+            <Skeleton className="mx-auto h-4 w-44 rounded" />
+            <Skeleton className="mx-auto h-10 w-80 max-w-full rounded" />
+            <Skeleton className="mx-auto h-12 w-full rounded" />
           </div>
-        </section>
-
-        <section className="rounded-3xl border border-border bg-white p-6 shadow-sm md:p-8">
-          <HeadingSkeleton lines={2} centered={false} />
-          <Skeleton className="mt-2 h-3 w-3/4 rounded-full" tone="muted" />
-          <div className="mt-8">
-            <ProductListSkeleton count={4} />
-          </div>
-        </section>
-        <section className="rounded-3xl border border-border bg-white p-6 shadow-sm md:p-8">
-          <HeadingSkeleton lines={2} centered={false} />
-          <Skeleton className="mt-2 h-3 w-2/3 rounded-full" tone="muted" />
-          <div className="mt-8 space-y-6">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <CardSkeleton
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
                 key={index}
-                lines={3}
-                tone="soft"
-                className="rounded-2xl border border-border/70 bg-white/90"
-                showHeader={false}
-              />
+                className="flex min-h-72 flex-col rounded-lg border border-[#e2e8f0] bg-white p-8"
+              >
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <Skeleton className="h-6 w-24 rounded" />
+                  <Skeleton className="h-5 w-5 rounded" />
+                </div>
+                <Skeleton className="h-8 w-3/4 rounded" />
+                <Skeleton className="mt-4 h-4 w-full rounded" />
+                <Skeleton className="mt-2 h-4 w-11/12 rounded" />
+                <div className="mt-auto border-t border-[#e2e8f0] pt-6">
+                  <Skeleton className="h-8 w-full rounded" />
+                </div>
+              </div>
             ))}
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </main>
   )
 }
