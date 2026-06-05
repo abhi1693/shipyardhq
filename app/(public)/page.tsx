@@ -6,6 +6,7 @@ import {
   getHomepageLaunchOfDay,
 } from "@/actions/public/homepage/feed"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
+import { getPartnerSpotlightProduct } from "@/actions/public/products/featured"
 import { getHomepageBuilderSummary } from "@/actions/public/users/actions"
 import { Button } from "@/components/atoms/button"
 import { Image } from "@/components/atoms/image"
@@ -109,6 +110,10 @@ const numberFormatter = new Intl.NumberFormat("en-US")
 
 function formatCount(value: number) {
   return numberFormatter.format(Math.max(0, value))
+}
+
+function getPartnerSpotlightRotationKey(date = new Date()) {
+  return date.toISOString().slice(0, 13)
 }
 
 function formatPercent(value: number) {
@@ -216,7 +221,13 @@ function ProductLogo({
 }
 
 export default async function HomePage() {
-  const [feedPage, launchOfDay, builderSummary, homepageStats] =
+  const [
+    feedPage,
+    launchOfDay,
+    builderSummary,
+    homepageStats,
+    partnerSpotlight,
+  ] =
     await Promise.all([
       getHomepageFeedPage({
         page: 1,
@@ -240,6 +251,9 @@ export default async function HomePage() {
         trafficSeries: [],
         realtimeVisitors: 1,
       })),
+      getPartnerSpotlightProduct(getPartnerSpotlightRotationKey()).catch(
+        () => null,
+      ),
     ])
 
   const feedProducts = feedPage.items.map(toDisplayDrop)
@@ -484,7 +498,7 @@ export default async function HomePage() {
         </section>
       </div>
 
-      <PartnerSpotlight />
+      <PartnerSpotlight product={partnerSpotlight} />
     </div>
   )
 }

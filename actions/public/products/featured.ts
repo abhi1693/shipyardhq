@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma"
 import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { stableUnitInterval } from "@/lib/stable-random"
 import type { FeaturedProduct } from "@/types"
 import { featuredProductSelect } from "@/types"
 
@@ -166,6 +167,8 @@ type StickyBannerProductResult = {
   tagline: string | null
 }
 
+export type PartnerSpotlightProduct = StickyBannerProductResult
+
 type StickyBannerProduct = Prisma.ProductGetPayload<{
   select: {
     id: true
@@ -303,6 +306,45 @@ export const getStickyBannerProducts = cached(
   "products:sticky-banner:v2",
   {
     ttl: 600,
+    tags: () => [
+      TAGS.products,
+      TAGS.placement("stickyBanner"),
+      TAGS.planFeature("stickyBanner"),
+      TAGS.plans,
+    ],
+  },
+)
+
+export const getPartnerSpotlightProduct = cached(
+  async (
+    rotationKey: string,
+    limit = 100,
+  ): Promise<PartnerSpotlightProduct | null> => {
+    const products = await getStickyBannerProducts(limit)
+
+    if (!products.length) {
+      return null
+    }
+
+    return [...products].sort((a, b) => {
+      const aRank = stableUnitInterval(
+        `partner-spotlight:${rotationKey}:${a.id}`,
+      )
+      const bRank = stableUnitInterval(
+        `partner-spotlight:${rotationKey}:${b.id}`,
+      )
+
+      if (aRank !== bRank) return aRank - bRank
+      return a.name.localeCompare(b.name)
+    })[0]
+  },
+  "products:partner-spotlight:v1",
+  {
+    ttl: DEFAULT_TTL.fast,
+    keyParts: ([rotationKey, limit]) => [
+      `rotation:${rotationKey}`,
+      `limit:${limit ?? 100}`,
+    ],
     tags: () => [
       TAGS.products,
       TAGS.placement("stickyBanner"),

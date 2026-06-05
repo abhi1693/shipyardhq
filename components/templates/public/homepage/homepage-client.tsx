@@ -877,10 +877,24 @@ export function HomepageAnalyticsGrid({
   )
 }
 
-export function PartnerSpotlight() {
+type PartnerSpotlightProduct = {
+  slug: string
+  name: string
+  logo: string
+  tagline: string | null
+}
+
+export function PartnerSpotlight({
+  product,
+}: {
+  product: PartnerSpotlightProduct | null
+}) {
   const [visible, setVisible] = useState(true)
 
-  if (!visible) return null
+  if (!visible || !product) return null
+
+  const tagline = product.tagline?.trim()
+  const href = `/r/sticky-banner/${product.slug}`
 
   return (
     <div className="fixed bottom-0 left-0 z-[60] w-full border-t border-white/10 bg-[#213145] text-white shadow-2xl">
@@ -892,16 +906,29 @@ export function PartnerSpotlight() {
               Partner Spotlight
             </span>
           </div>
-          <p className="hidden truncate text-sm text-white/90 lg:block">
-            Scale your infrastructure with our new Enterprise Cloud integration.
-          </p>
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="min-w-0 truncate text-sm font-semibold text-white/90 hover:text-white hover:underline"
+          >
+            <span>{product.name}</span>
+            {tagline ? (
+              <span className="hidden font-normal text-white/70 lg:inline">
+                {": "}
+                {tagline}
+              </span>
+            ) : null}
+          </a>
         </div>
         <div className="flex shrink-0 items-center gap-3">
           <Button
             asChild
             className="h-9 rounded-full border-0 bg-[#C0FF00] px-4 text-xs font-bold uppercase tracking-[0.05em] text-black hover:bg-[#C0FF00]/90 sm:px-6"
           >
-            <Link href="/pricing">Learn More</Link>
+            <a href={href} target="_blank" rel="noopener noreferrer">
+              Learn More
+            </a>
           </Button>
           <Button
             type="button"
