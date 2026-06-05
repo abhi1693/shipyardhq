@@ -1,56 +1,146 @@
-"use client"
-
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { ArrowRight, BarChart3, Compass, Rocket, Trophy } from "lucide-react"
+
 import { Button } from "@/components/atoms/button"
-import { BROWSE_PATH, HOME_PATH } from "@/lib/routes"
+import PublicFooter from "@/components/layout/footers/public-footer"
+import PublicHeader from "@/components/layout/headers/public-header"
+import {
+  ANALYTICS_PATH,
+  BROWSE_PATH,
+  LEADERBOARD_PATH,
+  MEMBER_PRODUCTS_ADD_PATH,
+} from "@/lib/routes"
+
+const destinations = [
+  {
+    title: "New Tech",
+    description: "Discover the latest high-performance software launches.",
+    href: BROWSE_PATH,
+    icon: Compass,
+    iconClassName: "text-[#0051d5]",
+  },
+  {
+    title: "Live Analytics",
+    description: "See real-time traffic and discovery signals across Shipyard.",
+    href: ANALYTICS_PATH,
+    icon: BarChart3,
+    iconClassName: "text-[#16a34a]",
+  },
+  {
+    title: "Daily Drops",
+    description: "Find fresh launches and products moving up the leaderboard.",
+    href: LEADERBOARD_PATH,
+    icon: Rocket,
+    iconClassName: "text-[#F97316]",
+  },
+] as const
 
 export default function NotFound() {
-  const router = useRouter()
-
   return (
-    <section className="relative isolate w-full min-h-[70vh] py-20 md:py-28 overflow-hidden flex items-center">
-      <div className="pointer-events-none absolute inset-0 -z-10 opacity-70">
-        <div className="absolute -top-24 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-[color:var(--brand-1)/0.14] blur-3xl" />
-        <div className="absolute -bottom-40 right-[-8rem] h-96 w-96 rounded-full bg-sky-200/55 blur-3xl" />
-      </div>
+    <div className="flex min-h-screen flex-col bg-[#f8f9ff] text-[#0b1c30]">
+      <PublicHeader />
+      <main className="relative flex min-h-[calc(100vh-4rem)] flex-1 flex-col items-center justify-center overflow-hidden pt-16">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-50 [background-image:radial-gradient(#d3e4fe_0.75px,transparent_0.75px)] [background-size:24px_24px]"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-[#dce9ff] to-transparent opacity-70"
+          aria-hidden
+        />
 
-      <div className="max-w-4xl mx-auto px-4 text-center">
-        <h1 className="text-7xl sm:text-8xl md:text-9xl font-extrabold leading-none tracking-tight text-[color:var(--brand-1)]">
-          404
-        </h1>
+        <section className="relative z-10 mx-auto w-full max-w-[1200px] px-4 py-16 text-center sm:px-6 md:py-24">
+          <div className="relative mx-auto mb-6 flex min-h-[180px] items-center justify-center sm:min-h-[260px]">
+            <h1
+              className="select-none text-[9rem] font-black leading-none tracking-normal text-black/[0.04] sm:text-[14rem] md:text-[20rem]"
+              aria-hidden
+            >
+              404
+            </h1>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="mb-3 rounded-full bg-[#C0FF00] px-3 py-1 text-xs font-bold uppercase tracking-[0.08em] text-black">
+                System Interruption
+              </span>
+              <h2 className="text-3xl font-bold leading-10 text-black sm:text-5xl md:text-[64px] md:leading-[72px]">
+                Lost at sea?
+              </h2>
+            </div>
+          </div>
 
-        <h2 className="mt-6 text-2xl md:text-3xl font-semibold">
-          Page not found
-        </h2>
-        <p className="mt-3 text-base md:text-lg text-muted-foreground">
-          Sorry, we couldn’t find that page. It may have been moved or deleted.
-        </p>
-
-        <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
-          <Button size="lg" onClick={() => router.back()}>
-            Go Back
-          </Button>
-          <Link href={HOME_PATH} passHref>
-            <Button asChild size="lg" variant="outline">
-              <a aria-label="Back to home">Back to Home</a>
-            </Button>
-          </Link>
-          <Link href={BROWSE_PATH} passHref>
-            <Button asChild size="lg" variant="ghost">
-              <a aria-label="Browse products">Browse Products</a>
-            </Button>
-          </Link>
-        </div>
-
-        {/* Subtle card hint for consistency with surfaces */}
-        <div className="mt-12 mx-auto max-w-xl rounded-xl border bg-card/80 p-5 shadow-sm">
-          <p className="text-sm text-muted-foreground">
-            Looking for something specific? Try exploring our categories or the
-            leaderboard to discover trending micro‑SaaS projects.
+          <p className="mx-auto max-w-2xl text-base leading-6 text-[#43474c] sm:text-lg sm:leading-7">
+            The page you are looking for has drifted off course or never
+            existed. Let&apos;s get you back to the makers and high-performance
+            discoveries.
           </p>
-        </div>
-      </div>
-    </section>
+
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button
+              asChild
+              className="h-auto w-full rounded-lg border-0 bg-black px-8 py-4 text-base font-semibold text-white shadow-sm hover:bg-[#346cef] sm:w-auto"
+            >
+              <Link href={BROWSE_PATH}>
+                Back to Discovery
+                <ArrowRight className="size-5" aria-hidden />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="h-auto w-full rounded-lg border-[#E2E8F0] bg-[#eff4ff] px-8 py-4 text-base font-semibold text-black shadow-none hover:bg-[#dce9ff] sm:w-auto"
+            >
+              <Link href={LEADERBOARD_PATH}>
+                <Trophy className="size-5" aria-hidden />
+                View Leaderboard
+              </Link>
+            </Button>
+          </div>
+
+          <div className="mt-16 grid grid-cols-1 gap-4 text-left md:grid-cols-3">
+            {destinations.map((destination) => {
+              const Icon = destination.icon
+
+              return (
+                <Link
+                  key={destination.href}
+                  href={destination.href}
+                  className="group rounded-lg border border-[#E2E8F0] bg-white p-6 transition-all hover:border-[#0051d5] hover:shadow-md"
+                >
+                  <div className="mb-4 flex size-10 items-center justify-center rounded-lg bg-[#eff4ff]">
+                    <Icon
+                      className={`size-5 ${destination.iconClassName}`}
+                      aria-hidden
+                    />
+                  </div>
+                  <h3 className="text-lg font-semibold leading-6 text-black">
+                    {destination.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-5 text-[#43474c]">
+                    {destination.description}
+                  </p>
+                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#0051d5]">
+                    Open
+                    <ArrowRight
+                      className="size-4 transition-transform group-hover:translate-x-1"
+                      aria-hidden
+                    />
+                  </span>
+                </Link>
+              )
+            })}
+          </div>
+
+          <div className="mt-6">
+            <Button
+              asChild
+              variant="ghost"
+              className="h-auto rounded-lg px-4 py-2 text-sm font-semibold text-[#43474c] hover:bg-[#eff4ff] hover:text-black"
+            >
+              <Link href={MEMBER_PRODUCTS_ADD_PATH}>Submit your product</Link>
+            </Button>
+          </div>
+        </section>
+      </main>
+      <PublicFooter />
+    </div>
   )
 }
