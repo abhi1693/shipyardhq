@@ -248,6 +248,49 @@ export async function cacheMiss<T>({
   }
 }
 
+interface CacheGetOrSetOptions<T> {
+  key: CacheKeyInput
+  ttlSeconds?: number
+  inProcessTtlMs?: number
+  deserialize?: (value: string) => T
+  serialize?: (value: T) => string
+  onError?: CacheErrorHandler
+  loader: () => Promise<T>
+}
+
+export async function cacheGetOrSet<T>({
+  key,
+  ttlSeconds,
+  inProcessTtlMs,
+  deserialize,
+  serialize,
+  onError,
+  loader,
+}: CacheGetOrSetOptions<T>): Promise<T> {
+  const cached = await cacheHit<T>({
+    key,
+    deserialize,
+    onError,
+    inProcessTtlMs,
+  })
+
+  if (cached !== null) {
+    return cached
+  }
+
+  const fresh = await loader()
+  await cacheMiss({
+    key,
+    value: fresh,
+    ttlSeconds,
+    serialize,
+    onError,
+    inProcessTtlMs,
+  })
+
+  return fresh
+}
+
 interface ClientResolutionOptions {
   key: CacheKeyInput
   onError?: CacheErrorHandler

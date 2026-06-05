@@ -14,6 +14,8 @@ import { hasEditorPickBadge } from "@/lib/products/badges"
 import { stableUnitInterval } from "@/lib/stable-random"
 import { getCurrentLeaderboardRun } from "@/lib/server/leaderboard/v2"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
+import { buildCacheKey, cacheGetOrSet } from "@/lib/server/cache"
+import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
 const SPONSORED_PLACEMENT_FEATURE_KEY = "sponsoredProducts"
 const SPONSORED_PLAN_FEATURE_KEYS = [
@@ -27,6 +29,9 @@ const EDITOR_PICK_BADGE = "editor-pick"
 const HOMEPAGE_SPONSORED_LIMIT = 12
 const HOMEPAGE_SPONSORED_INTERVAL = 4
 const HOMEPAGE_ROTATION_SEED = "homepage-organic-rotation"
+const HOMEPAGE_FEED_CACHE_VERSION = "v1"
+const HOMEPAGE_FEED_CACHE_TTL_SECONDS = resolveCacheTtl("slow")
+const HOMEPAGE_FEED_IN_PROCESS_TTL_MS = 15_000
 
 const homepageFeedSelect = {
   id: true,
@@ -583,11 +588,44 @@ async function getHomepageFeedViewImpl(
   return getHomepageNewFeedPage(params)
 }
 
-export const getHomepageFeedView = unstable_cache(
-  getHomepageFeedViewImpl,
-  ["homepage-feed-view"],
-  { revalidate: 300, tags: ["homepage-feed"] },
-)
+function buildHomepageFeedCacheKey(params: GetHomepageFeedViewParams = {}) {
+  const page = normalizePage(params.page, 1)
+  const pageSize = normalizePageSize(params.pageSize, HOMEPAGE_FEED_PAGE_SIZE)
+  const view = params.view ?? "new"
+  const launchWindow = params.launchWindow ?? "all"
+  const viewer = params.clerkUserId ? `user:${params.clerkUserId}` : "anon"
+
+  return buildCacheKey(
+    "homepage",
+    "feed",
+    HOMEPAGE_FEED_CACHE_VERSION,
+    getShuffleDateKey(),
+    view,
+    launchWindow,
+    page,
+    pageSize,
+    viewer,
+  )
+}
+
+export async function getHomepageFeedView(
+  params: GetHomepageFeedViewParams = {},
+): Promise<HomepageFeedPageResult> {
+  const cacheKey = buildHomepageFeedCacheKey(params)
+
+  return cacheGetOrSet({
+    key: cacheKey,
+    ttlSeconds: HOMEPAGE_FEED_CACHE_TTL_SECONDS,
+    inProcessTtlMs: HOMEPAGE_FEED_IN_PROCESS_TTL_MS,
+    loader: () => getHomepageFeedViewImpl(params),
+    onError: (error) => {
+      console.error("[homepage] failed to use Redis feed cache", {
+        cacheKey,
+        error,
+      })
+    },
+  })
+}
 
 export async function getHomepageFeedPage(
   params: GetHomepageFeedViewParams = {},
