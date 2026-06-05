@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { cacheGetOrSet, cacheHit, cacheMiss } from "@/lib/server/cache"
 import {
   normalizeMonth,
   parseMonthKey,
@@ -43,6 +44,20 @@ const DAY_MS = 86_400_000
 const MONTH_LOOKBACK = 12
 const MIN_MONTH_DAYS = 28
 const MAX_MONTH_DAYS = 32
+const HISTORICAL_PERIODIC_LEADERBOARD_CACHE_VERSION_KEY = [
+  "leaderboard",
+  "periodic",
+  "historical",
+  "version",
+] as const
+const HISTORICAL_PERIODIC_LEADERBOARD_CACHE_PREFIX = [
+  "leaderboard",
+  "periodic",
+  "historical",
+  "v1",
+] as const
+const HISTORICAL_PERIODIC_LEADERBOARD_IN_PROCESS_TTL_MS = 60_000
+const HISTORICAL_PERIODIC_LEADERBOARD_WARM_DAYS = 14
 
 const startOfUtcDay = (date: Date) =>
   new Date(
@@ -68,6 +83,24 @@ export type PeriodicLeaderboardPayload = {
   periodEnd: Date
   products: ProductCardRecord[]
   archive: PeriodicLeaderboardArchive
+}
+
+type PeriodicLeaderboardArgs = {
+  period: LeaderboardHighlightPeriod
+  periodStart: Date
+  periodEnd: Date
+  limit?: number
+  label?: string
+  categorySlug?: string | null
+}
+
+type CachedProductCardRecord = ProductCardRecord & {
+  createdAt: Date | string
+  updatedAt: Date | string
+  ProductBadge?: Array<{
+    badge: string
+    expiresAt: Date | string | null
+  }> | null
 }
 
 function getPeriodWindow(
@@ -251,78 +284,76 @@ const sortWeeksDesc = (
   return bStart - aStart
 }
 
-const getPeriodicArchive = cached(
-  async (): Promise<PeriodicLeaderboardArchive> => {
-    const now = new Date()
-    const earliestMonth = new Date(
-      Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth() - (MONTH_LOOKBACK - 1),
-        1,
-      ),
+async function loadPeriodicArchiveRaw(): Promise<PeriodicLeaderboardArchive> {
+  const now = new Date()
+  const earliestMonth = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (MONTH_LOOKBACK - 1), 1),
+  )
+
+  const months = new Map<string, { year: number; month: number }>()
+  const weeks = new Map<string, { year: number; week: number }>()
+
+  const addMonth = (date: Date) => {
+    const year = date.getUTCFullYear()
+    const month = date.getUTCMonth() + 1
+    const key = monthKeyFromParts(year, month)
+    if (!months.has(key)) {
+      months.set(key, { year, month })
+    }
+  }
+
+  const addWeek = (date: Date) => {
+    const { year, week } = getIsoWeekYearAndNumber(date)
+    const key = getIsoWeekKey(date)
+    if (!weeks.has(key)) {
+      weeks.set(key, { year, week })
+    }
+    addMonth(date)
+  }
+
+  const runsWithScores = await prisma.leaderboardRun.findMany({
+    where: {
+      periodStart: { gte: earliestMonth },
+      scores: { some: { score: { gt: 0 } } },
+    },
+    select: { periodStart: true, periodEnd: true },
+    orderBy: { periodStart: "desc" },
+  })
+
+  runsWithScores.forEach((run: { periodStart: Date; periodEnd: Date }) => {
+    const durationDays = Math.round(
+      (run.periodEnd.getTime() - run.periodStart.getTime()) / DAY_MS,
     )
-
-    const months = new Map<string, { year: number; month: number }>()
-    const weeks = new Map<string, { year: number; week: number }>()
-
-    const addMonth = (date: Date) => {
-      const year = date.getUTCFullYear()
-      const month = date.getUTCMonth() + 1
-      const key = monthKeyFromParts(year, month)
-      if (!months.has(key)) {
-        months.set(key, { year, month })
-      }
+    if (durationDays === 7) {
+      addWeek(run.periodStart)
+    } else if (
+      durationDays >= MIN_MONTH_DAYS &&
+      durationDays <= MAX_MONTH_DAYS
+    ) {
+      addMonth(run.periodStart)
+    } else if (durationDays === 1) {
+      addWeek(run.periodStart)
     }
+  })
 
-    const addWeek = (date: Date) => {
-      const { year, week } = getIsoWeekYearAndNumber(date)
-      const key = getIsoWeekKey(date)
-      if (!weeks.has(key)) {
-        weeks.set(key, { year, week })
-      }
-      addMonth(date)
-    }
+  const upvotes = await prisma.productUpvote.findMany({
+    where: {
+      createdAt: { gte: earliestMonth, lt: now },
+      product: { status: "published" },
+    },
+    select: { createdAt: true },
+  })
 
-    const runsWithScores = await prisma.leaderboardRun.findMany({
-      where: {
-        periodStart: { gte: earliestMonth },
-        scores: { some: { score: { gt: 0 } } },
-      },
-      select: { periodStart: true, periodEnd: true },
-      orderBy: { periodStart: "desc" },
-    })
+  upvotes.forEach(({ createdAt }: { createdAt: Date }) => addWeek(createdAt))
 
-    runsWithScores.forEach((run: { periodStart: Date; periodEnd: Date }) => {
-      const durationDays = Math.round(
-        (run.periodEnd.getTime() - run.periodStart.getTime()) / DAY_MS,
-      )
-      if (durationDays === 7) {
-        addWeek(run.periodStart)
-      } else if (
-        durationDays >= MIN_MONTH_DAYS &&
-        durationDays <= MAX_MONTH_DAYS
-      ) {
-        addMonth(run.periodStart)
-      } else if (durationDays === 1) {
-        addWeek(run.periodStart)
-      }
-    })
+  return {
+    months: Array.from(months.values()).sort(sortMonthsDesc),
+    weeks: Array.from(weeks.values()).sort(sortWeeksDesc),
+  }
+}
 
-    const upvotes = await prisma.productUpvote.findMany({
-      where: {
-        createdAt: { gte: earliestMonth, lt: now },
-        product: { status: "published" },
-      },
-      select: { createdAt: true },
-    })
-
-    upvotes.forEach(({ createdAt }: { createdAt: Date }) => addWeek(createdAt))
-
-    return {
-      months: Array.from(months.values()).sort(sortMonthsDesc),
-      weeks: Array.from(weeks.values()).sort(sortWeeksDesc),
-    }
-  },
+const getPeriodicArchive = cached(
+  loadPeriodicArchiveRaw,
   "leaderboard:periodic:archive",
   {
     ttl: DEFAULT_TTL.slow,
@@ -702,92 +733,177 @@ function isClosedLeaderboardWindow(periodEnd: Date) {
   return periodEnd.getTime() <= Date.now()
 }
 
-export const getPeriodicLeaderboard = cached(
-  async (args: {
-    period: LeaderboardHighlightPeriod
-    periodStart: Date
-    periodEnd: Date
-    limit?: number
-    label?: string
-    categorySlug?: string | null
-  }): Promise<PeriodicLeaderboardPayload> => {
-    const limit = args.limit
-    const periodLabel =
-      args.label ??
-      formatPeriodLabel(args.period, args.periodStart, args.periodEnd)
-    const archivePromise = getPeriodicArchive()
-    const categorySlug =
-      typeof args.categorySlug === "string" && args.categorySlug.trim().length
-        ? args.categorySlug.trim()
-        : null
+function serializePeriodicLeaderboardPayload(
+  payload: PeriodicLeaderboardPayload,
+): string {
+  return JSON.stringify(payload)
+}
 
-    const runProducts = await mapRunRowsToProducts({
-      periodStart: args.periodStart,
-      periodEnd: args.periodEnd,
-      limit,
-      categorySlug,
-    })
-    if (
-      runProducts &&
-      (runProducts.length > 0 || isClosedLeaderboardWindow(args.periodEnd))
-    ) {
-      return {
-        period: args.period,
-        periodLabel,
-        periodStart: args.periodStart,
-        periodEnd: args.periodEnd,
-        products: runProducts,
-        archive: await archivePromise,
-      }
-    }
+function hydrateProductCardRecord(product: CachedProductCardRecord) {
+  return {
+    ...product,
+    createdAt: new Date(product.createdAt),
+    updatedAt: new Date(product.updatedAt),
+    ProductBadge:
+      product.ProductBadge?.map((badge) => ({
+        ...badge,
+        expiresAt: badge.expiresAt ? new Date(badge.expiresAt) : null,
+      })) ?? [],
+  } as ProductCardRecord
+}
 
-    const filteredProductIds = categorySlug
-      ? (
-          await prisma.product.findMany({
-            where: {
-              status: "published" as const,
-              category: {
-                slug: categorySlug,
-              },
-            },
-            select: { id: true },
-          })
-        ).map((row: { id: string }) => row.id)
+function deserializePeriodicLeaderboardPayload(
+  value: string,
+): PeriodicLeaderboardPayload {
+  const payload = JSON.parse(value) as Omit<
+    PeriodicLeaderboardPayload,
+    "periodStart" | "periodEnd" | "products"
+  > & {
+    periodStart: string
+    periodEnd: string
+    products: CachedProductCardRecord[]
+  }
+
+  return {
+    ...payload,
+    periodStart: new Date(payload.periodStart),
+    periodEnd: new Date(payload.periodEnd),
+    products: payload.products.map(hydrateProductCardRecord),
+  }
+}
+
+async function getHistoricalPeriodicLeaderboardCacheVersion() {
+  const version = await cacheHit<string>({
+    key: HISTORICAL_PERIODIC_LEADERBOARD_CACHE_VERSION_KEY,
+    deserialize: (value) => value,
+    inProcessTtlMs: HISTORICAL_PERIODIC_LEADERBOARD_IN_PROCESS_TTL_MS,
+    onError: (error) => {
+      console.warn("[leaderboard.periodic.cache] version read failed", error)
+    },
+  })
+
+  return version ?? "1"
+}
+
+export async function invalidateHistoricalPeriodicLeaderboardCache(
+  reason = "manual",
+) {
+  const version = `${Date.now()}`
+  await cacheMiss({
+    key: HISTORICAL_PERIODIC_LEADERBOARD_CACHE_VERSION_KEY,
+    value: version,
+    serialize: (value) => value,
+    inProcessTtlMs: HISTORICAL_PERIODIC_LEADERBOARD_IN_PROCESS_TTL_MS,
+    onError: (error) => {
+      console.warn("[leaderboard.periodic.cache] version write failed", error)
+    },
+  })
+
+  console.info("[leaderboard.periodic.cache] invalidated", { reason, version })
+  return { version }
+}
+
+async function getHistoricalPeriodicLeaderboardCacheKey(
+  args: PeriodicLeaderboardArgs,
+) {
+  const version = await getHistoricalPeriodicLeaderboardCacheVersion()
+  return [
+    ...HISTORICAL_PERIODIC_LEADERBOARD_CACHE_PREFIX,
+    version,
+    args.period,
+    args.periodStart.toISOString(),
+    args.periodEnd.toISOString(),
+    typeof args.limit === "number" ? `limit:${args.limit}` : "limit:all",
+    args.categorySlug ? `category:${args.categorySlug}` : "category:all",
+  ] as const
+}
+
+async function loadPeriodicLeaderboard(
+  args: PeriodicLeaderboardArgs,
+  options?: {
+    archiveLoader?: () => Promise<PeriodicLeaderboardArchive>
+  },
+): Promise<PeriodicLeaderboardPayload> {
+  const limit = args.limit
+  const periodLabel =
+    args.label ??
+    formatPeriodLabel(args.period, args.periodStart, args.periodEnd)
+  const archivePromise = (options?.archiveLoader ?? getPeriodicArchive)()
+  const categorySlug =
+    typeof args.categorySlug === "string" && args.categorySlug.trim().length
+      ? args.categorySlug.trim()
       : null
 
-    if (categorySlug && !filteredProductIds?.length) {
-      return {
-        period: args.period,
-        periodLabel,
-        periodStart: args.periodStart,
-        periodEnd: args.periodEnd,
-        products: [],
-        archive: await archivePromise,
-      }
-    }
-
-    const [archive, rankedRows] = await Promise.all([
-      archivePromise,
-      computeLeaderboardWindow({
-        periodStart: args.periodStart,
-        periodEnd: args.periodEnd,
-        asOf: new Date(),
-        trafficLookup: "stored",
-        limit,
-        productIds: filteredProductIds ?? undefined,
-      }),
-    ])
-    const products = await mapRowsToProducts(rankedRows, limit)
-
+  const runProducts = await mapRunRowsToProducts({
+    periodStart: args.periodStart,
+    periodEnd: args.periodEnd,
+    limit,
+    categorySlug,
+  })
+  if (
+    runProducts &&
+    (runProducts.length > 0 || isClosedLeaderboardWindow(args.periodEnd))
+  ) {
     return {
       period: args.period,
       periodLabel,
       periodStart: args.periodStart,
       periodEnd: args.periodEnd,
-      products,
-      archive,
+      products: runProducts,
+      archive: await archivePromise,
     }
-  },
+  }
+
+  const filteredProductIds = categorySlug
+    ? (
+        await prisma.product.findMany({
+          where: {
+            status: "published" as const,
+            category: {
+              slug: categorySlug,
+            },
+          },
+          select: { id: true },
+        })
+      ).map((row: { id: string }) => row.id)
+    : null
+
+  if (categorySlug && !filteredProductIds?.length) {
+    return {
+      period: args.period,
+      periodLabel,
+      periodStart: args.periodStart,
+      periodEnd: args.periodEnd,
+      products: [],
+      archive: await archivePromise,
+    }
+  }
+
+  const [archive, rankedRows] = await Promise.all([
+    archivePromise,
+    computeLeaderboardWindow({
+      periodStart: args.periodStart,
+      periodEnd: args.periodEnd,
+      asOf: new Date(),
+      trafficLookup: "stored",
+      limit,
+      productIds: filteredProductIds ?? undefined,
+    }),
+  ])
+  const products = await mapRowsToProducts(rankedRows, limit)
+
+  return {
+    period: args.period,
+    periodLabel,
+    periodStart: args.periodStart,
+    periodEnd: args.periodEnd,
+    products,
+    archive,
+  }
+}
+
+const getActivePeriodicLeaderboard = cached(
+  loadPeriodicLeaderboard,
   "leaderboard:periodic",
   {
     ttl: DEFAULT_TTL.slow,
@@ -802,6 +918,110 @@ export const getPeriodicLeaderboard = cached(
     tags: () => [TAGS.leaderboard, TAGS.analytics, TAGS.products],
   },
 )
+
+async function getHistoricalPeriodicLeaderboard(
+  args: PeriodicLeaderboardArgs,
+  options?: {
+    archiveLoader?: () => Promise<PeriodicLeaderboardArchive>
+  },
+): Promise<PeriodicLeaderboardPayload> {
+  const key = await getHistoricalPeriodicLeaderboardCacheKey(args)
+  return cacheGetOrSet({
+    key,
+    inProcessTtlMs: HISTORICAL_PERIODIC_LEADERBOARD_IN_PROCESS_TTL_MS,
+    serialize: serializePeriodicLeaderboardPayload,
+    deserialize: deserializePeriodicLeaderboardPayload,
+    onError: (error) => {
+      console.warn("[leaderboard.periodic.cache] read/write failed", error)
+    },
+    loader: () => loadPeriodicLeaderboard(args, options),
+  })
+}
+
+export async function getPeriodicLeaderboard(
+  args: PeriodicLeaderboardArgs,
+): Promise<PeriodicLeaderboardPayload> {
+  if (!isClosedLeaderboardWindow(args.periodEnd)) {
+    return getActivePeriodicLeaderboard(args)
+  }
+
+  return getHistoricalPeriodicLeaderboard(args)
+}
+
+export async function warmHistoricalPeriodicLeaderboardCache(args?: {
+  limit?: number
+  days?: number
+}) {
+  const limit = args?.limit ?? 100
+  const days = args?.days ?? HISTORICAL_PERIODIC_LEADERBOARD_WARM_DAYS
+  const archive = await loadPeriodicArchiveRaw()
+  const windows = new Map<string, PeriodicLeaderboardArgs>()
+  const now = new Date()
+  const today = startOfUtcDay(now)
+
+  const addWindow = (window: PeriodicLeaderboardArgs) => {
+    if (!isClosedLeaderboardWindow(window.periodEnd)) return
+    const key = [
+      window.period,
+      window.periodStart.toISOString(),
+      window.periodEnd.toISOString(),
+    ].join(":")
+    if (!windows.has(key)) {
+      windows.set(key, window)
+    }
+  }
+
+  for (const month of archive.months) {
+    const periodStart = new Date(Date.UTC(month.year, month.month - 1, 1))
+    const periodEnd = new Date(Date.UTC(month.year, month.month, 1))
+    addWindow({
+      period: "month",
+      periodStart,
+      periodEnd,
+      limit,
+      label: formatPeriodLabel("month", periodStart, periodEnd),
+    })
+  }
+
+  for (const week of archive.weeks) {
+    const periodStart = startOfIsoWeek(week.year, week.week)
+    if (!periodStart) continue
+    const periodEnd = new Date(periodStart)
+    periodEnd.setUTCDate(periodStart.getUTCDate() + 7)
+    addWindow({
+      period: "week",
+      periodStart,
+      periodEnd,
+      limit,
+      label: formatPeriodLabel("week", periodStart, periodEnd),
+    })
+  }
+
+  for (let offset = 1; offset <= days; offset += 1) {
+    const periodStart = new Date(today)
+    periodStart.setUTCDate(today.getUTCDate() - offset)
+    if (periodStart.getTime() < GA_MIN_LEADERBOARD_DATE.getTime()) break
+    const periodEnd = new Date(periodStart)
+    periodEnd.setUTCDate(periodStart.getUTCDate() + 1)
+    addWindow({
+      period: "day",
+      periodStart,
+      periodEnd,
+      limit,
+      label: formatPeriodLabel("day", periodStart, periodEnd),
+    })
+  }
+
+  let warmed = 0
+  for (const window of windows.values()) {
+    await getHistoricalPeriodicLeaderboard(window, {
+      archiveLoader: loadPeriodicArchiveRaw,
+    })
+    warmed += 1
+  }
+
+  return { success: true, warmed, limit, days }
+}
 
 export async function getPeriodicLeaderboardByParams(args: {
   period: LeaderboardHighlightPeriod

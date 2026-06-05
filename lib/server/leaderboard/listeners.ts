@@ -1,5 +1,6 @@
 import { registerEventHandler } from "@/lib/server/events"
 import { APP_EVENTS } from "@/lib/server/events/constants"
+import { invalidateHistoricalPeriodicLeaderboardCache } from "@/actions/public/leaderboard/actions"
 import {
   generateLeaderboardRun,
   getCurrentLeaderboardWindow,
@@ -40,6 +41,22 @@ registerEventHandler({
       scores: result.scores,
       windowEnd: result.windowEnd.toISOString(),
     })
+  },
+})
+
+registerEventHandler({
+  event: APP_EVENTS.PRODUCT_DELETED,
+  id: "leaderboard.historical-cache-invalidate",
+  mode: "async",
+  queue: "low",
+  handler: async (payload) => {
+    await invalidateHistoricalPeriodicLeaderboardCache("product-deleted")
+    console.info(
+      "[leaderboard] historical cache invalidated for product delete",
+      {
+        productId: payload.productId,
+      },
+    )
   },
 })
 

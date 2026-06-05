@@ -57,6 +57,11 @@ export const SCHEDULED_JOB_DEFINITIONS = [
     description: "Enqueue leaderboard refresh events.",
   },
   {
+    id: "leaderboard-historical-cache",
+    pattern: "0 15 */1 * * *",
+    description: "Warm historical leaderboard Redis cache.",
+  },
+  {
     id: "badges-trending",
     pattern: "0 0 */12 * * *",
     description: "Assign trending badges.",

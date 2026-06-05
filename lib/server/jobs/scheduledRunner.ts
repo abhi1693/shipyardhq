@@ -8,6 +8,7 @@ import {
 import { cleanupExpiredUnusedDodoDiscounts } from "@/lib/server/dodoDiscountCleanup"
 import { dispatchEvent } from "@/lib/server/events"
 import { APP_EVENTS } from "@/lib/server/events/constants"
+import { warmHistoricalPeriodicLeaderboardCache } from "@/actions/public/leaderboard/actions"
 import {
   getPreviousMonth,
   normalizeMonth,
@@ -61,6 +62,7 @@ const SCHEDULED_JOB_HANDLERS = {
   "expire-plans": runExpirePlansJob,
   "leaderboard-highlights-day": () => runLeaderboardHighlightsJob("day"),
   "leaderboard-highlights-week": () => runLeaderboardHighlightsJob("week"),
+  "leaderboard-historical-cache": runLeaderboardHistoricalCacheJob,
   "leaderboard-refresh": runLeaderboardRefreshJob,
   "monthly-leaderboard": runMonthlyLeaderboardJob,
   "rewards-backlinks": runRewardsBacklinksJob,
@@ -161,6 +163,17 @@ async function runLeaderboardRefreshJob() {
     asOf: now.toISOString(),
   })
   return { success: true, enqueued: true, asOf: now.toISOString() }
+}
+
+async function runLeaderboardHistoricalCacheJob() {
+  const startedAt = new Date()
+  console.info("[scheduled.leaderboard-historical-cache] run started", {
+    startedAt: startedAt.toISOString(),
+  })
+
+  const result = await warmHistoricalPeriodicLeaderboardCache({ limit: 100 })
+  console.info("[scheduled.leaderboard-historical-cache] run completed", result)
+  return result
 }
 
 async function runRewardsPlacementsJob() {
