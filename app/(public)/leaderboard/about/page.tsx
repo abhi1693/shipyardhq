@@ -15,12 +15,12 @@ import {
   LEADERBOARD_PATH,
 } from "@/lib/routes"
 
-const PAGE_TITLE = "How ShipYardHQ leaderboard scoring works"
+const PAGE_TITLE = "Leaderboard Playbook | Shipyard HQ"
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description:
-    "Understand how ShipYardHQ ranks products, how scores are calculated, and what each monthly reset means for your launch strategy.",
+    "Understand Shipyard HQ leaderboard scoring, ranking cadence, performance signals, and visibility boosts for product launches.",
 })
 
 export default function LeaderboardGuidePage() {
