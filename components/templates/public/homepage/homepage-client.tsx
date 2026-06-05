@@ -9,7 +9,6 @@ import {
   ChevronUp,
   Handshake,
   Users,
-  X,
   Zap,
 } from "lucide-react"
 import {
@@ -889,9 +888,7 @@ export function PartnerSpotlight({
 }: {
   product: PartnerSpotlightProduct | null
 }) {
-  const [visible, setVisible] = useState(true)
-
-  if (!visible || !product) return null
+  if (!product) return null
 
   const tagline = product.tagline?.trim()
   const href = `/r/sticky-banner/${product.slug}`
@@ -929,16 +926,6 @@ export function PartnerSpotlight({
             <a href={href} target="_blank" rel="noopener noreferrer">
               Learn More
             </a>
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-8 rounded-full border-0 bg-transparent p-1 text-white/60 shadow-none hover:bg-transparent hover:text-white"
-            onClick={() => setVisible(false)}
-            aria-label="Dismiss partner spotlight"
-          >
-            <X className="size-5" aria-hidden />
           </Button>
         </div>
       </div>
