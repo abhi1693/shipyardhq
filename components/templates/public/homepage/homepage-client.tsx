@@ -1,12 +1,11 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useUser } from "@clerk/nextjs"
 import {
   Activity,
   BadgeCheck,
-  Bolt,
   ChevronUp,
   Handshake,
   Users,
@@ -30,10 +29,11 @@ import type {
   HomepageFeedPageResult,
 } from "@/actions/public/homepage/feed"
 import type { TrafficSidebarStatsPayload } from "@/components/templates/public/common/TrafficSidebarStatsContent"
-import { BROWSE_PATH, productPath } from "@/lib/routes"
+import { BROWSE_PATH, categoryPath, productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 const formatter = new Intl.NumberFormat("en-US")
+const SPONSORED_DROP_INTERVAL = 4
 
 function useCurrentRedirect() {
   const [redirectUrl] = useState<string | undefined>(() => {
@@ -231,9 +231,19 @@ export type HomepageDropListItem = {
   tagline: string
   logo?: string | null
   category?: string | null
+  categorySlug?: string | null
   upvoteCount: number
   isSponsored?: boolean
   isVoted?: boolean
+  publishedAt?: string | null
+  createdAt?: string
+  shuffleRank?: number
+}
+
+type HomepageDropSection = {
+  key: string
+  title: string
+  items: HomepageDropListItem[]
 }
 
 function toDropListItem(item: HomepageFeedItem): HomepageDropListItem {
@@ -244,9 +254,13 @@ function toDropListItem(item: HomepageFeedItem): HomepageDropListItem {
     tagline: item.tagline,
     logo: item.logo,
     category: item.category,
+    categorySlug: item.categorySlug,
     upvoteCount: item.upvoteCount,
     isSponsored: item.isSponsored,
     isVoted: item.isVoted,
+    publishedAt: item.publishedAt,
+    createdAt: item.createdAt,
+    shuffleRank: item.shuffleRank,
   }
 }
 
@@ -261,6 +275,144 @@ function initials(name: string) {
     .slice(0, 2)
     .map((segment) => segment[0]?.toUpperCase() ?? "")
     .join("")
+}
+
+function getDropDate(item: HomepageDropListItem) {
+  return item.publishedAt ?? item.createdAt
+}
+
+function startOfUtcDay(date: Date) {
+  return Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+  )
+}
+
+function addUtcDays(time: number, days: number) {
+  return time + days * 24 * 60 * 60 * 1000
+}
+
+function compareDropItems(
+  a: HomepageDropListItem,
+  b: HomepageDropListItem,
+) {
+  const aRank =
+    typeof a.shuffleRank === "number" && Number.isFinite(a.shuffleRank)
+      ? a.shuffleRank
+      : null
+  const bRank =
+    typeof b.shuffleRank === "number" && Number.isFinite(b.shuffleRank)
+      ? b.shuffleRank
+      : null
+
+  if (aRank !== null && bRank !== null && aRank !== bRank) {
+    return aRank - bRank
+  }
+
+  if (aRank !== null) return -1
+  if (bRank !== null) return 1
+
+  const aTime = new Date(getDropDate(a) ?? "").getTime()
+  const bTime = new Date(getDropDate(b) ?? "").getTime()
+  const aHasTime = !Number.isNaN(aTime)
+  const bHasTime = !Number.isNaN(bTime)
+
+  if (aHasTime && bHasTime && aTime !== bTime) {
+    return bTime - aTime
+  }
+
+  if (aHasTime) return -1
+  if (bHasTime) return 1
+
+  return a.name.localeCompare(b.name)
+}
+
+function buildDropSections(
+  items: HomepageDropListItem[],
+  referenceDateIso: string,
+): HomepageDropSection[] {
+  const referenceDate = new Date(referenceDateIso)
+  const referenceTime = Number.isNaN(referenceDate.getTime())
+    ? Date.now()
+    : referenceDate.getTime()
+  const startToday = startOfUtcDay(new Date(referenceTime))
+  const startYesterday = addUtcDays(startToday, -1)
+  const startThisWeek = addUtcDays(startToday, -7)
+  const sponsoredItems = items
+    .filter((item) => item.isSponsored)
+    .sort(compareDropItems)
+
+  type BucketKey = "today" | "yesterday" | "thisWeek"
+  const bucketOrder: Array<{ key: BucketKey; title: string }> = [
+    { key: "today", title: "Today" },
+    { key: "yesterday", title: "Yesterday" },
+    { key: "thisWeek", title: "This Week" },
+  ]
+  const buckets = new Map<BucketKey, HomepageDropListItem[]>(
+    bucketOrder.map((bucket) => [bucket.key, []]),
+  )
+
+  items
+    .filter((item) => !item.isSponsored)
+    .forEach((item) => {
+      const published = new Date(getDropDate(item) ?? referenceDateIso)
+      const publishedTime = published.getTime()
+      const resolvedTime = Number.isNaN(publishedTime)
+        ? referenceTime
+        : publishedTime
+
+      let bucketKey: BucketKey | null = null
+      if (resolvedTime >= startToday) {
+        bucketKey = "today"
+      } else if (resolvedTime >= startYesterday) {
+        bucketKey = "yesterday"
+      } else if (resolvedTime >= startThisWeek) {
+        bucketKey = "thisWeek"
+      }
+
+      if (!bucketKey) return
+      buckets.get(bucketKey)?.push(item)
+    })
+
+  const sections: HomepageDropSection[] = []
+  let organicIndex = 0
+  let sponsoredIndex = 0
+
+  bucketOrder.forEach((bucket) => {
+    const organicItems = [...(buckets.get(bucket.key) ?? [])].sort(
+      compareDropItems,
+    )
+    const sectionItems: HomepageDropListItem[] = []
+    organicItems.forEach((item) => {
+      sectionItems.push(item)
+      organicIndex += 1
+
+      if (
+        organicIndex % SPONSORED_DROP_INTERVAL === 0 &&
+        sponsoredIndex < sponsoredItems.length
+      ) {
+        sectionItems.push(sponsoredItems[sponsoredIndex])
+        sponsoredIndex += 1
+      }
+    })
+
+    sections.push({
+      key: bucket.key,
+      title: bucket.title,
+      items: sectionItems,
+    })
+  })
+
+  if (sponsoredIndex === 0 && sponsoredItems.length > 0) {
+    const firstSection = sections[0]
+    if (firstSection) {
+      firstSection.items.push(sponsoredItems[0])
+      sponsoredIndex = 1
+    }
+  }
+
+  return sections
 }
 
 function DropProductLogo({
@@ -327,6 +479,13 @@ function DropSparkline({ sponsored }: { sponsored: boolean }) {
 function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
   const sponsored = Boolean(product.isSponsored)
   const href = product.slug ? productPath(product.slug) : BROWSE_PATH
+  const categoryLabel = product.category ?? "New Tool"
+  const categoryClassName = cn(
+    "shrink-0 rounded px-2 py-0.5 text-[9px] font-extrabold uppercase leading-[10px]",
+    sponsored
+      ? "bg-[#C0FF00] text-black hover:bg-[#C0FF00]/90"
+      : "bg-[#F8FAFC] text-[#74777d] hover:bg-[#e5eeff] hover:text-[#0051d5]",
+  )
 
   return (
     <Card
@@ -355,16 +514,16 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
             >
               {product.name}
             </Link>
-            <span
-              className={cn(
-                "shrink-0 rounded px-2 py-0.5 text-[9px] font-extrabold uppercase leading-[10px]",
-                sponsored
-                  ? "bg-[#C0FF00] text-black"
-                  : "bg-[#F8FAFC] text-[#74777d]",
-              )}
-            >
-              {product.category ?? "New Tool"}
-            </span>
+            {product.categorySlug ? (
+              <Link
+                href={categoryPath(product.categorySlug)}
+                className={categoryClassName}
+              >
+                {categoryLabel}
+              </Link>
+            ) : (
+              <span className={categoryClassName}>{categoryLabel}</span>
+            )}
           </div>
           <p
             className={cn(
@@ -378,26 +537,27 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
         <div className="hidden w-32 px-4 md:block">
           <DropSparkline sponsored={sponsored} />
         </div>
-        {sponsored ? (
-          <Button
-            asChild
-            className="h-14 min-w-16 rounded-l-none rounded-r-xl border-0 border-l border-white/10 bg-transparent pl-6 text-[#C0FF00] shadow-none hover:bg-white/10"
-          >
-            <Link href={href}>
-              <Bolt className="size-4" aria-hidden />
-              Deploy
-            </Link>
-          </Button>
-        ) : (
-          <div className="border-l border-[#E2E8F0] pl-4 sm:pl-6">
-            <HomepageUpvoteButton
-              productSlug={product.slug}
-              initialCount={product.upvoteCount}
-              initialUpvoted={product.isVoted}
-              className="min-w-16 flex-col gap-0 rounded-r-xl bg-transparent px-3 py-2 text-[#0051d5] shadow-none hover:bg-[#EFF6FF]"
-            />
-          </div>
-        )}
+        <div
+          className={cn(
+            "pl-4 sm:pl-6",
+            sponsored
+              ? "border-l border-white/10"
+              : "border-l border-[#E2E8F0]",
+          )}
+        >
+          <HomepageUpvoteButton
+            productSlug={product.slug}
+            initialCount={product.upvoteCount}
+            initialUpvoted={product.isVoted}
+            dark={sponsored}
+            className={cn(
+              "min-w-16 flex-col gap-0 rounded-r-xl bg-transparent px-3 py-2 shadow-none",
+              sponsored
+                ? "text-[#C0FF00] hover:bg-white/10"
+                : "text-[#0051d5] hover:bg-[#EFF6FF]",
+            )}
+          />
+        </div>
       </CardContent>
     </Card>
   )
@@ -409,12 +569,14 @@ export function HomepageDropsInfiniteList({
   initialNextPage,
   pageSize,
   excludedSlug,
+  referenceDateIso,
 }: {
   initialItems: HomepageDropListItem[]
   initialHasMore: boolean
   initialNextPage: number | null
   pageSize: number
   excludedSlug?: string
+  referenceDateIso: string
 }) {
   const [items, setItems] = useState(initialItems)
   const [hasMore, setHasMore] = useState(initialHasMore)
@@ -423,6 +585,13 @@ export function HomepageDropsInfiniteList({
   const [error, setError] = useState<string | null>(null)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
   const seenKeysRef = useRef(new Set(initialItems.map(dropKey)))
+  const sections = useMemo(
+    () =>
+      buildDropSections(items, referenceDateIso).filter(
+        (section) => section.items.length > 0,
+      ),
+    [items, referenceDateIso],
+  )
 
   const loadMore = useCallback(async () => {
     if (loading || error || !hasMore || !nextPage) return
@@ -496,8 +665,20 @@ export function HomepageDropsInfiniteList({
 
   return (
     <div className="space-y-3">
-      {items.map((product) => (
-        <HomepageDropRow key={dropKey(product)} product={product} />
+      {sections.map((section) => (
+        <section key={section.key} className="space-y-3">
+          <div className="flex items-center gap-3">
+            <h4 className="shrink-0 text-lg font-semibold text-black">
+              {section.title}
+            </h4>
+            <span className="h-px flex-1 bg-[#E2E8F0]" aria-hidden />
+          </div>
+          <div className="space-y-3">
+            {section.items.map((product) => (
+              <HomepageDropRow key={dropKey(product)} product={product} />
+            ))}
+          </div>
+        </section>
       ))}
 
       <div ref={sentinelRef} className="min-h-10" aria-hidden />
@@ -506,7 +687,7 @@ export function HomepageDropsInfiniteList({
         {loading ? "Loading more drops..." : null}
         {!loading && error ? error : null}
         {!loading && !error && !hasMore && items.length > 0
-          ? "You've reached the end of today's drops."
+          ? "You've reached the end of this week's launches."
           : null}
       </div>
     </div>

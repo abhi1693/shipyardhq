@@ -23,6 +23,7 @@ export async function GET(request: Request) {
       page,
       pageSize,
       view: DEFAULT_HOMEPAGE_FEED_VIEW,
+      launchWindow: "week",
     })
 
     return NextResponse.json(result, {

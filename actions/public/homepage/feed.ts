@@ -25,6 +25,8 @@ const SPONSORED_PLAN_FEATURE_KEY_SET = new Set<string>(
 )
 const EDITOR_PICK_BADGE = "editor-pick"
 const HOMEPAGE_SPONSORED_LIMIT = 12
+const HOMEPAGE_SPONSORED_INTERVAL = 4
+const HOMEPAGE_ROTATION_SEED = "homepage-organic-rotation"
 
 const homepageFeedSelect = {
   id: true,
@@ -125,6 +127,8 @@ export interface HomepageFeedPageResult {
   nextPage: number | null
 }
 
+type HomepageLaunchWindow = "all" | "week"
+
 export type HomepageLaunchOfDay = HomepageFeedItem & {
   rank: number | null
   score: number | null
@@ -138,6 +142,7 @@ interface GetHomepageFeedPageParams {
   page?: number
   pageSize?: number
   clerkUserId?: string | null
+  launchWindow?: HomepageLaunchWindow
 }
 
 interface GetHomepageFeedViewParams extends GetHomepageFeedPageParams {
@@ -169,6 +174,18 @@ function daysAgo(days: number) {
   const date = new Date()
   date.setUTCDate(date.getUTCDate() - days)
   return date
+}
+
+function startOfUtcDayDate(date: Date) {
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  )
+}
+
+function addUtcDaysDate(date: Date, days: number) {
+  const nextDate = new Date(date)
+  nextDate.setUTCDate(nextDate.getUTCDate() + days)
+  return nextDate
 }
 
 function calculatePercentChange(current: number, previous: number) {
@@ -210,6 +227,27 @@ function buildSponsoredPlacementWhere(now: Date): Prisma.ProductWhereInput {
             endsAt: { gte: now },
           },
         },
+      },
+    ],
+  }
+}
+
+function buildLaunchWindowWhere(
+  launchWindow: HomepageLaunchWindow | undefined,
+  now: Date,
+): Prisma.ProductWhereInput | null {
+  if (launchWindow !== "week") {
+    return null
+  }
+
+  const startThisWeek = addUtcDaysDate(startOfUtcDayDate(now), -7)
+
+  return {
+    OR: [
+      { publishedAt: { gte: startThisWeek } },
+      {
+        publishedAt: null,
+        createdAt: { gte: startThisWeek },
       },
     ],
   }
@@ -331,6 +369,69 @@ interface GetOrderedHomepageFeedParams extends GetHomepageFeedPageParams {
   where?: Prisma.ProductWhereInput
 }
 
+function getShuffleDateKey(date = new Date()) {
+  return date.toISOString().slice(0, 10)
+}
+
+function getRotatedOffset(total: number, seed: string) {
+  if (total <= 0) return 0
+  return Math.floor(stableUnitInterval(seed) * total)
+}
+
+function compareFeedItemsByShuffleRank(
+  a: HomepageFeedItem,
+  b: HomepageFeedItem,
+) {
+  if (a.shuffleRank !== b.shuffleRank) {
+    return a.shuffleRank - b.shuffleRank
+  }
+
+  const aDate = a.publishedAt ?? a.createdAt
+  const bDate = b.publishedAt ?? b.createdAt
+  const dateSort = bDate.localeCompare(aDate)
+  if (dateSort !== 0) return dateSort
+
+  return a.name.localeCompare(b.name)
+}
+
+async function findRotatedProducts({
+  where,
+  orderBy,
+  start,
+  take,
+  total,
+}: {
+  where: Prisma.ProductWhereInput
+  orderBy: Prisma.ProductOrderByWithRelationInput[]
+  start: number
+  take: number
+  total: number
+}) {
+  if (take <= 0 || total <= 0) return []
+
+  const firstTake = Math.min(take, total - start)
+  const overflowTake = take - firstTake
+  const firstPage = await prisma.product.findMany({
+    where,
+    orderBy,
+    skip: start,
+    take: firstTake,
+    select: homepageFeedSelect,
+  })
+
+  if (overflowTake <= 0) return firstPage
+
+  const wrappedPage = await prisma.product.findMany({
+    where,
+    orderBy,
+    skip: 0,
+    take: overflowTake,
+    select: homepageFeedSelect,
+  })
+
+  return [...firstPage, ...wrappedPage]
+}
+
 async function getOrderedHomepageFeedPage({
   orderBy,
   where,
@@ -340,7 +441,6 @@ async function getOrderedHomepageFeedPage({
 }: GetOrderedHomepageFeedParams): Promise<HomepageFeedPageResult> {
   const safePage = normalizePage(page, 1)
   const safePageSize = normalizePageSize(pageSize, HOMEPAGE_FEED_PAGE_SIZE)
-  const skip = (safePage - 1) * safePageSize
 
   const baseWhere = buildBaseWhere()
   const combinedWhere =
@@ -348,19 +448,39 @@ async function getOrderedHomepageFeedPage({
       ? { AND: [baseWhere, where] }
       : baseWhere
 
-  const [products, total] = await Promise.all([
-    prisma.product.findMany({
-      where: combinedWhere,
-      orderBy,
-      skip,
-      take: safePageSize,
-      select: homepageFeedSelect,
-    }),
-    prisma.product.count({ where: combinedWhere }),
-  ])
+  const total = await prisma.product.count({ where: combinedWhere })
+  const absoluteStart = (safePage - 1) * safePageSize
 
-  const items = await buildFeedItemsFromProducts(products, clerkUserId)
-  const hasMore = skip + products.length < total
+  if (total <= 0 || absoluteStart >= total) {
+    return {
+      items: [],
+      page: safePage,
+      pageSize: safePageSize,
+      hasMore: false,
+      nextPage: null,
+    }
+  }
+
+  const take = Math.min(safePageSize, total - absoluteStart)
+  const rotationSeed = [
+    HOMEPAGE_ROTATION_SEED,
+    getShuffleDateKey(),
+    safePageSize,
+  ].join(":")
+  const rotatedOffset = getRotatedOffset(total, rotationSeed)
+  const start = (rotatedOffset + absoluteStart) % total
+  const products = await findRotatedProducts({
+    where: combinedWhere,
+    orderBy,
+    start,
+    take,
+    total,
+  })
+
+  const items = (await buildFeedItemsFromProducts(products, clerkUserId)).sort(
+    compareFeedItemsByShuffleRank,
+  )
+  const hasMore = absoluteStart + items.length < total
 
   return {
     items,
@@ -371,13 +491,51 @@ async function getOrderedHomepageFeedPage({
   }
 }
 
+function interleaveSponsoredItems(
+  organicItems: HomepageFeedItem[],
+  sponsoredItems: HomepageFeedItem[],
+  organicStartIndex: number,
+) {
+  if (organicItems.length === 0) return organicItems
+  if (sponsoredItems.length === 0) return organicItems
+
+  const mixedItems: HomepageFeedItem[] = []
+
+  organicItems.forEach((item, organicIndex) => {
+    mixedItems.push(item)
+
+    const globalOrganicPosition = organicStartIndex + organicIndex + 1
+    if (globalOrganicPosition % HOMEPAGE_SPONSORED_INTERVAL === 0) {
+      const sponsoredSlotIndex =
+        globalOrganicPosition / HOMEPAGE_SPONSORED_INTERVAL - 1
+      const sponsoredItem =
+        sponsoredItems[sponsoredSlotIndex % sponsoredItems.length]
+
+      if (sponsoredItem) {
+        mixedItems.push(sponsoredItem)
+      }
+    }
+  })
+
+  return mixedItems
+}
+
 export async function getHomepageNewFeedPage(
   params: GetHomepageFeedPageParams = {},
 ): Promise<HomepageFeedPageResult> {
-  const { page, pageSize, clerkUserId } = params
+  const { page, pageSize, clerkUserId, launchWindow } = params
   const safePage = normalizePage(page, 1)
+  const safePageSize = normalizePageSize(pageSize, HOMEPAGE_FEED_PAGE_SIZE)
+  const organicStartIndex = (safePage - 1) * safePageSize
   const now = new Date()
   const sponsoredPlacementWhere = buildSponsoredPlacementWhere(now)
+  const launchWindowWhere = buildLaunchWindowWhere(launchWindow, now)
+  const organicWhereParts: Prisma.ProductWhereInput[] = [
+    { NOT: sponsoredPlacementWhere },
+  ]
+  if (launchWindowWhere) {
+    organicWhereParts.push(launchWindowWhere)
+  }
   const orderBy: Prisma.ProductOrderByWithRelationInput[] = [
     { publishedAt: { sort: "desc", nulls: "last" } },
     { createdAt: "desc" },
@@ -386,13 +544,13 @@ export async function getHomepageNewFeedPage(
 
   const organicPage = await getOrderedHomepageFeedPage({
     page,
-    pageSize,
+    pageSize: safePageSize,
     clerkUserId,
-    where: { NOT: sponsoredPlacementWhere },
+    where: { AND: organicWhereParts },
     orderBy,
   })
 
-  if (safePage !== 1) {
+  if (organicPage.items.length === 0) {
     return organicPage
   }
 
@@ -411,7 +569,11 @@ export async function getHomepageNewFeedPage(
 
   return {
     ...organicPage,
-    items: [...sponsoredItems, ...organicPage.items],
+    items: interleaveSponsoredItems(
+      organicPage.items,
+      sponsoredItems.sort(compareFeedItemsByShuffleRank),
+      organicStartIndex,
+    ),
   }
 }
 
@@ -470,9 +632,7 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
   const product = topScore?.product ?? fallbackProduct
   if (!product) return null
 
-  const item = (
-    await buildFeedItemsFromProducts([product], null)
-  )[0]
+  const item = (await buildFeedItemsFromProducts([product], null))[0]
   if (!item) return null
 
   const currentStart = daysAgo(7)

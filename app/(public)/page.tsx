@@ -46,6 +46,7 @@ type DisplayDrop = {
   tagline: string
   logo?: string | null
   category?: string | null
+  categorySlug?: string | null
   upvoteCount: number
   score?: number | null
   rank?: number | null
@@ -55,6 +56,9 @@ type DisplayDrop = {
   buildersClickedCount?: number | null
   isSponsored?: boolean
   isVoted?: boolean
+  publishedAt?: string | null
+  createdAt?: string
+  shuffleRank?: number
 }
 
 const fallbackLaunch: DisplayDrop = {
@@ -157,11 +161,15 @@ function toDisplayDrop(
     tagline: item.tagline,
     logo: item.logo,
     category: item.category,
+    categorySlug: item.categorySlug,
     upvoteCount: item.upvoteCount,
     score: item.scoreCount,
     buildersClickedCount: item.interest?.uniqueVisitors7d ?? null,
     isSponsored: item.isSponsored,
     isVoted: item.isVoted,
+    publishedAt: item.publishedAt,
+    createdAt: item.createdAt,
+    shuffleRank: item.shuffleRank,
   }
 }
 
@@ -210,10 +218,14 @@ function ProductLogo({
 export default async function HomePage() {
   const [feedPage, launchOfDay, builderSummary, homepageStats] =
     await Promise.all([
-      getHomepageFeedPage({ page: 1, pageSize: 6 }).catch(() => ({
+      getHomepageFeedPage({
+        page: 1,
+        pageSize: 20,
+        launchWindow: "week",
+      }).catch(() => ({
         items: [],
         page: 1,
-        pageSize: 6,
+        pageSize: 20,
         hasMore: false,
         nextPage: null,
       })),
@@ -257,7 +269,12 @@ export default async function HomePage() {
   )
   const usingFallbackDrops = feedPage.items.length === 0
   const drops =
-    feedDrops.length > 0 ? feedDrops : usingFallbackDrops ? fallbackDrops : []
+    feedDrops.length > 0
+      ? feedDrops
+      : usingFallbackDrops
+        ? fallbackDrops
+        : []
+  const referenceDateIso = new Date().toISOString()
   const launchGrowth = launch.upvoteGrowthPercent
   const launchBuildersClickedCount = launch.buildersClickedCount ?? 0
   const launchSignalLabel =
@@ -434,10 +451,10 @@ export default async function HomePage() {
           <div className="mb-8 flex items-end justify-between gap-4">
             <div>
               <h3 className="text-[32px] font-bold leading-10 tracking-tight text-black">
-                Today&apos;s Drops
+                Latest Launches
               </h3>
               <p className="text-sm leading-5 text-[#43474c]">
-                Hand-picked innovations launching right now.
+                Fresh products from today, yesterday, and this week.
               </p>
             </div>
             <div className="flex gap-1">
@@ -462,6 +479,7 @@ export default async function HomePage() {
             initialNextPage={feedPage.nextPage}
             pageSize={feedPage.pageSize}
             excludedSlug={launch.slug}
+            referenceDateIso={referenceDateIso}
           />
         </section>
       </div>
