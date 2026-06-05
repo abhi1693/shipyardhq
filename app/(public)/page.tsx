@@ -6,7 +6,6 @@ import {
   getHomepageLaunchOfDay,
 } from "@/actions/public/homepage/feed"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
-import { getPartnerSpotlightProduct } from "@/actions/public/products/featured"
 import { getHomepageBuilderSummary } from "@/actions/public/users/actions"
 import { Button } from "@/components/atoms/button"
 import { Image } from "@/components/atoms/image"
@@ -14,7 +13,6 @@ import {
   HomepageDropsInfiniteList,
   HomepageAnalyticsGrid,
   HomepageUpvoteButton,
-  PartnerSpotlight,
 } from "@/components/templates/public/homepage/homepage-client"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
@@ -110,10 +108,6 @@ const numberFormatter = new Intl.NumberFormat("en-US")
 
 function formatCount(value: number) {
   return numberFormatter.format(Math.max(0, value))
-}
-
-function getPartnerSpotlightRotationKey(date = new Date()) {
-  return date.toISOString().slice(0, 13)
 }
 
 function formatPercent(value: number) {
@@ -226,35 +220,30 @@ export default async function HomePage() {
     launchOfDay,
     builderSummary,
     homepageStats,
-    partnerSpotlight,
-  ] =
-    await Promise.all([
-      getHomepageFeedPage({
-        page: 1,
-        pageSize: 20,
-        launchWindow: "week",
-      }).catch(() => ({
-        items: [],
-        page: 1,
-        pageSize: 20,
-        hasMore: false,
-        nextPage: null,
-      })),
-      getHomepageLaunchOfDay().catch(() => null),
-      getHomepageBuilderSummary().catch(() => ({
-        builderCount: 0,
-        topFounder: null,
-      })),
-      getLeaderboardStats().catch(() => ({
-        pageViews30: 0,
-        visitors30: 0,
-        trafficSeries: [],
-        realtimeVisitors: 1,
-      })),
-      getPartnerSpotlightProduct(getPartnerSpotlightRotationKey()).catch(
-        () => null,
-      ),
-    ])
+  ] = await Promise.all([
+    getHomepageFeedPage({
+      page: 1,
+      pageSize: 20,
+      launchWindow: "week",
+    }).catch(() => ({
+      items: [],
+      page: 1,
+      pageSize: 20,
+      hasMore: false,
+      nextPage: null,
+    })),
+    getHomepageLaunchOfDay().catch(() => null),
+    getHomepageBuilderSummary().catch(() => ({
+      builderCount: 0,
+      topFounder: null,
+    })),
+    getLeaderboardStats().catch(() => ({
+      pageViews30: 0,
+      visitors30: 0,
+      trafficSeries: [],
+      realtimeVisitors: 1,
+    })),
+  ])
 
   const feedProducts = feedPage.items.map(toDisplayDrop)
   const launch = launchOfDay
@@ -500,8 +489,6 @@ export default async function HomePage() {
           />
         </section>
       </div>
-
-      <PartnerSpotlight product={partnerSpotlight} />
     </div>
   )
 }
