@@ -17,6 +17,30 @@ type PricingTableProps = {
   renderPlanCTA?: (plan: PublicPlan) => ReactNode
   disableSectionWrapper?: boolean
   showTypeToggle?: boolean
+  cardVariant?: "default" | "placement"
+}
+
+function choosePopularPlanId(
+  plans: PublicPlan[],
+  selectedType: PlanTypeOption,
+) {
+  const paidPlans = plans.filter((plan) => plan.price > 0)
+  if (!paidPlans.length) return undefined
+
+  const preferredName =
+    selectedType === "recurring_price" ? /featured/i : /spotlight/i
+  const preferredPlan = paidPlans.find((plan) => preferredName.test(plan.name))
+  if (preferredPlan) return preferredPlan.id
+
+  const maxCount = Math.max(...paidPlans.map((plan) => plan.productCount || 0))
+  if (maxCount > 0) {
+    return paidPlans
+      .filter((plan) => (plan.productCount || 0) === maxCount)
+      .sort((a, b) => b.price - a.price)[0]?.id
+  }
+
+  const sortedByPrice = [...paidPlans].sort((a, b) => a.price - b.price)
+  return sortedByPrice[Math.floor((sortedByPrice.length - 1) / 2)]?.id
 }
 
 export function PricingTable({
@@ -24,6 +48,7 @@ export function PricingTable({
   renderPlanCTA,
   disableSectionWrapper = false,
   showTypeToggle = false,
+  cardVariant = "default",
 }: PricingTableProps) {
   const hasRecurring = plans.some((plan) => plan.type === "recurring_price")
   const hasOneTime = plans.some((plan) => plan.type === "one_time_price")
@@ -34,22 +59,15 @@ export function PricingTable({
   const displayPlans = showTypeToggle
     ? plans.filter((plan) => plan.type === selectedType)
     : plans
-  const paidPlans = displayPlans.filter((p) => p.price > 0)
-  const maxCount = paidPlans.length
-    ? Math.max(...paidPlans.map((p) => p.productCount || 0))
-    : 0
-  const popularPlanId =
-    maxCount > 0
-      ? paidPlans
-          .filter((p) => (p.productCount || 0) === maxCount)
-          // Break ties by picking the highest priced plan.
-          .sort((a, b) => b.price - a.price)[0]?.id
-      : undefined
+  const popularPlanId = choosePopularPlanId(displayPlans, selectedType)
 
   const gridClassName = clsx(
-    "grid gap-6 grid-cols-1",
+    cardVariant === "placement"
+      ? "grid gap-8 grid-cols-1"
+      : "grid gap-6 grid-cols-1",
     displayPlans.length >= 2 && "sm:grid-cols-2",
-    displayPlans.length >= 3 && "xl:grid-cols-3",
+    displayPlans.length >= 3 &&
+      (cardVariant === "placement" ? "lg:grid-cols-3" : "xl:grid-cols-3"),
   )
   const emptyStateLabel = showTypeToggle
     ? selectedType === "recurring_price"
@@ -58,13 +76,23 @@ export function PricingTable({
     : "plans"
 
   const content = (
-    <div className="mx-auto max-w-6xl px-4">
+    <div
+      className={clsx(
+        "mx-auto max-w-6xl",
+        cardVariant === "placement" ? "px-0" : "px-4",
+      )}
+    >
       {shouldShowToggle ? (
-        <div className="mb-6 flex justify-center">
+        <div className="mb-8 flex justify-center">
           <div
             role="tablist"
             aria-label="Plan type"
-            className="inline-flex rounded-full border border-border bg-slate-100/80 p-1 shadow-sm"
+            className={clsx(
+              "inline-flex rounded-full border p-1",
+              cardVariant === "placement"
+                ? "border-[#E2E8F0] bg-[#dce9ff]"
+                : "border-border bg-slate-100/80 shadow-sm",
+            )}
           >
             {PLAN_TYPE_OPTIONS.map((option) => {
               const isActive = selectedType === option.value
@@ -76,10 +104,14 @@ export function PricingTable({
                   aria-selected={isActive}
                   onClick={() => setSelectedType(option.value)}
                   className={clsx(
-                    "cursor-pointer rounded-full border border-transparent px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.35]",
+                    "cursor-pointer rounded-full border border-transparent px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.35] sm:px-6",
                     isActive
-                      ? "border-[color:var(--brand-1)] bg-[color:var(--brand-1)] text-foreground shadow-sm text-white"
-                      : "text-muted-foreground hover:text-foreground",
+                      ? cardVariant === "placement"
+                        ? "bg-white text-black shadow-sm"
+                        : "border-[color:var(--brand-1)] bg-[color:var(--brand-1)] text-foreground shadow-sm text-white"
+                      : cardVariant === "placement"
+                        ? "text-[#43474c] hover:text-black"
+                        : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   {option.label}
@@ -112,6 +144,7 @@ export function PricingTable({
                   features={p.features}
                   boostForDays={p.boostForDays}
                   ctaSlot={renderPlanCTA?.(p)}
+                  variant={cardVariant}
                 />
               </CardWrapper>
             )

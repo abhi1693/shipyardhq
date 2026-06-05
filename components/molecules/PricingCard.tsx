@@ -1,6 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
+import { Check, Zap } from "lucide-react"
 import {
   Card,
   CardContent,
@@ -33,6 +34,7 @@ export type PricingCardProps = {
   ctaLabel?: string
   boostForDays?: number | null
   ctaSlot?: ReactNode
+  variant?: "default" | "placement"
 }
 
 export function PricingCard({
@@ -47,6 +49,7 @@ export function PricingCard({
   ctaHref = MEMBER_PRODUCTS_ADD_PATH,
   ctaLabel = "Get Started",
   ctaSlot,
+  variant = "default",
 }: PricingCardProps) {
   const isFree = price === 0
   const currency = new Intl.NumberFormat("en-US", {
@@ -76,6 +79,148 @@ export function PricingCard({
           boostDuration === 1 ? "" : "s"
         }`
       : null
+
+  if (variant === "placement") {
+    const isPro = /pro/i.test(name)
+    const accentClassName = isPopular
+      ? "text-[#16a34a]"
+      : isPro
+        ? "text-black"
+        : "text-[#0051d5]"
+    const checkClassName = isPopular
+      ? "text-[#16a34a]"
+      : isPro
+        ? "text-black"
+        : "text-[#0051d5]"
+
+    return (
+      <Card
+        className={clsx(
+          "relative flex h-full min-h-[34rem] flex-col overflow-visible rounded-2xl border bg-white/80 p-0 shadow-none backdrop-blur transition-all duration-200 hover:-translate-y-1 hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)]",
+          isPopular
+            ? "z-10 border-2 border-[#16a34a] bg-white shadow-xl md:scale-[1.03]"
+            : "border-[#E2E8F0]",
+        )}
+      >
+        {isPopular && !isFree ? (
+          <div className="absolute -top-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full bg-[#16a34a] px-4 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-white shadow-lg">
+            <IconAnchor className="size-3.5" aria-hidden />
+            Most Popular
+          </div>
+        ) : null}
+
+        <CardHeader className="space-y-6 p-8 pb-0">
+          <div>
+            <CardTitle className="text-lg font-semibold leading-6 text-black">
+              {name}
+            </CardTitle>
+            {description ? (
+              <p className="mt-1 text-[11px] font-medium leading-[14px] text-[#43474c]">
+                {description}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-baseline gap-1">
+              {hasDiscount && originalPrice ? (
+                <span className="text-sm text-[#74777d] line-through">
+                  {originalPrice}
+                </span>
+              ) : null}
+              <span
+                className={clsx(
+                  "text-[32px] font-bold leading-10",
+                  accentClassName,
+                )}
+              >
+                {displayPrice}
+              </span>
+              {!isFree && priceSuffix ? (
+                <span className="text-[11px] font-medium leading-[14px] text-[#43474c]">
+                  {priceSuffix}
+                </span>
+              ) : null}
+            </div>
+            {hasDiscount && formattedDiscount ? (
+              <span className="inline-flex w-fit items-center rounded-full border border-[#16a34a]/25 bg-[#16a34a]/10 px-2 py-0.5 text-xs font-semibold text-[#16a34a]">
+                Save {formattedDiscount}%
+              </span>
+            ) : null}
+            {isFree ? (
+              <span className="inline-flex w-fit items-center rounded-full bg-[#EFF6FF] px-2 py-0.5 text-xs font-semibold uppercase tracking-[0.08em] text-[#0051d5]">
+                Starter
+              </span>
+            ) : null}
+            {boostLabel ? (
+              <div
+                className={clsx(
+                  "flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.08em]",
+                  accentClassName,
+                )}
+              >
+                <Zap className="size-4" aria-hidden />
+                <span>{boostLabel}</span>
+              </div>
+            ) : null}
+          </div>
+        </CardHeader>
+
+        <CardContent className="flex flex-1 flex-col p-8 pt-6">
+          <ul className="flex-1 space-y-4 border-t border-[#E2E8F0] pt-6">
+            {features
+              .filter((feature) => feature.enabled)
+              .map((feature) => (
+                <li
+                  key={feature.id}
+                  className="flex items-start gap-3 text-sm leading-5 text-[#0b1c30]"
+                  title={feature.description || undefined}
+                >
+                  <Check
+                    className={clsx("mt-0.5 size-4 shrink-0", checkClassName)}
+                    aria-hidden
+                  />
+                  <span
+                    className={clsx(
+                      feature.key.includes("advanced") ||
+                        feature.key.includes("sticky") ||
+                        feature.key.includes("priority")
+                        ? "font-semibold"
+                        : "font-medium",
+                    )}
+                  >
+                    {feature.name}
+                  </span>
+                </li>
+              ))}
+          </ul>
+
+          <div className="mt-8">
+            {ctaSlot ?? (
+              <Button
+                asChild
+                className={clsx(
+                  "h-auto w-full rounded-lg py-3 text-sm font-semibold shadow-none active:scale-[0.98]",
+                  isPopular
+                    ? "border-0 bg-black text-white hover:bg-black/90"
+                    : isPro
+                      ? "border border-black bg-white text-black hover:bg-black hover:text-white"
+                      : "border-0 bg-[#346cef] text-white hover:bg-[#0051d5]",
+                )}
+              >
+                <a href={ctaHref}>
+                  {isFree ? "Start for free" : ctaLabel}
+                  {!isFree && (
+                    <IconArrowUpRight className="size-4 transition-transform group-hover:translate-x-1" />
+                  )}
+                </a>
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card

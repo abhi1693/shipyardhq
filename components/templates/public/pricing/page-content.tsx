@@ -54,7 +54,12 @@ export const PRICING_FAQS = [
 export async function PricingPlansList({
   disableSectionWrapper = false,
   showTypeToggle = false,
-}: { disableSectionWrapper?: boolean; showTypeToggle?: boolean } = {}) {
+  cardVariant = "default",
+}: {
+  disableSectionWrapper?: boolean
+  showTypeToggle?: boolean
+  cardVariant?: "default" | "placement"
+} = {}) {
   const plans = await getPublicPlans()
   const defaultPlan = plans.find((plan) => plan.isDefault)
   const visiblePlans = defaultPlan
@@ -65,6 +70,7 @@ export async function PricingPlansList({
       plans={visiblePlans}
       disableSectionWrapper={disableSectionWrapper}
       showTypeToggle={showTypeToggle}
+      cardVariant={cardVariant}
     />
   ) : null
 
