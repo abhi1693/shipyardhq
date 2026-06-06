@@ -7,6 +7,7 @@ import {
 } from "@/actions/public/homepage/feed"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { getHomepageBuilderSummary } from "@/actions/public/users/actions"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { Button } from "@/components/atoms/button"
 import { Image } from "@/components/atoms/image"
 import {
@@ -96,12 +97,6 @@ const fallbackDrops: DisplayDrop[] = [
     upvoteCount: 0,
     isSponsored: true,
   },
-]
-
-const fallbackAvatarUrls = [
-  "https://api.dicebear.com/9.x/adventurer/svg?seed=Marcus",
-  "https://api.dicebear.com/9.x/adventurer/svg?seed=Ada",
-  "https://api.dicebear.com/9.x/adventurer/svg?seed=Lin",
 ]
 
 const numberFormatter = new Intl.NumberFormat("en-US")
@@ -214,6 +209,33 @@ function ProductLogo({
   )
 }
 
+function MakerAvatar({
+  name,
+  avatarUrl,
+}: {
+  name: string
+  avatarUrl?: string | null
+}) {
+  const fallbackInitials = initials(name) || "SY"
+
+  return (
+    <Avatar className="size-10 border-2 border-white bg-[#d3e4fe] text-sm font-bold text-[#061d31] shadow-sm">
+      {avatarUrl ? (
+        <AvatarImage
+          className="h-full w-full object-cover"
+          src={avatarUrl}
+          alt={`${name} avatar`}
+          width={40}
+          height={40}
+        />
+      ) : null}
+      <AvatarFallback className="bg-[#d3e4fe] text-sm font-bold uppercase text-[#061d31]">
+        {fallbackInitials}
+      </AvatarFallback>
+    </Avatar>
+  )
+}
+
 export default async function HomePage() {
   const [feedPage, launchOfDay, builderSummary, homepageStats] =
     await Promise.all([
@@ -258,7 +280,6 @@ export default async function HomePage() {
   const builderNoun = pluralize(builderCount, "builder", "builders")
   const topFounder = builderSummary.topFounder
   const topFounderHref = topFounder ? userPath(topFounder.id) : "/users"
-  const topFounderAvatarUrl = topFounder?.avatarUrl ?? fallbackAvatarUrls[0]
   const topFounderName = topFounder?.name ?? "Shipyard makers"
   const topFounderLine = topFounder
     ? formatFounderLine(topFounder)
@@ -329,16 +350,10 @@ export default async function HomePage() {
               className="group flex items-center gap-3 rounded-full border border-[#E2E8F0] bg-[#eff4ff] py-2 pl-2 pr-6 transition-colors hover:bg-[#dce9ff]"
             >
               <div className="relative">
-                <Image
-                  className="size-10 rounded-full border-2 border-white bg-[#d3e4fe] shadow-sm"
-                  src={topFounderAvatarUrl}
-                  alt={topFounder ? `${topFounder.name} avatar` : ""}
-                  width={40}
-                  height={40}
-                  sizes="40px"
-                  unoptimized
+                <MakerAvatar
+                  name={topFounderName}
+                  avatarUrl={topFounder?.avatarUrl}
                 />
-                <div className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-white bg-[#16a34a]" />
               </div>
               <div className="text-left">
                 <div className="flex items-center gap-2">
