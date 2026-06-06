@@ -1,11 +1,9 @@
-import Link from "next/link"
 import { Inter } from "next/font/google"
 import { Suspense } from "react"
 import { Search } from "lucide-react"
 
-import { Button } from "@/components/atoms/button"
 import { Input } from "@/components/atoms/input"
-import { HOME_PATH } from "@/lib/routes"
+import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import PublicHeaderActions from "./public-header-actions"
 import PublicHeaderNav from "./public-header-nav"
 import PublicHeaderSearch from "./public-header-search"
@@ -33,13 +31,7 @@ export default function PublicHeader() {
     >
       <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
         <div className="flex items-center gap-6">
-          <Button
-            asChild
-            variant="link"
-            className="h-auto rounded-none border-0 bg-transparent p-0 text-[18px] font-bold leading-6 text-black shadow-none no-underline hover:bg-transparent hover:text-black hover:no-underline"
-          >
-            <Link href={HOME_PATH}>Shipyard HQ</Link>
-          </Button>
+          <BrandWordmark eager />
           <Suspense fallback={<PublicHeaderSearchFallback />}>
             <PublicHeaderSearch />
           </Suspense>
