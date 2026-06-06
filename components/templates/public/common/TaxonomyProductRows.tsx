@@ -7,7 +7,7 @@ import { ArrowUp, ImageIcon, Sparkles, TrendingUp } from "lucide-react"
 import { format, isToday, isYesterday, startOfWeek } from "date-fns"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
-import { productPath } from "@/lib/routes"
+import { categoryPath, productPath } from "@/lib/routes"
 
 export type TaxonomyProductSection = {
   key: string
@@ -91,11 +91,7 @@ function ProductLogo({ product }: { product: HomepageFeedItem }) {
   )
 }
 
-export function TaxonomyProductRow({
-  product,
-}: {
-  product: HomepageFeedItem
-}) {
+export function TaxonomyProductRow({ product }: { product: HomepageFeedItem }) {
   const href = productPath(product.slug)
   const momentum = product.scoreCount
     ? Math.max(1, Math.round(product.scoreCount / 10))
@@ -116,13 +112,20 @@ export function TaxonomyProductRow({
         >
           {product.name}
         </Link>
-        <p className="line-clamp-1 text-sm text-[#43474c]">
-          {product.tagline}
-        </p>
+        <p className="line-clamp-1 text-sm text-[#43474c]">{product.tagline}</p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          <span className="rounded bg-[#f8fafc] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#43474c]">
-            {product.category ?? "Product"}
-          </span>
+          {product.categorySlug ? (
+            <Link
+              href={categoryPath(product.categorySlug)}
+              className="rounded bg-[#f8fafc] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#43474c] transition hover:bg-[#0051d5]/10 hover:text-[#0051d5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0051d5] focus-visible:ring-offset-2"
+            >
+              {product.category ?? "Product"}
+            </Link>
+          ) : (
+            <span className="rounded bg-[#f8fafc] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#43474c]">
+              {product.category ?? "Product"}
+            </span>
+          )}
           {product.isSponsored || product.badges.length > 0 ? (
             <span className="inline-flex items-center gap-1 rounded bg-[#f97316]/10 px-2 py-1 text-[11px] font-semibold text-[#f97316]">
               <Sparkles className="h-3 w-3" aria-hidden />
