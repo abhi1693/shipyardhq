@@ -117,7 +117,7 @@ export default async function TagDetailPage({ params }: TagPageProps) {
 
   const [payload, taxonomySponsors] = await Promise.all([
     getTagDetailPayload(slug, 1),
-    getTaxonomySponsorProducts({ limit: 2 }),
+    getTaxonomySponsorProducts(),
   ])
   if (!payload) {
     redirect("/tags")
@@ -236,8 +236,7 @@ export default async function TagDetailPage({ params }: TagPageProps) {
         </div>
       }
       feedTestId="tag-feed-section"
-      sponsorProduct={taxonomySponsors[0] ?? null}
-      secondarySponsor={taxonomySponsors[1] ?? null}
+      sponsorProducts={taxonomySponsors}
     />
   )
 }

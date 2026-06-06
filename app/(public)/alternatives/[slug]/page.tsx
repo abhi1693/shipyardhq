@@ -119,7 +119,7 @@ async function AlternativeDetailPageContent({
         excludeId: alternative.id,
         take: 6,
       }),
-      getTaxonomySponsorProducts({ limit: 2 }),
+      getTaxonomySponsorProducts(),
     ])
 
   const currentYear = new Date().getFullYear()
@@ -281,8 +281,7 @@ async function AlternativeDetailPageContent({
           />
         </>
       }
-      sponsorProduct={taxonomySponsors[0] ?? null}
-      secondarySponsor={taxonomySponsors[1] ?? null}
+      sponsorProducts={taxonomySponsors}
     />
   )
 }

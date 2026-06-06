@@ -34,7 +34,7 @@ export async function PlatformPageContent({
 
   const [payload, taxonomySponsors] = await Promise.all([
     getPlatformPagePayload(platformMeta.slug, DEFAULT_FILTERS),
-    getTaxonomySponsorProducts({ limit: 2 }),
+    getTaxonomySponsorProducts(),
   ])
   if (!payload) return notFound()
 
@@ -122,8 +122,7 @@ export async function PlatformPageContent({
           />
         </>
       }
-      sponsorProduct={taxonomySponsors[0] ?? null}
-      secondarySponsor={taxonomySponsors[1] ?? null}
+      sponsorProducts={taxonomySponsors}
     />
   )
 }

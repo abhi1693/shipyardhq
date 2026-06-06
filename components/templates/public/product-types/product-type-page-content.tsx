@@ -37,7 +37,7 @@ export async function ProductTypePageContent({
 
   const [payload, taxonomySponsors] = await Promise.all([
     getProductTypePagePayload(productTypeMeta.slug, DEFAULT_FILTERS),
-    getTaxonomySponsorProducts({ limit: 2 }),
+    getTaxonomySponsorProducts(),
   ])
   if (!payload) return notFound()
 
@@ -129,8 +129,7 @@ export async function ProductTypePageContent({
           />
         </>
       }
-      sponsorProduct={taxonomySponsors[0] ?? null}
-      secondarySponsor={taxonomySponsors[1] ?? null}
+      sponsorProducts={taxonomySponsors}
     />
   )
 }

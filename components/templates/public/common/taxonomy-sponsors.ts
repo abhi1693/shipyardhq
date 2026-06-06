@@ -1,5 +1,6 @@
 import { getSponsoredProducts } from "@/actions/public/products/featured"
 import type { TaxonomySponsorProduct } from "@/components/templates/public/common/TaxonomyDetailPage"
+import { stableUnitInterval } from "@/lib/stable-random"
 
 interface GetTaxonomySponsorProductsOptions {
   excludeSlugs?: string[]
@@ -8,10 +9,11 @@ interface GetTaxonomySponsorProductsOptions {
 
 export async function getTaxonomySponsorProducts({
   excludeSlugs = [],
-  limit = 2,
+  limit = 24,
 }: GetTaxonomySponsorProductsOptions = {}): Promise<TaxonomySponsorProduct[]> {
   const excluded = new Set(excludeSlugs.map((slug) => slug.toLowerCase()))
   const placements = await getSponsoredProducts(Math.max(12, limit))
+  const rotationBucket = Math.floor(Date.now() / 30_000)
   const sponsors: TaxonomySponsorProduct[] = []
   const seen = new Set<string>()
 
@@ -33,5 +35,14 @@ export async function getTaxonomySponsorProducts({
     if (sponsors.length >= limit) break
   }
 
-  return sponsors
+  return sponsors.sort((a, b) => {
+    const aRank = stableUnitInterval(
+      `taxonomy-sponsors:${rotationBucket}:${a.slug}`,
+    )
+    const bRank = stableUnitInterval(
+      `taxonomy-sponsors:${rotationBucket}:${b.slug}`,
+    )
+    if (aRank !== bRank) return aRank - bRank
+    return a.name.localeCompare(b.name)
+  })
 }

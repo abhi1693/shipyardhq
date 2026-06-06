@@ -21,7 +21,7 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
   const { slug } = await params
   const [data, taxonomySponsors] = await Promise.all([
     getCategoryDetailPayload(slug),
-    getTaxonomySponsorProducts({ limit: 2 }),
+    getTaxonomySponsorProducts(),
   ])
 
   if (!data) {
@@ -75,8 +75,7 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
         />
       }
       feedTestId="category-feed-section"
-      sponsorProduct={taxonomySponsors[0] ?? null}
-      secondarySponsor={taxonomySponsors[1] ?? null}
+      sponsorProducts={taxonomySponsors}
     />
   )
 }

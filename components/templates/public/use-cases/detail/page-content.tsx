@@ -29,7 +29,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
   const { slug } = await params
   const [data, taxonomySponsors] = await Promise.all([
     getUseCasePagePayload(slug),
-    getTaxonomySponsorProducts({ limit: 2 }),
+    getTaxonomySponsorProducts(),
   ])
 
   if (!data) notFound()
@@ -150,8 +150,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
           />
         </>
       }
-      sponsorProduct={taxonomySponsors[0] ?? null}
-      secondarySponsor={taxonomySponsors[1] ?? null}
+      sponsorProducts={taxonomySponsors}
     />
   )
 }

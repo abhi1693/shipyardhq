@@ -37,7 +37,7 @@ export async function PricingModelPageContent({
 
   const [payload, taxonomySponsors] = await Promise.all([
     getPricingModelPagePayload(pricingModelMeta.slug, DEFAULT_FILTERS),
-    getTaxonomySponsorProducts({ limit: 2 }),
+    getTaxonomySponsorProducts(),
   ])
   if (!payload) return notFound()
 
@@ -131,8 +131,7 @@ export async function PricingModelPageContent({
           />
         </>
       }
-      sponsorProduct={taxonomySponsors[0] ?? null}
-      secondarySponsor={taxonomySponsors[1] ?? null}
+      sponsorProducts={taxonomySponsors}
     />
   )
 }
