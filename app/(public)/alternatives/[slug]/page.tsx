@@ -11,10 +11,8 @@ import {
 import AlternativeProductsClient from "@/app/(public)/alternatives/[slug]/AlternativeProductsClient"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { TaxonomyDetailSkeleton } from "@/components/templates/public/common/TaxonomyDetailSkeleton"
-import {
-  TaxonomyDetailPage,
-  type TaxonomySponsorProduct,
-} from "@/components/templates/public/common/TaxonomyDetailPage"
+import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
+import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
   ALTERNATIVES_PATH,
@@ -110,17 +108,19 @@ async function AlternativeDetailPageContent({
     notFound()
   }
 
-  const [productsPage, featuredAlternatives] = await Promise.all([
-    getAlternativeProductsPage({
-      alternativeId: alternative.id,
-      page: 1,
-      pageSize: ALTERNATIVE_DETAIL_PAGE_SIZE,
-    }),
-    getFeaturedAlternatives({
-      excludeId: alternative.id,
-      take: 6,
-    }),
-  ])
+  const [productsPage, featuredAlternatives, taxonomySponsors] =
+    await Promise.all([
+      getAlternativeProductsPage({
+        alternativeId: alternative.id,
+        page: 1,
+        pageSize: ALTERNATIVE_DETAIL_PAGE_SIZE,
+      }),
+      getFeaturedAlternatives({
+        excludeId: alternative.id,
+        take: 6,
+      }),
+      getTaxonomySponsorProducts({ limit: 2 }),
+    ])
 
   const currentYear = new Date().getFullYear()
   const referenceDateIso = new Date().toISOString()
@@ -281,8 +281,8 @@ async function AlternativeDetailPageContent({
           />
         </>
       }
-      sponsorProduct={toSponsorProduct(productsPage.items[0])}
-      secondarySponsor={toSponsorProduct(productsPage.items[1])}
+      sponsorProduct={taxonomySponsors[0] ?? null}
+      secondarySponsor={taxonomySponsors[1] ?? null}
     />
   )
 }
@@ -314,19 +314,4 @@ function getInitials(name: string) {
     .slice(0, 2)
 
   return letters || "ALT"
-}
-
-function toSponsorProduct(
-  product:
-    | { slug: string; name: string; tagline?: string | null }
-    | null
-    | undefined,
-): TaxonomySponsorProduct | null {
-  if (!product) return null
-
-  return {
-    slug: product.slug,
-    name: product.name,
-    tagline: product.tagline,
-  }
 }

@@ -1,14 +1,6 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
-import {
-  ArrowUpRight,
-  BarChart3,
-  ChevronRight,
-  Database,
-  Hash,
-  Sparkles,
-  TrendingUp,
-} from "lucide-react"
+import { BarChart3, ChevronRight, Hash, TrendingUp } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -405,57 +397,6 @@ export function TaxonomyIndexPage({
               </div>
             </section>
           ) : null}
-
-          <section className="rounded-xl border border-[#e2e8f0] bg-white p-5">
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <h2 className="text-lg font-semibold text-[#0b1c30]">Sponsors</h2>
-              <span className="rounded border border-[#e2e8f0] bg-[#f8faff] px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.12em] text-[#74777d]">
-                Ad
-              </span>
-            </div>
-            <div className="space-y-4">
-              <Link
-                href="/products/gitrank"
-                className="group flex gap-4 rounded-lg transition-colors hover:bg-[#f8faff]"
-              >
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded bg-[#061d31] text-white">
-                  <Database className="h-5 w-5" aria-hidden />
-                </span>
-                <span>
-                  <span className="block text-sm font-semibold text-[#0b1c30] group-hover:text-[#0051d5]">
-                    GitRank
-                  </span>
-                  <span className="line-clamp-2 text-xs leading-5 text-[#43474c]">
-                    Turn developer activity into launch-ready rankings and
-                    momentum scores.
-                  </span>
-                </span>
-              </Link>
-              <Link
-                href="/pricing"
-                className="group flex gap-4 rounded-lg transition-colors hover:bg-[#f8faff]"
-              >
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded bg-[#eff6ff] text-[#0051d5]">
-                  <Sparkles className="h-5 w-5" aria-hidden />
-                </span>
-                <span>
-                  <span className="block text-sm font-semibold text-[#0b1c30] group-hover:text-[#0051d5]">
-                    Featured Placement
-                  </span>
-                  <span className="line-clamp-2 text-xs leading-5 text-[#43474c]">
-                    Promote your product across the busiest taxonomy pages.
-                  </span>
-                </span>
-              </Link>
-            </div>
-            <Link
-              href="/pricing"
-              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0051d5] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#346cef]"
-            >
-              Explore promotion tiers
-              <ArrowUpRight className="h-4 w-4" aria-hidden />
-            </Link>
-          </section>
         </aside>
       </div>
     </main>

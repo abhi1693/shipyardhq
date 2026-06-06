@@ -2,18 +2,14 @@ import { notFound } from "next/navigation"
 import { Boxes } from "lucide-react"
 
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
-import {
-  TaxonomyDetailPage,
-  type TaxonomySponsorProduct,
-} from "@/components/templates/public/common/TaxonomyDetailPage"
+import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
+import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
 import { TaxonomyProductGridFeed } from "@/components/templates/public/common/TaxonomyProductGridFeed"
 import {
   getProductTypeMeta,
   type ProductTypeSlug,
 } from "@/lib/product-types/models"
-import {
-  getProductTypePagePayload,
-} from "@/lib/product-types/page-cache"
+import { getProductTypePagePayload } from "@/lib/product-types/page-cache"
 import {
   BROWSE_PATH,
   HOME_PATH,
@@ -23,24 +19,11 @@ import {
 } from "@/lib/routes"
 import { buildProductListItem } from "@/lib/seo/product-list"
 import { pluralize } from "@/lib/pluralize"
-import type { ProductCardBase } from "@/components/molecules/ProductCard"
 
 const DEFAULT_FILTERS = {
   sort: "new" as const,
   page: 1,
   verified: false,
-}
-
-function toSponsorProduct(
-  product: ProductCardBase | null | undefined,
-): TaxonomySponsorProduct | null {
-  if (!product) return null
-
-  return {
-    slug: product.slug,
-    name: product.name,
-    tagline: product.tagline,
-  }
 }
 
 export async function ProductTypePageContent({
@@ -52,10 +35,10 @@ export async function ProductTypePageContent({
   const productTypeMeta = getProductTypeMeta(productType)
   if (!productTypeMeta) return notFound()
 
-  const payload = await getProductTypePagePayload(
-    productTypeMeta.slug,
-    DEFAULT_FILTERS,
-  )
+  const [payload, taxonomySponsors] = await Promise.all([
+    getProductTypePagePayload(productTypeMeta.slug, DEFAULT_FILTERS),
+    getTaxonomySponsorProducts({ limit: 2 }),
+  ])
   if (!payload) return notFound()
 
   const baseUrl = (
@@ -71,15 +54,13 @@ export async function ProductTypePageContent({
     name: `${productTypeMeta.label} products`,
     description: `Browse ${resultCount} ${pluralize(resultCount, "product")} built as ${productTypeMeta.label.toLowerCase()} on Shipyard.`,
     itemListOrder: "https://schema.org/ItemListOrderDescending",
-    itemListElement: payload.products
-      .slice(0, 20)
-      .map((product, index) =>
-        buildProductListItem({
-          product,
-          position: index + 1,
-          siteUrl: baseUrl,
-        }),
-      ),
+    itemListElement: payload.products.slice(0, 20).map((product, index) =>
+      buildProductListItem({
+        product,
+        position: index + 1,
+        siteUrl: baseUrl,
+      }),
+    ),
   }
   const pageTitle = `${productTypeMeta.label} products`
   const totalUpvotes = payload.products.reduce(
@@ -148,8 +129,8 @@ export async function ProductTypePageContent({
           />
         </>
       }
-      sponsorProduct={toSponsorProduct(payload.products[0])}
-      secondarySponsor={toSponsorProduct(payload.products[1])}
+      sponsorProduct={taxonomySponsors[0] ?? null}
+      secondarySponsor={taxonomySponsors[1] ?? null}
     />
   )
 }

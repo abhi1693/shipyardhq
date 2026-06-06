@@ -13,10 +13,8 @@ import {
   getHomepageFeedViewAll,
   type HomepageFeedItem,
 } from "@/actions/public/homepage/feed"
-import {
-  TaxonomyDetailPage,
-  type TaxonomySponsorProduct,
-} from "@/components/templates/public/common/TaxonomyDetailPage"
+import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
+import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
 import { TaxonomyHomepageRowsClient } from "@/components/templates/public/common/TaxonomyProductRows"
 import {
   BROWSE_PATH,
@@ -114,22 +112,13 @@ function mapProductCardItemToFeedItem(
 
 const MAX_TAG_PAGES = 50
 
-function toSponsorProduct(
-  item: HomepageFeedItem | ProductCardItem | null | undefined,
-): TaxonomySponsorProduct | null {
-  if (!item) return null
-
-  return {
-    slug: item.slug,
-    name: item.name,
-    tagline: item.tagline,
-  }
-}
-
 export default async function TagDetailPage({ params }: TagPageProps) {
   const { slug } = await params
 
-  const payload = await getTagDetailPayload(slug, 1)
+  const [payload, taxonomySponsors] = await Promise.all([
+    getTagDetailPayload(slug, 1),
+    getTaxonomySponsorProducts({ limit: 2 }),
+  ])
   if (!payload) {
     redirect("/tags")
   }
@@ -202,12 +191,6 @@ export default async function TagDetailPage({ params }: TagPageProps) {
   }
 
   const taggedCount = tagProductIdSet.size
-  const firstOrganicItem =
-    combinedFeedItems.find((item) => !item.isSponsored) ?? combinedFeedItems[0]
-  const secondOrganicItem =
-    combinedFeedItems.find(
-      (item) => !item.isSponsored && item.id !== firstOrganicItem?.id,
-    ) ?? combinedFeedItems.find((item) => item.id !== firstOrganicItem?.id)
 
   return (
     <TaxonomyDetailPage
@@ -253,8 +236,8 @@ export default async function TagDetailPage({ params }: TagPageProps) {
         </div>
       }
       feedTestId="tag-feed-section"
-      sponsorProduct={toSponsorProduct(firstOrganicItem)}
-      secondarySponsor={toSponsorProduct(secondOrganicItem)}
+      sponsorProduct={taxonomySponsors[0] ?? null}
+      secondarySponsor={taxonomySponsors[1] ?? null}
     />
   )
 }

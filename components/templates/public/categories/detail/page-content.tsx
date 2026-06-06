@@ -3,14 +3,9 @@ import { notFound } from "next/navigation"
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import { getCategoryDetailPayload } from "@/lib/categories/page-cache"
 import { CategoryFeedClient } from "@/components/templates/public/categories/detail/CategoryFeedClient"
-import {
-  TaxonomyDetailPage,
-  type TaxonomySponsorProduct,
-} from "@/components/templates/public/common/TaxonomyDetailPage"
-import {
-  MEMBER_PRODUCTS_ADD_PATH,
-  PRICING_PATH,
-} from "@/lib/routes"
+import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
+import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
+import { MEMBER_PRODUCTS_ADD_PATH, PRICING_PATH } from "@/lib/routes"
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
@@ -22,37 +17,21 @@ function categoryDescription(name: string, description?: string | null) {
   return `Discover the newest ${name.toLowerCase()} products from makers shipping practical tools, launch experiments, and production-ready software.`
 }
 
-function toSponsorProduct(
-  product:
-    | { slug: string; name: string; tagline?: string | null }
-    | null
-    | undefined,
-): TaxonomySponsorProduct | null {
-  if (!product) return null
-
-  return {
-    slug: product.slug,
-    name: product.name,
-    tagline: product.tagline,
-  }
-}
-
 export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
   const { slug } = await params
-  const data = await getCategoryDetailPayload(slug)
+  const [data, taxonomySponsors] = await Promise.all([
+    getCategoryDetailPayload(slug),
+    getTaxonomySponsorProducts({ limit: 2 }),
+  ])
 
   if (!data) {
     notFound()
   }
 
-  const { category, productsPage, featured, metrics } = data
+  const { category, productsPage, metrics } = data
   const initialPage = productsPage.nextPage ?? productsPage.page + 1
   const categorySlug = category.slug ?? slug
   const referenceDateIso = new Date().toISOString()
-  const sponsorProduct =
-    featured[0]?.product ?? productsPage.products[0] ?? null
-  const secondarySponsor =
-    featured[1]?.product ?? productsPage.products[1] ?? null
 
   return (
     <TaxonomyDetailPage
@@ -96,8 +75,8 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
         />
       }
       feedTestId="category-feed-section"
-      sponsorProduct={toSponsorProduct(sponsorProduct)}
-      secondarySponsor={toSponsorProduct(secondarySponsor)}
+      sponsorProduct={taxonomySponsors[0] ?? null}
+      secondarySponsor={taxonomySponsors[1] ?? null}
     />
   )
 }

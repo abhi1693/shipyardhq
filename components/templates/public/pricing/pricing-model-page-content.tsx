@@ -2,18 +2,14 @@ import { notFound } from "next/navigation"
 import { BadgeDollarSign } from "lucide-react"
 
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
-import {
-  TaxonomyDetailPage,
-  type TaxonomySponsorProduct,
-} from "@/components/templates/public/common/TaxonomyDetailPage"
+import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
+import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
 import { TaxonomyProductGridFeed } from "@/components/templates/public/common/TaxonomyProductGridFeed"
 import {
   getPricingModelMeta,
   type PricingModelSlug,
 } from "@/lib/pricing/models"
-import {
-  getPricingModelPagePayload,
-} from "@/lib/pricing/page-cache"
+import { getPricingModelPagePayload } from "@/lib/pricing/page-cache"
 import {
   BROWSE_PATH,
   HOME_PATH,
@@ -23,24 +19,11 @@ import {
 } from "@/lib/routes"
 import { buildProductListItem } from "@/lib/seo/product-list"
 import { pluralize } from "@/lib/pluralize"
-import type { ProductCardBase } from "@/components/molecules/ProductCard"
 
 const DEFAULT_FILTERS = {
   sort: "new" as const,
   page: 1,
   verified: false,
-}
-
-function toSponsorProduct(
-  product: ProductCardBase | null | undefined,
-): TaxonomySponsorProduct | null {
-  if (!product) return null
-
-  return {
-    slug: product.slug,
-    name: product.name,
-    tagline: product.tagline,
-  }
 }
 
 export async function PricingModelPageContent({
@@ -52,10 +35,10 @@ export async function PricingModelPageContent({
   const pricingModelMeta = getPricingModelMeta(pricingModel)
   if (!pricingModelMeta) return notFound()
 
-  const payload = await getPricingModelPagePayload(
-    pricingModelMeta.slug,
-    DEFAULT_FILTERS,
-  )
+  const [payload, taxonomySponsors] = await Promise.all([
+    getPricingModelPagePayload(pricingModelMeta.slug, DEFAULT_FILTERS),
+    getTaxonomySponsorProducts({ limit: 2 }),
+  ])
   if (!payload) return notFound()
 
   const baseUrl = (
@@ -71,15 +54,13 @@ export async function PricingModelPageContent({
     name: `${pricingModelMeta.label} pricing products`,
     description: `Browse ${resultCount} ${pluralize(resultCount, "product")} with ${pricingModelMeta.label.toLowerCase()} pricing on Shipyard.`,
     itemListOrder: "https://schema.org/ItemListOrderDescending",
-    itemListElement: payload.products
-      .slice(0, 20)
-      .map((product, index) =>
-        buildProductListItem({
-          product,
-          position: index + 1,
-          siteUrl: baseUrl,
-        }),
-      ),
+    itemListElement: payload.products.slice(0, 20).map((product, index) =>
+      buildProductListItem({
+        product,
+        position: index + 1,
+        siteUrl: baseUrl,
+      }),
+    ),
   }
   const pageTitle = `${pricingModelMeta.label} pricing products`
   const totalUpvotes = payload.products.reduce(
@@ -150,8 +131,8 @@ export async function PricingModelPageContent({
           />
         </>
       }
-      sponsorProduct={toSponsorProduct(payload.products[0])}
-      secondarySponsor={toSponsorProduct(payload.products[1])}
+      sponsorProduct={taxonomySponsors[0] ?? null}
+      secondarySponsor={taxonomySponsors[1] ?? null}
     />
   )
 }

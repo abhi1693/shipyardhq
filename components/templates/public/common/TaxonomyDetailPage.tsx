@@ -1,20 +1,12 @@
 import Link from "next/link"
 import { Suspense, type ReactNode } from "react"
-import {
-  BarChart3,
-  ExternalLink,
-  Megaphone,
-  Rocket,
-  Sparkles,
-  Terminal,
-  Zap,
-} from "lucide-react"
+import { Rocket, Sparkles } from "lucide-react"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import {
   TrafficSidebarStats,
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
-import { PRICING_PATH } from "@/lib/routes"
 
 export interface TaxonomyDetailStat {
   label: string
@@ -30,6 +22,7 @@ export interface TaxonomySponsorProduct {
   slug: string
   name: string
   tagline?: string | null
+  logo?: string | null
 }
 
 interface TaxonomyDetailPageProps {
@@ -78,6 +71,10 @@ export function TaxonomyDetailPage({
   sponsorProduct,
   secondarySponsor,
 }: TaxonomyDetailPageProps) {
+  const sponsorProducts = [sponsorProduct, secondarySponsor].filter(
+    (product): product is TaxonomySponsorProduct => Boolean(product),
+  )
+
   return (
     <main className="bg-[#f8fafc] text-[#0b1c30]">
       {structuredData}
@@ -132,33 +129,36 @@ export function TaxonomyDetailPage({
 
       <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-12 md:px-6 lg:grid-cols-12">
         <div className="space-y-12 lg:col-span-8">
-          <section className="flex flex-col gap-4 rounded-lg border border-black/10 bg-black/[0.03] p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-black text-white">
-                <Terminal className="h-6 w-6" aria-hidden />
-              </div>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-lg font-semibold text-black">GitRank</h2>
-                  <span className="rounded bg-[#f97316]/10 px-2 py-1 text-[9px] font-extrabold uppercase tracking-[0.16em] text-[#f97316]">
-                    Sponsored
-                  </span>
+          {sponsorProduct ? (
+            <section className="flex flex-col gap-4 rounded-lg border border-black/10 bg-black/[0.03] p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                <SponsorLogo product={sponsorProduct} size="large" />
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-lg font-semibold text-black">
+                      {sponsorProduct.name}
+                    </h2>
+                    <span className="rounded bg-[#f97316]/10 px-2 py-1 text-[9px] font-extrabold uppercase tracking-[0.16em] text-[#f97316]">
+                      Sponsored
+                    </span>
+                  </div>
+                  {sponsorProduct.tagline ? (
+                    <p className="text-sm leading-6 text-[#43474c]">
+                      {sponsorProduct.tagline}
+                    </p>
+                  ) : null}
                 </div>
-                <p className="text-sm leading-6 text-[#43474c]">
-                  Turn your GitHub contributions into competitive rankings and
-                  momentum scores for developers.
-                </p>
               </div>
-            </div>
-            <Link
-              href={sponsoredRedirectPath("gitrank")}
-              target="_blank"
-              rel="noopener noreferrer sponsored"
-              className="shrink-0 text-sm font-semibold text-[#0051d5] hover:underline"
-            >
-              Learn More
-            </Link>
-          </section>
+              <Link
+                href={sponsoredRedirectPath(sponsorProduct.slug)}
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+                className="shrink-0 text-sm font-semibold text-[#0051d5] hover:underline"
+              >
+                Learn More
+              </Link>
+            </section>
+          ) : null}
 
           <section data-testid={feedTestId}>{feed}</section>
         </div>
@@ -168,96 +168,46 @@ export function TaxonomyDetailPage({
             <TrafficSidebarStats />
           </Suspense>
 
-          <section className="rounded-lg border border-[#e2e8f0] bg-white p-6">
-            <div className="mb-5 flex items-center gap-2">
-              <StarIcon />
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black">
-                Sponsors
-              </h3>
-            </div>
-            <div className="space-y-4">
-              <Link
-                href={
-                  sponsorProduct
-                    ? sponsoredRedirectPath(sponsorProduct.slug)
-                    : PRICING_PATH
-                }
-                target={sponsorProduct ? "_blank" : undefined}
-                rel={
-                  sponsorProduct ? "noopener noreferrer sponsored" : undefined
-                }
-                className="flex items-center gap-3 border-b border-[#e2e8f0] pb-4"
-              >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-black text-white">
-                  <Rocket className="h-5 w-5" aria-hidden />
-                </div>
-                <div className="min-w-0">
-                  <h4 className="truncate text-sm font-semibold text-black">
-                    {sponsorProduct?.name ?? "ThisVid Downloader"}
-                  </h4>
-                  <p className="line-clamp-1 text-xs text-[#43474c]">
-                    {sponsorProduct?.tagline ?? "Download videos in HD."}
-                  </p>
-                </div>
-              </Link>
-
-              <Link
-                href={
-                  secondarySponsor
-                    ? sponsoredRedirectPath(secondarySponsor.slug)
-                    : PRICING_PATH
-                }
-                target={secondarySponsor ? "_blank" : undefined}
-                rel={
-                  secondarySponsor ? "noopener noreferrer sponsored" : undefined
-                }
-                className="flex aspect-video items-center justify-center overflow-hidden rounded-lg border border-[#c4c6cd] bg-[#f8fafc]"
-              >
-                <div className="flex flex-col items-center gap-2 text-[#74777d]">
-                  <BarChart3 className="h-8 w-8" aria-hidden />
-                  <span className="text-xs font-semibold">
-                    Featured dashboard
-                  </span>
-                </div>
-              </Link>
-
-              <Link
-                href={PRICING_PATH}
-                className="block rounded-lg bg-[#eff4ff] p-4 text-center transition hover:bg-[#dce9ff]"
-              >
-                <Megaphone className="mx-auto mb-2 h-8 w-8 text-[#74777d]" />
-                <p className="text-sm font-semibold text-black">
-                  Advertise here
-                </p>
-                <p className="text-xs text-[#43474c]">
-                  Get your product in front of builders.
-                </p>
-                <span className="mt-2 inline-flex text-xs font-semibold text-[#0051d5]">
-                  Advertise with us
-                </span>
-              </Link>
-            </div>
-          </section>
-
-          <section className="rounded-lg bg-[#0051d5] p-6 text-center text-white">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/20">
-              <Zap className="h-6 w-6" aria-hidden />
-            </div>
-            <h3 className="mt-4 text-lg font-semibold leading-tight">
-              Take payments with Dodo Payments
-            </h3>
-            <p className="mt-2 text-xs leading-5 text-white/80">
-              The merchant of record designed for SaaS founders. Ship faster
-              without tax headaches.
-            </p>
-            <Link
-              href={PRICING_PATH}
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-bold text-[#0051d5]"
-            >
-              Get started
-              <ExternalLink className="h-4 w-4" aria-hidden />
-            </Link>
-          </section>
+          {sponsorProducts.length > 0 ? (
+            <section className="rounded-lg border border-[#e2e8f0] bg-white p-6">
+              <div className="mb-5 flex items-center gap-2">
+                <StarIcon />
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black">
+                  Sponsors
+                </h3>
+              </div>
+              <div className="space-y-4">
+                {sponsorProducts.map((product, index) => (
+                  <Link
+                    key={product.slug}
+                    href={sponsoredRedirectPath(product.slug)}
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                    className="flex items-center gap-3 border-b border-[#e2e8f0] pb-4 last:border-b-0 last:pb-0"
+                  >
+                    <SponsorLogo product={product} />
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="truncate text-sm font-semibold text-black">
+                          {product.name}
+                        </h4>
+                        {index === 0 ? (
+                          <span className="rounded bg-[#f97316]/10 px-2 py-1 text-[9px] font-extrabold uppercase tracking-[0.16em] text-[#f97316]">
+                            Sponsored
+                          </span>
+                        ) : null}
+                      </div>
+                      {product.tagline ? (
+                        <p className="line-clamp-1 text-xs text-[#43474c]">
+                          {product.tagline}
+                        </p>
+                      ) : null}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
         </aside>
       </div>
     </main>
@@ -266,4 +216,37 @@ export function TaxonomyDetailPage({
 
 function StarIcon() {
   return <Sparkles className="h-5 w-5 text-[#f97316]" aria-hidden />
+}
+
+function SponsorLogo({
+  product,
+  size = "default",
+}: {
+  product: TaxonomySponsorProduct
+  size?: "default" | "large"
+}) {
+  const sizeClass = size === "large" ? "h-12 w-12" : "h-12 w-12"
+
+  return (
+    <Avatar className={`${sizeClass} shrink-0 rounded-lg bg-black text-white`}>
+      {product.logo ? (
+        <AvatarImage src={product.logo} alt={`${product.name} logo`} />
+      ) : null}
+      <AvatarFallback className="rounded-lg bg-black text-sm font-semibold uppercase text-white">
+        {getInitials(product.name)}
+      </AvatarFallback>
+    </Avatar>
+  )
+}
+
+function getInitials(name: string) {
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("")
+    .slice(0, 2)
+
+  return initials || <Rocket className="h-5 w-5" aria-hidden />
 }

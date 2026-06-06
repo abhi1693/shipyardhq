@@ -2,15 +2,10 @@ import { notFound } from "next/navigation"
 
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
-import {
-  TaxonomyDetailPage,
-  type TaxonomySponsorProduct,
-} from "@/components/templates/public/common/TaxonomyDetailPage"
+import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
+import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
 import { TaxonomyHomepageRowsClient } from "@/components/templates/public/common/TaxonomyProductRows"
-import {
-  getHomepageFeedViewAll,
-  type HomepageFeedItem,
-} from "@/actions/public/homepage/feed"
+import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { pluralize } from "@/lib/pluralize"
 import {
@@ -30,21 +25,12 @@ interface UseCasePageProps {
   params: Promise<{ slug: string }>
 }
 
-function toSponsorProduct(
-  item: HomepageFeedItem | null | undefined,
-): TaxonomySponsorProduct | null {
-  if (!item) return null
-
-  return {
-    slug: item.slug,
-    name: item.name,
-    tagline: item.tagline,
-  }
-}
-
 export async function UseCasePageContent({ params }: UseCasePageProps) {
   const { slug } = await params
-  const data = await getUseCasePagePayload(slug)
+  const [data, taxonomySponsors] = await Promise.all([
+    getUseCasePagePayload(slug),
+    getTaxonomySponsorProducts({ limit: 2 }),
+  ])
 
   if (!data) notFound()
 
@@ -77,16 +63,14 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
     productCount,
     "product",
   )} built for ${useCase.label}.`
-  const productList = useCaseFeedItems
-    .slice(0, 20)
-    .map((product, index) =>
-      buildProductListItem({
-        product,
-        position: index + 1,
-        siteUrl: baseUrl,
-        categoryName: product.category,
-      }),
-    )
+  const productList = useCaseFeedItems.slice(0, 20).map((product, index) =>
+    buildProductListItem({
+      product,
+      position: index + 1,
+      siteUrl: baseUrl,
+      categoryName: product.category,
+    }),
+  )
   const categoryMentions = categories.map((category) => ({
     "@type": "Thing",
     name: category.name,
@@ -116,12 +100,6 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
       url: baseUrl,
     },
   }
-  const firstOrganicItem =
-    useCaseFeedItems.find((item) => !item.isSponsored) ?? useCaseFeedItems[0]
-  const secondOrganicItem =
-    useCaseFeedItems.find(
-      (item) => !item.isSponsored && item.id !== firstOrganicItem?.id,
-    ) ?? useCaseFeedItems.find((item) => item.id !== firstOrganicItem?.id)
 
   return (
     <TaxonomyDetailPage
@@ -172,8 +150,8 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
           />
         </>
       }
-      sponsorProduct={toSponsorProduct(firstOrganicItem)}
-      secondarySponsor={toSponsorProduct(secondOrganicItem)}
+      sponsorProduct={taxonomySponsors[0] ?? null}
+      secondarySponsor={taxonomySponsors[1] ?? null}
     />
   )
 }

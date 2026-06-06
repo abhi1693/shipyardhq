@@ -1,27 +1,12 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { format } from "date-fns"
-import {
-  Award,
-  BadgeCheck,
-  BarChart3,
-  ExternalLink,
-  Megaphone,
-  Rocket,
-  Sparkles,
-  Star,
-  TrendingUp,
-} from "lucide-react"
+import { Award, BadgeCheck, BarChart3, ExternalLink, Star } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
 import { UserFeedClient } from "@/components/templates/public/users/detail/UserFeedClient"
-import {
-  BROWSE_PATH,
-  LEADERBOARD_REWARDS_PATH,
-  PRICING_PATH,
-  productPath,
-} from "@/lib/routes"
+import { LEADERBOARD_REWARDS_PATH } from "@/lib/routes"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { getUserProfilePayload } from "@/lib/users/page-cache"
 
@@ -77,7 +62,6 @@ export async function UserProfilePageContent({ params }: PageProps) {
   const memberSince = earliestLaunchDate
     ? format(earliestLaunchDate, "MMMM yyyy")
     : "recently"
-  const primaryProduct = productsPage.items[0] ?? null
   const categoryLine = focusCategories.length
     ? `${focusCategories.join(", ")}${
         extraCategoryCount ? ` (+${extraCategoryCount} more)` : ""
@@ -199,74 +183,9 @@ export async function UserProfilePageContent({ params }: PageProps) {
             </section>
 
             <StickyBanner className="mx-auto w-full rounded-lg" />
-
-            <section className="relative overflow-hidden rounded-lg border border-[#e2e8f0] bg-[#eff4ff] p-6">
-              <span className="absolute right-0 top-0 rounded-bl-lg border-b border-l border-[#e2e8f0] bg-white px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.18em] text-[#43474c]">
-                Sponsored
-              </span>
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-black text-white">
-                  <TrendingUp className="h-6 w-6" aria-hidden />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-lg font-semibold text-black">GitRank</h3>
-                  <p className="text-sm leading-6 text-[#43474c]">
-                    Turn Git activity into competitive rankings and momentum
-                    scores for your team.
-                  </p>
-                </div>
-                <Link
-                  href={PRICING_PATH}
-                  className="inline-flex items-center justify-center rounded-lg border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#f8f9ff]"
-                >
-                  Try Now
-                </Link>
-              </div>
-            </section>
           </div>
 
           <aside className="flex flex-col gap-6 lg:col-span-4">
-            <section className="rounded-lg border border-dashed border-[#e2e8f0] bg-[#f8fafc] p-6">
-              <div className="mb-4 flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-[#f97316]" aria-hidden />
-                <h3 className="text-lg font-semibold text-black">Sponsors</h3>
-              </div>
-              <div className="space-y-4">
-                <Link
-                  href={
-                    primaryProduct
-                      ? productPath(primaryProduct.slug)
-                      : BROWSE_PATH
-                  }
-                  className="flex items-center gap-3 rounded-lg border border-[#e2e8f0] bg-white p-3 transition hover:scale-[1.01]"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-black text-white">
-                    <Rocket className="h-5 w-5" aria-hidden />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-black">
-                      {primaryProduct?.name ?? "Featured launch"}
-                    </p>
-                    <p className="truncate text-[11px] text-[#43474c]">
-                      {primaryProduct?.tagline ?? "Discover maker tools."}
-                    </p>
-                  </div>
-                </Link>
-                <Link
-                  href={PRICING_PATH}
-                  className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#c4c6cd] p-5 text-center transition hover:bg-white"
-                >
-                  <Megaphone className="mb-2 h-8 w-8 text-[#74777d]" />
-                  <p className="text-sm font-semibold text-[#43474c]">
-                    Your product here?
-                  </p>
-                  <p className="text-[11px] text-[#74777d]">
-                    Reach makers browsing founder profiles
-                  </p>
-                </Link>
-              </div>
-            </section>
-
             <section className="rounded-lg border border-[#e2e8f0] bg-white p-6">
               <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#43474c]">
                 Founder pulse
