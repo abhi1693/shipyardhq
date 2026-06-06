@@ -17,7 +17,6 @@ import {
   Laptop,
   Monitor,
   PlayCircle,
-  Share2,
   Smartphone,
   Terminal,
 } from "lucide-react"
@@ -42,6 +41,7 @@ import {
   ProductUpvoteBadgeFallback,
   SimilarProductsFallback,
 } from "@/components/templates/public/products/detail/product-fallbacks"
+import { ProductShareModal } from "@/components/templates/public/products/detail/product-share-modal"
 import {
   getPublicProductMetaBySlug,
   getPublicProductBySlug,
@@ -358,6 +358,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const publishedDateIso = publishedSource
     ? new Date(publishedSource).toISOString()
     : null
+  const shareUrl = new URL(canonicalPath, siteConfig.url).toString()
   const categoryLabel = product.category?.name ?? null
   const startingPrice =
     typeof sidebarProduct?.startingPriceCents === "number"
@@ -704,10 +705,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </p>
               ) : null}
               <div className="mt-2 flex flex-wrap items-center gap-4 text-[11px] font-medium text-muted-foreground">
-                <span className="inline-flex items-center gap-1 transition-colors hover:text-[#0051d5]">
-                  <Share2 className="h-3.5 w-3.5" aria-hidden />
-                  Share
-                </span>
+                <ProductShareModal
+                  productName={product.name}
+                  productTagline={product.tagline}
+                  shareUrl={shareUrl}
+                />
                 {publishedLabel ? (
                   <span className="inline-flex items-center gap-1">
                     <Calendar className="h-3.5 w-3.5" aria-hidden />
