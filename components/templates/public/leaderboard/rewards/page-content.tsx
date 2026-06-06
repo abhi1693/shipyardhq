@@ -7,7 +7,6 @@ import {
   getRewardsLeaderboardPage,
 } from "@/actions/public/rewards/actions"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
-import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
 import {
   HERO_PRIMARY_BUTTON_CLASSES,
@@ -195,9 +194,6 @@ export async function RewardsLeaderboardPageContent({
             <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
               <DirectoryHighlightsSidebar />
             </Suspense>
-            <div className="hidden lg:block">
-              <AffiliateLinkCard />
-            </div>
           </>
         }
       />
