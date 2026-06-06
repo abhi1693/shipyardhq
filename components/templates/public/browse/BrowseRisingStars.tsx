@@ -28,11 +28,7 @@ function ProductLogo({ product }: { product: ProductCardBase }) {
 export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
   const risingProducts = products
     .slice()
-    .sort(
-      (a, b) =>
-        (b.scoreCount ?? b.analytics?.upvotes ?? 0) -
-        (a.scoreCount ?? a.analytics?.upvotes ?? 0),
-    )
+    .sort((a, b) => (b.scoreCount ?? 0) - (a.scoreCount ?? 0))
     .slice(0, 3)
 
   if (!risingProducts.length) return null

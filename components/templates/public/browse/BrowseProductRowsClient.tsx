@@ -55,7 +55,8 @@ function BrowseProductRow({ product }: { product: ProductCardItem }) {
   const categoryName = product.categoryName ?? product.category?.name ?? null
   const categorySlug = product.categorySlug ?? product.category?.slug ?? null
   const score =
-    typeof product.scoreCount === "number" && Number.isFinite(product.scoreCount)
+    typeof product.scoreCount === "number" &&
+    Number.isFinite(product.scoreCount)
       ? product.scoreCount
       : 0
   const badges = product.badges ?? []
