@@ -104,7 +104,7 @@ export function ProductMediaGallery({
               type="button"
               onClick={goToPrevious}
               aria-label="Previous image"
-              className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-lg border border-border bg-white/95 p-3 text-foreground shadow-md transition hover:bg-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-40"
+              className="absolute left-4 top-1/2 flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg border border-border bg-white/95 p-3 text-foreground shadow-md transition hover:bg-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-40"
             >
               <ChevronLeft className="size-5" />
             </button>
@@ -112,7 +112,7 @@ export function ProductMediaGallery({
               type="button"
               onClick={goToNext}
               aria-label="Next image"
-              className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-lg border border-border bg-white/95 p-3 text-foreground shadow-md transition hover:bg-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-40"
+              className="absolute right-4 top-1/2 flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg border border-border bg-white/95 p-3 text-foreground shadow-md transition hover:bg-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-40"
             >
               <ChevronRight className="size-5" />
             </button>
@@ -172,7 +172,7 @@ function GalleryThumbnailButton({
       type="button"
       onClick={onSelect}
       className={cn(
-        "group relative h-20 w-full overflow-hidden rounded-lg border border-border bg-muted transition hover:border-border/80",
+        "group relative h-20 w-full cursor-pointer overflow-hidden rounded-lg border border-border bg-muted transition hover:border-border/80",
         "sm:h-20 sm:w-32 sm:shrink-0",
         isSelected ? "border-2 border-[#0051d5] bg-white" : undefined,
       )}
