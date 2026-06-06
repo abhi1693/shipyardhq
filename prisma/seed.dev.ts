@@ -729,8 +729,7 @@ function generatedDevProducts(): DevProductSeed[] {
       slug: `dev-launch-${paddedNumber}`,
       name,
       tagline: `A seeded ${noun.toLowerCase()} tool for testing large homepage launch feeds.`,
-      description:
-        `${name} is a generated development product used to exercise homepage pagination, launch sections, analytics, and cache behavior at realistic scale.`,
+      description: `${name} is a generated development product used to exercise homepage pagination, launch sections, analytics, and cache behavior at realistic scale.`,
       websiteUrl: `https://dev-launch-${paddedNumber}.localhost`,
       logo: logos[index % logos.length],
       bannerImage: banners[index % banners.length],

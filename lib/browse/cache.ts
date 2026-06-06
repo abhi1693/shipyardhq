@@ -131,9 +131,13 @@ export const getBrowsePagePayload = async (
       pricingModel: pricingModelValueFromSlug(filters.pricingModel),
       type: productTypeValueFromSlug(filters.productType),
       minPriceCents:
-        typeof filters.minPrice === "number" ? filters.minPrice * 100 : undefined,
+        typeof filters.minPrice === "number"
+          ? filters.minPrice * 100
+          : undefined,
       maxPriceCents:
-        typeof filters.maxPrice === "number" ? filters.maxPrice * 100 : undefined,
+        typeof filters.maxPrice === "number"
+          ? filters.maxPrice * 100
+          : undefined,
       badge: filters.badge,
       backlinkVerified: filters.backlinkVerified,
     }),

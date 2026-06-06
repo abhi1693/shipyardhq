@@ -160,16 +160,14 @@ export default async function CategoryPricingPage({
       parsed.sort === "az"
         ? "https://schema.org/ItemListOrderAscending"
         : "https://schema.org/ItemListOrderDescending",
-    itemListElement: payload.products
-      .slice(0, 20)
-      .map((product, index) =>
-        buildProductListItem({
-          product,
-          position: index + 1,
-          siteUrl: baseUrl,
-          categoryName: category.name,
-        }),
-      ),
+    itemListElement: payload.products.slice(0, 20).map((product, index) =>
+      buildProductListItem({
+        product,
+        position: index + 1,
+        siteUrl: baseUrl,
+        categoryName: category.name,
+      }),
+    ),
   }
 
   const resultCount =

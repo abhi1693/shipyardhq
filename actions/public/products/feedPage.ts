@@ -91,9 +91,13 @@ export async function getProductFeedPage(
         pricingModel: pricingModelEnum,
         type: productTypeEnum,
         minPriceCents:
-          typeof request.minPrice === "number" ? request.minPrice * 100 : undefined,
+          typeof request.minPrice === "number"
+            ? request.minPrice * 100
+            : undefined,
         maxPriceCents:
-          typeof request.maxPrice === "number" ? request.maxPrice * 100 : undefined,
+          typeof request.maxPrice === "number"
+            ? request.maxPrice * 100
+            : undefined,
         badge: request.badge,
         backlinkVerified: request.backlinkVerified,
       })

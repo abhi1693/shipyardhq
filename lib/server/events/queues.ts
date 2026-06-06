@@ -31,8 +31,7 @@ export const EVENT_QUEUE_DEFINITIONS: Record<
     id: "low",
     label: "Low priority",
     intervalMinutes: 30,
-    description:
-      "Deferred work for external side effects.",
+    description: "Deferred work for external side effects.",
   },
 } as const
 

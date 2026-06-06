@@ -293,7 +293,9 @@ function PriceRangeSelector({
           Price Range
         </h3>
         <span className="text-xs font-bold text-[#061d31]">
-          {disabled ? "Free only" : `${formatPrice(localMin)} - ${formatPrice(localMax)}`}
+          {disabled
+            ? "Free only"
+            : `${formatPrice(localMin)} - ${formatPrice(localMax)}`}
         </span>
       </div>
 
@@ -329,19 +331,28 @@ function PriceRangeSelector({
             }}
             onPointerUp={(event) =>
               commitRange(
-                Math.min(Number(event.currentTarget.value), localMax - PRICE_STEP),
+                Math.min(
+                  Number(event.currentTarget.value),
+                  localMax - PRICE_STEP,
+                ),
                 localMax,
               )
             }
             onKeyUp={(event) =>
               commitRange(
-                Math.min(Number(event.currentTarget.value), localMax - PRICE_STEP),
+                Math.min(
+                  Number(event.currentTarget.value),
+                  localMax - PRICE_STEP,
+                ),
                 localMax,
               )
             }
             onBlur={(event) =>
               commitRange(
-                Math.min(Number(event.currentTarget.value), localMax - PRICE_STEP),
+                Math.min(
+                  Number(event.currentTarget.value),
+                  localMax - PRICE_STEP,
+                ),
                 localMax,
               )
             }
@@ -365,19 +376,28 @@ function PriceRangeSelector({
             onPointerUp={(event) =>
               commitRange(
                 localMin,
-                Math.max(Number(event.currentTarget.value), localMin + PRICE_STEP),
+                Math.max(
+                  Number(event.currentTarget.value),
+                  localMin + PRICE_STEP,
+                ),
               )
             }
             onKeyUp={(event) =>
               commitRange(
                 localMin,
-                Math.max(Number(event.currentTarget.value), localMin + PRICE_STEP),
+                Math.max(
+                  Number(event.currentTarget.value),
+                  localMin + PRICE_STEP,
+                ),
               )
             }
             onBlur={(event) =>
               commitRange(
                 localMin,
-                Math.max(Number(event.currentTarget.value), localMin + PRICE_STEP),
+                Math.max(
+                  Number(event.currentTarget.value),
+                  localMin + PRICE_STEP,
+                ),
               )
             }
             className="pointer-events-none absolute inset-x-0 top-1/2 z-30 h-6 w-full -translate-y-1/2 appearance-none bg-transparent disabled:cursor-not-allowed [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:bg-[#10b981] [&::-moz-range-thumb]:shadow-md [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-[#10b981] [&::-webkit-slider-thumb]:shadow-md"

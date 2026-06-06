@@ -7,7 +7,10 @@
  *   npx tsx scripts/ga4-sanity.ts
  */
 
-import { createGa4DataApiClient, getGa4PropertyId } from "@/lib/server/analytics/ga4DataApi"
+import {
+  createGa4DataApiClient,
+  getGa4PropertyId,
+} from "@/lib/server/analytics/ga4DataApi"
 
 async function main() {
   const client = createGa4DataApiClient()

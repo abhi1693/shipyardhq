@@ -105,7 +105,10 @@ export default function PublicHeaderActions() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <SignOutButton>
-              <DropdownMenuItem variant="destructive" className="cursor-pointer">
+              <DropdownMenuItem
+                variant="destructive"
+                className="cursor-pointer"
+              >
                 <LogOut className="size-4" />
                 Sign out
               </DropdownMenuItem>

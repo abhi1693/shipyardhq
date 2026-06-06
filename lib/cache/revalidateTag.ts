@@ -20,9 +20,7 @@ function shouldFallbackToRevalidate(error: unknown): boolean {
 
 function isMissingStaticGenerationStore(error: unknown): boolean {
   if (!(error instanceof Error)) return false
-  return error.message
-    .toLowerCase()
-    .includes("static generation store missing")
+  return error.message.toLowerCase().includes("static generation store missing")
 }
 
 function logSkippedInvalidation(tag: string, error: unknown) {
@@ -31,10 +29,13 @@ function logSkippedInvalidation(tag: string, error: unknown) {
   if (loggedContextlessInvalidations.has(key)) return
 
   loggedContextlessInvalidations.add(key)
-  console.warn("[cache] skipped Next cache invalidation outside request context", {
-    tag,
-    error: message,
-  })
+  console.warn(
+    "[cache] skipped Next cache invalidation outside request context",
+    {
+      tag,
+      error: message,
+    },
+  )
 }
 
 export function revalidateTag(

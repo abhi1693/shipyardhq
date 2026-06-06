@@ -20,7 +20,9 @@ function requireEnv(name: string): string {
  */
 export function createGa4DataApiClient(): BetaAnalyticsDataClient {
   const raw = process.env.GA4_SERVICE_ACCOUNT_JSON
-  const b64 = process.env.SHIPYARD_GA4_SERVICE_ACCOUNT_JSON_BASE64 ?? process.env.GA4_SERVICE_ACCOUNT_JSON_BASE64
+  const b64 =
+    process.env.SHIPYARD_GA4_SERVICE_ACCOUNT_JSON_BASE64 ??
+    process.env.GA4_SERVICE_ACCOUNT_JSON_BASE64
 
   let credentialsJson: string
   if (raw) credentialsJson = raw

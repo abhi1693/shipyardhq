@@ -53,7 +53,7 @@ export function AnalyticsChartCard({
                 className={infoTriggerClass}
                 aria-label={infoLabel ?? `Learn more about ${title}`}
               >
-                  <Info className="h-4 w-4" aria-hidden />
+                <Info className="h-4 w-4" aria-hidden />
               </TooltipTrigger>
               <TooltipContent sideOffset={6}>{tooltip}</TooltipContent>
             </Tooltip>

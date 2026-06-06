@@ -66,7 +66,8 @@ describe("revalidateTag", () => {
       "[cache] skipped Next cache invalidation outside request context",
       {
         tag: "products",
-        error: "Invariant: static generation store missing in updateTag products",
+        error:
+          "Invariant: static generation store missing in updateTag products",
       },
     )
     warnSpy.mockRestore()

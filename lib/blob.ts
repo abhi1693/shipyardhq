@@ -37,7 +37,7 @@ function getR2Config(): R2Config {
     "https://492e25f5f18ef59e38763f58a78362f7.r2.cloudflarestorage.com"
 
   const endpoint = rawEndpoint.endsWith(`/${bucket}`)
-    ? rawEndpoint.slice(0, -1 * (`/${bucket}`.length))
+    ? rawEndpoint.slice(0, -1 * `/${bucket}`.length)
     : rawEndpoint
 
   return {

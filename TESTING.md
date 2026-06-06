@@ -12,16 +12,19 @@ Goal: a **minimal, reliable** testing baseline so refactors/perf work don’t re
 ## Run locally
 
 Install deps:
+
 ```bash
 npm ci
 ```
 
 Run once:
+
 ```bash
 npm run test:ci
 ```
 
 Watch mode:
+
 ```bash
 npm run test:watch
 ```
@@ -29,10 +32,12 @@ npm run test:watch
 ## CI
 
 GitHub Actions runs tests on:
+
 - `pull_request`
 - `push` to `master`
 
 CI uses:
+
 - `npm ci --ignore-scripts` (avoids Prisma `postinstall` DB requirement)
 
 ## Adding tests (guidelines)

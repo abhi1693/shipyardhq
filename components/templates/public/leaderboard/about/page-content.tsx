@@ -187,8 +187,7 @@ export function LeaderboardGuidePageContent() {
               <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
                 <div className="text-left">
                   <p className="mb-2 text-[28px] font-bold leading-10 tracking-[-0.02em] md:text-[32px]">
-                    Score ={" "}
-                    <span className="text-[#C0FF00]">(U x 10)</span> +{" "}
+                    Score = <span className="text-[#C0FF00]">(U x 10)</span> +{" "}
                     <span className="text-[#dbe1ff]">(V x 3)</span> +{" "}
                     <span className="text-[#c4c6cd]">P</span>
                   </p>

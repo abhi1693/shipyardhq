@@ -51,10 +51,7 @@ export default function PublicFooter() {
       <div className="mx-auto max-w-[1200px]">
         <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-4">
           <div>
-            <Link
-              href="/"
-              className="mb-4 block text-lg font-black text-black"
-            >
+            <Link href="/" className="mb-4 block text-lg font-black text-black">
               Shipyard HQ
             </Link>
             <p className="mb-6 text-sm leading-5 text-[#43474c]">

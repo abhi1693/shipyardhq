@@ -12,13 +12,14 @@ const PRODUCT_TYPE_BY_VALUE: Record<string, { slug: string; label: string }> = {
   other: { slug: "other", label: "Other" },
 }
 
-const PRICING_MODEL_BY_VALUE: Record<string, { slug: string; label: string }> = {
-  free: { slug: "free", label: "Free" },
-  freemium: { slug: "freemium", label: "Freemium" },
-  subscription: { slug: "subscription", label: "Subscription" },
-  one_time: { slug: "one-time", label: "One-time" },
-  custom: { slug: "custom", label: "Custom" },
-}
+const PRICING_MODEL_BY_VALUE: Record<string, { slug: string; label: string }> =
+  {
+    free: { slug: "free", label: "Free" },
+    freemium: { slug: "freemium", label: "Freemium" },
+    subscription: { slug: "subscription", label: "Subscription" },
+    one_time: { slug: "one-time", label: "One-time" },
+    custom: { slug: "custom", label: "Custom" },
+  }
 
 const PLATFORM_LABELS: Record<string, string> = {
   web: "Web",
@@ -105,7 +106,10 @@ function formatDate(value?: string | Date | null) {
   return date.toISOString().slice(0, 10)
 }
 
-function formatCurrency(amountCents?: number | null, currencyCode?: string | null) {
+function formatCurrency(
+  amountCents?: number | null,
+  currencyCode?: string | null,
+) {
   if (typeof amountCents !== "number" || !Number.isFinite(amountCents)) {
     return null
   }
@@ -171,7 +175,10 @@ function mediaItems(product: ProductMarkdownMeta) {
   ])
 }
 
-function productLinks(product: ProductMarkdownDetail, meta: ProductMarkdownMeta) {
+function productLinks(
+  product: ProductMarkdownDetail,
+  meta: ProductMarkdownMeta,
+) {
   const type = cleanText(product.type)
   const pricingModel = cleanText(product.pricingModel)
   const productTypeSlug = type ? PRODUCT_TYPE_BY_VALUE[type]?.slug : null
@@ -212,8 +219,12 @@ function factItems(product: ProductMarkdownDetail, meta: ProductMarkdownMeta) {
   const updatedDate = formatDate(product.updatedAt)
 
   return [
-    cleanText(product.tagline) ? `Tagline: ${cleanText(product.tagline)}` : null,
-    productTypeLabel(product) ? `Product type: ${productTypeLabel(product)}` : null,
+    cleanText(product.tagline)
+      ? `Tagline: ${cleanText(product.tagline)}`
+      : null,
+    productTypeLabel(product)
+      ? `Product type: ${productTypeLabel(product)}`
+      : null,
     pricingLabel(product) ? `Pricing model: ${pricingLabel(product)}` : null,
     startingPrice ? `Starting price: ${startingPrice}` : null,
     meta.category?.name ? `Category: ${meta.category.name}` : null,
