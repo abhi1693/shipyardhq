@@ -25,13 +25,7 @@ import {
 import { cn } from "@/lib/utils"
 
 type ShareTarget = {
-  key:
-    | "copy"
-    | "bluesky"
-    | "facebook"
-    | "ycombinator"
-    | "reddit"
-    | "whatsapp"
+  key: "copy" | "bluesky" | "facebook" | "ycombinator" | "reddit" | "whatsapp"
   label: string
   href?: string
   onClick?: () => void
@@ -44,6 +38,34 @@ interface ProductShareBarProps {
   productTagline?: string | null
   shareUrl: string
   className?: string
+}
+
+async function copyTextToClipboard(text: string) {
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text)
+      return true
+    } catch {
+      // Fall through to the textarea fallback.
+    }
+  }
+
+  const textarea = document.createElement("textarea")
+  textarea.value = text
+  textarea.setAttribute("readonly", "")
+  textarea.style.position = "fixed"
+  textarea.style.left = "-9999px"
+  textarea.style.top = "0"
+
+  document.body.appendChild(textarea)
+  textarea.focus()
+  textarea.select()
+
+  try {
+    return document.execCommand("copy")
+  } finally {
+    document.body.removeChild(textarea)
+  }
 }
 
 export function ProductShareBar({
@@ -64,32 +86,11 @@ export function ProductShareBar({
   }, [productName, productTagline, shareUrl])
 
   const handleCopy = useCallback(async () => {
-    const clipboard = navigator.clipboard
-    if (clipboard?.writeText) {
-      try {
-        await clipboard.writeText(shareUrl)
-        setCopied(true)
-        window.setTimeout(() => setCopied(false), 1500)
-        return
-      } catch (error) {
-        console.error("Failed to copy share URL", error)
-      }
-    }
-
-    try {
-      const textarea = document.createElement("textarea")
-      textarea.value = shareUrl
-      textarea.setAttribute("readonly", "")
-      textarea.style.position = "absolute"
-      textarea.style.left = "-9999px"
-      document.body.appendChild(textarea)
-      textarea.select()
-      document.execCommand("copy")
-      document.body.removeChild(textarea)
+    const ok = await copyTextToClipboard(shareUrl)
+    if (ok) {
       setCopied(true)
       window.setTimeout(() => setCopied(false), 1500)
-    } catch (error) {
-      console.error("Failed to copy share URL via fallback", error)
+    } else {
       setCopied(false)
     }
   }, [shareUrl])
@@ -161,7 +162,7 @@ export function ProductShareBar({
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="group inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-muted/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     aria-label={label}
                   >
                     <Icon className={iconClassName} strokeWidth={1.8} />

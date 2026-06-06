@@ -20,6 +20,34 @@ interface ProductShareModalProps {
   className?: string
 }
 
+async function copyTextToClipboard(text: string) {
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text)
+      return true
+    } catch {
+      // Fall through to the textarea fallback.
+    }
+  }
+
+  const textarea = document.createElement("textarea")
+  textarea.value = text
+  textarea.setAttribute("readonly", "")
+  textarea.style.position = "fixed"
+  textarea.style.left = "-9999px"
+  textarea.style.top = "0"
+
+  document.body.appendChild(textarea)
+  textarea.focus()
+  textarea.select()
+
+  try {
+    return document.execCommand("copy")
+  } finally {
+    document.body.removeChild(textarea)
+  }
+}
+
 export function ProductShareModal({
   productName,
   productTagline,
@@ -68,11 +96,11 @@ export function ProductShareModal({
   }, [])
 
   const copyLink = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl)
+    const ok = await copyTextToClipboard(shareUrl)
+    if (ok) {
       setCopied(true)
       window.setTimeout(() => setCopied(false), 1500)
-    } catch {
+    } else {
       setCopied(false)
     }
   }, [shareUrl])
@@ -137,7 +165,7 @@ export function ProductShareModal({
                   <button
                     type="button"
                     onClick={copyLink}
-                    className="inline-flex items-center gap-1 rounded-lg bg-foreground px-4 py-2 text-xs font-semibold text-background transition-colors hover:bg-foreground/80"
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg bg-foreground px-4 py-2 text-xs font-semibold text-background transition-colors hover:bg-foreground/80"
                   >
                     <Copy className="h-3.5 w-3.5" aria-hidden />
                     {copied ? "Copied" : "Copy"}
