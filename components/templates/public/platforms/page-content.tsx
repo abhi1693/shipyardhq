@@ -60,10 +60,6 @@ export async function PlatformPageContent({
     ),
   }
   const pageTitle = `${platformMeta.label} products`
-  const totalUpvotes = payload.products.reduce(
-    (total, product) => total + (product.analytics?.upvotes ?? 0),
-    0,
-  )
 
   return (
     <TaxonomyDetailPage
@@ -88,7 +84,6 @@ export async function PlatformPageContent({
           label: "Featured",
           value: payload.products.filter((product) => product.sponsored).length,
         },
-        { label: "Upvotes", value: totalUpvotes },
       ]}
       feed={
         <TaxonomyProductGridFeed

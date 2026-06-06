@@ -7,8 +7,6 @@ import { Triangle } from "lucide-react"
 import SignInButton from "@/components/molecules/SignInButton"
 import { cn } from "@/lib/utils"
 
-const formatter = new Intl.NumberFormat("en-US")
-
 export function LeaderboardUpvoteButton({
   productSlug,
   count,
@@ -92,7 +90,7 @@ export function LeaderboardUpvoteButton({
   }
 
   const buttonClassName = cn(
-    "inline-flex min-w-[76px] cursor-pointer items-center justify-center gap-1 rounded-lg border border-[#0051d5]/10 bg-[#EFF6FF] px-3 py-1.5 text-sm font-bold text-[#0051d5] transition-transform active:scale-95 disabled:cursor-pointer disabled:opacity-70",
+    "inline-flex min-w-10 cursor-pointer items-center justify-center gap-1 rounded-lg border border-[#0051d5]/10 bg-[#EFF6FF] px-3 py-1.5 text-sm font-bold text-[#0051d5] transition-transform active:scale-95 disabled:cursor-pointer disabled:opacity-70",
     state.upvoted && "bg-[#0051d5] text-white",
   )
 
@@ -111,7 +109,6 @@ export function LeaderboardUpvoteButton({
           aria-hidden
         />
       </span>
-      <span>{formatter.format(state.upvotes)}</span>
     </>
   )
 

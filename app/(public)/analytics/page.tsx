@@ -692,7 +692,6 @@ async function getCachedAnalyticsPageData({
               select: {
                 slug: true,
                 name: true,
-                analytics: { select: { upvotes: true } },
               },
             })
           : []
@@ -710,7 +709,6 @@ async function getCachedAnalyticsPageData({
         return {
           ...page,
           name: product?.name ?? slug ?? page.path,
-          upvotes: product?.analytics?.upvotes ?? null,
         }
       })
 

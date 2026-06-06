@@ -67,7 +67,7 @@ function LeaderboardHero({
           : "This month's leaderboard"}
       </h1>
       <p className="mx-auto mb-8 max-w-2xl text-[16px] leading-6 text-[#43474c]">
-        Products are ranked by monthly upvotes, unique visitors, and page views.
+        Products are ranked by monthly score, unique visitors, and page views.
         Updated every 6 hours.
       </p>
       <div className="flex flex-wrap justify-center gap-4">

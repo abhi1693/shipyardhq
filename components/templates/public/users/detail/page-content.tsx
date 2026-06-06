@@ -34,7 +34,6 @@ export async function UserProfilePageContent({ params }: PageProps) {
     leaderboardPosition,
     productsPage,
     totalProducts,
-    totalUpvotes,
     rewardPoints,
     focusCategories,
     extraCategoryCount,
@@ -143,7 +142,6 @@ export async function UserProfilePageContent({ params }: PageProps) {
             <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
               {[
                 ["Published products", totalProducts],
-                ["Community upvotes", totalUpvotes],
                 ["Reward balance", rewardPoints],
                 ["Verified launches", verifiedCount],
               ].map(([label, value]) => (
@@ -194,14 +192,10 @@ export async function UserProfilePageContent({ params }: PageProps) {
                 <div className="flex items-center justify-between gap-3">
                   <span className="flex items-center gap-2 text-sm text-[#43474c]">
                     <BarChart3 className="h-4 w-4 text-[#0051d5]" />
-                    Upvotes per launch
+                    Launch activity
                   </span>
                   <span className="text-sm font-semibold text-black">
-                    {formatStat(
-                      totalProducts
-                        ? Math.round(totalUpvotes / totalProducts)
-                        : 0,
-                    )}
+                    {formatStat(totalProducts)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-3">

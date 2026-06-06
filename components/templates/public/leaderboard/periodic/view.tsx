@@ -126,9 +126,6 @@ const productInitials = (name: string) =>
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("") || "S"
 
-const formatCount = (value?: number | null) =>
-  new Intl.NumberFormat("en-US").format(Math.max(0, Math.round(value ?? 0)))
-
 function ArchiveLogo({
   item,
   size = "large",
@@ -198,11 +195,9 @@ function CategoryPill({
 }
 
 function ArchiveUpvoteStat({
-  count,
   active = false,
   compact = false,
 }: {
-  count?: number | null
   active?: boolean
   compact?: boolean
 }) {
@@ -220,7 +215,6 @@ function ArchiveUpvoteStat({
         className={cn("size-4", active && "fill-current")}
         aria-hidden
       />
-      <span>{formatCount(count)}</span>
     </div>
   )
 }
@@ -266,7 +260,6 @@ function FeaturedArchiveCard({
   rank: number
 }) {
   const isTop = rank === 1
-  const upvotes = item.analytics?.upvotes ?? 0
 
   return (
     <Card
@@ -307,7 +300,7 @@ function FeaturedArchiveCard({
               <AwardPills rank={rank} />
             </div>
           </div>
-          <ArchiveUpvoteStat count={upvotes} active={isTop} />
+          <ArchiveUpvoteStat active={isTop} />
         </div>
       </CardContent>
     </Card>
@@ -321,8 +314,6 @@ function CompactArchiveRow({
   item: LeaderboardCardItem
   rank: number
 }) {
-  const upvotes = item.analytics?.upvotes ?? 0
-
   return (
     <Card className="rounded-xl border-[#E2E8F0] bg-white p-0 shadow-none transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
       <CardContent className="flex items-center justify-between gap-4 p-4">
@@ -348,7 +339,7 @@ function CompactArchiveRow({
           <div className="hidden md:block">
             <CategoryPill item={item} />
           </div>
-          <ArchiveUpvoteStat count={upvotes} compact />
+          <ArchiveUpvoteStat compact />
         </div>
       </CardContent>
     </Card>
@@ -809,7 +800,6 @@ function WeeklyLeaderboardCard({
   item: LeaderboardCardItem
   rank: number
 }) {
-  const upvotes = item.analytics?.upvotes ?? 0
   const isTop = rank === 1
 
   return (
@@ -849,7 +839,7 @@ function WeeklyLeaderboardCard({
               <span className="text-[12px] font-semibold leading-4 text-[#43474c]">
                 #{rank}
               </span>
-              <ArchiveUpvoteStat count={upvotes} compact />
+              <ArchiveUpvoteStat compact />
             </div>
           </div>
           <div className="flex flex-wrap gap-2 pt-2">
@@ -871,7 +861,6 @@ function WeeklyCompactRow({
   rank: number
   nowMs: number
 }) {
-  const upvotes = item.analytics?.upvotes ?? 0
   const isNewLaunch =
     item.createdAt &&
     nowMs - new Date(item.createdAt).getTime() < 14 * 24 * 60 * 60 * 1000
@@ -911,7 +900,7 @@ function WeeklyCompactRow({
         <span className="text-[12px] font-semibold leading-4 text-[#43474c]">
           #{rank}
         </span>
-        <ArchiveUpvoteStat count={upvotes} compact />
+        <ArchiveUpvoteStat compact />
       </div>
     </article>
   )
@@ -1033,13 +1022,10 @@ function DailyAwardPills({
   )
 }
 
-function DailyUpvoteStat({ count }: { count?: number | null }) {
+function DailyUpvoteStat() {
   return (
-    <div className="flex size-14 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border border-[#346cef]/10 bg-[#EFF6FF] text-[#0051d5] transition-all hover:bg-[#0051d5] hover:text-white">
+    <div className="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-[#346cef]/10 bg-[#EFF6FF] text-[#0051d5] transition-all hover:bg-[#0051d5] hover:text-white">
       <ChevronUp className="size-5" aria-hidden />
-      <span className="text-[12px] font-bold leading-4">
-        {formatCount(count)}
-      </span>
     </div>
   )
 }
@@ -1053,7 +1039,6 @@ function DailyProductCard({
   rank: number
   nowMs: number
 }) {
-  const upvotes = item.analytics?.upvotes ?? 0
   const isNewLaunch =
     item.createdAt &&
     nowMs - new Date(item.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000
@@ -1082,7 +1067,7 @@ function DailyProductCard({
           <DailyAwardPills rank={rank} isNewLaunch={Boolean(isNewLaunch)} />
         </div>
       </div>
-      <DailyUpvoteStat count={upvotes} />
+      <DailyUpvoteStat />
     </article>
   )
 }

@@ -63,10 +63,6 @@ export async function PricingModelPageContent({
     ),
   }
   const pageTitle = `${pricingModelMeta.label} pricing products`
-  const totalUpvotes = payload.products.reduce(
-    (total, product) => total + (product.analytics?.upvotes ?? 0),
-    0,
-  )
 
   return (
     <TaxonomyDetailPage
@@ -93,7 +89,6 @@ export async function PricingModelPageContent({
           label: "Featured",
           value: payload.products.filter((product) => product.sponsored).length,
         },
-        { label: "Upvotes", value: totalUpvotes },
       ]}
       feed={
         <TaxonomyProductGridFeed

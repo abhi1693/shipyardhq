@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { ArrowUp, ExternalLink, ImageIcon } from "lucide-react"
+import { ExternalLink, ImageIcon } from "lucide-react"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { getUserProductsPage } from "@/actions/public/users/actions"
@@ -71,10 +71,6 @@ function ProductCard({ item }: { item: HomepageFeedItem }) {
           >
             {item.name}
           </Link>
-          <div className="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full bg-[#eff6ff] px-3 py-1 text-sm font-bold text-[#0051d5]">
-            <ArrowUp className="h-4 w-4" aria-hidden />
-            <span>{item.upvoteCount.toLocaleString("en-US")}</span>
-          </div>
         </div>
         <p className="mb-5 text-base leading-7 text-[#43474c]">
           {item.tagline}

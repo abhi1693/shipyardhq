@@ -66,20 +66,14 @@ async function loadSuggestions(query: string): Promise<SearchSuggestion[]> {
   })
 
   return products.map((product): SearchSuggestion => {
-    const upvotes = product.analytics?.upvotes ?? 0
-    const meta = [
-      product.category?.name,
-        upvotes ? `${upvotes.toLocaleString()} upvotes` : null,
-      ]
-        .filter(Boolean)
-        .join(" / ")
+    const meta = [product.category?.name].filter(Boolean).join(" / ")
 
-      return {
-        id: product.id,
-        type: "product",
-        label: product.name,
-        description: product.tagline,
-        href: productPath(product.slug),
+    return {
+      id: product.id,
+      type: "product",
+      label: product.name,
+      description: product.tagline,
+      href: productPath(product.slug),
       image: product.logo,
       meta: meta || null,
     }

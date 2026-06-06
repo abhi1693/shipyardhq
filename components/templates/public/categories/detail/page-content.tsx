@@ -62,7 +62,6 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
           label: "Featured",
           value: metrics.totalFeatured + metrics.totalPriority,
         },
-        { label: "Upvotes", value: metrics.totalUpvotes },
       ]}
       feed={
         <CategoryFeedClient

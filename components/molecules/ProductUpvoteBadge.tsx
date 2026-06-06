@@ -162,11 +162,6 @@ export function ProductUpvoteBadge({
         />
       </span>
       <span>{state.upvoted ? "Upvoted" : "Upvote"}</span>
-      {isInline ? null : <span aria-hidden>·</span>}
-      <span>
-        {formatter.format(state.upvotes)}
-        {isInline ? "" : " votes"}
-      </span>
     </>
   )
 
