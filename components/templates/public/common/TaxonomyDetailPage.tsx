@@ -14,7 +14,7 @@ import {
   TrafficSidebarStats,
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
-import { PRICING_PATH, productPath } from "@/lib/routes"
+import { PRICING_PATH } from "@/lib/routes"
 
 export interface TaxonomyDetailStat {
   label: string
@@ -58,6 +58,10 @@ function formatMetric(value: number | string) {
   }
 
   return value
+}
+
+function sponsoredRedirectPath(slug: string) {
+  return `/r/sponsored/${encodeURIComponent(slug)}`
 }
 
 export function TaxonomyDetailPage({
@@ -147,7 +151,9 @@ export function TaxonomyDetailPage({
               </div>
             </div>
             <Link
-              href={PRICING_PATH}
+              href={sponsoredRedirectPath("gitrank")}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
               className="shrink-0 text-sm font-semibold text-[#0051d5] hover:underline"
             >
               Learn More
@@ -173,8 +179,12 @@ export function TaxonomyDetailPage({
               <Link
                 href={
                   sponsorProduct
-                    ? productPath(sponsorProduct.slug)
+                    ? sponsoredRedirectPath(sponsorProduct.slug)
                     : PRICING_PATH
+                }
+                target={sponsorProduct ? "_blank" : undefined}
+                rel={
+                  sponsorProduct ? "noopener noreferrer sponsored" : undefined
                 }
                 className="flex items-center gap-3 border-b border-[#e2e8f0] pb-4"
               >
@@ -194,8 +204,12 @@ export function TaxonomyDetailPage({
               <Link
                 href={
                   secondarySponsor
-                    ? productPath(secondarySponsor.slug)
+                    ? sponsoredRedirectPath(secondarySponsor.slug)
                     : PRICING_PATH
+                }
+                target={secondarySponsor ? "_blank" : undefined}
+                rel={
+                  secondarySponsor ? "noopener noreferrer sponsored" : undefined
                 }
                 className="flex aspect-video items-center justify-center overflow-hidden rounded-lg border border-[#c4c6cd] bg-[#f8fafc]"
               >
