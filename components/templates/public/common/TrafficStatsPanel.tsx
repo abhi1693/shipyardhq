@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Activity, Users, Zap } from "lucide-react"
-import type { TooltipProps } from "recharts"
+import type { TooltipContentProps } from "recharts"
 import {
   Area,
   AreaChart,
@@ -84,7 +84,7 @@ function TrafficSparklineTooltip({
   active,
   payload,
   label,
-}: TooltipProps<number, string>) {
+}: Partial<TooltipContentProps<number, string>>) {
   if (!active || !payload?.length) return null
 
   const entry = payload[0]
