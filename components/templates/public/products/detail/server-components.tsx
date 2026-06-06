@@ -144,9 +144,6 @@ export async function SimilarProductsServer({
                 {item.tagline}
               </span>
             </span>
-            <span className="text-xs font-semibold text-foreground">
-              {item.analytics?.upvotes ?? 0}
-            </span>
           </Link>
         ))}
       </div>
