@@ -77,6 +77,7 @@ type DevProductSeed = {
   categorySlug: string
   planSlug: string | null
   createdDaysAgo: number
+  publishedDaysAgo?: number
   upvoteBase: number
   verified: boolean
   backlinkVerified: boolean
@@ -186,7 +187,7 @@ const devUsers = (): DevUserSeed[] => [
   },
 ]
 
-const devProducts: DevProductSeed[] = [
+const baseDevProducts: DevProductSeed[] = [
   {
     slug: "dev-dockpilot",
     name: "DockPilot",
@@ -208,6 +209,7 @@ const devProducts: DevProductSeed[] = [
     categorySlug: "developer-tools",
     planSlug: "pro",
     createdDaysAgo: 4,
+    publishedDaysAgo: 0,
     upvoteBase: 78,
     verified: true,
     backlinkVerified: true,
@@ -239,6 +241,7 @@ const devProducts: DevProductSeed[] = [
     categorySlug: "analytics",
     planSlug: "featured",
     createdDaysAgo: 11,
+    publishedDaysAgo: 0,
     upvoteBase: 54,
     verified: true,
     backlinkVerified: false,
@@ -270,6 +273,7 @@ const devProducts: DevProductSeed[] = [
     categorySlug: "customer-support",
     planSlug: "free",
     createdDaysAgo: 18,
+    publishedDaysAgo: 4,
     upvoteBase: 42,
     verified: false,
     backlinkVerified: false,
@@ -295,6 +299,7 @@ const devProducts: DevProductSeed[] = [
     categorySlug: "ecommerce",
     planSlug: "pro",
     createdDaysAgo: 29,
+    publishedDaysAgo: 1,
     upvoteBase: 35,
     verified: true,
     backlinkVerified: true,
@@ -304,6 +309,262 @@ const devProducts: DevProductSeed[] = [
       latestPeriodRevenueCents: 8_400,
       currencyCode: "USD",
     },
+  },
+  {
+    slug: "dev-signal-deck",
+    name: "Signal Deck",
+    tagline: "A lightweight analytics console for founder-led growth.",
+    description:
+      "Signal Deck turns product events, attribution notes, and weekly growth experiments into a focused operating dashboard.",
+    websiteUrl: "https://signal-deck.localhost",
+    logo: "/analytics-1.png",
+    bannerImage: "/analytics-1.png",
+    type: ProductType.saas,
+    pricingModel: PricingModel.freemium,
+    status: ProductStatus.published,
+    startingPriceCents: 0,
+    currencyCode: "USD",
+    keywords: ["analytics", "growth", "events"],
+    platforms: [Platform.web],
+    userEmail: "dev.growth@shipyard.local",
+    categorySlug: "analytics",
+    planSlug: null,
+    createdDaysAgo: 5,
+    publishedDaysAgo: 0,
+    upvoteBase: 31,
+    verified: true,
+    backlinkVerified: false,
+  },
+  {
+    slug: "dev-launch-notes",
+    name: "Launch Notes",
+    tagline: "Write, approve, and publish product updates faster.",
+    description:
+      "Launch Notes gives small teams a shared workflow for release copy, screenshots, approvals, and public changelogs.",
+    websiteUrl: "https://launch-notes.localhost",
+    logo: "/brand.svg",
+    bannerImage: "/featured-on-light.png",
+    type: ProductType.saas,
+    pricingModel: PricingModel.subscription,
+    status: ProductStatus.published,
+    startingPriceCents: 1500,
+    currencyCode: "USD",
+    keywords: ["changelog", "release notes", "product updates"],
+    platforms: [Platform.web],
+    userEmail:
+      process.env.DEV_ADMIN_EMAIL?.trim() || DEV_SEED_DEFAULTS.adminEmail,
+    categorySlug: "developer-tools",
+    planSlug: null,
+    createdDaysAgo: 6,
+    publishedDaysAgo: 1,
+    upvoteBase: 29,
+    verified: true,
+    backlinkVerified: true,
+  },
+  {
+    slug: "dev-feedback-forge",
+    name: "Feedback Forge",
+    tagline: "Turn scattered user feedback into clear product bets.",
+    description:
+      "Feedback Forge collects support notes, survey answers, and sales objections into prioritized customer insights.",
+    websiteUrl: "https://feedback-forge.localhost",
+    logo: "/analytics-2.png",
+    bannerImage: "/insights-demo.png",
+    type: ProductType.saas,
+    pricingModel: PricingModel.subscription,
+    status: ProductStatus.published,
+    startingPriceCents: 2200,
+    currencyCode: "USD",
+    keywords: ["feedback", "roadmap", "customer research"],
+    platforms: [Platform.web],
+    userEmail:
+      process.env.DEV_MEMBER_EMAIL?.trim() || DEV_SEED_DEFAULTS.memberEmail,
+    categorySlug: "customer-support",
+    planSlug: null,
+    createdDaysAgo: 7,
+    publishedDaysAgo: 1,
+    upvoteBase: 27,
+    verified: false,
+    backlinkVerified: false,
+  },
+  {
+    slug: "dev-prism-capture",
+    name: "Prism Capture",
+    tagline: "Record crisp product demos without a production studio.",
+    description:
+      "Prism Capture helps founders capture walkthroughs, annotate flows, and export short launch-ready product clips.",
+    websiteUrl: "https://prism-capture.localhost",
+    logo: "/opengraph.png",
+    bannerImage: "/opengraph.png",
+    type: ProductType.saas,
+    pricingModel: PricingModel.one_time,
+    status: ProductStatus.published,
+    startingPriceCents: 5900,
+    currencyCode: "USD",
+    keywords: ["demo video", "screen recording", "launch"],
+    platforms: [Platform.web, Platform.mac],
+    userEmail: "dev.growth@shipyard.local",
+    categorySlug: "marketing",
+    planSlug: null,
+    createdDaysAgo: 8,
+    publishedDaysAgo: 2,
+    upvoteBase: 25,
+    verified: true,
+    backlinkVerified: false,
+  },
+  {
+    slug: "dev-api-compass",
+    name: "API Compass",
+    tagline: "Map third-party API changes before they break users.",
+    description:
+      "API Compass monitors vendor schemas, webhook payloads, and integration contracts for small platform teams.",
+    websiteUrl: "https://api-compass.localhost",
+    logo: "/brand-white.svg",
+    bannerImage: "/featured-on-dark.png",
+    type: ProductType.api,
+    pricingModel: PricingModel.freemium,
+    status: ProductStatus.published,
+    startingPriceCents: 0,
+    currencyCode: "USD",
+    keywords: ["api", "integrations", "monitoring"],
+    platforms: [Platform.web, Platform.linux],
+    userEmail:
+      process.env.DEV_ADMIN_EMAIL?.trim() || DEV_SEED_DEFAULTS.adminEmail,
+    categorySlug: "apis-and-integrations",
+    planSlug: null,
+    createdDaysAgo: 9,
+    publishedDaysAgo: 1,
+    upvoteBase: 23,
+    verified: true,
+    backlinkVerified: true,
+  },
+  {
+    slug: "dev-pipeline-pulse",
+    name: "Pipeline Pulse",
+    tagline: "A sales pipeline view built for technical founders.",
+    description:
+      "Pipeline Pulse tracks deals, onboarding risk, expansion notes, and founder follow-ups without a heavy CRM rollout.",
+    websiteUrl: "https://pipeline-pulse.localhost",
+    logo: "/analytics-3.png",
+    bannerImage: "/analytics-3.png",
+    type: ProductType.saas,
+    pricingModel: PricingModel.subscription,
+    status: ProductStatus.published,
+    startingPriceCents: 2500,
+    currencyCode: "USD",
+    keywords: ["sales", "crm", "pipeline"],
+    platforms: [Platform.web],
+    userEmail:
+      process.env.DEV_MEMBER_EMAIL?.trim() || DEV_SEED_DEFAULTS.memberEmail,
+    categorySlug: "sales",
+    planSlug: null,
+    createdDaysAgo: 10,
+    publishedDaysAgo: 3,
+    upvoteBase: 22,
+    verified: false,
+    backlinkVerified: false,
+  },
+  {
+    slug: "dev-docs-lantern",
+    name: "Docs Lantern",
+    tagline: "Find broken docs, stale examples, and missing guides.",
+    description:
+      "Docs Lantern crawls developer documentation, spots outdated examples, and turns gaps into actionable writing queues.",
+    websiteUrl: "https://docs-lantern.localhost",
+    logo: "/brand.png",
+    bannerImage: "/analytics-1.png",
+    type: ProductType.saas,
+    pricingModel: PricingModel.subscription,
+    status: ProductStatus.published,
+    startingPriceCents: 1800,
+    currencyCode: "USD",
+    keywords: ["docs", "developer experience", "content"],
+    platforms: [Platform.web],
+    userEmail: "dev.growth@shipyard.local",
+    categorySlug: "developer-tools",
+    planSlug: null,
+    createdDaysAgo: 12,
+    publishedDaysAgo: 0,
+    upvoteBase: 20,
+    verified: true,
+    backlinkVerified: false,
+  },
+  {
+    slug: "dev-cart-current",
+    name: "Cart Current",
+    tagline: "Spot storefront revenue leaks before they compound.",
+    description:
+      "Cart Current highlights checkout friction, abandoned order patterns, and campaign-level storefront performance.",
+    websiteUrl: "https://cart-current.localhost",
+    logo: "/providers/paddle.png",
+    bannerImage: "/opengraph-verified-revenue.png",
+    type: ProductType.saas,
+    pricingModel: PricingModel.freemium,
+    status: ProductStatus.published,
+    startingPriceCents: 0,
+    currencyCode: "USD",
+    keywords: ["ecommerce", "checkout", "analytics"],
+    platforms: [Platform.web],
+    userEmail:
+      process.env.DEV_MEMBER_EMAIL?.trim() || DEV_SEED_DEFAULTS.memberEmail,
+    categorySlug: "ecommerce",
+    planSlug: null,
+    createdDaysAgo: 13,
+    publishedDaysAgo: 5,
+    upvoteBase: 19,
+    verified: true,
+    backlinkVerified: true,
+  },
+  {
+    slug: "dev-roadmap-river",
+    name: "Roadmap River",
+    tagline: "Connect feature bets to revenue and support pressure.",
+    description:
+      "Roadmap River keeps roadmap themes, user evidence, and business impact visible for tiny product teams.",
+    websiteUrl: "https://roadmap-river.localhost",
+    logo: "/featured-on-light.png",
+    bannerImage: "/featured-on-light.png",
+    type: ProductType.saas,
+    pricingModel: PricingModel.free,
+    status: ProductStatus.published,
+    startingPriceCents: null,
+    currencyCode: "USD",
+    keywords: ["roadmap", "product management", "prioritization"],
+    platforms: [Platform.web],
+    userEmail:
+      process.env.DEV_ADMIN_EMAIL?.trim() || DEV_SEED_DEFAULTS.adminEmail,
+    categorySlug: "product-management",
+    planSlug: null,
+    createdDaysAgo: 14,
+    publishedDaysAgo: 6,
+    upvoteBase: 17,
+    verified: false,
+    backlinkVerified: false,
+  },
+  {
+    slug: "dev-uptime-buoy",
+    name: "Uptime Buoy",
+    tagline: "Simple uptime checks with customer-facing incident notes.",
+    description:
+      "Uptime Buoy pairs monitor alerts, status updates, and post-incident notes for bootstrapped SaaS operators.",
+    websiteUrl: "https://uptime-buoy.localhost",
+    logo: "/brand-white.png",
+    bannerImage: "/featured-on-dark.png",
+    type: ProductType.saas,
+    pricingModel: PricingModel.subscription,
+    status: ProductStatus.published,
+    startingPriceCents: 1200,
+    currencyCode: "USD",
+    keywords: ["uptime", "status page", "monitoring"],
+    platforms: [Platform.web],
+    userEmail: "dev.growth@shipyard.local",
+    categorySlug: "monitoring-and-observability",
+    planSlug: null,
+    createdDaysAgo: 15,
+    publishedDaysAgo: 2,
+    upvoteBase: 16,
+    verified: true,
+    backlinkVerified: false,
   },
   {
     slug: "dev-design-crane",
@@ -349,10 +610,157 @@ const devProducts: DevProductSeed[] = [
     categorySlug: "apis-and-integrations",
     planSlug: "featured",
     createdDaysAgo: 37,
+    publishedDaysAgo: 3,
     upvoteBase: 26,
     verified: true,
     backlinkVerified: false,
   },
+]
+
+const GENERATED_DEV_PRODUCT_MINIMUM = 500
+
+function resolveGeneratedProductCount() {
+  const configured = Number.parseInt(
+    process.env.DEV_GENERATED_PRODUCT_COUNT ?? "",
+    10,
+  )
+
+  if (!Number.isFinite(configured) || configured <= 0) {
+    return GENERATED_DEV_PRODUCT_MINIMUM
+  }
+
+  return Math.max(GENERATED_DEV_PRODUCT_MINIMUM, configured)
+}
+
+function generatedPublishedDaysAgo(index: number) {
+  if (index < 80) return 0
+  if (index < 160) return 1
+  return 2 + (index % 5)
+}
+
+function generatedDevProducts(): DevProductSeed[] {
+  const categories = [
+    "developer-tools",
+    "analytics",
+    "customer-support",
+    "ecommerce",
+    "marketing",
+    "apis-and-integrations",
+    "sales",
+    "product-management",
+    "monitoring-and-observability",
+    "automation-and-workflow",
+  ]
+  const logos = [
+    "/brand.png",
+    "/brand.svg",
+    "/analytics-1.png",
+    "/analytics-2.png",
+    "/analytics-3.png",
+    "/opengraph.png",
+    "/providers/dodo.jpeg",
+    "/providers/paddle.png",
+  ]
+  const banners = [
+    "/analytics-1.png",
+    "/analytics-2.png",
+    "/analytics-3.png",
+    "/insights-demo.png",
+    "/featured-on-light.png",
+    "/featured-on-dark.png",
+    "/opengraph.png",
+    "/opengraph-verified-revenue.png",
+  ]
+  const users = [
+    process.env.DEV_ADMIN_EMAIL?.trim() || DEV_SEED_DEFAULTS.adminEmail,
+    process.env.DEV_MEMBER_EMAIL?.trim() || DEV_SEED_DEFAULTS.memberEmail,
+    "dev.growth@shipyard.local",
+  ]
+  const productTypes = [
+    ProductType.saas,
+    ProductType.api,
+    ProductType.mobile_app,
+    ProductType.browser_extension,
+  ]
+  const pricingModels = [
+    PricingModel.free,
+    PricingModel.freemium,
+    PricingModel.subscription,
+    PricingModel.one_time,
+  ]
+  const descriptors = [
+    "Harbor",
+    "Beacon",
+    "Current",
+    "Forge",
+    "Pilot",
+    "Lens",
+    "Signal",
+    "Bridge",
+    "Pulse",
+    "Stack",
+  ]
+  const nouns = [
+    "Launch",
+    "Revenue",
+    "Feedback",
+    "Workflow",
+    "Support",
+    "Roadmap",
+    "Insights",
+    "Docs",
+    "Pipeline",
+    "Uptime",
+  ]
+
+  return Array.from({ length: resolveGeneratedProductCount() }, (_, index) => {
+    const number = index + 1
+    const paddedNumber = String(number).padStart(3, "0")
+    const descriptor = descriptors[index % descriptors.length]
+    const noun = nouns[Math.floor(index / descriptors.length) % nouns.length]
+    const name = `${noun} ${descriptor} ${paddedNumber}`
+    const publishedDaysAgo = generatedPublishedDaysAgo(index)
+    const pricingModel = pricingModels[index % pricingModels.length]
+    const isPaid =
+      pricingModel === PricingModel.subscription ||
+      pricingModel === PricingModel.one_time
+
+    return {
+      slug: `dev-launch-${paddedNumber}`,
+      name,
+      tagline: `A seeded ${noun.toLowerCase()} tool for testing large homepage launch feeds.`,
+      description: `${name} is a generated development product used to exercise homepage pagination, launch sections, analytics, and cache behavior at realistic scale.`,
+      websiteUrl: `https://dev-launch-${paddedNumber}.localhost`,
+      logo: logos[index % logos.length],
+      bannerImage: banners[index % banners.length],
+      type: productTypes[index % productTypes.length],
+      pricingModel,
+      status: ProductStatus.published,
+      startingPriceCents: isPaid ? 900 + (index % 12) * 500 : null,
+      currencyCode: "USD",
+      keywords: [
+        noun.toLowerCase(),
+        descriptor.toLowerCase(),
+        "dev-seed",
+        "homepage-scale",
+      ],
+      platforms:
+        index % 7 === 0 ? [Platform.web, Platform.mac] : [Platform.web],
+      userEmail: users[index % users.length],
+      categorySlug: categories[index % categories.length],
+      planSlug: null,
+      createdDaysAgo: publishedDaysAgo + 7 + (index % 21),
+      publishedDaysAgo,
+      upvoteBase: 5 + ((index * 7) % 95),
+      verified: index % 3 !== 0,
+      backlinkVerified: index % 5 === 0,
+    }
+  })
+}
+
+const devProducts: DevProductSeed[] = [
+  ...baseDevProducts,
+  ...generatedDevProducts(),
 ]
 
 async function seedReferenceData(prisma: PrismaClient) {
@@ -427,7 +835,12 @@ async function upsertDevUsers(prisma: PrismaClient, today: Date) {
     }
   }
 
-  console.table(rows)
+  if (rows.length > 50) {
+    console.table(rows.slice(0, 25))
+    console.info(`Seeded ${rows.length} products total.`)
+  } else {
+    console.table(rows)
+  }
 }
 
 function buildProductData(
@@ -444,9 +857,17 @@ function buildProductData(
   if (seed.planSlug && !planId)
     throw new Error(`Missing plan '${seed.planSlug}'`)
 
-  const createdAt = daysAgo(today, seed.createdDaysAgo)
+  const publishedDaysAgo =
+    seed.status === ProductStatus.published
+      ? (seed.publishedDaysAgo ?? 0)
+      : null
+  const createdDaysAgo =
+    publishedDaysAgo === null
+      ? seed.createdDaysAgo
+      : Math.max(seed.createdDaysAgo, publishedDaysAgo + 1)
+  const createdAt = daysAgo(today, createdDaysAgo)
   const publishedAt =
-    seed.status === ProductStatus.published ? addUtcDays(createdAt, 1) : null
+    publishedDaysAgo === null ? null : daysAgo(today, publishedDaysAgo)
 
   return {
     name: seed.name,
@@ -470,7 +891,10 @@ function buildProductData(
     keywords: seed.keywords,
     platforms: seed.platforms,
     createdAt,
-    updatedAt: addUtcDays(createdAt, Math.min(seed.createdDaysAgo, 3)),
+    updatedAt:
+      publishedAt && publishedAt > createdAt
+        ? publishedAt
+        : addUtcDays(createdAt, Math.min(createdDaysAgo, 3)),
   }
 }
 
@@ -561,7 +985,12 @@ async function upsertDevProducts(
     })
   }
 
-  console.table(rows)
+  if (rows.length > 50) {
+    console.table(rows.slice(0, 25))
+    console.info(`Seeded ${rows.length} products total.`)
+  } else {
+    console.table(rows)
+  }
 }
 
 async function resetProductDecorations(
@@ -983,228 +1412,254 @@ async function seedTraffic(
     }),
   ])
 
-  const productDaily: Prisma.ProductTrafficDailyCreateManyInput[] = []
-  const productReferrers: Prisma.ProductTrafficReferrerDailyCreateManyInput[] =
-    []
-  const productChannels: Prisma.ProductTrafficChannelDailyCreateManyInput[] = []
-  const productBrowsers: Prisma.ProductTrafficBrowserDailyCreateManyInput[] = []
-  const productOs: Prisma.ProductTrafficOperatingSystemDailyCreateManyInput[] =
-    []
-  const productDevices: Prisma.ProductTrafficDeviceDailyCreateManyInput[] = []
-  const productCountries: Prisma.ProductTrafficCountryDailyCreateManyInput[] =
-    []
-  const productCities: Prisma.ProductTrafficCityDailyCreateManyInput[] = []
-
   const siteDailyByDate = new Map<string, SiteTrafficTotals>()
+  const productEntries = devProducts.flatMap((product) => {
+    const productId = productIdBySlug.get(product.slug)
+    return productId ? [{ product, productId }] : []
+  })
+  const productChunkSize = 50
 
-  for (let index = 0; index < 60; index += 1) {
-    const date = addUtcDays(windowStart, index)
-    const dateKey = date.toISOString()
+  for (
+    let chunkStart = 0;
+    chunkStart < productEntries.length;
+    chunkStart += productChunkSize
+  ) {
+    const productDaily: Prisma.ProductTrafficDailyCreateManyInput[] = []
+    const productReferrers: Prisma.ProductTrafficReferrerDailyCreateManyInput[] =
+      []
+    const productChannels: Prisma.ProductTrafficChannelDailyCreateManyInput[] =
+      []
+    const productBrowsers: Prisma.ProductTrafficBrowserDailyCreateManyInput[] =
+      []
+    const productOs: Prisma.ProductTrafficOperatingSystemDailyCreateManyInput[] =
+      []
+    const productDevices: Prisma.ProductTrafficDeviceDailyCreateManyInput[] = []
+    const productCountries: Prisma.ProductTrafficCountryDailyCreateManyInput[] =
+      []
+    const productCities: Prisma.ProductTrafficCityDailyCreateManyInput[] = []
+    const productChunk = productEntries.slice(
+      chunkStart,
+      chunkStart + productChunkSize,
+    )
 
-    for (const product of devProducts) {
-      const productId = productIdBySlug.get(product.slug)
-      if (!productId) continue
-      const metrics = productTrafficForDay(product, index)
+    for (let index = 0; index < 60; index += 1) {
+      const date = addUtcDays(windowStart, index)
+      const dateKey = date.toISOString()
 
-      productDaily.push({
-        productId,
-        date,
-        source: AnalyticsDataSource.ga4,
-        ...metrics,
-      })
+      for (const { product, productId } of productChunk) {
+        const metrics = productTrafficForDay(product, index)
 
-      productReferrers.push(
-        {
+        productDaily.push({
           productId,
           date,
           source: AnalyticsDataSource.ga4,
-          referrer: "google.com",
-          pageViews: Math.round(metrics.pageViews * 0.36),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          referrer: "x.com",
-          pageViews: Math.round(metrics.pageViews * 0.18),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          referrer: "(direct)",
-          pageViews: Math.round(metrics.pageViews * 0.24),
-        },
-      )
+          ...metrics,
+        })
 
-      productChannels.push(
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          channel: "Organic Search",
-          pageViews: Math.round(metrics.pageViews * 0.42),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          channel: "Social",
-          pageViews: Math.round(metrics.pageViews * 0.22),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          channel: "Direct",
-          pageViews: Math.round(metrics.pageViews * 0.26),
-        },
-      )
+        productReferrers.push(
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            referrer: "google.com",
+            pageViews: Math.round(metrics.pageViews * 0.36),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            referrer: "x.com",
+            pageViews: Math.round(metrics.pageViews * 0.18),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            referrer: "(direct)",
+            pageViews: Math.round(metrics.pageViews * 0.24),
+          },
+        )
 
-      productBrowsers.push(
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          browser: "Chrome",
-          visitors: Math.round(metrics.uniqueVisitors * 0.58),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          browser: "Safari",
-          visitors: Math.round(metrics.uniqueVisitors * 0.27),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          browser: "Firefox",
-          visitors: Math.round(metrics.uniqueVisitors * 0.11),
-        },
-      )
+        productChannels.push(
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            channel: "Organic Search",
+            pageViews: Math.round(metrics.pageViews * 0.42),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            channel: "Social",
+            pageViews: Math.round(metrics.pageViews * 0.22),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            channel: "Direct",
+            pageViews: Math.round(metrics.pageViews * 0.26),
+          },
+        )
 
-      productOs.push(
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          operatingSystem: "macOS",
-          visitors: Math.round(metrics.uniqueVisitors * 0.43),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          operatingSystem: "Windows",
-          visitors: Math.round(metrics.uniqueVisitors * 0.31),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          operatingSystem: "iOS",
-          visitors: Math.round(metrics.uniqueVisitors * 0.16),
-        },
-      )
+        productBrowsers.push(
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            browser: "Chrome",
+            visitors: Math.round(metrics.uniqueVisitors * 0.58),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            browser: "Safari",
+            visitors: Math.round(metrics.uniqueVisitors * 0.27),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            browser: "Firefox",
+            visitors: Math.round(metrics.uniqueVisitors * 0.11),
+          },
+        )
 
-      productDevices.push(
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          deviceCategory: "desktop",
-          visitors: Math.round(metrics.uniqueVisitors * 0.62),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          deviceCategory: "mobile",
-          visitors: Math.round(metrics.uniqueVisitors * 0.32),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          deviceCategory: "tablet",
-          visitors: Math.round(metrics.uniqueVisitors * 0.06),
-        },
-      )
+        productOs.push(
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            operatingSystem: "macOS",
+            visitors: Math.round(metrics.uniqueVisitors * 0.43),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            operatingSystem: "Windows",
+            visitors: Math.round(metrics.uniqueVisitors * 0.31),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            operatingSystem: "iOS",
+            visitors: Math.round(metrics.uniqueVisitors * 0.16),
+          },
+        )
 
-      productCountries.push(
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          country: "United States",
-          countryCode: "US",
-          visitors: Math.round(metrics.uniqueVisitors * 0.45),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          country: "India",
-          countryCode: "IN",
-          visitors: Math.round(metrics.uniqueVisitors * 0.25),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          country: "United Kingdom",
-          countryCode: "GB",
-          visitors: Math.round(metrics.uniqueVisitors * 0.12),
-        },
-      )
+        productDevices.push(
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            deviceCategory: "desktop",
+            visitors: Math.round(metrics.uniqueVisitors * 0.62),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            deviceCategory: "mobile",
+            visitors: Math.round(metrics.uniqueVisitors * 0.32),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            deviceCategory: "tablet",
+            visitors: Math.round(metrics.uniqueVisitors * 0.06),
+          },
+        )
 
-      productCities.push(
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          city: "San Francisco",
-          region: "California",
-          country: "United States",
-          countryCode: "US",
-          visitors: Math.round(metrics.uniqueVisitors * 0.18),
-        },
-        {
-          productId,
-          date,
-          source: AnalyticsDataSource.ga4,
-          city: "Bengaluru",
-          region: "Karnataka",
-          country: "India",
-          countryCode: "IN",
-          visitors: Math.round(metrics.uniqueVisitors * 0.14),
-        },
-      )
+        productCountries.push(
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            country: "United States",
+            countryCode: "US",
+            visitors: Math.round(metrics.uniqueVisitors * 0.45),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            country: "India",
+            countryCode: "IN",
+            visitors: Math.round(metrics.uniqueVisitors * 0.25),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            country: "United Kingdom",
+            countryCode: "GB",
+            visitors: Math.round(metrics.uniqueVisitors * 0.12),
+          },
+        )
 
-      const siteMetrics = siteDailyByDate.get(dateKey) ?? {
-        pageViews: 180,
-        uniqueVisitors: 92,
-        sessions: 120,
-        bounceRate: 0,
-        averageSessionDuration: 0,
-        newUsers: 48,
-        returningVisitors: 44,
-        engagementRate: 0,
-        pagesPerSession: 0,
+        productCities.push(
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            city: "San Francisco",
+            region: "California",
+            country: "United States",
+            countryCode: "US",
+            visitors: Math.round(metrics.uniqueVisitors * 0.18),
+          },
+          {
+            productId,
+            date,
+            source: AnalyticsDataSource.ga4,
+            city: "Bengaluru",
+            region: "Karnataka",
+            country: "India",
+            countryCode: "IN",
+            visitors: Math.round(metrics.uniqueVisitors * 0.14),
+          },
+        )
+
+        const siteMetrics = siteDailyByDate.get(dateKey) ?? {
+          pageViews: 180,
+          uniqueVisitors: 92,
+          sessions: 120,
+          bounceRate: 0,
+          averageSessionDuration: 0,
+          newUsers: 48,
+          returningVisitors: 44,
+          engagementRate: 0,
+          pagesPerSession: 0,
+        }
+        siteMetrics.pageViews += metrics.pageViews
+        siteMetrics.uniqueVisitors += metrics.uniqueVisitors
+        siteMetrics.sessions += metrics.sessions
+        siteMetrics.newUsers += metrics.newUsers
+        siteMetrics.returningVisitors += metrics.returningVisitors
+        siteMetrics.bounceRate += metrics.bounceRate * metrics.sessions
+        siteMetrics.averageSessionDuration +=
+          metrics.averageSessionDuration * metrics.sessions
+        siteMetrics.engagementRate += metrics.engagementRate * metrics.sessions
+        siteDailyByDate.set(dateKey, siteMetrics)
       }
-      siteMetrics.pageViews += metrics.pageViews
-      siteMetrics.uniqueVisitors += metrics.uniqueVisitors
-      siteMetrics.sessions += metrics.sessions
-      siteMetrics.newUsers += metrics.newUsers
-      siteMetrics.returningVisitors += metrics.returningVisitors
-      siteMetrics.bounceRate += metrics.bounceRate * metrics.sessions
-      siteMetrics.averageSessionDuration +=
-        metrics.averageSessionDuration * metrics.sessions
-      siteMetrics.engagementRate += metrics.engagementRate * metrics.sessions
-      siteDailyByDate.set(dateKey, siteMetrics)
     }
+
+    await Promise.all([
+      prisma.productTrafficDaily.createMany({ data: productDaily }),
+      prisma.productTrafficReferrerDaily.createMany({ data: productReferrers }),
+      prisma.productTrafficChannelDaily.createMany({ data: productChannels }),
+      prisma.productTrafficBrowserDaily.createMany({ data: productBrowsers }),
+      prisma.productTrafficOperatingSystemDaily.createMany({ data: productOs }),
+      prisma.productTrafficDeviceDaily.createMany({ data: productDevices }),
+      prisma.productTrafficCountryDaily.createMany({ data: productCountries }),
+      prisma.productTrafficCityDaily.createMany({ data: productCities }),
+    ])
   }
 
   const siteDaily = Array.from(siteDailyByDate.entries()).map(
@@ -1235,17 +1690,7 @@ async function seedTraffic(
     },
   )
 
-  await Promise.all([
-    prisma.productTrafficDaily.createMany({ data: productDaily }),
-    prisma.productTrafficReferrerDaily.createMany({ data: productReferrers }),
-    prisma.productTrafficChannelDaily.createMany({ data: productChannels }),
-    prisma.productTrafficBrowserDaily.createMany({ data: productBrowsers }),
-    prisma.productTrafficOperatingSystemDaily.createMany({ data: productOs }),
-    prisma.productTrafficDeviceDaily.createMany({ data: productDevices }),
-    prisma.productTrafficCountryDaily.createMany({ data: productCountries }),
-    prisma.productTrafficCityDaily.createMany({ data: productCities }),
-    prisma.siteTrafficDaily.createMany({ data: siteDaily }),
-  ])
+  await prisma.siteTrafficDaily.createMany({ data: siteDaily })
 
   const siteBreakdownRows = siteDaily.flatMap((row) => [
     {

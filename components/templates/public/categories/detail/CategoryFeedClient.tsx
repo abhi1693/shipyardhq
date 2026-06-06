@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
-import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { getCategoryProductsPage } from "@/actions/public/categories/actions"
+import {
+  buildTaxonomyProductSections,
+  TaxonomyProductSections,
+} from "@/components/templates/public/common/TaxonomyProductRows"
 
 interface CategoryFeedClientProps {
   slug: string
@@ -44,6 +46,11 @@ export function CategoryFeedClient({
         initialProducts.map((item) => item.id).join("|"),
       ].join(":"),
     [initialProducts, normalizedInitialPage, normalizedPageSize, slug],
+  )
+
+  const sections = useMemo(
+    () => buildTaxonomyProductSections(products, referenceDateIso),
+    [products, referenceDateIso],
   )
 
   useEffect(() => {
@@ -107,21 +114,24 @@ export function CategoryFeedClient({
     }
   }, [hasMore, loadMore, resetKey])
 
+  if (!products.length && !hasMore) {
+    return (
+      <div className="rounded-lg border border-[#e2e8f0] bg-white p-8 text-center text-sm text-[#43474c]">
+        No products have launched in this category yet.
+      </div>
+    )
+  }
+
   return (
-    <div className="space-y-4">
-      <ProductFeedList
-        activeFilter={DEFAULT_HOMEPAGE_FEED_VIEW}
-        items={products}
-        referenceDateIso={referenceDateIso}
-        showRemaining
-      />
+    <div className="space-y-12">
+      <TaxonomyProductSections sections={sections} />
 
       {hasMore ? (
         <div
           ref={sentinelRef}
-          className="flex justify-center py-4 text-sm text-muted-foreground"
+          className="flex justify-center py-4 text-sm text-[#43474c]"
         >
-          {isLoading ? "Loading more launches…" : "Keep scrolling for more"}
+          {isLoading ? "Loading more launches..." : "Keep scrolling for more"}
         </div>
       ) : null}
     </div>

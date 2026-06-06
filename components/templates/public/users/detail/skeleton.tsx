@@ -1,119 +1,87 @@
-import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
-import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
-import { HomepageFeedSkeleton } from "@/components/templates/public/homepage/homepage-feed-section"
 
 export function UserProfileSkeleton() {
   return (
-    <main className="relative isolate bg-[#f5f7fb]">
-      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-14 md:px-8">
-        <div className="space-y-12">
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
-            <div className="flex flex-col gap-10">
-              <HeroSkeleton />
-              <Skeleton className="h-20 rounded-3xl border border-border/40 bg-white shadow-sm" />
-              <section className="space-y-6">
-                <HomepageFeedSkeleton />
-              </section>
+    <main className="bg-[#f8f9ff] text-[#0b1c30]">
+      <div className="mx-auto max-w-[1200px] px-4 py-6 md:px-6">
+        <section className="mb-6 rounded-lg border border-[#e2e8f0] bg-white/80 p-6 shadow-sm md:p-8">
+          <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
+            <Skeleton className="h-32 w-32 rounded-lg md:h-40 md:w-40" />
+            <div className="w-full min-w-0 flex-1 space-y-5 text-center md:text-left">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center">
+                <Skeleton className="mx-auto h-10 w-64 rounded md:mx-0" />
+                <div className="flex justify-center gap-2 md:justify-start">
+                  <Skeleton className="h-7 w-24 rounded-full" />
+                  <Skeleton className="h-7 w-28 rounded-full" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full max-w-3xl rounded" />
+                <Skeleton className="h-4 w-10/12 max-w-2xl rounded" />
+                <Skeleton className="h-4 w-8/12 max-w-xl rounded" />
+              </div>
             </div>
-
-            <aside className="flex flex-col gap-8">
-              <SidebarCardSkeleton lines={4} />
-              <PromoCardSkeleton />
-              <PromoCardSkeleton subtle />
-            </aside>
           </div>
+        </section>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <div className="flex flex-col gap-6 lg:col-span-8">
+            <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="rounded-lg border border-[#e2e8f0] bg-white p-5"
+                >
+                  <Skeleton className="h-3 w-24 rounded" />
+                  <Skeleton className="mt-3 h-8 w-16 rounded" />
+                </div>
+              ))}
+            </section>
+
+            <section>
+              <div className="mb-3 flex items-center justify-between gap-4">
+                <Skeleton className="h-7 w-48 rounded" />
+                <Skeleton className="h-4 w-28 rounded" />
+              </div>
+              <div aria-hidden className="h-32 md:hidden" />
+              <div className="overflow-hidden rounded-lg border border-[#e2e8f0] bg-white">
+                <Skeleton className="h-48 w-full rounded-none" />
+                <div className="space-y-4 p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <Skeleton className="h-8 w-56 rounded" />
+                    <Skeleton className="h-8 w-20 rounded-full" />
+                  </div>
+                  <Skeleton className="h-4 w-full rounded" />
+                  <Skeleton className="h-4 w-10/12 rounded" />
+                  <div className="flex justify-between gap-4">
+                    <Skeleton className="h-7 w-40 rounded" />
+                    <Skeleton className="h-5 w-24 rounded" />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <Skeleton className="h-20 rounded-lg border border-[#e2e8f0] bg-white" />
+            <Skeleton className="h-28 rounded-lg border border-[#e2e8f0] bg-[#eff4ff]" />
+          </div>
+
+          <aside className="flex flex-col gap-6 lg:col-span-4">
+            {Array.from({ length: 2 }).map((_, index) => (
+              <section
+                key={index}
+                className="rounded-lg border border-[#e2e8f0] bg-white p-6"
+              >
+                <Skeleton className="h-5 w-32 rounded" />
+                <div className="mt-4 space-y-3">
+                  <Skeleton className="h-12 w-full rounded-lg" />
+                  <Skeleton className="h-12 w-full rounded-lg" />
+                  <Skeleton className="h-12 w-full rounded-lg" />
+                </div>
+              </section>
+            ))}
+          </aside>
         </div>
       </div>
     </main>
-  )
-}
-
-function HeroSkeleton() {
-  return (
-    <section className="relative overflow-hidden rounded-3xl border border-border bg-white p-6 shadow-sm md:p-10">
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-          <div className="flex items-start gap-5 md:items-center">
-            <Skeleton className="h-20 w-20 rounded-[1.5rem]" tone="soft" />
-            <div className="space-y-3 md:pt-1">
-              <HeadingSkeleton
-                lines={2}
-                centered={false}
-                className="max-w-xl text-gradient"
-              />
-              <Skeleton className="h-3 w-72 rounded-full" tone="muted" />
-              <Skeleton className="h-3 w-64 rounded-full" tone="muted" />
-              <Skeleton className="h-3 w-40 rounded-full" tone="brand" />
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <ButtonSkeleton
-              size="sm"
-              variant="outline"
-              labelWidth="8rem"
-              className="border-border bg-white"
-            />
-            <ButtonSkeleton
-              size="sm"
-              variant="outline"
-              labelWidth="7rem"
-              className="border-border bg-white"
-            />
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div
-              key={index}
-              className="rounded-2xl border border-border bg-white px-5 py-6 shadow-sm"
-            >
-              <Skeleton className="h-2.5 w-32 rounded-full" tone="muted" />
-              <Skeleton className="mt-4 h-6 w-20 rounded-full" tone="brand" />
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function SidebarCardSkeleton({ lines }: { lines: number }) {
-  return (
-    <section className="rounded-3xl border border-border/70 bg-background/90 p-6 shadow-sm shadow-black/5">
-      <Skeleton className="h-2.5 w-36 rounded-full" tone="muted" />
-      <div className="mt-4 space-y-2">
-        {Array.from({ length: lines }).map((_, index) => (
-          <div key={index} className="flex justify-between gap-3">
-            <Skeleton className="h-2.5 w-32 rounded-full" tone="muted" />
-            <Skeleton className="h-2 w-16 rounded-full" tone="soft" />
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-function PromoCardSkeleton({ subtle = false }: { subtle?: boolean }) {
-  return (
-    <section className="rounded-3xl border border-border bg-[color:var(--brand-1)/0.08] p-6 text-white shadow-sm">
-      <div className="space-y-4">
-        <Skeleton className="h-3 w-24 rounded-full" tone="muted" />
-        <div className="space-y-2">
-          <HeadingSkeleton lines={2} centered={false} className="text-white" />
-          <Skeleton className="h-3 w-4/5 rounded-full" tone="muted" />
-          <Skeleton className="h-3 w-3/5 rounded-full" tone="muted" />
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <ButtonSkeleton
-            size="sm"
-            labelWidth="9rem"
-            className={subtle ? "bg-white/20" : undefined}
-          />
-          <Skeleton className="h-3 w-28 rounded-full" tone="soft" />
-        </div>
-      </div>
-    </section>
   )
 }

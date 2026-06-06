@@ -22,18 +22,13 @@ export function TopPlacementCard({
   label,
   className,
   meta,
-  upvotesOverride,
-  upvotesLabel = "upvotes",
 }: {
   product: LeaderboardPlacementProduct
   rank: number
   label: string
   className?: string
   meta?: React.ReactNode
-  upvotesOverride?: number | null
-  upvotesLabel?: string
 }) {
-  const upvotes = upvotesOverride ?? product.analytics?.upvotes ?? 0
   const authorName =
     `${product.user?.firstName ?? ""} ${product.user?.lastName ?? ""}`.trim() ||
     "Unknown maker"
@@ -102,9 +97,6 @@ export function TopPlacementCard({
         </div>
 
         <div className="flex flex-col items-end gap-2 text-right">
-          <span className="inline-flex items-center justify-end gap-2 rounded-full border border-[color:var(--brand-1)/0.28] bg-[color:var(--brand-1)/0.12] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
-            {upvotes.toLocaleString()} {upvotesLabel}
-          </span>
           <div className="text-[11px] font-semibold uppercase tracking-[0.26em] text-muted-foreground">
             Maker
           </div>

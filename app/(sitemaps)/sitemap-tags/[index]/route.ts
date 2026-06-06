@@ -1,6 +1,4 @@
-import {
-  getKeywordTagSitemapChunk,
-} from "@/actions/public/tags/actions"
+import { getKeywordTagSitemapChunk } from "@/actions/public/tags/actions"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 
 export const dynamic = "force-dynamic"

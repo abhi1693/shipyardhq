@@ -20,7 +20,11 @@ describe("stable random helpers", () => {
     ] as const
 
     const first = pickWeightedBySeed(items, "daily-seed", (item) => item.weight)
-    const second = pickWeightedBySeed(items, "daily-seed", (item) => item.weight)
+    const second = pickWeightedBySeed(
+      items,
+      "daily-seed",
+      (item) => item.weight,
+    )
 
     expect(first).toBe(second)
     expect(items).toContain(first)

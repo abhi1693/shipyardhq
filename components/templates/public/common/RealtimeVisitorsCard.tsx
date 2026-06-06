@@ -18,7 +18,7 @@ export function RealtimeVisitorsCard({
   className?: string
   intervalMs?: number
 }) {
-  const [value, setValue] = useState(initialValue)
+  const [value, setValue] = useState(Math.max(1, initialValue))
   const { ref: containerRef, isActive } = useVisibilityGate<HTMLDivElement>()
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export function RealtimeVisitorsCard({
         if (!res.ok) return
         const data = (await res.json()) as { visitors?: number }
         if (!canceled && typeof data?.visitors === "number") {
-          setValue(data.visitors)
+          setValue(Math.max(1, data.visitors))
         }
       } catch {
         // swallow errors; we'll try again on next interval

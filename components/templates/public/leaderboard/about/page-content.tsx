@@ -1,420 +1,340 @@
 import Link from "next/link"
+import {
+  Award,
+  BarChart3,
+  CheckCircle,
+  Clock,
+  RefreshCw,
+  RotateCw,
+  Scale,
+  ShieldCheck,
+  Star,
+  Zap,
+} from "lucide-react"
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/atoms/accordion"
 import { Button } from "@/components/atoms/button"
+import { Card, CardContent } from "@/components/atoms/card"
+import { Image } from "@/components/atoms/image"
 import {
   LEADERBOARD_PATH,
-  LEADERBOARD_MONTHLY_PATH,
-  LEADERBOARD_GUIDE_PATH,
+  MEMBER_PRODUCTS_ADD_PATH,
   PRICING_PATH,
 } from "@/lib/routes"
-import { cn } from "@/lib/utils"
-import { CalendarRange, LineChart, Sparkles, Trophy } from "lucide-react"
 
-const HERO_HIGHLIGHTS = [
+const SCORE_INPUTS = [
   {
-    title: "Live leaderboard",
+    title: "Weighted Inputs",
     detail:
-      "Ranks published products as new traffic and upvotes land. Scores refresh whenever we log visits or votes for a listing.",
-    icon: Trophy,
+      "Upvotes from active Shipyard members carry the strongest weight in the ranking model.",
+    icon: BarChart3,
   },
   {
-    title: "Visibility signals",
+    title: "No Paid Shortcuts",
     detail:
-      "Ranks respond to product page traffic, unique visitors, and community support.",
-    icon: Sparkles,
+      "We filter bots and synthetic traffic with velocity checks before it can affect rank.",
+    icon: ShieldCheck,
   },
   {
-    title: "Monthly rankings",
+    title: "Real-time Logic",
     detail:
-      "Resets on the first UTC day each month to spotlight fresh launches. Historical snapshots live in the monthly archive.",
-    icon: CalendarRange,
+      "Leaderboard ranks recalculate as votes and product traffic events are recorded.",
+    icon: RotateCw,
   },
   {
-    title: "Transparent scoring",
+    title: "Fair Tie Handling",
     detail:
-      "Weights monthly upvotes, unique visitors, and page views (10:3:1) so you can see which products are converting attention into fans.",
-    icon: LineChart,
+      "Ties are broken by upvotes, unique visitors, page views, and deterministic product order.",
+    icon: Scale,
   },
 ]
 
-const SCORE_FACTS = [
+const RANKING_CADENCE = [
   {
-    heading: "Weighted monthly inputs",
-    copy: "Scores are recalculated off three signals inside the current calendar month: upvotes × 10, unique visitors × 3, and page views × 1. Traffic comes from product page views and unique visitors, and we only consider published listings.",
+    title: "Daily Momentum",
+    detail:
+      "The trending view highlights products gaining the most velocity in the current window.",
+    icon: Clock,
   },
   {
-    heading: "No paid shortcuts",
-    copy: "After base points are calculated, ties are resolved by upvotes, unique visitors, page views, and product ID for deterministic ordering.",
+    title: "Monthly Reset",
+    detail:
+      "Main scores reset on the first UTC day of every month to keep competition fresh.",
+    icon: RefreshCw,
   },
   {
-    heading: "Real-time recalculation",
-    copy: "When a member upvotes or we capture a product traffic event, we rerun the leaderboard window up to that moment and revalidate caches so ranks reflect the latest activity.",
-  },
-  {
-    heading: "Fair tie handling",
-    copy: "If scores match, we compare monthly upvotes first, then unique visitors, then page views. If everything is still tied, we sort by product ID to keep the board deterministic.",
+    title: "Top Placement",
+    detail:
+      "Top monthly ships receive permanent badges and featured placement opportunities.",
+    icon: Award,
   },
 ]
 
-const RANKING_EVENTS = [
-  {
-    title: "Daily cadence",
-    detail:
-      "The public leaderboard is effectively live. It revalidates each time a product gains an upvote or logs new traffic.",
-    icon: Sparkles,
-  },
-  {
-    title: "Monthly reset",
-    detail:
-      "On day one of every month we archive the previous standings, seed monthly placements, and clear the slate so new launches can shine.",
-    icon: CalendarRange,
-  },
-  {
-    title: "Top placement cards",
-    detail:
-      "The first three products receive hero cards across the leaderboard and marketing surfaces. That’s why the weighting favors quick momentum.",
-    icon: Trophy,
-  },
+const BOOST_FEATURES = [
+  "Sponsored Featured slot for high-intent discovery",
+  "Category-specific Spotlight Bundle",
+  "Direct access to Shipyard investor and builder surfaces",
 ]
 
 export const LEADERBOARD_FAQ = [
   {
-    q: "Where do upvotes come from?",
-    a: "Any signed-in member can cast a single upvote per product. Votes are permanent; monthly tallies only increase as new fans arrive, and we refresh scores right after each new vote.",
+    q: "How do I enter my product?",
+    a: "Use the Ship Product flow to submit a published product with a live URL. Once approved, the product can receive traffic, upvotes, and leaderboard points.",
   },
   {
-    q: "Do private drafts count?",
-    a: "Draft listings stay invisible and never influence the leaderboard. Only published products accumulate votes and appear in the ranks.",
+    q: "Can I lose my ranking?",
+    a: "Yes. Rankings update as the month progresses, so products can move down if their momentum slows or if another launch earns stronger community and traffic signals.",
   },
   {
-    q: "How can I improve my position?",
-    a: "Keep your listing current, re-engage your audience with updates, and encourage happy users to upvote. Featuring your product unlocks additional spotlight placements.",
+    q: "What are the rewards for ranking #1?",
+    a: "Top products receive leaderboard recognition, permanent badges, and eligibility for featured Shipyard placements and community callouts.",
   },
 ]
 
+function MetricCard({
+  title,
+  detail,
+  icon: Icon,
+}: {
+  title: string
+  detail: string
+  icon: typeof BarChart3
+}) {
+  return (
+    <Card className="rounded-lg border-[#E2E8F0] bg-white p-0 shadow-none transition-all hover:-translate-y-1 hover:shadow-md">
+      <CardContent className="p-6">
+        <Icon className="mb-4 size-8 text-[#0051d5]" aria-hidden />
+        <h3 className="mb-2 text-[18px] font-semibold leading-6 text-[#0b1c30]">
+          {title}
+        </h3>
+        <p className="text-[14px] leading-5 text-[#43474c]">{detail}</p>
+      </CardContent>
+    </Card>
+  )
+}
+
+function CadenceItem({
+  title,
+  detail,
+  icon: Icon,
+}: {
+  title: string
+  detail: string
+  icon: typeof Clock
+}) {
+  return (
+    <div className="flex items-start gap-4">
+      <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-[#061d31] text-white">
+        <Icon className="size-5" aria-hidden />
+      </div>
+      <div>
+        <h4 className="mb-2 text-[18px] font-semibold leading-6 text-[#0b1c30]">
+          {title}
+        </h4>
+        <p className="text-[14px] leading-5 text-[#43474c]">{detail}</p>
+      </div>
+    </div>
+  )
+}
+
 export function LeaderboardGuidePageContent() {
   return (
-    <main className="relative isolate overflow-hidden bg-white">
-      <section className="py-24 lg:py-28">
-        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <div className="relative mx-auto flex flex-col gap-12 lg:flex-row lg:items-center">
-            <div className="flex-1 space-y-6">
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.4] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2-text,#0a5678)] shadow-[0_18px_40px_-30px_rgba(7,58,104,0.45)] backdrop-blur">
-                Leaderboard playbook
-              </span>
-              <h1 className="text-4xl font-semibold tracking-tight text-[color:var(--brand-1)] md:text-5xl">
-                Master the scoring system that spotlights ShipYardHQ builders.
-              </h1>
-              <p className="max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-                Learn how live rankings, monthly resets, and our score formula
-                work together so you can plan launches that climb the
-                rankings—and stay there.
-              </p>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-                <Button
-                  asChild
-                  size="lg"
-                  className="shadow-[0_24px_60px_-35px_rgba(7,58,104,0.55)]"
-                >
-                  <Link href={LEADERBOARD_PATH}>View live leaderboard</Link>
-                </Button>
-                <Button
-                  asChild
-                  size="lg"
-                  variant="outline"
-                  className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)] shadow-[0_20px_50px_-32px_rgba(7,58,104,0.65)]"
-                >
-                  <Link href={LEADERBOARD_MONTHLY_PATH}>
-                    Browse monthly champions
-                  </Link>
-                </Button>
-              </div>
-            </div>
+    <main className="bg-[#f8f9ff] px-6 pb-16 text-[#0b1c30]">
+      <div className="mx-auto max-w-[1200px]">
+        <section className="mx-auto max-w-3xl py-16 text-center md:py-24">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#d3e4fe] px-3 py-1 text-[#0051d5]">
+            <Star className="size-[18px] fill-current" aria-hidden />
+            <span className="text-[12px] font-semibold uppercase leading-4 tracking-[0.05em]">
+              Shipyard Pro Performance
+            </span>
+          </div>
+          <h1 className="mb-6 text-[32px] font-bold leading-10 tracking-[-0.02em] text-black">
+            The Leaderboard Playbook
+          </h1>
+          <p className="mb-10 text-[16px] leading-6 text-[#43474c]">
+            Shipyard HQ&apos;s Leaderboard is the definitive engine for product
+            discovery. We&apos;ve designed a high-performance system that
+            rewards quality, consistency, and genuine community engagement.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button
+              asChild
+              className="h-12 rounded-lg border-0 bg-black px-8 text-[18px] font-semibold leading-6 text-white shadow-none hover:bg-black/90"
+            >
+              <Link href={LEADERBOARD_PATH}>Enter Leaderboard</Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="h-12 rounded-lg border-[#74777d] bg-transparent px-8 text-[18px] font-semibold leading-6 text-[#0b1c30] shadow-none hover:bg-[#eff4ff]"
+            >
+              <a href="#rules">View Rules</a>
+            </Button>
+          </div>
+        </section>
 
-            <div className="flex-1 space-y-4">
-              {HERO_HIGHLIGHTS.map(({ title, detail, icon: Icon }) => (
-                <div
-                  key={title}
-                  className="group relative overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.12] bg-white/90 p-6 shadow-[0_30px_70px_-40px_rgba(7,58,104,0.55)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_32px_80px_-36px_rgba(7,78,134,0.65)]"
-                >
-                  <div className="absolute inset-0 -z-10 bg-[color:var(--brand-1)/0.06] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="flex items-start gap-4">
-                    {Icon ? (
-                      <span className="rounded-2xl border border-[color:var(--brand-1)/0.15] bg-[color:var(--brand-1)/0.08] p-3 text-[color:var(--brand-1)]">
-                        <Icon className="h-5 w-5" />
-                      </span>
-                    ) : null}
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--brand-1)]">
-                        {title}
-                      </p>
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                        {detail}
-                      </p>
-                    </div>
+        <section id="rules" className="mb-6">
+          <div className="relative mb-6 overflow-hidden rounded-xl border border-[#061d31] bg-[linear-gradient(135deg,#061d31_0%,#000000_100%)] p-6 text-white shadow-[0_0_20px_rgba(192,255,0,0.1)] md:p-10">
+            <div className="relative z-10">
+              <h2 className="mb-4 text-[12px] font-semibold uppercase leading-4 tracking-widest text-[#C0FF00]">
+                The Performance Algorithm
+              </h2>
+              <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
+                <div className="text-left">
+                  <p className="mb-2 text-[28px] font-bold leading-10 tracking-[-0.02em] md:text-[32px]">
+                    Score = <span className="text-[#C0FF00]">(U x 10)</span> +{" "}
+                    <span className="text-[#dbe1ff]">(V x 3)</span> +{" "}
+                    <span className="text-[#c4c6cd]">P</span>
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-4 text-[12px] font-semibold uppercase leading-4 tracking-[0.05em] text-white/70">
+                    <span>U = Monthly Upvotes</span>
+                    <span>V = Unique Visitors</span>
+                    <span>P = Page Views</span>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 lg:py-24">
-        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <div className="mx-auto max-w-5xl space-y-12">
-            <div className="space-y-3 text-center">
-              <h2 className="text-2xl font-semibold tracking-tight text-slate-900 md:text-[32px]">
-                The score formula
-              </h2>
-              <p className="mx-auto max-w-2xl text-base text-muted-foreground md:text-lg">
-                ShipYardHQ balances short-term hype with long-term love. Use
-                this simple formula to explain your position to teammates and
-                investors.
-              </p>
-            </div>
-
-            <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
-              <div className="relative overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.18] bg-white/95 p-8 shadow-[0_32px_90px_-48px_rgba(7,78,134,0.6)] backdrop-blur">
-                <div className="absolute inset-0 -z-10 bg-[color:var(--brand-1)/0.06]" />
-                <p className="font-mono text-xs uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
-                  Score calculation
-                </p>
-                <p className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">
-                  Score ={" "}
-                  <span className="text-[color:var(--brand-1)]">
-                    (monthly upvotes × 10)
-                  </span>{" "}
-                  + (unique visitors × 3) + monthly page views
-                </p>
-                <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-                  All inputs reset on the first UTC day of the month. Upvotes
-                  are permanent and counted once per member, so this month’s
-                  score only rises as new fans arrive. Traffic comes from page
-                  views and unique visitors for each product page.
-                </p>
-                <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-[color:var(--brand-1)/0.12] bg-background/80 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
-                      Upvotes lead
-                    </p>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Each new upvote this month adds 10 points, making
-                      community enthusiasm the strongest driver of rank.
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-[color:var(--brand-1)/0.12] bg-background/80 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
-                      Traffic keeps pace
-                    </p>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Unique visitors (×3) and page views (×1) capture ongoing
-                      discovery, rewarding listings that convert attention into
-                      upvotes.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-5">
-                {SCORE_FACTS.map((fact, index) => (
-                  <div
-                    key={fact.heading}
-                    className={cn(
-                      "rounded-3xl border border-[color:var(--brand-1)/0.12] bg-white/92 p-6 shadow-[0_24px_60px_-42px_rgba(7,58,104,0.55)] backdrop-blur transition-transform duration-200 hover:-translate-y-1",
-                      index === 0 && "bg-[color:var(--brand-1)/0.06]",
-                    )}
-                  >
-                    <h3 className="text-base font-semibold text-slate-900">
-                      {fact.heading}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      {fact.copy}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 lg:py-24">
-        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <div className="mx-auto max-w-5xl space-y-12">
-            <div className="space-y-3 text-center">
-              <h2 className="text-2xl font-semibold tracking-tight text-slate-900 md:text-[32px]">
-                Ranking cadence
-              </h2>
-              <p className="mx-auto max-w-2xl text-base text-muted-foreground md:text-lg">
-                Scores shift frequently. Here’s what triggers an update and how
-                to plan around each event.
-              </p>
-            </div>
-
-            <div className="relative grid gap-6 lg:grid-cols-3">
-              <div className="pointer-events-none absolute left-1/2 top-10 hidden h-[1px] w-full -translate-x-1/2 bg-[color:var(--brand-1)/0.25] lg:block" />
-              {RANKING_EVENTS.map(({ title, detail, icon: Icon }, index) => (
-                <div
-                  key={title}
-                  className={cn(
-                    "relative flex h-full flex-col gap-3 rounded-3xl border border-[color:var(--brand-1)/0.12] bg-white/92 p-6 shadow-[0_28px_70px_-46px_rgba(7,78,134,0.6)] backdrop-blur transition-transform duration-200 hover:-translate-y-1",
-                    index === 1 && "bg-[color:var(--brand-1)/0.06]",
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    {Icon ? (
-                      <span className="rounded-2xl border border-[color:var(--brand-1)/0.15] bg-[color:var(--brand-1)/0.08] p-3 text-[color:var(--brand-1)]">
-                        <Icon className="h-5 w-5" />
-                      </span>
-                    ) : null}
-                    <h3 className="text-base font-semibold text-slate-900">
-                      {title}
-                    </h3>
-                  </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {detail}
+                <div className="hidden h-24 w-px bg-[#71869e] lg:block" />
+                <div className="text-center md:text-right">
+                  <p className="max-w-xs text-[14px] italic leading-5 text-[#71869e]">
+                    &quot;Our formula prioritizes intentional community support
+                    over passive traffic spikes.&quot;
                   </p>
                 </div>
+              </div>
+            </div>
+            <div className="absolute -bottom-20 -right-20 size-64 bg-[#0051d5] opacity-10 blur-[100px]" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {SCORE_INPUTS.map((item) => (
+              <MetricCard key={item.title} {...item} />
+            ))}
+          </div>
+        </section>
+
+        <section className="border-t border-[#E2E8F0] py-16">
+          <h2 className="mb-10 text-[24px] font-semibold leading-8 tracking-[-0.01em] text-[#0b1c30]">
+            Ranking Cadence
+          </h2>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            {RANKING_CADENCE.map((item) => (
+              <CadenceItem key={item.title} {...item} />
+            ))}
+          </div>
+        </section>
+
+        <section className="mb-6 flex flex-col items-center gap-12 rounded-xl border border-[#c4c6cd] bg-[#eff4ff] p-6 md:flex-row md:p-8">
+          <div className="w-full md:w-1/2">
+            <h2 className="mb-4 text-[32px] font-bold leading-10 tracking-[-0.02em] text-[#0b1c30]">
+              Ready to climb higher?
+            </h2>
+            <p className="mb-6 text-[16px] leading-6 text-[#43474c]">
+              Sometimes organic growth needs a catalyst. Boost your visibility
+              with curated placements designed for high conversion.
+            </p>
+            <ul className="mb-8 space-y-4">
+              {BOOST_FEATURES.map((feature) => (
+                <li key={feature} className="flex items-center gap-3">
+                  <CheckCircle className="size-5 text-[#16a34a]" aria-hidden />
+                  <span className="text-[14px] leading-5">{feature}</span>
+                </li>
               ))}
+            </ul>
+            <div className="flex flex-wrap gap-4">
+              <Button
+                asChild
+                className="h-10 rounded-lg border-0 bg-[#0051d5] px-6 text-[12px] font-semibold uppercase leading-4 tracking-[0.05em] text-white shadow-none hover:bg-[#0051d5]/90"
+              >
+                <Link href={PRICING_PATH}>Get Spotlight</Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="h-10 rounded-lg border-[#E2E8F0] bg-white px-6 text-[12px] font-semibold uppercase leading-4 tracking-[0.05em] text-[#0b1c30] shadow-none hover:bg-[#F8FAFC]"
+              >
+                <Link href={PRICING_PATH}>Compare Plans</Link>
+              </Button>
             </div>
           </div>
-        </div>
-      </section>
 
-      <section className="py-20 lg:py-24">
-        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <div className="mx-auto max-w-5xl">
-            <div className="relative overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.2] bg-white/95 shadow-[0_34px_90px_-48px_rgba(7,78,134,0.58)]">
-              <div className="grid gap-0 md:grid-cols-[1.1fr_1fr]">
-                <div className="relative p-8 md:p-10">
-                  <div className="absolute inset-0 -z-10 bg-[color:var(--brand-1)/0.06]" />
-                  <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.2] bg-background/80 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
-                    Feature boost
-                  </div>
-                  <h3 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900">
-                    Ready to climb higher?
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                    Featured placements keep your product in the spotlight
-                    across sponsored placements and leaderboard
-                    hero cards. It’s the fastest way to convert momentum into
-                    lasting visibility.
-                  </p>
-                  <div className="mt-6 flex flex-col gap-3 text-sm text-muted-foreground">
-                    <div className="flex items-start gap-3">
-                      <span className="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full border border-[color:var(--brand-1)/0.25] bg-[color:var(--brand-1)/0.08] text-[color:var(--brand-1)]">
-                        1
-                      </span>
-                      <div>
-                        <p className="font-semibold text-slate-900">
-                          Lock in hero visibility
-                        </p>
-                        <p className="text-muted-foreground">
-                          Appear above the fold on the leaderboard and in
-                          sponsored placements to catch investors and early
-                          adopters scanning the board.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full border border-[color:var(--brand-1)/0.25] bg-[color:var(--brand-1)/0.08] text-[color:var(--brand-1)]">
-                        2
-                      </span>
-                      <div>
-                        <p className="font-semibold text-slate-900">
-                          Convert new fans faster
-                        </p>
-                        <p className="text-muted-foreground">
-                          Featured campaigns come with tailored copy support and
-                          email callouts to turn curiosity into upvotes.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+          <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-[#c4c6cd] bg-[#f8f9ff] shadow-lg md:w-1/2">
+            <Image
+              src="/analytics-1.png"
+              alt="Shipyard leaderboard interface"
+              fill
+              sizes="(min-width: 768px) 50vw, 100vw"
+              className="object-cover opacity-40 grayscale"
+            />
+            <div className="absolute inset-0 flex items-center justify-center p-6">
+              <div className="max-w-xs rounded-lg border border-[#E2E8F0] bg-white p-6 text-center shadow-xl">
+                <div className="mb-2 inline-block rounded bg-[#F97316]/10 px-2 py-1 text-[10px] font-bold uppercase text-[#F97316]">
+                  Pro Tip
                 </div>
-                <div className="relative flex flex-col justify-between border-t border-[color:var(--brand-1)/0.08] bg-[color:var(--brand-1)/0.06] p-8 md:border-l md:border-t-0">
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
-                      Spotlight bundle
-                    </p>
-                    <h4 className="mt-3 text-xl font-semibold text-slate-900">
-                      Boost the launch you care about most
-                    </h4>
-                    <ul className="mt-4 space-y-3 text-sm text-[color:var(--brand-1)]">
-                      <li className="flex items-start gap-2">
-                        <span className="mt-1 h-2 w-2 rounded-full bg-[color:var(--brand-1)]" />
-                        Homepage hero card rotation for your product
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="mt-1 h-2 w-2 rounded-full bg-[color:var(--brand-1)]" />
-                        Social shout-outs to the community
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="mt-1 h-2 w-2 rounded-full bg-[color:var(--brand-1)]" />
-                        Priority cache updates so your score shifts instantly
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="mt-6 flex flex-col items-stretch gap-3">
-                    <Button
-                      asChild
-                      size="lg"
-                      className="w-full shadow-[0_24px_70px_-44px_rgba(7,58,104,0.65)]"
-                    >
-                      <Link href={PRICING_PATH}>Compare feature boosts</Link>
-                    </Button>
-                    <Link
-                      href={LEADERBOARD_GUIDE_PATH}
-                      className="text-sm font-medium text-[color:var(--brand-1)] underline-offset-4 hover:underline"
-                    >
-                      Review the scoring guide
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 lg:py-24">
-        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <div className="mx-auto max-w-5xl">
-            <div className="grid gap-10 md:grid-cols-[0.8fr_1.2fr]">
-              <div className="space-y-4">
-                <h2 className="text-2xl font-semibold tracking-tight text-slate-900 md:text-[32px]">
-                  Frequently asked questions
-                </h2>
-                <p className="text-base text-muted-foreground md:text-lg">
-                  Still not sure how the leaderboard operates? Start here or
-                  reply to any ShipYardHQ email and our team will put together a
-                  personalized walkthrough.
+                <p className="text-[14px] font-semibold leading-5">
+                  &quot;Spotlighted ships see stronger conversion from builders
+                  already scanning the leaderboard.&quot;
                 </p>
-                <div className="hidden h-full w-px rounded-full bg-[color:var(--brand-1)/0.12] md:block" />
-              </div>
-              <div className="space-y-4">
-                {LEADERBOARD_FAQ.map((item, index) => (
-                  <div
-                    key={item.q}
-                    className={cn(
-                      "rounded-3xl border border-[color:var(--brand-1)/0.12] bg-white/92 p-6 shadow-[0_24px_60px_-44px_rgba(7,78,134,0.45)] backdrop-blur transition-transform duration-200 hover:-translate-y-1",
-                      index === 0 && "bg-[color:var(--brand-1)/0.06]",
-                    )}
-                  >
-                    <h3 className="text-base font-semibold text-slate-900">
-                      {item.q}
-                    </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                      {item.a}
-                    </p>
-                  </div>
-                ))}
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        <section className="mx-auto max-w-3xl py-16">
+          <h2 className="mb-8 text-center text-[24px] font-semibold leading-8 tracking-[-0.01em] text-[#0b1c30]">
+            Frequently Asked Questions
+          </h2>
+          <Accordion type="single" collapsible className="space-y-1">
+            {LEADERBOARD_FAQ.map((item, index) => (
+              <AccordionItem
+                key={item.q}
+                value={`faq-${index}`}
+                className="border-b border-[#E2E8F0]"
+              >
+                <AccordionTrigger className="rounded-none px-0 py-4 text-[18px] font-semibold leading-6 text-[#0b1c30] hover:bg-transparent hover:text-[#0051d5] hover:no-underline">
+                  {item.q}
+                </AccordionTrigger>
+                <AccordionContent className="px-0 pb-4 pt-0">
+                  <p className="text-[14px] leading-5 text-[#43474c]">
+                    {item.a}
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </section>
+
+        <section className="rounded-xl border border-[#E2E8F0] bg-[#061d31] p-4 text-white">
+          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+            <div className="flex items-center gap-3">
+              <div className="size-2 animate-pulse rounded-full bg-[#C0FF00]" />
+              <p className="text-[12px] font-semibold uppercase leading-4 tracking-wide">
+                Live Event: This month&apos;s leaderboard sprint is active.
+              </p>
+            </div>
+            <div className="flex items-center gap-6">
+              <Link
+                href={LEADERBOARD_PATH}
+                className="text-[12px] font-semibold uppercase leading-4 tracking-[0.05em] transition-colors hover:text-[#C0FF00]"
+              >
+                View Live Rankings
+              </Link>
+              <Button
+                asChild
+                className="h-9 rounded bg-[#C0FF00] px-4 text-[12px] font-semibold uppercase leading-4 tracking-[0.05em] text-black shadow-none hover:bg-white"
+              >
+                <Link href={MEMBER_PRODUCTS_ADD_PATH}>
+                  <Zap className="size-4" aria-hidden />
+                  Join Now
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      </div>
     </main>
   )
 }

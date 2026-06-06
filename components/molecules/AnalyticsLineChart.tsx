@@ -21,6 +21,7 @@ import {
 
 type LineChartProps = ComponentProps<typeof LineChart>
 type LineProps = Omit<ComponentProps<typeof Line>, "ref">
+type XAxisProps = ComponentProps<typeof XAxis>
 
 const defaultNumberFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
@@ -89,7 +90,7 @@ export function AnalyticsLineChart<DataPoint extends object>({
         <LineChart data={data} margin={margin}>
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
           <XAxis
-            dataKey={resolvedXKey}
+            dataKey={resolvedXKey as XAxisProps["dataKey"]}
             stroke="currentColor"
             fontSize={12}
             tickLine={false}
@@ -119,7 +120,7 @@ export function AnalyticsLineChart<DataPoint extends object>({
             <Line
               key={line.dataKey}
               type={line.type ?? "monotone"}
-              dataKey={line.dataKey}
+              dataKey={line.dataKey as LineProps["dataKey"]}
               stroke={line.stroke ?? `var(${chartKeyToCssVar(line.dataKey)})`}
               strokeWidth={line.strokeWidth ?? 2}
               dot={line.dot ?? false}

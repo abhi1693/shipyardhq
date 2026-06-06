@@ -67,21 +67,12 @@ export async function getActiveUserByClerkId(clerkId: string) {
 
         try {
           await client.del(cacheKey)
-        } catch (removeError) {
-          console.error(
-            "[userStatus] Failed to clear empty active user cache entry",
-            {
-              error: removeError,
-              clerkId,
-            },
-          )
+        } catch {
+          // Active-user cache is best-effort; Prisma remains the source of truth.
         }
       }
-    } catch (error) {
-      console.error("[userStatus] Failed to read active user cache", {
-        error,
-        clerkId,
-      })
+    } catch {
+      // Active-user cache is best-effort; fall through to Prisma.
     }
   }
 
@@ -97,11 +88,8 @@ export async function getActiveUserByClerkId(clerkId: string) {
       } else {
         await client.del(cacheKey)
       }
-    } catch (error) {
-      console.error("[userStatus] Failed to write active user cache", {
-        error,
-        clerkId,
-      })
+    } catch {
+      // Active-user cache writes are best-effort.
     }
   }
 
@@ -120,11 +108,8 @@ export async function invalidateActiveUserCache(clerkId?: string | null) {
 
   try {
     await client.del(cacheKey)
-  } catch (error) {
-    console.error("[userStatus] Failed to invalidate active user cache", {
-      error,
-      clerkId,
-    })
+  } catch {
+    // Active-user cache invalidation is best-effort.
   }
 }
 

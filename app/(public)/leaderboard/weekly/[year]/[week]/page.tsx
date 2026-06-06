@@ -47,6 +47,7 @@ export default async function WeeklyLeaderboardPage({
     period: "week",
     year: Number(year),
     week: Number(week),
+    limit: 100,
     categorySlug: sp?.category,
   })
 

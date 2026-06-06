@@ -1,33 +1,26 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { Suspense } from "react"
 import { format } from "date-fns"
+import { Award, BadgeCheck, BarChart3, ExternalLink, Star } from "lucide-react"
 
-import CopyButton from "@/components/molecules/CopyButton"
-import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
-import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
 import { StickyBanner } from "@/components/organisms/StickyBanner"
-import {
-  DirectoryHighlightsSidebar,
-  DirectoryHighlightsSidebarSkeleton,
-} from "@/components/templates/public/homepage/directory-highlights"
-import {
-  TrafficSidebarStats,
-  TrafficSidebarStatsSkeleton,
-} from "@/components/templates/public/common/TrafficSidebarStats"
-import {
-  SponsoredProductsSection,
-  SponsoredProductsSkeleton,
-} from "@/components/templates/public/homepage/sponsored-products"
 import { UserFeedClient } from "@/components/templates/public/users/detail/UserFeedClient"
-import { HERO_SECONDARY_BUTTON_CLASSES } from "@/components/templates/public/categories/hero-button-classes"
-import { LEADERBOARD_REWARDS_PATH, userPath } from "@/lib/routes"
+import { LEADERBOARD_REWARDS_PATH } from "@/lib/routes"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { getUserProfilePayload } from "@/lib/users/page-cache"
 
 interface PageProps {
   params: Promise<{ id: string }>
+}
+
+const statFormatter = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+})
+
+function formatStat(value: number) {
+  return statFormatter.format(value)
 }
 
 export async function UserProfilePageContent({ params }: PageProps) {
@@ -41,23 +34,14 @@ export async function UserProfilePageContent({ params }: PageProps) {
     leaderboardPosition,
     productsPage,
     totalProducts,
-    totalUpvotes,
     rewardPoints,
     focusCategories,
     extraCategoryCount,
     badges,
     earliestLaunch,
+    verifiedCount,
   } = payload
   const referenceDateIso = new Date().toISOString()
-
-  const leaderboardTitle =
-    leaderboardPosition && leaderboardPosition.totalEligible > 0
-      ? `Ranked #${leaderboardPosition.rank.toLocaleString(
-          "en-US",
-        )} of ${leaderboardPosition.totalEligible.toLocaleString(
-          "en-US",
-        )} eligible makers on the User Leaderboard`
-      : undefined
 
   const fullName =
     `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim() ||
@@ -73,47 +57,19 @@ export async function UserProfilePageContent({ params }: PageProps) {
     }
   }
 
-  const profilePath = userPath(profile.id)
-
-  const stats: Array<{ label: string; value?: number; display?: string }> = [
-    { label: "Published launches", value: totalProducts },
-    { label: "Community upvotes", value: totalUpvotes },
-    { label: "Reward points", value: rewardPoints },
-  ]
-  const statFormatter = new Intl.NumberFormat("en-US", {
-    notation: "compact",
-    maximumFractionDigits: 1,
-  })
-
-  const summaryParts: string[] = []
   const earliestLaunchDate = earliestLaunch ? new Date(earliestLaunch) : null
-
-  if (earliestLaunchDate) {
-    summaryParts.push(
-      `Building on Shipyard since ${format(earliestLaunchDate, "MMMM yyyy")}.`,
-    )
-  }
-  if (focusCategories.length) {
-    summaryParts.push(
-      `Focus areas: ${focusCategories.join(", ")}${
+  const memberSince = earliestLaunchDate
+    ? format(earliestLaunchDate, "MMMM yyyy")
+    : "recently"
+  const categoryLine = focusCategories.length
+    ? `${focusCategories.join(", ")}${
         extraCategoryCount ? ` (+${extraCategoryCount} more)` : ""
-      }.`,
-    )
-  }
-  const totalBadgeCount = badges.showcase.length + badges.overflow
-  if (totalBadgeCount) {
-    summaryParts.push(
-      `Earned ${totalBadgeCount} badge${totalBadgeCount === 1 ? "" : "s"} across launches.`,
-    )
-  }
-  if (!summaryParts.length) {
-    summaryParts.push(
-      totalProducts
-        ? `${fullName} is actively shipping products with the Shipyard community.`
-        : "This maker hasn’t published any products yet. Check back soon for their first launch.",
-    )
-  }
-  const profileSummary = summaryParts.join(" ")
+      }`
+    : "Product discovery"
+
+  const summary = totalProducts
+    ? `Building on Shipyard since ${memberSince}. Focus areas: ${categoryLine}. Shipping practical tools for operators, makers, and high-intent buyers.`
+    : `Building on Shipyard since ${memberSince}. This maker has not published a launch yet, but their profile is ready for the next product drop.`
 
   const initials =
     fullName
@@ -124,84 +80,96 @@ export async function UserProfilePageContent({ params }: PageProps) {
       .slice(0, 2) || "SY"
 
   const initialFeedPage = productsPage.nextPage ?? productsPage.page + 1
+  const badgeCount = badges.showcase.length + badges.overflow
+  const rankLabel = leaderboardPosition
+    ? `Rank #${leaderboardPosition.rank.toLocaleString("en-US")}`
+    : "Leaderboard ready"
 
   return (
-    <main className="relative isolate bg-[#f5f7fb]">
-      <PublicTwoColumnLayout
-        className="pb-24 pt-12"
-        mainClassName="gap-10"
-        main={
-          <>
-            <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
-              <div className="mx-auto flex max-w-4xl flex-col items-center gap-6">
-                <Avatar className="h-20 w-20 rounded-[1.5rem] bg-muted shadow-sm">
-                  {avatarUrl ? (
-                    <AvatarImage
-                      src={avatarUrl}
-                      alt={fullName}
-                      width={80}
-                      height={80}
-                      className="object-cover"
-                    />
-                  ) : null}
-                  <AvatarFallback className="flex h-full w-full items-center justify-center rounded-[inherit] bg-muted text-3xl font-semibold text-muted-foreground">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
+    <main className="bg-[#f8f9ff] text-[#0b1c30]">
+      <div className="mx-auto max-w-[1200px] px-4 py-6 md:px-6">
+        <section className="mb-6 rounded-lg border border-[#e2e8f0] bg-white/80 p-6 shadow-sm backdrop-blur md:p-8">
+          <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
+            <div className="relative shrink-0">
+              <Avatar className="h-32 w-32 rounded-lg border-4 border-white bg-[#e5eeff] shadow-xl md:h-40 md:w-40">
+                {avatarUrl ? (
+                  <AvatarImage
+                    src={avatarUrl}
+                    alt={fullName}
+                    width={160}
+                    height={160}
+                    className="object-cover"
+                  />
+                ) : null}
+                <AvatarFallback className="rounded-[inherit] bg-[#e5eeff] text-4xl font-semibold text-[#4c6077]">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute -bottom-2 -right-2 rounded-full border-2 border-white bg-[#16a34a] p-2 text-white shadow-lg">
+                <BadgeCheck className="h-4 w-4" aria-hidden />
+              </div>
+            </div>
 
-                <div className="space-y-4">
-                  <h1 className="text-4xl font-semibold leading-tight text-[color:var(--brand-1)] sm:text-5xl">
-                    {fullName}
-                  </h1>
-                  <p className="mx-auto max-w-2xl text-base text-muted-foreground">
-                    {profileSummary}
-                  </p>
+            <div className="min-w-0 flex-1 text-center md:text-left">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center">
+                <h1 className="text-3xl font-bold tracking-tight text-black md:text-4xl">
+                  {fullName}
+                </h1>
+                <div className="flex flex-wrap justify-center gap-2 md:justify-start">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#f97316]/10 px-3 py-1 text-xs font-semibold text-[#f97316]">
+                    <Star className="h-3.5 w-3.5" aria-hidden />
+                    {badgeCount ? "Top Maker" : "Maker"}
+                  </span>
                   <Link
                     href={LEADERBOARD_REWARDS_PATH}
-                    className="inline-flex items-center justify-center gap-1 text-sm font-semibold text-[color:var(--brand-1)] hover:underline"
-                    title={leaderboardTitle}
+                    className="inline-flex items-center gap-1 rounded-full bg-[#0051d5]/10 px-3 py-1 text-xs font-semibold text-[#0051d5] transition hover:bg-[#0051d5]/15"
                   >
-                    {leaderboardPosition
-                      ? `Ranked #${leaderboardPosition.rank.toLocaleString(
-                          "en-US",
-                        )} on the User Leaderboard`
-                      : "View the User Leaderboard"}
+                    <Award className="h-3.5 w-3.5" aria-hidden />
+                    {rankLabel}
                   </Link>
                 </div>
-
-                <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
-                  <CopyButton
-                    text={profilePath}
-                    resolveAbsolute
-                    size="sm"
-                    variant="outline"
-                    className={HERO_SECONDARY_BUTTON_CLASSES}
-                  >
-                    Copy profile link
-                  </CopyButton>
-                </div>
-
-                <div className="grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  {stats.map((stat) => (
-                    <div
-                      key={stat.label}
-                      className="rounded-2xl border border-border/70 bg-background/90 px-5 py-6 text-left shadow-sm shadow-black/5"
-                    >
-                      <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
-                        {stat.label}
-                      </p>
-                      <p className="mt-3 text-3xl font-semibold leading-tight text-foreground">
-                        {stat.display ?? statFormatter.format(stat.value ?? 0)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
               </div>
+
+              <p className="mt-4 max-w-3xl text-base leading-7 text-[#43474c]">
+                {summary}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <div className="flex flex-col gap-6 lg:col-span-8">
+            <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              {[
+                ["Published products", totalProducts],
+                ["Reward balance", rewardPoints],
+                ["Verified launches", verifiedCount],
+              ].map(([label, value]) => (
+                <div
+                  key={String(label)}
+                  className="rounded-lg border border-[#e2e8f0] bg-white p-5"
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#43474c]">
+                    {label}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-black">
+                    {formatStat(Number(value))}
+                  </p>
+                </div>
+              ))}
             </section>
 
-            <StickyBanner className="mx-auto w-full rounded-2xl" />
-
-            <section className="space-y-6" data-testid="user-feed-section">
+            <section data-testid="user-feed-section">
+              <div className="mb-3 flex items-center justify-between gap-4">
+                <h2 className="text-xl font-semibold text-black">
+                  Published Products
+                </h2>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#43474c]">
+                  {totalProducts.toLocaleString("en-US")} project
+                  {totalProducts === 1 ? "" : "s"} total
+                </span>
+              </div>
+              <div aria-hidden className="h-32 md:hidden" />
               <UserFeedClient
                 userId={profile.id}
                 initialItems={productsPage.items}
@@ -211,23 +179,46 @@ export async function UserProfilePageContent({ params }: PageProps) {
                 initialHasMore={productsPage.hasMore}
               />
             </section>
-          </>
-        }
-        sidebar={
-          <div className="flex flex-col gap-8">
-            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
-              <TrafficSidebarStats />
-            </Suspense>
-            <Suspense fallback={<SponsoredProductsSkeleton />}>
-              <SponsoredProductsSection />
-            </Suspense>
-            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
-              <DirectoryHighlightsSidebar />
-            </Suspense>
-            <AffiliateLinkCard />
+
+            <StickyBanner className="mx-auto w-full rounded-lg" />
           </div>
-        }
-      />
+
+          <aside className="flex flex-col gap-6 lg:col-span-4">
+            <section className="rounded-lg border border-[#e2e8f0] bg-white p-6">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#43474c]">
+                Founder pulse
+              </h3>
+              <div className="mt-4 space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="flex items-center gap-2 text-sm text-[#43474c]">
+                    <BarChart3 className="h-4 w-4 text-[#0051d5]" />
+                    Launch activity
+                  </span>
+                  <span className="text-sm font-semibold text-black">
+                    {formatStat(totalProducts)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="flex items-center gap-2 text-sm text-[#43474c]">
+                    <Award className="h-4 w-4 text-[#f97316]" />
+                    Active badges
+                  </span>
+                  <span className="text-sm font-semibold text-black">
+                    {badgeCount.toLocaleString("en-US")}
+                  </span>
+                </div>
+                <Link
+                  href={LEADERBOARD_REWARDS_PATH}
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-[#0051d5] hover:underline"
+                >
+                  View leaderboard
+                  <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                </Link>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </div>
     </main>
   )
 }

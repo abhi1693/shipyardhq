@@ -215,6 +215,32 @@ function jitterCacheKey(baseKey: string) {
   return `${baseKey}:j${CACHE_KEY_JITTER_BUCKET}`
 }
 
+type RedisClient = NonNullable<Awaited<ReturnType<typeof getRedisClient>>>
+
+async function readRedisCache(
+  redis: RedisClient,
+  key: string,
+): Promise<string | null> {
+  try {
+    return await redis.get(key)
+  } catch {
+    return null
+  }
+}
+
+async function writeRedisCache(
+  redis: RedisClient,
+  key: string,
+  value: string,
+  ttlSeconds: number,
+) {
+  try {
+    await redis.set(key, value, { EX: ttlSeconds })
+  } catch {
+    // Redis is best-effort for GA cache reads and writes.
+  }
+}
+
 function parsePositiveIntegerEnv(name: string, fallback: number): number {
   const raw = process.env[name]?.trim()
   if (!raw) return fallback
@@ -1364,7 +1390,7 @@ export async function getSiteAnalyticsSnapshot(args?: {
   let cachedPayload: SiteAnalyticsSnapshot | null = null
 
   if (redis) {
-    const cached = await redis.get(cacheKey)
+    const cached = await readRedisCache(redis, cacheKey)
     if (cached) {
       try {
         cachedPayload = JSON.parse(cached) as SiteAnalyticsSnapshot
@@ -1382,9 +1408,12 @@ export async function getSiteAnalyticsSnapshot(args?: {
       topProductLimit,
     })
     if (redis) {
-      await redis.set(cacheKey, JSON.stringify(fresh), {
-        EX: SITE_SNAPSHOT_CACHE_TTL_SECONDS,
-      })
+      await writeRedisCache(
+        redis,
+        cacheKey,
+        JSON.stringify(fresh),
+        SITE_SNAPSHOT_CACHE_TTL_SECONDS,
+      )
     }
     return fresh
   } catch (error) {
@@ -1476,7 +1505,7 @@ export async function getHomepageTrafficFromGa(): Promise<HomepageTraffic> {
   const cacheKey = jitterCacheKey(CACHE_KEY)
 
   if (redis) {
-    const cached = await redis.get(cacheKey)
+    const cached = await readRedisCache(redis, cacheKey)
     if (cached) {
       try {
         cachedPayload = JSON.parse(cached) as HomepageTraffic
@@ -1494,9 +1523,12 @@ export async function getHomepageTrafficFromGa(): Promise<HomepageTraffic> {
   try {
     const fresh = await fetchHomepageTrafficFromGa()
     if (redis) {
-      await redis.set(cacheKey, JSON.stringify(fresh), {
-        EX: CACHE_TTL_SECONDS,
-      })
+      await writeRedisCache(
+        redis,
+        cacheKey,
+        JSON.stringify(fresh),
+        CACHE_TTL_SECONDS,
+      )
     }
     return fresh
   } catch (error) {
@@ -1540,7 +1572,7 @@ export async function getRealtimeVisitorsFromGa(): Promise<number> {
   const cacheKey = jitterCacheKey(REALTIME_CACHE_KEY)
 
   if (redis) {
-    const cached = await redis.get(cacheKey)
+    const cached = await readRedisCache(redis, cacheKey)
     if (cached) {
       const parsed = Number(cached)
       if (Number.isFinite(parsed)) {
@@ -1552,9 +1584,12 @@ export async function getRealtimeVisitorsFromGa(): Promise<number> {
   try {
     const fresh = await fetchRealtimeVisitorsFromGa()
     if (redis) {
-      await redis.set(cacheKey, String(fresh), {
-        EX: REALTIME_CACHE_TTL_SECONDS,
-      })
+      await writeRedisCache(
+        redis,
+        cacheKey,
+        String(fresh),
+        REALTIME_CACHE_TTL_SECONDS,
+      )
     }
     return normalizeRealtimeVisitors(fresh)
   } catch (error) {

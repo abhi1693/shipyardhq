@@ -92,8 +92,8 @@ export function AnalyticsPieChart<DataPoint extends object>({
             />
             <Pie
               data={data}
-              dataKey={dataKey}
-              nameKey={nameKey}
+              dataKey={dataKey as PieProps["dataKey"]}
+              nameKey={nameKey as PieProps["nameKey"]}
               innerRadius={innerRadius}
               outerRadius={outerRadius}
               strokeWidth={strokeWidth}

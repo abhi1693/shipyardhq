@@ -38,6 +38,11 @@ export type AlternativeDetail = Prisma.AlternativeProductGetPayload<{
 
 export type AlternativeDetailProduct = ProductCardBase
 
+export type AlternativeMomentum = {
+  id: string
+  recentProducts: number
+}
+
 interface GetAlternativeCatalogPageOptions {
   page?: number
   pageSize?: number
@@ -100,6 +105,76 @@ export const getFeaturedAlternatives = cached(
       const take = params?.take ?? 6
       return [exclude, String(take)]
     },
+  },
+)
+
+export const getAlternativesWithCounts = cached(
+  async (): Promise<AlternativeCatalogItem[]> => {
+    const records = await prisma.alternativeProduct.findMany({
+      where: {
+        products: { some: {} },
+      },
+      orderBy: { name: "asc" },
+      include: ALTERNATIVE_CARD_INCLUDE,
+    })
+
+    return records as AlternativeCatalogItem[]
+  },
+  "alternative-products:with-counts",
+  {
+    ttl: DEFAULT_TTL.slow,
+    tags: () => [TAGS.alternativeProducts],
+  },
+)
+
+export const getAlternativeMomentumCounts = cached(
+  async (windowStart: Date): Promise<AlternativeMomentum[]> => {
+    const records = await prisma.alternativeProduct.findMany({
+      where: {
+        products: {
+          some: {
+            status: "published",
+            OR: [
+              { publishedAt: { gte: windowStart } },
+              {
+                publishedAt: null,
+                createdAt: { gte: windowStart },
+              },
+            ],
+          },
+        },
+      },
+      select: {
+        id: true,
+        _count: {
+          select: {
+            products: {
+              where: {
+                status: "published",
+                OR: [
+                  { publishedAt: { gte: windowStart } },
+                  {
+                    publishedAt: null,
+                    createdAt: { gte: windowStart },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    })
+
+    return records.map((record) => ({
+      id: record.id,
+      recentProducts: record._count.products,
+    }))
+  },
+  "alternative-products:momentum-counts",
+  {
+    ttl: DEFAULT_TTL.medium,
+    keyParts: ([windowStart]) => [windowStart.toISOString()],
+    tags: () => [TAGS.alternativeProducts, TAGS.products],
   },
 )
 

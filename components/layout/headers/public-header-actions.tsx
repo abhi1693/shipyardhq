@@ -1,14 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import Link from "next/link"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import clsx from "clsx"
-import { Show, SignOutButton, useUser } from "@clerk/nextjs"
-import { LayoutDashboard, LogOut, Menu, Rocket, UserRound } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { SignOutButton, useUser } from "@clerk/nextjs"
+import { LayoutDashboard, LogOut, UserRound } from "lucide-react"
 
 import { Button } from "@/components/atoms/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/atoms/sheet"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,298 +14,119 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/atoms/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
-import SignInCtaButton from "@/components/molecules/SignInCtaButton"
-import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import SignInButton from "@/components/molecules/SignInButton"
-import { RewardMenuItemContent } from "@/components/molecules/RewardMenuItemContent"
-import { getCurrentUserRewardBalanceAction } from "@/actions/member/rewards/get-reward-balance"
 import {
   MEMBER_ACCOUNT_PROFILE_PATH,
   MEMBER_BASE_PATH,
-  MEMBER_PRODUCTS_PATH,
-  MEMBER_REWARDS_PATH,
+  MEMBER_PRODUCTS_ADD_PATH,
 } from "@/lib/routes"
-import { publicHeaderLinks } from "./public-header-links"
+
+const fallbackAvatarUrl =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%23d3e4fe'/%3E%3Ccircle cx='32' cy='35' r='16' fill='%23c6845f'/%3E%3Cpath d='M17 30c2-12 10-18 22-15 8 2 13 9 11 18-7-7-17-8-33-3z' fill='%23231510'/%3E%3Ccircle cx='25' cy='35' r='2.2' fill='%230b1c30'/%3E%3Ccircle cx='39' cy='35' r='2.2' fill='%230b1c30'/%3E%3Cpath d='M25 46c5 4 12 4 17 0' stroke='%230b1c30' stroke-width='3' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='19' cy='39' r='4' fill='%23e2a07b'/%3E%3Ccircle cx='45' cy='39' r='4' fill='%23e2a07b'/%3E%3C/svg%3E"
+
+function getInitials(user: ReturnType<typeof useUser>["user"]) {
+  const nameInitials = user?.fullName
+    ?.split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((segment) => segment[0]?.toUpperCase() ?? "")
+    .join("")
+
+  if (nameInitials) return nameInitials
+
+  const emailInitials = user?.emailAddresses?.[0]?.emailAddress?.slice(0, 2)
+  if (emailInitials) return emailInitials.toUpperCase()
+
+  return "SY"
+}
 
 export default function PublicHeaderActions() {
-  const pathname = usePathname() ?? "/"
-  const searchParams = useSearchParams()
   const router = useRouter()
-  const { user } = useUser()
-  const [open, setOpen] = useState(false)
-  const [rewardBalance, setRewardBalance] = useState<number | null>(null)
-
-  const userInitials = (() => {
-    const nameInitials = user?.fullName
-      ?.split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((segment) => segment[0]?.toUpperCase() ?? "")
-      .join("")
-    if (nameInitials && nameInitials.length > 0) {
-      return nameInitials
-    }
-    const emailInitials = user?.emailAddresses?.[0]?.emailAddress?.slice(0, 2)
-    if (emailInitials && emailInitials.length > 0) {
-      return emailInitials.toUpperCase()
-    }
-    return "SY"
-  })()
-
-  const isActive = (href: string) => pathname === href
-
-  const searchParamsString = searchParams?.toString() ?? ""
-  const currentLocation = searchParamsString
-    ? `${pathname}?${searchParamsString}`
-    : pathname
-  const navbarAuthSearch = new URLSearchParams({
-    redirectTo: currentLocation,
-    source: "navbar",
-  }).toString()
-  const navbarAuthRedirectUrl = `${MEMBER_BASE_PATH}?${navbarAuthSearch}`
-
-  const userId = user?.id ?? null
-
-  useEffect(() => {
-    if (!userId) return undefined
-
-    let isCurrent = true
-    async function loadBalance() {
-      try {
-        const balance = await getCurrentUserRewardBalanceAction()
-        if (!isCurrent) return
-        setRewardBalance(balance)
-      } catch {
-        if (isCurrent) {
-          setRewardBalance(null)
-        }
-      }
-    }
-
-    loadBalance()
-
-    return () => {
-      isCurrent = false
-    }
-  }, [userId])
+  const { isSignedIn, user } = useUser()
+  const userInitials = getInitials(user)
+  const avatarUrl = user?.imageUrl || fallbackAvatarUrl
+  const avatarAlt = user?.fullName ?? "User profile"
 
   return (
-    <>
-      <div className="ml-auto hidden items-center gap-2 md:flex">
-        <Link
-          href={MEMBER_PRODUCTS_PATH}
-          className="hidden items-center gap-2 rounded-full border border-dashed border-border/70 bg-white px-4 py-2 text-sm font-semibold text-[color:var(--brand-1)] shadow-sm transition hover:border-border hover:bg-white/90 lg:inline-flex"
-        >
-          <Rocket className="h-4 w-4" aria-hidden="true" />
-          Submit product
-        </Link>
-        <Show when="signed-out">
-          <div className="flex items-center gap-2">
-            <SignInButton
-              mode="modal"
-              forceRedirectUrl={navbarAuthRedirectUrl}
-              signUpForceRedirectUrl={navbarAuthRedirectUrl}
-            >
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="px-4 text-sm font-semibold"
-              >
-                Log in
-              </Button>
-            </SignInButton>
-            <SignInButton
-              mode="modal"
-              forceRedirectUrl={navbarAuthRedirectUrl}
-              signUpForceRedirectUrl={navbarAuthRedirectUrl}
-            >
-              <SignInCtaButton
-                size="sm"
-                className="px-4 text-sm font-semibold"
-                label="Sign up"
-              />
-            </SignInButton>
-          </div>
-        </Show>
-        <Show when="signed-in">
-          <div className="flex items-center gap-2">
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-[30px] w-[30px] rounded-full border border-border/70 bg-white/80 p-0 shadow-sm transition hover:border-border"
-                    style={{ width: 30, height: 30 }}
-                    aria-label="Open account menu"
-                  >
-                    <Avatar className="h-full w-full">
-                      <AvatarImage
-                        src={user.imageUrl ?? ""}
-                        alt={user.fullName ?? "Account avatar"}
-                        width={30}
-                        height={30}
-                      />
-                      <AvatarFallback className="bg-muted text-xs font-semibold uppercase text-muted-foreground">
-                        {userInitials}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  sideOffset={10}
-                  className="w-52 rounded-xl border border-border/70 bg-white/95 shadow-lg"
-                >
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onSelect={(event) => {
-                      event.preventDefault()
-                      router.push(MEMBER_BASE_PATH)
-                    }}
-                  >
-                    <LayoutDashboard className="h-4 w-4" />
-                    Dashboard
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer items-start"
-                    onSelect={(event) => {
-                      event.preventDefault()
-                      router.push(MEMBER_REWARDS_PATH)
-                    }}
-                  >
-                    <RewardMenuItemContent balance={rewardBalance ?? 0} />
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onSelect={(event) => {
-                      event.preventDefault()
-                      router.push(MEMBER_ACCOUNT_PROFILE_PATH)
-                    }}
-                  >
-                    <UserRound className="h-4 w-4" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <SignOutButton>
-                    <DropdownMenuItem
-                      variant="destructive"
-                      className="cursor-pointer"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Sign out
-                    </DropdownMenuItem>
-                  </SignOutButton>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : null}
-          </div>
-        </Show>
-      </div>
+    <div className="flex items-center gap-3">
+      <Button
+        asChild
+        className="h-auto rounded-[4px] border-0 bg-black px-4 py-2 text-[12px] font-semibold leading-4 tracking-[0.05em] text-white shadow-none transition-transform hover:scale-95 hover:bg-black hover:brightness-100 hover:shadow-none active:brightness-100"
+      >
+        <Link href={MEMBER_PRODUCTS_ADD_PATH}>Ship Product</Link>
+      </Button>
 
-      <div className="flex items-center md:hidden">
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
+      {isSignedIn ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Open navigation"
-              className="rounded-full border border-border/70 bg-white/80 text-muted-foreground shadow-sm"
+              className="size-8 rounded-[12px] border border-[#E2E8F0] bg-white p-0 shadow-none hover:border-[#c4c6cd] hover:bg-white"
+              aria-label="Open account menu"
             >
-              <Menu className="h-5 w-5" />
+              <Avatar className="size-full">
+                <AvatarImage
+                  src={avatarUrl}
+                  alt={avatarAlt}
+                  width={32}
+                  height={32}
+                />
+                <AvatarFallback className="bg-[#d3e4fe] text-xs font-semibold uppercase text-[#43474c]">
+                  {userInitials}
+                </AvatarFallback>
+              </Avatar>
             </Button>
-          </SheetTrigger>
-          <SheetContent
-            side="right"
-            className="w-80 border-l border-border/60 bg-white/90 p-6 backdrop-blur supports-[backdrop-filter]:bg-white/80"
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            sideOffset={10}
+            className="w-48 rounded-xl border border-[#E2E8F0] bg-white/95 shadow-lg"
           >
-            <div className="flex flex-col gap-6">
-              <BrandWordmark compact onClick={() => setOpen(false)} />
-              <div className="space-y-3">
-                <div className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                  Navigation
-                </div>
-                <div className="flex flex-col gap-2">
-                  {publicHeaderLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setOpen(false)}
-                      className={clsx(
-                        "rounded-xl border border-border/60 px-4 py-2 text-sm font-medium transition-colors",
-                        isActive(link.href)
-                          ? "font-semibold text-black"
-                          : "bg-white/80 text-black/70 hover:bg-black/[0.04] hover:text-black",
-                      )}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-3 border-t border-border/60 pt-5">
-                <span className="block pb-1 text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                  Launch with us
-                </span>
-                <Link
-                  href={MEMBER_PRODUCTS_PATH}
-                  onClick={() => setOpen(false)}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/80 bg-white/80 px-4 py-2 text-sm font-semibold text-[color:var(--brand-1)]"
-                >
-                  <Rocket className="h-4 w-4" aria-hidden="true" />
-                  Submit product
-                </Link>
-                <Show when="signed-out">
-                  <SignInButton
-                    mode="modal"
-                    forceRedirectUrl={navbarAuthRedirectUrl}
-                    signUpForceRedirectUrl={navbarAuthRedirectUrl}
-                  >
-                    <SignInCtaButton className="w-full rounded-full" />
-                  </SignInButton>
-                </Show>
-                <Show when="signed-in">
-                  <div className="flex flex-col gap-2">
-                    <Link
-                      href={MEMBER_REWARDS_PATH}
-                      onClick={() => setOpen(false)}
-                      className="inline-flex w-full items-center rounded-xl border border-border/60 bg-white/80 px-4 py-2 text-left text-sm font-semibold text-foreground transition hover:bg-muted/60"
-                    >
-                      <RewardMenuItemContent balance={rewardBalance ?? 0} />
-                    </Link>
-                    <Link
-                      href={MEMBER_BASE_PATH}
-                      onClick={() => setOpen(false)}
-                      className="inline-flex w-full items-center justify-between rounded-xl border border-border/60 bg-white/80 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted/60"
-                    >
-                      Dashboard
-                    </Link>
-                    <Link
-                      href={MEMBER_ACCOUNT_PROFILE_PATH}
-                      onClick={() => setOpen(false)}
-                      className="inline-flex w-full items-center justify-between rounded-xl border border-border/60 bg-white/80 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted/60"
-                    >
-                      Profile
-                    </Link>
-                    <SignOutButton>
-                      <button
-                        type="button"
-                        onClick={() => setOpen(false)}
-                        className="inline-flex w-full items-center justify-center rounded-full border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm font-semibold text-destructive transition hover:bg-destructive/15"
-                      >
-                        Sign out
-                      </button>
-                    </SignOutButton>
-                  </div>
-                </Show>
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
-    </>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onSelect={(event) => {
+                event.preventDefault()
+                router.push(MEMBER_BASE_PATH)
+              }}
+            >
+              <LayoutDashboard className="size-4" />
+              Dashboard
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onSelect={(event) => {
+                event.preventDefault()
+                router.push(MEMBER_ACCOUNT_PROFILE_PATH)
+              }}
+            >
+              <UserRound className="size-4" />
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <SignOutButton>
+              <DropdownMenuItem
+                variant="destructive"
+                className="cursor-pointer"
+              >
+                <LogOut className="size-4" />
+                Sign out
+              </DropdownMenuItem>
+            </SignOutButton>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <SignInButton mode="modal">
+          <Button
+            type="button"
+            variant="ghost"
+            className="size-8 rounded-[4px] border-0 p-0 text-[12px] font-medium leading-4 text-[#43474c] shadow-none hover:border-transparent hover:bg-[#F8FAFC] hover:text-black"
+            aria-label="Sign in"
+          >
+            Login
+          </Button>
+        </SignInButton>
+      )}
+    </div>
   )
 }

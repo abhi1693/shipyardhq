@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const visitors = await getAnalyticsProvider("cache").getRealtimeVisitors()
     return NextResponse.json(
-      { visitors },
+      { visitors: Math.max(1, visitors) },
       {
         status: 200,
         headers: {

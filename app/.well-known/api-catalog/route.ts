@@ -5,8 +5,7 @@ export const revalidate = 86400
 
 const API_CATALOG_PROFILE = "https://www.rfc-editor.org/info/rfc9727"
 
-const contentType =
-  `application/linkset+json; profile="${API_CATALOG_PROFILE}"; charset=utf-8`
+const contentType = `application/linkset+json; profile="${API_CATALOG_PROFILE}"; charset=utf-8`
 
 const buildUrl = (path: string) => new URL(path, resolveSiteUrl()).toString()
 

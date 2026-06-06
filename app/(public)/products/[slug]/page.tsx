@@ -7,10 +7,11 @@ import {
 } from "react"
 import { notFound } from "next/navigation"
 import { JsonLdScript } from "next-seo"
+import { IconBrandChrome as ChromeIcon } from "@tabler/icons-react"
 import {
   Apple,
+  BadgeCheck,
   Calendar,
-  Chrome as ChromeIcon,
   ExternalLink,
   Globe,
   Laptop,
@@ -18,23 +19,10 @@ import {
   PlayCircle,
   Smartphone,
   Terminal,
-  BadgeCheck,
 } from "lucide-react"
 
-import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
-import { StickyBanner } from "@/components/organisms/StickyBanner"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
-import {
-  DirectoryHighlightsSidebar,
-  DirectoryHighlightsSidebarSkeleton,
-} from "@/components/templates/public/homepage/directory-highlights"
-import {
-  SponsoredProductsSection,
-  SponsoredProductsSkeleton,
-} from "@/components/templates/public/homepage/sponsored-products"
 import { Image } from "@/components/atoms/image"
-import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
-import ProductShareBar from "@/components/molecules/ProductShareBar"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
 import {
@@ -44,8 +32,8 @@ import {
 } from "@/components/atoms/tooltip"
 import { ScrollReset } from "@/components/atoms/scroll-reset"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
-import { SidebarInfoRow } from "@/components/templates/public/products/detail/sidebar-info-row"
 import {
+  DetailSponsoredProductCard,
   ProductUpvoteBadgeServer,
   SimilarProductsServer,
 } from "@/components/templates/public/products/detail/server-components"
@@ -53,6 +41,7 @@ import {
   ProductUpvoteBadgeFallback,
   SimilarProductsFallback,
 } from "@/components/templates/public/products/detail/product-fallbacks"
+import { ProductShareModal } from "@/components/templates/public/products/detail/product-share-modal"
 import {
   getPublicProductMetaBySlug,
   getPublicProductBySlug,
@@ -70,7 +59,6 @@ import {
 } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
 import { ensureUrlHasSchema } from "@/lib/utils"
-import { addUtmParams } from "@/lib/marketing/utm"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { buildPageMetadata } from "@/lib/metadata"
 import { keywordToSlug } from "@/lib/tags"
@@ -86,9 +74,6 @@ import {
 } from "@/lib/product-types/models"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { getProductScoreForCurrentWindow } from "@/lib/server/leaderboard/v2"
-import { buildProductInterestBadges } from "@/lib/products/interest"
-import { Badge } from "@/components/atoms/badge"
-import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -219,18 +204,22 @@ function formatCurrency(
   }
 }
 
+function achievementToneClass(value?: string) {
+  if (
+    value === "new" ||
+    value === "trending" ||
+    value?.startsWith("product-of-")
+  ) {
+    return "border-[#F97316]/20 bg-[#F97316]/10 text-[#F97316]"
+  }
+
+  return "border-[#0051d5]/20 bg-[#0051d5]/10 text-[#0051d5]"
+}
+
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return notFound()
-
-  const interestMap = await getProductInterestSignalsMap({
-    products: [{ id: product.id, slug: product.slug }],
-  })
-  const interestBadges = buildProductInterestBadges(
-    interestMap.get(product.id) ?? null,
-    { maxBadges: 4, includeBuildersClicked: true, minBuildersClicked: 1 },
-  )
 
   const [sidebarProduct, leaderboardScore] = await Promise.all([
     getPublicProductBySlug(slug),
@@ -369,10 +358,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const publishedDateIso = publishedSource
     ? new Date(publishedSource).toISOString()
     : null
-  const shareUrl = new URL(
-    `/products/${product.slug}`,
-    siteConfig.url,
-  ).toString()
+  const shareUrl = new URL(canonicalPath, siteConfig.url).toString()
   const categoryLabel = product.category?.name ?? null
   const startingPrice =
     typeof sidebarProduct?.startingPriceCents === "number"
@@ -431,24 +417,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const normalizedDemoUrl = product.metadata?.demoUrl?.trim()
     ? ensureUrlHasSchema(product.metadata.demoUrl.trim())
     : null
-  const withReferralParams = (url: string, content: string) =>
-    addUtmParams(url, {
-      source: "shipyard",
-      medium: "referral",
-      campaign: product.metadata?.utmCampaign ?? undefined,
-      content,
-    })
-  const websiteHref = normalizedWebsiteUrl
-    ? withReferralParams(normalizedWebsiteUrl, "visit-website")
-    : null
+  const websiteHref = normalizedWebsiteUrl ? `/r/${product.slug}` : null
   const demoHref = normalizedDemoUrl
-    ? withReferralParams(normalizedDemoUrl, "demo")
-    : null
-  const quickLinkCount = (websiteHref ? 1 : 0) + (demoHref ? 1 : 0)
-  const quickLinkGridClass =
-    quickLinkCount === 2 ? "grid-cols-2" : "grid-cols-1"
-  const quickLinkClass =
-    "inline-flex w-full items-center gap-1.5 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-sm shadow-black/5 transition-colors hover:bg-muted/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto"
   const leaderboardPoints =
     typeof leaderboardScore?.score === "number" ? leaderboardScore.score : 0
   const leaderboardRank =
@@ -465,149 +435,215 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     typeof sidebarUpvotes === "number"
       ? Math.max(sidebarUpvotes, analyticsUpvotes)
       : analyticsUpvotes
+  const numberFormatter = new Intl.NumberFormat("en-US")
   const productDetailsCard = (
-    <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-      <div className="flex flex-col gap-5">
-        <SidebarInfoRow label="Product type">
+    <section className="rounded-xl border border-border bg-white p-6 shadow-sm">
+      {activeBadgeDefs.length ? (
+        <div className="border-b border-border pb-4">
+          <span className="mb-3 block text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Achievements
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {activeBadgeDefs.map((badge) => (
+              <Tooltip key={badge.value}>
+                <TooltipTrigger
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 ${achievementToneClass(badge.value)}`}
+                  aria-label={badge.label}
+                >
+                  <span className="text-xs leading-none" aria-hidden>
+                    {badge.icon}
+                  </span>
+                  <span className="text-[9px] font-bold uppercase">
+                    {badge.label}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent sideOffset={6}>{badge.label}</TooltipContent>
+              </Tooltip>
+            ))}
+          </div>
+        </div>
+      ) : null}
+      <div className="flex flex-col gap-4 py-4">
+        <div className="flex items-center justify-between gap-4 border-b border-border py-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Product type
+          </span>
           {productTypeLabel ? (
             productTypeHref ? (
               <Link
                 href={productTypeHref}
-                className="inline-flex items-center gap-1 font-medium text-foreground underline-offset-4 transition-colors hover:text-foreground/80 hover:underline"
+                className="text-right text-sm font-semibold text-foreground underline-offset-4 hover:underline"
               >
                 {productTypeLabel}
               </Link>
             ) : (
-              <span>{productTypeLabel}</span>
+              <span className="text-right text-sm font-semibold">
+                {productTypeLabel}
+              </span>
             )
           ) : (
-            <span className="text-muted-foreground">Not specified</span>
+            <span className="text-sm text-muted-foreground">Not specified</span>
           )}
-        </SidebarInfoRow>
-        <SidebarInfoRow label="Pricing model">
+        </div>
+        <div className="flex items-center justify-between gap-4 border-b border-border py-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Pricing model
+          </span>
           {pricingModelLabel ? (
-            <span className="inline-flex items-center gap-1 font-medium text-foreground">
+            <span className="text-right text-sm font-semibold">
               {pricingModelSlug ? (
                 <Link
                   href={pricingModelPath(pricingModelSlug)}
-                  className="underline-offset-4 transition-colors hover:text-foreground/80 hover:underline"
+                  className="text-emerald-700 underline-offset-4 hover:underline"
                 >
                   {pricingModelLabel}
                 </Link>
               ) : (
-                <span>{pricingModelLabel}</span>
+                <span className="text-emerald-700">{pricingModelLabel}</span>
               )}
               {startingPrice ? (
                 <span className="text-muted-foreground">
+                  {" "}
                   · Starts at {startingPrice}
                 </span>
               ) : null}
             </span>
           ) : startingPrice ? (
-            <span>Starts at {startingPrice}</span>
+            <span className="text-right text-sm font-semibold">
+              Starts at {startingPrice}
+            </span>
           ) : (
-            <span className="text-muted-foreground">Not specified</span>
+            <span className="text-sm text-muted-foreground">Not specified</span>
           )}
-        </SidebarInfoRow>
-        <SidebarInfoRow label="Category">
+        </div>
+        <div className="flex items-center justify-between gap-4 border-b border-border py-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Category
+          </span>
           {categoryLabel && product.category?.slug ? (
             <Link
               href={categoryPath(product.category.slug)}
-              className="inline-flex items-center gap-1 font-medium text-foreground underline-offset-4 transition-colors hover:text-foreground/80 hover:underline"
+              className="text-right text-sm font-semibold text-foreground underline-offset-4 hover:underline"
             >
               {categoryLabel}
             </Link>
           ) : categoryLabel ? (
-            <span>{categoryLabel}</span>
+            <span className="text-right text-sm font-semibold">
+              {categoryLabel}
+            </span>
           ) : (
-            <span className="text-muted-foreground">Not categorized</span>
+            <span className="text-sm text-muted-foreground">
+              Not categorized
+            </span>
           )}
-        </SidebarInfoRow>
-        <SidebarInfoRow label="Platforms">
+        </div>
+        <div className="flex items-center justify-between gap-4 py-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Platforms
+          </span>
           {platformItems.length ? (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap justify-end gap-2">
               {platformItems.map(({ key, label, icon: Icon, path }) =>
                 path ? (
                   <Link
                     key={key}
                     href={path}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-[color:var(--brand-1)] underline-offset-4 transition hover:bg-muted/80 hover:underline"
+                    title={label}
+                    className="inline-flex items-center justify-center text-foreground hover:text-[#0051d5]"
                   >
                     <Icon className="h-3.5 w-3.5" aria-hidden />
-                    <span>{label}</span>
+                    <span className="sr-only">{label}</span>
                   </Link>
                 ) : (
                   <span
                     key={key}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-foreground shadow-sm"
+                    title={label}
+                    className="inline-flex items-center justify-center text-foreground"
                   >
                     <Icon className="h-3.5 w-3.5" aria-hidden />
-                    <span>{label}</span>
+                    <span className="sr-only">{label}</span>
                   </span>
                 ),
               )}
             </div>
           ) : (
-            <span className="text-muted-foreground">Platforms coming soon</span>
+            <span className="text-sm text-muted-foreground">Coming soon</span>
           )}
-        </SidebarInfoRow>
-        {activeBadgeDefs.length ? (
-          <SidebarInfoRow label="Badges">
-            <div className="flex flex-wrap gap-2">
-              {activeBadgeDefs.map((badge) => (
-                <Tooltip key={badge.value}>
-                  <TooltipTrigger
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-white text-sm shadow-sm"
-                    aria-label={badge.label}
-                  >
-                    <span aria-hidden>{badge.icon}</span>
-                  </TooltipTrigger>
-                  <TooltipContent sideOffset={6}>{badge.label}</TooltipContent>
-                </Tooltip>
-              ))}
-            </div>
-          </SidebarInfoRow>
-        ) : null}
+        </div>
         {sidebarProduct?.alternatives.length ? (
-          <SidebarInfoRow label="Alternative to">
-            <div className="flex flex-wrap gap-2">
-              {sidebarProduct?.alternatives.map(
+          <div className="flex items-center justify-between gap-4 border-t border-border pt-4">
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Alternative to
+            </span>
+            <div className="flex flex-wrap justify-end gap-2">
+              {sidebarProduct.alternatives.map(
                 (alternative: {
                   id: string
                   slug: string
                   name: string
                   logoUrl: string
-                }) => {
-                  const href = alternativePath(alternative.slug as string)
-
-                  return (
-                    <Link
-                      key={alternative.id}
-                      href={href}
-                      title={alternative.name}
-                      aria-label={`View ${alternative.name} alternative`}
-                      className="group relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    >
-                      <Image
-                        src={alternative.logoUrl}
-                        alt={`${alternative.name} logo`}
-                        fill
-                        sizes="40px"
-                        className="object-cover"
-                      />
-                    </Link>
-                  )
-                },
+                }) => (
+                  <Link
+                    key={alternative.id}
+                    href={alternativePath(alternative.slug)}
+                    title={alternative.name}
+                    aria-label={`View ${alternative.name} alternative`}
+                    className="group relative inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg border border-border bg-white shadow-sm transition hover:border-foreground/15"
+                  >
+                    <Image
+                      src={alternative.logoUrl}
+                      alt={`${alternative.name} logo`}
+                      fill
+                      sizes="36px"
+                      className="object-cover"
+                    />
+                  </Link>
+                ),
               )}
             </div>
-          </SidebarInfoRow>
+          </div>
         ) : null}
       </div>
-    </div>
+      <div className="border-t border-border pt-4">
+        <span className="mb-3 block text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Shipyard maker
+        </span>
+        <div className="flex items-center gap-3">
+          <Avatar className="h-10 w-10 rounded-lg text-sm font-semibold text-foreground">
+            {ownerAvatarUrl ? (
+              <AvatarImage
+                src={ownerAvatarUrl}
+                alt={ownerName || "Product owner"}
+                width={48}
+                height={48}
+                className="object-cover"
+              />
+            ) : null}
+            <AvatarFallback className="rounded-lg">
+              {ownerInitials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0">
+            {productOwner?.id && ownerName ? (
+              <Link
+                href={userPath(productOwner.id)}
+                className="line-clamp-1 text-sm font-semibold text-foreground underline-offset-4 hover:underline"
+              >
+                {ownerName}
+              </Link>
+            ) : (
+              <p className="line-clamp-1 text-sm font-semibold text-foreground">
+                {ownerName || "Shipyard maker"}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
   )
 
   return (
-    <main className="bg-white">
+    <main className="min-h-screen bg-[#f8f9ff]">
       <CoreStructuredData
         scriptKeyPrefix={`product-${product.slug}`}
         webPage={{ path: canonicalPath, name: product.name }}
@@ -630,227 +666,178 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         />
       ) : null}
       <ScrollReset triggerKey={product.slug} />
-      <PublicTwoColumnLayout
-        mainClassName="gap-8"
-        main={
-          <div className="flex flex-col gap-8">
-            <header className="flex flex-col gap-5">
-              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                <div className="flex items-start gap-5">
-                  {product.logo ? (
-                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-border bg-white shadow-sm sm:h-20 sm:w-20">
-                      <Image
-                        src={product.logo}
-                        alt={`${product.name} logo`}
-                        fill
-                        sizes="(min-width: 640px) 80px, 64px"
-                        preload
-                        fetchPriority="high"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-dashed border-border bg-muted text-lg font-semibold uppercase text-muted-foreground shadow-sm sm:h-20 sm:w-20">
-                      {product.name.slice(0, 2)}
-                    </div>
-                  )}
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-                        {product.name}
-                      </h1>
-                      {isVerified ? (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-2.5 py-0.5 text-[11px] font-semibold text-sky-800 shadow-sm">
-                          <BadgeCheck className="h-3.5 w-3.5" aria-hidden />
-                          <span className="sr-only">Verified product</span>
-                          <span className="hidden sm:inline">Verified</span>
-                        </span>
-                      ) : null}
-                    </div>
-                    {product.tagline ? (
-                      <p className="text-lg text-muted-foreground">
-                        {product.tagline}
-                      </p>
-                    ) : null}
-                    {interestBadges.length ? (
-                      <div className="flex flex-wrap items-center gap-2 pt-1">
-                        {interestBadges.map((badge) => (
-                          <Badge
-                            key={`${product.id}:${badge.key}`}
-                            variant={badge.variant}
-                            className="rounded-full px-3 py-1 text-[11px] font-semibold"
-                            title={badge.title}
-                          >
-                            {badge.label}
-                          </Badge>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
+      <div className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-6">
+        <header className="mb-6 flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+          <div className="flex min-w-0 items-center gap-6">
+            {product.logo ? (
+              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#061d31] text-white md:h-20 md:w-20">
+                <Image
+                  src={product.logo}
+                  alt={`${product.name} logo`}
+                  fill
+                  sizes="(min-width: 768px) 80px, 64px"
+                  preload
+                  fetchPriority="high"
+                  className="h-full w-full object-cover"
+                />
               </div>
-              <div className="flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-                  <Avatar className="h-9 w-9 text-sm font-semibold text-foreground">
-                    {ownerAvatarUrl ? (
-                      <AvatarImage
-                        src={ownerAvatarUrl}
-                        alt={ownerName || "Product owner"}
-                        width={56}
-                        height={56}
-                        className="object-cover"
-                      />
-                    ) : null}
-                    <AvatarFallback>{ownerInitials}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                    {productOwner?.id && ownerName ? (
-                      <Link
-                        href={userPath(productOwner.id)}
-                        className="font-medium text-foreground hover:underline"
-                      >
-                        {ownerName}
-                      </Link>
-                    ) : ownerName ? (
-                      <span className="font-medium text-foreground">
-                        {ownerName}
-                      </span>
-                    ) : null}
-                    {publishedLabel ? (
-                      <span className="inline-flex items-center gap-1 sm:gap-1.5">
-                        <Calendar
-                          className="h-4 w-4 text-muted-foreground/80"
-                          aria-hidden="true"
-                        />
-                        <span className="inline-flex items-center gap-1">
-                          <span className="hidden text-muted-foreground sm:inline">
-                            Published On
-                          </span>
-                          <time
-                            dateTime={publishedDateIso ?? undefined}
-                            aria-label={`Published on ${publishedLabel}`}
-                            className="text-muted-foreground"
-                          >
-                            {publishedLabel}
-                          </time>
-                        </span>
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-                <ProductShareBar
+            ) : (
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#061d31] text-lg font-semibold uppercase text-white md:h-20 md:w-20">
+                {product.name.slice(0, 2)}
+              </div>
+            )}
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-[32px] md:leading-10">
+                  {product.name}
+                </h1>
+                {isVerified ? (
+                  <BadgeCheck
+                    className="h-5 w-5 text-[#0051d5]"
+                    aria-label="Verified"
+                    fill="currentColor"
+                  />
+                ) : null}
+              </div>
+              {product.tagline ? (
+                <p className="mt-1 max-w-2xl text-base leading-6 text-muted-foreground">
+                  {product.tagline}
+                </p>
+              ) : null}
+              <div className="mt-2 flex flex-wrap items-center gap-4 text-[11px] font-medium text-muted-foreground">
+                <ProductShareModal
                   productName={product.name}
                   productTagline={product.tagline}
                   shareUrl={shareUrl}
-                  className="self-start sm:ml-auto sm:self-center"
                 />
-              </div>
-              {(websiteHref || demoHref) && (
-                <div
-                  className={`grid w-full gap-2 text-sm ${quickLinkGridClass} sm:flex sm:flex-wrap sm:items-center`}
-                >
-                  {websiteHref ? (
-                    <a
-                      key="website"
-                      href={websiteHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={quickLinkClass}
+                {publishedLabel ? (
+                  <span className="inline-flex items-center gap-1">
+                    <Calendar className="h-3.5 w-3.5" aria-hidden />
+                    <time
+                      dateTime={publishedDateIso ?? undefined}
+                      aria-label={`Published on ${publishedLabel}`}
                     >
-                      <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                      <span>Visit website</span>
-                    </a>
-                  ) : null}
-                  {demoHref ? (
-                    <a
-                      key="demo"
-                      href={demoHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={quickLinkClass}
-                    >
-                      <PlayCircle className="h-3.5 w-3.5" aria-hidden />
-                      <span>Visit demo</span>
-                    </a>
-                  ) : null}
-                </div>
-              )}
-              <div className="lg:hidden">
-                <Suspense fallback={<ProductUpvoteBadgeFallback />}>
-                  <ProductUpvoteBadgeServer
-                    productId={product.id}
-                    productSlug={product.slug}
-                    upvoteCount={upvoteCount}
-                    leaderboard={leaderboardPayload}
-                  />
-                </Suspense>
+                      Published on {publishedLabel}
+                    </time>
+                  </span>
+                ) : null}
               </div>
-            </header>
+            </div>
+          </div>
+          <div className="flex w-full flex-wrap gap-3 md:w-auto">
+            {websiteHref ? (
+              <a
+                href={websiteHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 text-sm font-semibold text-foreground transition hover:bg-muted/60 md:flex-none"
+              >
+                <ExternalLink className="h-4 w-4" aria-hidden />
+                Visit website
+              </a>
+            ) : null}
+            {demoHref ? (
+              <a
+                href={demoHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 text-sm font-semibold text-foreground transition hover:bg-muted/60 md:flex-none"
+              >
+                <PlayCircle className="h-4 w-4" aria-hidden />
+                Demo
+              </a>
+            ) : null}
+            <Suspense fallback={<ProductUpvoteBadgeFallback />}>
+              <ProductUpvoteBadgeServer
+                productId={product.id}
+                productSlug={product.slug}
+                upvoteCount={upvoteCount}
+                leaderboard={leaderboardPayload}
+                variant="inline"
+              />
+            </Suspense>
+          </div>
+        </header>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <div className="flex min-w-0 flex-col gap-6 lg:col-span-8">
             <ProductMediaGallery
               bannerImage={product.bannerImage}
               media={galleryMedia}
               productName={product.name}
             />
-            <ProductDescriptionCard description={product.description} />
-            <div className="lg:hidden">{productDetailsCard}</div>
-            {keywordTagItems.length ? (
-              <div className="space-y-3">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                  Tags
-                </h2>
-                <div className="flex flex-wrap gap-2">
+            <section className="rounded-xl border border-border bg-white p-6 shadow-sm">
+              <h2 className="mb-3 text-lg font-semibold text-foreground">
+                The modern way to build with {product.name}.
+              </h2>
+              <ProductDescriptionCard description={product.description} />
+              {keywordTagItems.length ? (
+                <div className="mt-6 flex flex-wrap gap-2">
                   {keywordTagItems.map((tag) => (
                     <Link
                       key={tag.slug}
                       href={`/tags/${tag.slug}`}
-                      className="text-sm font-medium text-foreground underline decoration-dotted underline-offset-4 transition hover:text-foreground/80"
+                      className="rounded-sm border border-border bg-[#f8fafc] px-3 py-1 text-[11px] font-medium uppercase text-muted-foreground transition hover:border-[#0051d5]/40 hover:text-[#0051d5]"
                     >
                       #{tag.label}
                     </Link>
                   ))}
                 </div>
+              ) : null}
+            </section>
+          </div>
+
+          <aside className="flex min-w-0 flex-col gap-6 lg:col-span-4">
+            <section className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-border bg-white p-4 text-center shadow-sm">
+                <span className="mb-1 block text-[11px] font-medium uppercase text-muted-foreground">
+                  Global rank
+                </span>
+                <span className="text-lg font-semibold text-foreground">
+                  {leaderboardRank !== null
+                    ? `#${numberFormatter.format(leaderboardRank)}`
+                    : "—"}
+                </span>
               </div>
-            ) : null}
-            <StickyBanner className="w-full" />
-            {primaryUseCaseSlug ? (
-              <Suspense fallback={<SimilarProductsFallback />}>
-                <SimilarProductsServer
-                  productId={product.id}
-                  useCaseSlug={primaryUseCaseSlug}
-                />
-              </Suspense>
-            ) : null}
-          </div>
-        }
-        sidebar={
-          <div className="flex flex-col gap-6">
-            <div className="hidden lg:block">
-              <Suspense fallback={<ProductUpvoteBadgeFallback />}>
-                <ProductUpvoteBadgeServer
-                  productId={product.id}
-                  productSlug={product.slug}
-                  upvoteCount={upvoteCount}
-                  leaderboard={leaderboardPayload}
-                />
-              </Suspense>
-            </div>
-            <div className="hidden lg:block">{productDetailsCard}</div>
-            <div className="hidden lg:block">
-              <Suspense fallback={<SponsoredProductsSkeleton />}>
-                <SponsoredProductsSection />
-              </Suspense>
-            </div>
-            <div className="hidden lg:block">
-              <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
-                <DirectoryHighlightsSidebar />
-              </Suspense>
-            </div>
-            <div className="hidden lg:block">
-              <AffiliateLinkCard />
-            </div>
-          </div>
-        }
-      />
+              <div className="rounded-xl border border-border bg-white p-4 text-center shadow-sm">
+                <span className="mb-1 block text-[11px] font-medium uppercase text-muted-foreground">
+                  Shipyard points
+                </span>
+                <span className="text-lg font-semibold text-emerald-600">
+                  {numberFormatter.format(leaderboardPoints)}
+                </span>
+              </div>
+            </section>
+            {productDetailsCard}
+            <Suspense
+              fallback={
+                <div className="h-48 animate-pulse rounded-xl bg-[#061d31]/90" />
+              }
+            >
+              <DetailSponsoredProductCard currentProductSlug={product.slug} />
+            </Suspense>
+            <section>
+              <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                You may also like
+              </h2>
+              {primaryUseCaseSlug ? (
+                <Suspense fallback={<SimilarProductsFallback />}>
+                  <SimilarProductsServer
+                    productId={product.id}
+                    useCaseSlug={primaryUseCaseSlug}
+                    variant="compact"
+                  />
+                </Suspense>
+              ) : (
+                <p className="rounded-lg border border-border bg-white p-4 text-sm text-muted-foreground">
+                  Related launches will appear as soon as this product has a
+                  matched use case.
+                </p>
+              )}
+            </section>
+          </aside>
+        </div>
+      </div>
     </main>
   )
 }

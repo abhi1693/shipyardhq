@@ -47,6 +47,7 @@ export default async function MonthlyLeaderboardArchivePage({
     period: "month",
     year: Number(year),
     month: Number(month),
+    limit: 100,
     categorySlug: sp?.category,
   })
 

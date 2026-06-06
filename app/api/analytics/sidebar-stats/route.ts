@@ -9,7 +9,8 @@ export async function GET() {
     return NextResponse.json(stats, {
       status: 200,
       headers: {
-        "cache-control": "public, s-maxage=60, stale-while-revalidate=300",
+        "cache-control":
+          "public, max-age=60, s-maxage=60, stale-while-revalidate=300",
       },
     })
   } catch (error) {
@@ -19,7 +20,7 @@ export async function GET() {
         pageViews30: 0,
         visitors30: 0,
         trafficSeries: [],
-        realtimeVisitors: 0,
+        realtimeVisitors: 1,
       },
       { status: 200 },
     )

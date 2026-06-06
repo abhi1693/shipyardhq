@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import type { TooltipProps } from "recharts"
+import type { TooltipContentProps } from "recharts"
 
 import { cn } from "@/lib/utils"
 
@@ -96,7 +96,9 @@ export const ChartContainer = React.forwardRef<
 )
 ChartContainer.displayName = "ChartContainer"
 
-type ChartTooltipProps = TooltipProps<number, string> & {
+type ChartTooltipProps = Partial<
+  Omit<TooltipContentProps<number, string>, "labelFormatter">
+> & {
   labelFormatter?: (label: string | number) => React.ReactNode
   valueFormatter?: (value: number, seriesKey?: string) => React.ReactNode
   hideLabel?: boolean

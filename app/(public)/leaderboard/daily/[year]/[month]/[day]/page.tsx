@@ -50,6 +50,7 @@ export default async function DailyLeaderboardPage({
     year: Number(year),
     month: Number(month),
     day: Number(day),
+    limit: 100,
     categorySlug: sp?.category,
   })
 

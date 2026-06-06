@@ -25,6 +25,10 @@ interface GetBrowseProductsOptions {
   platform?: Platform
   pricingModel?: PricingModel
   type?: ProductType
+  minPriceCents?: number
+  maxPriceCents?: number
+  badge?: string
+  backlinkVerified?: boolean
 }
 
 type UseCaseCategoryRef = Prisma.UseCaseCategoryGetPayload<{
@@ -43,6 +47,10 @@ export const getBrowseProducts = cached(
     platform,
     pricingModel,
     type,
+    minPriceCents,
+    maxPriceCents,
+    badge,
+    backlinkVerified,
   }: GetBrowseProductsOptions) => {
     const skip = (page - 1) * pageSize
 
@@ -81,13 +89,59 @@ export const getBrowseProducts = cached(
     const q = query?.trim()
     const tokens = q ? q.split(/[\s,]+/).filter(Boolean) : []
     const tokensLower = tokens.map((t) => t.toLowerCase())
+    const now = new Date()
+
+    const priceFilter: Prisma.ProductWhereInput | null = (() => {
+      const hasMin = typeof minPriceCents === "number"
+      const hasMax = typeof maxPriceCents === "number"
+      if (!hasMin && !hasMax) return null
+
+      const startingPriceFilter: Prisma.IntNullableFilter = {
+        ...(hasMin ? { gte: minPriceCents } : {}),
+        ...(hasMax ? { lte: maxPriceCents } : {}),
+      }
+
+      if (!hasMin || (minPriceCents ?? 0) <= 0) {
+        return {
+          OR: [
+            { pricingModel: "free" },
+            { startingPriceCents: 0 },
+            { startingPriceCents: startingPriceFilter },
+          ],
+        }
+      }
+
+      return { startingPriceCents: startingPriceFilter }
+    })()
+
+    const verificationFilter: Prisma.ProductVerificationWhereInput = {
+      ...(verified ? { isVerified: true } : {}),
+      ...(backlinkVerified ? { backlinkIsVerified: true } : {}),
+    }
+
+    const andFilters: Prisma.ProductWhereInput[] = [
+      ...(priceFilter ? [priceFilter] : []),
+    ]
 
     const baseWhere: Prisma.ProductWhereInput = {
-      ...(verified ? { verification: { is: { isVerified: true } } } : {}),
+      ...(Object.keys(verificationFilter).length
+        ? { verification: { is: verificationFilter } }
+        : {}),
       ...(categoryIds?.length ? { categoryId: { in: categoryIds } } : {}),
       ...(platform ? { platforms: { has: platform } } : {}),
       ...(pricingModel ? { pricingModel } : {}),
       ...(type ? { type } : {}),
+      ...(badge
+        ? {
+            ProductBadge: {
+              some: {
+                badge,
+                OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+              },
+            },
+          }
+        : {}),
+      ...(andFilters.length ? { AND: andFilters } : {}),
       ...(q
         ? {
             OR: [
@@ -213,7 +267,6 @@ export const getBrowseProducts = cached(
         : Promise.resolve([] as ProductCardRecord[]),
     ])
 
-    const now = new Date()
     const allProducts = [...priorityProducts, ...regularProducts]
     const scoreMap = await getCurrentScoreMap(allProducts.map((p) => p.id))
     const products = allProducts.map((product) =>
@@ -244,6 +297,14 @@ export const getBrowseProducts = cached(
         options.platform ?? "",
         options.pricingModel ?? "",
         options.type ?? "",
+        typeof options.minPriceCents === "number"
+          ? `minPrice:${options.minPriceCents}`
+          : "",
+        typeof options.maxPriceCents === "number"
+          ? `maxPrice:${options.maxPriceCents}`
+          : "",
+        options.badge ? `badge:${options.badge}` : "",
+        options.backlinkVerified ? "backlinkVerified" : "",
       ]
 
       return parts.filter((part) => Boolean(part))

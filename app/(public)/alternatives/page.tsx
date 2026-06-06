@@ -1,35 +1,12 @@
-import Link from "next/link"
-import { Suspense } from "react"
-
-import { AlternativeCatalogGridClient } from "@/components/molecules/AlternativeCatalogGridClient"
-import AffiliateLinkCard from "@/components/molecules/AffiliateLinkCard"
-import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
-import { StickyBanner } from "@/components/organisms/StickyBanner"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import {
-  DirectoryHighlightsSidebar,
-  DirectoryHighlightsSidebarSkeleton,
-} from "@/components/templates/public/homepage/directory-highlights"
-import {
-  SponsoredProductsSection,
-  SponsoredProductsSkeleton,
-} from "@/components/templates/public/homepage/sponsored-products"
-import {
-  HERO_PRIMARY_BUTTON_CLASSES,
-  HERO_SECONDARY_BUTTON_CLASSES,
-} from "@/components/templates/public/categories/hero-button-classes"
-import {
-  TrafficSidebarStats,
-  TrafficSidebarStatsSkeleton,
-} from "@/components/templates/public/common/TrafficSidebarStats"
+  TaxonomyIndexPage,
+  type TaxonomyIndexItem,
+} from "@/components/templates/public/common/TaxonomyIndexPage"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
-import { getAlternativesIndexPayload } from "@/lib/alternatives/page-cache"
+import { getAlternativesPagePayload } from "@/lib/alternatives/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
-import {
-  ALTERNATIVES_PATH,
-  BROWSE_PATH,
-  HOME_PATH,
-  MEMBER_PRODUCTS_PATH,
-} from "@/lib/routes"
+import { ALTERNATIVES_PATH, HOME_PATH, alternativePath } from "@/lib/routes"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 300
@@ -39,117 +16,108 @@ const PAGE_TITLE = "Browse SaaS Alternatives"
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description: "Explore the best alternatives to popular SaaS tools.",
+  canonical: ALTERNATIVES_PATH,
 })
 
 export default async function AlternativesPage() {
-  const { initialItems, initialHasMore, pageSize } =
-    await getAlternativesIndexPayload()
-  const hasAlternatives = initialItems.length > 0
-  const listResetKey =
-    initialItems.map((item) => item.slug).join("|") || "alternatives-empty"
+  const {
+    alternatives,
+    highlightAlternatives,
+    momentumByAlternativeId = {},
+    alternativeCount,
+    totalProducts,
+    averagePerAlternative,
+    busiestAlternative,
+  } = await getAlternativesPagePayload()
+
+  const items: TaxonomyIndexItem[] = alternatives.map((alternative, index) => ({
+    key: alternative.id,
+    title: alternative.name,
+    description: alternative.description,
+    href: alternativePath(alternative.slug),
+    count: alternative._count.products,
+    icon: (
+      <AlternativeIcon name={alternative.name} logoUrl={alternative.logoUrl} />
+    ),
+    momentum: momentumByAlternativeId[alternative.id] ?? 0,
+    tone: index % 3 === 0 ? "blue" : index % 3 === 1 ? "green" : "orange",
+  }))
+
+  const itemById = new Map(items.map((item) => [item.key, item] as const))
+  const trendingItems = highlightAlternatives
+    .map((alternative) => itemById.get(alternative.id))
+    .filter((item): item is TaxonomyIndexItem => Boolean(item))
 
   return (
-    <main className="relative isolate bg-[#f5f7fb]">
-      <CoreStructuredData
-        scriptKeyPrefix="alternatives"
-        webPage={{ path: ALTERNATIVES_PATH, name: PAGE_TITLE }}
-        breadcrumbs={{
-          items: [
-            { name: "Home", path: HOME_PATH },
-            { name: PAGE_TITLE, path: ALTERNATIVES_PATH },
-          ],
-        }}
-      />
-      <PublicTwoColumnLayout
-        className="pb-24 pt-12"
-        mainClassName="space-y-12"
-        main={
-          <>
-            <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
-              <div className="mx-auto flex max-w-3xl flex-col items-center gap-6">
-                <div className="space-y-4">
-                  <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-                    Discover the best alternatives for every launch
-                  </h1>
-                  <p className="text-base text-muted-foreground sm:text-lg">
-                    Compare vetted third-party tools founders benchmark against
-                    Shipyard launches. Spot adjacent options, explore category
-                    coverage, and map your competitive landscape in one curated
-                    catalog.
-                  </p>
-                </div>
-                <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row sm:justify-center sm:gap-4">
-                  <Link
-                    href={BROWSE_PATH}
-                    className={`${HERO_PRIMARY_BUTTON_CLASSES} w-full justify-center sm:w-auto`}
-                  >
-                    Browse every launch
-                  </Link>
-                  <Link
-                    href={MEMBER_PRODUCTS_PATH}
-                    className={`${HERO_SECONDARY_BUTTON_CLASSES} w-full justify-center sm:w-auto`}
-                  >
-                    Submit your alternative
-                  </Link>
-                </div>
-              </div>
-            </section>
-
-            <StickyBanner className="mx-auto w-full rounded-2xl" />
-
-            <section className="space-y-6">
-              {hasAlternatives ? (
-                <AlternativeCatalogGridClient
-                  key={`${pageSize}:${listResetKey}`}
-                  initialItems={initialItems}
-                  initialHasMore={initialHasMore}
-                  initialPage={2}
-                  pageSize={pageSize}
-                  gridClassName="grid-cols-1 sm:grid-cols-1 xl:grid-cols-1"
-                />
-              ) : (
-                <div className="rounded-3xl border border-dashed border-border/40 bg-white/70 px-6 py-12 text-center text-sm font-medium text-muted-foreground">
-                  No alternatives are available yet. Check back soon as makers
-                  map new products into the catalog.
-                </div>
-              )}
-            </section>
-          </>
-        }
-        sidebar={
-          <>
-            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
-              <TrafficSidebarStats />
-            </Suspense>
-            <Suspense fallback={<SponsoredProductsSkeleton />}>
-              <SponsoredProductsSection />
-            </Suspense>
-            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
-              <DirectoryHighlightsSidebar />
-            </Suspense>
-            <AffiliateLinkCard />
-
-            <section className="rounded-3xl border border-border/40 bg-white px-6 py-8 text-center shadow-[0_24px_80px_-60px_rgba(7,58,104,0.35)]">
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold tracking-tight text-foreground">
-                  Spot a better fit we&apos;re missing?
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Nominate the go-to tools founders compare against Shipyard
-                  launches. We&apos;ll verify the matchup, highlight your
-                  recommendation, and keep the catalog sharp for the community.
-                </p>
-                <a
-                  href="mailto:support@shipyardhq.dev"
-                  className={`${HERO_SECONDARY_BUTTON_CLASSES} w-full justify-center`}
-                >
-                  Pitch an alternative
-                </a>
-              </div>
-            </section>
-          </>
-        }
-      />
-    </main>
+    <TaxonomyIndexPage
+      title="Discover alternatives for every launch stack"
+      description="Browse the SaaS tools founders compare, replace, and benchmark while mapping the right products for their next launch."
+      searchPlaceholder={`Search ${alternativeCount.toLocaleString()} alternatives...`}
+      itemsHeading="All Alternatives"
+      items={items}
+      totalItems={alternativeCount}
+      trendingItems={trendingItems}
+      directoryAccessory="icon"
+      pulseTitle="Alternatives Pulse"
+      pulseStats={[
+        {
+          label: "Active alternatives",
+          value: alternativeCount.toLocaleString(),
+        },
+        { label: "Mapped products", value: totalProducts.toLocaleString() },
+        {
+          label: "Average per alternative",
+          value: averagePerAlternative.toLocaleString(),
+        },
+        {
+          label: "Busiest alternative",
+          value: busiestAlternative?.name ?? "No alternatives yet",
+        },
+      ]}
+      quickLinksTitle="Popular Alternatives"
+      emptyTitle="No alternatives yet"
+      emptyDescription="Once products are mapped as alternatives, this directory will populate automatically."
+      structuredData={
+        <CoreStructuredData
+          scriptKeyPrefix="alternatives"
+          webPage={{ path: ALTERNATIVES_PATH, name: PAGE_TITLE }}
+          breadcrumbs={{
+            items: [
+              { name: "Home", path: HOME_PATH },
+              { name: PAGE_TITLE, path: ALTERNATIVES_PATH },
+            ],
+          }}
+        />
+      }
+    />
   )
+}
+
+function AlternativeIcon({
+  name,
+  logoUrl,
+}: {
+  name: string
+  logoUrl?: string | null
+}) {
+  return (
+    <Avatar className="h-7 w-7 rounded-md bg-white">
+      {logoUrl ? <AvatarImage src={logoUrl} alt={`${name} logo`} /> : null}
+      <AvatarFallback className="rounded-md text-[10px] font-semibold uppercase text-[#43474c]">
+        {getInitials(name)}
+      </AvatarFallback>
+    </Avatar>
+  )
+}
+
+function getInitials(name: string) {
+  const letters = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((segment) => segment.charAt(0).toUpperCase())
+    .join("")
+    .slice(0, 2)
+
+  return letters || "ALT"
 }

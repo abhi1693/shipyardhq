@@ -11,7 +11,7 @@ export function LiveVisitorsPill({
 }: {
   initialVisitors: number
 }) {
-  const [count, setCount] = useState(initialVisitors)
+  const [count, setCount] = useState(Math.max(1, initialVisitors))
   const { ref: containerRef, isActive } = useVisibilityGate<HTMLDivElement>()
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export function LiveVisitorsPill({
           typeof data.visitors === "number" &&
           Number.isFinite(data.visitors)
         ) {
-          setCount(data.visitors)
+          setCount(Math.max(1, data.visitors))
         }
       } catch {
         // ignore errors; retry on next interval

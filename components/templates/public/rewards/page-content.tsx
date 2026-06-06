@@ -1,25 +1,48 @@
 import Link from "next/link"
-import { formatDistanceToNow } from "date-fns"
+import {
+  ArrowRight,
+  BadgeCheck,
+  BarChart3,
+  CheckCircle2,
+  CreditCard,
+  Eye,
+  History,
+  Link2,
+  LogIn,
+  Megaphone,
+  Medal,
+  MessageSquare,
+  Newspaper,
+  Pin,
+  Rocket,
+  Sparkles,
+  Star,
+  ThumbsUp,
+  Trophy,
+  TrendingUp,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react"
 
-import { getPublicRewardsData } from "@/actions/public/rewards/actions"
-import { Badge } from "@/components/atoms/badge"
+import {
+  getPublicRewardsData,
+  type PublicRewardsReward,
+  type PublicRewardsRule,
+} from "@/actions/public/rewards/actions"
 import {
   LEADERBOARD_REWARDS_PATH,
+  MEMBER_PRODUCTS_ADD_PATH,
   MEMBER_REWARDS_PATH,
-  MEMBER_PRODUCTS_PATH,
 } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import {
-  RedemptionStatus,
   RewardFeatureCategory,
   RewardRuleCategory,
 } from "@/lib/vendor/prisma/client"
-import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
-import { brandGradient, gradientTint } from "@/lib/ui/tints"
 
 const ruleCategoryLabels: Record<RewardRuleCategory, string> = {
   [RewardRuleCategory.engagement]: "Engagement",
-  [RewardRuleCategory.streak]: "Streaks",
+  [RewardRuleCategory.streak]: "Streak",
   [RewardRuleCategory.admin]: "Admin",
   [RewardRuleCategory.system]: "System",
   [RewardRuleCategory.bonus]: "Bonus",
@@ -34,657 +57,408 @@ const rewardCategoryLabels: Record<RewardFeatureCategory, string> = {
   [RewardFeatureCategory.utility]: "Utility",
 }
 
-const redemptionStatusLabels: Record<RedemptionStatus, string> = {
-  [RedemptionStatus.pending]: "Queued",
-  [RedemptionStatus.active]: "Active",
-  [RedemptionStatus.expired]: "Expired",
-  [RedemptionStatus.canceled]: "Canceled",
-  [RedemptionStatus.failed]: "Failed",
-  [RedemptionStatus.refunded]: "Refunded",
-}
-
-const redemptionStatusTone: Record<RedemptionStatus, string> = {
-  [RedemptionStatus.pending]: "text-amber-600",
-  [RedemptionStatus.active]: "text-emerald-600",
-  [RedemptionStatus.expired]: "text-slate-500",
-  [RedemptionStatus.canceled]: "text-slate-500",
-  [RedemptionStatus.failed]: "text-rose-600",
-  [RedemptionStatus.refunded]: "text-emerald-600",
-}
-
 const numberFormatter = new Intl.NumberFormat("en-US")
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
+const compactFormatter = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: 1,
 })
+
+type StatCard = {
+  label: string
+  value: string
+  helper: string
+  Icon: LucideIcon
+}
 
 function formatNumber(value: number) {
   return numberFormatter.format(value)
 }
 
-function formatRewards(value: number) {
-  return `${formatNumber(value)} rewards`
+function formatCompact(value: number) {
+  return compactFormatter.format(value)
 }
 
-function formatRelative(date: Date) {
-  return formatDistanceToNow(date, { addSuffix: true })
+function formatCredits(value: number) {
+  return `${formatNumber(value)} CR`
 }
 
 function formatDuration(seconds: number | null) {
   if (!seconds || seconds <= 0) return null
+
   const hours = Math.round(seconds / 3600)
-  if (hours < 24) {
-    return `${hours}h duration`
-  }
+  if (hours < 24) return `Per ${hours} hour${hours === 1 ? "" : "s"}`
+
   const days = Math.round(hours / 24)
-  return `${days} day${days === 1 ? "" : "s"}`
+  if (days % 7 === 0) {
+    const weeks = days / 7
+    return `Per ${weeks} week${weeks === 1 ? "" : "s"}`
+  }
+
+  return `Per ${days} day${days === 1 ? "" : "s"}`
+}
+
+function ruleIconFor(rule: PublicRewardsRule): LucideIcon {
+  const text = `${rule.name} ${rule.description ?? ""}`.toLowerCase()
+
+  if (text.includes("payment") || text.includes("stripe")) return CreditCard
+  if (text.includes("backlink") || text.includes("domain")) return Link2
+  if (text.includes("launch") || text.includes("product")) return Rocket
+  if (text.includes("login") || text.includes("check in")) return LogIn
+  if (text.includes("upvote") || text.includes("vote")) return ThumbsUp
+  if (text.includes("review") || text.includes("feedback")) return MessageSquare
+  if (rule.category === RewardRuleCategory.streak) return History
+
+  return Sparkles
+}
+
+function rewardIconFor(reward: PublicRewardsReward): LucideIcon {
+  const text = `${reward.featureKey} ${reward.name}`.toLowerCase()
+
+  if (text.includes("banner") || text.includes("sticky")) return Pin
+  if (text.includes("analytics")) return BarChart3
+  if (text.includes("sponsor") || text.includes("promo")) return Megaphone
+  if (text.includes("newsletter")) return Newspaper
+  if (text.includes("badge") || text.includes("featured")) return BadgeCheck
+  if (text.includes("priority") || text.includes("placement")) return Star
+  if (reward.category === RewardFeatureCategory.analytics) return BarChart3
+
+  return Trophy
+}
+
+function capLabel(rule: PublicRewardsRule) {
+  if (rule.lifetimeCap && rule.lifetimeCap > 0) {
+    return `Lifetime: ${formatNumber(rule.lifetimeCap)}`
+  }
+
+  if (rule.dailyCap && rule.dailyCap > 0) {
+    return `Daily cap: ${formatNumber(rule.dailyCap)}`
+  }
+
+  return "Uncapped"
 }
 
 export async function RewardsPageContent() {
   const data = await getPublicRewardsData()
+  const rewardRules = data.rules
+  const rewardsCatalog = data.rewards
+  const sponsoredReward = rewardsCatalog.find((reward) =>
+    `${reward.featureKey} ${reward.name}`.toLowerCase().includes("sponsored"),
+  )
+  const mostRedeemedReward = rewardsCatalog.reduce<PublicRewardsReward | null>(
+    (current, reward) => {
+      if (!current) return reward
+      if (reward.redemptionCount > current.redemptionCount) return reward
+      return current
+    },
+    null,
+  )
+  const popularRewardKey =
+    sponsoredReward?.featureKey ?? mostRedeemedReward?.featureKey ?? null
 
-  const stats = [
+  const stats: StatCard[] = [
     {
       label: "Members earning",
-      value: formatNumber(data.stats.membersWithRewards),
-      helper: "Received rewards",
+      value: formatCompact(data.stats.membersWithRewards),
+      helper: "Verified makers",
+      Icon: TrendingUp,
     },
     {
       label: "Active balances",
-      value: formatNumber(data.stats.activeBalances),
+      value: formatCompact(data.stats.activeBalances),
       helper: "Ready to spend",
+      Icon: Wallet,
     },
     {
-      label: "Rewards awarded (30d)",
-      value: formatRewards(data.stats.earnedLast30d.rewardAmount),
-      helper: `${formatNumber(data.stats.earnedLast30d.transactions)} payouts logged`,
+      label: "Rewards awarded",
+      value: formatCompact(data.stats.earnedLast30d.rewardAmount),
+      helper: "Last 30 days",
+      Icon: Medal,
     },
     {
-      label: "Rewards redeemed (30d)",
-      value: formatNumber(data.stats.spentLast30d.redemptions),
-      helper: `${formatRewards(data.stats.spentLast30d.rewardAmount)} spent on launches`,
+      label: "Redeemed",
+      value: formatCompact(data.stats.spentLast30d.redemptions),
+      helper: "Launch boosts",
+      Icon: Eye,
     },
   ]
 
-  const heroRedemptions = data.recentRedemptions
-  const rewardRules = data.rules
-  const rewardsCatalog = data.rewards
-
-  const earnedRewardAmount = data.stats.earnedLast30d.rewardAmount
-  const earnedTransactions = data.stats.earnedLast30d.transactions
-  const spentRewardAmount = data.stats.spentLast30d.rewardAmount
-  const spentRedemptions = data.stats.spentLast30d.redemptions
-  const conversionRate =
-    earnedRewardAmount > 0
-      ? Math.min(spentRewardAmount / earnedRewardAmount, 1) * 100
-      : 0
-  const averagePayout =
-    earnedTransactions > 0 ? earnedRewardAmount / earnedTransactions : 0
-  const averageRedemption =
-    spentRedemptions > 0 ? spentRewardAmount / spentRedemptions : 0
-  const activeShare =
-    data.stats.membersWithRewards > 0
-      ? (data.stats.activeBalances / data.stats.membersWithRewards) * 100
-      : 0
-
-  const earningGridClass = cn(
-    "mx-auto mt-12 grid grid-cols-1 justify-items-center gap-6",
-    rewardRules.length === 1
-      ? "max-w-sm"
-      : rewardRules.length === 2
-        ? "max-w-3xl sm:grid-cols-2 lg:grid-cols-2"
-        : "max-w-5xl sm:grid-cols-2 lg:grid-cols-3",
-  )
+  const featureRules = rewardRules.slice(0, 4)
+  const compactRules = rewardRules.slice(4, 7)
 
   return (
-    <main className="relative isolate overflow-hidden bg-white">
-      <section
-        className={brandGradient(
-          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] py-24 shadow-[0px_70px_160px_-70px_rgba(18,66,112,0.75)]",
-        )}
-      >
-        <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-10 px-4 text-center text-white md:px-8">
-          <span
-            className={gradientTint(
-              "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
-            )}
-          >
+    <main className="bg-[#f8f9ff] text-[#0b1c30]">
+      <section className="relative overflow-hidden bg-[#061d31] px-4 pb-48 pt-16 text-center text-white md:px-6 md:pb-16">
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-15 [background-image:radial-gradient(circle_at_2px_2px,#ffffff_1px,transparent_0)] [background-size:40px_40px]"
+        />
+        <div className="relative z-10 mx-auto max-w-4xl">
+          <span className="inline-flex rounded-full border border-[#c0ff00]/25 bg-[#c0ff00]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#c0ff00]">
             Shipyard Rewards
           </span>
-          <div className="space-y-6 text-balance">
-            <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Turn authentic engagement into launch-grade visibility
-            </h1>
-            <p className="mx-auto max-w-3xl text-lg text-white/85">
-              Contribute reviews, verify traction, and keep streaks alive to
-              bank rewards. When you&apos;re ready, swap that momentum for
-              sponsored placements, analytics, and marquee placements.
-            </p>
-          </div>
-          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
+          <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-bold leading-tight tracking-tight md:text-5xl">
+            Turn authentic engagement into launch-grade visibility
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-[#eaf1ff]/80">
+            Contribute reviews, verify traction, and keep streaks alive to bank
+            rewards. Swap momentum for sponsored placements and marquee
+            visibility.
+          </p>
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
             <Link
               href={MEMBER_REWARDS_PATH}
-              className={launchPrimaryButton({ size: "lg" })}
+              className="inline-flex w-full items-center justify-center rounded-full bg-white px-8 py-3 text-sm font-semibold text-black transition hover:bg-[#eff4ff] active:scale-95 sm:w-auto"
             >
               Check your balance
             </Link>
             <Link
-              href="/register"
-              className={launchSecondaryButton({
-                size: "lg",
-                className: "text-white/90 hover:text-white",
-              })}
-            >
-              Join Shipyard
-            </Link>
-            <Link
               href={LEADERBOARD_REWARDS_PATH}
-              className={gradientTint(
-                "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white/85 transition hover:text-white",
-              )}
+              className="inline-flex w-full items-center justify-center rounded-full border border-[#eaf1ff]/40 px-8 py-3 text-sm font-semibold text-[#eaf1ff] transition hover:bg-white/10 active:scale-95 sm:w-auto"
             >
               See leaderboard
             </Link>
           </div>
-          <div className="mt-12 grid w-full grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map((item) => (
-              <div
-                key={item.label}
-                className="relative overflow-hidden rounded-2xl border border-white/25 bg-white/92 px-5 py-5 text-foreground shadow-[0px_22px_48px_-38px_rgba(7,58,104,0.58)] backdrop-blur before:absolute before:inset-0 before:-z-10 before:bg-[color:var(--brand-1)/0.1] before:content-['']"
+
+          <div className="mt-12 grid grid-cols-2 gap-4 text-left lg:grid-cols-4">
+            {stats.map(({ label, value, helper, Icon }) => (
+              <article
+                key={label}
+                className="rounded-lg border border-white/10 bg-white/[0.06] p-6 backdrop-blur"
               >
-                <div className="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                  <span className="line-clamp-2 min-h-[2.4em] leading-[1.2]">
-                    {item.label}
+                <div className="flex items-start justify-between gap-3">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#dce9ff]">
+                    {label}
                   </span>
-                  <span className="inline-flex h-1.5 w-6 shrink-0 rounded-full bg-[color:var(--brand-1)]" />
+                  <Icon className="h-5 w-5 text-[#c0ff00]" aria-hidden />
                 </div>
-                <div className="mt-4 flex min-h-[3.6rem] flex-col justify-between gap-2">
-                  <p className="text-2xl font-semibold tracking-tight text-foreground">
-                    {item.value}
-                  </p>
-                  {item.helper ? (
-                    <p className="text-xs text-muted-foreground/80">
-                      {item.helper}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
+                <p className="mt-4 text-2xl font-semibold tracking-tight text-white">
+                  {value}
+                </p>
+                <p className="mt-1 text-xs text-[#dce9ff]/65">{helper}</p>
+              </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="relative overflow-hidden py-20">
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-20 bg-[color:var(--brand-1)/0.06]"
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-10 bg-[color:var(--brand-1)/0.04]"
-        />
-        <div
-          aria-hidden
-          className="absolute inset-x-0 bottom-0 -z-10 h-64 bg-[color:var(--brand-1)/0.04]"
-        />
-        <div className="mx-auto grid max-w-[84rem] gap-10 px-4 md:px-8 lg:grid-cols-[1.05fr,0.95fr]">
-          <div className="space-y-6">
-            <article className="relative overflow-hidden rounded-[32px] bg-white/70 p-6 shadow-[0px_40px_120px_-60px_rgba(7,58,104,0.55)] backdrop-blur md:p-8 ring-1 ring-[rgba(7,58,104,0.08)]">
-              <div
-                aria-hidden
-                className="absolute inset-x-0 -top-1 h-1 bg-[color:var(--brand-1)]"
-              />
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="space-y-1 text-left">
-                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-                    Fleet pulse • 30 days
-                  </p>
-                  <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-                    Earned fuel vs launch spend
-                  </h2>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className="uppercase tracking-[0.2em] text-[10px]"
-                >
-                  Live snapshot
-                </Badge>
-              </div>
-
-              <div className="mt-6 space-y-6">
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-end justify-between gap-3 text-left">
-                    <div>
-                      <p className="text-sm font-semibold text-muted-foreground">
-                        Rewards earned
-                      </p>
-                      <p className="text-2xl font-semibold text-foreground">
-                        {formatRewards(earnedRewardAmount)}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground/80">
-                        {formatNumber(earnedTransactions)} payouts logged
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-semibold text-muted-foreground">
-                        Rewards spent
-                      </p>
-                      <p className="text-2xl font-semibold text-foreground">
-                        {formatRewards(spentRewardAmount)}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground/80">
-                        {formatNumber(spentRedemptions)} redemptions
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="relative mt-4 h-2 rounded-full bg-[color:var(--brand-1)/0.08]">
-                    <div
-                      className="absolute inset-y-0 left-0 rounded-full bg-[color:var(--brand-1)]"
-                      style={{
-                        width: `${Math.min(conversionRate, 100).toFixed(0)}%`,
-                      }}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between text-[11px] text-muted-foreground/80">
-                    <span>0%</span>
-                    <span>
-                      {conversionRate.toFixed(0)}% of earned rewards already
-                      reinvested
-                    </span>
-                    <span>100%</span>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <div className="space-y-1 text-left">
-                    <p className="text-xs font-semibold uppercase tracking-[0.26em] text-muted-foreground">
-                      Avg payout
-                    </p>
-                    <p className="text-lg font-semibold text-foreground">
-                      {formatRewards(Math.round(averagePayout))}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground/80">
-                      Per earn transaction
-                    </p>
-                  </div>
-                  <div className="space-y-1 text-left">
-                    <p className="text-xs font-semibold uppercase tracking-[0.26em] text-muted-foreground">
-                      Avg redemption
-                    </p>
-                    <p className="text-lg font-semibold text-foreground">
-                      {formatRewards(Math.round(averageRedemption))}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground/80">
-                      Per reward spend
-                    </p>
-                  </div>
-                  <div className="space-y-1 text-left">
-                    <p className="text-xs font-semibold uppercase tracking-[0.26em] text-muted-foreground">
-                      Active share
-                    </p>
-                    <p className="text-lg font-semibold text-foreground">
-                      {activeShare.toFixed(0)}%
-                    </p>
-                    <p className="text-[11px] text-muted-foreground/80">
-                      Members ready to redeem
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </article>
-          </div>
-
-          <article className="relative overflow-hidden rounded-[32px] bg-white/68 p-6 shadow-[0px_36px_110px_-56px_rgba(7,58,104,0.5)] backdrop-blur md:p-8 ring-1 ring-[rgba(7,58,104,0.08)]">
-            <div
-              aria-hidden
-              className="absolute inset-x-0 -top-1 h-1 bg-[color:var(--brand-1)]"
-            />
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-                  Latest redemptions
-                </p>
-                <h3 className="mt-2 text-lg font-semibold text-foreground">
-                  Builders spending momentum this week
-                </h3>
-              </div>
-              <Badge
-                variant="secondary"
-                className="uppercase tracking-[0.2em] text-[10px]"
-              >
-                Live feed
-              </Badge>
-            </div>
-            <ul className="mt-6 space-y-4 text-sm text-muted-foreground">
-              {heroRedemptions.length > 0 ? (
-                heroRedemptions.map((entry) => {
-                  const productLabel = entry.productName ?? "Private team"
-                  const productHref = entry.productSlug
-                    ? `/products/${entry.productSlug}`
-                    : null
-                  return (
-                    <li key={entry.id} className="space-y-2">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="space-y-1 text-left">
-                          <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground/80">
-                            {entry.name ?? entry.featureKey}
-                          </p>
-                          {productHref ? (
-                            <Link
-                              href={productHref}
-                              className="text-base font-semibold text-foreground underline-offset-4 transition-colors hover:text-[color:var(--brand-1)] hover:underline"
-                            >
-                              {productLabel}
-                            </Link>
-                          ) : (
-                            <p className="text-base font-semibold text-foreground">
-                              {productLabel}
-                            </p>
-                          )}
-                        </div>
-                        <span className="rounded-full bg-[color:var(--brand-1)/0.08] px-3 py-1 text-xs font-semibold text-[color:var(--brand-1)]">
-                          {formatRewards(entry.cost)}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-muted-foreground/80">
-                        <span
-                          className={cn(
-                            "font-semibold",
-                            redemptionStatusTone[entry.status],
-                          )}
-                        >
-                          {redemptionStatusLabels[entry.status]}
-                        </span>
-                        <span>{dateFormatter.format(entry.createdAt)}</span>
-                        <span>{formatRelative(entry.createdAt)}</span>
-                      </div>
-                    </li>
-                  )
-                })
-              ) : (
-                <li className="rounded-2xl border border-dashed border-[color:var(--brand-1)/0.18] bg-white/70 px-4 py-6 text-xs text-muted-foreground backdrop-blur">
-                  Redemptions will appear here as soon as the first rewards
-                  activate.
-                </li>
-              )}
-            </ul>
-          </article>
-        </div>
-      </section>
-
-      <section className="relative overflow-hidden py-16">
-        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <div
-            aria-hidden
-            className="absolute inset-0 -z-20 bg-[color:var(--brand-1)/0.05]"
-          />
-          <div
-            aria-hidden
-            className="absolute inset-0 -z-10 bg-[color:var(--brand-1)/0.03]"
-          />
-          <div className="mx-auto max-w-3xl space-y-5 text-center">
-            <span className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
+      <section className="mx-auto max-w-[1200px] px-4 py-16 md:px-6">
+        <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <span className="block text-xs font-bold uppercase tracking-[0.24em] text-[#0051d5]">
               Earning opportunities
             </span>
-            <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Actions that unlock the biggest reward streaks
+            <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight md:text-4xl">
+              Actions that unlock reward streaks
             </h2>
-            <p className="text-sm text-muted-foreground">
-              The ledger spotlights the rules that keep Shipyard signal-rich.
-              Hit these consistently to make every redemption within reach.
-            </p>
           </div>
-          <div className={earningGridClass}>
-            {rewardRules.length > 0 ? (
-              rewardRules.map((rule) => {
-                const hasDailyCap =
-                  typeof rule.dailyCap === "number" && rule.dailyCap > 0
-                const hasLifetimeCap =
-                  typeof rule.lifetimeCap === "number" && rule.lifetimeCap > 0
-                const baseAward =
-                  typeof rule.baseRewardAmount === "number"
-                    ? rule.baseRewardAmount
-                    : 0
-                const totalAwardedRewardAmount =
-                  typeof rule.totalAwarded === "number" ? rule.totalAwarded : 0
-                const payoutCount =
-                  typeof rule.awardCount === "number" ? rule.awardCount : 0
-                const streakLabel =
-                  payoutCount === 1
-                    ? "Streak awarded (90d)"
-                    : "Streaks awarded (90d)"
-                return (
-                  <article
-                    key={rule.id}
-                    className="group relative flex w-full max-w-sm flex-col gap-6 overflow-hidden rounded-[28px] bg-white/70 px-7 py-8 text-left shadow-[0px_40px_120px_-60px_rgba(7,58,104,0.5)] backdrop-blur ring-1 ring-[rgba(7,58,104,0.08)]"
-                  >
-                    <div
-                      aria-hidden
-                      className="absolute inset-x-6 top-0 h-px bg-[color:var(--brand-1)/0.35]"
-                    />
+          <p className="max-w-md text-sm leading-6 text-[#43474c]">
+            Maintain consistent activity to multiply your earnings. Every streak
+            contributes to your global visibility index.
+          </p>
+        </div>
 
-                    <div className="space-y-3">
-                      <Badge
-                        variant="secondary"
-                        className="w-fit uppercase tracking-[0.18em] text-[10px]"
-                      >
-                        {ruleCategoryLabels[rule.category]}
-                      </Badge>
-                      <h3 className="text-lg font-semibold text-foreground text-balance">
-                        {rule.name}
-                      </h3>
-                      {rule.description ? (
-                        <p className="text-sm text-muted-foreground text-balance">
-                          {rule.description}
-                        </p>
-                      ) : null}
-                    </div>
+        {featureRules.length > 0 ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {featureRules.map((rule) => {
+              const Icon = ruleIconFor(rule)
 
-                    <div className="space-y-3 text-sm text-muted-foreground">
-                      <div className="flex items-center justify-between text-foreground">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+              return (
+                <article
+                  key={rule.id}
+                  className="flex h-full flex-col rounded-lg border border-white/10 bg-[#061d31] p-6 text-white transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  <div className="mb-8 flex items-start justify-between gap-3">
+                    <span className="rounded-lg bg-[#c0ff00]/15 p-2 text-[#c0ff00]">
+                      <Icon className="h-5 w-5" aria-hidden />
+                    </span>
+                    <span className="rounded bg-white/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/80">
+                      {ruleCategoryLabels[rule.category]}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-semibold">{rule.name}</h3>
+                  {rule.description ? (
+                    <p className="mt-2 text-sm leading-6 text-[#dce9ff]/70">
+                      {rule.description}
+                    </p>
+                  ) : null}
+                  <div className="mt-auto border-t border-white/10 pt-5">
+                    <div className="flex items-end justify-between gap-4">
+                      <div>
+                        <span className="block text-[11px] font-medium text-[#dce9ff]/50">
                           Earn reward
                         </span>
-                        <span className="text-lg font-semibold text-foreground">
-                          {formatRewards(baseAward)}
+                        <span className="text-lg font-semibold text-[#c0ff00]">
+                          {formatCredits(rule.baseRewardAmount)}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-muted-foreground/80">
-                        <span>Rewards awarded (90d)</span>
-                        <span className="font-semibold text-foreground">
-                          {formatRewards(totalAwardedRewardAmount)}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-muted-foreground/80">
-                        <span>Payouts triggered</span>
-                        <span className="font-semibold text-foreground">
-                          {formatNumber(payoutCount)}
-                        </span>
-                      </div>
-                      {hasDailyCap ? (
-                        <div className="flex items-center justify-between text-xs text-muted-foreground/80">
-                          <span>Daily cap</span>
-                          <span className="font-semibold text-foreground">
-                            {formatNumber(rule.dailyCap ?? 0)}
-                          </span>
-                        </div>
-                      ) : null}
-                      {hasLifetimeCap ? (
-                        <div className="flex items-center justify-between text-xs text-muted-foreground/80">
-                          <span>Lifetime cap</span>
-                          <span className="font-semibold text-foreground">
-                            {formatNumber(rule.lifetimeCap ?? 0)}
-                          </span>
-                        </div>
-                      ) : null}
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs text-muted-foreground/80">
-                      <span className="font-semibold text-[color:var(--brand-1)]">
-                        {formatNumber(payoutCount)}
+                      <span className="rounded bg-white/5 px-2 py-1 text-[11px] text-[#dce9ff]/75">
+                        {capLabel(rule)}
                       </span>
-                      <span>{streakLabel}</span>
                     </div>
-                  </article>
-                )
-              })
-            ) : (
-              <div className="col-span-full rounded-[28px] border border-dashed border-[color:var(--brand-1)/0.16] bg-white/70 px-6 py-12 text-center text-sm text-muted-foreground backdrop-blur">
-                We&apos;ll spotlight the top earn rules as soon as the first
-                streaks land.
-              </div>
-            )}
+                    <div className="mt-4 flex items-center justify-between text-[11px] text-[#dce9ff]/55">
+                      <span>{formatCredits(rule.totalAwarded)} awarded</span>
+                      <span>{formatNumber(rule.awardCount)} payouts</span>
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
           </div>
-        </div>
+        ) : (
+          <div className="rounded-lg border border-dashed border-[#c4c6cd] bg-white px-6 py-12 text-center text-sm text-[#43474c]">
+            Earning rules will appear as soon as the first reward streaks land.
+          </div>
+        )}
+
+        {compactRules.length > 0 ? (
+          <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+            {compactRules.map((rule) => {
+              const Icon = ruleIconFor(rule)
+
+              return (
+                <article
+                  key={rule.id}
+                  className="flex items-center gap-5 rounded-lg border border-white/10 bg-[#061d31] p-6 text-white transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  <span className="rounded-full bg-[#c0ff00]/15 p-3 text-[#c0ff00]">
+                    <Icon className="h-6 w-6" aria-hidden />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="truncate text-lg font-semibold">
+                      {rule.name}
+                    </h3>
+                    <p className="truncate text-sm text-[#dce9ff]/70">
+                      {rule.description ?? ruleCategoryLabels[rule.category]}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-right text-lg font-semibold text-[#c0ff00]">
+                    {formatCredits(rule.baseRewardAmount)}
+                  </span>
+                </article>
+              )
+            })}
+          </div>
+        ) : null}
       </section>
 
-      <section className="relative overflow-hidden py-16">
-        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <div
-            aria-hidden
-            className="absolute inset-0 -z-20 bg-[color:var(--brand-1)/0.05]"
-          />
-          <div
-            aria-hidden
-            className="absolute inset-0 -z-10 bg-[color:var(--brand-1)/0.03]"
-          />
-          <div className="mx-auto max-w-3xl space-y-5 text-center">
-            <span className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
+      <section className="bg-[#f8fafc] px-4 py-20 md:px-6">
+        <div className="mx-auto max-w-[1200px]">
+          <div className="mx-auto mb-16 max-w-2xl text-center">
+            <span className="block text-xs font-bold uppercase tracking-[0.24em] text-[#0051d5]">
               Redeem the momentum
             </span>
-            <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
               Premium exposure without a paid plan
             </h2>
-            <p className="text-sm text-muted-foreground">
-              Catalog items mirror the perks available to Shipyard
-              teams—sponsored placements, analytics, promos, and utility boosts.
-              Queue them up as soon as your balance is ready.
+            <p className="mt-4 text-sm leading-6 text-[#43474c]">
+              Convert earned rewards into high-impact placements. Queue them up
+              as soon as your balance is ready.
             </p>
           </div>
-          <div className="mx-auto mt-12 grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {rewardsCatalog.length > 0 ? (
-              rewardsCatalog.map((reward) => {
+
+          {rewardsCatalog.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {rewardsCatalog.map((reward) => {
+                const Icon = rewardIconFor(reward)
+                const popular = reward.featureKey === popularRewardKey
                 const durationLabel = formatDuration(reward.durationSeconds)
-                const limitBadges = [
-                  reward.maxActivePerUser != null && reward.maxActivePerUser > 1
-                    ? `Active limit: ${formatNumber(reward.maxActivePerUser)}`
-                    : null,
-                  reward.maxPendingPerUser != null &&
-                  reward.maxPendingPerUser > 2
-                    ? `Pending limit: ${formatNumber(reward.maxPendingPerUser)}`
-                    : null,
-                ].filter(Boolean)
 
                 return (
                   <article
                     key={reward.featureKey}
-                    className="group relative flex h-full flex-col justify-between overflow-hidden rounded-[28px] bg-white/70 px-7 py-8 text-left shadow-[0px_42px_130px_-60px_rgba(7,58,104,0.52)] backdrop-blur ring-1 ring-[rgba(7,58,104,0.08)]"
+                    className={cn(
+                      "flex min-h-72 flex-col rounded-lg border border-[#e2e8f0] bg-white p-8 transition hover:-translate-y-0.5 hover:shadow-lg",
+                      popular && "border-[#0051d5]/25 bg-[#0051d5]/5",
+                    )}
                   >
-                    <div
-                      aria-hidden
-                      className="absolute inset-x-7 top-0 h-px bg-[color:var(--brand-1)/0.35]"
-                    />
-                    <div className="space-y-3">
-                      <Badge
-                        variant="secondary"
-                        className="w-fit uppercase tracking-[0.18em] text-[10px]"
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <span
+                        className={cn(
+                          "rounded px-2 py-1 text-[9px] font-extrabold uppercase tracking-[0.18em]",
+                          popular
+                            ? "bg-[#0051d5] text-white"
+                            : "bg-[#dce9ff] text-[#0051d5]",
+                        )}
                       >
-                        {rewardCategoryLabels[reward.category]}
-                      </Badge>
-                      <h3 className="text-lg font-semibold text-foreground">
-                        {reward.name}
-                      </h3>
-                      {reward.description ? (
-                        <p className="text-sm text-muted-foreground">
-                          {reward.description}
-                        </p>
-                      ) : null}
+                        {popular
+                          ? "Most popular"
+                          : rewardCategoryLabels[reward.category]}
+                      </span>
+                      <Icon className="h-5 w-5 text-[#0051d5]" aria-hidden />
                     </div>
-                    <div className="mt-6 space-y-3 text-sm text-muted-foreground">
-                      <div className="flex items-center justify-between text-foreground">
-                        <span className="text-base font-semibold text-foreground">
-                          {formatRewards(reward.baseCost)}
-                        </span>
-                        <span className="text-xs text-muted-foreground/80">
-                          {formatNumber(reward.redemptionCount)} redeems (90d)
-                        </span>
+                    <h3 className="text-2xl font-semibold tracking-tight">
+                      {reward.name}
+                    </h3>
+                    {reward.description ? (
+                      <p className="mt-3 text-sm leading-6 text-[#43474c]">
+                        {reward.description}
+                      </p>
+                    ) : null}
+                    <div className="mt-auto border-t border-[#e2e8f0] pt-6">
+                      <div className="flex items-end justify-between gap-4">
+                        <div>
+                          <span className="text-lg font-semibold text-black">
+                            {formatCredits(reward.baseCost)}
+                          </span>
+                          <span className="block text-[11px] text-[#74777d]">
+                            {durationLabel ?? "On redemption"}
+                          </span>
+                        </div>
+                        <Link
+                          href={MEMBER_REWARDS_PATH}
+                          className="inline-flex items-center justify-center rounded-full bg-[#0051d5] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#346cef] active:scale-95"
+                        >
+                          Redeem
+                        </Link>
                       </div>
-                      {durationLabel ? (
-                        <div className="text-xs text-muted-foreground/80">
-                          {durationLabel}
-                        </div>
-                      ) : null}
-                      {limitBadges.length ? (
-                        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground/80">
-                          {limitBadges.map((badge) => (
-                            <span
-                              key={badge}
-                              className="rounded-full bg-[color:var(--brand-1)/0.08] px-3 py-1 font-medium text-[color:var(--brand-1)]"
-                            >
-                              {badge}
-                            </span>
-                          ))}
-                        </div>
-                      ) : null}
+                      <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-[#74777d]">
+                        <span>
+                          {formatNumber(reward.redemptionCount)} redeems
+                        </span>
+                        {reward.requiresProduct ? (
+                          <span>Product required</span>
+                        ) : null}
+                      </div>
                     </div>
                   </article>
                 )
-              })
-            ) : (
-              <div className="col-span-full rounded-[28px] border border-dashed border-[color:var(--brand-1)/0.16] bg-white/70 px-6 py-12 text-center text-sm text-muted-foreground backdrop-blur">
-                Rewards will populate here once the catalog opens to the public.
-              </div>
-            )}
-          </div>
+              })}
+            </div>
+          ) : (
+            <div className="rounded-lg border border-dashed border-[#c4c6cd] bg-white px-6 py-12 text-center text-sm text-[#43474c]">
+              Rewards will populate here once the catalog opens to the public.
+            </div>
+          )}
         </div>
       </section>
 
-      <section className="relative overflow-hidden py-16">
-        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <div
-            aria-hidden
-            className="absolute inset-0 -z-10 bg-[color:var(--brand-1)/0.04]"
-          />
-          <div
-            aria-hidden
-            className="absolute inset-0 -z-20 bg-[color:var(--brand-1)/0.05]"
-          />
-          <div className="relative overflow-hidden rounded-[36px] bg-white/70 px-8 py-12 shadow-[0px_48px_140px_-70px_rgba(7,58,104,0.6)] backdrop-blur ring-1 ring-[rgba(7,58,104,0.08)] sm:px-12">
-            <div
-              aria-hidden
-              className="absolute inset-x-10 top-0 h-px bg-[color:var(--brand-1)/0.3]"
-            />
-            <div className="grid gap-8 lg:grid-cols-[1.2fr,0.8fr] lg:items-center">
-              <div className="space-y-4">
-                <h3 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                  Ready to turn participation into prime placement?
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Shipyard rewards give every builder a path to front-page
-                  visibility. Keep the streak alive, monitor the ledger, and
-                  swap rewards for exposure when your next launch is ready.
-                </p>
-              </div>
-              <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-end">
-                <Link
-                  href={MEMBER_PRODUCTS_PATH}
-                  className={launchPrimaryButton({ size: "lg" })}
-                >
-                  List your product
-                </Link>
-                <Link
-                  href={MEMBER_REWARDS_PATH}
-                  className={launchSecondaryButton({
-                    size: "lg",
-                    className:
-                      "bg-[color:var(--brand-1)/0.08] text-[color:var(--brand-1)] hover:bg-[color:var(--brand-1)/0.12] hover:text-[color:var(--brand-1)] focus-visible:ring-offset-white",
-                  })}
-                >
-                  Review your ledger
-                </Link>
-              </div>
-            </div>
+      <section className="px-4 py-20 md:px-6">
+        <div className="mx-auto max-w-[1200px] overflow-hidden rounded-lg bg-[#061d31] p-8 text-center text-white md:p-12">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-[#c0ff00]/15 text-[#c0ff00]">
+            <CheckCircle2 className="h-6 w-6" aria-hidden />
+          </div>
+          <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-semibold tracking-tight md:text-4xl">
+            Ready to turn participation into prime placement?
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[#dce9ff]/75">
+            Shipyard rewards give every builder a path to front-page visibility.
+            Keep the streak alive, monitor the ledger, and swap rewards for
+            exposure when your next launch is ready.
+          </p>
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              href={MEMBER_PRODUCTS_ADD_PATH}
+              className="inline-flex w-full items-center justify-center rounded-full bg-[#c0ff00] px-8 py-3 text-sm font-bold text-black transition hover:bg-[#d6ff47] active:scale-95 sm:w-auto"
+            >
+              List your product
+              <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
+            </Link>
+            <Link
+              href={MEMBER_REWARDS_PATH}
+              className="inline-flex w-full items-center justify-center rounded-full bg-white/10 px-8 py-3 text-sm font-bold text-white transition hover:bg-white/20 active:scale-95 sm:w-auto"
+            >
+              Review your ledger
+            </Link>
           </div>
         </div>
       </section>

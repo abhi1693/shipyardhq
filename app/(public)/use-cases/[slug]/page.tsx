@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { Suspense } from "react"
 
 import { UseCasePageContent } from "@/components/templates/public/use-cases/detail/page-content"
-import { UseCaseDetailSkeleton } from "@/components/templates/public/use-cases/detail/skeleton"
+import { TaxonomyDetailSkeleton } from "@/components/templates/public/common/TaxonomyDetailSkeleton"
 import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
 import { buildPageMetadata } from "@/lib/metadata"
 import { pluralize } from "@/lib/pluralize"
@@ -34,7 +34,7 @@ export default function UseCasePage(
   props: Parameters<typeof UseCasePageContent>[0],
 ) {
   return (
-    <Suspense fallback={<UseCaseDetailSkeleton />}>
+    <Suspense fallback={<TaxonomyDetailSkeleton />}>
       <UseCasePageContent {...props} />
     </Suspense>
   )

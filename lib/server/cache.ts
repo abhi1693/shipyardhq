@@ -17,6 +17,7 @@ type CacheKeyInput = string | CacheKeyArray
 type InProcessCacheEntry = { value: unknown; expiresAt: number }
 
 const inProcessCache = new Map<string, InProcessCacheEntry>()
+const pendingLoads = new Map<string, Promise<unknown>>()
 const CACHE_DEBUG = process.env.CACHE_DEBUG?.trim() === "true"
 
 function logCacheEvent(
@@ -137,6 +138,21 @@ export async function cacheHit<T>({
   client: providedClient,
   inProcessTtlMs,
 }: CacheHitOptions<T>): Promise<T | null> {
+  const resolvedKey = resolveCacheKeyInput(key)
+  const now = Date.now()
+
+  if (inProcessTtlMs && inProcessTtlMs > 0) {
+    const memo = inProcessCache.get(resolvedKey)
+    if (memo && memo.expiresAt > now) {
+      logCacheEvent("hit (in-process)", resolvedKey)
+      return memo.value as T
+    }
+
+    if (memo) {
+      inProcessCache.delete(resolvedKey)
+    }
+  }
+
   const { client, namespacedKey } = await resolveClientForOperation({
     key,
     providedClient,
@@ -148,14 +164,6 @@ export async function cacheHit<T>({
   }
 
   const parser = deserialize ?? (JSON.parse as (value: string) => T)
-  const now = Date.now()
-
-  if (inProcessTtlMs && inProcessTtlMs > 0) {
-    const memo = inProcessCache.get(namespacedKey)
-    if (memo && memo.expiresAt > now) {
-      return memo.value as T
-    }
-  }
 
   try {
     const cached = await client.get(namespacedKey)
@@ -245,6 +253,65 @@ export async function cacheMiss<T>({
   } catch (error) {
     logCacheEvent("error", namespacedKey, { error })
     onError?.(error)
+  }
+}
+
+interface CacheGetOrSetOptions<T> {
+  key: CacheKeyInput
+  ttlSeconds?: number
+  inProcessTtlMs?: number
+  deserialize?: (value: string) => T
+  serialize?: (value: T) => string
+  onError?: CacheErrorHandler
+  loader: () => Promise<T>
+}
+
+export async function cacheGetOrSet<T>({
+  key,
+  ttlSeconds,
+  inProcessTtlMs,
+  deserialize,
+  serialize,
+  onError,
+  loader,
+}: CacheGetOrSetOptions<T>): Promise<T> {
+  const namespacedKey = resolveCacheKeyInput(key)
+  const cached = await cacheHit<T>({
+    key,
+    deserialize,
+    onError,
+    inProcessTtlMs,
+  })
+
+  if (cached !== null) {
+    return cached
+  }
+
+  const existingLoad = pendingLoads.get(namespacedKey)
+  if (existingLoad) {
+    return existingLoad as Promise<T>
+  }
+
+  const load = (async () => {
+    const fresh = await loader()
+    await cacheMiss({
+      key,
+      value: fresh,
+      ttlSeconds,
+      serialize,
+      onError,
+      inProcessTtlMs,
+    })
+
+    return fresh
+  })()
+
+  pendingLoads.set(namespacedKey, load)
+
+  try {
+    return await load
+  } finally {
+    pendingLoads.delete(namespacedKey)
   }
 }
 

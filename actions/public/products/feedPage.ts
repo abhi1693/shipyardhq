@@ -26,12 +26,15 @@ export type ProductFeedPageRequest =
       page: number
       useCase?: string
       category?: string
-      verified?: boolean
       sort?: string
       q?: string
       platform?: string
       pricingModel?: string
       productType?: string
+      minPrice?: number
+      maxPrice?: number
+      badge?: string
+      backlinkVerified?: boolean
     }
   | {
       kind: "tag"
@@ -82,12 +85,21 @@ export async function getProductFeedPage(
         page: request.page,
         useCaseSlug: request.useCase,
         categorySlug: request.category,
-        verified: request.verified,
         sort: isValidBrowseSort(request.sort) ? request.sort : undefined,
         query: request.q,
         platform: platformEnum,
         pricingModel: pricingModelEnum,
         type: productTypeEnum,
+        minPriceCents:
+          typeof request.minPrice === "number"
+            ? request.minPrice * 100
+            : undefined,
+        maxPriceCents:
+          typeof request.maxPrice === "number"
+            ? request.maxPrice * 100
+            : undefined,
+        badge: request.badge,
+        backlinkVerified: request.backlinkVerified,
       })
 
       const interestMap = await getProductInterestSignalsMap({

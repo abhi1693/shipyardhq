@@ -47,14 +47,10 @@ import {
   productPath,
 } from "@/lib/routes"
 import {
-  CheckCircle2,
-  Circle,
-  Github as GithubIcon,
-  LockKeyhole,
-  Mail,
-  Twitter as TwitterIcon,
-  Video,
-} from "lucide-react"
+  IconBrandGithub as GithubIcon,
+  IconBrandTwitter as TwitterIcon,
+} from "@tabler/icons-react"
+import { CheckCircle2, Circle, LockKeyhole, Mail, Video } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
 import { getPublicPlans } from "@/actions/public/plans/actions"
 // startPlanCheckoutAction and setProductPlanAction are used inside choosePlanAction

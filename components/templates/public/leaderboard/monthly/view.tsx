@@ -152,8 +152,6 @@ export async function MonthlyLeaderboardView({
                     product={firstPlacement.product}
                     rank={firstPlacement.rank ?? 1}
                     label={rankLabels[0] ?? "Top 1"}
-                    upvotesOverride={firstPlacement.upvotes}
-                    upvotesLabel="monthly upvotes"
                     meta={
                       firstPlacement.score != null ? (
                         <Badge
@@ -175,8 +173,6 @@ export async function MonthlyLeaderboardView({
                         product={entry.product}
                         rank={entry.rank ?? index + 2}
                         label={rankLabels[index + 1] ?? `Top ${index + 2}`}
-                        upvotesOverride={entry.upvotes}
-                        upvotesLabel="monthly upvotes"
                         meta={
                           entry.score != null ? (
                             <Badge

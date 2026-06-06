@@ -1,3 +1,4 @@
+import type { ConnectionOptions } from "bullmq"
 import Redis, { type RedisOptions } from "ioredis"
 
 type BullMqConnectionRole = "producer" | "worker"
@@ -13,28 +14,36 @@ export function getBullMqPrefix(): string {
   return process.env.BULLMQ_PREFIX?.trim() || DEFAULT_BULLMQ_PREFIX
 }
 
-export function createBullMqConnection(role: BullMqConnectionRole): Redis {
+export function createBullMqConnection(
+  role: BullMqConnectionRole,
+): ConnectionOptions {
   const commonOptions = buildCommonOptions(role)
   const sentinelName = process.env.REDIS_SENTINEL_NAME?.trim()
   const sentinels = parseSentinelNodes()
 
   if (sentinelName && sentinels.length > 0) {
-    return new Redis({
-      ...commonOptions,
-      name: sentinelName,
-      sentinels,
-      db: parseNonNegativeInteger(process.env.REDIS_DB),
-    })
+    return toBullMqConnection(
+      new Redis({
+        ...commonOptions,
+        name: sentinelName,
+        sentinels,
+        db: parseNonNegativeInteger(process.env.REDIS_DB),
+      }),
+    )
   }
 
   const redisUrl = resolveRedisUrl()
   if (redisUrl) {
-    return new Redis(redisUrl, commonOptions)
+    return toBullMqConnection(new Redis(redisUrl, commonOptions))
   }
 
   throw new Error(
     "BullMQ requires REDIS_URL, REDIS_TLS_URL, or REDIS_SENTINEL_NAME with REDIS_SENTINEL_NODES",
   )
+}
+
+function toBullMqConnection(redis: Redis): ConnectionOptions {
+  return redis as unknown as ConnectionOptions
 }
 
 function buildCommonOptions(role: BullMqConnectionRole): RedisOptions {

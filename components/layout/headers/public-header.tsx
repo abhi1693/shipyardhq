@@ -1,40 +1,45 @@
-import Link from "next/link"
+import { Inter } from "next/font/google"
 import { Suspense } from "react"
+import { Search } from "lucide-react"
 
+import { Input } from "@/components/atoms/input"
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import PublicHeaderActions from "./public-header-actions"
-import { publicHeaderLinks } from "./public-header-links"
+import PublicHeaderNav from "./public-header-nav"
+import PublicHeaderSearch from "./public-header-search"
+
+const inter = Inter({ subsets: ["latin"] })
+
+function PublicHeaderSearchFallback() {
+  return (
+    <div className="relative hidden items-center md:flex" aria-hidden>
+      <Search className="pointer-events-none absolute left-3 size-5 text-[#74777d]" />
+      <Input
+        type="search"
+        disabled
+        placeholder="Search products..."
+        className="h-auto w-64 rounded-[12px] border-[#c4c6cd] bg-[#eff4ff] py-2 pl-10 pr-4 text-[14px] leading-5 text-[#0b1c30] shadow-none placeholder:text-[#74777d] focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[#0051d5]"
+      />
+    </div>
+  )
+}
 
 export default function PublicHeader() {
   return (
-    <header className="sticky top-0 z-50 h-16 border-b border-border/60 bg-white shadow-[0_18px_48px_-26px_rgba(17,24,39,0.35)]">
-      <div className="mx-auto flex h-full w-full max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:px-8">
-        <div className="flex flex-1 items-center gap-3 sm:gap-4">
+    <header
+      className={`${inter.className} fixed top-0 z-50 w-full border-b border-[#E2E8F0] bg-white text-[#0b1c30]`}
+    >
+      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
+        <div className="flex items-center gap-6">
           <BrandWordmark eager />
-
-          <nav className="ml-auto hidden items-center gap-1 lg:flex">
-            {publicHeaderLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium text-black/70 transition-colors hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 focus-visible:ring-offset-2"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          <Suspense fallback={<PublicHeaderSearchFallback />}>
+            <PublicHeaderSearch />
+          </Suspense>
         </div>
 
-        <Suspense
-          fallback={
-            <div
-              aria-hidden="true"
-              className="ml-auto hidden h-[38px] w-[347px] md:block"
-            />
-          }
-        >
-          <PublicHeaderActions />
-        </Suspense>
+        <PublicHeaderNav />
+
+        <PublicHeaderActions />
       </div>
     </header>
   )
