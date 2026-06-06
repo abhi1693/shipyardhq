@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useUser } from "@clerk/nextjs"
-import { Crown } from "lucide-react"
+import { ArrowBigUp } from "lucide-react"
 
 import SignInButton from "@/components/molecules/SignInButton"
 import { cn } from "@/lib/utils"
@@ -16,6 +16,7 @@ interface ProductUpvoteBadgeProps {
     rank: number | null
     available: boolean
   }
+  variant?: "card" | "inline"
 }
 
 const formatter = new Intl.NumberFormat("en-US")
@@ -25,6 +26,7 @@ export function ProductUpvoteBadge({
   count,
   initialUpvoted,
   leaderboard,
+  variant = "card",
 }: ProductUpvoteBadgeProps) {
   const { isSignedIn } = useUser()
 
@@ -133,19 +135,28 @@ export function ProductUpvoteBadge({
     }
   }
 
+  const isInline = variant === "inline"
   const buttonClasses = cn(
-    "inline-flex w-full items-center justify-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold shadow-sm transition cursor-pointer disabled:cursor-pointer",
-    state.upvoted
-      ? "border-[#1d9cf4] bg-[#1d9cf4] text-white shadow-[0_12px_30px_-18px_rgba(29,156,244,0.4)]"
-      : "border-[#1d9cf4]/40 bg-white text-[#1d9cf4] hover:bg-[#1d9cf4]/8 hover:cursor-pointer",
+    "inline-flex items-center justify-center gap-2 border text-sm font-semibold shadow-sm transition cursor-pointer disabled:cursor-pointer",
+    isInline
+      ? "h-12 w-full rounded-lg px-5 sm:w-auto"
+      : "w-full rounded-lg px-6 py-3",
+    isInline
+      ? "border-[#0051d5] bg-[#0051d5] text-white shadow-[0_12px_30px_-18px_rgba(0,81,213,0.45)] hover:bg-[#0049bf]"
+      : state.upvoted
+        ? "border-[#0051d5] bg-[#0051d5] text-white shadow-[0_12px_30px_-18px_rgba(0,81,213,0.45)]"
+        : "border-[#0051d5]/40 bg-white text-[#0051d5] hover:bg-[#0051d5]/8 hover:cursor-pointer",
   )
 
   const badgeContent = (
     <>
-      <Crown className="h-4 w-4" aria-hidden />
+      <ArrowBigUp className="h-4 w-4" aria-hidden />
       <span>{state.upvoted ? "Upvoted" : "Upvote"}</span>
-      <span aria-hidden>·</span>
-      <span>{formatter.format(state.upvotes)} votes</span>
+      {isInline ? null : <span aria-hidden>·</span>}
+      <span>
+        {formatter.format(state.upvotes)}
+        {isInline ? "" : " votes"}
+      </span>
     </>
   )
 
@@ -217,8 +228,19 @@ export function ProductUpvoteBadge({
     </SignInButton>
   )
 
+  if (isInline) {
+    return (
+      <div className="w-full sm:w-auto">
+        {actionElement}
+        {state.error ? (
+          <p className="mt-2 text-xs text-destructive">{state.error}</p>
+        ) : null}
+      </div>
+    )
+  }
+
   return (
-    <section className="w-full max-w-full overflow-hidden rounded-3xl border border-border/60 bg-white p-5 shadow-sm sm:p-6">
+    <section className="w-full max-w-full overflow-hidden rounded-xl border border-border/60 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex flex-col gap-4">
         <div className="space-y-1">
           <p className="text-base font-semibold text-foreground">
