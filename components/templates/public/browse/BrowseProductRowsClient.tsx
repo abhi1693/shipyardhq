@@ -18,9 +18,15 @@ import { categoryPath, productPath } from "@/lib/routes"
 type BrowseRowsSearchParams = {
   useCase?: string
   category?: string
-  verified?: boolean
   sort?: string
   q?: string
+  platform?: string
+  pricingModel?: string
+  productType?: string
+  minPrice?: number
+  maxPrice?: number
+  badge?: string
+  backlinkVerified?: boolean
 }
 
 interface BrowseProductRowsClientProps {
@@ -154,16 +160,28 @@ export function BrowseProductRowsClient({
     () => ({
       useCase: searchParams.useCase,
       category: searchParams.category,
-      verified: searchParams.verified,
       sort: searchParams.sort,
       q: searchParams.q,
+      platform: searchParams.platform,
+      pricingModel: searchParams.pricingModel,
+      productType: searchParams.productType,
+      minPrice: searchParams.minPrice,
+      maxPrice: searchParams.maxPrice,
+      badge: searchParams.badge,
+      backlinkVerified: searchParams.backlinkVerified,
     }),
     [
       searchParams.category,
+      searchParams.badge,
+      searchParams.backlinkVerified,
+      searchParams.maxPrice,
+      searchParams.minPrice,
+      searchParams.platform,
+      searchParams.pricingModel,
+      searchParams.productType,
       searchParams.q,
       searchParams.sort,
       searchParams.useCase,
-      searchParams.verified,
     ],
   )
 

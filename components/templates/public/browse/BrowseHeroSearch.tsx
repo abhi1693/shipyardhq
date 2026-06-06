@@ -20,7 +20,6 @@ type BrowseHeroUseCase = {
 
 interface BrowseHeroSearchProps {
   query?: string
-  category?: string
   categories: BrowseHeroCategory[]
   useCases: BrowseHeroUseCase[]
   launchedCount: number
@@ -28,7 +27,6 @@ interface BrowseHeroSearchProps {
 
 export function BrowseHeroSearch({
   query,
-  category,
   categories,
   useCases,
   launchedCount,
@@ -36,7 +34,6 @@ export function BrowseHeroSearch({
   const router = useRouter()
   const searchParams = useSearchParams()
   const [searchTerm, setSearchTerm] = useState(query ?? "")
-  const [selectedCategory, setSelectedCategory] = useState(category ?? "")
 
   const trendingLinks = useMemo(() => {
     const categoryLinks = categories.slice(0, 2).map((item) => ({
@@ -55,8 +52,6 @@ export function BrowseHeroSearch({
     const trimmed = searchTerm.trim()
     const nextUrl = buildQuery(BROWSE_PATH, searchParams, {
       q: trimmed || undefined,
-      category: selectedCategory || undefined,
-      useCase: undefined,
       page: undefined,
     })
 
@@ -97,27 +92,6 @@ export function BrowseHeroSearch({
               />
             </label>
             <div className="flex gap-2">
-              <label className="hidden min-w-[180px] sm:block">
-                <span className="sr-only">Category</span>
-                <select
-                  value={selectedCategory}
-                  onChange={(event) => setSelectedCategory(event.target.value)}
-                  className="h-12 w-full rounded-md border-0 bg-white/10 px-3 text-sm font-semibold text-white focus:ring-2 focus:ring-[#10b981]"
-                >
-                  <option className="text-[#061d31]" value="">
-                    All Categories
-                  </option>
-                  {categories.slice(0, 12).map((item) => (
-                    <option
-                      key={item.slug}
-                      className="text-[#061d31]"
-                      value={item.slug}
-                    >
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
               <button className="h-12 rounded-md bg-[#10b981] px-6 text-sm font-extrabold text-white transition hover:bg-[#0ea371] active:scale-95">
                 Explore
               </button>

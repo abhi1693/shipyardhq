@@ -31,8 +31,6 @@ export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
     .sort((a, b) => (b.scoreCount ?? 0) - (a.scoreCount ?? 0))
     .slice(0, 3)
 
-  if (!risingProducts.length) return null
-
   return (
     <section className="overflow-hidden">
       <div className="mb-6 flex items-center justify-between gap-4">
@@ -52,6 +50,15 @@ export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
         </Link>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {!risingProducts.length
+          ? Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={`rising-placeholder-${index}`}
+                className="min-h-[174px] rounded-lg border border-dashed border-[#c4c6cd] bg-white/60 p-5"
+                aria-hidden="true"
+              />
+            ))
+          : null}
         {risingProducts.map((product) => {
           const score =
             typeof product.scoreCount === "number" &&
@@ -83,9 +90,6 @@ export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
               <div className="mt-4 flex items-center justify-between gap-3">
                 <span className="truncate rounded bg-[#f8fafc] px-2 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#43474c]">
                   {product.category?.name ?? "Product"}
-                </span>
-                <span className="text-sm font-bold text-[#0051d5]">
-                  View product
                 </span>
               </div>
             </Link>
