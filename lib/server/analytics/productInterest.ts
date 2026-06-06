@@ -133,6 +133,30 @@ function parseJson<T>(value: string | null): T | null {
   }
 }
 
+async function readRedisValues(
+  redis: NonNullable<Awaited<ReturnType<typeof getRedisClient>>>,
+  keys: string[],
+): Promise<Array<string | null>> {
+  if (!keys.length) return []
+
+  try {
+    return await redis.mGet(keys)
+  } catch {
+    return []
+  }
+}
+
+async function readRedisValue(
+  redis: NonNullable<Awaited<ReturnType<typeof getRedisClient>>>,
+  key: string,
+): Promise<string | null> {
+  try {
+    return await redis.get(key)
+  } catch {
+    return null
+  }
+}
+
 export async function getProductInterestSignalsMap(args: {
   products: ProductRef[]
   days?: number
@@ -145,7 +169,7 @@ export async function getProductInterestSignalsMap(args: {
   if (!redis) return results
 
   const keys = products.map((product) => interestKey(product.id))
-  const values = await redis.mGet(keys)
+  const values = await readRedisValues(redis, keys)
 
   for (let i = 0; i < products.length; i += 1) {
     const cached = parseJson<ProductInterestCacheValue>(values[i] ?? null)
@@ -168,7 +192,7 @@ export async function getMostClickedProductIds(args?: {
   if (!redis) return []
 
   const payload = parseJson<{ productIds: string[] }>(
-    await redis.get(mostClickedIndexKey(days)),
+    await readRedisValue(redis, mostClickedIndexKey(days)),
   )
   const ids = payload?.productIds ?? []
   return ids.slice(0, Math.max(0, Math.floor(limit)))
@@ -189,7 +213,7 @@ export async function getTrendingCategoryProductIds(args: {
   if (!redis) return []
 
   const payload = parseJson<{ productIds: string[] }>(
-    await redis.get(categoryTrendingIndexKey(categorySlug, days)),
+    await readRedisValue(redis, categoryTrendingIndexKey(categorySlug, days)),
   )
   const ids = payload?.productIds ?? []
   return ids.slice(0, Math.max(0, Math.floor(limit)))
@@ -210,7 +234,7 @@ export async function getAlsoClickedProductIds(args: {
   if (!redis) return []
 
   const payload = parseJson<{ productIds: string[] }>(
-    await redis.get(alsoClickedIndexKey(productId, days)),
+    await readRedisValue(redis, alsoClickedIndexKey(productId, days)),
   )
   const ids = payload?.productIds ?? []
   return ids.slice(0, Math.max(0, Math.floor(limit)))

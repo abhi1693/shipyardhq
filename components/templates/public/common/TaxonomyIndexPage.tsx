@@ -6,7 +6,6 @@ import {
   ChevronRight,
   Database,
   Hash,
-  Search,
   Sparkles,
   TrendingUp,
 } from "lucide-react"
@@ -32,7 +31,7 @@ type TaxonomyIndexStat = {
 type TaxonomyIndexPageProps = {
   title: string
   description: string
-  searchPlaceholder: string
+  searchPlaceholder?: string
   itemsHeading: string
   items: TaxonomyIndexItem[]
   totalItems?: number
@@ -45,6 +44,7 @@ type TaxonomyIndexPageProps = {
   emptyTitle?: string
   emptyDescription?: string
   structuredData?: ReactNode
+  directoryAccessory?: "sparkline" | "icon"
 }
 
 const toneClasses = {
@@ -178,10 +178,12 @@ function DirectoryCard({
   item,
   index,
   itemUnit,
+  accessory,
 }: {
   item: TaxonomyIndexItem
   index: number
   itemUnit: string
+  accessory: "sparkline" | "icon"
 }) {
   const tone =
     item.tone ??
@@ -200,7 +202,18 @@ function DirectoryCard({
           {formatCount(item.count)} {formatItemUnit(item.count, itemUnit)}
         </span>
       </span>
-      <Sparkline index={index} tone={tone} />
+      {accessory === "icon" ? (
+        <span
+          className={cn(
+            "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+            toneClasses[tone].icon,
+          )}
+        >
+          {item.icon ?? <Hash className="h-5 w-5" aria-hidden />}
+        </span>
+      ) : (
+        <Sparkline index={index} tone={tone} />
+      )}
     </Link>
   )
 }
@@ -267,7 +280,6 @@ function PulsePanel({
 export function TaxonomyIndexPage({
   title,
   description,
-  searchPlaceholder,
   itemsHeading,
   items,
   totalItems,
@@ -280,12 +292,10 @@ export function TaxonomyIndexPage({
   emptyTitle = "Nothing to show yet",
   emptyDescription = "Once matching products are published, this directory will populate automatically.",
   structuredData,
+  directoryAccessory = "sparkline",
 }: TaxonomyIndexPageProps) {
   const sortedItems = sortByCount(items)
-  const topItems = (trendingItems?.length ? trendingItems : sortedItems).slice(
-    0,
-    4,
-  )
+  const topItems = (trendingItems ?? sortedItems).slice(0, 4)
   const quickLinks = sortedItems.slice(0, 8)
   const totalProductCount = items.reduce((sum, item) => sum + item.count, 0)
   const stats = pulseStats ?? [
@@ -310,17 +320,6 @@ export function TaxonomyIndexPage({
           <p className="mx-auto mt-4 max-w-2xl text-base leading-6 text-[#d0e4ff]/80">
             {description}
           </p>
-          <div className="relative mx-auto mt-8 max-w-xl">
-            <Search
-              className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#d0e4ff]/70"
-              aria-hidden
-            />
-            <input
-              className="h-14 w-full rounded-xl border border-white/15 bg-white/10 px-12 text-sm text-white outline-none transition placeholder:text-[#d0e4ff]/70 focus:border-[#b4c5ff] focus:ring-2 focus:ring-[#b4c5ff]/40"
-              placeholder={searchPlaceholder}
-              type="search"
-            />
-          </div>
         </div>
       </section>
 
@@ -365,6 +364,7 @@ export function TaxonomyIndexPage({
                     item={item}
                     index={index}
                     itemUnit={itemUnit}
+                    accessory={directoryAccessory}
                   />
                 ))}
               </div>
