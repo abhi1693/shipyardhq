@@ -96,9 +96,8 @@ export const ChartContainer = React.forwardRef<
 )
 ChartContainer.displayName = "ChartContainer"
 
-type ChartTooltipProps = Omit<
-  TooltipContentProps<number, string>,
-  "labelFormatter"
+type ChartTooltipProps = Partial<
+  Omit<TooltipContentProps<number, string>, "labelFormatter">
 > & {
   labelFormatter?: (label: string | number) => React.ReactNode
   valueFormatter?: (value: number, seriesKey?: string) => React.ReactNode
