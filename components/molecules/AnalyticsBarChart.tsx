@@ -110,7 +110,7 @@ export function AnalyticsBarChart<DataPoint extends object>({
         <BarChart data={data} layout={layout} margin={margin}>
           {resolvedGridProps ? <CartesianGrid {...resolvedGridProps} /> : null}
           <XAxis
-            dataKey={xAxisKey as string | undefined}
+            dataKey={xAxisKey as XAxisProps["dataKey"]}
             stroke="currentColor"
             fontSize={12}
             tickLine={false}
@@ -118,7 +118,7 @@ export function AnalyticsBarChart<DataPoint extends object>({
             {...(xAxisRest as Partial<XAxisProps>)}
           />
           <YAxis
-            dataKey={yAxisKey as string | undefined}
+            dataKey={yAxisKey as YAxisProps["dataKey"]}
             stroke="currentColor"
             fontSize={12}
             tickLine={false}
@@ -143,7 +143,7 @@ export function AnalyticsBarChart<DataPoint extends object>({
             return (
               <Bar
                 key={definition.dataKey}
-                dataKey={definition.dataKey}
+                dataKey={definition.dataKey as BarProps["dataKey"]}
                 fill={fill}
                 {...restBarProps}
               >
