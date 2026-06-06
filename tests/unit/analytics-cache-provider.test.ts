@@ -23,6 +23,7 @@ vi.mock("@/lib/server/cache", () => cacheMocks)
 
 vi.mock("@/lib/server/analytics/googleAnalytics", () => ({
   fetchRealtimeVisitorsFromGa: gaMocks.fetchRealtimeVisitorsFromGa,
+  hasGaAnalyticsConfig: () => true,
   isTransientGaError: (error: unknown) => {
     const errorLike = error as { code?: unknown; message?: unknown }
     return (

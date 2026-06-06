@@ -11,6 +11,10 @@ export default function shipyardImageLoader({
   width,
   quality,
 }: ImageLoaderParams) {
+  if (src.startsWith("/")) {
+    return src
+  }
+
   const normalizedWidth = Math.max(1, Math.round(width))
   const normalizedQuality =
     typeof quality === "number" && Number.isFinite(quality) ? quality : 75

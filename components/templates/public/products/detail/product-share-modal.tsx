@@ -2,14 +2,11 @@
 
 import { useCallback, useMemo, useState } from "react"
 import {
-  Copy,
-  Facebook,
-  Linkedin,
-  MessageCircle,
-  Share2,
-  Twitter,
-  X,
-} from "lucide-react"
+  IconBrandFacebook as Facebook,
+  IconBrandLinkedin as Linkedin,
+  IconBrandX as Twitter,
+} from "@tabler/icons-react"
+import { Copy, MessageCircle, Share2, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 

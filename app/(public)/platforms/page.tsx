@@ -1,5 +1,5 @@
+import { IconBrandChrome } from "@tabler/icons-react"
 import {
-  Chrome,
   Globe2,
   Laptop,
   Monitor,
@@ -40,7 +40,7 @@ const platformIcons: Record<PlatformSlug, ReactNode> = {
   mac: <Laptop className="h-5 w-5" aria-hidden />,
   windows: <Monitor className="h-5 w-5" aria-hidden />,
   linux: <Monitor className="h-5 w-5" aria-hidden />,
-  chrome: <Chrome className="h-5 w-5" aria-hidden />,
+  chrome: <IconBrandChrome className="h-5 w-5" aria-hidden />,
 }
 
 export default async function PlatformsPage() {

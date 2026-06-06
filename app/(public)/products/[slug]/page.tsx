@@ -7,11 +7,11 @@ import {
 } from "react"
 import { notFound } from "next/navigation"
 import { JsonLdScript } from "next-seo"
+import { IconBrandChrome as ChromeIcon } from "@tabler/icons-react"
 import {
   Apple,
   BadgeCheck,
   Calendar,
-  Chrome as ChromeIcon,
   ExternalLink,
   Globe,
   Laptop,
