@@ -3,13 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useMemo } from "react"
-import {
-  ArrowUp,
-  BadgeCheck,
-  ImageIcon,
-  Sparkles,
-  TrendingUp,
-} from "lucide-react"
+import { ArrowUp, BadgeCheck, ImageIcon, Sparkles } from "lucide-react"
 
 import { getProductFeedPage } from "@/actions/public/products/feedPage"
 import InfiniteProductGrid from "@/components/molecules/InfiniteProductGrid"
@@ -60,10 +54,10 @@ function BrowseProductRow({ product }: { product: ProductCardItem }) {
   const href = productPath(product.slug)
   const categoryName = product.categoryName ?? product.category?.name ?? null
   const categorySlug = product.categorySlug ?? product.category?.slug ?? null
-  const upvotes = product.analytics?.upvotes ?? product.scoreCount ?? 0
-  const momentum = product.scoreCount
-    ? Math.max(1, Math.round(product.scoreCount / 10))
-    : null
+  const score =
+    typeof product.scoreCount === "number" && Number.isFinite(product.scoreCount)
+      ? product.scoreCount
+      : 0
   const badges = product.badges ?? []
 
   return (
@@ -118,22 +112,16 @@ function BrowseProductRow({ product }: { product: ProductCardItem }) {
               </span>
             )
           ) : null}
-          {momentum ? (
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#16a34a]">
-              <TrendingUp className="h-3 w-3" aria-hidden />+{momentum}%
-              momentum
-            </span>
-          ) : null}
         </div>
       </div>
       <Link
         href={href}
         className="flex shrink-0 flex-col items-center gap-1 rounded-lg bg-[#f8fafc] px-4 py-2 text-[#43474c] transition group-hover:bg-[#eff6ff] group-hover:text-[#0051d5] active:scale-95"
-        aria-label={`View ${product.name}`}
+        aria-label={`View ${product.name}, score ${score.toLocaleString("en-US")}`}
       >
         <ArrowUp className="h-5 w-5" aria-hidden />
         <span className="text-sm font-bold leading-none">
-          {upvotes.toLocaleString("en-US")}
+          {score.toLocaleString("en-US")}
         </span>
       </Link>
     </article>

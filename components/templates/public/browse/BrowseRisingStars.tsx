@@ -9,11 +9,6 @@ interface BrowseRisingStarsProps {
   products: ProductCardBase[]
 }
 
-function getBoost(product: ProductCardBase, index: number) {
-  const score = product.scoreCount ?? product.analytics?.upvotes ?? 0
-  return Math.max(8, Math.min(96, Math.round(score / 8) + 42 - index * 6))
-}
-
 function ProductLogo({ product }: { product: ProductCardBase }) {
   if (!product.logo) {
     return <ImageIcon className="h-6 w-6 text-[#74777d]" aria-hidden />
@@ -61,9 +56,12 @@ export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
         </Link>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {risingProducts.map((product, index) => {
-          const boost = getBoost(product, index)
-          const upvotes = product.analytics?.upvotes ?? product.scoreCount ?? 0
+        {risingProducts.map((product) => {
+          const score =
+            typeof product.scoreCount === "number" &&
+            Number.isFinite(product.scoreCount)
+              ? product.scoreCount
+              : 0
           return (
             <Link
               key={product.id}
@@ -74,13 +72,9 @@ export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#e2e8f0] bg-[#f8fafc]">
                   <ProductLogo product={product} />
                 </span>
-                <span className="text-right">
-                  <span className="block text-xl font-black text-[#10b981]">
-                    +{boost}%
-                  </span>
-                  <span className="block text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#74777d]">
-                    Momentum
-                  </span>
+                <span className="flex items-center gap-1 text-sm font-bold text-[#10b981]">
+                  <ArrowUp className="h-4 w-4" aria-hidden />
+                  {score.toLocaleString("en-US")}
                 </span>
               </div>
               <h3 className="truncate text-lg font-bold text-[#061d31] transition group-hover:text-[#0051d5]">
@@ -94,9 +88,8 @@ export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
                 <span className="truncate rounded bg-[#f8fafc] px-2 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#43474c]">
                   {product.category?.name ?? "Product"}
                 </span>
-                <span className="flex items-center gap-1 text-sm font-bold text-[#10b981]">
-                  <ArrowUp className="h-4 w-4" aria-hidden />
-                  {upvotes.toLocaleString("en-US")}
+                <span className="text-sm font-bold text-[#0051d5]">
+                  View product
                 </span>
               </div>
             </Link>

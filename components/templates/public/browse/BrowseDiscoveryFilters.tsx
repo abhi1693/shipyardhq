@@ -244,7 +244,7 @@ export function BrowseDiscoveryFilters({
 
           <div>
             <h3 className="mb-3 text-xs font-extrabold uppercase tracking-[0.16em] text-[#43474c]">
-              Momentum
+              Sort
             </h3>
             <div className="space-y-1">
               {sortOptions.map(({ value, label, Icon }) => {
