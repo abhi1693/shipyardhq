@@ -98,12 +98,19 @@ export function LeaderboardUpvoteButton({
 
   const content = (
     <>
-      <Triangle
-        className="size-[18px]"
-        fill={state.upvoted ? "currentColor" : "none"}
-        strokeWidth={2}
-        aria-hidden
-      />
+      <span
+        className={cn(
+          "inline-flex h-5 w-5 items-center justify-center rounded-full transition-colors",
+          state.upvoted && "bg-white/20",
+        )}
+      >
+        <Triangle
+          className="size-[18px]"
+          fill={state.upvoted ? "currentColor" : "none"}
+          strokeWidth={2}
+          aria-hidden
+        />
+      </span>
       <span>{formatter.format(state.upvotes)}</span>
     </>
   )

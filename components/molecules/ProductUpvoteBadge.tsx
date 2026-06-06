@@ -150,7 +150,17 @@ export function ProductUpvoteBadge({
 
   const badgeContent = (
     <>
-      <ArrowBigUp className="h-4 w-4" aria-hidden />
+      <span
+        className={cn(
+          "inline-flex h-5 w-5 items-center justify-center rounded-full transition-colors",
+          state.upvoted && "bg-white/20",
+        )}
+      >
+        <ArrowBigUp
+          className={cn("h-4 w-4", state.upvoted && "fill-current")}
+          aria-hidden
+        />
+      </span>
       <span>{state.upvoted ? "Upvoted" : "Upvote"}</span>
       {isInline ? null : <span aria-hidden>·</span>}
       <span>

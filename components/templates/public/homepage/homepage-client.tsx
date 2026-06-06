@@ -1,6 +1,15 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import Link from "next/link"
 import { useUser } from "@clerk/nextjs"
 import { BadgeCheck, ChevronUp } from "lucide-react"
@@ -19,6 +28,126 @@ import { cn } from "@/lib/utils"
 const formatter = new Intl.NumberFormat("en-US")
 const SPONSORED_DROP_INTERVAL = 4
 
+type HomepageVoteStateContextValue = {
+  isVoted: (productId?: string) => boolean
+  markVoted: (productId?: string) => void
+  registerProductIds: (productIds: string[]) => void
+}
+
+const HomepageVoteStateContext = createContext<HomepageVoteStateContextValue>({
+  isVoted: () => false,
+  markVoted: () => {},
+  registerProductIds: () => {},
+})
+
+export function HomepageVoteStateProvider({
+  productIds,
+  children,
+}: {
+  productIds: string[]
+  children: ReactNode
+}) {
+  const { isLoaded, isSignedIn, user } = useUser()
+  const [voteSnapshot, setVoteSnapshot] = useState<{
+    userKey: string | null
+    ids: Set<string>
+  }>(() => ({ userKey: null, ids: new Set() }))
+  const requestedIdsRef = useRef<Set<string>>(new Set())
+  const productIdsKey = useMemo(() => productIds.join("|"), [productIds])
+  const normalizedProductIds = useMemo(
+    () => productIdsKey.split("|").filter(Boolean),
+    [productIdsKey],
+  )
+  const userKey = user?.id ?? null
+
+  const fetchVoteState = useCallback(
+    async (ids: string[]) => {
+      if (!isLoaded || !isSignedIn) return
+
+      const nextIds = Array.from(new Set(ids))
+        .filter(Boolean)
+        .filter((id) => !requestedIdsRef.current.has(id))
+      if (!nextIds.length) return
+
+      nextIds.forEach((id) => requestedIdsRef.current.add(id))
+
+      try {
+        const activeUserKey = userKey
+        const response = await fetch("/api/homepage/votes", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            accept: "application/json",
+          },
+          body: JSON.stringify({ productIds: nextIds }),
+        })
+        if (!response.ok) return
+
+        const payload = (await response.json()) as {
+          votedProductIds?: unknown
+        }
+        const votedProductIds = payload.votedProductIds
+        if (!Array.isArray(votedProductIds)) return
+
+        setVoteSnapshot((current) => {
+          const next = new Set(
+            current.userKey === activeUserKey ? current.ids : [],
+          )
+          votedProductIds
+            .filter((id): id is string => typeof id === "string")
+            .forEach((id) => next.add(id))
+          return { userKey: activeUserKey, ids: next }
+        })
+      } catch {
+        nextIds.forEach((id) => requestedIdsRef.current.delete(id))
+      }
+    },
+    [isLoaded, isSignedIn, userKey],
+  )
+
+  useEffect(() => {
+    requestedIdsRef.current = new Set()
+
+    if (isLoaded && isSignedIn) {
+      void fetchVoteState(normalizedProductIds)
+    }
+  }, [fetchVoteState, isLoaded, isSignedIn, normalizedProductIds, userKey])
+
+  const value = useMemo<HomepageVoteStateContextValue>(
+    () => ({
+      isVoted: (productId) =>
+        Boolean(
+          productId &&
+          voteSnapshot.userKey === userKey &&
+          voteSnapshot.ids.has(productId),
+        ),
+      markVoted: (productId) => {
+        if (!productId) return
+        requestedIdsRef.current.add(productId)
+        setVoteSnapshot((current) => {
+          const next = new Set(current.userKey === userKey ? current.ids : [])
+          next.add(productId)
+          return { userKey, ids: next }
+        })
+      },
+      registerProductIds: (ids) => {
+        void fetchVoteState(ids)
+      },
+    }),
+    [fetchVoteState, userKey, voteSnapshot],
+  )
+
+  return (
+    <HomepageVoteStateContext.Provider value={value}>
+      {children}
+    </HomepageVoteStateContext.Provider>
+  )
+}
+
+function useHomepageVoteState() {
+  return useContext(HomepageVoteStateContext)
+}
+
 function useCurrentRedirect() {
   const [redirectUrl] = useState<string | undefined>(() => {
     if (typeof window === "undefined") return undefined
@@ -30,6 +159,7 @@ function useCurrentRedirect() {
 }
 
 export function HomepageUpvoteButton({
+  productId,
   productSlug,
   initialCount,
   initialUpvoted,
@@ -39,6 +169,7 @@ export function HomepageUpvoteButton({
   countIncrement = 1,
   syncResponseCount = true,
 }: {
+  productId?: string
   productSlug?: string
   initialCount: number
   initialUpvoted?: boolean
@@ -49,20 +180,24 @@ export function HomepageUpvoteButton({
   syncResponseCount?: boolean
 }) {
   const { isSignedIn } = useUser()
+  const voteState = useHomepageVoteState()
   const redirectUrl = useCurrentRedirect()
+  const resolvedInitialUpvoted = Boolean(
+    initialUpvoted || voteState.isVoted(productId),
+  )
   const [state, setState] = useState({
     count: initialCount,
-    upvoted: Boolean(initialUpvoted),
+    upvoted: resolvedInitialUpvoted,
     pending: false,
   })
 
   useEffect(() => {
     setState({
       count: initialCount,
-      upvoted: Boolean(initialUpvoted),
+      upvoted: resolvedInitialUpvoted,
       pending: false,
     })
-  }, [initialCount, initialUpvoted])
+  }, [initialCount, resolvedInitialUpvoted])
 
   async function toggleUpvote() {
     if (state.pending) return
@@ -105,6 +240,7 @@ export function HomepageUpvoteButton({
           typeof payload.upvoted === "boolean" ? payload.upvoted : nextUpvoted,
         pending: false,
       })
+      voteState.markVoted(productId)
     } catch {
       setState({ ...previous, pending: false })
     }
@@ -114,17 +250,26 @@ export function HomepageUpvoteButton({
     "inline-flex h-auto cursor-pointer items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-xs font-semibold transition-all active:scale-[0.98] disabled:cursor-pointer disabled:opacity-70",
     dark
       ? "border border-white/10 bg-white/5 text-white hover:bg-white/10"
-      : state.upvoted
-        ? "bg-[#0051d5] text-white shadow-sm hover:bg-[#0048bf]"
-        : "bg-[#0051d5] text-white shadow-sm hover:bg-[#0048bf]",
+      : "bg-[#0051d5] text-white shadow-sm hover:bg-[#0048bf]",
     className,
+    state.upvoted &&
+      (dark
+        ? "border-[#C0FF00] bg-[#C0FF00] text-[#061d31] hover:bg-[#C0FF00]/90"
+        : "bg-[#0051d5] text-white hover:bg-[#0048bf]"),
   )
   const content = (
     <>
-      <ChevronUp
-        className={cn("size-4", state.upvoted && "fill-current")}
-        aria-hidden
-      />
+      <span
+        className={cn(
+          "inline-flex h-5 w-5 items-center justify-center rounded-full transition-colors",
+          state.upvoted && (dark ? "bg-black/10" : "bg-white/20"),
+        )}
+      >
+        <ChevronUp
+          className={cn("size-4", state.upvoted && "stroke-[3]")}
+          aria-hidden
+        />
+      </span>
       <span>
         {fullLabel ? "Upvote " : ""}
         {formatter.format(state.count)}
@@ -423,6 +568,7 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
           )}
         >
           <HomepageUpvoteButton
+            productId={product.id}
             productSlug={product.slug}
             initialCount={product.scoreCount ?? 0}
             initialUpvoted={product.isVoted}
@@ -469,6 +615,7 @@ export function HomepageDropsInfiniteList({
   const sentinelRef = useRef<HTMLDivElement | null>(null)
   const sentinelVisibleRef = useRef(false)
   const seenKeysRef = useRef(new Set(initialUniqueItems.map(dropKey)))
+  const voteState = useHomepageVoteState()
   const sections = useMemo(
     () =>
       buildDropSections(items, referenceDateIso).filter(
@@ -507,6 +654,11 @@ export function HomepageDropsInfiniteList({
           return true
         })
 
+      voteState.registerProductIds(
+        nextItems
+          .map((item) => item.id)
+          .filter((id): id is string => Boolean(id)),
+      )
       setItems((current) => [...current, ...nextItems])
       setHasMore(payload.hasMore)
       setNextPage(payload.nextPage)
@@ -515,7 +667,7 @@ export function HomepageDropsInfiniteList({
     } finally {
       setLoading(false)
     }
-  }, [error, excludedSlug, hasMore, loading, nextPage, pageSize])
+  }, [error, excludedSlug, hasMore, loading, nextPage, pageSize, voteState])
 
   useEffect(() => {
     const sentinel = sentinelRef.current

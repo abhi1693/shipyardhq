@@ -346,6 +346,17 @@ async function resolveUpvotedProductIds(
   return new Set(votes.map((vote: Vote) => vote.productId))
 }
 
+export async function getHomepageViewerUpvotedProductIds({
+  clerkUserId,
+  productIds,
+}: {
+  clerkUserId: string | null | undefined
+  productIds: string[]
+}): Promise<string[]> {
+  const upvoted = await resolveUpvotedProductIds(clerkUserId, productIds)
+  return Array.from(upvoted)
+}
+
 async function buildFeedItemsFromProducts(
   products: HomepageFeedProduct[],
   clerkUserId: string | null | undefined,

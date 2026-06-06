@@ -13,6 +13,7 @@ import { Image } from "@/components/atoms/image"
 import {
   HomepageDropsInfiniteList,
   HomepageUpvoteButton,
+  HomepageVoteStateProvider,
 } from "@/components/templates/public/homepage/homepage-client"
 import { TrafficStatsPanel } from "@/components/templates/public/common/TrafficStatsPanel"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
@@ -292,6 +293,13 @@ export default async function HomePage() {
   const usingFallbackDrops = feedPage.items.length === 0
   const drops =
     feedDrops.length > 0 ? feedDrops : usingFallbackDrops ? fallbackDrops : []
+  const homepageVoteProductIds = Array.from(
+    new Set(
+      [launch.id, ...drops.map((drop) => drop.id)].filter((id): id is string =>
+        Boolean(id),
+      ),
+    ),
+  )
   const referenceDateIso = new Date().toISOString()
   const launchGrowth = launch.upvoteGrowthPercent
   const launchBuildersClickedCount = launch.buildersClickedCount ?? 0
@@ -376,130 +384,133 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-4 py-12 sm:px-6">
-        <div className="grid grid-cols-12 gap-6">
-          <article className="relative col-span-12 flex h-full flex-col justify-between overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm lg:col-span-8">
-            <div className="mb-4 flex items-start justify-between gap-4">
-              <div className="flex min-w-0 items-start gap-4">
-                <ProductLogo product={launch} className="size-16" />
-                <div className="min-w-0">
-                  <div className="mb-1 flex flex-wrap items-center gap-2">
-                    <h2 className="text-2xl font-semibold leading-none">
-                      {launch.name}
-                    </h2>
-                    <span className="rounded-full bg-[#F97316]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#F97316]">
-                      Launch of the Day
-                    </span>
+      <HomepageVoteStateProvider productIds={homepageVoteProductIds}>
+        <section className="mx-auto max-w-[1200px] px-4 py-12 sm:px-6">
+          <div className="grid grid-cols-12 gap-6">
+            <article className="relative col-span-12 flex h-full flex-col justify-between overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm lg:col-span-8">
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div className="flex min-w-0 items-start gap-4">
+                  <ProductLogo product={launch} className="size-16" />
+                  <div className="min-w-0">
+                    <div className="mb-1 flex flex-wrap items-center gap-2">
+                      <h2 className="text-2xl font-semibold leading-none">
+                        {launch.name}
+                      </h2>
+                      <span className="rounded-full bg-[#F97316]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#F97316]">
+                        Launch of the Day
+                      </span>
+                    </div>
+                    <p className="max-w-lg text-sm leading-snug text-[#43474c]">
+                      {launch.tagline}
+                    </p>
                   </div>
-                  <p className="max-w-lg text-sm leading-snug text-[#43474c]">
-                    {launch.tagline}
-                  </p>
                 </div>
-              </div>
-              <div className="hidden flex-col items-end sm:flex">
-                <div
-                  className={cn(
-                    "flex items-center gap-1.5 rounded px-2 py-1",
-                    launchSignalIsPositive
-                      ? "bg-[#16a34a]/5"
-                      : "bg-[#ba1a1a]/5",
-                  )}
-                >
-                  <TrendingUp
+                <div className="hidden flex-col items-end sm:flex">
+                  <div
                     className={cn(
-                      "size-[18px]",
+                      "flex items-center gap-1.5 rounded px-2 py-1",
                       launchSignalIsPositive
-                        ? "text-[#16a34a]"
-                        : "text-[#ba1a1a]",
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      "text-xs font-semibold uppercase tracking-[0.05em]",
-                      launchSignalIsPositive
-                        ? "text-[#16a34a]"
-                        : "text-[#ba1a1a]",
+                        ? "bg-[#16a34a]/5"
+                        : "bg-[#ba1a1a]/5",
                     )}
                   >
-                    {launchSignalLabel}
+                    <TrendingUp
+                      className={cn(
+                        "size-[18px]",
+                        launchSignalIsPositive
+                          ? "text-[#16a34a]"
+                          : "text-[#ba1a1a]",
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "text-xs font-semibold uppercase tracking-[0.05em]",
+                        launchSignalIsPositive
+                          ? "text-[#16a34a]"
+                          : "text-[#ba1a1a]",
+                      )}
+                    >
+                      {launchSignalLabel}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-auto flex flex-wrap items-center gap-4 border-t border-[#E2E8F0]/50 pt-4">
+                <HomepageUpvoteButton
+                  productId={launch.id}
+                  productSlug={launch.slug}
+                  initialCount={launch.score ?? 0}
+                  initialUpvoted={launch.isVoted}
+                  countIncrement={10}
+                  syncResponseCount={false}
+                  fullLabel
+                  className="px-6"
+                />
+                <Button
+                  asChild
+                  className="h-10 rounded-lg border border-[#c4c6cd] bg-white px-6 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC]"
+                >
+                  <Link
+                    href={launch.slug ? productPath(launch.slug) : BROWSE_PATH}
+                  >
+                    View Product
+                  </Link>
+                </Button>
+                <div className="ml-auto flex items-center">
+                  <span className="text-[11px] font-medium leading-[14px] text-[#43474c]">
+                    {formatBuildersClickedLabel(launchBuildersClickedCount)}
                   </span>
                 </div>
               </div>
-            </div>
-            <div className="mt-auto flex flex-wrap items-center gap-4 border-t border-[#E2E8F0]/50 pt-4">
-              <HomepageUpvoteButton
-                productSlug={launch.slug}
-                initialCount={launch.score ?? 0}
-                initialUpvoted={launch.isVoted}
-                countIncrement={10}
-                syncResponseCount={false}
-                fullLabel
-                className="px-6"
+            </article>
+
+            <div className="col-span-12 lg:col-span-4">
+              <TrafficStatsPanel
+                initialStats={homepageStats}
+                className="h-full"
               />
-              <Button
-                asChild
-                className="h-10 rounded-lg border border-[#c4c6cd] bg-white px-6 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC]"
-              >
-                <Link
-                  href={launch.slug ? productPath(launch.slug) : BROWSE_PATH}
+            </div>
+          </div>
+        </section>
+
+        <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+          <section className="mb-12" id="drops">
+            <div className="mb-8 flex items-end justify-between gap-4">
+              <div>
+                <h3 className="text-[32px] font-bold leading-10 tracking-tight text-black">
+                  Latest Launches
+                </h3>
+                <p className="text-sm leading-5 text-[#43474c]">
+                  Fresh products from today, yesterday, and this week.
+                </p>
+              </div>
+              <div className="flex gap-1">
+                <Button
+                  asChild
+                  className="h-10 rounded-lg border border-[#E2E8F0] bg-white px-4 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC]"
                 >
-                  View Product
-                </Link>
-              </Button>
-              <div className="ml-auto flex items-center">
-                <span className="text-[11px] font-medium leading-[14px] text-[#43474c]">
-                  {formatBuildersClickedLabel(launchBuildersClickedCount)}
-                </span>
+                  <Link href={BROWSE_PATH}>Newest</Link>
+                </Button>
+                <Button
+                  asChild
+                  className="h-10 rounded-lg border-0 bg-black px-4 text-xs font-semibold uppercase tracking-[0.05em] text-white hover:bg-black/90"
+                >
+                  <Link href={LEADERBOARD_PATH}>Trending</Link>
+                </Button>
               </div>
             </div>
-          </article>
 
-          <div className="col-span-12 lg:col-span-4">
-            <TrafficStatsPanel
-              initialStats={homepageStats}
-              className="h-full"
+            <HomepageDropsInfiniteList
+              initialItems={drops}
+              initialHasMore={!usingFallbackDrops && feedPage.hasMore}
+              initialNextPage={feedPage.nextPage}
+              pageSize={feedPage.pageSize}
+              excludedSlug={launch.slug}
+              referenceDateIso={referenceDateIso}
             />
-          </div>
+          </section>
         </div>
-      </section>
-
-      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-        <section className="mb-12" id="drops">
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <div>
-              <h3 className="text-[32px] font-bold leading-10 tracking-tight text-black">
-                Latest Launches
-              </h3>
-              <p className="text-sm leading-5 text-[#43474c]">
-                Fresh products from today, yesterday, and this week.
-              </p>
-            </div>
-            <div className="flex gap-1">
-              <Button
-                asChild
-                className="h-10 rounded-lg border border-[#E2E8F0] bg-white px-4 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC]"
-              >
-                <Link href={BROWSE_PATH}>Newest</Link>
-              </Button>
-              <Button
-                asChild
-                className="h-10 rounded-lg border-0 bg-black px-4 text-xs font-semibold uppercase tracking-[0.05em] text-white hover:bg-black/90"
-              >
-                <Link href={LEADERBOARD_PATH}>Trending</Link>
-              </Button>
-            </div>
-          </div>
-
-          <HomepageDropsInfiniteList
-            initialItems={drops}
-            initialHasMore={!usingFallbackDrops && feedPage.hasMore}
-            initialNextPage={feedPage.nextPage}
-            pageSize={feedPage.pageSize}
-            excludedSlug={launch.slug}
-            referenceDateIso={referenceDateIso}
-          />
-        </section>
-      </div>
+      </HomepageVoteStateProvider>
     </div>
   )
 }
