@@ -141,7 +141,7 @@ export function TaxonomyProductRow({ product }: { product: HomepageFeedItem }) {
       </div>
       <Link
         href={href}
-        className="flex shrink-0 flex-col items-center gap-1 rounded-lg bg-[#eff6ff] px-4 py-2 text-[#0051d5] transition hover:bg-[#0051d5] hover:text-white active:scale-95"
+        className="flex shrink-0 cursor-pointer flex-col items-center gap-1 rounded-lg bg-[#eff6ff] px-4 py-2 text-[#0051d5] transition hover:bg-[#0051d5] hover:text-white active:scale-95"
         aria-label={`View ${product.name}`}
       >
         <ArrowUp className="h-5 w-5" aria-hidden />

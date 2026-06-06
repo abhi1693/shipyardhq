@@ -123,7 +123,7 @@ function BrowseProductRow({ product }: { product: ProductCardItem }) {
       </div>
       <Link
         href={href}
-        className="flex shrink-0 flex-col items-center gap-1 rounded-lg bg-[#f8fafc] px-4 py-2 text-[#43474c] transition group-hover:bg-[#eff6ff] group-hover:text-[#0051d5] active:scale-95"
+        className="flex shrink-0 cursor-pointer flex-col items-center gap-1 rounded-lg bg-[#f8fafc] px-4 py-2 text-[#43474c] transition group-hover:bg-[#eff6ff] group-hover:text-[#0051d5] active:scale-95"
         aria-label={`View ${product.name}, score ${score.toLocaleString("en-US")}`}
       >
         <ArrowUp className="h-5 w-5" aria-hidden />

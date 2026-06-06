@@ -209,7 +209,7 @@ function ArchiveUpvoteStat({
   return (
     <div
       className={cn(
-        "inline-flex items-center justify-center gap-1 rounded-lg font-semibold transition-all",
+        "inline-flex cursor-pointer items-center justify-center gap-1 rounded-lg font-semibold transition-all",
         compact
           ? "px-3 py-2 text-[12px]"
           : "min-w-[72px] flex-col px-4 py-3 text-[12px]",
@@ -1035,7 +1035,7 @@ function DailyAwardPills({
 
 function DailyUpvoteStat({ count }: { count?: number | null }) {
   return (
-    <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-xl border border-[#346cef]/10 bg-[#EFF6FF] text-[#0051d5] transition-all hover:bg-[#0051d5] hover:text-white">
+    <div className="flex size-14 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border border-[#346cef]/10 bg-[#EFF6FF] text-[#0051d5] transition-all hover:bg-[#0051d5] hover:text-white">
       <ChevronUp className="size-5" aria-hidden />
       <span className="text-[12px] font-bold leading-4">
         {formatCount(count)}

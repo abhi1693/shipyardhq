@@ -75,7 +75,7 @@ export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#e2e8f0] bg-[#f8fafc]">
                   <ProductLogo product={product} />
                 </span>
-                <span className="flex items-center gap-1 text-sm font-bold text-[#10b981]">
+                <span className="flex cursor-pointer items-center gap-1 text-sm font-bold text-[#10b981]">
                   <ArrowUp className="h-4 w-4" aria-hidden />
                   {score.toLocaleString("en-US")}
                 </span>

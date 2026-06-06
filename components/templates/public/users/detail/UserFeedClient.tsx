@@ -71,7 +71,7 @@ function ProductCard({ item }: { item: HomepageFeedItem }) {
           >
             {item.name}
           </Link>
-          <div className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#eff6ff] px-3 py-1 text-sm font-bold text-[#0051d5]">
+          <div className="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full bg-[#eff6ff] px-3 py-1 text-sm font-bold text-[#0051d5]">
             <ArrowUp className="h-4 w-4" aria-hidden />
             <span>{item.upvoteCount.toLocaleString("en-US")}</span>
           </div>

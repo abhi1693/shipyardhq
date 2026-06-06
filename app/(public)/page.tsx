@@ -49,6 +49,7 @@ type DisplayDrop = {
   categorySlug?: string | null
   upvoteCount: number
   score?: number | null
+  scoreCount?: number | null
   rank?: number | null
   upvoteGrowthPercent?: number | null
   recommenderCount?: number
@@ -158,6 +159,7 @@ function toDisplayDrop(
     categorySlug: item.categorySlug,
     upvoteCount: item.upvoteCount,
     score: item.scoreCount,
+    scoreCount: item.scoreCount,
     buildersClickedCount: item.interest?.uniqueVisitors7d ?? null,
     isSponsored: item.isSponsored,
     isVoted: item.isVoted,
@@ -427,8 +429,10 @@ export default async function HomePage() {
             <div className="mt-auto flex flex-wrap items-center gap-4 border-t border-[#E2E8F0]/50 pt-4">
               <HomepageUpvoteButton
                 productSlug={launch.slug}
-                initialCount={launch.upvoteCount}
+                initialCount={launch.score ?? 0}
                 initialUpvoted={launch.isVoted}
+                countIncrement={10}
+                syncResponseCount={false}
                 fullLabel
                 className="px-6"
               />

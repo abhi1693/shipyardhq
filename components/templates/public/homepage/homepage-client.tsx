@@ -36,6 +36,8 @@ export function HomepageUpvoteButton({
   className,
   dark = false,
   fullLabel = false,
+  countIncrement = 1,
+  syncResponseCount = true,
 }: {
   productSlug?: string
   initialCount: number
@@ -43,6 +45,8 @@ export function HomepageUpvoteButton({
   className?: string
   dark?: boolean
   fullLabel?: boolean
+  countIncrement?: number
+  syncResponseCount?: boolean
 }) {
   const { isSignedIn } = useUser()
   const redirectUrl = useCurrentRedirect()
@@ -62,9 +66,10 @@ export function HomepageUpvoteButton({
 
   async function toggleUpvote() {
     if (state.pending) return
+    if (state.upvoted) return
 
-    const nextUpvoted = !state.upvoted
-    const optimisticCount = Math.max(0, state.count + (nextUpvoted ? 1 : -1))
+    const nextUpvoted = true
+    const optimisticCount = Math.max(0, state.count + countIncrement)
     const previous = state
 
     setState({
@@ -93,7 +98,7 @@ export function HomepageUpvoteButton({
 
       setState({
         count:
-          typeof payload.upvotes === "number"
+          syncResponseCount && typeof payload.upvotes === "number"
             ? payload.upvotes
             : optimisticCount,
         upvoted:
@@ -106,7 +111,7 @@ export function HomepageUpvoteButton({
   }
 
   const buttonClassName = cn(
-    "inline-flex h-auto items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-xs font-semibold transition-all active:scale-[0.98] disabled:opacity-70",
+    "inline-flex h-auto cursor-pointer items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-xs font-semibold transition-all active:scale-[0.98] disabled:cursor-pointer disabled:opacity-70",
     dark
       ? "border border-white/10 bg-white/5 text-white hover:bg-white/10"
       : state.upvoted
@@ -146,7 +151,7 @@ export function HomepageUpvoteButton({
       type="button"
       className={buttonClassName}
       onClick={toggleUpvote}
-      disabled={state.pending}
+      disabled={state.pending || state.upvoted}
       aria-pressed={state.upvoted}
     >
       {content}
@@ -163,6 +168,7 @@ export type HomepageDropListItem = {
   category?: string | null
   categorySlug?: string | null
   upvoteCount: number
+  scoreCount?: number | null
   isSponsored?: boolean
   isVoted?: boolean
   publishedAt?: string | null
@@ -186,6 +192,7 @@ function toDropListItem(item: HomepageFeedItem): HomepageDropListItem {
     category: item.category,
     categorySlug: item.categorySlug,
     upvoteCount: item.upvoteCount,
+    scoreCount: item.scoreCount,
     isSponsored: item.isSponsored,
     isVoted: item.isVoted,
     publishedAt: item.publishedAt,
@@ -417,8 +424,10 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
         >
           <HomepageUpvoteButton
             productSlug={product.slug}
-            initialCount={product.upvoteCount}
+            initialCount={product.scoreCount ?? 0}
             initialUpvoted={product.isVoted}
+            countIncrement={10}
+            syncResponseCount={false}
             dark={sponsored}
             className={cn(
               "min-w-16 flex-col gap-0 rounded-r-xl bg-transparent px-3 py-2 shadow-none",
