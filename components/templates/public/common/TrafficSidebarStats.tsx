@@ -10,11 +10,5 @@ export async function TrafficSidebarStats({
   className?: string
 }) {
   const stats = await getLeaderboardStats()
-  return (
-    <TrafficStatsPanel
-      initialStats={stats}
-      className={className}
-      showDashboardLink
-    />
-  )
+  return <TrafficStatsPanel initialStats={stats} className={className} />
 }

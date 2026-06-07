@@ -247,11 +247,9 @@ function LivePerformanceCard({ count }: { count: number }) {
 export function TrafficStatsPanel({
   initialStats,
   className,
-  showDashboardLink = false,
 }: {
   initialStats: TrafficStatsPayload
   className?: string
-  showDashboardLink?: boolean
 }) {
   const [activeBuilderCount, setActiveBuilderCount] = useState(
     Math.max(1, initialStats.realtimeVisitors ?? 1),
