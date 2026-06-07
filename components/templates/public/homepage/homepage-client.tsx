@@ -619,10 +619,7 @@ export function HomepageDropsInfiniteList({
   const seenKeysRef = useRef(new Set(initialUniqueItems.map(dropKey)))
   const voteState = useHomepageVoteState()
   const sections = useMemo(
-    () =>
-      buildDropSections(items, referenceDateIso).filter(
-        (section) => section.items.length > 0,
-      ),
+    () => buildDropSections(items, referenceDateIso),
     [items, referenceDateIso],
   )
 
@@ -720,9 +717,17 @@ export function HomepageDropsInfiniteList({
             <span className="h-px flex-1 bg-[#E2E8F0]" aria-hidden />
           </div>
           <div className="space-y-3">
-            {section.items.map((product) => (
-              <HomepageDropRow key={dropKey(product)} product={product} />
-            ))}
+            {section.items.length > 0 ? (
+              section.items.map((product) => (
+                <HomepageDropRow key={dropKey(product)} product={product} />
+              ))
+            ) : (
+              <Card className="rounded-xl border-dashed border-[#D8E0EA] bg-white/60 py-0 shadow-none">
+                <CardContent className="p-4 text-sm text-[#74777d]">
+                  No launches in this window yet.
+                </CardContent>
+              </Card>
+            )}
           </div>
         </section>
       ))}

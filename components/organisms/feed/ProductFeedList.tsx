@@ -141,13 +141,11 @@ function buildNewViewSections(
     return chunk
   }
 
-  const bucketsWithItems = bucketOrder
-    .map((bucket) => ({
-      key: bucket.key,
-      label: bucket.label,
-      items: [...(buckets.get(bucket.key) ?? [])].sort(compareBucketItems),
-    }))
-    .filter((bucket) => bucket.items.length > 0)
+  const bucketsWithItems = bucketOrder.map((bucket) => ({
+    key: bucket.key,
+    label: bucket.label,
+    items: [...(buckets.get(bucket.key) ?? [])].sort(compareBucketItems),
+  }))
 
   let organicCount = 0
 
@@ -522,12 +520,18 @@ export function ProductFeedList({
                   />
                 </div>
                 <div className="space-y-4">
-                  {section.rows.map((row) => {
-                    if (row.kind === "product") {
-                      return <ProductFeedCard key={row.key} item={row.item} />
-                    }
-                    return renderPromotedGroup(row.key, row.items)
-                  })}
+                  {section.rows.length > 0 ? (
+                    section.rows.map((row) => {
+                      if (row.kind === "product") {
+                        return <ProductFeedCard key={row.key} item={row.item} />
+                      }
+                      return renderPromotedGroup(row.key, row.items)
+                    })
+                  ) : (
+                    <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50/60 px-5 py-4 text-sm text-slate-500">
+                      No launches in this window yet.
+                    </div>
+                  )}
                 </div>
               </div>
             )
