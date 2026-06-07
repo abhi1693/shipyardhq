@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { FormEvent, useState } from "react"
+import { type SyntheticEvent, useState } from "react"
 import { SignOutButton, useUser } from "@clerk/nextjs"
 import { usePathname, useRouter } from "next/navigation"
 import {
@@ -54,7 +54,7 @@ export default function PublicMobileMenu() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
     router.push(buildBrowseHref(query))
     setOpen(false)

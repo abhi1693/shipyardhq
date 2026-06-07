@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useMemo, useState } from "react"
+import { type SyntheticEvent, useMemo, useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Search } from "lucide-react"
@@ -47,7 +47,7 @@ export function BrowseHeroSearch({
     return [...categoryLinks, ...useCaseLinks]
   }, [categories, useCases])
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
     const trimmed = searchTerm.trim()
     const nextUrl = buildQuery(BROWSE_PATH, searchParams, {

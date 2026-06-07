@@ -1,7 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react"
+import {
+  type ChangeEvent,
+  type SyntheticEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { ArrowUpRight, Package, Search } from "lucide-react"
 
@@ -149,7 +155,7 @@ export default function PublicHeaderSearch() {
     }, 120)
   }
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const trimmed = query.trim()
