@@ -212,11 +212,13 @@ export function ProductFeedCard({
       <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-2">
         <div className="flex flex-wrap items-center gap-2">
           {item.category ? (
-            <span className="inline-flex items-center rounded-full border border-border/60 bg-neutral-100 px-3 py-1 text-xs font-semibold text-foreground">
+            <span className="hidden items-center rounded-full border border-border/60 bg-neutral-100 px-3 py-1 text-xs font-semibold text-foreground sm:inline-flex">
               {item.category}
             </span>
           ) : (
-            <span className="text-xs text-muted-foreground">Uncategorized</span>
+            <span className="hidden text-xs text-muted-foreground sm:inline">
+              Uncategorized
+            </span>
           )}
           {interestBadges.length
             ? interestBadges.map((badge) => (

@@ -508,7 +508,7 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
   const href = product.slug ? productPath(product.slug) : BROWSE_PATH
   const categoryLabel = product.category ?? "New Tool"
   const categoryClassName = cn(
-    "shrink-0 rounded px-2 py-0.5 text-[9px] font-extrabold uppercase leading-[10px]",
+    "hidden shrink-0 rounded px-2 py-0.5 text-[9px] font-extrabold uppercase leading-[10px] sm:inline-flex",
     sponsored
       ? "bg-[#C0FF00] text-black hover:bg-[#C0FF00]/90"
       : "bg-[#F8FAFC] text-[#74777d] hover:bg-[#e5eeff] hover:text-[#0051d5]",
