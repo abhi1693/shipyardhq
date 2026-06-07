@@ -42,6 +42,11 @@ export const SCHEDULED_JOB_DEFINITIONS = [
     description: "Activate and expire reward placement schedules.",
   },
   {
+    id: "homepage-feed-refresh",
+    pattern: "0 */5 * * * *",
+    description: "Refresh and warm homepage feed cache.",
+  },
+  {
     id: "rewards-backlinks",
     pattern: "0 0 5 * * *",
     description: "Verify product backlinks for rewards.",

@@ -14,8 +14,13 @@ import { hasEditorPickBadge } from "@/lib/products/badges"
 import { stableUnitInterval } from "@/lib/stable-random"
 import { getCurrentLeaderboardRun } from "@/lib/server/leaderboard/v2"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
-import { buildCacheKey, cacheGetOrSet } from "@/lib/server/cache"
+import {
+  buildCacheKey,
+  cacheGetOrSet,
+  invalidateCacheByPrefix,
+} from "@/lib/server/cache"
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
+import { revalidateHomepage } from "@/lib/cache/revalidate"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
 const SPONSORED_PLACEMENT_FEATURE_KEY = "sponsoredProducts"
 const SPONSORED_PLAN_FEATURE_KEYS = [
@@ -30,6 +35,7 @@ const HOMEPAGE_SPONSORED_LIMIT = 12
 const HOMEPAGE_SPONSORED_INTERVAL = 8
 const HOMEPAGE_ROTATION_SEED = "homepage-organic-rotation"
 const HOMEPAGE_FEED_CACHE_VERSION = "v1"
+const HOMEPAGE_FEED_CACHE_PREFIX = buildCacheKey("homepage", "feed")
 const HOMEPAGE_FEED_CACHE_TTL_SECONDS = resolveCacheTtl("slow")
 const HOMEPAGE_FEED_IN_PROCESS_TTL_MS = 15_000
 
@@ -639,6 +645,56 @@ export async function getHomepageFeedView(
       })
     },
   })
+}
+
+export async function invalidateHomepageFeedCache() {
+  return invalidateCacheByPrefix({
+    keyPrefix: HOMEPAGE_FEED_CACHE_PREFIX,
+    onError: (error) => {
+      console.error("[homepage] failed to invalidate Redis feed cache", {
+        cachePrefix: HOMEPAGE_FEED_CACHE_PREFIX,
+        error,
+      })
+    },
+  })
+}
+
+export async function refreshHomepageFeedCache() {
+  const invalidation = await invalidateHomepageFeedCache()
+  revalidateHomepage("revalidate")
+  const [weekInitialPage, weekApiPage, allInitialPage, launchOfDay] =
+    await Promise.all([
+      getHomepageFeedView({
+        page: 1,
+        pageSize: 20,
+        view: "new",
+        launchWindow: "week",
+      }),
+      getHomepageFeedView({
+        page: 1,
+        pageSize: HOMEPAGE_FEED_PAGE_SIZE,
+        view: "new",
+        launchWindow: "week",
+      }),
+      getHomepageFeedView({
+        page: 1,
+        pageSize: 20,
+        view: "new",
+        launchWindow: "all",
+      }),
+      getHomepageLaunchOfDay(),
+    ])
+
+  return {
+    success: true,
+    invalidation,
+    warmed: {
+      weekInitialPageItems: weekInitialPage.items.length,
+      weekApiPageItems: weekApiPage.items.length,
+      allInitialPageItems: allInitialPage.items.length,
+      launchOfDayProductId: launchOfDay?.id ?? null,
+    },
+  }
 }
 
 export async function getHomepageFeedPage(

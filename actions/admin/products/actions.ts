@@ -34,6 +34,26 @@ import {
 } from "@/lib/server/userStatus"
 import { getRootDomain } from "@/lib/domain"
 import { productForEditWizardSelect } from "@/types/product-wizard"
+import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+
+async function refreshHomepageFeedCacheAfterProductChange(
+  reason: string,
+  productId?: string,
+) {
+  try {
+    return await refreshHomepageFeedCache()
+  } catch (error) {
+    console.error(
+      "Failed to refresh homepage feed cache after product change",
+      {
+        reason,
+        productId,
+        error,
+      },
+    )
+    return null
+  }
+}
 
 async function generateUniqueSlug(base: string): Promise<string> {
   const clean = slugify(base)
@@ -329,6 +349,7 @@ export async function createProductAction(formData: FormData) {
       Promise.resolve().then(() => revalidateProducts()),
       Promise.resolve().then(() => revalidateCategory(categoryId)),
       Promise.resolve().then(() => revalidateLeaderboard()),
+      refreshHomepageFeedCacheAfterProductChange("product.created", created.id),
     ]
 
     if (uniqueAlternativeIds.length) {
@@ -624,6 +645,7 @@ export async function updateProductAction(
     if (typeof id === "string" && id) revalidateProduct(id)
     revalidateCategory(categoryId)
     revalidateLeaderboard()
+    await refreshHomepageFeedCacheAfterProductChange("product.updated", id)
     if (nextAlternativeIds !== undefined || previousAlternativeIds.length) {
       const idsToRevalidate = new Set<string>(previousAlternativeIds)
       if (nextAlternativeIds) {
@@ -696,6 +718,7 @@ export async function deleteProductAction(id: string) {
     revalidateProducts()
     revalidateCategories()
     revalidateLeaderboard()
+    await refreshHomepageFeedCacheAfterProductChange("product.deleted", id)
     return result
   } catch (error) {
     if (
@@ -706,6 +729,10 @@ export async function deleteProductAction(id: string) {
       revalidateProducts()
       revalidateCategories()
       revalidateLeaderboard()
+      await refreshHomepageFeedCacheAfterProductChange(
+        "product.delete.missing",
+        id,
+      )
       return { error: "Product not found" }
     }
     console.error("Error deleting product:", error)
@@ -822,6 +849,10 @@ export async function assignProductPlanAction(
       data: { planId: planId || null, planAssignedAt },
       select: { id: true, planId: true },
     })
+    await refreshHomepageFeedCacheAfterProductChange(
+      "product.plan.assigned",
+      productId,
+    )
     return { success: true }
   } catch (e) {
     console.error("Failed to assign plan to product", e)
@@ -892,6 +923,11 @@ export async function setProductStatusAction(
         { context: { productId: id } },
       )
     }
+    revalidateProduct(id, "revalidate")
+    await refreshHomepageFeedCacheAfterProductChange(
+      "product.status.updated",
+      id,
+    )
 
     return result
   } catch (error) {

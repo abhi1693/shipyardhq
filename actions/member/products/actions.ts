@@ -15,6 +15,8 @@ import {
 import { hasPlanFeature } from "@/lib/features"
 import { memberProductPath } from "@/lib/routes"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
+import { revalidateProduct } from "@/lib/cache/revalidate"
+import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -27,6 +29,22 @@ const ACTIVE_ENTITLEMENT_STATUSES: FeatureEntitlementStatus[] = [
 ]
 const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active"])
 const SUBSCRIPTION_CHANGE_PRORATION_MODE = "prorated_immediately"
+
+async function refreshHomepageFeedCacheAfterMemberProductChange(
+  reason: string,
+  productId?: string,
+) {
+  try {
+    return await refreshHomepageFeedCache()
+  } catch (error) {
+    console.error("Failed to refresh homepage feed cache after member change", {
+      reason,
+      productId,
+      error,
+    })
+    return null
+  }
+}
 
 type ProductListItem = Prisma.ProductGetPayload<{
   include: {
@@ -299,6 +317,11 @@ export async function setProductPlanAction(
     where: { id: productId },
     data,
   })
+  revalidateProduct(productId, "revalidate")
+  await refreshHomepageFeedCacheAfterMemberProductChange(
+    "member.product.plan.updated",
+    productId,
+  )
 
   return { success: true }
 }
@@ -409,6 +432,11 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
       where: { id: productId },
       data: { planId, planAssignedAt, subscriptionId: null },
     })
+    revalidateProduct(productId, "revalidate")
+    await refreshHomepageFeedCacheAfterMemberProductChange(
+      "member.product.payment.validated",
+      productId,
+    )
     return { success: true }
   } catch (e) {
     console.error("Payment validation failed:", e)
@@ -474,6 +502,11 @@ export async function validateSubscriptionAndAttachPlan(
       where: { id: productId },
       data: { planId, planAssignedAt, subscriptionId: subscriptionExternalId },
     })
+    revalidateProduct(productId, "revalidate")
+    await refreshHomepageFeedCacheAfterMemberProductChange(
+      "member.product.subscription.validated",
+      productId,
+    )
     return { success: true }
   } catch (e) {
     console.error("Subscription validation failed:", e)

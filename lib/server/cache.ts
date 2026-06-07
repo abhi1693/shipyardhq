@@ -4,7 +4,7 @@ import { getRedisClient } from "@/lib/server/redis"
 // Restrict to the subset of the Redis client we rely on so the helpers stay reusable.
 type CacheClient = Pick<
   ReturnType<typeof createClient>,
-  "get" | "set" | "del"
+  "get" | "set" | "del" | "scanIterator"
 > & {
   isOpen?: boolean
 }
@@ -15,6 +15,11 @@ type CacheKeyPart = string | number | boolean
 type CacheKeyArray = ReadonlyArray<CacheKeyPart | null | undefined>
 type CacheKeyInput = string | CacheKeyArray
 type InProcessCacheEntry = { value: unknown; expiresAt: number }
+type CacheScanOptions = { MATCH: string; COUNT: number }
+type CacheScanIterator = (
+  this: unknown,
+  options: CacheScanOptions,
+) => AsyncIterable<string | string[]>
 
 const inProcessCache = new Map<string, InProcessCacheEntry>()
 const pendingLoads = new Map<string, Promise<unknown>>()
@@ -264,6 +269,82 @@ interface CacheGetOrSetOptions<T> {
   serialize?: (value: T) => string
   onError?: CacheErrorHandler
   loader: () => Promise<T>
+}
+
+interface InvalidateCachePrefixOptions {
+  keyPrefix: CacheKeyInput
+  onError?: CacheErrorHandler
+  client?: CacheClient | null
+}
+
+function clearInProcessCacheByPrefix(prefix: string) {
+  let deleted = 0
+
+  for (const key of inProcessCache.keys()) {
+    if (!key.startsWith(prefix)) continue
+    inProcessCache.delete(key)
+    deleted += 1
+  }
+
+  for (const key of pendingLoads.keys()) {
+    if (!key.startsWith(prefix)) continue
+    pendingLoads.delete(key)
+  }
+
+  return deleted
+}
+
+export async function invalidateCacheByPrefix({
+  keyPrefix,
+  onError,
+  client: providedClient,
+}: InvalidateCachePrefixOptions): Promise<{
+  prefix: string
+  redisKeysDeleted: number
+  inProcessKeysDeleted: number
+}> {
+  const resolvedPrefix = resolveCacheKeyInput(keyPrefix)
+  const inProcessKeysDeleted = clearInProcessCacheByPrefix(resolvedPrefix)
+  const { client, namespacedKey } = await resolveClientForOperation({
+    key: resolvedPrefix,
+    providedClient,
+    onError,
+  })
+
+  if (!client) {
+    return {
+      prefix: namespacedKey,
+      redisKeysDeleted: 0,
+      inProcessKeysDeleted,
+    }
+  }
+
+  let redisKeysDeleted = 0
+
+  try {
+    const scanIterator = client.scanIterator as unknown as CacheScanIterator
+    for await (const keys of scanIterator.call(client, {
+      MATCH: `${namespacedKey}*`,
+      COUNT: 100,
+    })) {
+      const batch = Array.isArray(keys) ? keys : [keys]
+      if (!batch.length) continue
+      redisKeysDeleted += await client.del(batch)
+    }
+    logCacheEvent("invalidate prefix", namespacedKey, {
+      redisKeysDeleted,
+      inProcessKeysDeleted,
+    })
+  } catch (error) {
+    logCacheEvent("error", namespacedKey, { error })
+    onError?.(error)
+  }
+
+  return {
+    prefix: namespacedKey,
+    redisKeysDeleted,
+    inProcessKeysDeleted,
+  }
 }
 
 export async function cacheGetOrSet<T>({

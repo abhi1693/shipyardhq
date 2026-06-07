@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { PlanType } from "@/lib/vendor/prisma/client"
 import { readMetadataString } from "@/lib/server/subscriptionMetadata"
+import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
 
 const MS_PER_SECOND = 1000
 const MS_PER_MINUTE = 60 * MS_PER_SECOND
@@ -16,6 +17,17 @@ const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
   "failed",
   "on_hold",
 ])
+
+async function refreshHomepageFeedCacheAfterPlanExpiration(reason: string) {
+  try {
+    await refreshHomepageFeedCache()
+  } catch (error) {
+    console.error("[cron] expire plans homepage refresh failed", {
+      reason,
+      error,
+    })
+  }
+}
 
 type DurationDisplay = {
   value: number
@@ -224,6 +236,7 @@ export async function expireBoostedPlans(now: Date = new Date()) {
       updatedCount: updateResult?.count ?? 0,
       durationMs: Date.now() - startedAtMs,
     })
+    await refreshHomepageFeedCacheAfterPlanExpiration("boosts.expired")
   }
 
   let recurringResult: Awaited<
@@ -405,6 +418,7 @@ async function expireInactiveRecurringPlans(args: {
 
   if (updates.length) {
     await Promise.all(updates)
+    await refreshHomepageFeedCacheAfterPlanExpiration("subscriptions.expired")
   }
 
   return { expired, count: expired.length }

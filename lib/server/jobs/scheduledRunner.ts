@@ -9,6 +9,7 @@ import { cleanupExpiredUnusedDodoDiscounts } from "@/lib/server/dodoDiscountClea
 import { dispatchEvent } from "@/lib/server/events"
 import { APP_EVENTS } from "@/lib/server/events/constants"
 import { warmHistoricalPeriodicLeaderboardCache } from "@/actions/public/leaderboard/actions"
+import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
 import {
   getPreviousMonth,
   normalizeMonth,
@@ -60,6 +61,7 @@ const SCHEDULED_JOB_HANDLERS = {
   "badges-trending": runBadgesTrendingJob,
   "dodo-discounts-cleanup": runDodoDiscountsCleanupJob,
   "expire-plans": runExpirePlansJob,
+  "homepage-feed-refresh": runHomepageFeedRefreshJob,
   "leaderboard-highlights-day": () => runLeaderboardHighlightsJob("day"),
   "leaderboard-highlights-week": () => runLeaderboardHighlightsJob("week"),
   "leaderboard-historical-cache": runLeaderboardHistoricalCacheJob,
@@ -173,6 +175,13 @@ async function runLeaderboardHistoricalCacheJob() {
 
   const result = await warmHistoricalPeriodicLeaderboardCache({ limit: 100 })
   console.info("[scheduled.leaderboard-historical-cache] run completed", result)
+  return result
+}
+
+async function runHomepageFeedRefreshJob() {
+  console.info("[scheduled.homepage-feed-refresh] run started")
+  const result = await refreshHomepageFeedCache()
+  console.info("[scheduled.homepage-feed-refresh] run completed", result)
   return result
 }
 

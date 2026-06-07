@@ -11,6 +11,7 @@ import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
+import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
 
 type PlanSummary = {
   id: string
@@ -30,6 +31,14 @@ const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
   "failed",
   "on_hold",
 ])
+
+async function refreshHomepageFeedCacheAfterBillingSync() {
+  try {
+    await refreshHomepageFeedCache()
+  } catch (error) {
+    console.error("[billing] homepage feed refresh failed", { error })
+  }
+}
 
 export async function syncCurrentUserBilling() {
   const { userId } = await auth()
@@ -285,5 +294,6 @@ async function syncProductPlanSubscriptions(args: {
 
   if (updates.length) {
     await Promise.all(updates)
+    await refreshHomepageFeedCacheAfterBillingSync()
   }
 }
