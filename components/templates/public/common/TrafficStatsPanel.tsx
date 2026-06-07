@@ -225,35 +225,21 @@ function LivePerformanceCard({ count }: { count: number }) {
   return (
     <Link
       href={ANALYTICS_PATH}
-      className="block rounded-xl outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#0051d5] focus-visible:ring-offset-2 @[20rem]:col-span-2"
+      className="block w-full rounded-xl outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#0051d5] focus-visible:ring-offset-2 @[20rem]:col-span-2"
       aria-label="View live performance analytics"
     >
-      <Card className="relative min-h-[88px] overflow-hidden rounded-xl border-0 bg-black py-0 text-white shadow-sm">
-        <CardContent className="flex h-full items-center justify-between p-4">
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-white/10">
-              <span className="relative flex size-3">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#16a34a] opacity-75" />
-                <span className="relative inline-flex size-3 rounded-full bg-[#16a34a]" />
-              </span>
-            </div>
-            <div>
-              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/60">
-                Live Performance
-              </div>
-              <div className="flex items-baseline gap-1 text-lg font-bold">
-                <span>{formatter.format(count)}</span>
-                <span className="text-xs font-normal text-white/40">
-                  Active Builders
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="absolute right-0 top-0 flex h-full w-24 items-center justify-center bg-gradient-to-l from-white/10 to-transparent">
-            <Zap className="size-10 rotate-12 text-white/20" aria-hidden />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex w-full items-center gap-3 rounded-xl border border-white/[0.06] bg-[#00162a] px-4 py-3 shadow-sm transition-colors duration-300 hover:border-white/20">
+        <div className="relative flex size-3 items-center justify-center">
+          <div className="size-2.5 animate-[pulse-glow_2s_infinite_ease-in-out] rounded-full bg-[#00e676]" />
+        </div>
+        <span className="ml-1 text-[32px] font-bold leading-none text-white">
+          {formatter.format(count)}
+        </span>
+        <span className="whitespace-nowrap text-[12px] font-extrabold uppercase leading-none tracking-[0.05em] text-[#00e676]">
+          Active Builders
+        </span>
+        <Zap className="ml-auto size-[18px] text-[#74777d]" aria-hidden />
+      </div>
     </Link>
   )
 }
@@ -344,17 +330,6 @@ export function TrafficStatsPanel({
         />
         <LivePerformanceCard count={activeBuilderCount} />
       </div>
-      {showDashboardLink ? (
-        <p className="mt-3 text-center text-xs text-muted-foreground">
-          See{" "}
-          <a
-            href="/analytics"
-            className="font-semibold text-slate-700 underline-offset-4 hover:underline"
-          >
-            the analytics dashboard
-          </a>
-        </p>
-      ) : null}
     </div>
   )
 }
