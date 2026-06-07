@@ -106,7 +106,7 @@ export function AnalyticsBarChart<DataPoint extends object>({
       className={className}
       showLegend={showLegend}
     >
-      <ResponsiveContainer width="100%" height={height}>
+      <ResponsiveContainer width="100%" height={height} minWidth={0}>
         <BarChart data={data} layout={layout} margin={margin}>
           {resolvedGridProps ? <CartesianGrid {...resolvedGridProps} /> : null}
           <XAxis

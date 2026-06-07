@@ -86,7 +86,7 @@ export function AnalyticsLineChart<DataPoint extends object>({
       showLegend={showLegend}
       className={className}
     >
-      <ResponsiveContainer width="100%" height={height}>
+      <ResponsiveContainer width="100%" height={height} minWidth={0}>
         <LineChart data={data} margin={margin}>
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
           <XAxis

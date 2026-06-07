@@ -122,11 +122,11 @@ function MetricSparkline({
 
   return (
     <div
-      className="h-11 min-w-0 overflow-visible [&_.recharts-wrapper]:!h-full [&_.recharts-wrapper]:!w-full [&_.recharts-wrapper]:!overflow-visible [&_.recharts-tooltip-wrapper]:!z-50 [&_.recharts-tooltip-wrapper]:!outline-none [&_svg]:!h-full [&_svg]:!w-full"
+      className="h-11 w-full min-w-0 overflow-visible [&_.recharts-wrapper]:!h-full [&_.recharts-wrapper]:!w-full [&_.recharts-wrapper]:!overflow-visible [&_.recharts-tooltip-wrapper]:!z-50 [&_.recharts-tooltip-wrapper]:!outline-none [&_svg]:!h-full [&_svg]:!w-full"
       aria-label={`${label} trend`}
       role="img"
     >
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height={44} minWidth={0}>
         <AreaChart
           data={data}
           margin={{ top: 5, right: 4, bottom: 5, left: 4 }}

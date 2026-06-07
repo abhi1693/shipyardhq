@@ -80,7 +80,7 @@ export function AnalyticsPieChart<DataPoint extends object>({
       showLegend={showLegend}
     >
       <div className="flex flex-col gap-4">
-        <ResponsiveContainer width="100%" height={height}>
+        <ResponsiveContainer width="100%" height={height} minWidth={0}>
           <PieChart {...chartProps}>
             <RechartsTooltip
               content={
