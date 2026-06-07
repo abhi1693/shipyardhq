@@ -9,6 +9,8 @@ import {
   AreaChart,
   ResponsiveContainer,
   Tooltip as RechartsTooltip,
+  XAxis,
+  YAxis,
 } from "recharts"
 
 import { Card, CardContent } from "@/components/atoms/card"
@@ -145,6 +147,8 @@ function MetricSparkline({
               <stop offset="95%" stopColor={color} stopOpacity={0.02} />
             </linearGradient>
           </defs>
+          <XAxis dataKey="label" hide />
+          <YAxis hide />
           <RechartsTooltip
             allowEscapeViewBox={{ x: true, y: true }}
             cursor={{ stroke: color, strokeOpacity: 0.18 }}
