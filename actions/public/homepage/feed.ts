@@ -648,12 +648,26 @@ export async function getHomepageFeedPage(
 }
 
 async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
+  const now = new Date()
+  const startToday = startOfUtcDayDate(now)
+  const startTomorrow = addUtcDaysDate(startToday, 1)
+  const launchedTodayWhere: Prisma.ProductWhereInput = {
+    OR: [
+      { publishedAt: { gte: startToday, lt: startTomorrow } },
+      {
+        publishedAt: null,
+        createdAt: { gte: startToday, lt: startTomorrow },
+      },
+    ],
+  }
   const run = await getCurrentLeaderboardRun()
-  const topScore = run
+  const todayTopScore = run
     ? await prisma.productLeaderboardScore.findFirst({
         where: {
           runId: run.id,
-          product: buildBaseWhere(),
+          product: {
+            AND: [buildBaseWhere(), launchedTodayWhere],
+          },
         },
         orderBy: [
           { score: "desc" },
@@ -669,10 +683,35 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
       })
     : null
 
-  const fallbackProduct = topScore
+  const fallbackTopScore = todayTopScore
+    ? null
+    : run
+      ? await prisma.productLeaderboardScore.findFirst({
+          where: {
+            runId: run.id,
+            product: buildBaseWhere(),
+          },
+          orderBy: [
+            { score: "desc" },
+            { upvotes: "desc" },
+            { uniqueVisitors: "desc" },
+            { views: "desc" },
+          ],
+          select: {
+            rank: true,
+            score: true,
+            product: { select: homepageFeedSelect },
+          },
+        })
+      : null
+
+  const selectedScore = todayTopScore ?? fallbackTopScore
+  const todayFallbackProduct = selectedScore
     ? null
     : await prisma.product.findFirst({
-        where: buildBaseWhere(),
+        where: {
+          AND: [buildBaseWhere(), launchedTodayWhere],
+        },
         orderBy: [
           { analytics: { upvotes: "desc" } },
           { publishedAt: { sort: "desc", nulls: "last" } },
@@ -680,8 +719,21 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
         ],
         select: homepageFeedSelect,
       })
+  const fallbackProduct =
+    selectedScore || todayFallbackProduct
+      ? null
+      : await prisma.product.findFirst({
+          where: buildBaseWhere(),
+          orderBy: [
+            { analytics: { upvotes: "desc" } },
+            { publishedAt: { sort: "desc", nulls: "last" } },
+            { createdAt: "desc" },
+          ],
+          select: homepageFeedSelect,
+        })
 
-  const product = topScore?.product ?? fallbackProduct
+  const product =
+    selectedScore?.product ?? todayFallbackProduct ?? fallbackProduct
   if (!product) return null
 
   const item = (await buildFeedItemsFromProducts([product], null))[0]
@@ -756,8 +808,8 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
 
   return {
     ...item,
-    rank: topScore?.rank ?? null,
-    score: topScore?.score ?? item.scoreCount ?? null,
+    rank: selectedScore?.rank ?? null,
+    score: selectedScore?.score ?? item.scoreCount ?? null,
     upvoteGrowthPercent: calculatePercentChange(
       currentUpvotes,
       previousUpvotes,
