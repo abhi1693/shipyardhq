@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Activity, Users, Zap } from "lucide-react"
 import type { TooltipContentProps } from "recharts"
@@ -11,6 +12,7 @@ import {
 } from "recharts"
 
 import { Card, CardContent } from "@/components/atoms/card"
+import { ANALYTICS_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 export interface TrafficStatsPayload {
@@ -122,7 +124,7 @@ function MetricSparkline({
 
   return (
     <div
-      className="h-11 w-full min-w-0 overflow-visible [&_.recharts-wrapper]:!h-full [&_.recharts-wrapper]:!w-full [&_.recharts-wrapper]:!overflow-visible [&_.recharts-tooltip-wrapper]:!z-50 [&_.recharts-tooltip-wrapper]:!outline-none [&_svg]:!h-full [&_svg]:!w-full"
+      className="h-11 w-full min-w-0 overflow-visible [&_.recharts-tooltip-wrapper]:!z-50 [&_.recharts-tooltip-wrapper]:!outline-none"
       aria-label={`${label} trend`}
       role="img"
     >
@@ -217,32 +219,38 @@ function TrafficMetricCard({
 
 function LivePerformanceCard({ count }: { count: number }) {
   return (
-    <Card className="relative min-h-[88px] overflow-hidden rounded-xl border-0 bg-black py-0 text-white shadow-sm @[20rem]:col-span-2">
-      <CardContent className="flex h-full items-center justify-between p-4">
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-white/10">
-            <span className="relative flex size-3">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#16a34a] opacity-75" />
-              <span className="relative inline-flex size-3 rounded-full bg-[#16a34a]" />
-            </span>
-          </div>
-          <div>
-            <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/60">
-              Live Performance
-            </div>
-            <div className="flex items-baseline gap-1 text-lg font-bold">
-              <span>{formatter.format(count)}</span>
-              <span className="text-xs font-normal text-white/40">
-                Active Builders
+    <Link
+      href={ANALYTICS_PATH}
+      className="block rounded-xl outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#0051d5] focus-visible:ring-offset-2 @[20rem]:col-span-2"
+      aria-label="View live performance analytics"
+    >
+      <Card className="relative min-h-[88px] overflow-hidden rounded-xl border-0 bg-black py-0 text-white shadow-sm">
+        <CardContent className="flex h-full items-center justify-between p-4">
+          <div className="relative z-10 flex items-center gap-3">
+            <div className="flex size-10 items-center justify-center rounded-lg bg-white/10">
+              <span className="relative flex size-3">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#16a34a] opacity-75" />
+                <span className="relative inline-flex size-3 rounded-full bg-[#16a34a]" />
               </span>
             </div>
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/60">
+                Live Performance
+              </div>
+              <div className="flex items-baseline gap-1 text-lg font-bold">
+                <span>{formatter.format(count)}</span>
+                <span className="text-xs font-normal text-white/40">
+                  Active Builders
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="absolute right-0 top-0 flex h-full w-24 items-center justify-center bg-gradient-to-l from-white/10 to-transparent">
-          <Zap className="size-10 rotate-12 text-white/20" aria-hidden />
-        </div>
-      </CardContent>
-    </Card>
+          <div className="absolute right-0 top-0 flex h-full w-24 items-center justify-center bg-gradient-to-l from-white/10 to-transparent">
+            <Zap className="size-10 rotate-12 text-white/20" aria-hidden />
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   )
 }
 
