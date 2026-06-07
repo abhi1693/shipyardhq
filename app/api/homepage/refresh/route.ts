@@ -5,11 +5,7 @@ import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
 export const dynamic = "force-dynamic"
 
 function getRefreshSecret() {
-  return (
-    process.env.HOMEPAGE_REFRESH_SECRET?.trim() ||
-    process.env.CRON_SECRET?.trim() ||
-    null
-  )
+  return process.env.CRON_SECRET?.trim() || null
 }
 
 function isAuthorized(request: Request) {
@@ -19,7 +15,7 @@ function isAuthorized(request: Request) {
   const authorization = request.headers.get("authorization")?.trim()
   const token = authorization?.startsWith("Bearer ")
     ? authorization.slice("Bearer ".length).trim()
-    : request.headers.get("x-homepage-refresh-secret")?.trim()
+    : request.headers.get("x-cron-secret")?.trim()
 
   return token === secret
 }

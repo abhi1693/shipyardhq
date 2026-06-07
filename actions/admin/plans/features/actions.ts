@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { PLAN_FEATURE_KEYS } from "@/lib/constants"
+import { revalidatePlanFeature, revalidatePlans } from "@/lib/cache/revalidate"
 
 export async function existsPlanFeature(key: string) {
   return prisma.planFeature.findUnique({
@@ -32,6 +33,7 @@ export async function createPlanFeatureAction(formData: FormData) {
       },
     })
 
+    revalidatePlanFeature(key, "revalidate")
     return { success: true }
   } catch (error) {
     console.error("Failed to create plan feature:", error)
@@ -47,10 +49,12 @@ export async function updatePlanFeatureAction(
   },
 ) {
   try {
-    await prisma.planFeature.update({
+    const updated = await prisma.planFeature.update({
       where: { id },
       data,
+      select: { key: true },
     })
+    revalidatePlanFeature(updated.key, "revalidate")
     return { success: true }
   } catch (error) {
     console.error("Failed to update plan feature:", error)
@@ -60,9 +64,18 @@ export async function updatePlanFeatureAction(
 
 export async function deletePlanFeatureAction(id: string) {
   try {
+    const existing = await prisma.planFeature.findUnique({
+      where: { id },
+      select: { key: true },
+    })
     await prisma.planFeature.delete({
       where: { id },
     })
+    if (existing?.key) {
+      revalidatePlanFeature(existing.key, "revalidate")
+    } else {
+      revalidatePlans("revalidate")
+    }
     return { success: true }
   } catch (error) {
     console.error("Failed to delete plan feature:", error)

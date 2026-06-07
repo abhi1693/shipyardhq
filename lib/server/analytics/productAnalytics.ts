@@ -2,7 +2,12 @@ import type { Prisma } from "@/lib/vendor/prisma/client"
 
 import prisma from "@/lib/prisma"
 import { hasPlanFeature } from "@/lib/features"
-import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
+import {
+  buildCacheKey,
+  cacheHit,
+  cacheMiss,
+  invalidateCacheByPrefix,
+} from "@/lib/server/cache"
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
 
@@ -92,6 +97,25 @@ export async function getProductAnalyticsRecord(id: string) {
   }
 
   return record
+}
+
+export async function invalidateProductAnalyticsRecordCache(
+  productId: string,
+  reason = "manual",
+) {
+  return invalidateCacheByPrefix({
+    keyPrefix: buildCacheKey("analytics", "productAnalytics", "v2", productId),
+    onError: (error) => {
+      console.error(
+        "[analytics] failed to invalidate product analytics cache",
+        {
+          productId,
+          reason,
+          error,
+        },
+      )
+    },
+  })
 }
 
 export function toProductAnalyticsViewProduct(product: ProductAnalyticsRecord) {

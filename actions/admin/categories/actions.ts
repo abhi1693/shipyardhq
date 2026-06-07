@@ -10,6 +10,21 @@ import {
 } from "@/lib/cache/revalidate"
 import { revalidateTag } from "@/lib/cache/revalidateTag"
 import { cached } from "@/lib/cache"
+import { invalidateSearchSuggestionsCache } from "@/lib/server/search/suggestions-cache"
+
+async function invalidateSearchSuggestionsAfterCategoryChange(reason: string) {
+  try {
+    await invalidateSearchSuggestionsCache(reason)
+  } catch (error) {
+    console.error(
+      "Failed to invalidate search suggestions after category change",
+      {
+        reason,
+        error,
+      },
+    )
+  }
+}
 
 export async function getCategories(args: Prisma.CategoryFindManyArgs = {}) {
   try {
@@ -81,6 +96,7 @@ export async function createCategoryAction(formData: FormData) {
     })
     revalidateCategories()
     revalidateProducts()
+    await invalidateSearchSuggestionsAfterCategoryChange("category.created")
     return { success: true }
   } catch (error) {
     console.error("Error creating category:", error)
@@ -108,6 +124,7 @@ export async function updateCategoryAction(
     revalidateCategory(id)
     revalidateCategories()
     revalidateProducts()
+    await invalidateSearchSuggestionsAfterCategoryChange("category.updated")
     return result
   } catch (error) {
     console.error("Error updating category:", error)
@@ -131,6 +148,7 @@ export async function deleteCategoryAction(id: string) {
     revalidateCategory(id)
     revalidateCategories()
     revalidateProducts()
+    await invalidateSearchSuggestionsAfterCategoryChange("category.deleted")
     return { success: true }
   } catch (error) {
     console.error("Error deleting category:", error)

@@ -3,6 +3,32 @@
 import prisma from "@/lib/prisma"
 import { Prisma, PlanType, TimeInterval } from "@/lib/vendor/prisma/client"
 import { dodoClient } from "@/lib/dodo"
+import { revalidatePlans } from "@/lib/cache/revalidate"
+import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
+
+async function invalidatePlanDependentCaches(
+  planIds: string[],
+  reason: string,
+) {
+  const uniquePlanIds = Array.from(new Set(planIds)).filter(Boolean)
+  revalidatePlans("revalidate")
+  await refreshHomepageFeedCache().catch((error) => {
+    console.error("[plans] failed to refresh homepage feed", { reason, error })
+  })
+
+  if (!uniquePlanIds.length) return
+
+  const products = await prisma.product.findMany({
+    where: { planId: { in: uniquePlanIds } },
+    select: { id: true },
+  })
+  await Promise.allSettled(
+    products.map((product) =>
+      invalidateProductAnalyticsRecordCache(product.id, reason),
+    ),
+  )
+}
 
 function normalizeDiscount(value: unknown): number | null {
   if (value === null || value === undefined) return null
@@ -171,6 +197,7 @@ export async function createPlanAction(formData: FormData) {
       console.log("Product updated on DodoPayments:", product.product_id)
     }
 
+    await invalidatePlanDependentCaches([], "plan.created")
     return { success: true }
   } catch (error) {
     console.error("❌ Failed to create plan:", error)
@@ -211,6 +238,7 @@ export async function deletePlanAction(id: string) {
       where: { id },
     })
 
+    await invalidatePlanDependentCaches([id], "plan.deleted")
     return { success: true }
   } catch (error) {
     console.error("❌ Failed to delete plan:", error)
@@ -377,6 +405,7 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
       }
     }
 
+    await invalidatePlanDependentCaches([id], "plan.updated")
     return { success: true }
   } catch (error) {
     console.error("❌ Failed to update plan:", error)

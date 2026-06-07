@@ -19,6 +19,11 @@ import {
   syncSiteTrafficBreakdowns,
   type SiteTrafficBreakdownSyncResult,
 } from "@/lib/server/analytics/ingestion/siteTrafficBreakdowns"
+import { invalidateAnalyticsCache } from "@/lib/server/analytics/providers/cache"
+import {
+  revalidateHomepage,
+  revalidateLeaderboard,
+} from "@/lib/cache/revalidate"
 
 export type IngestionJobKey =
   | "product_traffic_daily"
@@ -175,6 +180,12 @@ export async function runAnalyticsIngestion(
       })
       results.push({ job, runId: run.id, status: "failed", error: message })
     }
+  }
+
+  if (results.some((result) => result.status === "completed")) {
+    await invalidateAnalyticsCache("analytics-ingestion")
+    revalidateHomepage("revalidate")
+    revalidateLeaderboard("revalidate")
   }
 
   return { window, results }

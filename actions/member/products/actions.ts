@@ -17,6 +17,7 @@ import { memberProductPath } from "@/lib/routes"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
 import { revalidateProduct } from "@/lib/cache/revalidate"
 import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -42,6 +43,27 @@ async function refreshHomepageFeedCacheAfterMemberProductChange(
       productId,
       error,
     })
+    return null
+  }
+}
+
+async function invalidateProductAnalyticsAfterMemberProductChange(
+  reason: string,
+  productId?: string,
+) {
+  if (!productId) return null
+
+  try {
+    return await invalidateProductAnalyticsRecordCache(productId, reason)
+  } catch (error) {
+    console.error(
+      "Failed to invalidate product analytics after member change",
+      {
+        reason,
+        productId,
+        error,
+      },
+    )
     return null
   }
 }
@@ -322,6 +344,10 @@ export async function setProductPlanAction(
     "member.product.plan.updated",
     productId,
   )
+  await invalidateProductAnalyticsAfterMemberProductChange(
+    "member.product.plan.updated",
+    productId,
+  )
 
   return { success: true }
 }
@@ -437,6 +463,10 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
       "member.product.payment.validated",
       productId,
     )
+    await invalidateProductAnalyticsAfterMemberProductChange(
+      "member.product.payment.validated",
+      productId,
+    )
     return { success: true }
   } catch (e) {
     console.error("Payment validation failed:", e)
@@ -504,6 +534,10 @@ export async function validateSubscriptionAndAttachPlan(
     })
     revalidateProduct(productId, "revalidate")
     await refreshHomepageFeedCacheAfterMemberProductChange(
+      "member.product.subscription.validated",
+      productId,
+    )
+    await invalidateProductAnalyticsAfterMemberProductChange(
       "member.product.subscription.validated",
       productId,
     )

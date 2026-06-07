@@ -11,6 +11,9 @@ import {
   revalidateProduct,
 } from "@/lib/cache/revalidate"
 import "@/lib/server/rewards/listeners"
+import { invalidateHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
+import { invalidateLeaderboardRangeAnalyticsCache } from "@/lib/server/analytics/leaderboardRange"
 
 export type VoteState = "upvoted" | "not_upvoted"
 
@@ -140,6 +143,17 @@ async function mutateVote({
         error,
       })
     }
+
+    void Promise.all([
+      invalidateHomepageFeedCache(),
+      invalidateProductAnalyticsRecordCache(productId, "product.upvoted"),
+      invalidateLeaderboardRangeAnalyticsCache("product.upvoted"),
+    ]).catch((error) => {
+      console.error("[analytics] upvote cache invalidation failed", {
+        productId,
+        error,
+      })
+    })
   }
 
   return mutation

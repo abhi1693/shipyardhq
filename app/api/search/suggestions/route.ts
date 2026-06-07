@@ -2,13 +2,13 @@ import { NextResponse } from "next/server"
 
 import prisma from "@/lib/prisma"
 import { BROWSE_PATH, productPath } from "@/lib/routes"
-import { buildCacheKey, cacheGetOrSet } from "@/lib/server/cache"
+import { cacheGetOrSet } from "@/lib/server/cache"
+import { buildSearchSuggestionsCacheKey } from "@/lib/server/search/suggestions-cache"
 
 const MIN_QUERY_LENGTH = 2
 const PRODUCT_LIMIT = 8
 const CACHE_TTL_SECONDS = 60
 const IN_PROCESS_TTL_MS = 15_000
-const SEARCH_SUGGESTIONS_CACHE_VERSION = "v3"
 
 export type SearchSuggestion = {
   id: string
@@ -96,12 +96,7 @@ export async function GET(request: Request) {
   }
 
   const items = await cacheGetOrSet({
-    key: buildCacheKey(
-      "search",
-      "suggestions",
-      SEARCH_SUGGESTIONS_CACHE_VERSION,
-      query.toLowerCase(),
-    ),
+    key: buildSearchSuggestionsCacheKey(query),
     ttlSeconds: CACHE_TTL_SECONDS,
     inProcessTtlMs: IN_PROCESS_TTL_MS,
     loader: () => loadSuggestions(query),

@@ -1,7 +1,12 @@
 import { addDays, format, startOfDay, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
-import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
+import {
+  buildCacheKey,
+  cacheHit,
+  cacheMiss,
+  invalidateCacheByPrefix,
+} from "@/lib/server/cache"
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 import type {
   LeaderboardRangeAnalytics,
@@ -11,6 +16,27 @@ import type {
 const DEFAULT_LIMIT = 25
 const SURGE_LIMIT = 10
 const NEWCOMER_LIMIT = 10
+const LEADERBOARD_RANGE_CACHE_PREFIX = buildCacheKey(
+  "analytics",
+  "leaderboardRange",
+)
+
+export async function invalidateLeaderboardRangeAnalyticsCache(
+  reason = "manual",
+) {
+  return invalidateCacheByPrefix({
+    keyPrefix: LEADERBOARD_RANGE_CACHE_PREFIX,
+    onError: (error) => {
+      console.error(
+        "[analytics] failed to invalidate leaderboard range cache",
+        {
+          reason,
+          error,
+        },
+      )
+    },
+  })
+}
 
 function calcChange(current: number, previous: number) {
   if (previous === 0) {

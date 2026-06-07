@@ -2,6 +2,43 @@
 
 import prisma from "@/lib/prisma"
 import { Prisma, TimeInterval } from "@/lib/vendor/prisma/client"
+import { revalidatePlanFeature } from "@/lib/cache/revalidate"
+import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
+
+async function invalidateAssignmentDependentCaches(args: {
+  planIds: string[]
+  featureKeys: string[]
+  reason: string
+}) {
+  const uniqueFeatureKeys = Array.from(new Set(args.featureKeys)).filter(
+    Boolean,
+  )
+  uniqueFeatureKeys.forEach((featureKey) =>
+    revalidatePlanFeature(featureKey, "revalidate"),
+  )
+
+  await refreshHomepageFeedCache().catch((error) => {
+    console.error("[plans.assignments] failed to refresh homepage feed", {
+      reason: args.reason,
+      error,
+    })
+  })
+
+  const uniquePlanIds = Array.from(new Set(args.planIds)).filter(Boolean)
+  if (!uniquePlanIds.length) return
+
+  const products = await prisma.product.findMany({
+    where: { planId: { in: uniquePlanIds } },
+    select: { id: true },
+  })
+
+  await Promise.allSettled(
+    products.map((product) =>
+      invalidateProductAnalyticsRecordCache(product.id, args.reason),
+    ),
+  )
+}
 
 export async function getAssignedFeatures(
   args: Prisma.PlanFeatureAssignmentFindManyArgs = {},
@@ -94,6 +131,12 @@ export async function createPlanFeatureAssignment(data: Input) {
       },
     })
 
+    await invalidateAssignmentDependentCaches({
+      planIds: [data.planId],
+      featureKeys: [feature.key],
+      reason: "plan-feature-assignment.created",
+    })
+
     return { success: true }
   } catch (error) {
     console.error("❌ Failed to assign feature:", error)
@@ -150,6 +193,14 @@ export async function updatePlanFeatureAssignmentAction(
           }
         : Prisma.JsonNull
 
+    const previous = await prisma.planFeatureAssignment.findUnique({
+      where: { id },
+      select: {
+        planId: true,
+        feature: { select: { key: true } },
+      },
+    })
+
     await prisma.planFeatureAssignment.update({
       where: { id },
       data: {
@@ -161,6 +212,16 @@ export async function updatePlanFeatureAssignmentAction(
       },
     })
 
+    await invalidateAssignmentDependentCaches({
+      planIds: [previous?.planId, input.planId].filter(
+        (planId): planId is string => Boolean(planId),
+      ),
+      featureKeys: [previous?.feature.key, feature.key].filter(
+        (featureKey): featureKey is string => Boolean(featureKey),
+      ),
+      reason: "plan-feature-assignment.updated",
+    })
+
     return { success: true }
   } catch (error) {
     console.error("❌ Failed to update assignment:", error)
@@ -170,8 +231,21 @@ export async function updatePlanFeatureAssignmentAction(
 
 export async function deletePlanFeatureAssignmentAction(id: string) {
   try {
+    const existing = await prisma.planFeatureAssignment.findUnique({
+      where: { id },
+      select: {
+        planId: true,
+        feature: { select: { key: true } },
+      },
+    })
+
     await prisma.planFeatureAssignment.delete({
       where: { id },
+    })
+    await invalidateAssignmentDependentCaches({
+      planIds: existing?.planId ? [existing.planId] : [],
+      featureKeys: existing?.feature.key ? [existing.feature.key] : [],
+      reason: "plan-feature-assignment.deleted",
     })
     return { success: true }
   } catch (error) {

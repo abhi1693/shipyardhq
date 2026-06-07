@@ -4,7 +4,10 @@ import prisma from "@/lib/prisma"
 import { Prisma, UserStatus } from "@/lib/vendor/prisma/client"
 import { revalidateProducts } from "@/lib/cache/revalidate"
 import { auth, clerkClient } from "@clerk/nextjs/server"
-import { getActiveUserByClerkId } from "@/lib/server/userStatus"
+import {
+  getActiveUserByClerkId,
+  invalidateActiveUserCache,
+} from "@/lib/server/userStatus"
 
 const SEARCH_LIMIT = 25
 
@@ -70,6 +73,7 @@ export async function createUserAction(formData: FormData) {
         role: String(role),
       },
     })
+    await invalidateActiveUserCache(clerkId)
     // Users list depends on products count, revalidate products-driven caches
     revalidateProducts()
     return { success: true }
@@ -98,6 +102,7 @@ export async function updateUserAction(
       where: { id },
       data,
     })
+    await invalidateActiveUserCache(result.clerkId)
     revalidateProducts()
     return result
   } catch (error) {
@@ -108,9 +113,14 @@ export async function updateUserAction(
 
 export async function deleteUserAction(id: string) {
   try {
+    const existing = await prisma.user.findUnique({
+      where: { id },
+      select: { clerkId: true },
+    })
     const result = await prisma.user.delete({
       where: { id },
     })
+    await invalidateActiveUserCache(existing?.clerkId)
     revalidateProducts()
     return result
   } catch (error) {
@@ -231,6 +241,7 @@ export async function setUserStatusAction(id: string, status: UserStatus) {
     }
 
     revalidateProducts()
+    await invalidateActiveUserCache(target.clerkId)
     return result
   } catch (error) {
     console.error("Error updating user status:", error)

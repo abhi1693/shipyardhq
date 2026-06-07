@@ -12,6 +12,7 @@ import {
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
 import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
 
 type PlanSummary = {
   id: string
@@ -38,6 +39,19 @@ async function refreshHomepageFeedCacheAfterBillingSync() {
   } catch (error) {
     console.error("[billing] homepage feed refresh failed", { error })
   }
+}
+
+async function invalidateProductAnalyticsAfterBillingSync(
+  productIds: string[],
+) {
+  const uniqueProductIds = Array.from(new Set(productIds)).filter(Boolean)
+  if (!uniqueProductIds.length) return
+
+  await Promise.allSettled(
+    uniqueProductIds.map((productId) =>
+      invalidateProductAnalyticsRecordCache(productId, "billing.sync"),
+    ),
+  )
 }
 
 export async function syncCurrentUserBilling() {
@@ -235,6 +249,7 @@ async function syncProductPlanSubscriptions(args: {
 
   const productById = new Map(products.map((product) => [product.id, product]))
   const updates: Array<ReturnType<typeof prisma.product.update>> = []
+  const touchedProductIds = new Set<string>()
 
   for (const [
     productId,
@@ -269,6 +284,7 @@ async function syncProductPlanSubscriptions(args: {
         data,
       }),
     )
+    touchedProductIds.add(productId)
   }
 
   if (defaultPlan) {
@@ -289,11 +305,15 @@ async function syncProductPlanSubscriptions(args: {
           },
         }),
       )
+      touchedProductIds.add(productId)
     }
   }
 
   if (updates.length) {
     await Promise.all(updates)
     await refreshHomepageFeedCacheAfterBillingSync()
+    await invalidateProductAnalyticsAfterBillingSync(
+      Array.from(touchedProductIds),
+    )
   }
 }

@@ -1,7 +1,12 @@
 import { createHash } from "crypto"
 import { format, subDays } from "date-fns"
 
-import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
+import {
+  buildCacheKey,
+  cacheHit,
+  cacheMiss,
+  invalidateCacheByPrefix,
+} from "@/lib/server/cache"
 import type {
   AnalyticsProvider,
   AnalyticsDateRange,
@@ -104,6 +109,39 @@ function cacheKeyForSiteSnapshot(args?: {
 const HOMEPAGE_TRAFFIC_CACHE_KEY = buildCacheKey(
   "analytics:cache:homepage-traffic:v2",
 )
+const ANALYTICS_CACHE_PREFIX = buildCacheKey("analytics:cache")
+const ANALYTICS_PAGE_CACHE_PREFIX = buildCacheKey("analytics:page")
+
+export async function invalidateAnalyticsCache(reason = "manual") {
+  const [analytics, pages] = await Promise.all([
+    invalidateCacheByPrefix({
+      keyPrefix: ANALYTICS_CACHE_PREFIX,
+      onError: (error) => {
+        console.error("[analytics] failed to invalidate provider cache", {
+          reason,
+          error,
+        })
+      },
+    }),
+    invalidateCacheByPrefix({
+      keyPrefix: ANALYTICS_PAGE_CACHE_PREFIX,
+      onError: (error) => {
+        console.error("[analytics] failed to invalidate page cache", {
+          reason,
+          error,
+        })
+      },
+    }),
+  ])
+
+  console.info("[analytics] cache invalidated", {
+    reason,
+    analytics,
+    pages,
+  })
+
+  return { analytics, pages }
+}
 
 async function getCachedRealtimeVisitors(): Promise<number | null> {
   const cached = await cacheHit<number>({

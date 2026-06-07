@@ -3,6 +3,7 @@ import { dodoClient } from "@/lib/dodo"
 import { PlanType } from "@/lib/vendor/prisma/client"
 import { readMetadataString } from "@/lib/server/subscriptionMetadata"
 import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
 
 const MS_PER_SECOND = 1000
 const MS_PER_MINUTE = 60 * MS_PER_SECOND
@@ -27,6 +28,20 @@ async function refreshHomepageFeedCacheAfterPlanExpiration(reason: string) {
       error,
     })
   }
+}
+
+async function invalidateProductAnalyticsAfterPlanExpiration(
+  productIds: string[],
+  reason: string,
+) {
+  const uniqueProductIds = Array.from(new Set(productIds)).filter(Boolean)
+  if (!uniqueProductIds.length) return
+
+  await Promise.allSettled(
+    uniqueProductIds.map((productId) =>
+      invalidateProductAnalyticsRecordCache(productId, reason),
+    ),
+  )
 }
 
 type DurationDisplay = {
@@ -237,6 +252,10 @@ export async function expireBoostedPlans(now: Date = new Date()) {
       durationMs: Date.now() - startedAtMs,
     })
     await refreshHomepageFeedCacheAfterPlanExpiration("boosts.expired")
+    await invalidateProductAnalyticsAfterPlanExpiration(
+      expired.map((item) => item.productId),
+      "boosts.expired",
+    )
   }
 
   let recurringResult: Awaited<
@@ -419,6 +438,10 @@ async function expireInactiveRecurringPlans(args: {
   if (updates.length) {
     await Promise.all(updates)
     await refreshHomepageFeedCacheAfterPlanExpiration("subscriptions.expired")
+    await invalidateProductAnalyticsAfterPlanExpiration(
+      expired.map((item) => item.productId),
+      "subscriptions.expired",
+    )
   }
 
   return { expired, count: expired.length }

@@ -127,3 +127,16 @@ export function revalidateRewardsLeaderboard(
   revalidateTag(TAGS.rewards, mode)
   revalidateHomepage(mode)
 }
+
+export function revalidatePlans(mode: CacheInvalidationMode = "update") {
+  revalidateTag(TAGS.plans, mode)
+  revalidateProducts(mode)
+}
+
+export function revalidatePlanFeature(
+  key: string,
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.planFeature(key), mode)
+  revalidatePlans(mode)
+}

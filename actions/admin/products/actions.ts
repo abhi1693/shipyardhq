@@ -35,6 +35,8 @@ import {
 import { getRootDomain } from "@/lib/domain"
 import { productForEditWizardSelect } from "@/types/product-wizard"
 import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { invalidateSearchSuggestionsCache } from "@/lib/server/search/suggestions-cache"
+import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
 
 async function refreshHomepageFeedCacheAfterProductChange(
   reason: string,
@@ -45,6 +47,46 @@ async function refreshHomepageFeedCacheAfterProductChange(
   } catch (error) {
     console.error(
       "Failed to refresh homepage feed cache after product change",
+      {
+        reason,
+        productId,
+        error,
+      },
+    )
+    return null
+  }
+}
+
+async function invalidateSearchSuggestionsAfterProductChange(
+  reason: string,
+  productId?: string,
+) {
+  try {
+    return await invalidateSearchSuggestionsCache(reason)
+  } catch (error) {
+    console.error(
+      "Failed to invalidate search suggestions after product change",
+      {
+        reason,
+        productId,
+        error,
+      },
+    )
+    return null
+  }
+}
+
+async function invalidateProductAnalyticsAfterProductChange(
+  reason: string,
+  productId?: string,
+) {
+  if (!productId) return null
+
+  try {
+    return await invalidateProductAnalyticsRecordCache(productId, reason)
+  } catch (error) {
+    console.error(
+      "Failed to invalidate product analytics after product change",
       {
         reason,
         productId,
@@ -350,6 +392,14 @@ export async function createProductAction(formData: FormData) {
       Promise.resolve().then(() => revalidateCategory(categoryId)),
       Promise.resolve().then(() => revalidateLeaderboard()),
       refreshHomepageFeedCacheAfterProductChange("product.created", created.id),
+      invalidateSearchSuggestionsAfterProductChange(
+        "product.created",
+        created.id,
+      ),
+      invalidateProductAnalyticsAfterProductChange(
+        "product.created",
+        created.id,
+      ),
     ]
 
     if (uniqueAlternativeIds.length) {
@@ -646,6 +696,8 @@ export async function updateProductAction(
     revalidateCategory(categoryId)
     revalidateLeaderboard()
     await refreshHomepageFeedCacheAfterProductChange("product.updated", id)
+    await invalidateSearchSuggestionsAfterProductChange("product.updated", id)
+    await invalidateProductAnalyticsAfterProductChange("product.updated", id)
     if (nextAlternativeIds !== undefined || previousAlternativeIds.length) {
       const idsToRevalidate = new Set<string>(previousAlternativeIds)
       if (nextAlternativeIds) {
@@ -719,6 +771,8 @@ export async function deleteProductAction(id: string) {
     revalidateCategories()
     revalidateLeaderboard()
     await refreshHomepageFeedCacheAfterProductChange("product.deleted", id)
+    await invalidateSearchSuggestionsAfterProductChange("product.deleted", id)
+    await invalidateProductAnalyticsAfterProductChange("product.deleted", id)
     return result
   } catch (error) {
     if (
@@ -730,6 +784,14 @@ export async function deleteProductAction(id: string) {
       revalidateCategories()
       revalidateLeaderboard()
       await refreshHomepageFeedCacheAfterProductChange(
+        "product.delete.missing",
+        id,
+      )
+      await invalidateSearchSuggestionsAfterProductChange(
+        "product.delete.missing",
+        id,
+      )
+      await invalidateProductAnalyticsAfterProductChange(
         "product.delete.missing",
         id,
       )
@@ -853,6 +915,10 @@ export async function assignProductPlanAction(
       "product.plan.assigned",
       productId,
     )
+    await invalidateProductAnalyticsAfterProductChange(
+      "product.plan.assigned",
+      productId,
+    )
     return { success: true }
   } catch (e) {
     console.error("Failed to assign plan to product", e)
@@ -925,6 +991,14 @@ export async function setProductStatusAction(
     }
     revalidateProduct(id, "revalidate")
     await refreshHomepageFeedCacheAfterProductChange(
+      "product.status.updated",
+      id,
+    )
+    await invalidateSearchSuggestionsAfterProductChange(
+      "product.status.updated",
+      id,
+    )
+    await invalidateProductAnalyticsAfterProductChange(
       "product.status.updated",
       id,
     )
