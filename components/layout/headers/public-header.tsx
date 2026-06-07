@@ -5,6 +5,7 @@ import { Search } from "lucide-react"
 import { Input } from "@/components/atoms/input"
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import PublicHeaderActions from "./public-header-actions"
+import PublicMobileMenu from "./public-mobile-menu"
 import PublicHeaderNav from "./public-header-nav"
 import PublicHeaderSearch from "./public-header-search"
 
@@ -29,9 +30,9 @@ export default function PublicHeader() {
     <header
       className={`${inter.className} fixed top-0 z-50 w-full border-b border-[#E2E8F0] bg-white text-[#0b1c30]`}
     >
-      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
-        <div className="flex items-center gap-6">
-          <BrandWordmark eager />
+      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-4 sm:px-6">
+        <div className="flex min-w-0 items-center gap-6">
+          <BrandWordmark eager compact />
           <Suspense fallback={<PublicHeaderSearchFallback />}>
             <PublicHeaderSearch />
           </Suspense>
@@ -40,6 +41,7 @@ export default function PublicHeader() {
         <PublicHeaderNav />
 
         <PublicHeaderActions />
+        <PublicMobileMenu />
       </div>
     </header>
   )

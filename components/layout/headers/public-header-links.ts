@@ -3,13 +3,15 @@ import {
   BROWSE_PATH,
   LEADERBOARD_PATH,
   PRICING_PATH,
-  REWARDS_PATH,
 } from "@/lib/routes"
 
 export const publicHeaderLinks = [
-  { label: "Browse", href: BROWSE_PATH },
+  { label: "Explore", href: BROWSE_PATH },
   { label: "Leaderboard", href: LEADERBOARD_PATH },
   { label: "Analytics", href: ANALYTICS_PATH },
   { label: "Pricing", href: PRICING_PATH },
-  { label: "Rewards", href: REWARDS_PATH },
 ] as const
+
+export function isActivePublicHeaderPath(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`)
+}

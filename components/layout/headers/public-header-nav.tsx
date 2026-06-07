@@ -5,30 +5,17 @@ import { usePathname } from "next/navigation"
 
 import { Button } from "@/components/atoms/button"
 import {
-  ANALYTICS_PATH,
-  BROWSE_PATH,
-  LEADERBOARD_PATH,
-  PRICING_PATH,
-} from "@/lib/routes"
-
-const headerLinks = [
-  { label: "Explore", href: BROWSE_PATH },
-  { label: "Leaderboard", href: LEADERBOARD_PATH },
-  { label: "Analytics", href: ANALYTICS_PATH },
-  { label: "Pricing", href: PRICING_PATH },
-] as const
-
-function isActivePath(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(`${href}/`)
-}
+  isActivePublicHeaderPath,
+  publicHeaderLinks,
+} from "./public-header-links"
 
 export default function PublicHeaderNav() {
   const pathname = usePathname()
 
   return (
     <nav className="hidden items-center gap-6 md:flex">
-      {headerLinks.map((link) => {
-        const isActive = isActivePath(pathname, link.href)
+      {publicHeaderLinks.map((link) => {
+        const isActive = isActivePublicHeaderPath(pathname, link.href)
 
         return (
           <Button

@@ -48,7 +48,7 @@ export default function PublicHeaderActions() {
   const avatarAlt = user?.fullName ?? "User profile"
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="hidden items-center gap-3 md:flex">
       <Button
         asChild
         className="h-auto rounded-[4px] border-0 bg-black px-4 py-2 text-[12px] font-semibold leading-4 tracking-[0.05em] text-white shadow-none transition-transform hover:scale-95 hover:bg-black hover:brightness-100 hover:shadow-none active:brightness-100"
