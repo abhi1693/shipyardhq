@@ -107,6 +107,16 @@ function formatCount(value: number) {
   return numberFormatter.format(Math.max(0, value))
 }
 
+function formatBuilderCountBadge(value: number) {
+  const safeValue = Math.max(0, value)
+  if (safeValue < 1000) {
+    return formatCount(safeValue)
+  }
+
+  const roundedValue = Math.floor(safeValue / 100) * 100
+  return `${formatCount(roundedValue)}+`
+}
+
 function formatPercent(value: number) {
   const sign = value > 0 ? "+" : ""
   return `${sign}${value.toFixed(0)}%`
@@ -279,7 +289,7 @@ export default async function HomePage() {
       }
     : (feedProducts[0] ?? fallbackLaunch)
   const builderCount = builderSummary.builderCount
-  const builderCountLabel = formatCount(builderCount)
+  const builderCountLabel = formatBuilderCountBadge(builderCount)
   const builderNoun = pluralize(builderCount, "builder", "builders")
   const topFounder = builderSummary.topFounder
   const topFounderHref = topFounder ? userPath(topFounder.id) : "/users"
