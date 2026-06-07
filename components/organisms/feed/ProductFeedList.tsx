@@ -12,6 +12,8 @@ import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 const REMAINING_PAGE_SIZE = 20
+const PROMOTED_PRODUCT_INTERVAL = 8
+const PROMOTED_PRODUCTS_PER_SLOT = 1
 
 export interface ProductFeedListProps {
   activeFilter: HomepageFeedView
@@ -133,7 +135,7 @@ function buildNewViewSections(
     if (remaining <= 0) {
       return null
     }
-    const chunkSize = Math.min(2, remaining)
+    const chunkSize = Math.min(PROMOTED_PRODUCTS_PER_SLOT, remaining)
     const chunk = promotedItems.slice(promotedIndex, promotedIndex + chunkSize)
     promotedIndex += chunk.length
     return chunk
@@ -147,17 +149,33 @@ function buildNewViewSections(
     }))
     .filter((bucket) => bucket.items.length > 0)
 
+  let organicCount = 0
+
   bucketsWithItems.forEach((bucket) => {
     const rows: BucketRow[] = []
-    bucket.items.forEach((item, index) => {
+
+    if (promotedIndex === 0) {
+      const chunk = takePromotedChunk()
+      if (chunk && chunk.length > 0) {
+        rows.push({
+          kind: "promoted",
+          key: `${bucket.key}-promoted-${promotedSectionCount}`,
+          items: chunk,
+        })
+        promotedSectionCount += 1
+      }
+    }
+
+    bucket.items.forEach((item) => {
       rows.push({
         kind: "product",
         key: `${bucket.key}-product-${item.id}`,
         item,
       })
+      organicCount += 1
 
-      const reachedMultipleOfFive = (index + 1) % 5 === 0
-      if (reachedMultipleOfFive) {
+      const reachedPromotedSlot = organicCount % PROMOTED_PRODUCT_INTERVAL === 0
+      if (reachedPromotedSlot) {
         const chunk = takePromotedChunk()
         if (chunk && chunk.length > 0) {
           rows.push({
@@ -169,19 +187,6 @@ function buildNewViewSections(
         }
       }
     })
-
-    const needsRemainderPromoted = bucket.items.length % 5 !== 0
-    if (needsRemainderPromoted) {
-      const chunk = takePromotedChunk()
-      if (chunk && chunk.length > 0) {
-        rows.push({
-          kind: "promoted",
-          key: `${bucket.key}-promoted-${promotedSectionCount}`,
-          items: chunk,
-        })
-        promotedSectionCount += 1
-      }
-    }
 
     sections.push({
       kind: "bucket",
@@ -196,13 +201,6 @@ function buildNewViewSections(
     sections.push({
       kind: "promoted",
       key: "new-promoted-only",
-      title: "Promoted",
-      items: remainingPromoted,
-    })
-  } else if (remainingPromoted.length > 0) {
-    sections.push({
-      kind: "promoted",
-      key: `new-promoted-${promotedSectionCount}`,
       title: "Promoted",
       items: remainingPromoted,
     })

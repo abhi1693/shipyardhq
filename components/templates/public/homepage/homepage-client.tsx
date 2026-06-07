@@ -26,7 +26,7 @@ import { BROWSE_PATH, categoryPath, productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 const formatter = new Intl.NumberFormat("en-US")
-const SPONSORED_DROP_INTERVAL = 4
+const SPONSORED_DROP_INTERVAL = 8
 
 type HomepageVoteStateContextValue = {
   isVoted: (productId?: string) => boolean
@@ -423,6 +423,16 @@ function buildDropSections(
   bucketOrder.forEach((bucket) => {
     const organicItems = buckets.get(bucket.key) ?? []
     const sectionItems: HomepageDropListItem[] = []
+
+    if (
+      sponsoredIndex === 0 &&
+      sponsoredIndex < sponsoredItems.length &&
+      organicItems.length > 0
+    ) {
+      sectionItems.push(sponsoredItems[sponsoredIndex])
+      sponsoredIndex += 1
+    }
+
     organicItems.forEach((item) => {
       sectionItems.push(item)
       organicIndex += 1
@@ -442,14 +452,6 @@ function buildDropSections(
       items: sectionItems,
     })
   })
-
-  if (sponsoredIndex === 0 && sponsoredItems.length > 0) {
-    const firstSection = sections[0]
-    if (firstSection) {
-      firstSection.items.push(sponsoredItems[0])
-      sponsoredIndex = 1
-    }
-  }
 
   return sections
 }

@@ -27,7 +27,7 @@ const SPONSORED_PLAN_FEATURE_KEY_SET = new Set<string>(
 )
 const EDITOR_PICK_BADGE = "editor-pick"
 const HOMEPAGE_SPONSORED_LIMIT = 12
-const HOMEPAGE_SPONSORED_INTERVAL = 4
+const HOMEPAGE_SPONSORED_INTERVAL = 8
 const HOMEPAGE_ROTATION_SEED = "homepage-organic-rotation"
 const HOMEPAGE_FEED_CACHE_VERSION = "v1"
 const HOMEPAGE_FEED_CACHE_TTL_SECONDS = resolveCacheTtl("slow")
@@ -517,13 +517,17 @@ function interleaveSponsoredItems(
 
   const mixedItems: HomepageFeedItem[] = []
 
+  if (organicStartIndex === 0) {
+    mixedItems.push(sponsoredItems[0])
+  }
+
   organicItems.forEach((item, organicIndex) => {
     mixedItems.push(item)
 
     const globalOrganicPosition = organicStartIndex + organicIndex + 1
     if (globalOrganicPosition % HOMEPAGE_SPONSORED_INTERVAL === 0) {
       const sponsoredSlotIndex =
-        globalOrganicPosition / HOMEPAGE_SPONSORED_INTERVAL - 1
+        globalOrganicPosition / HOMEPAGE_SPONSORED_INTERVAL
       const sponsoredItem = sponsoredItems[sponsoredSlotIndex]
 
       if (sponsoredItem) {
