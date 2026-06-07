@@ -1,100 +1,257 @@
-# ShipYardHQ
+# Shipyard HQ
 
-Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑SaaS, indie tools, and early‑stage products. Makers submit in minutes; the community discovers, upvotes, and shares what’s worth using.
+Shipyard HQ is a product discovery and launch platform for builders. Makers can submit products, publish launches, collect upvotes, track analytics, and buy placement plans. Public users can browse launches, leaderboards, categories, tags, use cases, platforms, pricing models, alternatives, and maker profiles.
 
-## What You Can Do
+## Stack
 
-- Discover: Browse by category or use case, see latest launches, and explore what’s trending on the leaderboard.
-- Upvote: Support your favorite products and help them rise.
-- Launch: Submit your product quickly and publish when ready.
-- Feature: Boost visibility with featured placements available on paid plans.
+- Next.js App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Prisma 7 with PostgreSQL
+- Clerk authentication
+- Dodo Payments
+- Redis and BullMQ for cache and background work
+- Google Analytics / GA4 Data API for traffic reporting
+- Cloudflare R2-compatible object storage for product media
 
-## How It Works
+## Project Layout
 
-1. Submit your product: Share the basics (name, description, link, category) from `/member/products`.
-2. Publish and verify: Go live immediately; optional domain verification adds trust.
-3. Get discovered: Appear across feeds like Featured Highlights, Latest Launches, and Editors’ Picks.
-4. Grow: Collect upvotes, climb the leaderboard, and upgrade to featured for extra reach.
+- `app/` - App Router routes, layouts, API handlers, and route-local components.
+- `actions/` - server actions for admin, member, and public workflows.
+- `components/` - shared UI organized by atoms, molecules, templates, pages, and layout.
+- `lib/` - shared runtime logic, data access, cache helpers, analytics, billing, jobs, and utilities.
+- `prisma/` - Prisma schema, migrations, and seed files.
+- `bin/` - long-running worker entrypoints.
+- `docs/` - operational setup notes.
+- `scripts/` - manual utility scripts.
+- `tests/` - Vitest coverage.
 
-## Key Pages
+## Requirements
 
-- Browse: `/browse` — filter by categories, use cases, and verified products.
-- Leaderboard: `/leaderboard` — see the most upvoted products.
-- Categories: `/categories` — explore top verticals.
-- Pricing: `/pricing` — free listing plus optional featured plans.
-- Submit Product: `/member/products` — start your launch.
+- Node.js 22 or newer
+- npm
+- PostgreSQL
+- Redis for production-like caching, scheduled work, and BullMQ jobs
 
-## For Makers
+## Local Setup
 
-- Free to list. Upgrade anytime for featured placement and priority visibility.
-- Clear guidance during submission; publish as draft or live.
-- Shareable product pages with badges and highlights.
+1. Install dependencies:
 
-## For Discoverers
+```bash
+npm install
+```
 
-- Curated feeds to find quality tools faster.
-- Simple upvoting to signal what’s useful.
+2. Create `.env.local` with at least the core app secrets:
 
-## Quality
+```bash
+DATABASE_URL="postgresql://..."
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="..."
+CLERK_SECRET_KEY="..."
+DODO_API_KEY="..."
+```
 
-- Lint: `npm run lint`
-- Format: `npm run format`
+3. Apply Prisma migrations and generate the client:
 
-## Media Storage
+```bash
+npm run prisma:deploy
+npm run prisma:generate
+```
 
-Shipyard stores uploaded product media in Cloudflare R2 through the S3 API.
-Configure these server-side env vars in production:
+4. Seed local data when needed:
+
+```bash
+npm run prisma:seed:dev
+```
+
+5. Start the development server:
+
+```bash
+npm run dev
+```
+
+The app runs at `http://localhost:3000` by default.
+
+## Environment Variables
+
+Core:
+
+- `DATABASE_URL` - primary PostgreSQL connection string.
+- `DIRECT_DATABASE_URL` - optional direct database URL override.
+- `NEXT_PUBLIC_APP_URL` - canonical app URL.
+- `CACHE_ENV_PREFIX` - optional cache namespace prefix.
+- `CRON_SECRET` - bearer token for protected cron/refresh endpoints.
+
+Auth:
+
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
+- `CLERK_WEBHOOK_SIGNING_SECRET`
+- `NEXT_PUBLIC_CLERK_SIGN_IN_URL`
+- `NEXT_PUBLIC_CLERK_SIGN_UP_URL`
+- `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`
+- `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL`
+
+Payments:
+
+- `DODO_API_KEY`
+- `DODO_ENV`
+- `DODO_WEBHOOK_SECRET`
+- `MONTHLY_WINNER_PLAN_SLUG`
+
+Redis and jobs:
+
+- `REDIS_URL` or `REDIS_TLS_URL`
+- `REDIS_DB`
+- `REDIS_CONNECT_TIMEOUT_MS`
+- `REDIS_SENTINEL_NODES`
+- `REDIS_SENTINEL_NAME`
+- `BULLMQ_PREFIX`
+
+Analytics:
+
+- `GOOGLE_ANALYTICS_ID`
+- `GOOGLE_ANALYTICS_API_SECRET`
+- `GA_PROPERTY_ID`
+- `GA_CREDENTIALS_JSON`
+- `GA_SERVICE_ACCOUNT_JSON`
+- `SHIPYARD_GA4_SERVICE_ACCOUNT_JSON_BASE64`
+- `GA4_SERVICE_ACCOUNT_JSON_BASE64`
+- `GA_EXCLUDED_HOSTNAMES`
+
+Storage:
 
 - `R2_ACCESS_KEY_ID`
 - `R2_SECRET_ACCESS_KEY`
-- `R2_BUCKET` (defaults to `shipyard-member-images-prod`)
+- `R2_BUCKET`
 - `R2_ENDPOINT`
-- `R2_PUBLIC_BASE_URL` (defaults to `https://media.shipyardhq.dev`)
+- `R2_PUBLIC_BASE_URL`
 
-## Analytics Instrumentation
+AI:
 
-- Product detail pages rely on GA-based reporting; the legacy `/api/analytics/ingest` beacon has been removed.
-- GA reporting excludes local hostnames by default (`localhost`, `127.0.0.1`, and `::1`). Add comma-separated values to `GA_EXCLUDED_HOSTNAMES` for staging or preview hosts that should not count in analytics.
-- Members can review per-product charts at `/member/products/[slug]/analytics` (owner access only) to explore views, devices, geo, referrers, and browser breakdowns.
-- Access to the analytics dashboard is gated by the `analytics.basic` plan feature; products without it redirect back to the main member view.
+- `OPENAI_API_KEY`
 
-## Contact
+Development seed overrides:
 
-Questions or feedback? Email `support@shipyardhq.dev` or say hi on X: https://x.com/shipyardhq
+- `DEV_ADMIN_CLERK_ID`
+- `DEV_ADMIN_EMAIL`
+- `DEV_MEMBER_CLERK_ID`
+- `DEV_MEMBER_EMAIL`
+- `DEV_GENERATED_PRODUCT_COUNT`
 
-## Reddit Outreach Bot
+## npm Scripts
 
-Use `npm exec tsx scripts/reddit-bot.ts` (or `npm run reddit:bot`) to run a CLI assistant that watches Reddit for recent product showcase posts and drafts tailored outreach replies with GPT.
+- `npm run dev` - start the Next.js dev server.
+- `npm run build` - build the production app.
+- `npm run build:ci` - build and run the main Prisma seed.
+- `npm start` - serve a built app.
+- `npm run worker` - start the Shipyard background worker.
+- `npm run lint` - run ESLint.
+- `npm run format` - run Prettier over the repo.
+- `npm run test` - run Vitest.
+- `npm run test:watch` - run Vitest in watch mode.
+- `npm run test:ci` - run Vitest once for CI.
+- `npm run prisma:deploy` - apply deployed Prisma migrations.
+- `npm run prisma:generate` - regenerate the Prisma client.
+- `npm run prisma:migrate:reset` - reset the database with Prisma.
+- `npm run prisma:seed` - run the main seed.
+- `npm run prisma:seed:dev` - seed local development data.
+- `npm run prisma:seed:categories` - seed categories.
+- `npm run prisma:seed:usecases` - seed use cases.
+- `npm run prisma:seed:plan-features` - seed plan features.
+- `npm run prisma:seed:plans` - seed plans.
+- `npm run prisma:seed:alternatives` - seed alternatives.
+- `npm run prisma:seed:rewards` - seed rewards.
+- `npm run prisma:seed:prod` - seed production taxonomy and plan-feature data.
 
-### Configuration
+## Data, Cache, and Background Work
 
-- `config/reddit-bot.config.json` is the canonical configuration. Each subreddit entry records a `status` (`allow`, `review`, `deny`), intent notes, and the last review date. The outreach bot only monitors entries marked `allow`; communities marked `review` or `deny` are listed for manual follow-up and excluded from automation.
-- The optional `discovery` section sets Shipyard's ideal customer profile (`targetProfile`) plus heuristics for filtering search results before the AI scorer runs. Tune `includeKeywords`, `excludeKeywords`, or `minIntentScore` to bias discovery toward relevant founder communities and ignore false positives like SpaceX or gaming subs.
-- Override the config path with `REDDIT_CONFIG_FILE` if you keep multiple profiles. Environment variables such as `REDDIT_SUBREDDITS`, `REDDIT_KEYWORDS`, or `REDDIT_ALLOWED_FLAIRS` still take precedence when present.
-- Required secrets (set in `.env.local`):
-  - `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`: credentials for your Reddit script app.
-  - `REDDIT_USERNAME`, `REDDIT_PASSWORD`: the Reddit account the bot posts as.
-  - `OPENAI_API_KEY`: API key with access to `gpt-4.1-mini` (`OPENAI_MODEL` overrides the default).
-- Additional knobs: `REDDIT_MAX_POST_AGE_MINUTES`, `REDDIT_MIN_UPVOTES`, `REDDIT_MAX_POSTS_PER_SUB`, `REDDIT_POLL_INTERVAL_SECONDS`, `REDDIT_REQUEST_DELAY_MS`, `OPENAI_MAX_OUTPUT_TOKENS`, `OPENAI_TEMPERATURE`, `REDDIT_STATE_FILE` (cache location, default `tmp/reddit-bot-state.json`), and `REDDIT_DISCOVERY_CONCURRENCY` for parallel discovery batch size.
-- When a subreddit entry includes custom `intent`, `notes`, or `ruleSummary`, the outreach bot automatically weaves that guidance into the drafting prompt so replies respect community norms uncovered during discovery.
+The public homepage uses both Next.js revalidation and Redis-backed cache helpers. Product, plan, placement, billing, vote, analytics-ingestion, and cron refresh paths are expected to invalidate or refresh dependent homepage and analytics caches.
 
-The script prints each candidate post, the GPT-generated draft, and pauses for a `y/n` approval before posting (use `r` to regenerate). Decisions (approve/skip) are cached in `tmp/reddit-bot-state.json` so the bot will not repeatedly prompt on the same thread.
+Protected homepage refresh endpoint:
 
-### Discovery assistant
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" \
+  "$NEXT_PUBLIC_APP_URL/api/homepage/refresh"
+```
 
-Use `npm run reddit:discover -- --query "saas,product feedback" --min-subscribers 750 --write` to let AI surface relevant communities, inspect moderation rules, and merge the vetted results back into `config/reddit-bot.config.json`. Key flags:
+The worker entrypoint is:
 
-- `--query/-q`: comma-separated search terms (defaults to the keywords in the config file).
-- `--limit`: maximum subreddits to review per query (default `15`).
-- `--min-subscribers`: minimum subscriber count (default `500`).
-- `--include-nsfw`: include NSFW communities in the search.
-- `--skip-existing`: ignore subreddits already listed in the config.
-- `--min-intent-score`: override the minimum number of intent keyword matches required before an AI review (defaults to the config value).
-- `--concurrency`: number of subreddit evaluations to run in parallel (default `3`, respects `REDDIT_DISCOVERY_CONCURRENCY`).
-- `--write`: persist suggested entries into the config (otherwise results are printed and written to `tmp/reddit-discovery-results.json` for review).
+```bash
+npm run worker
+```
 
-Each discovery run filters out communities that clash with your intent heuristics, then prints an AI summary for every remaining candidate (verdict, risk factors, recommended messaging angle) and writes the raw JSON output to `tmp/reddit-discovery-results.json` for auditing before automation.
+Use it in production when scheduled jobs, BullMQ queues, cache refresh tasks, and placement/plan expiration work should run outside web requests.
 
-Discovery assumes the bot only posts reply **comments** on existing threads (never new standalone posts); the AI scorer explicitly checks for comment-level promotion rules and will mark a subreddit as `avoid` if replies are disallowed even when posts are permitted.
+## Analytics
 
-Hit `Ctrl+C` at any point and the assistant will persist the progress gathered so far before exiting; the next run automatically resumes from that snapshot, skipping communities you've already evaluated.
+Google Analytics is used for public traffic and product analytics reporting. GA4 Data API access is documented in:
+
+```text
+docs/ga4-data-api-access.md
+```
+
+Manual read-only GA4 sanity check:
+
+```bash
+GA4_PROPERTY_ID="123456789" \
+SHIPYARD_GA4_SERVICE_ACCOUNT_JSON_BASE64="..." \
+npx tsx scripts/ga4-sanity.ts
+```
+
+## Media Storage
+
+Uploaded product media is stored through an S3-compatible R2 client. Configure the R2 environment variables listed above before enabling uploads in production.
+
+## Quality Checks
+
+Run these before shipping application changes:
+
+```bash
+npm run lint
+npm run test:ci
+npm run build
+```
+
+Use `npm run format` when formatting drift is expected.
+
+## Deployment
+
+The repository includes:
+
+- `Dockerfile` for container builds.
+- `.github/workflows/tests.yml` for Vitest CI.
+- `.github/workflows/security.yml` for gitleaks and npm audit.
+- `.github/workflows/container.yml` for release-triggered container image builds.
+
+Production deployments should provide database, Clerk, Dodo, Redis, analytics, storage, and cron secrets through the hosting environment. The container workflow writes selected secrets into a BuildKit secret file for build-time configuration.
+
+## Security
+
+- Keep secrets in `.env.local` locally and in your deployment secret manager in production.
+- Do not log Clerk, Dodo, database, Redis, R2, OpenAI, or GA credentials.
+- Webhook routes require their configured signing secrets.
+- Cron-style endpoints require `CRON_SECRET`.
+
+Additional security notes live in:
+
+```text
+SECURITY.md
+```
+
+## Useful Public Routes
+
+- `/` - homepage and latest launches
+- `/browse` - product discovery
+- `/leaderboard` - current leaderboard
+- `/categories` - category index
+- `/tags` - tag index
+- `/use-cases` - use-case index
+- `/platforms` - platform index
+- `/pricing` - pricing model index
+- `/alternatives` - alternatives index
+- `/users` - maker directory
+- `/analytics` - public analytics view
+- `/member/products` - member product management
+- `/admin` - admin area
