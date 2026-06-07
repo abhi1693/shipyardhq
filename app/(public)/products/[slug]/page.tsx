@@ -549,18 +549,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     key={key}
                     href={path}
                     title={label}
-                    className="inline-flex items-center justify-center text-foreground hover:text-[#0051d5]"
+                    className="inline-flex size-8 items-center justify-center rounded-full text-foreground transition hover:bg-muted/60 hover:text-[#0051d5]"
                   >
-                    <Icon className="h-3.5 w-3.5" aria-hidden />
+                    <Icon className="size-5" aria-hidden />
                     <span className="sr-only">{label}</span>
                   </Link>
                 ) : (
                   <span
                     key={key}
                     title={label}
-                    className="inline-flex items-center justify-center text-foreground"
+                    className="inline-flex size-8 items-center justify-center rounded-full text-foreground"
                   >
-                    <Icon className="h-3.5 w-3.5" aria-hidden />
+                    <Icon className="size-5" aria-hidden />
                     <span className="sr-only">{label}</span>
                   </span>
                 ),

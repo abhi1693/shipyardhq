@@ -1,4 +1,3 @@
-import { Inter } from "next/font/google"
 import { Suspense } from "react"
 import { Search } from "lucide-react"
 
@@ -8,8 +7,6 @@ import PublicHeaderActions from "./public-header-actions"
 import PublicMobileMenu from "./public-mobile-menu"
 import PublicHeaderNav from "./public-header-nav"
 import PublicHeaderSearch from "./public-header-search"
-
-const inter = Inter({ subsets: ["latin"] })
 
 function PublicHeaderSearchFallback() {
   return (
@@ -27,9 +24,7 @@ function PublicHeaderSearchFallback() {
 
 export default function PublicHeader() {
   return (
-    <header
-      className={`${inter.className} fixed top-0 z-50 w-full border-b border-[#E2E8F0] bg-white text-[#0b1c30]`}
-    >
+    <header className="fixed top-0 z-50 w-full border-b border-[#E2E8F0] bg-white text-[#0b1c30]">
       <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-6">
           <BrandWordmark eager compact />
