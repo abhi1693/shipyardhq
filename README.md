@@ -227,6 +227,8 @@ The repository includes:
 
 Production deployments should provide database, Clerk, Dodo, Redis, analytics, storage, and cron secrets through the hosting environment. The container workflow writes selected secrets into a BuildKit secret file for build-time configuration.
 
+Keep the root `package.json` and `package-lock.json` package version pinned to `0.0.0`. Release versions come from GitHub release tags and image tags, with `APP_VERSION` applied only in the final Docker stage. This keeps version-only releases from invalidating the dependency install and Next.js build cache layers.
+
 ## Security
 
 - Keep secrets in `.env.local` locally and in your deployment secret manager in production.

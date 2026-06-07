@@ -109,6 +109,8 @@ jobs:
       build-secret-artifact: shipyardhq-build-secret
       build-secret-file: build-secret.env
       build-secret-id: build_env
+      build-args: |
+        APP_VERSION=${{ github.event.release.tag_name }}
       tags: |
         type=semver,pattern={{version}}
         type=raw,value=latest
