@@ -9,7 +9,7 @@ import { cleanupExpiredUnusedDodoDiscounts } from "@/lib/server/dodoDiscountClea
 import { dispatchEvent } from "@/lib/server/events"
 import { APP_EVENTS } from "@/lib/server/events/constants"
 import { warmHistoricalPeriodicLeaderboardCache } from "@/actions/public/leaderboard/actions"
-import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { refreshHomepageFeedCacheFromWorker } from "@/lib/server/homepage/refresh"
 import {
   getPreviousMonth,
   normalizeMonth,
@@ -180,7 +180,9 @@ async function runLeaderboardHistoricalCacheJob() {
 
 async function runHomepageFeedRefreshJob() {
   console.info("[scheduled.homepage-feed-refresh] run started")
-  const result = await refreshHomepageFeedCache()
+  const result = await refreshHomepageFeedCacheFromWorker(
+    "scheduled.homepage-feed-refresh",
+  )
   console.info("[scheduled.homepage-feed-refresh] run completed", result)
   return result
 }

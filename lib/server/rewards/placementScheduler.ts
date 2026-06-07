@@ -10,7 +10,7 @@ import {
   Prisma,
   RedemptionStatus,
 } from "@/lib/vendor/prisma/client"
-import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { refreshHomepageFeedCacheFromWorker } from "@/lib/server/homepage/refresh"
 
 export type PlacementSchedulerResult = {
   activated: number
@@ -261,7 +261,7 @@ export async function runPlacementScheduler(
   }
   if (touchedFeatures.size > 0) {
     try {
-      await refreshHomepageFeedCache()
+      await refreshHomepageFeedCacheFromWorker("rewards.placements")
     } catch (error) {
       console.error("[rewards.placements] failed to refresh homepage feed", {
         error,

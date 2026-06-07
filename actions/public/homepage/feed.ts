@@ -33,8 +33,10 @@ const SPONSORED_PLAN_FEATURE_KEY_SET = new Set<string>(
 const EDITOR_PICK_BADGE = "editor-pick"
 const HOMEPAGE_SPONSORED_LIMIT = 12
 const HOMEPAGE_SPONSORED_INTERVAL = 8
+const HOMEPAGE_FEED_POOL_LIMIT = 200
 const HOMEPAGE_ROTATION_SEED = "homepage-organic-rotation"
 const HOMEPAGE_FEED_CACHE_VERSION = "v1"
+const HOMEPAGE_FEED_POOL_CACHE_VERSION = "v2"
 const HOMEPAGE_FEED_CACHE_PREFIX = buildCacheKey("homepage", "feed")
 const HOMEPAGE_FEED_CACHE_TTL_SECONDS = resolveCacheTtl("slow")
 const HOMEPAGE_FEED_IN_PROCESS_TTL_MS = 15_000
@@ -139,6 +141,19 @@ export interface HomepageFeedPageResult {
 }
 
 type HomepageLaunchWindow = "all" | "week"
+type RefreshHomepageFeedCacheOptions = {
+  revalidateNextCache?: boolean
+  useNextLaunchCache?: boolean
+}
+
+interface HomepageWeekFeedPools {
+  generatedAt: string
+  dateKey: string
+  today: HomepageFeedItem[]
+  yesterday: HomepageFeedItem[]
+  thisWeek: HomepageFeedItem[]
+  sponsored: HomepageFeedItem[]
+}
 
 export type HomepageLaunchOfDay = HomepageFeedItem & {
   rank: number | null
@@ -264,6 +279,32 @@ function buildLaunchWindowWhere(
   }
 }
 
+function buildReleaseWindowWhere({
+  gte,
+  lt,
+}: {
+  gte: Date
+  lt: Date
+}): Prisma.ProductWhereInput {
+  return {
+    OR: [
+      { publishedAt: { gte, lt } },
+      {
+        publishedAt: null,
+        createdAt: { gte, lt },
+      },
+    ],
+  }
+}
+
+function getHomepageFeedOrderBy(): Prisma.ProductOrderByWithRelationInput[] {
+  return [
+    { publishedAt: { sort: "desc", nulls: "last" } },
+    { createdAt: "desc" },
+    { analytics: { upvotes: "desc" } },
+  ]
+}
+
 function mapProductToFeedItem(
   product: HomepageFeedProduct,
   upvoted: Set<string>,
@@ -386,9 +427,29 @@ async function buildFeedItemsFromProducts(
   )
 }
 
+async function applyViewerVoteState(
+  items: HomepageFeedItem[],
+  clerkUserId: string | null | undefined,
+) {
+  if (!items.length || !clerkUserId) {
+    return items
+  }
+
+  const upvoted = await resolveUpvotedProductIds(
+    clerkUserId,
+    items.map((item) => item.id),
+  )
+
+  return items.map((item) => ({
+    ...item,
+    isVoted: upvoted.has(item.id),
+  }))
+}
+
 interface GetOrderedHomepageFeedParams extends GetHomepageFeedPageParams {
   orderBy: Prisma.ProductOrderByWithRelationInput[]
   where?: Prisma.ProductWhereInput
+  rotate?: boolean
 }
 
 function getShuffleDateKey(date = new Date()) {
@@ -414,6 +475,190 @@ function compareFeedItemsByShuffleRank(
   if (dateSort !== 0) return dateSort
 
   return a.name.localeCompare(b.name)
+}
+
+function buildHomepageWeekFeedPoolsCacheKey(date = new Date()) {
+  return buildCacheKey(
+    "homepage",
+    "feed",
+    "pools",
+    HOMEPAGE_FEED_POOL_CACHE_VERSION,
+    getShuffleDateKey(date),
+  )
+}
+
+function getUniqueFeedItems(items: HomepageFeedItem[]) {
+  const seen = new Set<string>()
+  const uniqueItems: HomepageFeedItem[] = []
+
+  for (const item of items) {
+    if (seen.has(item.id)) continue
+    seen.add(item.id)
+    uniqueItems.push(item)
+  }
+
+  return uniqueItems
+}
+
+async function getHomepageWeekFeedPoolsImpl(
+  now = new Date(),
+): Promise<HomepageWeekFeedPools> {
+  const startToday = startOfUtcDayDate(now)
+  const startTomorrow = addUtcDaysDate(startToday, 1)
+  const startYesterday = addUtcDaysDate(startToday, -1)
+  const startThisWeek = addUtcDaysDate(startToday, -7)
+  const sponsoredPlacementWhere = buildSponsoredPlacementWhere(now)
+  const organicBaseWhere: Prisma.ProductWhereInput = {
+    AND: [buildBaseWhere(), { NOT: sponsoredPlacementWhere }],
+  }
+  const orderBy = getHomepageFeedOrderBy()
+
+  const [
+    todayProducts,
+    yesterdayProducts,
+    thisWeekProducts,
+    sponsoredProducts,
+  ] = await Promise.all([
+    prisma.product.findMany({
+      where: {
+        AND: [
+          organicBaseWhere,
+          buildReleaseWindowWhere({
+            gte: startToday,
+            lt: startTomorrow,
+          }),
+        ],
+      },
+      orderBy,
+      take: HOMEPAGE_FEED_POOL_LIMIT,
+      select: homepageFeedSelect,
+    }),
+    prisma.product.findMany({
+      where: {
+        AND: [
+          organicBaseWhere,
+          buildReleaseWindowWhere({
+            gte: startYesterday,
+            lt: startToday,
+          }),
+        ],
+      },
+      orderBy,
+      take: HOMEPAGE_FEED_POOL_LIMIT,
+      select: homepageFeedSelect,
+    }),
+    prisma.product.findMany({
+      where: {
+        AND: [
+          organicBaseWhere,
+          buildReleaseWindowWhere({
+            gte: startThisWeek,
+            lt: startYesterday,
+          }),
+        ],
+      },
+      orderBy,
+      take: HOMEPAGE_FEED_POOL_LIMIT,
+      select: homepageFeedSelect,
+    }),
+    prisma.product.findMany({
+      where: {
+        AND: [buildBaseWhere(), sponsoredPlacementWhere],
+      },
+      orderBy,
+      take: HOMEPAGE_SPONSORED_LIMIT,
+      select: homepageFeedSelect,
+    }),
+  ])
+
+  const [today, yesterday, thisWeek, sponsored] = await Promise.all([
+    buildFeedItemsFromProducts(todayProducts, null),
+    buildFeedItemsFromProducts(yesterdayProducts, null),
+    buildFeedItemsFromProducts(thisWeekProducts, null),
+    buildFeedItemsFromProducts(sponsoredProducts, null),
+  ])
+
+  return {
+    generatedAt: now.toISOString(),
+    dateKey: getShuffleDateKey(now),
+    today: getUniqueFeedItems(today),
+    yesterday: getUniqueFeedItems(yesterday),
+    thisWeek: getUniqueFeedItems(thisWeek),
+    sponsored: getUniqueFeedItems(
+      sponsored.sort(compareFeedItemsByShuffleRank),
+    ),
+  }
+}
+
+async function getHomepageWeekFeedPools() {
+  const now = new Date()
+  const cacheKey = buildHomepageWeekFeedPoolsCacheKey(now)
+
+  return cacheGetOrSet({
+    key: cacheKey,
+    ttlSeconds: HOMEPAGE_FEED_CACHE_TTL_SECONDS,
+    inProcessTtlMs: HOMEPAGE_FEED_IN_PROCESS_TTL_MS,
+    loader: () => getHomepageWeekFeedPoolsImpl(now),
+    onError: (error) => {
+      console.error("[homepage] failed to use Redis week feed pool cache", {
+        cacheKey,
+        error,
+      })
+    },
+  })
+}
+
+async function getHomepageWeekFeedPageFromPools({
+  page = 1,
+  pageSize = HOMEPAGE_FEED_PAGE_SIZE,
+  clerkUserId,
+}: GetHomepageFeedPageParams): Promise<HomepageFeedPageResult> {
+  const safePage = normalizePage(page, 1)
+  const safePageSize = normalizePageSize(pageSize, HOMEPAGE_FEED_PAGE_SIZE)
+  const organicStartIndex = (safePage - 1) * safePageSize
+  const pools = await getHomepageWeekFeedPools()
+  const organicItems = getUniqueFeedItems([
+    ...pools.today,
+    ...pools.yesterday,
+    ...pools.thisWeek,
+  ])
+
+  if (organicStartIndex >= organicItems.length) {
+    return {
+      items: [],
+      page: safePage,
+      pageSize: safePageSize,
+      hasMore: false,
+      nextPage: null,
+    }
+  }
+
+  const organicPageItems = organicItems.slice(
+    organicStartIndex,
+    organicStartIndex + safePageSize,
+  )
+  const organicIds = new Set(organicPageItems.map((item) => item.id))
+  const sponsoredItems = pools.sponsored.filter(
+    (item) => !organicIds.has(item.id),
+  )
+  const [viewerOrganicItems, viewerSponsoredItems] = await Promise.all([
+    applyViewerVoteState(organicPageItems, clerkUserId),
+    applyViewerVoteState(sponsoredItems, clerkUserId),
+  ])
+  const hasMore =
+    organicStartIndex + organicPageItems.length < organicItems.length
+
+  return {
+    items: interleaveSponsoredItems(
+      viewerOrganicItems,
+      viewerSponsoredItems,
+      organicStartIndex,
+    ),
+    page: safePage,
+    pageSize: safePageSize,
+    hasMore,
+    nextPage: hasMore ? safePage + 1 : null,
+  }
 }
 
 async function findRotatedProducts({
@@ -460,6 +705,7 @@ async function getOrderedHomepageFeedPage({
   page = 1,
   pageSize = HOMEPAGE_FEED_PAGE_SIZE,
   clerkUserId,
+  rotate = false,
 }: GetOrderedHomepageFeedParams): Promise<HomepageFeedPageResult> {
   const safePage = normalizePage(page, 1)
   const safePageSize = normalizePageSize(pageSize, HOMEPAGE_FEED_PAGE_SIZE)
@@ -484,24 +730,31 @@ async function getOrderedHomepageFeedPage({
   }
 
   const take = Math.min(safePageSize, total - absoluteStart)
-  const rotationSeed = [
-    HOMEPAGE_ROTATION_SEED,
-    getShuffleDateKey(),
-    safePageSize,
-  ].join(":")
-  const rotatedOffset = getRotatedOffset(total, rotationSeed)
-  const start = (rotatedOffset + absoluteStart) % total
-  const products = await findRotatedProducts({
-    where: combinedWhere,
-    orderBy,
-    start,
-    take,
-    total,
-  })
+  const products = rotate
+    ? await findRotatedProducts({
+        where: combinedWhere,
+        orderBy,
+        start:
+          (getRotatedOffset(
+            total,
+            [HOMEPAGE_ROTATION_SEED, getShuffleDateKey(), safePageSize].join(
+              ":",
+            ),
+          ) +
+            absoluteStart) %
+          total,
+        take,
+        total,
+      })
+    : await prisma.product.findMany({
+        where: combinedWhere,
+        orderBy,
+        skip: absoluteStart,
+        take,
+        select: homepageFeedSelect,
+      })
 
-  const items = (await buildFeedItemsFromProducts(products, clerkUserId)).sort(
-    compareFeedItemsByShuffleRank,
-  )
+  const items = await buildFeedItemsFromProducts(products, clerkUserId)
   const hasMore = absoluteStart + items.length < total
 
   return {
@@ -549,6 +802,11 @@ export async function getHomepageNewFeedPage(
   params: GetHomepageFeedPageParams = {},
 ): Promise<HomepageFeedPageResult> {
   const { page, pageSize, clerkUserId, launchWindow } = params
+
+  if (launchWindow === "week") {
+    return getHomepageWeekFeedPageFromPools(params)
+  }
+
   const safePage = normalizePage(page, 1)
   const safePageSize = normalizePageSize(pageSize, HOMEPAGE_FEED_PAGE_SIZE)
   const organicStartIndex = (safePage - 1) * safePageSize
@@ -561,11 +819,7 @@ export async function getHomepageNewFeedPage(
   if (launchWindowWhere) {
     organicWhereParts.push(launchWindowWhere)
   }
-  const orderBy: Prisma.ProductOrderByWithRelationInput[] = [
-    { publishedAt: { sort: "desc", nulls: "last" } },
-    { createdAt: "desc" },
-    { analytics: { upvotes: "desc" } },
-  ]
+  const orderBy = getHomepageFeedOrderBy()
 
   const organicPage = await getOrderedHomepageFeedPage({
     page,
@@ -659,7 +913,11 @@ export async function invalidateHomepageFeedCache() {
   })
 }
 
-async function getHomepageLaunchOfDayForRefresh() {
+async function getHomepageLaunchOfDayForRefresh(useNextCache = true) {
+  if (!useNextCache) {
+    return getLaunchOfDayImpl()
+  }
+
   try {
     return await getHomepageLaunchOfDay()
   } catch (error) {
@@ -676,9 +934,14 @@ async function getHomepageLaunchOfDayForRefresh() {
   }
 }
 
-export async function refreshHomepageFeedCache() {
+export async function refreshHomepageFeedCache(
+  options: RefreshHomepageFeedCacheOptions = {},
+) {
+  const { revalidateNextCache = true, useNextLaunchCache = true } = options
   const invalidation = await invalidateHomepageFeedCache()
-  revalidateHomepage("revalidate")
+  if (revalidateNextCache) {
+    revalidateHomepage("revalidate")
+  }
   const [weekInitialPage, weekApiPage, allInitialPage, launchOfDay] =
     await Promise.all([
       getHomepageFeedView({
@@ -699,7 +962,7 @@ export async function refreshHomepageFeedCache() {
         view: "new",
         launchWindow: "all",
       }),
-      getHomepageLaunchOfDayForRefresh(),
+      getHomepageLaunchOfDayForRefresh(useNextLaunchCache),
     ])
 
   return {

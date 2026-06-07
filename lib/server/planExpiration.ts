@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { PlanType } from "@/lib/vendor/prisma/client"
 import { readMetadataString } from "@/lib/server/subscriptionMetadata"
-import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { refreshHomepageFeedCacheFromWorker } from "@/lib/server/homepage/refresh"
 import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
 
 const MS_PER_SECOND = 1000
@@ -21,7 +21,7 @@ const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
 
 async function refreshHomepageFeedCacheAfterPlanExpiration(reason: string) {
   try {
-    await refreshHomepageFeedCache()
+    await refreshHomepageFeedCacheFromWorker(reason)
   } catch (error) {
     console.error("[cron] expire plans homepage refresh failed", {
       reason,
