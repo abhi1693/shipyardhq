@@ -208,7 +208,6 @@ function ProductLogo({
           height={80}
           sizes="80px"
           className="h-full w-full object-cover"
-          unoptimized
         />
       ) : (
         <span>{initials(product.name)}</span>

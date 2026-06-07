@@ -490,7 +490,6 @@ function DropProductLogo({
             "h-full w-full object-cover",
             sponsored ? "contrast-125" : "h-10 w-10",
           )}
-          unoptimized
         />
       ) : (
         <span>{initials(product.name)}</span>
