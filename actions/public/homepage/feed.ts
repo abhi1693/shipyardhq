@@ -659,6 +659,23 @@ export async function invalidateHomepageFeedCache() {
   })
 }
 
+async function getHomepageLaunchOfDayForRefresh() {
+  try {
+    return await getHomepageLaunchOfDay()
+  } catch (error) {
+    const message = error instanceof Error ? error.message : `${error}`
+    if (!message.includes("incrementalCache missing")) {
+      throw error
+    }
+
+    console.warn(
+      "[homepage] falling back to uncached launch of day refresh outside Next cache context",
+      { reason: "incrementalCache missing" },
+    )
+    return getLaunchOfDayImpl()
+  }
+}
+
 export async function refreshHomepageFeedCache() {
   const invalidation = await invalidateHomepageFeedCache()
   revalidateHomepage("revalidate")
@@ -682,7 +699,7 @@ export async function refreshHomepageFeedCache() {
         view: "new",
         launchWindow: "all",
       }),
-      getHomepageLaunchOfDay(),
+      getHomepageLaunchOfDayForRefresh(),
     ])
 
   return {
