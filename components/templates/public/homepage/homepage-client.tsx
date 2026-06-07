@@ -312,13 +312,11 @@ export type HomepageDropListItem = {
   logo?: string | null
   category?: string | null
   categorySlug?: string | null
-  upvoteCount: number
   scoreCount?: number | null
   isSponsored?: boolean
   isVoted?: boolean
   publishedAt?: string | null
   createdAt?: string
-  shuffleRank?: number
 }
 
 type HomepageDropSection = {
@@ -336,13 +334,11 @@ function toDropListItem(item: HomepageFeedItem): HomepageDropListItem {
     logo: item.logo,
     category: item.category,
     categorySlug: item.categorySlug,
-    upvoteCount: item.upvoteCount,
     scoreCount: item.scoreCount,
     isSponsored: item.isSponsored,
     isVoted: item.isVoted,
     publishedAt: item.publishedAt,
     createdAt: item.createdAt,
-    shuffleRank: item.shuffleRank,
   }
 }
 

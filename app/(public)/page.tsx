@@ -48,19 +48,15 @@ type DisplayDrop = {
   logo?: string | null
   category?: string | null
   categorySlug?: string | null
-  upvoteCount: number
   score?: number | null
   scoreCount?: number | null
   rank?: number | null
   upvoteGrowthPercent?: number | null
-  recommenderCount?: number
-  recommenderAvatarUrls?: string[]
   buildersClickedCount?: number | null
   isSponsored?: boolean
   isVoted?: boolean
   publishedAt?: string | null
   createdAt?: string
-  shuffleRank?: number
 }
 
 const fallbackLaunch: DisplayDrop = {
@@ -69,13 +65,9 @@ const fallbackLaunch: DisplayDrop = {
   tagline:
     "Autonomous pipeline automation for modern engineering teams. Ship 3x faster with predictive CI/CD logic.",
   logo: null,
-  category: "Dev Tools",
-  upvoteCount: 1242,
   score: null,
   rank: null,
   upvoteGrowthPercent: null,
-  recommenderCount: 1242,
-  recommenderAvatarUrls: [],
   buildersClickedCount: null,
 }
 
@@ -84,19 +76,16 @@ const fallbackDrops: DisplayDrop[] = [
     name: "PrismLens",
     tagline: "Turn raw footage into cinematic shorts with one click.",
     category: "AI & Video",
-    upvoteCount: 342,
   },
   {
     name: "NodeFlow",
     tagline: "Zero-latency API orchestration for edge computing.",
     category: "Dev Tools",
-    upvoteCount: 189,
   },
   {
     name: "ScaleForce DB",
     tagline: "The only database designed for sub-millisecond global reads.",
     category: "Enterprise",
-    upvoteCount: 0,
     isSponsored: true,
   },
 ]
@@ -168,7 +157,6 @@ function toDisplayDrop(
     logo: item.logo,
     category: item.category,
     categorySlug: item.categorySlug,
-    upvoteCount: item.upvoteCount,
     score: item.scoreCount,
     scoreCount: item.scoreCount,
     buildersClickedCount: item.interest?.uniqueVisitors7d ?? null,
@@ -176,7 +164,6 @@ function toDisplayDrop(
     isVoted: item.isVoted,
     publishedAt: item.publishedAt,
     createdAt: item.createdAt,
-    shuffleRank: item.shuffleRank,
   }
 }
 
@@ -192,11 +179,9 @@ function initials(name: string) {
 function ProductLogo({
   product,
   className,
-  imageClassName,
 }: {
   product: DisplayDrop
   className?: string
-  imageClassName?: string
 }) {
   return (
     <div
@@ -212,7 +197,7 @@ function ProductLogo({
           width={80}
           height={80}
           sizes="80px"
-          className={cn("h-full w-full object-cover", imageClassName)}
+          className="h-full w-full object-cover"
           unoptimized
         />
       ) : (
@@ -283,8 +268,6 @@ export default async function HomePage() {
         rank: launchOfDay.rank,
         score: launchOfDay.score,
         upvoteGrowthPercent: launchOfDay.upvoteGrowthPercent,
-        recommenderCount: launchOfDay.recommenderCount,
-        recommenderAvatarUrls: launchOfDay.recommenderAvatarUrls,
         buildersClickedCount: launchOfDay.buildersClickedCount,
       }
     : (feedProducts[0] ?? fallbackLaunch)
