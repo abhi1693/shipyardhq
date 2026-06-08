@@ -114,7 +114,7 @@ function ruleIconFor(rule: PublicRewardsRule): LucideIcon {
 function rewardIconFor(reward: PublicRewardsReward): LucideIcon {
   const text = `${reward.featureKey} ${reward.name}`.toLowerCase()
 
-  if (text.includes("banner") || text.includes("sticky")) return Pin
+  if (text.includes("spotlight") || text.includes("banner")) return Pin
   if (text.includes("analytics")) return BarChart3
   if (text.includes("sponsor") || text.includes("promo")) return Megaphone
   if (text.includes("newsletter")) return Newspaper

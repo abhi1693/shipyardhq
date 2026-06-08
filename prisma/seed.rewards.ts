@@ -145,16 +145,16 @@ const CATALOG: CatalogSeed[] = [
     metadata: { surface: "sponsored-products" },
   },
   {
-    featureKey: REWARD_FEATURE_KEY.stickyBanner,
-    planFeatureKey: REWARD_FEATURE_KEY.stickyBanner,
-    name: "Sticky banner",
+    featureKey: REWARD_FEATURE_KEY.partnerSpotlight,
+    planFeatureKey: REWARD_FEATURE_KEY.partnerSpotlight,
+    name: "Partner spotlight",
     description:
-      "Reserve a persistent ribbon across browse and product pages for two days.",
+      "Reserve a partner spotlight across browse and product pages for two days.",
     category: RewardFeatureCategory.placement,
     baseCost: 200,
     durationSeconds: 2 * DAY,
     requiresProduct: true,
-    metadata: { surface: "sticky-banner" },
+    metadata: { surface: "partner-spotlight" },
   },
   {
     featureKey: REWARD_FEATURE_KEY.analyticsAdvanced,

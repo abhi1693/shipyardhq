@@ -1,6 +1,8 @@
 import { Handshake } from "lucide-react"
 
 import { Button } from "@/components/atoms/button"
+import { SquareImage } from "@/components/molecules/SquareImage"
+import { isOptimizedImageSrc } from "@/lib/images/sources"
 
 export type PartnerSpotlightProduct = {
   slug: string
@@ -17,7 +19,9 @@ export function PartnerSpotlight({
   if (!product) return null
 
   const tagline = product.tagline?.trim()
-  const href = `/r/sticky-banner/${product.slug}`
+  const href = `/r/sponsored/${product.slug}`
+  const logoSrc = isOptimizedImageSrc(product.logo) ? product.logo : null
+  const logoFallback = product.name.slice(0, 1).toUpperCase()
 
   return (
     <div className="fixed bottom-0 left-0 z-[60] w-full border-t border-white/10 bg-[#213145] text-white shadow-2xl">
@@ -29,6 +33,21 @@ export function PartnerSpotlight({
               Partner Spotlight
             </span>
           </div>
+          <span className="hidden h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/95 p-1 sm:flex">
+            {logoSrc ? (
+              <SquareImage
+                src={logoSrc}
+                alt={product.name}
+                size={36}
+                eager
+                className="h-full w-full object-contain"
+              />
+            ) : (
+              <span className="text-sm font-semibold text-[#213145]">
+                {logoFallback}
+              </span>
+            )}
+          </span>
           <a
             href={href}
             target="_blank"
@@ -50,7 +69,7 @@ export function PartnerSpotlight({
             className="h-9 rounded-full border-0 bg-[#C0FF00] px-4 text-xs font-bold uppercase tracking-[0.05em] text-black hover:bg-[#C0FF00]/90 sm:px-6"
           >
             <a href={href} target="_blank" rel="noopener noreferrer">
-              Learn More
+              View Partner
             </a>
           </Button>
         </div>

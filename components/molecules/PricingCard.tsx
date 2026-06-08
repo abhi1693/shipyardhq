@@ -182,9 +182,9 @@ export function PricingCard({
                   />
                   <span
                     className={clsx(
-                      feature.key.includes("advanced") ||
-                        feature.key.includes("sticky") ||
-                        feature.key.includes("priority")
+                      feature.key.toLowerCase().includes("advanced") ||
+                        feature.key.toLowerCase().includes("spotlight") ||
+                        feature.key.toLowerCase().includes("priority")
                         ? "font-semibold"
                         : "font-medium",
                     )}

@@ -46,9 +46,9 @@ const FEATURES = [
     description: "Reserve a sponsored slot across Shipyard",
   },
   {
-    key: "stickyBanner",
-    name: "Sticky Banner",
-    description: "Sticky header visibility",
+    key: "partnerSpotlight",
+    name: "Partner Spotlight",
+    description: "Partner spotlight visibility",
   },
 ]
 

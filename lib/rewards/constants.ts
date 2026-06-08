@@ -11,9 +11,9 @@ const REWARD_FEATURE_DEFINITIONS = {
     value: "sponsoredProducts",
     label: "Sponsored placement",
   },
-  stickyBanner: {
-    value: "stickyBanner",
-    label: "Sticky banner",
+  partnerSpotlight: {
+    value: "partnerSpotlight",
+    label: "Partner spotlight",
   },
   analyticsAdvanced: {
     value: "analytics.advanced",

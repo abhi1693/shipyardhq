@@ -52,11 +52,11 @@ const ACTIVE_ENTITLEMENT_STATUSES = [
 
 const SCHEDULED_REWARD_KEYS = new Set<RewardFeatureKey>([
   REWARD_FEATURE_KEY.sponsoredProducts,
-  REWARD_FEATURE_KEY.stickyBanner,
+  REWARD_FEATURE_KEY.partnerSpotlight,
   REWARD_FEATURE_KEY.priorityPlacement,
 ])
 
-const SCHEDULED_SURFACES = new Set(["sponsored-products", "sticky-banner"])
+const SCHEDULED_SURFACES = new Set(["sponsored-products", "partner-spotlight"])
 
 type TransactionArg = Parameters<typeof prisma.$transaction>[0]
 type TxClient = TransactionArg extends (

@@ -391,7 +391,7 @@ function InlinePartnerSpotlight({
 }) {
   if (!product) return null
 
-  const href = `/r/sticky-banner/${product.slug}`
+  const href = `/r/sponsored/${product.slug}`
 
   return (
     <div className="my-6 overflow-hidden rounded-2xl bg-[#061d31] p-6 text-white">

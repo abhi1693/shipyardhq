@@ -1858,7 +1858,7 @@ async function seedRewardsState(
         in: [
           REWARD_FEATURE_KEY.priorityPlacement,
           REWARD_FEATURE_KEY.analyticsAdvanced,
-          REWARD_FEATURE_KEY.stickyBanner,
+          REWARD_FEATURE_KEY.partnerSpotlight,
         ],
       },
     },
@@ -1881,8 +1881,10 @@ async function seedRewardsState(
   const analyticsFeature = catalogByKey.get(
     REWARD_FEATURE_KEY.analyticsAdvanced,
   )
-  const stickyFeature = catalogByKey.get(REWARD_FEATURE_KEY.stickyBanner)
-  if (!activeFeature || !analyticsFeature || !stickyFeature) return
+  const partnerSpotlightFeature = catalogByKey.get(
+    REWARD_FEATURE_KEY.partnerSpotlight,
+  )
+  if (!activeFeature || !analyticsFeature || !partnerSpotlightFeature) return
 
   const activeRedemption = await prisma.redemption.create({
     data: {
@@ -1961,11 +1963,11 @@ async function seedRewardsState(
   const pendingRedemption = await prisma.redemption.create({
     data: {
       userId: member.id,
-      featureKey: stickyFeature.featureKey,
+      featureKey: partnerSpotlightFeature.featureKey,
       productId: supportTideId,
       status: RedemptionStatus.pending,
-      cost: stickyFeature.baseCost,
-      originalCost: stickyFeature.baseCost,
+      cost: partnerSpotlightFeature.baseCost,
+      originalCost: partnerSpotlightFeature.baseCost,
       startsAt: addUtcDays(today, 2),
       expiresAt: addUtcDays(today, 4),
       metadata: json({ seeded: true }),
@@ -1974,7 +1976,7 @@ async function seedRewardsState(
   const pendingEntitlement = await prisma.featureEntitlement.create({
     data: {
       userId: member.id,
-      featureKey: stickyFeature.featureKey,
+      featureKey: partnerSpotlightFeature.featureKey,
       redemptionId: pendingRedemption.id,
       productId: supportTideId,
       subjectType: FeatureSubjectType.product,
@@ -1989,13 +1991,13 @@ async function seedRewardsState(
     data: {
       entitlementId: pendingEntitlement.id,
       redemptionId: pendingRedemption.id,
-      featureKey: stickyFeature.featureKey,
+      featureKey: partnerSpotlightFeature.featureKey,
       productId: supportTideId,
-      slotKey: "sticky:global",
+      slotKey: "partner-spotlight:global",
       status: PlacementStatus.scheduled,
       startsAt: addUtcDays(today, 2),
       endsAt: addUtcDays(today, 4),
-      inventoryToken: "dev-seed-sticky-support-tide",
+      inventoryToken: "dev-seed-partner-spotlight-support-tide",
       metadata: json({ seeded: true }),
     },
   })
@@ -2014,7 +2016,7 @@ async function seedRewardsState(
       userId: member.id,
       balance: 430,
       lifetimeEarned: 780,
-      lifetimeSpent: activeFeature.baseCost + stickyFeature.baseCost,
+      lifetimeSpent: activeFeature.baseCost + partnerSpotlightFeature.baseCost,
       currentStreakCount: 4,
       longestStreakCount: 4,
       currentStreakTier: "bronze",
@@ -2102,15 +2104,15 @@ async function seedRewardsState(
       {
         userId: member.id,
         type: RewardTransactionType.spend,
-        rewardAmount: -stickyFeature.baseCost,
+        rewardAmount: -partnerSpotlightFeature.baseCost,
         balanceAfter: 430,
-        rewardKey: stickyFeature.featureKey,
+        rewardKey: partnerSpotlightFeature.featureKey,
         redemptionId: pendingRedemption.id,
         productId: supportTideId,
-        eventHash: "dev-seed:member:spend:sticky",
+        eventHash: "dev-seed:member:spend:partner-spotlight",
         sourceType: DEV_SOURCE_TYPE,
         sourceId: pendingRedemption.id,
-        notes: "Seeded sticky banner redemption",
+        notes: "Seeded partner spotlight redemption",
         createdAt: daysAgo(today, 0),
       },
     ],

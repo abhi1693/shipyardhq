@@ -4,7 +4,7 @@ import { format } from "date-fns"
 import { Award, BadgeCheck, BarChart3, ExternalLink, Star } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
-import { StickyBanner } from "@/components/organisms/StickyBanner"
+import { PartnerSpotlightPlacement } from "@/components/organisms/PartnerSpotlightPlacement"
 import { UserFeedClient } from "@/components/templates/public/users/detail/UserFeedClient"
 import { LEADERBOARD_REWARDS_PATH } from "@/lib/routes"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
@@ -180,7 +180,7 @@ export async function UserProfilePageContent({ params }: PageProps) {
               />
             </section>
 
-            <StickyBanner className="mx-auto w-full rounded-lg" />
+            <PartnerSpotlightPlacement className="mx-auto w-full rounded-lg" />
           </div>
 
           <aside className="flex flex-col gap-6 lg:col-span-4">

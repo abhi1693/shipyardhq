@@ -158,8 +158,10 @@ export const getFeaturedByCategorySlug = cached(
   },
 )
 
-// Get products that have the stickyBanner plan feature enabled
-type StickyBannerProductResult = {
+const PARTNER_SPOTLIGHT_FEATURE_KEY = "partnerSpotlight" as const
+
+// Get products that have the partner spotlight plan feature enabled
+type PartnerSpotlightProductResult = {
   id: string
   slug: string
   name: string
@@ -167,9 +169,9 @@ type StickyBannerProductResult = {
   tagline: string | null
 }
 
-export type PartnerSpotlightProduct = StickyBannerProductResult
+export type PartnerSpotlightProduct = PartnerSpotlightProductResult
 
-type StickyBannerProduct = Prisma.ProductGetPayload<{
+type PartnerSpotlightPlacementProduct = Prisma.ProductGetPayload<{
   select: {
     id: true
     slug: true
@@ -179,12 +181,11 @@ type StickyBannerProduct = Prisma.ProductGetPayload<{
   }
 }>
 
-export const getStickyBannerProducts = cached(
-  async (limit = 100): Promise<StickyBannerProductResult[]> => {
+export const getPartnerSpotlightProducts = cached(
+  async (limit = 100): Promise<PartnerSpotlightProductResult[]> => {
     const now = new Date()
     const effectiveLimit = Math.max(1, limit)
 
-    const stickyFeatureKey = "stickyBanner"
     const activeStatus = PlacementStatus.active
 
     const scheduledIds = await prisma.$queryRaw<{ id: string }[]>(
@@ -196,7 +197,7 @@ export const getStickyBannerProducts = cached(
                  MIN(ps."createdAt") AS created_at
           FROM "PlacementSchedule" AS ps
           INNER JOIN "Product" AS p ON p.id = ps."productId"
-          WHERE ps."featureKey" = ${stickyFeatureKey}
+          WHERE ps."featureKey" = ${PARTNER_SPOTLIGHT_FEATURE_KEY}
             AND ps.status = CAST(${activeStatus} AS "PlacementStatus")
             AND ps."startsAt" <= ${now}
             AND ps."endsAt" >= ${now}
@@ -236,7 +237,7 @@ export const getStickyBannerProducts = cached(
                       ON f.id = a."featureId"
                     WHERE a."planId" = p."planId"
                       AND a.enabled = true
-                      AND f.key = ${stickyFeatureKey}
+                      AND f.key = ${PARTNER_SPOTLIGHT_FEATURE_KEY}
                   )
                   ${exclusionClause}
               ) AS ids
@@ -255,20 +256,21 @@ export const getStickyBannerProducts = cached(
       return []
     }
 
-    const products: StickyBannerProduct[] = await prisma.product.findMany({
-      where: {
-        id: {
-          in: combinedIds,
+    const products: PartnerSpotlightPlacementProduct[] =
+      await prisma.product.findMany({
+        where: {
+          id: {
+            in: combinedIds,
+          },
         },
-      },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        logo: true,
-        tagline: true,
-      },
-    })
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          logo: true,
+          tagline: true,
+        },
+      })
 
     type FeaturedProductRecord = (typeof products)[number]
     const productMap: Map<string, FeaturedProductRecord> = new Map(
@@ -303,13 +305,13 @@ export const getStickyBannerProducts = cached(
       tagline: product.tagline ?? null,
     }))
   },
-  "products:sticky-banner:v2",
+  "products:partner-spotlight:v1",
   {
     ttl: 600,
     tags: () => [
       TAGS.products,
-      TAGS.placement("stickyBanner"),
-      TAGS.planFeature("stickyBanner"),
+      TAGS.placement("partnerSpotlight"),
+      TAGS.planFeature("partnerSpotlight"),
       TAGS.plans,
     ],
   },
@@ -320,7 +322,7 @@ export const getPartnerSpotlightProduct = cached(
     rotationKey: string,
     limit = 100,
   ): Promise<PartnerSpotlightProduct | null> => {
-    const products = await getStickyBannerProducts(limit)
+    const products = await getPartnerSpotlightProducts(limit)
 
     if (!products.length) {
       return null
@@ -347,8 +349,8 @@ export const getPartnerSpotlightProduct = cached(
     ],
     tags: () => [
       TAGS.products,
-      TAGS.placement("stickyBanner"),
-      TAGS.planFeature("stickyBanner"),
+      TAGS.placement("partnerSpotlight"),
+      TAGS.planFeature("partnerSpotlight"),
       TAGS.plans,
     ],
   },

@@ -89,7 +89,7 @@ export const PLAN_FEATURE_KEYS = [
   REWARD_FEATURE_KEY.featured,
   REWARD_FEATURE_KEY.priorityPlacement,
   REWARD_FEATURE_KEY.sponsoredProducts,
-  REWARD_FEATURE_KEY.stickyBanner,
+  REWARD_FEATURE_KEY.partnerSpotlight,
   "backlink",
 ] as const
 

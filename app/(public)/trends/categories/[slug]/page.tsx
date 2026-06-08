@@ -20,7 +20,7 @@ import { CATEGORIES_PATH, HOME_PATH, categoryPath } from "@/lib/routes"
 import { buildProductListItem } from "@/lib/seo/product-list"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
-import { StickyBanner } from "@/components/organisms/StickyBanner"
+import { PartnerSpotlightPlacement } from "@/components/organisms/PartnerSpotlightPlacement"
 import {
   DirectoryHighlightsSidebar,
   DirectoryHighlightsSidebarSkeleton,
@@ -132,7 +132,7 @@ export default async function TrendingToolsInCategoryPage({
                   </div>
                 </div>
               </section>
-              <StickyBanner className="mx-auto w-full rounded-2xl" />
+              <PartnerSpotlightPlacement className="mx-auto w-full rounded-2xl" />
             </>
           }
           sidebar={
@@ -256,7 +256,7 @@ export default async function TrendingToolsInCategoryPage({
               </div>
             </section>
 
-            <StickyBanner className="mx-auto w-full rounded-2xl" />
+            <PartnerSpotlightPlacement className="mx-auto w-full rounded-2xl" />
 
             <section className="space-y-6">
               <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">

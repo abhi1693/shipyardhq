@@ -63,8 +63,8 @@ const HERO_POINTS = [
 const PLACEMENT_POINTS = [
   {
     icon: Megaphone,
-    title: "Sticky Banners",
-    body: "Pinned surfaces keep your product visible while builders browse active categories.",
+    title: "Partner Spotlights",
+    body: "Spotlight placements keep your product visible while builders browse active categories.",
   },
   {
     icon: Pin,
