@@ -428,7 +428,10 @@ async function HomepageDataSections() {
 
   return (
     <HomepageVoteStateProvider productIds={homepageVoteProductIds}>
-      <section className="mx-auto max-w-[1200px] px-4 py-12 sm:px-6">
+      <section
+        className="mx-auto max-w-[1200px] px-4 py-12 sm:px-6"
+        style={{ contentVisibility: "auto", containIntrinsicSize: "520px" }}
+      >
         <div className="grid grid-cols-12 gap-6">
           <article className="relative col-span-12 flex h-full flex-col justify-between overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm lg:col-span-8">
             <div className="mb-4 flex items-start justify-between gap-4">
@@ -517,7 +520,11 @@ async function HomepageDataSections() {
       </section>
 
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-        <section className="mb-12" id="drops">
+        <section
+          className="mb-12"
+          id="drops"
+          style={{ contentVisibility: "auto", containIntrinsicSize: "960px" }}
+        >
           <div className="mb-8 flex items-end justify-between gap-4">
             <div>
               <h3 className="text-[32px] font-bold leading-10 tracking-tight text-black">
