@@ -4,7 +4,6 @@ import { useMemo, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { Image } from "@/components/atoms/image"
-import { buildCloudflareMediaImageUrl } from "@/lib/images/cloudflare"
 import { cn } from "@/lib/utils"
 
 interface MediaItem {
@@ -19,7 +18,6 @@ interface ProductMediaGalleryProps {
   productName: string
 }
 
-const THUMBNAIL_IMAGE_WIDTH = 320
 const THUMBNAIL_IMAGE_QUALITY = 60
 
 export function ProductMediaGallery({
@@ -160,13 +158,6 @@ function GalleryThumbnailButton({
   productName: string
   onSelect: () => void
 }) {
-  const thumbnailSrc = buildCloudflareMediaImageUrl({
-    src: item.imageUrl,
-    width: THUMBNAIL_IMAGE_WIDTH,
-    quality: THUMBNAIL_IMAGE_QUALITY,
-  })
-  const usesManagedThumbnail = thumbnailSrc !== item.imageUrl
-
   return (
     <button
       type="button"
@@ -179,7 +170,7 @@ function GalleryThumbnailButton({
       aria-label={`View image ${index + 1}`}
     >
       <Image
-        src={thumbnailSrc}
+        src={item.imageUrl}
         alt={item.altText || productName}
         fill
         sizes="160px"
@@ -188,7 +179,6 @@ function GalleryThumbnailButton({
         loading="lazy"
         fetchPriority="low"
         placeholder="empty"
-        unoptimized={usesManagedThumbnail}
       />
     </button>
   )

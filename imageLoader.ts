@@ -1,4 +1,4 @@
-import { buildCloudflareMediaImageUrl } from "./lib/images/cloudflare"
+import { buildManagedMediaImageOptimizerUrl } from "./lib/images/managed-media"
 
 type ImageLoaderParams = {
   src: string
@@ -18,7 +18,7 @@ export default function shipyardImageLoader({
   const normalizedWidth = Math.max(1, Math.round(width))
   const normalizedQuality =
     typeof quality === "number" && Number.isFinite(quality) ? quality : 75
-  const transformedUrl = buildCloudflareMediaImageUrl({
+  const transformedUrl = buildManagedMediaImageOptimizerUrl({
     src,
     width: normalizedWidth,
     quality: normalizedQuality,

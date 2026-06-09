@@ -4,13 +4,13 @@ import {
   type NextFetchEvent,
   type NextRequest,
 } from "next/server"
-import { buildCloudflareMediaImageUrl } from "@/lib/images/cloudflare"
+import { buildSignedImgproxyImageUrl } from "@/lib/images/imgproxy"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
 
 const isMemberRoute = createRouteMatcher([`${MEMBER_BASE_PATH}(.*)`])
 const PUBLIC_FILE_EXTENSION = /\.[^/]+$/
 
-function redirectMediaImageOptimizationRequest(req: NextRequest) {
+async function redirectMediaImageOptimizationRequest(req: NextRequest) {
   const url = new URL(req.url)
   if (url.pathname !== "/_next/image") {
     return null
@@ -22,12 +22,12 @@ function redirectMediaImageOptimizationRequest(req: NextRequest) {
     return null
   }
 
-  const transformedUrl = buildCloudflareMediaImageUrl({
+  const transformedUrl = await buildSignedImgproxyImageUrl({
     src: imageUrl,
     width,
     quality: url.searchParams.get("q") ?? undefined,
   })
-  if (transformedUrl === imageUrl) {
+  if (!transformedUrl) {
     return null
   }
 
@@ -169,7 +169,7 @@ const handleClerkMiddleware = clerkMiddleware(async (auth, req) => {
 })
 
 export default async function proxy(req: NextRequest, event: NextFetchEvent) {
-  const mediaImageRedirect = redirectMediaImageOptimizationRequest(req)
+  const mediaImageRedirect = await redirectMediaImageOptimizationRequest(req)
   if (mediaImageRedirect) {
     return mediaImageRedirect
   }

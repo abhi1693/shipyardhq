@@ -128,6 +128,12 @@ Storage:
 - `R2_ENDPOINT`
 - `R2_PUBLIC_BASE_URL`
 
+Media optimization:
+
+- `IMGPROXY_ENDPOINT` - public HTTPS imgproxy endpoint, for example `https://img.shipyardhq.dev`.
+- `IMGPROXY_KEY` - hex-encoded imgproxy signing key.
+- `IMGPROXY_SALT` - hex-encoded imgproxy signing salt.
+
 AI:
 
 - `OPENAI_API_KEY`
@@ -203,6 +209,8 @@ npx tsx scripts/ga4-sanity.ts
 ## Media Storage
 
 Uploaded product media is stored through an S3-compatible R2 client. Configure the R2 environment variables listed above before enabling uploads in production.
+
+Managed media served from `media.shipyardhq.dev` is routed through the first-party Next image optimizer URL and redirected to signed imgproxy URLs by the app proxy. Configure `IMGPROXY_ENDPOINT`, `IMGPROXY_KEY`, and `IMGPROXY_SALT` in the web runtime so signing stays server-side.
 
 ## Quality Checks
 
