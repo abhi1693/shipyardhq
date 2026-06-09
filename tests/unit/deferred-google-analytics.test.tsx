@@ -56,7 +56,7 @@ describe("DeferredGoogleAnalytics", () => {
     })
   }
 
-  it("waits for the window load event before injecting gtag", () => {
+  it("waits for user interaction before injecting gtag", () => {
     vi.spyOn(document, "readyState", "get").mockReturnValue("loading")
 
     renderDeferredGoogleAnalytics()
@@ -65,6 +65,12 @@ describe("DeferredGoogleAnalytics", () => {
 
     act(() => {
       window.dispatchEvent(new Event("load"))
+    })
+
+    expect(queryGaScript()).toBeNull()
+
+    act(() => {
+      window.dispatchEvent(new Event("pointerdown"))
     })
 
     const script = queryGaScript()
@@ -85,10 +91,16 @@ describe("DeferredGoogleAnalytics", () => {
     expect(analyticsWindow.dataLayer?.[1]?.[1]).toBe(GA_ID)
   })
 
-  it("loads immediately when mounted after the page has already loaded", () => {
+  it("loads on pagehide even without prior interaction", () => {
     vi.spyOn(document, "readyState", "get").mockReturnValue("complete")
 
     renderDeferredGoogleAnalytics()
+
+    expect(queryGaScript()).toBeNull()
+
+    act(() => {
+      window.dispatchEvent(new Event("pagehide"))
+    })
 
     expect(queryGaScript()).not.toBeNull()
   })
