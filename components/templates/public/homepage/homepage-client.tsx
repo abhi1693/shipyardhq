@@ -617,6 +617,13 @@ export function HomepageDropsInfiniteList({
     () => buildDropSections(items, referenceDateIso),
     [items, referenceDateIso],
   )
+  const visibleSections = useMemo(
+    () =>
+      hasMore
+        ? sections.filter((section) => section.items.length > 0)
+        : sections,
+    [hasMore, sections],
+  )
 
   const loadMore = useCallback(async () => {
     if (loading || error || !hasMore || !nextPage) return
@@ -703,7 +710,7 @@ export function HomepageDropsInfiniteList({
 
   return (
     <div className="space-y-3">
-      {sections.map((section) => (
+      {visibleSections.map((section) => (
         <section key={section.key} className="space-y-3">
           <div className="flex items-center gap-3">
             <h4 className="shrink-0 text-lg font-semibold text-black">
