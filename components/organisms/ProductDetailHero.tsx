@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { JSX } from "react"
 import { CheckCircle, Tag as TagIcon } from "lucide-react"
-import SignInButton from "@/components/molecules/SignInButton"
 
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
@@ -290,11 +289,20 @@ export function ProductDetailHero({
                   </Link>
                 </Button>
               ) : (
-                <SignInButton
-                  mode="modal"
-                  forceRedirectUrl={reviewPrompt.redirectUrl}
-                  signUpForceRedirectUrl={reviewPrompt.redirectUrl}
-                ></SignInButton>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  className="border-white/70 bg-white/95 px-4 text-[color:var(--brand-1)] shadow-none transition hover:bg-white"
+                >
+                  <Link
+                    href={`/login?${new URLSearchParams({
+                      redirect_url: reviewPrompt.redirectUrl,
+                    }).toString()}`}
+                  >
+                    Sign in to review
+                  </Link>
+                </Button>
               )}
             </div>
           </div>

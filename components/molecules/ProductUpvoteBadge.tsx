@@ -1,16 +1,16 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useUser } from "@clerk/nextjs"
+import Link from "next/link"
 import { ArrowBigUp } from "lucide-react"
 
-import SignInButton from "@/components/molecules/SignInButton"
 import { cn } from "@/lib/utils"
 
 interface ProductUpvoteBadgeProps {
   productSlug: string
   count: number
   initialUpvoted: boolean
+  viewerSignedIn: boolean
   leaderboard?: {
     points: number
     rank: number | null
@@ -25,11 +25,10 @@ export function ProductUpvoteBadge({
   productSlug,
   count,
   initialUpvoted,
+  viewerSignedIn,
   leaderboard,
   variant = "card",
 }: ProductUpvoteBadgeProps) {
-  const { isSignedIn } = useUser()
-
   const [state, setState] = useState(() => ({
     upvotes: count,
     upvoted: initialUpvoted,
@@ -53,18 +52,22 @@ export function ProductUpvoteBadge({
 
   useEffect(() => {
     if (typeof window === "undefined") return
-    if (isSignedIn) {
+    if (viewerSignedIn) {
       setRedirectUrl(null)
       return
     }
     const { pathname, search, hash } = window.location
     setRedirectUrl(`${pathname}${search}${hash}`)
-  }, [isSignedIn])
+  }, [viewerSignedIn])
+
+  const loginHref = redirectUrl
+    ? `/login?${new URLSearchParams({ redirect_url: redirectUrl }).toString()}`
+    : "/login"
 
   async function handleToggle() {
     if (state.pending || state.upvoted) return
 
-    if (!isSignedIn) return
+    if (!viewerSignedIn) return
 
     const rollback = {
       upvotes: state.upvotes,
@@ -99,6 +102,11 @@ export function ProductUpvoteBadge({
       }>
 
       if (!response.ok) {
+        if (response.status === 401) {
+          window.location.assign(loginHref)
+          return
+        }
+
         throw new Error(
           typeof payload.error === "string"
             ? payload.error
@@ -208,7 +216,7 @@ export function ProductUpvoteBadge({
       </div>
     ) : null
 
-  const actionElement = isSignedIn ? (
+  const actionElement = viewerSignedIn ? (
     <button
       type="button"
       onClick={handleToggle}
@@ -218,19 +226,9 @@ export function ProductUpvoteBadge({
       {badgeContent}
     </button>
   ) : (
-    <SignInButton
-      mode="modal"
-      forceRedirectUrl={redirectUrl ?? undefined}
-      signUpForceRedirectUrl={redirectUrl ?? undefined}
-    >
-      <span
-        className={cn(buttonClasses, "cursor-pointer")}
-        role="button"
-        tabIndex={0}
-      >
-        {badgeContent}
-      </span>
-    </SignInButton>
+    <Link href={loginHref} className={cn(buttonClasses, "cursor-pointer")}>
+      <span>{badgeContent}</span>
+    </Link>
   )
 
   if (isInline) {

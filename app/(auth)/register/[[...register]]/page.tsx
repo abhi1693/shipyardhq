@@ -1,5 +1,6 @@
 import { headers } from "next/headers"
 import AuthViewShell from "@/components/layout/AuthViewShell"
+import Providers from "@/components/layout/providers"
 import AuthMarketingPanel from "@/components/organisms/AuthMarketingPanel"
 import AuthFormPanel from "@/components/organisms/AuthFormPanel"
 import {
@@ -24,9 +25,11 @@ export default async function RegisterViewPage({
   const redirectUrl = resolveRedirectUrl(resolvedSearchParams, requestHost)
 
   return (
-    <AuthViewShell>
-      <AuthMarketingPanel />
-      <AuthFormPanel mode="sign-up" redirectUrl={redirectUrl} />
-    </AuthViewShell>
+    <Providers>
+      <AuthViewShell>
+        <AuthMarketingPanel />
+        <AuthFormPanel mode="sign-up" redirectUrl={redirectUrl} />
+      </AuthViewShell>
+    </Providers>
   )
 }

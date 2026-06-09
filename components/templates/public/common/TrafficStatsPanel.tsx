@@ -207,7 +207,7 @@ function TrafficMetricCard({
           <div
             className={cn(
               "mt-1 text-[10px] font-bold",
-              delta == null || delta >= 0 ? "text-[#16a34a]" : "text-[#ba1a1a]",
+              delta == null || delta >= 0 ? "text-[#166534]" : "text-[#ba1a1a]",
             )}
           >
             {formatDelta(delta)}

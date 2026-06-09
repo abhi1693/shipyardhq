@@ -3,6 +3,7 @@ import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { auth } from "@clerk/nextjs/server"
 
+import Providers from "@/components/layout/providers"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import {
   HOME_PATH,
@@ -77,5 +78,5 @@ export default async function MemberOnboardingLayout({
     redirect(destination)
   }
 
-  return <>{children}</>
+  return <Providers>{children}</Providers>
 }

@@ -1,10 +1,8 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useUser } from "@clerk/nextjs"
 import { Triangle } from "lucide-react"
 
-import SignInButton from "@/components/molecules/SignInButton"
 import { cn } from "@/lib/utils"
 
 export function LeaderboardUpvoteButton({
@@ -14,7 +12,6 @@ export function LeaderboardUpvoteButton({
   productSlug: string
   count: number
 }) {
-  const { isSignedIn } = useUser()
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
   const [state, setState] = useState(() => ({
     upvotes: count,
@@ -35,17 +32,16 @@ export function LeaderboardUpvoteButton({
 
   useEffect(() => {
     if (typeof window === "undefined") return
-    if (isSignedIn) {
-      setRedirectUrl(null)
-      return
-    }
-
     const { pathname, search, hash } = window.location
     setRedirectUrl(`${pathname}${search}${hash}`)
-  }, [isSignedIn])
+  }, [])
+
+  const loginHref = redirectUrl
+    ? `/login?${new URLSearchParams({ redirect_url: redirectUrl }).toString()}`
+    : "/login"
 
   async function handleUpvote() {
-    if (!isSignedIn || state.pending || state.upvoted) return
+    if (state.pending || state.upvoted) return
 
     const rollback = { ...state, pending: false }
     const optimistic = {
@@ -68,6 +64,11 @@ export function LeaderboardUpvoteButton({
       }>
 
       if (!response.ok) {
+        if (response.status === 401) {
+          window.location.assign(loginHref)
+          return
+        }
+
         throw new Error("Failed to upvote product")
       }
 
@@ -111,20 +112,6 @@ export function LeaderboardUpvoteButton({
       </span>
     </>
   )
-
-  if (!isSignedIn) {
-    return (
-      <SignInButton
-        mode="modal"
-        forceRedirectUrl={redirectUrl ?? undefined}
-        signUpForceRedirectUrl={redirectUrl ?? undefined}
-      >
-        <span className={buttonClassName} role="button" tabIndex={0}>
-          {content}
-        </span>
-      </SignInButton>
-    )
-  }
 
   return (
     <button

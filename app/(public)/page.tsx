@@ -261,7 +261,7 @@ function HomepageHero({
   return (
     <section className="border-b border-[#E2E8F0] bg-[#f8f9ff]">
       <div className="mx-auto max-w-[1200px] px-4 py-16 text-center sm:px-6 md:py-24">
-        <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-[#16a34a]/10 px-4 py-1.5 text-[#16a34a]">
+        <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-[#16a34a]/10 px-4 py-1.5 text-[#166534]">
           <Rocket className="size-[18px] fill-current" aria-hidden />
           <span className="text-xs font-semibold uppercase tracking-wider">
             Join {builderCountLabel} top {builderNoun}
@@ -442,7 +442,7 @@ async function HomepageDataSections() {
                     <h2 className="text-2xl font-semibold leading-none">
                       {launch.name}
                     </h2>
-                    <span className="rounded-full bg-[#F97316]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#F97316]">
+                    <span className="rounded-full bg-[#F97316]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#9A3412]">
                       Launch of the Day
                     </span>
                   </div>
@@ -464,7 +464,7 @@ async function HomepageDataSections() {
                     className={cn(
                       "size-[18px]",
                       launchSignalIsPositive
-                        ? "text-[#16a34a]"
+                        ? "text-[#166534]"
                         : "text-[#ba1a1a]",
                     )}
                   />
@@ -472,7 +472,7 @@ async function HomepageDataSections() {
                     className={cn(
                       "text-xs font-semibold uppercase tracking-[0.05em]",
                       launchSignalIsPositive
-                        ? "text-[#16a34a]"
+                        ? "text-[#166534]"
                         : "text-[#ba1a1a]",
                     )}
                   >

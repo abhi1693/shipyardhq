@@ -41,19 +41,42 @@ function loadGoogleAnalytics(gaId: string) {
 
 export function DeferredGoogleAnalytics({ gaId }: { gaId: string }) {
   useEffect(() => {
-    if (document.readyState === "complete") {
+    let loaded = false
+
+    const loadOnce = () => {
+      if (loaded) return
+      loaded = true
       loadGoogleAnalytics(gaId)
-      return undefined
     }
 
-    const handleLoad = () => {
-      loadGoogleAnalytics(gaId)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        loadOnce()
+      }
     }
 
-    window.addEventListener("load", handleLoad, { once: true })
+    const events: Array<keyof WindowEventMap> = [
+      "pointerdown",
+      "keydown",
+      "scroll",
+      "touchstart",
+    ]
+
+    events.forEach((eventName) => {
+      window.addEventListener(eventName, loadOnce, {
+        once: true,
+        passive: true,
+      })
+    })
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+    window.addEventListener("pagehide", loadOnce, { once: true })
 
     return () => {
-      window.removeEventListener("load", handleLoad)
+      events.forEach((eventName) => {
+        window.removeEventListener(eventName, loadOnce)
+      })
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+      window.removeEventListener("pagehide", loadOnce)
     }
   }, [gaId])
 

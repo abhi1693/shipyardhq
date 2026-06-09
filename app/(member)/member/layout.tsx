@@ -1,5 +1,6 @@
 import { headers } from "next/headers"
 import { SidebarInset, SidebarProvider } from "@/components/atoms/sidebar"
+import Providers from "@/components/layout/providers"
 import PrivateHeader from "@/components/layout/headers/private-header"
 import AppSidebar from "@/components/layout/sidebar"
 import { NavItem } from "@/types"
@@ -134,18 +135,20 @@ export default async function MemberLayout({
   }
 
   return (
-    <SidebarProvider defaultOpen>
-      <AppSidebar
-        navItems={items}
-        showBillingPortal={shouldShowBillingPortal}
-      />
-      <SidebarInset>
-        <PrivateHeader />
-        <div className="flex-1">
-          <PageContainer>{children}</PageContainer>
-        </div>
-        <MemberFooter />
-      </SidebarInset>
-    </SidebarProvider>
+    <Providers>
+      <SidebarProvider defaultOpen>
+        <AppSidebar
+          navItems={items}
+          showBillingPortal={shouldShowBillingPortal}
+        />
+        <SidebarInset>
+          <PrivateHeader />
+          <div className="flex-1">
+            <PageContainer>{children}</PageContainer>
+          </div>
+          <MemberFooter />
+        </SidebarInset>
+      </SidebarProvider>
+    </Providers>
   )
 }

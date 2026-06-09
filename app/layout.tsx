@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google"
 import Script from "next/script"
 import { DeferredGoogleAnalytics } from "@/components/analytics/DeferredGoogleAnalytics"
 import { Toaster } from "@/components/atoms/sonner"
-import Providers from "@/components/layout/providers"
 import "./globals.css"
 import { IS_PROD } from "@/lib/constants"
 import "./theme.css"
@@ -80,10 +79,8 @@ export default function RootLayout({
         )}
       </head>
       <body className="min-h-screen antialiased bg-[var(--background)] text-[var(--foreground)]">
-        <Providers>
-          <Toaster position="top-right" />
-          {children}
-        </Providers>
+        <Toaster position="top-right" />
+        {children}
         {gaId && <DeferredGoogleAnalytics gaId={gaId} />}
       </body>
     </html>

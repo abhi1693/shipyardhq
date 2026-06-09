@@ -192,6 +192,7 @@ export default function PublicHeaderSearch() {
       <Input
         name="q"
         type="search"
+        role="combobox"
         value={query}
         onChange={handleInputChange}
         onKeyDown={(event) => {
@@ -200,8 +201,10 @@ export default function PublicHeaderSearch() {
           }
         }}
         autoComplete="off"
+        aria-autocomplete="list"
         aria-expanded={shouldShowDropdown}
         aria-controls="public-header-search-suggestions"
+        aria-haspopup="listbox"
         placeholder="Search products..."
         className="h-auto w-64 rounded-[12px] border-[#c4c6cd] bg-[#eff4ff] py-2 pl-10 pr-4 text-[14px] leading-5 text-[#0b1c30] shadow-none placeholder:text-[#74777d] focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[#0051d5]"
       />

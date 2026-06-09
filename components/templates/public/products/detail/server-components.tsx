@@ -16,6 +16,7 @@ import {
 } from "@/actions/public/products/actions"
 
 export type ViewerProductState = {
+  viewerSignedIn: boolean
   viewerUpvoted: boolean
 }
 
@@ -24,17 +25,17 @@ const getViewerProductState = cache(
     const authResult = await auth()
     const clerkUserId = authResult?.userId ?? null
     if (!clerkUserId) {
-      return { viewerUpvoted: false }
+      return { viewerSignedIn: false, viewerUpvoted: false }
     }
 
     const viewer = await getActiveUserByClerkId(clerkUserId).catch(() => null)
     if (!viewer) {
-      return { viewerUpvoted: false }
+      return { viewerSignedIn: false, viewerUpvoted: false }
     }
 
     const viewerUpvoted = await hasUserUpvoted(productId, clerkUserId)
 
-    return { viewerUpvoted }
+    return { viewerSignedIn: true, viewerUpvoted }
   },
 )
 
@@ -55,12 +56,14 @@ export async function ProductUpvoteBadgeServer({
   }
   variant?: "card" | "inline"
 }) {
-  const { viewerUpvoted } = await getViewerProductState(productId)
+  const { viewerSignedIn, viewerUpvoted } =
+    await getViewerProductState(productId)
   return (
     <ProductUpvoteBadge
       productSlug={productSlug}
       count={upvoteCount}
       initialUpvoted={viewerUpvoted}
+      viewerSignedIn={viewerSignedIn}
       leaderboard={leaderboard}
       variant={variant}
     />

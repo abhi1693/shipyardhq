@@ -11,13 +11,11 @@ import {
   useState,
 } from "react"
 import Link from "next/link"
-import { useUser } from "@clerk/nextjs"
 import { BadgeCheck, ChevronUp } from "lucide-react"
 
 import { Card, CardContent } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import { Image } from "@/components/atoms/image"
-import SignInButton from "@/components/molecules/SignInButton"
 import type {
   HomepageFeedItem,
   HomepageFeedPageResult,
@@ -47,94 +45,74 @@ export function HomepageVoteStateProvider({
   productIds: string[]
   children: ReactNode
 }) {
-  const { isLoaded, isSignedIn, user } = useUser()
-  const [voteSnapshot, setVoteSnapshot] = useState<{
-    userKey: string | null
-    ids: Set<string>
-  }>(() => ({ userKey: null, ids: new Set() }))
+  const [votedIds, setVotedIds] = useState<Set<string>>(() => new Set())
   const requestedIdsRef = useRef<Set<string>>(new Set())
   const productIdsKey = useMemo(() => productIds.join("|"), [productIds])
   const normalizedProductIds = useMemo(
     () => productIdsKey.split("|").filter(Boolean),
     [productIdsKey],
   )
-  const userKey = user?.id ?? null
 
-  const fetchVoteState = useCallback(
-    async (ids: string[]) => {
-      if (!isLoaded || !isSignedIn) return
+  const fetchVoteState = useCallback(async (ids: string[]) => {
+    const nextIds = Array.from(new Set(ids))
+      .filter(Boolean)
+      .filter((id) => !requestedIdsRef.current.has(id))
+    if (!nextIds.length) return
 
-      const nextIds = Array.from(new Set(ids))
-        .filter(Boolean)
-        .filter((id) => !requestedIdsRef.current.has(id))
-      if (!nextIds.length) return
+    nextIds.forEach((id) => requestedIdsRef.current.add(id))
 
-      nextIds.forEach((id) => requestedIdsRef.current.add(id))
+    try {
+      const response = await fetch("/api/homepage/votes", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          accept: "application/json",
+        },
+        body: JSON.stringify({ productIds: nextIds }),
+      })
+      if (!response.ok) return
 
-      try {
-        const activeUserKey = userKey
-        const response = await fetch("/api/homepage/votes", {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            accept: "application/json",
-          },
-          body: JSON.stringify({ productIds: nextIds }),
-        })
-        if (!response.ok) return
-
-        const payload = (await response.json()) as {
-          votedProductIds?: unknown
-        }
-        const votedProductIds = payload.votedProductIds
-        if (!Array.isArray(votedProductIds)) return
-
-        setVoteSnapshot((current) => {
-          const next = new Set(
-            current.userKey === activeUserKey ? current.ids : [],
-          )
-          votedProductIds
-            .filter((id): id is string => typeof id === "string")
-            .forEach((id) => next.add(id))
-          return { userKey: activeUserKey, ids: next }
-        })
-      } catch {
-        nextIds.forEach((id) => requestedIdsRef.current.delete(id))
+      const payload = (await response.json()) as {
+        votedProductIds?: unknown
       }
-    },
-    [isLoaded, isSignedIn, userKey],
-  )
+      const votedProductIds = payload.votedProductIds
+      if (!Array.isArray(votedProductIds)) return
+
+      setVotedIds((current) => {
+        const next = new Set(current)
+        votedProductIds
+          .filter((id): id is string => typeof id === "string")
+          .forEach((id) => next.add(id))
+        return next
+      })
+    } catch {
+      nextIds.forEach((id) => requestedIdsRef.current.delete(id))
+    }
+  }, [])
 
   useEffect(() => {
     requestedIdsRef.current = new Set()
 
-    if (isLoaded && isSignedIn) {
-      void fetchVoteState(normalizedProductIds)
-    }
-  }, [fetchVoteState, isLoaded, isSignedIn, normalizedProductIds, userKey])
+    void fetchVoteState(normalizedProductIds)
+  }, [fetchVoteState, normalizedProductIds])
 
   const value = useMemo<HomepageVoteStateContextValue>(
     () => ({
-      isVoted: (productId) =>
-        Boolean(
-          productId &&
-          voteSnapshot.userKey === userKey &&
-          voteSnapshot.ids.has(productId),
-        ),
+      isVoted: (productId) => Boolean(productId && votedIds.has(productId)),
       markVoted: (productId) => {
         if (!productId) return
         requestedIdsRef.current.add(productId)
-        setVoteSnapshot((current) => {
-          const next = new Set(current.userKey === userKey ? current.ids : [])
+        setVotedIds((current) => {
+          const next = new Set(current)
           next.add(productId)
-          return { userKey, ids: next }
+          return next
         })
       },
       registerProductIds: (ids) => {
         void fetchVoteState(ids)
       },
     }),
-    [fetchVoteState, userKey, voteSnapshot],
+    [fetchVoteState, votedIds],
   )
 
   return (
@@ -158,6 +136,12 @@ function useCurrentRedirect() {
   return redirectUrl
 }
 
+function buildLoginHref(redirectUrl?: string) {
+  if (!redirectUrl) return "/login"
+  const params = new URLSearchParams({ redirect_url: redirectUrl })
+  return `/login?${params.toString()}`
+}
+
 export function HomepageUpvoteButton({
   productId,
   productSlug,
@@ -179,7 +163,6 @@ export function HomepageUpvoteButton({
   countIncrement?: number
   syncResponseCount?: boolean
 }) {
-  const { isSignedIn } = useUser()
   const voteState = useHomepageVoteState()
   const redirectUrl = useCurrentRedirect()
   const resolvedInitialUpvoted = Boolean(
@@ -228,6 +211,11 @@ export function HomepageUpvoteButton({
       }>
 
       if (!response.ok) {
+        if (response.status === 401) {
+          window.location.assign(buildLoginHref(redirectUrl))
+          return
+        }
+
         throw new Error("Failed to update upvote")
       }
 
@@ -276,20 +264,6 @@ export function HomepageUpvoteButton({
       </span>
     </>
   )
-
-  if (productSlug && !isSignedIn) {
-    return (
-      <SignInButton
-        mode="modal"
-        forceRedirectUrl={redirectUrl}
-        signUpForceRedirectUrl={redirectUrl}
-      >
-        <span className={buttonClassName} role="button" tabIndex={0}>
-          {content}
-        </span>
-      </SignInButton>
-    )
-  }
 
   return (
     <Button
@@ -506,7 +480,7 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
     "hidden shrink-0 rounded px-2 py-0.5 text-[9px] font-extrabold uppercase leading-[10px] sm:inline-flex",
     sponsored
       ? "bg-[#C0FF00] text-black hover:bg-[#C0FF00]/90"
-      : "bg-[#F8FAFC] text-[#74777d] hover:bg-[#e5eeff] hover:text-[#0051d5]",
+      : "bg-[#F8FAFC] text-[#334155] hover:bg-[#e5eeff] hover:text-[#0051d5]",
   )
 
   return (
@@ -725,7 +699,7 @@ export function HomepageDropsInfiniteList({
               ))
             ) : (
               <Card className="rounded-xl border-dashed border-[#D8E0EA] bg-white/60 py-0 shadow-none">
-                <CardContent className="p-4 text-sm text-[#74777d]">
+                <CardContent className="p-4 text-sm text-[#475569]">
                   No launches in this window yet.
                 </CardContent>
               </Card>
