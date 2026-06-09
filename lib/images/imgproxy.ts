@@ -123,6 +123,7 @@ export async function buildSignedImgproxyImageUrl(
     `rs:fit:${normalizeImageWidth(width)}:0:0`,
     `q:${normalizeImageQuality(quality)}`,
     "sm:1",
+    "f:webp",
   ]
   const encodedSourceUrl = base64UrlEncode(textEncoder.encode(sourceUrl.href))
   const path = `/${options.join("/")}/${encodedSourceUrl}`

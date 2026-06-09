@@ -93,7 +93,9 @@ describe("managed media image URLs", () => {
 
     const url = new URL(transformedUrl ?? "")
     expect(url.origin).toBe("https://img.shipyardhq.dev")
-    expect(url.pathname).toMatch(/^\/[^/]+\/rs:fit:64:0:0\/q:80\/sm:1\/[\w-]+$/)
+    expect(url.pathname).toMatch(
+      /^\/[^/]+\/rs:fit:64:0:0\/q:80\/sm:1\/f:webp\/[\w-]+$/,
+    )
     expect(url.pathname).not.toContain("unsafe")
     expect(url.pathname).not.toContain("media.shipyardhq.dev")
   })
