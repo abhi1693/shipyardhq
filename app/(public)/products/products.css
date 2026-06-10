@@ -1,0 +1,10 @@
+@config "../../../tailwind.config.js";
+@import "tailwindcss/utilities" source(none);
+
+@source "./**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../../components/molecules/ProductCard.tsx";
+@source "../../../components/molecules/ProductDescriptionCard.tsx";
+@source "../../../components/molecules/ProductFeedCard*.tsx";
+@source "../../../components/organisms/ProductMediaGallery.tsx";
+@source "../../../components/organisms/ProductMediaGalleryClient.tsx";
+@source "../../../components/templates/public/products/**/*.{js,ts,jsx,tsx}";

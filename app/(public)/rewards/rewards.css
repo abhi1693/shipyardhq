@@ -1,0 +1,5 @@
+@config "../../../tailwind.config.js";
+@import "tailwindcss/utilities" source(none);
+
+@source "./**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../../components/templates/public/rewards/**/*.{js,ts,jsx,tsx}";

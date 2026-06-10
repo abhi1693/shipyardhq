@@ -2,6 +2,8 @@ import Link from "next/link"
 import { Suspense } from "react"
 import { Rocket, TrendingUp } from "lucide-react"
 
+import "./home.css"
+
 import {
   getHomepageFeedPage,
   getHomepageLaunchOfDay,

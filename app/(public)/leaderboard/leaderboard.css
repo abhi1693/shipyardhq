@@ -1,0 +1,8 @@
+@config "../../../tailwind.config.js";
+@import "tailwindcss/utilities" source(none);
+
+@source "./**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../../components/molecules/LeaderboardTopPlacement.tsx";
+@source "../../../components/molecules/ProductCard.tsx";
+@source "../../../components/molecules/ProductFeedCard*.tsx";
+@source "../../../components/templates/public/leaderboard/**/*.{js,ts,jsx,tsx}";
