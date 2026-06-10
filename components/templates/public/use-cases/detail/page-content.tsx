@@ -4,7 +4,10 @@ import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
-import { TaxonomyHomepageRowsClient } from "@/components/templates/public/common/TaxonomyProductRows"
+import {
+  buildTaxonomyProductSections,
+  TaxonomyProductSections,
+} from "@/components/templates/public/common/TaxonomyProductRows"
 import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { pluralize } from "@/lib/pluralize"
@@ -71,6 +74,10 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
       categoryName: product.category,
     }),
   )
+  const feedSections = buildTaxonomyProductSections(
+    useCaseFeedItems,
+    referenceDateIso,
+  )
   const categoryMentions = categories.map((category) => ({
     "@type": "Thing",
     name: category.name,
@@ -129,12 +136,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
         { label: "Categories", value: categories.length },
         { label: "Launches", value: useCaseFeedItems.length },
       ]}
-      feed={
-        <TaxonomyHomepageRowsClient
-          products={useCaseFeedItems}
-          referenceDateIso={referenceDateIso}
-        />
-      }
+      feed={<TaxonomyProductSections sections={feedSections} />}
       feedTestId="use-case-feed-section"
       structuredData={
         <>

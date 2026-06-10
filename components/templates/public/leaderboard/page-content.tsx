@@ -16,7 +16,7 @@ import { Button } from "@/components/atoms/button"
 import { Card, CardContent } from "@/components/atoms/card"
 import { Image } from "@/components/atoms/image"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
-import { TrafficStatsPanel } from "@/components/templates/public/common/TrafficStatsPanel"
+import { LazyTrafficStatsPanel } from "@/components/templates/public/common/LazyTrafficStatsPanel"
 import { LeaderboardUpvoteButton } from "@/components/templates/public/leaderboard/leaderboard-upvote-button"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { DODO_AFFILIATE_URL } from "@/lib/marketing/affiliates"
@@ -451,7 +451,7 @@ export async function LeaderboardPageContent({
             )}
           </section>
           <aside className="space-y-6 lg:col-span-4">
-            <TrafficStatsPanel initialStats={stats} />
+            <LazyTrafficStatsPanel initialStats={stats} />
             <PromotedShips placements={sponsoredPlacements} />
             <DodoPaymentsCard />
           </aside>

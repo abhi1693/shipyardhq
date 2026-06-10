@@ -15,6 +15,7 @@ import { BADGE_OPTIONS } from "@/lib/constants"
 import { BrowseHeroSearch } from "@/components/templates/public/browse/BrowseHeroSearch"
 import { BrowseRisingStars } from "@/components/templates/public/browse/BrowseRisingStars"
 import { BrowseDiscoveryFilters } from "@/components/templates/public/browse/BrowseDiscoveryFilters"
+import { BrowseProductRows } from "@/components/templates/public/browse/BrowseProductRows"
 import { BrowseProductRowsClient } from "@/components/templates/public/browse/BrowseProductRowsClient"
 
 type StrOrArr = string | string[] | undefined
@@ -145,24 +146,26 @@ export async function BrowsePageContent({
                 />
               </div>
             ) : (
-              <BrowseProductRowsClient
-                initialProducts={products}
-                initialHasMore={hasMore}
-                initialPage={2}
-                searchParams={{
-                  useCase: normalizedFilters.useCase,
-                  category: normalizedFilters.category,
-                  sort: normalizedFilters.sort,
-                  q: normalizedFilters.query,
-                  platform: normalizedFilters.platform,
-                  pricingModel: normalizedFilters.pricingModel,
-                  productType: normalizedFilters.productType,
-                  minPrice: normalizedFilters.minPrice,
-                  maxPrice: normalizedFilters.maxPrice,
-                  badge: normalizedFilters.badge,
-                  backlinkVerified: normalizedFilters.backlinkVerified,
-                }}
-              />
+              <div className="space-y-6">
+                <BrowseProductRows products={products} />
+                <BrowseProductRowsClient
+                  initialHasMore={hasMore}
+                  initialPage={2}
+                  searchParams={{
+                    useCase: normalizedFilters.useCase,
+                    category: normalizedFilters.category,
+                    sort: normalizedFilters.sort,
+                    q: normalizedFilters.query,
+                    platform: normalizedFilters.platform,
+                    pricingModel: normalizedFilters.pricingModel,
+                    productType: normalizedFilters.productType,
+                    minPrice: normalizedFilters.minPrice,
+                    maxPrice: normalizedFilters.maxPrice,
+                    badge: normalizedFilters.badge,
+                    backlinkVerified: normalizedFilters.backlinkVerified,
+                  }}
+                />
+              </div>
             )}
           </section>
         </div>

@@ -1,8 +1,5 @@
-"use client"
-
 import Image from "next/image"
 import Link from "next/link"
-import { useMemo } from "react"
 import { ArrowUp, ImageIcon, Sparkles, TrendingUp } from "lucide-react"
 import { format, isToday, isYesterday, startOfWeek } from "date-fns"
 
@@ -176,19 +173,4 @@ export function TaxonomyProductSections({
       ))}
     </div>
   )
-}
-
-export function TaxonomyHomepageRowsClient({
-  products,
-  referenceDateIso,
-}: {
-  products: HomepageFeedItem[]
-  referenceDateIso: string
-}) {
-  const sections = useMemo(
-    () => buildTaxonomyProductSections(products, referenceDateIso),
-    [products, referenceDateIso],
-  )
-
-  return <TaxonomyProductSections sections={sections} />
 }

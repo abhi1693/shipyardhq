@@ -1,19 +1,12 @@
 "use client"
 
-import Image from "next/image"
-import Link from "next/link"
-import { useCallback, useMemo } from "react"
-import { ArrowUp, BadgeCheck, ImageIcon, Sparkles } from "lucide-react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { getProductFeedPage } from "@/actions/public/products/feedPage"
-import InfiniteProductGrid from "@/components/molecules/InfiniteProductGrid"
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
-import type {
-  ProductCardBase,
-  ProductCardItem,
-} from "@/components/molecules/ProductCard"
+import type { ProductCardItem } from "@/components/molecules/ProductCard"
+import { BrowseProductRow } from "@/components/templates/public/browse/BrowseProductRows"
 import { toProductCardItem } from "@/lib/products/card-item"
-import { categoryPath, productPath } from "@/lib/routes"
 
 type BrowseRowsSearchParams = {
   useCase?: string
@@ -30,109 +23,9 @@ type BrowseRowsSearchParams = {
 }
 
 interface BrowseProductRowsClientProps {
-  initialProducts: ProductCardBase[]
   initialHasMore: boolean
   initialPage: number
   searchParams: BrowseRowsSearchParams
-}
-
-function ProductLogo({ product }: { product: ProductCardItem }) {
-  if (!product.logo) {
-    return (
-      <div className="flex h-full w-full items-center justify-center bg-[#eff4ff] text-[#74777d]">
-        <ImageIcon className="h-6 w-6" aria-hidden />
-      </div>
-    )
-  }
-
-  return (
-    <Image
-      src={product.logo}
-      alt={`${product.name} logo`}
-      fill
-      sizes="56px"
-      className="object-cover"
-    />
-  )
-}
-
-function BrowseProductRow({ product }: { product: ProductCardItem }) {
-  const href = productPath(product.slug)
-  const categoryName = product.categoryName ?? product.category?.name ?? null
-  const categorySlug = product.categorySlug ?? product.category?.slug ?? null
-  const score =
-    typeof product.scoreCount === "number" &&
-    Number.isFinite(product.scoreCount)
-      ? product.scoreCount
-      : 0
-  const badges = product.badges ?? []
-
-  return (
-    <article className="group flex items-center gap-4 rounded-lg border border-[#e2e8f0] bg-white p-4 transition hover:-translate-y-0.5 hover:border-[#10b981] hover:shadow-lg">
-      <Link
-        href={href}
-        className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-[#eff4ff]"
-      >
-        <ProductLogo product={product} />
-      </Link>
-      <div className="min-w-0 flex-1">
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <Link
-            href={href}
-            className="truncate text-lg font-semibold text-[#061d31] transition group-hover:text-[#0051d5]"
-          >
-            {product.name}
-          </Link>
-          {product.isVerified ? (
-            <span className="inline-flex items-center gap-1 rounded bg-[#eff6ff] px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#0051d5]">
-              <BadgeCheck className="h-3 w-3" aria-hidden />
-              Verified
-            </span>
-          ) : null}
-          {product.isSponsored || product.sponsored ? (
-            <span className="inline-flex items-center gap-1 rounded bg-[#f97316]/10 px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#f97316]">
-              <Sparkles className="h-3 w-3" aria-hidden />
-              Sponsored
-            </span>
-          ) : badges.length ? (
-            <span className="rounded bg-[#10b981]/10 px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#047857]">
-              {badges[0]}
-            </span>
-          ) : null}
-        </div>
-        <p className="line-clamp-1 text-sm text-[#43474c]">
-          {product.tagline ||
-            "Discover launch-ready tools from indie makers worldwide."}
-        </p>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          {categoryName ? (
-            categorySlug ? (
-              <Link
-                href={categoryPath(categorySlug)}
-                className="hidden rounded bg-[#f8fafc] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#43474c] transition hover:bg-[#0051d5]/10 hover:text-[#0051d5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0051d5] focus-visible:ring-offset-2 sm:inline-flex"
-              >
-                {categoryName}
-              </Link>
-            ) : (
-              <span className="hidden rounded bg-[#f8fafc] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#43474c] sm:inline-flex">
-                {categoryName}
-              </span>
-            )
-          ) : null}
-        </div>
-      </div>
-      <Link
-        href={href}
-        className="flex shrink-0 cursor-pointer flex-col items-center gap-1 rounded-lg bg-[#f8fafc] px-4 py-2 text-[#43474c] transition group-hover:bg-[#eff6ff] group-hover:text-[#0051d5] active:scale-95"
-        aria-label={`View ${product.name}, score ${score.toLocaleString("en-US")}`}
-      >
-        <ArrowUp className="h-5 w-5" aria-hidden />
-        <span className="text-sm font-bold leading-none">
-          {score.toLocaleString("en-US")}
-        </span>
-      </Link>
-    </article>
-  )
 }
 
 function renderLoadingSkeleton(count: number) {
@@ -146,15 +39,15 @@ function renderLoadingSkeleton(count: number) {
 }
 
 export function BrowseProductRowsClient({
-  initialProducts,
   initialHasMore,
   initialPage,
   searchParams,
 }: BrowseProductRowsClientProps) {
-  const initialItems = useMemo(
-    () => initialProducts.map((product) => toProductCardItem(product)),
-    [initialProducts],
-  )
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+  const [items, setItems] = useState<ProductCardItem[]>([])
+  const [hasMore, setHasMore] = useState(initialHasMore)
+  const [page, setPage] = useState(initialPage)
+  const [isLoading, setIsLoading] = useState(false)
 
   const normalizedSearch = useMemo(
     () => ({
@@ -206,27 +99,77 @@ export function BrowseProductRowsClient({
     [normalizedSearch],
   )
 
+  useEffect(() => {
+    setItems([])
+    setHasMore(initialHasMore)
+    setPage(initialPage)
+  }, [initialHasMore, initialPage, resetKey])
+
+  const loadMore = useCallback(async () => {
+    if (!hasMore || isLoading) return
+
+    setIsLoading(true)
+    try {
+      const result = await loadPage(page)
+      setItems((previous) => {
+        const previousIds = new Set(previous.map((item) => item.id))
+        const nextItems = result.items.filter(
+          (item) => !previousIds.has(item.id),
+        )
+        return nextItems.length ? [...previous, ...nextItems] : previous
+      })
+      setHasMore(result.hasMore)
+      setPage((current) => current + 1)
+    } catch {
+      setHasMore(false)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [hasMore, isLoading, loadPage, page])
+
+  useEffect(() => {
+    if (!hasMore) return
+    const node = sentinelRef.current
+    if (!node) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          void loadMore()
+        }
+      },
+      { rootMargin: "0px 0px 200px 0px" },
+    )
+
+    observer.observe(node)
+
+    return () => observer.disconnect()
+  }, [hasMore, loadMore, resetKey])
+
   return (
-    <InfiniteProductGrid
-      initialItems={initialItems}
-      initialHasMore={initialHasMore}
-      initialPage={initialPage}
-      loadPage={loadPage}
-      resetKey={resetKey}
-      loadingSkeletonCount={3}
-      renderItems={(items) => (
+    <section className="space-y-6" data-testid="browse-product-rows-client">
+      {items.length ? (
         <div className="space-y-3">
           {items.map((item) => (
             <BrowseProductRow key={item.id} product={item} />
           ))}
         </div>
-      )}
-      renderLoadingSkeleton={renderLoadingSkeleton}
-      endMessage={
+      ) : null}
+
+      {isLoading ? renderLoadingSkeleton(3) : null}
+
+      {hasMore ? (
+        <div
+          ref={sentinelRef}
+          aria-hidden="true"
+          className="h-1 w-full"
+          data-testid="browse-infinite-scroll-trigger"
+        />
+      ) : items.length ? (
         <p className="py-4 text-center text-sm text-[#43474c]">
           You&apos;ve reached the end of the directory.
         </p>
-      }
-    />
+      ) : null}
+    </section>
   )
 }

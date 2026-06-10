@@ -15,7 +15,10 @@ import {
 } from "@/actions/public/homepage/feed"
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
-import { TaxonomyHomepageRowsClient } from "@/components/templates/public/common/TaxonomyProductRows"
+import {
+  buildTaxonomyProductSections,
+  TaxonomyProductSections,
+} from "@/components/templates/public/common/TaxonomyProductRows"
 import {
   BROWSE_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
@@ -191,6 +194,10 @@ export default async function TagDetailPage({ params }: TagPageProps) {
   }
 
   const taggedCount = tagProductIdSet.size
+  const feedSections = buildTaxonomyProductSections(
+    combinedFeedItems,
+    referenceDateIso,
+  )
 
   return (
     <TaxonomyDetailPage
@@ -218,10 +225,7 @@ export default async function TagDetailPage({ params }: TagPageProps) {
         <div className="space-y-6">
           <h2 className="sr-only">Tag feed</h2>
           {combinedFeedItems.length > 0 ? (
-            <TaxonomyHomepageRowsClient
-              products={combinedFeedItems}
-              referenceDateIso={referenceDateIso}
-            />
+            <TaxonomyProductSections sections={feedSections} />
           ) : (
             <div className="rounded-lg border border-[#e2e8f0] bg-white p-8 text-center text-sm text-[#43474c]">
               No launches use this keyword yet. Check back soon.
