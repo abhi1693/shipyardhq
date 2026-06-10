@@ -7,7 +7,9 @@ import {
   isSitemapShardOutOfRange,
   parseSitemapShardIndex,
   SITEMAP_CHUNK_SIZE,
+  sitemapChangefreqForAge,
   sitemapResponse,
+  type SitemapUrlEntry,
   urlsetXml,
 } from "@/lib/sitemap"
 
@@ -49,24 +51,22 @@ export async function GET(
     take: SITEMAP_CHUNK_SIZE,
   })
 
-  return sitemapResponse(
-    urlsetXml(
-      products.map((p: ProductSitemapEntry) => {
-        const last = p.updatedAt || p.publishedAt || new Date()
-        const days = Math.floor(
-          (Date.now() - new Date(last).getTime()) / 86400000,
-        )
-        const changefreq =
-          days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
-        const priority = days <= 7 ? "0.9" : days <= 180 ? "0.8" : "0.7"
+  const entries: SitemapUrlEntry[] = products.map(
+    (p: ProductSitemapEntry): SitemapUrlEntry => {
+      const last = p.updatedAt || p.publishedAt || new Date()
+      const days = Math.floor(
+        (Date.now() - new Date(last).getTime()) / 86400000,
+      )
+      const priority = days <= 7 ? "0.9" : days <= 180 ? "0.8" : "0.7"
 
-        return {
-          loc: `${base}/products/${p.slug}`,
-          lastmod: new Date(last),
-          changefreq,
-          priority,
-        }
-      }),
-    ),
+      return {
+        loc: `${base}/products/${p.slug}`,
+        lastmod: new Date(last),
+        changefreq: sitemapChangefreqForAge(days),
+        priority,
+      }
+    },
   )
+
+  return sitemapResponse(urlsetXml(entries))
 }

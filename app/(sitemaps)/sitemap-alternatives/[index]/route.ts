@@ -6,7 +6,9 @@ import {
   isSitemapShardOutOfRange,
   parseSitemapShardIndex,
   SITEMAP_CHUNK_SIZE,
+  sitemapChangefreqForAge,
   sitemapResponse,
+  type SitemapUrlEntry,
   urlsetXml,
 } from "@/lib/sitemap"
 
@@ -42,29 +44,23 @@ export async function GET(
     take: SITEMAP_CHUNK_SIZE,
   })
 
-  return sitemapResponse(
-    urlsetXml(
-      alternatives.map((alternative: (typeof alternatives)[number]) => {
-        const last = alternative.updatedAt ?? alternative.createdAt
-        const daysSinceUpdate = Math.floor(
-          (Date.now() - new Date(last).getTime()) / 86400000,
-        )
-        const changefreq =
-          daysSinceUpdate <= 7
-            ? "daily"
-            : daysSinceUpdate <= 60
-              ? "weekly"
-              : "monthly"
-        const priority =
-          daysSinceUpdate <= 7 ? "0.7" : daysSinceUpdate <= 180 ? "0.6" : "0.5"
+  const entries: SitemapUrlEntry[] = alternatives.map(
+    (alternative: (typeof alternatives)[number]): SitemapUrlEntry => {
+      const last = alternative.updatedAt ?? alternative.createdAt
+      const daysSinceUpdate = Math.floor(
+        (Date.now() - new Date(last).getTime()) / 86400000,
+      )
+      const priority =
+        daysSinceUpdate <= 7 ? "0.7" : daysSinceUpdate <= 180 ? "0.6" : "0.5"
 
-        return {
-          loc: `${base}/alternatives/${alternative.slug}`,
-          lastmod: new Date(last),
-          changefreq,
-          priority,
-        }
-      }),
-    ),
+      return {
+        loc: `${base}/alternatives/${alternative.slug}`,
+        lastmod: new Date(last),
+        changefreq: sitemapChangefreqForAge(daysSinceUpdate),
+        priority,
+      }
+    },
   )
+
+  return sitemapResponse(urlsetXml(entries))
 }

@@ -2,22 +2,24 @@ export const SITEMAP_CHUNK_SIZE = 50000
 
 type SitemapDate = Date | string
 
-type SitemapIndexEntry = {
+export type SitemapIndexEntry = {
   loc: string
   lastmod?: SitemapDate | null
 }
 
-type SitemapUrlEntry = {
+export type SitemapChangeFrequency =
+  | "always"
+  | "hourly"
+  | "daily"
+  | "weekly"
+  | "monthly"
+  | "yearly"
+  | "never"
+
+export type SitemapUrlEntry = {
   loc: string
   lastmod?: SitemapDate | null
-  changefreq?:
-    | "always"
-    | "hourly"
-    | "daily"
-    | "weekly"
-    | "monthly"
-    | "yearly"
-    | "never"
+  changefreq?: SitemapChangeFrequency
   priority?: string | number | null
 }
 
@@ -54,6 +56,12 @@ export function isSitemapShardOutOfRange(page: number, total: number) {
   return (page - 1) * SITEMAP_CHUNK_SIZE >= total
 }
 
+export function sitemapChangefreqForAge(days: number): SitemapChangeFrequency {
+  if (days <= 7) return "daily"
+  if (days <= 60) return "weekly"
+  return "monthly"
+}
+
 export function sitemapResponse(body: string, init?: ResponseInit) {
   const headers = new Headers(init?.headers)
   headers.set("Content-Type", "application/xml; charset=utf-8")
@@ -64,7 +72,7 @@ export function sitemapResponse(body: string, init?: ResponseInit) {
   })
 }
 
-export function sitemapIndexXml(entries: SitemapIndexEntry[]) {
+export function sitemapIndexXml(entries: readonly SitemapIndexEntry[]) {
   const sitemaps = entries
     .map((entry) => {
       const lastmod = formatSitemapDate(entry.lastmod)
@@ -89,7 +97,7 @@ export function sitemapIndexXml(entries: SitemapIndexEntry[]) {
     .join("\n")
 }
 
-export function urlsetXml(entries: SitemapUrlEntry[]) {
+export function urlsetXml(entries: readonly SitemapUrlEntry[]) {
   const urls = entries
     .map((entry) => {
       const lastmod = formatSitemapDate(entry.lastmod)

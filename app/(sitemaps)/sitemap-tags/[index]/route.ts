@@ -9,7 +9,9 @@ import {
   isSitemapShardOutOfRange,
   parseSitemapShardIndex,
   SITEMAP_CHUNK_SIZE,
+  sitemapChangefreqForAge,
   sitemapResponse,
+  type SitemapUrlEntry,
   urlsetXml,
 } from "@/lib/sitemap"
 
@@ -39,22 +41,18 @@ export async function GET(
   const offset = (page - 1) * SITEMAP_CHUNK_SIZE
   const tags = await getKeywordTagSitemapChunk(offset, SITEMAP_CHUNK_SIZE)
 
-  return sitemapResponse(
-    urlsetXml(
-      tags.map((tag) => {
-        const last = tag.lastUpdated ?? new Date()
-        const days = Math.floor((Date.now() - last.getTime()) / 86400000)
-        const changefreq =
-          days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
-        const priority = days <= 7 ? "0.9" : days <= 180 ? "0.8" : "0.7"
+  const entries: SitemapUrlEntry[] = tags.map((tag): SitemapUrlEntry => {
+    const last = tag.lastUpdated ?? new Date()
+    const days = Math.floor((Date.now() - last.getTime()) / 86400000)
+    const priority = days <= 7 ? "0.9" : days <= 180 ? "0.8" : "0.7"
 
-        return {
-          loc: `${base}/tags/${tag.slug}`,
-          lastmod: last,
-          changefreq,
-          priority,
-        }
-      }),
-    ),
-  )
+    return {
+      loc: `${base}/tags/${tag.slug}`,
+      lastmod: last,
+      changefreq: sitemapChangefreqForAge(days),
+      priority,
+    }
+  })
+
+  return sitemapResponse(urlsetXml(entries))
 }

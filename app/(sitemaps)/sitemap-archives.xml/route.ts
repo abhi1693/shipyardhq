@@ -4,7 +4,7 @@ import {
   monthlyLeaderboardArchivePath,
 } from "@/lib/routes"
 import { resolveSiteUrl } from "@/lib/siteConfig"
-import { sitemapResponse, urlsetXml } from "@/lib/sitemap"
+import { sitemapResponse, urlsetXml, type SitemapUrlEntry } from "@/lib/sitemap"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 86400
@@ -39,27 +39,28 @@ export async function GET() {
   const now = new Date()
   const currentMonthlyPath = currentMonthlyLeaderboardPath(now)
   const currentMonthlyLoc = `${base}${currentMonthlyPath}`
+  const currentEntry: SitemapUrlEntry = {
+    loc: currentMonthlyLoc,
+    lastmod: now,
+    changefreq: "weekly",
+    priority: "0.6",
+  }
+  const archiveEntries: SitemapUrlEntry[] = months
+    .map(
+      (monthEntry: (typeof months)[number], index: number): SitemapUrlEntry => {
+        const monthDate = toMonthDate(monthEntry.month, now)
+        const recencyPriority = index < 3 ? "0.6" : index < 12 ? "0.5" : "0.4"
 
-  return sitemapResponse(
-    urlsetXml([
-      {
-        loc: currentMonthlyLoc,
-        lastmod: now,
-        changefreq: "weekly",
-        priority: "0.6",
+        return {
+          loc: `${base}${monthlyLeaderboardArchivePath(monthEntry.month)}`,
+          lastmod: monthDate,
+          changefreq: "yearly",
+          priority: recencyPriority,
+        }
       },
-      ...months
-        .map((monthEntry: (typeof months)[number], index: number) => {
-          const monthDate = toMonthDate(monthEntry.month, now)
-          const recencyPriority = index < 3 ? "0.6" : index < 12 ? "0.5" : "0.4"
-          return {
-            loc: `${base}${monthlyLeaderboardArchivePath(monthEntry.month)}`,
-            lastmod: monthDate,
-            changefreq: "yearly" as const,
-            priority: recencyPriority,
-          }
-        })
-        .filter((entry) => entry.loc !== currentMonthlyLoc),
-    ]),
-  )
+    )
+    .filter((entry) => entry.loc !== currentMonthlyLoc)
+  const entries: SitemapUrlEntry[] = [currentEntry, ...archiveEntries]
+
+  return sitemapResponse(urlsetXml(entries))
 }
