@@ -36,6 +36,8 @@
     "build:ci": "npm run build && npm run prisma:seed",
     "start": "next start",
     "worker": "tsx bin/shipyard-worker.ts",
+    "images:ingest-external": "tsx scripts/ingest-external-images-to-r2.ts",
+    "images:ingest-external:apply": "tsx scripts/ingest-external-images-to-r2.ts --apply",
     "lint": "eslint .",
     "format": "prettier --write .",
     "prisma:migrate:reset": "prisma migrate reset --force",
