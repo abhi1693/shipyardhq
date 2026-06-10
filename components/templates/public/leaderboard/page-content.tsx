@@ -172,7 +172,7 @@ function LeaderboardProductCard({ item }: { item: LeaderboardListItem }) {
                   {item.name}
                 </Link>
                 {item.sponsored ? (
-                  <span className="rounded bg-[#F97316]/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase leading-[10px] tracking-wider text-[#F97316]">
+                  <span className="rounded bg-[#F97316]/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase leading-[10px] tracking-wider text-[#b45309]">
                     Sponsored
                   </span>
                 ) : null}
@@ -192,6 +192,7 @@ function LeaderboardProductCard({ item }: { item: LeaderboardListItem }) {
               </span>
               <LeaderboardUpvoteButton
                 productSlug={item.slug}
+                productName={item.name}
                 count={upvotes}
               />
             </div>
@@ -209,7 +210,7 @@ function LeaderboardProductCard({ item }: { item: LeaderboardListItem }) {
                 key={badge.key}
                 className={
                   badge.variant === "success"
-                    ? "bg-[#16a34a]/10 text-[#16a34a]"
+                    ? "bg-[#dcfce7] text-[#166534]"
                     : "bg-[#F8FAFC] text-[#43474c]"
                 }
               >
@@ -217,7 +218,7 @@ function LeaderboardProductCard({ item }: { item: LeaderboardListItem }) {
               </Pill>
             ))}
             {badgeLabels.map((badge) => (
-              <Pill key={badge} className="bg-[#F97316]/10 text-[#F97316]">
+              <Pill key={badge} className="bg-[#ffedd5] text-[#9a3412]">
                 <Trophy className="size-3.5" aria-hidden />
                 {formatBadgeLabel(badge)}
               </Pill>
@@ -262,14 +263,14 @@ function PromotedShips({
   return (
     <Card className="rounded-xl border-[#E2E8F0] bg-white p-0 shadow-none">
       <CardContent className="p-6">
-        <h4 className="mb-6 flex items-center gap-2 text-[12px] font-semibold uppercase leading-4 tracking-[0.05em] text-[#43474c]">
+        <h2 className="mb-6 flex items-center gap-2 text-[12px] font-semibold uppercase leading-4 tracking-[0.05em] text-[#43474c]">
           <Sparkles
-            className="size-[18px] text-[#F97316]"
+            className="size-[18px] text-[#b45309]"
             fill="currentColor"
             aria-hidden
           />
           Promoted Ships
-        </h4>
+        </h2>
         {product ? (
           <Link
             href={`/r/sponsored/${product.slug}`}
@@ -300,9 +301,9 @@ function PromotedShips({
                 <Megaphone className="size-12 text-white/70" aria-hidden />
               )}
             </div>
-            <h5 className="mb-1 text-[18px] font-semibold leading-6 text-black underline-offset-4 group-hover:underline">
+            <h3 className="mb-1 text-[18px] font-semibold leading-6 text-black underline-offset-4 group-hover:underline">
               {product.name}
-            </h5>
+            </h3>
             <p className="line-clamp-2 text-[14px] leading-5 text-[#43474c]">
               {product.tagline}
             </p>
@@ -313,7 +314,7 @@ function PromotedShips({
             className="group block rounded-lg border-2 border-dashed border-[#E2E8F0] p-6 text-center transition-colors hover:bg-[#F8FAFC]"
           >
             <Megaphone
-              className="mx-auto mb-2 size-10 text-[#c4c6cd] transition-transform group-hover:scale-110"
+              className="mx-auto mb-2 size-10 text-[#5f6368] transition-transform group-hover:scale-110"
               aria-hidden
             />
             <div className="text-[12px] font-semibold uppercase tracking-[0.05em] text-black">
@@ -329,7 +330,7 @@ function PromotedShips({
             href={PRICING_PATH}
             className="mt-6 block rounded-lg border-2 border-dashed border-[#E2E8F0] p-6 text-center transition-colors hover:bg-[#F8FAFC]"
           >
-            <Megaphone className="mx-auto mb-2 size-10 text-[#c4c6cd]" />
+            <Megaphone className="mx-auto mb-2 size-10 text-[#5f6368]" />
             <div className="text-[12px] font-semibold uppercase tracking-[0.05em] text-black">
               Advertise here
             </div>
@@ -355,13 +356,13 @@ function DodoPaymentsCard() {
           <div className="flex size-8 items-center justify-center rounded-lg bg-[#C0FF00]">
             <Zap className="size-5 text-black" aria-hidden />
           </div>
-          <span className="text-[12px] font-semibold uppercase tracking-widest text-[#C0FF00]">
+          <span className="text-[12px] font-semibold uppercase tracking-widest text-[#d9ff3f]">
             Dodo Payments
           </span>
         </div>
-        <h4 className="mb-2 text-[18px] font-semibold leading-6">
+        <h2 className="mb-2 text-[18px] font-semibold leading-6">
           Take payments with the provider Shipyard uses
-        </h4>
+        </h2>
         <p className="mb-6 text-[14px] leading-5 text-white/80">
           We process Shipyard billing via Dodo Payments. If you&apos;re shipping
           a SaaS, it&apos;s a great starting point with global compliance
@@ -431,6 +432,7 @@ export async function LeaderboardPageContent({
         />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           <section className="space-y-3 lg:col-span-8">
+            <h2 className="sr-only">Ranked products</h2>
             {leaderboardItems.length > 0 ? (
               <>
                 {leaderboardItems.slice(0, 10).map((item) => (

@@ -89,7 +89,7 @@ const transactionTypeLabels: Record<RewardTransactionType, string> = {
 }
 
 const entitlementStatusTone: Record<FeatureEntitlementStatus, string> = {
-  [FeatureEntitlementStatusEnum.active]: "text-emerald-600",
+  [FeatureEntitlementStatusEnum.active]: "text-emerald-700",
   [FeatureEntitlementStatusEnum.pending]: "text-amber-600",
   [FeatureEntitlementStatusEnum.paused]: "text-slate-500",
   [FeatureEntitlementStatusEnum.expired]: "text-slate-400",
@@ -99,11 +99,11 @@ const entitlementStatusTone: Record<FeatureEntitlementStatus, string> = {
 
 const redemptionStatusTone: Record<RedemptionStatus, string> = {
   [RedemptionStatusEnum.pending]: "text-amber-600",
-  [RedemptionStatusEnum.active]: "text-emerald-600",
+  [RedemptionStatusEnum.active]: "text-emerald-700",
   [RedemptionStatusEnum.expired]: "text-slate-400",
   [RedemptionStatusEnum.canceled]: "text-slate-500",
   [RedemptionStatusEnum.failed]: "text-rose-600",
-  [RedemptionStatusEnum.refunded]: "text-emerald-600",
+  [RedemptionStatusEnum.refunded]: "text-emerald-700",
 }
 
 function formatNumber(value: number) {
@@ -334,7 +334,7 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                   balance.lifetimeAdjusted === 0
                     ? "text-slate-900"
                     : balance.lifetimeAdjusted > 0
-                      ? "text-emerald-600"
+                      ? "text-emerald-700"
                       : "text-rose-600",
                 )}
               >
@@ -349,7 +349,7 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
               <span
                 className={cn(
                   "font-semibold",
-                  balanceDelta >= 0 ? "text-emerald-600" : "text-rose-600",
+                  balanceDelta >= 0 ? "text-emerald-700" : "text-rose-600",
                 )}
               >
                 {balanceDelta >= 0 ? "+" : ""}
@@ -651,12 +651,12 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                           if (
                             transaction.type === RewardTransactionTypeEnum.earn
                           )
-                            return "text-emerald-600"
+                            return "text-emerald-700"
                           if (
                             transaction.type ===
                             RewardTransactionTypeEnum.refund
                           )
-                            return "text-emerald-600"
+                            return "text-emerald-700"
                           if (
                             transaction.type ===
                             RewardTransactionTypeEnum.adjustment
@@ -665,7 +665,7 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                               transaction.adjustmentAmount ??
                               transaction.rewardAmount
                             return delta >= 0
-                              ? "text-emerald-600"
+                              ? "text-emerald-700"
                               : "text-rose-600"
                           }
                           return "text-rose-600"

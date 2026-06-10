@@ -71,7 +71,7 @@ export function buildTaxonomyProductSections(
 function ProductLogo({ product }: { product: HomepageFeedItem }) {
   if (!product.logo) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-[#eff4ff] text-[#74777d]">
+      <div className="flex h-full w-full items-center justify-center bg-[#eff4ff] text-[#43474c]">
         <ImageIcon className="h-6 w-6" aria-hidden />
       </div>
     )
@@ -124,12 +124,12 @@ export function TaxonomyProductRow({ product }: { product: HomepageFeedItem }) {
             </span>
           )}
           {product.isSponsored || product.badges.length > 0 ? (
-            <span className="inline-flex items-center gap-1 rounded bg-[#f97316]/10 px-2 py-1 text-[11px] font-semibold text-[#f97316]">
+            <span className="inline-flex items-center gap-1 rounded bg-[#ffedd5] px-2 py-1 text-[11px] font-semibold text-[#9a3412]">
               <Sparkles className="h-3 w-3" aria-hidden />
               New launch
             </span>
           ) : momentum ? (
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#16a34a]">
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#166534]">
               <TrendingUp className="h-3 w-3" aria-hidden />+{momentum}%
               momentum
             </span>

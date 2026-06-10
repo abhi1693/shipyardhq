@@ -46,13 +46,13 @@ const toneClasses = {
     spark: "bg-[#0051d5]/15",
   },
   green: {
-    icon: "bg-[#eaf7ee] text-[#16a34a]",
-    badge: "text-[#16a34a]",
+    icon: "bg-[#dcfce7] text-[#166534]",
+    badge: "text-[#166534]",
     spark: "bg-[#16a34a]/15",
   },
   orange: {
-    icon: "bg-[#fff3e8] text-[#f97316]",
-    badge: "text-[#f97316]",
+    icon: "bg-[#ffedd5] text-[#9a3412]",
+    badge: "text-[#9a3412]",
     spark: "bg-[#f97316]/15",
   },
   neutral: {
@@ -140,7 +140,7 @@ function TrendCard({
             <TrendingUp className="h-3.5 w-3.5" aria-hidden />+
             {momentum.toFixed(1)}%
           </span>
-          <span className="whitespace-nowrap text-[10px] uppercase tracking-[0.08em] text-[#74777d]">
+          <span className="whitespace-nowrap text-[10px] uppercase tracking-[0.08em] text-[#43474c]">
             momentum
           </span>
         </span>
@@ -321,10 +321,10 @@ export function TaxonomyIndexPage({
             <section>
               <div className="mb-3 flex items-center justify-between gap-4">
                 <h2 className="flex items-center gap-2 text-lg font-semibold">
-                  <TrendingUp className="h-5 w-5 text-[#f97316]" aria-hidden />
+                  <TrendingUp className="h-5 w-5 text-[#b45309]" aria-hidden />
                   Trending Now
                 </h2>
-                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#74777d]">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#43474c]">
                   {trendingWindowLabel}
                 </span>
               </div>
@@ -344,7 +344,7 @@ export function TaxonomyIndexPage({
           <section>
             <div className="mb-4 flex items-center justify-between border-b border-[#e2e8f0] pb-4">
               <h2 className="text-lg font-semibold">{itemsHeading}</h2>
-              <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#74777d]">
+              <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#43474c]">
                 {formatCount(totalItems ?? items.length)} total
               </span>
             </div>

@@ -277,7 +277,7 @@ export default function MemberFeedback({
                       </div>
                     ) : null}
                     {entry.rewardEligible ? (
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-600">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">
                         {entry.rewardGrantedAt
                           ? `Rewards granted ${rewardGrantedAt}`
                           : "Rewards will be granted once this feedback is closed."}

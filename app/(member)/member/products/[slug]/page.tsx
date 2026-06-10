@@ -662,7 +662,7 @@ export default async function ViewUserProductPage({
                   <ul className="space-y-1">
                     {listingChecklistItems.map((item) => {
                       const icon = item.complete ? (
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-600" />
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-700" />
                       ) : (
                         <Circle className="mt-0.5 h-4 w-4 text-muted-foreground" />
                       )
@@ -721,7 +721,7 @@ export default async function ViewUserProductPage({
                     <div className="flex items-start justify-between gap-3 text-xs text-muted-foreground">
                       <div className="flex items-start gap-2">
                         {canViewAnalytics ? (
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-600" />
+                          <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-700" />
                         ) : (
                           <LockKeyhole className="mt-0.5 h-4 w-4 text-muted-foreground" />
                         )}
@@ -1124,7 +1124,7 @@ export default async function ViewUserProductPage({
                             <span
                               className={
                                 descriptionReady
-                                  ? "text-emerald-600"
+                                  ? "text-emerald-700"
                                   : "text-amber-600"
                               }
                             >

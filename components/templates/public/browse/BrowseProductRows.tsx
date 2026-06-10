@@ -12,7 +12,7 @@ import { categoryPath, productPath } from "@/lib/routes"
 function ProductLogo({ product }: { product: ProductCardItem }) {
   if (!product.logo) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-[#eff4ff] text-[#74777d]">
+      <div className="flex h-full w-full items-center justify-center bg-[#eff4ff] text-[#43474c]">
         <ImageIcon className="h-6 w-6" aria-hidden />
       </div>
     )
@@ -63,7 +63,7 @@ export function BrowseProductRow({ product }: { product: ProductCardItem }) {
             </span>
           ) : null}
           {product.isSponsored || product.sponsored ? (
-            <span className="inline-flex items-center gap-1 rounded bg-[#f97316]/10 px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#f97316]">
+            <span className="inline-flex items-center gap-1 rounded bg-[#ffedd5] px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#9a3412]">
               <Sparkles className="h-3 w-3" aria-hidden />
               Sponsored
             </span>

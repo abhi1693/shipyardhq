@@ -133,9 +133,9 @@ function CadenceItem({
         <Icon className="size-5" aria-hidden />
       </div>
       <div>
-        <h4 className="mb-2 text-[18px] font-semibold leading-6 text-[#0b1c30]">
+        <h3 className="mb-2 text-[18px] font-semibold leading-6 text-[#0b1c30]">
           {title}
-        </h4>
+        </h3>
         <p className="text-[14px] leading-5 text-[#43474c]">{detail}</p>
       </div>
     </div>
@@ -239,7 +239,7 @@ export function LeaderboardGuidePageContent() {
             <ul className="mb-8 space-y-4">
               {BOOST_FEATURES.map((feature) => (
                 <li key={feature} className="flex items-center gap-3">
-                  <CheckCircle className="size-5 text-[#16a34a]" aria-hidden />
+                  <CheckCircle className="size-5 text-[#166534]" aria-hidden />
                   <span className="text-[14px] leading-5">{feature}</span>
                 </li>
               ))}
@@ -271,7 +271,7 @@ export function LeaderboardGuidePageContent() {
             />
             <div className="absolute inset-0 flex items-center justify-center p-6">
               <div className="max-w-xs rounded-lg border border-[#E2E8F0] bg-white p-6 text-center shadow-xl">
-                <div className="mb-2 inline-block rounded bg-[#F97316]/10 px-2 py-1 text-[10px] font-bold uppercase text-[#F97316]">
+                <div className="mb-2 inline-block rounded bg-[#ffedd5] px-2 py-1 text-[10px] font-bold uppercase text-[#9a3412]">
                   Pro Tip
                 </div>
                 <p className="text-[14px] font-semibold leading-5">

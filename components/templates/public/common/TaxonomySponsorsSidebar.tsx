@@ -69,10 +69,10 @@ export function TaxonomySponsorsSidebar({
   return (
     <section className="rounded-lg border border-[#e2e8f0] bg-white p-6">
       <div className="mb-5 flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-[#f97316]" aria-hidden />
-        <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black">
+        <Sparkles className="h-5 w-5 text-[#b45309]" aria-hidden />
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black">
           Sponsors
-        </h3>
+        </h2>
       </div>
       <div className="space-y-4">
         {visibleProducts.map((product) => (
@@ -85,9 +85,9 @@ export function TaxonomySponsorsSidebar({
           >
             <SponsorLogo product={product} />
             <div className="min-w-0">
-              <h4 className="truncate text-sm font-semibold text-black">
+              <h3 className="truncate text-sm font-semibold text-black">
                 {product.name}
-              </h4>
+              </h3>
               {product.tagline ? (
                 <p className="line-clamp-1 text-xs text-[#43474c]">
                   {product.tagline}

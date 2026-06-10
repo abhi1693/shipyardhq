@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Suspense } from "react"
-import { ArrowRight, Rocket, TrendingUp } from "lucide-react"
+import { Rocket, TrendingUp } from "lucide-react"
 
 import {
   getHomepageFeedPage,
@@ -8,7 +8,6 @@ import {
 } from "@/actions/public/homepage/feed"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { getHomepageBuilderSummary } from "@/actions/public/users/actions"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { Button } from "@/components/atoms/button"
 import { Image } from "@/components/atoms/image"
 import {
@@ -25,7 +24,6 @@ import {
   LEADERBOARD_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
   productPath,
-  userPath,
 } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
@@ -134,28 +132,6 @@ function formatBuildersClickedLabel(value: number) {
   )} clicked`
 }
 
-function formatFounderLine(founder: {
-  productCount: number
-  topProductName: string | null
-}) {
-  if (!founder.topProductName) {
-    return `${formatCount(founder.productCount)} published ${pluralize(
-      founder.productCount,
-      "drop",
-      "drops",
-    )}`
-  }
-
-  const remainingDrops = Math.max(0, founder.productCount - 1)
-  if (remainingDrops === 0) {
-    return `Built ${founder.topProductName}`
-  }
-
-  return `Built ${founder.topProductName} & ${formatCount(
-    remainingDrops,
-  )} other ${pluralize(remainingDrops, "drop", "drops")}`
-}
-
 function toDisplayDrop(
   item: Awaited<ReturnType<typeof getHomepageFeedPage>>["items"][number],
 ): DisplayDrop {
@@ -216,33 +192,6 @@ function ProductLogo({
   )
 }
 
-function MakerAvatar({
-  name,
-  avatarUrl,
-}: {
-  name: string
-  avatarUrl?: string | null
-}) {
-  const fallbackInitials = initials(name) || "SY"
-
-  return (
-    <Avatar className="size-10 border-2 border-white bg-[#d3e4fe] text-sm font-bold text-[#061d31] shadow-sm">
-      {avatarUrl ? (
-        <AvatarImage
-          className="h-full w-full object-cover"
-          src={avatarUrl}
-          alt={`${name} avatar`}
-          width={40}
-          height={40}
-        />
-      ) : null}
-      <AvatarFallback className="bg-[#d3e4fe] text-sm font-bold uppercase text-[#061d31]">
-        {fallbackInitials}
-      </AvatarFallback>
-    </Avatar>
-  )
-}
-
 function HomepageHero({
   builderSummary,
 }: {
@@ -251,12 +200,6 @@ function HomepageHero({
   const builderCount = builderSummary.builderCount
   const builderCountLabel = formatBuilderCountBadge(builderCount)
   const builderNoun = pluralize(builderCount, "builder", "builders")
-  const topFounder = builderSummary.topFounder
-  const topFounderHref = topFounder ? userPath(topFounder.id) : "/users"
-  const topFounderName = topFounder?.name ?? "Shipyard makers"
-  const topFounderLine = topFounder
-    ? formatFounderLine(topFounder)
-    : "No public launches yet"
 
   return (
     <section className="border-b border-[#E2E8F0] bg-[#f8f9ff]">
@@ -289,34 +232,6 @@ function HomepageHero({
           >
             <Link href={BROWSE_PATH}>Browse Today&apos;s Drops</Link>
           </Button>
-        </div>
-
-        <div className="mt-12 flex items-center justify-center">
-          <Link
-            href={topFounderHref}
-            className="group flex items-center gap-3 rounded-full border border-[#E2E8F0] bg-[#eff4ff] py-2 pl-2 pr-6 transition-colors hover:bg-[#dce9ff]"
-          >
-            <div className="relative">
-              <MakerAvatar
-                name={topFounderName}
-                avatarUrl={topFounder?.avatarUrl}
-              />
-            </div>
-            <div className="text-left">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-black">
-                  {topFounderName}
-                </span>
-                <span className="rounded-full bg-[#0051d5]/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-[#0051d5]">
-                  {topFounder ? "Top Maker" : "Makers"}
-                </span>
-              </div>
-              <p className="text-[11px] font-medium leading-[14px] text-[#43474c]">
-                {topFounderLine}
-              </p>
-            </div>
-            <ArrowRight className="size-[18px] text-[#74777d] transition-all group-hover:translate-x-0.5 group-hover:text-[#0051d5]" />
-          </Link>
         </div>
       </div>
     </section>

@@ -256,7 +256,7 @@ function achievementToneClass(value?: string) {
     value === "trending" ||
     value?.startsWith("product-of-")
   ) {
-    return "border-[#F97316]/20 bg-[#F97316]/10 text-[#F97316]"
+    return "border-[#fed7aa] bg-[#ffedd5] text-[#9a3412]"
   }
 
   return "border-[#0051d5]/20 bg-[#0051d5]/10 text-[#0051d5]"

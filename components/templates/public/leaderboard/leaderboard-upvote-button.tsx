@@ -7,9 +7,11 @@ import { cn } from "@/lib/utils"
 
 export function LeaderboardUpvoteButton({
   productSlug,
+  productName,
   count,
 }: {
   productSlug: string
+  productName?: string
   count: number
 }) {
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
@@ -95,6 +97,8 @@ export function LeaderboardUpvoteButton({
     state.upvoted && "bg-[#0051d5] text-white",
   )
 
+  const accessibleName = productName?.trim() || productSlug
+
   const content = (
     <>
       <span
@@ -110,6 +114,7 @@ export function LeaderboardUpvoteButton({
           aria-hidden
         />
       </span>
+      <span>{state.upvotes.toLocaleString("en-US")}</span>
     </>
   )
 
@@ -119,7 +124,7 @@ export function LeaderboardUpvoteButton({
       className={buttonClassName}
       disabled={state.pending || state.upvoted}
       onClick={handleUpvote}
-      aria-label={`Upvote ${productSlug}`}
+      aria-label={`Upvote ${accessibleName}, ${state.upvotes.toLocaleString("en-US")} votes`}
     >
       {content}
     </button>

@@ -287,7 +287,7 @@ function FeaturedArchiveCard({
               </h3>
               {!isTop ? <RankBadge rank={rank} /> : null}
               {item.sponsored ? (
-                <span className="rounded bg-[#F97316]/10 px-2 py-0.5 text-[9px] font-extrabold uppercase leading-[10px] tracking-wider text-[#F97316]">
+                <span className="rounded bg-[#F97316]/10 px-2 py-0.5 text-[9px] font-extrabold uppercase leading-[10px] tracking-wider text-[#b45309]">
                   Sponsored
                 </span>
               ) : null}
@@ -325,11 +325,11 @@ function CompactArchiveRow({
             <ArchiveLogo item={item} size="small" />
           </Link>
           <div className="min-w-0">
-            <h4 className="truncate text-[18px] font-semibold leading-6 text-black">
+            <h3 className="truncate text-[18px] font-semibold leading-6 text-black">
               <Link href={productPath(item.slug)} className="hover:underline">
                 {item.name}
               </Link>
-            </h4>
+            </h3>
             <p className="line-clamp-1 text-[14px] leading-5 text-[#43474c]">
               {item.tagline}
             </p>
@@ -414,12 +414,12 @@ function InlinePartnerSpotlight({
             )}
           </div>
           <div>
-            <span className="mb-2 block text-[12px] font-semibold uppercase leading-4 tracking-widest text-[#F97316]">
+            <span className="mb-2 block text-[12px] font-semibold uppercase leading-4 tracking-widest text-[#b45309]">
               Partner Spotlight
             </span>
-            <h2 className="mb-2 text-[24px] font-semibold leading-8 tracking-[-0.01em] text-white">
+            <h3 className="mb-2 text-[24px] font-semibold leading-8 tracking-[-0.01em] text-white">
               {product.name}
-            </h2>
+            </h3>
             <p className="max-w-md text-[14px] leading-5 text-white/80">
               {product.tagline ??
                 "Get featured in front of builders scanning the monthly archive."}
@@ -450,9 +450,9 @@ function MonthlyArchiveSidebar({
   return (
     <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-[#E2E8F0] p-5">
-        <h3 className="text-[18px] font-semibold leading-6 text-black">
+        <h2 className="text-[18px] font-semibold leading-6 text-black">
           Monthly Archive
-        </h3>
+        </h2>
         <span className="rounded-full bg-black px-2 py-0.5 text-[10px] font-bold uppercase text-white">
           Historical
         </span>
@@ -479,7 +479,7 @@ function MonthlyArchiveSidebar({
                   <ArrowRight
                     className={cn(
                       "size-4",
-                      month.active ? "text-[#0051d5]" : "text-[#74777d]",
+                      month.active ? "text-[#0051d5]" : "text-[#43474c]",
                     )}
                     aria-hidden
                   />
@@ -505,9 +505,9 @@ function MonthlyShortcuts({
   return (
     <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm">
       <div className="border-b border-[#E2E8F0] p-5">
-        <h3 className="text-[18px] font-semibold leading-6 text-black">
+        <h2 className="text-[18px] font-semibold leading-6 text-black">
           Quick shortcuts
-        </h3>
+        </h2>
       </div>
       <div className="space-y-6 p-5">
         <div>
@@ -596,9 +596,9 @@ function MonthlyShortcuts({
 function CommunityStatCard() {
   return (
     <div className="rounded-2xl bg-gradient-to-br from-[#0051d5] to-blue-700 p-6 text-white shadow-lg">
-      <h4 className="mb-2 text-[18px] font-semibold leading-6">
+      <h2 className="mb-2 text-[18px] font-semibold leading-6">
         Join the Fleet
-      </h4>
+      </h2>
       <p className="mb-6 text-[14px] leading-5 text-white/80">
         Connect with builders and enthusiasts shaping the future of tech.
       </p>
@@ -685,7 +685,7 @@ function WeeklyAwardPills({ rank }: { rank: number }) {
               {
                 label: "Product of the Day #1",
                 icon: Sparkles,
-                className: "bg-[#F97316]/10 text-[#F97316]",
+                className: "bg-[#ffedd5] text-[#9a3412]",
               },
             ]
           : []
@@ -826,7 +826,7 @@ function WeeklyLeaderboardCard({
                   </Link>
                 </h3>
                 {item.sponsored ? (
-                  <span className="rounded bg-[#F97316]/10 px-2 py-0.5 text-[9px] font-extrabold uppercase leading-[10px] text-[#F97316]">
+                  <span className="rounded bg-[#F97316]/10 px-2 py-0.5 text-[9px] font-extrabold uppercase leading-[10px] text-[#b45309]">
                     Sponsored
                   </span>
                 ) : null}
@@ -880,13 +880,13 @@ function WeeklyCompactRow({
         </Link>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h4 className="truncate text-[12px] font-semibold leading-4 text-black md:text-[14px] md:leading-5">
+            <h3 className="truncate text-[12px] font-semibold leading-4 text-black md:text-[14px] md:leading-5">
               <Link href={productPath(item.slug)} className="hover:underline">
                 {item.name}
               </Link>
-            </h4>
+            </h3>
             {isNewLaunch ? (
-              <span className="hidden rounded-full bg-[#16a34a]/10 px-1.5 py-0.5 text-[9px] font-medium uppercase text-[#16a34a] sm:inline-flex">
+              <span className="hidden rounded-full bg-[#dcfce7] px-1.5 py-0.5 text-[9px] font-medium uppercase text-[#166534] sm:inline-flex">
                 New Launch
               </span>
             ) : null}
@@ -931,7 +931,7 @@ function DailyCalendarStrip({
     <div className="flex items-center gap-2 overflow-x-auto pb-2">
       {prevDisabled ? (
         <span
-          className="flex size-8 shrink-0 items-center justify-center text-[#74777d]/60"
+          className="flex size-8 shrink-0 items-center justify-center text-[#43474c]/60"
           aria-disabled
         >
           <IconArrowLeft className="size-4" aria-hidden />
@@ -939,7 +939,7 @@ function DailyCalendarStrip({
       ) : (
         <Link
           href={withLeaderboardFilters(buildPath("day", prevDay), filters)}
-          className="flex size-8 shrink-0 items-center justify-center text-[#74777d] transition-colors hover:text-black"
+          className="flex size-8 shrink-0 items-center justify-center text-[#43474c] transition-colors hover:text-black"
           aria-label="Previous day"
         >
           <IconArrowLeft className="size-4" aria-hidden />
@@ -973,7 +973,7 @@ function DailyCalendarStrip({
       </div>
       {nextDisabled ? (
         <span
-          className="flex size-8 shrink-0 items-center justify-center text-[#74777d]/60"
+          className="flex size-8 shrink-0 items-center justify-center text-[#43474c]/60"
           aria-disabled
         >
           <IconArrowRight className="size-4" aria-hidden />
@@ -981,7 +981,7 @@ function DailyCalendarStrip({
       ) : (
         <Link
           href={withLeaderboardFilters(buildPath("day", nextDay), filters)}
-          className="flex size-8 shrink-0 items-center justify-center text-[#74777d] transition-colors hover:text-black"
+          className="flex size-8 shrink-0 items-center justify-center text-[#43474c] transition-colors hover:text-black"
           aria-label="Next day"
         >
           <IconArrowRight className="size-4" aria-hidden />
@@ -1006,14 +1006,14 @@ function DailyAwardPills({
             <Trophy className="size-3.5" aria-hidden />
             Product of the Week #3
           </span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-[#F97316]/10 px-2 py-1 text-[11px] font-medium leading-[14px] text-[#F97316]">
+          <span className="inline-flex items-center gap-1 rounded-full bg-[#F97316]/10 px-2 py-1 text-[11px] font-medium leading-[14px] text-[#b45309]">
             <Sparkles className="size-3.5" aria-hidden />
             Product of the Day #1
           </span>
         </>
       ) : null}
       {isNewLaunch ? (
-        <span className="inline-flex items-center gap-1 rounded-full bg-[#F97316]/10 px-2 py-1 text-[11px] font-medium leading-[14px] text-[#F97316]">
+        <span className="inline-flex items-center gap-1 rounded-full bg-[#F97316]/10 px-2 py-1 text-[11px] font-medium leading-[14px] text-[#b45309]">
           <Rocket className="size-3.5" aria-hidden />
           New Launch
         </span>
@@ -1310,6 +1310,7 @@ export async function PeriodicLeaderboardView({
                 todayUtc={todayUtc}
               />
             </div>
+            <h2 className="sr-only">Ranked products</h2>
 
             {hasProducts ? (
               <div className="space-y-3">
@@ -1397,6 +1398,7 @@ export async function PeriodicLeaderboardView({
                 activePeriod="week"
               />
             </div>
+            <h2 className="sr-only">Ranked products</h2>
 
             {hasProducts ? (
               <>
@@ -1501,6 +1503,7 @@ export async function PeriodicLeaderboardView({
                 activePeriod="month"
               />
             </div>
+            <h2 className="sr-only">Ranked products</h2>
 
             {hasProducts ? (
               <div className="flex flex-col gap-4">

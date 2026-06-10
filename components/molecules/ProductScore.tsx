@@ -34,7 +34,7 @@ export function ProductScore({
         compact && compactStyles,
         className,
       )}
-      aria-label={label}
+      aria-label={`${count} ${label}`}
       title={`${count} ${label}`}
     >
       <span

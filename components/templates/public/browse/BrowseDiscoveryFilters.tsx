@@ -165,7 +165,7 @@ function FilterOptionSection({
         <label className="relative block">
           <span className="sr-only">{searchPlaceholder}</span>
           <Search
-            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#74777d]"
+            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#43474c]"
             aria-hidden
           />
           <input
@@ -300,7 +300,7 @@ function PriceRangeSelector({
       </div>
 
       <div className={disabled ? "opacity-50" : undefined}>
-        <div className="mb-3 flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.1em] text-[#74777d]">
+        <div className="mb-3 flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.1em] text-[#43474c]">
           <span>Min {formatPrice(localMin)}</span>
           <span>Max {formatPrice(localMax)}</span>
         </div>
@@ -416,7 +416,7 @@ function PriceRangeSelector({
           </div>
         ) : null}
         {disabled ? (
-          <p className="mt-2 text-[11px] font-medium text-[#74777d]">
+          <p className="mt-2 text-[11px] font-medium text-[#43474c]">
             Price range is disabled for free products.
           </p>
         ) : null}
@@ -483,7 +483,7 @@ export function BrowseDiscoveryFilters({
             <label className="relative block">
               <span className="sr-only">Search categories</span>
               <Search
-                className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#74777d]"
+                className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#43474c]"
                 aria-hidden
               />
               <input
@@ -528,7 +528,7 @@ export function BrowseDiscoveryFilters({
                         {item.name}
                       </span>
                     </span>
-                    <span className="shrink-0 text-[10px] font-bold text-[#74777d]">
+                    <span className="shrink-0 text-[10px] font-bold text-[#43474c]">
                       {count.toLocaleString("en-US")}
                     </span>
                   </Link>
@@ -548,7 +548,7 @@ export function BrowseDiscoveryFilters({
             <label className="relative block">
               <span className="sr-only">Search use cases</span>
               <Search
-                className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#74777d]"
+                className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#43474c]"
                 aria-hidden
               />
               <input
@@ -598,7 +598,7 @@ export function BrowseDiscoveryFilters({
                         {item.label}
                       </span>
                     </span>
-                    <span className="shrink-0 text-[10px] font-bold text-[#74777d]">
+                    <span className="shrink-0 text-[10px] font-bold text-[#43474c]">
                       {item.productCount.toLocaleString("en-US")}
                     </span>
                   </Link>

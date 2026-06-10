@@ -98,7 +98,7 @@ function TrafficSparklineTooltip({
 
   return (
     <div className="max-w-[104px] rounded-md border border-[#E2E8F0] bg-white/95 px-2 py-1 text-[10px] leading-tight shadow-lg backdrop-blur">
-      <div className="truncate font-medium text-[#74777d]">{String(label)}</div>
+      <div className="truncate font-medium text-[#43474c]">{String(label)}</div>
       <div className="mt-0.5 flex items-center gap-1.5">
         <span
           className="size-1.5 shrink-0 rounded-full"
@@ -199,7 +199,7 @@ function TrafficMetricCard({
             <span className="truncate text-[11px] font-bold uppercase tracking-[0.18em] text-[#43474c]">
               {label}
             </span>
-            <Icon className="size-4 shrink-0 text-[#74777d]" aria-hidden />
+            <Icon className="size-4 shrink-0 text-[#43474c]" aria-hidden />
           </div>
           <div className="text-2xl font-bold leading-none text-black">
             {formatter.format(value)}
@@ -226,7 +226,7 @@ function LivePerformanceCard({ count }: { count: number }) {
     <Link
       href={ANALYTICS_PATH}
       className="block w-full rounded-xl outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#0051d5] focus-visible:ring-offset-2 @[20rem]:col-span-2"
-      aria-label="View live performance analytics"
+      aria-label={`View live performance analytics for ${formatter.format(count)} active builders`}
     >
       <div className="flex w-full items-center gap-3 rounded-xl border border-white/[0.06] bg-[#00162a] px-4 py-3 shadow-sm transition-colors duration-300 hover:border-white/20">
         <div className="relative flex size-3 items-center justify-center">
@@ -238,7 +238,7 @@ function LivePerformanceCard({ count }: { count: number }) {
         <span className="whitespace-nowrap text-[12px] font-extrabold uppercase leading-none tracking-[0.05em] text-[#00e676]">
           Active Builders
         </span>
-        <Zap className="ml-auto size-[18px] text-[#74777d]" aria-hidden />
+        <Zap className="ml-auto size-[18px] text-[#cbd5e1]" aria-hidden />
       </div>
     </Link>
   )

@@ -11,7 +11,7 @@ interface BrowseRisingStarsProps {
 
 function ProductLogo({ product }: { product: ProductCardBase }) {
   if (!product.logo) {
-    return <ImageIcon className="h-6 w-6 text-[#74777d]" aria-hidden />
+    return <ImageIcon className="h-6 w-6 text-[#43474c]" aria-hidden />
   }
 
   return (
