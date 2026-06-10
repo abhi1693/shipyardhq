@@ -803,7 +803,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 <span className="mb-1 block text-[11px] font-medium uppercase text-muted-foreground">
                   Shipyard points
                 </span>
-                <span className="text-lg font-semibold text-emerald-600">
+                <span className="text-lg font-semibold text-emerald-700">
                   {numberFormatter.format(leaderboardPoints)}
                 </span>
               </div>

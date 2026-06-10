@@ -1,23 +1,11 @@
 import type { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
 import Script from "next/script"
 import { DeferredGoogleAnalytics } from "@/components/analytics/DeferredGoogleAnalytics"
 import { Toaster } from "@/components/atoms/sonner"
 import "./globals.css"
 import { IS_PROD } from "@/lib/constants"
-import "./theme.css"
 import { resolveExcludedGaHostnames } from "@/lib/analytics/gaHostnames"
 import { buildSiteSeo, siteConfig } from "@/lib/siteConfig"
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-})
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-})
 
 const siteSeo = buildSiteSeo()
 
@@ -61,11 +49,7 @@ export default function RootLayout({
   const gaId = IS_PROD ? process.env.GOOGLE_ANALYTICS_ID?.trim() : null
 
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://media.shipyardhq.dev" />
         {gaId && (

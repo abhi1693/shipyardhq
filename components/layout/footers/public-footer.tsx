@@ -84,10 +84,10 @@ export default function PublicFooter() {
           </div>
 
           {footerColumns.map((column) => (
-            <div key={column.title}>
-              <h5 className="mb-6 text-xs font-semibold uppercase tracking-wider text-black">
+            <nav key={column.title} aria-label={`${column.title} footer links`}>
+              <p className="mb-6 text-xs font-semibold uppercase tracking-wider text-black">
                 {column.title}
-              </h5>
+              </p>
               <ul className="space-y-4">
                 {column.links.map((link) => (
                   <li key={`${column.title}-${link.label}`}>
@@ -100,7 +100,7 @@ export default function PublicFooter() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </nav>
           ))}
         </div>
 

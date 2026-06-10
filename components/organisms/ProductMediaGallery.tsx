@@ -93,6 +93,7 @@ export function ProductMediaGallery({
             className="object-contain transition-opacity duration-200"
             eager={currentIndex === 0}
             loading={currentIndex === 0 ? "eager" : "lazy"}
+            preload={currentIndex === 0}
             fetchPriority={currentIndex === 0 ? "high" : "auto"}
           />
         </div>
@@ -176,8 +177,8 @@ function GalleryThumbnailButton({
         sizes="160px"
         quality={THUMBNAIL_IMAGE_QUALITY}
         className={cn("object-contain", isSelected && "opacity-60 grayscale")}
-        loading="lazy"
-        fetchPriority="low"
+        loading={index === 0 ? "eager" : "lazy"}
+        fetchPriority={index === 0 ? "high" : "low"}
         placeholder="empty"
       />
     </button>
