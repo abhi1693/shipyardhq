@@ -222,6 +222,12 @@ function isUnsupportedImageError(error: unknown) {
   )
 }
 
+function isLogoCandidate(candidate: Candidate) {
+  return (
+    candidate.kind === "alternative-logo" || candidate.kind === "product-logo"
+  )
+}
+
 function decodeHtmlAttribute(value: string) {
   return value
     .replace(/&amp;/g, "&")
@@ -301,6 +307,21 @@ function commonIconFallbackUrls(sourceUrl: string) {
   }
 }
 
+function faviconServiceFallbackUrls(sourceUrl: string) {
+  try {
+    const url = new URL(sourceUrl)
+    const domain = url.hostname.replace(/^www\./, "")
+    const domainUrl = `${url.protocol}//${url.hostname}`
+
+    return [
+      `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=256`,
+      `https://www.google.com/s2/favicons?domain_url=${encodeURIComponent(domainUrl)}&sz=256`,
+    ]
+  } catch {
+    return []
+  }
+}
+
 async function discoverIconLinkUrls(sourceUrl: string) {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), HTML_FETCH_TIMEOUT_MS)
@@ -352,7 +373,11 @@ async function discoverIconLinkUrls(sourceUrl: string) {
 async function fallbackImageUrls(sourceUrl: string) {
   const [discoveredUrls] = await Promise.all([discoverIconLinkUrls(sourceUrl)])
   return uniqueUrls(
-    [...discoveredUrls, ...commonIconFallbackUrls(sourceUrl)],
+    [
+      ...discoveredUrls,
+      ...commonIconFallbackUrls(sourceUrl),
+      ...faviconServiceFallbackUrls(sourceUrl),
+    ],
     sourceUrl,
   )
 }
@@ -477,7 +502,8 @@ async function downloadOptimizedImage(
 
       const canUseFallbacks =
         fallbackUrls.length === 0 &&
-        (isLikelyFaviconUrl(candidate.sourceUrl) ||
+        (isLogoCandidate(candidate) ||
+          isLikelyFaviconUrl(candidate.sourceUrl) ||
           isUnsupportedImageError(error))
 
       if (canUseFallbacks) {
