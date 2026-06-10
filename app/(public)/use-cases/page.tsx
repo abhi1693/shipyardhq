@@ -68,6 +68,7 @@ export default async function UseCasesPage() {
       quickLinksTitle="Popular Use Cases"
       emptyTitle="No use cases yet"
       emptyDescription="Once use cases are mapped to products, this directory will populate automatically."
+      directoryAccessory="none"
       structuredData={
         <CoreStructuredData
           scriptKeyPrefix="use-cases"

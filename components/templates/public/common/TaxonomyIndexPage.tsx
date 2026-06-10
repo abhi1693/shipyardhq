@@ -36,7 +36,7 @@ type TaxonomyIndexPageProps = {
   emptyTitle?: string
   emptyDescription?: string
   structuredData?: ReactNode
-  directoryAccessory?: "sparkline" | "icon"
+  directoryAccessory?: "sparkline" | "icon" | "none"
 }
 
 const toneClasses = {
@@ -175,7 +175,7 @@ function DirectoryCard({
   item: TaxonomyIndexItem
   index: number
   itemUnit: string
-  accessory: "sparkline" | "icon"
+  accessory: "sparkline" | "icon" | "none"
 }) {
   const tone =
     item.tone ??
@@ -194,7 +194,7 @@ function DirectoryCard({
           {formatCount(item.count)} {formatItemUnit(item.count, itemUnit)}
         </span>
       </span>
-      {accessory === "icon" ? (
+      {accessory === "none" ? null : accessory === "icon" ? (
         <span
           className={cn(
             "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
