@@ -19,6 +19,8 @@ interface ProductMediaGalleryProps {
 }
 
 const THUMBNAIL_IMAGE_QUALITY = 60
+const MAIN_IMAGE_SIZES =
+  "(max-width: 768px) calc(100vw - 2rem), (max-width: 1280px) 68vw, 900px"
 
 export function ProductMediaGallery({
   bannerImage,
@@ -88,7 +90,7 @@ export function ProductMediaGallery({
             src={currentItem.imageUrl}
             alt={currentItem.altText || productName}
             fill
-            sizes="(max-width: 768px) calc(100vw - 2rem), (max-width: 1280px) 68vw, 900px"
+            sizes={MAIN_IMAGE_SIZES}
             quality={85}
             className="object-contain transition-opacity duration-200"
             eager={currentIndex === 0}

@@ -12,6 +12,20 @@ type ManagedMediaImageLoaderParams = {
 }
 
 export function parseManagedMediaImageUrl(src: unknown): URL | null {
+  const url = parseTransformableRemoteImageUrl(src)
+  if (!url) return null
+
+  if (
+    url.hostname !== MEDIA_HOSTNAME ||
+    url.pathname.startsWith("/cdn-cgi/image/")
+  ) {
+    return null
+  }
+
+  return url
+}
+
+export function parseTransformableRemoteImageUrl(src: unknown): URL | null {
   if (typeof src !== "string" || src.length === 0) {
     return null
   }
@@ -25,8 +39,7 @@ export function parseManagedMediaImageUrl(src: unknown): URL | null {
 
   if (
     url.protocol !== "https:" ||
-    url.hostname !== MEDIA_HOSTNAME ||
-    url.pathname.startsWith("/cdn-cgi/image/") ||
+    url.pathname.startsWith("/_next/image") ||
     !TRANSFORMABLE_IMAGE_PATH.test(url.pathname)
   ) {
     return null
@@ -37,6 +50,10 @@ export function parseManagedMediaImageUrl(src: unknown): URL | null {
 
 export function isManagedMediaImageSrc(src: unknown): src is string {
   return Boolean(parseManagedMediaImageUrl(src))
+}
+
+export function isTransformableRemoteImageSrc(src: unknown): src is string {
+  return Boolean(parseTransformableRemoteImageUrl(src))
 }
 
 export function normalizeImageWidth(width: number) {
@@ -70,6 +87,23 @@ export function buildManagedMediaImageOptimizerUrl({
   quality,
 }: ManagedMediaImageLoaderParams) {
   const sourceUrl = parseManagedMediaImageUrl(src)
+  if (!sourceUrl) return src
+
+  const searchParams = new URLSearchParams({
+    url: sourceUrl.href,
+    w: String(normalizeImageWidth(width)),
+    q: String(normalizeImageQuality(quality)),
+  })
+
+  return `/_next/image?${searchParams.toString()}`
+}
+
+export function buildRemoteImageOptimizerUrl({
+  src,
+  width,
+  quality,
+}: ManagedMediaImageLoaderParams) {
+  const sourceUrl = parseTransformableRemoteImageUrl(src)
   if (!sourceUrl) return src
 
   const searchParams = new URLSearchParams({

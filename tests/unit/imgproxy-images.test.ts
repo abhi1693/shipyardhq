@@ -4,6 +4,7 @@ import shipyardImageLoader from "@/imageLoader"
 import { buildSignedImgproxyImageUrl } from "@/lib/images/imgproxy"
 import {
   buildManagedMediaImageOptimizerUrl,
+  buildRemoteImageOptimizerUrl,
   isManagedMediaImageSrc,
 } from "@/lib/images/managed-media"
 import { isOptimizedImageSrc } from "@/lib/images/sources"
@@ -43,6 +44,28 @@ describe("managed media image URLs", () => {
     ).toBe("https://example.com/logo.jpg")
   })
 
+  it("builds a first-party optimizer URL for transformable remote images", () => {
+    expect(
+      buildRemoteImageOptimizerUrl({
+        src: "https://example.com/logo.jpg?version=1",
+        width: 64,
+        quality: 75,
+      }),
+    ).toBe(
+      "/_next/image?url=https%3A%2F%2Fexample.com%2Flogo.jpg%3Fversion%3D1&w=64&q=75",
+    )
+  })
+
+  it("leaves unsupported remote image formats alone", () => {
+    expect(
+      buildRemoteImageOptimizerUrl({
+        src: "https://example.com/favicon.ico",
+        width: 40,
+        quality: 75,
+      }),
+    ).toBe("https://example.com/favicon.ico")
+  })
+
   it("leaves local sources untouched", () => {
     expect(
       shipyardImageLoader({
@@ -65,14 +88,26 @@ describe("managed media image URLs", () => {
     )
   })
 
-  it("appends size hints for non-managed remote images", () => {
+  it("uses first-party optimizer URLs for transformable remote images", () => {
     expect(
       shipyardImageLoader({
         src: "https://example.com/logo.jpg?version=1",
         width: 64,
         quality: 75,
       }),
-    ).toBe("https://example.com/logo.jpg?version=1&w=64&q=75")
+    ).toBe(
+      "/_next/image?url=https%3A%2F%2Fexample.com%2Flogo.jpg%3Fversion%3D1&w=64&q=75",
+    )
+  })
+
+  it("falls back to size hints for unsupported remote images", () => {
+    expect(
+      shipyardImageLoader({
+        src: "https://example.com/favicon.ico",
+        width: 40,
+        quality: 75,
+      }),
+    ).toBe("https://example.com/favicon.ico?w=40&q=75")
   })
 
   it("signs managed media redirects for imgproxy", async () => {
@@ -136,7 +171,8 @@ describe("managed media image URLs", () => {
   it("treats local and managed media as optimized image sources", () => {
     expect(isOptimizedImageSrc("/brand.svg")).toBe(true)
     expect(isOptimizedImageSrc("//example.com/logo.png")).toBe(false)
-    expect(isOptimizedImageSrc("https://example.com/logo.png")).toBe(false)
+    expect(isOptimizedImageSrc("https://example.com/logo.png")).toBe(true)
+    expect(isOptimizedImageSrc("https://example.com/favicon.ico")).toBe(false)
     expect(isOptimizedImageSrc("https://media.shipyardhq.dev/logo.png")).toBe(
       true,
     )
