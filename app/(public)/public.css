@@ -1,7 +1,6 @@
 @config "../../tailwind.config.js";
 @import "tailwindcss" source(none);
 @import "../tailwind-theme.css";
-@import "../theme.css";
 
 @source "./**/*.{js,ts,jsx,tsx,mdx}";
 @source "../../components/atoms/Medal.tsx";
@@ -42,19 +41,14 @@
 @source "../../components/molecules/ProductGrid*.tsx";
 @source "../../components/molecules/ProductList.skeleton.tsx";
 @source "../../components/molecules/ProductScore.tsx";
-@source "../../components/molecules/ProductShareBar.tsx";
 @source "../../components/molecules/ProductUpvoteBadge.tsx";
 @source "../../components/molecules/SponsorPromo.tsx";
 @source "../../components/molecules/SquareImage.tsx";
-@source "../../components/molecules/TrafficTimeseriesChart.tsx";
 @source "../../components/molecules/directory/**/*.{js,ts,jsx,tsx}";
 @source "../../components/molecules/empty-state.tsx";
 @source "../../components/organisms/PartnerSpotlight*.tsx";
 @source "../../components/organisms/PricingTable.tsx";
-@source "../../components/organisms/ProductAlternativesSection.tsx";
-@source "../../components/organisms/ProductDetailHero.tsx";
 @source "../../components/organisms/ProductMediaGallery.tsx";
-@source "../../components/organisms/ProductSimilarVoyages.tsx";
 @source "../../components/organisms/directory/**/*.{js,ts,jsx,tsx}";
 @source "../../components/organisms/feed/ProductFeedList.tsx";
 @source "../../components/templates/public/**/*.{js,ts,jsx,tsx}";
