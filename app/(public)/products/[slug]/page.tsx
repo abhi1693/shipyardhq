@@ -5,6 +5,7 @@ import {
   type ComponentType,
   type ComponentPropsWithoutRef,
 } from "react"
+import { preload } from "react-dom"
 import { notFound } from "next/navigation"
 import { JsonLdScript } from "next-seo"
 import { IconBrandChrome as ChromeIcon } from "@tabler/icons-react"
@@ -74,6 +75,14 @@ import {
 } from "@/lib/product-types/models"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { getProductScoreForCurrentWindow } from "@/lib/server/leaderboard/v2"
+import { buildSignedImgproxyResponsiveImage } from "@/lib/images/imgproxy"
+import {
+  PRODUCT_GALLERY_MAIN_IMAGE_DEFAULT_WIDTH,
+  PRODUCT_GALLERY_MAIN_IMAGE_QUALITY,
+  PRODUCT_GALLERY_MAIN_IMAGE_SIZES,
+  PRODUCT_GALLERY_MAIN_IMAGE_WIDTHS,
+  type DirectProductGalleryImage,
+} from "@/lib/images/product-gallery"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -156,6 +165,37 @@ const PRICING_MODEL_LABELS: Record<string, string> = {
   subscription: "Subscription",
   one_time: "One-time",
   custom: "Custom",
+}
+
+async function buildDirectInitialGalleryImage(
+  originalSrc: string | null,
+): Promise<DirectProductGalleryImage | null> {
+  const sourceUrl = originalSrc?.trim()
+  if (!originalSrc || !sourceUrl) return null
+
+  const signedImage = await buildSignedImgproxyResponsiveImage({
+    src: sourceUrl,
+    widths: [...PRODUCT_GALLERY_MAIN_IMAGE_WIDTHS],
+    defaultWidth: PRODUCT_GALLERY_MAIN_IMAGE_DEFAULT_WIDTH,
+    quality: PRODUCT_GALLERY_MAIN_IMAGE_QUALITY,
+  })
+
+  if (!signedImage) return null
+
+  return {
+    originalSrc,
+    sizes: PRODUCT_GALLERY_MAIN_IMAGE_SIZES,
+    ...signedImage,
+  }
+}
+
+function preloadDirectInitialGalleryImage(image: DirectProductGalleryImage) {
+  preload(image.src, {
+    as: "image",
+    imageSrcSet: image.srcSet,
+    imageSizes: image.sizes,
+    fetchPriority: "high",
+  })
 }
 
 type PlatformMeta = {
@@ -392,6 +432,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       altText: item.altText,
     }))
     .filter((item: { imageUrl: string | null }) => Boolean(item.imageUrl))
+  const primaryGalleryImage =
+    product.bannerImage || galleryMedia[0]?.imageUrl || null
+  const directInitialGalleryImage =
+    await buildDirectInitialGalleryImage(primaryGalleryImage)
+  if (directInitialGalleryImage) {
+    preloadDirectInitialGalleryImage(directInitialGalleryImage)
+  }
   const activeBadgeDefs = ((sidebarProduct?.badges ?? []) as string[])
     .map((badgeKey) => BADGE_LOOKUP[badgeKey])
     .filter(Boolean)
@@ -763,6 +810,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           <div className="flex min-w-0 flex-col gap-6 lg:col-span-8">
             <ProductMediaGallery
               bannerImage={product.bannerImage}
+              directInitialImage={directInitialGalleryImage}
               media={galleryMedia}
               productName={product.name}
             />

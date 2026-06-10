@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest"
 
 import shipyardImageLoader from "@/imageLoader"
-import { buildSignedImgproxyImageUrl } from "@/lib/images/imgproxy"
+import {
+  buildSignedImgproxyImageUrl,
+  buildSignedImgproxyResponsiveImage,
+} from "@/lib/images/imgproxy"
 import {
   buildManagedMediaImageOptimizerUrl,
   buildRemoteImageOptimizerUrl,
@@ -135,12 +138,52 @@ describe("managed media image URLs", () => {
     expect(url.pathname).not.toContain("media.shipyardhq.dev")
   })
 
+  it("builds signed responsive imgproxy image sources", async () => {
+    const transformedImage = await buildSignedImgproxyResponsiveImage(
+      {
+        src: "https://media.shipyardhq.dev/user_1/products/p1/logos/logo.jpg?etag=abc",
+        widths: [128, 64, 64],
+        defaultWidth: 128,
+        quality: 80,
+      },
+      {
+        endpoint: "https://img.shipyardhq.dev",
+        key: "736563726574",
+        salt: "68656c6c6f",
+      },
+    )
+
+    expect(transformedImage).not.toBeNull()
+    expect(transformedImage?.src).toContain("https://img.shipyardhq.dev/")
+    expect(transformedImage?.src).not.toContain("/_next/image")
+    expect(transformedImage?.srcSet).toMatch(/rs:fit:64:0:0\/q:80/)
+    expect(transformedImage?.srcSet).toMatch(/ 64w, /)
+    expect(transformedImage?.srcSet).toMatch(/ 128w$/)
+  })
+
   it("does not sign without a complete imgproxy configuration", async () => {
     await expect(
       buildSignedImgproxyImageUrl(
         {
           src: "https://media.shipyardhq.dev/logo.jpg",
           width: 64,
+          quality: 75,
+        },
+        {
+          endpoint: "https://img.shipyardhq.dev",
+          key: "736563726574",
+        },
+      ),
+    ).resolves.toBeNull()
+  })
+
+  it("does not build responsive imgproxy sources without signing config", async () => {
+    await expect(
+      buildSignedImgproxyResponsiveImage(
+        {
+          src: "https://media.shipyardhq.dev/logo.jpg",
+          widths: [64, 128],
+          defaultWidth: 128,
           quality: 75,
         },
         {

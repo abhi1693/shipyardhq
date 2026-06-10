@@ -16,6 +16,13 @@ type ImgproxyImageParams = {
   quality?: number | string | null
 }
 
+type ResponsiveImgproxyImageParams = {
+  src: string
+  widths: number[]
+  defaultWidth: number
+  quality?: number | string | null
+}
+
 const textEncoder = new TextEncoder()
 
 function getPrimarySecret(secret: string | undefined) {
@@ -130,4 +137,49 @@ export async function buildSignedImgproxyImageUrl(
   const signature = await signImgproxyPath(path, key, salt)
 
   return `${endpoint}/${signature}${path}`
+}
+
+export async function buildSignedImgproxyResponsiveImage(
+  { src, widths, defaultWidth, quality }: ResponsiveImgproxyImageParams,
+  config: ImgproxyConfig = readImgproxyConfig(),
+) {
+  const normalizedWidths = Array.from(
+    new Set(widths.map((width) => normalizeImageWidth(width))),
+  ).sort((a, b) => a - b)
+
+  if (!normalizedWidths.length) {
+    return null
+  }
+
+  const entries = await Promise.all(
+    normalizedWidths.map(async (width) => {
+      const url = await buildSignedImgproxyImageUrl(
+        { src, width, quality },
+        config,
+      )
+      return url ? { width, url } : null
+    }),
+  )
+
+  if (entries.some((entry) => entry === null)) {
+    return null
+  }
+
+  const signedEntries = entries as Array<{ width: number; url: string }>
+  const normalizedDefaultWidth = normalizeImageWidth(defaultWidth)
+  const defaultEntry =
+    signedEntries.find((entry) => entry.width === normalizedDefaultWidth) ??
+    signedEntries.find((entry) => entry.width >= normalizedDefaultWidth) ??
+    signedEntries.at(-1)
+
+  if (!defaultEntry) {
+    return null
+  }
+
+  return {
+    src: defaultEntry.url,
+    srcSet: signedEntries
+      .map((entry) => `${entry.url} ${entry.width}w`)
+      .join(", "),
+  }
 }

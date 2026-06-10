@@ -4,6 +4,10 @@ import { useMemo, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { Image } from "@/components/atoms/image"
+import {
+  PRODUCT_GALLERY_MAIN_IMAGE_SIZES,
+  type DirectProductGalleryImage,
+} from "@/lib/images/product-gallery"
 import { cn } from "@/lib/utils"
 
 interface MediaItem {
@@ -14,16 +18,16 @@ interface MediaItem {
 
 interface ProductMediaGalleryProps {
   bannerImage?: string | null
+  directInitialImage?: DirectProductGalleryImage | null
   media: MediaItem[]
   productName: string
 }
 
 const THUMBNAIL_IMAGE_QUALITY = 60
-const MAIN_IMAGE_SIZES =
-  "(max-width: 768px) calc(100vw - 2rem), (max-width: 1280px) 68vw, 900px"
 
 export function ProductMediaGallery({
   bannerImage,
+  directInitialImage,
   media,
   productName,
 }: ProductMediaGalleryProps) {
@@ -61,6 +65,8 @@ export function ProductMediaGallery({
 
   const currentItem = mediaItems[currentIndex]
   const totalAssets = mediaItems.length
+  const shouldUseDirectInitialImage =
+    currentIndex === 0 && directInitialImage?.originalSrc === currentItem.imageUrl
 
   const goToPrevious = () => {
     setSelectedIndex((prev) =>
@@ -85,19 +91,34 @@ export function ProductMediaGallery({
     <section className="space-y-4">
       <div className="relative overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
         <div className="relative aspect-[16/9] w-full">
-          <Image
-            key={currentItem.id}
-            src={currentItem.imageUrl}
-            alt={currentItem.altText || productName}
-            fill
-            sizes={MAIN_IMAGE_SIZES}
-            quality={85}
-            className="object-contain transition-opacity duration-200"
-            eager={currentIndex === 0}
-            loading={currentIndex === 0 ? "eager" : "lazy"}
-            preload={currentIndex === 0}
-            fetchPriority={currentIndex === 0 ? "high" : "auto"}
-          />
+          {shouldUseDirectInitialImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={currentItem.id}
+              src={directInitialImage.src}
+              srcSet={directInitialImage.srcSet}
+              sizes={directInitialImage.sizes}
+              alt={currentItem.altText || productName}
+              className="absolute inset-0 h-full w-full object-contain transition-opacity duration-200"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+            />
+          ) : (
+            <Image
+              key={currentItem.id}
+              src={currentItem.imageUrl}
+              alt={currentItem.altText || productName}
+              fill
+              sizes={PRODUCT_GALLERY_MAIN_IMAGE_SIZES}
+              quality={85}
+              className="object-contain transition-opacity duration-200"
+              eager={currentIndex === 0}
+              loading={currentIndex === 0 ? "eager" : "lazy"}
+              preload={currentIndex === 0}
+              fetchPriority={currentIndex === 0 ? "high" : "auto"}
+            />
+          )}
         </div>
         {totalAssets > 1 ? (
           <>
@@ -138,6 +159,7 @@ export function ProductMediaGallery({
               item={item}
               index={index}
               isSelected={index === currentIndex}
+              prioritize={index === 0 && !directInitialImage}
               productName={productName}
               onSelect={() => setSelectedIndex(index)}
             />
@@ -152,12 +174,14 @@ function GalleryThumbnailButton({
   item,
   index,
   isSelected,
+  prioritize,
   productName,
   onSelect,
 }: {
   item: MediaItem
   index: number
   isSelected: boolean
+  prioritize: boolean
   productName: string
   onSelect: () => void
 }) {
@@ -179,8 +203,8 @@ function GalleryThumbnailButton({
         sizes="160px"
         quality={THUMBNAIL_IMAGE_QUALITY}
         className={cn("object-contain", isSelected && "opacity-60 grayscale")}
-        loading={index === 0 ? "eager" : "lazy"}
-        fetchPriority={index === 0 ? "high" : "low"}
+        loading={prioritize ? "eager" : "lazy"}
+        fetchPriority={prioritize ? "high" : "low"}
         placeholder="empty"
       />
     </button>
