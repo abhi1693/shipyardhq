@@ -2,8 +2,17 @@ import { defineConfig, globalIgnores } from "eslint/config"
 import nextVitals from "eslint-config-next/core-web-vitals"
 import nextTs from "eslint-config-next/typescript"
 
+const nextVitalsWithoutLegacyReactRules = nextVitals.map((config) => ({
+  ...config,
+  rules: Object.fromEntries(
+    Object.entries(config.rules ?? {}).filter(
+      ([ruleName]) => !ruleName.startsWith("react/"),
+    ),
+  ),
+}))
+
 const eslintConfig = defineConfig([
-  ...nextVitals,
+  ...nextVitalsWithoutLegacyReactRules,
   ...nextTs,
   {
     rules: {
