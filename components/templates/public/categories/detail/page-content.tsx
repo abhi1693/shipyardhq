@@ -4,6 +4,7 @@ import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import { getCategoryDetailPayload } from "@/lib/categories/page-cache"
 import { CategoryFeedClient } from "@/components/templates/public/categories/detail/CategoryFeedClient"
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
+import { TaxonomyTrafficStatsSidebar } from "@/components/templates/public/common/TaxonomyTrafficStatsSidebar"
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
 import { MEMBER_PRODUCTS_ADD_PATH, PRICING_PATH } from "@/lib/routes"
 
@@ -75,6 +76,7 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
       }
       feedTestId="category-feed-section"
       sponsorProducts={taxonomySponsors}
+      trafficStats={<TaxonomyTrafficStatsSidebar />}
     />
   )
 }

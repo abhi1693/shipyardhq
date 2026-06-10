@@ -1,10 +1,6 @@
 import Link from "next/link"
-import { Suspense, type ReactNode } from "react"
+import { type ReactNode } from "react"
 
-import {
-  TrafficSidebarStats,
-  TrafficSidebarStatsSkeleton,
-} from "@/components/templates/public/common/TrafficSidebarStats"
 import { TaxonomySponsorsSidebar } from "@/components/templates/public/common/TaxonomySponsorsSidebar"
 
 export interface TaxonomyDetailStat {
@@ -38,6 +34,7 @@ interface TaxonomyDetailPageProps {
   sponsorProducts?: TaxonomySponsorProduct[]
   sponsorProduct?: TaxonomySponsorProduct | null
   secondarySponsor?: TaxonomySponsorProduct | null
+  trafficStats?: ReactNode
 }
 
 const compactFormatter = new Intl.NumberFormat("en-US", {
@@ -67,6 +64,7 @@ export function TaxonomyDetailPage({
   sponsorProducts: sponsorProductsProp,
   sponsorProduct,
   secondarySponsor,
+  trafficStats,
 }: TaxonomyDetailPageProps) {
   const sponsorProducts = (
     sponsorProductsProp?.length
@@ -132,9 +130,7 @@ export function TaxonomyDetailPage({
         </div>
 
         <aside className="space-y-6 lg:col-span-4">
-          <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
-            <TrafficSidebarStats />
-          </Suspense>
+          {trafficStats}
 
           <TaxonomySponsorsSidebar products={sponsorProducts} />
         </aside>

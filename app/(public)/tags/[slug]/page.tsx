@@ -14,6 +14,7 @@ import {
   type HomepageFeedItem,
 } from "@/actions/public/homepage/feed"
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
+import { TaxonomyTrafficStatsSidebar } from "@/components/templates/public/common/TaxonomyTrafficStatsSidebar"
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
 import {
   buildTaxonomyProductSections,
@@ -241,6 +242,7 @@ export default async function TagDetailPage({ params }: TagPageProps) {
       }
       feedTestId="tag-feed-section"
       sponsorProducts={taxonomySponsors}
+      trafficStats={<TaxonomyTrafficStatsSidebar />}
     />
   )
 }

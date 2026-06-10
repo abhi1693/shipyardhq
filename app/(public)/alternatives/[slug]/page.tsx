@@ -12,6 +12,7 @@ import AlternativeProductsClient from "@/app/(public)/alternatives/[slug]/Altern
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { TaxonomyDetailSkeleton } from "@/components/templates/public/common/TaxonomyDetailSkeleton"
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
+import { TaxonomyTrafficStatsSidebar } from "@/components/templates/public/common/TaxonomyTrafficStatsSidebar"
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
 import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import {
@@ -285,6 +286,7 @@ async function AlternativeDetailPageContent({
         </>
       }
       sponsorProducts={taxonomySponsors}
+      trafficStats={<TaxonomyTrafficStatsSidebar />}
     />
   )
 }

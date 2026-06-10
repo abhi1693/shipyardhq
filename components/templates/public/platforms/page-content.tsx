@@ -3,6 +3,7 @@ import { Globe2 } from "lucide-react"
 
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
+import { TaxonomyTrafficStatsSidebar } from "@/components/templates/public/common/TaxonomyTrafficStatsSidebar"
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
 import { TaxonomyProductGridFeed } from "@/components/templates/public/common/TaxonomyProductGridFeed"
 import { getPlatformMeta } from "@/lib/platforms/config"
@@ -118,6 +119,7 @@ export async function PlatformPageContent({
         </>
       }
       sponsorProducts={taxonomySponsors}
+      trafficStats={<TaxonomyTrafficStatsSidebar />}
     />
   )
 }

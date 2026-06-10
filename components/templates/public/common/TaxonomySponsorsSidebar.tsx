@@ -1,14 +1,10 @@
-"use client"
-
 import Link from "next/link"
-import { useEffect, useMemo, useState } from "react"
 import { Rocket, Sparkles } from "lucide-react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
+import { Image } from "@/components/atoms/image"
 import type { TaxonomySponsorProduct } from "@/components/templates/public/common/TaxonomyDetailPage"
 
 const SPONSOR_DISPLAY_LIMIT = 4
-const SPONSOR_ROTATION_MS = 30_000
 
 function sponsoredRedirectPath(slug: string) {
   return `/r/sponsored/${encodeURIComponent(slug)}`
@@ -41,28 +37,8 @@ export function TaxonomySponsorsSidebar({
 }: {
   products: TaxonomySponsorProduct[]
 }) {
-  const normalizedProducts = useMemo(
-    () => products.filter((product) => product?.slug),
-    [products],
-  )
-  const [visibleProducts, setVisibleProducts] = useState(() =>
-    normalizedProducts.slice(0, SPONSOR_DISPLAY_LIMIT),
-  )
-
-  useEffect(() => {
-    const updateVisibleProducts = () => {
-      const bucket = Math.floor(Date.now() / SPONSOR_ROTATION_MS)
-      setVisibleProducts(shuffleSponsors(normalizedProducts, bucket))
-    }
-
-    updateVisibleProducts()
-    const intervalId = window.setInterval(
-      updateVisibleProducts,
-      SPONSOR_ROTATION_MS,
-    )
-
-    return () => window.clearInterval(intervalId)
-  }, [normalizedProducts])
+  const normalizedProducts = products.filter((product) => product?.slug)
+  const visibleProducts = shuffleSponsors(normalizedProducts, 0)
 
   if (!visibleProducts.length) return null
 
@@ -102,15 +78,27 @@ export function TaxonomySponsorsSidebar({
 }
 
 function SponsorLogo({ product }: { product: TaxonomySponsorProduct }) {
+  if (product.logo) {
+    return (
+      <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-black text-white">
+        <Image
+          src={product.logo}
+          alt={`${product.name} logo`}
+          fill
+          sizes="48px"
+          className="object-cover"
+          loading="lazy"
+          fetchPriority="low"
+          placeholder="empty"
+        />
+      </span>
+    )
+  }
+
   return (
-    <Avatar className="h-12 w-12 shrink-0 rounded-lg bg-black text-white">
-      {product.logo ? (
-        <AvatarImage src={product.logo} alt={`${product.name} logo`} />
-      ) : null}
-      <AvatarFallback className="rounded-lg bg-black text-sm font-semibold uppercase text-white">
-        {getInitials(product.name)}
-      </AvatarFallback>
-    </Avatar>
+    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-black text-sm font-semibold uppercase text-white">
+      {getInitials(product.name)}
+    </span>
   )
 }
 
