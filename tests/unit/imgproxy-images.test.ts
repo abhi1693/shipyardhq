@@ -161,6 +161,29 @@ describe("managed media image URLs", () => {
     expect(transformedImage?.srcSet).toMatch(/ 128w$/)
   })
 
+  it("builds signed AVIF imgproxy image sources", async () => {
+    const transformedImage = await buildSignedImgproxyResponsiveImage(
+      {
+        src: "https://media.shipyardhq.dev/global/pricing/dashboard-preview.webp",
+        widths: [320, 512],
+        defaultWidth: 512,
+        format: "avif",
+        quality: 48,
+      },
+      {
+        endpoint: "https://img.shipyardhq.dev",
+        key: "736563726574",
+        salt: "68656c6c6f",
+      },
+    )
+
+    expect(transformedImage).not.toBeNull()
+    expect(transformedImage?.src).toContain("/f:avif/")
+    expect(transformedImage?.srcSet).toMatch(/rs:fit:320:0:0\/q:48/)
+    expect(transformedImage?.srcSet).toMatch(/ 320w, /)
+    expect(transformedImage?.srcSet).toMatch(/ 512w$/)
+  })
+
   it("does not sign without a complete imgproxy configuration", async () => {
     await expect(
       buildSignedImgproxyImageUrl(

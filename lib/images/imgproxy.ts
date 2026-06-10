@@ -13,6 +13,7 @@ type ImgproxyConfig = {
 type ImgproxyImageParams = {
   src: string
   width: number
+  format?: "avif" | "webp"
   quality?: number | string | null
 }
 
@@ -20,6 +21,7 @@ type ResponsiveImgproxyImageParams = {
   src: string
   widths: number[]
   defaultWidth: number
+  format?: "avif" | "webp"
   quality?: number | string | null
 }
 
@@ -113,7 +115,7 @@ async function signImgproxyPath(
 }
 
 export async function buildSignedImgproxyImageUrl(
-  { src, width, quality }: ImgproxyImageParams,
+  { src, width, format = "webp", quality }: ImgproxyImageParams,
   config: ImgproxyConfig = readImgproxyConfig(),
 ) {
   const sourceUrl = parseManagedMediaImageUrl(src)
@@ -130,7 +132,7 @@ export async function buildSignedImgproxyImageUrl(
     `rs:fit:${normalizeImageWidth(width)}:0:0`,
     `q:${normalizeImageQuality(quality)}`,
     "sm:1",
-    "f:webp",
+    `f:${format}`,
   ]
   const encodedSourceUrl = base64UrlEncode(textEncoder.encode(sourceUrl.href))
   const path = `/${options.join("/")}/${encodedSourceUrl}`
@@ -140,7 +142,7 @@ export async function buildSignedImgproxyImageUrl(
 }
 
 export async function buildSignedImgproxyResponsiveImage(
-  { src, widths, defaultWidth, quality }: ResponsiveImgproxyImageParams,
+  { src, widths, defaultWidth, format, quality }: ResponsiveImgproxyImageParams,
   config: ImgproxyConfig = readImgproxyConfig(),
 ) {
   const normalizedWidths = Array.from(
@@ -154,7 +156,7 @@ export async function buildSignedImgproxyResponsiveImage(
   const entries = await Promise.all(
     normalizedWidths.map(async (width) => {
       const url = await buildSignedImgproxyImageUrl(
-        { src, width, quality },
+        { src, width, format, quality },
         config,
       )
       return url ? { width, url } : null

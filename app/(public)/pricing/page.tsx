@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Suspense } from "react"
+import { preload } from "react-dom"
 import { JsonLdScript } from "next-seo"
 import {
   BarChart3,
@@ -26,6 +27,7 @@ import { Image } from "@/components/atoms/image"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildFaqStructuredData } from "@/lib/seo/faq"
 import { buildPageMetadata } from "@/lib/metadata"
+import { buildSignedImgproxyResponsiveImage } from "@/lib/images/imgproxy"
 import {
   HOME_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
@@ -34,6 +36,11 @@ import {
 } from "@/lib/routes"
 
 const PAGE_TITLE = "Pricing"
+const PRICING_DASHBOARD_IMAGE_URL =
+  "https://media.shipyardhq.dev/global/pricing/dashboard-preview.webp"
+const PRICING_DASHBOARD_IMAGE_SIZES =
+  "(min-width: 1024px) 560px, calc(100vw - 32px)"
+const PRICING_DASHBOARD_IMAGE_WIDTHS = [320, 480, 512] as const
 
 export const dynamic = "force-dynamic"
 
@@ -78,7 +85,39 @@ const PLACEMENT_POINTS = [
   },
 ] as const
 
-export default function PricingPage() {
+async function buildPricingDashboardImageSources() {
+  const [avif, webp] = await Promise.all([
+    buildSignedImgproxyResponsiveImage({
+      src: PRICING_DASHBOARD_IMAGE_URL,
+      widths: [...PRICING_DASHBOARD_IMAGE_WIDTHS],
+      defaultWidth: 512,
+      format: "avif",
+      quality: 48,
+    }),
+    buildSignedImgproxyResponsiveImage({
+      src: PRICING_DASHBOARD_IMAGE_URL,
+      widths: [...PRICING_DASHBOARD_IMAGE_WIDTHS],
+      defaultWidth: 512,
+      format: "webp",
+      quality: 72,
+    }),
+  ])
+
+  if (!avif || !webp) return null
+
+  preload(avif.src, {
+    as: "image",
+    fetchPriority: "high",
+    imageSizes: PRICING_DASHBOARD_IMAGE_SIZES,
+    imageSrcSet: avif.srcSet,
+    type: "image/avif",
+  })
+
+  return { avif, webp }
+}
+
+export default async function PricingPage() {
+  const pricingDashboardImage = await buildPricingDashboardImageSources()
   const faqStructuredData = buildFaqStructuredData(
     PRICING_FAQS.map((faq) => ({ question: faq.question, answer: faq.answer })),
     { pageUrl: PRICING_PATH },
@@ -226,15 +265,43 @@ export default function PricingPage() {
             </div>
 
             <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-2xl">
-              <Image
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjapOwrldNj6uk-KztDRJ2hurjCbcpmt3fj9SGS8au3jHCeswiPt9HGdLCZvwBhQiWKyccVnuqsc8Xh9piBVD0lz8DO2bEroJL20ZtowdNff--ruoVfQdC-fvVUZBKj0u_HJRk82x7UQo3tM7QVqV65AwfWCSpWkjK_u2UZpP3ZowipynC1SDhx54NOPgdvwaruNGwFPWH2lzjl55f_Aj3jMtcNYWrKnclqTp-WEaH9UwZWdOOm_kSEenswqKpxwP9pnJ7vBSvG9la"
-                alt="Product analytics dashboard preview with line charts and launch growth metrics."
-                width={900}
-                height={650}
-                sizes="(min-width: 1024px) 560px, calc(100vw - 32px)"
-                className="h-full min-h-[320px] w-full object-cover"
-                unoptimized
-              />
+              {pricingDashboardImage ? (
+                <picture>
+                  <source
+                    type="image/avif"
+                    srcSet={pricingDashboardImage.avif.srcSet}
+                    sizes={PRICING_DASHBOARD_IMAGE_SIZES}
+                  />
+                  <source
+                    type="image/webp"
+                    srcSet={pricingDashboardImage.webp.srcSet}
+                    sizes={PRICING_DASHBOARD_IMAGE_SIZES}
+                  />
+                  <img
+                    src={pricingDashboardImage.webp.src}
+                    srcSet={pricingDashboardImage.webp.srcSet}
+                    sizes={PRICING_DASHBOARD_IMAGE_SIZES}
+                    alt="Product analytics dashboard preview with line charts and launch growth metrics."
+                    width={900}
+                    height={650}
+                    className="h-full min-h-[320px] w-full object-cover"
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                  />
+                </picture>
+              ) : (
+                <Image
+                  src={PRICING_DASHBOARD_IMAGE_URL}
+                  alt="Product analytics dashboard preview with line charts and launch growth metrics."
+                  width={900}
+                  height={650}
+                  sizes={PRICING_DASHBOARD_IMAGE_SIZES}
+                  className="h-full min-h-[320px] w-full object-cover"
+                  eager
+                  preload
+                />
+              )}
             </div>
           </div>
         </section>
