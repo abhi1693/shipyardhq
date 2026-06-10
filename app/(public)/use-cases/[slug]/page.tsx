@@ -4,7 +4,7 @@ import { Suspense } from "react"
 import { UseCasePageContent } from "@/components/templates/public/use-cases/detail/page-content"
 import { TaxonomyDetailSkeleton } from "@/components/templates/public/common/TaxonomyDetailSkeleton"
 import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
-import { buildPageMetadata } from "@/lib/metadata"
+import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import { pluralize } from "@/lib/pluralize"
 import { usecasePath } from "@/lib/routes"
 
@@ -15,18 +15,29 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = await props.params
   const useCase = await getPublicUseCaseMeta(slug)
-  if (!useCase || useCase.productCount === 0) return {}
+  if (!useCase) return {}
 
-  const description = `Explore ${useCase.productCount} ${pluralize(
+  const countLabel = `${useCase.productCount.toLocaleString("en-US")} ${pluralize(
     useCase.productCount,
     "product",
-  )} built for ${useCase.label}.`
+  )}`
+  const fallbackDescription = `Explore ${countLabel} built for ${useCase.label}. Discover launch-ready tools, compare makers, and find products for this use case on Shipyard.`
+  const description =
+    buildMetaDescription(fallbackDescription) ?? fallbackDescription
+  const canonical = usecasePath(useCase.slug)
 
   return buildPageMetadata({
     title: `${useCase.label} Use Case`,
     section: "Use Cases",
     description,
-    canonical: usecasePath(useCase.slug),
+    canonical,
+    openGraph: {
+      url: canonical,
+      description,
+    },
+    twitter: {
+      description,
+    },
   })
 }
 

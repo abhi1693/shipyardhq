@@ -57,10 +57,10 @@ export async function generateMetadata({
     linkedCount > 0
       ? `Discover the top ${linkedCount} ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders in ${currentYear}.`
       : `Discover the best ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders in ${currentYear}.`
-  const description = buildMetaDescription(
-    alternative.description,
-    fallbackDescription,
-  )
+  const description =
+    buildMetaDescription(alternative.description, fallbackDescription) ??
+    fallbackDescription
+  const canonical = alternativePath(slug)
 
   const keywordPhrases = [
     `best ${alternative.name} alternatives`,
@@ -75,8 +75,9 @@ export async function generateMetadata({
     title,
     description,
     section: "Alternatives",
-    canonical: alternativePath(slug),
+    canonical,
     openGraph: {
+      url: canonical,
       title,
       description,
     },

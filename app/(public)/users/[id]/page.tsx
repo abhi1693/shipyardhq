@@ -29,9 +29,9 @@ export async function generateMetadata(
     totalProducts === 1
       ? "1 published product"
       : `${totalProducts.toLocaleString("en-US")} published products`
-  const description = buildMetaDescription(
-    `${fullName}'s Shipyard profile features ${productLabel}. View launches, rewards, verified products, and founder activity.`,
-  )
+  const fallbackDescription = `${fullName}'s Shipyard profile features ${productLabel}. View launches, rewards, verified products, and founder activity.`
+  const description =
+    buildMetaDescription(fallbackDescription) ?? fallbackDescription
 
   return buildPageMetadata({
     title: fullName,

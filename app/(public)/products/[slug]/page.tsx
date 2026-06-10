@@ -102,11 +102,12 @@ export async function generateMetadata(
   const fallbackDescription = product.category?.name
     ? `Explore ${product.name}, a ${product.category.name} product on Shipyard. Compare features, pricing, platforms, alternatives, and founder details.`
     : `Explore ${product.name} on Shipyard. Compare features, pricing, platforms, alternatives, and founder details.`
-  const description = buildMetaDescription(
-    product.tagline,
-    product.description,
-    fallbackDescription,
-  )
+  const description =
+    buildMetaDescription(
+      product.tagline,
+      product.description,
+      fallbackDescription,
+    ) ?? fallbackDescription
 
   const pageTitle = tagline ? `${product.name} · ${tagline}` : product.name
 
@@ -147,10 +148,12 @@ export async function generateMetadata(
     canonical: canonicalPath,
     openGraph: {
       url: canonicalPath,
+      description,
       ...(openGraphImages.length ? { images: openGraphImages } : {}),
     },
     twitter: {
       card: "summary_large_image",
+      description,
       ...(twitterImages.length ? { images: twitterImages } : {}),
     },
   })

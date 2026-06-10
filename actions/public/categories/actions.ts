@@ -203,7 +203,19 @@ export const getCategoryMeta = cached(
   async (slug: string) =>
     prisma.category.findUnique({
       where: { slug },
-      select: { name: true, description: true },
+      select: {
+        name: true,
+        description: true,
+        _count: {
+          select: {
+            products: {
+              where: {
+                status: "published",
+              },
+            },
+          },
+        },
+      },
     }),
   "category:meta",
   {
