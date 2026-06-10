@@ -49,12 +49,14 @@ type ProcessedImage = {
 type UploadResult = {
   bytes: number
   reused: boolean
+  sourceUrl: string
   url: string
 }
 
 const DEFAULT_PUBLIC_MEDIA_BASE_URL = "https://media.shipyardhq.dev"
 const MAX_DOWNLOAD_BYTES = 15 * 1024 * 1024
 const FETCH_TIMEOUT_MS = 20_000
+const HTML_FETCH_TIMEOUT_MS = 8_000
 
 function printUsage() {
   console.log(`Usage:
@@ -204,6 +206,157 @@ function isAcceptableImageResponse(contentType: string) {
   )
 }
 
+function isLikelyFaviconUrl(sourceUrl: string) {
+  try {
+    const pathname = new URL(sourceUrl).pathname.toLowerCase()
+    return pathname.endsWith(".ico") || pathname.includes("favicon")
+  } catch {
+    return false
+  }
+}
+
+function isUnsupportedImageError(error: unknown) {
+  return (
+    error instanceof Error &&
+    /unsupported image format|unsupported content type/i.test(error.message)
+  )
+}
+
+function decodeHtmlAttribute(value: string) {
+  return value
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+}
+
+function getTagAttribute(tag: string, attributeName: string) {
+  const attributePattern =
+    /([a-zA-Z:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/g
+  let match: RegExpExecArray | null
+
+  while ((match = attributePattern.exec(tag))) {
+    if (match[1]?.toLowerCase() !== attributeName) continue
+    return decodeHtmlAttribute(match[2] ?? match[3] ?? match[4] ?? "")
+  }
+
+  return null
+}
+
+function scoreFallbackImageUrl(sourceUrl: string) {
+  const lower = sourceUrl.toLowerCase()
+  if (lower.includes("apple-touch-icon")) return 0
+  if (lower.endsWith(".png") || lower.includes(".png?")) return 1
+  if (lower.endsWith(".webp") || lower.includes(".webp?")) return 2
+  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return 3
+  if (lower.includes(".jpg?") || lower.includes(".jpeg?")) return 3
+  if (lower.endsWith(".svg") || lower.includes(".svg?")) return 4
+  if (lower.endsWith(".ico") || lower.includes(".ico?")) return 9
+  return 5
+}
+
+function uniqueUrls(urls: string[], excludedUrl: string) {
+  const excluded = excludedUrl.trim()
+  const seen = new Set([excluded])
+  const unique: string[] = []
+
+  for (const url of urls) {
+    if (seen.has(url)) continue
+    seen.add(url)
+    unique.push(url)
+  }
+
+  return unique.sort(
+    (left, right) => scoreFallbackImageUrl(left) - scoreFallbackImageUrl(right),
+  )
+}
+
+function commonIconFallbackUrls(sourceUrl: string) {
+  try {
+    const url = new URL(sourceUrl)
+    const paths = [
+      "/apple-touch-icon.png",
+      "/apple-touch-icon-precomposed.png",
+      "/favicon-512x512.png",
+      "/favicon-256x256.png",
+      "/favicon-192x192.png",
+      "/favicon-180x180.png",
+      "/favicon-128x128.png",
+      "/favicon-96x96.png",
+      "/favicon-64x64.png",
+      "/favicon-48x48.png",
+      "/favicon-32x32.png",
+      "/favicon-16x16.png",
+      "/favicon.png",
+      "/icon.png",
+      "/logo.png",
+      "/favicon.svg",
+      "/favicon.ico",
+    ]
+
+    return paths.map((path) => new URL(path, url.origin).href)
+  } catch {
+    return []
+  }
+}
+
+async function discoverIconLinkUrls(sourceUrl: string) {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), HTML_FETCH_TIMEOUT_MS)
+
+  try {
+    const origin = new URL(sourceUrl).origin
+    const response = await fetch(origin, {
+      headers: {
+        Accept: "text/html,application/xhtml+xml",
+        "User-Agent": "ShipyardHQ-ImageIngest/1.0",
+      },
+      signal: controller.signal,
+    })
+
+    if (!response.ok) return []
+    const contentType = (response.headers.get("content-type") || "")
+      .split(";")[0]
+      .trim()
+      .toLowerCase()
+    if (contentType && !contentType.includes("html")) return []
+
+    const html = await response.text()
+    const urls: string[] = []
+    const linkPattern = /<link\b[^>]*>/gi
+    let match: RegExpExecArray | null
+
+    while ((match = linkPattern.exec(html))) {
+      const tag = match[0]
+      const rel = getTagAttribute(tag, "rel")?.toLowerCase()
+      const href = getTagAttribute(tag, "href")
+      if (!rel || !href) continue
+      if (!/\b(?:apple-touch-icon|icon|shortcut icon)\b/.test(rel)) continue
+
+      try {
+        urls.push(new URL(href, origin).href)
+      } catch {
+        // Ignore malformed icon hrefs from third-party pages.
+      }
+    }
+
+    return urls
+  } catch {
+    return []
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+async function fallbackImageUrls(sourceUrl: string) {
+  const [discoveredUrls] = await Promise.all([discoverIconLinkUrls(sourceUrl)])
+  return uniqueUrls(
+    [...discoveredUrls, ...commonIconFallbackUrls(sourceUrl)],
+    sourceUrl,
+  )
+}
+
 async function downloadImage(sourceUrl: string): Promise<DownloadedImage> {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
@@ -294,9 +447,55 @@ async function optimizeImage(
   }
 }
 
-function buildR2Key(candidate: Candidate, processed: ProcessedImage) {
-  const base = basenameFromUrl(candidate.sourceUrl, candidate.label)
-  const sourceHash = hash(candidate.sourceUrl).slice(0, 10)
+async function downloadOptimizedImage(
+  candidate: Candidate,
+  format: OutputFormat,
+): Promise<ProcessedImage & { originalBytes: number; sourceUrl: string }> {
+  const fallbackUrls: string[] = []
+  const attemptedUrls = new Set<string>()
+  let firstError: unknown
+  let index = 0
+
+  while (index === 0 || index <= fallbackUrls.length) {
+    const sourceUrl =
+      index === 0 ? candidate.sourceUrl : fallbackUrls[index - 1]
+    index += 1
+
+    if (attemptedUrls.has(sourceUrl)) continue
+    attemptedUrls.add(sourceUrl)
+
+    try {
+      const downloaded = await downloadImage(sourceUrl)
+      const processed = await optimizeImage(downloaded, candidate, format)
+      return {
+        ...processed,
+        originalBytes: downloaded.buffer.byteLength,
+        sourceUrl,
+      }
+    } catch (error) {
+      firstError ??= error
+
+      const canUseFallbacks =
+        fallbackUrls.length === 0 &&
+        (isLikelyFaviconUrl(candidate.sourceUrl) ||
+          isUnsupportedImageError(error))
+
+      if (canUseFallbacks) {
+        fallbackUrls.push(...(await fallbackImageUrls(candidate.sourceUrl)))
+      }
+    }
+  }
+
+  throw firstError instanceof Error ? firstError : new Error(String(firstError))
+}
+
+function buildR2Key(
+  candidate: Candidate,
+  processed: ProcessedImage,
+  sourceUrl = candidate.sourceUrl,
+) {
+  const base = basenameFromUrl(sourceUrl, candidate.label)
+  const sourceHash = hash(sourceUrl).slice(0, 10)
   const contentHash = hash(processed.buffer).slice(0, 10)
   return `${candidate.keyPrefix}/${sourceHash}-${contentHash}-${base}.${processed.extension}`
 }
@@ -517,25 +716,21 @@ async function main() {
       let uploadPromise = uploadCache.get(cacheKey)
       if (!uploadPromise) {
         uploadPromise = (async () => {
-          const downloaded = await downloadImage(candidate.sourceUrl)
-          const processed = await optimizeImage(
-            downloaded,
-            candidate,
-            args.format,
-          )
-          const key = buildR2Key(candidate, processed)
+          const processed = await downloadOptimizedImage(candidate, args.format)
+          const key = buildR2Key(candidate, processed, processed.sourceUrl)
           const result = await putBlob(key, processed.buffer, {
             access: "public",
             contentType: processed.contentType,
           })
 
-          originalBytes += downloaded.buffer.byteLength
+          originalBytes += processed.originalBytes
           optimizedBytes += processed.buffer.byteLength
           uploaded += 1
 
           return {
             bytes: result.size,
             reused: false,
+            sourceUrl: processed.sourceUrl,
             url: result.url,
           }
         })()
@@ -547,8 +742,12 @@ async function main() {
       if (result.reused) reused += 1
       updated += 1
 
+      const sourceNote =
+        result.sourceUrl === candidate.sourceUrl
+          ? ""
+          : ` from ${result.sourceUrl}`
       console.log(
-        `- updated ${candidate.kind} ${candidate.id}: ${result.bytes} bytes`,
+        `- updated ${candidate.kind} ${candidate.id}: ${result.bytes} bytes${sourceNote}`,
       )
     }
 
