@@ -3,3 +3,4 @@
 
 @source "./**/*.{js,ts,jsx,tsx,mdx}";
 @source "../../../components/molecules/AnalyticsShared.tsx";
+@source "../../../components/molecules/LiveVisitorsPill.tsx";

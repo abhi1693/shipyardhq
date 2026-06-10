@@ -2,7 +2,12 @@
 @import "tailwindcss/utilities" source(none);
 
 @source "./**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../../components/atoms/Medal.tsx";
+@source "../../../components/molecules/InlineSelect.tsx";
 @source "../../../components/molecules/LeaderboardTopPlacement.tsx";
+@source "../../../components/molecules/ProductClickLink.tsx";
 @source "../../../components/molecules/ProductCard.tsx";
 @source "../../../components/molecules/ProductFeedCard*.tsx";
+@source "../../../components/molecules/ProductList.skeleton.tsx";
+@source "../../../components/molecules/ProductScore.tsx";
 @source "../../../components/templates/public/leaderboard/**/*.{js,ts,jsx,tsx}";

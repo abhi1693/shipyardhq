@@ -4,9 +4,12 @@
 @source "./page.tsx";
 @source "../../components/molecules/FeaturedProductGrid.tsx";
 @source "../../components/molecules/InfiniteProductGrid.tsx";
+@source "../../components/molecules/ProductClickLink.tsx";
 @source "../../components/molecules/ProductCard.tsx";
 @source "../../components/molecules/ProductFeedCard*.tsx";
 @source "../../components/molecules/ProductGrid*.tsx";
+@source "../../components/molecules/ProductScore.tsx";
+@source "../../components/molecules/SponsorPromo.tsx";
 @source "../../components/organisms/feed/ProductFeedList.tsx";
 @source "../../components/templates/public/common/LazyTrafficStatsPanel.tsx";
 @source "../../components/templates/public/common/TrafficStatsPanel.tsx";

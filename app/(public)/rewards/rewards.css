@@ -2,4 +2,5 @@
 @import "tailwindcss/utilities" source(none);
 
 @source "./**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../../components/atoms/Medal.tsx";
 @source "../../../components/templates/public/rewards/**/*.{js,ts,jsx,tsx}";
