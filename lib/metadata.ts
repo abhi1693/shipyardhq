@@ -105,6 +105,41 @@ const normalizeDescription = (value?: string | null) => {
   return trimmed.length ? trimmed : undefined
 }
 
+const META_DESCRIPTION_MAX_LENGTH = 160
+
+const stripDescriptionMarkup = (value: string) =>
+  value
+    .replace(/<[^>]*>/g, " ")
+    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
+    .replace(/[`*_~>#]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+
+const truncateMetaDescription = (value: string) => {
+  if (value.length <= META_DESCRIPTION_MAX_LENGTH) return value
+
+  const truncated = value.slice(0, META_DESCRIPTION_MAX_LENGTH - 3)
+  const cleanBreak = truncated.replace(/\s+\S*$/, "").trim()
+  return `${cleanBreak || truncated.trim()}...`
+}
+
+export function buildMetaDescription(
+  ...candidates: Array<string | null | undefined>
+) {
+  for (const candidate of candidates) {
+    const normalized = normalizeDescription(candidate)
+    if (!normalized) continue
+
+    const plainText = stripDescriptionMarkup(normalized)
+    if (plainText) {
+      return truncateMetaDescription(plainText)
+    }
+  }
+
+  return undefined
+}
+
 type TemplateLikeObject = {
   default?: unknown
   template?: unknown

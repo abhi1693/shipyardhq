@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { TaxonomyDetailSkeleton } from "@/components/templates/public/common/TaxonomyDetailSkeleton"
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
-import { buildPageMetadata } from "@/lib/metadata"
+import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import {
   ALTERNATIVES_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
@@ -52,11 +52,14 @@ export async function generateMetadata({
       ? `Top ${linkedCount} ${alternative.name} Alternatives & Competitors in ${currentYear}`
       : `Best ${alternative.name} Alternatives & Competitors in ${currentYear}`
 
-  const description = alternative.description?.trim().length
-    ? alternative.description
-    : linkedCount > 0
+  const fallbackDescription =
+    linkedCount > 0
       ? `Discover the top ${linkedCount} ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders in ${currentYear}.`
       : `Discover the best ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders in ${currentYear}.`
+  const description = buildMetaDescription(
+    alternative.description,
+    fallbackDescription,
+  )
 
   const keywordPhrases = [
     `best ${alternative.name} alternatives`,

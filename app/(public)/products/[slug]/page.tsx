@@ -61,7 +61,7 @@ import {
 import { siteConfig } from "@/lib/siteConfig"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import { BADGE_OPTIONS } from "@/lib/constants"
-import { buildPageMetadata } from "@/lib/metadata"
+import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import { keywordToSlug } from "@/lib/tags"
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
 import { buildWebApplicationStructuredData } from "@/lib/seo/web-application"
@@ -99,8 +99,14 @@ export async function generateMetadata(
 
   const canonicalPath = productPath(slug)
   const tagline = product.tagline?.trim() ?? ""
-  const description =
-    tagline.length > 220 ? `${tagline.slice(0, 217).trimEnd()}...` : tagline
+  const fallbackDescription = product.category?.name
+    ? `Explore ${product.name}, a ${product.category.name} product on Shipyard. Compare features, pricing, platforms, alternatives, and founder details.`
+    : `Explore ${product.name} on Shipyard. Compare features, pricing, platforms, alternatives, and founder details.`
+  const description = buildMetaDescription(
+    product.tagline,
+    product.description,
+    fallbackDescription,
+  )
 
   const pageTitle = tagline ? `${product.name} · ${tagline}` : product.name
 
