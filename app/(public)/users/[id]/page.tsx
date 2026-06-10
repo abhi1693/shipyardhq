@@ -29,9 +29,12 @@ export async function generateMetadata(
     totalProducts === 1
       ? "1 published product"
       : `${totalProducts.toLocaleString("en-US")} published products`
-  const fallbackDescription = `${fullName}'s Shipyard profile features ${productLabel}. View launches, rewards, verified products, and founder activity.`
+  const fallbackDescription = `${fullName}'s Shipyard maker profile features ${productLabel}. View launches, verified products, rewards, and founder activity.`
   const description =
-    buildMetaDescription(fallbackDescription) ?? fallbackDescription
+    buildMetaDescription(
+      `${fullName} is a Shipyard maker with ${productLabel}. Explore their product launches, founder profile, and discovery activity.`,
+      fallbackDescription,
+    ) ?? fallbackDescription
 
   return buildPageMetadata({
     title: fullName,

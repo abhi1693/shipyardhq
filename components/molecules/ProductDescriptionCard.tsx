@@ -1,9 +1,5 @@
-"use client"
-
-import { useId, useMemo, useState } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { ChevronDown, ChevronUp } from "lucide-react"
 import type { Plugin } from "unified"
 import type { Parent } from "unist"
 import type { Root } from "mdast"
@@ -21,7 +17,7 @@ const PREVIEW_WORD_LIMIT = 130
 function stripMarkdown(markdown: string) {
   return markdown
     .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
     .replace(/`{1,3}[^`]*`{1,3}/g, (match) => match.replace(/`/g, ""))
     .replace(/[*_~>#]/g, "")
     .replace(/^-+\s+/gm, "")
@@ -58,7 +54,7 @@ function createWordLimitPlugin(limit: number): Plugin<[], Root> {
 
       const remaining = Math.max(limit - wordCount, 0)
       const truncatedText =
-        remaining > 0 ? words.slice(0, remaining).join(" ") + "…" : "…"
+        remaining > 0 ? `${words.slice(0, remaining).join(" ")}...` : "..."
 
       node.value = truncatedText
       wordCount = limit
@@ -84,102 +80,85 @@ function createWordLimitPlugin(limit: number): Plugin<[], Root> {
   }
 }
 
+function ProductDescriptionMarkdown({
+  children,
+  allowImages = true,
+  limit,
+}: {
+  children: string
+  allowImages?: boolean
+  limit?: number
+}) {
+  const remarkPlugins = limit
+    ? [remarkGfm, createWordLimitPlugin(limit)]
+    : [remarkGfm]
+
+  return (
+    <ReactMarkdown
+      remarkPlugins={remarkPlugins}
+      components={{
+        a: (props) => (
+          <a
+            {...props}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-foreground underline underline-offset-2 transition-colors hover:text-foreground/80"
+          />
+        ),
+        img: allowImages
+          ? (props) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                {...props}
+                alt={(props as { alt?: string }).alt || ""}
+                className="rounded-xl"
+              />
+            )
+          : () => null,
+      }}
+    >
+      {children}
+    </ReactMarkdown>
+  )
+}
+
 export function ProductDescriptionCard({
   description,
   className,
 }: ProductDescriptionCardProps) {
-  const contentId = useId()
-  const [isExpanded, setIsExpanded] = useState(false)
-
   const trimmedDescription = description?.trim()
+  if (!trimmedDescription) return null
 
-  const { wordCount } = useMemo(() => {
-    if (!trimmedDescription) {
-      return { wordCount: 0 }
-    }
-
-    const plainText = stripMarkdown(trimmedDescription)
-    const words = plainText.split(/\s+/).filter(Boolean).length
-    return { wordCount: words }
-  }, [trimmedDescription])
-
+  const plainText = stripMarkdown(trimmedDescription)
+  const wordCount = plainText.split(/\s+/).filter(Boolean).length
   const shouldTruncate = wordCount > PREVIEW_WORD_LIMIT
-
-  const baseRemarkPlugins = useMemo(() => [remarkGfm], [])
-  const limitedRemarkPlugins = useMemo(
-    () => [remarkGfm, createWordLimitPlugin(PREVIEW_WORD_LIMIT)],
-    [],
-  )
-
-  if (!trimmedDescription) {
-    return null
-  }
 
   return (
     <section className={cn("space-y-3", className)}>
-      <div className="relative">
-        <div
-          id={contentId}
-          className={cn(
-            "prose prose-sm max-w-none text-foreground [&_*]:leading-relaxed",
-            !isExpanded && shouldTruncate ? "pb-3" : undefined,
-          )}
+      <div
+        className={cn(
+          "prose prose-sm max-w-none text-foreground [&_*]:leading-relaxed",
+          shouldTruncate ? "pb-1" : undefined,
+        )}
+      >
+        <ProductDescriptionMarkdown
+          allowImages={!shouldTruncate}
+          limit={shouldTruncate ? PREVIEW_WORD_LIMIT : undefined}
         >
-          <ReactMarkdown
-            remarkPlugins={
-              isExpanded || !shouldTruncate
-                ? baseRemarkPlugins
-                : limitedRemarkPlugins
-            }
-            components={{
-              a: (props) => (
-                <a
-                  {...props}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium text-foreground underline underline-offset-2 transition-colors hover:text-foreground/80"
-                />
-              ),
-              img:
-                isExpanded || !shouldTruncate
-                  ? (props) => (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        {...props}
-                        alt={(props as any).alt || ""}
-                        className="rounded-xl"
-                      />
-                    )
-                  : () => null,
-            }}
-          >
-            {trimmedDescription}
-          </ReactMarkdown>
-        </div>
-        {!isExpanded && shouldTruncate ? (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-white/95" />
-        ) : null}
+          {trimmedDescription}
+        </ProductDescriptionMarkdown>
       </div>
       {shouldTruncate ? (
-        <button
-          type="button"
-          onClick={() => setIsExpanded((prev) => !prev)}
-          className="inline-flex cursor-pointer items-center gap-1 text-sm font-semibold text-foreground transition-colors hover:text-foreground/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          aria-expanded={isExpanded}
-          aria-controls={contentId}
-        >
-          {isExpanded ? (
-            <>
-              <ChevronUp aria-hidden className="h-4 w-4" />
-              <span>Show less</span>
-            </>
-          ) : (
-            <>
-              <ChevronDown aria-hidden className="h-4 w-4" />
-              <span>Show more</span>
-            </>
-          )}
-        </button>
+        <details className="group">
+          <summary className="inline-flex cursor-pointer list-none items-center text-sm font-semibold text-foreground transition-colors hover:text-foreground/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            Show full description
+          </summary>
+          <div className="prose prose-sm mt-4 max-w-none border-t border-border pt-4 text-foreground [&_*]:leading-relaxed">
+            <ProductDescriptionMarkdown>
+              {trimmedDescription}
+            </ProductDescriptionMarkdown>
+          </div>
+        </details>
       ) : null}
     </section>
   )

@@ -22,8 +22,10 @@ export async function generateMetadata(
     "product",
   )}`
   const fallbackDescription = `Explore ${countLabel} built for ${useCase.label}. Discover launch-ready tools, compare makers, and find products for this use case on Shipyard.`
-  const description =
-    buildMetaDescription(fallbackDescription) ?? fallbackDescription
+  const description = buildMetaDescription(
+    `${useCase.label} use case products on Shipyard: ${countLabel} curated for launch planning, SaaS workflows, maker research, and product discovery.`,
+    fallbackDescription,
+  )
   const canonical = usecasePath(useCase.slug)
 
   return buildPageMetadata({

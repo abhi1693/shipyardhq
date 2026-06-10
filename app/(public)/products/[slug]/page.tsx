@@ -16,9 +16,11 @@ import {
   ExternalLink,
   Globe,
   Laptop,
+  Link as LinkIcon,
   Monitor,
   PlayCircle,
   Smartphone,
+  Share2,
   Terminal,
 } from "lucide-react"
 
@@ -42,7 +44,6 @@ import {
   ProductUpvoteBadgeFallback,
   SimilarProductsFallback,
 } from "@/components/templates/public/products/detail/product-fallbacks"
-import { ProductShareModal } from "@/components/templates/public/products/detail/product-share-modal"
 import {
   getPublicProductMetaBySlug,
   getPublicProductBySlug,
@@ -99,15 +100,7 @@ export async function generateMetadata(
 
   const canonicalPath = productPath(slug)
   const tagline = product.tagline?.trim() ?? ""
-  const fallbackDescription = product.category?.name
-    ? `Explore ${product.name}, a ${product.category.name} product on Shipyard. Compare features, pricing, platforms, alternatives, and founder details.`
-    : `Explore ${product.name} on Shipyard. Compare features, pricing, platforms, alternatives, and founder details.`
-  const description =
-    buildMetaDescription(
-      product.tagline,
-      product.description,
-      fallbackDescription,
-    ) ?? fallbackDescription
+  const description = buildProductDetailMetaDescription(product)
 
   const pageTitle = tagline ? `${product.name} · ${tagline}` : product.name
 
@@ -253,6 +246,117 @@ function formatCurrency(
   }
 }
 
+function getPricingModelLabel(value?: string | null) {
+  if (!value) return null
+  return (
+    PRICING_MODEL_LABELS[value as keyof typeof PRICING_MODEL_LABELS] ??
+    formatLabel(value)
+  )
+}
+
+function buildProductDetailMetaDescription(product: {
+  name: string
+  tagline?: string | null
+  description?: string | null
+  category?: { name?: string | null } | null
+  pricingModel?: string | null
+  platforms?: unknown
+}) {
+  const categoryLabel = product.category?.name?.trim()
+  const pricingLabel = getPricingModelLabel(product.pricingModel)
+  const platformLabels = Array.isArray(product.platforms)
+    ? product.platforms
+        .map((platform) =>
+          typeof platform === "string"
+            ? (getPlatformMetaByValue(platform)?.label ?? formatLabel(platform))
+            : null,
+        )
+        .filter((label): label is string => Boolean(label))
+        .slice(0, 2)
+    : []
+  const platformPhrase = platformLabels.length
+    ? ` for ${platformLabels.join(" and ")}`
+    : ""
+  const pricingPhrase = pricingLabel
+    ? ` with ${pricingLabel.toLowerCase()} pricing`
+    : ""
+  const categoryPhrase = categoryLabel
+    ? `a ${categoryLabel} product`
+    : "a Shipyard product"
+  const fallbackDescription = `${product.name} is ${categoryPhrase}${platformPhrase}${pricingPhrase}. Explore features, pricing, launch details, alternatives, and maker information on Shipyard.`
+
+  return (
+    buildMetaDescription(
+      product.description,
+      product.tagline,
+      fallbackDescription,
+    ) ?? fallbackDescription
+  )
+}
+
+function ProductShareMenu({
+  productName,
+  productTagline,
+  shareUrl,
+}: {
+  productName: string
+  productTagline?: string | null
+  shareUrl: string
+}) {
+  const shareText = [productName.trim(), productTagline?.trim()]
+    .filter(Boolean)
+    .join(" - ")
+  const encodedUrl = encodeURIComponent(shareUrl)
+  const encodedText = encodeURIComponent(shareText)
+  const encodedName = encodeURIComponent(productName)
+
+  const links = [
+    {
+      label: "Product link",
+      href: shareUrl,
+      icon: LinkIcon,
+    },
+    {
+      label: "Twitter",
+      href: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
+      icon: Share2,
+    },
+    {
+      label: "LinkedIn",
+      href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+      icon: Share2,
+    },
+    {
+      label: "Reddit",
+      href: `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedName}`,
+      icon: Share2,
+    },
+  ]
+
+  return (
+    <details className="group relative">
+      <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-[11px] font-medium text-muted-foreground transition-colors hover:text-[#0051d5] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0051d5]/30">
+        <Share2 className="h-3.5 w-3.5" aria-hidden />
+        <span>Share</span>
+      </summary>
+      <div className="absolute left-0 top-full z-40 mt-2 w-44 overflow-hidden rounded-lg border border-border bg-white p-1 shadow-lg">
+        {links.map(({ label, href, icon: Icon }) => (
+          <a
+            key={label}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-muted"
+          >
+            <Icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+            <span>{label}</span>
+          </a>
+        ))}
+      </div>
+    </details>
+  )
+}
+
 function achievementToneClass(value?: string) {
   if (
     value === "new" ||
@@ -277,6 +381,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   if (!sidebarProduct) return notFound()
 
   const canonicalPath = productPath(product.slug)
+  const productMetaDescription = buildProductDetailMetaDescription(product)
   const productBreadcrumbs = [
     { name: "Home", path: HOME_PATH },
     { name: "Browse", path: BROWSE_PATH },
@@ -337,7 +442,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     ? buildWebApplicationStructuredData({
         path: canonicalPath,
         name: product.name,
-        description: product.tagline || product.description || undefined,
+        description: productMetaDescription,
         datePublished: schemaPublishedDateIso,
         dateModified: updatedDateIso,
         operatingSystem: "Web",
@@ -355,7 +460,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     ? buildMobileApplicationStructuredData({
         path: canonicalPath,
         name: product.name,
-        description: product.tagline || product.description || undefined,
+        description: productMetaDescription,
         datePublished: schemaPublishedDateIso,
         dateModified: updatedDateIso,
         operatingSystem: mobileOperatingSystems,
@@ -389,7 +494,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const productStructuredData = buildProductStructuredData({
     path: canonicalPath,
     name: product.name,
-    description: product.tagline || product.description || undefined,
+    description: productMetaDescription,
     image: product.logo ?? undefined,
     offers: offer,
   })
@@ -761,7 +866,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </p>
               ) : null}
               <div className="mt-2 flex flex-wrap items-center gap-4 text-[11px] font-medium text-muted-foreground">
-                <ProductShareModal
+                <ProductShareMenu
                   productName={product.name}
                   productTagline={product.tagline}
                   shareUrl={shareUrl}

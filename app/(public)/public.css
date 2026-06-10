@@ -49,6 +49,7 @@
 @source "../../components/organisms/PartnerSpotlight*.tsx";
 @source "../../components/organisms/PricingTable.tsx";
 @source "../../components/organisms/ProductMediaGallery.tsx";
+@source "../../components/organisms/ProductMediaGalleryClient.tsx";
 @source "../../components/organisms/directory/**/*.{js,ts,jsx,tsx}";
 @source "../../components/organisms/feed/ProductFeedList.tsx";
 @source "../../components/templates/public/**/*.{js,ts,jsx,tsx}";
