@@ -1,14 +1,18 @@
-import { getKeywordTagSitemapChunk } from "@/actions/public/tags/actions"
+import {
+  getKeywordTagSitemapChunk,
+  getKeywordTagSitemapStats,
+} from "@/actions/public/tags/actions"
 import { resolveSiteUrl } from "@/lib/siteConfig"
+import {
+  isSitemapShardOutOfRange,
+  parseSitemapShardIndex,
+  SITEMAP_CHUNK_SIZE,
+  sitemapResponse,
+  urlsetXml,
+} from "@/lib/sitemap"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 86400
-
-const CHUNK_SIZE = 50000
-
-function xml(parts: TemplateStringsArray, ...subs: any[]) {
-  return parts.map((part, index) => part + (subs[index] ?? "")).join("")
-}
 
 export function generateStaticParams(): Array<{ index: string }> {
   return []
@@ -20,40 +24,35 @@ export async function GET(
 ) {
   const base = resolveSiteUrl()
   const { index } = await params
-  const page = Number(index)
-  if (!Number.isFinite(page) || page < 1) {
+  const page = parseSitemapShardIndex(index)
+  if (!page) {
     return new Response("Invalid index", { status: 400 })
   }
 
-  const offset = (page - 1) * CHUNK_SIZE
-  const tags = await getKeywordTagSitemapChunk(offset, CHUNK_SIZE)
+  const { total } = await getKeywordTagSitemapStats()
+  if (isSitemapShardOutOfRange(page, total)) {
+    return new Response("Sitemap shard not found", { status: 404 })
+  }
 
-  const urls = tags
-    .map((tag) => {
-      const last = tag.lastUpdated ?? new Date()
-      const days = Math.floor((Date.now() - last.getTime()) / 86400000)
-      const changefreq = days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
-      const priority = days <= 7 ? "0.9" : days <= 180 ? "0.8" : "0.7"
+  const offset = (page - 1) * SITEMAP_CHUNK_SIZE
+  const tags = await getKeywordTagSitemapChunk(offset, SITEMAP_CHUNK_SIZE)
 
-      return xml`
-        <url>
-          <loc>${base}/tags/${tag.slug}</loc>
-          <lastmod>${last.toISOString()}</lastmod>
-          <changefreq>${changefreq}</changefreq>
-          <priority>${priority}</priority>
-        </url>
-      `
-    })
-    .join("")
+  return sitemapResponse(
+    urlsetXml(
+      tags.map((tag) => {
+        const last = tag.lastUpdated ?? new Date()
+        const days = Math.floor((Date.now() - last.getTime()) / 86400000)
+        const changefreq =
+          days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
+        const priority = days <= 7 ? "0.9" : days <= 180 ? "0.8" : "0.7"
 
-  const body = xml`
-    <?xml version="1.0" encoding="UTF-8"?>
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      ${urls}
-    </urlset>
-  `.trim()
-
-  return new Response(body, {
-    headers: { "Content-Type": "application/xml; charset=utf-8" },
-  })
+        return {
+          loc: `${base}/tags/${tag.slug}`,
+          lastmod: last,
+          changefreq,
+          priority,
+        }
+      }),
+    ),
+  )
 }

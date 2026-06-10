@@ -16,8 +16,12 @@ import {
   productTypePath,
   usecasePath,
   ANALYTICS_PATH,
+  ALTERNATIVES_PATH,
+  PLATFORMS_PATH,
+  PRODUCT_TYPES_PATH,
   REWARDS_PATH,
   TAGS_PATH,
+  USERS_PATH,
   WHY_SHIPYARD_PATH,
 } from "@/lib/routes"
 import { resolveSiteUrl } from "@/lib/siteConfig"
@@ -60,7 +64,10 @@ export async function GET() {
     PRICING_PATH,
     CATEGORIES_PATH,
     USE_CASES_PATH,
-    "/alternatives",
+    ALTERNATIVES_PATH,
+    PLATFORMS_PATH,
+    PRODUCT_TYPES_PATH,
+    USERS_PATH,
     "/legal/terms",
     "/legal/privacy-policy",
     ANALYTICS_PATH,
@@ -69,6 +76,7 @@ export async function GET() {
     WHY_SHIPYARD_PATH,
     LEADERBOARD_GUIDE_PATH,
     LEADERBOARD_REWARDS_PATH,
+    "/verified-revenue",
   ] as const
 
   const [
@@ -264,9 +272,15 @@ export async function GET() {
           changefreq = "weekly"
           priority = "0.65"
           break
-        case "/alternatives":
+        case ALTERNATIVES_PATH:
           changefreq = "weekly"
           priority = "0.65"
+          break
+        case PLATFORMS_PATH:
+        case PRODUCT_TYPES_PATH:
+        case USERS_PATH:
+          changefreq = "weekly"
+          priority = "0.6"
           break
         case "/legal/terms":
         case "/legal/privacy-policy":
@@ -296,6 +310,10 @@ export async function GET() {
         case LEADERBOARD_REWARDS_PATH:
           changefreq = "weekly"
           priority = "0.55"
+          break
+        case "/verified-revenue":
+          changefreq = "monthly"
+          priority = "0.45"
           break
       }
       return xml`

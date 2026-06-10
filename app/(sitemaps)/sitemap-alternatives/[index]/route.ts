@@ -1,14 +1,15 @@
 import prisma from "@/lib/prisma"
 import { resolveSiteUrl } from "@/lib/siteConfig"
+import {
+  isSitemapShardOutOfRange,
+  parseSitemapShardIndex,
+  SITEMAP_CHUNK_SIZE,
+  sitemapResponse,
+  urlsetXml,
+} from "@/lib/sitemap"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 86400
-
-const CHUNK_SIZE = 50000
-
-function xml(parts: TemplateStringsArray, ...subs: unknown[]) {
-  return parts.map((part, index) => part + (subs[index] ?? "")).join("")
-}
 
 export function generateStaticParams(): Array<{ index: string }> {
   return []
@@ -21,53 +22,51 @@ export async function GET(
   const base = resolveSiteUrl()
 
   const { index } = await params
-  const page = Number(index)
-  if (!Number.isFinite(page) || page < 1) {
+  const page = parseSitemapShardIndex(index)
+  if (!page) {
     return new Response("Invalid index", { status: 400 })
   }
 
-  const skip = (page - 1) * CHUNK_SIZE
+  const count = await prisma.alternativeProduct.count()
+  if (isSitemapShardOutOfRange(page, count)) {
+    return new Response("Sitemap shard not found", { status: 404 })
+  }
+
+  const skip = (page - 1) * SITEMAP_CHUNK_SIZE
   const alternatives = await prisma.alternativeProduct.findMany({
     orderBy: { updatedAt: "desc" },
     select: { slug: true, updatedAt: true, createdAt: true },
     skip,
-    take: CHUNK_SIZE,
+    take: SITEMAP_CHUNK_SIZE,
   })
 
-  const urls = alternatives
-    .map((alternative: (typeof alternatives)[number]) => {
-      const last = alternative.updatedAt ?? alternative.createdAt
-      const daysSinceUpdate = Math.floor(
-        (Date.now() - new Date(last).getTime()) / 86400000,
-      )
-      const changefreq =
-        daysSinceUpdate <= 7
-          ? "daily"
-          : daysSinceUpdate <= 60
-            ? "weekly"
-            : "monthly"
-      const priority =
-        daysSinceUpdate <= 7 ? "0.7" : daysSinceUpdate <= 180 ? "0.6" : "0.5"
+  return sitemapResponse(
+    urlsetXml(
+      alternatives.map((alternative: (typeof alternatives)[number]) => {
+        const last = alternative.updatedAt ?? alternative.createdAt
+        const daysSinceUpdate = Math.floor(
+          (Date.now() - new Date(last).getTime()) / 86400000,
+        )
+        const changefreq =
+          daysSinceUpdate <= 7
+            ? "daily"
+            : daysSinceUpdate <= 60
+              ? "weekly"
+              : "monthly"
+        const priority =
+          daysSinceUpdate <= 7
+            ? "0.7"
+            : daysSinceUpdate <= 180
+              ? "0.6"
+              : "0.5"
 
-      return xml`
-        <url>
-          <loc>${base}/alternatives/${alternative.slug}</loc>
-          <lastmod>${new Date(last).toISOString()}</lastmod>
-          <changefreq>${changefreq}</changefreq>
-          <priority>${priority}</priority>
-        </url>
-      `
-    })
-    .join("")
-
-  const body = xml`
-    <?xml version="1.0" encoding="UTF-8"?>
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      ${urls}
-    </urlset>
-  `.trim()
-
-  return new Response(body, {
-    headers: { "Content-Type": "application/xml; charset=utf-8" },
-  })
+        return {
+          loc: `${base}/alternatives/${alternative.slug}`,
+          lastmod: new Date(last),
+          changefreq,
+          priority,
+        }
+      }),
+    ),
+  )
 }

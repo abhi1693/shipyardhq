@@ -84,11 +84,24 @@ const isValidMonthKey = (value: string): boolean => {
 export const isMonthKey = (value?: string | null): value is string =>
   typeof value === "string" && isValidMonthKey(value)
 
+const monthKeyToLeaderboardParts = (monthKey: string) => {
+  const match = monthKey.match(MONTH_KEY_PATTERN)
+  if (!match) {
+    throw new Error(`Invalid monthly leaderboard key: ${monthKey}`)
+  }
+
+  return {
+    month: Number(match[2]),
+    year: Number(match[3]),
+  }
+}
+
 export const monthlyLeaderboardArchivePath = (monthKey: string) => {
   if (!isMonthKey(monthKey)) {
     throw new Error(`Invalid monthly leaderboard key: ${monthKey}`)
   }
-  return `${LEADERBOARD_PATH}/${monthKey}`
+  const { year, month } = monthKeyToLeaderboardParts(monthKey)
+  return monthlyLeaderboardPath(year, month)
 }
 
 export const PRICING_PATH = "/pricing" as const

@@ -6,6 +6,7 @@ import { toAbsoluteUrlFromSite } from "@/lib/seo/base"
 import nextConfig from "@/next.config"
 import {
   dailyLeaderboardPath,
+  monthlyLeaderboardArchivePath,
   monthlyLeaderboardPath,
   tagPath,
   weeklyLeaderboardPath,
@@ -156,6 +157,9 @@ describe("canonical route helpers", () => {
     )
     expect(weeklyLeaderboardPath(2025, 52)).toBe("/leaderboard/weekly/2025/52")
     expect(monthlyLeaderboardPath(2025, 12)).toBe(
+      "/leaderboard/monthly/2025/12",
+    )
+    expect(monthlyLeaderboardArchivePath("31-12-2025")).toBe(
       "/leaderboard/monthly/2025/12",
     )
   })

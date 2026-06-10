@@ -4,13 +4,10 @@ import {
   monthlyLeaderboardArchivePath,
 } from "@/lib/routes"
 import { resolveSiteUrl } from "@/lib/siteConfig"
+import { sitemapResponse, urlsetXml } from "@/lib/sitemap"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 86400
-
-function xml(parts: TemplateStringsArray, ...subs: any[]) {
-  return parts.map((p, i) => p + (subs[i] ?? "")).join("")
-}
 
 const toMonthDate = (monthKey: string, fallback: Date) => {
   const match = monthKey.match(/^(\d{2})-(\d{2})-(\d{4})$/)
@@ -41,37 +38,24 @@ export async function GET() {
   const months = await getMonthlyLeaderboardMonths()
   const now = new Date()
 
-  const urls = [
-    xml`
-      <url>
-        <loc>${base}${LEADERBOARD_MONTHLY_PATH}</loc>
-        <lastmod>${now.toISOString()}</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-      </url>
-    `,
-    ...months.map((monthEntry: (typeof months)[number], index: number) => {
-      const monthDate = toMonthDate(monthEntry.month, now)
-      const recencyPriority = index < 3 ? "0.6" : index < 12 ? "0.5" : "0.4"
-      return xml`
-        <url>
-          <loc>${base}${monthlyLeaderboardArchivePath(monthEntry.month)}</loc>
-          <lastmod>${monthDate.toISOString()}</lastmod>
-          <changefreq>yearly</changefreq>
-          <priority>${recencyPriority}</priority>
-        </url>
-      `
-    }),
-  ].join("")
-
-  const body = xml`
-    <?xml version="1.0" encoding="UTF-8"?>
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      ${urls}
-    </urlset>
-  `.trim()
-
-  return new Response(body, {
-    headers: { "Content-Type": "application/xml; charset=utf-8" },
-  })
+  return sitemapResponse(
+    urlsetXml([
+      {
+        loc: `${base}${LEADERBOARD_MONTHLY_PATH}`,
+        lastmod: now,
+        changefreq: "weekly",
+        priority: "0.6",
+      },
+      ...months.map((monthEntry: (typeof months)[number], index: number) => {
+        const monthDate = toMonthDate(monthEntry.month, now)
+        const recencyPriority = index < 3 ? "0.6" : index < 12 ? "0.5" : "0.4"
+        return {
+          loc: `${base}${monthlyLeaderboardArchivePath(monthEntry.month)}`,
+          lastmod: monthDate,
+          changefreq: "yearly" as const,
+          priority: recencyPriority,
+        }
+      }),
+    ]),
+  )
 }
