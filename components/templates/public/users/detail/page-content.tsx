@@ -3,9 +3,14 @@ import { notFound } from "next/navigation"
 import { format } from "date-fns"
 import { Award, BadgeCheck, BarChart3, ExternalLink, Star } from "lucide-react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
-import { PartnerSpotlightPlacement } from "@/components/organisms/PartnerSpotlightPlacement"
+import { Image } from "@/components/atoms/image"
+import { PartnerSpotlightStaticPlacement } from "@/components/organisms/PartnerSpotlightStaticPlacement"
 import { UserFeedClient } from "@/components/templates/public/users/detail/UserFeedClient"
+import {
+  EmptyUserProductFeed,
+  UserProductGrid,
+} from "@/components/templates/public/users/detail/UserProductFeed"
+import { isOptimizedImageSrc } from "@/lib/images/sources"
 import { LEADERBOARD_REWARDS_PATH } from "@/lib/routes"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { getUserProfilePayload } from "@/lib/users/page-cache"
@@ -51,7 +56,9 @@ export async function UserProfilePageContent({ params }: PageProps) {
   if (profile.clerkId) {
     try {
       const clerkUser = await getClerkUserByIdCached(profile.clerkId)
-      avatarUrl = clerkUser.imageUrl ?? null
+      avatarUrl = isOptimizedImageSrc(clerkUser.imageUrl)
+        ? clerkUser.imageUrl
+        : null
     } catch {
       avatarUrl = null
     }
@@ -91,20 +98,24 @@ export async function UserProfilePageContent({ params }: PageProps) {
         <section className="mb-6 rounded-lg border border-[#e2e8f0] bg-white/80 p-6 shadow-sm backdrop-blur md:p-8">
           <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
             <div className="relative shrink-0">
-              <Avatar className="h-32 w-32 rounded-lg border-4 border-white bg-[#e5eeff] shadow-xl md:h-40 md:w-40">
+              <div className="relative h-32 w-32 overflow-hidden rounded-lg border-4 border-white bg-[#e5eeff] shadow-xl md:h-40 md:w-40">
                 {avatarUrl ? (
-                  <AvatarImage
+                  <Image
                     src={avatarUrl}
                     alt={fullName}
-                    width={160}
-                    height={160}
+                    fill
+                    sizes="(min-width: 768px) 160px, 128px"
                     className="object-cover"
+                    loading="eager"
+                    fetchPriority="high"
+                    placeholder="empty"
                   />
-                ) : null}
-                <AvatarFallback className="rounded-[inherit] bg-[#e5eeff] text-4xl font-semibold text-[#4c6077]">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
+                ) : (
+                  <span className="flex h-full w-full items-center justify-center text-4xl font-semibold text-[#38485f]">
+                    {initials}
+                  </span>
+                )}
+              </div>
               <div className="absolute -bottom-2 -right-2 rounded-full border-2 border-white bg-[#16a34a] p-2 text-white shadow-lg">
                 <BadgeCheck className="h-4 w-4" aria-hidden />
               </div>
@@ -116,7 +127,7 @@ export async function UserProfilePageContent({ params }: PageProps) {
                   {fullName}
                 </h1>
                 <div className="flex flex-wrap justify-center gap-2 md:justify-start">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#f97316]/10 px-3 py-1 text-xs font-semibold text-[#f97316]">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#ffedd5] px-3 py-1 text-xs font-semibold text-[#9a3412]">
                     <Star className="h-3.5 w-3.5" aria-hidden />
                     {badgeCount ? "Top Maker" : "Maker"}
                   </span>
@@ -170,17 +181,26 @@ export async function UserProfilePageContent({ params }: PageProps) {
                 </span>
               </div>
               <div aria-hidden className="h-32 md:hidden" />
-              <UserFeedClient
-                userId={profile.id}
-                initialItems={productsPage.items}
-                initialPage={initialFeedPage}
-                pageSize={productsPage.pageSize}
-                referenceDateIso={referenceDateIso}
-                initialHasMore={productsPage.hasMore}
-              />
+              {productsPage.items.length ? (
+                <>
+                  <UserProductGrid items={productsPage.items} />
+                  {productsPage.hasMore ? (
+                    <UserFeedClient
+                      userId={profile.id}
+                      initialItems={[]}
+                      initialPage={initialFeedPage}
+                      pageSize={productsPage.pageSize}
+                      referenceDateIso={referenceDateIso}
+                      initialHasMore={productsPage.hasMore}
+                    />
+                  ) : null}
+                </>
+              ) : (
+                <EmptyUserProductFeed />
+              )}
             </section>
 
-            <PartnerSpotlightPlacement className="mx-auto w-full rounded-lg" />
+            <PartnerSpotlightStaticPlacement className="mx-auto w-full rounded-lg" />
           </div>
 
           <aside className="flex flex-col gap-6 lg:col-span-4">

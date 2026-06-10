@@ -9,7 +9,7 @@ import { getUserProfilePayload } from "@/lib/users/page-cache"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildProfilePageJsonLd } from "@/lib/seo/profile-page"
-import { buildPageMetadata } from "@/lib/metadata"
+import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH, USERS_PATH, userPath } from "@/lib/routes"
 
 export const revalidate = 120
@@ -22,26 +22,32 @@ export async function generateMetadata(
   if (!user) return {}
 
   const fullName =
-    `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "User"
+    `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "Shipyard maker"
   const relativeUrl = userPath(id)
-  const desc = `${fullName}'s published products on Shipyard.`
-  const baseMetadata = buildPageMetadata({
+  const totalProducts = user._count.products
+  const productLabel =
+    totalProducts === 1
+      ? "1 published product"
+      : `${totalProducts.toLocaleString("en-US")} published products`
+  const description = buildMetaDescription(
+    `${fullName}'s Shipyard profile features ${productLabel}. View launches, rewards, verified products, and founder activity.`,
+  )
+
+  return buildPageMetadata({
     title: fullName,
     section: "Profile",
-    description: desc,
+    description,
+    canonical: relativeUrl,
     openGraph: {
       url: relativeUrl,
       type: "profile",
+      description,
     },
     twitter: {
       card: "summary",
+      description,
     },
   })
-
-  return {
-    ...baseMetadata,
-    alternates: { canonical: relativeUrl },
-  }
 }
 
 export default function MakerProfilePage(

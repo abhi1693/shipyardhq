@@ -494,6 +494,13 @@ export const getPublicUserMeta = cached(
       select: {
         firstName: true,
         lastName: true,
+        _count: {
+          select: {
+            products: {
+              where: publishedProductWhere,
+            },
+          },
+        },
       },
     }),
   "user:public-meta",
