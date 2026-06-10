@@ -4,7 +4,7 @@ import { useMemo } from "react"
 import { useRouter } from "next/navigation"
 import InlineSelect from "@/components/molecules/InlineSelect"
 import {
-  LEADERBOARD_MONTHLY_PATH,
+  currentMonthlyLeaderboardPath,
   monthlyLeaderboardArchivePath,
 } from "@/lib/routes"
 import type { MonthlyLeaderboardMonth } from "@/actions/public/leaderboard/actions"
@@ -40,7 +40,7 @@ export function MonthlyLeaderboardMonthSelect({
     if (monthKey) {
       router.push(monthlyLeaderboardArchivePath(monthKey))
     } else {
-      router.push(LEADERBOARD_MONTHLY_PATH)
+      router.push(currentMonthlyLeaderboardPath())
     }
   }
 

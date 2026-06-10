@@ -56,6 +56,8 @@ export const monthlyLeaderboardPath = (
   year: string | number,
   month: string | number,
 ) => `${LEADERBOARD_MONTHLY_PATH}/${year}/${month}`
+export const currentMonthlyLeaderboardPath = (date = new Date()) =>
+  monthlyLeaderboardPath(date.getUTCFullYear(), date.getUTCMonth() + 1)
 
 const MONTH_KEY_PATTERN = /^(\d{2})-(\d{2})-(\d{4})$/
 

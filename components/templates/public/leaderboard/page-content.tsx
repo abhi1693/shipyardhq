@@ -29,6 +29,7 @@ import {
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
   categoryPath,
+  currentMonthlyLeaderboardPath,
   productPath,
 } from "@/lib/routes"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
@@ -398,6 +399,7 @@ export async function LeaderboardPageContent({
   const { stats, products, categoryName } =
     await getLeaderboardPagePayload(filters)
   const now = new Date()
+  const monthlyArchivePath = currentMonthlyLeaderboardPath(now)
   const [interestMap, sponsoredPlacements] = await Promise.all([
     getProductInterestSignalsMap({
       products: products.map((product) => ({
@@ -436,7 +438,7 @@ export async function LeaderboardPageContent({
                 ))}
                 <div className="flex justify-center pt-8">
                   <Link
-                    href="/leaderboard/monthly"
+                    href={monthlyArchivePath}
                     className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.05em] text-[#0051d5] underline-offset-4 hover:underline"
                   >
                     View full monthly leaderboard

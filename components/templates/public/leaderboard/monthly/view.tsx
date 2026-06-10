@@ -11,7 +11,7 @@ import { MonthlyLeaderboardMonthSelect } from "@/app/(public)/leaderboard/monthl
 import {
   BROWSE_PATH,
   LEADERBOARD_PATH,
-  LEADERBOARD_MONTHLY_PATH,
+  currentMonthlyLeaderboardPath,
 } from "@/lib/routes"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
@@ -75,6 +75,7 @@ export async function MonthlyLeaderboardView({
   const runnerUps: MonthlyRanking[] = topThree.slice(1)
   const rest: MonthlyRanking[] = leaderboard.rankings.slice(3)
   const hasRankings = leaderboard.rankings.length > 0
+  const monthlyArchivePath = currentMonthlyLeaderboardPath()
 
   return (
     <main className="relative isolate overflow-hidden bg-white">
@@ -285,7 +286,7 @@ export async function MonthlyLeaderboardView({
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg">
-                <Link href={LEADERBOARD_MONTHLY_PATH}>Review other months</Link>
+                <Link href={monthlyArchivePath}>Review other months</Link>
               </Button>
               <Button asChild size="lg" variant="outline">
                 <Link href={LEADERBOARD_PATH}>Track live standings</Link>

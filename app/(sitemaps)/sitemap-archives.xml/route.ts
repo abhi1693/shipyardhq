@@ -1,6 +1,6 @@
 import { getMonthlyLeaderboardMonths } from "@/actions/public/leaderboard/actions"
 import {
-  LEADERBOARD_MONTHLY_PATH,
+  currentMonthlyLeaderboardPath,
   monthlyLeaderboardArchivePath,
 } from "@/lib/routes"
 import { resolveSiteUrl } from "@/lib/siteConfig"
@@ -37,25 +37,30 @@ export async function GET() {
 
   const months = await getMonthlyLeaderboardMonths()
   const now = new Date()
+  const currentMonthlyPath = currentMonthlyLeaderboardPath(now)
+  const currentMonthlyLoc = `${base}${currentMonthlyPath}`
 
   return sitemapResponse(
     urlsetXml([
       {
-        loc: `${base}${LEADERBOARD_MONTHLY_PATH}`,
+        loc: currentMonthlyLoc,
         lastmod: now,
         changefreq: "weekly",
         priority: "0.6",
       },
-      ...months.map((monthEntry: (typeof months)[number], index: number) => {
-        const monthDate = toMonthDate(monthEntry.month, now)
-        const recencyPriority = index < 3 ? "0.6" : index < 12 ? "0.5" : "0.4"
-        return {
-          loc: `${base}${monthlyLeaderboardArchivePath(monthEntry.month)}`,
-          lastmod: monthDate,
-          changefreq: "yearly" as const,
-          priority: recencyPriority,
-        }
-      }),
+      ...months
+        .map((monthEntry: (typeof months)[number], index: number) => {
+          const monthDate = toMonthDate(monthEntry.month, now)
+          const recencyPriority =
+            index < 3 ? "0.6" : index < 12 ? "0.5" : "0.4"
+          return {
+            loc: `${base}${monthlyLeaderboardArchivePath(monthEntry.month)}`,
+            lastmod: monthDate,
+            changefreq: "yearly" as const,
+            priority: recencyPriority,
+          }
+        })
+        .filter((entry) => entry.loc !== currentMonthlyLoc),
     ]),
   )
 }

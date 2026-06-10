@@ -1,7 +1,11 @@
 import { redirect } from "next/navigation"
 
 import { getCurrentLeaderboardWindow } from "@/lib/server/leaderboard/v2"
-import { parseMonthKey, toMonthKey } from "@/lib/server/leaderboard/months"
+import { parseMonthKey } from "@/lib/server/leaderboard/months"
+import {
+  currentMonthlyLeaderboardPath,
+  monthlyLeaderboardPath,
+} from "@/lib/routes"
 
 export default async function MonthlyLeaderboardPage({
   searchParams,
@@ -17,17 +21,12 @@ export default async function MonthlyLeaderboardPage({
     if (parsed) {
       const month = parsed.getUTCMonth() + 1
       const year = parsed.getUTCFullYear()
-      redirect(`/leaderboard/monthly/${year}/${month}`)
+      redirect(monthlyLeaderboardPath(year, month))
     }
   }
 
   const { periodStart } = getCurrentLeaderboardWindow()
-  const monthKey = toMonthKey(periodStart)
-  const month = periodStart.getUTCMonth() + 1
-  const year = periodStart.getUTCFullYear()
 
   // Redirect to the new monthly path; keep old month key redirect for compatibility.
-  redirect(
-    `/leaderboard/monthly/${year}/${month}?from=${encodeURIComponent(monthKey)}`,
-  )
+  redirect(currentMonthlyLeaderboardPath(periodStart))
 }
