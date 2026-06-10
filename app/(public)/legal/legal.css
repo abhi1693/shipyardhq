@@ -2,4 +2,3 @@
 @import "tailwindcss/utilities" source(none);
 
 @source "./**/*.{js,ts,jsx,tsx,mdx}";
-@source "../../../components/molecules/PageHeader.tsx";

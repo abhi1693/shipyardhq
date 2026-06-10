@@ -3,6 +3,7 @@
 @import "../tailwind-theme.css";
 
 @source "./layout.tsx";
+@source "../../components/atoms/Medal.tsx";
 @source "../../components/atoms/accordion.tsx";
 @source "../../components/atoms/avatar.tsx";
 @source "../../components/atoms/badge*.tsx";
@@ -23,6 +24,16 @@
 @source "../../components/layout/headers/public-header-search.tsx";
 @source "../../components/layout/public/**/*.{js,ts,jsx,tsx}";
 @source "../../components/molecules/BrandWordmark.tsx";
+@source "../../components/molecules/InlineSelect.tsx";
+@source "../../components/molecules/LiveVisitorsPill.tsx";
+@source "../../components/molecules/PageHeader.tsx";
+@source "../../components/molecules/ProductClickLink.tsx";
+@source "../../components/molecules/ProductList.skeleton.tsx";
+@source "../../components/molecules/ProductScore.tsx";
+@source "../../components/molecules/ProductUpvoteBadge.tsx";
+@source "../../components/molecules/SponsorPromo.tsx";
 @source "../../components/molecules/SquareImage.tsx";
+@source "../../components/molecules/empty-state.tsx";
+@source "../../components/organisms/PartnerSpotlight*.tsx";
 @source "../../components/templates/public/common/PartnerSpotlight.tsx";
 @source "../../lib/ui/**/*.{js,ts,jsx,tsx}";

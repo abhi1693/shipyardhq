@@ -7,15 +7,9 @@
 @source "./tags/**/*.{js,ts,jsx,tsx,mdx}";
 @source "./use-cases/**/*.{js,ts,jsx,tsx,mdx}";
 @source "../../components/molecules/CategoryIcons.tsx";
-@source "../../components/molecules/InlineSelect.tsx";
-@source "../../components/molecules/ProductClickLink.tsx";
 @source "../../components/molecules/ProductCard.tsx";
 @source "../../components/molecules/ProductFeedCard*.tsx";
 @source "../../components/molecules/ProductGrid*.tsx";
-@source "../../components/molecules/ProductScore.tsx";
-@source "../../components/molecules/SponsorPromo.tsx";
-@source "../../components/molecules/empty-state.tsx";
-@source "../../components/organisms/PartnerSpotlight*.tsx";
 @source "../../components/templates/public/categories/**/*.{js,ts,jsx,tsx}";
 @source "../../components/templates/public/common/**/*.{js,ts,jsx,tsx}";
 @source "../../components/templates/public/platforms/**/*.{js,ts,jsx,tsx}";

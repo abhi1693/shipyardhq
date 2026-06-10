@@ -3,11 +3,7 @@
 
 @source "./**/*.{js,ts,jsx,tsx,mdx}";
 @source "../../../components/molecules/MakerFeedCard.tsx";
-@source "../../../components/molecules/ProductClickLink.tsx";
 @source "../../../components/molecules/ProductCard.tsx";
 @source "../../../components/molecules/ProductFeedCard*.tsx";
-@source "../../../components/molecules/ProductScore.tsx";
-@source "../../../components/molecules/SponsorPromo.tsx";
 @source "../../../components/molecules/directory/**/*.{js,ts,jsx,tsx}";
-@source "../../../components/organisms/PartnerSpotlight*.tsx";
 @source "../../../components/templates/public/users/**/*.{js,ts,jsx,tsx}";

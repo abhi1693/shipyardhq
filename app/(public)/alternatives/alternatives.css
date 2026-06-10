@@ -2,8 +2,6 @@
 @import "tailwindcss/utilities" source(none);
 
 @source "./**/*.{js,ts,jsx,tsx,mdx}";
-@source "../../../components/molecules/ProductClickLink.tsx";
 @source "../../../components/molecules/ProductCard.tsx";
 @source "../../../components/molecules/ProductFeedCard*.tsx";
-@source "../../../components/molecules/ProductScore.tsx";
 @source "../../../components/templates/public/common/**/*.{js,ts,jsx,tsx}";

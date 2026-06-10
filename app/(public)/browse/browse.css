@@ -3,10 +3,6 @@
 
 @source "./**/*.{js,ts,jsx,tsx,mdx}";
 @source "../../../components/molecules/BrowseFilterBar.tsx";
-@source "../../../components/molecules/InlineSelect.tsx";
-@source "../../../components/molecules/ProductClickLink.tsx";
 @source "../../../components/molecules/ProductCard.tsx";
 @source "../../../components/molecules/ProductFeedCard*.tsx";
-@source "../../../components/molecules/ProductScore.tsx";
-@source "../../../components/molecules/empty-state.tsx";
 @source "../../../components/templates/public/browse/**/*.{js,ts,jsx,tsx}";
