@@ -12,7 +12,9 @@ export const dynamic = "force-dynamic"
 type Theme = "light" | "dark"
 type BadgeType = "featured"
 
-type RouteParams = Promise<{ slug: string }>
+type RouteContext = {
+  params: Promise<{ slug: string }>
+}
 
 const WIDTH = 500
 const HEIGHT = 162
@@ -175,7 +177,7 @@ function buildBaseSvg(options: {
 `.trim()
 }
 
-export async function GET(_req: NextRequest, context: { params: RouteParams }) {
+export async function GET(_req: NextRequest, context: RouteContext) {
   const { slug } = await context.params
   const url = _req.nextUrl
   const product = await getPublicProductMetaBySlug(slug)

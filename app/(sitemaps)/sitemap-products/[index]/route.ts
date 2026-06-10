@@ -1,3 +1,5 @@
+import type { NextRequest } from "next/server"
+
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { resolveSiteUrl } from "@/lib/siteConfig"
@@ -21,7 +23,7 @@ export function generateStaticParams(): Array<{ index: string }> {
 }
 
 export async function GET(
-  _req: Request,
+  _req: NextRequest,
   { params }: { params: Promise<{ index: string }> },
 ) {
   const base = resolveSiteUrl()

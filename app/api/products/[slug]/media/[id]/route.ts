@@ -1,3 +1,5 @@
+import type { NextRequest } from "next/server"
+
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { deleteBlob, isManagedBlobUrl } from "@/lib/blob"
@@ -5,10 +7,11 @@ import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 export const dynamic = "force-dynamic"
 
-export async function DELETE(
-  _req: Request,
-  { params }: { params: Promise<{ slug: string; id: string }> },
-) {
+type RouteContext = {
+  params: Promise<{ slug: string; id: string }>
+}
+
+export async function DELETE(_req: NextRequest, { params }: RouteContext) {
   try {
     const { slug, id } = await params
     const { userId } = await auth()

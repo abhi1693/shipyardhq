@@ -1,3 +1,5 @@
+import type { NextRequest } from "next/server"
+
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { putBlob } from "@/lib/blob"
@@ -6,14 +8,15 @@ import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 export const dynamic = "force-dynamic"
 
+type RouteContext = {
+  params: Promise<{ slug: string }>
+}
+
 function sanitizeFilename(name: string) {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_")
 }
 
-export async function POST(
-  req: Request,
-  { params }: { params: Promise<{ slug: string }> },
-) {
+export async function POST(req: NextRequest, { params }: RouteContext) {
   try {
     const { slug } = await params
     const { userId } = await auth()

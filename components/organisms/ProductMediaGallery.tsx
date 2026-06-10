@@ -66,7 +66,8 @@ export function ProductMediaGallery({
   const currentItem = mediaItems[currentIndex]
   const totalAssets = mediaItems.length
   const shouldUseDirectInitialImage =
-    currentIndex === 0 && directInitialImage?.originalSrc === currentItem.imageUrl
+    currentIndex === 0 &&
+    directInitialImage?.originalSrc === currentItem.imageUrl
 
   const goToPrevious = () => {
     setSelectedIndex((prev) =>

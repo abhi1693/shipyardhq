@@ -87,7 +87,10 @@ function PublicMobileMenu() {
           </div>
         </form>
 
-        <nav aria-label="Mobile public navigation" className="mt-4 flex flex-col">
+        <nav
+          aria-label="Mobile public navigation"
+          className="mt-4 flex flex-col"
+        >
           {publicHeaderLinks.map((link) => (
             <Link
               key={link.href}

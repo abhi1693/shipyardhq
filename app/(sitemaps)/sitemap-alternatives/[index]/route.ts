@@ -1,3 +1,5 @@
+import type { NextRequest } from "next/server"
+
 import prisma from "@/lib/prisma"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import {
@@ -16,7 +18,7 @@ export function generateStaticParams(): Array<{ index: string }> {
 }
 
 export async function GET(
-  _req: Request,
+  _req: NextRequest,
   { params }: { params: Promise<{ index: string }> },
 ) {
   const base = resolveSiteUrl()
@@ -54,11 +56,7 @@ export async function GET(
               ? "weekly"
               : "monthly"
         const priority =
-          daysSinceUpdate <= 7
-            ? "0.7"
-            : daysSinceUpdate <= 180
-              ? "0.6"
-              : "0.5"
+          daysSinceUpdate <= 7 ? "0.7" : daysSinceUpdate <= 180 ? "0.6" : "0.5"
 
         return {
           loc: `${base}/alternatives/${alternative.slug}`,

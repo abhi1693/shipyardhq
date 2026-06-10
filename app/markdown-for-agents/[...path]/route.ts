@@ -1,3 +1,5 @@
+import type { NextRequest } from "next/server"
+
 import { markdownResponse } from "@/lib/server/markdownForAgentsRoute"
 
 export const dynamic = "force-dynamic"
@@ -14,10 +16,10 @@ async function getPathOverride(context: MarkdownPathContext) {
   return `/${(params.path ?? []).map(encodeURIComponent).join("/")}`
 }
 
-export async function GET(req: Request, context: MarkdownPathContext) {
+export async function GET(req: NextRequest, context: MarkdownPathContext) {
   return markdownResponse(req, true, await getPathOverride(context))
 }
 
-export async function HEAD(req: Request, context: MarkdownPathContext) {
+export async function HEAD(req: NextRequest, context: MarkdownPathContext) {
   return markdownResponse(req, false, await getPathOverride(context))
 }

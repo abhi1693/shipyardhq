@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server"
+import { NextResponse, type NextRequest } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 
 import {
@@ -7,11 +7,11 @@ import {
 } from "@/actions/public/products/upvote"
 import prisma from "@/lib/prisma"
 
-interface RouteParams {
+interface RouteContext {
   params: Promise<{ slug?: string }>
 }
 
-export async function POST(_request: Request, { params }: RouteParams) {
+export async function POST(_request: NextRequest, { params }: RouteContext) {
   const resolvedParams = await params
   const slug = resolvedParams.slug?.trim()
   if (!slug) {
