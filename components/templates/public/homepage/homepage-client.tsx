@@ -459,7 +459,7 @@ function DropProductLogo({
           alt={`${product.name} logo`}
           width={56}
           height={56}
-          sizes="56px"
+          sizes={sponsored ? "56px" : "40px"}
           className={cn(
             "h-full w-full object-cover",
             sponsored ? "contrast-125" : "h-10 w-10",
