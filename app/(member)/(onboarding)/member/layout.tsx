@@ -13,6 +13,7 @@ import {
 } from "@/lib/routes"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
+import "../../member/member.css"
 
 export const dynamic = "force-dynamic"
 

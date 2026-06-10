@@ -4,6 +4,7 @@ import PublicFooter from "@/components/layout/footers/public-footer"
 import { getPartnerSpotlightProduct } from "@/actions/public/products/featured"
 import { PartnerSpotlight } from "@/components/templates/public/common/PartnerSpotlight"
 import { buildSectionMetadata } from "@/lib/metadata"
+import "./public.css"
 
 export const metadata = buildSectionMetadata()
 

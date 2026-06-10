@@ -15,6 +15,7 @@ import {
   adminPath,
   MEMBER_OVERVIEW_PATH,
 } from "@/lib/routes"
+import "./admin.css"
 
 export const metadata = buildSectionMetadata({
   section: "Admin",

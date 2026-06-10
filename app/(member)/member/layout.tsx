@@ -24,6 +24,7 @@ import {
   MEMBER_REWARDS_PATH,
 } from "@/lib/routes"
 import { redirect } from "next/navigation"
+import "./member.css"
 
 export const metadata = buildSectionMetadata({ section: "Member" })
 

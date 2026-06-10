@@ -1,0 +1,11 @@
+@config "../../tailwind.config.js";
+@import "tailwindcss" source(none);
+@import "../tailwind-theme.css";
+@import "../theme.css";
+
+@source "./**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../components/atoms/**/*.{js,ts,jsx,tsx}";
+@source "../../components/layout/AuthViewShell.tsx";
+@source "../../components/organisms/Auth*.{js,ts,jsx,tsx}";
+@source "../../components/seo/**/*.{js,ts,jsx,tsx}";
+@source "../../lib/ui/**/*.{js,ts,jsx,tsx}";

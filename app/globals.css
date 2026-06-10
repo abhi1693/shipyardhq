@@ -1,8 +1,3 @@
-@config "../tailwind.config.js";
-@import "tailwindcss";
-
-@import "./theme.css";
-
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -43,177 +38,446 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-@theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-color: var(--border);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  overscroll-behavior: none;
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.prose {
+  color: var(--foreground);
+  max-width: 65ch;
+}
+
+.prose-sm {
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.prose-neutral,
+.prose-invert {
+  color: var(--foreground);
+}
+
+.prose :where(:first-child) {
+  margin-top: 0;
+}
+
+.prose :where(:last-child) {
+  margin-bottom: 0;
+}
+
+.prose :where(p, ul, ol, blockquote, pre, table) {
+  margin-block: 1em;
+}
+
+.prose :where(h1, h2, h3, h4) {
+  color: var(--foreground);
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 1.5em;
+  margin-bottom: 0.6em;
+}
+
+.prose :where(h1) {
+  font-size: 1.75em;
+}
+
+.prose :where(h2) {
+  font-size: 1.45em;
+}
+
+.prose :where(h3) {
+  font-size: 1.2em;
+}
+
+.prose :where(a) {
+  color: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.prose :where(strong) {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.prose :where(ul, ol) {
+  padding-left: 1.5em;
+}
+
+.prose :where(ul) {
+  list-style: disc;
+}
+
+.prose :where(ol) {
+  list-style: decimal;
+}
+
+.prose :where(li) {
+  margin-block: 0.25em;
+}
+
+.prose :where(blockquote) {
+  border-left: 3px solid var(--border);
+  color: var(--muted-foreground);
+  padding-left: 1em;
+}
+
+.prose :where(code) {
+  border-radius: 0.375rem;
+  background: var(--muted);
+  color: var(--foreground);
+  font-size: 0.92em;
+  padding: 0.12em 0.35em;
+}
+
+.prose :where(pre) {
+  border-radius: 0.75rem;
+  background: #0f172b;
+  color: #f8fafc;
+  overflow-x: auto;
+  padding: 1em;
+}
+
+.prose :where(pre code) {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+.prose :where(table) {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+.prose :where(th, td) {
+  border: 1px solid var(--border);
+  padding: 0.45em 0.65em;
+}
+
+.prose :where(th) {
+  font-weight: 700;
+}
+
+.prose :where(img) {
+  margin-block: 1em;
+  max-width: 100%;
+}
+
+.not-found-page {
+  min-height: 100vh;
+  background: #f8f9ff;
+  color: #0b1c30;
+}
+
+.not-found-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  display: flex;
+  height: 4rem;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fff;
+  padding: 0 1rem;
+}
+
+.not-found-brand {
+  color: #0b1c30;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.not-found-nav {
+  display: none;
+  align-items: center;
+  gap: 1.5rem;
+  color: #43474c;
+  font-size: 0.875rem;
+}
+
+.not-found-nav a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.not-found-main {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding-top: 4rem;
+}
+
+.not-found-grid,
+.not-found-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+}
+
+.not-found-grid {
+  opacity: 0.5;
+  background-image: radial-gradient(#d3e4fe 0.75px, transparent 0.75px);
+  background-size: 24px 24px;
+}
+
+.not-found-glow {
+  bottom: auto;
+  height: 16rem;
+  background: linear-gradient(#dce9ff, transparent);
+  opacity: 0.7;
+}
+
+.not-found-section {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1200px;
+  padding: 4rem 1rem;
+  text-align: center;
+}
+
+.not-found-title-stack {
+  position: relative;
+  display: flex;
+  min-height: 180px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.not-found-ghost-title {
+  user-select: none;
+  margin: 0;
+  color: rgb(0 0 0 / 0.04);
+  font-size: 9rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.not-found-title-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.not-found-kicker {
+  border-radius: 999px;
+  background: #c0ff00;
+  color: #000;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.not-found-title-content h2 {
+  margin: 0.75rem 0 0;
+  color: #000;
+  font-size: 2rem;
+  line-height: 1.25;
+}
+
+.not-found-copy {
+  max-width: 42rem;
+  margin: 0 auto;
+  color: #43474c;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.not-found-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.not-found-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 1rem 2rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.not-found-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.not-found-button-primary {
+  background: #000;
+  color: #fff;
+}
+
+.not-found-button-secondary {
+  border: 1px solid #e2e8f0;
+  background: #eff4ff;
+  color: #000;
+}
+
+.not-found-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 4rem;
+  text-align: left;
+}
+
+.not-found-card {
+  display: block;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: #fff;
+  padding: 1.5rem;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.not-found-card:hover {
+  border-color: #0051d5;
+  box-shadow: 0 10px 24px rgb(11 28 48 / 0.12);
+}
+
+.not-found-card-icon {
+  display: flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background: #eff4ff;
+}
+
+.not-found-card-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.not-found-card h3 {
+  margin: 1rem 0 0;
+  color: #000;
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+}
+
+.not-found-card p {
+  margin: 0.5rem 0 0;
+  color: #43474c;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.not-found-card span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 1rem;
+  color: #0051d5;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.not-found-card span svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.not-found-submit {
+  display: inline-flex;
+  margin-top: 1.5rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  color: #43474c;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.not-found-submit:hover {
+  background: #eff4ff;
+  color: #000;
+}
+
+@media (min-width: 640px) {
+  .not-found-header {
+    padding: 0 1.5rem;
   }
-  body {
-    @apply bg-background text-foreground;
-    background-color: var(--background);
+
+  .not-found-actions {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .not-found-button {
+    min-width: 0;
+  }
+
+  .not-found-title-stack {
+    min-height: 260px;
+  }
+
+  .not-found-ghost-title {
+    font-size: 14rem;
+  }
+
+  .not-found-title-content h2 {
+    font-size: 3rem;
   }
 }
 
-@layer components {
-  .prose {
-    color: var(--foreground);
-    max-width: 65ch;
+@media (min-width: 768px) {
+  .not-found-nav {
+    display: flex;
   }
 
-  .prose-sm {
-    font-size: 0.875rem;
-    line-height: 1.7;
+  .not-found-section {
+    padding: 6rem 1.5rem;
   }
 
-  .prose-neutral,
-  .prose-invert {
-    color: var(--foreground);
+  .not-found-title-content h2 {
+    font-size: 4rem;
+    line-height: 1.125;
   }
 
-  .prose :where(:first-child) {
-    margin-top: 0;
-  }
-
-  .prose :where(:last-child) {
-    margin-bottom: 0;
-  }
-
-  .prose :where(p, ul, ol, blockquote, pre, table) {
-    margin-block: 1em;
-  }
-
-  .prose :where(h1, h2, h3, h4) {
-    color: var(--foreground);
-    font-weight: 700;
-    line-height: 1.25;
-    margin-top: 1.5em;
-    margin-bottom: 0.6em;
-  }
-
-  .prose :where(h1) {
-    font-size: 1.75em;
-  }
-
-  .prose :where(h2) {
-    font-size: 1.45em;
-  }
-
-  .prose :where(h3) {
-    font-size: 1.2em;
-  }
-
-  .prose :where(a) {
-    color: inherit;
-    font-weight: 500;
-    text-decoration: underline;
-    text-underline-offset: 0.18em;
-  }
-
-  .prose :where(strong) {
-    color: var(--foreground);
-    font-weight: 700;
-  }
-
-  .prose :where(ul, ol) {
-    padding-left: 1.5em;
-  }
-
-  .prose :where(ul) {
-    list-style: disc;
-  }
-
-  .prose :where(ol) {
-    list-style: decimal;
-  }
-
-  .prose :where(li) {
-    margin-block: 0.25em;
-  }
-
-  .prose :where(blockquote) {
-    border-left: 3px solid var(--border);
-    color: var(--muted-foreground);
-    padding-left: 1em;
-  }
-
-  .prose :where(code) {
-    border-radius: 0.375rem;
-    background: var(--muted);
-    color: var(--foreground);
-    font-size: 0.92em;
-    padding: 0.12em 0.35em;
-  }
-
-  .prose :where(pre) {
-    border-radius: 0.75rem;
-    background: #0f172b;
-    color: #f8fafc;
-    overflow-x: auto;
-    padding: 1em;
-  }
-
-  .prose :where(pre code) {
-    background: transparent;
-    color: inherit;
-    padding: 0;
-  }
-
-  .prose :where(table) {
-    display: block;
-    max-width: 100%;
-    overflow-x: auto;
-    border-collapse: collapse;
-  }
-
-  .prose :where(th, td) {
-    border: 1px solid var(--border);
-    padding: 0.45em 0.65em;
-  }
-
-  .prose :where(th) {
-    font-weight: 700;
-  }
-
-  .prose :where(img) {
-    margin-block: 1em;
-    max-width: 100%;
+  .not-found-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
