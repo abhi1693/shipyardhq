@@ -38,7 +38,7 @@ const footerColumns = [
       { label: "Terms of Service", href: LEGAL_TERMS_PATH },
       { label: "Privacy Policy", href: LEGAL_PRIVACY_PATH },
       { label: "Cookie Policy", href: LEGAL_PRIVACY_PATH },
-      { label: "Contact", href: "mailto:support@shipyardhq.dev" },
+      { label: "Contact", href: `${LEGAL_PRIVACY_PATH}#contact` },
     ],
   },
 ] as const

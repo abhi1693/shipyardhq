@@ -51,7 +51,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://media.shipyardhq.dev" />
         {gaId && (
           <Script
             id="ga-hostname-exclusions"

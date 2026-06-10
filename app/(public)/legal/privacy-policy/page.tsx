@@ -299,7 +299,9 @@ export default function PrivacyPolicyPage() {
               provide additional notice.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-6">Contact Us</h2>
+            <h2 id="contact" className="text-2xl font-semibold mt-6">
+              Contact Us
+            </h2>
             <p>
               Questions or requests? Email{" "}
               <a
