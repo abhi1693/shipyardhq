@@ -4,7 +4,9 @@ import { ArrowUp, ImageIcon, Sparkles, TrendingUp } from "lucide-react"
 import { format, isToday, isYesterday, startOfWeek } from "date-fns"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { categoryPath, productPath } from "@/lib/routes"
+import { toProductCardItem } from "@/lib/products/card-item"
 
 export type TaxonomyProductSection = {
   key: string
@@ -17,6 +19,45 @@ function productDate(product: HomepageFeedItem) {
   const raw = product.publishedAt ?? product.createdAt
   const date = new Date(raw)
   return Number.isNaN(date.getTime()) ? new Date(0) : date
+}
+
+export function mapProductCardBaseToTaxonomyFeedItem(
+  product: ProductCardBase,
+): HomepageFeedItem {
+  const item = toProductCardItem(product)
+  const categoryName =
+    typeof item.categoryName !== "undefined"
+      ? (item.categoryName ?? null)
+      : (item.category?.name ?? null)
+  const categorySlug =
+    typeof item.categorySlug !== "undefined"
+      ? (item.categorySlug ?? null)
+      : (item.category?.slug ?? null)
+  const isSponsored = Boolean(item.sponsored ?? item.isSponsored)
+
+  return {
+    id: item.id,
+    slug: item.slug,
+    name: item.name,
+    logo: item.logo,
+    tagline:
+      item.tagline ||
+      "Discover launch-ready tools from indie makers worldwide.",
+    createdAt: item.createdAt ?? "",
+    updatedAt: item.updatedAt ?? "",
+    badges: item.badges ?? [],
+    category: categoryName,
+    categorySlug,
+    upvoteCount: item.analytics?.upvotes ?? 0,
+    scoreCount: item.scoreCount,
+    updatesCount: item.updatesCount,
+    isSponsored,
+    isVoted: Boolean(item.isVoted),
+    isVerified: Boolean(item.isVerified),
+    variant: item.variant ?? (isSponsored ? "sponsored" : "default"),
+    interest: item.interest ?? null,
+    shuffleRank: 0,
+  }
 }
 
 export function buildTaxonomyProductSections(
