@@ -6,7 +6,7 @@ import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-  SidebarGroupLabel,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -28,23 +28,31 @@ import Link from "next/link"
 import { NavItem } from "@/types"
 import { toast } from "sonner"
 import { createBillingPortalAction } from "@/actions/member/billing/portal"
-import { BrandWordmark } from "@/components/molecules/BrandWordmark"
+import { UserAvatarProfile } from "@/components/molecules/UserAvatarProfile"
+import { BrandLogo } from "@/components/atoms/brand-logo"
+import { useUser } from "@clerk/nextjs"
+import { CreditCard, Rocket } from "lucide-react"
 import {
+  ADMIN_ACCOUNT_PROFILE_PATH,
   ADMIN_BASE_PATH,
   ADMIN_OVERVIEW_PATH,
   HOME_PATH,
+  MEMBER_ACCOUNT_PROFILE_PATH,
   MEMBER_BASE_PATH,
   MEMBER_OVERVIEW_PATH,
+  MEMBER_PRODUCTS_ADD_PATH,
 } from "@/lib/routes"
 
 interface SidebarProps {
   navItems?: NavItem[]
   showBillingPortal?: boolean
+  userRole?: string | null
 }
 
 export default function AppSidebar(props: SidebarProps) {
   const pathname = usePathname() ?? "/"
-  const { navItems = [], showBillingPortal = false } = props
+  const { user } = useUser()
+  const { navItems = [], showBillingPortal = false, userRole = null } = props
 
   const [isPortalPending, startPortal] = useTransition()
 
@@ -83,10 +91,39 @@ export default function AppSidebar(props: SidebarProps) {
     return false
   }
 
-  const filteredNav = navItems
+  const isAdminSection = pathname.startsWith(ADMIN_BASE_PATH)
+  const isMemberSection = pathname.startsWith(MEMBER_BASE_PATH)
+  const dashboardLabel = isAdminSection ? "Admin Console" : "Founder Dashboard"
+  const profileName =
+    user?.firstName || user?.fullName || user?.username || "Shipyard member"
+  const profileTier = isAdminSection ? "Admin" : "Pro Founder"
+  const profileHref = isAdminSection
+    ? ADMIN_ACCOUNT_PROFILE_PATH
+    : MEMBER_ACCOUNT_PROFILE_PATH
+
+  const filteredNav = useMemo<NavItem[]>(() => {
+    const items = [...navItems]
+    const shouldExposeAdminEntry =
+      userRole === "admin" &&
+      isMemberSection &&
+      !items.some(
+        (item) => item.title === "Admin" || item.url === ADMIN_OVERVIEW_PATH,
+      )
+
+    if (shouldExposeAdminEntry) {
+      items.push({
+        title: "Admin",
+        url: ADMIN_OVERVIEW_PATH,
+        icon: "settings",
+        isActive: false,
+      })
+    }
+
+    return items
+  }, [isMemberSection, navItems, userRole])
 
   const brandHref = useMemo(() => {
-    const queue = [...navItems]
+    const queue = [...filteredNav]
     while (queue.length) {
       const candidate = queue.shift()
       if (!candidate) continue
@@ -100,25 +137,42 @@ export default function AppSidebar(props: SidebarProps) {
     if (pathname.startsWith(MEMBER_BASE_PATH)) return MEMBER_OVERVIEW_PATH
     if (pathname.startsWith(ADMIN_BASE_PATH)) return ADMIN_OVERVIEW_PATH
     return HOME_PATH
-  }, [navItems, pathname])
+  }, [filteredNav, pathname])
 
   const topLevelButtonClasses =
-    "relative px-3 transition-colors duration-150 hover:bg-[color:var(--brand-1)/0.1] hover:text-[color:var(--brand-1)] data-[active=true]:border data-[active=true]:border-[color:var(--brand-1)/0.4] data-[active=true]:bg-[color:var(--brand-1)/0.22] data-[active=true]:text-[color:var(--brand-1)] group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0"
+    "relative h-10 rounded-lg px-3 text-slate-600 transition-colors duration-150 hover:bg-[#eff4ff] hover:text-blue-700 data-[active=true]:border-r-2 data-[active=true]:border-blue-700 data-[active=true]:bg-[#eff4ff] data-[active=true]:font-bold data-[active=true]:text-blue-700 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-md group-data-[collapsible=icon]:border-r-0 group-data-[collapsible=icon]:px-0"
 
   const subLevelButtonClasses =
-    "transition-colors duration-150 hover:bg-[color:var(--brand-1)/0.1] hover:text-[color:var(--brand-1)] data-[active=true]:bg-[color:var(--brand-1)/0.18] data-[active=true]:text-[color:var(--brand-1)]"
+    "rounded-md text-slate-500 transition-colors duration-150 hover:bg-[#eff4ff] hover:text-blue-700 data-[active=true]:bg-[#eff4ff] data-[active=true]:font-semibold data-[active=true]:text-blue-700"
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <BrandWordmark href={brandHref} compact eager />
-        <div className="mx-1 mt-1 h-px rounded-full bg-[color:var(--brand-1)/0.35] opacity-70" />
+    <Sidebar
+      collapsible="icon"
+      className="border-slate-200 [&_[data-slot=sidebar-inner]]:border-r [&_[data-slot=sidebar-inner]]:border-slate-200 [&_[data-slot=sidebar-inner]]:bg-[#f8f9ff]"
+    >
+      <SidebarHeader className="px-6 py-6 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:py-4">
+        <Link
+          href={brandHref}
+          className="flex items-center gap-2 transition-opacity hover:opacity-80 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:bg-white"
+          aria-label="Shipyard HQ dashboard"
+        >
+          <BrandLogo
+            width={28}
+            height={28}
+            sizes="28px"
+            eager
+            className="h-7 w-7 shrink-0"
+          />
+          <span className="text-lg font-semibold tracking-normal text-slate-950 group-data-[collapsible=icon]:hidden">
+            Shipyard HQ
+          </span>
+        </Link>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 group-data-[collapsible=icon]:hidden">
+          {dashboardLabel}
+        </p>
       </SidebarHeader>
-      <SidebarContent className="overflow-x-hidden">
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-3 py-1.5 text-sm font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/85 group-data-[collapsible=icon]:hidden">
-            Admin
-          </SidebarGroupLabel>
+      <SidebarContent className="overflow-x-hidden px-4 group-data-[collapsible=icon]:px-2">
+        <SidebarGroup className="p-0">
           <SidebarMenu>
             {filteredNav.map((item) => {
               const Icon = item.icon ? Icons[item.icon] : Icons.logo
@@ -144,10 +198,8 @@ export default function AppSidebar(props: SidebarProps) {
                         size="lg"
                         className={topLevelButtonClasses}
                       >
-                        {item.icon && (
-                          <Icon className="shrink-0 group-data-[collapsible=icon]:size-5" />
-                        )}
-                        <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">
+                        {item.icon && <Icon className="size-5 shrink-0" />}
+                        <span className="flex-1 truncate text-xs font-semibold uppercase tracking-[0.12em] group-data-[collapsible=icon]:hidden">
                           {item.title}
                         </span>
                         <IconChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 group-data-[collapsible=icon]:hidden" />
@@ -212,15 +264,15 @@ export default function AppSidebar(props: SidebarProps) {
                           : undefined
                       }
                     >
-                      <Icon className="shrink-0 group-data-[collapsible=icon]:size-5" />
-                      <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">
+                      <Icon className="size-5 shrink-0" />
+                      <span className="flex-1 truncate text-xs font-semibold uppercase tracking-[0.12em] group-data-[collapsible=icon]:hidden">
                         {item.title}
                       </span>
                       {item.label && (
                         <>
                           <SidebarMenuBadge
                             aria-hidden="true"
-                            className="group-data-[collapsible=icon]:hidden rounded-full border border-[color:var(--brand-1)/0.35] bg-[color:var(--brand-1)]/90 px-2 py-0.5 text-[11px] font-semibold text-white shadow-[0_4px_10px_rgba(15,23,42,0.18)]"
+                            className="rounded-full border border-blue-200 bg-blue-700 px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm group-data-[collapsible=icon]:hidden"
                           >
                             {item.label}
                           </SidebarMenuBadge>
@@ -236,25 +288,57 @@ export default function AppSidebar(props: SidebarProps) {
                 </SidebarMenuItem>
               )
             })}
-            {showBillingPortal && (
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  tooltip="Billing Portal"
-                  onClick={openBillingPortal}
-                  disabled={isPortalPending}
-                  size="lg"
-                  className={topLevelButtonClasses}
-                >
-                  <Icons.billing className="shrink-0 group-data-[collapsible=icon]:size-5" />
-                  <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">
-                    Billing Portal
-                  </span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            )}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="mt-auto gap-5 px-4 py-6 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:gap-4 group-data-[collapsible=icon]:px-2">
+        {isMemberSection ? (
+          <Link
+            href={MEMBER_PRODUCTS_ADD_PATH}
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-transform active:scale-[0.98] group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:rounded-md group-data-[collapsible=icon]:px-0"
+            aria-label="Launch new project"
+          >
+            <Rocket className="h-4 w-4" aria-hidden />
+            <span className="group-data-[collapsible=icon]:hidden">
+              Launch New Project
+            </span>
+          </Link>
+        ) : null}
+
+        {showBillingPortal ? (
+          <button
+            type="button"
+            onClick={openBillingPortal}
+            disabled={isPortalPending}
+            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:rounded-md group-data-[collapsible=icon]:px-0"
+            aria-label="Billing portal"
+          >
+            <CreditCard className="h-4 w-4" aria-hidden />
+            <span className="group-data-[collapsible=icon]:hidden">
+              Billing Portal
+            </span>
+          </button>
+        ) : null}
+
+        <Link
+          href={profileHref}
+          className="flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-[#eff4ff] group-data-[collapsible=icon]:px-0"
+        >
+          <UserAvatarProfile
+            user={user ?? null}
+            size={40}
+            className="rounded-full border border-slate-200 bg-white group-data-[collapsible=icon]:h-8! group-data-[collapsible=icon]:w-8!"
+          />
+          <div className="min-w-0 group-data-[collapsible=icon]:hidden">
+            <p className="truncate text-xs font-semibold uppercase tracking-[0.08em] text-slate-950">
+              {profileName}
+            </p>
+            <p className="truncate text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+              {profileTier}
+            </p>
+          </div>
+        </Link>
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )

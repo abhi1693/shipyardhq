@@ -9,8 +9,8 @@ export default function PageContainer({
   scrollable?: boolean
 }) {
   const content = (
-    <div className="w-full px-4 md:px-6">
-      <div className="mx-auto w-full">{children}</div>
+    <div className="w-full p-4 md:p-6">
+      <div className="w-full">{children}</div>
     </div>
   )
 
