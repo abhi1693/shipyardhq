@@ -1,19 +1,20 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import Link from "next/link"
-import { format, formatDistanceToNow } from "date-fns"
+import { formatDistanceToNow } from "date-fns"
 import { toast } from "sonner"
 import { useFormState, useFormStatus } from "react-dom"
-
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/atoms/card"
+  BadgeCheck,
+  ChartNoAxesColumnIncreasing,
+  CheckCircle2,
+  Gift,
+  type LucideIcon,
+  Sparkles,
+  Star,
+  Trophy,
+} from "lucide-react"
+
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import {
@@ -32,14 +33,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/atoms/table"
 import { cn } from "@/lib/utils"
 import { redeemCatalogItemAction } from "@/actions/member/rewards/actions"
 import {
@@ -48,22 +41,13 @@ import {
   type RedeemFormState,
 } from "@/actions/member/rewards/types"
 import type {
-  FeatureEntitlementStatus,
-  RewardTransactionType,
-  RedemptionStatus,
   RewardFeatureCategory,
+  RewardTransactionType,
 } from "@/lib/vendor/prisma/client/enums"
 import {
-  FeatureEntitlementStatus as FeatureEntitlementStatusEnum,
   RewardTransactionType as RewardTransactionTypeEnum,
-  RedemptionStatus as RedemptionStatusEnum,
   RewardFeatureCategory as RewardFeatureCategoryEnum,
 } from "@/lib/vendor/prisma/client/enums"
-import {
-  MEMBER_PRODUCTS_PATH,
-  REWARDS_PATH,
-  memberProductPath,
-} from "@/lib/routes"
 
 type MemberRewardsProps = {
   snapshot: MemberRewardsSnapshot
@@ -88,24 +72,6 @@ const transactionTypeLabels: Record<RewardTransactionType, string> = {
   [RewardTransactionTypeEnum.refund]: "Refunded",
 }
 
-const entitlementStatusTone: Record<FeatureEntitlementStatus, string> = {
-  [FeatureEntitlementStatusEnum.active]: "text-emerald-700",
-  [FeatureEntitlementStatusEnum.pending]: "text-amber-600",
-  [FeatureEntitlementStatusEnum.paused]: "text-slate-500",
-  [FeatureEntitlementStatusEnum.expired]: "text-slate-400",
-  [FeatureEntitlementStatusEnum.canceled]: "text-slate-500",
-  [FeatureEntitlementStatusEnum.failed]: "text-rose-600",
-}
-
-const redemptionStatusTone: Record<RedemptionStatus, string> = {
-  [RedemptionStatusEnum.pending]: "text-amber-600",
-  [RedemptionStatusEnum.active]: "text-emerald-700",
-  [RedemptionStatusEnum.expired]: "text-slate-400",
-  [RedemptionStatusEnum.canceled]: "text-slate-500",
-  [RedemptionStatusEnum.failed]: "text-rose-600",
-  [RedemptionStatusEnum.refunded]: "text-emerald-700",
-}
-
 function formatNumber(value: number) {
   return new Intl.NumberFormat("en-US").format(value)
 }
@@ -115,9 +81,129 @@ function formatRelative(date: Date | null) {
   return formatDistanceToNow(date, { addSuffix: true })
 }
 
-function formatDateTime(date: Date | null) {
-  if (!date) return "—"
-  return format(date, "MMM d, yyyy • h:mm a")
+function categoryIconFor(category: RewardFeatureCategory): LucideIcon {
+  switch (category) {
+    case RewardFeatureCategoryEnum.analytics:
+      return ChartNoAxesColumnIncreasing
+    case RewardFeatureCategoryEnum.insights:
+      return Sparkles
+    case RewardFeatureCategoryEnum.access:
+      return Star
+    case RewardFeatureCategoryEnum.exposure:
+      return Trophy
+    case RewardFeatureCategoryEnum.utility:
+      return Gift
+    case RewardFeatureCategoryEnum.placement:
+    default:
+      return BadgeCheck
+  }
+}
+
+function transactionAmountDelta(
+  transaction: MemberRewardsSnapshot["transactions"][number],
+) {
+  if (transaction.type === RewardTransactionTypeEnum.earn) {
+    return transaction.rewardAmount
+  }
+
+  if (transaction.type === RewardTransactionTypeEnum.refund) {
+    return transaction.rewardAmount
+  }
+
+  if (transaction.type === RewardTransactionTypeEnum.adjustment) {
+    return transaction.adjustmentAmount ?? transaction.rewardAmount
+  }
+
+  return -transaction.rewardAmount
+}
+
+function formatAdjustmentDetail(
+  transaction: MemberRewardsSnapshot["transactions"][number],
+) {
+  if (transaction.notes && transaction.notes.length) {
+    return transaction.notes
+  }
+
+  const amount = transaction.adjustmentAmount
+  if (typeof amount === "number" && Number.isFinite(amount)) {
+    const tone = amount >= 0 ? "Admin credit" : "Admin deduction"
+    const formattedAmount = formatNumber(Math.abs(amount))
+    const sign = amount >= 0 ? "+" : "-"
+    return `${tone} (${sign}${formattedAmount} rewards)`
+  }
+
+  return "Admin adjustment"
+}
+
+function transactionDetail(
+  transaction: MemberRewardsSnapshot["transactions"][number],
+) {
+  const base =
+    transaction.type === RewardTransactionTypeEnum.earn
+      ? (transaction.ruleName ?? transaction.ruleKey ?? "Earned")
+      : transaction.type === RewardTransactionTypeEnum.adjustment
+        ? formatAdjustmentDetail(transaction)
+        : transaction.type === RewardTransactionTypeEnum.refund
+          ? (transaction.rewardName ?? transaction.rewardKey ?? "Refunded")
+          : (transaction.rewardName ?? transaction.rewardKey ?? "Redeemed")
+
+  return transaction.productName ? `${base} - ${transaction.productName}` : base
+}
+
+type SummaryMetricProps = {
+  label: string
+  value: string
+  suffix?: string
+  icon: LucideIcon
+  helper?: string
+  compact?: boolean
+  valueClassName?: string
+}
+
+function SummaryMetric({
+  label,
+  value,
+  suffix,
+  icon: Icon,
+  helper,
+  compact = false,
+  valueClassName,
+}: SummaryMetricProps) {
+  return (
+    <article className="flex min-h-[154px] flex-col justify-between rounded-lg border border-[#E2E8F0] bg-white p-6">
+      <div className="flex items-start justify-between gap-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#43474c]">
+          {label}
+        </p>
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#eff4ff] text-[#0051d5]">
+          <Icon className="size-5" aria-hidden />
+        </span>
+      </div>
+      <div>
+        <div className="flex items-baseline gap-2">
+          <span
+            className={cn(
+              compact
+                ? "text-lg font-semibold leading-6"
+                : "text-3xl font-bold leading-10",
+              "tracking-normal text-[#00162a]",
+              valueClassName,
+            )}
+          >
+            {value}
+          </span>
+          {suffix ? (
+            <span className="text-sm font-medium uppercase text-[#43474c]">
+              {suffix}
+            </span>
+          ) : null}
+        </div>
+        {helper ? (
+          <p className="mt-2 text-sm leading-5 text-[#43474c]">{helper}</p>
+        ) : null}
+      </div>
+    </article>
+  )
 }
 
 function RedeemSubmitButton({ disabled }: { disabled?: boolean }) {
@@ -248,14 +334,8 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
 }
 
 export default function MemberRewards({ snapshot }: MemberRewardsProps) {
-  const {
-    balance,
-    catalog,
-    activeEntitlements,
-    recentRedemptions,
-    transactions,
-    productOptions,
-  } = snapshot
+  const { balance, catalog, recentRedemptions, transactions, productOptions } =
+    snapshot
 
   const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null)
 
@@ -266,446 +346,230 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
   )
 
   const hasCatalog = catalog.length > 0
-
-  const formatAdjustmentDetail = (
-    transaction: MemberRewardsSnapshot["transactions"][number],
-  ) => {
-    if (transaction.notes && transaction.notes.length) {
-      return transaction.notes
-    }
-    const amount = transaction.adjustmentAmount
-    if (typeof amount === "number" && Number.isFinite(amount)) {
-      const tone = amount >= 0 ? "Admin credit" : "Admin deduction"
-      const formattedAmount = formatNumber(Math.abs(amount))
-      const sign = amount >= 0 ? "+" : "-"
-      return `${tone} (${sign}${formattedAmount} rewards)`
-    }
-    return "Admin adjustment"
-  }
+  const latestRedemption = recentRedemptions[0]
 
   return (
-    <div className="space-y-8">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card className="bg-white/95">
-          <CardHeader>
-            <CardTitle>Current balance</CardTitle>
-            <CardDescription>Your available Shipyard rewards.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-semibold tracking-tight text-slate-900">
-              {formatNumber(balance.balance)}
-            </div>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {balance.lastEarnedAt
-                ? `Last earned ${formatRelative(balance.lastEarnedAt)}`
-                : "Earn rewards by engaging with the community."}
+    <div className="mx-auto max-w-[1440px] space-y-16 pb-8">
+      <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <SummaryMetric
+          label="Current Balance"
+          value={formatNumber(balance.balance)}
+          suffix="SHP"
+          icon={Star}
+          helper={
+            balance.lastEarnedAt
+              ? `Last earned ${formatRelative(balance.lastEarnedAt)}`
+              : "No recent earnings yet"
+          }
+        />
+        <SummaryMetric
+          label="Lifetime Earned"
+          value={formatNumber(balance.lifetimeEarned)}
+          suffix="SHP"
+          icon={Trophy}
+          helper={`Net ${balanceDelta >= 0 ? "+" : ""}${formatNumber(balanceDelta)} SHP`}
+        />
+        <SummaryMetric
+          label="Current Streak"
+          value={formatNumber(balance.currentStreakCount)}
+          suffix="Days"
+          icon={Sparkles}
+          valueClassName="text-[#16a34a]"
+          helper={`Longest ${formatNumber(balance.longestStreakCount)} days${balance.currentStreakTier ? ` · ${balance.currentStreakTier}` : ""}`}
+        />
+        <SummaryMetric
+          label="Last Redemption"
+          value={latestRedemption?.name ?? "None yet"}
+          icon={CheckCircle2}
+          compact
+          helper={
+            latestRedemption
+              ? `${formatNumber(latestRedemption.cost)} SHP · ${formatRelative(latestRedemption.createdAt)}`
+              : "Redeem a perk to start your ledger"
+          }
+        />
+      </section>
+
+      <section>
+        <div className="mb-8">
+          <div>
+            <h1 className="text-4xl font-bold tracking-normal text-[#00162a]">
+              Available Rewards
+            </h1>
+            <p className="mt-3 max-w-2xl text-base leading-6 text-[#43474c]">
+              Invest your Shipyard points into placements, visibility, and
+              product growth.
             </p>
-          </CardContent>
-          <CardFooter>
-            <Button asChild variant="outline" size="sm" className="w-full">
-              <Link href={REWARDS_PATH}>Earn more rewards</Link>
-            </Button>
-          </CardFooter>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="bg-white/95">
-          <CardHeader>
-            <CardTitle>Lifetime</CardTitle>
-            <CardDescription>Total earned vs redeemed.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-1">
-            <div className="flex items-baseline justify-between text-sm">
-              <span className="text-muted-foreground">Earned</span>
-              <span className="font-medium text-slate-900">
-                {formatNumber(balance.lifetimeEarned)}
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between text-sm">
-              <span className="text-muted-foreground">Redeemed</span>
-              <span className="font-medium text-slate-900">
-                {formatNumber(balance.lifetimeSpent)}
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between text-sm">
-              <span className="text-muted-foreground">Admin adjustments</span>
-              <span
-                className={cn(
-                  "font-medium",
-                  balance.lifetimeAdjusted === 0
-                    ? "text-slate-900"
-                    : balance.lifetimeAdjusted > 0
-                      ? "text-emerald-700"
-                      : "text-rose-600",
-                )}
-              >
-                {balance.lifetimeAdjusted >= 0 ? "+" : ""}
-                {formatNumber(balance.lifetimeAdjusted)}
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between text-sm">
-              <span className="text-muted-foreground">
-                Net (incl. adjustments)
-              </span>
-              <span
-                className={cn(
-                  "font-semibold",
-                  balanceDelta >= 0 ? "text-emerald-700" : "text-rose-600",
-                )}
-              >
-                {balanceDelta >= 0 ? "+" : ""}
-                {formatNumber(balanceDelta)}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+        {hasCatalog ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {catalog.map((item) => {
+              const Icon = categoryIconFor(item.category)
 
-        <Card className="bg-white/95">
-          <CardHeader>
-            <CardTitle>Streak</CardTitle>
-            <CardDescription>Keep momentum to earn bonuses.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="text-2xl font-semibold text-slate-900">
-              {balance.currentStreakCount} days
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Longest streak {formatNumber(balance.longestStreakCount)} days.
-              {balance.currentStreakTier
-                ? ` Tier: ${balance.currentStreakTier}.`
-                : ""}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {balance.streakActiveThrough
-                ? `Active through ${formatDateTime(balance.streakActiveThrough)}`
-                : "Kickstart a streak with a login or review."}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/95">
-          <CardHeader>
-            <CardTitle>Latest redemption</CardTitle>
-            <CardDescription>Latest spend from your ledger.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {recentRedemptions.length ? (
-              <div className="space-y-1 text-sm">
-                <p className="font-medium text-slate-900">
-                  {recentRedemptions[0].name}
-                </p>
-                <p className="text-muted-foreground">
-                  {formatRelative(recentRedemptions[0].createdAt)} ·{" "}
-                  {formatNumber(recentRedemptions[0].cost)} rewards
-                </p>
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Redeem rewards to activate placements or analytics boosts.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="bg-white/95">
-          <CardHeader>
-            <CardTitle>Active perks</CardTitle>
-            <CardDescription>
-              Everything currently running on your products.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {activeEntitlements.length ? (
-              activeEntitlements.map((entitlement) => (
-                <div
-                  key={entitlement.id}
-                  className="flex flex-col rounded-lg border border-slate-200 px-4 py-3"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium text-slate-900">
-                        {entitlement.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {entitlement.productSlug ? (
-                          <Link
-                            href={memberProductPath(entitlement.productSlug)}
-                            className="text-sky-600 hover:underline"
-                          >
-                            {entitlement.productName}
-                          </Link>
-                        ) : (
-                          (entitlement.productName ?? "Account-wide")
-                        )}
-                      </p>
-                    </div>
-                    <span
-                      className={cn(
-                        "text-xs font-semibold uppercase tracking-wider",
-                        entitlementStatusTone[entitlement.status],
-                      )}
-                    >
-                      {entitlement.status}
-                    </span>
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
-                    <span>Starts {formatDateTime(entitlement.startsAt)}</span>
-                    <span>Ends {formatDateTime(entitlement.expiresAt)}</span>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No active entitlements yet. Redeem a reward to see it tracked
-                here.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/95">
-          <CardHeader>
-            <CardTitle>Recent redemptions</CardTitle>
-            <CardDescription>
-              Ledger of your latest spend events.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {recentRedemptions.length ? (
-              recentRedemptions.slice(0, 5).map((redemption) => (
-                <div
-                  key={redemption.id}
-                  className="rounded-lg border border-slate-200 px-4 py-3"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-medium text-slate-900">
-                        {redemption.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatRelative(redemption.createdAt)} ·{" "}
-                        {formatNumber(redemption.cost)} rewards
-                      </p>
-                    </div>
-                    <span
-                      className={cn(
-                        "text-xs font-semibold uppercase tracking-wider",
-                        redemptionStatusTone[redemption.status],
-                      )}
-                    >
-                      {redemption.status}
-                    </span>
-                  </div>
-                  <div className="mt-2 text-xs text-slate-500">
-                    {redemption.productSlug ? (
-                      <Link
-                        href={memberProductPath(redemption.productSlug)}
-                        className="text-sky-600 hover:underline"
-                      >
-                        {redemption.productName}
-                      </Link>
-                    ) : (
-                      (redemption.productName ?? "Account-wide")
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                When you redeem rewards, the ledger shows the status and
-                assigned product here.
-              </p>
-            )}
-          </CardContent>
-          <CardFooter>
-            <Button asChild variant="outline" size="sm" className="w-full">
-              <Link href={MEMBER_PRODUCTS_PATH}>Manage products</Link>
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-
-      <Card className="bg-white/95">
-        <CardHeader>
-          <CardTitle>Available rewards</CardTitle>
-          <CardDescription>
-            Redeem rewards for placements, analytics upgrades, and unlocks.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {hasCatalog ? (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {catalog.map((item) => (
-                <div
+              return (
+                <article
                   key={item.featureKey}
-                  className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                  className={cn(
+                    "flex min-h-[250px] flex-col rounded-lg border bg-white p-6 transition-colors hover:border-[#0051d5]",
+                    item.canRedeem
+                      ? "border-[#E2E8F0]"
+                      : "border-[#E2E8F0] opacity-65",
+                  )}
                 >
+                  <div className="mb-5 flex items-center justify-between gap-4">
+                    <span className="flex size-10 items-center justify-center rounded-lg bg-[#eff4ff] text-[#0051d5]">
+                      <Icon className="size-5" aria-hidden />
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-[0.12em] text-[#0b1c30]">
+                      {formatNumber(item.baseCost)} SHP
+                    </span>
+                  </div>
+
                   <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="text-base font-semibold text-slate-900">
-                          {item.name}
-                        </h3>
-                        <p className="text-xs text-muted-foreground">
-                          {categoryLabels[item.category]}
-                        </p>
-                      </div>
-                      <Badge variant="outline" className="bg-slate-50">
-                        {formatNumber(item.baseCost)} rewards
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#43474c]">
+                      {categoryLabels[item.category]}
+                    </p>
+                    <h2 className="text-lg font-semibold tracking-normal text-[#00162a]">
+                      {item.name}
+                    </h2>
+                    <p className="text-sm leading-5 text-[#43474c]">
                       {item.description ??
                         "Redeem to activate this capability."}
                     </p>
                   </div>
-                  <div className="mt-4 space-y-2 text-xs text-muted-foreground">
-                    <div>
-                      Active: {item.activeCount}
+
+                  <div className="mt-5 flex flex-wrap gap-2 text-xs text-[#43474c]">
+                    <span className="rounded border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 py-1">
+                      Active {item.activeCount}
                       {item.maxActivePerUser != null
                         ? ` / ${item.maxActivePerUser}`
                         : ""}
-                    </div>
+                    </span>
                     {item.maxPendingPerUser != null ? (
-                      <div>
-                        Pending: {item.pendingCount} / {item.maxPendingPerUser}
-                      </div>
+                      <span className="rounded border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 py-1">
+                        Pending {item.pendingCount} / {item.maxPendingPerUser}
+                      </span>
                     ) : null}
                   </div>
-                  <div className="mt-auto pt-4">
-                    <Button
-                      className="w-full"
+
+                  <div className="mt-auto pt-5">
+                    <button
+                      type="button"
                       disabled={!item.canRedeem}
                       onClick={() => setSelectedItem(item)}
+                      className={cn(
+                        "w-full cursor-pointer rounded border px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition-all disabled:cursor-not-allowed",
+                        item.canRedeem
+                          ? "border-[#00162a] text-[#00162a] hover:bg-[#00162a] hover:text-white"
+                          : "border-[#E2E8F0] text-[#43474c]",
+                      )}
                     >
                       {item.canRedeem ? "Redeem" : "Unavailable"}
-                    </Button>
+                    </button>
                     {!item.canRedeem && item.reasons.length ? (
-                      <p className="mt-2 text-xs text-rose-600">
+                      <p className="mt-2 text-xs leading-4 text-[#ba1a1a]">
                         {item.reasons.join(" • ")}
                       </p>
                     ) : null}
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              No rewards are configured yet. Check back soon for placements and
-              analytics boosts.
-            </p>
-          )}
-        </CardContent>
-      </Card>
+                </article>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="rounded-lg border border-[#E2E8F0] bg-white p-6 text-sm text-[#43474c]">
+            No rewards are configured yet. Check back soon for placements and
+            analytics boosts.
+          </div>
+        )}
+      </section>
 
-      <Card className="bg-white/95">
-        <CardHeader>
-          <CardTitle>Rewards activity</CardTitle>
-          <CardDescription>
-            Recent reward transactions from your ledger.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
+      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm">
+        <div className="border-b border-[#E2E8F0] bg-white/70 px-6 py-6 lg:px-8">
+          <div>
+            <div>
+              <h2 className="text-2xl font-bold tracking-normal text-[#00162a]">
+                Rewards Activity
+              </h2>
+              <p className="mt-2 text-sm leading-5 text-[#43474c]">
+                Your transparent digital ledger for reward earnings and
+                redemptions.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
           {transactions.length ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>When</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Detail</TableHead>
-                  <TableHead className="text-right">Rewards</TableHead>
-                  <TableHead className="text-right">Balance</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {transactions.map((transaction) => (
-                  <TableRow key={transaction.id}>
-                    <TableCell className="whitespace-nowrap text-sm">
-                      {formatRelative(transaction.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-sm font-medium">
-                      {transactionTypeLabels[transaction.type]}
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-600">
-                      {transaction.type === RewardTransactionTypeEnum.earn
-                        ? (transaction.ruleName ??
-                          transaction.ruleKey ??
-                          "Earned")
-                        : transaction.type ===
-                            RewardTransactionTypeEnum.adjustment
-                          ? formatAdjustmentDetail(transaction)
-                          : transaction.type ===
-                              RewardTransactionTypeEnum.refund
-                            ? (transaction.rewardName ??
-                              transaction.rewardKey ??
-                              "Refunded")
-                            : (transaction.rewardName ??
-                              transaction.rewardKey ??
-                              "Redeemed")}
-                    </TableCell>
-                    <TableCell
-                      className={cn(
-                        "text-right text-sm font-semibold",
-                        (() => {
-                          if (
-                            transaction.type === RewardTransactionTypeEnum.earn
-                          )
-                            return "text-emerald-700"
-                          if (
-                            transaction.type ===
-                            RewardTransactionTypeEnum.refund
-                          )
-                            return "text-emerald-700"
-                          if (
-                            transaction.type ===
-                            RewardTransactionTypeEnum.adjustment
-                          ) {
-                            const delta =
-                              transaction.adjustmentAmount ??
-                              transaction.rewardAmount
-                            return delta >= 0
-                              ? "text-emerald-700"
-                              : "text-rose-600"
-                          }
-                          return "text-rose-600"
-                        })(),
-                      )}
+            <table className="w-full min-w-[760px] border-collapse text-left">
+              <thead>
+                <tr className="bg-[#F8FAFC]/70">
+                  <th className="border-b border-[#E2E8F0] px-6 py-4 text-xs font-bold uppercase tracking-[0.14em] text-[#43474c] lg:px-8">
+                    When
+                  </th>
+                  <th className="border-b border-[#E2E8F0] px-6 py-4 text-xs font-bold uppercase tracking-[0.14em] text-[#43474c] lg:px-8">
+                    Type
+                  </th>
+                  <th className="border-b border-[#E2E8F0] px-6 py-4 text-xs font-bold uppercase tracking-[0.14em] text-[#43474c] lg:px-8">
+                    Detail
+                  </th>
+                  <th className="border-b border-[#E2E8F0] px-6 py-4 text-right text-xs font-bold uppercase tracking-[0.14em] text-[#43474c] lg:px-8">
+                    Amount
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E2E8F0]/70">
+                {transactions.map((transaction) => {
+                  const delta = transactionAmountDelta(transaction)
+                  const isPositive = delta >= 0
+                  const typeLabel = transactionTypeLabels[transaction.type]
+
+                  return (
+                    <tr
+                      key={transaction.id}
+                      className="transition-colors hover:bg-[#eff4ff]/35"
                     >
-                      {(() => {
-                        if (transaction.type === RewardTransactionTypeEnum.earn)
-                          return "+"
-                        if (
-                          transaction.type === RewardTransactionTypeEnum.refund
-                        )
-                          return "+"
-                        if (
-                          transaction.type ===
-                          RewardTransactionTypeEnum.adjustment
-                        ) {
-                          const delta =
-                            transaction.adjustmentAmount ??
-                            transaction.rewardAmount
-                          return delta >= 0 ? "+" : "-"
-                        }
-                        return "-"
-                      })()}
-                      {formatNumber(transaction.rewardAmount)}
-                    </TableCell>
-                    <TableCell className="text-right text-sm">
-                      {formatNumber(transaction.balanceAfter)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-[#43474c] lg:px-8">
+                        {formatRelative(transaction.createdAt)}
+                      </td>
+                      <td className="px-6 py-4 lg:px-8">
+                        <span
+                          className={cn(
+                            "rounded px-3 py-1 text-xs font-bold uppercase tracking-[0.1em]",
+                            isPositive
+                              ? "bg-[#16a34a]/10 text-[#16a34a]"
+                              : "bg-[#0051d5]/10 text-[#0051d5]",
+                          )}
+                        >
+                          {typeLabel}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-[#43474c] lg:px-8">
+                        {transactionDetail(transaction)}
+                      </td>
+                      <td
+                        className={cn(
+                          "whitespace-nowrap px-6 py-4 text-right text-sm font-semibold lg:px-8",
+                          isPositive ? "text-[#16a34a]" : "text-[#ba1a1a]",
+                        )}
+                      >
+                        {isPositive ? "+" : "-"}
+                        {formatNumber(Math.abs(delta))} SHP
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           ) : (
-            <p className="text-sm text-muted-foreground">
+            <p className="p-6 text-sm text-[#43474c] lg:p-8">
               Transactions will appear here as you earn and spend rewards.
             </p>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       {selectedItem ? (
         <RedeemDialog
