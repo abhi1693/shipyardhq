@@ -7,7 +7,6 @@ import {
   AnalyticsIngestionStatus,
   FeatureEntitlementStatus,
   FeatureSubjectType,
-  FeedbackStatus,
   LeaderboardRunStatus,
   PaymentConnectorProvider,
   PaymentConnectorStatus,
@@ -1116,66 +1115,6 @@ async function seedUpvotes(
   }
 }
 
-async function seedFeedback(
-  prisma: PrismaClient,
-  ctx: SeedContext,
-  today: Date,
-) {
-  const subjects = [
-    "Dev seed: product analytics",
-    "Dev seed: rewards redemption",
-    "Dev seed: onboarding copy",
-  ]
-  const userIds = Array.from(ctx.usersByEmail.values()).map((user) => user.id)
-
-  await prisma.memberFeedback.deleteMany({
-    where: { userId: { in: userIds }, subject: { in: subjects } },
-  })
-
-  const member = ctx.usersByEmail.get(
-    process.env.DEV_MEMBER_EMAIL?.trim() || DEV_SEED_DEFAULTS.memberEmail,
-  )
-  const growth = ctx.usersByEmail.get("dev.growth@shipyard.local")
-  if (!member || !growth) return
-
-  await prisma.memberFeedback.createMany({
-    data: [
-      {
-        userId: member.id,
-        subject: subjects[0],
-        message:
-          "The product analytics page needs a richer empty state and quicker range switching.",
-        rating: 4,
-        status: FeedbackStatus.in_review,
-        rewardEligible: true,
-        createdAt: daysAgo(today, 3),
-      },
-      {
-        userId: member.id,
-        subject: subjects[1],
-        message:
-          "Priority placement should show the scheduled activation window before spending rewards.",
-        rating: 5,
-        status: FeedbackStatus.closed,
-        adminNote: "Seeded closed feedback with reward eligibility.",
-        rewardEligible: true,
-        rewardGrantedAt: daysAgo(today, 1),
-        createdAt: daysAgo(today, 8),
-      },
-      {
-        userId: growth.id,
-        subject: subjects[2],
-        message:
-          "The onboarding questions are enough for segmentation, but the result screen could surface next steps.",
-        rating: 3,
-        status: FeedbackStatus.received,
-        rewardEligible: false,
-        createdAt: daysAgo(today, 1),
-      },
-    ],
-  })
-}
-
 async function seedPaymentConnectors(
   prisma: PrismaClient,
   productIdBySlug: Map<string, string>,
@@ -2077,18 +2016,6 @@ async function seedRewardsState(
       },
       {
         userId: member.id,
-        type: RewardTransactionType.earn,
-        rewardAmount: 780,
-        balanceAfter: 780,
-        ruleKey: "rewards.feedback.close",
-        eventHash: "dev-seed:member:earn",
-        sourceType: DEV_SOURCE_TYPE,
-        sourceId: "member-earn",
-        notes: "Seeded member rewards",
-        createdAt: daysAgo(today, 8),
-      },
-      {
-        userId: member.id,
         type: RewardTransactionType.spend,
         rewardAmount: -activeFeature.baseCost,
         balanceAfter: 630,
@@ -2220,7 +2147,6 @@ async function main() {
 
   await resetProductDecorations(prisma, productIdBySlug, today)
   await seedUpvotes(prisma, ctx, productIdBySlug, today)
-  await seedFeedback(prisma, ctx, today)
   await seedPaymentConnectors(prisma, productIdBySlug, today)
   await seedTraffic(prisma, productIdBySlug, today)
   await seedRewardsState(prisma, ctx, productIdBySlug, today)

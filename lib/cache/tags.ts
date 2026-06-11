@@ -24,7 +24,6 @@ export const TAGS = {
   upvotes: "upvotes",
   productReviews: "product-reviews",
   productReview: (idOrSlug: string) => `product-review:${idOrSlug}`,
-  feedback: "feedback",
   subscriptions: "subscriptions",
   placement: (key: string) => `placement:${key}`,
   rewards: "rewards",

@@ -134,15 +134,6 @@ export const UserStatus = {
 export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
 
 
-export const FeedbackStatus = {
-  received: 'received',
-  in_review: 'in_review',
-  closed: 'closed'
-} as const
-
-export type FeedbackStatus = (typeof FeedbackStatus)[keyof typeof FeedbackStatus]
-
-
 export const RewardTransactionType = {
   earn: 'earn',
   spend: 'spend',

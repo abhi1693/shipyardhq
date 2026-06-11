@@ -8,7 +8,6 @@ import {
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { UserProductRelationship } from "./relationships/products"
 import { UserProductUpvoteRelationship } from "./relationships/upvotes"
-import { UserFeedbackRelationship } from "./relationships/feedback"
 import { UserPlanPurchasesRelationship } from "./relationships/purchases"
 import {
   UserRewardsRelationship,
@@ -37,11 +36,6 @@ const userInclude = {
         },
       },
     },
-    orderBy: {
-      createdAt: "desc",
-    },
-  },
-  feedback: {
     orderBy: {
       createdAt: "desc",
     },
@@ -233,7 +227,6 @@ export default async function ViewUserPage({
             rows={rewardTransactionRows}
             pageCount={rewardTransactionPageCount}
           />
-          <UserFeedbackRelationship rows={user.feedback} />
         </>
       }
     />

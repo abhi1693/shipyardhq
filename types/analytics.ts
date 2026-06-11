@@ -194,16 +194,11 @@ export interface OnboardingOutcomeDeltaItem {
   upvoterRate: number
   purchasers: number
   purchaserRate: number
-  feedbackSubmitters: number
-  feedbackSubmissionRate: number
-  feedbackCount: number
-  feedbackAverageRating: number | null
 }
 
 export type IntentOutcomeStageKey =
   | "shippedProduct"
   | "upvotedProduct"
-  | "submittedFeedback"
   | "purchasedPlan"
 
 export interface IntentOutcomeStageSpeedBucket {

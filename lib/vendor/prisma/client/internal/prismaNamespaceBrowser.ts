@@ -81,7 +81,6 @@ export const ModelName = {
   SiteTrafficCityDaily: 'SiteTrafficCityDaily',
   ProductUpvote: 'ProductUpvote',
   User: 'User',
-  MemberFeedback: 'MemberFeedback',
   Category: 'Category',
   Plan: 'Plan',
   PlanFeature: 'PlanFeature',
@@ -595,23 +594,6 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
-
-
-export const MemberFeedbackScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  subject: 'subject',
-  message: 'message',
-  rating: 'rating',
-  status: 'status',
-  adminNote: 'adminNote',
-  rewardEligible: 'rewardEligible',
-  rewardGrantedAt: 'rewardGrantedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type MemberFeedbackScalarFieldEnum = (typeof MemberFeedbackScalarFieldEnum)[keyof typeof MemberFeedbackScalarFieldEnum]
 
 
 export const CategoryScalarFieldEnum = {

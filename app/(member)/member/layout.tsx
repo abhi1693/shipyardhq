@@ -16,7 +16,6 @@ import { buildSectionMetadata } from "@/lib/metadata"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import {
   HOME_PATH,
-  MEMBER_FEEDBACK_PATH,
   MEMBER_ONBOARDING_PATH,
   MEMBER_OVERVIEW_PATH,
   MEMBER_PRODUCTS_PATH,
@@ -45,11 +44,6 @@ const navItems: NavItem[] = [
     title: "Products",
     url: MEMBER_PRODUCTS_PATH,
     icon: "product",
-  },
-  {
-    title: "Feedback",
-    url: MEMBER_FEEDBACK_PATH,
-    icon: "feedback",
   },
   {
     title: "Homepage",

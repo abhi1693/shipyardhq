@@ -68,15 +68,6 @@ const RULES: RuleSeed[] = [
     metadata: { event: "productUpvote", perProduct: 1 },
   },
   {
-    key: "rewards.feedback.close",
-    name: "Feedback resolved",
-    description: "Earned when actionable feedback is closed with a reward.",
-    category: RewardRuleCategory.engagement,
-    baseRewardAmount: 15,
-    dailyCap: 45,
-    metadata: { event: "memberFeedback" },
-  },
-  {
     key: "rewards.backlink.verify",
     name: "Backlink verification",
     description: "One-time award when a backlink is verified.",

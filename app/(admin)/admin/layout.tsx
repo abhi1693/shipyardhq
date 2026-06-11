@@ -9,7 +9,6 @@ import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { buildSectionMetadata } from "@/lib/metadata"
-import { getFeedbackCount } from "@/actions/admin/feedback/actions"
 import {
   ADMIN_OVERVIEW_PATH,
   adminPath,
@@ -67,11 +66,6 @@ const baseNavItems: NavItem[] = [
     title: "Users",
     url: adminPath("users"),
     icon: "user",
-  },
-  {
-    title: "Feedback",
-    url: adminPath("feedback"),
-    icon: "feedback",
   },
   {
     title: "Categories",
@@ -188,34 +182,16 @@ export default async function AdminLayout({
     redirect(process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/")
   }
 
-  const pendingFeedbackCountPromise = getFeedbackCount({
-    status: "received",
-  }).catch(() => 0)
-
   const activeUser = await requireActiveUserOrRedirect(userId)
 
   if (activeUser.role !== "admin") {
     redirect(MEMBER_OVERVIEW_PATH)
   }
 
-  const pendingFeedbackCount = await pendingFeedbackCountPromise
-
-  const navItems = baseNavItems.map((item) => {
-    if (item.title === "Feedback") {
-      return {
-        ...item,
-        label:
-          pendingFeedbackCount > 0 ? String(pendingFeedbackCount) : undefined,
-      }
-    }
-
-    return item
-  })
-
   return (
     <Providers>
       <SidebarProvider defaultOpen>
-        <AppSidebar navItems={navItems} />
+        <AppSidebar navItems={baseNavItems} />
         <SidebarInset>
           <PrivateHeader />
           <div className="flex-1">

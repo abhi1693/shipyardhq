@@ -50,7 +50,7 @@ const STAGE_CONFIG: ReadonlyArray<{
   key: StageKey
   label: string
   description: string
-  source: "product" | "upvote" | "feedback" | "purchase"
+  source: "product" | "upvote" | "purchase"
 }> = [
   {
     key: "shippedProduct",
@@ -63,12 +63,6 @@ const STAGE_CONFIG: ReadonlyArray<{
     label: "Upvoted another product",
     description: "Endorsed a product beyond their own launches.",
     source: "upvote",
-  },
-  {
-    key: "submittedFeedback",
-    label: "Shared feedback",
-    description: "Submitted member feedback to the team.",
-    source: "feedback",
   },
   {
     key: "purchasedPlan",
@@ -327,79 +321,63 @@ export async function getIntentOutcomeAnalytics(
 
   let productRows: StageRow[] = []
   let upvoteRows: StageRow[] = []
-  let feedbackRows: StageRow[] = []
   let purchaseRows: StageRow[] = []
   let upvoteEvents: UpvoteEvent[] = []
   let purchaseEvents: PurchaseEvent[] = []
 
   if (userIds.length) {
-    ;[
-      productRows,
-      upvoteRows,
-      feedbackRows,
-      purchaseRows,
-      upvoteEvents,
-      purchaseEvents,
-    ] = await Promise.all([
-      prisma.product.groupBy({
-        by: ["userId"],
-        where: {
-          userId: { in: userIds },
-        },
-        _count: { _all: true },
-        _min: { createdAt: true },
-      }) as unknown as StageRow[],
-      prisma.productUpvote.groupBy({
-        by: ["userId"],
-        where: {
-          userId: { in: userIds },
-        },
-        _count: { _all: true },
-        _min: { createdAt: true },
-      }) as unknown as StageRow[],
-      prisma.memberFeedback.groupBy({
-        by: ["userId"],
-        where: {
-          userId: { in: userIds },
-        },
-        _count: { _all: true },
-        _min: { createdAt: true },
-      }) as unknown as StageRow[],
-      prisma.userPlanPurchase.groupBy({
-        by: ["userId"],
-        where: {
-          userId: { in: userIds },
-        },
-        _count: { _all: true },
-        _min: { createdAt: true },
-      }) as unknown as StageRow[],
-      prisma.productUpvote.findMany({
-        where: {
-          userId: { in: userIds },
-          createdAt: { gte: rangeStart },
-        },
-        select: {
-          userId: true,
-          createdAt: true,
-        },
-      }) as unknown as UpvoteEvent[],
-      prisma.userPlanPurchase.findMany({
-        where: {
-          userId: { in: userIds },
-          createdAt: { gte: rangeStart },
-        },
-        select: {
-          userId: true,
-          createdAt: true,
-        },
-      }) as unknown as PurchaseEvent[],
-    ])
+    ;[productRows, upvoteRows, purchaseRows, upvoteEvents, purchaseEvents] =
+      await Promise.all([
+        prisma.product.groupBy({
+          by: ["userId"],
+          where: {
+            userId: { in: userIds },
+          },
+          _count: { _all: true },
+          _min: { createdAt: true },
+        }) as unknown as StageRow[],
+        prisma.productUpvote.groupBy({
+          by: ["userId"],
+          where: {
+            userId: { in: userIds },
+          },
+          _count: { _all: true },
+          _min: { createdAt: true },
+        }) as unknown as StageRow[],
+        prisma.userPlanPurchase.groupBy({
+          by: ["userId"],
+          where: {
+            userId: { in: userIds },
+          },
+          _count: { _all: true },
+          _min: { createdAt: true },
+        }) as unknown as StageRow[],
+        prisma.productUpvote.findMany({
+          where: {
+            userId: { in: userIds },
+            createdAt: { gte: rangeStart },
+          },
+          select: {
+            userId: true,
+            createdAt: true,
+          },
+        }) as unknown as UpvoteEvent[],
+        prisma.userPlanPurchase.findMany({
+          where: {
+            userId: { in: userIds },
+            createdAt: { gte: rangeStart },
+          },
+          select: {
+            userId: true,
+            createdAt: true,
+          },
+        }) as unknown as PurchaseEvent[],
+      ])
   }
 
   const stageRowMap: Record<StageKey, StageRow[]> = {
     shippedProduct: productRows,
     upvotedProduct: upvoteRows,
-    submittedFeedback: feedbackRows,
     purchasedPlan: purchaseRows,
   }
 

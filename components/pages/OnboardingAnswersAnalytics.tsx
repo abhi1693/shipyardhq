@@ -32,11 +32,6 @@ function formatRate(count: number, rate: number) {
   return `${formatNumber(count)} (${formatPercent(rate)})`
 }
 
-function formatAverageRating(value: number | null) {
-  if (value === null || Number.isNaN(value)) return "—"
-  return value.toFixed(1)
-}
-
 function BreakdownList({
   items,
   emptyLabel,
@@ -302,10 +297,6 @@ function IntentOutcomeTable({
                 <th className="py-2 pr-3 text-right font-semibold">
                   Purchasers
                 </th>
-                <th className="py-2 pr-3 text-right font-semibold">
-                  Feedback members
-                </th>
-                <th className="py-2 text-right font-semibold">Avg rating</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200/70">
@@ -325,20 +316,6 @@ function IntentOutcomeTable({
                   </td>
                   <td className="py-3 pr-3 text-right align-top tabular-nums text-foreground">
                     {formatRate(item.purchasers, item.purchaserRate)}
-                  </td>
-                  <td className="py-3 pr-3 text-right align-top tabular-nums text-foreground">
-                    <div>
-                      {formatRate(
-                        item.feedbackSubmitters,
-                        item.feedbackSubmissionRate,
-                      )}
-                    </div>
-                    <div className="text-[11px] text-muted-foreground">
-                      {formatNumber(item.feedbackCount)} submissions
-                    </div>
-                  </td>
-                  <td className="py-3 text-right align-top tabular-nums text-foreground">
-                    {formatAverageRating(item.feedbackAverageRating)}
                   </td>
                 </tr>
               ))}

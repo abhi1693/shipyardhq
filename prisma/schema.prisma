@@ -33,11 +33,11 @@ model Product {
   updatedAt          DateTime      @updatedAt
 
   // Relations
-  user                  User                    @relation(fields: [userId], references: [id])
-  category              Category                @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  plan                  Plan?                   @relation(fields: [planId], references: [id], onDelete: SetNull)
-  metadata              ProductMetadata?
-  analytics             ProductAnalytics?
+  user                    User                                 @relation(fields: [userId], references: [id])
+  category                Category                             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  plan                    Plan?                                @relation(fields: [planId], references: [id], onDelete: SetNull)
+  metadata                ProductMetadata?
+  analytics               ProductAnalytics?
   trafficDaily            ProductTrafficDaily[]
   trafficReferrers        ProductTrafficReferrerDaily[]
   trafficChannels         ProductTrafficChannelDaily[]
@@ -46,17 +46,17 @@ model Product {
   trafficDevices          ProductTrafficDeviceDaily[]
   trafficCountries        ProductTrafficCountryDaily[]
   trafficCities           ProductTrafficCityDaily[]
-  verification          ProductVerification?
-  ProductBadge          ProductBadge[]
-  ProductMedia          ProductMedia[]
-  ProductUpvote         ProductUpvote[]
-  placementSchedules    PlacementSchedule[]
-  leaderboardScores     ProductLeaderboardScore[]
-  rewardTransactions    RewardTransaction[]
-  redemptions           Redemption[]
-  featureEntitlements   FeatureEntitlement[]
-  alternatives          AlternativeProduct[] @relation("ProductAlternativeProducts")
-  paymentConnector      PaymentConnector?
+  verification            ProductVerification?
+  ProductBadge            ProductBadge[]
+  ProductMedia            ProductMedia[]
+  ProductUpvote           ProductUpvote[]
+  placementSchedules      PlacementSchedule[]
+  leaderboardScores       ProductLeaderboardScore[]
+  rewardTransactions      RewardTransaction[]
+  redemptions             Redemption[]
+  featureEntitlements     FeatureEntitlement[]
+  alternatives            AlternativeProduct[]                 @relation("ProductAlternativeProducts")
+  paymentConnector        PaymentConnector?
 
   @@index([categoryId, createdAt])
   @@index([categoryId, status, createdAt])
@@ -91,10 +91,10 @@ enum PaymentCredentialStatus {
 }
 
 model PaymentConnector {
-  id                        String                  @id @default(cuid())
+  id                        String                   @id @default(cuid())
   productId                 String
   provider                  PaymentConnectorProvider
-  status                    PaymentConnectorStatus  @default(active)
+  status                    PaymentConnectorStatus   @default(active)
   config                    Json?
   lastSyncedAt              DateTime?
   lastSyncError             String?
@@ -102,8 +102,8 @@ model PaymentConnector {
   latestAllTimeRevenueCents Int?
   latestCurrencyCode        String?
   latestPeriodStart         DateTime?
-  createdAt                 DateTime                @default(now())
-  updatedAt                 DateTime                @updatedAt
+  createdAt                 DateTime                 @default(now())
+  updatedAt                 DateTime                 @updatedAt
 
   product        Product                      @relation(fields: [productId], references: [id], onDelete: Cascade)
   credentials    PaymentConnectorCredential[]
@@ -115,14 +115,14 @@ model PaymentConnector {
 }
 
 model PaymentConnectorCredential {
-  id                 String                 @id @default(cuid())
-  connectorId        String
-  status             PaymentCredentialStatus @default(active)
-  encryptionVersion  Int                    @default(1)
-  encryptedKey       String
-  keyHint            String?
-  createdAt          DateTime               @default(now())
-  updatedAt          DateTime               @updatedAt
+  id                String                  @id @default(cuid())
+  connectorId       String
+  status            PaymentCredentialStatus @default(active)
+  encryptionVersion Int                     @default(1)
+  encryptedKey      String
+  keyHint           String?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
 
   connector PaymentConnector @relation(fields: [connectorId], references: [id], onDelete: Cascade)
 
@@ -131,15 +131,15 @@ model PaymentConnectorCredential {
 }
 
 model PaymentRevenueSnapshot {
-  id                     String                   @id @default(cuid())
-  connectorId            String
-  currencyCode           String
-  periodStart            DateTime
-  periodRevenueCents     Int                      @default(0)
-  allTimeRevenueCents    Int                      @default(0)
-  data                   Json?
-  createdAt              DateTime                 @default(now())
-  updatedAt              DateTime                 @updatedAt
+  id                  String   @id @default(cuid())
+  connectorId         String
+  currencyCode        String
+  periodStart         DateTime
+  periodRevenueCents  Int      @default(0)
+  allTimeRevenueCents Int      @default(0)
+  data                Json?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   connector PaymentConnector @relation(fields: [connectorId], references: [id], onDelete: Cascade)
 
@@ -153,12 +153,12 @@ model AlternativeProduct {
   name        String
   slug        String   @unique
   description String
-  websiteUrl  String      @unique
+  websiteUrl  String   @unique
   logoUrl     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  products   Product[] @relation("ProductAlternativeProducts")
+  products   Product[]  @relation("ProductAlternativeProducts")
   categories Category[] @relation("AlternativeProductCategories")
 
   @@index([createdAt])
@@ -172,12 +172,12 @@ enum LeaderboardRunStatus {
 }
 
 model LeaderboardRun {
-  id           String               @id @default(cuid())
-  periodStart  DateTime
-  periodEnd    DateTime
-  status       LeaderboardRunStatus @default(pending)
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
+  id          String               @id @default(cuid())
+  periodStart DateTime
+  periodEnd   DateTime
+  status      LeaderboardRunStatus @default(pending)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
 
   scores ProductLeaderboardScore[]
 
@@ -188,17 +188,17 @@ model LeaderboardRun {
 }
 
 model ProductLeaderboardScore {
-  id                String   @id @default(cuid())
-  runId             String
-  productId         String
-  views             Int      @default(0)
-  uniqueVisitors    Int      @default(0)
-  upvotes           Int      @default(0)
-  score             Int      @default(0)
-  scoreComponents   Json?
-  rank              Int?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id              String   @id @default(cuid())
+  runId           String
+  productId       String
+  views           Int      @default(0)
+  uniqueVisitors  Int      @default(0)
+  upvotes         Int      @default(0)
+  score           Int      @default(0)
+  scoreComponents Json?
+  rank            Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   run     LeaderboardRun @relation(fields: [runId], references: [id], onDelete: Cascade)
   product Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -711,11 +711,10 @@ model User {
 
   products                Product[]
   ProductUpvote           ProductUpvote[]
-  feedback                MemberFeedback[]
   purchases               UserPlanPurchase[]
   rewardBalance           RewardBalance?
-  rewardTransactions      RewardTransaction[]      @relation("RewardUserTransactions")
-  rewardTransactionsActed RewardTransaction[]      @relation("RewardTransactionActor")
+  rewardTransactions      RewardTransaction[]  @relation("RewardUserTransactions")
+  rewardTransactionsActed RewardTransaction[]  @relation("RewardTransactionActor")
   redemptions             Redemption[]
   featureEntitlements     FeatureEntitlement[]
 
@@ -731,12 +730,6 @@ enum UserStatus {
   active
   suspended
   terminated
-}
-
-enum FeedbackStatus {
-  received
-  in_review
-  closed
 }
 
 enum RewardTransactionType {
@@ -794,26 +787,6 @@ enum FeatureEntitlementStatus {
   expired
   canceled
   failed
-}
-
-model MemberFeedback {
-  id              String         @id @default(cuid())
-  userId          String
-  subject         String?
-  message         String
-  rating          Int?
-  status          FeedbackStatus @default(received)
-  adminNote       String?
-  rewardEligible  Boolean        @default(false)
-  rewardGrantedAt DateTime?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, createdAt])
-  @@index([createdAt])
-  @@index([updatedAt])
 }
 
 model Category {

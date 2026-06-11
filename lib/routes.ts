@@ -2,7 +2,6 @@ export const HOME_PATH = "/" as const
 
 export const MEMBER_BASE_PATH = "/member" as const
 export const MEMBER_OVERVIEW_PATH = `${MEMBER_BASE_PATH}/overview` as const
-export const MEMBER_FEEDBACK_PATH = `${MEMBER_BASE_PATH}/feedback` as const
 export const MEMBER_ONBOARDING_PATH = `${MEMBER_BASE_PATH}/onboarding` as const
 export const MEMBER_ACCOUNT_PROFILE_PATH =
   `${MEMBER_BASE_PATH}/account/profile` as const

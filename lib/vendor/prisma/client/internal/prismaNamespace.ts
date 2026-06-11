@@ -414,7 +414,6 @@ export const ModelName = {
   SiteTrafficCityDaily: 'SiteTrafficCityDaily',
   ProductUpvote: 'ProductUpvote',
   User: 'User',
-  MemberFeedback: 'MemberFeedback',
   Category: 'Category',
   Plan: 'Plan',
   PlanFeature: 'PlanFeature',
@@ -447,7 +446,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "analyticsIngestionRun" | "productTrafficDaily" | "productTrafficReferrerDaily" | "productTrafficChannelDaily" | "productTrafficBrowserDaily" | "productTrafficOperatingSystemDaily" | "productTrafficDeviceDaily" | "productTrafficCountryDaily" | "productTrafficCityDaily" | "siteTrafficDaily" | "siteTrafficReferrerDaily" | "siteTrafficBrowserDaily" | "siteTrafficOperatingSystemDaily" | "siteTrafficDeviceDaily" | "siteTrafficCountryDaily" | "siteTrafficRegionDaily" | "siteTrafficCityDaily" | "productUpvote" | "user" | "memberFeedback" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "analyticsIngestionRun" | "productTrafficDaily" | "productTrafficReferrerDaily" | "productTrafficChannelDaily" | "productTrafficBrowserDaily" | "productTrafficOperatingSystemDaily" | "productTrafficDeviceDaily" | "productTrafficCountryDaily" | "productTrafficCityDaily" | "siteTrafficDaily" | "siteTrafficReferrerDaily" | "siteTrafficBrowserDaily" | "siteTrafficOperatingSystemDaily" | "siteTrafficDeviceDaily" | "siteTrafficCountryDaily" | "siteTrafficRegionDaily" | "siteTrafficCityDaily" | "productUpvote" | "user" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2671,80 +2670,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    MemberFeedback: {
-      payload: Prisma.$MemberFeedbackPayload<ExtArgs>
-      fields: Prisma.MemberFeedbackFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.MemberFeedbackFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberFeedbackPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.MemberFeedbackFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>
-        }
-        findFirst: {
-          args: Prisma.MemberFeedbackFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberFeedbackPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.MemberFeedbackFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>
-        }
-        findMany: {
-          args: Prisma.MemberFeedbackFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>[]
-        }
-        create: {
-          args: Prisma.MemberFeedbackCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>
-        }
-        createMany: {
-          args: Prisma.MemberFeedbackCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.MemberFeedbackCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>[]
-        }
-        delete: {
-          args: Prisma.MemberFeedbackDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>
-        }
-        update: {
-          args: Prisma.MemberFeedbackUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>
-        }
-        deleteMany: {
-          args: Prisma.MemberFeedbackDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.MemberFeedbackUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.MemberFeedbackUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>[]
-        }
-        upsert: {
-          args: Prisma.MemberFeedbackUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>
-        }
-        aggregate: {
-          args: Prisma.MemberFeedbackAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateMemberFeedback>
-        }
-        groupBy: {
-          args: Prisma.MemberFeedbackGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MemberFeedbackGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.MemberFeedbackCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MemberFeedbackCountAggregateOutputType> | number
-        }
-      }
-    }
     Category: {
       payload: Prisma.$CategoryPayload<ExtArgs>
       fields: Prisma.CategoryFieldRefs
@@ -4522,23 +4447,6 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const MemberFeedbackScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  subject: 'subject',
-  message: 'message',
-  rating: 'rating',
-  status: 'status',
-  adminNote: 'adminNote',
-  rewardEligible: 'rewardEligible',
-  rewardGrantedAt: 'rewardGrantedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type MemberFeedbackScalarFieldEnum = (typeof MemberFeedbackScalarFieldEnum)[keyof typeof MemberFeedbackScalarFieldEnum]
-
-
 export const CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -5135,20 +5043,6 @@ export type ListEnumUserStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
- * Reference to a field of type 'FeedbackStatus'
- */
-export type EnumFeedbackStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedbackStatus'>
-
-
-
-/**
- * Reference to a field of type 'FeedbackStatus[]'
- */
-export type ListEnumFeedbackStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedbackStatus[]'>
-
-
-
-/**
  * Reference to a field of type 'PlanType'
  */
 export type EnumPlanTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PlanType'>
@@ -5441,7 +5335,6 @@ export type GlobalOmitConfig = {
   siteTrafficCityDaily?: Prisma.SiteTrafficCityDailyOmit
   productUpvote?: Prisma.ProductUpvoteOmit
   user?: Prisma.UserOmit
-  memberFeedback?: Prisma.MemberFeedbackOmit
   category?: Prisma.CategoryOmit
   plan?: Prisma.PlanOmit
   planFeature?: Prisma.PlanFeatureOmit

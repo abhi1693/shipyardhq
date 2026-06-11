@@ -168,11 +168,6 @@ export type ProductUpvote = Prisma.ProductUpvoteModel
  */
 export type User = Prisma.UserModel
 /**
- * Model MemberFeedback
- *
- */
-export type MemberFeedback = Prisma.MemberFeedbackModel
-/**
  * Model Category
  *
  */

@@ -179,10 +179,9 @@ export default function AppSidebar(props: SidebarProps) {
               const active = itemActive(item)
               const hasChildren = !!(item.items && item.items.length > 0)
               const hasBadge = Boolean(item.label)
-              const navLabelAnnouncement =
-                hasBadge && item.title === "Feedback"
-                  ? `${item.label} new feedback received`
-                  : undefined
+              const navLabelAnnouncement = hasBadge
+                ? `${item.label} new items`
+                : undefined
               return hasChildren ? (
                 <Collapsible
                   key={item.title}
