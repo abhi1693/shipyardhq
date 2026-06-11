@@ -4,7 +4,7 @@
 @import "../theme.css";
 @import "./_public-common.css";
 
-@source "./page.tsx";
+@source "./(home)/page.tsx";
 @source "../../components/molecules/CategoryIcons.tsx";
 @source "../../components/molecules/FeaturedProductGrid.tsx";
 @source "../../components/molecules/InfiniteProductGrid.tsx";
