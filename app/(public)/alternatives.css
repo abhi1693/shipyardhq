@@ -1,0 +1,18 @@
+@config "../../tailwind.config.js";
+@import "tailwindcss" source(none);
+@import "../tailwind-theme.css";
+@import "../theme.css";
+@import "./_public-common.css";
+
+@source "./alternatives/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../components/molecules/AlternativeCatalogCard.tsx";
+@source "../../components/molecules/AlternativeCatalogGridClient.tsx";
+@source "../../components/molecules/ProductFeedCard*.tsx";
+@source "../../components/molecules/ProductGrid*.tsx";
+@source "../../components/molecules/ProductList.skeleton.tsx";
+@source "../../components/molecules/ProductScore.tsx";
+@source "../../components/molecules/ProductUpvoteBadge.tsx";
+@source "../../components/molecules/TrafficTimeseriesChart.tsx";
+@source "../../components/templates/public/common/Taxonomy*.tsx";
+@source "../../components/templates/public/common/Traffic*.tsx";
+@source "../../components/templates/public/common/taxonomy-sponsors.ts";

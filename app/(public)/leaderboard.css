@@ -1,0 +1,15 @@
+@config "../../tailwind.config.js";
+@import "tailwindcss" source(none);
+@import "../tailwind-theme.css";
+@import "../theme.css";
+@import "./_public-common.css";
+
+@source "./leaderboard/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../components/molecules/LeaderboardTopPlacement.tsx";
+@source "../../components/molecules/LiveVisitorsPill.tsx";
+@source "../../components/molecules/ProductFeedCard*.tsx";
+@source "../../components/molecules/ProductList.skeleton.tsx";
+@source "../../components/molecules/ProductScore.tsx";
+@source "../../components/molecules/ProductUpvoteBadge.tsx";
+@source "../../components/molecules/TrafficTimeseriesChart.tsx";
+@source "../../components/templates/public/leaderboard/**/*.{js,ts,jsx,tsx}";

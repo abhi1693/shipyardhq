@@ -1,0 +1,22 @@
+@config "../../tailwind.config.js";
+@import "tailwindcss" source(none);
+@import "../tailwind-theme.css";
+@import "../theme.css";
+@import "./_public-common.css";
+
+@source "./page.tsx";
+@source "../../components/molecules/CategoryIcons.tsx";
+@source "../../components/molecules/FeaturedProductGrid.tsx";
+@source "../../components/molecules/InfiniteProductGrid.tsx";
+@source "../../components/molecules/LeaderboardTopPlacement.tsx";
+@source "../../components/molecules/LiveVisitorsPill.tsx";
+@source "../../components/molecules/ProductFeedCard*.tsx";
+@source "../../components/molecules/ProductGrid*.tsx";
+@source "../../components/molecules/ProductList.skeleton.tsx";
+@source "../../components/molecules/ProductScore.tsx";
+@source "../../components/molecules/ProductUpvoteBadge.tsx";
+@source "../../components/molecules/TrafficTimeseriesChart.tsx";
+@source "../../components/organisms/feed/ProductFeedList.tsx";
+@source "../../components/templates/public/homepage/**/*.{js,ts,jsx,tsx}";
+@source "../../components/templates/public/common/LazyTrafficStatsPanel.tsx";
+@source "../../components/templates/public/common/TrafficStatsPanel.tsx";

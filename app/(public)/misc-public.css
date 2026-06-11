@@ -1,0 +1,17 @@
+@config "../../tailwind.config.js";
+@import "tailwindcss" source(none);
+@import "../tailwind-theme.css";
+@import "../theme.css";
+@import "./_public-common.css";
+
+@source "./analytics/**/*.{js,ts,jsx,tsx,mdx}";
+@source "./legal/**/*.{js,ts,jsx,tsx,mdx}";
+@source "./rewards/**/*.{js,ts,jsx,tsx,mdx}";
+@source "./verified-revenue/**/*.{js,ts,jsx,tsx,mdx}";
+@source "./why-shipyard/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../components/molecules/Analytics*.tsx";
+@source "../../components/molecules/PerformanceCard.tsx";
+@source "../../components/molecules/PricingFeature.tsx";
+@source "../../components/organisms/PricingTable.tsx";
+@source "../../components/templates/public/leaderboard/rewards/**/*.{js,ts,jsx,tsx}";
+@source "../../components/templates/public/rewards/**/*.{js,ts,jsx,tsx}";

@@ -1,0 +1,20 @@
+@config "../../tailwind.config.js";
+@import "tailwindcss" source(none);
+@import "../tailwind-theme.css";
+@import "../theme.css";
+@import "./_public-common.css";
+
+@source "./browse/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../components/molecules/BrowseFilterBar.tsx";
+@source "../../components/molecules/CategoryIcons.tsx";
+@source "../../components/molecules/InfiniteProductGrid.tsx";
+@source "../../components/molecules/InlineSelect.tsx";
+@source "../../components/molecules/ProductCard.tsx";
+@source "../../components/molecules/ProductFeedCard*.tsx";
+@source "../../components/molecules/ProductGrid*.tsx";
+@source "../../components/molecules/ProductList.skeleton.tsx";
+@source "../../components/molecules/ProductScore.tsx";
+@source "../../components/molecules/ProductUpvoteBadge.tsx";
+@source "../../components/molecules/directory/**/*.{js,ts,jsx,tsx}";
+@source "../../components/organisms/directory/**/*.{js,ts,jsx,tsx}";
+@source "../../components/templates/public/browse/**/*.{js,ts,jsx,tsx}";

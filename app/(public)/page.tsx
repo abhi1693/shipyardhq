@@ -27,6 +27,7 @@ import {
 } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
+import "./home.css"
 
 export const revalidate = 60
 

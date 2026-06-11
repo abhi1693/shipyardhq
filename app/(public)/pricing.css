@@ -1,0 +1,11 @@
+@config "../../tailwind.config.js";
+@import "tailwindcss" source(none);
+@import "../tailwind-theme.css";
+@import "../theme.css";
+@import "./_public-common.css";
+
+@source "./pricing/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../components/molecules/PricingCard.tsx";
+@source "../../components/molecules/PricingFeature.tsx";
+@source "../../components/organisms/PricingTable.tsx";
+@source "../../components/templates/public/pricing/**/*.{js,ts,jsx,tsx}";
