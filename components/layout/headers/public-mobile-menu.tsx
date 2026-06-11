@@ -26,7 +26,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/atoms/sheet"
-import SignInButton from "@/components/molecules/SignInButton"
 import {
   BROWSE_PATH,
   MEMBER_ACCOUNT_PROFILE_PATH,
@@ -191,17 +190,19 @@ export default function PublicMobileMenu() {
               </SignOutButton>
             </div>
           ) : (
-            <SignInButton mode="modal">
+            <SheetClose asChild>
               <Button
+                asChild
                 type="button"
                 variant="outline"
                 className="h-10 w-full rounded-[6px] border-[#D8E0EA] bg-white text-[#28384d] shadow-none"
-                onClick={() => setOpen(false)}
               >
-                <LogIn className="size-4" aria-hidden />
-                Login
+                <Link href="/login">
+                  <LogIn className="size-4" aria-hidden />
+                  Login
+                </Link>
               </Button>
-            </SignInButton>
+            </SheetClose>
           )}
         </SheetFooter>
       </SheetContent>

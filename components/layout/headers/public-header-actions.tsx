@@ -14,7 +14,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/atoms/dropdown-menu"
-import SignInButton from "@/components/molecules/SignInButton"
 import {
   MEMBER_ACCOUNT_PROFILE_PATH,
   MEMBER_BASE_PATH,
@@ -116,7 +115,7 @@ export default function PublicHeaderActions() {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <SignInButton mode="modal">
+        <Link href="/login">
           <Button
             type="button"
             variant="ghost"
@@ -125,7 +124,7 @@ export default function PublicHeaderActions() {
           >
             Login
           </Button>
-        </SignInButton>
+        </Link>
       )}
     </div>
   )

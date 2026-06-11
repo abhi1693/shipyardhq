@@ -1,8 +1,6 @@
 import { headers } from "next/headers"
-import AuthViewShell from "@/components/layout/AuthViewShell"
 import Providers from "@/components/layout/providers"
-import AuthMarketingPanel from "@/components/organisms/AuthMarketingPanel"
-import AuthFormPanel from "@/components/organisms/AuthFormPanel"
+import AuthRegisterPanel from "@/components/organisms/AuthRegisterPanel"
 import {
   type AuthRedirectSearchParams,
   resolveRedirectUrl,
@@ -26,10 +24,7 @@ export default async function RegisterViewPage({
 
   return (
     <Providers>
-      <AuthViewShell>
-        <AuthMarketingPanel />
-        <AuthFormPanel mode="sign-up" redirectUrl={redirectUrl} />
-      </AuthViewShell>
+      <AuthRegisterPanel redirectUrl={redirectUrl} />
     </Providers>
   )
 }

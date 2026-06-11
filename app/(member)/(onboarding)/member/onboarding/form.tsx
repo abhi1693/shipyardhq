@@ -21,16 +21,10 @@ import {
   IconRocket,
   IconUsers,
   IconUsersGroup,
+  IconLoader2,
 } from "@tabler/icons-react"
 
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/atoms/card"
-import { Button } from "@/components/atoms/button"
+import { BrandLogo } from "@/components/atoms/brand-logo"
 import { cn } from "@/lib/utils"
 import { ADMIN_BASE_PATH } from "@/lib/routes"
 import {
@@ -161,125 +155,128 @@ export function OnboardingForm({
   const isBusy = isSubmitting || isNavigating
 
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center overflow-hidden px-4 lg:px-10">
-      <Card className="relative w-full max-w-3xl overflow-hidden border-slate-200/80 bg-white shadow-[0_22px_70px_-45px_rgba(15,23,42,0.55)]">
-        <CardHeader className="space-y-3 border-b border-slate-100 px-8 pb-6 pt-8">
-          <CardTitle className="flex items-center gap-2 text-3xl font-semibold tracking-tight text-slate-900">
-            <span aria-hidden>⛵️</span>
-            <span>
-              {firstName ? `Welcome, ${firstName}` : "Set up your workspace"}
+    <main
+      className={cn(
+        "relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-[#F8FAFC] px-4 py-6 font-sans text-[#0b1c30] md:px-6",
+        "before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(90deg,rgba(0,81,213,0.055)_1px,transparent_1px),linear-gradient(180deg,rgba(0,81,213,0.055)_1px,transparent_1px)] before:bg-[size:48px_48px]",
+        "after:pointer-events-none after:absolute after:inset-0 after:bg-[linear-gradient(135deg,rgba(255,255,255,0.82),rgba(248,249,255,0.68))]",
+      )}
+    >
+      <section className="relative z-10 w-full max-w-[640px] overflow-hidden rounded-lg border border-[#E2E8F0] bg-white shadow-[0_4px_12px_rgba(15,23,42,0.06)]">
+        <header className="border-b border-[#E2E8F0] bg-white px-6 py-6 md:px-8">
+          <div className="mb-4 flex items-center gap-3">
+            <BrandLogo width={32} height={32} sizes="32px" eager />
+            <span className="text-lg font-semibold tracking-normal text-[#00162a]">
+              Shipyard HQ
             </span>
-          </CardTitle>
-        </CardHeader>
+          </div>
+          <h1 className="text-2xl font-semibold tracking-normal text-[#0b1c30]">
+            {firstName ? `Welcome, ${firstName}` : "Set up your workspace"}
+          </h1>
+          <p className="mt-2 max-w-[520px] text-sm leading-5 text-[#43474c]">
+            Let&apos;s customize your discovery experience to help you find
+            high-performance tools.
+          </p>
+        </header>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          <CardContent className="space-y-8 px-8 pb-0 pt-6">
-            <fieldset className="space-y-2">
-              <legend className="text-base font-semibold text-slate-700">
-                What brings you here?
-              </legend>
-              <input type="hidden" {...register("roleIntent")} />
-              <div className="flex flex-wrap gap-2">
-                {roleIntentOptions.map(({ value, label, icon: Icon }) => {
-                  const active = roleIntent === value
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-10 px-6 py-6 md:px-8"
+        >
+          <fieldset>
+            <legend className="mb-6 text-xs font-semibold uppercase tracking-[0.18em] text-[#43474c]">
+              What brings you here?
+            </legend>
+            <input type="hidden" {...register("roleIntent")} />
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              {roleIntentOptions.map(({ value, label, icon: Icon }) => {
+                const active = roleIntent === value
 
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      className={cn(
-                        "group inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold transition cursor-pointer",
-                        active
-                          ? "border-sky-300 bg-sky-50 text-slate-900 shadow-sm"
-                          : "border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50",
-                      )}
-                      onClick={() =>
-                        setValue("roleIntent", value, { shouldValidate: true })
-                      }
-                    >
-                      {Icon ? (
-                        <span
-                          className={cn(
-                            "flex size-8 items-center justify-center rounded-full",
-                            active
-                              ? "bg-sky-100 text-sky-800"
-                              : "bg-slate-100 text-slate-700",
-                          )}
-                        >
-                          <Icon className="size-4" aria-hidden />
-                        </span>
-                      ) : null}
-                      <span>{label}</span>
-                    </button>
-                  )
-                })}
-              </div>
-              {errors.roleIntent ? (
-                <p className="text-sm font-medium text-rose-500">
-                  {errors.roleIntent.message}
-                </p>
-              ) : null}
-            </fieldset>
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={active}
+                    className={cn(
+                      "flex min-h-[132px] cursor-pointer flex-col items-center justify-center rounded-lg border p-5 text-center transition-all hover:-translate-y-0.5 hover:border-[#c4c6cd] hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0051d5]/30 focus-visible:ring-offset-2",
+                      active
+                        ? "border-[#0051d5] bg-[#EFF6FF] text-[#0b1c30]"
+                        : "border-[#E2E8F0] bg-white text-[#0b1c30]",
+                    )}
+                    onClick={() =>
+                      setValue("roleIntent", value, { shouldValidate: true })
+                    }
+                  >
+                    <Icon className="mb-3 size-7 text-[#00162a]" aria-hidden />
+                    <span className="text-xs font-semibold uppercase tracking-[0.08em]">
+                      {label}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+            {errors.roleIntent ? (
+              <p className="mt-3 text-sm font-medium text-[#ba1a1a]">
+                {errors.roleIntent.message}
+              </p>
+            ) : null}
+          </fieldset>
 
-            <fieldset className="space-y-2">
-              <legend className="text-base font-semibold text-slate-700">
-                How you found us?
-              </legend>
-              <input type="hidden" {...register("heardFrom")} />
-              <div className="flex flex-wrap gap-2">
-                {heardFromOptions.map(({ value, label, icon: Icon }) => {
-                  const active = heardFrom === value
+          <fieldset>
+            <legend className="mb-6 text-xs font-semibold uppercase tracking-[0.18em] text-[#43474c]">
+              How did you find us?
+            </legend>
+            <input type="hidden" {...register("heardFrom")} />
+            <div className="flex flex-wrap gap-2">
+              {heardFromOptions.map(({ value, label, icon: Icon }) => {
+                const active = heardFrom === value
 
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      className={cn(
-                        "group inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition cursor-pointer",
-                        active
-                          ? "border-sky-300 bg-sky-50 text-slate-900 shadow-sm"
-                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900",
-                      )}
-                      onClick={() =>
-                        setValue("heardFrom", value, { shouldValidate: true })
-                      }
-                    >
-                      {Icon ? (
-                        <span
-                          className={cn(
-                            "flex size-7 items-center justify-center rounded-full",
-                            active
-                              ? "bg-sky-100 text-sky-800"
-                              : "bg-slate-100 text-slate-700",
-                          )}
-                        >
-                          <Icon className="size-4" aria-hidden />
-                        </span>
-                      ) : null}
-                      <span>{label}</span>
-                    </button>
-                  )
-                })}
-              </div>
-              {errors.heardFrom ? (
-                <p className="text-sm font-medium text-rose-500">
-                  {errors.heardFrom.message}
-                </p>
-              ) : null}
-            </fieldset>
-          </CardContent>
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={active}
+                    className={cn(
+                      "inline-flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0051d5]/30 focus-visible:ring-offset-2",
+                      active
+                        ? "border-[#00162a] bg-[#00162a] text-white"
+                        : "border-[#E2E8F0] bg-white text-[#43474c] hover:bg-[#F8FAFC] hover:text-[#0b1c30]",
+                    )}
+                    onClick={() =>
+                      setValue("heardFrom", value, { shouldValidate: true })
+                    }
+                  >
+                    <Icon className="size-4" aria-hidden />
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+            {errors.heardFrom ? (
+              <p className="mt-3 text-sm font-medium text-[#ba1a1a]">
+                {errors.heardFrom.message}
+              </p>
+            ) : null}
+          </fieldset>
 
-          <CardFooter className="flex flex-col gap-2 px-8 pb-8 pt-2">
-            <Button
+          <footer className="pt-2">
+            <button
               type="submit"
-              className="w-full rounded-xl bg-slate-900 px-6 py-3 text-base font-semibold text-white transition hover:bg-slate-800 focus-visible:ring-slate-900/20 disabled:opacity-60"
+              className="flex min-h-[52px] w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#00162a] px-6 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white shadow-[0_10px_22px_rgba(0,22,42,0.12)] transition-all hover:bg-[#213145] active:scale-[0.98] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-55"
               disabled={isBusy || !canSubmit}
             >
-              {isBusy ? "Saving..." : "Finish setup"}
-            </Button>
-          </CardFooter>
+              {isBusy ? (
+                <>
+                  <IconLoader2 className="size-4 animate-spin" aria-hidden />
+                  Finalizing...
+                </>
+              ) : (
+                "Finish setup"
+              )}
+            </button>
+          </footer>
         </form>
-      </Card>
-    </div>
+      </section>
+    </main>
   )
 }
