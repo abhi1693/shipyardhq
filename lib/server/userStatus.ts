@@ -15,6 +15,7 @@ const activeUserSelect = {
   firstName: true,
   lastName: true,
   onboardedAt: true,
+  createdAt: true,
 } as const
 
 const ACTIVE_USER_CACHE_TTL_SECONDS = 120

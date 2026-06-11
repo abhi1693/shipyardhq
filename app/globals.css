@@ -59,6 +59,122 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+:where(a[href], button:not(:disabled), [role="button"]:not([aria-disabled="true"]), summary) {
+  cursor: pointer;
+}
+
+:where(button:disabled, [aria-disabled="true"]) {
+  cursor: not-allowed;
+}
+
+.cl-modalBackdrop {
+  background: rgba(11, 28, 48, 0.42);
+  backdrop-filter: blur(8px);
+}
+
+.cl-modalContent {
+  border-radius: 0.75rem;
+}
+
+.cl-cardBox {
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.14);
+}
+
+.cl-card {
+  gap: 1.25rem;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.cl-headerTitle {
+  color: #0b1c30;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.5rem;
+}
+
+.cl-headerSubtitle {
+  color: #43474c;
+  font-size: 0.875rem;
+  line-height: 1.35rem;
+}
+
+.cl-otpCodeFieldInputs {
+  gap: 0.5rem;
+}
+
+.cl-otpCodeFieldInput {
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  color: #0b1c30;
+  font-size: 1.125rem;
+  font-weight: 600;
+  box-shadow: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.cl-otpCodeFieldInput:focus {
+  border-color: #0051d5;
+  box-shadow: 0 0 0 3px rgba(0, 81, 213, 0.14);
+  outline: none;
+}
+
+.cl-formButtonPrimary {
+  min-height: 2.75rem;
+  border-radius: 0.5rem;
+  background: #0b1c30;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: none;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.cl-formButtonPrimary:hover,
+.cl-formButtonPrimary:focus {
+  background: #213145;
+}
+
+.cl-formButtonPrimary:active {
+  transform: scale(0.98);
+}
+
+.cl-formResendCodeLink,
+.cl-footerActionLink {
+  color: #0051d5;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cl-formResendCodeLink:hover,
+.cl-footerActionLink:hover {
+  color: #003ea7;
+}
+
+.cl-footer {
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.cl-badge {
+  color: #f97316;
+}
+
 .prose {
   color: var(--foreground);
   max-width: 65ch;
