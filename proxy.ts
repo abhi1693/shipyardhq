@@ -22,6 +22,17 @@ async function redirectMediaImageOptimizationRequest(req: NextRequest) {
     return null
   }
 
+  if (process.env.NODE_ENV === "development") {
+    try {
+      const sourceUrl = new URL(imageUrl)
+      if (sourceUrl.protocol === "https:" || sourceUrl.protocol === "http:") {
+        return NextResponse.redirect(sourceUrl, 307)
+      }
+    } catch {
+      return null
+    }
+  }
+
   const transformedUrl = await buildSignedImgproxyImageUrl({
     src: imageUrl,
     width,
