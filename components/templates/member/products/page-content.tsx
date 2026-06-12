@@ -1,178 +1,409 @@
 import Link from "next/link"
+import {
+  BarChart3,
+  BookOpen,
+  CheckCircle2,
+  Megaphone,
+  Monitor,
+  Network,
+  Pencil,
+  Plus,
+  Rocket,
+  Trash2,
+  Upload,
+  XCircle,
+} from "lucide-react"
 
-import { Card, CardContent } from "@/components/atoms/card"
-import CreateButton from "@/components/molecules/CreateButton"
-import MemberProductFilters from "@/components/molecules/MemberProductFilters"
-import { EntityList } from "@/components/pages/admin/shared/EntityList"
-import {
-  columns,
-  type MemberProductRow,
-} from "@/app/(member)/member/products/columns"
 import { getUserProducts } from "@/actions/member/products/actions"
+import type { MemberProductRow } from "@/app/(member)/member/products/columns"
+import { Image } from "@/components/atoms/image"
 import {
-  MEMBER_PRODUCT_FILTER_ALL,
-  getMemberProductSortLabel,
-  getMemberProductStatusLabel,
-  getMemberProductVerificationLabel,
-  isAllFilterValue,
-  memberProductSortOptionValues,
-  memberProductStatusOptionValues,
-  memberProductVerificationOptionValues,
-} from "@/lib/member-products/filter-options"
-import { MEMBER_PRODUCTS_ADD_PATH } from "@/lib/routes"
+  MEMBER_PRODUCTS_ADD_PATH,
+  WHY_SHIPYARD_PATH,
+  memberProductAnalyticsPath,
+  memberProductDeletePath,
+  memberProductEditPath,
+  memberProductPath,
+  memberProductUpgradePath,
+} from "@/lib/routes"
+import { cn } from "@/lib/utils"
 import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 
-type SearchParams = Record<string, string | string[] | undefined>
+const logoToneClasses = [
+  "bg-black text-white",
+  "bg-[#0051d5] text-white",
+  "border border-[#E2E8F0] bg-[#e5eeff] text-[#0b1c30]",
+  "border border-[#E2E8F0] bg-[#d3e4fe] text-[#0b1c30]",
+]
 
-function toParamString(value: string | string[] | undefined) {
-  if (Array.isArray(value)) return value[0]
-  return value
+function getInitials(name: string) {
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("")
+
+  return initials || "SY"
 }
 
-export async function MemberProductsPageContent({
-  searchParams,
+function formatStatus(status: unknown) {
+  return String(status || "draft").replace(/_/g, " ")
+}
+
+function getStatusClassName(status: unknown) {
+  const normalized = String(status || "").toLowerCase()
+  if (normalized === "published") {
+    return "bg-[#16a34a]/10 text-[#16a34a]"
+  }
+  if (normalized === "archived") {
+    return "bg-[#ffdad6] text-[#93000a]"
+  }
+  return "bg-[#dce9ff] text-[#43474c]"
+}
+
+function ProductActions({ product }: { product: MemberProductRow }) {
+  const iconLinkClass =
+    "inline-flex size-9 items-center justify-center rounded-lg text-[#74777d] transition-colors hover:bg-[#eff4ff] hover:text-[#0051d5] active:scale-95"
+
+  return (
+    <div className="flex items-center justify-end gap-2">
+      {product.canViewAnalytics ? (
+        <Link
+          href={memberProductAnalyticsPath(product.slug)}
+          className={iconLinkClass}
+          aria-label={`View analytics for ${product.name}`}
+          title="Analytics"
+        >
+          <BarChart3 className="size-5" />
+        </Link>
+      ) : null}
+      <Link
+        href={memberProductUpgradePath(product.slug)}
+        className={iconLinkClass}
+        aria-label={`Promote ${product.name}`}
+        title="Promote"
+      >
+        <Megaphone className="size-5" />
+      </Link>
+      <Link
+        href={memberProductEditPath(product.slug)}
+        className={iconLinkClass}
+        aria-label={`Edit ${product.name}`}
+        title="Edit"
+      >
+        <Pencil className="size-5" />
+      </Link>
+      {product.canDelete ? (
+        <Link
+          href={memberProductDeletePath(product.slug)}
+          className="inline-flex size-9 items-center justify-center rounded-lg text-[#74777d] transition-colors hover:bg-[#ffdad6] hover:text-[#ba1a1a] active:scale-95"
+          aria-label={`Delete ${product.name}`}
+          title="Delete"
+        >
+          <Trash2 className="size-5" />
+        </Link>
+      ) : null}
+    </div>
+  )
+}
+
+function ProductTable({
+  products,
+  total,
 }: {
-  searchParams: Promise<SearchParams>
+  products: MemberProductRow[]
+  total: number
 }) {
-  const params = await searchParams
-  const { products, total, limit } = await getUserProducts(params)
-  const perPage = Math.max(1, parseInt(String(limit || 10), 10) || 10)
-  const pageCount = Math.max(1, Math.ceil(total / perPage))
+  return (
+    <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-[0px_4px_12px_rgba(0,0,0,0.05)]">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[900px] border-collapse text-left">
+          <thead>
+            <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC]">
+              <th className="px-5 py-5 text-[12px] font-bold uppercase tracking-[0.05em] text-[#43474c] md:px-6">
+                Product
+              </th>
+              <th className="px-5 py-5 text-[12px] font-bold uppercase tracking-[0.05em] text-[#43474c] md:px-6">
+                Category
+              </th>
+              <th className="px-5 py-5 text-[12px] font-bold uppercase tracking-[0.05em] text-[#43474c] md:px-6">
+                Plan
+              </th>
+              <th className="px-5 py-5 text-center text-[12px] font-bold uppercase tracking-[0.05em] text-[#43474c] md:px-6">
+                Domain
+              </th>
+              <th className="px-5 py-5 text-[12px] font-bold uppercase tracking-[0.05em] text-[#43474c] md:px-6">
+                Status
+              </th>
+              <th className="px-5 py-5 text-right text-[12px] font-bold uppercase tracking-[0.05em] text-[#43474c] md:px-6">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#E2E8F0]">
+            {products.map((product, index) => {
+              const isDraft = String(product.status).toLowerCase() === "draft"
+              const verified = Boolean(product.verification?.isVerified)
+              const planName = product.plan?.name ?? "Free"
+              const planIsPaid = !/^free$/i.test(planName)
 
-  const qParam = toParamString(params?.q)
-  const statusParam = toParamString(params?.status)
-  const verificationParam = toParamString(params?.verification)
-  const sortParam = toParamString(params?.sort)
+              return (
+                <tr
+                  key={product.id}
+                  className="group transition-colors hover:bg-[#F8FAFC]/70"
+                >
+                  <td className="px-5 py-6 md:px-6">
+                    <div
+                      className={cn(
+                        "flex items-center gap-4",
+                        isDraft ? "opacity-70" : "",
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg text-xl font-bold shadow-sm",
+                          logoToneClasses[index % logoToneClasses.length],
+                        )}
+                      >
+                        {product.logo ? (
+                          <Image
+                            src={product.logo}
+                            alt={`${product.name} logo`}
+                            width={40}
+                            height={40}
+                            className="size-10 object-contain"
+                          />
+                        ) : (
+                          getInitials(product.name)
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <Link
+                          href={memberProductPath(product.slug)}
+                          className="block truncate text-[16px] font-bold leading-6 text-black transition-colors hover:text-[#0051d5]"
+                        >
+                          {product.name}
+                        </Link>
+                        <p className="truncate text-[11px] leading-[14px] text-[#43474c]">
+                          /{product.slug}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-5 py-6 md:px-6">
+                    {product.category ? (
+                      <span className="inline-flex rounded-full border border-[#E2E8F0] bg-[#e5eeff] px-3 py-1 text-[11px] font-medium leading-[14px] text-[#43474c]">
+                        {product.category.name}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-[#74777d]">None</span>
+                    )}
+                  </td>
+                  <td className="px-5 py-6 md:px-6">
+                    <span
+                      className={cn(
+                        "text-[14px] leading-5",
+                        planIsPaid
+                          ? "font-bold text-[#0051d5]"
+                          : "text-[#0b1c30]",
+                      )}
+                    >
+                      {planName}
+                    </span>
+                  </td>
+                  <td className="px-5 py-6 text-center md:px-6">
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded border px-2.5 py-1 text-[11px] font-medium leading-[14px]",
+                        verified
+                          ? "border-[#16a34a]/20 bg-[#16a34a]/10 text-[#16a34a]"
+                          : "border-[#E2E8F0] bg-[#e5eeff] text-[#43474c]",
+                      )}
+                    >
+                      {verified ? (
+                        <CheckCircle2 className="size-3.5" />
+                      ) : (
+                        <XCircle className="size-3.5" />
+                      )}
+                      {verified ? "Verified" : "Unverified"}
+                    </span>
+                  </td>
+                  <td className="px-5 py-6 md:px-6">
+                    <span
+                      className={cn(
+                        "inline-flex rounded px-2.5 py-1 text-[11px] font-bold uppercase leading-[14px]",
+                        getStatusClassName(product.status),
+                      )}
+                    >
+                      {formatStatus(product.status)}
+                    </span>
+                  </td>
+                  <td className="px-5 py-6 text-right md:px-6">
+                    <ProductActions product={product} />
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
 
-  const q = qParam?.trim() ?? ""
+      <div className="flex flex-col gap-3 border-t border-[#E2E8F0] bg-[#F8FAFC] px-5 py-4 sm:flex-row sm:items-center sm:justify-between md:px-6">
+        <span className="text-[14px] font-medium leading-5 text-[#43474c]">
+          Showing {products.length} of {total} products
+        </span>
+      </div>
+    </div>
+  )
+}
 
-  const status =
-    statusParam && memberProductStatusOptionValues.has(statusParam)
-      ? statusParam
-      : MEMBER_PRODUCT_FILTER_ALL
+function EmptyProductsState() {
+  return (
+    <div className="relative flex min-h-[calc(100vh-11rem)] items-center justify-center overflow-hidden rounded-xl px-4 py-10 sm:py-14">
+      <div
+        className="absolute inset-0 opacity-40"
+        style={{
+          backgroundImage:
+            "linear-gradient(30deg,#e5eeff 12%,transparent 12.5%,transparent 87%,#e5eeff 87.5%,#e5eeff),linear-gradient(150deg,#e5eeff 12%,transparent 12.5%,transparent 87%,#e5eeff 87.5%,#e5eeff),linear-gradient(60deg,#eff4ff 25%,transparent 25.5%,transparent 75%,#eff4ff 75.5%,#eff4ff)",
+          backgroundPosition: "0 0, 40px 70px, 0 0",
+          backgroundSize: "80px 140px",
+        }}
+      />
+      <div className="relative z-10 flex w-full max-w-xl flex-col items-center text-center">
+        <div className="group relative mb-6">
+          <div className="absolute inset-0 scale-150 rounded-full bg-[#0051d5]/5 blur-3xl" />
+          <div className="relative flex size-48 items-center justify-center overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm transition-transform duration-500 group-hover:scale-[1.03]">
+            <div
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage:
+                  "radial-gradient(#0051d5 1px, transparent 1px)",
+                backgroundSize: "8px 8px",
+              }}
+            />
+            <div className="relative flex flex-col items-center">
+              <Rocket className="mb-3 size-20 text-[#0051d5]/30" />
+              <div className="flex gap-2">
+                <div className="h-1 w-8 rounded-full bg-[#0051d5]/20" />
+                <div className="h-1 w-4 rounded-full bg-[#F97316]/20" />
+              </div>
+            </div>
+            <Upload className="absolute right-4 top-4 size-5 text-[#F97316]" />
+            <BarChart3 className="absolute bottom-6 left-6 size-6 text-[#0051d5]/40" />
+          </div>
+        </div>
 
-  const verification =
-    verificationParam &&
-    memberProductVerificationOptionValues.has(verificationParam)
-      ? verificationParam
-      : MEMBER_PRODUCT_FILTER_ALL
+        <h1 className="text-2xl font-semibold leading-8 text-black">
+          No products yet
+        </h1>
+        <p className="mt-3 max-w-md text-[16px] leading-6 text-[#43474c]">
+          Your project portfolio starts here. Launch your first product to begin
+          tracking analytics, verification, and growth.
+        </p>
 
-  const sort =
-    sortParam && memberProductSortOptionValues.has(sortParam)
-      ? sortParam
-      : "new"
+        <div className="mt-8 flex flex-col items-center gap-4">
+          <Link
+            href={MEMBER_PRODUCTS_ADD_PATH}
+            className="inline-flex h-14 items-center justify-center gap-3 rounded-lg bg-black px-8 text-[18px] font-semibold leading-6 text-white shadow-lg shadow-black/10 transition-all hover:bg-[#0051d5] hover:scale-[1.02] active:scale-95"
+          >
+            <Plus className="size-5" />
+            Add new product
+          </Link>
+          <Link
+            href={WHY_SHIPYARD_PATH}
+            className="inline-flex items-center gap-1 text-[12px] font-semibold uppercase tracking-[0.05em] text-[#0051d5] underline-offset-4 hover:underline"
+          >
+            <BookOpen className="size-4" />
+            Read onboarding guide
+          </Link>
+        </div>
 
-  const sortLabel = getMemberProductSortLabel(sort) ?? "Newest"
-  const statusLabel = !isAllFilterValue(status)
-    ? (getMemberProductStatusLabel(status) ?? status)
-    : undefined
-  const verificationLabel = !isAllFilterValue(verification)
-    ? (getMemberProductVerificationLabel(verification) ?? verification)
-    : undefined
-
-  const activeFilters: string[] = []
-  if (q.length) activeFilters.push(`Search: "${q}"`)
-  if (statusLabel) activeFilters.push(`Status: ${statusLabel}`)
-  if (verificationLabel) activeFilters.push(`Domain: ${verificationLabel}`)
-  if (sort && sort !== "new") activeFilters.push(`Sort: ${sortLabel}`)
-
-  const hasActiveFilters = activeFilters.length > 0
-  const noProductsYet = total === 0 && !hasActiveFilters
-  const noResultsWithFilters = total === 0 && hasActiveFilters
-
-  if (noProductsYet) {
-    return (
-      <div className="mx-auto max-w-3xl py-12">
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-[color:var(--brand-1)/0.22] bg-background/92 px-6 py-14 text-center shadow-[0_32px_95px_-70px_rgba(7,78,134,0.55)]">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/75 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-[color:var(--brand-2-text,#0a5678)] shadow-sm">
-            Member Command Deck
-          </span>
-          <h1 className="mt-6 text-3xl font-bold tracking-tight">
-            Launch your first product
-          </h1>
-          <p className="mt-3 max-w-md text-sm text-muted-foreground">
-            Shipyard tracks engagement, verification, and health for every
-            launch. Add a product to unlock tailored analytics for your crew.
-          </p>
-          <CreateButton asChild className="mt-8" label="Add product">
-            <Link href={MEMBER_PRODUCTS_ADD_PATH}>Add product</Link>
-          </CreateButton>
+        <div className="mt-16 grid w-full grid-cols-1 gap-3 opacity-80 sm:grid-cols-2">
+          <div className="flex items-start gap-3 rounded-xl border border-[#E2E8F0] bg-white p-4 text-left">
+            <div className="flex size-10 items-center justify-center rounded bg-[#e5eeff] text-[#0051d5]">
+              <Monitor className="size-5" />
+            </div>
+            <div>
+              <h2 className="text-[12px] font-semibold uppercase tracking-[0.05em] text-black">
+                Market Insights
+              </h2>
+              <p className="mt-1 text-[11px] leading-relaxed text-[#43474c]">
+                Benchmark launches against peer products and category trends.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3 rounded-xl border border-[#E2E8F0] bg-white p-4 text-left">
+            <div className="flex size-10 items-center justify-center rounded bg-[#e5eeff] text-[#F97316]">
+              <Network className="size-5" />
+            </div>
+            <div>
+              <h2 className="text-[12px] font-semibold uppercase tracking-[0.05em] text-black">
+                Shipyard Ecosystem
+              </h2>
+              <p className="mt-1 text-[11px] leading-relaxed text-[#43474c]">
+                Connect launches to traffic, feedback, and product analytics.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-    )
+    </div>
+  )
+}
+
+export async function MemberProductsPageContent() {
+  const { products, total } = await getUserProducts({ limit: "1000" })
+  const productRows = products as unknown as MemberProductRow[]
+
+  if (total === 0) {
+    return <EmptyProductsState />
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-2">
-          <h1 className="text-xl font-semibold tracking-tight text-slate-900">
-            Products
+    <section className="w-full space-y-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h1 className="mb-1 text-[32px] font-bold leading-10 text-black">
+            My Products
           </h1>
-          <p className="text-sm text-muted-foreground max-w-2xl">
-            Keep your launches polished, verified, and ready for discovery.
+          <p className="text-[16px] leading-6 text-[#43474c]">
+            Manage, monitor, and optimize your project portfolio.
           </p>
         </div>
-        <CreateButton asChild size="sm" label="Add product">
-          <Link href={MEMBER_PRODUCTS_ADD_PATH}>Add product</Link>
-        </CreateButton>
+        <Link
+          href={MEMBER_PRODUCTS_ADD_PATH}
+          className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-black px-6 text-sm font-bold text-white shadow-sm transition-all hover:bg-black/90 active:scale-95"
+        >
+          <Plus className="size-5" />
+          Add new product
+        </Link>
       </div>
 
-      <Card className="border border-transparent bg-white/90 shadow-none">
-        <CardContent className="space-y-6 px-0">
-          <MemberProductFilters />
-
-          {hasActiveFilters ? (
-            <div className="flex flex-wrap items-center gap-2">
-              {activeFilters.map((filter) => (
-                <span
-                  key={filter}
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] text-slate-600"
-                >
-                  <span className="h-1 w-1 rounded-full bg-slate-400" />
-                  {filter}
-                </span>
-              ))}
-            </div>
-          ) : null}
-
-          {noResultsWithFilters ? (
-            <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-500">
-              No products match the current filters. Adjust them or clear
-              filters to see more of your fleet.
-            </div>
-          ) : null}
-
-          <EntityList
-            columns={columns}
-            data={products as unknown as MemberProductRow[]}
-            pageCount={pageCount}
-          />
-        </CardContent>
-      </Card>
-    </div>
+      <ProductTable products={productRows} total={total} />
+    </section>
   )
 }
 
 export function MemberProductsPageSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-2">
+    <div className="w-full space-y-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="space-y-3">
           <HeadingSkeleton lines={1} centered={false} />
-          <Skeleton className="h-3 w-72 rounded-full" tone="muted" />
+          <Skeleton className="h-4 w-96 max-w-full rounded-full" tone="muted" />
         </div>
-        <ButtonSkeleton size="sm" labelWidth="7rem" />
+        <ButtonSkeleton size="lg" labelWidth="9rem" />
       </div>
       <CardSkeleton
         tone="soft"
         radius="lg"
-        lines={6}
+        lines={8}
         showFooter
-        className="border border-slate-200/80 bg-white/95"
+        className="border border-[#E2E8F0] bg-white"
       />
     </div>
   )

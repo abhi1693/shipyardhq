@@ -11,12 +11,10 @@ export const metadata = buildPageMetadata({
   description: "Manage your products, chart growth, and track performance.",
 })
 
-export default function MemberProductsPage(
-  props: Parameters<typeof MemberProductsPageContent>[0],
-) {
+export default function MemberProductsPage() {
   return (
     <Suspense fallback={<MemberProductsPageSkeleton />}>
-      <MemberProductsPageContent {...props} />
+      <MemberProductsPageContent />
     </Suspense>
   )
 }
