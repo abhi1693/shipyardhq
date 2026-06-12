@@ -41,7 +41,7 @@ function getInitials(user: ReturnType<typeof useUser>["user"]) {
 
 export default function PublicHeaderActions() {
   const router = useRouter()
-  const { isSignedIn, user } = useUser()
+  const { isLoaded, isSignedIn, user } = useUser()
   const userInitials = getInitials(user)
   const avatarUrl = user?.imageUrl || fallbackAvatarUrl
   const avatarAlt = user?.fullName ?? "User profile"
@@ -55,7 +55,12 @@ export default function PublicHeaderActions() {
         <Link href={MEMBER_PRODUCTS_ADD_PATH}>Ship Product</Link>
       </Button>
 
-      {isSignedIn ? (
+      {!isLoaded ? (
+        <div
+          className="size-8 rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC]"
+          aria-hidden
+        />
+      ) : isSignedIn ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

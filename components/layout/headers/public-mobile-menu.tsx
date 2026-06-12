@@ -49,7 +49,7 @@ function buildBrowseHref(query: string): string {
 export default function PublicMobileMenu() {
   const router = useRouter()
   const pathname = usePathname()
-  const { isSignedIn } = useUser()
+  const { isLoaded, isSignedIn } = useUser()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
 
@@ -152,7 +152,12 @@ export default function PublicMobileMenu() {
             </Button>
           </SheetClose>
 
-          {isSignedIn ? (
+          {!isLoaded ? (
+            <div
+              className="h-10 w-full rounded-[6px] border border-[#D8E0EA] bg-[#F8FAFC]"
+              aria-hidden
+            />
+          ) : isSignedIn ? (
             <div className="grid grid-cols-2 gap-2">
               <SheetClose asChild>
                 <Button
