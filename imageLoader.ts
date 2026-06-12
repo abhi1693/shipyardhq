@@ -15,6 +15,10 @@ export default function shipyardImageLoader({
     return src
   }
 
+  if (process.env.NODE_ENV === "development") {
+    return src
+  }
+
   const normalizedWidth = Math.max(1, Math.round(width))
   const normalizedQuality =
     typeof quality === "number" && Number.isFinite(quality) ? quality : 75
