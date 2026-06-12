@@ -3,7 +3,12 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { SignOutButton, useUser } from "@clerk/nextjs"
-import { LayoutDashboard, LogOut, UserRound } from "lucide-react"
+import {
+  Boxes,
+  LayoutDashboard,
+  LogOut,
+  UserRoundCog,
+} from "lucide-react"
 
 import { Button } from "@/components/atoms/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
@@ -17,6 +22,7 @@ import {
 import {
   MEMBER_ACCOUNT_PROFILE_PATH,
   MEMBER_BASE_PATH,
+  MEMBER_PRODUCTS_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
 } from "@/lib/routes"
 
@@ -39,12 +45,22 @@ function getInitials(user: ReturnType<typeof useUser>["user"]) {
   return "SY"
 }
 
+function getDisplayName(user: ReturnType<typeof useUser>["user"]) {
+  return (
+    user?.fullName ||
+    user?.username ||
+    user?.primaryEmailAddress?.emailAddress?.split("@")[0] ||
+    "Shipyard Member"
+  )
+}
+
 export default function PublicHeaderActions() {
   const router = useRouter()
   const { isLoaded, isSignedIn, user } = useUser()
   const userInitials = getInitials(user)
   const avatarUrl = user?.imageUrl || fallbackAvatarUrl
   const avatarAlt = user?.fullName ?? "User profile"
+  const displayName = getDisplayName(user)
 
   return (
     <div className="hidden items-center gap-3 md:flex">
@@ -84,37 +100,83 @@ export default function PublicHeaderActions() {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            sideOffset={10}
-            className="w-48 rounded-xl border border-[#E2E8F0] bg-white/95 shadow-lg"
+            sideOffset={12}
+            className="w-80 overflow-hidden rounded-none border border-gray-200 bg-white p-0 text-gray-900 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-2px_rgba(0,0,0,0.05)]"
           >
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onSelect={(event) => {
-                event.preventDefault()
-                router.push(MEMBER_BASE_PATH)
-              }}
-            >
-              <LayoutDashboard className="size-4" />
-              Dashboard
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onSelect={(event) => {
-                event.preventDefault()
-                router.push(MEMBER_ACCOUNT_PROFILE_PATH)
-              }}
-            >
-              <UserRound className="size-4" />
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            <div className="flex items-center gap-4 border-b border-gray-100 px-6 py-5">
+              <Avatar className="size-12 shrink-0 overflow-hidden rounded-full">
+                <AvatarImage
+                  src={avatarUrl}
+                  alt={avatarAlt}
+                  width={48}
+                  height={48}
+                />
+                <AvatarFallback className="bg-[#d3e4fe] text-sm font-semibold uppercase text-gray-700">
+                  {userInitials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="truncate text-lg font-semibold text-gray-900">
+                    {displayName}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="py-3">
+              <div className="px-6 py-2">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                  Management
+                </h3>
+              </div>
+              <DropdownMenuItem
+                className="group flex cursor-pointer items-center gap-3 rounded-none px-6 py-3 text-gray-700 transition-colors hover:bg-gray-50 focus:bg-gray-50 focus:text-gray-700"
+                onSelect={(event) => {
+                  event.preventDefault()
+                  router.push(MEMBER_BASE_PATH)
+                }}
+              >
+                <LayoutDashboard className="size-5 text-gray-500 transition-colors group-hover:text-gray-900" />
+                <span className="font-medium">Dashboard</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="group flex cursor-pointer items-center gap-3 rounded-none px-6 py-3 text-gray-700 transition-colors hover:bg-gray-50 focus:bg-gray-50 focus:text-gray-700"
+                onSelect={(event) => {
+                  event.preventDefault()
+                  router.push(MEMBER_PRODUCTS_PATH)
+                }}
+              >
+                <Boxes className="size-5 text-gray-500 transition-colors group-hover:text-gray-900" />
+                <span className="font-medium">My Products</span>
+              </DropdownMenuItem>
+            </div>
+
+            <div className="border-t border-gray-100 py-3">
+              <div className="px-6 py-2">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                  Settings
+                </h3>
+              </div>
+              <DropdownMenuItem
+                className="group flex cursor-pointer items-center gap-3 rounded-none px-6 py-3 text-gray-700 transition-colors hover:bg-gray-50 focus:bg-gray-50 focus:text-gray-700"
+                onSelect={(event) => {
+                  event.preventDefault()
+                  router.push(MEMBER_ACCOUNT_PROFILE_PATH)
+                }}
+              >
+                <UserRoundCog className="size-5 text-gray-500 transition-colors group-hover:text-gray-900" />
+                <span className="font-medium">Account</span>
+              </DropdownMenuItem>
+            </div>
+            <DropdownMenuSeparator className="m-0 bg-gray-100" />
             <SignOutButton>
               <DropdownMenuItem
                 variant="destructive"
-                className="cursor-pointer"
+                className="group flex cursor-pointer items-center gap-3 rounded-none px-6 py-4 font-semibold text-red-600 transition-colors hover:bg-red-50 focus:bg-red-50 focus:text-red-600"
               >
-                <LogOut className="size-4" />
-                Sign out
+                <LogOut className="size-5" />
+                <span>Sign out</span>
               </DropdownMenuItem>
             </SignOutButton>
           </DropdownMenuContent>

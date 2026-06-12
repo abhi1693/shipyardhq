@@ -6,10 +6,6 @@ import { usePathname } from "next/navigation"
 import { SidebarTrigger } from "@/components/atoms/sidebar"
 import { UserNav } from "@/components/layout/user-nav"
 
-type PrivateHeaderContentProps = {
-  rewardBalance: number
-}
-
 const SECTION_SEGMENTS = new Set(["admin", "member"])
 
 function formatTitleSegment(segment: string) {
@@ -29,9 +25,7 @@ function getPageTitle(pathname: string) {
   return formatTitleSegment(pageSegment)
 }
 
-export function PrivateHeaderContent({
-  rewardBalance,
-}: PrivateHeaderContentProps) {
+export function PrivateHeaderContent() {
   const pathname = usePathname() ?? "/"
   const pageTitle = useMemo(() => getPageTitle(pathname), [pathname])
 
@@ -45,7 +39,7 @@ export function PrivateHeaderContent({
       </div>
 
       <div className="flex items-center gap-3">
-        <UserNav rewardBalance={rewardBalance} />
+        <UserNav />
       </div>
     </header>
   )
