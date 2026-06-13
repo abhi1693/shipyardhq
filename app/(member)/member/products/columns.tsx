@@ -33,6 +33,7 @@ export type MemberProductRow = Product & {
   analytics: ProductAnalytics | null
   category?: { id: string; name: string; slug: string }
   plan?: { id: string; name: string }
+  hasValidatedPlan?: boolean
   canDelete?: boolean
   canViewAnalytics?: boolean
 }
@@ -55,7 +56,9 @@ export const columns: ColumnDef<MemberProductRow>[] = [
       <div className="space-y-0.5">
         {linkify({
           label: row.original.name,
-          href: memberProductPath(row.original.slug),
+          href: row.original.hasValidatedPlan
+            ? memberProductPath(row.original.slug)
+            : memberProductUpgradePath(row.original.slug),
         })}
         <p className="text-xs text-muted-foreground">{row.original.slug}</p>
       </div>

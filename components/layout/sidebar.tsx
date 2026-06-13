@@ -28,6 +28,7 @@ import Link from "next/link"
 import { NavItem } from "@/types"
 import { toast } from "sonner"
 import { createBillingPortalAction } from "@/actions/member/billing/portal"
+import ProductDraftStartButton from "@/components/pages/products/ProductDraftStartButton"
 import { UserAvatarProfile } from "@/components/molecules/UserAvatarProfile"
 import { BrandLogo } from "@/components/atoms/brand-logo"
 import { useUser } from "@clerk/nextjs"
@@ -40,7 +41,6 @@ import {
   MEMBER_ACCOUNT_PROFILE_PATH,
   MEMBER_BASE_PATH,
   MEMBER_OVERVIEW_PATH,
-  MEMBER_PRODUCTS_ADD_PATH,
 } from "@/lib/routes"
 
 interface SidebarProps {
@@ -292,8 +292,8 @@ export default function AppSidebar(props: SidebarProps) {
       </SidebarContent>
       <SidebarFooter className="mt-auto gap-5 px-4 py-6 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:gap-4 group-data-[collapsible=icon]:px-2">
         {isMemberSection ? (
-          <Link
-            href={MEMBER_PRODUCTS_ADD_PATH}
+          <ProductDraftStartButton
+            mode="member"
             className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-transform active:scale-[0.98] group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:rounded-md group-data-[collapsible=icon]:px-0"
             aria-label="Launch new project"
           >
@@ -301,7 +301,7 @@ export default function AppSidebar(props: SidebarProps) {
             <span className="group-data-[collapsible=icon]:hidden">
               Launch New Project
             </span>
-          </Link>
+          </ProductDraftStartButton>
         ) : null}
 
         {showBillingPortal ? (

@@ -3,7 +3,6 @@
 import { useMemo, useRef, useState } from "react"
 import { X } from "lucide-react"
 
-import { Input } from "@/components/atoms/input"
 import { cn } from "@/lib/utils"
 import { parseKeywords } from "@/lib/productWizard/transform"
 
@@ -34,6 +33,7 @@ export function KeywordsInput({
   className?: string
 }) {
   const rootRef = useRef<HTMLDivElement | null>(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
   const [draft, setDraft] = useState("")
   const [localError, setLocalError] = useState<string | null>(null)
 
@@ -79,70 +79,76 @@ export function KeywordsInput({
 
   return (
     <div ref={rootRef} className={cn("space-y-2", className)}>
-      <div className="flex items-center justify-between gap-2">
-        <div className="text-xs text-muted-foreground">
-          Recommended: 3–8 keywords
-        </div>
+      <div className="flex items-center justify-end gap-2">
         <div className="text-xs text-muted-foreground">
           {keywords.length}/{maxKeywords}
         </div>
       </div>
 
-      {keywords.length ? (
-        <div className="flex flex-wrap gap-2">
-          {keywords.map((k) => (
-            <button
-              key={k}
-              type="button"
-              className="inline-flex cursor-pointer items-center gap-1 rounded-full border bg-muted/20 px-3 py-1 text-xs text-foreground hover:bg-muted/40"
-              onClick={() => removeKeyword(k)}
-              title="Remove"
-            >
-              <span className="max-w-[14rem] truncate">{k}</span>
-              <X className="h-3.5 w-3.5 text-muted-foreground" />
-            </button>
-          ))}
-        </div>
-      ) : null}
+      <div
+        className={cn(
+          "flex min-h-12 w-full cursor-text flex-wrap items-center gap-2 rounded-lg border border-[#C4C6CD] bg-white px-3 py-2 text-sm text-[#0b1c30] shadow-none transition-colors hover:bg-[#F8FAFC] focus-within:border-[#0051d5] focus-within:ring-2 focus-within:ring-[#0051d5]/25",
+          !canAddMore && "bg-[#F8FAFC]",
+        )}
+        onClick={() => inputRef.current?.focus()}
+      >
+        {keywords.map((k) => (
+          <button
+            key={k}
+            type="button"
+            className="inline-flex max-w-[14rem] cursor-pointer items-center gap-1 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 py-1 text-xs font-medium leading-none text-[#0b1c30] hover:bg-[#eff4ff]"
+            onClick={(e) => {
+              e.stopPropagation()
+              removeKeyword(k)
+            }}
+            title="Remove"
+          >
+            <span className="truncate">{k}</span>
+            <X className="h-3.5 w-3.5 shrink-0 text-[#74777d]" />
+          </button>
+        ))}
 
-      <Input
-        value={draft}
-        onChange={(e) => {
-          setDraft(e.target.value)
-          if (localError) setLocalError(null)
-        }}
-        onBlur={(e) => {
-          const nextFocus =
-            e.relatedTarget && e.relatedTarget instanceof Node
-              ? e.relatedTarget
-              : null
-          if (nextFocus && rootRef.current?.contains(nextFocus)) {
-            return
-          }
-          if (draft.trim().length) addFromString(draft)
-          onBlur?.()
-        }}
-        placeholder={placeholder}
-        disabled={!canAddMore}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === ",") {
+        <input
+          ref={inputRef}
+          value={draft}
+          onChange={(e) => {
+            setDraft(e.target.value)
+            if (localError) setLocalError(null)
+          }}
+          onBlur={(e) => {
+            const nextFocus =
+              e.relatedTarget && e.relatedTarget instanceof Node
+                ? e.relatedTarget
+                : null
+            if (nextFocus && rootRef.current?.contains(nextFocus)) {
+              return
+            }
+            if (draft.trim().length) addFromString(draft)
+            onBlur?.()
+          }}
+          placeholder={keywords.length ? "" : placeholder}
+          disabled={!canAddMore}
+          className="h-7 min-w-[12rem] flex-1 border-0 bg-transparent p-0 text-sm outline-none placeholder:text-[#74777d] disabled:cursor-not-allowed disabled:opacity-60"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === ",") {
+              e.preventDefault()
+              addFromString(draft)
+              return
+            }
+            if (e.key === "Backspace" && !draft.length && keywords.length) {
+              e.preventDefault()
+              removeKeyword(keywords[keywords.length - 1])
+            }
+          }}
+          onPaste={(e) => {
+            const text = e.clipboardData?.getData("text/plain")
+            if (!text) return
+            if (!/[,\n]/.test(text)) return
             e.preventDefault()
-            addFromString(draft)
-            return
-          }
-          if (e.key === "Backspace" && !draft.length && keywords.length) {
-            e.preventDefault()
-            removeKeyword(keywords[keywords.length - 1])
-          }
-        }}
-        onPaste={(e) => {
-          const text = e.clipboardData?.getData("text/plain")
-          if (!text) return
-          if (!/[,\n]/.test(text)) return
-          e.preventDefault()
-          addFromString(text)
-        }}
-      />
+            addFromString(text)
+          }}
+        />
+      </div>
 
       {localError ? (
         <div className="text-sm text-destructive">{localError}</div>

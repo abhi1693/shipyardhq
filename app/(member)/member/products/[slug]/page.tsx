@@ -24,10 +24,7 @@ import {
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
-import {
-  getProductById,
-  setProductStatusAction,
-} from "@/actions/admin/products/actions"
+import { getProductById } from "@/actions/admin/products/actions"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import CopyButton from "@/components/molecules/CopyButton"
 import Link from "next/link"
@@ -100,6 +97,9 @@ export default async function ViewUserProductPage({
 
   const product = await getProductById(manageableProduct.id)
   if (!product) return notFound()
+  if (!product.plan) {
+    redirect(memberProductUpgradePath(product.slug))
+  }
   const productId = product.id
   const productSlug = product.slug
   const isOwner = manageableProduct.userId === currentUser.id
@@ -232,10 +232,10 @@ export default async function ViewUserProductPage({
     })
   }
 
-  if (metadata?.demoUrl) {
-    const href = metadata.demoUrl
+  if (metadata?.videoUrl) {
+    const href = metadata.videoUrl
     extraLinks.push({
-      key: "demo",
+      key: "video",
       label: formatHost(href) ?? href,
       href,
       icon: <Video className={chipIconClass} />,
@@ -268,7 +268,7 @@ export default async function ViewUserProductPage({
   const socialsReady = Boolean(
     metadata?.githubUrl ||
     metadata?.twitterUrl ||
-    metadata?.demoUrl ||
+    metadata?.videoUrl ||
     metadata?.contactEmail,
   )
 
@@ -323,7 +323,7 @@ export default async function ViewUserProductPage({
     {
       key: "socials",
       label: "Add socials/contact",
-      note: socialsReady ? "Nice." : "GitHub, X, demo, or email",
+      note: socialsReady ? "Nice." : "GitHub, X, video, or email",
       complete: socialsReady,
       href: `${editPath}#section-details`,
     },
@@ -359,10 +359,6 @@ export default async function ViewUserProductPage({
 
   const publishAndBoost = async (formData: FormData) => {
     "use server"
-    const result = await setProductStatusAction(productId, "published")
-    if (result && typeof result === "object" && "error" in result) {
-      redirect(`${memberProductPath(productSlug)}?error=publish_failed`)
-    }
     await choosePlanAction(
       { productId, redirectPath: memberProductPath(productSlug) },
       formData,

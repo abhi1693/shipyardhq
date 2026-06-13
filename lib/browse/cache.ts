@@ -43,9 +43,20 @@ export type BrowsePageFilters = {
   backlinkVerified: boolean
 }
 
-type CategoryWithProductCount = Prisma.CategoryGetPayload<{
-  include: { _count: { select: { products: true } } }
-}>
+type CategoryWithProductCount = {
+  id: string
+  name: string
+  slug: string
+  icon: string
+  description: string
+  createdAt: Date
+  updatedAt: Date
+  _count: { products: number }
+}
+
+type CategoryWithAssignmentCount = Omit<CategoryWithProductCount, "_count"> & {
+  _count: { productAssignments: number }
+}
 
 export type BrowsePagePayload = {
   filters: BrowsePageFilters
@@ -64,12 +75,24 @@ export type BrowsePagePayload = {
 
 const CATEGORY_QUERY = {
   where: {
-    products: {
-      some: {},
+    productAssignments: {
+      some: {
+        product: { status: "published" },
+      },
     },
   },
-  include: { _count: { select: { products: true } } },
-  orderBy: [{ products: { _count: "desc" } }, { name: "asc" }],
+  include: {
+    _count: {
+      select: {
+        productAssignments: {
+          where: {
+            product: { status: "published" },
+          },
+        },
+      },
+    },
+  },
+  orderBy: [{ productAssignments: { _count: "desc" } }, { name: "asc" }],
 } satisfies Prisma.CategoryFindManyArgs
 
 const normalizePriceBound = (value: number | undefined) => {
@@ -143,10 +166,23 @@ export const getBrowsePagePayload = async (
     }),
     getProducts("featured"),
     getUseCasesWithCounts(),
-    getCategories(CATEGORY_QUERY) as Promise<CategoryWithProductCount[]>,
+    getCategories(CATEGORY_QUERY) as Promise<CategoryWithAssignmentCount[]>,
   ])
 
-  const categories = categoriesRaw
+  const categories: CategoryWithProductCount[] = categoriesRaw.map(
+    (category) => ({
+      id: category.id,
+      name: category.name,
+      slug: category.slug,
+      icon: category.icon,
+      description: category.description,
+      createdAt: category.createdAt,
+      updatedAt: category.updatedAt,
+      _count: {
+        products: category._count.productAssignments,
+      },
+    }),
+  )
   const products: ProductCardBase[] = browseResult.products
   const { hasMore } = browseResult
 

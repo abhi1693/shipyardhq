@@ -32,9 +32,11 @@ type CategoryWithCount = Prisma.CategoryGetPayload<{
   include: {
     _count: {
       select: {
-        products: {
+        productAssignments: {
           where: {
-            status: "published"
+            product: {
+              status: "published"
+            }
           }
         }
       }
@@ -132,9 +134,11 @@ export const getCategoriesWithCounts = cached(
   async () => {
     const categories = await prisma.category.findMany({
       where: {
-        products: {
+        productAssignments: {
           some: {
-            status: "published",
+            product: {
+              status: "published",
+            },
           },
         },
       },
@@ -142,9 +146,11 @@ export const getCategoriesWithCounts = cached(
       include: {
         _count: {
           select: {
-            products: {
+            productAssignments: {
               where: {
-                status: "published",
+                product: {
+                  status: "published",
+                },
               },
             },
           },
@@ -157,7 +163,7 @@ export const getCategoriesWithCounts = cached(
       slug: cat.slug,
       description: cat.description,
       icon: cat.icon,
-      count: cat._count.products,
+      count: cat._count.productAssignments,
     }))
   },
   "categories:with-counts",
@@ -182,10 +188,11 @@ export const getCategoryHighlights = cached(
     const rows = await prisma.$queryRaw<CategoryHighlight[]>(Prisma.sql`
       SELECT c."id", c."name", c."slug"
       FROM "Category" c
-      INNER JOIN "Product" p ON p."categoryId" = c."id"
+      INNER JOIN "ProductCategory" pc ON pc."categoryId" = c."id"
+      INNER JOIN "Product" p ON p."id" = pc."productId"
       WHERE p."status" = 'published'
       GROUP BY c."id", c."name", c."slug"
-      ORDER BY COUNT(p."id") DESC, c."name" ASC
+      ORDER BY COUNT(DISTINCT p."id") DESC, c."name" ASC
       LIMIT ${safeLimit}
     `)
 
@@ -200,23 +207,36 @@ export const getCategoryHighlights = cached(
 )
 
 export const getCategoryMeta = cached(
-  async (slug: string) =>
-    prisma.category.findUnique({
+  async (slug: string) => {
+    const category = await prisma.category.findUnique({
       where: { slug },
       select: {
         name: true,
         description: true,
         _count: {
           select: {
-            products: {
+            productAssignments: {
               where: {
-                status: "published",
+                product: {
+                  status: "published",
+                },
               },
             },
           },
         },
       },
-    }),
+    })
+
+    if (!category) return null
+
+    return {
+      name: category.name,
+      description: category.description,
+      _count: {
+        products: category._count.productAssignments,
+      },
+    }
+  },
   "category:meta",
   {
     ttl: DEFAULT_TTL.medium,
@@ -252,8 +272,10 @@ export const getCategoryWithProducts = cached(
 
     const where = {
       status: "published" as const,
-      // Prefer filtering by `categoryId` to avoid an unnecessary join on Category.slug.
-      categoryId: category.id,
+      OR: [
+        { categoryId: category.id },
+        { categories: { some: { categoryId: category.id } } },
+      ],
     }
 
     const [products, total] = await Promise.all([

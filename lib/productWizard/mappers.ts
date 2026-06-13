@@ -18,6 +18,7 @@ export function getInitialValuesForAdd(): ProductWizardInputAdd {
     websiteUrl: "",
     logo: "",
     categoryId: "",
+    categoryIds: [],
     type: "saas",
     pricingModel: "free",
     startingPriceCents: undefined,
@@ -28,7 +29,7 @@ export function getInitialValuesForAdd(): ProductWizardInputAdd {
     galleryMedia: [],
     githubUrl: "",
     twitterUrl: "",
-    demoUrl: "",
+    videoUrl: "",
     contactEmail: "",
     utmCampaign: "",
     alternativeIds: [],
@@ -50,6 +51,11 @@ export function getInitialValuesFromProduct(
     websiteUrl: product.websiteUrl ?? "",
     logo: product.logo ?? "",
     categoryId: product.categoryId,
+    categoryIds: Array.isArray(product.categories)
+      ? product.categories.map((entry) => entry.categoryId)
+      : product.categoryId
+        ? [product.categoryId]
+        : [],
     type: product.type,
     pricingModel: product.pricingModel,
     startingPriceCents: product.startingPriceCents ?? undefined,
@@ -60,7 +66,7 @@ export function getInitialValuesFromProduct(
     galleryMedia: [],
     githubUrl: product.metadata?.githubUrl ?? "",
     twitterUrl: product.metadata?.twitterUrl ?? "",
-    demoUrl: product.metadata?.demoUrl ?? "",
+    videoUrl: product.metadata?.videoUrl ?? "",
     contactEmail: product.metadata?.contactEmail ?? "",
     utmCampaign: product.metadata?.utmCampaign ?? "",
     alternativeIds: Array.isArray(product.alternatives)
@@ -90,7 +96,17 @@ export function toCreateFormData(
   fd.append("description", v.description)
   fd.append("websiteUrl", normalizeUrl(v.websiteUrl) || v.websiteUrl)
   fd.append("logo", normalizeUrl(v.logo) || v.logo)
-  fd.append("categoryId", v.categoryId)
+  const categoryIds = Array.from(
+    new Set(
+      Array.isArray(v.categoryIds) && v.categoryIds.length
+        ? v.categoryIds
+        : v.categoryId
+          ? [v.categoryId]
+          : [],
+    ),
+  ).slice(0, 3)
+  fd.append("categoryId", categoryIds[0] ?? v.categoryId)
+  fd.append("categoryIds", JSON.stringify(categoryIds))
   fd.append("type", v.type)
   fd.append("pricingModel", v.pricingModel)
   if (v.platforms?.length) fd.append("platforms", JSON.stringify(v.platforms))
@@ -112,7 +128,7 @@ export function toCreateFormData(
 
   if (v.githubUrl) fd.append("githubUrl", normalizeUrl(v.githubUrl)!)
   if (v.twitterUrl) fd.append("twitterUrl", normalizeUrl(v.twitterUrl)!)
-  if (v.demoUrl) fd.append("demoUrl", normalizeUrl(v.demoUrl)!)
+  if (v.videoUrl) fd.append("videoUrl", normalizeUrl(v.videoUrl)!)
   if (v.contactEmail) fd.append("contactEmail", v.contactEmail)
   if (v.utmCampaign) fd.append("utmCampaign", v.utmCampaign)
   if (Array.isArray(v.alternativeIds) && v.alternativeIds.length) {
@@ -137,7 +153,19 @@ export function toUpdatePayload(
       : product.userId
   return {
     name: v.name,
-    categoryId: v.categoryId,
+    categoryId:
+      Array.isArray(v.categoryIds) && v.categoryIds.length
+        ? v.categoryIds[0]
+        : v.categoryId,
+    categoryIds: Array.from(
+      new Set(
+        Array.isArray(v.categoryIds) && v.categoryIds.length
+          ? v.categoryIds
+          : v.categoryId
+            ? [v.categoryId]
+            : [],
+      ),
+    ).slice(0, 3),
     userId: nextOwnerId,
     description: v.description,
     tagline: v.tagline,
@@ -156,7 +184,7 @@ export function toUpdatePayload(
     platforms: v.platforms,
     githubUrl: v.githubUrl ? normalizeUrl(v.githubUrl) : null,
     twitterUrl: v.twitterUrl ? normalizeUrl(v.twitterUrl) : null,
-    demoUrl: v.demoUrl ? normalizeUrl(v.demoUrl) : null,
+    videoUrl: v.videoUrl ? normalizeUrl(v.videoUrl) : null,
     contactEmail: v.contactEmail || null,
     utmCampaign: v.utmCampaign || null,
     alternativeIds: Array.isArray(v.alternativeIds) ? v.alternativeIds : [],

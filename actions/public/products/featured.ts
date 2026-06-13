@@ -104,10 +104,10 @@ export const getTrendingProducts = cached(
 )
 
 export const getTopCategories = cached(
-  async (limit = 12) =>
-    prisma.category.findMany({
+  async (limit = 12) => {
+    const categories = await prisma.category.findMany({
       orderBy: {
-        products: {
+        productAssignments: {
           _count: "desc",
         },
       },
@@ -120,11 +120,23 @@ export const getTopCategories = cached(
         icon: true,
         _count: {
           select: {
-            products: true,
+            productAssignments: true,
           },
         },
       },
-    }),
+    })
+
+    return categories.map((category) => ({
+      id: category.id,
+      name: category.name,
+      slug: category.slug,
+      description: category.description,
+      icon: category.icon,
+      _count: {
+        products: category._count.productAssignments,
+      },
+    }))
+  },
   "categories:top",
   { ttl: DEFAULT_TTL.slow, tags: () => [TAGS.categories] },
 )
@@ -137,7 +149,12 @@ export const getFeaturedByCategorySlug = cached(
       where: {
         badge: "featured",
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-        product: { category: { slug } },
+        product: {
+          OR: [
+            { category: { slug } },
+            { categories: { some: { category: { slug } } } },
+          ],
+        },
       },
       select: featuredProductSelect,
       orderBy: { createdAt: "desc" },

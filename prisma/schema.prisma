@@ -35,6 +35,7 @@ model Product {
   // Relations
   user                    User                                 @relation(fields: [userId], references: [id])
   category                Category                             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  categories              ProductCategory[]
   plan                    Plan?                                @relation(fields: [planId], references: [id], onDelete: SetNull)
   metadata                ProductMetadata?
   analytics               ProductAnalytics?
@@ -62,6 +63,24 @@ model Product {
   @@index([categoryId, status, createdAt])
   @@index([categoryId, status, publishedAt])
   @@index([status, publishedAt])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model ProductDraft {
+  id          String   @id @default(cuid())
+  productId   String   @unique
+  userId      String
+  mode        String   @default("member")
+  currentStep String   @default("configuration")
+  payload     Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, updatedAt])
+  @@index([currentStep])
   @@index([createdAt])
   @@index([updatedAt])
 }
@@ -284,7 +303,7 @@ model ProductMetadata {
   productId    String   @unique
   githubUrl    String?
   twitterUrl   String?
-  demoUrl      String?
+  videoUrl     String?
   contactEmail String?
   utmCampaign  String?
   createdAt    DateTime @default(now())
@@ -710,6 +729,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   products                Product[]
+  productDrafts           ProductDraft[]
   ProductUpvote           ProductUpvote[]
   purchases               UserPlanPurchase[]
   rewardBalance           RewardBalance?
@@ -799,11 +819,26 @@ model Category {
   updatedAt   DateTime @updatedAt
 
   products            Product[] // reverse relation
+  productAssignments  ProductCategory[]
   useCases            UseCaseCategory[]
   alternativeProducts AlternativeProduct[] @relation("AlternativeProductCategories")
 
   @@index([createdAt])
   @@index([updatedAt])
+}
+
+model ProductCategory {
+  productId  String
+  categoryId String
+  createdAt  DateTime @default(now())
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+  @@index([categoryId, productId])
+  @@index([productId])
+  @@index([createdAt])
 }
 
 model Plan {

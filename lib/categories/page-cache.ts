@@ -71,11 +71,15 @@ const buildCategoryMetrics = async (
     }
   }
 
+  const productCategoryWhere = {
+    status: "published" as const,
+    OR: [{ categoryId }, { categories: { some: { categoryId } } }],
+  }
+
   const [priorityCount, upvotes] = await Promise.all([
     prisma.product.count({
       where: {
-        status: "published",
-        categoryId,
+        ...productCategoryWhere,
         plan: {
           is: {
             assignments: {
@@ -91,10 +95,7 @@ const buildCategoryMetrics = async (
     prisma.productAnalytics.aggregate({
       _sum: { upvotes: true },
       where: {
-        product: {
-          status: "published",
-          categoryId,
-        },
+        product: productCategoryWhere,
       },
     }),
   ])

@@ -9,6 +9,7 @@ interface ListPageWrapperProps {
   title: string
   description?: string
   addLink?: string
+  addAction?: ReactNode
   children: ReactNode
 }
 
@@ -16,6 +17,7 @@ export default function ListPageWrapper({
   title,
   description,
   addLink,
+  addAction,
   children,
 }: ListPageWrapperProps) {
   description =
@@ -25,11 +27,12 @@ export default function ListPageWrapper({
     <div className="flex flex-1 flex-col space-y-4">
       <div className="flex items-start justify-between">
         <Heading title={title} description={description} />
-        {addLink && (
-          <Link href={addLink}>
-            <AddButton className="text-xs md:text-sm" label="Add New" />
-          </Link>
-        )}
+        {addAction ??
+          (addLink ? (
+            <Link href={addLink}>
+              <AddButton className="text-xs md:text-sm" label="Add New" />
+            </Link>
+          ) : null)}
       </div>
       <Separator />
       <Suspense

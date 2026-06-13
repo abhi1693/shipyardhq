@@ -1,6 +1,6 @@
 "use client"
 
-import { forwardRef, useState } from "react"
+import { forwardRef, useState, type ReactNode } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import type { Components } from "react-markdown"
@@ -22,6 +22,7 @@ type MarkdownEditorProps = {
   textareaClassName?: string
   previewClassName?: string
   toolbarClassName?: string
+  toolbarLeft?: ReactNode
   disallowedElements?: string[]
   remarkPlugins?: PluggableList
   markdownComponents?: Components
@@ -60,6 +61,7 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
       remarkPlugins,
       markdownComponents,
       toolbarClassName,
+      toolbarLeft,
     },
     ref,
   ) => {
@@ -70,32 +72,36 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
       <div className={cn("space-y-2", className)}>
         <div
           className={cn(
-            "flex items-center justify-end gap-2 text-xs",
+            "flex items-center gap-2 text-xs",
+            toolbarLeft ? "justify-between" : "justify-end",
             toolbarClassName,
           )}
         >
-          <button
-            type="button"
-            className={cn(
-              "rounded border px-2 py-1 transition",
-              mode === "write" ? "bg-muted text-foreground" : "opacity-60",
-            )}
-            onClick={() => setMode("write")}
-            aria-pressed={mode === "write"}
-          >
-            Write
-          </button>
-          <button
-            type="button"
-            className={cn(
-              "rounded border px-2 py-1 transition",
-              mode === "preview" ? "bg-muted text-foreground" : "opacity-60",
-            )}
-            onClick={() => setMode("preview")}
-            aria-pressed={mode === "preview"}
-          >
-            Preview
-          </button>
+          {toolbarLeft ? <div>{toolbarLeft}</div> : null}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className={cn(
+                "rounded border px-2 py-1 transition",
+                mode === "write" ? "bg-muted text-foreground" : "opacity-60",
+              )}
+              onClick={() => setMode("write")}
+              aria-pressed={mode === "write"}
+            >
+              Write
+            </button>
+            <button
+              type="button"
+              className={cn(
+                "rounded border px-2 py-1 transition",
+                mode === "preview" ? "bg-muted text-foreground" : "opacity-60",
+              )}
+              onClick={() => setMode("preview")}
+              aria-pressed={mode === "preview"}
+            >
+              Preview
+            </button>
+          </div>
         </div>
 
         {mode === "write" ? (
@@ -114,7 +120,7 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
         ) : (
           <div
             className={cn(
-              "prose prose-sm max-w-none rounded border border-border p-3 text-muted-foreground",
+              "prose prose-sm w-full max-w-full !max-w-none rounded border border-border p-3 text-muted-foreground",
               "min-h-[160px] overflow-auto",
               previewClassName,
             )}

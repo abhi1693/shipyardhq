@@ -13,11 +13,14 @@ import {
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
 import { hasPlanFeature } from "@/lib/features"
-import { memberProductPath } from "@/lib/routes"
+import { memberProductPath, memberProductUpgradePath } from "@/lib/routes"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
 import { revalidateProduct } from "@/lib/cache/revalidate"
+import { dispatchEventAsync } from "@/lib/server/events"
+import { verifyProductBacklinkNow } from "@/lib/server/rewards/backlinkVerification"
 import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
 import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
+import { invalidateSearchSuggestionsCache } from "@/lib/server/search/suggestions-cache"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -66,6 +69,50 @@ async function invalidateProductAnalyticsAfterMemberProductChange(
     )
     return null
   }
+}
+
+async function invalidateSearchSuggestionsAfterMemberProductChange(
+  reason: string,
+  productId?: string,
+) {
+  try {
+    return await invalidateSearchSuggestionsCache(reason)
+  } catch (error) {
+    console.error(
+      "Failed to invalidate search suggestions after member change",
+      {
+        reason,
+        productId,
+        error,
+      },
+    )
+    return null
+  }
+}
+
+function publishAfterPlanValidationData(status?: ProductStatus | null) {
+  if (status === ProductStatus.published) return {}
+  return {
+    status: ProductStatus.published,
+    publishedAt: new Date(),
+  }
+}
+
+async function finalizePublishAfterPlanValidation(
+  productId: string,
+  previousStatus?: ProductStatus | null,
+) {
+  if (previousStatus === ProductStatus.published) return
+
+  dispatchEventAsync(
+    "product.published",
+    { productId },
+    { context: { productId } },
+  )
+  await invalidateSearchSuggestionsAfterMemberProductChange(
+    "member.product.plan.validated.published",
+    productId,
+  )
 }
 
 type ProductListItem = Prisma.ProductGetPayload<{
@@ -275,6 +322,7 @@ export async function getUserProducts(params?: ListParams) {
     return {
       ...rest,
       plan: planSummary,
+      hasValidatedPlan: Boolean(plan),
       canDelete: product.userId === user.id,
       canViewAnalytics,
     }
@@ -299,6 +347,7 @@ export async function setProductPlanAction(
     where: { id: productId, userId: user.id },
     select: {
       id: true,
+      status: true,
       planAssignedAt: true,
       plan: { select: { boostForDays: true, isDefault: true } },
     },
@@ -330,6 +379,7 @@ export async function setProductPlanAction(
   const data: Prisma.ProductUncheckedUpdateInput = {
     planId: planId ?? null,
     planAssignedAt,
+    ...(planId ? publishAfterPlanValidationData(product.status) : {}),
   }
   if (subscriptionIdUpdate !== undefined) {
     data.subscriptionId = subscriptionIdUpdate
@@ -339,6 +389,9 @@ export async function setProductPlanAction(
     where: { id: productId },
     data,
   })
+  if (planId) {
+    await finalizePublishAfterPlanValidation(productId, product.status)
+  }
   revalidateProduct(productId, "revalidate")
   await refreshHomepageFeedCacheAfterMemberProductChange(
     "member.product.plan.updated",
@@ -437,6 +490,7 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
       select: {
         id: true,
         userId: true,
+        status: true,
         planAssignedAt: true,
         plan: { select: { boostForDays: true, isDefault: true } },
       },
@@ -456,8 +510,14 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
     })
     await prisma.product.update({
       where: { id: productId },
-      data: { planId, planAssignedAt, subscriptionId: null },
+      data: {
+        planId,
+        planAssignedAt,
+        subscriptionId: null,
+        ...publishAfterPlanValidationData(product.status),
+      },
     })
+    await finalizePublishAfterPlanValidation(productId, product.status)
     revalidateProduct(productId, "revalidate")
     await refreshHomepageFeedCacheAfterMemberProductChange(
       "member.product.payment.validated",
@@ -505,6 +565,7 @@ export async function validateSubscriptionAndAttachPlan(
       select: {
         id: true,
         userId: true,
+        status: true,
         planAssignedAt: true,
         plan: { select: { boostForDays: true, isDefault: true } },
       },
@@ -530,8 +591,14 @@ export async function validateSubscriptionAndAttachPlan(
       typeof rawSubscriptionId === "string" ? rawSubscriptionId : subscriptionId
     await prisma.product.update({
       where: { id: productId },
-      data: { planId, planAssignedAt, subscriptionId: subscriptionExternalId },
+      data: {
+        planId,
+        planAssignedAt,
+        subscriptionId: subscriptionExternalId,
+        ...publishAfterPlanValidationData(product.status),
+      },
     })
+    await finalizePublishAfterPlanValidation(productId, product.status)
     revalidateProduct(productId, "revalidate")
     await refreshHomepageFeedCacheAfterMemberProductChange(
       "member.product.subscription.validated",
@@ -583,12 +650,14 @@ export async function choosePlanAction(
     redirect(`${ctx.redirectPath}?error=plan_type_locked`)
   }
 
-  if ((plan.price || 0) > 0 && ownership.product.status !== "published") {
-    redirect(`${ctx.redirectPath}?error=must_publish`)
-  }
-
   // Free plans (no price): attach immediately
   if ((plan.price || 0) === 0) {
+    const verification = await verifyProductBacklinkNow(ctx.productId)
+    if (!verification.verified) {
+      redirect(
+        `${memberProductUpgradePath(ownership.product.slug)}?error=badge_not_found`,
+      )
+    }
     await setProductPlanAction(ctx.productId, planId, null)
     redirect(`${ctx.redirectPath}?upgraded=1`)
   }

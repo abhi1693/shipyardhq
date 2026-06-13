@@ -35,6 +35,19 @@ type UseCaseCategoryRef = Prisma.UseCaseCategoryGetPayload<{
   select: { categoryId: true }
 }>
 
+const buildProductCategoryFilter = (
+  categoryIds?: string[],
+): Prisma.ProductWhereInput | null => {
+  if (!categoryIds?.length) return null
+
+  return {
+    OR: [
+      { categoryId: { in: categoryIds } },
+      { categories: { some: { categoryId: { in: categoryIds } } } },
+    ],
+  }
+}
+
 export const getBrowseProducts = cached(
   async ({
     useCaseSlug,
@@ -119,15 +132,17 @@ export const getBrowseProducts = cached(
       ...(backlinkVerified ? { backlinkIsVerified: true } : {}),
     }
 
+    const categoryFilter = buildProductCategoryFilter(categoryIds)
+
     const andFilters: Prisma.ProductWhereInput[] = [
       ...(priceFilter ? [priceFilter] : []),
+      ...(categoryFilter ? [categoryFilter] : []),
     ]
 
     const baseWhere: Prisma.ProductWhereInput = {
       ...(Object.keys(verificationFilter).length
         ? { verification: { is: verificationFilter } }
         : {}),
-      ...(categoryIds?.length ? { categoryId: { in: categoryIds } } : {}),
       ...(platform ? { platforms: { has: platform } } : {}),
       ...(pricingModel ? { pricingModel } : {}),
       ...(type ? { type } : {}),

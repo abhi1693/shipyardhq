@@ -2,29 +2,29 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
-import { Info } from "lucide-react"
+import {
+  BadgeDollarSign,
+  Database,
+  HandHeart,
+  Info,
+  Repeat,
+} from "lucide-react"
 import {
   FormField,
   FormItem,
   FormLabel,
   FormControl,
-  FormDescription,
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/atoms/select"
 import { SearchableSelect } from "@/components/molecules/SearchableSelect"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/atoms/tooltip"
+import { DraftFormSection } from "@/components/pages/products/_components/DraftFormSection"
+import { PRODUCT_WIZARD_DROPDOWN_TRIGGER_CLASS } from "@/components/pages/products/_shared/dropdownStyles"
 
 type CurrencyOption = { code: string; name: string }
 
@@ -52,6 +52,39 @@ const CURRENCIES: readonly CurrencyOption[] = [
   { code: "NZD", name: "New Zealand Dollar" },
   { code: "ZAR", name: "South African Rand" },
   { code: "KRW", name: "South Korean Won" },
+]
+
+const PRICING_OPTIONS = [
+  {
+    value: "free",
+    label: "Free",
+    description: "Open access or community baseline.",
+    icon: HandHeart,
+  },
+  {
+    value: "freemium",
+    label: "Freemium",
+    description: "Free entry with paid upgrades.",
+    icon: BadgeDollarSign,
+  },
+  {
+    value: "subscription",
+    label: "Subscription",
+    description: "Monthly or annual recurring revenue.",
+    icon: Repeat,
+  },
+  {
+    value: "one_time",
+    label: "One-time",
+    description: "Flat purchase or perpetual license.",
+    icon: Database,
+  },
+  {
+    value: "custom",
+    label: "Custom",
+    description: "Sales-led, usage-based, or quote-only.",
+    icon: BadgeDollarSign,
+  },
 ]
 
 function getDefaultCurrencyFromLocale() {
@@ -237,177 +270,227 @@ export default function Step2({
 
   return (
     <div className="space-y-6">
-      <FormField
-        name="pricingModel"
-        control={form.control}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="flex items-center gap-2">
-              Pricing model
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    className={INFO_TRIGGER_CLASS}
-                    aria-label="Pricing model help"
-                  >
-                    <Info className="h-3.5 w-3.5" aria-hidden="true" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="top" sideOffset={6}>
-                  Choose how you monetize. For subscription/one-time, add a
-                  starting price.
-                </TooltipContent>
-              </Tooltip>
-            </FormLabel>
-            <Select onValueChange={field.onChange} value={field.value}>
+      <DraftFormSection
+        title="Pricing Architecture"
+        description="Select the monetization model for this launch."
+        icon={BadgeDollarSign}
+      >
+        <FormField
+          name="pricingModel"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-2">
+                Pricing model
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className={INFO_TRIGGER_CLASS}
+                      aria-label="Pricing model help"
+                    >
+                      <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" sideOffset={6}>
+                    Choose how you monetize. For subscription/one-time, add a
+                    starting price.
+                  </TooltipContent>
+                </Tooltip>
+              </FormLabel>
               <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select pricing" />
-                </SelectTrigger>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
+                  {PRICING_OPTIONS.map((option) => {
+                    const Icon = option.icon
+                    const selected = field.value === option.value
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={[
+                          "rounded-lg border p-4 text-left transition-colors",
+                          selected
+                            ? "border-[#0051d5] bg-[#0051d5]/5"
+                            : "border-[#C4C6CD] bg-white hover:bg-[#F8FAFC]",
+                        ].join(" ")}
+                        onClick={() => field.onChange(option.value)}
+                      >
+                        <div className="mb-4 flex items-start justify-between gap-3">
+                          <Icon
+                            className={
+                              selected
+                                ? "size-5 text-[#0051d5]"
+                                : "size-5 text-[#43474c]"
+                            }
+                            aria-hidden="true"
+                          />
+                          <span
+                            className={[
+                              "flex size-4 items-center justify-center rounded-full border-2",
+                              selected
+                                ? "border-[#0051d5]"
+                                : "border-[#C4C6CD]",
+                            ].join(" ")}
+                          >
+                            <span
+                              className={[
+                                "size-2 rounded-full bg-[#0051d5] transition-transform",
+                                selected ? "scale-100" : "scale-0",
+                              ].join(" ")}
+                            />
+                          </span>
+                        </div>
+                        <div className="text-[12px] font-bold uppercase tracking-[0.05em] text-black">
+                          {option.label}
+                        </div>
+                        <p className="mt-1 text-[11px] leading-4 text-[#43474c]">
+                          {option.description}
+                        </p>
+                      </button>
+                    )
+                  })}
+                </div>
               </FormControl>
-              <SelectContent>
-                <SelectItem value="free">Free</SelectItem>
-                <SelectItem value="freemium">Freemium</SelectItem>
-                <SelectItem value="subscription">Subscription</SelectItem>
-                <SelectItem value="one_time">One-time</SelectItem>
-                <SelectItem value="custom">Custom</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormDescription>
-              If you charge, set a starting price and currency below.
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </DraftFormSection>
 
-      {!disablePrice ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-[2fr_1fr]">
-          <FormField
-            name="startingPriceCents"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <div className="flex items-center justify-between gap-3">
+      <DraftFormSection
+        title="Commercial Details"
+        description="Set the visible starting price where applicable."
+        icon={Database}
+        accent="secondary"
+      >
+        {!disablePrice ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-[2fr_1fr]">
+            <FormField
+              name="startingPriceCents"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between gap-3">
+                    <FormLabel className="flex items-center gap-2">
+                      Starting price
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            className={INFO_TRIGGER_CLASS}
+                            aria-label="Starting price help"
+                          >
+                            <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" sideOffset={6}>
+                          Enter a number like 9.99.
+                        </TooltipContent>
+                      </Tooltip>
+                    </FormLabel>
+                    {formattedPrice ? (
+                      <span className="text-xs tabular-nums text-muted-foreground">
+                        {formattedPrice}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <FormControl>
+                    <div className="relative">
+                      {currencySymbol ? (
+                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                          {currencySymbol}
+                        </span>
+                      ) : null}
+                      <Input
+                        ref={(node) => {
+                          priceInputRef.current = node
+                          field.ref(node)
+                        }}
+                        name={field.name}
+                        inputMode="decimal"
+                        placeholder="e.g. 9.99"
+                        value={priceText}
+                        aria-required={requirePrice || undefined}
+                        onChange={(e) => {
+                          const normalized = normalizeMoneyInput(
+                            e.currentTarget.value,
+                          )
+                          setPriceText(normalized)
+                          form.clearErrors(field.name)
+                          setCentsFromPriceText(normalized, { validate: false })
+                        }}
+                        onBlur={() => {
+                          const normalized = normalizeMoneyInput(priceText)
+                          setPriceText(normalized)
+                          setCentsFromPriceText(normalized, { validate: true })
+                          field.onBlur()
+                        }}
+                        className={currencySymbol ? "pl-7" : undefined}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="currencyCode"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
                   <FormLabel className="flex items-center gap-2">
-                    Starting price
+                    Currency
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button
                           type="button"
                           className={INFO_TRIGGER_CLASS}
-                          aria-label="Starting price help"
+                          aria-label="Currency help"
                         >
                           <Info className="h-3.5 w-3.5" aria-hidden="true" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent side="top" sideOffset={6}>
-                        Enter a number like 9.99.
+                        Used to format the price and display the right symbol.
                       </TooltipContent>
                     </Tooltip>
                   </FormLabel>
-                  {formattedPrice ? (
-                    <span className="text-xs tabular-nums text-muted-foreground">
-                      {formattedPrice}
-                    </span>
-                  ) : null}
-                </div>
-
-                <FormControl>
-                  <div className="relative">
-                    {currencySymbol ? (
-                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                        {currencySymbol}
-                      </span>
-                    ) : null}
-                    <Input
-                      ref={(node) => {
-                        priceInputRef.current = node
-                        field.ref(node)
+                  <FormControl>
+                    <SearchableSelect
+                      value={(field.value as string) ?? ""}
+                      onValueChange={(v) => {
+                        const next = v.toUpperCase()
+                        field.onChange(next)
+                        if (priceText.trim().length) {
+                          setCentsFromPriceText(priceText, { validate: false })
+                        }
                       }}
-                      name={field.name}
-                      inputMode="decimal"
-                      placeholder="e.g. 9.99"
-                      value={priceText}
-                      aria-required={requirePrice || undefined}
-                      onChange={(e) => {
-                        const normalized = normalizeMoneyInput(
-                          e.currentTarget.value,
-                        )
-                        setPriceText(normalized)
-                        form.clearErrors(field.name)
-                        setCentsFromPriceText(normalized, { validate: false })
-                      }}
-                      onBlur={() => {
-                        const normalized = normalizeMoneyInput(priceText)
-                        setPriceText(normalized)
-                        setCentsFromPriceText(normalized, { validate: true })
-                        field.onBlur()
-                      }}
-                      className={currencySymbol ? "pl-7" : undefined}
+                      options={currencyOptions}
+                      placeholder="Select currency"
+                      title="Choose a currency"
+                      description="Search by code or name."
+                      searchPlaceholder="Search currencies…"
+                      emptyText="No currencies match your search."
+                      className={PRODUCT_WIZARD_DROPDOWN_TRIGGER_CLASS}
                     />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        ) : (
+          <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3 text-sm text-[#43474c]">
+            No price needed for this pricing model.
+          </div>
+        )}
 
-          <FormField
-            name="currencyCode"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  Currency
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        className={INFO_TRIGGER_CLASS}
-                        aria-label="Currency help"
-                      >
-                        <Info className="h-3.5 w-3.5" aria-hidden="true" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" sideOffset={6}>
-                      Used to format the price and display the right symbol.
-                    </TooltipContent>
-                  </Tooltip>
-                </FormLabel>
-                <FormControl>
-                  <SearchableSelect
-                    value={(field.value as string) ?? ""}
-                    onValueChange={(v) => {
-                      const next = v.toUpperCase()
-                      field.onChange(next)
-                      if (priceText.trim().length) {
-                        setCentsFromPriceText(priceText, { validate: false })
-                      }
-                    }}
-                    options={currencyOptions}
-                    placeholder="Select currency"
-                    title="Choose a currency"
-                    description="Search by code or name."
-                    searchPlaceholder="Search currencies…"
-                    emptyText="No currencies match your search."
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-      ) : (
-        <div className="rounded-lg border bg-muted/10 p-3 text-sm text-muted-foreground">
-          No price needed for this pricing model.
-        </div>
-      )}
-
-      {rightOfPricing ? (
-        <div className="space-y-3 pt-2">{rightOfPricing}</div>
-      ) : null}
+        {rightOfPricing ? (
+          <div className="space-y-3 pt-6">{rightOfPricing}</div>
+        ) : null}
+      </DraftFormSection>
     </div>
   )
 }

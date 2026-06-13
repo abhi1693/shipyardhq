@@ -1,4 +1,4 @@
-import { Suspense } from "react"
+import { Suspense, type ReactNode } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { auth, currentUser } from "@clerk/nextjs/server"
@@ -18,11 +18,11 @@ import {
 
 import { Skeleton } from "@/components/atoms/skeleton"
 import { getMemberTrafficOverview } from "@/actions/member/overview/actions"
+import ProductDraftStartButton from "@/components/pages/products/ProductDraftStartButton"
 import { MemberAnalyticsCharts } from "@/components/templates/member/overview/analytics-charts"
 import prisma from "@/lib/prisma"
 import { cn } from "@/lib/utils"
 import {
-  MEMBER_PRODUCTS_ADD_PATH,
   MEMBER_PRODUCTS_PATH,
   MEMBER_REWARDS_PATH,
   memberProductPath,
@@ -98,13 +98,13 @@ export async function MemberOverviewPageContent() {
             today.
           </p>
         </div>
-        <Link
-          href={MEMBER_PRODUCTS_ADD_PATH}
+        <ProductDraftStartButton
+          mode="member"
           className="inline-flex h-11 w-fit items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white transition-transform active:scale-[0.98]"
         >
           <Rocket className="h-4 w-4" aria-hidden />
           Launch new project
-        </Link>
+        </ProductDraftStartButton>
       </header>
 
       <Suspense fallback={<AnalyticsSectionSkeleton />}>
@@ -337,8 +337,14 @@ function ProductStatusPanel({ products }: { products: ProductSnapshot[] }) {
           icon={Package}
           title="No launches yet"
           description="Create your first product to start tracking views, upvotes, and rewards."
-          href={MEMBER_PRODUCTS_ADD_PATH}
-          action="Add product"
+          action={
+            <ProductDraftStartButton
+              mode="member"
+              className="mt-5 inline-flex h-10 items-center justify-center rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white"
+            >
+              Add product
+            </ProductDraftStartButton>
+          }
         />
       )}
     </section>
@@ -509,14 +515,12 @@ function EmptyPanel({
   icon: Icon,
   title,
   description,
-  href,
   action,
 }: {
   icon: LucideIcon
   title: string
   description: string
-  href: string
-  action: string
+  action: ReactNode
 }) {
   return (
     <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
@@ -525,12 +529,7 @@ function EmptyPanel({
       </div>
       <h3 className="text-base font-semibold text-slate-950">{title}</h3>
       <p className="mt-2 max-w-sm text-sm text-slate-500">{description}</p>
-      <Link
-        href={href}
-        className="mt-5 inline-flex h-10 items-center justify-center rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white"
-      >
-        {action}
-      </Link>
+      {action}
     </div>
   )
 }

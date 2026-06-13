@@ -26,7 +26,11 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
         .transform((s) => s as string)
         .pipe(z.url("Valid URL required")),
       logo: z.url("Valid logo URL required"),
-      categoryId: z.string().min(1, "Category is required"),
+      categoryId: z.string().optional().default(""),
+      categoryIds: z
+        .array(z.string())
+        .min(1, "Select at least 1 category.")
+        .max(3, "You can select up to 3 categories."),
       type: z.enum(PRODUCT_TYPES, { message: "Select a product type" }),
       platforms: z.array(z.enum(PLATFORMS)).default([]),
       keywordsText: z.string().optional().default(""),
@@ -62,7 +66,7 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       // Metadata
       githubUrl: z.url().optional().or(z.literal("")),
       twitterUrl: z.url().optional().or(z.literal("")),
-      demoUrl: z.url().optional().or(z.literal("")),
+      videoUrl: z.url().optional().or(z.literal("")),
       contactEmail: z.email().optional().or(z.literal("")),
       utmCampaign: z.string().optional().or(z.literal("")),
       status: z.enum(statusValues).optional(),
@@ -81,7 +85,7 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
           bannerOk: z.boolean().optional(),
           githubOk: z.boolean().optional(),
           twitterOk: z.boolean().optional(),
-          demoOk: z.boolean().optional(),
+          videoOk: z.boolean().optional(),
         })
         .optional(),
     })
@@ -107,31 +111,20 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
           })
         }
       }
-
-      // Prevent redundant URLs
-      const normalizeComparableUrl = (input: string) => {
-        try {
-          const u = new URL(input)
-          const pathname = (u.pathname || "/").replace(/\/+$/g, "") || "/"
-          return `${u.origin}${pathname}`
-        } catch {
-          return input.trim().replace(/\/+$/g, "")
-        }
+      const uniqueCategoryIds = Array.from(new Set(val.categoryIds ?? []))
+      if (!uniqueCategoryIds.length) {
+        ctx.addIssue({
+          path: ["categoryIds"],
+          code: z.ZodIssueCode.custom,
+          message: "Select at least 1 category.",
+        })
       }
-
-      const demoUrl =
-        typeof val.demoUrl === "string" ? val.demoUrl.trim() : undefined
-      if (demoUrl && demoUrl.length) {
-        const websiteComparable = normalizeComparableUrl(val.websiteUrl)
-        const demoComparable = normalizeComparableUrl(demoUrl)
-        if (websiteComparable === demoComparable) {
-          ctx.addIssue({
-            path: ["demoUrl"],
-            code: z.ZodIssueCode.custom,
-            message:
-              "Demo URL must be different from Website URL. Try using a full path like 'https://example.com/demo' or 'https://example.com/app'.",
-          })
-        }
+      if (uniqueCategoryIds.length > 3) {
+        ctx.addIssue({
+          path: ["categoryIds"],
+          code: z.ZodIssueCode.custom,
+          message: "You can select up to 3 categories.",
+        })
       }
     })
 }

@@ -494,7 +494,7 @@ async function main() {
         ? ensurePast(addDays(createdAt, 2), index + 2)
         : undefined,
       metadata: {
-        demoUrl: `${product.websiteUrl}/demo`,
+        videoUrl: `${product.websiteUrl}/video`,
         contactEmail: `hello@${product.slug}.dev`,
       },
       analytics: {

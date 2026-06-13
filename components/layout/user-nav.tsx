@@ -10,12 +10,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { SignOutButton, useUser } from "@clerk/nextjs"
 import { usePathname, useRouter } from "next/navigation"
-import {
-  Boxes,
-  LayoutDashboard,
-  LogOut,
-  UserRoundCog,
-} from "lucide-react"
+import { Boxes, LayoutDashboard, LogOut, UserRoundCog } from "lucide-react"
 import {
   ADMIN_ACCOUNT_PROFILE_PATH,
   ADMIN_BASE_PATH,
@@ -59,8 +54,12 @@ export function UserNav() {
   const router = useRouter()
   const pathname = usePathname() ?? "/"
   const isAdminSection = pathname.startsWith(ADMIN_BASE_PATH)
-  const dashboardPath = isAdminSection ? ADMIN_OVERVIEW_PATH : MEMBER_OVERVIEW_PATH
-  const productsPath = isAdminSection ? adminPath("products") : MEMBER_PRODUCTS_PATH
+  const dashboardPath = isAdminSection
+    ? ADMIN_OVERVIEW_PATH
+    : MEMBER_OVERVIEW_PATH
+  const productsPath = isAdminSection
+    ? adminPath("products")
+    : MEMBER_PRODUCTS_PATH
   const productsLabel = isAdminSection ? "Products" : "My Products"
   const accountPath = isAdminSection
     ? ADMIN_ACCOUNT_PROFILE_PATH

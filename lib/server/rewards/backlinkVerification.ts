@@ -139,16 +139,22 @@ async function fetchWithTimeout(url: URL, attempt = 1): Promise<Response> {
   }
 }
 
-function parseHrefAttributes(html: string): string[] {
-  const hrefs: string[] = []
-  const regex = /href\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/gi
+function parseHtmlAttributes(
+  html: string,
+  attributeName: "href" | "src",
+): string[] {
+  const values: string[] = []
+  const regex = new RegExp(
+    `${attributeName}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s"'>]+))`,
+    "gi",
+  )
   let match: RegExpExecArray | null
   while ((match = regex.exec(html))) {
-    const href = match[1] ?? match[2] ?? match[3] ?? ""
-    if (!href) continue
-    hrefs.push(href.trim())
+    const value = match[1] ?? match[2] ?? match[3] ?? ""
+    if (!value) continue
+    values.push(value.trim())
   }
-  return hrefs
+  return values
 }
 
 function matchesExpectedTarget(url: URL, slug: string): boolean {
@@ -161,6 +167,15 @@ function matchesExpectedTarget(url: URL, slug: string): boolean {
     return false
   }
   return true
+}
+
+function matchesExpectedBadge(url: URL, slug: string): boolean {
+  if (!BACKLINK_HOSTS.has(url.hostname.toLowerCase())) {
+    return false
+  }
+  return (
+    normalizePath(url.pathname) === normalizePath(`/api/embed/products/${slug}`)
+  )
 }
 
 async function checkBacklink(product: {
@@ -204,7 +219,8 @@ async function checkBacklink(product: {
     }
 
     const html = await response.text()
-    const hrefs = parseHrefAttributes(html)
+    const hrefs = parseHtmlAttributes(html, "href")
+    const srcs = parseHtmlAttributes(html, "src")
 
     for (const href of hrefs) {
       const resolved = ensureAbsoluteUrl(href, websiteUrl)
@@ -214,13 +230,89 @@ async function checkBacklink(product: {
       }
     }
 
+    for (const src of srcs) {
+      const resolved = ensureAbsoluteUrl(src, websiteUrl)
+      if (!resolved) continue
+      if (matchesExpectedBadge(resolved, product.slug)) {
+        return { status: "verified", foundUrl: resolved.toString() }
+      }
+    }
+
     return {
       status: "missing",
-      reason: "Backlink not found in fetched HTML",
+      reason: "Badge embed not found in fetched HTML",
     }
   } catch (error: unknown) {
     const reason = error instanceof Error ? error.message : "Unknown error"
     return { status: "error", reason }
+  }
+}
+
+export async function verifyProductBacklinkNow(
+  productId: string,
+  now: Date = new Date(),
+) {
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: {
+      id: true,
+      slug: true,
+      websiteUrl: true,
+      userId: true,
+      verification: {
+        select: {
+          id: true,
+          backlinkIsVerified: true,
+          backlinkVerifiedAt: true,
+          backlinkFoundUrl: true,
+          backlinkLastCheckedAt: true,
+          backlinkLastError: true,
+        },
+      },
+    },
+  })
+
+  if (!product) {
+    return { verified: false, reason: "Product not found" }
+  }
+  if (!product.verification) {
+    return { verified: false, reason: "Product missing verification record" }
+  }
+
+  const summary: BacklinkVerificationSummary = {
+    checked: 0,
+    verified: 0,
+    newlyVerified: 0,
+    missing: 0,
+    errors: 0,
+    awarded: 0,
+    failures: [],
+  }
+
+  await processProduct(product, summary, now)
+
+  const verification = await prisma.productVerification.findUnique({
+    where: { id: product.verification.id },
+    select: {
+      backlinkIsVerified: true,
+      backlinkFoundUrl: true,
+      backlinkLastError: true,
+    },
+  })
+
+  if (verification?.backlinkIsVerified) {
+    return {
+      verified: true,
+      foundUrl: verification.backlinkFoundUrl ?? undefined,
+    }
+  }
+
+  return {
+    verified: false,
+    reason:
+      verification?.backlinkLastError ||
+      summary.failures[0]?.reason ||
+      "Badge embed not found",
   }
 }
 

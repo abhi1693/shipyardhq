@@ -74,9 +74,10 @@ const getPublishedProductCountsByUseCase = async () => {
     { useCaseId: string; productCount: number }[]
   >(Prisma.sql`
     SELECT uc."useCaseId" AS "useCaseId",
-           COUNT(*)::int AS "productCount"
+           COUNT(DISTINCT p."id")::int AS "productCount"
     FROM "Product" p
-    JOIN "UseCaseCategory" uc ON uc."categoryId" = p."categoryId"
+    JOIN "ProductCategory" pc ON pc."productId" = p."id"
+    JOIN "UseCaseCategory" uc ON uc."categoryId" = pc."categoryId"
     WHERE p."status" = ${"published"}
     GROUP BY uc."useCaseId"
   `)
@@ -139,10 +140,11 @@ export const getUseCaseHighlights = cached(
       SELECT uc."id", uc."label", uc."slug"
       FROM "UseCase" uc
       INNER JOIN "UseCaseCategory" ucc ON ucc."useCaseId" = uc."id"
-      INNER JOIN "Product" p ON p."categoryId" = ucc."categoryId"
+      INNER JOIN "ProductCategory" pc ON pc."categoryId" = ucc."categoryId"
+      INNER JOIN "Product" p ON p."id" = pc."productId"
       WHERE p."status" = 'published'
       GROUP BY uc."id", uc."label", uc."slug"
-      ORDER BY COUNT(p."id") DESC, uc."label" ASC
+      ORDER BY COUNT(DISTINCT p."id") DESC, uc."label" ASC
       LIMIT ${safeLimit}
     `)
 
@@ -198,18 +200,18 @@ export const getPublicUseCaseCategoriesWithCounts = cached(
 
     if (!useCase) return null
 
-    const grouped = await prisma.product.groupBy({
-      by: ["categoryId"],
-      where: {
-        status: "published",
-        category: {
-          useCases: {
-            some: { useCaseId: useCase.id },
-          },
-        },
-      },
-      _count: { _all: true },
-    })
+    const grouped = await prisma.$queryRaw<
+      { categoryId: string; productCount: number }[]
+    >(Prisma.sql`
+      SELECT pc."categoryId" AS "categoryId",
+             COUNT(DISTINCT p."id")::int AS "productCount"
+      FROM "ProductCategory" pc
+      INNER JOIN "Product" p ON p."id" = pc."productId"
+      INNER JOIN "UseCaseCategory" uc ON uc."categoryId" = pc."categoryId"
+      WHERE p."status" = 'published'
+        AND uc."useCaseId" = ${useCase.id}
+      GROUP BY pc."categoryId"
+    `)
 
     if (!grouped.length) {
       return {
@@ -233,7 +235,10 @@ export const getPublicUseCaseCategoriesWithCounts = cached(
     })
 
     const countsByCategoryId = new Map(
-      grouped.map((entry: GroupEntry) => [entry.categoryId, entry._count._all]),
+      grouped.map((entry: GroupEntry) => [
+        entry.categoryId,
+        entry.productCount,
+      ]),
     )
 
     const categories: UseCaseCategory[] = categoriesRaw
@@ -254,7 +259,7 @@ export const getPublicUseCaseCategoriesWithCounts = cached(
       })
 
     const productCount = grouped.reduce(
-      (sum: number, entry: GroupEntry) => sum + (entry._count._all ?? 0),
+      (sum: number, entry: GroupEntry) => sum + (entry.productCount ?? 0),
       0,
     )
 
@@ -312,7 +317,10 @@ export const getPublicUseCaseProductsPage = cached(
 
     const baseWhere: Prisma.ProductWhereInput = {
       status: "published",
-      categoryId: { in: categoryIds },
+      OR: [
+        { categoryId: { in: categoryIds } },
+        { categories: { some: { categoryId: { in: categoryIds } } } },
+      ],
     }
 
     const orderBy: Prisma.ProductOrderByWithRelationInput =

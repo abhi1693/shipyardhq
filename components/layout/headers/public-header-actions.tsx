@@ -3,12 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { SignOutButton, useUser } from "@clerk/nextjs"
-import {
-  Boxes,
-  LayoutDashboard,
-  LogOut,
-  UserRoundCog,
-} from "lucide-react"
+import { Boxes, LayoutDashboard, LogOut, UserRoundCog } from "lucide-react"
 
 import { Button } from "@/components/atoms/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"

@@ -3,13 +3,15 @@
 import { useFormContext, useWatch } from "react-hook-form"
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Info, Plus } from "lucide-react"
+import { ImageIcon, Images, Info, Link2, Plus, Video } from "lucide-react"
 import {
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/atoms/form"
+import { Input } from "@/components/atoms/input"
 import ImageUploadField from "@/components/molecules/ImageUploadField"
 import DeleteButton from "@/components/molecules/DeleteButton"
 import { Image } from "@/components/atoms/image"
@@ -18,6 +20,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/atoms/tooltip"
+import { DraftFormSection } from "@/components/pages/products/_components/DraftFormSection"
 
 type GalleryMedia = { id: string; imageUrl: string }
 type UploadProgress = { total: number; done?: number } | null
@@ -26,6 +29,13 @@ const MAX_BYTES = 5 * 1024 * 1024 // 5MB
 
 const INFO_TRIGGER_CLASS =
   "inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+
+function normalizeGenericUrl(value: string) {
+  const trimmed = value.trim()
+  if (!trimmed) return ""
+  if (/^https?:\/\//i.test(trimmed)) return trimmed
+  return `https://${trimmed.replace(/^\/+/, "")}`
+}
 
 export default function StepMedia({
   productId,
@@ -284,9 +294,13 @@ export default function StepMedia({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border bg-white/80 p-4 sm:p-5">
+      <DraftFormSection
+        title="Brand Identity"
+        description="Upload the product logo and social preview image."
+        icon={ImageIcon}
+      >
         {requiresOwner ? (
-          <div className="mb-4 rounded-lg border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+          <div className="mb-4 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-sm text-[#43474c]">
             Select an owner to upload logo, banner, and screenshots.
           </div>
         ) : null}
@@ -370,49 +384,35 @@ export default function StepMedia({
             )}
           />
         </div>
-      </div>
+      </DraftFormSection>
 
-      <div className="rounded-xl border bg-white/80 p-4 sm:p-5">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <FormLabel className="flex items-center gap-2">
-            Screenshots
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  className={INFO_TRIGGER_CLASS}
-                  aria-label="Screenshots help"
-                >
-                  <Info className="h-3.5 w-3.5" aria-hidden="true" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top" sideOffset={6}>
-                Add 3–6 screenshots (16:9 works well). Max 5MB each.
-              </TooltipContent>
-            </Tooltip>
-          </FormLabel>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground tabular-nums">
-            <span>Optional</span>
+      <DraftFormSection
+        title="Product Gallery"
+        description="Add screenshots for the product detail page."
+        icon={Images}
+        accent="secondary"
+        action={
+          <div className="flex items-center gap-3 text-xs tabular-nums text-[#43474c]">
             <span>
               {effectiveMedia.length}/{maxGallery}
             </span>
           </div>
-        </div>
-
+        }
+      >
         {error ? (
-          <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+          <div className="mb-4 rounded-lg border border-[#ffdad6] bg-[#ffdad6]/40 px-3 py-2 text-sm text-[#93000a]">
             {error}
           </div>
         ) : null}
 
         {requiresOwner ? (
-          <div className="mb-4 rounded-lg border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+          <div className="mb-4 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-sm text-[#43474c]">
             Select an owner to upload screenshots.
           </div>
         ) : null}
 
         {!canUpload && isDraftMode && !productId ? (
-          <div className="mb-4 rounded-lg border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+          <div className="mb-4 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-sm text-[#43474c]">
             Save your draft to upload screenshots.
           </div>
         ) : null}
@@ -475,7 +475,7 @@ export default function StepMedia({
 
               {canUpload ? (
                 <label
-                  className="flex aspect-video cursor-pointer flex-col items-center justify-center gap-2 rounded border-2 border-dashed bg-muted/10 text-center text-sm text-muted-foreground hover:bg-muted/20"
+                  className="flex aspect-video cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[#C4C6CD] bg-[#F8FAFC] text-center text-sm text-[#43474c] transition-colors hover:border-[#0051D5] hover:bg-[#eff4ff]"
                   onDrop={(e) => {
                     e.preventDefault()
                     if (!e.dataTransfer.files?.length) return
@@ -502,7 +502,7 @@ export default function StepMedia({
           </div>
         ) : (
           <label
-            className="flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed bg-muted/10 p-6 text-center text-sm hover:bg-muted/20"
+            className="flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[#C4C6CD] bg-[#F8FAFC] p-8 text-center text-sm text-[#43474c] transition-colors hover:border-[#0051D5] hover:bg-[#eff4ff]"
             onDrop={(e) => {
               e.preventDefault()
               if (!e.dataTransfer.files?.length) return
@@ -535,7 +535,44 @@ export default function StepMedia({
             </div>
           </label>
         )}
-      </div>
+      </DraftFormSection>
+
+      <DraftFormSection
+        title="Launch Video"
+        description="Add a hosted video URL. No upload required."
+        icon={Video}
+        accent="orange"
+      >
+        <FormField
+          name="videoUrl"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Video link URL</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <Link2
+                    className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#74777d]"
+                    aria-hidden="true"
+                  />
+                  <Input
+                    className="h-11 rounded-lg border-[#C4C6CD] bg-white pl-10"
+                    placeholder="https://youtube.com/watch?v=..."
+                    {...field}
+                    onBlur={(e) => {
+                      const raw = e.currentTarget.value ?? ""
+                      const next = normalizeGenericUrl(raw)
+                      if (next !== raw) field.onChange(next)
+                      field.onBlur()
+                    }}
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </DraftFormSection>
     </div>
   )
 }

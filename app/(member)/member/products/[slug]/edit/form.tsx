@@ -1,12 +1,14 @@
 "use client"
 
 import EditProductWizard from "@/components/pages/products/EditProductWizard"
+import type { ProductDraftStep } from "@/lib/productWizard/draft"
 import type { ProductForEditWizard } from "@/types/product-wizard"
 
 export default function EditProductForm({
   product,
   categories,
   alternatives,
+  step,
 }: {
   product: ProductForEditWizard
   categories: { id: string; name: string; icon?: string | null }[]
@@ -16,6 +18,7 @@ export default function EditProductForm({
     name: string
     websiteUrl?: string | null
   }[]
+  step: ProductDraftStep
 }) {
   return (
     <EditProductWizard
@@ -23,6 +26,7 @@ export default function EditProductForm({
       product={product}
       categories={categories}
       alternatives={alternatives}
+      step={step}
     />
   )
 }

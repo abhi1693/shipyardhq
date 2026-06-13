@@ -3,14 +3,19 @@
 import { useFormContext, useWatch } from "react-hook-form"
 import { ReactNode, useEffect, useMemo, useState } from "react"
 import {
+  ChevronDown,
+  Check,
   Globe,
   Code,
+  FileText,
   Laptop,
   Info,
   Monitor,
   Puzzle,
+  Search,
   Smartphone,
   Sparkles,
+  Tags,
   Terminal,
   type LucideIcon,
 } from "lucide-react"
@@ -35,7 +40,6 @@ import { Button } from "@/components/atoms/button"
 import { toast } from "sonner"
 import type { ProductAutofillSuggestion } from "@/lib/productWizard/autofill"
 import { MarkdownEditor } from "@/components/molecules/MarkdownEditor"
-import { SearchableSelect } from "@/components/molecules/SearchableSelect"
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import {
   Tooltip,
@@ -43,6 +47,15 @@ import {
   TooltipTrigger,
 } from "@/components/atoms/tooltip"
 import { KeywordsInput } from "@/components/molecules/KeywordsInput"
+import { DraftFormSection } from "@/components/pages/products/_components/DraftFormSection"
+import { PRODUCT_WIZARD_DROPDOWN_TRIGGER_CLASS } from "@/components/pages/products/_shared/dropdownStyles"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/atoms/dialog"
+import { ScrollArea } from "@/components/atoms/scroll-area"
 
 const PLATFORM_LABELS: Record<string, string> = {
   web: "Web",
@@ -103,6 +116,8 @@ export default function Step1({
 }: Props) {
   const form = useFormContext()
   const [autofilling, setAutofilling] = useState(false)
+  const [categoryPickerOpen, setCategoryPickerOpen] = useState(false)
+  const [categoryQuery, setCategoryQuery] = useState("")
   const productType = useWatch({
     control: form.control,
     name: "type",
@@ -111,6 +126,46 @@ export default function Step1({
     control: form.control,
     name: "platforms",
   }) as string[] | undefined
+  const primaryCategoryId = useWatch({
+    control: form.control,
+    name: "categoryId",
+  }) as string | undefined
+  const selectedCategoryIdsRaw = useWatch({
+    control: form.control,
+    name: "categoryIds",
+  }) as string[] | undefined
+  const selectedCategoryIds = useMemo(() => {
+    if (
+      Array.isArray(selectedCategoryIdsRaw) &&
+      selectedCategoryIdsRaw.length
+    ) {
+      return selectedCategoryIdsRaw
+    }
+    return primaryCategoryId ? [primaryCategoryId] : []
+  }, [primaryCategoryId, selectedCategoryIdsRaw])
+  const categoryById = useMemo(
+    () => new Map(categories.map((category) => [category.id, category])),
+    [categories],
+  )
+  const selectedCategories = useMemo(
+    () =>
+      selectedCategoryIds
+        .map((categoryId) => categoryById.get(categoryId))
+        .filter(
+          (
+            category,
+          ): category is { id: string; name: string; icon?: string | null } =>
+            Boolean(category),
+        ),
+    [categoryById, selectedCategoryIds],
+  )
+  const filteredCategories = useMemo(() => {
+    const q = categoryQuery.trim().toLowerCase()
+    if (!q) return categories
+    return categories.filter((category) =>
+      category.name.toLowerCase().includes(q),
+    )
+  }, [categories, categoryQuery])
 
   const allowedPlatforms = useMemo(() => {
     switch (productType) {
@@ -136,14 +191,6 @@ export default function Step1({
     return platforms.filter((p) => allowedPlatforms.has(p))
   }, [allowedPlatforms, platforms])
 
-  const categoryOptions = useMemo(() => {
-    return categories.map((c) => ({
-      value: c.id,
-      label: c.name,
-      icon: <CategoryIcon icon={c.icon ?? null} size={16} />,
-    }))
-  }, [categories])
-
   useEffect(() => {
     if (!allowedPlatforms) return
     const current = Array.isArray(selectedPlatforms) ? selectedPlatforms : []
@@ -155,6 +202,14 @@ export default function Step1({
       })
     }
   }, [allowedPlatforms, form, selectedPlatforms])
+
+  useEffect(() => {
+    if (selectedCategoryIdsRaw?.length || !primaryCategoryId) return
+    form.setValue("categoryIds", [primaryCategoryId], {
+      shouldDirty: false,
+      shouldValidate: false,
+    })
+  }, [form, primaryCategoryId, selectedCategoryIdsRaw?.length])
 
   async function handleAutofill() {
     const currentUrl = cleanWebsiteUrlInput(
@@ -285,14 +340,42 @@ export default function Step1({
       })
     }
 
-    if (suggestion.categoryName) {
-      const lower = suggestion.categoryName.toLowerCase()
-      const match =
-        categories.find((c) => c.name.toLowerCase() === lower) ||
-        categories.find((c) => lower.includes(c.name.toLowerCase())) ||
-        categories.find((c) => c.name.toLowerCase().includes(lower))
-      if (match) {
-        form.setValue("categoryId", match.id, {
+    const suggestedCategoryNames = [
+      ...(suggestion.categoryNames ?? []),
+      suggestion.categoryName,
+    ].filter((name): name is string => Boolean(name?.trim()))
+
+    if (suggestedCategoryNames.length) {
+      const matchedIds = suggestedCategoryNames
+        .map((name) => {
+          const lower = name.toLowerCase()
+          return (
+            categories.find((c) => c.name.toLowerCase() === lower) ||
+            categories.find((c) => lower.includes(c.name.toLowerCase())) ||
+            categories.find((c) => c.name.toLowerCase().includes(lower))
+          )
+        })
+        .filter(
+          (
+            category,
+          ): category is { id: string; name: string; icon?: string | null } =>
+            Boolean(category),
+        )
+        .map((category) => category.id)
+
+      if (matchedIds.length) {
+        const current = Array.isArray(form.getValues("categoryIds"))
+          ? (form.getValues("categoryIds") as string[])
+          : []
+        const next = Array.from(new Set([...matchedIds, ...current])).slice(
+          0,
+          3,
+        )
+        form.setValue("categoryId", next[0] ?? "", {
+          shouldDirty: true,
+          shouldValidate: true,
+        })
+        form.setValue("categoryIds", next, {
           shouldDirty: true,
           shouldValidate: true,
         })
@@ -313,8 +396,8 @@ export default function Step1({
       })
     }
 
-    if (suggestion.demoUrl) {
-      form.setValue("demoUrl", suggestion.demoUrl, {
+    if (suggestion.videoUrl) {
+      form.setValue("videoUrl", suggestion.videoUrl, {
         shouldDirty: true,
         shouldValidate: true,
       })
@@ -330,118 +413,103 @@ export default function Step1({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border bg-white/80 p-4 sm:p-5">
+      <DraftFormSection
+        title="Website URL & Identity"
+        description="Connect the landing page and define the product identity."
+        icon={Globe}
+      >
         <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <FormField
-              name="websiteUrl"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center justify-between gap-3">
-                    <FormLabel className="flex items-center gap-2">
-                      Website URL
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            type="button"
-                            className={INFO_TRIGGER_CLASS}
-                            aria-label="Why we ask for your website URL"
-                          >
-                            <Info className="h-3.5 w-3.5" aria-hidden="true" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" sideOffset={6}>
-                          Used for autofill and ownership verification.
-                        </TooltipContent>
-                      </Tooltip>
-                    </FormLabel>
-                  </div>
-                  <FormControl>
-                    <Input
-                      placeholder="https://example.com"
-                      value={field.value}
-                      onChange={field.onChange}
-                      disabled={!!lockWebsiteUrl}
-                      readOnly={!!lockWebsiteUrl}
-                      onBlur={(e) => {
-                        const sanitized = cleanWebsiteUrlInput(e.target.value)
-                        if (sanitized !== field.value) {
-                          form.setValue("websiteUrl", sanitized, {
-                            shouldDirty: true,
-                            shouldValidate: true,
-                          })
-                        }
-                        field.onBlur()
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {rightOfWebsite ? (
-              <div className="flex flex-col justify-end gap-2">
-                {rightOfWebsite}
-              </div>
-            ) : null}
-          </div>
-
-          {enableAutofill ? (
-            <div className="border-t pt-6">
-              <div className="rounded-lg border border-dashed border-[color:var(--brand-1)/0.35] bg-[color:var(--brand-1)/0.05] p-3 sm:p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-start gap-3 text-left">
-                    <span className="mt-0.5 rounded-full bg-[color:var(--brand-1)/0.12] p-2 text-[color:var(--brand-1)]">
-                      <Sparkles className="h-4 w-4" />
-                    </span>
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold text-slate-900">
-                        <span className="inline-flex items-center gap-2">
-                          Run AI Autofill
-                          {autofillNotice ? (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button
-                                  type="button"
-                                  className={INFO_TRIGGER_CLASS}
-                                  aria-label="AI Autofill notice"
-                                >
-                                  <Info
-                                    className="h-3.5 w-3.5"
-                                    aria-hidden="true"
-                                  />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" sideOffset={6}>
-                                {autofillNotice}
-                              </TooltipContent>
-                            </Tooltip>
-                          ) : null}
-                        </span>
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Draft name, tagline, and description from your website.
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    size="sm"
-                    className="w-full sm:w-auto"
-                    onClick={handleAutofill}
-                    disabled={autofilling}
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    {autofilling ? "AI autofilling…" : "Run AI Autofill"}
-                  </Button>
+          <FormField
+            name="websiteUrl"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center justify-between gap-3">
+                  <FormLabel className="flex items-center gap-2">
+                    Website URL
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          className={INFO_TRIGGER_CLASS}
+                          aria-label="Why we ask for your website URL"
+                        >
+                          <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" sideOffset={6}>
+                        Used for autofill and ownership verification.
+                      </TooltipContent>
+                    </Tooltip>
+                  </FormLabel>
                 </div>
-              </div>
-            </div>
+                <div className="flex flex-col gap-2 md:flex-row">
+                  <div className="relative flex-1">
+                    <Globe
+                      className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-[#C4C6CD]"
+                      aria-hidden="true"
+                    />
+                    <FormControl>
+                      <Input
+                        className="pl-10"
+                        placeholder="https://yourproduct.com"
+                        value={field.value}
+                        onChange={field.onChange}
+                        disabled={!!lockWebsiteUrl}
+                        readOnly={!!lockWebsiteUrl}
+                        onBlur={(e) => {
+                          const sanitized = cleanWebsiteUrlInput(e.target.value)
+                          if (sanitized !== field.value) {
+                            form.setValue("websiteUrl", sanitized, {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            })
+                          }
+                          field.onBlur()
+                        }}
+                      />
+                    </FormControl>
+                  </div>
+                  {enableAutofill ? (
+                    <Button
+                      type="button"
+                      className="h-12 shrink-0 rounded-lg bg-black px-6 text-[12px] font-bold uppercase tracking-[0.05em] text-white hover:bg-black/90"
+                      onClick={handleAutofill}
+                      disabled={autofilling}
+                    >
+                      <Sparkles className="size-5" aria-hidden="true" />
+                      {autofilling ? "Analyzing..." : "Run AI Autofill"}
+                      {autofillNotice ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              className="inline-flex size-5 items-center justify-center rounded-sm text-white/80"
+                              aria-label="AI Autofill notice"
+                            >
+                              <Info
+                                className="h-3.5 w-3.5"
+                                aria-hidden="true"
+                              />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" sideOffset={6}>
+                            {autofillNotice}
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : null}
+                    </Button>
+                  ) : null}
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {rightOfWebsite ? (
+            <div className="max-w-xl">{rightOfWebsite}</div>
           ) : null}
 
-          <div className="border-t pt-6">
+          <div className="border-t border-[#E2E8F0] pt-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <FormField
                 name="name"
@@ -560,29 +628,155 @@ export default function Step1({
             </div>
           </div>
         </div>
-      </div>
+      </DraftFormSection>
 
-      <div className="rounded-xl border bg-white/80 p-4 sm:p-5">
+      <DraftFormSection
+        title="Categorization & Deployment"
+        description="Classify where the product belongs and which platforms it supports."
+        icon={Tags}
+        accent="secondary"
+      >
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <FormField
-              name="categoryId"
+              name="categoryIds"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <FormControl>
-                    <SearchableSelect
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      options={categoryOptions}
-                      placeholder="Select category"
-                      title="Choose a category"
-                      description="Start typing to filter categories."
-                      searchPlaceholder="Search categories…"
-                      emptyText="No categories match your search."
-                    />
-                  </FormControl>
+                  <div className="flex items-end justify-between gap-3">
+                    <FormLabel>Categories</FormLabel>
+                    <span className="text-xs tabular-nums text-muted-foreground">
+                      {selectedCategoryIds.length}/3
+                    </span>
+                  </div>
+                  <div className="space-y-3">
+                    <button
+                      type="button"
+                      className={`${PRODUCT_WIZARD_DROPDOWN_TRIGGER_CLASS} flex items-center justify-between gap-3 text-left focus-visible:outline-none`}
+                      onClick={() => setCategoryPickerOpen(true)}
+                      aria-haspopup="dialog"
+                      aria-expanded={categoryPickerOpen}
+                    >
+                      <span className="flex min-w-0 flex-1 items-center gap-2">
+                        <Tags
+                          className="size-4 shrink-0 text-muted-foreground"
+                          aria-hidden="true"
+                        />
+                        <span className="truncate">
+                          {selectedCategories.length
+                            ? selectedCategories
+                                .map((category) => category.name)
+                                .join(", ")
+                            : "Search and select up to 3 categories"}
+                        </span>
+                      </span>
+                      <ChevronDown
+                        className="size-4 shrink-0 text-[#74777d]"
+                        aria-hidden="true"
+                      />
+                    </button>
+                  </div>
+                  <Dialog
+                    open={categoryPickerOpen}
+                    onOpenChange={(next) => {
+                      setCategoryPickerOpen(next)
+                      if (!next) setCategoryQuery("")
+                    }}
+                  >
+                    <DialogContent className="p-0 sm:max-w-md">
+                      <div className="p-6 pb-3">
+                        <DialogHeader>
+                          <DialogTitle>Select categories</DialogTitle>
+                        </DialogHeader>
+                      </div>
+
+                      <div className="border-t px-6 py-3">
+                        <div className="relative">
+                          <Search
+                            className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#74777d]"
+                            aria-hidden="true"
+                          />
+                          <Input
+                            value={categoryQuery}
+                            onChange={(e) => setCategoryQuery(e.target.value)}
+                            placeholder="Search categories..."
+                            className="pl-9"
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+
+                      <ScrollArea className="max-h-[320px] border-t">
+                        <div className="p-2">
+                          {filteredCategories.length ? (
+                            filteredCategories.map((category) => {
+                              const checked = selectedCategoryIds.includes(
+                                category.id,
+                              )
+                              const atLimit =
+                                selectedCategoryIds.length >= 3 && !checked
+
+                              return (
+                                <button
+                                  key={category.id}
+                                  type="button"
+                                  disabled={atLimit}
+                                  className={[
+                                    "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors",
+                                    checked
+                                      ? "bg-[#eff4ff] text-black"
+                                      : "text-[#43474c] hover:bg-[#F8FAFC]",
+                                    atLimit
+                                      ? "cursor-not-allowed opacity-45"
+                                      : "cursor-pointer",
+                                  ].join(" ")}
+                                  onClick={() => {
+                                    const next = checked
+                                      ? selectedCategoryIds.filter(
+                                          (id) => id !== category.id,
+                                        )
+                                      : Array.from(
+                                          new Set([
+                                            ...selectedCategoryIds,
+                                            category.id,
+                                          ]),
+                                        ).slice(0, 3)
+                                    field.onChange(next)
+                                    form.setValue("categoryId", next[0] ?? "", {
+                                      shouldDirty: true,
+                                      shouldValidate: true,
+                                    })
+                                  }}
+                                >
+                                  <span className="flex min-w-0 items-center gap-3">
+                                    <span className="flex size-8 shrink-0 items-center justify-center rounded bg-[#eff4ff] text-[#0051d5]">
+                                      <CategoryIcon
+                                        icon={category.icon ?? null}
+                                        size={16}
+                                      />
+                                    </span>
+                                    <span className="truncate font-semibold">
+                                      {category.name}
+                                    </span>
+                                  </span>
+                                  {checked ? (
+                                    <Check
+                                      className="size-4 shrink-0 text-[#0051d5]"
+                                      aria-hidden="true"
+                                    />
+                                  ) : null}
+                                </button>
+                              )
+                            })
+                          ) : (
+                            <div className="px-3 py-8 text-center text-sm text-[#74777d]">
+                              No categories found.
+                            </div>
+                          )}
+                        </div>
+                      </ScrollArea>
+                    </DialogContent>
+                  </Dialog>
                   <FormMessage />
                 </FormItem>
               )}
@@ -596,7 +790,9 @@ export default function Step1({
                   <FormLabel>Product Type</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger
+                        className={PRODUCT_WIZARD_DROPDOWN_TRIGGER_CLASS}
+                      >
                         {(() => {
                           const selected = PRODUCT_TYPE_OPTIONS.find(
                             (o) => o.v === field.value,
@@ -726,11 +922,20 @@ export default function Step1({
               )}
             />
           ) : (
-            <div className="rounded-lg border bg-muted/10 p-3 text-sm text-muted-foreground">
+            <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3 text-sm text-[#43474c]">
               Select a product type to choose platforms.
             </div>
           )}
+        </div>
+      </DraftFormSection>
 
+      <DraftFormSection
+        title="Content & Metadata"
+        description="Define search keywords and the launch narrative."
+        icon={FileText}
+        accent="orange"
+      >
+        <div className="space-y-6">
           <FormField
             name="keywordsText"
             control={form.control}
@@ -766,38 +971,12 @@ export default function Step1({
             )}
           />
 
-          <div className="border-t pt-6">
+          <div className="border-t border-[#E2E8F0] pt-6">
             <FormField
               name="description"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    Description
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          type="button"
-                          className={INFO_TRIGGER_CLASS}
-                          aria-label="Description guidance"
-                        >
-                          <Info className="h-3.5 w-3.5" aria-hidden="true" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" sideOffset={6}>
-                        Markdown supported. Use headings like ## / ###.{" "}
-                        <a
-                          href="https://www.markdownguide.org/basic-syntax/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline"
-                        >
-                          Markdown basics
-                        </a>
-                        .
-                      </TooltipContent>
-                    </Tooltip>
-                  </FormLabel>
                   <FormControl>
                     <MarkdownEditor
                       ref={field.ref}
@@ -809,6 +988,37 @@ export default function Step1({
                       rows={10}
                       textareaClassName="h-48"
                       previewClassName="h-48"
+                      toolbarLeft={
+                        <FormLabel className="flex items-center gap-2">
+                          Description
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                className={INFO_TRIGGER_CLASS}
+                                aria-label="Description guidance"
+                              >
+                                <Info
+                                  className="h-3.5 w-3.5"
+                                  aria-hidden="true"
+                                />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" sideOffset={6}>
+                              Markdown supported. Use headings like ## / ###.{" "}
+                              <a
+                                href="https://www.markdownguide.org/basic-syntax/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline"
+                              >
+                                Markdown basics
+                              </a>
+                              .
+                            </TooltipContent>
+                          </Tooltip>
+                        </FormLabel>
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -817,7 +1027,7 @@ export default function Step1({
             />
           </div>
         </div>
-      </div>
+      </DraftFormSection>
     </div>
   )
 }

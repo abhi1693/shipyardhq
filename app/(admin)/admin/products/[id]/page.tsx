@@ -282,12 +282,12 @@ export default async function ViewProductPage({
                     })}
                   />
                 )}
-                {product.metadata?.demoUrl && (
+                {product.metadata?.videoUrl && (
                   <OverviewRow
-                    label="Demo"
+                    label="Video"
                     value={linkify({
-                      href: product.metadata.demoUrl,
-                      label: product.metadata.demoUrl,
+                      href: product.metadata.videoUrl,
+                      label: product.metadata.videoUrl,
                       isExternal: true,
                     })}
                   />

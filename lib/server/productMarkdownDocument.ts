@@ -58,7 +58,7 @@ export type ProductMarkdownDetail = {
   category?: ProductMarkdownCategory | null
   user?: ProductMarkdownUser | null
   metadata?: {
-    demoUrl?: string | null
+    videoUrl?: string | null
   } | null
   verification?: {
     isVerified?: boolean | null
@@ -187,12 +187,12 @@ function productLinks(
     : null
   const categorySlug = product.category?.slug ?? meta.category?.slug
   const websiteUrl = safeExternalUrl(product.websiteUrl)
-  const demoUrl = safeExternalUrl(product.metadata?.demoUrl)
+  const videoUrl = safeExternalUrl(product.metadata?.videoUrl)
 
   return [
     `Canonical Shipyard page: ${absoluteSiteUrl(productPath(product.slug))}`,
     websiteUrl ? `Product website: ${websiteUrl}` : null,
-    demoUrl ? `Demo: ${demoUrl}` : null,
+    videoUrl ? `Video: ${videoUrl}` : null,
     categorySlug
       ? `Category: ${absoluteSiteUrl(categoryPath(categorySlug))}`
       : null,

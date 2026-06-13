@@ -58,7 +58,7 @@ const publicProductSelect = {
   },
   metadata: {
     select: {
-      demoUrl: true,
+      videoUrl: true,
       utmCampaign: true,
     },
   },
@@ -139,7 +139,7 @@ const publicProductMetaSelect = {
   category: { select: { name: true, slug: true } },
   user: { select: { id: true, firstName: true, lastName: true } },
   analytics: { select: { upvotes: true } },
-  metadata: { select: { demoUrl: true, utmCampaign: true } },
+  metadata: { select: { videoUrl: true, utmCampaign: true } },
   ProductMedia: {
     select: {
       id: true,
@@ -254,8 +254,8 @@ export const getPublicProductsByUseCase = cached(
     const randomProductIds = await prisma.$queryRaw<{ id: string }[]>`
       SELECT p.id
       FROM "Product" AS p
-      INNER JOIN "Category" AS c ON c.id = p."categoryId"
-      INNER JOIN "UseCaseCategory" AS uc ON uc."categoryId" = c.id
+      INNER JOIN "ProductCategory" AS pc ON pc."productId" = p.id
+      INNER JOIN "UseCaseCategory" AS uc ON uc."categoryId" = pc."categoryId"
       INNER JOIN "UseCase" AS u ON u.id = uc."useCaseId"
       WHERE u.slug = ${useCaseSlug}
         AND p.status = 'published'

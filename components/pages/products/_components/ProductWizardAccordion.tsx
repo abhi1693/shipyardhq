@@ -56,13 +56,15 @@ export default function ProductWizardAccordion({
       type="multiple"
       value={openSections as any}
       onValueChange={(v) => onOpenSectionsChange((v as any) ?? [])}
-      className="rounded-xl border bg-white/80"
+      className="overflow-hidden"
     >
       <AccordionItem id="section-core" value="core" className="px-6">
-        <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+        <AccordionTrigger className="-mx-6 gap-2 rounded-none px-6 py-5 text-base hover:no-underline group data-[state=open]:bg-slate-50/80">
           <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
             <div className="flex min-w-0 flex-col gap-1">
-              <span className="font-semibold text-slate-900">Core details</span>
+              <span className="font-semibold text-slate-900">
+                Core product parameters
+              </span>
               <span className="text-xs font-normal text-muted-foreground">
                 Website, name, description, category, and platforms.
               </span>
@@ -76,10 +78,12 @@ export default function ProductWizardAccordion({
       </AccordionItem>
 
       <AccordionItem id="section-media" value="media" className="px-6">
-        <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+        <AccordionTrigger className="-mx-6 gap-2 rounded-none px-6 py-5 text-base hover:no-underline group data-[state=open]:bg-slate-50/80">
           <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
             <div className="flex min-w-0 flex-col gap-1">
-              <span className="font-semibold text-slate-900">Logo & media</span>
+              <span className="font-semibold text-slate-900">
+                Brand identity & gallery
+              </span>
               <span className="text-xs font-normal text-muted-foreground">
                 Logo, optional banner, and screenshots.
               </span>
@@ -93,10 +97,12 @@ export default function ProductWizardAccordion({
       </AccordionItem>
 
       <AccordionItem id="section-pricing" value="pricing" className="px-6">
-        <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+        <AccordionTrigger className="-mx-6 gap-2 rounded-none px-6 py-5 text-base hover:no-underline group data-[state=open]:bg-slate-50/80">
           <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
             <div className="flex min-w-0 flex-col gap-1">
-              <span className="font-semibold text-slate-900">Pricing</span>
+              <span className="font-semibold text-slate-900">
+                Pricing architecture
+              </span>
               <span className="text-xs font-normal text-muted-foreground">
                 Pricing model and starting price (if applicable).
               </span>
@@ -110,11 +116,11 @@ export default function ProductWizardAccordion({
       </AccordionItem>
 
       <AccordionItem id="section-boost" value="boost" className="px-6">
-        <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+        <AccordionTrigger className="-mx-6 gap-2 rounded-none px-6 py-5 text-base hover:no-underline group data-[state=open]:bg-slate-50/80">
           <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
             <div className="flex min-w-0 flex-col gap-1">
               <span className="font-semibold text-slate-900">
-                Boost visibility
+                Domain validation
               </span>
               <span className="text-xs font-normal text-muted-foreground">
                 Verify domain ownership and show a trust badge.
@@ -222,11 +228,11 @@ export default function ProductWizardAccordion({
       </AccordionItem>
 
       <AccordionItem id="section-details" value="details" className="px-6">
-        <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
+        <AccordionTrigger className="-mx-6 gap-2 rounded-none px-6 py-5 text-base hover:no-underline group data-[state=open]:bg-slate-50/80">
           <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
             <div className="flex min-w-0 flex-col gap-1">
               <span className="font-semibold text-slate-900">
-                Details & positioning
+                Market positioning
               </span>
               <span className="text-xs font-normal text-muted-foreground">
                 {detailsSubcopy}

@@ -16,6 +16,7 @@ export const productForEditWizardSelect = {
   websiteUrl: true,
   logo: true,
   categoryId: true,
+  categories: { select: { categoryId: true } },
   type: true,
   pricingModel: true,
   startingPriceCents: true,
@@ -28,7 +29,7 @@ export const productForEditWizardSelect = {
     select: {
       githubUrl: true,
       twitterUrl: true,
-      demoUrl: true,
+      videoUrl: true,
       contactEmail: true,
       utmCampaign: true,
     },

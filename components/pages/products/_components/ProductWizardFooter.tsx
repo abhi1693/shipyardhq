@@ -9,7 +9,6 @@ export default function ProductWizardFooter({
   isSubmitting,
   isDisabled,
   smartNextAction,
-  onSaveDraft,
   publishLabel = "Publish",
   publishingLabel = "Publishing…",
 }: {
@@ -17,7 +16,6 @@ export default function ProductWizardFooter({
   isSubmitting: boolean
   isDisabled?: boolean
   smartNextAction: WizardSmartNextAction | null
-  onSaveDraft: () => void
   publishLabel?: string
   publishingLabel?: string
 }) {
@@ -53,18 +51,6 @@ export default function ProductWizardFooter({
         <span />
       )}
       <div className="flex flex-col gap-2 sm:flex-row">
-        <Button
-          type="button"
-          variant="outline"
-          className="border-slate-300 text-slate-700"
-          disabled={disabled}
-          onClick={() => {
-            if (disabled) return
-            onSaveDraft()
-          }}
-        >
-          Save draft
-        </Button>
         <Button type="submit" form={formId} disabled={disabled}>
           {isSubmitting ? publishingLabel : publishLabel}
         </Button>

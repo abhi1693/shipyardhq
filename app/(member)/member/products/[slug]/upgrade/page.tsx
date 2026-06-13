@@ -1,11 +1,65 @@
-import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { getPublicPlans } from "@/actions/public/plans/actions"
 import { requireManageableProduct } from "@/lib/server/productAccess"
-import { memberProductPath, memberProductsStatusPath } from "@/lib/routes"
-import { ProductUpgradePricingTable } from "@/components/organisms/ProductUpgradePricingTable"
+import {
+  memberProductPath,
+  memberProductsStatusPath,
+  productPath,
+} from "@/lib/routes"
+import {
+  ProductUpgradeProvisioning,
+  type ProductUpgradePerformanceSnapshot,
+} from "@/components/templates/member/products/ProductUpgradeProvisioning"
+import PurchasePlanToast from "@/components/molecules/PurchasePlanToast"
 import prisma from "@/lib/prisma"
+
+function getTrafficWindowStart() {
+  const start = new Date()
+  start.setUTCHours(0, 0, 0, 0)
+  start.setUTCDate(start.getUTCDate() - 30)
+  return start
+}
+
+async function getPerformanceSnapshot(
+  productId: string,
+): Promise<ProductUpgradePerformanceSnapshot> {
+  const since = getTrafficWindowStart()
+
+  const [productTraffic, siteTraffic, productAnalytics] = await Promise.all([
+    prisma.productTrafficDaily.aggregate({
+      where: {
+        productId,
+        date: { gte: since },
+      },
+      _sum: {
+        pageViews: true,
+        uniqueVisitors: true,
+      },
+    }),
+    prisma.siteTrafficDaily.aggregate({
+      where: {
+        date: { gte: since },
+      },
+      _sum: {
+        pageViews: true,
+        uniqueVisitors: true,
+      },
+    }),
+    prisma.productAnalytics.findUnique({
+      where: { productId },
+      select: { upvotes: true },
+    }),
+  ])
+
+  return {
+    siteUniqueVisitors30d: siteTraffic._sum.uniqueVisitors ?? 0,
+    sitePageViews30d: siteTraffic._sum.pageViews ?? 0,
+    productUniqueVisitors30d: productTraffic._sum.uniqueVisitors ?? 0,
+    productPageViews30d: productTraffic._sum.pageViews ?? 0,
+    productUpvotes: productAnalytics?.upvotes ?? 0,
+  }
+}
 
 export default async function ProductUpgradePage({
   params,
@@ -23,83 +77,52 @@ export default async function ProductUpgradePage({
     unauthorizedRedirect: memberProductsStatusPath("unauthorized"),
   })
 
-  const allPlans = await getPublicPlans().catch(() => [])
-  const paidPlans = allPlans.filter((plan) => (plan.price || 0) > 0)
-
-  const productPlan = await prisma.product.findUnique({
-    where: { id: product.id },
-    select: {
-      plan: {
-        select: {
-          id: true,
-          name: true,
-          type: true,
-          price: true,
-          isDefault: true,
+  const [allPlans, productPlan, performanceSnapshot] = await Promise.all([
+    getPublicPlans().catch(() => []),
+    prisma.product.findUnique({
+      where: { id: product.id },
+      select: {
+        plan: {
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            price: true,
+            isDefault: true,
+          },
         },
       },
-    },
-  })
+    }),
+    getPerformanceSnapshot(product.id),
+  ])
   const currentPlan = productPlan?.plan ?? null
   const lockedPlanType =
     currentPlan && !currentPlan.isDefault && (currentPlan.price ?? 0) > 0
       ? currentPlan.type
       : null
   const upgradePlans = lockedPlanType
-    ? paidPlans.filter((plan) => plan.type === lockedPlanType)
-    : paidPlans
+    ? allPlans.filter(
+        (plan) => (plan.price || 0) === 0 || plan.type === lockedPlanType,
+      )
+    : allPlans
 
   const productHref = memberProductPath(product.slug)
-  const celebrateHref = `${productHref}?celebrate=1`
+  const publicProductHref = productPath(product.slug)
 
   return (
     <div className="px-4 py-8 md:px-8">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 text-center">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
-            Give {product.name} a launch boost
-          </h1>
-          {currentPlan ? (
-            <p className="text-sm text-muted-foreground">
-              You&apos;re currently on the {currentPlan.name} plan.
-            </p>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Pick a paid boost to feature your product across ShipYard HQ.
-            </p>
-          )}
-        </div>
+      <PurchasePlanToast />
+      <div className="mx-auto w-full max-w-[1100px]">
+        <ProductUpgradeProvisioning
+          plans={upgradePlans}
+          productId={product.id}
+          redirectPath={productHref}
+          currentPlanId={currentPlan?.id}
+          lockedPlanType={lockedPlanType}
+          productPublicPath={publicProductHref}
+          performanceSnapshot={performanceSnapshot}
+        />
       </div>
-
-      <div className="mt-10">
-        {paidPlans.length ? (
-          <div className="mx-auto w-full max-w-5xl">
-            <ProductUpgradePricingTable
-              plans={upgradePlans}
-              productId={product.id}
-              redirectPath={productHref}
-              currentPlanId={currentPlan?.id}
-              showTypeToggle={!lockedPlanType}
-            />
-          </div>
-        ) : (
-          <div className="mx-auto max-w-5xl rounded-2xl border border-dashed border-[color:var(--brand-1)/0.15] bg-white/80 px-6 py-10 text-center text-muted-foreground">
-            Paid plans are not available yet. You can continue to your product
-            page and manage upgrades later.
-          </div>
-        )}
-      </div>
-
-      {!currentPlan ? (
-        <div className="mt-6 text-center text-sm text-muted-foreground">
-          <Link
-            href={celebrateHref}
-            className="text-foreground underline-offset-4 transition hover:text-foreground/80 hover:underline"
-          >
-            Continue with free plan
-          </Link>
-        </div>
-      ) : null}
     </div>
   )
 }

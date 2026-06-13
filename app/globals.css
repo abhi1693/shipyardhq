@@ -59,7 +59,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-:where(a[href], button:not(:disabled), [role="button"]:not([aria-disabled="true"]), summary) {
+:where(
+  a[href],
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary
+) {
   cursor: pointer;
 }
 
@@ -196,6 +201,81 @@ body {
 
 .prose :where(:last-child) {
   margin-bottom: 0;
+}
+
+.product-draft-step-content [class*="bg-white/80"] {
+  background-color: #ffffff;
+}
+
+.product-draft-step-content [class*="rounded-xl"][class*="border"] {
+  border-color: #e2e8f0;
+  border-radius: 0.5rem;
+  box-shadow: none;
+}
+
+.product-draft-step-content label {
+  color: #0b1c30;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+.product-draft-step-content [class*="border-t"] {
+  border-color: #e2e8f0;
+}
+
+.product-draft-step-content label[class*="border-2"][class*="border-dashed"],
+.product-draft-step-content [class*="border-dashed"] {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+}
+
+.product-draft-step-content input,
+.product-draft-step-content textarea,
+.product-draft-step-content button[role="combobox"] {
+  min-height: 3rem;
+  border-color: #c4c6cd;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  color: #0b1c30;
+  font-size: 14px;
+  line-height: 20px;
+  box-shadow: none;
+}
+
+.product-draft-step-content input:focus,
+.product-draft-step-content textarea:focus,
+.product-draft-step-content button[role="combobox"]:focus {
+  border-color: #0051d5;
+  box-shadow: 0 0 0 2px rgba(0, 81, 213, 0.16);
+  outline: none;
+}
+
+.product-draft-step-content input::placeholder,
+.product-draft-step-content textarea::placeholder {
+  color: #74777d;
+}
+
+.product-draft-step-content [data-slot="form-description"],
+.product-draft-step-content [class*="text-muted-foreground"] {
+  color: #43474c;
+}
+
+.product-draft-step-content [class*="bg-muted/10"],
+.product-draft-step-content [class*="bg-muted/20"],
+.product-draft-step-content [class*="bg-muted/40"] {
+  background-color: #f8fafc;
+}
+
+.product-draft-step-content [class*="border-dashed"] {
+  border-style: dashed;
+  border-width: 2px;
+}
+
+.product-draft-step-content .prose {
+  color: #0b1c30;
 }
 
 .prose :where(p, ul, ol, blockquote, pre, table) {

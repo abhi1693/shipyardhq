@@ -18,11 +18,12 @@ const SECTION_FIELDS: Record<WizardSectionKey, readonly string[]> = {
     "tagline",
     "description",
     "categoryId",
+    "categoryIds",
     "type",
     "platforms",
     "keywordsText",
   ],
-  media: ["logo", "bannerImage"],
+  media: ["logo", "bannerImage", "videoUrl"],
   pricing: ["pricingModel", "startingPriceCents", "currencyCode"],
   boost: [
     "verificationExpectedTxt",
@@ -32,7 +33,6 @@ const SECTION_FIELDS: Record<WizardSectionKey, readonly string[]> = {
   details: [
     "githubUrl",
     "twitterUrl",
-    "demoUrl",
     "contactEmail",
     "utmCampaign",
     "alternativeIds",

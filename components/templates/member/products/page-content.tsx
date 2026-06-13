@@ -17,8 +17,8 @@ import {
 import { getUserProducts } from "@/actions/member/products/actions"
 import type { MemberProductRow } from "@/app/(member)/member/products/columns"
 import { Image } from "@/components/atoms/image"
+import ProductDraftStartButton from "@/components/pages/products/ProductDraftStartButton"
 import {
-  MEMBER_PRODUCTS_ADD_PATH,
   WHY_SHIPYARD_PATH,
   memberProductAnalyticsPath,
   memberProductDeletePath,
@@ -183,7 +183,11 @@ function ProductTable({
                       </div>
                       <div className="min-w-0">
                         <Link
-                          href={memberProductPath(product.slug)}
+                          href={
+                            product.hasValidatedPlan
+                              ? memberProductPath(product.slug)
+                              : memberProductUpgradePath(product.slug)
+                          }
                           className="block truncate text-[16px] font-bold leading-6 text-black transition-colors hover:text-[#0051d5]"
                         >
                           {product.name}
@@ -306,13 +310,13 @@ function EmptyProductsState() {
         </p>
 
         <div className="mt-8 flex flex-col items-center gap-4">
-          <Link
-            href={MEMBER_PRODUCTS_ADD_PATH}
+          <ProductDraftStartButton
+            mode="member"
             className="inline-flex h-14 items-center justify-center gap-3 rounded-lg bg-black px-8 text-[18px] font-semibold leading-6 text-white shadow-lg shadow-black/10 transition-all hover:bg-[#0051d5] hover:scale-[1.02] active:scale-95"
           >
             <Plus className="size-5" />
             Add new product
-          </Link>
+          </ProductDraftStartButton>
           <Link
             href={WHY_SHIPYARD_PATH}
             className="inline-flex items-center gap-1 text-[12px] font-semibold uppercase tracking-[0.05em] text-[#0051d5] underline-offset-4 hover:underline"
@@ -374,13 +378,13 @@ export async function MemberProductsPageContent() {
             Manage, monitor, and optimize your project portfolio.
           </p>
         </div>
-        <Link
-          href={MEMBER_PRODUCTS_ADD_PATH}
+        <ProductDraftStartButton
+          mode="member"
           className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-black px-6 text-sm font-bold text-white shadow-sm transition-all hover:bg-black/90 active:scale-95"
         >
           <Plus className="size-5" />
           Add new product
-        </Link>
+        </ProductDraftStartButton>
       </div>
 
       <ProductTable products={productRows} total={total} />

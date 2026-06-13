@@ -13,9 +13,10 @@ export type ProductAutofillModelOutput = {
   keywords?: string[] | null
   platforms?: string[] | null
   categoryName?: string | null
+  categoryNames?: string[] | null
   githubUrl?: string | null
   twitterUrl?: string | null
-  demoUrl?: string | null
+  videoUrl?: string | null
   contactEmail?: string | null
   alternativeIds?: string[] | null
 }
@@ -32,9 +33,10 @@ export type ProductAutofillSuggestion = {
   keywords?: string[]
   platforms?: (typeof PLATFORMS)[number][]
   categoryName?: string
+  categoryNames?: string[]
   githubUrl?: string
   twitterUrl?: string
-  demoUrl?: string
+  videoUrl?: string
   contactEmail?: string
   alternativeIds?: string[]
 }
@@ -204,6 +206,23 @@ function normalizeKeywords(values?: string[] | null) {
   return keywords.length ? keywords : undefined
 }
 
+function normalizeCategoryNames(values?: (string | null | undefined)[] | null) {
+  if (!values?.length) return undefined
+  const names: string[] = []
+  const seen = new Set<string>()
+  for (const raw of values) {
+    const str = normalizeString(raw)
+    if (!str) continue
+    const normalized = str.replace(/[\s]{2,}/g, " ")
+    const key = normalized.toLowerCase()
+    if (seen.has(key)) continue
+    seen.add(key)
+    names.push(normalized)
+    if (names.length === 3) break
+  }
+  return names.length ? names : undefined
+}
+
 function normalizeEmail(value?: string | null) {
   const str = normalizeString(value)
   if (!str) return undefined
@@ -278,6 +297,11 @@ export function normalizeProductAutofill(
 
   const categoryName = normalizeString(raw.categoryName)
   if (categoryName) suggestion.categoryName = categoryName
+  const categoryNames = normalizeCategoryNames([
+    ...(raw.categoryNames ?? []),
+    raw.categoryName,
+  ])
+  if (categoryNames) suggestion.categoryNames = categoryNames
 
   const githubUrl = sanitizeUrl(raw.githubUrl)
   if (githubUrl) {
@@ -293,11 +317,11 @@ export function normalizeProductAutofill(
     warnings.push("twitterUrl rejected: invalid URL")
   }
 
-  const demoUrl = sanitizeUrl(raw.demoUrl)
-  if (demoUrl) {
-    suggestion.demoUrl = demoUrl
-  } else if (raw.demoUrl) {
-    warnings.push("demoUrl rejected: invalid URL")
+  const videoUrl = sanitizeUrl(raw.videoUrl)
+  if (videoUrl) {
+    suggestion.videoUrl = videoUrl
+  } else if (raw.videoUrl) {
+    warnings.push("videoUrl rejected: invalid URL")
   }
 
   const contactEmail = normalizeEmail(raw.contactEmail)

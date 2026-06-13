@@ -237,7 +237,7 @@ export async function createProductAction(formData: FormData) {
 
   const githubUrl = formData.get("githubUrl")?.toString().trim()
   const twitterUrl = formData.get("twitterUrl")?.toString().trim()
-  const demoUrl = formData.get("demoUrl")?.toString().trim()
+  const videoUrl = formData.get("videoUrl")?.toString().trim()
   const contactEmail = formData.get("contactEmail")?.toString().trim()
   const utmCampaign = formData.get("utmCampaign")?.toString().trim()
 
@@ -252,9 +252,21 @@ export async function createProductAction(formData: FormData) {
 
   let keywords: string[] | undefined
   let platforms: string[] | undefined
+  let categoryIds: string[] = []
   try {
     const kw = formData.get("keywords")?.toString()
     if (kw) keywords = JSON.parse(kw)
+  } catch {}
+  try {
+    const rawCategoryIds = formData.get("categoryIds")?.toString()
+    if (rawCategoryIds) {
+      const parsed = JSON.parse(rawCategoryIds)
+      if (Array.isArray(parsed)) {
+        categoryIds = parsed
+          .filter((value) => typeof value === "string" && value.length > 0)
+          .map((value) => value as string)
+      }
+    }
   } catch {}
   try {
     const pf = formData.get("platforms")?.toString()
@@ -320,6 +332,9 @@ export async function createProductAction(formData: FormData) {
     }
 
     const uniqueAlternativeIds = Array.from(new Set(alternativeIds))
+    const uniqueCategoryIds = Array.from(
+      new Set(categoryIds.length ? categoryIds : [categoryId]),
+    ).slice(0, 3)
     const uniqueGalleryMediaUrls = Array.from(new Set(galleryMediaUrls)).slice(
       0,
       6,
@@ -334,7 +349,7 @@ export async function createProductAction(formData: FormData) {
         description,
         websiteUrl,
         logo,
-        categoryId,
+        categoryId: uniqueCategoryIds[0] ?? categoryId,
         userId,
         type,
         pricingModel,
@@ -346,6 +361,11 @@ export async function createProductAction(formData: FormData) {
         bannerImage,
         keywords,
         platforms: (platforms as any) ?? undefined,
+        categories: {
+          create: uniqueCategoryIds.map((nextCategoryId) => ({
+            categoryId: nextCategoryId,
+          })),
+        },
         ProductMedia: uniqueGalleryMediaUrls.length
           ? {
               create: uniqueGalleryMediaUrls.map((imageUrl) => ({
@@ -357,7 +377,7 @@ export async function createProductAction(formData: FormData) {
           create: {
             githubUrl,
             twitterUrl,
-            demoUrl,
+            videoUrl,
             contactEmail,
             utmCampaign: utmCampaign || undefined,
           },
@@ -389,7 +409,6 @@ export async function createProductAction(formData: FormData) {
     const sideEffects: Promise<unknown>[] = [
       // Invalidate public caches affected by a new product
       Promise.resolve().then(() => revalidateProducts()),
-      Promise.resolve().then(() => revalidateCategory(categoryId)),
       Promise.resolve().then(() => revalidateLeaderboard()),
       refreshHomepageFeedCacheAfterProductChange("product.created", created.id),
       invalidateSearchSuggestionsAfterProductChange(
@@ -401,6 +420,11 @@ export async function createProductAction(formData: FormData) {
         created.id,
       ),
     ]
+    uniqueCategoryIds.forEach((nextCategoryId) => {
+      sideEffects.push(
+        Promise.resolve().then(() => revalidateCategory(nextCategoryId)),
+      )
+    })
 
     if (uniqueAlternativeIds.length) {
       sideEffects.push(
@@ -454,6 +478,7 @@ export async function updateProductAction(
   data: {
     name: string
     categoryId: string
+    categoryIds?: string[]
     userId: string
     description: string
     tagline: string
@@ -480,7 +505,7 @@ export async function updateProductAction(
     )[]
     githubUrl?: string | null
     twitterUrl?: string | null
-    demoUrl?: string | null
+    videoUrl?: string | null
     contactEmail?: string | null
     utmCampaign?: string | null
     planId?: string | null
@@ -503,7 +528,7 @@ export async function updateProductAction(
     categoryId,
     userId,
     description,
-    demoUrl,
+    videoUrl,
     contactEmail,
     githubUrl,
     twitterUrl,
@@ -521,6 +546,7 @@ export async function updateProductAction(
       verification: true,
       plan: { select: { boostForDays: true, isDefault: true } },
       alternatives: { select: { id: true } },
+      categories: { select: { categoryId: true } },
     },
   })
 
@@ -624,12 +650,28 @@ export async function updateProductAction(
           ),
         )
       : undefined
+    const previousCategoryIds = current.categories?.length
+      ? current.categories.map(
+          (entry: { categoryId: string }) => entry.categoryId,
+        )
+      : [current.categoryId]
+    const nextCategoryIds = Array.from(
+      new Set(
+        Array.isArray(data.categoryIds) && data.categoryIds.length
+          ? data.categoryIds.filter(
+              (value): value is string =>
+                typeof value === "string" && value.length > 0,
+            )
+          : [categoryId],
+      ),
+    ).slice(0, 3)
+    const primaryCategoryId = nextCategoryIds[0] ?? categoryId
 
     const updated = await prisma.product.update({
       where: { id },
       data: {
         name: name.trim(),
-        categoryId,
+        categoryId: primaryCategoryId,
         userId,
         tagline: tagline?.trim(),
         description: description?.trim(),
@@ -642,7 +684,7 @@ export async function updateProductAction(
           update: {
             githubUrl: githubUrl?.trim() || null,
             twitterUrl: twitterUrl?.trim() || null,
-            demoUrl: demoUrl?.trim() || null,
+            videoUrl: videoUrl?.trim() || null,
             contactEmail: contactEmail?.trim() || null,
             utmCampaign: (data.utmCampaign || undefined) ?? undefined,
           },
@@ -662,6 +704,12 @@ export async function updateProductAction(
                 set: nextAlternativeIds.map((altId) => ({ id: altId })),
               }
             : undefined,
+        categories: {
+          deleteMany: {},
+          create: nextCategoryIds.map((nextCategoryId) => ({
+            categoryId: nextCategoryId,
+          })),
+        },
         ...planUpdate,
       },
     })
@@ -693,7 +741,9 @@ export async function updateProductAction(
 
     // Invalidate caches for updated product
     if (typeof id === "string" && id) revalidateProduct(id)
-    revalidateCategory(categoryId)
+    Array.from(new Set([...previousCategoryIds, ...nextCategoryIds])).forEach(
+      (nextCategoryId) => revalidateCategory(nextCategoryId),
+    )
     revalidateLeaderboard()
     await refreshHomepageFeedCacheAfterProductChange("product.updated", id)
     await invalidateSearchSuggestionsAfterProductChange("product.updated", id)
@@ -947,6 +997,7 @@ export async function setProductStatusAction(
       select: {
         status: true,
         userId: true,
+        planId: true,
         planAssignedAt: true,
         plan: { select: { isDefault: true, boostForDays: true } },
       },
@@ -960,6 +1011,10 @@ export async function setProductStatusAction(
       }
     }
 
+    if (!isAdmin && status === "published" && !previous.planId) {
+      return { error: "Select and validate a plan before publishing." }
+    }
+
     const isFreePlan = !previous.plan || previous.plan.isDefault
     const boostAssignedAt = previous.planAssignedAt
     const boostDays = previous.plan?.boostForDays ?? 0
@@ -969,7 +1024,7 @@ export async function setProductStatusAction(
       boostDays > 0 &&
       boostAssignedAt.getTime() + boostDays * 24 * 60 * 60 * 1000 <= Date.now()
 
-    if (!isAdmin && !isFreePlan && !boostExpired) {
+    if (!isAdmin && status !== "published" && !isFreePlan && !boostExpired) {
       return { error: "Status locked while boosted." }
     }
 

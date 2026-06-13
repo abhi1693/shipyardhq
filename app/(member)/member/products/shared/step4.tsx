@@ -4,20 +4,22 @@ import { useEffect, useMemo, useState } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { Button } from "@/components/atoms/button"
 import { FormItem, FormLabel } from "@/components/atoms/form"
-import { Badge } from "@/components/atoms/badge"
 import { toast } from "sonner"
-import { Check, Copy, Loader2 } from "lucide-react"
+import {
+  Check,
+  CheckCircle2,
+  Copy,
+  Loader2,
+  RadioTower,
+  ShieldCheck,
+  Terminal,
+} from "lucide-react"
 import {
   checkDomainTxtAction,
   verifyProductDomainAction,
 } from "@/actions/admin/products/actions"
 import { getRootDomain } from "@/lib/domain"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/atoms/accordion"
+import { DraftFormSection } from "@/components/pages/products/_components/DraftFormSection"
 
 export default function Step3({
   productId,
@@ -45,6 +47,9 @@ export default function Step3({
   }) as boolean | undefined
   const [verifying, setVerifying] = useState(false)
   const [copiedKey, setCopiedKey] = useState<null | "host" | "value">(null)
+  const phasePercent = success ? 100 : verifying ? 90 : 75
+  const circumference = 2 * Math.PI * 80
+  const gaugeOffset = circumference - (phasePercent / 100) * circumference
   const domain = useMemo(() => {
     return getRootDomain(website) ?? ""
   }, [website])
@@ -134,161 +139,237 @@ export default function Step3({
   }
 
   return (
-    <div className="space-y-4">
+    <DraftFormSection
+      title="System Validation & Handshake"
+      description="Verify domain ownership by adding a TXT record to DNS."
+      icon={Terminal}
+    >
       <FormItem>
-        <FormLabel>Verification</FormLabel>
-        <div className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            Optional: verify your website to show a verified badge, build trust,
-            and appear in verified filters.
-          </p>
-
-          <div className="rounded-lg border bg-muted/40 p-3">
-            <div className="mb-2 text-xs text-muted-foreground">
-              Add this TXT record for{" "}
-              <span className="font-medium text-foreground">
-                {domain || "your domain"}
+        <div className="space-y-6">
+          <div className="relative overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-6">
+            <div className="absolute right-4 top-4">
+              <span
+                className={[
+                  "inline-flex items-center gap-2 rounded px-2 py-1 text-[11px] font-semibold uppercase",
+                  success
+                    ? "bg-[#16a34a]/10 text-[#16a34a]"
+                    : checked
+                      ? "bg-[#ffdad6] text-[#93000a]"
+                      : "bg-[#F97316]/10 text-[#F97316]",
+                ].join(" ")}
+              >
+                <span className="relative flex size-2">
+                  {!success && !checked ? (
+                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#F97316] opacity-60" />
+                  ) : null}
+                  <span
+                    className={[
+                      "relative inline-flex size-2 rounded-full",
+                      success
+                        ? "bg-[#16a34a]"
+                        : checked
+                          ? "bg-[#ba1a1a]"
+                          : "bg-[#F97316]",
+                    ].join(" ")}
+                  />
+                </span>
+                {success
+                  ? "Handshake complete"
+                  : checked
+                    ? "Record not found"
+                    : verifying
+                      ? "Verifying DNS"
+                      : "Pending handshake"}
               </span>
-              .
             </div>
 
-            <div className="grid gap-3">
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-xs text-muted-foreground">Type</div>
-                  <div className="font-medium text-foreground">TXT</div>
+            <div className="flex flex-col items-center pt-4">
+              <div className="relative flex size-48 items-center justify-center">
+                <svg
+                  className="size-full -rotate-90"
+                  viewBox="0 0 192 192"
+                  aria-hidden="true"
+                >
+                  <circle
+                    cx="96"
+                    cy="96"
+                    r="80"
+                    fill="transparent"
+                    stroke="#dce9ff"
+                    strokeWidth="8"
+                  />
+                  <circle
+                    cx="96"
+                    cy="96"
+                    r="80"
+                    fill="transparent"
+                    stroke={success ? "#16a34a" : "#0051d5"}
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={gaugeOffset}
+                    className="transition-all duration-700"
+                  />
+                </svg>
+                <div className="absolute flex flex-col items-center">
+                  <span
+                    className={[
+                      "text-[32px] font-bold leading-10",
+                      success ? "text-[#16a34a]" : "text-[#0051d5]",
+                    ].join(" ")}
+                  >
+                    {phasePercent}%
+                  </span>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#43474c]">
+                    Phase complete
+                  </span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-xs text-muted-foreground">Host/Name</div>
-                  <code className="text-foreground">@</code>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => copyToClipboard("@", "host")}
-                  aria-label="Copy host/name"
-                  title={copiedKey === "host" ? "Copied" : "Copy"}
-                >
-                  {copiedKey === "host" ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-xs text-muted-foreground">Value</div>
-                  <code className="block break-all text-xs text-foreground">
-                    {expected || "prod-verif-shipyard-<hash>"}
-                  </code>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() =>
-                    copyToClipboard(
-                      expected || "prod-verif-shipyard-<hash>",
-                      "value",
-                    )
-                  }
-                  disabled={!expected}
-                  aria-label="Copy value"
-                  title={copiedKey === "value" ? "Copied" : "Copy"}
-                >
-                  {copiedKey === "value" ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                </Button>
+              <div className="mt-4 grid w-full max-w-md grid-cols-4 gap-2">
+                {[0, 1, 2, 3].map((index) => (
+                  <div
+                    key={index}
+                    className="h-1 overflow-hidden rounded-full bg-[#dce9ff]"
+                  >
+                    <div
+                      className={[
+                        "h-full rounded-full",
+                        success || index < 3 ? "w-full" : "w-1/2",
+                        success ? "bg-[#16a34a]" : "bg-[#0051d5]",
+                      ].join(" ")}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           </div>
 
-          <Accordion
-            type="single"
-            collapsible
-            className="rounded-lg border bg-background/60"
-          >
-            <AccordionItem value="steps" className="px-3">
-              <AccordionTrigger className="-mx-3 px-3 text-sm hover:no-underline">
-                Setup steps
-              </AccordionTrigger>
-              <AccordionContent className="pb-3">
-                <ol className="list-decimal space-y-1 pl-4 text-xs text-muted-foreground">
-                  <li>
-                    Open your domain&apos;s DNS settings at your provider.
-                  </li>
-                  <li>Add the TXT record exactly as shown above.</li>
-                  <li>Return here and click Verify.</li>
-                </ol>
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="troubleshooting" className="px-3">
-              <AccordionTrigger className="-mx-3 px-3 text-sm hover:no-underline">
-                Troubleshooting
-              </AccordionTrigger>
-              <AccordionContent className="pb-3">
-                <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
-                  <li>
-                    DNS changes can take time to propagate (sometimes hours).
-                  </li>
-                  <li>
-                    Some providers want host <code>@</code>, others want the
-                    root domain.
-                  </li>
-                  <li>
-                    Make sure you added the record to the root domain (not only{" "}
-                    <code>www</code>).
-                  </li>
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-
-          <div className="flex flex-wrap items-center gap-3 pt-1">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleVerify}
-              disabled={verifying}
-            >
-              {verifying ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Checking DNS…
-                </>
-              ) : (
-                "Verify"
-              )}
-            </Button>
-
-            {verifying ? null : checked ? (
-              success ? (
-                <Badge variant="success">Verified</Badge>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Badge variant="destructive">Not found</Badge>
-                  <span className="text-xs text-muted-foreground">
-                    Try again in 5–10 minutes.
-                  </span>
-                </div>
-              )
-            ) : (
-              <span className="text-xs text-muted-foreground">
-                You can verify later—this won&apos;t block publishing.
+          <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
+            <div className="flex flex-col gap-3 border-b border-[#E2E8F0] bg-[#F8FAFC] p-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-2">
+                <ShieldCheck
+                  className="size-5 text-[#0051d5]"
+                  aria-hidden="true"
+                />
+                <h3 className="text-[18px] font-semibold leading-6 text-black">
+                  TXT Record Verification
+                </h3>
+              </div>
+              <span className="w-fit rounded bg-[#dce9ff] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.05em] text-[#43474c]">
+                Domain: {domain || "your domain"}
               </span>
-            )}
+            </div>
+
+            <div className="space-y-6 p-6">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <FormLabel className="text-[12px] uppercase tracking-[0.05em] text-[#43474c]">
+                    Type
+                  </FormLabel>
+                  <div className="rounded-lg border border-[#C4C6CD] bg-[#eff4ff] px-4 py-3 text-sm font-medium text-black">
+                    TXT
+                  </div>
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <FormLabel className="text-[12px] uppercase tracking-[0.05em] text-[#43474c]">
+                    Host / Name
+                  </FormLabel>
+                  <div className="flex items-center justify-between gap-3 rounded-lg border border-[#C4C6CD] bg-[#eff4ff] px-4 py-3">
+                    <code className="select-all text-sm font-medium text-black">
+                      @
+                    </code>
+                    <button
+                      type="button"
+                      className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-[#0051d5] transition-colors hover:text-[#003ea7]"
+                      onClick={() => copyToClipboard("@", "host")}
+                    >
+                      {copiedKey === "host" ? (
+                        <Check className="size-4" aria-hidden="true" />
+                      ) : (
+                        <Copy className="size-4" aria-hidden="true" />
+                      )}
+                      <span className="hidden sm:inline">
+                        {copiedKey === "host" ? "Copied" : "Copy"}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <FormLabel className="text-[12px] uppercase tracking-[0.05em] text-[#43474c]">
+                  Value / Destination
+                </FormLabel>
+                <div className="flex items-center justify-between gap-4 rounded-lg border border-[#C4C6CD] bg-[#eff4ff] px-4 py-3">
+                  <code className="break-all text-sm font-medium text-black">
+                    {expected || "prod-verif-shipyard-<hash>"}
+                  </code>
+                  <button
+                    type="button"
+                    className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-[#0051d5] transition-colors hover:text-[#003ea7] disabled:cursor-not-allowed disabled:opacity-50"
+                    onClick={() =>
+                      copyToClipboard(
+                        expected || "prod-verif-shipyard-<hash>",
+                        "value",
+                      )
+                    }
+                    disabled={!expected}
+                  >
+                    {copiedKey === "value" ? (
+                      <Check className="size-4" aria-hidden="true" />
+                    ) : (
+                      <Copy className="size-4" aria-hidden="true" />
+                    )}
+                    <span className="hidden sm:inline">
+                      {copiedKey === "value" ? "Copied" : "Copy"}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center gap-3 pt-1">
+                <Button
+                  type="button"
+                  className={[
+                    "h-11 rounded-lg px-8 text-sm font-bold text-white shadow-sm transition-all active:scale-95",
+                    success
+                      ? "bg-[#16a34a] hover:bg-[#16a34a]/90"
+                      : "bg-[#0051d5] hover:bg-[#0051d5]/90",
+                  ].join(" ")}
+                  onClick={handleVerify}
+                  disabled={verifying}
+                >
+                  {verifying ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" />
+                      Verifying DNS...
+                    </>
+                  ) : success ? (
+                    <>
+                      <CheckCircle2 className="size-4" />
+                      Verification Success
+                    </>
+                  ) : (
+                    <>
+                      <RadioTower className="size-4" />
+                      Verify Record
+                    </>
+                  )}
+                </Button>
+
+                {!success && checked ? (
+                  <p className="text-xs text-[#93000a]">
+                    TXT record not found yet. DNS changes can take a few minutes
+                    to propagate.
+                  </p>
+                ) : null}
+              </div>
+            </div>
           </div>
         </div>
       </FormItem>
-    </div>
+    </DraftFormSection>
   )
 }
