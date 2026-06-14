@@ -4,6 +4,7 @@ import { getPublicPlans } from "@/actions/public/plans/actions"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import {
   memberProductPath,
+  memberProductUpgradePath,
   memberProductsStatusPath,
   productPath,
 } from "@/lib/routes"
@@ -82,6 +83,7 @@ export default async function ProductUpgradePage({
     prisma.product.findUnique({
       where: { id: product.id },
       select: {
+        subscriptionId: true,
         plan: {
           select: {
             id: true,
@@ -96,17 +98,30 @@ export default async function ProductUpgradePage({
     getPerformanceSnapshot(product.id),
   ])
   const currentPlan = productPlan?.plan ?? null
+  const hasActivePaidSubscription = Boolean(
+    productPlan?.subscriptionId &&
+    currentPlan &&
+    currentPlan.type === "recurring_price" &&
+    !currentPlan.isDefault &&
+    (currentPlan.price ?? 0) > 0,
+  )
   const lockedPlanType =
     currentPlan && !currentPlan.isDefault && (currentPlan.price ?? 0) > 0
       ? currentPlan.type
       : null
-  const upgradePlans = lockedPlanType
-    ? allPlans.filter(
-        (plan) => (plan.price || 0) === 0 || plan.type === lockedPlanType,
-      )
-    : allPlans
+  const checkoutReadyPlans = allPlans.filter(
+    (plan) => (plan.price || 0) === 0 || Boolean(plan.externalId),
+  )
+  const upgradePlans = hasActivePaidSubscription
+    ? allPlans.filter((plan) => plan.id === currentPlan?.id)
+    : lockedPlanType
+      ? checkoutReadyPlans.filter(
+          (plan) => (plan.price || 0) === 0 || plan.type === lockedPlanType,
+        )
+      : checkoutReadyPlans
 
   const productHref = memberProductPath(product.slug)
+  const productUpgradeHref = memberProductUpgradePath(product.slug)
   const publicProductHref = productPath(product.slug)
 
   return (
@@ -117,8 +132,10 @@ export default async function ProductUpgradePage({
           plans={upgradePlans}
           productId={product.id}
           redirectPath={productHref}
+          errorRedirectPath={productUpgradeHref}
           currentPlanId={currentPlan?.id}
           lockedPlanType={lockedPlanType}
+          subscriptionLocked={hasActivePaidSubscription}
           productPublicPath={publicProductHref}
           performanceSnapshot={performanceSnapshot}
         />

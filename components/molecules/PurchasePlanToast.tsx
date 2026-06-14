@@ -50,8 +50,12 @@ export default function PurchasePlanToast() {
     }
 
     if (didShowToast) {
-      // Clean the query string to avoid repeat toasts on refresh
-      router.replace(pathname)
+      // Clean only toast params so non-toast UI state, such as planId, survives.
+      const nextParams = new URLSearchParams(sp.toString())
+      nextParams.delete("error")
+      nextParams.delete("upgraded")
+      const nextQuery = nextParams.toString()
+      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname)
     }
   }, [sp, router, pathname])
 

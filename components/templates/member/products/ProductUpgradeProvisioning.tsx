@@ -1,10 +1,12 @@
 "use client"
 
-import { type KeyboardEvent, useMemo, useState } from "react"
+import { type KeyboardEvent, useMemo, useState, useTransition } from "react"
 import { useSearchParams } from "next/navigation"
-import { CheckCircle2, ShieldCheck, Sparkles } from "lucide-react"
+import { CheckCircle2, CreditCard, ShieldCheck, Sparkles } from "lucide-react"
+import { toast } from "sonner"
 
 import type { PublicPlan } from "@/actions/public/plans/actions"
+import { createBillingPortalAction } from "@/actions/member/billing/portal"
 import { choosePlanAction } from "@/actions/member/products/actions"
 import { Button } from "@/components/atoms/button"
 import ProductBadgeCelebrationDialog from "@/components/molecules/ProductBadgeCelebrationDialog"
@@ -178,24 +180,34 @@ export function ProductUpgradeProvisioning({
   plans,
   productId,
   redirectPath,
+  errorRedirectPath,
   currentPlanId,
   lockedPlanType,
+  subscriptionLocked = false,
   productPublicPath,
   performanceSnapshot = EMPTY_PERFORMANCE_SNAPSHOT,
 }: {
   plans: PublicPlan[]
   productId: string
   redirectPath: string
+  errorRedirectPath?: string
   currentPlanId?: string | null
   lockedPlanType?: PlanType | null
+  subscriptionLocked?: boolean
   productPublicPath?: string
   performanceSnapshot?: ProductUpgradePerformanceSnapshot
 }) {
   const choosePlan = useMemo(
-    () => choosePlanAction.bind(null, { productId, redirectPath }),
-    [productId, redirectPath],
+    () =>
+      choosePlanAction.bind(null, {
+        productId,
+        redirectPath,
+        errorRedirectPath,
+      }),
+    [productId, redirectPath, errorRedirectPath],
   )
   const searchParams = useSearchParams()
+  const [isPortalPending, startPortal] = useTransition()
   const requestedPlanId = searchParams.get("planId")
   const requestedPlan = requestedPlanId
     ? plans.find((plan) => plan.id === requestedPlanId)
@@ -216,17 +228,28 @@ export function ProductUpgradeProvisioning({
     )
   })
   const [badgeDialogOpen, setBadgeDialogOpen] = useState(false)
+  const hasPaidPlanForSelectedType = plans.some(
+    (plan) => (plan.price || 0) > 0 && plan.type === selectedType,
+  )
+  const effectiveSelectedType =
+    !lockedPlanType && !hasPaidPlanForSelectedType && availableTypes[0]?.value
+      ? availableTypes[0].value
+      : selectedType
 
   const visiblePlans = useMemo(() => {
+    if (subscriptionLocked && currentPlanId) {
+      return plans.filter((plan) => plan.id === currentPlanId)
+    }
+
     const freePlans = plans.filter((plan) => (plan.price || 0) === 0)
     const paidPlans = plans.filter(
-      (plan) => (plan.price || 0) > 0 && plan.type === selectedType,
+      (plan) => (plan.price || 0) > 0 && plan.type === effectiveSelectedType,
     )
     return [...freePlans, ...paidPlans].sort((a, b) => {
       const rankDiff = planRank(a) - planRank(b)
       return rankDiff || (a.price || 0) - (b.price || 0)
     })
-  }, [plans, selectedType])
+  }, [currentPlanId, effectiveSelectedType, plans, subscriptionLocked])
 
   const defaultSelected =
     visiblePlans.find((plan) => plan.id === requestedPlanId) ??
@@ -237,9 +260,13 @@ export function ProductUpgradeProvisioning({
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(
     defaultSelected?.id ?? null,
   )
+  const effectiveSelectedPlanId =
+    selectedPlanId && visiblePlans.some((plan) => plan.id === selectedPlanId)
+      ? selectedPlanId
+      : (defaultSelected?.id ?? null)
 
   const selectedPlan =
-    visiblePlans.find((plan) => plan.id === selectedPlanId) ??
+    visiblePlans.find((plan) => plan.id === effectiveSelectedPlanId) ??
     defaultSelected ??
     null
   const metrics = selectedPlan
@@ -253,6 +280,8 @@ export function ProductUpgradeProvisioning({
   const gaugeOffset = circumference - (score / 100) * circumference
 
   function handleTypeChange(nextType: PlanType) {
+    if (subscriptionLocked) return
+
     setSelectedType(nextType)
     const nextPlans = [
       ...plans.filter((plan) => (plan.price || 0) === 0),
@@ -275,9 +304,27 @@ export function ProductUpgradeProvisioning({
     event: KeyboardEvent<HTMLDivElement>,
     planId: string,
   ) {
+    if (subscriptionLocked) return
+
     if (event.key !== "Enter" && event.key !== " ") return
     event.preventDefault()
     setSelectedPlanId(planId)
+  }
+
+  function openBillingPortal() {
+    startPortal(async () => {
+      const result = (await createBillingPortalAction()) as {
+        link?: string
+        error?: string
+      }
+
+      if (result.link) {
+        window.location.href = result.link
+        return
+      }
+
+      toast.error(result.error || "Unable to open billing portal")
+    })
   }
 
   if (!plans.length || !selectedPlan || !metrics) {
@@ -292,10 +339,12 @@ export function ProductUpgradeProvisioning({
     <div className="space-y-10">
       <div className="flex flex-col gap-10 xl:flex-row">
         <section className="flex-1 space-y-4">
-          {availableTypes.length > 1 && !lockedPlanType ? (
+          {availableTypes.length > 1 &&
+          !lockedPlanType &&
+          !subscriptionLocked ? (
             <div className="mb-6 flex w-fit rounded-lg bg-[#eff4ff] p-1">
               {availableTypes.map((option) => {
-                const active = selectedType === option.value
+                const active = effectiveSelectedType === option.value
                 return (
                   <button
                     key={option.value}
@@ -334,7 +383,9 @@ export function ProductUpgradeProvisioning({
                     : "border-[#E2E8F0]",
                 )}
                 onKeyDown={(event) => handlePlanKeyDown(event, plan.id)}
-                onClick={() => setSelectedPlanId(plan.id)}
+                onClick={() => {
+                  if (!subscriptionLocked) setSelectedPlanId(plan.id)
+                }}
               >
                 {rank === 1 ? (
                   <div className="absolute right-0 top-0 rounded-bl-xl bg-[#0051d5] px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.15em] text-white">
@@ -506,7 +557,9 @@ export function ProductUpgradeProvisioning({
               <div className="space-y-3 px-1">
                 <div className="flex items-end justify-between">
                   <div className="text-[11px] font-bold uppercase text-[#43474c]">
-                    Total Due Today
+                    {subscriptionLocked
+                      ? "Current Subscription"
+                      : "Total Due Today"}
                   </div>
                   <div className="text-[18px] font-bold text-[#00162a]">
                     {formatPrice(selectedPlan.price || 0)}
@@ -514,7 +567,18 @@ export function ProductUpgradeProvisioning({
                 </div>
               </div>
 
-              {selectedIsCurrent ? (
+              {subscriptionLocked ? (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  className="h-12 w-full rounded-xl text-[12px] font-bold uppercase tracking-widest"
+                  disabled={isPortalPending}
+                  onClick={openBillingPortal}
+                >
+                  <CreditCard className="size-4" aria-hidden="true" />
+                  {isPortalPending ? "Opening Portal" : "Cancel Subscription"}
+                </Button>
+              ) : selectedIsCurrent ? (
                 <div className="rounded-xl border border-[#16a34a]/20 bg-[#16a34a]/10 px-4 py-3 text-center text-sm font-semibold text-[#16a34a]">
                   This is your current plan
                 </div>
@@ -532,8 +596,9 @@ export function ProductUpgradeProvisioning({
               )}
 
               <p className="text-center text-[10px] leading-relaxed text-[#43474c]">
-                Paid tiers route through checkout. Free placement activates
-                immediately when selected.
+                {subscriptionLocked
+                  ? "Your paid subscription is managed in the billing portal."
+                  : "Paid tiers route through checkout. Free placement activates immediately when selected."}
               </p>
             </div>
           </div>
