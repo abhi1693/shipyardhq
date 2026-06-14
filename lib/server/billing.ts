@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
-import { PlanType, Prisma } from "@/lib/vendor/prisma/client"
+import { PlanType, Prisma, ProductStatus } from "@/lib/vendor/prisma/client"
 import { readMetadataString } from "@/lib/server/subscriptionMetadata"
 import {
   getActiveUserByClerkId,
@@ -13,6 +13,7 @@ import {
 } from "@/lib/server/userStatus"
 import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
 import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
+import { revalidateProduct } from "@/lib/cache/revalidate"
 
 type PlanSummary = {
   id: string
@@ -52,6 +53,20 @@ async function invalidateProductAnalyticsAfterBillingSync(
       invalidateProductAnalyticsRecordCache(productId, "billing.sync"),
     ),
   )
+}
+
+function publishProductData(status?: ProductStatus | null) {
+  if (status === ProductStatus.published) return {}
+  return {
+    status: ProductStatus.published,
+    publishedAt: new Date(),
+  }
+}
+
+function revalidateProductsAfterBillingSync(productIds: string[]) {
+  for (const productId of new Set(productIds)) {
+    if (productId) revalidateProduct(productId, "revalidate")
+  }
 }
 
 export async function syncCurrentUserBilling() {
@@ -96,36 +111,64 @@ export async function syncCurrentUserBilling() {
     page_size: 100,
   } as any)
   const oneTimeProducts = new Set<string>()
+  const oneTimeProductPurchases: Array<{
+    productId: string
+    planId?: string
+    externalId?: string
+  }> = []
   const payments: any[] = (payPage as any)?.items || []
   for (const p of payments) {
+    const metadata =
+      typeof p?.metadata === "object" && p.metadata
+        ? (p.metadata as Record<string, unknown>)
+        : null
+    const productId = readMetadataString(metadata, "productId", "product_id")
+    const planId = readMetadataString(metadata, "planId", "plan_id")
     const cart = (p?.product_cart as any[]) || []
     for (const it of cart) {
       const pid = it?.product_id as string | undefined
-      if (pid) oneTimeProducts.add(pid)
+      if (!pid) continue
+      oneTimeProducts.add(pid)
+      if (productId) {
+        oneTimeProductPurchases.push({
+          productId,
+          planId,
+          externalId: pid,
+        })
+      }
+    }
+    if (productId && planId && cart.length === 0) {
+      oneTimeProductPurchases.push({ productId, planId })
     }
   }
 
-  const plans = (await prisma.plan.findMany({
-    where: {
-      externalId: {
-        in: Array.from(
-          new Set([
-            ...activeProducts,
-            ...cancelledProducts,
-            ...oneTimeProducts,
-          ]),
-        ),
-      },
-    },
-    select: {
-      id: true,
-      externalId: true,
-      type: true,
-      boostForDays: true,
-      isDefault: true,
-      price: true,
-    },
-  })) as PlanSummary[]
+  const externalPlanIds = Array.from(
+    new Set([...activeProducts, ...cancelledProducts, ...oneTimeProducts]),
+  ).filter(Boolean)
+  const internalPlanIds = Array.from(
+    new Set(oneTimeProductPurchases.map((purchase) => purchase.planId)),
+  ).filter(Boolean) as string[]
+  const planWhere: Prisma.PlanWhereInput[] = []
+  if (externalPlanIds.length) {
+    planWhere.push({ externalId: { in: externalPlanIds } })
+  }
+  if (internalPlanIds.length) {
+    planWhere.push({ id: { in: internalPlanIds } })
+  }
+
+  const plans = planWhere.length
+    ? ((await prisma.plan.findMany({
+        where: { OR: planWhere },
+        select: {
+          id: true,
+          externalId: true,
+          type: true,
+          boostForDays: true,
+          isDefault: true,
+          price: true,
+        },
+      })) as PlanSummary[])
+    : []
   const byExternal: Record<string, string> = {}
   const planById = new Map<string, PlanSummary>()
   for (const p of plans) {
@@ -136,6 +179,12 @@ export async function syncCurrentUserBilling() {
   await syncProductPlanSubscriptions({
     userId: user.id,
     subscriptions: items,
+    planById,
+    planIdByExternal: byExternal,
+  })
+  await syncProductPlanPayments({
+    userId: user.id,
+    purchases: oneTimeProductPurchases,
     planById,
     planIdByExternal: byExternal,
   })
@@ -238,6 +287,7 @@ async function syncProductPlanSubscriptions(args: {
       where: { id: { in: productIds }, userId: args.userId },
       select: {
         id: true,
+        status: true,
         planId: true,
         planAssignedAt: true,
         subscriptionId: true,
@@ -259,10 +309,12 @@ async function syncProductPlanSubscriptions(args: {
     if (!product) continue
     const shouldUpdateSubscriptionId =
       subscriptionId && product.subscriptionId !== subscriptionId
+    const shouldPublish = product.status !== ProductStatus.published
     if (
       product.planId === plan.id &&
       product.planAssignedAt &&
-      !shouldUpdateSubscriptionId
+      !shouldUpdateSubscriptionId &&
+      !shouldPublish
     ) {
       continue
     }
@@ -277,6 +329,7 @@ async function syncProductPlanSubscriptions(args: {
       planId: plan.id,
       planAssignedAt,
       ...(subscriptionId ? { subscriptionId } : {}),
+      ...publishProductData(product.status),
     }
     updates.push(
       prisma.product.update({
@@ -311,6 +364,95 @@ async function syncProductPlanSubscriptions(args: {
 
   if (updates.length) {
     await Promise.all(updates)
+    revalidateProductsAfterBillingSync(Array.from(touchedProductIds))
+    await refreshHomepageFeedCacheAfterBillingSync()
+    await invalidateProductAnalyticsAfterBillingSync(
+      Array.from(touchedProductIds),
+    )
+  }
+}
+
+async function syncProductPlanPayments(args: {
+  userId: string
+  purchases: Array<{ productId: string; planId?: string; externalId?: string }>
+  planById: Map<string, PlanSummary>
+  planIdByExternal: Record<string, string>
+}) {
+  const activeByProductId = new Map<string, PlanSummary>()
+
+  for (const purchase of args.purchases) {
+    const planId =
+      (purchase.planId && args.planById.has(purchase.planId)
+        ? purchase.planId
+        : undefined) ||
+      (purchase.externalId ? args.planIdByExternal[purchase.externalId] : null)
+    if (!planId) continue
+
+    const plan = args.planById.get(planId)
+    if (!plan || plan.type !== PlanType.one_time_price) continue
+
+    const existing = activeByProductId.get(purchase.productId)
+    if (!existing || plan.price > existing.price) {
+      activeByProductId.set(purchase.productId, plan)
+    }
+  }
+
+  if (!activeByProductId.size) return
+
+  const products = await prisma.product.findMany({
+    where: {
+      id: { in: Array.from(activeByProductId.keys()) },
+      userId: args.userId,
+    },
+    select: {
+      id: true,
+      status: true,
+      planId: true,
+      planAssignedAt: true,
+      plan: { select: { boostForDays: true, isDefault: true, type: true } },
+    },
+  })
+
+  const productById = new Map(products.map((product) => [product.id, product]))
+  const updates: Array<ReturnType<typeof prisma.product.update>> = []
+  const touchedProductIds = new Set<string>()
+
+  for (const [productId, plan] of activeByProductId.entries()) {
+    const product = productById.get(productId)
+    if (!product) continue
+
+    const shouldPublish = product.status !== ProductStatus.published
+    if (
+      product.planId === plan.id &&
+      product.planAssignedAt &&
+      !shouldPublish
+    ) {
+      continue
+    }
+
+    const planAssignedAt = resolvePlanAssignedAt({
+      currentPlan: product.plan,
+      currentAssignedAt: product.planAssignedAt,
+      newPlan: plan,
+    })
+
+    updates.push(
+      prisma.product.update({
+        where: { id: productId },
+        data: {
+          planId: plan.id,
+          planAssignedAt,
+          subscriptionId: null,
+          ...publishProductData(product.status),
+        },
+      }),
+    )
+    touchedProductIds.add(productId)
+  }
+
+  if (updates.length) {
+    await Promise.all(updates)
+    revalidateProductsAfterBillingSync(Array.from(touchedProductIds))
     await refreshHomepageFeedCacheAfterBillingSync()
     await invalidateProductAnalyticsAfterBillingSync(
       Array.from(touchedProductIds),

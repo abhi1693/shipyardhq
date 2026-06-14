@@ -31,7 +31,7 @@
     }
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3000",
     "build": "next build",
     "build:ci": "npm run build && npm run prisma:seed",
     "start": "next start",

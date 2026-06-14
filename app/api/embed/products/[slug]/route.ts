@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { readFileSync } from "node:fs"
 import path from "node:path"
 
-import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
+import prisma from "@/lib/prisma"
 import { siteConfig } from "@/lib/siteConfig"
 
 export const runtime = "nodejs"
@@ -180,7 +180,10 @@ function buildBaseSvg(options: {
 export async function GET(_req: NextRequest, context: RouteContext) {
   const { slug } = await context.params
   const url = _req.nextUrl
-  const product = await getPublicProductMetaBySlug(slug)
+  const product = await prisma.product.findUnique({
+    where: { slug },
+    select: { name: true },
+  })
   if (!product) {
     return new NextResponse("Badge not found", {
       status: 404,

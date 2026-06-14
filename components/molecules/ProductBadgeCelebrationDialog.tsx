@@ -52,24 +52,24 @@ export function ProductBadgeCelebrationDialog({
   }, [])
 
   const productUrl = useMemo(() => {
-    if (!productPublicPath) return siteConfig.url
+    if (!productPublicPath) return origin
     try {
-      return new URL(productPublicPath, siteConfig.url).toString()
+      return new URL(productPublicPath, origin).toString()
     } catch {
-      return siteConfig.url
+      return origin
     }
-  }, [productPublicPath])
+  }, [origin, productPublicPath])
 
   const productSlug = useMemo(() => {
     if (!productPublicPath) return null
     try {
-      const url = new URL(productPublicPath, siteConfig.url)
+      const url = new URL(productPublicPath, origin)
       const slugCandidate = url.pathname.split("/").filter(Boolean).pop()
       return slugCandidate ?? null
     } catch {
       return null
     }
-  }, [productPublicPath])
+  }, [origin, productPublicPath])
   const isMissingProduct = !productSlug
 
   const baseBadgeUrl = useMemo(() => {
