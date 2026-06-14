@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 
@@ -9,11 +9,16 @@ export default function PurchasePlanToast() {
   const sp = useSearchParams()
   const router = useRouter()
   const pathname = usePathname() ?? "/"
+  const processedToastKey = useRef<string | null>(null)
 
   useEffect(() => {
     if (!sp) return
     const error = sp.get("error")
     const upgraded = sp.get("upgraded")
+    const toastKey = error ? `error:${error}` : upgraded ? "upgraded:1" : null
+
+    if (!toastKey || processedToastKey.current === toastKey) return
+    processedToastKey.current = toastKey
 
     let didShowToast = false
     if (error) {
@@ -35,10 +40,12 @@ export default function PurchasePlanToast() {
                       : error === "must_publish"
                         ? "Publish your listing before boosting."
                         : "Something went wrong. Please try again."
-      toast.error(msg)
+      toast.error(msg, { id: `purchase-plan-${toastKey}` })
       didShowToast = true
     } else if (upgraded === "1") {
-      toast.success("Plan applied to your product.")
+      toast.success("Plan applied to your product.", {
+        id: `purchase-plan-${toastKey}`,
+      })
       didShowToast = true
     }
 
