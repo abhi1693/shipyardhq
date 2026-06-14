@@ -1,6 +1,7 @@
 "use client"
 
 import { type KeyboardEvent, useMemo, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { CheckCircle2, ShieldCheck, Sparkles } from "lucide-react"
 
 import type { PublicPlan } from "@/actions/public/plans/actions"
@@ -194,11 +195,19 @@ export function ProductUpgradeProvisioning({
     () => choosePlanAction.bind(null, { productId, redirectPath }),
     [productId, redirectPath],
   )
+  const searchParams = useSearchParams()
+  const requestedPlanId = searchParams.get("planId")
+  const requestedPlan = requestedPlanId
+    ? plans.find((plan) => plan.id === requestedPlanId)
+    : null
   const availableTypes = PLAN_TYPE_OPTIONS.filter((option) =>
     plans.some((plan) => plan.type === option.value && (plan.price || 0) > 0),
   )
   const [selectedType, setSelectedType] = useState<PlanType>(() => {
     if (lockedPlanType) return lockedPlanType
+    if (requestedPlan && (requestedPlan.price || 0) > 0) {
+      return requestedPlan.type
+    }
     return (
       availableTypes.find((option) => option.value === "recurring_price")
         ?.value ??
@@ -220,6 +229,7 @@ export function ProductUpgradeProvisioning({
   }, [plans, selectedType])
 
   const defaultSelected =
+    visiblePlans.find((plan) => plan.id === requestedPlanId) ??
     visiblePlans.find((plan) => plan.id === currentPlanId) ??
     visiblePlans.find((plan) => planRank(plan) === 1) ??
     visiblePlans[0] ??

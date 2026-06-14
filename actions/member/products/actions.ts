@@ -624,6 +624,7 @@ export async function choosePlanAction(
   "use server"
   const planId = formData.get("planId")?.toString() || ""
   if (!planId) return
+  const selectedPlanParam = `planId=${encodeURIComponent(planId)}`
 
   // Try to start checkout when plan requires payment
   const plan = await prisma.plan.findUnique({
@@ -647,7 +648,7 @@ export async function choosePlanAction(
   const hasPaidPlan =
     !!activePlan && !activePlan.isDefault && (activePlan.price ?? 0) > 0
   if (hasPaidPlan && activePlan.type !== plan.type) {
-    redirect(`${ctx.redirectPath}?error=plan_type_locked`)
+    redirect(`${ctx.redirectPath}?error=plan_type_locked&${selectedPlanParam}`)
   }
 
   // Free plans (no price): attach immediately
@@ -655,7 +656,7 @@ export async function choosePlanAction(
     const verification = await verifyProductBacklinkNow(ctx.productId)
     if (!verification.verified) {
       redirect(
-        `${memberProductUpgradePath(ownership.product.slug)}?error=badge_not_found`,
+        `${memberProductUpgradePath(ownership.product.slug)}?error=badge_not_found&${selectedPlanParam}`,
       )
     }
     await setProductPlanAction(ctx.productId, planId, null)
@@ -664,7 +665,9 @@ export async function choosePlanAction(
 
   // Paid plans must have an externalId to start checkout
   if ((plan.price || 0) > 0 && !plan.externalId) {
-    redirect(`${ctx.redirectPath}?error=plan_not_configured`)
+    redirect(
+      `${ctx.redirectPath}?error=plan_not_configured&${selectedPlanParam}`,
+    )
   }
 
   if (
@@ -701,10 +704,14 @@ export async function choosePlanAction(
           .toLowerCase()
         if (status === 409 && message.includes("previous payment")) {
           console.warn("Subscription change blocked by pending payment")
-          redirect(`${ctx.redirectPath}?error=subscription_payment_pending`)
+          redirect(
+            `${ctx.redirectPath}?error=subscription_payment_pending&${selectedPlanParam}`,
+          )
         }
         console.error("Failed to change subscription plan:", error)
-        redirect(`${ctx.redirectPath}?error=subscription_change_failed`)
+        redirect(
+          `${ctx.redirectPath}?error=subscription_change_failed&${selectedPlanParam}`,
+        )
       }
       redirect(`${ctx.redirectPath}?upgraded=1`)
     }
@@ -718,7 +725,9 @@ export async function choosePlanAction(
   }
 
   // If checkout couldn't be created, do NOT grant the plan
-  redirect(`${ctx.redirectPath}?error=checkout_init_failed`)
+  redirect(
+    `${ctx.redirectPath}?error=checkout_init_failed&${selectedPlanParam}`,
+  )
 }
 
 async function requireOwnedProduct(productId: string) {
