@@ -1,5 +1,5 @@
-import ProductWizardSkeleton from "@/components/pages/products/_components/ProductWizardSkeleton"
+import { EditProductFormSkeleton } from "./form.skeleton"
 
 export default function Loading() {
-  return <ProductWizardSkeleton />
+  return <EditProductFormSkeleton />
 }

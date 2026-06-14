@@ -639,9 +639,18 @@ export function MemberOverviewPageSkeleton() {
       data-slot="member-overview-skeleton"
       aria-busy="true"
     >
-      <header className="space-y-3">
-        <Skeleton className="h-8 w-80 max-w-full rounded-full" tone="soft" />
-        <Skeleton className="h-5 w-96 max-w-full rounded-full" tone="muted" />
+      <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="space-y-3">
+          <Skeleton className="h-9 w-96 max-w-full rounded-lg" tone="soft" />
+          <Skeleton
+            className="h-5 w-[34rem] max-w-full rounded-full"
+            tone="muted"
+          />
+        </div>
+        <Skeleton
+          className="h-11 w-44 rounded-lg bg-slate-950/15"
+          tone="muted"
+        />
       </header>
       <AnalyticsSectionSkeleton />
     </div>

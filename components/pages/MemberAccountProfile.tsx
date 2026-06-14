@@ -37,8 +37,8 @@ import {
   DialogTitle,
 } from "@/components/atoms/dialog"
 import { Input } from "@/components/atoms/input"
-import { Skeleton } from "@/components/atoms/skeleton"
 import { UserAvatarProfile } from "@/components/molecules/UserAvatarProfile"
+import { MemberAccountProfileSkeleton } from "@/components/pages/MemberAccountProfile.skeleton"
 import { HOME_PATH, MEMBER_ACCOUNT_PROFILE_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
@@ -997,23 +997,5 @@ export default function MemberAccountProfile({
 }
 
 function MemberAccountProfileInlineSkeleton() {
-  return (
-    <div className="w-full max-w-[1000px] space-y-8">
-      <div className="space-y-2">
-        <Skeleton className="h-7 w-56 rounded-full" tone="soft" />
-        <Skeleton className="h-4 w-96 max-w-full rounded-full" tone="muted" />
-      </div>
-      <div className="space-y-6">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton
-            key={index}
-            tone="soft"
-            radius="lg"
-            border="muted"
-            className={cn("h-40 rounded-xl", index === 0 && "h-48")}
-          />
-        ))}
-      </div>
-    </div>
-  )
+  return <MemberAccountProfileSkeleton />
 }

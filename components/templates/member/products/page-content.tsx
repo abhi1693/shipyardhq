@@ -28,8 +28,6 @@ import {
 } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
-import { CardSkeleton } from "@/components/atoms/card.skeleton"
-import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 
 const logoToneClasses = [
@@ -268,15 +266,6 @@ function ProductTable({
 function EmptyProductsState() {
   return (
     <div className="relative flex min-h-[calc(100vh-11rem)] items-center justify-center overflow-hidden rounded-xl px-4 py-10 sm:py-14">
-      <div
-        className="absolute inset-0 opacity-40"
-        style={{
-          backgroundImage:
-            "linear-gradient(30deg,#e5eeff 12%,transparent 12.5%,transparent 87%,#e5eeff 87.5%,#e5eeff),linear-gradient(150deg,#e5eeff 12%,transparent 12.5%,transparent 87%,#e5eeff 87.5%,#e5eeff),linear-gradient(60deg,#eff4ff 25%,transparent 25.5%,transparent 75%,#eff4ff 75.5%,#eff4ff)",
-          backgroundPosition: "0 0, 40px 70px, 0 0",
-          backgroundSize: "80px 140px",
-        }}
-      />
       <div className="relative z-10 flex w-full max-w-xl flex-col items-center text-center">
         <div className="group relative mb-6">
           <div className="absolute inset-0 scale-150 rounded-full bg-[#0051d5]/5 blur-3xl" />
@@ -394,21 +383,88 @@ export async function MemberProductsPageContent() {
 
 export function MemberProductsPageSkeleton() {
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-6" aria-hidden="true">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="space-y-3">
-          <HeadingSkeleton lines={1} centered={false} />
-          <Skeleton className="h-4 w-96 max-w-full rounded-full" tone="muted" />
+          <Skeleton className="h-10 w-52 rounded-lg" tone="soft" />
+          <Skeleton className="h-5 w-96 max-w-full rounded-full" tone="muted" />
         </div>
-        <ButtonSkeleton size="lg" labelWidth="9rem" />
+        <ButtonSkeleton
+          size="lg"
+          labelWidth="9rem"
+          className="h-12 rounded-lg"
+        />
       </div>
-      <CardSkeleton
-        tone="soft"
-        radius="lg"
-        lines={8}
-        showFooter
-        className="border border-[#E2E8F0] bg-white"
-      />
+
+      <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-[0px_4px_12px_rgba(0,0,0,0.05)]">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[900px] border-collapse text-left">
+            <thead>
+              <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC]">
+                {[
+                  "Product",
+                  "Category",
+                  "Plan",
+                  "Domain",
+                  "Status",
+                  "Actions",
+                ].map((heading) => (
+                  <th key={heading} className="px-5 py-5 md:px-6">
+                    <Skeleton className="h-3 w-20 rounded-full" tone="muted" />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#E2E8F0]">
+              {Array.from({ length: 5 }).map((_, rowIndex) => (
+                <tr key={rowIndex}>
+                  <td className="px-5 py-6 md:px-6">
+                    <div className="flex items-center gap-4">
+                      <Skeleton className="size-12 rounded-lg" tone="muted" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-36 rounded-full" />
+                        <Skeleton
+                          className="h-3 w-24 rounded-full"
+                          tone="muted"
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-5 py-6 md:px-6">
+                    <Skeleton className="h-6 w-28 rounded-full" tone="soft" />
+                  </td>
+                  <td className="px-5 py-6 md:px-6">
+                    <Skeleton className="h-4 w-20 rounded-full" tone="muted" />
+                  </td>
+                  <td className="px-5 py-6 md:px-6">
+                    <Skeleton
+                      className="mx-auto h-6 w-24 rounded"
+                      tone="soft"
+                    />
+                  </td>
+                  <td className="px-5 py-6 md:px-6">
+                    <Skeleton className="h-6 w-20 rounded" tone="soft" />
+                  </td>
+                  <td className="px-5 py-6 md:px-6">
+                    <div className="flex justify-end gap-2">
+                      {Array.from({ length: 3 }).map((__, actionIndex) => (
+                        <Skeleton
+                          key={actionIndex}
+                          className="size-9 rounded-lg"
+                          tone="muted"
+                        />
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="border-t border-[#E2E8F0] bg-[#F8FAFC] px-5 py-4 md:px-6">
+          <Skeleton className="h-4 w-44 rounded-full" tone="muted" />
+        </div>
+      </div>
     </div>
   )
 }
