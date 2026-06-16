@@ -3,6 +3,11 @@ import { describe, expect, it } from "vitest"
 import robots from "@/app/robots"
 import { buildProductListItem } from "@/lib/seo/product-list"
 import { toAbsoluteUrlFromSite } from "@/lib/seo/base"
+import {
+  FILTERED_BROWSE_ROBOTS,
+  hasBrowseSearchParams,
+  isPlainUseCaseBrowseState,
+} from "@/lib/browse/seo"
 import nextConfig from "@/next.config"
 import {
   dailyLeaderboardPath,
@@ -147,6 +152,50 @@ describe("crawler directives", () => {
         }),
       ]),
     )
+  })
+
+  it("keeps canonical browse indexable and marks filtered browse states noindex", () => {
+    expect(hasBrowseSearchParams({})).toBe(false)
+    expect(isPlainUseCaseBrowseState({ useCase: "launch-marketplace" })).toBe(
+      true,
+    )
+    expect(
+      isPlainUseCaseBrowseState({
+        useCase: "launch-marketplace",
+        page: "1",
+        sort: "new",
+      }),
+    ).toBe(true)
+    expect(
+      hasBrowseSearchParams({
+        tag: "ai-procesi-da871c",
+        badge: "product-of-week-2",
+        sort: "new",
+        category: "developer-tools",
+        pricingModel: "free",
+      }),
+    ).toBe(true)
+    expect(
+      isPlainUseCaseBrowseState({
+        useCase: "launch-marketplace",
+        tag: "ai-procesi-da871c",
+        badge: "trending",
+        sort: "votes",
+        productType: "open-source",
+        platform: "ios",
+        category: "analytics",
+        pricingModel: "free",
+      }),
+    ).toBe(false)
+
+    expect(FILTERED_BROWSE_ROBOTS).toMatchObject({
+      index: false,
+      follow: true,
+      googleBot: {
+        index: false,
+        follow: true,
+      },
+    })
   })
 })
 

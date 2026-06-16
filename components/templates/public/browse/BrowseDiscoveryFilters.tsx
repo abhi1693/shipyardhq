@@ -190,6 +190,7 @@ function FilterOptionSection({
             <Link
               key={item.value}
               scroll={false}
+              rel="nofollow"
               href={filterHref({
                 [paramName]: active ? undefined : item.value,
                 ...getUpdates?.(item, active),
@@ -408,6 +409,7 @@ function PriceRangeSelector({
           <div className="mt-2 flex justify-end">
             <Link
               scroll={false}
+              rel="nofollow"
               href={clearHref}
               className="text-xs font-bold text-[#0051d5] underline-offset-4 hover:underline"
             >
@@ -502,6 +504,7 @@ export function BrowseDiscoveryFilters({
                   <Link
                     key={item.slug}
                     scroll={false}
+                    rel="nofollow"
                     href={filterHref({
                       category: active ? undefined : item.slug,
                       useCase: undefined,
@@ -572,6 +575,7 @@ export function BrowseDiscoveryFilters({
                   <Link
                     key={item.slug}
                     scroll={false}
+                    rel="nofollow"
                     href={filterHref({
                       useCase: active ? undefined : item.slug,
                       category: undefined,
@@ -666,6 +670,7 @@ export function BrowseDiscoveryFilters({
                   <Link
                     key={value}
                     scroll={false}
+                    rel="nofollow"
                     href={filterHref({ sort: active ? undefined : value })}
                     className={
                       active
@@ -680,6 +685,7 @@ export function BrowseDiscoveryFilters({
               })}
               <Link
                 scroll={false}
+                rel="nofollow"
                 href={filterHref({
                   backlinkVerified: current.backlinkVerified
                     ? undefined

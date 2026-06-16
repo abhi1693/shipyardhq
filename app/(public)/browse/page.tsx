@@ -6,6 +6,11 @@ import { BrowsePageSkeleton } from "@/components/templates/public/browse/skeleto
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
 import { buildPageMetadata } from "@/lib/metadata"
+import {
+  FILTERED_BROWSE_ROBOTS,
+  hasBrowseSearchParams,
+  isPlainUseCaseBrowseState,
+} from "@/lib/browse/seo"
 import { BROWSE_PATH, HOME_PATH, usecasePath } from "@/lib/routes"
 
 const PAGE_TITLE = "Browse Products"
@@ -25,13 +30,21 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const params = await props.searchParams
   const useCaseSlug = resolveSingle(params.useCase)
+  const robots = hasBrowseSearchParams(params)
+    ? FILTERED_BROWSE_ROBOTS
+    : undefined
 
-  if (useCaseSlug && useCaseSlug !== "__all__") {
+  if (
+    useCaseSlug &&
+    useCaseSlug !== "__all__" &&
+    isPlainUseCaseBrowseState(params)
+  ) {
     const useCaseMeta = await getPublicUseCaseMeta(useCaseSlug)
     if (useCaseMeta && useCaseMeta.productCount > 0) {
       return {
         ...baseMetadata,
         alternates: { canonical: usecasePath(useCaseMeta.slug) },
+        robots,
       }
     }
   }
@@ -39,6 +52,7 @@ export async function generateMetadata(
   return {
     ...baseMetadata,
     alternates: { canonical: BROWSE_PATH },
+    robots,
   }
 }
 
