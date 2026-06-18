@@ -85,8 +85,6 @@ export default function MemberProductHeaderActions({
     "size-9 rounded-lg border-0 bg-transparent p-0 text-[#ba1a1a] shadow-none hover:bg-[#ffdad6] hover:text-[#93000a]"
   const promoteActionClass =
     "h-9 rounded-lg border border-[#F97316] bg-[#F97316] px-4 text-xs font-semibold uppercase tracking-[0.05em] text-white shadow-sm hover:bg-orange-600 hover:brightness-100"
-  const manageSubscriptionIconActionClass =
-    "size-9 rounded-lg border border-[#00162a] bg-[#00162a] p-0 text-white shadow-sm hover:bg-black hover:brightness-100"
 
   function openBillingPortal() {
     startBillingPortal(async () => {
@@ -143,7 +141,7 @@ export default function MemberProductHeaderActions({
             type="button"
             variant="ghost"
             size="icon"
-            className={manageSubscriptionIconActionClass}
+            className={iconActionClass}
             disabled={isBillingPortalPending}
             onClick={openBillingPortal}
             aria-label={

@@ -112,6 +112,26 @@ const HOMEPAGE_TRAFFIC_CACHE_KEY = buildCacheKey(
 const ANALYTICS_CACHE_PREFIX = buildCacheKey("analytics:cache")
 const ANALYTICS_PAGE_CACHE_PREFIX = buildCacheKey("analytics:page")
 
+function emptyProductTrafficSummary(): ProductTrafficSummary {
+  return {
+    pageViews: 0,
+    uniqueVisitors: 0,
+    newUsers: 0,
+    returningVisitors: 0,
+    sessions: 0,
+    bounceRate: 0,
+    averageSessionDuration: 0,
+    referrers: [],
+    referrerCategories: [],
+    browsers: [],
+    operatingSystems: [],
+    cities: [],
+    countries: [],
+    devices: [],
+    timeseries: [],
+  }
+}
+
 export async function invalidateAnalyticsCache(reason = "manual") {
   const [analytics, pages] = await Promise.all([
     invalidateCacheByPrefix({
@@ -223,8 +243,12 @@ async function fetchProductTrafficWithCache(args: {
   try {
     fresh = await dbAnalyticsProvider.getProductTraffic(args)
   } catch (error) {
-    console.error("[analytics] failed to fetch product traffic", { error })
-    fresh = await gaAnalyticsProvider.getProductTraffic(args)
+    if (!hasGaAnalyticsConfig()) {
+      fresh = emptyProductTrafficSummary()
+    } else {
+      console.error("[analytics] failed to fetch product traffic", { error })
+      fresh = await gaAnalyticsProvider.getProductTraffic(args)
+    }
   }
 
   await cacheMiss({

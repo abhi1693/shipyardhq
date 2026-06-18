@@ -23,6 +23,10 @@ export type HomepageTraffic = {
   trafficSeries: Array<{ date: string; pageViews: number; visitors: number }>
 }
 
+function emptyHomepageTraffic(): HomepageTraffic {
+  return { pageViews30: 0, visitors30: 0, trafficSeries: [] }
+}
+
 export type SiteAnalyticsSnapshot = {
   pageViews: number
   uniqueVisitors: number
@@ -211,6 +215,35 @@ export type GaProductTrafficSummary = {
   }>
 }
 
+function emptyProductTrafficSummary(): GaProductTrafficSummary {
+  return {
+    pageViews: 0,
+    uniqueVisitors: 0,
+    newUsers: 0,
+    returningVisitors: 0,
+    sessions: 0,
+    bounceRate: 0,
+    averageSessionDuration: 0,
+    referrers: [],
+    referrerCategories: [],
+    browsers: [],
+    operatingSystems: [],
+    cities: [],
+    countries: [],
+    devices: [],
+    timeseries: [],
+  }
+}
+
+function isGaConfigError(error: unknown) {
+  const message = String((error as ErrorLike)?.message ?? "").toLowerCase()
+  return (
+    message.includes("ga_credentials_json is missing or invalid") ||
+    message.includes("ga_property_id") ||
+    (message.includes("google analytics") && message.includes("not configured"))
+  )
+}
+
 function jitterCacheKey(baseKey: string) {
   return `${baseKey}:j${CACHE_KEY_JITTER_BUCKET}`
 }
@@ -305,11 +338,11 @@ function parseCredentials(): Record<string, any> | null {
 
   try {
     const maskedSnippet = raw.slice(0, 32)
-    console.error("[analytics] failed to parse GA_CREDENTIALS_JSON", {
+    console.warn("[analytics] failed to parse GA_CREDENTIALS_JSON", {
       maskedSnippet,
     })
   } catch {
-    console.error("[analytics] failed to parse GA_CREDENTIALS_JSON")
+    console.warn("[analytics] failed to parse GA_CREDENTIALS_JSON")
   }
   return null
 }
@@ -753,6 +786,10 @@ export async function getProductTrafficFromGa(args: {
   dateRange: GaDateRange
   includeAdvanced?: boolean
 }): Promise<GaProductTrafficSummary> {
+  if (!hasGaAnalyticsConfig()) {
+    return emptyProductTrafficSummary()
+  }
+
   const includeAdvanced = args.includeAdvanced ?? true
   const dateRange = normalizeGaDateRange(args.dateRange)
   const cacheKey = buildProductTrafficCacheKey({
@@ -796,29 +833,15 @@ export async function getProductTrafficFromGa(args: {
     })
     return fresh
   } catch (error) {
-    console.error("[analytics] failed to fetch GA product traffic", {
-      pagePaths: args.pagePaths,
-      dateRange,
-      includeAdvanced,
-      error,
-    })
-    return {
-      pageViews: 0,
-      uniqueVisitors: 0,
-      newUsers: 0,
-      returningVisitors: 0,
-      sessions: 0,
-      bounceRate: 0,
-      averageSessionDuration: 0,
-      referrers: [],
-      referrerCategories: [],
-      browsers: [],
-      operatingSystems: [],
-      cities: [],
-      countries: [],
-      devices: [],
-      timeseries: [],
+    if (!isGaConfigError(error) && !isTransientGaError(error)) {
+      console.error("[analytics] failed to fetch GA product traffic", {
+        pagePaths: args.pagePaths,
+        dateRange,
+        includeAdvanced,
+        error,
+      })
     }
+    return emptyProductTrafficSummary()
   }
 }
 
@@ -1500,6 +1523,10 @@ async function fetchHomepageTrafficFromGa(): Promise<HomepageTraffic> {
 }
 
 export async function getHomepageTrafficFromGa(): Promise<HomepageTraffic> {
+  if (!hasGaAnalyticsConfig()) {
+    return emptyHomepageTraffic()
+  }
+
   const redis = await getRedisClient().catch(() => null)
   let cachedPayload: HomepageTraffic | null = null
   const cacheKey = jitterCacheKey(CACHE_KEY)
@@ -1532,11 +1559,13 @@ export async function getHomepageTrafficFromGa(): Promise<HomepageTraffic> {
     }
     return fresh
   } catch (error) {
-    console.error("[analytics] failed to fetch GA homepage traffic", error)
+    if (!isGaConfigError(error) && !isTransientGaError(error)) {
+      console.error("[analytics] failed to fetch GA homepage traffic", error)
+    }
     if (cachedPayload) {
       return cachedPayload
     }
-    return { pageViews30: 0, visitors30: 0, trafficSeries: [] }
+    return emptyHomepageTraffic()
   }
 }
 
