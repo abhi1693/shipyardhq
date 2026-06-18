@@ -8,7 +8,6 @@ import {
   BadgeDollarSign,
   Check,
   ImageIcon,
-  Rocket,
   Settings2,
   ShieldCheck,
   SlidersHorizontal,
@@ -377,10 +376,6 @@ export default function AddProductWizard(props: AddProductWizardProps) {
     props.mode === "member"
       ? "Social links and competitor alternatives."
       : "Social links and positioning details."
-  const description =
-    props.mode === "member"
-      ? "Configure the listing, upload launch assets, set pricing, and validate trust signals before publishing."
-      : "Configure the listing, assign ownership, upload launch assets, set pricing, and validate trust signals before publishing."
   const formId =
     props.mode === "admin" ? "admin-add-product-form" : "add-product-form"
 
@@ -389,22 +384,7 @@ export default function AddProductWizard(props: AddProductWizardProps) {
       <div className="relative mx-auto w-full max-w-[1040px] pb-28">
         <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-96 rounded-xl bg-[radial-gradient(rgba(0,81,213,0.07)_1px,transparent_1px)] [background-size:24px_24px]" />
 
-        <div className="mb-8 flex flex-col gap-6">
-          <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
-            <div className="max-w-3xl">
-              <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
-                <Rocket className="h-4 w-4 text-blue-600" aria-hidden="true" />
-                Product Launch Protocol
-              </div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-black">
-                New Product Provisioning
-              </h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                {description}
-              </p>
-            </div>
-          </div>
-
+        <div className="mb-8">
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-white/90 shadow-sm backdrop-blur">
             <div className="grid gap-px bg-slate-200 md:grid-cols-5">
               {WIZARD_PHASES.map((phase, index) => {

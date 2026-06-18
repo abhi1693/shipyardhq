@@ -18,9 +18,16 @@ function formatTitleSegment(segment: string) {
 
 function getPageTitle(pathname: string) {
   const segments = pathname.split("/").filter(Boolean)
+  const productsIndex = segments.indexOf("products")
+  const isAddProductFlow =
+    productsIndex >= 0 && segments[productsIndex + 1] === "add"
   const pageSegment =
     [...segments].reverse().find((segment) => !SECTION_SEGMENTS.has(segment)) ??
     "overview"
+
+  if (isAddProductFlow) {
+    return "Add product"
+  }
 
   return formatTitleSegment(pageSegment)
 }

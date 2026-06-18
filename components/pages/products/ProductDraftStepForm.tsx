@@ -284,14 +284,6 @@ export default function ProductDraftStepForm(props: ProductDraftStepFormProps) {
 
   return (
     <section className="w-full space-y-6">
-      <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="mb-1 text-[32px] font-bold leading-10 text-black">
-            Add product
-          </h1>
-        </div>
-      </header>
-
       <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-[0px_4px_12px_rgba(0,0,0,0.05)]">
         <div className="overflow-x-auto">
           <div className="flex min-w-[760px] items-center px-4 py-3">
