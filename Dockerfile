@@ -30,7 +30,9 @@ RUN apt-get update \
 
 COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --chown=nextjs:nodejs . .
-RUN chmod +x /app/docker-entrypoint.sh
+RUN mkdir -p /app/.next \
+  && chown nextjs:nodejs /app /app/.next \
+  && chmod +x /app/docker-entrypoint.sh
 
 ARG APP_VERSION=0.0.0
 ENV APP_VERSION=$APP_VERSION
