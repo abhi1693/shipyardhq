@@ -13,7 +13,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts --legacy-peer-deps
+RUN npm ci --ignore-scripts
 
 FROM base AS runner
 

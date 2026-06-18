@@ -5,7 +5,6 @@
 @import "./_public-common.css";
 
 @source "./browse/**/*.{js,ts,jsx,tsx,mdx}";
-@source "../../components/molecules/BrowseFilterBar.tsx";
 @source "../../components/molecules/CategoryIcons.tsx";
 @source "../../components/molecules/InfiniteProductGrid.tsx";
 @source "../../components/molecules/InlineSelect.tsx";

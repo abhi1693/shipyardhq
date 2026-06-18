@@ -1,12 +1,16 @@
 import { NextRequest } from "next/server"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-const productMocks = vi.hoisted(() => ({
-  getPublicProductMetaBySlug: vi.fn(),
+const prismaMocks = vi.hoisted(() => ({
+  findUnique: vi.fn(),
 }))
 
-vi.mock("@/actions/public/products/actions", () => ({
-  getPublicProductMetaBySlug: productMocks.getPublicProductMetaBySlug,
+vi.mock("@/lib/prisma", () => ({
+  default: {
+    product: {
+      findUnique: prismaMocks.findUnique,
+    },
+  },
 }))
 
 import { GET } from "@/app/api/embed/products/[slug]/route"
@@ -19,8 +23,8 @@ async function callBadgeRoute(url: string, slug = "openclaw-mission-control") {
 
 describe("product embed badge route", () => {
   beforeEach(() => {
-    productMocks.getPublicProductMetaBySlug.mockReset()
-    productMocks.getPublicProductMetaBySlug.mockResolvedValue({
+    prismaMocks.findUnique.mockReset()
+    prismaMocks.findUnique.mockResolvedValue({
       name: "OpenClaw Mission Control",
     })
   })
@@ -55,7 +59,7 @@ describe("product embed badge route", () => {
   })
 
   it("returns 404 when the product is not public", async () => {
-    productMocks.getPublicProductMetaBySlug.mockResolvedValueOnce(null)
+    prismaMocks.findUnique.mockResolvedValueOnce(null)
 
     const response = await callBadgeRoute(
       "https://shipyardhq.dev/api/embed/products/missing-product?format=png",
