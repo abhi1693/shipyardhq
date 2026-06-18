@@ -1,28 +1,5 @@
 import { notFound, redirect } from "next/navigation"
-import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
-import { OverviewRow } from "@/components/layout/object-view/overview"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/atoms/card"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/atoms/accordion"
-import {
-  formatBoolean,
-  formatCurrency,
-  formatDate,
-  image,
-  placeholder,
-  slug as slugFmt,
-} from "@/lib/ui/formatters"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
+import { formatDate } from "@/lib/ui/formatters"
 import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
 import { getProductById } from "@/actions/admin/products/actions"
 import { requireManageableProduct } from "@/lib/server/productAccess"
@@ -44,24 +21,69 @@ import {
   productPath,
 } from "@/lib/routes"
 import {
-  IconBrandGithub as GithubIcon,
-  IconBrandTwitter as TwitterIcon,
-} from "@tabler/icons-react"
-import { CheckCircle2, Circle, LockKeyhole, Mail, Video } from "lucide-react"
-import PerformanceCard from "@/components/molecules/PerformanceCard"
+  ArrowUp,
+  CheckCircle2,
+  ExternalLink,
+  LockKeyhole,
+  MapPin,
+  Megaphone,
+  Rocket,
+  Share2,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react"
 import { getPublicPlans } from "@/actions/public/plans/actions"
 // startPlanCheckoutAction and setProductPlanAction are used inside choosePlanAction
 import { hasPlanFeature } from "@/lib/features"
 import { resolveProductAnalyticsAccess } from "@/lib/server/analytics/productAnalytics"
 import PurchasePlanToast from "@/components/molecules/PurchasePlanToast"
 import ProductBadgeCelebrationGate from "@/components/molecules/ProductBadgeCelebrationGate"
-import { JSX } from "react"
-import { getRecentProductUpvoters } from "@/lib/server/productUpvotes"
 import MemberProductHeaderActions from "@/components/molecules/MemberProductHeaderActions"
+import { getProductTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
+import { Image } from "@/components/atoms/image"
+import { cn } from "@/lib/utils"
+import { PrivateHeaderSlot } from "@/components/layout/headers/private-header-slot"
 
-const chipIconClass = "h-3.5 w-3.5 text-muted-foreground"
 const dashedCalloutClass =
   "rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-3"
+const panelClass =
+  "rounded-lg border border-[#E2E8F0] bg-white p-5 shadow-[0_4px_12px_rgba(15,23,42,0.04)]"
+const panelTitleClass = "text-base font-semibold text-[#0b1c30]"
+const mutedTextClass = "text-sm text-[#43474c]"
+
+function initials(value: string) {
+  const parts = value.trim().split(/\s+/).filter(Boolean)
+  return (parts[0]?.[0] ?? "P") + (parts[1]?.[0] ?? "")
+}
+
+function humanize(value?: string | null) {
+  if (!value) return "Not set"
+  return value.replace(/_/g, " ")
+}
+
+function formatCompactNumber(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: value >= 10000 ? 1 : 0,
+  }).format(Math.max(0, value))
+}
+
+function formatFullNumber(value: number) {
+  return new Intl.NumberFormat("en-US").format(Math.max(0, value))
+}
+
+function formatSignedPercent(value?: number | null) {
+  if (!Number.isFinite(value ?? NaN)) return "0%"
+  const rounded = Math.round((value ?? 0) * 10) / 10
+  const prefix = rounded > 0 ? "+" : ""
+  return `${prefix}${rounded}%`
+}
+
+function sharePercent(value: number, total: number) {
+  if (total <= 0) return 0
+  return Math.min(100, Math.max(0, (value / total) * 100))
+}
 
 export default async function ViewUserProductPage({
   params,
@@ -111,10 +133,21 @@ export default async function ViewUserProductPage({
     featureEntitlements: product.featureEntitlements ?? [],
   })
   const canViewAnalytics = hasBasicAnalytics
-  const upvoters = await getRecentProductUpvoters(productId, 8).catch(() => [])
   const isFreePlan = !product.plan || product.plan.isDefault
-
-  const allPlans = await getPublicPlans().catch(() => [])
+  const [allPlans, trafficSummary] = await Promise.all([
+    getPublicPlans().catch(() => []),
+    getProductTrafficSummary(productId, {
+      rangeDays: 30,
+      includeAdvanced: canViewAnalytics,
+      previousComparison: true,
+    }).catch((error) => {
+      console.error("Failed to load product traffic summary", {
+        productId,
+        error,
+      })
+      return null
+    }),
+  ])
   const currentPlanPublic = allPlans.find((p) => p.id === product.plan?.id)
   const sortedPlans = [...allPlans].sort(
     (a, b) => (a.price ?? 0) - (b.price ?? 0),
@@ -154,9 +187,6 @@ export default async function ViewUserProductPage({
     style: "currency",
     currency: "USD",
   })
-  const percentFormatter = new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: 2,
-  })
   const getPlanPricing = (plan: (typeof allPlans)[number]) => {
     const pctRaw = plan.discount ?? 0
     const pct = Math.min(Math.max(pctRaw, 0), 100)
@@ -195,61 +225,9 @@ export default async function ViewUserProductPage({
     }
   }
 
-  const platforms = (product.platforms || []).map((platform: string) =>
-    platform.replace(/_/g, " "),
-  )
   const tags = product.keywords || []
-  const alternativesList = Array.isArray(product.alternatives)
-    ? product.alternatives
-    : []
   const websiteHost = formatHost(product.websiteUrl) ?? product.websiteUrl
   const metadata = product.metadata
-
-  const extraLinks: Array<{
-    key: string
-    label: string
-    href: string
-    icon: JSX.Element
-  }> = []
-
-  if (metadata?.githubUrl) {
-    const href = metadata.githubUrl
-    extraLinks.push({
-      key: "github",
-      label: formatHost(href) ?? href,
-      href,
-      icon: <GithubIcon className={chipIconClass} />,
-    })
-  }
-
-  if (metadata?.twitterUrl) {
-    const href = metadata.twitterUrl
-    extraLinks.push({
-      key: "twitter",
-      label: formatHost(href) ?? href,
-      href,
-      icon: <TwitterIcon className={chipIconClass} />,
-    })
-  }
-
-  if (metadata?.videoUrl) {
-    const href = metadata.videoUrl
-    extraLinks.push({
-      key: "video",
-      label: formatHost(href) ?? href,
-      href,
-      icon: <Video className={chipIconClass} />,
-    })
-  }
-
-  if (metadata?.contactEmail) {
-    extraLinks.push({
-      key: "contact",
-      label: metadata.contactEmail,
-      href: `mailto:${metadata.contactEmail}`,
-      icon: <Mail className={chipIconClass} />,
-    })
-  }
 
   const descriptionLength = (product.description || "").trim().length
   const descriptionReady = descriptionLength >= 200
@@ -337,21 +315,6 @@ export default async function ViewUserProductPage({
       complete: product.status === "published",
     },
   ]
-  const checklistCompleted = listingChecklistItems.filter(
-    (i) => i.complete,
-  ).length
-  const checklistTotal = listingChecklistItems.length
-  const checklistPct = checklistTotal
-    ? Math.round((checklistCompleted / checklistTotal) * 100)
-    : 0
-  const nextChecklistAction = listingChecklistItems.find(
-    (item) => !item.complete && item.href,
-  )
-  const nextChecklistLabel =
-    nextChecklistAction?.label ??
-    (product.status !== "published" ? "Publish your listing" : null)
-  const nextChecklistHref = nextChecklistAction?.href ?? null
-
   const upvoteCount = product.analytics?.upvotes ?? 0
   const publishPrereqsComplete = listingChecklistItems
     .filter((item) => item.key !== "publish")
@@ -383,7 +346,7 @@ export default async function ViewUserProductPage({
     boostMode === "publish_and_boost"
       ? "Publish + boost"
       : boostMode === "finish_setup"
-        ? "Finish setup to boost"
+        ? "View upgrade options"
         : upvoteCount === 0
           ? "Boost to get featured"
           : "Boost listing"
@@ -391,7 +354,7 @@ export default async function ViewUserProductPage({
     boostMode === "publish_and_boost"
       ? "We’ll publish your listing and start checkout."
       : boostMode === "finish_setup"
-        ? "Boosts start after you publish."
+        ? "Choose a boost now; it starts after you publish."
         : null
   const boostTimingText =
     product.status === "published"
@@ -399,8 +362,34 @@ export default async function ViewUserProductPage({
       : "Starts after publish"
   const boostFormAction =
     boostMode === "publish_and_boost" ? publishAndBoost : choosePlan
-  const boostSetupHref = nextChecklistHref ?? editPath
 
+  const pageViews30d = trafficSummary?.totalViews ?? 0
+  const visitors30d = trafficSummary?.uniqueVisitors ?? 0
+  const viewsDelta = trafficSummary?.totalViewsChange ?? 0
+  const trafficTrendPositive = viewsDelta >= 0
+  const trafficBars = trafficSummary?.viewsOverTime.slice(-8) ?? []
+  const trafficBarMax = Math.max(1, ...trafficBars.map((point) => point.views))
+  const topReferrers = trafficSummary?.referrerBreakdown.slice(0, 3) ?? []
+  const totalReferrerViews = topReferrers.reduce(
+    (sum, item) => sum + item.views,
+    0,
+  )
+  const topCountries = trafficSummary?.countryBreakdown.slice(0, 3) ?? []
+  const totalCountryViews = topCountries.reduce(
+    (sum, item) => sum + item.views,
+    0,
+  )
+  const publicUrl = `shipyardhq.com${publicPath}`
+  const verificationStatus = product.verification?.isVerified
+    ? "Verified"
+    : product.verification
+      ? "Pending"
+      : "Not configured"
+  const verificationTone = product.verification?.isVerified
+    ? "text-emerald-700"
+    : product.verification
+      ? "text-amber-700"
+      : "text-slate-500"
   return (
     <>
       <ProductBadgeCelebrationGate
@@ -408,86 +397,37 @@ export default async function ViewUserProductPage({
         productPublicPath={publicPath}
       />
       <PurchasePlanToast />
-      <ObjectPageLayout
-        heading={{
-          id: product.slug,
-          title: product.name,
-          createdAt: product.createdAt,
-          updatedAt: product.updatedAt,
-          subtitle: product.tagline,
-        }}
-        overview={[
-          {
-            label: "Readiness",
-            value: (
-              <div className="space-y-1">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>
-                    {checklistCompleted}/{checklistTotal} complete
-                  </span>
-                  <span className="font-medium text-foreground">
-                    {checklistPct}%
-                  </span>
-                </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/70">
-                  <div
-                    className="h-full rounded-full bg-slate-900"
-                    style={{ width: `${checklistPct}%` }}
-                  />
-                </div>
-                {nextChecklistLabel ? (
-                  <div className="text-xs text-muted-foreground">
-                    Next:{" "}
-                    {nextChecklistHref ? (
-                      <Link
-                        href={nextChecklistHref}
-                        className="text-primary hover:underline"
-                      >
-                        {nextChecklistLabel}
-                      </Link>
-                    ) : (
-                      <span className="text-foreground">
-                        {nextChecklistLabel}
-                      </span>
-                    )}
-                  </div>
-                ) : null}
+      <PrivateHeaderSlot>
+        <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded bg-[#061d31] text-xs font-semibold text-white">
+              {product.logo ? (
+                <Image
+                  src={product.logo}
+                  alt={`${product.name} logo`}
+                  width={32}
+                  height={32}
+                  className="h-full w-full object-contain"
+                  eager
+                />
+              ) : (
+                initials(product.name)
+              )}
+            </div>
+            <div className="min-w-0">
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
+                <h1 className="truncate text-lg font-semibold text-[#00162a]">
+                  {product.name}
+                </h1>
+                <span className="rounded border border-[#F97316]/20 bg-[#F97316]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-[#F97316]">
+                  {humanize(product.status)}
+                </span>
               </div>
-            ),
-          },
-          { label: "Category", value: product.category.name },
-          { label: "Type", value: product.type.replace("_", " ") },
-          {
-            label: "Pricing",
-            value: (
-              <span>
-                {product.pricingModel.replace("_", " ")}
-                {product.startingPriceCents != null && product.currencyCode ? (
-                  <>
-                    {" "}
-                    —{" "}
-                    {formatCurrency(
-                      product.startingPriceCents,
-                      product.currencyCode,
-                    )}
-                  </>
-                ) : null}
-              </span>
-            ),
-          },
-          ...(product.verification
-            ? ([
-                {
-                  label: "Verified",
-                  value: formatBoolean(product.verification.isVerified),
-                },
-              ] as const)
-            : []),
-        ]}
-        basePath="member/products"
-        deletable={false}
-        editable={false}
-        headingActionsLeft={
+              <p className="truncate text-xs text-[#71869e]">
+                {product.tagline || websiteHost}
+              </p>
+            </div>
+          </div>
           <MemberProductHeaderActions
             productId={product.id}
             status={product.status as any}
@@ -500,665 +440,461 @@ export default async function ViewUserProductPage({
             upgradePath={upgradePath}
             deletePath={memberProductDeletePath(product.slug)}
             canDelete={isOwner}
+            showStatus={false}
+            className="justify-start lg:justify-end"
           />
-        }
-        topRowExtras={[
-          nextPlan ? (
-            <Card key="boost-upsell">
-              <CardHeader className="pb-0">
-                <CardTitle className="text-base">{boostCardTitle}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="text-xs text-muted-foreground">
-                      Recommended boost
-                    </div>
-                    <div className="text-sm font-semibold text-foreground">
-                      {nextPlan.name}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Featured for {nextPlan.boostForDays ?? 1} day(s) •{" "}
-                      {boostTimingText}
-                    </div>
-                  </div>
-                  {(() => {
-                    const pricing = getPlanPricing(nextPlan)
-                    return (
-                      <div className="text-right">
-                        {pricing.original ? (
-                          <div className="text-xs text-muted-foreground line-through">
-                            {pricing.original}
-                          </div>
-                        ) : (
-                          <div className="h-4" />
-                        )}
-                        <div className="text-2xl font-semibold text-foreground">
-                          {pricing.priceText}
-                        </div>
-                        {pricing.pct > 0 ? (
-                          <div className="mt-1 inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
-                            Save {percentFormatter.format(pricing.pct)}%
-                          </div>
-                        ) : null}
-                      </div>
-                    )
-                  })()}
-                </div>
-
-                {nextPlanHighlights.length ? (
-                  <div className={dashedCalloutClass}>
-                    <div className="text-xs font-semibold text-foreground">
-                      You&apos;ll unlock
-                    </div>
-                    <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-                      {nextPlanHighlights.map((f) => (
-                        <li key={f.id}>+ {f.name}</li>
-                      ))}
-                      {nextPlanHighlightCount > nextPlanHighlights.length ? (
-                        <li key="more">
-                          …and{" "}
-                          {nextPlanHighlightCount - nextPlanHighlights.length}{" "}
-                          more benefits
-                        </li>
-                      ) : null}
-                    </ul>
-                  </div>
-                ) : nextPlan.description ? (
-                  <p className="text-xs text-muted-foreground">
-                    {nextPlan.description}
-                  </p>
-                ) : null}
-
-                <div className="space-y-2">
-                  <div className="flex flex-wrap items-center gap-3">
-                    {boostMode === "finish_setup" ? (
-                      <Button size="sm" className="h-9 px-4" asChild>
-                        <Link href={boostSetupHref}>{boostCtaLabel}</Link>
-                      </Button>
-                    ) : (
-                      <form action={boostFormAction}>
-                        <input
-                          type="hidden"
-                          name="planId"
-                          value={nextPlan.id}
-                        />
-                        <Button size="sm" className="h-9 px-4">
-                          {boostCtaLabel}
-                        </Button>
-                      </form>
-                    )}
-                    <Link
-                      href={upgradePath}
-                      className="text-xs text-primary hover:underline"
-                    >
-                      Compare boosts
-                    </Link>
-                  </div>
-                  {boostCtaHint ? (
-                    <div className="text-xs text-muted-foreground">
-                      {boostCtaHint}
-                    </div>
-                  ) : null}
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  <span>
-                    Current:{" "}
-                    <span className="font-medium text-foreground">
-                      {product.plan?.name ?? "Free"}
-                    </span>
-                  </span>
-                  {isFreePlan ? <Badge variant="secondary">Free</Badge> : null}
-                </div>
-              </CardContent>
-            </Card>
-          ) : null,
-        ]}
-        relationships={
+        </div>
+      </PrivateHeaderSlot>
+      <main className="-m-4 min-h-screen bg-[#F8FAFC] text-[#0b1c30] md:-m-6">
+        <div className="w-full p-4 md:p-6">
           <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-12 md:col-span-4 md:order-2 space-y-6">
-              <PerformanceCard
-                upvotes={product.analytics?.upvotes ?? 0}
-                upvoters={upvoters as any}
-                badges={(product.ProductBadge || []) as any}
-                productName={product.name}
-                tagline={product.tagline}
-                hasBanner={Boolean(product.bannerImage)}
-                ogImageUrl={product.bannerImage || product.logo}
-                editHref={editPath}
-              />
-              <Card>
-                <CardHeader className="pb-0">
-                  <CardTitle className="text-base">Launch checklist</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 text-sm">
-                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-                    <span>
-                      {checklistCompleted}/{checklistTotal} complete
-                    </span>
-                    {nextChecklistLabel ? (
-                      nextChecklistHref ? (
-                        <Link
-                          href={nextChecklistHref}
-                          className="text-primary hover:underline"
-                        >
-                          Focus: {nextChecklistLabel}
-                        </Link>
-                      ) : (
-                        <span className="text-foreground">
-                          Focus: {nextChecklistLabel}
-                        </span>
-                      )
-                    ) : (
-                      <span className="text-foreground">All set</span>
-                    )}
+            <div className="col-span-12 space-y-6 xl:col-span-8">
+              <section className={panelClass}>
+                <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h2 className={panelTitleClass}>Live Performance Pulse</h2>
+                    <p className={mutedTextClass}>Last 30 days</p>
                   </div>
-
-                  <ul className="space-y-1">
-                    {listingChecklistItems.map((item) => {
-                      const icon = item.complete ? (
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-700" />
-                      ) : (
-                        <Circle className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                      )
-
-                      const body = (
-                        <>
-                          {icon}
-                          <div className="flex-1">
-                            <div className="text-sm text-foreground">
-                              {item.label}
-                            </div>
-                            {item.note ? (
-                              <div className="text-xs text-muted-foreground">
-                                {item.note}
-                              </div>
-                            ) : null}
-                          </div>
-                          {!item.complete ? (
-                            <span className="mt-0.5 text-xs text-primary opacity-0 transition group-hover:opacity-100">
-                              Fix
-                            </span>
-                          ) : null}
-                        </>
-                      )
-
-                      return (
-                        <li key={item.key}>
-                          {item.href ? (
-                            <Link
-                              href={item.href}
-                              className="group flex items-start gap-2 rounded-md px-2 py-2 transition hover:bg-slate-50"
-                            >
-                              {body}
-                            </Link>
-                          ) : (
-                            <div className="flex items-start gap-2 rounded-md px-2 py-2">
-                              {icon}
-                              <div className="flex-1">
-                                <div className="text-sm text-foreground">
-                                  {item.label}
-                                </div>
-                                {item.note ? (
-                                  <div className="text-xs text-muted-foreground">
-                                    {item.note}
-                                  </div>
-                                ) : null}
-                              </div>
-                            </div>
-                          )}
-                        </li>
-                      )
-                    })}
-                  </ul>
-
-                  <div className={dashedCalloutClass}>
-                    <div className="flex items-start justify-between gap-3 text-xs text-muted-foreground">
-                      <div className="flex items-start gap-2">
-                        {canViewAnalytics ? (
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-700" />
-                        ) : (
-                          <LockKeyhole className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                        )}
-                        <div className="space-y-0.5">
-                          <div className="font-medium text-foreground">
-                            Analytics
-                          </div>
-                          <div>
-                            {canViewAnalytics
-                              ? "Open analytics for this product."
-                              : "Locked on free. Unlock with a boost."}
-                          </div>
-                        </div>
-                      </div>
+                  <div
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold",
+                      trafficTrendPositive
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "bg-rose-50 text-rose-700",
+                    )}
+                  >
+                    <TrendingUp className="size-4" aria-hidden />
+                    {formatSignedPercent(viewsDelta)}
+                  </div>
+                </div>
+                <div className="grid gap-5 md:grid-cols-[1fr_1fr_1.4fr]">
+                  <div>
+                    <p className="text-xs font-semibold text-[#71869e]">
+                      Total Upvotes
+                    </p>
+                    <p className="mt-1 text-4xl font-semibold text-[#00162a]">
+                      {formatCompactNumber(upvoteCount)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-[#71869e]">
+                      Page Views
+                    </p>
+                    <p className="mt-1 text-4xl font-semibold text-[#00162a]">
+                      {formatCompactNumber(pageViews30d)}
+                    </p>
+                    <p className="mt-1 text-xs text-[#71869e]">
+                      {formatFullNumber(visitors30d)} unique visitors
+                    </p>
+                  </div>
+                  <div className="flex min-h-24 flex-col justify-end">
+                    <div className="mb-2 flex items-center justify-between text-xs text-[#0051d5]">
+                      <span className="font-semibold">Traffic trend</span>
                       <Link
                         href={canViewAnalytics ? analyticsPath : upgradePath}
-                        className="mt-0.5 shrink-0 text-primary hover:underline"
+                        className="hover:underline"
                       >
-                        {canViewAnalytics ? "Open" : "Unlock"}
+                        {canViewAnalytics ? "Open analytics" : "Unlock"}
                       </Link>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            <Card className="col-span-12 md:col-span-8 md:order-1">
-              <CardHeader className="pb-0">
-                <CardTitle className="text-base">Listing details</CardTitle>
-              </CardHeader>
-              <CardContent className="px-0">
-                <Accordion type="multiple" className="w-full">
-                  <AccordionItem value="branding" className="px-6">
-                    <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
-                      <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
-                        <div className="flex min-w-0 flex-col gap-1">
-                          <span className="font-semibold text-slate-900">
-                            Branding
-                          </span>
-                          <span className="text-xs font-normal text-muted-foreground">
-                            Slug, logo, banner, and screenshots.
-                          </span>
-                        </div>
-                        <div className="pt-0.5 shrink-0">
-                          <Badge variant="outline">
-                            {galleryCount}/6 screenshots
-                          </Badge>
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-4 pb-6">
-                      <div className="space-y-3 text-sm text-muted-foreground">
-                        <OverviewRow
-                          label="Slug"
-                          value={slugFmt(product.slug)}
-                        />
-                        <OverviewRow
-                          label="Logo"
-                          value={image(product.logo, product.name, 64, 64)}
-                        />
-                        <OverviewRow
-                          label="Banner"
-                          value={
-                            product.bannerImage ? (
-                              image(
-                                product.bannerImage,
-                                `${product.name} banner`,
-                                240,
-                                126,
-                              )
-                            ) : (
-                              <Link
-                                href={`${editPath}#section-media`}
-                                className="text-xs text-primary hover:underline"
-                              >
-                                Add banner
-                              </Link>
-                            )
-                          }
-                        />
-                        <OverviewRow
-                          label="Screenshots"
-                          value={
-                            <span className="text-sm text-muted-foreground">
-                              {galleryCount}/6
-                            </span>
-                          }
-                        />
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="targeting" className="px-6">
-                    <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
-                      <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
-                        <div className="flex min-w-0 flex-col gap-1">
-                          <span className="font-semibold text-slate-900">
-                            Targeting
-                          </span>
-                          <span className="text-xs font-normal text-muted-foreground">
-                            Platforms, keywords, and alternatives.
-                          </span>
-                        </div>
-                        <div className="pt-0.5 shrink-0">
-                          <Badge variant="outline">
-                            {tags.length} keywords
-                          </Badge>
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-4 pb-6">
-                      <div className="space-y-3 text-sm text-muted-foreground">
-                        <OverviewRow
-                          label="Platforms"
-                          value={
-                            platforms.length ? (
-                              <span className="text-sm text-muted-foreground">
-                                {platforms.join(", ")}
-                              </span>
-                            ) : (
-                              <div className="flex items-center justify-between gap-3">
-                                {placeholder()}
-                                <Link
-                                  href={`${editPath}#section-core`}
-                                  className="text-xs text-primary hover:underline"
-                                >
-                                  Add
-                                </Link>
-                              </div>
-                            )
-                          }
-                        />
-                        <OverviewRow
-                          label="Keywords"
-                          value={
-                            tags.length ? (
-                              <span className="text-sm text-muted-foreground">
-                                {tags.join(", ")}
-                              </span>
-                            ) : (
-                              <div className="flex items-center justify-between gap-3">
-                                {placeholder()}
-                                <Link
-                                  href={`${editPath}#section-core`}
-                                  className="text-xs text-primary hover:underline"
-                                >
-                                  Add
-                                </Link>
-                              </div>
-                            )
-                          }
-                        />
-                        <OverviewRow
-                          label="Alternative to"
-                          value={
-                            alternativesList.length ? (
-                              <ul className="space-y-1">
-                                {alternativesList.map((alternative: any) => {
-                                  const href = alternative.websiteUrl
-                                  return (
-                                    <li
-                                      key={alternative.id}
-                                      className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-2"
-                                    >
-                                      {href ? (
-                                        <Link
-                                          href={href}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="text-sm text-primary hover:underline"
-                                        >
-                                          {alternative.name}
-                                        </Link>
-                                      ) : (
-                                        <span className="text-sm text-foreground">
-                                          {alternative.name}
-                                        </span>
-                                      )}
-                                      {href ? (
-                                        <span className="text-xs text-muted-foreground">
-                                          {formatHost(href) ?? href}
-                                        </span>
-                                      ) : null}
-                                    </li>
-                                  )
-                                })}
-                              </ul>
-                            ) : (
-                              <div className="flex items-center justify-between gap-3">
-                                {placeholder()}
-                                <Link
-                                  href={`${editPath}#section-details`}
-                                  className="text-xs text-primary hover:underline"
-                                >
-                                  Add
-                                </Link>
-                              </div>
-                            )
-                          }
-                        />
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="links" className="px-6">
-                    <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
-                      <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
-                        <div className="flex min-w-0 flex-col gap-1">
-                          <span className="font-semibold text-slate-900">
-                            Links
-                          </span>
-                          <span className="text-xs font-normal text-muted-foreground">
-                            Website and additional links.
-                          </span>
-                        </div>
-                        <div className="pt-0.5 shrink-0">
-                          <Badge variant="outline">
-                            {extraLinks.length} extra
-                          </Badge>
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-4 pb-6">
-                      <div className="space-y-3 text-sm text-muted-foreground">
-                        <OverviewRow
-                          label="Website"
-                          value={
-                            <Link
-                              href={product.websiteUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm text-primary hover:underline"
-                            >
-                              {websiteHost}
-                            </Link>
-                          }
-                        />
-                        <OverviewRow
-                          label="Additional links"
-                          value={
-                            extraLinks.length ? (
-                              <ul className="space-y-2">
-                                {extraLinks.map(
-                                  ({ key, href, label, icon }) => {
-                                    const isExternal = href.startsWith("http")
-                                    const linkClassName =
-                                      "inline-flex max-w-full items-center gap-2 text-sm text-primary hover:underline"
-                                    return (
-                                      <li key={key}>
-                                        {isExternal ? (
-                                          <Link
-                                            href={href}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className={linkClassName}
-                                          >
-                                            {icon}
-                                            <span className="truncate max-w-[16rem]">
-                                              {label}
-                                            </span>
-                                          </Link>
-                                        ) : (
-                                          <a
-                                            href={href}
-                                            className={linkClassName}
-                                          >
-                                            {icon}
-                                            <span className="truncate max-w-[16rem]">
-                                              {label}
-                                            </span>
-                                          </a>
-                                        )}
-                                      </li>
-                                    )
-                                  },
-                                )}
-                              </ul>
-                            ) : (
-                              <div className="flex items-center justify-between gap-3">
-                                {placeholder()}
-                                <Link
-                                  href={`${editPath}#section-details`}
-                                  className="text-xs text-primary hover:underline"
-                                >
-                                  Add
-                                </Link>
-                              </div>
-                            )
-                          }
-                        />
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {product.verification ? (
-                    <AccordionItem value="verification" className="px-6">
-                      <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
-                        <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
-                          <div className="flex min-w-0 flex-col gap-1">
-                            <span className="font-semibold text-slate-900">
-                              Verification
-                            </span>
-                            <span className="text-xs font-normal text-muted-foreground">
-                              Verify your domain ownership via DNS.
-                            </span>
-                          </div>
-                          <div className="pt-0.5 shrink-0">
-                            <Badge
-                              variant={
-                                product.verification.isVerified
-                                  ? "success"
-                                  : "outline"
-                              }
-                            >
-                              {product.verification.isVerified
-                                ? "Verified"
-                                : "Unverified"}
-                            </Badge>
-                          </div>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="pt-4 pb-6">
-                        <div className="space-y-4 text-sm text-muted-foreground">
-                          <OverviewRow
-                            label="Domain"
-                            value={
-                              <span className="text-sm text-muted-foreground">
-                                {websiteHost}
-                              </span>
+                    <div className="flex h-16 items-end gap-1">
+                      {(trafficBars.length
+                        ? trafficBars
+                        : Array(8).fill(null)
+                      ).map((point, index) => {
+                        const views = point?.views ?? 0
+                        const height = views
+                          ? Math.max(12, (views / trafficBarMax) * 100)
+                          : 8
+                        return (
+                          <div
+                            key={point?.date ?? index}
+                            className="min-w-0 flex-1 rounded-t bg-[#0051d5]"
+                            style={{
+                              height: `${height}%`,
+                              opacity: views ? 0.35 + index * 0.07 : 0.12,
+                            }}
+                            title={
+                              point
+                                ? `${point.label}: ${formatFullNumber(views)} views`
+                                : "No traffic"
                             }
                           />
-                          <OverviewRow
-                            label="TXT record"
-                            value={
-                              <div className="flex flex-wrap items-center gap-2">
-                                <code className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700">
-                                  {product.verification.verificationTxt}
-                                </code>
-                                <CopyButton
-                                  text={product.verification.verificationTxt}
-                                  label="Copy TXT"
-                                  size="sm"
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                <section className={panelClass}>
+                  <div className="mb-4 flex items-center gap-2">
+                    <Share2 className="size-5 text-[#0051d5]" aria-hidden />
+                    <h2 className={panelTitleClass}>Top Referrers</h2>
+                  </div>
+                  {canViewAnalytics ? (
+                    topReferrers.length ? (
+                      <div className="space-y-3">
+                        {topReferrers.map((item) => {
+                          const percent = sharePercent(
+                            item.views,
+                            totalReferrerViews,
+                          )
+                          return (
+                            <div key={item.referrer} className="space-y-2">
+                              <div className="flex items-center justify-between gap-3 text-sm">
+                                <span className="truncate font-medium text-[#0b1c30]">
+                                  {item.referrer === "(direct)"
+                                    ? "Direct"
+                                    : item.referrer}
+                                </span>
+                                <span className="text-[#43474c]">
+                                  {Math.round(percent)}%
+                                </span>
+                              </div>
+                              <div className="h-2 overflow-hidden rounded-full bg-[#EFF6FF]">
+                                <div
+                                  className="h-full rounded-full bg-[#0051d5]"
+                                  style={{ width: `${percent}%` }}
                                 />
                               </div>
-                            }
-                          />
-                          <OverviewRow
-                            label="Verified at"
-                            value={
-                              product.verification.verifiedAt
-                                ? formatDate(product.verification.verifiedAt)
-                                : placeholder()
-                            }
-                          />
-                          <div className={dashedCalloutClass}>
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                              <div className="text-xs text-muted-foreground">
-                                Add the TXT record to your DNS, then click
-                                verify.
-                              </div>
-                              <VerifyDomainButton
-                                productId={product.id}
-                                label={
-                                  product.verification.isVerified
-                                    ? "Re-check"
-                                    : "Verify"
-                                }
-                              />
                             </div>
-                          </div>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ) : null}
-
-                  <AccordionItem value="description" className="px-6">
-                    <AccordionTrigger className="-mx-6 gap-2 rounded-lg px-6 text-base hover:no-underline group">
-                      <div className="flex flex-1 min-w-0 items-start justify-between gap-4">
-                        <div className="flex min-w-0 flex-col gap-1">
-                          <span className="font-semibold text-slate-900">
-                            Description
-                          </span>
-                          <span className="text-xs font-normal text-muted-foreground">
-                            Your main pitch (Markdown supported).
-                          </span>
-                        </div>
-                        <div className="pt-0.5 shrink-0">
-                          <Badge
-                            variant={descriptionReady ? "success" : "secondary"}
-                          >
-                            {descriptionReady ? "Good" : "Needs work"}
-                          </Badge>
-                        </div>
+                          )
+                        })}
                       </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-4 pb-6">
-                      <div className="space-y-4 text-sm text-muted-foreground">
-                        <div className="flex flex-col gap-2 text-xs sm:flex-row sm:items-center sm:justify-between">
-                          <div>
-                            Quality:{" "}
-                            <span
-                              className={
-                                descriptionReady
-                                  ? "text-emerald-700"
-                                  : "text-amber-600"
-                              }
-                            >
-                              {descriptionReady ? "Good" : "Needs work"}
-                            </span>{" "}
-                            ({descriptionLength} chars)
-                          </div>
+                    ) : (
+                      <p className={mutedTextClass}>
+                        Referrer data will appear as tracked traffic arrives.
+                      </p>
+                    )
+                  ) : (
+                    <div className={dashedCalloutClass}>
+                      <div className="flex items-start gap-2 text-sm text-[#43474c]">
+                        <LockKeyhole className="mt-0.5 size-4" aria-hidden />
+                        <div>
+                          <p className="font-medium text-[#0b1c30]">
+                            Source breakdown is locked.
+                          </p>
                           <Link
-                            href={`${editPath}#section-core`}
-                            className="text-xs text-primary hover:underline"
+                            href={upgradePath}
+                            className="text-[#0051d5] hover:underline"
                           >
-                            Improve description
+                            Upgrade to unlock referrers
                           </Link>
                         </div>
+                      </div>
+                    </div>
+                  )}
+                </section>
 
-                        <div className="prose prose-sm max-w-none text-foreground">
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {product.description}
-                          </ReactMarkdown>
+                <section className={panelClass}>
+                  <div className="mb-4 flex items-center gap-2">
+                    <MapPin className="size-5 text-[#0051d5]" aria-hidden />
+                    <h2 className={panelTitleClass}>Geographic Distribution</h2>
+                  </div>
+                  {canViewAnalytics ? (
+                    topCountries.length ? (
+                      <div className="space-y-3">
+                        {topCountries.map((item) => {
+                          const percent = sharePercent(
+                            item.views,
+                            totalCountryViews,
+                          )
+                          return (
+                            <div key={item.country} className="space-y-2">
+                              <div className="flex items-center justify-between gap-3 text-sm">
+                                <span className="truncate font-medium text-[#0b1c30]">
+                                  {item.country || "Unknown"}
+                                </span>
+                                <span className="text-[#43474c]">
+                                  {Math.round(percent)}%
+                                </span>
+                              </div>
+                              <div className="h-2 overflow-hidden rounded-full bg-[#EFF6FF]">
+                                <div
+                                  className="h-full rounded-full bg-[#0051d5]"
+                                  style={{ width: `${percent}%` }}
+                                />
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <p className={mutedTextClass}>
+                        Country data will populate after analytics ingestion.
+                      </p>
+                    )
+                  ) : (
+                    <div className={dashedCalloutClass}>
+                      <div className="flex items-start gap-2 text-sm text-[#43474c]">
+                        <LockKeyhole className="mt-0.5 size-4" aria-hidden />
+                        <div>
+                          <p className="font-medium text-[#0b1c30]">
+                            Geography is locked.
+                          </p>
+                          <Link
+                            href={upgradePath}
+                            className="text-[#0051d5] hover:underline"
+                          >
+                            Upgrade to unlock locations
+                          </Link>
                         </div>
+                      </div>
+                    </div>
+                  )}
+                </section>
+              </div>
 
-                        <OverviewRow
-                          label="Published At"
-                          value={
-                            product.publishedAt
-                              ? formatDate(product.publishedAt)
-                              : placeholder()
+              <section className={panelClass}>
+                <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h2 className={panelTitleClass}>Public Listing Preview</h2>
+                    <p className={mutedTextClass}>{publicUrl}</p>
+                  </div>
+                  <Link
+                    href={publicPath}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Open public listing"
+                    className="rounded-md p-2 text-[#71869e] transition-colors hover:bg-[#F8FAFC] hover:text-[#0b1c30]"
+                  >
+                    <ExternalLink className="size-5" aria-hidden />
+                  </Link>
+                </div>
+                <div className="flex flex-col gap-5 border-t border-[#E2E8F0] pt-5 md:flex-row md:items-center">
+                  <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#061d31] text-2xl font-semibold text-white">
+                    {product.logo ? (
+                      <Image
+                        src={product.logo}
+                        alt={`${product.name} logo`}
+                        width={64}
+                        height={64}
+                        className="h-full w-full object-contain"
+                      />
+                    ) : (
+                      initials(product.name)
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="truncate text-lg font-semibold text-[#0b1c30]">
+                        {product.name}
+                      </h3>
+                      <Badge variant="outline">{product.category.name}</Badge>
+                    </div>
+                    <p className="mt-1 text-sm text-[#43474c]">
+                      {product.tagline || "Add a concise tagline."}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {(tags.length
+                        ? tags.slice(0, 4)
+                        : [humanize(product.type)]
+                      ).map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-md bg-[#F8FAFC] px-2 py-1 text-xs font-semibold text-[#43474c]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex w-fit shrink-0 flex-col items-center rounded-lg border border-[#0051d5]/20 bg-[#EFF6FF] px-4 py-3 text-[#0051d5]">
+                    <ArrowUp className="size-5 fill-current" aria-hidden />
+                    <span className="text-lg font-semibold">
+                      {formatCompactNumber(upvoteCount)}
+                    </span>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <aside className="col-span-12 space-y-6 xl:col-span-4">
+              <section className="overflow-hidden rounded-lg border border-[#E2E8F0] bg-white shadow-[0_4px_12px_rgba(15,23,42,0.04)]">
+                <div className="bg-[#061d31] p-5 text-white">
+                  <div className="flex items-center gap-2">
+                    <Megaphone className="size-5" aria-hidden />
+                    <h2 className="text-base font-semibold">
+                      Promotion Center
+                    </h2>
+                  </div>
+                  <p className="mt-1 text-sm text-white/75">
+                    Accelerate discovery for this listing.
+                  </p>
+                </div>
+                <div className="space-y-4 p-5">
+                  {nextPlan ? (
+                    <div className="rounded-lg border border-[#E2E8F0] p-4">
+                      <div className="mb-3 flex items-start justify-between gap-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <Rocket
+                              className="size-4 text-[#F97316]"
+                              aria-hidden
+                            />
+                            <h3 className="text-sm font-semibold text-[#0b1c30]">
+                              {boostCardTitle}
+                            </h3>
+                          </div>
+                          <p className="mt-1 text-xs text-[#43474c]">
+                            {nextPlan.name} · Featured for{" "}
+                            {nextPlan.boostForDays ?? 1} day(s) ·{" "}
+                            {boostTimingText}
+                          </p>
+                        </div>
+                        {(() => {
+                          const pricing = getPlanPricing(nextPlan)
+                          return (
+                            <div className="shrink-0 text-right">
+                              {pricing.original ? (
+                                <div className="text-xs text-[#71869e] line-through">
+                                  {pricing.original}
+                                </div>
+                              ) : null}
+                              <div className="font-semibold text-[#F97316]">
+                                {pricing.priceText}
+                              </div>
+                            </div>
+                          )
+                        })()}
+                      </div>
+                      {nextPlanHighlights.length ? (
+                        <ul className="mb-4 space-y-1 text-xs text-[#43474c]">
+                          {nextPlanHighlights.map((feature) => (
+                            <li key={feature.id} className="flex gap-2">
+                              <CheckCircle2
+                                className="mt-0.5 size-3.5 text-emerald-700"
+                                aria-hidden
+                              />
+                              <span>{feature.name}</span>
+                            </li>
+                          ))}
+                          {nextPlanHighlightCount >
+                          nextPlanHighlights.length ? (
+                            <li className="text-[#71869e]">
+                              +{" "}
+                              {nextPlanHighlightCount -
+                                nextPlanHighlights.length}{" "}
+                              more benefits
+                            </li>
+                          ) : null}
+                        </ul>
+                      ) : nextPlan.description ? (
+                        <p className="mb-4 text-xs text-[#43474c]">
+                          {nextPlan.description}
+                        </p>
+                      ) : null}
+                      {boostMode === "finish_setup" ? (
+                        <Button className="w-full" asChild>
+                          <Link href={upgradePath}>
+                            <Sparkles className="size-4" aria-hidden />
+                            {boostCtaLabel}
+                          </Link>
+                        </Button>
+                      ) : (
+                        <form action={boostFormAction}>
+                          <input
+                            type="hidden"
+                            name="planId"
+                            value={nextPlan.id}
+                          />
+                          <Button className="w-full">
+                            <Sparkles className="size-4" aria-hidden />
+                            {boostCtaLabel}
+                          </Button>
+                        </form>
+                      )}
+                      {boostCtaHint ? (
+                        <p className="mt-2 text-xs text-[#71869e]">
+                          {boostCtaHint}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <div className={dashedCalloutClass}>
+                      <p className="text-sm text-[#43474c]">
+                        This product is already on the strongest available plan.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              <section className={panelClass}>
+                <div className="mb-5 flex items-center gap-2">
+                  <ShieldCheck
+                    className="size-5 text-emerald-700"
+                    aria-hidden
+                  />
+                  <h2 className={panelTitleClass}>System Health</h2>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between gap-4 border-b border-[#E2E8F0] pb-3">
+                    <span className={mutedTextClass}>Domain status</span>
+                    <span
+                      className={cn("text-xs font-semibold", verificationTone)}
+                    >
+                      {verificationStatus}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 border-b border-[#E2E8F0] pb-3">
+                    <span className={mutedTextClass}>Primary domain</span>
+                    <code className="truncate text-xs text-[#0051d5]">
+                      {websiteHost}
+                    </code>
+                  </div>
+                  {product.verification ? (
+                    <div className="space-y-3">
+                      <div>
+                        <div className="mb-2 text-xs font-semibold text-[#71869e]">
+                          TXT record
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <code className="min-w-0 flex-1 truncate rounded-md border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-1 text-xs text-[#43474c]">
+                            {product.verification.verificationTxt}
+                          </code>
+                          <CopyButton
+                            text={product.verification.verificationTxt}
+                            label="Copy"
+                            size="sm"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="text-xs text-[#71869e]">
+                          {product.verification.verifiedAt ? (
+                            <>
+                              Verified{" "}
+                              {formatDate(product.verification.verifiedAt)}
+                            </>
+                          ) : (
+                            "DNS check pending"
+                          )}
+                        </div>
+                        <VerifyDomainButton
+                          productId={product.id}
+                          label={
+                            product.verification.isVerified
+                              ? "Re-check"
+                              : "Verify"
                           }
                         />
                       </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </CardContent>
-            </Card>
+                    </div>
+                  ) : (
+                    <p className={mutedTextClass}>
+                      No verification record has been generated for this
+                      product.
+                    </p>
+                  )}
+                </div>
+              </section>
+            </aside>
           </div>
-        }
-      />
+        </div>
+      </main>
     </>
   )
 }

@@ -2,6 +2,7 @@
 
 import { ClerkProvider } from "@clerk/nextjs"
 import React from "react"
+import { PrivateHeaderSlotProvider } from "@/components/layout/headers/private-header-slot"
 
 const clerkAppearance = {
   variables: {
@@ -32,5 +33,9 @@ const clerkAppearance = {
 } as const
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  return <ClerkProvider appearance={clerkAppearance}>{children}</ClerkProvider>
+  return (
+    <ClerkProvider appearance={clerkAppearance}>
+      <PrivateHeaderSlotProvider>{children}</PrivateHeaderSlotProvider>
+    </ClerkProvider>
+  )
 }

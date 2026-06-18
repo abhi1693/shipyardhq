@@ -51,6 +51,7 @@ export default function MemberProductHeaderActions({
   upgradePath,
   deletePath,
   canDelete = false,
+  showStatus = true,
   className,
 }: {
   productId: string
@@ -64,6 +65,7 @@ export default function MemberProductHeaderActions({
   upgradePath: string
   deletePath: string
   canDelete?: boolean
+  showStatus?: boolean
   className?: string
 }) {
   const router = useRouter()
@@ -84,10 +86,10 @@ export default function MemberProductHeaderActions({
   }, [statusChangeAllowed, statusChangeUnlockAt])
 
   const statusBadgeVariant = getStatusBadgeVariant(status)
-  const isDraft = status === "draft"
-  const editVariant: React.ComponentProps<typeof Button>["variant"] = isDraft
-    ? "outline"
-    : "default"
+  const textActionClass =
+    "h-9 rounded-lg border-0 bg-transparent px-3 text-xs font-semibold uppercase tracking-[0.05em] text-[#43474c] shadow-none hover:bg-[#F8FAFC] hover:text-[#0051d5]"
+  const promoteActionClass =
+    "h-9 rounded-lg border border-[#F97316] bg-[#F97316] px-4 text-xs font-semibold uppercase tracking-[0.05em] text-white shadow-sm hover:bg-orange-600 hover:brightness-100"
 
   function updateStatus(next: ProductStatus) {
     startTransition(async () => {
@@ -100,21 +102,13 @@ export default function MemberProductHeaderActions({
 
   return (
     <div className={cn("flex flex-wrap items-center gap-2", className)}>
-      <Badge variant={statusBadgeVariant as any} className="capitalize">
-        {status}
-      </Badge>
+      {showStatus ? (
+        <Badge variant={statusBadgeVariant as any} className="capitalize">
+          {status}
+        </Badge>
+      ) : null}
 
-      <Button variant={editVariant} size="sm" asChild className="h-9 px-4">
-        <Link
-          href={editPath}
-          aria-label="Edit listing"
-          className="inline-flex items-center"
-        >
-          <Pencil className="h-4 w-4 mr-2" /> Edit listing
-        </Link>
-      </Button>
-
-      <Button variant="outline" size="sm" asChild className="h-9 px-4">
+      <Button variant="ghost" size="sm" asChild className={textActionClass}>
         <Link
           href={publicPath}
           target="_blank"
@@ -126,14 +120,24 @@ export default function MemberProductHeaderActions({
         </Link>
       </Button>
 
-      <Button variant="secondary" size="sm" asChild className="h-9 px-4">
+      <Button variant="ghost" size="sm" asChild className={textActionClass}>
         <Link
-          href={canViewAnalytics ? analyticsPath : upgradePath}
-          aria-label={canViewAnalytics ? "Open analytics" : "Unlock analytics"}
+          href={editPath}
+          aria-label="Edit listing"
           className="inline-flex items-center"
         >
-          <BarChart3 className="h-4 w-4 mr-2" />
-          {canViewAnalytics ? "Analytics" : "Unlock analytics"}
+          <Pencil className="h-4 w-4 mr-2" /> Edit listing
+        </Link>
+      </Button>
+
+      <Button size="sm" asChild className={promoteActionClass}>
+        <Link
+          href={upgradePath}
+          aria-label="Promote product"
+          className="inline-flex items-center"
+        >
+          <Sparkles className="h-4 w-4 mr-2" />
+          Promote Product
         </Link>
       </Button>
 
@@ -143,7 +147,7 @@ export default function MemberProductHeaderActions({
             type="button"
             variant="ghost"
             size="sm"
-            className="h-9 px-3"
+            className={textActionClass}
             disabled={isPending}
           >
             <MoreHorizontal className="h-4 w-4 mr-2" />
@@ -152,6 +156,14 @@ export default function MemberProductHeaderActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel>Growth</DropdownMenuLabel>
+          <DropdownMenuItem
+            onSelect={() =>
+              router.push(canViewAnalytics ? analyticsPath : upgradePath)
+            }
+          >
+            <BarChart3 className="h-4 w-4" />
+            {canViewAnalytics ? "Analytics" : "Unlock analytics"}
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => router.push(upgradePath)}>
             <Sparkles className="h-4 w-4" />
             Boost & upgrades
