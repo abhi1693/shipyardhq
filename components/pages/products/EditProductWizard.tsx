@@ -76,8 +76,6 @@ type AdminProps = BaseProps & {
 
 export type EditProductWizardProps = MemberProps | AdminProps
 
-export type ProductWizardInput = ProductWizardInputEdit
-
 function productEditStepPath(
   mode: "member" | "admin",
   product: ProductForEditWizard,

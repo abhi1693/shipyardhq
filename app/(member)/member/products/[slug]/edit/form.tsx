@@ -30,5 +30,3 @@ export default function EditProductForm({
     />
   )
 }
-
-export type { ProductWizardInputEdit as EditProductValues } from "@/lib/productWizard/schema"

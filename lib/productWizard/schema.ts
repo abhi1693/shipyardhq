@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { PRODUCT_TYPES, PRICING_MODELS, PLATFORMS } from "./constants"
 
-export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
+function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
   const statusValues = opts.allowArchived
     ? (["draft", "published", "archived"] as const)
     : (["draft", "published"] as const)
@@ -146,9 +146,3 @@ export function makeAdminEditProductSchema() {
 
 export type ProductWizardInputAdd = z.infer<typeof addProductSchema>
 export type ProductWizardInputEdit = z.infer<typeof editProductSchema>
-export type AdminProductWizardInputAdd = z.infer<
-  ReturnType<typeof makeAdminAddProductSchema>
->
-export type AdminProductWizardInputEdit = z.infer<
-  ReturnType<typeof makeAdminEditProductSchema>
->
