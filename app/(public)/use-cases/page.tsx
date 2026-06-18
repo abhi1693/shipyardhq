@@ -9,7 +9,7 @@ import { HOME_PATH, USE_CASES_PATH, usecasePath } from "@/lib/routes"
 import { getUseCasesPagePayload } from "@/lib/useCases/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 300
 
 const PAGE_TITLE = "Use Cases"
 

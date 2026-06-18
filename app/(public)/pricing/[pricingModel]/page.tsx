@@ -1,13 +1,21 @@
-export const dynamic = "force-dynamic"
-
 import type { Metadata } from "next"
 
 import { PricingModelPageContent } from "@/components/templates/public/pricing/pricing-model-page-content"
-import { getPricingModelPagePayload } from "@/lib/pricing/page-cache"
+import {
+  getPricingModelPagePayload,
+  getPricingModelStaticParams,
+} from "@/lib/pricing/page-cache"
 import { getPricingModelMeta } from "@/lib/pricing/models"
 import { buildPageMetadata } from "@/lib/metadata"
 import { pricingModelPath } from "@/lib/routes"
 import { pluralize } from "@/lib/pluralize"
+
+export const revalidate = 300
+export const dynamicParams = true
+
+export function generateStaticParams() {
+  return getPricingModelStaticParams()
+}
 
 export async function generateMetadata(
   props: Parameters<typeof PricingModelPageContent>[0],

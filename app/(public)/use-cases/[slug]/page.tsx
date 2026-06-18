@@ -6,9 +6,15 @@ import { TaxonomyDetailSkeleton } from "@/components/templates/public/common/Tax
 import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
 import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import { pluralize } from "@/lib/pluralize"
+import { getUseCaseStaticParams } from "@/lib/useCases/page-cache"
 import { usecasePath } from "@/lib/routes"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 300
+export const dynamicParams = true
+
+export async function generateStaticParams() {
+  return getUseCaseStaticParams()
+}
 
 export async function generateMetadata(
   props: Parameters<typeof UseCasePageContent>[0],

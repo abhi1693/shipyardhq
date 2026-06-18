@@ -1,4 +1,5 @@
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { safelyReadStaticParams } from "@/lib/staticParams"
 import {
   getPublicUseCaseCategoriesWithCounts,
   getPublicUseCasesWithCounts,
@@ -82,12 +83,13 @@ export const getUseCasePagePayload = cached(
 )
 
 export const getUseCaseStaticParams = cached(
-  async () => {
-    const useCases = await getPublicUseCasesWithCounts()
-    return useCases
-      .filter((useCase) => useCase.productCount > 0)
-      .map((useCase) => ({ slug: useCase.slug }))
-  },
+  async () =>
+    safelyReadStaticParams("use case pages", async () => {
+      const useCases = await getPublicUseCasesWithCounts()
+      return useCases
+        .filter((useCase) => useCase.productCount > 0)
+        .map((useCase) => ({ slug: useCase.slug }))
+    }),
   "usecases:static-params",
   {
     ttl: DEFAULT_TTL.slowest,

@@ -6,7 +6,6 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH, LEADERBOARD_REWARDS_PATH } from "@/lib/routes"
 
-export const dynamic = "force-dynamic"
 export const revalidate = 120
 
 const PAGE_TITLE = "Rewards Leaderboard"

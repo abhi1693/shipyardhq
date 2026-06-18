@@ -21,6 +21,12 @@ interface ProductUpvoteBadgeProps {
 
 const formatter = new Intl.NumberFormat("en-US")
 
+type ViewerStateResponse = Partial<{
+  viewerSignedIn: boolean
+  upvoted: boolean
+  upvotes: number
+}>
+
 export function ProductUpvoteBadge({
   productSlug,
   count,
@@ -32,6 +38,7 @@ export function ProductUpvoteBadge({
   const [state, setState] = useState(() => ({
     upvotes: count,
     upvoted: initialUpvoted,
+    viewerSignedIn,
     pending: false,
     error: null as string | null,
   }))
@@ -43,22 +50,77 @@ export function ProductUpvoteBadge({
     const next = {
       upvotes: count,
       upvoted: initialUpvoted,
+      viewerSignedIn,
       pending: false,
       error: null as string | null,
     }
     setState(next)
     previous.current = next
-  }, [count, initialUpvoted])
+  }, [count, initialUpvoted, viewerSignedIn])
 
   useEffect(() => {
     if (typeof window === "undefined") return
-    if (viewerSignedIn) {
+    if (state.viewerSignedIn) {
       setRedirectUrl(null)
       return
     }
     const { pathname, search, hash } = window.location
     setRedirectUrl(`${pathname}${search}${hash}`)
-  }, [viewerSignedIn])
+  }, [state.viewerSignedIn])
+
+  useEffect(() => {
+    let ignore = false
+
+    async function loadViewerState() {
+      try {
+        const response = await fetch(
+          `/api/products/${encodeURIComponent(productSlug)}/upvote`,
+          {
+            method: "GET",
+            credentials: "same-origin",
+            headers: { Accept: "application/json" },
+          },
+        )
+
+        if (!response.ok) return
+
+        const payload = (await response
+          .json()
+          .catch(() => ({}))) as ViewerStateResponse
+
+        if (ignore) return
+
+        setState((current) => {
+          const next = {
+            ...current,
+            upvotes:
+              typeof payload.upvotes === "number"
+                ? payload.upvotes
+                : current.upvotes,
+            upvoted:
+              typeof payload.upvoted === "boolean"
+                ? payload.upvoted
+                : current.upvoted,
+            viewerSignedIn:
+              typeof payload.viewerSignedIn === "boolean"
+                ? payload.viewerSignedIn
+                : current.viewerSignedIn,
+            pending: false,
+          }
+          previous.current = next
+          return next
+        })
+      } catch {
+        // Viewer state is an enhancement; the static fallback remains usable.
+      }
+    }
+
+    void loadViewerState()
+
+    return () => {
+      ignore = true
+    }
+  }, [productSlug])
 
   const loginHref = redirectUrl
     ? `/login?${new URLSearchParams({ redirect_url: redirectUrl }).toString()}`
@@ -67,11 +129,12 @@ export function ProductUpvoteBadge({
   async function handleToggle() {
     if (state.pending || state.upvoted) return
 
-    if (!viewerSignedIn) return
+    if (!state.viewerSignedIn) return
 
     const rollback = {
       upvotes: state.upvotes,
       upvoted: state.upvoted,
+      viewerSignedIn: state.viewerSignedIn,
       pending: false,
       error: null as string | null,
     }
@@ -84,6 +147,7 @@ export function ProductUpvoteBadge({
     setState({
       upvotes: optimisticUpvotes,
       upvoted: optimisticUpvoted,
+      viewerSignedIn: state.viewerSignedIn,
       pending: true,
       error: null,
     })
@@ -126,6 +190,7 @@ export function ProductUpvoteBadge({
       const next = {
         upvotes: resolvedUpvotes,
         upvoted: resolvedUpvoted,
+        viewerSignedIn: true,
         pending: false,
         error: null as string | null,
       }
@@ -216,7 +281,7 @@ export function ProductUpvoteBadge({
       </div>
     ) : null
 
-  const actionElement = viewerSignedIn ? (
+  const actionElement = state.viewerSignedIn ? (
     <button
       type="button"
       onClick={handleToggle}

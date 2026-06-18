@@ -1,52 +1,20 @@
-import { cache } from "react"
 import Link from "next/link"
-import { auth } from "@clerk/nextjs/server"
 import { Rocket } from "lucide-react"
 
 import { Image } from "@/components/atoms/image"
 import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
 import { ProductCard } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
-import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { getSponsoredProducts } from "@/actions/public/products/featured"
-import {
-  getPublicProductsByUseCase,
-  hasUserUpvoted,
-} from "@/actions/public/products/actions"
+import { getPublicProductsByUseCase } from "@/actions/public/products/actions"
 
-export type ViewerProductState = {
-  viewerSignedIn: boolean
-  viewerUpvoted: boolean
-}
-
-const getViewerProductState = cache(
-  async (productId: string): Promise<ViewerProductState> => {
-    const authResult = await auth()
-    const clerkUserId = authResult?.userId ?? null
-    if (!clerkUserId) {
-      return { viewerSignedIn: false, viewerUpvoted: false }
-    }
-
-    const viewer = await getActiveUserByClerkId(clerkUserId).catch(() => null)
-    if (!viewer) {
-      return { viewerSignedIn: false, viewerUpvoted: false }
-    }
-
-    const viewerUpvoted = await hasUserUpvoted(productId, clerkUserId)
-
-    return { viewerSignedIn: true, viewerUpvoted }
-  },
-)
-
-export async function ProductUpvoteBadgeServer({
-  productId,
+export function ProductUpvoteBadgeServer({
   productSlug,
   upvoteCount,
   leaderboard,
   variant,
 }: {
-  productId: string
   productSlug: string
   upvoteCount: number
   leaderboard?: {
@@ -56,14 +24,12 @@ export async function ProductUpvoteBadgeServer({
   }
   variant?: "card" | "inline"
 }) {
-  const { viewerSignedIn, viewerUpvoted } =
-    await getViewerProductState(productId)
   return (
     <ProductUpvoteBadge
       productSlug={productSlug}
       count={upvoteCount}
-      initialUpvoted={viewerUpvoted}
-      viewerSignedIn={viewerSignedIn}
+      initialUpvoted={false}
+      viewerSignedIn={false}
       leaderboard={leaderboard}
       variant={variant}
     />

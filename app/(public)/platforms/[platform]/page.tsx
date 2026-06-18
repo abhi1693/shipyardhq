@@ -1,12 +1,20 @@
-export const dynamic = "force-dynamic"
-
 import type { Metadata } from "next"
 
 import { PlatformPageContent } from "@/components/templates/public/platforms/page-content"
 import { getPlatformMeta } from "@/lib/platforms/config"
-import { getPlatformPagePayload } from "@/lib/platforms/page-cache"
+import {
+  getPlatformPagePayload,
+  getPlatformStaticParams,
+} from "@/lib/platforms/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
 import { platformPath } from "@/lib/routes"
+
+export const revalidate = 300
+export const dynamicParams = true
+
+export function generateStaticParams() {
+  return getPlatformStaticParams()
+}
 
 export async function generateMetadata(
   props: Parameters<typeof PlatformPageContent>[0],

@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { safelyReadStaticParams } from "@/lib/staticParams"
 import {
   getCategoriesWithCounts,
   getCategoryWithProducts,
@@ -161,17 +162,18 @@ export const getCategoryDetailPayload = cached(
 )
 
 export const getCategoryStaticParams = cached(
-  async () => {
-    const categories = await getCategoriesWithCounts()
-    return categories
-      .filter(
-        (category: (typeof categories)[number]) =>
-          category.slug && category.count > 0,
-      )
-      .map((category: (typeof categories)[number]) => ({
-        slug: category.slug,
-      }))
-  },
+  async () =>
+    safelyReadStaticParams("category pages", async () => {
+      const categories = await getCategoriesWithCounts()
+      return categories
+        .filter(
+          (category: (typeof categories)[number]) =>
+            category.slug && category.count > 0,
+        )
+        .map((category: (typeof categories)[number]) => ({
+          slug: category.slug,
+        }))
+    }),
   "categories:static-params",
   {
     ttl: DEFAULT_TTL.slowest,

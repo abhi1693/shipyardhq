@@ -6,8 +6,9 @@ type MarkdownResult = {
   status?: number
 }
 
-const HTML_ACCEPT_HEADER =
-  "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+const SELF_FETCH_ACCEPT_HEADER = "*/*"
+const MAX_MARKDOWN_FETCH_REDIRECTS = 5
+const MARKDOWN_FETCH_REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308])
 
 const turndown = new TurndownService({
   headingStyle: "atx",
@@ -84,15 +85,67 @@ export function convertHtmlToMarkdown(html: string, baseUrl: URL) {
   return normalizeMarkdown(turndown.turndown(normalizeHtml(html)), baseUrl)
 }
 
+function isMarkdownRenderablePath(pathname: string) {
+  return !(
+    pathname.startsWith("/api/") ||
+    pathname.startsWith("/member") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/auth/") ||
+    pathname.startsWith("/sso-callback") ||
+    pathname.startsWith("/markdown-for-agents") ||
+    pathname.startsWith("/.well-known/") ||
+    pathname.startsWith("/_next/")
+  )
+}
+
+async function fetchMarkdownHtmlTarget(
+  targetUrl: URL,
+): Promise<{ response: Response; finalUrl: URL } | null> {
+  let currentUrl = targetUrl
+  const visited = new Set<string>()
+
+  for (let attempt = 0; attempt <= MAX_MARKDOWN_FETCH_REDIRECTS; attempt += 1) {
+    if (visited.has(currentUrl.href)) {
+      return null
+    }
+    visited.add(currentUrl.href)
+
+    const response = await fetch(currentUrl, {
+      headers: {
+        Accept: SELF_FETCH_ACCEPT_HEADER,
+      },
+      redirect: "manual",
+      cache: "no-store",
+    })
+
+    if (!MARKDOWN_FETCH_REDIRECT_STATUSES.has(response.status)) {
+      return { response, finalUrl: currentUrl }
+    }
+
+    const location = response.headers.get("location")
+    if (!location) {
+      return { response, finalUrl: currentUrl }
+    }
+
+    const redirectUrl = new URL(location, currentUrl)
+    if (
+      redirectUrl.origin !== targetUrl.origin ||
+      !isMarkdownRenderablePath(redirectUrl.pathname)
+    ) {
+      return null
+    }
+
+    currentUrl = redirectUrl
+  }
+
+  return null
+}
+
 export async function renderMarkdownForPath(
   targetUrl: URL,
 ): Promise<MarkdownResult | null> {
-  if (
-    targetUrl.pathname.startsWith("/api/") ||
-    targetUrl.pathname.startsWith("/member") ||
-    targetUrl.pathname.startsWith("/markdown-for-agents") ||
-    targetUrl.pathname.startsWith("/.well-known/")
-  ) {
+  if (!isMarkdownRenderablePath(targetUrl.pathname)) {
     return null
   }
 
@@ -106,21 +159,17 @@ export async function renderMarkdownForPath(
     }
   }
 
-  const response = await fetch(targetUrl, {
-    headers: {
-      Accept: HTML_ACCEPT_HEADER,
-    },
-    redirect: "follow",
-    cache: "no-store",
-  })
+  const fetched = await fetchMarkdownHtmlTarget(targetUrl).catch(() => null)
+  if (!fetched) return null
 
+  const { response, finalUrl } = fetched
   const contentType = response.headers.get("content-type") || ""
   if (!contentType.toLowerCase().includes("text/html")) {
     return null
   }
 
   const html = await response.text()
-  const body = convertHtmlToMarkdown(html, targetUrl)
+  const body = convertHtmlToMarkdown(html, finalUrl)
 
   return {
     body,

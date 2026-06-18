@@ -855,7 +855,7 @@ export async function getProductTrafficMapFromGa(args: {
     string,
     { pageViews: number; uniqueVisitors: number; sessions: number }
   >()
-  if (!args.products.length) return results
+  if (!args.products.length || !hasGaAnalyticsConfig()) return results
 
   const client = await getClient()
   const property = resolveProperty()

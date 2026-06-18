@@ -8,7 +8,7 @@ import { CATEGORIES_PATH, HOME_PATH, categoryPath } from "@/lib/routes"
 import { getCategoriesPagePayload } from "@/lib/categories/cache"
 import { buildPageMetadata } from "@/lib/metadata"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 300
 
 const PAGE_TITLE = "Categories"
 

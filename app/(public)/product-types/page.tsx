@@ -23,7 +23,7 @@ import { getProductTypePagePayload } from "@/lib/product-types/page-cache"
 import { HOME_PATH, PRODUCT_TYPES_PATH, productTypePath } from "@/lib/routes"
 import { buildPageMetadata } from "@/lib/metadata"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 300
 
 const PAGE_TITLE = "Product Types"
 

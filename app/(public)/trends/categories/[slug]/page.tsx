@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { Suspense } from "react"
 
 import prisma from "@/lib/prisma"
+import { getCategoryStaticParams } from "@/lib/categories/page-cache"
 import {
   getProductInterestSignalsMap,
   getTrendingCategoryProductIds,
@@ -40,7 +41,12 @@ interface CategoryTrendsPageProps {
   searchParams?: Promise<Record<string, string | undefined>>
 }
 
-export const dynamic = "force-dynamic"
+export const revalidate = 300
+export const dynamicParams = true
+
+export async function generateStaticParams() {
+  return getCategoryStaticParams()
+}
 
 const TREND_WINDOW_DAYS = 7
 

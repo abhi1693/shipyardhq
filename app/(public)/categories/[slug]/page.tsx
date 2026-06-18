@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic"
-
 import type { Metadata } from "next"
 import { Suspense } from "react"
 
@@ -7,10 +5,20 @@ import { CategoryDetailPageContent } from "@/components/templates/public/categor
 import { TaxonomyDetailSkeleton } from "@/components/templates/public/common/TaxonomyDetailSkeleton"
 import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
-import { getCategoryDetailPayload } from "@/lib/categories/page-cache"
+import {
+  getCategoryDetailPayload,
+  getCategoryStaticParams,
+} from "@/lib/categories/page-cache"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { CATEGORIES_PATH, HOME_PATH, categoryPath } from "@/lib/routes"
 import { pluralize } from "@/lib/pluralize"
+
+export const revalidate = 300
+export const dynamicParams = true
+
+export async function generateStaticParams() {
+  return getCategoryStaticParams()
+}
 
 export async function generateMetadata(
   props: Parameters<typeof CategoryDetailPageContent>[0],

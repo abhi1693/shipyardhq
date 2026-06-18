@@ -22,7 +22,7 @@ import { getPlatformPagePayload } from "@/lib/platforms/page-cache"
 import { HOME_PATH, PLATFORMS_PATH, platformPath } from "@/lib/routes"
 import { buildPageMetadata } from "@/lib/metadata"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 300
 
 const PAGE_TITLE = "Platforms"
 

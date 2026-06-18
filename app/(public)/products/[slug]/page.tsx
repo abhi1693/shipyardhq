@@ -24,7 +24,7 @@ import {
   Terminal,
 } from "lucide-react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
+import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import { Image } from "@/components/atoms/image"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
@@ -45,6 +45,7 @@ import {
   SimilarProductsFallback,
 } from "@/components/templates/public/products/detail/product-fallbacks"
 import {
+  getProductStaticParams,
   getPublicProductMetaBySlug,
   getPublicProductBySlug,
 } from "@/actions/public/products/actions"
@@ -74,7 +75,6 @@ import {
   getProductTypeMeta,
   productTypeSlugFromValue,
 } from "@/lib/product-types/models"
-import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { getProductScoreForCurrentWindow } from "@/lib/server/leaderboard/v2"
 import { buildSignedImgproxyResponsiveImage } from "@/lib/images/imgproxy"
 import {
@@ -90,6 +90,12 @@ interface ProductPageProps {
 }
 
 export const revalidate = 300
+export const dynamicParams = true
+
+export async function generateStaticParams() {
+  const params = await getProductStaticParams()
+  return params
+}
 
 export async function generateMetadata(
   props: ProductPageProps,
@@ -481,16 +487,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         .join("")
         .slice(0, 2)
     : "SP"
-  let ownerAvatarUrl: string | null = null
-  if (productOwner?.clerkId) {
-    try {
-      const clerkUser = await getClerkUserByIdCached(productOwner.clerkId)
-      ownerAvatarUrl = clerkUser.imageUrl ?? null
-    } catch {
-      ownerAvatarUrl = null
-    }
-  }
-
   const productStructuredData = buildProductStructuredData({
     path: canonicalPath,
     name: product.name,
@@ -771,15 +767,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         </span>
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10 rounded-lg text-sm font-semibold text-foreground">
-            {ownerAvatarUrl ? (
-              <AvatarImage
-                src={ownerAvatarUrl}
-                alt={ownerName || "Product owner"}
-                width={48}
-                height={48}
-                className="object-cover"
-              />
-            ) : null}
             <AvatarFallback className="rounded-lg">
               {ownerInitials}
             </AvatarFallback>
@@ -910,7 +897,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             ) : null}
             <Suspense fallback={<ProductUpvoteBadgeFallback />}>
               <ProductUpvoteBadgeServer
-                productId={product.id}
                 productSlug={product.slug}
                 upvoteCount={upvoteCount}
                 leaderboard={leaderboardPayload}

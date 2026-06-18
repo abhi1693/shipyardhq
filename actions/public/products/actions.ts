@@ -3,6 +3,7 @@ import { Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { resolveVoteState } from "@/lib/server/productVotesStore"
+import { safelyReadStaticParams } from "@/lib/staticParams"
 
 const publicProductSelect = {
   id: true,
@@ -217,6 +218,102 @@ export const getPublicProductMetaBySlug = cached(
   {
     ttl: 600,
     tags: ([slug]) => [TAGS.products, TAGS.product(String(slug))],
+  },
+)
+
+const DEFAULT_PRODUCT_STATIC_PARAMS_LIMIT = 250
+const MAX_PRODUCT_STATIC_PARAMS_LIMIT = 1000
+
+function normalizeProductStaticParamsLimit() {
+  const raw = process.env.PRODUCT_PRERENDER_LIMIT
+  if (!raw) return DEFAULT_PRODUCT_STATIC_PARAMS_LIMIT
+
+  const parsed = Number(raw)
+  if (!Number.isFinite(parsed)) return DEFAULT_PRODUCT_STATIC_PARAMS_LIMIT
+
+  return Math.max(
+    0,
+    Math.min(Math.trunc(parsed), MAX_PRODUCT_STATIC_PARAMS_LIMIT),
+  )
+}
+
+export const getProductStaticParams = cached(
+  async () =>
+    safelyReadStaticParams("product pages", async () => {
+      const limit = normalizeProductStaticParamsLimit()
+      if (limit === 0) return []
+
+      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      const trafficRows = await prisma.productTrafficDaily.groupBy({
+        by: ["productId"],
+        where: {
+          date: { gte: since },
+          product: { status: "published" },
+        },
+        _sum: {
+          pageViews: true,
+          uniqueVisitors: true,
+        },
+        orderBy: [
+          { _sum: { pageViews: "desc" } },
+          { _sum: { uniqueVisitors: "desc" } },
+        ],
+        take: limit,
+      })
+
+      const trafficProductIds = trafficRows.map((row) => row.productId)
+      const trafficProducts = trafficProductIds.length
+        ? await prisma.product.findMany({
+            where: {
+              id: { in: trafficProductIds },
+              status: "published",
+            },
+            select: { id: true, slug: true },
+          })
+        : []
+
+      const slugById = new Map(
+        trafficProducts.map((product) => [product.id, product.slug]),
+      )
+      const slugs: string[] = []
+      const seen = new Set<string>()
+
+      for (const id of trafficProductIds) {
+        const slug = slugById.get(id)
+        if (!slug || seen.has(slug)) continue
+        seen.add(slug)
+        slugs.push(slug)
+      }
+
+      const remaining = limit - slugs.length
+      if (remaining > 0) {
+        const fallbackProducts = await prisma.product.findMany({
+          where: {
+            status: "published",
+            ...(seen.size ? { slug: { notIn: Array.from(seen) } } : {}),
+          },
+          orderBy: [
+            { analytics: { upvotes: "desc" } },
+            { publishedAt: { sort: "desc", nulls: "last" } },
+            { createdAt: "desc" },
+          ],
+          take: remaining,
+          select: { slug: true },
+        })
+
+        for (const product of fallbackProducts) {
+          if (seen.has(product.slug)) continue
+          seen.add(product.slug)
+          slugs.push(product.slug)
+        }
+      }
+
+      return slugs.map((slug) => ({ slug }))
+    }),
+  "products:static-params",
+  {
+    ttl: DEFAULT_TTL.slowest,
+    tags: () => [TAGS.products, TAGS.analytics],
   },
 )
 
