@@ -1,54 +1,56 @@
-import { Suspense } from "react"
 import Link from "next/link"
-import { IconTrophy } from "@tabler/icons-react"
+import {
+  ArrowRight,
+  ShoppingCart,
+  Sparkles,
+  Trophy,
+  Users,
+  WalletCards,
+} from "lucide-react"
 
+import { getSponsoredProducts } from "@/actions/public/products/featured"
 import {
   getPublicRewardsStats,
   getRewardsLeaderboardPage,
 } from "@/actions/public/rewards/actions"
-import PublicTwoColumnLayout from "@/components/layout/public/PublicTwoColumnLayout"
-import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
-import {
-  HERO_PRIMARY_BUTTON_CLASSES,
-  HERO_SECONDARY_BUTTON_CLASSES,
-} from "@/components/templates/public/categories/hero-button-classes"
 import { RewardsLeaderboardClient } from "@/components/templates/public/leaderboard/rewards/leaderboard-client"
+import { PromotedShips } from "@/components/templates/public/leaderboard/promoted-ships"
 import {
-  SponsoredProductsSection,
-  SponsoredProductsSkeleton,
-} from "@/components/templates/public/homepage/sponsored-products"
-import {
-  DirectoryHighlightsSidebar,
-  DirectoryHighlightsSidebarSkeleton,
-} from "@/components/templates/public/homepage/directory-highlights"
-import {
-  TrafficSidebarStats,
-  TrafficSidebarStatsSkeleton,
-} from "@/components/templates/public/common/TrafficSidebarStats"
-import { LEADERBOARD_PATH, MEMBER_REWARDS_PATH } from "@/lib/routes"
+  LEADERBOARD_PATH,
+  MEMBER_PRODUCTS_PATH,
+  MEMBER_REWARDS_PATH,
+} from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { formatNumber, formatRewards } from "@/lib/rewards/format"
 
 const leaderboardMetrics = [
   {
-    key: "totalProducts",
+    key: "membersWithRewards",
     label: "Members earning",
     formatter: formatNumber,
+    helper: "Community earners",
+    Icon: Users,
   },
   {
-    key: "totalCreators",
+    key: "activeBalances",
     label: "Active balances",
     formatter: formatNumber,
+    helper: "Ready to redeem",
+    Icon: WalletCards,
   },
   {
-    key: "totalUpvotes",
+    key: "earnedLast30d",
     label: "Rewards earned (30d)",
     formatter: formatRewards,
+    helper: "Recent velocity",
+    Icon: Trophy,
   },
   {
-    key: "totalRedeemed",
+    key: "spentLast30d",
     label: "Rewards redeemed (30d)",
     formatter: formatRewards,
+    helper: "Launch boosts",
+    Icon: ShoppingCart,
   },
 ] as const
 
@@ -58,9 +60,10 @@ export async function RewardsLeaderboardPageContent({
 }: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const [stats, leaderboardPage] = await Promise.all([
+  const [stats, leaderboardPage, sponsoredPlacements] = await Promise.all([
     getPublicRewardsStats(),
     getRewardsLeaderboardPage({ page: 1 }),
+    getSponsoredProducts(1),
   ])
 
   const {
@@ -72,131 +75,121 @@ export async function RewardsLeaderboardPageContent({
     total,
   } = leaderboardPage
 
-  const headerStats: Record<
-    (typeof leaderboardMetrics)[number]["key"],
-    number
-  > = {
-    totalProducts: stats.membersWithRewards,
-    totalCreators: stats.activeBalances,
-    totalUpvotes: stats.earnedLast30d.rewardAmount,
-    totalRedeemed: stats.spentLast30d.rewardAmount,
+  const headerStats = {
+    membersWithRewards: stats.membersWithRewards,
+    activeBalances: stats.activeBalances,
+    earnedLast30d: stats.earnedLast30d.rewardAmount,
+    spentLast30d: stats.spentLast30d.rewardAmount,
   }
 
   return (
-    <main className="relative isolate bg-[#f5f7fb]">
-      <PublicTwoColumnLayout
-        className="pb-24 pt-12"
-        mainClassName="gap-10"
-        sidebarClassName="gap-6"
-        main={
-          <>
-            <section className="rounded-3xl border border-border/40 bg-white px-6 py-12 text-center shadow-[0_32px_96px_-60px_rgba(7,58,104,0.35)] sm:px-10">
-              <div className="mx-auto flex max-w-3xl flex-col items-center gap-6">
-                <span className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-border/40 bg-muted/40 text-[color:var(--brand-1)] shadow-[0_18px_42px_-28px_rgba(7,68,134,0.35)]">
-                  <IconTrophy className="h-7 w-7" />
-                </span>
-                <div className="space-y-4">
-                  <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-                    Members leading Shipyard rewards
-                  </h1>
-                  <p className="text-base text-muted-foreground">
-                    Track the Shipyard members earning the highest lifetime
-                    rewards. These standings highlight the community builders
-                    whose engagement, reviews, and launch activity fuel our
-                    ecosystem.
+    <main className="bg-[#f8f9ff] px-4 pb-20 pt-10 text-[#0b1c30] md:px-6">
+      <div className="mx-auto max-w-[1200px]">
+        <header className="mx-auto max-w-3xl py-10 text-center md:py-12">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl border border-[#E2E8F0] bg-white text-[#0051d5] shadow-[0_18px_42px_-30px_rgba(0,81,213,0.55)]">
+            <Trophy className="h-7 w-7" aria-hidden />
+          </span>
+          <h1 className="mt-5 text-[32px] font-bold leading-10 tracking-tight text-black md:text-[40px] md:leading-[48px]">
+            Rewards Leaderboard
+          </h1>
+          <p className="mx-auto mt-3 max-w-2xl text-[16px] leading-6 text-[#43474c]">
+            Tracking the top contributors, product hunters, and high-performance
+            builders earning momentum across the Shipyard ecosystem.
+          </p>
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link
+              href={MEMBER_REWARDS_PATH}
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-black px-6 text-[12px] font-semibold uppercase tracking-[0.05em] text-white transition hover:bg-black/90 active:scale-[0.98]"
+            >
+              <WalletCards className="h-4 w-4" aria-hidden />
+              Check your balance
+            </Link>
+            <Link
+              href={MEMBER_PRODUCTS_PATH}
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-6 text-[12px] font-semibold uppercase tracking-[0.05em] text-black transition hover:bg-[#F8FAFC] active:scale-[0.98]"
+            >
+              <Sparkles className="h-4 w-4" aria-hidden />
+              Submit product
+            </Link>
+          </div>
+        </header>
+
+        <section
+          className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4"
+          aria-label="Rewards leaderboard metrics"
+        >
+          {leaderboardMetrics.map(({ key, label, formatter, helper, Icon }) => (
+            <article
+              key={key}
+              className="rounded-xl border border-[#E2E8F0] bg-white p-6"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-[12px] font-semibold uppercase leading-4 tracking-[0.05em] text-[#43474c]">
+                  {label}
+                </p>
+                <Icon className="h-5 w-5 text-[#0051d5]" aria-hidden />
+              </div>
+              <p className="mt-3 text-[24px] font-semibold leading-8 tracking-tight text-black">
+                {formatter(headerStats[key])}
+              </p>
+              <p
+                className={cn(
+                  "mt-2 text-[12px] leading-4",
+                  key === "spentLast30d" ? "text-[#F97316]" : "text-[#16a34a]",
+                )}
+              >
+                {helper}
+              </p>
+            </article>
+          ))}
+        </section>
+
+        <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <section className="lg:col-span-8">
+            <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
+              <div className="flex flex-col gap-4 border-b border-[#E2E8F0] bg-white p-6 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <h2 className="text-[20px] font-semibold leading-7 text-black">
+                    Every member on the board
+                  </h2>
+                  <p className="mt-1 text-[14px] leading-5 text-[#43474c]">
+                    {entries.length > 0
+                      ? `Showing ${total.toLocaleString()} members ranked by lifetime rewards earned.`
+                      : "No members have earned Shipyard rewards yet."}
                   </p>
                 </div>
-                <div className="flex w-full flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
-                  <Link
-                    href={MEMBER_REWARDS_PATH}
-                    className={cn(
-                      HERO_PRIMARY_BUTTON_CLASSES,
-                      "w-full justify-center sm:w-auto",
-                    )}
-                  >
-                    Check your balance
-                  </Link>
-                  <Link
-                    href={LEADERBOARD_PATH}
-                    className={cn(
-                      HERO_SECONDARY_BUTTON_CLASSES,
-                      "w-full justify-center sm:w-auto",
-                    )}
-                  >
-                    Browse product leaderboard
-                  </Link>
-                </div>
-                <div className="grid w-full max-w-3xl grid-cols-2 gap-4 border-t border-border/60 pt-6 sm:grid-cols-4">
-                  {leaderboardMetrics.map(({ key, label, formatter }) => (
-                    <div
-                      key={key}
-                      className="rounded-2xl border border-border/50 bg-muted/30 px-4 py-3 text-left shadow-[0_20px_70px_-60px_rgba(7,68,134,0.35)] sm:text-center"
-                    >
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-                        {label}
-                      </p>
-                      <p className="mt-1 text-lg font-semibold text-foreground sm:text-xl">
-                        {formatter(headerStats[key])}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                <Link
+                  href={LEADERBOARD_PATH}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-4 text-[12px] font-semibold uppercase tracking-[0.05em] text-black transition hover:bg-white"
+                >
+                  Product leaderboard
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                </Link>
               </div>
-            </section>
-
-            <section className="rounded-3xl border border-border/50 bg-white/95 p-6 shadow-[0_20px_70px_-60px_rgba(7,68,134,0.35)] md:p-8">
-              <DirectorySectionHeader
-                kicker="Full standings"
-                title="Every member on the board"
-                description={
-                  entries.length > 0
-                    ? `Showing the top ${total.toLocaleString()} members ranked by lifetime rewards earned.`
-                    : "No members have earned Shipyard rewards yet. Check back soon as the community gets active."
-                }
-              />
 
               {entries.length > 0 ? (
-                <div className="mt-8">
-                  <RewardsLeaderboardClient
-                    initialEntries={entries}
-                    initialPage={page}
-                    pageSize={pageSize}
-                    initialHasMore={hasMore}
-                    initialNextPage={nextPage}
-                    total={total}
-                  />
-                </div>
+                <RewardsLeaderboardClient
+                  initialEntries={entries}
+                  initialPage={page}
+                  pageSize={pageSize}
+                  initialHasMore={hasMore}
+                  initialNextPage={nextPage}
+                  total={total}
+                />
               ) : (
-                <div className="mt-8 rounded-2xl border border-dashed border-border/60 bg-background/80 p-6 text-center text-sm text-muted-foreground">
+                <div className="m-6 rounded-lg border border-dashed border-[#c4c6cd] bg-[#F8FAFC] p-6 text-center text-sm leading-6 text-[#43474c]">
                   Run your first engagement, review, or launch streak to land a
                   spot on the rewards leaderboard.
                 </div>
               )}
-            </section>
-          </>
-        }
-        sidebar={
-          <>
-            <Suspense fallback={<TrafficSidebarStatsSkeleton />}>
-              <TrafficSidebarStats />
-            </Suspense>
-            <Suspense
-              fallback={
-                <div className="hidden lg:block">
-                  <SponsoredProductsSkeleton />
-                </div>
-              }
-            >
-              <div className="hidden lg:block">
-                <SponsoredProductsSection />
-              </div>
-            </Suspense>
-            <Suspense fallback={<DirectoryHighlightsSidebarSkeleton />}>
-              <DirectoryHighlightsSidebar />
-            </Suspense>
-          </>
-        }
-      />
+            </div>
+          </section>
+
+          <aside className="space-y-6 lg:col-span-4">
+            <PromotedShips placements={sponsoredPlacements} />
+          </aside>
+        </div>
+      </div>
     </main>
   )
 }
