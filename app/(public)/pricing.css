@@ -5,7 +5,17 @@
 @import "./_public-common.css";
 
 @source "./pricing/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../components/molecules/InfiniteProductGrid.tsx";
+@source "../../components/molecules/ProductFeedCard*.tsx";
+@source "../../components/molecules/ProductGrid*.tsx";
+@source "../../components/molecules/ProductList.skeleton.tsx";
+@source "../../components/molecules/ProductScore.tsx";
+@source "../../components/molecules/ProductUpvoteBadge.tsx";
 @source "../../components/molecules/PricingCard.tsx";
 @source "../../components/molecules/PricingFeature.tsx";
+@source "../../components/molecules/TrafficTimeseriesChart.tsx";
 @source "../../components/organisms/PricingTable.tsx";
+@source "../../components/templates/public/common/Taxonomy*.tsx";
+@source "../../components/templates/public/common/Traffic*.tsx";
+@source "../../components/templates/public/common/taxonomy-sponsors.ts";
 @source "../../components/templates/public/pricing/**/*.{js,ts,jsx,tsx}";
