@@ -84,6 +84,7 @@ export default async function ProductUpgradePage({
       where: { id: product.id },
       select: {
         subscriptionId: true,
+        planAssignedAt: true,
         plan: {
           select: {
             id: true,
@@ -91,6 +92,7 @@ export default async function ProductUpgradePage({
             type: true,
             price: true,
             isDefault: true,
+            boostForDays: true,
           },
         },
       },
@@ -98,6 +100,8 @@ export default async function ProductUpgradePage({
     getPerformanceSnapshot(product.id),
   ])
   const currentPlan = productPlan?.plan ?? null
+  const currentPlanPublic =
+    allPlans.find((plan) => plan.id === currentPlan?.id) ?? null
   const hasActivePaidSubscription = Boolean(
     productPlan?.subscriptionId &&
     currentPlan &&
@@ -112,13 +116,21 @@ export default async function ProductUpgradePage({
   const checkoutReadyPlans = allPlans.filter(
     (plan) => (plan.price || 0) === 0 || Boolean(plan.externalId),
   )
-  const upgradePlans = hasActivePaidSubscription
-    ? allPlans.filter((plan) => plan.id === currentPlan?.id)
-    : lockedPlanType
-      ? checkoutReadyPlans.filter(
-          (plan) => (plan.price || 0) === 0 || plan.type === lockedPlanType,
-        )
+  const upgradePlans =
+    lockedPlanType && currentPlanPublic
+      ? [currentPlanPublic]
       : checkoutReadyPlans
+  const boostEndsAt =
+    currentPlan &&
+    !currentPlan.isDefault &&
+    currentPlan.type !== "recurring_price" &&
+    productPlan?.planAssignedAt &&
+    (currentPlan.boostForDays ?? 0) > 0
+      ? new Date(
+          productPlan.planAssignedAt.getTime() +
+            (currentPlan.boostForDays ?? 0) * 24 * 60 * 60 * 1000,
+        ).toISOString()
+      : null
 
   const productHref = memberProductPath(product.slug)
   const productUpgradeHref = memberProductUpgradePath(product.slug)
@@ -134,8 +146,14 @@ export default async function ProductUpgradePage({
           redirectPath={productHref}
           errorRedirectPath={productUpgradeHref}
           currentPlanId={currentPlan?.id}
+          currentPlan={currentPlanPublic}
           lockedPlanType={lockedPlanType}
           subscriptionLocked={hasActivePaidSubscription}
+          currentPlanStatus={{
+            hasActiveSubscription: hasActivePaidSubscription,
+            assignedAt: productPlan?.planAssignedAt?.toISOString() ?? null,
+            boostEndsAt,
+          }}
           productPublicPath={publicProductHref}
           performanceSnapshot={performanceSnapshot}
         />

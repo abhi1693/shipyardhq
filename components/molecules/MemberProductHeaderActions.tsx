@@ -1,34 +1,27 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
-import { useRouter } from "next/navigation"
+import { useTransition, type ReactNode } from "react"
 import Link from "next/link"
 import { toast } from "sonner"
 
+import { createBillingPortalAction } from "@/actions/member/billing/portal"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/atoms/dropdown-menu"
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/atoms/tooltip"
 import { BADGE_CELEBRATION_EVENT } from "@/components/molecules/ProductBadgeCelebrationGate"
-import { setProductStatusAction } from "@/actions/admin/products/actions"
 import { cn } from "@/lib/utils"
 import {
-  Archive,
+  Award,
   BarChart3,
+  CreditCard,
   ExternalLink,
-  EyeOff,
-  MoreHorizontal,
   Pencil,
-  Rocket,
   Sparkles,
   Trash2,
-  Undo2,
 } from "lucide-react"
 
 type ProductStatus = "draft" | "published" | "archived"
@@ -39,11 +32,27 @@ function getStatusBadgeVariant(status: ProductStatus) {
   return "outline"
 }
 
+function IconAction({
+  label,
+  children,
+  className,
+}: {
+  label: string
+  children: ReactNode
+  className?: string
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent sideOffset={6} className={className}>
+        {label}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
 export default function MemberProductHeaderActions({
-  productId,
   status,
-  canChangeStatus,
-  statusChangeUnlockAt,
   publicPath,
   editPath,
   analyticsPath,
@@ -53,11 +62,9 @@ export default function MemberProductHeaderActions({
   canDelete = false,
   showStatus = true,
   className,
+  planAction = "promote",
 }: {
-  productId: string
   status: ProductStatus
-  canChangeStatus: boolean
-  statusChangeUnlockAt?: number | null
   publicPath: string
   editPath: string
   analyticsPath: string
@@ -67,36 +74,33 @@ export default function MemberProductHeaderActions({
   canDelete?: boolean
   showStatus?: boolean
   className?: string
+  planAction?: "promote" | "manage_subscription" | "none"
 }) {
-  const router = useRouter()
-  const [isPending, startTransition] = useTransition()
-  const [statusChangeAllowed, setStatusChangeAllowed] =
-    useState(canChangeStatus)
-
-  useEffect(() => {
-    setStatusChangeAllowed(canChangeStatus)
-  }, [canChangeStatus])
-
-  useEffect(() => {
-    if (statusChangeAllowed) return
-    if (!statusChangeUnlockAt) return
-    if (Date.now() >= statusChangeUnlockAt) {
-      setStatusChangeAllowed(true)
-    }
-  }, [statusChangeAllowed, statusChangeUnlockAt])
+  const [isBillingPortalPending, startBillingPortal] = useTransition()
 
   const statusBadgeVariant = getStatusBadgeVariant(status)
-  const textActionClass =
-    "h-9 rounded-lg border-0 bg-transparent px-3 text-xs font-semibold uppercase tracking-[0.05em] text-[#43474c] shadow-none hover:bg-[#F8FAFC] hover:text-[#0051d5]"
+  const iconActionClass =
+    "size-9 rounded-lg border-0 bg-transparent p-0 text-[#43474c] shadow-none hover:bg-[#F8FAFC] hover:text-[#0051d5]"
+  const destructiveIconActionClass =
+    "size-9 rounded-lg border-0 bg-transparent p-0 text-[#ba1a1a] shadow-none hover:bg-[#ffdad6] hover:text-[#93000a]"
   const promoteActionClass =
     "h-9 rounded-lg border border-[#F97316] bg-[#F97316] px-4 text-xs font-semibold uppercase tracking-[0.05em] text-white shadow-sm hover:bg-orange-600 hover:brightness-100"
+  const manageSubscriptionIconActionClass =
+    "size-9 rounded-lg border border-[#00162a] bg-[#00162a] p-0 text-white shadow-sm hover:bg-black hover:brightness-100"
 
-  function updateStatus(next: ProductStatus) {
-    startTransition(async () => {
-      const res = (await setProductStatusAction(productId, next)) as any
-      if (res?.error) toast.error(res.error)
-      else toast.success(`Status set to ${next}`)
-      router.refresh()
+  function openBillingPortal() {
+    startBillingPortal(async () => {
+      const res = (await createBillingPortalAction()) as {
+        link?: string
+        error?: string
+      }
+
+      if (res.link) {
+        window.location.href = res.link
+        return
+      }
+
+      toast.error(res.error || "Unable to open billing portal")
     })
   }
 
@@ -108,119 +112,111 @@ export default function MemberProductHeaderActions({
         </Badge>
       ) : null}
 
-      <Button variant="ghost" size="sm" asChild className={textActionClass}>
-        <Link
-          href={publicPath}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="View public page"
-          className="inline-flex items-center"
-        >
-          <ExternalLink className="h-4 w-4 mr-2" /> View public
-        </Link>
-      </Button>
+      <IconAction label="View public">
+        <Button variant="ghost" size="icon" asChild className={iconActionClass}>
+          <Link
+            href={publicPath}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="View public page"
+          >
+            <ExternalLink className="h-4 w-4" />
+          </Link>
+        </Button>
+      </IconAction>
 
-      <Button variant="ghost" size="sm" asChild className={textActionClass}>
-        <Link
-          href={editPath}
-          aria-label="Edit listing"
-          className="inline-flex items-center"
-        >
-          <Pencil className="h-4 w-4 mr-2" /> Edit listing
-        </Link>
-      </Button>
+      <IconAction label="Edit listing">
+        <Button variant="ghost" size="icon" asChild className={iconActionClass}>
+          <Link href={editPath} aria-label="Edit listing">
+            <Pencil className="h-4 w-4" />
+          </Link>
+        </Button>
+      </IconAction>
 
-      <Button size="sm" asChild className={promoteActionClass}>
-        <Link
-          href={upgradePath}
-          aria-label="Promote product"
-          className="inline-flex items-center"
+      {planAction === "manage_subscription" ? (
+        <IconAction
+          label={
+            isBillingPortalPending ? "Opening portal" : "Manage subscription"
+          }
         >
-          <Sparkles className="h-4 w-4 mr-2" />
-          Promote Product
-        </Link>
-      </Button>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
           <Button
             type="button"
             variant="ghost"
-            size="sm"
-            className={textActionClass}
-            disabled={isPending}
-          >
-            <MoreHorizontal className="h-4 w-4 mr-2" />
-            Actions
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>Growth</DropdownMenuLabel>
-          <DropdownMenuItem
-            onSelect={() =>
-              router.push(canViewAnalytics ? analyticsPath : upgradePath)
+            size="icon"
+            className={manageSubscriptionIconActionClass}
+            disabled={isBillingPortalPending}
+            onClick={openBillingPortal}
+            aria-label={
+              isBillingPortalPending
+                ? "Opening billing portal"
+                : "Manage subscription"
             }
           >
-            <BarChart3 className="h-4 w-4" />
-            {canViewAnalytics ? "Analytics" : "Unlock analytics"}
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => router.push(upgradePath)}>
-            <Sparkles className="h-4 w-4" />
-            Boost & upgrades
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={() => {
-              if (typeof window === "undefined") return
-              window.dispatchEvent(new CustomEvent(BADGE_CELEBRATION_EVENT))
-            }}
+            <CreditCard className="h-4 w-4" />
+          </Button>
+        </IconAction>
+      ) : null}
+
+      {planAction === "promote" ? (
+        <Button size="sm" asChild className={promoteActionClass}>
+          <Link
+            href={upgradePath}
+            aria-label="Promote product"
+            className="inline-flex items-center"
           >
-            <Sparkles className="h-4 w-4" />
-            Get badge
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>Status</DropdownMenuLabel>
-          {statusChangeAllowed ? (
-            <>
-              {status !== "published" ? (
-                <DropdownMenuItem onSelect={() => updateStatus("published")}>
-                  <Rocket className="h-4 w-4" /> Publish
-                </DropdownMenuItem>
-              ) : null}
-              {status === "published" ? (
-                <DropdownMenuItem onSelect={() => updateStatus("draft")}>
-                  <EyeOff className="h-4 w-4" /> Unpublish
-                </DropdownMenuItem>
-              ) : null}
-              {status === "archived" ? (
-                <DropdownMenuItem onSelect={() => updateStatus("draft")}>
-                  <Undo2 className="h-4 w-4" /> Restore
-                </DropdownMenuItem>
-              ) : null}
-              {status !== "archived" ? (
-                <DropdownMenuItem onSelect={() => updateStatus("archived")}>
-                  <Archive className="h-4 w-4" /> Archive
-                </DropdownMenuItem>
-              ) : null}
-            </>
-          ) : (
-            <DropdownMenuItem disabled>
-              Status locked while boosted
-            </DropdownMenuItem>
-          )}
-          {canDelete ? (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                variant="destructive"
-                onSelect={() => router.push(deletePath)}
-              >
-                <Trash2 className="h-4 w-4" />
-                Delete…
-              </DropdownMenuItem>
-            </>
-          ) : null}
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <Sparkles className="h-4 w-4 mr-2" />
+            Promote Product
+          </Link>
+        </Button>
+      ) : null}
+
+      {canViewAnalytics || planAction === "promote" ? (
+        <IconAction label={canViewAnalytics ? "Analytics" : "Unlock analytics"}>
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            className={iconActionClass}
+          >
+            <Link
+              href={canViewAnalytics ? analyticsPath : upgradePath}
+              aria-label={canViewAnalytics ? "Analytics" : "Unlock analytics"}
+            >
+              <BarChart3 className="h-4 w-4" />
+            </Link>
+          </Button>
+        </IconAction>
+      ) : null}
+
+      <IconAction label="Get badge">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className={iconActionClass}
+          onClick={() => {
+            if (typeof window === "undefined") return
+            window.dispatchEvent(new CustomEvent(BADGE_CELEBRATION_EVENT))
+          }}
+        >
+          <Award className="h-4 w-4" />
+        </Button>
+      </IconAction>
+
+      {canDelete ? (
+        <IconAction label="Delete">
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            className={destructiveIconActionClass}
+          >
+            <Link href={deletePath} aria-label="Delete product">
+              <Trash2 className="h-4 w-4" />
+            </Link>
+          </Button>
+        </IconAction>
+      ) : null}
     </div>
   )
 }

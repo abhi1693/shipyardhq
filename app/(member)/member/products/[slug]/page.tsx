@@ -149,6 +149,13 @@ export default async function ViewUserProductPage({
     }),
   ])
   const currentPlanPublic = allPlans.find((p) => p.id === product.plan?.id)
+  const productPlanType = product.plan?.type ?? currentPlanPublic?.type ?? null
+  const hasPaidPlan = !isFreePlan && (product.plan?.price ?? 0) > 0
+  const headerPlanAction = isFreePlan
+    ? "promote"
+    : hasPaidPlan && productPlanType === "recurring_price"
+      ? "manage_subscription"
+      : "none"
   const sortedPlans = [...allPlans].sort(
     (a, b) => (a.price ?? 0) - (b.price ?? 0),
   )
@@ -165,6 +172,10 @@ export default async function ViewUserProductPage({
     (plan) => plan.type === targetPlanType,
   )
   const upgradeCandidates = (() => {
+    if (!isFreePlan) {
+      return []
+    }
+
     if (currentPlanPublic) {
       return typeFilteredPlans.filter(
         (plan) => (plan.price ?? 0) > (currentPlanPublic.price ?? 0),
@@ -174,6 +185,7 @@ export default async function ViewUserProductPage({
     return paidPlans.length ? paidPlans : typeFilteredPlans
   })()
   const nextPlan = upgradeCandidates[0]
+  const canPromoteProduct = Boolean(nextPlan)
   const nextPlanNewBenefits = nextPlan
     ? nextPlan.features
         .filter((feature) => feature.enabled)
@@ -208,12 +220,6 @@ export default async function ViewUserProductPage({
     redirectPath: memberProductPath(productSlug),
   })
   const upgradePath = memberProductUpgradePath(productSlug)
-  const boostAssignedAt = product.planAssignedAt
-  const boostDays = product.plan?.boostForDays ?? 0
-  const statusChangeUnlockAt =
-    !isFreePlan && boostAssignedAt && boostDays > 0
-      ? boostAssignedAt.getTime() + boostDays * 24 * 60 * 60 * 1000
-      : null
 
   const formatHost = (value?: string | null) => {
     if (!value) return null
@@ -311,7 +317,7 @@ export default async function ViewUserProductPage({
       note:
         product.status === "published"
           ? "Live"
-          : "Use Publish in the header when ready",
+          : "Status is managed by Shipyard",
       complete: product.status === "published",
     },
   ]
@@ -331,28 +337,28 @@ export default async function ViewUserProductPage({
   const boostMode =
     product.status !== "published"
       ? publishPrereqsComplete
-        ? "publish_and_boost"
+        ? "setup_before_publish"
         : "finish_setup"
       : "boost"
   const boostCardTitle =
     product.status !== "published"
       ? publishPrereqsComplete
-        ? "Ready to launch — boost your debut"
+        ? "Ready for review — set up your boost"
         : "Boost once you're live"
       : upvoteCount === 0
         ? "Want more impressions? Boost to get featured"
         : "Want more visibility? Boost your listing"
   const boostCtaLabel =
-    boostMode === "publish_and_boost"
-      ? "Publish + boost"
+    boostMode === "setup_before_publish"
+      ? "Set up boost"
       : boostMode === "finish_setup"
         ? "View upgrade options"
         : upvoteCount === 0
           ? "Boost to get featured"
           : "Boost listing"
   const boostCtaHint =
-    boostMode === "publish_and_boost"
-      ? "We’ll publish your listing and start checkout."
+    boostMode === "setup_before_publish"
+      ? "Checkout runs now; placement starts after Shipyard publishes."
       : boostMode === "finish_setup"
         ? "Choose a boost now; it starts after you publish."
         : null
@@ -361,7 +367,7 @@ export default async function ViewUserProductPage({
       ? "Starts immediately"
       : "Starts after publish"
   const boostFormAction =
-    boostMode === "publish_and_boost" ? publishAndBoost : choosePlan
+    boostMode === "setup_before_publish" ? publishAndBoost : choosePlan
 
   const pageViews30d = trafficSummary?.totalViews ?? 0
   const visitors30d = trafficSummary?.uniqueVisitors ?? 0
@@ -429,10 +435,7 @@ export default async function ViewUserProductPage({
             </div>
           </div>
           <MemberProductHeaderActions
-            productId={product.id}
             status={product.status as any}
-            canChangeStatus={isFreePlan}
-            statusChangeUnlockAt={statusChangeUnlockAt}
             publicPath={publicPath}
             editPath={editPath}
             analyticsPath={analyticsPath}
@@ -441,11 +444,12 @@ export default async function ViewUserProductPage({
             deletePath={memberProductDeletePath(product.slug)}
             canDelete={isOwner}
             showStatus={false}
+            planAction={headerPlanAction}
             className="justify-start lg:justify-end"
           />
         </div>
       </PrivateHeaderSlot>
-      <main className="-m-4 min-h-screen bg-[#F8FAFC] text-[#0b1c30] md:-m-6">
+      <main className="-m-4 bg-[#F8FAFC] text-[#0b1c30] md:-m-6">
         <div className="w-full p-4 md:p-6">
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 space-y-6 xl:col-span-8">
@@ -712,20 +716,20 @@ export default async function ViewUserProductPage({
             </div>
 
             <aside className="col-span-12 space-y-6 xl:col-span-4">
-              <section className="overflow-hidden rounded-lg border border-[#E2E8F0] bg-white shadow-[0_4px_12px_rgba(15,23,42,0.04)]">
-                <div className="bg-[#061d31] p-5 text-white">
-                  <div className="flex items-center gap-2">
-                    <Megaphone className="size-5" aria-hidden />
-                    <h2 className="text-base font-semibold">
-                      Promotion Center
-                    </h2>
+              {canPromoteProduct ? (
+                <section className="overflow-hidden rounded-lg border border-[#E2E8F0] bg-white shadow-[0_4px_12px_rgba(15,23,42,0.04)]">
+                  <div className="bg-[#061d31] p-5 text-white">
+                    <div className="flex items-center gap-2">
+                      <Megaphone className="size-5" aria-hidden />
+                      <h2 className="text-base font-semibold">
+                        Promotion Center
+                      </h2>
+                    </div>
+                    <p className="mt-1 text-sm text-white/75">
+                      Accelerate discovery for this listing.
+                    </p>
                   </div>
-                  <p className="mt-1 text-sm text-white/75">
-                    Accelerate discovery for this listing.
-                  </p>
-                </div>
-                <div className="space-y-4 p-5">
-                  {nextPlan ? (
+                  <div className="space-y-4 p-5">
                     <div className="rounded-lg border border-[#E2E8F0] p-4">
                       <div className="mb-3 flex items-start justify-between gap-3">
                         <div>
@@ -812,15 +816,9 @@ export default async function ViewUserProductPage({
                         </p>
                       ) : null}
                     </div>
-                  ) : (
-                    <div className={dashedCalloutClass}>
-                      <p className="text-sm text-[#43474c]">
-                        This product is already on the strongest available plan.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </section>
+                  </div>
+                </section>
+              ) : null}
 
               <section className={panelClass}>
                 <div className="mb-5 flex items-center gap-2">

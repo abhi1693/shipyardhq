@@ -5,6 +5,7 @@ const defaultPlanSelect = {
   id: true,
   name: true,
   price: true,
+  type: true,
   boostForDays: true,
   isDefault: true,
   assignments: {

@@ -1,8 +1,16 @@
 "use client"
 
 import { type KeyboardEvent, useMemo, useState, useTransition } from "react"
+import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { CheckCircle2, CreditCard, ShieldCheck, Sparkles } from "lucide-react"
+import {
+  CalendarClock,
+  CheckCircle2,
+  CreditCard,
+  ExternalLink,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react"
 import { toast } from "sonner"
 
 import type { PublicPlan } from "@/actions/public/plans/actions"
@@ -20,6 +28,12 @@ export type ProductUpgradePerformanceSnapshot = {
   productUniqueVisitors30d: number
   productPageViews30d: number
   productUpvotes: number
+}
+
+export type ProductUpgradePlanStatus = {
+  hasActiveSubscription: boolean
+  assignedAt: string | null
+  boostEndsAt: string | null
 }
 
 const PLAN_TYPE_OPTIONS: { value: PlanType; label: string }[] = [
@@ -79,6 +93,10 @@ function planRank(plan: PublicPlan) {
   if ((plan.price || 0) === 0) return 0
   if (/pro|enterprise|max/i.test(plan.name)) return 2
   return 1
+}
+
+function isPaidPlan(plan?: PublicPlan | null) {
+  return Boolean(plan && !plan.isDefault && (plan.price || 0) > 0)
 }
 
 function enabledPlanFeatures(plan: PublicPlan, fallback: string[]) {
@@ -176,14 +194,32 @@ function getPlanSubtitle(plan: PublicPlan) {
   return "One-time payment"
 }
 
+function formatDateLabel(value?: string | null) {
+  if (!value) return null
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date)
+}
+
 export function ProductUpgradeProvisioning({
   plans,
   productId,
   redirectPath,
   errorRedirectPath,
   currentPlanId,
+  currentPlan,
   lockedPlanType,
   subscriptionLocked = false,
+  currentPlanStatus = {
+    hasActiveSubscription: false,
+    assignedAt: null,
+    boostEndsAt: null,
+  },
   productPublicPath,
   performanceSnapshot = EMPTY_PERFORMANCE_SNAPSHOT,
 }: {
@@ -192,8 +228,10 @@ export function ProductUpgradeProvisioning({
   redirectPath: string
   errorRedirectPath?: string
   currentPlanId?: string | null
+  currentPlan?: PublicPlan | null
   lockedPlanType?: PlanType | null
   subscriptionLocked?: boolean
+  currentPlanStatus?: ProductUpgradePlanStatus
   productPublicPath?: string
   performanceSnapshot?: ProductUpgradePerformanceSnapshot
 }) {
@@ -278,6 +316,12 @@ export function ProductUpgradeProvisioning({
   const circumference = 2 * Math.PI * 45
   const score = metrics?.score ?? 0
   const gaugeOffset = circumference - (score / 100) * circumference
+  const currentPaidPlan = isPaidPlan(currentPlan) ? currentPlan : null
+  const currentPaidMetrics = currentPaidPlan
+    ? planMetrics(currentPaidPlan, performanceSnapshot)
+    : null
+  const currentPlanAssignedDate = formatDateLabel(currentPlanStatus.assignedAt)
+  const currentBoostEndsDate = formatDateLabel(currentPlanStatus.boostEndsAt)
 
   function handleTypeChange(nextType: PlanType) {
     if (subscriptionLocked) return
@@ -325,6 +369,147 @@ export function ProductUpgradeProvisioning({
 
       toast.error(result.error || "Unable to open billing portal")
     })
+  }
+
+  if (currentPaidPlan && currentPaidMetrics) {
+    const isRecurring = currentPaidPlan.type === "recurring_price"
+    const statusLabel = isRecurring ? "Subscription active" : "Boost active"
+    const timingLabel = isRecurring
+      ? currentPlanAssignedDate
+        ? `Started ${currentPlanAssignedDate}`
+        : "Managed through billing"
+      : currentBoostEndsDate
+        ? `Boost active through ${currentBoostEndsDate}`
+        : currentPlanAssignedDate
+          ? `Boost started ${currentPlanAssignedDate}`
+          : "Boost window active"
+
+    return (
+      <div className="space-y-6">
+        <section className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm">
+          <div className="border-b border-[#E2E8F0] bg-[#061d31] px-6 py-5 text-white md:px-8">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div>
+                <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white/75">
+                  <Sparkles className="size-3.5" aria-hidden="true" />
+                  Current plan
+                </div>
+                <h1 className="text-[28px] font-bold leading-9">
+                  {currentPaidPlan.name} is active
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/70">
+                  Your product is already receiving paid placement. Plan changes
+                  are only available while a product is on the free plan.
+                </p>
+              </div>
+              <div className="rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-left md:text-right">
+                <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-white/60">
+                  {statusLabel}
+                </div>
+                <div className="mt-1 text-lg font-semibold">
+                  {formatPrice(currentPaidPlan.price || 0)}
+                </div>
+                <div className="text-xs text-white/60">
+                  {getPlanSubtitle(currentPaidPlan)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-6 p-6 md:grid-cols-[minmax(0,1fr)_320px] md:p-8">
+            <div className="space-y-5">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-xl border border-[#E2E8F0] bg-[#f8f9ff] p-4">
+                  <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.08em] text-[#43474c]">
+                    <CalendarClock className="size-4" aria-hidden="true" />
+                    Active window
+                  </div>
+                  <div className="text-sm font-semibold text-[#0b1c30]">
+                    {timingLabel}
+                  </div>
+                </div>
+                <div className="rounded-xl border border-[#E2E8F0] bg-[#f8f9ff] p-4">
+                  <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-[#43474c]">
+                    Reach potential
+                  </div>
+                  <div className="text-sm font-semibold text-[#0b1c30]">
+                    {currentPaidMetrics.score}% score ·{" "}
+                    {currentPaidMetrics.reach} estimated reach
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h2 className="mb-3 text-[12px] font-bold uppercase tracking-[0.08em] text-[#43474c]">
+                  Included benefits
+                </h2>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {currentPaidMetrics.features.map((feature) => (
+                    <div
+                      key={feature}
+                      className="flex items-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-sm text-[#0b1c30]"
+                    >
+                      <CheckCircle2
+                        className="size-4 shrink-0 text-[#16a34a]"
+                        aria-hidden="true"
+                      />
+                      {feature}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <aside className="rounded-xl border border-[#E2E8F0] bg-[#f8f9ff] p-5">
+              <div className="space-y-4">
+                <div>
+                  <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#16a34a]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#15803d]">
+                    <CheckCircle2 className="size-3.5" aria-hidden="true" />
+                    Paid plan active
+                  </div>
+                  <h2 className="text-xl font-bold text-[#0b1c30]">
+                    No upgrade options
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-[#43474c]">
+                    Plan changes are only available while this product is on the
+                    free plan.
+                  </p>
+                </div>
+
+                {currentPlanStatus.hasActiveSubscription ? (
+                  <Button
+                    type="button"
+                    className="h-11 w-full rounded-xl bg-[#00162a] text-[12px] font-bold uppercase tracking-widest text-white hover:bg-black"
+                    disabled={isPortalPending}
+                    onClick={openBillingPortal}
+                  >
+                    <CreditCard className="size-4" aria-hidden="true" />
+                    {isPortalPending ? "Opening Portal" : "Manage Subscription"}
+                  </Button>
+                ) : null}
+
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-10 w-full rounded-xl text-[12px] font-bold uppercase tracking-widest"
+                >
+                  <Link href={redirectPath}>
+                    <ExternalLink className="size-4" aria-hidden="true" />
+                    View Product
+                  </Link>
+                </Button>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <ProductBadgeCelebrationDialog
+          open={badgeDialogOpen}
+          onOpenChange={setBadgeDialogOpen}
+          productPublicPath={productPublicPath}
+        />
+      </div>
+    )
   }
 
   if (!plans.length || !selectedPlan || !metrics) {
@@ -590,7 +775,7 @@ export function ProductUpgradeProvisioning({
                     className="h-12 w-full rounded-xl bg-[#00162a] text-[12px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#00162a]/10 hover:bg-black"
                   >
                     <Sparkles className="size-4" aria-hidden="true" />
-                    Publish
+                    Select Plan
                   </Button>
                 </form>
               )}

@@ -24,6 +24,11 @@ type PlanSummary = {
   price: number
 }
 
+type SubscriptionPaymentSummary = {
+  status?: string
+  createdAtMs: number
+}
+
 const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active"])
 const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
   "pending",
@@ -90,10 +95,19 @@ export async function syncCurrentUserBilling() {
 
   const activeProducts = new Set<string>()
   const cancelledProducts = new Set<string>()
+  const subscriptionMetadataPlanIds = new Set<string>()
   const items: any[] = (page as any)?.items || []
   for (const sub of items) {
     const status = (sub?.status || "").toLowerCase()
     const pid = sub?.product_id as string | undefined
+    const metadata =
+      typeof sub?.metadata === "object" && sub.metadata
+        ? (sub.metadata as Record<string, unknown>)
+        : null
+    const metadataPlanId = readMetadataString(metadata, "planId", "plan_id")
+    if (metadataPlanId) {
+      subscriptionMetadataPlanIds.add(metadataPlanId)
+    }
     if (!pid) continue
     if (ACTIVE_SUBSCRIPTION_STATUSES.has(status)) {
       activeProducts.add(pid)
@@ -101,6 +115,35 @@ export async function syncCurrentUserBilling() {
     }
     if (INACTIVE_SUBSCRIPTION_STATUSES.has(status)) {
       cancelledProducts.add(pid)
+    }
+  }
+
+  const latestSubscriptionPaymentById = new Map<
+    string,
+    SubscriptionPaymentSummary
+  >()
+  const allPayPage = await dodoClient.payments.list({
+    customer_id: customer.customer_id,
+    page_size: 100,
+  } as any)
+  const allPayments: any[] = (allPayPage as any)?.items || []
+  for (const payment of allPayments) {
+    const subscriptionId =
+      typeof payment?.subscription_id === "string"
+        ? payment.subscription_id
+        : undefined
+    if (!subscriptionId) continue
+
+    const createdAtMs = Date.parse(payment?.created_at || "")
+    const existing = latestSubscriptionPaymentById.get(subscriptionId)
+    if (
+      Number.isFinite(createdAtMs) &&
+      (!existing || createdAtMs > existing.createdAtMs)
+    ) {
+      latestSubscriptionPaymentById.set(subscriptionId, {
+        status: (payment?.status || "").toString().toLowerCase(),
+        createdAtMs,
+      })
     }
   }
 
@@ -146,7 +189,10 @@ export async function syncCurrentUserBilling() {
     new Set([...activeProducts, ...cancelledProducts, ...oneTimeProducts]),
   ).filter(Boolean)
   const internalPlanIds = Array.from(
-    new Set(oneTimeProductPurchases.map((purchase) => purchase.planId)),
+    new Set([
+      ...oneTimeProductPurchases.map((purchase) => purchase.planId),
+      ...subscriptionMetadataPlanIds,
+    ]),
   ).filter(Boolean) as string[]
   const planWhere: Prisma.PlanWhereInput[] = []
   if (externalPlanIds.length) {
@@ -176,12 +222,15 @@ export async function syncCurrentUserBilling() {
     if (p.externalId) byExternal[p.externalId] = p.id
   }
 
-  await syncProductPlanSubscriptions({
-    userId: user.id,
-    subscriptions: items,
-    planById,
-    planIdByExternal: byExternal,
-  })
+  const subscriptionEntitlementExternalIds = await syncProductPlanSubscriptions(
+    {
+      userId: user.id,
+      subscriptions: items,
+      planById,
+      planIdByExternal: byExternal,
+      latestSubscriptionPaymentById,
+    },
+  )
   await syncProductPlanPayments({
     userId: user.id,
     purchases: oneTimeProductPurchases,
@@ -190,7 +239,10 @@ export async function syncCurrentUserBilling() {
   })
 
   let added = 0
-  for (const pid of new Set<string>([...activeProducts, ...oneTimeProducts])) {
+  for (const pid of new Set<string>([
+    ...subscriptionEntitlementExternalIds,
+    ...oneTimeProducts,
+  ])) {
     const planId = byExternal[pid]
     if (!planId) continue
     await prisma.userPlanPurchase.upsert({
@@ -203,7 +255,10 @@ export async function syncCurrentUserBilling() {
 
   // Only remove entitlements for products that are cancelled AND not otherwise
   // protected by an active subscription or successful one-time payment.
-  const protectedPids = new Set<string>([...activeProducts, ...oneTimeProducts])
+  const protectedPids = new Set<string>([
+    ...subscriptionEntitlementExternalIds,
+    ...oneTimeProducts,
+  ])
   const removablePids = Array.from(cancelledProducts).filter(
     (pid) => !protectedPids.has(pid),
   )
@@ -226,6 +281,7 @@ async function syncProductPlanSubscriptions(args: {
   subscriptions: any[]
   planById: Map<string, PlanSummary>
   planIdByExternal: Record<string, string>
+  latestSubscriptionPaymentById: Map<string, SubscriptionPaymentSummary>
 }) {
   const activeByProductId = new Map<
     string,
@@ -249,17 +305,33 @@ async function syncProductPlanSubscriptions(args: {
     const planIdFromMeta = readMetadataString(metadata, "planId", "plan_id")
     const productExternalId =
       typeof sub?.product_id === "string" ? sub.product_id : undefined
+    const rawSubscriptionId = (sub as any)?.subscription_id || (sub as any)?.id
+    const subscriptionId =
+      typeof rawSubscriptionId === "string" ? rawSubscriptionId : undefined
+    const planIdFromExternal = productExternalId
+      ? args.planIdByExternal[productExternalId]
+      : undefined
+    const latestPayment = subscriptionId
+      ? args.latestSubscriptionPaymentById.get(subscriptionId)
+      : undefined
+    const hasPendingPlanChange =
+      Boolean(
+        planIdFromMeta &&
+        planIdFromExternal &&
+        planIdFromMeta !== planIdFromExternal,
+      ) && latestPayment?.status !== "succeeded"
+
+    // Dodo may update subscription.product_id as soon as a plan change is
+    // initiated, while the payment is still processing. Keep the local product
+    // on the metadata/current plan until the latest subscription payment
+    // succeeds.
     const planId =
-      (productExternalId
-        ? args.planIdByExternal[productExternalId]
-        : undefined) || planIdFromMeta
+      (hasPendingPlanChange ? planIdFromMeta : planIdFromExternal) ||
+      planIdFromMeta
     if (!planId) continue
 
     const plan = args.planById.get(planId)
     if (!plan || plan.type !== PlanType.recurring_price) continue
-    const rawSubscriptionId = (sub as any)?.subscription_id || (sub as any)?.id
-    const subscriptionId =
-      typeof rawSubscriptionId === "string" ? rawSubscriptionId : undefined
 
     if (isActive) {
       const existing = activeByProductId.get(productId)
@@ -275,8 +347,16 @@ async function syncProductPlanSubscriptions(args: {
   }
 
   if (!activeByProductId.size && !inactiveByProductId.size) {
-    return
+    return []
   }
+
+  const activeExternalPlanIds = Array.from(
+    new Set(
+      Array.from(activeByProductId.values())
+        .map(({ plan }) => plan.externalId)
+        .filter((externalId): externalId is string => Boolean(externalId)),
+    ),
+  )
 
   const productIds = Array.from(
     new Set([...activeByProductId.keys(), ...inactiveByProductId.keys()]),
@@ -370,6 +450,8 @@ async function syncProductPlanSubscriptions(args: {
       Array.from(touchedProductIds),
     )
   }
+
+  return activeExternalPlanIds
 }
 
 async function syncProductPlanPayments(args: {

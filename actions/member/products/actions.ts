@@ -15,12 +15,11 @@ import {
 import { hasPlanFeature } from "@/lib/features"
 import { memberProductPath } from "@/lib/routes"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
+import { createDodoCustomerPortalLinkByEmail } from "@/lib/dodoCustomerPortal"
 import { revalidateProduct } from "@/lib/cache/revalidate"
-import { dispatchEventAsync } from "@/lib/server/events"
 import { verifyProductBacklinkNow } from "@/lib/server/rewards/backlinkVerification"
 import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
 import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
-import { invalidateSearchSuggestionsCache } from "@/lib/server/search/suggestions-cache"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -32,7 +31,6 @@ const ACTIVE_ENTITLEMENT_STATUSES: FeatureEntitlementStatus[] = [
   "pending",
 ]
 const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active"])
-const SUBSCRIPTION_CHANGE_PRORATION_MODE = "prorated_immediately"
 
 async function refreshHomepageFeedCacheAfterMemberProductChange(
   reason: string,
@@ -69,50 +67,6 @@ async function invalidateProductAnalyticsAfterMemberProductChange(
     )
     return null
   }
-}
-
-async function invalidateSearchSuggestionsAfterMemberProductChange(
-  reason: string,
-  productId?: string,
-) {
-  try {
-    return await invalidateSearchSuggestionsCache(reason)
-  } catch (error) {
-    console.error(
-      "Failed to invalidate search suggestions after member change",
-      {
-        reason,
-        productId,
-        error,
-      },
-    )
-    return null
-  }
-}
-
-function publishAfterPlanValidationData(status?: ProductStatus | null) {
-  if (status === ProductStatus.published) return {}
-  return {
-    status: ProductStatus.published,
-    publishedAt: new Date(),
-  }
-}
-
-async function finalizePublishAfterPlanValidation(
-  productId: string,
-  previousStatus?: ProductStatus | null,
-) {
-  if (previousStatus === ProductStatus.published) return
-
-  dispatchEventAsync(
-    "product.published",
-    { productId },
-    { context: { productId } },
-  )
-  await invalidateSearchSuggestionsAfterMemberProductChange(
-    "member.product.plan.validated.published",
-    productId,
-  )
 }
 
 type ProductListItem = Prisma.ProductGetPayload<{
@@ -379,7 +333,6 @@ export async function setProductPlanAction(
   const data: Prisma.ProductUncheckedUpdateInput = {
     planId: planId ?? null,
     planAssignedAt,
-    ...(planId ? publishAfterPlanValidationData(product.status) : {}),
   }
   if (subscriptionIdUpdate !== undefined) {
     data.subscriptionId = subscriptionIdUpdate
@@ -389,9 +342,6 @@ export async function setProductPlanAction(
     where: { id: productId },
     data,
   })
-  if (planId) {
-    await finalizePublishAfterPlanValidation(productId, product.status)
-  }
   revalidateProduct(productId, "revalidate")
   await refreshHomepageFeedCacheAfterMemberProductChange(
     "member.product.plan.updated",
@@ -421,9 +371,19 @@ export async function startPlanCheckoutAction(
     select: {
       id: true,
       slug: true,
+      plan: {
+        select: { isDefault: true, price: true },
+      },
     },
   })
   if (!product) return { error: "Product not found or not owned by user" }
+  if (
+    product.plan &&
+    !product.plan.isDefault &&
+    (product.plan.price ?? 0) > 0
+  ) {
+    return { error: "Plan changes are only available for free products" }
+  }
 
   const plan = await prisma.plan.findUnique({
     where: { id: planId },
@@ -514,10 +474,8 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
         planId,
         planAssignedAt,
         subscriptionId: null,
-        ...publishAfterPlanValidationData(product.status),
       },
     })
-    await finalizePublishAfterPlanValidation(productId, product.status)
     revalidateProduct(productId, "revalidate")
     await refreshHomepageFeedCacheAfterMemberProductChange(
       "member.product.payment.validated",
@@ -595,10 +553,8 @@ export async function validateSubscriptionAndAttachPlan(
         planId,
         planAssignedAt,
         subscriptionId: subscriptionExternalId,
-        ...publishAfterPlanValidationData(product.status),
       },
     })
-    await finalizePublishAfterPlanValidation(productId, product.status)
     revalidateProduct(productId, "revalidate")
     await refreshHomepageFeedCacheAfterMemberProductChange(
       "member.product.subscription.validated",
@@ -652,8 +608,8 @@ export async function choosePlanAction(
   const activePlan = currentPlan?.plan
   const hasPaidPlan =
     !!activePlan && !activePlan.isDefault && (activePlan.price ?? 0) > 0
-  if (hasPaidPlan && activePlan.type !== plan.type) {
-    redirect(errorRedirect("plan_type_locked"))
+  if (hasPaidPlan) {
+    redirect(errorRedirect("plan_already_paid"))
   }
 
   // Free plans (no price): attach immediately
@@ -671,46 +627,20 @@ export async function choosePlanAction(
     redirect(errorRedirect("plan_not_configured"))
   }
 
-  if (
-    (plan.price || 0) > 0 &&
-    plan.type === "recurring_price" &&
-    ownership.user.email
-  ) {
+  if ((plan.price || 0) > 0 && plan.type === "recurring_price") {
     const existingSubscription = await findActiveSubscriptionForProduct({
       email: ownership.user.email,
       productId: ctx.productId,
     })
-    const rawSubscriptionId =
-      (existingSubscription as any)?.subscription_id ||
-      (existingSubscription as any)?.id ||
-      null
-    const subscriptionId =
-      typeof rawSubscriptionId === "string" ? rawSubscriptionId : null
-    if (subscriptionId) {
-      try {
-        const isSamePlan =
-          (existingSubscription as any)?.product_id === plan.externalId
-        if (!isSamePlan) {
-          await dodoClient.subscriptions.changePlan(subscriptionId, {
-            product_id: plan.externalId,
-            proration_billing_mode: SUBSCRIPTION_CHANGE_PRORATION_MODE,
-            quantity: 1,
-          } as any)
-        }
-        await setProductPlanAction(ctx.productId, planId, subscriptionId)
-      } catch (error) {
-        const status = (error as any)?.status
-        const message = String((error as any)?.error?.message || "")
-          .trim()
-          .toLowerCase()
-        if (status === 409 && message.includes("previous payment")) {
-          console.warn("Subscription change blocked by pending payment")
-          redirect(errorRedirect("subscription_payment_pending"))
-        }
-        console.error("Failed to change subscription plan:", error)
-        redirect(errorRedirect("subscription_change_failed"))
+    if (existingSubscription) {
+      const portalLink = await createDodoCustomerPortalLinkByEmail(
+        ownership.user.email,
+      )
+      if (portalLink) {
+        redirect(portalLink)
       }
-      redirect(`${ctx.redirectPath}?upgraded=1`)
+
+      redirect(errorRedirect("subscription_portal_failed"))
     }
   }
 

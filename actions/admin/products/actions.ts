@@ -165,6 +165,7 @@ export async function getProductById(id: string) {
             id: true,
             name: true,
             price: true,
+            type: true,
             boostForDays: true,
             isDefault: true,
             assignments: {
@@ -983,13 +984,8 @@ export async function setProductStatusAction(
 ) {
   try {
     const isAdmin = await checkRole("admin")
-    let currentUser: Awaited<ReturnType<typeof getActiveUserByClerkId>> | null =
-      null
     if (!isAdmin) {
-      const { userId: clerkId } = await auth()
-      if (!clerkId) return { error: "Unauthenticated" }
-      currentUser = await getActiveUserByClerkId(clerkId)
-      if (!currentUser) return { error: INACTIVE_ACCOUNT_MESSAGE }
+      return { error: "Only admins can update product status." }
     }
 
     const previous = await prisma.product.findUnique({
@@ -1003,30 +999,6 @@ export async function setProductStatusAction(
       },
     })
     if (!previous) return { error: "Product not found" }
-
-    if (!isAdmin && currentUser) {
-      const ownsProduct = previous.userId === currentUser.id
-      if (!ownsProduct) {
-        return { error: "Not authorized to update status" }
-      }
-    }
-
-    if (!isAdmin && status === "published" && !previous.planId) {
-      return { error: "Select and validate a plan before publishing." }
-    }
-
-    const isFreePlan = !previous.plan || previous.plan.isDefault
-    const boostAssignedAt = previous.planAssignedAt
-    const boostDays = previous.plan?.boostForDays ?? 0
-    const boostExpired =
-      !isFreePlan &&
-      boostAssignedAt &&
-      boostDays > 0 &&
-      boostAssignedAt.getTime() + boostDays * 24 * 60 * 60 * 1000 <= Date.now()
-
-    if (!isAdmin && status !== "published" && !isFreePlan && !boostExpired) {
-      return { error: "Status locked while boosted." }
-    }
 
     const result = await prisma.product.update({
       where: { id },
