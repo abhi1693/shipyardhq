@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation"
 import { formatDate } from "@/lib/ui/formatters"
 import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
-import { getProductById } from "@/actions/admin/products/actions"
+import { getProductById } from "@/actions/products/actions"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import CopyButton from "@/components/molecules/CopyButton"
 import Link from "next/link"

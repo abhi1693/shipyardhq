@@ -8,8 +8,6 @@ import {
 import type { ProductWizardInputAdd, ProductWizardInputEdit } from "./schema"
 import type { ProductForEditWizard } from "@/types/product-wizard"
 
-type OwnerIdValues = { ownerId?: string }
-
 export function getInitialValuesForAdd(): ProductWizardInputAdd {
   return {
     name: "",
@@ -43,7 +41,7 @@ export function getInitialValuesForAdd(): ProductWizardInputAdd {
 
 export function getInitialValuesFromProduct(
   product: ProductForEditWizard,
-): ProductWizardInputEdit & OwnerIdValues {
+): ProductWizardInputEdit {
   return {
     name: product.name,
     tagline: product.tagline ?? "",
@@ -82,7 +80,7 @@ export function getInitialValuesFromProduct(
 }
 
 export function toCreateFormData(
-  values: ProductWizardInputAdd & OwnerIdValues,
+  values: ProductWizardInputAdd,
   userId: string,
   productId?: string,
 ): FormData {
@@ -140,17 +138,10 @@ export function toCreateFormData(
   return fd
 }
 
-export function toUpdatePayload(
-  values: ProductWizardInputEdit & OwnerIdValues,
-  product: ProductForEditWizard,
-) {
+export function toUpdatePayload(values: ProductWizardInputEdit) {
   const v0 = sanitizeTextFields(values)
   const v = coercePricing(v0)
   const keywords = parseKeywords(v.keywordsText)
-  const nextOwnerId =
-    typeof values.ownerId === "string" && values.ownerId.length
-      ? values.ownerId
-      : product.userId
   return {
     name: v.name,
     categoryId:
@@ -166,7 +157,6 @@ export function toUpdatePayload(
             : [],
       ),
     ).slice(0, 3),
-    userId: nextOwnerId,
     description: v.description,
     tagline: v.tagline,
     websiteUrl: normalizeUrl(v.websiteUrl) || v.websiteUrl,

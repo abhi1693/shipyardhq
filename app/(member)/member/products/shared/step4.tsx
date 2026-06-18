@@ -17,7 +17,7 @@ import {
 import {
   checkDomainTxtAction,
   verifyProductDomainAction,
-} from "@/actions/admin/products/actions"
+} from "@/actions/products/actions"
 import { getRootDomain } from "@/lib/domain"
 import { DraftFormSection } from "@/components/pages/products/_components/DraftFormSection"
 

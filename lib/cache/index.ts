@@ -6,7 +6,7 @@ export const DEFAULT_TTL = {
   fast: 60, // homepage, leaderboard, trending
   medium: 120, // product pages, category pages
   slow: 300, // category lists
-  slowest: 3600, // admin analytics dashboards — hourly refresh is sufficient
+  slowest: 3600,
 } as const
 
 type AnyAsyncFn = (...args: any[]) => Promise<any>

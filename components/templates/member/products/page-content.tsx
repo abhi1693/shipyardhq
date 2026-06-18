@@ -15,9 +15,13 @@ import {
 } from "lucide-react"
 
 import { getUserProducts } from "@/actions/member/products/actions"
-import type { MemberProductRow } from "@/app/(member)/member/products/columns"
 import { Image } from "@/components/atoms/image"
 import ProductDraftStartButton from "@/components/pages/products/ProductDraftStartButton"
+import type {
+  Product,
+  ProductAnalytics,
+  ProductVerification,
+} from "@/lib/vendor/prisma/client"
 import {
   WHY_SHIPYARD_PATH,
   memberProductAnalyticsPath,
@@ -29,6 +33,16 @@ import {
 import { cn } from "@/lib/utils"
 import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
+
+type MemberProductRow = Product & {
+  verification: ProductVerification | null
+  analytics: ProductAnalytics | null
+  category?: { id: string; name: string; slug: string }
+  plan?: { id: string; name: string }
+  hasValidatedPlan?: boolean
+  canDelete?: boolean
+  canViewAnalytics?: boolean
+}
 
 const logoToneClasses = [
   "bg-black text-white",

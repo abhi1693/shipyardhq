@@ -9,13 +9,9 @@ import {
 } from "@/components/atoms/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { SignOutButton, useUser } from "@clerk/nextjs"
-import { usePathname, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { Boxes, LayoutDashboard, LogOut, UserRoundCog } from "lucide-react"
 import {
-  ADMIN_ACCOUNT_PROFILE_PATH,
-  ADMIN_BASE_PATH,
-  ADMIN_OVERVIEW_PATH,
-  adminPath,
   MEMBER_ACCOUNT_PROFILE_PATH,
   MEMBER_OVERVIEW_PATH,
   MEMBER_PRODUCTS_PATH,
@@ -52,18 +48,10 @@ function getDisplayName(user: ReturnType<typeof useUser>["user"]) {
 export function UserNav() {
   const { user } = useUser()
   const router = useRouter()
-  const pathname = usePathname() ?? "/"
-  const isAdminSection = pathname.startsWith(ADMIN_BASE_PATH)
-  const dashboardPath = isAdminSection
-    ? ADMIN_OVERVIEW_PATH
-    : MEMBER_OVERVIEW_PATH
-  const productsPath = isAdminSection
-    ? adminPath("products")
-    : MEMBER_PRODUCTS_PATH
-  const productsLabel = isAdminSection ? "Products" : "My Products"
-  const accountPath = isAdminSection
-    ? ADMIN_ACCOUNT_PROFILE_PATH
-    : MEMBER_ACCOUNT_PROFILE_PATH
+  const dashboardPath = MEMBER_OVERVIEW_PATH
+  const productsPath = MEMBER_PRODUCTS_PATH
+  const productsLabel = "My Products"
+  const accountPath = MEMBER_ACCOUNT_PROFILE_PATH
 
   if (user) {
     const userInitials = getInitials(user)

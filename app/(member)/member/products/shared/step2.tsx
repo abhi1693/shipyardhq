@@ -43,16 +43,12 @@ export default function StepMedia({
   galleryMedia = [],
   canEditGallery = false,
   maxGallery = 6,
-  uploadAsClerkId,
-  requireUploadAsClerkId = false,
 }: {
   productId?: string
   productSlug?: string
   galleryMedia?: GalleryMedia[]
   canEditGallery?: boolean
   maxGallery?: number
-  uploadAsClerkId?: string
-  requireUploadAsClerkId?: boolean
 }) {
   const router = useRouter()
   const form = useFormContext()
@@ -75,11 +71,8 @@ export default function StepMedia({
   const effectiveMedia = isDraftMode ? draftGalleryMedia : galleryMedia
   const remaining = Math.max(0, (maxGallery ?? 6) - effectiveMedia.length)
   const canEdit = isDraftMode ? true : canEditGallery
-  const requiresOwner =
-    isDraftMode && requireUploadAsClerkId && !uploadAsClerkId
   const canUpload =
-    remaining > 0 &&
-    (isDraftMode ? Boolean(productId) && !requiresOwner : canEditGallery)
+    remaining > 0 && (isDraftMode ? Boolean(productId) : canEditGallery)
 
   function validateAndSliceFiles(files: FileList | File[]) {
     const all = Array.from(files || [])
@@ -130,7 +123,6 @@ export default function StepMedia({
             fd.append("file", file)
             fd.append("folder", "media")
             fd.append("productId", productId)
-            if (uploadAsClerkId) fd.append("asClerkId", uploadAsClerkId)
             const res = await fetch("/api/uploads", {
               method: "POST",
               body: fd,
@@ -203,7 +195,6 @@ export default function StepMedia({
     setError(null)
     try {
       const qp = new URLSearchParams({ url })
-      if (uploadAsClerkId) qp.set("asClerkId", uploadAsClerkId)
       const res = await fetch(`/api/uploads?${qp.toString()}`, {
         method: "DELETE",
       })
@@ -299,11 +290,6 @@ export default function StepMedia({
         description="Upload the product logo and social preview image."
         icon={ImageIcon}
       >
-        {requiresOwner ? (
-          <div className="mb-4 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-sm text-[#43474c]">
-            Select an owner to upload logo, banner, and screenshots.
-          </div>
-        ) : null}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <FormField
             name="logo"
@@ -337,8 +323,6 @@ export default function StepMedia({
                   }
                   folder="logos"
                   productId={productId}
-                  asClerkId={uploadAsClerkId}
-                  disabled={requiresOwner}
                   placeholder="Drag & drop a square logo"
                 />
                 <FormMessage />
@@ -375,8 +359,6 @@ export default function StepMedia({
                   }
                   folder="banners"
                   productId={productId}
-                  asClerkId={uploadAsClerkId}
-                  disabled={requiresOwner}
                   placeholder="Drag & drop a banner image"
                 />
                 <FormMessage />
@@ -402,12 +384,6 @@ export default function StepMedia({
         {error ? (
           <div className="mb-4 rounded-lg border border-[#ffdad6] bg-[#ffdad6]/40 px-3 py-2 text-sm text-[#93000a]">
             {error}
-          </div>
-        ) : null}
-
-        {requiresOwner ? (
-          <div className="mb-4 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-sm text-[#43474c]">
-            Select an owner to upload screenshots.
           </div>
         ) : null}
 
@@ -526,11 +502,7 @@ export default function StepMedia({
                   : "Drag & drop screenshots (or click)"}
               </div>
               <div className="text-xs text-muted-foreground">
-                {canUpload
-                  ? `Add up to ${remaining}.`
-                  : requiresOwner
-                    ? "Select an owner to upload."
-                    : "Uploads unavailable."}
+                {canUpload ? `Add up to ${remaining}.` : "Uploads unavailable."}
               </div>
             </div>
           </label>

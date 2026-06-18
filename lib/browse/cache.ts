@@ -1,10 +1,7 @@
 import { pluralize } from "@/lib/pluralize"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { getProducts } from "@/actions/public/products/featured"
-import {
-  getUseCasesWithCounts,
-  getCategories,
-} from "@/actions/admin/categories/actions"
+import { getUseCasesWithCounts, getCategories } from "@/actions/catalog/actions"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"

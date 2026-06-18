@@ -9,7 +9,6 @@ export type ProductWizardCategoryOption = {
 export const productForEditWizardSelect = {
   id: true,
   slug: true,
-  userId: true,
   name: true,
   tagline: true,
   description: true,
@@ -37,7 +36,6 @@ export const productForEditWizardSelect = {
   alternatives: { select: { id: true } },
   ProductMedia: { select: { id: true, imageUrl: true } },
   verification: { select: { isVerified: true } },
-  user: { select: { clerkId: true } },
 } satisfies Prisma.ProductSelect
 
 export type ProductWizardAlternativeOption = {
@@ -45,18 +43,6 @@ export type ProductWizardAlternativeOption = {
   slug?: string | null
   name: string
   websiteUrl?: string | null
-}
-
-export type ProductWizardAdminUserOption = {
-  id: string
-  email: string
-  clerkId: string
-}
-
-export type ProductWizardAdminEditUserOption = {
-  id: string
-  email: string
-  clerkId: string
 }
 
 export type ProductForEditWizard = Prisma.ProductGetPayload<{

@@ -89,7 +89,6 @@ export async function renderMarkdownForPath(
 ): Promise<MarkdownResult | null> {
   if (
     targetUrl.pathname.startsWith("/api/") ||
-    targetUrl.pathname.startsWith("/admin") ||
     targetUrl.pathname.startsWith("/member") ||
     targetUrl.pathname.startsWith("/markdown-for-agents") ||
     targetUrl.pathname.startsWith("/.well-known/")

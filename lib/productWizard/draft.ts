@@ -13,7 +13,7 @@ export const PRODUCT_DRAFT_STEPS = [
 ] as const
 
 export type ProductDraftStep = (typeof PRODUCT_DRAFT_STEPS)[number]
-export type ProductDraftMode = "member" | "admin"
+export type ProductDraftMode = "member"
 
 export const PRODUCT_DRAFT_STEP_META: Record<
   ProductDraftStep,
@@ -54,7 +54,6 @@ const optionalUrl = z.url("Valid URL required").optional().or(z.literal(""))
 
 export const productDraftStepSchemas: Record<ProductDraftStep, z.ZodTypeAny> = {
   configuration: z.object({
-    ownerId: z.string().optional(),
     websiteUrl: z
       .preprocess(
         (v) => (typeof v === "string" ? v.replace(/^\/+/, "").trim() : v),
@@ -159,19 +158,15 @@ export function getPreviousProductDraftStep(step: ProductDraftStep) {
   return index > 0 ? PRODUCT_DRAFT_STEPS[index - 1] : null
 }
 
-export function mergeDraftPayload(
-  payload: unknown,
-): ProductWizardInputAdd & { ownerId?: string } {
-  const base = getInitialValuesForAdd() as ProductWizardInputAdd & {
-    ownerId?: string
-  }
+export function mergeDraftPayload(payload: unknown): ProductWizardInputAdd {
+  const base = getInitialValuesForAdd()
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     return base
   }
 
   const merged = {
     ...base,
-    ...(payload as Partial<ProductWizardInputAdd> & { ownerId?: string }),
+    ...(payload as Partial<ProductWizardInputAdd>),
   }
 
   if (
@@ -187,11 +182,9 @@ export function mergeDraftPayload(
 }
 
 export function productDraftStepPath(
-  mode: ProductDraftMode,
+  _mode: ProductDraftMode,
   draftId: string,
   step: ProductDraftStep,
 ) {
-  const prefix =
-    mode === "admin" ? "/admin/products/add" : "/member/products/add"
-  return `${prefix}/${draftId}/${step}`
+  return `/member/products/add/${draftId}/${step}`
 }

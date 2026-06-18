@@ -14,8 +14,6 @@ type Props = {
   folder?: string
   maxSizeMB?: number
   productId?: string
-  scope?: "user" | "global"
-  asClerkId?: string
   disabled?: boolean
 }
 
@@ -26,8 +24,6 @@ export default function ImageUploadField({
   folder = "assets",
   maxSizeMB = 5,
   productId,
-  scope = "user",
-  asClerkId,
   disabled = false,
 }: Props) {
   const { setValue, watch } = useFormContext()
@@ -49,8 +45,6 @@ export default function ImageUploadField({
       fd.append("file", file)
       fd.append("folder", folder)
       if (productId) fd.append("productId", productId)
-      fd.append("scope", scope)
-      if (asClerkId) fd.append("asClerkId", asClerkId)
       const res = await fetch("/api/uploads", { method: "POST", body: fd })
       if (!res.ok) throw new Error(await res.text())
       const data = await res.json()
@@ -108,7 +102,6 @@ export default function ImageUploadField({
                 setError(null)
                 try {
                   const qp = new URLSearchParams({ url: value })
-                  if (asClerkId) qp.set("asClerkId", asClerkId)
                   const res = await fetch(`/api/uploads?${qp.toString()}`, {
                     method: "DELETE",
                   })

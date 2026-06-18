@@ -19,14 +19,13 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
 
     const user = await getActiveUserByClerkId(userId)
     if (!user) return new Response("Account inactive", { status: 403 })
-    const isAdmin = user.role === "admin"
 
     const product = await prisma.product.findUnique({
       where: { slug },
       select: { id: true, userId: true, user: { select: { clerkId: true } } },
     })
     if (!product) return new Response("Not Found", { status: 404 })
-    if (!isAdmin && product.userId !== user.id)
+    if (product.userId !== user.id)
       return new Response("Forbidden", { status: 403 })
     const ownerClerkId =
       typeof product.user?.clerkId === "string" && product.user.clerkId.length

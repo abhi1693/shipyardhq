@@ -1,8 +1,10 @@
 import { notFound, redirect } from "next/navigation"
 
-import { getAlternativeProducts } from "@/actions/admin/alternative-products/actions"
-import { getCategories } from "@/actions/admin/categories/actions"
-import { getProductForEditWizard } from "@/actions/admin/products/actions"
+import {
+  getAlternativeProducts,
+  getCategories,
+} from "@/actions/catalog/actions"
+import { getProductForEditWizard } from "@/actions/products/actions"
 import {
   isProductDraftStep,
   type ProductDraftStep,

@@ -22,8 +22,6 @@ export const TAGS = {
   plans: "plans",
   planFeature: (key: string) => `plan-feature:${key}`,
   upvotes: "upvotes",
-  productReviews: "product-reviews",
-  productReview: (idOrSlug: string) => `product-review:${idOrSlug}`,
   subscriptions: "subscriptions",
   placement: (key: string) => `placement:${key}`,
   rewards: "rewards",

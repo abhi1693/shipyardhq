@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { FormProvider, useForm, useWatch } from "react-hook-form"
+import { FormProvider, useForm } from "react-hook-form"
 import { ArrowLeft, ArrowRight, Rocket } from "lucide-react"
 import { toast } from "sonner"
 
@@ -11,20 +11,6 @@ import {
   saveProductDraftAction,
 } from "@/actions/product-drafts/actions"
 import { Button } from "@/components/atoms/button"
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/atoms/form"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/atoms/select"
-import { PRODUCT_WIZARD_DROPDOWN_TRIGGER_CLASS } from "@/components/pages/products/_shared/dropdownStyles"
 import Step1 from "@/app/(member)/member/products/shared/step1"
 import Step2 from "@/app/(member)/member/products/shared/step2"
 import Step3 from "@/app/(member)/member/products/shared/step3"
@@ -41,37 +27,25 @@ import {
   type ProductDraftStep,
 } from "@/lib/productWizard/draft"
 import { PLATFORMS } from "@/lib/productWizard/constants"
-import { adminPath, memberProductUpgradePath } from "@/lib/routes"
+import { MEMBER_PRODUCTS_PATH, memberProductUpgradePath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import type {
-  ProductWizardAdminUserOption,
   ProductWizardAlternativeOption,
   ProductWizardCategoryOption,
 } from "@/types/product-wizard"
 import type { ProductWizardInputAdd } from "@/lib/productWizard/schema"
 
-type ProductDraftValues = ProductWizardInputAdd & { ownerId?: string }
+type ProductDraftValues = ProductWizardInputAdd
 
-type BaseProps = {
+export type ProductDraftStepFormProps = {
   mode: ProductDraftMode
   draftId: string
   productId: string
   step: ProductDraftStep
   initialValues: ProductDraftValues
   categories: ProductWizardCategoryOption[]
-}
-
-type MemberProps = BaseProps & {
-  mode: "member"
   alternatives: ProductWizardAlternativeOption[]
 }
-
-type AdminProps = BaseProps & {
-  mode: "admin"
-  users: ProductWizardAdminUserOption[]
-}
-
-export type ProductDraftStepFormProps = MemberProps | AdminProps
 
 function applyFieldErrors(
   form: ReturnType<typeof useForm<ProductDraftValues>>,
@@ -99,43 +73,6 @@ export default function ProductDraftStepForm(props: ProductDraftStepFormProps) {
     ((currentIndex + 1) / PRODUCT_DRAFT_STEPS.length) * 100,
   )
 
-  const ownerId = useWatch({
-    control: form.control,
-    name: "ownerId" as any,
-  }) as string | undefined
-  const ownerClerkId =
-    props.mode === "admin"
-      ? ownerId?.length
-        ? props.users.find((u) => u.id === ownerId)?.clerkId
-        : undefined
-      : undefined
-
-  const ownerNode =
-    props.mode === "admin" ? (
-      <FormField
-        control={form.control}
-        name={"ownerId" as any}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Owner (user)</FormLabel>
-            <Select value={field.value || ""} onValueChange={field.onChange}>
-              <SelectTrigger className={PRODUCT_WIZARD_DROPDOWN_TRIGGER_CLASS}>
-                <SelectValue placeholder="Select owner" />
-              </SelectTrigger>
-              <SelectContent>
-                {props.users.map((u) => (
-                  <SelectItem key={u.id} value={u.id}>
-                    {u.email}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ) : null
-
   const stepContent = (() => {
     switch (props.step) {
       case "configuration":
@@ -144,47 +81,22 @@ export default function ProductDraftStepForm(props: ProductDraftStepFormProps) {
             categories={props.categories}
             platforms={PLATFORMS as any}
             lockWebsiteUrl={false}
-            rightOfWebsite={ownerNode}
             enableAutofill
           />
         )
       case "assets":
-        return props.mode === "admin" ? (
-          <Step2
-            productId={props.productId}
-            uploadAsClerkId={ownerClerkId}
-            requireUploadAsClerkId
-          />
-        ) : (
-          <Step2 productId={props.productId} />
-        )
+        return <Step2 productId={props.productId} />
       case "commercial":
         return <Step3 />
       case "validation":
         return <Step4 productId={props.productId} persistOnVerify={false} />
       case "positioning":
-        return (
-          <Step5
-            alternatives={props.mode === "member" ? props.alternatives : []}
-          />
-        )
+        return <Step5 alternatives={props.alternatives} />
     }
   })()
 
   function validateCurrentStep(values: ProductDraftValues) {
     form.clearErrors()
-    if (
-      props.mode === "admin" &&
-      props.step === "configuration" &&
-      !String(values.ownerId || "").length
-    ) {
-      form.setError("ownerId" as any, {
-        type: "manual",
-        message: "Owner is required",
-      })
-      return false
-    }
-
     const parsed = productDraftStepSchemas[props.step].safeParse(values)
     if (parsed.success) return true
 
@@ -266,17 +178,13 @@ export default function ProductDraftStepForm(props: ProductDraftStepFormProps) {
         return
       }
 
-      toast.success(
-        props.mode === "member"
-          ? "Product draft created. Select a plan to publish."
-          : "Product created successfully.",
-      )
+      toast.success("Product draft created. Select a plan to publish.")
       const slug = (result as any)?.slug
-      if (props.mode === "member" && slug) {
+      if (slug) {
         router.push(memberProductUpgradePath(slug))
         return
       }
-      router.push(adminPath("products"))
+      router.push(MEMBER_PRODUCTS_PATH)
     } finally {
       setPendingAction(null)
     }
@@ -401,12 +309,8 @@ export default function ProductDraftStepForm(props: ProductDraftStepFormProps) {
               onClick={handlePublish}
             >
               {pendingAction === "publish"
-                ? props.mode === "member"
-                  ? "Creating..."
-                  : "Publishing..."
-                : props.mode === "member"
-                  ? "Continue to Plan Selection"
-                  : "Publish Product"}
+                ? "Creating..."
+                : "Continue to Plan Selection"}
               <Rocket className="ml-2 size-4" aria-hidden="true" />
             </Button>
           )}

@@ -10,12 +10,8 @@
 @source "../../components/molecules/ProductFeedCard*.tsx";
 @source "../../components/molecules/ProductGrid*.tsx";
 @source "../../components/molecules/ProductScore.tsx";
-@source "../../components/molecules/ProductShareBar.tsx";
 @source "../../components/molecules/ProductUpvoteBadge.tsx";
 @source "../../components/molecules/TrafficTimeseriesChart.tsx";
-@source "../../components/organisms/ProductAlternativesSection.tsx";
-@source "../../components/organisms/ProductDetailHero.tsx";
 @source "../../components/organisms/ProductMediaGallery.tsx";
 @source "../../components/organisms/ProductMediaGalleryClient.tsx";
-@source "../../components/organisms/ProductSimilarVoyages.tsx";
 @source "../../components/templates/public/products/**/*.{js,ts,jsx,tsx}";

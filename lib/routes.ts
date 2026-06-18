@@ -10,30 +10,6 @@ export const MEMBER_REWARDS_PATH = `${MEMBER_BASE_PATH}/rewards` as const
 export const MEMBER_PRODUCTS_PATH = `${MEMBER_BASE_PATH}/products` as const
 export const MEMBER_PRODUCTS_ADD_PATH = `${MEMBER_PRODUCTS_PATH}/add` as const
 
-export const ADMIN_BASE_PATH = "/admin" as const
-
-const trimSlashes = (segment: string) => segment.replace(/^\/+|\/+$/g, "")
-
-export const adminPath = (...segments: string[]): string => {
-  if (!segments.length) {
-    return ADMIN_BASE_PATH
-  }
-  const sanitized = segments
-    .filter((segment) => Boolean(segment?.length))
-    .map((segment) => trimSlashes(String(segment)))
-    .filter((segment) => segment.length > 0)
-  if (!sanitized.length) {
-    return ADMIN_BASE_PATH
-  }
-  return `${ADMIN_BASE_PATH}/${sanitized.join("/")}`
-}
-
-export const ADMIN_OVERVIEW_PATH = adminPath("overview")
-export const ADMIN_ACCOUNT_PROFILE_PATH = adminPath("account", "profile")
-
-export const adminStatusPath = (segments: string[], status: string) =>
-  `${adminPath(...segments)}?status=${status}`
-
 export const ALTERNATIVES_PATH = "/alternatives" as const
 export const PLATFORMS_PATH = "/platforms" as const
 

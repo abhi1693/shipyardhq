@@ -26,7 +26,6 @@ import {
 
 import { BrandLogo } from "@/components/atoms/brand-logo"
 import { cn } from "@/lib/utils"
-import { ADMIN_BASE_PATH } from "@/lib/routes"
 import {
   MEMBER_BASE_PATH,
   MEMBER_ONBOARDING_PATH,
@@ -114,7 +113,6 @@ export function OnboardingForm({
     redirectTo &&
     redirectTo.startsWith("/") &&
     !redirectTo.startsWith("//") &&
-    !redirectTo.startsWith(ADMIN_BASE_PATH) &&
     !redirectTo.startsWith(MEMBER_ONBOARDING_PATH)
       ? redirectTo
       : undefined

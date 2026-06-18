@@ -34,9 +34,6 @@ import { BrandLogo } from "@/components/atoms/brand-logo"
 import { useUser } from "@clerk/nextjs"
 import { CreditCard, Rocket } from "lucide-react"
 import {
-  ADMIN_ACCOUNT_PROFILE_PATH,
-  ADMIN_BASE_PATH,
-  ADMIN_OVERVIEW_PATH,
   HOME_PATH,
   MEMBER_ACCOUNT_PROFILE_PATH,
   MEMBER_BASE_PATH,
@@ -46,13 +43,12 @@ import {
 interface SidebarProps {
   navItems?: NavItem[]
   showBillingPortal?: boolean
-  userRole?: string | null
 }
 
 export default function AppSidebar(props: SidebarProps) {
   const pathname = usePathname() ?? "/"
   const { user } = useUser()
-  const { navItems = [], showBillingPortal = false, userRole = null } = props
+  const { navItems = [], showBillingPortal = false } = props
 
   const [isPortalPending, startPortal] = useTransition()
 
@@ -91,39 +87,15 @@ export default function AppSidebar(props: SidebarProps) {
     return false
   }
 
-  const isAdminSection = pathname.startsWith(ADMIN_BASE_PATH)
   const isMemberSection = pathname.startsWith(MEMBER_BASE_PATH)
-  const dashboardLabel = isAdminSection ? "Admin Console" : "Founder Dashboard"
+  const dashboardLabel = "Founder Dashboard"
   const profileName =
     user?.firstName || user?.fullName || user?.username || "Shipyard member"
-  const profileTier = isAdminSection ? "Admin" : "Pro Founder"
-  const profileHref = isAdminSection
-    ? ADMIN_ACCOUNT_PROFILE_PATH
-    : MEMBER_ACCOUNT_PROFILE_PATH
-
-  const filteredNav = useMemo<NavItem[]>(() => {
-    const items = [...navItems]
-    const shouldExposeAdminEntry =
-      userRole === "admin" &&
-      isMemberSection &&
-      !items.some(
-        (item) => item.title === "Admin" || item.url === ADMIN_OVERVIEW_PATH,
-      )
-
-    if (shouldExposeAdminEntry) {
-      items.push({
-        title: "Admin",
-        url: ADMIN_OVERVIEW_PATH,
-        icon: "settings",
-        isActive: false,
-      })
-    }
-
-    return items
-  }, [isMemberSection, navItems, userRole])
+  const profileTier = "Pro Founder"
+  const profileHref = MEMBER_ACCOUNT_PROFILE_PATH
 
   const brandHref = useMemo(() => {
-    const queue = [...filteredNav]
+    const queue = [...navItems]
     while (queue.length) {
       const candidate = queue.shift()
       if (!candidate) continue
@@ -135,9 +107,8 @@ export default function AppSidebar(props: SidebarProps) {
       }
     }
     if (pathname.startsWith(MEMBER_BASE_PATH)) return MEMBER_OVERVIEW_PATH
-    if (pathname.startsWith(ADMIN_BASE_PATH)) return ADMIN_OVERVIEW_PATH
     return HOME_PATH
-  }, [filteredNav, pathname])
+  }, [navItems, pathname])
 
   const topLevelButtonClasses =
     "relative h-10 rounded-lg px-3 text-slate-600 transition-colors duration-150 hover:bg-[#eff4ff] hover:text-blue-700 data-[active=true]:border-r-2 data-[active=true]:border-blue-700 data-[active=true]:bg-[#eff4ff] data-[active=true]:font-bold data-[active=true]:text-blue-700 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-md group-data-[collapsible=icon]:border-r-0 group-data-[collapsible=icon]:px-0"
@@ -174,7 +145,7 @@ export default function AppSidebar(props: SidebarProps) {
       <SidebarContent className="overflow-x-hidden px-4 group-data-[collapsible=icon]:px-2">
         <SidebarGroup className="p-0">
           <SidebarMenu>
-            {filteredNav.map((item) => {
+            {navItems.map((item) => {
               const Icon = item.icon ? Icons[item.icon] : Icons.logo
               const active = itemActive(item)
               const hasChildren = !!(item.items && item.items.length > 0)

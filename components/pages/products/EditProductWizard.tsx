@@ -4,26 +4,11 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ArrowLeft, ArrowRight, Rocket } from "lucide-react"
-import { FormProvider, useForm, useWatch } from "react-hook-form"
+import { FormProvider, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import { updateProductAction } from "@/actions/admin/products/actions"
+import { updateProductAction } from "@/actions/products/actions"
 import { Button } from "@/components/atoms/button"
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/atoms/form"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/atoms/select"
-import { Badge } from "@/components/atoms/badge"
-import { PRODUCT_WIZARD_DROPDOWN_TRIGGER_CLASS } from "@/components/pages/products/_shared/dropdownStyles"
 import Step1 from "@/app/(member)/member/products/shared/step1"
 import Step2 from "@/app/(member)/member/products/shared/step2"
 import Step3 from "@/app/(member)/member/products/shared/step3"
@@ -44,46 +29,30 @@ import {
 } from "@/lib/productWizard/mappers"
 import {
   editProductSchema,
-  makeAdminEditProductSchema,
   type ProductWizardInputEdit,
 } from "@/lib/productWizard/schema"
-import { adminPath, memberProductPath } from "@/lib/routes"
+import { memberProductPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import type {
   ProductForEditWizard,
-  ProductWizardAdminEditUserOption,
   ProductWizardAlternativeOption,
   ProductWizardCategoryOption,
 } from "@/types/product-wizard"
 
-type EditProductValues = ProductWizardInputEdit & { ownerId?: string }
+type EditProductValues = ProductWizardInputEdit
 
-type BaseProps = {
+export type EditProductWizardProps = {
   product: ProductForEditWizard
   categories: ProductWizardCategoryOption[]
   step: ProductDraftStep
-}
-
-type MemberProps = BaseProps & {
   mode: "member"
   alternatives: ProductWizardAlternativeOption[]
 }
 
-type AdminProps = BaseProps & {
-  mode: "admin"
-  users: ProductWizardAdminEditUserOption[]
-}
-
-export type EditProductWizardProps = MemberProps | AdminProps
-
 function productEditStepPath(
-  mode: "member" | "admin",
   product: ProductForEditWizard,
   step: ProductDraftStep,
 ) {
-  if (mode === "admin") {
-    return adminPath("products", product.id, "edit", step)
-  }
   return `${memberProductPath(product.slug)}/edit/${step}`
 }
 
@@ -92,14 +61,12 @@ export default function EditProductWizard(props: EditProductWizardProps) {
   const [pendingAction, setPendingAction] = useState<
     null | "navigate" | "continue" | "save"
   >(null)
-  const schema =
-    props.mode === "admin" ? makeAdminEditProductSchema() : editProductSchema
+  const schema = editProductSchema
   const productAlreadyVerified = Boolean(
     props.product?.verification?.isVerified,
   )
   const initialValues = {
     ...getInitialValuesFromProduct(props.product),
-    ...(props.mode === "admin" ? { ownerId: props.product.userId } : {}),
     verificationChecked: productAlreadyVerified,
     verificationSuccess: productAlreadyVerified,
   }
@@ -115,46 +82,6 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     ((currentIndex + 1) / PRODUCT_DRAFT_STEPS.length) * 100,
   )
 
-  const ownerId = useWatch({
-    control: form.control,
-    name: "ownerId" as any,
-  }) as string | undefined
-  const ownerClerkId =
-    props.mode === "admin"
-      ? ownerId?.length
-        ? props.users.find((u) => u.id === ownerId)?.clerkId
-        : undefined
-      : undefined
-
-  const ownerNode =
-    props.mode === "admin" ? (
-      <FormField
-        control={form.control}
-        name={"ownerId" as any}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="flex items-center justify-between gap-2">
-              <span>Owner (user)</span>
-              <Badge variant="secondary">Admin</Badge>
-            </FormLabel>
-            <Select value={field.value || ""} onValueChange={field.onChange}>
-              <SelectTrigger className={PRODUCT_WIZARD_DROPDOWN_TRIGGER_CLASS}>
-                <SelectValue placeholder="Select owner" />
-              </SelectTrigger>
-              <SelectContent>
-                {props.users.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.email}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    ) : null
-
   const stepContent = (() => {
     switch (props.step) {
       case "configuration":
@@ -162,28 +89,12 @@ export default function EditProductWizard(props: EditProductWizardProps) {
           <Step1
             categories={props.categories}
             platforms={PLATFORMS as any}
-            lockWebsiteUrl={props.mode === "member"}
-            rightOfWebsite={ownerNode}
+            lockWebsiteUrl
             enableAutofill
           />
         )
       case "assets":
-        return props.mode === "admin" ? (
-          <Step2
-            productId={props.product.id}
-            productSlug={props.product.slug}
-            galleryMedia={
-              props.product.ProductMedia?.map((media: any) => ({
-                id: media.id,
-                imageUrl: media.imageUrl,
-              })) ?? []
-            }
-            canEditGallery
-            maxGallery={6}
-            uploadAsClerkId={ownerClerkId}
-            requireUploadAsClerkId
-          />
-        ) : (
+        return (
           <Step2
             productId={props.product.id}
             productSlug={props.product.slug}
@@ -202,28 +113,12 @@ export default function EditProductWizard(props: EditProductWizardProps) {
       case "validation":
         return <Step4 productId={props.product.id} persistOnVerify />
       case "positioning":
-        return (
-          <Step5
-            alternatives={props.mode === "member" ? props.alternatives : []}
-          />
-        )
+        return <Step5 alternatives={props.alternatives} />
     }
   })()
 
   function validateCurrentStep(values: EditProductValues) {
     form.clearErrors()
-    if (
-      props.mode === "admin" &&
-      props.step === "configuration" &&
-      !String(values.ownerId || "").length
-    ) {
-      form.setError("ownerId" as any, {
-        type: "manual",
-        message: "Owner is required",
-      })
-      return false
-    }
-
     const parsed = productDraftStepSchemas[props.step].safeParse(values)
     if (parsed.success) return true
 
@@ -261,7 +156,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
 
     const result = await updateProductAction(
       props.product.id,
-      toUpdatePayload(fullValidation.data as EditProductValues, props.product),
+      toUpdatePayload(fullValidation.data as EditProductValues),
     )
     if ((result as any)?.error) {
       toast.error((result as any).error)
@@ -279,7 +174,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
       const saved = await saveProduct(true)
       if (!saved) return
       if (nextStep) {
-        router.push(productEditStepPath(props.mode, props.product, nextStep))
+        router.push(productEditStepPath(props.product, nextStep))
       }
     } finally {
       setPendingAction(null)
@@ -302,11 +197,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     try {
       const saved = await saveProduct(true, true)
       if (!saved) return
-      if (props.mode === "admin") {
-        router.push(adminPath("products", props.product.id))
-      } else {
-        router.push(memberProductPath(props.product.slug))
-      }
+      router.push(memberProductPath(props.product.slug))
     } finally {
       setPendingAction(null)
     }
@@ -328,7 +219,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
             {PRODUCT_DRAFT_STEPS.map((step, index) => {
               const isActive = step === props.step
               const isComplete = index < currentIndex
-              const href = productEditStepPath(props.mode, props.product, step)
+              const href = productEditStepPath(props.product, step)
 
               return (
                 <div key={step} className="flex flex-1 items-center">
@@ -408,7 +299,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
               disabled={Boolean(pendingAction)}
               onClick={() => {
                 void handleNavigate(
-                  productEditStepPath(props.mode, props.product, previousStep),
+                  productEditStepPath(props.product, previousStep),
                 )
               }}
             >

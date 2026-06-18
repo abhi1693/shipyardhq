@@ -298,8 +298,3 @@ export async function hasUserUpvoted(productId: string, clerkId: string) {
   const { currentState } = await resolveVoteState(productId, user.id)
   return currentState === "upvoted"
 }
-
-export async function getPublicProductRevenue(productId: string) {
-  void productId
-  return null
-}

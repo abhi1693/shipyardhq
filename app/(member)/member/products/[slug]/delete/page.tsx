@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
-import { deleteProductAction } from "@/actions/admin/products/actions"
+import { deleteProductAction } from "@/actions/products/actions"
 import {
   Card,
   CardContent,

@@ -7,7 +7,7 @@ import { SidebarTrigger } from "@/components/atoms/sidebar"
 import { UserNav } from "@/components/layout/user-nav"
 import { usePrivateHeaderSlot } from "@/components/layout/headers/private-header-slot"
 
-const SECTION_SEGMENTS = new Set(["admin", "member"])
+const SECTION_SEGMENTS = new Set(["member"])
 
 function formatTitleSegment(segment: string) {
   return segment

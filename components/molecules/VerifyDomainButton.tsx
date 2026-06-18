@@ -1,7 +1,7 @@
 "use client"
 
 import { useTransition } from "react"
-import { verifyProductDomainAction } from "@/actions/admin/products/actions"
+import { verifyProductDomainAction } from "@/actions/products/actions"
 import { Button } from "@/components/atoms/button"
 import { toast } from "sonner"
 import { CheckCircle2 } from "lucide-react"

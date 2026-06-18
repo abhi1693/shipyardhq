@@ -99,8 +99,6 @@ export default async function MemberLayout({
 
     redirect(onboardingDestination)
   }
-  const role = activeUser.role ?? "member"
-
   const items: NavItem[] = [...navItems]
 
   const isBillingPortalEnvEnabled = !(
@@ -120,7 +118,6 @@ export default async function MemberLayout({
         <AppSidebar
           navItems={items}
           showBillingPortal={shouldShowBillingPortal}
-          userRole={role}
         />
         <SidebarInset>
           <PrivateHeader />

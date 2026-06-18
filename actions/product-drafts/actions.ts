@@ -2,9 +2,8 @@
 
 import { auth } from "@clerk/nextjs/server"
 
-import { createProductAction } from "@/actions/admin/products/actions"
+import { createProductAction } from "@/actions/products/actions"
 import prisma from "@/lib/prisma"
-import { checkRole } from "@/lib/roles"
 import {
   mergeDraftPayload,
   productDraftStepSchemas,
@@ -14,7 +13,6 @@ import {
 import { toCreateFormData } from "@/lib/productWizard/mappers"
 import {
   addProductSchema,
-  makeAdminAddProductSchema,
   type ProductWizardInputAdd,
 } from "@/lib/productWizard/schema"
 import {
@@ -52,16 +50,7 @@ async function getCurrentDraftUser() {
   return { error: null, user }
 }
 
-async function assertDraftMode(mode: ProductDraftMode) {
-  if (mode !== "admin") return null
-  const isAdmin = await checkRole("admin")
-  return isAdmin ? null : "Not authorized"
-}
-
 export async function createProductDraft(mode: ProductDraftMode) {
-  const modeError = await assertDraftMode(mode)
-  if (modeError) return { error: modeError }
-
   const { error, user } = await getCurrentDraftUser()
   if (error || !user) return { error }
 
@@ -83,9 +72,6 @@ export async function getProductDraftForCurrentUser(
   draftId: string,
   mode: ProductDraftMode,
 ) {
-  const modeError = await assertDraftMode(mode)
-  if (modeError) return null
-
   const { error, user } = await getCurrentDraftUser()
   if (error || !user) return null
 
@@ -121,27 +107,11 @@ export async function saveProductDraftAction(input: {
   })
   if (!draft) return { error: "Draft not found" }
 
-  if (draft.mode === "admin") {
-    const isAdmin = await checkRole("admin")
-    if (!isAdmin) return { error: "Not authorized" }
-  }
-
   const merged = {
     ...mergeDraftPayload(draft.payload),
     ...input.values,
   }
   if (input.validate !== false) {
-    if (
-      draft.mode === "admin" &&
-      input.step === "configuration" &&
-      !String((merged as any).ownerId || "").length
-    ) {
-      return {
-        error: "Select an owner before continuing.",
-        fieldErrors: { ownerId: "Owner is required" },
-      }
-    }
-
     const stepSchema = productDraftStepSchemas[input.step]
     const parsed = stepSchema.safeParse(merged)
     if (!parsed.success) {
@@ -186,16 +156,14 @@ export async function publishProductDraftAction(input: {
   })
   if (!draft) return { error: "Draft not found" }
 
-  const nextStatus = draft.mode === "member" ? "draft" : "published"
+  const nextStatus = "draft"
   const merged = {
     ...mergeDraftPayload(draft.payload),
     ...input.values,
     status: nextStatus,
   }
 
-  const schema =
-    draft.mode === "admin" ? makeAdminAddProductSchema() : addProductSchema
-  const parsed = schema.safeParse(merged)
+  const parsed = addProductSchema.safeParse(merged)
   if (!parsed.success) {
     return {
       error: "Fix the highlighted fields before publishing.",
@@ -208,24 +176,11 @@ export async function publishProductDraftAction(input: {
     }
   }
 
-  let ownerId = user.id
-  const values = parsed.data as ProductWizardInputAdd & { ownerId?: string }
-
-  if (draft.mode === "admin") {
-    const isAdmin = await checkRole("admin")
-    if (!isAdmin) return { error: "Not authorized" }
-    if (!values.ownerId) {
-      return {
-        error: "Select an owner before publishing.",
-        fieldErrors: { ownerId: "Owner is required" },
-      }
-    }
-    ownerId = values.ownerId
-  }
+  const values = parsed.data as ProductWizardInputAdd
 
   const fd = toCreateFormData(
     { ...values, status: nextStatus },
-    ownerId,
+    user.id,
     draft.productId,
   )
   const result = await createProductAction(fd)
