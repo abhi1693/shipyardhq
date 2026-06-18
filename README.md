@@ -18,7 +18,7 @@ Shipyard HQ is a product discovery and launch platform for builders. Makers can 
 ## Project Layout
 
 - `app/` - App Router routes, layouts, API handlers, and route-local components.
-- `actions/` - server actions for admin, member, and public workflows.
+- `actions/` - server actions for member, public, catalog, and product workflows.
 - `components/` - shared UI organized by atoms, molecules, templates, pages, and layout.
 - `lib/` - shared runtime logic, data access, cache helpers, analytics, billing, jobs, and utilities.
 - `prisma/` - Prisma schema, migrations, and seed files.
@@ -228,14 +228,16 @@ Use `npm run format` when formatting drift is expected.
 
 The repository includes:
 
-- `Dockerfile` for container builds.
+- `Dockerfile` for container images.
 - `.github/workflows/tests.yml` for Vitest CI.
 - `.github/workflows/security.yml` for gitleaks and npm audit.
 - `.github/workflows/container.yml` for release-triggered container image builds.
 
-Production deployments should provide database, Clerk, Dodo, Redis, analytics, storage, and cron secrets through the hosting environment. The container workflow writes selected secrets into a BuildKit secret file for build-time configuration.
+Production deployments should provide database, Clerk, Dodo, Redis, analytics, storage, and cron secrets through the hosting environment. The image no longer builds the Next.js bundle during the GitHub container workflow. Instead, the container entrypoint runs `npm run prisma:generate` and `npm run build` at pod startup, then launches `.next/standalone/server.js`. This lets `NEXT_PUBLIC_*` values and server secrets come from the cluster only.
 
-Keep the root `package.json` and `package-lock.json` package version pinned to `0.0.0`. Release versions come from GitHub release tags and image tags, with `APP_VERSION` applied only in the final Docker stage. This keeps version-only releases from invalidating the dependency install and Next.js build cache layers.
+The web container needs a writable `/app` directory at startup because it writes `.next` and generated Prisma client files. If a deployment uses `readOnlyRootFilesystem`, mount a writable volume for `/app` or keep the root filesystem writable for this image.
+
+Keep the root `package.json` and `package-lock.json` package version pinned to `0.0.0`. Release versions come from GitHub release tags and image tags, with `APP_VERSION` applied only in the final Docker stage. This keeps version-only releases from invalidating the dependency install cache layer.
 
 ## Security
 

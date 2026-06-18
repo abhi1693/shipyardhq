@@ -15,59 +15,12 @@ RUN apt-get update \
 COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts --legacy-peer-deps
 
-FROM base AS prod-deps
-
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates openssl \
-  && rm -rf /var/lib/apt/lists/*
-
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps
-
-FROM base AS builder
-
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates openssl \
-  && rm -rf /var/lib/apt/lists/*
-
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-
-ARG BUILD_DATABASE_URL=postgresql://shipyardhq:shipyardhq@localhost:5432/shipyardhq
-ARG BUILD_DIRECT_DATABASE_URL=$BUILD_DATABASE_URL
-ARG BUILD_DODO_ENV=test_mode
-ARG BUILD_DODO_VALUE=dodo_build_placeholder
-
-ENV NODE_OPTIONS=--max-old-space-size=4096
-
-RUN --mount=type=secret,id=build_env,required=false \
-  node -e '\
-    const fs = require("fs");\
-    const { spawnSync } = require("child_process");\
-    if (fs.existsSync("/run/secrets/build_env")) require("dotenv").config({ path: "/run/secrets/build_env" });\
-    process.env.DATABASE_URL ||= process.env.BUILD_DATABASE_URL;\
-    process.env.DIRECT_DATABASE_URL ||= process.env.DATABASE_URL || process.env.BUILD_DIRECT_DATABASE_URL || process.env.BUILD_DATABASE_URL;\
-    const result = spawnSync("npx", ["prisma", "generate"], { stdio: "inherit", env: process.env });\
-    process.exit(result.status ?? 1);\
-  '
-RUN --mount=type=secret,id=build_env,required=false \
-  node -e '\
-    const fs = require("fs");\
-    const { spawnSync } = require("child_process");\
-    if (fs.existsSync("/run/secrets/build_env")) require("dotenv").config({ path: "/run/secrets/build_env" });\
-    process.env.DATABASE_URL ||= process.env.BUILD_DATABASE_URL;\
-    process.env.DIRECT_DATABASE_URL ||= process.env.DATABASE_URL || process.env.BUILD_DIRECT_DATABASE_URL || process.env.BUILD_DATABASE_URL;\
-    process.env.DODO_ENV ||= process.env.BUILD_DODO_ENV;\
-    process.env.DODO_API_KEY ||= process.env.BUILD_DODO_VALUE;\
-    const result = spawnSync("npm", ["run", "build"], { stdio: "inherit", env: process.env });\
-    process.exit(result.status ?? 1);\
-  '
-
 FROM base AS runner
 
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
+ENV NODE_OPTIONS=--max-old-space-size=4096
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates openssl \
@@ -75,22 +28,9 @@ RUN apt-get update \
   && groupadd --system --gid 1001 nodejs \
   && useradd --system --uid 1001 --gid nodejs nextjs
 
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/bin ./bin
-COPY --from=prod-deps --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
-COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
-COPY --from=builder --chown=nextjs:nodejs /app/actions ./actions
-COPY --from=builder --chown=nextjs:nodejs /app/app ./app
-COPY --from=builder --chown=nextjs:nodejs /app/components ./components
-COPY --from=builder --chown=nextjs:nodejs /app/hooks ./hooks
-COPY --from=builder --chown=nextjs:nodejs /app/lib ./lib
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
-COPY --from=builder --chown=nextjs:nodejs /app/types ./types
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --chown=nextjs:nodejs . .
+RUN chmod +x /app/docker-entrypoint.sh
 
 ARG APP_VERSION=0.0.0
 ENV APP_VERSION=$APP_VERSION
@@ -100,4 +40,5 @@ USER nextjs
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
+CMD ["web"]

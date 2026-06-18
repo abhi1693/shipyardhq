@@ -9,95 +9,8 @@ permissions:
   packages: write
 
 jobs:
-  prepare-build-secret:
-    name: Prepare build secret
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Write production env file
-        env:
-          CACHE_ENV_PREFIX: ${{ secrets.CACHE_ENV_PREFIX }}
-          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
-          CLERK_WEBHOOK_SIGNING_SECRET: ${{ secrets.CLERK_WEBHOOK_SIGNING_SECRET }}
-          DODO_API_KEY: ${{ secrets.DODO_API_KEY }}
-          DODO_ENV: ${{ secrets.DODO_ENV }}
-          DODO_WEBHOOK_SECRET: ${{ secrets.DODO_WEBHOOK_SECRET }}
-          GA_CREDENTIALS_JSON: ${{ secrets.GA_CREDENTIALS_JSON }}
-          GA_PROPERTY_ID: ${{ secrets.GA_PROPERTY_ID }}
-          GOOGLE_ANALYTICS_API_SECRET: ${{ secrets.GOOGLE_ANALYTICS_API_SECRET }}
-          GOOGLE_ANALYTICS_ID: ${{ secrets.GOOGLE_ANALYTICS_ID }}
-          MONTHLY_WINNER_PLAN_SLUG: ${{ secrets.MONTHLY_WINNER_PLAN_SLUG }}
-          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
-          NEXT_PUBLIC_CLARITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_CLARITY_PROJECT_ID }}
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-          NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: ${{ secrets.NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL }}
-          NEXT_PUBLIC_CLERK_SIGN_IN_URL: ${{ secrets.NEXT_PUBLIC_CLERK_SIGN_IN_URL }}
-          NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: ${{ secrets.NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL }}
-          NEXT_PUBLIC_CLERK_SIGN_UP_URL: ${{ secrets.NEXT_PUBLIC_CLERK_SIGN_UP_URL }}
-          NEXT_TELEMETRY_DISABLED: ${{ secrets.NEXT_TELEMETRY_DISABLED }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          PRISMA_GENERATE_NO_ENGINE: ${{ secrets.PRISMA_GENERATE_NO_ENGINE }}
-          PRODUCT_HUNT_APP_ID: ${{ secrets.PRODUCT_HUNT_APP_ID }}
-          PRODUCT_HUNT_INDEX_NAME: ${{ secrets.PRODUCT_HUNT_INDEX_NAME }}
-          PRODUCT_HUNT_SEARCH_KEY: ${{ secrets.PRODUCT_HUNT_SEARCH_KEY }}
-          REDDIT_BOT_SUBREDDIT: ${{ secrets.REDDIT_BOT_SUBREDDIT }}
-          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
-          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
-          REDIS_URL: ${{ secrets.REDIS_URL }}
-        run: |
-          node <<'NODE'
-          const fs = require("fs");
-
-          const keys = [
-            "CACHE_ENV_PREFIX",
-            "CLERK_SECRET_KEY",
-            "CLERK_WEBHOOK_SIGNING_SECRET",
-            "DODO_API_KEY",
-            "DODO_ENV",
-            "DODO_WEBHOOK_SECRET",
-            "GA_CREDENTIALS_JSON",
-            "GA_PROPERTY_ID",
-            "GOOGLE_ANALYTICS_API_SECRET",
-            "GOOGLE_ANALYTICS_ID",
-            "MONTHLY_WINNER_PLAN_SLUG",
-            "NEXT_PUBLIC_APP_URL",
-            "NEXT_PUBLIC_CLARITY_PROJECT_ID",
-            "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
-            "NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL",
-            "NEXT_PUBLIC_CLERK_SIGN_IN_URL",
-            "NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL",
-            "NEXT_PUBLIC_CLERK_SIGN_UP_URL",
-            "NEXT_TELEMETRY_DISABLED",
-            "OPENAI_API_KEY",
-            "PRISMA_GENERATE_NO_ENGINE",
-            "PRODUCT_HUNT_APP_ID",
-            "PRODUCT_HUNT_INDEX_NAME",
-            "PRODUCT_HUNT_SEARCH_KEY",
-            "REDDIT_BOT_SUBREDDIT",
-            "REDDIT_CLIENT_ID",
-            "REDDIT_CLIENT_SECRET",
-            "REDIS_URL",
-          ];
-
-          const lines = keys
-            .filter((key) => process.env[key] !== undefined)
-            .map((key) => `${key}=${JSON.stringify(process.env[key])}`);
-
-          fs.writeFileSync("build-secret.env", `${lines.join("\n")}\n`, { mode: 0o600 });
-          NODE
-
-      - name: Upload build secret
-        uses: actions/upload-artifact@v7
-        with:
-          name: shipyardhq-build-secret
-          path: build-secret.env
-          retention-days: 1
-
   build:
     name: Build linux/arm64
-    needs: prepare-build-secret
     uses: abhi1693/actions/.github/workflows/docker-build-push.yml@master
     with:
       runs-on: ubuntu-24.04-arm
@@ -106,9 +19,6 @@ jobs:
       file: Dockerfile
       platforms: linux/arm64
       cache-scope: shipyardhq-arm64
-      build-secret-artifact: shipyardhq-build-secret
-      build-secret-file: build-secret.env
-      build-secret-id: build_env
       build-args: |
         APP_VERSION=${{ github.event.release.tag_name }}
       tags: |
