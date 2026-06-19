@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { Hash } from "lucide-react"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 300
 
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
 import { getKeywordTagProducts } from "@/actions/public/tags/actions"

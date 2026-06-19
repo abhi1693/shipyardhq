@@ -10,7 +10,7 @@ import { HOME_PATH, TAGS_PATH, tagPath } from "@/lib/routes"
 import { getTagsIndexPayload } from "@/lib/tags/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 300
 
 const PAGE_TITLE = "Browse Tags"
 
