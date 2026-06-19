@@ -27,7 +27,11 @@ const USE_CASES: UseCaseSeed[] = [
   {
     label: "Automate Workflows",
     slug: "automate-workflows",
-    categorySlugs: ["automation-workflow", "no-code-low-code"],
+    categorySlugs: [
+      "automation-and-workflow",
+      "nocode-and-lowcode",
+      "apis-and-integrations",
+    ],
   },
   {
     label: "Grow Your Audience",
@@ -37,17 +41,26 @@ const USE_CASES: UseCaseSeed[] = [
   {
     label: "Build Community",
     slug: "build-community",
-    categorySlugs: ["collaboration-community"],
+    categorySlugs: [
+      "collaboration-and-community",
+      "social-media-tools",
+      "creator-economy",
+    ],
   },
   {
     label: "Ship Faster",
     slug: "ship-faster",
-    categorySlugs: ["devops-ci-cd", "testing-qa", "monitoring-observability"],
+    categorySlugs: [
+      "devops-and-cicd",
+      "testing-and-qa",
+      "monitoring-and-observability",
+      "hosting-and-cloud",
+    ],
   },
   {
     label: "Automate Support",
     slug: "automate-support",
-    categorySlugs: ["customer-support", "ai-machine-learning"],
+    categorySlugs: ["customer-support", "ai-and-machine-learning"],
   },
   {
     label: "Scale Customer Success",
@@ -62,64 +75,149 @@ const USE_CASES: UseCaseSeed[] = [
   {
     label: "Launch a Marketplace",
     slug: "launch-marketplace",
-    categorySlugs: ["marketplace-platforms", "e-commerce", "creator-economy"],
+    categorySlugs: ["marketplace-platforms", "ecommerce", "creator-economy"],
   },
   {
     label: "Optimize Field Operations",
     slug: "optimize-field-operations",
-    categorySlugs: ["field-operations-logistics", "iot-hardware"],
+    categorySlugs: ["field-operations-and-logistics", "iot-and-hardware"],
   },
   {
     label: "Monetize Content",
     slug: "monetize-content",
-    categorySlugs: ["creator-economy", "content-writing", "video-audio"],
+    categorySlugs: [
+      "creator-economy",
+      "content-and-writing",
+      "video-and-audio",
+    ],
   },
   {
     label: "Deliver Analytics",
     slug: "deliver-analytics",
     categorySlugs: [
       "analytics",
-      "monitoring-observability",
-      "ai-machine-learning",
+      "monitoring-and-observability",
+      "ai-and-machine-learning",
     ],
   },
   {
     label: "Launch a Crypto App",
     slug: "launch-crypto-app",
-    categorySlugs: ["web3-crypto", "crypto-infrastructure", "developer-tools"],
+    categorySlugs: [
+      "web3-and-crypto",
+      "crypto-infrastructure",
+      "developer-tools",
+    ],
   },
   {
     label: "Accept Crypto Payments",
     slug: "accept-crypto-payments",
-    categorySlugs: ["crypto-payments", "e-commerce", "finance-accounting"],
+    categorySlugs: ["crypto-payments", "ecommerce", "finance-and-accounting"],
   },
   {
     label: "Monitor On-Chain Activity",
     slug: "monitor-on-chain-activity",
-    categorySlugs: ["crypto-analytics", "analytics", "security-privacy"],
+    categorySlugs: ["crypto-analytics", "analytics", "security-and-privacy"],
   },
   {
     label: "Secure Your Stack",
     slug: "secure-your-stack",
     categorySlugs: [
-      "security-privacy",
-      "devops-ci-cd",
-      "monitoring-observability",
+      "security-and-privacy",
+      "devops-and-cicd",
+      "monitoring-and-observability",
+      "legal-and-compliance",
     ],
   },
   {
     label: "Automate Finance Ops",
     slug: "automate-finance-ops",
     categorySlugs: [
-      "finance-accounting",
-      "automation-workflow",
+      "finance-and-accounting",
+      "automation-and-workflow",
       "internal-tools",
     ],
   },
   {
     label: "Empower Remote Teams",
     slug: "empower-remote-teams",
-    categorySlugs: ["collaboration-community", "productivity", "hr-hiring"],
+    categorySlugs: [
+      "collaboration-and-community",
+      "productivity",
+      "hr-and-hiring",
+    ],
+  },
+  {
+    label: "Create AI Media",
+    slug: "create-ai-media",
+    categorySlugs: [
+      "video-and-audio",
+      "design-and-ui",
+      "content-and-writing",
+      "ai-and-machine-learning",
+    ],
+  },
+  {
+    label: "Sell Online",
+    slug: "sell-online",
+    categorySlugs: ["ecommerce", "sales", "marketing", "customer-support"],
+  },
+  {
+    label: "Launch an Education Product",
+    slug: "launch-education-product",
+    categorySlugs: [
+      "learning-and-education",
+      "content-and-writing",
+      "video-and-audio",
+    ],
+  },
+  {
+    label: "Build Health & Wellness Tools",
+    slug: "build-health-wellness-tools",
+    categorySlugs: [
+      "health-and-wellness",
+      "ai-and-machine-learning",
+      "productivity",
+    ],
+  },
+  {
+    label: "Manage Business Operations",
+    slug: "manage-business-operations",
+    categorySlugs: [
+      "finance-and-accounting",
+      "legal-and-compliance",
+      "hr-and-hiring",
+      "internal-tools",
+    ],
+  },
+  {
+    label: "Build API-First Products",
+    slug: "build-api-first-products",
+    categorySlugs: [
+      "apis-and-integrations",
+      "developer-tools",
+      "databases-and-data",
+      "hosting-and-cloud",
+    ],
+  },
+  {
+    label: "Launch Local Services",
+    slug: "launch-local-services",
+    categorySlugs: [
+      "travel-and-tourism",
+      "food-and-beverage",
+      "real-estate",
+      "field-operations-and-logistics",
+    ],
+  },
+  {
+    label: "Build Games & Entertainment",
+    slug: "build-games-entertainment",
+    categorySlugs: [
+      "gaming-and-entertainment",
+      "video-and-audio",
+      "creator-economy",
+    ],
   },
 ]
 
