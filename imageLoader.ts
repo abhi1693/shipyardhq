@@ -1,4 +1,4 @@
-import { buildRemoteImageOptimizerUrl } from "./lib/images/managed-media"
+import { buildManagedMediaImageOptimizerUrl } from "./lib/images/managed-media"
 
 type ImageLoaderParams = {
   src: string
@@ -22,7 +22,7 @@ export default function shipyardImageLoader({
   const normalizedWidth = Math.max(1, Math.round(width))
   const normalizedQuality =
     typeof quality === "number" && Number.isFinite(quality) ? quality : 75
-  const transformedUrl = buildRemoteImageOptimizerUrl({
+  const transformedUrl = buildManagedMediaImageOptimizerUrl({
     src,
     width: normalizedWidth,
     quality: normalizedQuality,
@@ -31,6 +31,5 @@ export default function shipyardImageLoader({
     return transformedUrl
   }
 
-  const separator = src.includes("?") ? "&" : "?"
-  return `${src}${separator}w=${normalizedWidth}&q=${normalizedQuality}`
+  return src
 }

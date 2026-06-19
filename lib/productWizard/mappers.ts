@@ -42,6 +42,13 @@ export function getInitialValuesForAdd(): ProductWizardInputAdd {
 export function getInitialValuesFromProduct(
   product: ProductForEditWizard,
 ): ProductWizardInputEdit {
+  const categoryIds =
+    Array.isArray(product.categories) && product.categories.length
+      ? product.categories.map((entry) => entry.categoryId)
+      : product.categoryId
+        ? [product.categoryId]
+        : []
+
   return {
     name: product.name,
     tagline: product.tagline ?? "",
@@ -49,11 +56,7 @@ export function getInitialValuesFromProduct(
     websiteUrl: product.websiteUrl ?? "",
     logo: product.logo ?? "",
     categoryId: product.categoryId,
-    categoryIds: Array.isArray(product.categories)
-      ? product.categories.map((entry) => entry.categoryId)
-      : product.categoryId
-        ? [product.categoryId]
-        : [],
+    categoryIds,
     type: product.type,
     pricingModel: product.pricingModel,
     startingPriceCents: product.startingPriceCents ?? undefined,

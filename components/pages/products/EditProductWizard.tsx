@@ -41,6 +41,34 @@ import type {
 
 type EditProductValues = ProductWizardInputEdit
 
+const PRODUCT_DRAFT_STEP_FIELDS: Record<ProductDraftStep, readonly string[]> = {
+  configuration: [
+    "websiteUrl",
+    "name",
+    "tagline",
+    "description",
+    "categoryId",
+    "categoryIds",
+    "type",
+    "platforms",
+    "keywordsText",
+  ],
+  assets: ["logo", "bannerImage", "videoUrl", "galleryMedia"],
+  commercial: ["pricingModel", "startingPriceCents", "currencyCode"],
+  validation: [
+    "verificationExpectedTxt",
+    "verificationChecked",
+    "verificationSuccess",
+  ],
+  positioning: [
+    "githubUrl",
+    "twitterUrl",
+    "contactEmail",
+    "utmCampaign",
+    "alternativeIds",
+  ],
+}
+
 export type EditProductWizardProps = {
   product: ProductForEditWizard
   categories: ProductWizardCategoryOption[]
@@ -54,6 +82,16 @@ function productEditStepPath(
   step: ProductDraftStep,
 ) {
   return `${memberProductPath(product.slug)}/edit/${step}`
+}
+
+function getStepForField(field: string): ProductDraftStep {
+  for (const step of PRODUCT_DRAFT_STEPS) {
+    if (PRODUCT_DRAFT_STEP_FIELDS[step].includes(field)) {
+      return step
+    }
+  }
+
+  return "configuration"
 }
 
 export default function EditProductWizard(props: EditProductWizardProps) {
@@ -117,46 +155,71 @@ export default function EditProductWizard(props: EditProductWizardProps) {
     }
   })()
 
-  function validateCurrentStep(values: EditProductValues) {
-    form.clearErrors()
-    const parsed = productDraftStepSchemas[props.step].safeParse(values)
-    if (parsed.success) return true
+  function setValidationErrors(
+    issues: Array<{ path: PropertyKey[]; message: string }>,
+  ) {
+    let firstInvalidStep: ProductDraftStep | null = null
 
-    parsed.error.issues.forEach((issue) => {
+    issues.forEach((issue) => {
       const field = issue.path.join(".")
       if (!field) return
+      firstInvalidStep ??= getStepForField(String(issue.path[0] ?? field))
       form.setError(field as any, {
         type: "manual",
         message: issue.message,
       })
     })
+
+    return firstInvalidStep
+  }
+
+  function validateCurrentStep(values: EditProductValues) {
+    form.clearErrors()
+    const parsed = productDraftStepSchemas[props.step].safeParse(values)
+    if (parsed.success) return true
+
+    setValidationErrors(parsed.error.issues)
     return false
   }
 
-  async function saveProduct(validate: boolean, showSuccess = false) {
+  async function saveProduct({
+    validateStep,
+    validateAll,
+    showSuccess = false,
+  }: {
+    validateStep: boolean
+    validateAll?: boolean
+    showSuccess?: boolean
+  }) {
     const values = form.getValues()
-    if (validate && !validateCurrentStep(values)) {
+    if (validateStep && !validateCurrentStep(values)) {
       toast.error("Fix the highlighted fields to continue.")
       return false
     }
 
-    const fullValidation = schema.safeParse(values)
-    if (!fullValidation.success) {
-      fullValidation.error.issues.forEach((issue) => {
-        const field = issue.path.join(".")
-        if (!field) return
-        form.setError(field as any, {
-          type: "manual",
-          message: issue.message,
-        })
-      })
-      toast.error("Fix the highlighted fields to continue.")
-      return false
+    let payload = values
+    if (validateAll) {
+      form.clearErrors()
+      const fullValidation = schema.safeParse(values)
+      if (!fullValidation.success) {
+        const firstInvalidStep = setValidationErrors(fullValidation.error.issues)
+        if (firstInvalidStep && firstInvalidStep !== props.step) {
+          const invalidStep = firstInvalidStep as ProductDraftStep
+          toast.error(
+            `Review ${PRODUCT_DRAFT_STEP_META[invalidStep].label} to continue.`,
+          )
+          router.push(productEditStepPath(props.product, invalidStep))
+        } else {
+          toast.error("Fix the highlighted fields to continue.")
+        }
+        return false
+      }
+      payload = fullValidation.data as EditProductValues
     }
 
     const result = await updateProductAction(
       props.product.id,
-      toUpdatePayload(fullValidation.data as EditProductValues),
+      toUpdatePayload(payload as EditProductValues),
     )
     if ((result as any)?.error) {
       toast.error((result as any).error)
@@ -171,7 +234,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
   async function handleContinue() {
     setPendingAction("continue")
     try {
-      const saved = await saveProduct(true)
+      const saved = await saveProduct({ validateStep: true })
       if (!saved) return
       if (nextStep) {
         router.push(productEditStepPath(props.product, nextStep))
@@ -184,7 +247,7 @@ export default function EditProductWizard(props: EditProductWizardProps) {
   async function handleNavigate(href: string) {
     setPendingAction("navigate")
     try {
-      const saved = await saveProduct(false)
+      const saved = await saveProduct({ validateStep: true })
       if (!saved) return
       router.push(href)
     } finally {
@@ -195,7 +258,11 @@ export default function EditProductWizard(props: EditProductWizardProps) {
   async function handleSave() {
     setPendingAction("save")
     try {
-      const saved = await saveProduct(true, true)
+      const saved = await saveProduct({
+        validateStep: true,
+        validateAll: true,
+        showSuccess: true,
+      })
       if (!saved) return
       router.push(memberProductPath(props.product.slug))
     } finally {
