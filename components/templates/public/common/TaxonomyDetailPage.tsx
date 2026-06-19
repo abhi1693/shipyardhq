@@ -2,6 +2,7 @@ import Link from "next/link"
 import { type ReactNode } from "react"
 
 import { TaxonomySponsorsSidebar } from "@/components/templates/public/common/TaxonomySponsorsSidebar"
+import { MEMBER_BASE_PATH } from "@/lib/routes"
 
 export interface TaxonomyDetailStat {
   label: string
@@ -50,6 +51,12 @@ function formatMetric(value: number | string) {
   return value
 }
 
+function shouldPrefetchCta(href: string) {
+  return href === MEMBER_BASE_PATH || href.startsWith(`${MEMBER_BASE_PATH}/`)
+    ? false
+    : undefined
+}
+
 export function TaxonomyDetailPage({
   title,
   description,
@@ -92,18 +99,21 @@ export function TaxonomyDetailPage({
           <div className="flex flex-col justify-center gap-3 sm:flex-row sm:flex-wrap">
             <Link
               href={primaryCta.href}
+              prefetch={shouldPrefetchCta(primaryCta.href)}
               className="inline-flex items-center justify-center rounded-lg bg-[#c0ff00] px-6 py-3 text-sm font-bold text-black transition hover:bg-[#d6ff47] active:scale-95"
             >
               {primaryCta.label}
             </Link>
             <Link
               href={secondaryCta.href}
+              prefetch={shouldPrefetchCta(secondaryCta.href)}
               className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10 active:scale-95"
             >
               {secondaryCta.label}
             </Link>
             <Link
               href={tertiaryCta.href}
+              prefetch={shouldPrefetchCta(tertiaryCta.href)}
               className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10 active:scale-95"
             >
               {tertiaryCta.label}

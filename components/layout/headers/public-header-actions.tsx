@@ -63,7 +63,9 @@ export default function PublicHeaderActions() {
         asChild
         className="h-auto rounded-[4px] border-0 bg-black px-4 py-2 text-[12px] font-semibold leading-4 tracking-[0.05em] text-white shadow-none transition-transform hover:scale-95 hover:bg-black hover:brightness-100 hover:shadow-none active:brightness-100"
       >
-        <Link href={MEMBER_PRODUCTS_ADD_PATH}>Ship Product</Link>
+        <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
+          Ship Product
+        </Link>
       </Button>
 
       {!isLoaded ? (

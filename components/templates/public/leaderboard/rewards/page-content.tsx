@@ -99,6 +99,7 @@ export async function RewardsLeaderboardPageContent({
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link
               href={MEMBER_REWARDS_PATH}
+              prefetch={false}
               className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-black px-6 text-[12px] font-semibold uppercase tracking-[0.05em] text-white transition hover:bg-black/90 active:scale-[0.98]"
             >
               <WalletCards className="h-4 w-4" aria-hidden />
@@ -106,6 +107,7 @@ export async function RewardsLeaderboardPageContent({
             </Link>
             <Link
               href={MEMBER_PRODUCTS_PATH}
+              prefetch={false}
               className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-6 text-[12px] font-semibold uppercase tracking-[0.05em] text-black transition hover:bg-[#F8FAFC] active:scale-[0.98]"
             >
               <Sparkles className="h-4 w-4" aria-hidden />

@@ -8,6 +8,7 @@ import {
   LEADERBOARD_PATH,
   LEGAL_PRIVACY_PATH,
   LEGAL_TERMS_PATH,
+  MEMBER_BASE_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
   PRICING_PATH,
   REWARDS_PATH,
@@ -95,6 +96,11 @@ export default function PublicFooter() {
                   <li key={`${column.title}-${link.label}`}>
                     <Link
                       href={link.href}
+                      prefetch={
+                        link.href.startsWith(`${MEMBER_BASE_PATH}/`)
+                          ? false
+                          : undefined
+                      }
                       className="text-sm leading-5 text-[#43474c] transition-colors hover:text-[#0051d5]"
                     >
                       {link.label}

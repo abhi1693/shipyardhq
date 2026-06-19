@@ -182,7 +182,9 @@ export default async function PricingPage() {
                 asChild
                 className="h-auto w-full rounded-lg border-0 bg-black px-8 py-3 text-lg font-semibold text-white shadow-none hover:bg-black/90 sm:w-auto"
               >
-                <Link href={MEMBER_PRODUCTS_ADD_PATH}>Start for free</Link>
+                <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
+                  Start for free
+                </Link>
               </Button>
               <Button
                 asChild

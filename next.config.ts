@@ -2,6 +2,16 @@ import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  serverExternalPackages: [
+    "@google-analytics/data",
+    "bullmq",
+    "dodopayments",
+    "ioredis",
+    "openai",
+    "redis",
+    "turndown",
+    "turndown-plugin-gfm",
+  ],
   async redirects() {
     return [
       {

@@ -45,7 +45,7 @@ export type AnalyticsLineDefinition<DataPoint extends object> = {
   type?: LineProps["type"]
 }
 
-interface AnalyticsLineChartProps<DataPoint extends object> {
+export interface AnalyticsLineChartProps<DataPoint extends object> {
   data: DataPoint[]
   config: ChartConfig
   lines: AnalyticsLineDefinition<DataPoint>[]

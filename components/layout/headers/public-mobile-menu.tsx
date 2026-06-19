@@ -146,7 +146,7 @@ export default function PublicMobileMenu() {
               asChild
               className="h-11 w-full rounded-[6px] border-0 bg-black px-4 py-2 text-[13px] font-semibold leading-4 tracking-[0.04em] text-white shadow-none hover:bg-black hover:brightness-100"
             >
-              <Link href={MEMBER_PRODUCTS_ADD_PATH}>
+              <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
                 <PackagePlus className="size-4" aria-hidden />
                 Ship Product
               </Link>

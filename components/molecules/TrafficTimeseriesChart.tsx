@@ -2,9 +2,9 @@
 
 import type { ChartConfig } from "@/components/atoms/chart"
 import {
-  AnalyticsLineChart,
+  LazyAnalyticsLineChart,
   type AnalyticsLineDefinition,
-} from "./AnalyticsLineChart"
+} from "./LazyAnalyticsCharts"
 import { cn } from "@/lib/utils"
 
 type TrafficTimeseriesPoint = {
@@ -56,7 +56,7 @@ export function TrafficTimeseriesChart({
   }
 
   return (
-    <AnalyticsLineChart
+    <LazyAnalyticsLineChart
       data={points}
       config={TRAFFIC_CHART_CONFIG}
       lines={TRAFFIC_LINES}

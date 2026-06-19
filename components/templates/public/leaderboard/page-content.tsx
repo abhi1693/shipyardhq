@@ -73,7 +73,7 @@ function LeaderboardHero({
           asChild
           className="h-12 rounded-lg bg-black px-6 text-[12px] font-semibold uppercase tracking-[0.05em] text-white hover:bg-black/90"
         >
-          <Link href={MEMBER_PRODUCTS_PATH}>
+          <Link href={MEMBER_PRODUCTS_PATH} prefetch={false}>
             <Zap className="size-4" aria-hidden />
             Submit your launch
           </Link>

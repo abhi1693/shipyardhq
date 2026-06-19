@@ -109,7 +109,11 @@ export default function NotFound() {
             })}
           </div>
 
-          <Link className="not-found-submit" href={MEMBER_PRODUCTS_ADD_PATH}>
+          <Link
+            className="not-found-submit"
+            href={MEMBER_PRODUCTS_ADD_PATH}
+            prefetch={false}
+          >
             Submit your product
           </Link>
         </section>

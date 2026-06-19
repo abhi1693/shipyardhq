@@ -48,7 +48,7 @@ export type AnalyticsBarDefinition<DataPoint extends object> = {
   ) => Partial<CellProps> | undefined
 }
 
-interface AnalyticsBarChartProps<DataPoint extends object> {
+export interface AnalyticsBarChartProps<DataPoint extends object> {
   data: DataPoint[]
   config: ChartConfig
   bars: AnalyticsBarDefinition<DataPoint>[]

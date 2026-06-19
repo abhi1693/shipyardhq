@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
 import { DeferredGoogleAnalytics } from "@/components/analytics/DeferredGoogleAnalytics"
-import { Toaster } from "@/components/atoms/sonner"
+import { LazyToaster } from "@/components/atoms/lazy-toaster"
 import "./globals.css"
 import { IS_PROD } from "@/lib/constants"
 import { resolveExcludedGaHostnames } from "@/lib/analytics/gaHostnames"
@@ -62,7 +62,7 @@ export default function RootLayout({
         )}
       </head>
       <body className="min-h-screen antialiased bg-[var(--background)] text-[var(--foreground)]">
-        <Toaster position="top-right" />
+        <LazyToaster position="top-right" />
         {children}
         {gaId && <DeferredGoogleAnalytics gaId={gaId} />}
       </body>

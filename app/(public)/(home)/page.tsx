@@ -220,7 +220,9 @@ function HomepageHero({
             asChild
             className="h-14 w-full rounded-xl border-0 bg-black px-10 text-base font-semibold text-white shadow-lg shadow-black/10 hover:scale-[0.98] hover:bg-black sm:w-auto"
           >
-            <Link href={MEMBER_PRODUCTS_ADD_PATH}>Submit Your Product</Link>
+            <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
+              Submit Your Product
+            </Link>
           </Button>
           <Button
             asChild

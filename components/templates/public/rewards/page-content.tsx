@@ -207,6 +207,7 @@ export async function RewardsPageContent() {
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
             <Link
               href={MEMBER_REWARDS_PATH}
+              prefetch={false}
               className="inline-flex w-full items-center justify-center rounded-full bg-white px-8 py-3 text-sm font-semibold text-black transition hover:bg-[#eff4ff] active:scale-95 sm:w-auto"
             >
               Check your balance
@@ -406,6 +407,7 @@ export async function RewardsPageContent() {
                         </div>
                         <Link
                           href={MEMBER_REWARDS_PATH}
+                          prefetch={false}
                           className="inline-flex items-center justify-center rounded-full bg-[#0051d5] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#346cef] active:scale-95"
                         >
                           Redeem
@@ -448,6 +450,7 @@ export async function RewardsPageContent() {
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href={MEMBER_PRODUCTS_ADD_PATH}
+              prefetch={false}
               className="inline-flex w-full items-center justify-center rounded-full bg-[#c0ff00] px-8 py-3 text-sm font-bold text-black transition hover:bg-[#d6ff47] active:scale-95 sm:w-auto"
             >
               List your product
@@ -455,6 +458,7 @@ export async function RewardsPageContent() {
             </Link>
             <Link
               href={MEMBER_REWARDS_PATH}
+              prefetch={false}
               className="inline-flex w-full items-center justify-center rounded-full bg-white/10 px-8 py-3 text-sm font-bold text-white transition hover:bg-white/20 active:scale-95 sm:w-auto"
             >
               Review your ledger

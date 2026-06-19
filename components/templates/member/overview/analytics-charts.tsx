@@ -2,9 +2,9 @@
 
 import type { ChartConfig } from "@/components/atoms/chart"
 import {
-  AnalyticsLineChart,
+  LazyAnalyticsLineChart,
   type AnalyticsLineDefinition,
-} from "@/components/molecules/AnalyticsLineChart"
+} from "@/components/molecules/LazyAnalyticsCharts"
 
 type TrafficPoint = {
   date: string
@@ -62,7 +62,7 @@ export function MemberAnalyticsCharts({
         </div>
       </div>
       {hasTrafficPoints ? (
-        <AnalyticsLineChart
+        <LazyAnalyticsLineChart
           className="min-h-[280px] border-0 bg-transparent p-0 shadow-none"
           data={trafficData}
           config={trafficChartConfig}

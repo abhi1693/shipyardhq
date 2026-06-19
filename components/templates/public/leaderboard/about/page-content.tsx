@@ -327,7 +327,7 @@ export function LeaderboardGuidePageContent() {
                 asChild
                 className="h-9 rounded bg-[#C0FF00] px-4 text-[12px] font-semibold uppercase leading-4 tracking-[0.05em] text-black shadow-none hover:bg-white"
               >
-                <Link href={MEMBER_PRODUCTS_ADD_PATH}>
+                <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
                   <Zap className="size-4" aria-hidden />
                   Join Now
                 </Link>

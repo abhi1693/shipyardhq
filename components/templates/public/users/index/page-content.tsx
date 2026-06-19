@@ -46,6 +46,7 @@ export async function UsersIndexPageContent() {
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 href={MEMBER_PRODUCTS_ADD_PATH}
+                prefetch={false}
                 className="inline-flex items-center justify-center rounded-lg bg-black px-8 py-3 text-base font-semibold text-white transition active:scale-95"
               >
                 Submit your launch

@@ -200,7 +200,9 @@ export default function WhyShipyardPage() {
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg" className="rounded-lg px-8">
-              <Link href={MEMBER_PRODUCTS_ADD_PATH}>List your product</Link>
+              <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
+                List your product
+              </Link>
             </Button>
             <Button
               asChild
@@ -305,7 +307,9 @@ export default function WhyShipyardPage() {
             </p>
             <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
               <Button asChild size="lg" className="rounded-lg px-10">
-                <Link href={MEMBER_PRODUCTS_ADD_PATH}>Start listing today</Link>
+                <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
+                  Start listing today
+                </Link>
               </Button>
               <Button
                 asChild

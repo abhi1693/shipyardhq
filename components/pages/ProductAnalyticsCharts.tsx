@@ -2,12 +2,12 @@
 
 import { type ChartConfig } from "@/components/atoms/chart"
 import { AnalyticsChartCard } from "@/components/molecules/AnalyticsChartCard"
-import { AnalyticsBarChart } from "@/components/molecules/AnalyticsBarChart"
-import { AnalyticsPieChart } from "@/components/molecules/AnalyticsPieChart"
 import {
-  AnalyticsLineChart,
+  LazyAnalyticsBarChart,
+  LazyAnalyticsLineChart,
+  LazyAnalyticsPieChart,
   type AnalyticsLineDefinition,
-} from "@/components/molecules/AnalyticsLineChart"
+} from "@/components/molecules/LazyAnalyticsCharts"
 import type { ProductTrafficSummary } from "@/types/analytics"
 
 const DEVICE_COLORS: Record<string, string> = {
@@ -114,7 +114,7 @@ export function ProductAnalyticsCharts({
         headerClassName="px-4 pb-0"
         contentClassName="px-4 pb-5 pt-4"
       >
-        <AnalyticsLineChart
+        <LazyAnalyticsLineChart
           className="min-h-[280px]"
           data={summary.viewsOverTime}
           config={chartConfig}
@@ -143,7 +143,7 @@ export function ProductAnalyticsCharts({
           compass will light up.
         </p>
       ) : (
-        <AnalyticsPieChart
+        <LazyAnalyticsPieChart
           className="min-h-[280px]"
           data={summary.deviceBreakdown}
           config={deviceConfig}
@@ -208,7 +208,7 @@ export function ProductAnalyticsCharts({
         contentClassName="px-4 pb-5 pt-4"
       >
         {hasEngagementSeries ? (
-          <AnalyticsLineChart
+          <LazyAnalyticsLineChart
             className="min-h-[280px]"
             data={summary.engagementOverTime}
             config={{
@@ -251,7 +251,7 @@ export function ProductAnalyticsCharts({
             each browser here.
           </p>
         ) : (
-          <AnalyticsBarChart
+          <LazyAnalyticsBarChart
             className="min-h-[300px]"
             data={browserChartData}
             config={{ views: { label: "Views", color: "#8b5cf6" } }}
@@ -307,7 +307,7 @@ export function ProductAnalyticsCharts({
             OS details for your traffic.
           </p>
         ) : (
-          <AnalyticsBarChart
+          <LazyAnalyticsBarChart
             className="min-h-[300px]"
             data={userAgentChartData}
             config={{ views: { label: "Views", color: "#0ea5e9" } }}
@@ -342,7 +342,7 @@ export function ProductAnalyticsCharts({
           across the globe.
         </p>
       ) : (
-        <AnalyticsBarChart
+        <LazyAnalyticsBarChart
           className="min-h-[280px]"
           data={topCountries}
           config={{ views: { label: "Views" } }}

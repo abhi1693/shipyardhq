@@ -48,7 +48,7 @@ import {
 } from "lucide-react"
 
 import { ProductAnalyticsRangeDropdown } from "@/components/molecules/ProductAnalyticsRangeDropdown"
-import { AnalyticsBarChart } from "@/components/molecules/AnalyticsBarChart"
+import { LazyAnalyticsBarChart } from "@/components/molecules/LazyAnalyticsCharts"
 import { AnalyticsListCard } from "@/components/molecules/AnalyticsListCard"
 import { AnalyticsMetricCard } from "@/components/molecules/AnalyticsMetricCard"
 import { AnalyticsValueList } from "@/components/molecules/AnalyticsValueList"
@@ -420,7 +420,7 @@ export default async function ProductAnalyticsPage({
                 </div>
               </CardHeader>
               <CardContent className="pt-2">
-                <AnalyticsBarChart
+                <LazyAnalyticsBarChart
                   className="min-h-[260px]"
                   data={[
                     {
