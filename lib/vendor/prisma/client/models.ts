@@ -10,9 +10,6 @@
  */
 export type * from './models/Product'
 export type * from './models/ProductDraft'
-export type * from './models/PaymentConnector'
-export type * from './models/PaymentConnectorCredential'
-export type * from './models/PaymentRevenueSnapshot'
 export type * from './models/AlternativeProduct'
 export type * from './models/LeaderboardRun'
 export type * from './models/ProductLeaderboardScore'

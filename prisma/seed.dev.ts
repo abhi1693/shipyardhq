@@ -8,9 +8,6 @@ import {
   FeatureEntitlementStatus,
   FeatureSubjectType,
   LeaderboardRunStatus,
-  PaymentConnectorProvider,
-  PaymentConnectorStatus,
-  PaymentCredentialStatus,
   PlacementStatus,
   Platform,
   Prisma,
@@ -80,12 +77,6 @@ type DevProductSeed = {
   upvoteBase: number
   verified: boolean
   backlinkVerified: boolean
-  connector?: {
-    provider: PaymentConnectorProvider
-    allTimeRevenueCents: number
-    latestPeriodRevenueCents: number
-    currencyCode: string
-  }
 }
 
 type SeedContext = {
@@ -212,22 +203,16 @@ const baseDevProducts: DevProductSeed[] = [
     upvoteBase: 78,
     verified: true,
     backlinkVerified: true,
-    connector: {
-      provider: PaymentConnectorProvider.dodo,
-      allTimeRevenueCents: 182_400,
-      latestPeriodRevenueCents: 24_700,
-      currencyCode: "USD",
-    },
   },
   {
-    slug: "dev-revenue-radar",
-    name: "Revenue Radar",
-    tagline: "Payment intelligence for bootstrapped software teams.",
+    slug: "dev-growth-radar",
+    name: "Growth Radar",
+    tagline: "Growth intelligence for bootstrapped software teams.",
     description:
-      "Revenue Radar reconciles subscriptions, one-time purchases, refunds, and verified revenue milestones across payment providers.",
-    websiteUrl: "https://revenue-radar.localhost",
-    logo: "/providers/dodo.jpeg",
-    bannerImage: "/opengraph-verified-revenue.png",
+      "Growth Radar reconciles acquisition signals, activation loops, retention notes, and launch milestones across founder-led channels.",
+    websiteUrl: "https://growth-radar.localhost",
+    logo: "/analytics-2.png",
+    bannerImage: "/analytics-2.png",
     type: ProductType.saas,
     pricingModel: PricingModel.freemium,
     status: ProductStatus.published,
@@ -244,12 +229,6 @@ const baseDevProducts: DevProductSeed[] = [
     upvoteBase: 54,
     verified: true,
     backlinkVerified: false,
-    connector: {
-      provider: PaymentConnectorProvider.stripe,
-      allTimeRevenueCents: 96_900,
-      latestPeriodRevenueCents: 13_800,
-      currencyCode: "USD",
-    },
   },
   {
     slug: "dev-support-tide",
@@ -302,12 +281,6 @@ const baseDevProducts: DevProductSeed[] = [
     upvoteBase: 35,
     verified: true,
     backlinkVerified: true,
-    connector: {
-      provider: PaymentConnectorProvider.paddle,
-      allTimeRevenueCents: 42_300,
-      latestPeriodRevenueCents: 8_400,
-      currencyCode: "USD",
-    },
   },
   {
     slug: "dev-signal-deck",
@@ -496,7 +469,7 @@ const baseDevProducts: DevProductSeed[] = [
       "Cart Current highlights checkout friction, abandoned order patterns, and campaign-level storefront performance.",
     websiteUrl: "https://cart-current.localhost",
     logo: "/providers/paddle.png",
-    bannerImage: "/opengraph-verified-revenue.png",
+    bannerImage: "/analytics-3.png",
     type: ProductType.saas,
     pricingModel: PricingModel.freemium,
     status: ProductStatus.published,
@@ -668,7 +641,7 @@ function generatedDevProducts(): DevProductSeed[] {
     "/featured-on-light.png",
     "/featured-on-dark.png",
     "/opengraph.png",
-    "/opengraph-verified-revenue.png",
+    "/opengraph.png",
   ]
   const users = [
     process.env.DEV_ADMIN_EMAIL?.trim() || DEV_SEED_DEFAULTS.adminEmail,
@@ -879,7 +852,7 @@ function buildProductData(
     userId: user.id,
     categoryId,
     planId,
-    subscriptionId: seed.connector ? `sub_dev_${seed.slug}` : null,
+    subscriptionId: null,
     planAssignedAt: planId ? addUtcDays(createdAt, 1) : null,
     type: seed.type,
     pricingModel: seed.pricingModel,
@@ -1113,91 +1086,6 @@ async function seedUpvotes(
       update: { upvotes: product.upvoteBase + liveUpvotes },
     })
   }
-}
-
-async function seedPaymentConnectors(
-  prisma: PrismaClient,
-  productIdBySlug: Map<string, string>,
-  today: Date,
-) {
-  const monthStart = startOfUtcMonth(today)
-  const connectorRows: Array<{ product: string; provider: string }> = []
-
-  for (const product of devProducts) {
-    if (!product.connector) continue
-    const productId = productIdBySlug.get(product.slug)
-    if (!productId) continue
-
-    const connector = await prisma.paymentConnector.upsert({
-      where: { productId },
-      create: {
-        productId,
-        provider: product.connector.provider,
-        status: PaymentConnectorStatus.active,
-        config: json({ mode: "dev", seeded: true }),
-        lastSyncedAt: daysAgo(today, 0),
-        verifiedAt: daysAgo(today, 2),
-        latestAllTimeRevenueCents: product.connector.allTimeRevenueCents,
-        latestCurrencyCode: product.connector.currencyCode,
-        latestPeriodStart: monthStart,
-      },
-      update: {
-        provider: product.connector.provider,
-        status: PaymentConnectorStatus.active,
-        config: json({ mode: "dev", seeded: true }),
-        lastSyncedAt: daysAgo(today, 0),
-        lastSyncError: null,
-        verifiedAt: daysAgo(today, 2),
-        latestAllTimeRevenueCents: product.connector.allTimeRevenueCents,
-        latestCurrencyCode: product.connector.currencyCode,
-        latestPeriodStart: monthStart,
-      },
-      select: { id: true },
-    })
-
-    await Promise.all([
-      prisma.paymentConnectorCredential.deleteMany({
-        where: { connectorId: connector.id },
-      }),
-      prisma.paymentRevenueSnapshot.deleteMany({
-        where: { connectorId: connector.id },
-      }),
-    ])
-
-    await prisma.paymentConnectorCredential.create({
-      data: {
-        connectorId: connector.id,
-        status: PaymentCredentialStatus.active,
-        encryptionVersion: 1,
-        encryptedKey: "dev-encrypted-key-placeholder",
-        keyHint: "dev_****_seed",
-      },
-    })
-
-    await prisma.paymentRevenueSnapshot.createMany({
-      data: [2, 1, 0].map((monthsAgo, index) => ({
-        connectorId: connector.id,
-        currencyCode: product.connector!.currencyCode,
-        periodStart: addUtcMonths(monthStart, -monthsAgo),
-        periodRevenueCents:
-          product.connector!.latestPeriodRevenueCents - (2 - index) * 2_100,
-        allTimeRevenueCents:
-          product.connector!.allTimeRevenueCents - monthsAgo * 11_200,
-        data: json({
-          seeded: true,
-          subscriptions: 12 + index * 4,
-          refunds: index,
-        }),
-      })),
-    })
-
-    connectorRows.push({
-      product: product.slug,
-      provider: product.connector.provider,
-    })
-  }
-
-  console.table(connectorRows)
 }
 
 function productTrafficForDay(seed: DevProductSeed, index: number) {
@@ -2147,7 +2035,6 @@ async function main() {
 
   await resetProductDecorations(prisma, productIdBySlug, today)
   await seedUpvotes(prisma, ctx, productIdBySlug, today)
-  await seedPaymentConnectors(prisma, productIdBySlug, today)
   await seedTraffic(prisma, productIdBySlug, today)
   await seedRewardsState(prisma, ctx, productIdBySlug, today)
   await seedLeaderboard(prisma, productIdBySlug, today)

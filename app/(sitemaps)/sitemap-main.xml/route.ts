@@ -77,7 +77,6 @@ export async function GET() {
     WHY_SHIPYARD_PATH,
     LEADERBOARD_GUIDE_PATH,
     LEADERBOARD_REWARDS_PATH,
-    "/verified-revenue",
   ] as const
 
   const [
@@ -306,10 +305,6 @@ export async function GET() {
         case LEADERBOARD_REWARDS_PATH:
           changefreq = "weekly"
           priority = "0.55"
-          break
-        case "/verified-revenue":
-          changefreq = "monthly"
-          priority = "0.45"
           break
       }
       return xml`

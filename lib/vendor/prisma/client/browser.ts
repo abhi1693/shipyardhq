@@ -28,21 +28,6 @@ export type Product = Prisma.ProductModel
  */
 export type ProductDraft = Prisma.ProductDraftModel
 /**
- * Model PaymentConnector
- * 
- */
-export type PaymentConnector = Prisma.PaymentConnectorModel
-/**
- * Model PaymentConnectorCredential
- * 
- */
-export type PaymentConnectorCredential = Prisma.PaymentConnectorCredentialModel
-/**
- * Model PaymentRevenueSnapshot
- * 
- */
-export type PaymentRevenueSnapshot = Prisma.PaymentRevenueSnapshotModel
-/**
  * Model AlternativeProduct
  * 
  */

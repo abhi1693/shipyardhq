@@ -386,9 +386,6 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   Product: 'Product',
   ProductDraft: 'ProductDraft',
-  PaymentConnector: 'PaymentConnector',
-  PaymentConnectorCredential: 'PaymentConnectorCredential',
-  PaymentRevenueSnapshot: 'PaymentRevenueSnapshot',
   AlternativeProduct: 'AlternativeProduct',
   LeaderboardRun: 'LeaderboardRun',
   ProductLeaderboardScore: 'ProductLeaderboardScore',
@@ -448,7 +445,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "productDraft" | "paymentConnector" | "paymentConnectorCredential" | "paymentRevenueSnapshot" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "analyticsIngestionRun" | "productTrafficDaily" | "productTrafficReferrerDaily" | "productTrafficChannelDaily" | "productTrafficBrowserDaily" | "productTrafficOperatingSystemDaily" | "productTrafficDeviceDaily" | "productTrafficCountryDaily" | "productTrafficCityDaily" | "siteTrafficDaily" | "siteTrafficReferrerDaily" | "siteTrafficBrowserDaily" | "siteTrafficOperatingSystemDaily" | "siteTrafficDeviceDaily" | "siteTrafficCountryDaily" | "siteTrafficRegionDaily" | "siteTrafficCityDaily" | "productUpvote" | "user" | "category" | "productCategory" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "productDraft" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "analyticsIngestionRun" | "productTrafficDaily" | "productTrafficReferrerDaily" | "productTrafficChannelDaily" | "productTrafficBrowserDaily" | "productTrafficOperatingSystemDaily" | "productTrafficDeviceDaily" | "productTrafficCountryDaily" | "productTrafficCityDaily" | "siteTrafficDaily" | "siteTrafficReferrerDaily" | "siteTrafficBrowserDaily" | "siteTrafficOperatingSystemDaily" | "siteTrafficDeviceDaily" | "siteTrafficCountryDaily" | "siteTrafficRegionDaily" | "siteTrafficCityDaily" | "productUpvote" | "user" | "category" | "productCategory" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -597,228 +594,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductDraftCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductDraftCountAggregateOutputType> | number
-        }
-      }
-    }
-    PaymentConnector: {
-      payload: Prisma.$PaymentConnectorPayload<ExtArgs>
-      fields: Prisma.PaymentConnectorFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.PaymentConnectorFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.PaymentConnectorFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>
-        }
-        findFirst: {
-          args: Prisma.PaymentConnectorFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.PaymentConnectorFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>
-        }
-        findMany: {
-          args: Prisma.PaymentConnectorFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>[]
-        }
-        create: {
-          args: Prisma.PaymentConnectorCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>
-        }
-        createMany: {
-          args: Prisma.PaymentConnectorCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.PaymentConnectorCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>[]
-        }
-        delete: {
-          args: Prisma.PaymentConnectorDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>
-        }
-        update: {
-          args: Prisma.PaymentConnectorUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>
-        }
-        deleteMany: {
-          args: Prisma.PaymentConnectorDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.PaymentConnectorUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.PaymentConnectorUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>[]
-        }
-        upsert: {
-          args: Prisma.PaymentConnectorUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorPayload>
-        }
-        aggregate: {
-          args: Prisma.PaymentConnectorAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregatePaymentConnector>
-        }
-        groupBy: {
-          args: Prisma.PaymentConnectorGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PaymentConnectorGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.PaymentConnectorCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PaymentConnectorCountAggregateOutputType> | number
-        }
-      }
-    }
-    PaymentConnectorCredential: {
-      payload: Prisma.$PaymentConnectorCredentialPayload<ExtArgs>
-      fields: Prisma.PaymentConnectorCredentialFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.PaymentConnectorCredentialFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.PaymentConnectorCredentialFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>
-        }
-        findFirst: {
-          args: Prisma.PaymentConnectorCredentialFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.PaymentConnectorCredentialFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>
-        }
-        findMany: {
-          args: Prisma.PaymentConnectorCredentialFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>[]
-        }
-        create: {
-          args: Prisma.PaymentConnectorCredentialCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>
-        }
-        createMany: {
-          args: Prisma.PaymentConnectorCredentialCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.PaymentConnectorCredentialCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>[]
-        }
-        delete: {
-          args: Prisma.PaymentConnectorCredentialDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>
-        }
-        update: {
-          args: Prisma.PaymentConnectorCredentialUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>
-        }
-        deleteMany: {
-          args: Prisma.PaymentConnectorCredentialDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.PaymentConnectorCredentialUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.PaymentConnectorCredentialUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>[]
-        }
-        upsert: {
-          args: Prisma.PaymentConnectorCredentialUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentConnectorCredentialPayload>
-        }
-        aggregate: {
-          args: Prisma.PaymentConnectorCredentialAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregatePaymentConnectorCredential>
-        }
-        groupBy: {
-          args: Prisma.PaymentConnectorCredentialGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PaymentConnectorCredentialGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.PaymentConnectorCredentialCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PaymentConnectorCredentialCountAggregateOutputType> | number
-        }
-      }
-    }
-    PaymentRevenueSnapshot: {
-      payload: Prisma.$PaymentRevenueSnapshotPayload<ExtArgs>
-      fields: Prisma.PaymentRevenueSnapshotFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.PaymentRevenueSnapshotFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.PaymentRevenueSnapshotFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>
-        }
-        findFirst: {
-          args: Prisma.PaymentRevenueSnapshotFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.PaymentRevenueSnapshotFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>
-        }
-        findMany: {
-          args: Prisma.PaymentRevenueSnapshotFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>[]
-        }
-        create: {
-          args: Prisma.PaymentRevenueSnapshotCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>
-        }
-        createMany: {
-          args: Prisma.PaymentRevenueSnapshotCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.PaymentRevenueSnapshotCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>[]
-        }
-        delete: {
-          args: Prisma.PaymentRevenueSnapshotDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>
-        }
-        update: {
-          args: Prisma.PaymentRevenueSnapshotUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>
-        }
-        deleteMany: {
-          args: Prisma.PaymentRevenueSnapshotDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.PaymentRevenueSnapshotUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.PaymentRevenueSnapshotUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>[]
-        }
-        upsert: {
-          args: Prisma.PaymentRevenueSnapshotUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentRevenueSnapshotPayload>
-        }
-        aggregate: {
-          args: Prisma.PaymentRevenueSnapshotAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregatePaymentRevenueSnapshot>
-        }
-        groupBy: {
-          args: Prisma.PaymentRevenueSnapshotGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PaymentRevenueSnapshotGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.PaymentRevenueSnapshotCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PaymentRevenueSnapshotCountAggregateOutputType> | number
         }
       }
     }
@@ -4160,54 +3935,6 @@ export const ProductDraftScalarFieldEnum = {
 export type ProductDraftScalarFieldEnum = (typeof ProductDraftScalarFieldEnum)[keyof typeof ProductDraftScalarFieldEnum]
 
 
-export const PaymentConnectorScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  provider: 'provider',
-  status: 'status',
-  config: 'config',
-  lastSyncedAt: 'lastSyncedAt',
-  lastSyncError: 'lastSyncError',
-  verifiedAt: 'verifiedAt',
-  latestAllTimeRevenueCents: 'latestAllTimeRevenueCents',
-  latestCurrencyCode: 'latestCurrencyCode',
-  latestPeriodStart: 'latestPeriodStart',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type PaymentConnectorScalarFieldEnum = (typeof PaymentConnectorScalarFieldEnum)[keyof typeof PaymentConnectorScalarFieldEnum]
-
-
-export const PaymentConnectorCredentialScalarFieldEnum = {
-  id: 'id',
-  connectorId: 'connectorId',
-  status: 'status',
-  encryptionVersion: 'encryptionVersion',
-  encryptedKey: 'encryptedKey',
-  keyHint: 'keyHint',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type PaymentConnectorCredentialScalarFieldEnum = (typeof PaymentConnectorCredentialScalarFieldEnum)[keyof typeof PaymentConnectorCredentialScalarFieldEnum]
-
-
-export const PaymentRevenueSnapshotScalarFieldEnum = {
-  id: 'id',
-  connectorId: 'connectorId',
-  currencyCode: 'currencyCode',
-  periodStart: 'periodStart',
-  periodRevenueCents: 'periodRevenueCents',
-  allTimeRevenueCents: 'allTimeRevenueCents',
-  data: 'data',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type PaymentRevenueSnapshotScalarFieldEnum = (typeof PaymentRevenueSnapshotScalarFieldEnum)[keyof typeof PaymentRevenueSnapshotScalarFieldEnum]
-
-
 export const AlternativeProductScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -5083,48 +4810,6 @@ export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 
 
 /**
- * Reference to a field of type 'PaymentConnectorProvider'
- */
-export type EnumPaymentConnectorProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentConnectorProvider'>
-    
-
-
-/**
- * Reference to a field of type 'PaymentConnectorProvider[]'
- */
-export type ListEnumPaymentConnectorProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentConnectorProvider[]'>
-    
-
-
-/**
- * Reference to a field of type 'PaymentConnectorStatus'
- */
-export type EnumPaymentConnectorStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentConnectorStatus'>
-    
-
-
-/**
- * Reference to a field of type 'PaymentConnectorStatus[]'
- */
-export type ListEnumPaymentConnectorStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentConnectorStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'PaymentCredentialStatus'
- */
-export type EnumPaymentCredentialStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentCredentialStatus'>
-    
-
-
-/**
- * Reference to a field of type 'PaymentCredentialStatus[]'
- */
-export type ListEnumPaymentCredentialStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentCredentialStatus[]'>
-    
-
-
-/**
  * Reference to a field of type 'LeaderboardRunStatus'
  */
 export type EnumLeaderboardRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeaderboardRunStatus'>
@@ -5480,9 +5165,6 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   product?: Prisma.ProductOmit
   productDraft?: Prisma.ProductDraftOmit
-  paymentConnector?: Prisma.PaymentConnectorOmit
-  paymentConnectorCredential?: Prisma.PaymentConnectorCredentialOmit
-  paymentRevenueSnapshot?: Prisma.PaymentRevenueSnapshotOmit
   alternativeProduct?: Prisma.AlternativeProductOmit
   leaderboardRun?: Prisma.LeaderboardRunOmit
   productLeaderboardScore?: Prisma.ProductLeaderboardScoreOmit

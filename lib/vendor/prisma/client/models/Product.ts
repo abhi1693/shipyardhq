@@ -376,7 +376,6 @@ export type ProductWhereInput = {
   redemptions?: Prisma.RedemptionListRelationFilter
   featureEntitlements?: Prisma.FeatureEntitlementListRelationFilter
   alternatives?: Prisma.AlternativeProductListRelationFilter
-  paymentConnector?: Prisma.XOR<Prisma.PaymentConnectorNullableScalarRelationFilter, Prisma.PaymentConnectorWhereInput> | null
 }
 
 export type ProductOrderByWithRelationInput = {
@@ -427,7 +426,6 @@ export type ProductOrderByWithRelationInput = {
   redemptions?: Prisma.RedemptionOrderByRelationAggregateInput
   featureEntitlements?: Prisma.FeatureEntitlementOrderByRelationAggregateInput
   alternatives?: Prisma.AlternativeProductOrderByRelationAggregateInput
-  paymentConnector?: Prisma.PaymentConnectorOrderByWithRelationInput
 }
 
 export type ProductWhereUniqueInput = Prisma.AtLeast<{
@@ -481,7 +479,6 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   redemptions?: Prisma.RedemptionListRelationFilter
   featureEntitlements?: Prisma.FeatureEntitlementListRelationFilter
   alternatives?: Prisma.AlternativeProductListRelationFilter
-  paymentConnector?: Prisma.XOR<Prisma.PaymentConnectorNullableScalarRelationFilter, Prisma.PaymentConnectorWhereInput> | null
 }, "id" | "slug" | "subscriptionId">
 
 export type ProductOrderByWithAggregationInput = {
@@ -589,7 +586,6 @@ export type ProductCreateInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateInput = {
@@ -637,7 +633,6 @@ export type ProductUncheckedCreateInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductUpdateInput = {
@@ -685,7 +680,6 @@ export type ProductUpdateInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateInput = {
@@ -733,7 +727,6 @@ export type ProductUncheckedUpdateInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateManyInput = {
@@ -909,11 +902,6 @@ export type ProductSumOrderByAggregateInput = {
   startingPriceCents?: Prisma.SortOrder
 }
 
-export type ProductScalarRelationFilter = {
-  is?: Prisma.ProductWhereInput
-  isNot?: Prisma.ProductWhereInput
-}
-
 export type ProductListRelationFilter = {
   every?: Prisma.ProductWhereInput
   some?: Prisma.ProductWhereInput
@@ -922,6 +910,11 @@ export type ProductListRelationFilter = {
 
 export type ProductOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type ProductScalarRelationFilter = {
+  is?: Prisma.ProductWhereInput
+  isNot?: Prisma.ProductWhereInput
 }
 
 export type ProductNullableScalarRelationFilter = {
@@ -981,20 +974,6 @@ export type ProductUpdateplatformsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
-}
-
-export type ProductCreateNestedOneWithoutPaymentConnectorInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutPaymentConnectorInput, Prisma.ProductUncheckedCreateWithoutPaymentConnectorInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutPaymentConnectorInput
-  connect?: Prisma.ProductWhereUniqueInput
-}
-
-export type ProductUpdateOneRequiredWithoutPaymentConnectorNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutPaymentConnectorInput, Prisma.ProductUncheckedCreateWithoutPaymentConnectorInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutPaymentConnectorInput
-  upsert?: Prisma.ProductUpsertWithoutPaymentConnectorInput
-  connect?: Prisma.ProductWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutPaymentConnectorInput, Prisma.ProductUpdateWithoutPaymentConnectorInput>, Prisma.ProductUncheckedUpdateWithoutPaymentConnectorInput>
 }
 
 export type ProductCreateNestedManyWithoutAlternativesInput = {
@@ -1447,210 +1426,6 @@ export type ProductUpdateOneRequiredWithoutPlacementSchedulesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutPlacementSchedulesInput, Prisma.ProductUpdateWithoutPlacementSchedulesInput>, Prisma.ProductUncheckedUpdateWithoutPlacementSchedulesInput>
 }
 
-export type ProductCreateWithoutPaymentConnectorInput = {
-  id?: string
-  name: string
-  slug: string
-  tagline: string
-  description: string
-  websiteUrl: string
-  logo: string
-  subscriptionId?: string | null
-  planAssignedAt?: Date | string | null
-  type: $Enums.ProductType
-  pricingModel: $Enums.PricingModel
-  status?: $Enums.ProductStatus
-  publishedAt?: Date | string | null
-  startingPriceCents?: number | null
-  currencyCode?: string | null
-  bannerImage?: string | null
-  keywords?: Prisma.ProductCreatekeywordsInput | string[]
-  platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutProductsInput
-  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
-  categories?: Prisma.ProductCategoryCreateNestedManyWithoutProductInput
-  plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
-  analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
-  trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
-  trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
-  trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
-  trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
-  trafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutProductInput
-  trafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutProductInput
-  verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
-  ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
-  ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
-  ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
-  rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
-  redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
-  featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
-  alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-}
-
-export type ProductUncheckedCreateWithoutPaymentConnectorInput = {
-  id?: string
-  name: string
-  slug: string
-  tagline: string
-  description: string
-  websiteUrl: string
-  logo: string
-  userId: string
-  categoryId: string
-  planId?: string | null
-  subscriptionId?: string | null
-  planAssignedAt?: Date | string | null
-  type: $Enums.ProductType
-  pricingModel: $Enums.PricingModel
-  status?: $Enums.ProductStatus
-  publishedAt?: Date | string | null
-  startingPriceCents?: number | null
-  currencyCode?: string | null
-  bannerImage?: string | null
-  keywords?: Prisma.ProductCreatekeywordsInput | string[]
-  platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  categories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutProductInput
-  metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
-  analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
-  trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutProductInput
-  verification?: Prisma.ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-  ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
-  ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
-  ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
-  rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
-  redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
-  featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
-  alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-}
-
-export type ProductCreateOrConnectWithoutPaymentConnectorInput = {
-  where: Prisma.ProductWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductCreateWithoutPaymentConnectorInput, Prisma.ProductUncheckedCreateWithoutPaymentConnectorInput>
-}
-
-export type ProductUpsertWithoutPaymentConnectorInput = {
-  update: Prisma.XOR<Prisma.ProductUpdateWithoutPaymentConnectorInput, Prisma.ProductUncheckedUpdateWithoutPaymentConnectorInput>
-  create: Prisma.XOR<Prisma.ProductCreateWithoutPaymentConnectorInput, Prisma.ProductUncheckedCreateWithoutPaymentConnectorInput>
-  where?: Prisma.ProductWhereInput
-}
-
-export type ProductUpdateToOneWithWhereWithoutPaymentConnectorInput = {
-  where?: Prisma.ProductWhereInput
-  data: Prisma.XOR<Prisma.ProductUpdateWithoutPaymentConnectorInput, Prisma.ProductUncheckedUpdateWithoutPaymentConnectorInput>
-}
-
-export type ProductUpdateWithoutPaymentConnectorInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
-  logo?: Prisma.StringFieldUpdateOperationsInput | string
-  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
-  pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
-  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  keywords?: Prisma.ProductUpdatekeywordsInput | string[]
-  platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
-  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
-  categories?: Prisma.ProductCategoryUpdateManyWithoutProductNestedInput
-  plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
-  analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
-  trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
-  trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
-  trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
-  trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
-  trafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutProductNestedInput
-  trafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutProductNestedInput
-  verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
-  ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
-  ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
-  ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
-  rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
-  redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
-  featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
-  alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-}
-
-export type ProductUncheckedUpdateWithoutPaymentConnectorInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
-  logo?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
-  pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
-  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  keywords?: Prisma.ProductUpdatekeywordsInput | string[]
-  platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  categories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutProductNestedInput
-  metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
-  analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
-  trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutProductNestedInput
-  verification?: Prisma.ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-  ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
-  ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
-  ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
-  rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
-  redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
-  featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
-  alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-}
-
 export type ProductCreateWithoutAlternativesInput = {
   id?: string
   name: string
@@ -1695,7 +1470,6 @@ export type ProductCreateWithoutAlternativesInput = {
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutAlternativesInput = {
@@ -1742,7 +1516,6 @@ export type ProductUncheckedCreateWithoutAlternativesInput = {
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutAlternativesInput = {
@@ -1839,7 +1612,6 @@ export type ProductCreateWithoutLeaderboardScoresInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutLeaderboardScoresInput = {
@@ -1886,7 +1658,6 @@ export type ProductUncheckedCreateWithoutLeaderboardScoresInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutLeaderboardScoresInput = {
@@ -1949,7 +1720,6 @@ export type ProductUpdateWithoutLeaderboardScoresInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutLeaderboardScoresInput = {
@@ -1996,7 +1766,6 @@ export type ProductUncheckedUpdateWithoutLeaderboardScoresInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutProductMediaInput = {
@@ -2043,7 +1812,6 @@ export type ProductCreateWithoutProductMediaInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutProductMediaInput = {
@@ -2090,7 +1858,6 @@ export type ProductUncheckedCreateWithoutProductMediaInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutProductMediaInput = {
@@ -2153,7 +1920,6 @@ export type ProductUpdateWithoutProductMediaInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutProductMediaInput = {
@@ -2200,7 +1966,6 @@ export type ProductUncheckedUpdateWithoutProductMediaInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutVerificationInput = {
@@ -2247,7 +2012,6 @@ export type ProductCreateWithoutVerificationInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutVerificationInput = {
@@ -2294,7 +2058,6 @@ export type ProductUncheckedCreateWithoutVerificationInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutVerificationInput = {
@@ -2357,7 +2120,6 @@ export type ProductUpdateWithoutVerificationInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutVerificationInput = {
@@ -2404,7 +2166,6 @@ export type ProductUncheckedUpdateWithoutVerificationInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutMetadataInput = {
@@ -2451,7 +2212,6 @@ export type ProductCreateWithoutMetadataInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutMetadataInput = {
@@ -2498,7 +2258,6 @@ export type ProductUncheckedCreateWithoutMetadataInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutMetadataInput = {
@@ -2561,7 +2320,6 @@ export type ProductUpdateWithoutMetadataInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutMetadataInput = {
@@ -2608,7 +2366,6 @@ export type ProductUncheckedUpdateWithoutMetadataInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutAnalyticsInput = {
@@ -2655,7 +2412,6 @@ export type ProductCreateWithoutAnalyticsInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutAnalyticsInput = {
@@ -2702,7 +2458,6 @@ export type ProductUncheckedCreateWithoutAnalyticsInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutAnalyticsInput = {
@@ -2765,7 +2520,6 @@ export type ProductUpdateWithoutAnalyticsInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutAnalyticsInput = {
@@ -2812,7 +2566,6 @@ export type ProductUncheckedUpdateWithoutAnalyticsInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutTrafficDailyInput = {
@@ -2859,7 +2612,6 @@ export type ProductCreateWithoutTrafficDailyInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutTrafficDailyInput = {
@@ -2906,7 +2658,6 @@ export type ProductUncheckedCreateWithoutTrafficDailyInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutTrafficDailyInput = {
@@ -2969,7 +2720,6 @@ export type ProductUpdateWithoutTrafficDailyInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutTrafficDailyInput = {
@@ -3016,7 +2766,6 @@ export type ProductUncheckedUpdateWithoutTrafficDailyInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutTrafficReferrersInput = {
@@ -3063,7 +2812,6 @@ export type ProductCreateWithoutTrafficReferrersInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutTrafficReferrersInput = {
@@ -3110,7 +2858,6 @@ export type ProductUncheckedCreateWithoutTrafficReferrersInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutTrafficReferrersInput = {
@@ -3173,7 +2920,6 @@ export type ProductUpdateWithoutTrafficReferrersInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutTrafficReferrersInput = {
@@ -3220,7 +2966,6 @@ export type ProductUncheckedUpdateWithoutTrafficReferrersInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutTrafficChannelsInput = {
@@ -3267,7 +3012,6 @@ export type ProductCreateWithoutTrafficChannelsInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutTrafficChannelsInput = {
@@ -3314,7 +3058,6 @@ export type ProductUncheckedCreateWithoutTrafficChannelsInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutTrafficChannelsInput = {
@@ -3377,7 +3120,6 @@ export type ProductUpdateWithoutTrafficChannelsInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutTrafficChannelsInput = {
@@ -3424,7 +3166,6 @@ export type ProductUncheckedUpdateWithoutTrafficChannelsInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutTrafficBrowsersInput = {
@@ -3471,7 +3212,6 @@ export type ProductCreateWithoutTrafficBrowsersInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutTrafficBrowsersInput = {
@@ -3518,7 +3258,6 @@ export type ProductUncheckedCreateWithoutTrafficBrowsersInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutTrafficBrowsersInput = {
@@ -3581,7 +3320,6 @@ export type ProductUpdateWithoutTrafficBrowsersInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutTrafficBrowsersInput = {
@@ -3628,7 +3366,6 @@ export type ProductUncheckedUpdateWithoutTrafficBrowsersInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutTrafficOperatingSystemsInput = {
@@ -3675,7 +3412,6 @@ export type ProductCreateWithoutTrafficOperatingSystemsInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutTrafficOperatingSystemsInput = {
@@ -3722,7 +3458,6 @@ export type ProductUncheckedCreateWithoutTrafficOperatingSystemsInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutTrafficOperatingSystemsInput = {
@@ -3785,7 +3520,6 @@ export type ProductUpdateWithoutTrafficOperatingSystemsInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutTrafficOperatingSystemsInput = {
@@ -3832,7 +3566,6 @@ export type ProductUncheckedUpdateWithoutTrafficOperatingSystemsInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutTrafficDevicesInput = {
@@ -3879,7 +3612,6 @@ export type ProductCreateWithoutTrafficDevicesInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutTrafficDevicesInput = {
@@ -3926,7 +3658,6 @@ export type ProductUncheckedCreateWithoutTrafficDevicesInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutTrafficDevicesInput = {
@@ -3989,7 +3720,6 @@ export type ProductUpdateWithoutTrafficDevicesInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutTrafficDevicesInput = {
@@ -4036,7 +3766,6 @@ export type ProductUncheckedUpdateWithoutTrafficDevicesInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutTrafficCountriesInput = {
@@ -4083,7 +3812,6 @@ export type ProductCreateWithoutTrafficCountriesInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutTrafficCountriesInput = {
@@ -4130,7 +3858,6 @@ export type ProductUncheckedCreateWithoutTrafficCountriesInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutTrafficCountriesInput = {
@@ -4193,7 +3920,6 @@ export type ProductUpdateWithoutTrafficCountriesInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutTrafficCountriesInput = {
@@ -4240,7 +3966,6 @@ export type ProductUncheckedUpdateWithoutTrafficCountriesInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutTrafficCitiesInput = {
@@ -4287,7 +4012,6 @@ export type ProductCreateWithoutTrafficCitiesInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutTrafficCitiesInput = {
@@ -4334,7 +4058,6 @@ export type ProductUncheckedCreateWithoutTrafficCitiesInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutTrafficCitiesInput = {
@@ -4397,7 +4120,6 @@ export type ProductUpdateWithoutTrafficCitiesInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutTrafficCitiesInput = {
@@ -4444,7 +4166,6 @@ export type ProductUncheckedUpdateWithoutTrafficCitiesInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutProductUpvoteInput = {
@@ -4491,7 +4212,6 @@ export type ProductCreateWithoutProductUpvoteInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutProductUpvoteInput = {
@@ -4538,7 +4258,6 @@ export type ProductUncheckedCreateWithoutProductUpvoteInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutProductUpvoteInput = {
@@ -4601,7 +4320,6 @@ export type ProductUpdateWithoutProductUpvoteInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutProductUpvoteInput = {
@@ -4648,7 +4366,6 @@ export type ProductUncheckedUpdateWithoutProductUpvoteInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutUserInput = {
@@ -4695,7 +4412,6 @@ export type ProductCreateWithoutUserInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutUserInput = {
@@ -4742,7 +4458,6 @@ export type ProductUncheckedCreateWithoutUserInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutUserInput = {
@@ -4815,7 +4530,6 @@ export type ProductCreateWithoutCategoryInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutCategoryInput = {
@@ -4862,7 +4576,6 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutCategoryInput = {
@@ -4935,7 +4648,6 @@ export type ProductCreateWithoutCategoriesInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutCategoriesInput = {
@@ -4982,7 +4694,6 @@ export type ProductUncheckedCreateWithoutCategoriesInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutCategoriesInput = {
@@ -5045,7 +4756,6 @@ export type ProductUpdateWithoutCategoriesInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutCategoriesInput = {
@@ -5092,7 +4802,6 @@ export type ProductUncheckedUpdateWithoutCategoriesInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutPlanInput = {
@@ -5139,7 +4848,6 @@ export type ProductCreateWithoutPlanInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutPlanInput = {
@@ -5186,7 +4894,6 @@ export type ProductUncheckedCreateWithoutPlanInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutPlanInput = {
@@ -5259,7 +4966,6 @@ export type ProductCreateWithoutProductBadgeInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutProductBadgeInput = {
@@ -5306,7 +5012,6 @@ export type ProductUncheckedCreateWithoutProductBadgeInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutProductBadgeInput = {
@@ -5369,7 +5074,6 @@ export type ProductUpdateWithoutProductBadgeInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutProductBadgeInput = {
@@ -5416,7 +5120,6 @@ export type ProductUncheckedUpdateWithoutProductBadgeInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutRewardTransactionsInput = {
@@ -5463,7 +5166,6 @@ export type ProductCreateWithoutRewardTransactionsInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutRewardTransactionsInput = {
@@ -5510,7 +5212,6 @@ export type ProductUncheckedCreateWithoutRewardTransactionsInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutRewardTransactionsInput = {
@@ -5573,7 +5274,6 @@ export type ProductUpdateWithoutRewardTransactionsInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutRewardTransactionsInput = {
@@ -5620,7 +5320,6 @@ export type ProductUncheckedUpdateWithoutRewardTransactionsInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutRedemptionsInput = {
@@ -5667,7 +5366,6 @@ export type ProductCreateWithoutRedemptionsInput = {
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutRedemptionsInput = {
@@ -5714,7 +5412,6 @@ export type ProductUncheckedCreateWithoutRedemptionsInput = {
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutRedemptionsInput = {
@@ -5777,7 +5474,6 @@ export type ProductUpdateWithoutRedemptionsInput = {
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutRedemptionsInput = {
@@ -5824,7 +5520,6 @@ export type ProductUncheckedUpdateWithoutRedemptionsInput = {
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutFeatureEntitlementsInput = {
@@ -5871,7 +5566,6 @@ export type ProductCreateWithoutFeatureEntitlementsInput = {
   rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutFeatureEntitlementsInput = {
@@ -5918,7 +5612,6 @@ export type ProductUncheckedCreateWithoutFeatureEntitlementsInput = {
   rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutFeatureEntitlementsInput = {
@@ -5981,7 +5674,6 @@ export type ProductUpdateWithoutFeatureEntitlementsInput = {
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutFeatureEntitlementsInput = {
@@ -6028,7 +5720,6 @@ export type ProductUncheckedUpdateWithoutFeatureEntitlementsInput = {
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutPlacementSchedulesInput = {
@@ -6075,7 +5766,6 @@ export type ProductCreateWithoutPlacementSchedulesInput = {
   redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorCreateNestedOneWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutPlacementSchedulesInput = {
@@ -6122,7 +5812,6 @@ export type ProductUncheckedCreateWithoutPlacementSchedulesInput = {
   redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedCreateNestedOneWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutPlacementSchedulesInput = {
@@ -6185,7 +5874,6 @@ export type ProductUpdateWithoutPlacementSchedulesInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutPlacementSchedulesInput = {
@@ -6232,7 +5920,6 @@ export type ProductUncheckedUpdateWithoutPlacementSchedulesInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUpdateWithoutAlternativesInput = {
@@ -6279,7 +5966,6 @@ export type ProductUpdateWithoutAlternativesInput = {
   rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutAlternativesInput = {
@@ -6326,7 +6012,6 @@ export type ProductUncheckedUpdateWithoutAlternativesInput = {
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutAlternativesInput = {
@@ -6424,7 +6109,6 @@ export type ProductUpdateWithoutUserInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutUserInput = {
@@ -6471,7 +6155,6 @@ export type ProductUncheckedUpdateWithoutUserInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutUserInput = {
@@ -6568,7 +6251,6 @@ export type ProductUpdateWithoutCategoryInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutCategoryInput = {
@@ -6615,7 +6297,6 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutCategoryInput = {
@@ -6712,7 +6393,6 @@ export type ProductUpdateWithoutPlanInput = {
   redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutPlanInput = {
@@ -6759,7 +6439,6 @@ export type ProductUncheckedUpdateWithoutPlanInput = {
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
   featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-  paymentConnector?: Prisma.PaymentConnectorUncheckedUpdateOneWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutPlanInput = {
@@ -7019,7 +6698,6 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   redemptions?: boolean | Prisma.Product$redemptionsArgs<ExtArgs>
   featureEntitlements?: boolean | Prisma.Product$featureEntitlementsArgs<ExtArgs>
   alternatives?: boolean | Prisma.Product$alternativesArgs<ExtArgs>
-  paymentConnector?: boolean | Prisma.Product$paymentConnectorArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
 
@@ -7133,7 +6811,6 @@ export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   redemptions?: boolean | Prisma.Product$redemptionsArgs<ExtArgs>
   featureEntitlements?: boolean | Prisma.Product$featureEntitlementsArgs<ExtArgs>
   alternatives?: boolean | Prisma.Product$alternativesArgs<ExtArgs>
-  paymentConnector?: boolean | Prisma.Product$paymentConnectorArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -7174,7 +6851,6 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     redemptions: Prisma.$RedemptionPayload<ExtArgs>[]
     featureEntitlements: Prisma.$FeatureEntitlementPayload<ExtArgs>[]
     alternatives: Prisma.$AlternativeProductPayload<ExtArgs>[]
-    paymentConnector: Prisma.$PaymentConnectorPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -7618,7 +7294,6 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
   redemptions<T extends Prisma.Product$redemptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$redemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   featureEntitlements<T extends Prisma.Product$featureEntitlementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$featureEntitlementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeatureEntitlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   alternatives<T extends Prisma.Product$alternativesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$alternativesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AlternativeProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  paymentConnector<T extends Prisma.Product$paymentConnectorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$paymentConnectorArgs<ExtArgs>>): Prisma.Prisma__PaymentConnectorClient<runtime.Types.Result.GetResult<Prisma.$PaymentConnectorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8577,25 +8252,6 @@ export type Product$alternativesArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.AlternativeProductScalarFieldEnum | Prisma.AlternativeProductScalarFieldEnum[]
-}
-
-/**
- * Product.paymentConnector
- */
-export type Product$paymentConnectorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the PaymentConnector
-   */
-  select?: Prisma.PaymentConnectorSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the PaymentConnector
-   */
-  omit?: Prisma.PaymentConnectorOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.PaymentConnectorInclude<ExtArgs> | null
-  where?: Prisma.PaymentConnectorWhereInput
 }
 
 /**

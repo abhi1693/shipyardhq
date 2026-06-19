@@ -34,8 +34,6 @@ export type UserProfilePayload = {
   productsPage: UserProductsPageResult
   totalProducts: number
   totalUpvotes: number
-  totalVerifiedRevenueCents: number
-  totalVerifiedRevenueCurrency: string | null
   rewardPoints: number
   verifiedCount: number
   categories: CategoryEntry[]
@@ -176,8 +174,6 @@ export const getUserProfilePayload = cached(
       productsPage,
       totalProducts,
       totalUpvotes,
-      totalVerifiedRevenueCents: 0,
-      totalVerifiedRevenueCurrency: null,
       rewardPoints: rewardBalance?.balance ?? 0,
       verifiedCount,
       categories: categoryEntries,

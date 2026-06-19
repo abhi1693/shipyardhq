@@ -9,39 +9,6 @@
 * 🟢 You can import this file directly.
 */
 
-export const PaymentConnectorProvider = {
-  dodo: 'dodo',
-  abacatepay: 'abacatepay',
-  polar: 'polar',
-  stripe: 'stripe',
-  lemonsqueezy: 'lemonsqueezy',
-  paddle: 'paddle',
-  paystack: 'paystack',
-  revenuecat: 'revenuecat',
-  creem: 'creem'
-} as const
-
-export type PaymentConnectorProvider = (typeof PaymentConnectorProvider)[keyof typeof PaymentConnectorProvider]
-
-
-export const PaymentConnectorStatus = {
-  active: 'active',
-  disabled: 'disabled',
-  error: 'error'
-} as const
-
-export type PaymentConnectorStatus = (typeof PaymentConnectorStatus)[keyof typeof PaymentConnectorStatus]
-
-
-export const PaymentCredentialStatus = {
-  active: 'active',
-  revoked: 'revoked',
-  expired: 'expired'
-} as const
-
-export type PaymentCredentialStatus = (typeof PaymentCredentialStatus)[keyof typeof PaymentCredentialStatus]
-
-
 export const LeaderboardRunStatus = {
   pending: 'pending',
   processing: 'processing',

@@ -53,9 +53,6 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   Product: 'Product',
   ProductDraft: 'ProductDraft',
-  PaymentConnector: 'PaymentConnector',
-  PaymentConnectorCredential: 'PaymentConnectorCredential',
-  PaymentRevenueSnapshot: 'PaymentRevenueSnapshot',
   AlternativeProduct: 'AlternativeProduct',
   LeaderboardRun: 'LeaderboardRun',
   ProductLeaderboardScore: 'ProductLeaderboardScore',
@@ -159,54 +156,6 @@ export const ProductDraftScalarFieldEnum = {
 } as const
 
 export type ProductDraftScalarFieldEnum = (typeof ProductDraftScalarFieldEnum)[keyof typeof ProductDraftScalarFieldEnum]
-
-
-export const PaymentConnectorScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  provider: 'provider',
-  status: 'status',
-  config: 'config',
-  lastSyncedAt: 'lastSyncedAt',
-  lastSyncError: 'lastSyncError',
-  verifiedAt: 'verifiedAt',
-  latestAllTimeRevenueCents: 'latestAllTimeRevenueCents',
-  latestCurrencyCode: 'latestCurrencyCode',
-  latestPeriodStart: 'latestPeriodStart',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type PaymentConnectorScalarFieldEnum = (typeof PaymentConnectorScalarFieldEnum)[keyof typeof PaymentConnectorScalarFieldEnum]
-
-
-export const PaymentConnectorCredentialScalarFieldEnum = {
-  id: 'id',
-  connectorId: 'connectorId',
-  status: 'status',
-  encryptionVersion: 'encryptionVersion',
-  encryptedKey: 'encryptedKey',
-  keyHint: 'keyHint',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type PaymentConnectorCredentialScalarFieldEnum = (typeof PaymentConnectorCredentialScalarFieldEnum)[keyof typeof PaymentConnectorCredentialScalarFieldEnum]
-
-
-export const PaymentRevenueSnapshotScalarFieldEnum = {
-  id: 'id',
-  connectorId: 'connectorId',
-  currencyCode: 'currencyCode',
-  periodStart: 'periodStart',
-  periodRevenueCents: 'periodRevenueCents',
-  allTimeRevenueCents: 'allTimeRevenueCents',
-  data: 'data',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type PaymentRevenueSnapshotScalarFieldEnum = (typeof PaymentRevenueSnapshotScalarFieldEnum)[keyof typeof PaymentRevenueSnapshotScalarFieldEnum]
 
 
 export const AlternativeProductScalarFieldEnum = {
