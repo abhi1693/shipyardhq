@@ -62,6 +62,7 @@ model Product {
   @@index([categoryId, createdAt])
   @@index([categoryId, status, createdAt])
   @@index([categoryId, status, publishedAt])
+  @@index([planId, status, createdAt])
   @@index([status, publishedAt])
   @@index([createdAt])
   @@index([updatedAt])

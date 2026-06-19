@@ -6,7 +6,6 @@ import prisma from "@/lib/prisma"
 import { createStaticProductPager } from "@/lib/products/pagination"
 import {
   mapProductCardRecordToBase,
-  PRIORITY_FEATURE_KEY,
   productCardSelect,
   type ProductCardRecord,
 } from "@/lib/products/selects"
@@ -20,6 +19,10 @@ import { pricingModelValueFromSlug } from "@/lib/pricing/models"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
+import {
+  buildPriorityPlanFilter,
+  getPriorityPlacementPlanIds,
+} from "@/lib/products/priority-plans"
 
 export type ProductFeedPageRequest =
   | {
@@ -213,18 +216,10 @@ export async function getProductFeedPage(
       const pageSize = Math.max(1, Math.floor(request.pageSize ?? 12))
       const skip = (page - 1) * pageSize
 
-      const where = buildPublicDiscoveryProductWhere({
-        plan: {
-          is: {
-            assignments: {
-              some: {
-                enabled: true,
-                feature: { is: { key: PRIORITY_FEATURE_KEY } },
-              },
-            },
-          },
-        },
-      })
+      const priorityPlanIds = await getPriorityPlacementPlanIds()
+      const where = buildPublicDiscoveryProductWhere(
+        buildPriorityPlanFilter(priorityPlanIds),
+      )
 
       const [records, total] = await Promise.all([
         prisma.product.findMany({

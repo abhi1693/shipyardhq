@@ -2,11 +2,16 @@ import { Prisma } from "@/lib/vendor/prisma/client"
 
 import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
-import { PRIORITY_FEATURE_KEY, productCardSelect } from "@/lib/products/selects"
+import { productCardSelect } from "@/lib/products/selects"
 import {
   buildPublicDiscoveryProductWhere,
   buildPublicDiscoverySqlFilter,
 } from "@/lib/products/public-discovery"
+import {
+  buildPriorityPlanFilter,
+  buildRegularPlanFilter,
+  getPriorityPlacementPlanIds,
+} from "@/lib/products/priority-plans"
 
 const useCaseProductSelect = productCardSelect satisfies Prisma.ProductSelect
 
@@ -337,46 +342,22 @@ export const getPublicUseCaseProductsPage = cached(
           ? { analytics: { upvotes: "desc" } }
           : { createdAt: "desc" }
 
-    const planExclusionWhere: Prisma.ProductWhereInput = {
-      OR: [
-        { plan: null },
-        {
-          plan: {
-            is: {
-              assignments: {
-                none: {
-                  enabled: true,
-                  feature: { is: { key: PRIORITY_FEATURE_KEY } },
-                },
-              },
-            },
-          },
-        },
-      ],
-    }
+    const priorityPlanIds = await getPriorityPlacementPlanIds()
 
     const priorityWhere: Prisma.ProductWhereInput = {
-      ...baseWhere,
-      plan: {
-        is: {
-          assignments: {
-            some: {
-              enabled: true,
-              feature: { is: { key: PRIORITY_FEATURE_KEY } },
-            },
-          },
-        },
-      },
+      AND: [baseWhere, buildPriorityPlanFilter(priorityPlanIds)],
     }
 
     const regularWhere: Prisma.ProductWhereInput = {
-      AND: [baseWhere, planExclusionWhere],
+      AND: [baseWhere, buildRegularPlanFilter(priorityPlanIds)],
     }
 
-    const [totalPriority, totalRegular] = await Promise.all([
-      prisma.product.count({ where: priorityWhere }),
-      prisma.product.count({ where: regularWhere }),
-    ])
+    const [totalPriority, totalRegular] = priorityPlanIds.length
+      ? await Promise.all([
+          prisma.product.count({ where: priorityWhere }),
+          prisma.product.count({ where: regularWhere }),
+        ])
+      : [0, await prisma.product.count({ where: baseWhere })]
 
     let prioritySkip = 0
     let priorityTake = 0

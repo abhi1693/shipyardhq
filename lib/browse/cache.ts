@@ -2,6 +2,7 @@ import { pluralize } from "@/lib/pluralize"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { getProducts } from "@/actions/public/products/featured"
 import { getUseCasesWithCounts, getCategories } from "@/actions/catalog/actions"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
@@ -93,6 +94,32 @@ const CATEGORY_QUERY = {
   orderBy: [{ productAssignments: { _count: "desc" } }, { name: "asc" }],
 } satisfies Prisma.CategoryFindManyArgs
 
+const getBrowseCategories = cached(
+  async (): Promise<CategoryWithProductCount[]> => {
+    const categoriesRaw = (await getCategories(
+      CATEGORY_QUERY,
+    )) as CategoryWithAssignmentCount[]
+
+    return categoriesRaw.map((category) => ({
+      id: category.id,
+      name: category.name,
+      slug: category.slug,
+      icon: category.icon,
+      description: category.description,
+      createdAt: category.createdAt,
+      updatedAt: category.updatedAt,
+      _count: {
+        products: category._count.productAssignments,
+      },
+    }))
+  },
+  "browse:filter-categories",
+  {
+    ttl: DEFAULT_TTL.slow,
+    tags: () => [TAGS.categoryDirectory, TAGS.categories, TAGS.products],
+  },
+)
+
 const normalizePriceBound = (value: number | undefined) => {
   if (typeof value !== "number" || !Number.isFinite(value)) return undefined
   return Math.max(0, Math.min(500, Math.round(value)))
@@ -141,7 +168,7 @@ export const getBrowsePagePayload = async (
 ): Promise<BrowsePagePayload> => {
   const filters = normalizeFilters(input)
 
-  const [browseResult, featured, useCases, categoriesRaw] = await Promise.all([
+  const [browseResult, featured, useCases, categories] = await Promise.all([
     getBrowseProducts({
       useCaseSlug: filters.useCase,
       categorySlug: filters.category,
@@ -164,23 +191,9 @@ export const getBrowsePagePayload = async (
     }),
     getProducts("featured"),
     getUseCasesWithCounts(),
-    getCategories(CATEGORY_QUERY) as Promise<CategoryWithAssignmentCount[]>,
+    getBrowseCategories(),
   ])
 
-  const categories: CategoryWithProductCount[] = categoriesRaw.map(
-    (category) => ({
-      id: category.id,
-      name: category.name,
-      slug: category.slug,
-      icon: category.icon,
-      description: category.description,
-      createdAt: category.createdAt,
-      updatedAt: category.updatedAt,
-      _count: {
-        products: category._count.productAssignments,
-      },
-    }),
-  )
   const products: ProductCardBase[] = browseResult.products
   const { hasMore } = browseResult
 
