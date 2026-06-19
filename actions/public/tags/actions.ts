@@ -21,6 +21,7 @@ import { buildPublicDiscoverySqlFilter } from "@/lib/products/public-discovery"
 const TAG_LIST_LIMIT = 200
 export const TAG_PRODUCTS_PAGE_SIZE = 24
 export const TAG_DIRECTORY_DEFAULT_PAGE_SIZE = 36
+const TAG_CACHE_TTL = DEFAULT_TTL.slowest
 
 function sanitizeTagListLimit(limit?: number): number {
   const normalized = Math.trunc(limit ?? TAG_LIST_LIMIT) || TAG_LIST_LIMIT
@@ -141,7 +142,7 @@ export const getKeywordTagSummaries = cached(
   },
   "tags:summaries",
   {
-    ttl: DEFAULT_TTL.slow,
+    ttl: TAG_CACHE_TTL,
     tags: () => [TAGS.keywords],
     keyParts: ([limit]) => [String(sanitizeTagListLimit(limit))],
   },
@@ -159,7 +160,7 @@ export interface TagDirectoryPageResult {
   total?: number
 }
 
-export async function getKeywordTagDirectoryPage({
+async function getKeywordTagDirectoryPageImpl({
   page = 1,
   pageSize = TAG_DIRECTORY_DEFAULT_PAGE_SIZE,
   includeTotal = false,
@@ -189,6 +190,24 @@ export async function getKeywordTagDirectoryPage({
     total,
   }
 }
+
+export const getKeywordTagDirectoryPage = cached(
+  getKeywordTagDirectoryPageImpl,
+  "tags:directory-page",
+  {
+    ttl: TAG_CACHE_TTL,
+    tags: () => [TAGS.tagsPage, TAGS.keywords],
+    keyParts: ([params]) => {
+      const safePage = sanitizePageNumber(params?.page)
+      const safePageSize = sanitizeTagListLimit(params?.pageSize)
+      return [
+        `page:${safePage}`,
+        `size:${safePageSize}`,
+        params?.includeTotal ? "with-total" : "without-total",
+      ]
+    },
+  },
+)
 
 async function fetchTagByHash(hash: string): Promise<RawTagRow[]> {
   const rows = await prisma.$queryRaw<RawTagRow[]>(Prisma.sql`
@@ -286,7 +305,7 @@ export const getKeywordTagBySlug = cached(
   },
   "tags:by-slug",
   {
-    ttl: DEFAULT_TTL.slow,
+    ttl: TAG_CACHE_TTL,
     tags: ([slug]) => [
       TAGS.keywords,
       slug ? TAGS.keyword(slug) : TAGS.keywords,
@@ -397,7 +416,7 @@ export const getKeywordTagProducts = cached(
   },
   "tags:products-by-slug",
   {
-    ttl: DEFAULT_TTL.medium,
+    ttl: TAG_CACHE_TTL,
     tags: ([slug]) => [
       TAGS.products,
       TAGS.keywords,
@@ -473,18 +492,38 @@ async function fetchKeywordTagStats() {
   return result[0] ?? { total: BigInt(0), lastUpdated: null }
 }
 
-export async function getKeywordTagSitemapStats(): Promise<{
-  total: number
-  lastUpdated: Date | null
-}> {
-  const stats = await fetchKeywordTagStats()
-  return {
-    total: Number(stats.total ?? 0),
-    lastUpdated: stats.lastUpdated ? new Date(stats.lastUpdated) : null,
-  }
-}
+export const getKeywordTagSitemapStats = cached(
+  async (): Promise<{
+    total: number
+    lastUpdated: Date | null
+  }> => {
+    const stats = await fetchKeywordTagStats()
+    return {
+      total: Number(stats.total ?? 0),
+      lastUpdated: stats.lastUpdated ? new Date(stats.lastUpdated) : null,
+    }
+  },
+  "tags:sitemap-stats",
+  {
+    ttl: TAG_CACHE_TTL,
+    tags: () => [TAGS.tagsPage, TAGS.keywords],
+  },
+)
 
-export async function getKeywordTagSitemapChunk(offset: number, limit: number) {
-  const rows = await fetchKeywordTagChunk(offset, limit)
-  return rows.map(mapTagRow)
-}
+export const getKeywordTagSitemapChunk = cached(
+  async (offset: number, limit: number) => {
+    const safeOffset = Math.max(0, Math.trunc(offset))
+    const safeLimit = Math.max(1, Math.trunc(limit))
+    const rows = await fetchKeywordTagChunk(safeOffset, safeLimit)
+    return rows.map(mapTagRow)
+  },
+  "tags:sitemap-chunk",
+  {
+    ttl: TAG_CACHE_TTL,
+    tags: () => [TAGS.tagsPage, TAGS.keywords],
+    keyParts: ([offset, limit]) => [
+      `offset:${Math.max(0, Math.trunc(offset))}`,
+      `limit:${Math.max(1, Math.trunc(limit))}`,
+    ],
+  },
+)

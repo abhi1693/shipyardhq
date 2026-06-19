@@ -12,7 +12,7 @@ const globalForRedis = globalThis as unknown as {
 
 const REDIS_RETRY_BACKOFF_MS = 30_000
 const NEXT_BUILD_PHASE = "phase-production-build"
-const DEFAULT_REDIS_CONNECT_TIMEOUT_MS = 250
+const DEFAULT_REDIS_CONNECT_TIMEOUT_MS = 3_000
 const REDIS_DEBUG = process.env.REDIS_DEBUG?.trim() === "true"
 
 function resolveRedisUrl(): string | null {

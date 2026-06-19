@@ -36,7 +36,7 @@ export const getTagsIndexPayload = cached(
   },
   "tags:index:payload",
   {
-    ttl: DEFAULT_TTL.slow,
+    ttl: DEFAULT_TTL.slowest,
     keyParts: () => [],
     tags: () => [TAGS.tagsPage, TAGS.keywords],
   },
@@ -67,7 +67,7 @@ export const getTagDetailPayload = cached(
   },
   "tags:detail:payload",
   {
-    ttl: DEFAULT_TTL.slow,
+    ttl: DEFAULT_TTL.slowest,
     keyParts: ([slug, page]) => [slug, `page:${page}`],
     tags: ([slug]) => [TAGS.tagDetail(slug), TAGS.tagsPage, TAGS.keywords],
   },
