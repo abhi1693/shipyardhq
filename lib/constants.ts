@@ -1,5 +1,3 @@
-import { REWARD_FEATURE_KEY } from "./rewards/constants"
-
 export const IS_PROD = process.env.NODE_ENV === "production"
 
 export const BADGE_OPTIONS = [
@@ -86,11 +84,10 @@ export const BADGE_OPTIONS = [
 export const PLAN_FEATURE_KEYS = [
   "analytics.basic",
   "product.sitemap",
-  REWARD_FEATURE_KEY.featured,
-  REWARD_FEATURE_KEY.priorityPlacement,
-  REWARD_FEATURE_KEY.sponsoredProducts,
-  REWARD_FEATURE_KEY.partnerSpotlight,
-  "backlink",
+  "featured",
+  "priorityPlacement",
+  "sponsoredProducts",
+  "partnerSpotlight",
 ] as const
 
 export type PlanFeatureKey = (typeof PLAN_FEATURE_KEYS)[number]

@@ -2,13 +2,8 @@
 
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 
-import prisma from "@/lib/prisma"
 import { createStaticProductPager } from "@/lib/products/pagination"
-import {
-  mapProductCardRecordToBase,
-  productCardSelect,
-  type ProductCardRecord,
-} from "@/lib/products/selects"
+import { mapProductCardRecordToBase } from "@/lib/products/selects"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { getKeywordTagProducts } from "@/actions/public/tags/actions"
 import { getAlternativeProductsPage } from "@/actions/public/alternatives/actions"
@@ -18,11 +13,6 @@ import { productTypeValueFromSlug } from "@/lib/product-types/models"
 import { pricingModelValueFromSlug } from "@/lib/pricing/models"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
-import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
-import {
-  buildPriorityPlanFilter,
-  getPriorityPlacementPlanIds,
-} from "@/lib/products/priority-plans"
 
 export type ProductFeedPageRequest =
   | {
@@ -38,7 +28,6 @@ export type ProductFeedPageRequest =
       minPrice?: number
       maxPrice?: number
       badge?: string
-      backlinkVerified?: boolean
     }
   | {
       kind: "tag"
@@ -57,11 +46,6 @@ export type ProductFeedPageRequest =
       pageSize?: number
       limit?: number
       categorySlug?: string
-    }
-  | {
-      kind: "rewards"
-      page: number
-      pageSize?: number
     }
 
 export type ProductFeedPageResponse = {
@@ -103,7 +87,6 @@ export async function getProductFeedPage(
             ? request.maxPrice * 100
             : undefined,
         badge: request.badge,
-        backlinkVerified: request.backlinkVerified,
       })
 
       const interestMap = await getProductInterestSignalsMap({
@@ -208,50 +191,6 @@ export async function getProductFeedPage(
         })),
         hasMore,
         total: records.length,
-      }
-    }
-
-    case "rewards": {
-      const page = Math.max(1, request.page)
-      const pageSize = Math.max(1, Math.floor(request.pageSize ?? 12))
-      const skip = (page - 1) * pageSize
-
-      const priorityPlanIds = await getPriorityPlacementPlanIds()
-      const where = buildPublicDiscoveryProductWhere(
-        buildPriorityPlanFilter(priorityPlanIds),
-      )
-
-      const [records, total] = await Promise.all([
-        prisma.product.findMany({
-          where,
-          orderBy: [{ updatedAt: "desc" }, { analytics: { upvotes: "desc" } }],
-          skip,
-          take: pageSize,
-          select: productCardSelect,
-        }),
-        prisma.product.count({ where }),
-      ])
-
-      const now = new Date()
-      const typedRecords = records as unknown as ProductCardRecord[]
-
-      const baseItems = typedRecords.map((record) =>
-        mapProductCardRecordToBase(record, now),
-      )
-      const interestMap = await getProductInterestSignalsMap({
-        products: baseItems.map((product) => ({
-          id: product.id,
-          slug: product.slug,
-        })),
-      })
-
-      return {
-        items: baseItems.map((product) => ({
-          ...product,
-          interest: interestMap.get(product.id) ?? null,
-        })),
-        hasMore: skip + typedRecords.length < total,
-        total,
       }
     }
 

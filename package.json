@@ -56,7 +56,6 @@
     "prisma:seed:alternatives": "tsx prisma/seed.alternatives.ts",
     "prisma:seed:prod": "npm run prisma:seed:categories && npm run prisma:seed:usecases && npm run prisma:seed:plan-features",
     "postinstall": "npm run prisma:deploy",
-    "prisma:seed:rewards": "tsx prisma/seed.rewards.ts",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:ci": "vitest run"

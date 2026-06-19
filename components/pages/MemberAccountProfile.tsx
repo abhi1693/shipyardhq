@@ -802,7 +802,7 @@ export default function MemberAccountProfile({
                 </p>
                 <p className="mt-1 text-sm text-slate-500">
                   This deletes all account-related data, including products,
-                  rewards, purchases, product media, and login access. This
+                  purchases, product media, and login access. This
                   cannot be reversed.
                 </p>
               </div>

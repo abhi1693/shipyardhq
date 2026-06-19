@@ -43,7 +43,6 @@ const PLANS: PlanSeed[] = [
     features: [
       { key: "analytics.basic" },
       { key: "product.sitemap" },
-      { key: "backlink" },
     ],
   },
   {
@@ -101,7 +100,6 @@ const PLANS: PlanSeed[] = [
       { key: "priorityPlacement" },
       { key: "sponsoredProducts" },
       { key: "partnerSpotlight" },
-      { key: "backlink" },
     ],
   },
   {
@@ -125,7 +123,6 @@ const PLANS: PlanSeed[] = [
       { key: "priorityPlacement" },
       { key: "sponsoredProducts" },
       { key: "partnerSpotlight" },
-      { key: "backlink" },
     ],
   },
 ]

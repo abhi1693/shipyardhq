@@ -4,10 +4,8 @@ import Image from "next/image"
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { formatDistanceToNow } from "date-fns"
 import {
-  Award,
   ExternalLink,
   Eye,
-  Flame,
   Package,
   Rocket,
   ThumbsUp,
@@ -26,14 +24,12 @@ import { isOptimizedImageSrc } from "@/lib/images/sources"
 import { cn } from "@/lib/utils"
 import {
   MEMBER_PRODUCTS_PATH,
-  MEMBER_REWARDS_PATH,
   memberProductPath,
 } from "@/lib/routes"
 import { BRAND_NAME } from "@/lib/brand"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 
 const AGGREGATION_WINDOW_DAYS = 7
-const DODO_GREEN = "#c0ff00"
 
 type StatDefinition = {
   id: string
@@ -54,21 +50,8 @@ type ProductSnapshot = {
   publishedAt: Date | null
 }
 
-type RewardActivity = {
-  id: string
-  title: string
-  amount: number
-  createdAt: Date
-}
-
 type MemberDashboardSnapshot = {
   products: ProductSnapshot[]
-  rewardBalance: {
-    balance: number
-    lifetimeEarned: number
-    currentStreakCount: number
-  }
-  rewardActivity: RewardActivity[]
 }
 
 const numberFormatter = new Intl.NumberFormat("en-US", {
@@ -180,7 +163,7 @@ async function MemberOverviewDashboard() {
         </div>
 
         <aside className="col-span-12 space-y-6 lg:col-span-4">
-          <RewardsSnapshot snapshot={snapshot} />
+          <LaunchFocusPanel products={snapshot.products} />
           <PartnerSpotlightPanel />
         </aside>
       </div>
@@ -191,89 +174,27 @@ async function MemberOverviewDashboard() {
 async function getMemberDashboardSnapshot(): Promise<MemberDashboardSnapshot> {
   const { userId } = await auth()
   if (!userId) {
-    return {
-      products: [],
-      rewardBalance: {
-        balance: 0,
-        lifetimeEarned: 0,
-        currentStreakCount: 0,
-      },
-      rewardActivity: [],
-    }
+    return { products: [] }
   }
 
   const user = await requireActiveUserOrRedirect(userId)
 
-  const [products, rewardBalance, rewardTransactions] = await Promise.all([
-    prisma.product.findMany({
-      where: { userId: user.id },
-      orderBy: { updatedAt: "desc" },
-      take: 3,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        logo: true,
-        status: true,
-        updatedAt: true,
-        publishedAt: true,
-      },
-    }),
-    prisma.rewardBalance.findUnique({
-      where: { userId: user.id },
-      select: {
-        balance: true,
-        lifetimeEarned: true,
-        currentStreakCount: true,
-      },
-    }),
-    prisma.rewardTransaction.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      select: {
-        id: true,
-        type: true,
-        rewardAmount: true,
-        notes: true,
-        createdAt: true,
-        rule: { select: { name: true } },
-        catalogItem: { select: { name: true } },
-        product: { select: { name: true } },
-      },
-    }),
-  ])
-
-  return {
-    products,
-    rewardBalance: rewardBalance ?? {
-      balance: 0,
-      lifetimeEarned: 0,
-      currentStreakCount: 0,
+  const products = await prisma.product.findMany({
+    where: { userId: user.id },
+    orderBy: { updatedAt: "desc" },
+    take: 3,
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      logo: true,
+      status: true,
+      updatedAt: true,
+      publishedAt: true,
     },
-    rewardActivity: rewardTransactions.map((transaction) => ({
-      id: transaction.id,
-      title: getRewardActivityTitle(transaction),
-      amount: transaction.rewardAmount,
-      createdAt: transaction.createdAt,
-    })),
-  }
-}
+  })
 
-function getRewardActivityTitle(transaction: {
-  type: string
-  notes: string | null
-  rule: { name: string } | null
-  catalogItem: { name: string } | null
-  product: { name: string } | null
-}) {
-  if (transaction.notes?.trim()) return transaction.notes.trim()
-  if (transaction.type === "spend") {
-    return transaction.catalogItem?.name ?? "Reward redemption"
-  }
-  if (transaction.rule?.name) return transaction.rule.name
-  if (transaction.product?.name) return transaction.product.name
-  return transaction.type === "refund" ? "Reward refund" : "Reward activity"
+  return { products }
 }
 
 function AnalyticsStatRow({ stats }: { stats: StatDefinition[] }) {
@@ -339,7 +260,7 @@ function ProductStatusPanel({ products }: { products: ProductSnapshot[] }) {
         <EmptyPanel
           icon={Package}
           title="No launches yet"
-          description="Create your first product to start tracking views, upvotes, and rewards."
+          description="Create your first product to start tracking views, upvotes, and launch activity."
           action={
             <ProductDraftStartButton
               mode="member"
@@ -412,75 +333,53 @@ function StatusBadge({ status }: { status: string }) {
   )
 }
 
-function RewardsSnapshot({ snapshot }: { snapshot: MemberDashboardSnapshot }) {
-  const { rewardBalance, rewardActivity } = snapshot
+function LaunchFocusPanel({ products }: { products: ProductSnapshot[] }) {
+  const publishedCount = products.filter(
+    (product) => product.status === "published",
+  ).length
+  const latestProduct = products[0] ?? null
 
   return (
-    <section className="relative overflow-hidden rounded-xl bg-slate-950 p-6 text-white shadow-sm">
-      <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-lime-300/20 blur-3xl" />
-      <div className="relative">
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">
-              Rewards Balance
-            </p>
-            <h2 className="mt-1 text-3xl font-bold tracking-normal">
-              {numberFormatter.format(rewardBalance.balance)}{" "}
-              <span className="text-lg" style={{ color: DODO_GREEN }}>
-                SHP
-              </span>
-            </h2>
-          </div>
-          <div className="rounded-lg bg-white/10 p-2">
-            <Award className="h-5 w-5" style={{ color: DODO_GREEN }} />
-          </div>
+    <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Launch Activity
+          </p>
+          <h2 className="mt-1 text-3xl font-bold tracking-normal text-slate-950">
+            {numberFormatter.format(products.length)}
+          </h2>
+        </div>
+        <div className="rounded-lg bg-blue-50 p-2 text-blue-700">
+          <Rocket className="h-5 w-5" aria-hidden />
+        </div>
+      </div>
+
+      <div className="mt-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-200 py-2">
+          <span className="text-sm text-slate-500">Published</span>
+          <span className="font-semibold text-slate-950">
+            {numberFormatter.format(publishedCount)}
+          </span>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between border-b border-white/10 py-2">
-            <span className="text-sm text-white/60">Daily streak</span>
-            <span className="inline-flex items-center gap-1 font-semibold text-orange-400">
-              <Flame className="h-4 w-4" aria-hidden />
-              {numberFormatter.format(rewardBalance.currentStreakCount)} days
-            </span>
-          </div>
-
-          <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">
-              Recent Activity
-            </p>
-            {rewardActivity.length ? (
-              rewardActivity.map((activity) => (
-                <div
-                  key={activity.id}
-                  className="flex items-center justify-between gap-3 text-sm"
-                >
-                  <span className="min-w-0 truncate">{activity.title}</span>
-                  <span
-                    className={cn(
-                      "shrink-0 font-semibold",
-                      activity.amount >= 0 ? "text-lime-300" : "text-white/70",
-                    )}
-                  >
-                    {activity.amount >= 0 ? "+" : ""}
-                    {numberFormatter.format(activity.amount)} SHP
-                  </span>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-white/60">
-                Earn rewards as your products pick up engagement.
-              </p>
-            )}
-          </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Latest update
+          </p>
+          <p className="mt-2 text-sm text-slate-600">
+            {latestProduct
+              ? `${latestProduct.name} updated ${formatRelativeDate(
+                  latestProduct.updatedAt,
+                )}`
+              : "Add a launch to start tracking performance."}
+          </p>
         </div>
-
         <Link
-          href={MEMBER_REWARDS_PATH}
-          className="mt-6 inline-flex h-10 w-full items-center justify-center rounded-lg text-sm font-semibold text-slate-950 transition-transform active:scale-[0.98]"
-          style={{ backgroundColor: DODO_GREEN }}
+          href={MEMBER_PRODUCTS_PATH}
+          className="mt-2 inline-flex h-10 w-full items-center justify-center rounded-lg bg-slate-950 text-sm font-semibold text-white transition-transform active:scale-[0.98]"
         >
-          Claim rewards
+          Manage products
         </Link>
       </div>
     </section>

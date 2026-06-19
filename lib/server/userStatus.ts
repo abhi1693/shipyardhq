@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma"
 import { redirect } from "next/navigation"
-import { ensureDailyLoginReward } from "@/lib/server/rewards/loginReward"
 import { getRedisClient } from "@/lib/server/redis"
 import { buildCacheKey } from "@/lib/server/cache"
 
@@ -38,13 +37,6 @@ async function loadActiveUser(clerkId: string) {
   if (!user || user.status !== "active") {
     return null
   }
-
-  ensureDailyLoginReward(user.id).catch((error) => {
-    console.error("Failed to ensure daily login reward", {
-      error,
-      userId: user.id,
-    })
-  })
 
   return user
 }

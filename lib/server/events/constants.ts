@@ -19,11 +19,6 @@ export const APP_EVENTS = {
   BADGE_REMOVED: "badge.removed",
   LEADERBOARD_MONTHLY_WINNERS: "leaderboard.monthly.winners",
   LEADERBOARD_PERIODIC_WINNERS: "leaderboard.periodic.winners",
-  REWARDS_AWARDED: "rewards.awarded",
-  REWARDS_REDEEMED: "rewards.redeemed",
-  REWARDS_ADJUSTED: "rewards.adjusted",
-  REWARDS_REFUNDED: "rewards.refunded",
-  REWARDS_DAILY_LOGIN: "rewards.daily-login",
 } as const
 
 export type AppEventKey = (typeof APP_EVENTS)[keyof typeof APP_EVENTS]

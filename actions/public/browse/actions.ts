@@ -33,7 +33,6 @@ interface GetBrowseProductsOptions {
   minPriceCents?: number
   maxPriceCents?: number
   badge?: string
-  backlinkVerified?: boolean
 }
 
 type UseCaseCategoryRef = Prisma.UseCaseCategoryGetPayload<{
@@ -68,7 +67,6 @@ export const getBrowseProducts = cached(
     minPriceCents,
     maxPriceCents,
     badge,
-    backlinkVerified,
   }: GetBrowseProductsOptions) => {
     const skip = (page - 1) * pageSize
 
@@ -134,7 +132,6 @@ export const getBrowseProducts = cached(
 
     const verificationFilter: Prisma.ProductVerificationWhereInput = {
       ...(verified ? { isVerified: true } : {}),
-      ...(backlinkVerified ? { backlinkIsVerified: true } : {}),
     }
 
     const categoryFilter = buildProductCategoryFilter(categoryIds)
@@ -299,7 +296,6 @@ export const getBrowseProducts = cached(
           ? `maxPrice:${options.maxPriceCents}`
           : "",
         options.badge ? `badge:${options.badge}` : "",
-        options.backlinkVerified ? "backlinkVerified" : "",
       ]
 
       return parts.filter((part) => Boolean(part))

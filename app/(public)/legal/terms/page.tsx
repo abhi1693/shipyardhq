@@ -74,8 +74,8 @@ export default function TermsOfServicePage() {
             <ul className="list-disc list-inside space-y-2">
               <li>
                 {BRAND_NAME} provides a product discovery marketplace, maker
-                dashboards, rewards economies, and related tools that help you
-                launch and promote products.
+                dashboards, and related tools that help you launch and promote
+                products.
               </li>
               <li>
                 Features may include product submissions, leaderboard
@@ -126,23 +126,22 @@ export default function TermsOfServicePage() {
             </ul>
 
             <h2 className="text-2xl font-semibold mt-6">
-              4. Rewards and Perks
+              4. Plans and Perks
             </h2>
             <ul className="list-disc list-inside space-y-2">
               <li>
-                {BRAND_NAME} operates a rewards program that lets members earn
-                and redeem points for perks such as placements, feature unlocks,
-                or limited-time benefits.
+                {BRAND_NAME} may offer paid plans, promotional placements,
+                feature unlocks, or limited-time benefits for eligible products.
               </li>
               <li>
-                Rewards have no cash value, are not transferable, and may expire
-                or be revoked at our discretion if we detect misuse or
-                ineligibility.
+                Perks have no cash value, are not transferable, and may expire
+                or be revoked at our discretion if we detect misuse,
+                non-payment, or ineligibility.
               </li>
               <li>
-                We may change redemption rules, costs, or availability without
-                notice. Some redemptions require an associated product or
-                schedule; failure to meet prerequisites can forfeit the reward.
+                We may change plan rules, costs, or availability without notice.
+                Some perks require an associated product or schedule; failure to
+                meet prerequisites can forfeit the benefit.
               </li>
             </ul>
 
@@ -199,13 +198,12 @@ export default function TermsOfServicePage() {
               </li>
               <li>
                 Misrepresenting your affiliation, fraudulently manipulating
-                rankings, or engaging in reward abuse (for example, falsifying
-                traffic events or reviews).
+                rankings, or falsifying traffic events or reviews.
               </li>
             </ul>
             <p className="mt-2">
               We reserve the right to investigate and take appropriate action,
-              including removing content, suspending accounts, revoking rewards,
+              including removing content, suspending accounts, revoking access,
               or contacting authorities.
             </p>
 

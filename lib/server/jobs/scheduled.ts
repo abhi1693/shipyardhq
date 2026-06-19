@@ -37,24 +37,9 @@ export const SCHEDULED_JOB_DEFINITIONS = [
     description: "Announce weekly leaderboard highlights.",
   },
   {
-    id: "rewards-placements",
-    pattern: "0 */5 * * * *",
-    description: "Activate and expire reward placement schedules.",
-  },
-  {
     id: "homepage-feed-refresh",
     pattern: "0 */5 * * * *",
     description: "Refresh and warm homepage feed cache.",
-  },
-  {
-    id: "rewards-backlinks",
-    pattern: "0 0 5 * * *",
-    description: "Verify product backlinks for rewards.",
-  },
-  {
-    id: "rewards-streak",
-    pattern: "0 0 4 * * *",
-    description: "Maintain reward streaks.",
   },
   {
     id: "leaderboard-refresh",
@@ -87,6 +72,13 @@ export const SCHEDULED_JOB_DEFINITIONS = [
     description: "Clean up expired unused Dodo discounts.",
   },
 ] as const satisfies ReadonlyArray<ScheduledJobDefinition>
+
+const RETIRED_SCHEDULED_JOB_IDS = [
+  "backlink-verification",
+  "rewards-backlinks",
+  "rewards-placements",
+  "rewards-streak",
+] as const
 
 export type ScheduledJobName = (typeof SCHEDULED_JOB_DEFINITIONS)[number]["id"]
 
@@ -135,6 +127,17 @@ export function getScheduledJobQueue(): Queue<
 
 export async function upsertScheduledJobs(): Promise<void> {
   const queue = getScheduledJobQueue()
+
+  for (const retiredId of RETIRED_SCHEDULED_JOB_IDS) {
+    try {
+      await queue.removeJobScheduler(`scheduled-${retiredId}`)
+    } catch (error) {
+      console.error("[scheduled] failed to remove retired job scheduler", {
+        id: retiredId,
+        error,
+      })
+    }
+  }
 
   for (const definition of SCHEDULED_JOB_DEFINITIONS) {
     await queue.upsertJobScheduler(

@@ -4,8 +4,6 @@ import { useEffect, useRef } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 
-import { BRAND_NAME } from "@/lib/brand"
-
 // Displays toast messages based on query params and then cleans the URL.
 export default function PurchasePlanToast() {
   const sp = useSearchParams()
@@ -37,15 +35,13 @@ export default function PurchasePlanToast() {
                   ? "Unable to change your subscription plan right now."
                   : error === "subscription_portal_failed"
                     ? "Unable to open the billing portal. Please try again."
-                    : error === "plan_type_locked"
-                      ? "You can't switch between subscription and one-time while a paid plan is active."
-                      : error === "badge_not_found"
-                        ? `We couldn't find the ${BRAND_NAME} badge on your product website. Add the generated badge embed, then publish again.`
-                        : error === "publish_failed"
-                          ? "Unable to publish your listing. Please try again."
-                          : error === "must_publish"
-                            ? "Publish your listing before boosting."
-                            : "Something went wrong. Please try again."
+                  : error === "plan_type_locked"
+                    ? "You can't switch between subscription and one-time while a paid plan is active."
+                    : error === "publish_failed"
+                      ? "Unable to publish your listing. Please try again."
+                      : error === "must_publish"
+                        ? "Publish your listing before boosting."
+                        : "Something went wrong. Please try again."
       toast.error(msg, { id: `purchase-plan-${toastKey}` })
       didShowToast = true
     } else if (upgraded === "1") {

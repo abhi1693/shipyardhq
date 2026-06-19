@@ -130,7 +130,6 @@ export default async function ViewUserProductPage({
   const editPath = memberProductEditPath(productSlug)
   const { hasBasicAnalytics } = resolveProductAnalyticsAccess({
     plan: product.plan,
-    featureEntitlements: product.featureEntitlements ?? [],
   })
   const canViewAnalytics = hasBasicAnalytics
   const isFreePlan = !product.plan || product.plan.isDefault

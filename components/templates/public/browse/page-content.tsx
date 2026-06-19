@@ -31,7 +31,6 @@ interface BrowseSearchParams {
   minPrice?: StrOrArr
   maxPrice?: StrOrArr
   badge?: StrOrArr
-  backlinkVerified?: StrOrArr
 }
 
 const resolveSingle = (value: StrOrArr) =>
@@ -73,7 +72,6 @@ const parseSearchParams = (params: BrowseSearchParams): BrowsePageFilters => {
     badge: BADGE_OPTIONS.some((option) => option.value === badgeRaw)
       ? badgeRaw
       : undefined,
-    backlinkVerified: resolveSingle(params.backlinkVerified) === "true",
   }
 }
 
@@ -162,7 +160,6 @@ export async function BrowsePageContent({
                     minPrice: normalizedFilters.minPrice,
                     maxPrice: normalizedFilters.maxPrice,
                     badge: normalizedFilters.badge,
-                    backlinkVerified: normalizedFilters.backlinkVerified,
                   }}
                 />
               </div>
@@ -184,7 +181,6 @@ export async function BrowsePageContent({
             minPrice: normalizedFilters.minPrice,
             maxPrice: normalizedFilters.maxPrice,
             badge: normalizedFilters.badge,
-            backlinkVerified: normalizedFilters.backlinkVerified,
           }}
           hasActiveFilters={hasActiveFilters}
         />

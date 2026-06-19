@@ -100,7 +100,7 @@ const MAKER_SWITCH_REASONS: MakerSwitchReason[] = [
     icon: IconCurrencyDollarOff,
     title: "No paywalls to get noticed",
     description:
-      "Pay-to-play queues and backlink requirements bury smaller teams. Shipyard keeps placement merit-based, so you upgrade only when you want extra reach, not to be seen at all.",
+      "Pay-to-play queues bury smaller teams. Shipyard keeps placement merit-based, so you upgrade only when you want extra reach, not to be seen at all.",
   },
   {
     icon: IconLinkOff,

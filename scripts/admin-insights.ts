@@ -9,7 +9,6 @@ const SECTION_NAMES = [
   "products",
   "traffic",
   "revenue",
-  "rewards",
   "operations",
 ] as const
 
@@ -534,10 +533,6 @@ async function getWindowCounts(args: {
     previousPurchases,
     currentSiteTraffic,
     previousSiteTraffic,
-    rewardEarn,
-    previousRewardEarn,
-    rewardSpend,
-    previousRewardSpend,
   ] = await Promise.all([
     prisma.user.count({ where: { createdAt: { gte: currentStart } } }),
     prisma.user.count({
@@ -573,28 +568,6 @@ async function getWindowCounts(args: {
       _sum: { pageViews: true, uniqueVisitors: true, sessions: true },
       where: { date: { gte: previousStart, lt: previousEnd } },
     }),
-    prisma.rewardTransaction.aggregate({
-      _sum: { rewardAmount: true },
-      where: { createdAt: { gte: currentStart }, type: "earn" },
-    }),
-    prisma.rewardTransaction.aggregate({
-      _sum: { rewardAmount: true },
-      where: {
-        createdAt: { gte: previousStart, lt: previousEnd },
-        type: "earn",
-      },
-    }),
-    prisma.rewardTransaction.aggregate({
-      _sum: { rewardAmount: true },
-      where: { createdAt: { gte: currentStart }, type: "spend" },
-    }),
-    prisma.rewardTransaction.aggregate({
-      _sum: { rewardAmount: true },
-      where: {
-        createdAt: { gte: previousStart, lt: previousEnd },
-        type: "spend",
-      },
-    }),
   ])
 
   return {
@@ -606,14 +579,6 @@ async function getWindowCounts(args: {
       previousPublishedProducts,
     ),
     purchases: summarizeWindow(purchases, previousPurchases),
-    rewardEarned: summarizeWindow(
-      rewardEarn._sum.rewardAmount ?? 0,
-      previousRewardEarn._sum.rewardAmount ?? 0,
-    ),
-    rewardSpent: summarizeWindow(
-      Math.abs(rewardSpend._sum.rewardAmount ?? 0),
-      Math.abs(previousRewardSpend._sum.rewardAmount ?? 0),
-    ),
     sessions: summarizeWindow(
       currentSiteTraffic._sum.sessions ?? 0,
       previousSiteTraffic._sum.sessions ?? 0,
@@ -639,11 +604,8 @@ async function getOverview(currentStart: Date) {
     drafts,
     categories,
     useCases,
-    activePlacements,
-    pendingRedemptions,
     siteTraffic,
     productTraffic,
-    rewards,
     latestIngestion,
     dbSizeRows,
   ] = await Promise.all([
@@ -654,8 +616,6 @@ async function getOverview(currentStart: Date) {
     prisma.productDraft.count(),
     prisma.category.count(),
     prisma.useCase.count(),
-    prisma.placementSchedule.count({ where: { status: "active" } }),
-    prisma.redemption.count({ where: { status: "pending" } }),
     prisma.siteTrafficDaily.aggregate({
       _avg: { bounceRate: true, engagementRate: true },
       _sum: { pageViews: true, sessions: true, uniqueVisitors: true },
@@ -664,9 +624,6 @@ async function getOverview(currentStart: Date) {
     prisma.productTrafficDaily.aggregate({
       _sum: { pageViews: true, uniqueVisitors: true },
       where: { date: { gte: currentStart } },
-    }),
-    prisma.rewardBalance.aggregate({
-      _sum: { balance: true, lifetimeEarned: true, lifetimeSpent: true },
     }),
     prisma.analyticsIngestionRun.findFirst({
       orderBy: { createdAt: "desc" },
@@ -693,7 +650,6 @@ async function getOverview(currentStart: Date) {
   const dbBytes = dbSizeRows[0]?.bytes ? Number(dbSizeRows[0].bytes) : 0
 
   return {
-    activePlacements,
     activeUsers,
     categories,
     dbSizeMb: Math.round(dbBytes / 1024 / 1024),
@@ -707,13 +663,9 @@ async function getOverview(currentStart: Date) {
           status: latestIngestion.status,
         }
       : null,
-    pendingRedemptions,
     productPageViews: productTraffic._sum.pageViews ?? 0,
     productVisitors: productTraffic._sum.uniqueVisitors ?? 0,
     publishedProducts,
-    rewardBalance: rewards._sum.balance ?? 0,
-    rewardsEarned: rewards._sum.lifetimeEarned ?? 0,
-    rewardsSpent: rewards._sum.lifetimeSpent ?? 0,
     siteBounceRate: formatPercent(siteTraffic._avg.bounceRate),
     siteEngagementRate: formatPercent(siteTraffic._avg.engagementRate),
     sitePageViews: siteTraffic._sum.pageViews ?? 0,
@@ -733,7 +685,6 @@ async function getProductInsights(limit: number) {
     topCategories,
     topProducts,
     verifications,
-    backlinkVerified,
     missingAnalytics,
     staleDrafts,
     platforms,
@@ -777,7 +728,6 @@ async function getProductInsights(limit: number) {
       where: { status: "published" },
     }),
     prisma.productVerification.count({ where: { isVerified: true } }),
-    prisma.productVerification.count({ where: { backlinkIsVerified: true } }),
     prisma.product.count({ where: { analytics: null } }),
     prisma.productDraft.count({ where: { updatedAt: { lt: daysAgo(14) } } }),
     prisma.$queryRaw<Array<{ count: bigint; platform: string }>>(Prisma.sql`
@@ -791,7 +741,6 @@ async function getProductInsights(limit: number) {
   ])
 
   return {
-    backlinkVerified,
     byPricing: byPricing.map((row) => ({
       count: row._count._all,
       pricingModel: row.pricingModel,
@@ -945,86 +894,6 @@ async function getRevenueInsights(currentStart: Date, limit: number) {
   }
 }
 
-async function getRewardInsights(currentStart: Date, limit: number) {
-  const [
-    balances,
-    transactions,
-    redemptions,
-    entitlements,
-    placements,
-    topBalances,
-  ] = await Promise.all([
-    prisma.rewardBalance.aggregate({
-      _avg: { balance: true },
-      _sum: { balance: true, lifetimeEarned: true, lifetimeSpent: true },
-    }),
-    prisma.rewardTransaction.groupBy({
-      _count: { _all: true },
-      _sum: { rewardAmount: true },
-      by: ["type"],
-      orderBy: { type: "asc" },
-      where: { createdAt: { gte: currentStart } },
-    }),
-    prisma.redemption.groupBy({
-      _count: { _all: true },
-      by: ["status"],
-      orderBy: { status: "asc" },
-    }),
-    prisma.featureEntitlement.groupBy({
-      _count: { _all: true },
-      by: ["status"],
-      orderBy: { status: "asc" },
-    }),
-    prisma.placementSchedule.groupBy({
-      _count: { _all: true },
-      by: ["status"],
-      orderBy: { status: "asc" },
-    }),
-    prisma.rewardBalance.findMany({
-      orderBy: { balance: "desc" },
-      select: {
-        balance: true,
-        currentStreakCount: true,
-        lifetimeEarned: true,
-        user: { select: { email: true, firstName: true, lastName: true } },
-      },
-      take: limit,
-    }),
-  ])
-
-  return {
-    averageBalance: Math.round(balances._avg.balance ?? 0),
-    lifetimeEarned: balances._sum.lifetimeEarned ?? 0,
-    lifetimeSpent: balances._sum.lifetimeSpent ?? 0,
-    outstandingBalance: balances._sum.balance ?? 0,
-    redemptions: redemptions.map((row) => ({
-      count: row._count._all,
-      status: row.status,
-    })),
-    entitlements: entitlements.map((row) => ({
-      count: row._count._all,
-      status: row.status,
-    })),
-    placements: placements.map((row) => ({
-      count: row._count._all,
-      status: row.status,
-    })),
-    topBalances: topBalances.map((balance) => ({
-      balance: balance.balance,
-      earned: balance.lifetimeEarned,
-      streak: balance.currentStreakCount,
-      user:
-        `${balance.user.firstName} ${balance.user.lastName}`.trim() ||
-        balance.user.email,
-    })),
-    transactions: transactions.map((row) => ({
-      amount: row._sum.rewardAmount ?? 0,
-      count: row._count._all,
-      type: row.type,
-    })),
-  }
-}
-
 async function getOperationsInsights(limit: number) {
   const [
     ingestionStatus,
@@ -1144,10 +1013,6 @@ async function buildReport(options: CliOptions) {
     report.revenue = await getRevenueInsights(currentStart, options.limit)
   }
 
-  if (sectionEnabled(options, "rewards")) {
-    report.rewards = await getRewardInsights(currentStart, options.limit)
-  }
-
   if (sectionEnabled(options, "operations")) {
     report.operations = await getOperationsInsights(options.limit)
   }
@@ -1189,13 +1054,6 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
         value: `${formatNumber(overview.productPageViews)} views`,
       },
       {
-        detail: `${formatNumber(overview.rewardsEarned)} earned / ${formatNumber(
-          overview.rewardsSpent,
-        )} spent`,
-        label: "Rewards",
-        value: `${formatNumber(overview.rewardBalance)} balance`,
-      },
-      {
         detail: latestIngestion
           ? `${latestIngestion.job} (${latestIngestion.duration})`
           : "No ingestion runs",
@@ -1206,12 +1064,6 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
     ])
 
     renderHealthList("Immediate Attention", [
-      {
-        detail: "Reward cash-outs waiting on an admin action",
-        label: "Pending redemptions",
-        tone: overview.pendingRedemptions > 0 ? "warn" : "good",
-        value: formatNumber(overview.pendingRedemptions),
-      },
       {
         detail: latestIngestion
           ? `${latestIngestion.job} finished ${latestIngestion.finishedAt}`
@@ -1261,11 +1113,6 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
         label: "Verified Products",
         tone: products.verifiedProducts > 0 ? "good" : "warn",
         value: formatNumber(products.verifiedProducts),
-      },
-      {
-        label: "Backlink Verified",
-        tone: products.backlinkVerified > 0 ? "good" : "warn",
-        value: formatNumber(products.backlinkVerified),
       },
       {
         detail: "Products without analytics rows",
@@ -1453,88 +1300,6 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
       { align: "right", key: "price", label: "Price" },
       { align: "right", key: "activeProducts", label: "Products" },
       { align: "right", key: "purchases", label: "Purchases" },
-    ])
-  }
-
-  if (report.rewards) {
-    const rewards = report.rewards
-    const transactions = rewards.transactions as Array<Record<string, unknown>>
-    const redemptions = rewards.redemptions as Array<Record<string, unknown>>
-    const entitlements = rewards.entitlements as Array<Record<string, unknown>>
-    const placements = rewards.placements as Array<Record<string, unknown>>
-    const topBalances = rewards.topBalances as Array<Record<string, unknown>>
-
-    renderMetricCards("Rewards Ledger", [
-      {
-        label: "Outstanding Balance",
-        value: formatNumber(rewards.outstandingBalance),
-      },
-      {
-        label: "Average Balance",
-        value: formatNumber(rewards.averageBalance),
-      },
-      {
-        label: "Lifetime Earned",
-        value: formatNumber(rewards.lifetimeEarned),
-      },
-      {
-        label: "Lifetime Spent",
-        value: formatNumber(rewards.lifetimeSpent),
-      },
-    ])
-
-    renderTable("Reward Transactions", rankRows(transactions), [
-      { align: "right", key: "rank", label: "#", width: 3 },
-      { key: "type", label: "Type", maxWidth: 18 },
-      { align: "right", key: "count", label: "Count" },
-      { align: "right", key: "amount", label: "Amount" },
-    ])
-
-    const redemptionMax = maxByKey(redemptions, "count")
-    renderTable("Redemptions", rankRows(redemptions), [
-      { align: "right", key: "rank", label: "#", width: 3 },
-      { format: statusCell, key: "status", label: "Status", maxWidth: 18 },
-      { align: "right", key: "count", label: "Count" },
-      {
-        format: (value) => bar(value, redemptionMax),
-        key: "count",
-        label: "Share",
-        width: 16,
-      },
-    ])
-
-    const entitlementMax = maxByKey(entitlements, "count")
-    renderTable("Entitlements", rankRows(entitlements), [
-      { align: "right", key: "rank", label: "#", width: 3 },
-      { format: statusCell, key: "status", label: "Status", maxWidth: 18 },
-      { align: "right", key: "count", label: "Count" },
-      {
-        format: (value) => bar(value, entitlementMax),
-        key: "count",
-        label: "Share",
-        width: 16,
-      },
-    ])
-
-    const placementMax = maxByKey(placements, "count")
-    renderTable("Placements", rankRows(placements), [
-      { align: "right", key: "rank", label: "#", width: 3 },
-      { format: statusCell, key: "status", label: "Status", maxWidth: 18 },
-      { align: "right", key: "count", label: "Count" },
-      {
-        format: (value) => bar(value, placementMax),
-        key: "count",
-        label: "Share",
-        width: 16,
-      },
-    ])
-
-    renderTable("Top Reward Balances", rankRows(topBalances), [
-      { align: "right", key: "rank", label: "#", width: 3 },
-      { key: "user", label: "User", maxWidth: 36 },
-      { align: "right", key: "balance", label: "Balance" },
-      { align: "right", key: "earned", label: "Earned" },
-      { align: "right", key: "streak", label: "Streak" },
     ])
   }
 

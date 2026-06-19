@@ -464,14 +464,6 @@ function hydratePayload(
         ...data,
         expiresAt: data.expiresAt ? reviveDate(data.expiresAt) : null,
       } as AppEvents[keyof AppEvents]
-    case "rewards.awarded":
-    case "rewards.redeemed":
-    case "rewards.adjusted":
-    case "rewards.refunded":
-      return {
-        ...data,
-        createdAt: reviveDate(data.createdAt),
-      } as AppEvents[keyof AppEvents]
     default:
       return data as AppEvents[keyof AppEvents]
   }

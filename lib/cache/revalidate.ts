@@ -120,14 +120,6 @@ export function revalidateUser(
   revalidateUsers(mode)
 }
 
-export function revalidateRewardsLeaderboard(
-  mode: CacheInvalidationMode = "update",
-) {
-  revalidateTag(TAGS.rewardsLeaderboard, mode)
-  revalidateTag(TAGS.rewards, mode)
-  revalidateHomepage(mode)
-}
-
 export function revalidatePlans(mode: CacheInvalidationMode = "update") {
   revalidateTag(TAGS.plans, mode)
   revalidateProducts(mode)

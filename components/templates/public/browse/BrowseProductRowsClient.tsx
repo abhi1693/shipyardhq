@@ -19,7 +19,6 @@ type BrowseRowsSearchParams = {
   minPrice?: number
   maxPrice?: number
   badge?: string
-  backlinkVerified?: boolean
 }
 
 interface BrowseProductRowsClientProps {
@@ -61,12 +60,10 @@ export function BrowseProductRowsClient({
       minPrice: searchParams.minPrice,
       maxPrice: searchParams.maxPrice,
       badge: searchParams.badge,
-      backlinkVerified: searchParams.backlinkVerified,
     }),
     [
       searchParams.category,
       searchParams.badge,
-      searchParams.backlinkVerified,
       searchParams.maxPrice,
       searchParams.minPrice,
       searchParams.platform,

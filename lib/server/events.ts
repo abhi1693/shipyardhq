@@ -8,7 +8,7 @@ import {
   DEFAULT_EVENT_QUEUE,
   type EventQueueName,
 } from "@/lib/server/events/queues"
-import type { RedemptionStatus, Prisma } from "@/lib/vendor/prisma/client"
+import type { Prisma } from "@/lib/vendor/prisma/client"
 import { IS_PROD } from "@/lib/constants"
 
 type HandlerMode = "sync" | "async"
@@ -85,67 +85,6 @@ export type LeaderboardPeriodicWinnersEvent = {
   }>
 }
 
-export type RewardsAwardedEvent = {
-  transactionId: string
-  userId: string
-  rewardAmount: number
-  ruleKey: string
-  ruleName: string
-  balanceAfter: number
-  createdAt: Date
-  metadata?: unknown
-  sourceType?: string | null
-  sourceId?: string | null
-  targetType?: string | null
-  targetId?: string | null
-  productId?: string | null
-}
-
-export type RewardsRedeemedEvent = {
-  transactionId: string
-  userId: string
-  featureKey: string
-  redemptionId: string
-  cost: number
-  balanceAfter: number
-  status: RedemptionStatus
-  createdAt: Date
-  productId?: string | null
-  autoActivated: boolean
-  placementScheduleId?: string | null
-}
-
-export type RewardsAdjustedEvent = {
-  transactionId: string
-  userId: string
-  amount: number
-  balanceAfter: number
-  createdAt: Date
-  actorUserId?: string | null
-  metadata?: unknown
-  notes?: string | null
-}
-
-export type RewardsRefundedEvent = {
-  transactionId: string
-  redemptionId: string
-  userId: string
-  featureKey: string | null
-  amount: number
-  balanceAfter: number
-  createdAt: Date
-  fullyRefunded: boolean
-  productId?: string | null
-  actorUserId?: string | null
-}
-
-export type RewardsDailyLoginEvent = {
-  userId: string
-  eventId: string
-  dayKey: string
-  awardedAt: string
-}
-
 type AppEvents = {
   [APP_EVENTS.PRODUCT_CREATED]: ProductCreatedEvent
   [APP_EVENTS.PRODUCT_UPDATED]: ProductUpdatedEvent
@@ -157,11 +96,6 @@ type AppEvents = {
   [APP_EVENTS.BADGE_REMOVED]: BadgeRemovedEvent
   [APP_EVENTS.LEADERBOARD_MONTHLY_WINNERS]: LeaderboardMonthlyWinnersEvent
   [APP_EVENTS.LEADERBOARD_PERIODIC_WINNERS]: LeaderboardPeriodicWinnersEvent
-  [APP_EVENTS.REWARDS_AWARDED]: RewardsAwardedEvent
-  [APP_EVENTS.REWARDS_REDEEMED]: RewardsRedeemedEvent
-  [APP_EVENTS.REWARDS_ADJUSTED]: RewardsAdjustedEvent
-  [APP_EVENTS.REWARDS_REFUNDED]: RewardsRefundedEvent
-  [APP_EVENTS.REWARDS_DAILY_LOGIN]: RewardsDailyLoginEvent
 }
 
 type Handler<K extends keyof AppEvents> = (

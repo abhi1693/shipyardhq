@@ -5,7 +5,6 @@ import {
   CATEGORIES_PATH,
   LEADERBOARD_PATH,
   LEADERBOARD_GUIDE_PATH,
-  LEADERBOARD_REWARDS_PATH,
   PRICING_PATH,
   pricingModelPath,
   USE_CASES_PATH,
@@ -19,7 +18,6 @@ import {
   ALTERNATIVES_PATH,
   PLATFORMS_PATH,
   PRODUCT_TYPES_PATH,
-  REWARDS_PATH,
   TAGS_PATH,
   USERS_PATH,
   WHY_SHIPYARD_PATH,
@@ -73,10 +71,8 @@ export async function GET() {
     "/legal/privacy-policy",
     ANALYTICS_PATH,
     TAGS_PATH,
-    REWARDS_PATH,
     WHY_SHIPYARD_PATH,
     LEADERBOARD_GUIDE_PATH,
-    LEADERBOARD_REWARDS_PATH,
   ] as const
 
   const [
@@ -290,10 +286,6 @@ export async function GET() {
           changefreq = "weekly"
           priority = "0.5"
           break
-        case REWARDS_PATH:
-          changefreq = "weekly"
-          priority = "0.55"
-          break
         case WHY_SHIPYARD_PATH:
           changefreq = "monthly"
           priority = "0.45"
@@ -301,10 +293,6 @@ export async function GET() {
         case LEADERBOARD_GUIDE_PATH:
           changefreq = "yearly"
           priority = "0.35"
-          break
-        case LEADERBOARD_REWARDS_PATH:
-          changefreq = "weekly"
-          priority = "0.55"
           break
       }
       return xml`

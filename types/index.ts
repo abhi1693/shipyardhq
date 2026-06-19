@@ -1,5 +1,5 @@
 import { Icons } from "@/components/icons"
-import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
+import { Prisma } from "@/lib/vendor/prisma/client"
 
 export interface NavItem {
   title: string
@@ -36,17 +36,6 @@ export const featuredProductSelect = {
           expiresAt: true,
         },
       },
-      featureEntitlements: {
-        where: {
-          status: { in: ["active", "pending"] },
-        },
-        select: {
-          id: true,
-          featureKey: true,
-          status: true,
-          expiresAt: true,
-        },
-      },
       plan: {
         select: {
           assignments: {
@@ -59,17 +48,6 @@ export const featuredProductSelect = {
               },
             },
           },
-        },
-      },
-      placementSchedules: {
-        where: {
-          status: PlacementStatus.active,
-        },
-        select: {
-          id: true,
-          featureKey: true,
-          startsAt: true,
-          endsAt: true,
         },
       },
     },

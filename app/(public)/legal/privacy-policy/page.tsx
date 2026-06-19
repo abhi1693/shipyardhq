@@ -65,12 +65,11 @@ export default function PrivacyPolicyPage() {
                     you submit to {BRAND_NAME}.
                   </li>
                   <li>
-                    <strong>Transactions and rewards:</strong> Plan selections,
-                    redemption activity, reward balances, feature entitlements,
-                    and limited billing metadata associated with purchases
-                    initiated through Dodo Payments. Card details are handled
-                    directly by Dodo—we do not store full payment instrument
-                    numbers.
+                    <strong>Transactions and plans:</strong> Plan selections,
+                    feature access, and limited billing metadata associated with
+                    purchases initiated through Dodo Payments. Card details are
+                    handled directly by Dodo—we do not store full payment
+                    instrument numbers.
                   </li>
                   <li>
                     <strong>Community interactions:</strong> Reviews, upvotes,
@@ -86,10 +85,10 @@ export default function PrivacyPolicyPage() {
                 <ul className="list-disc list-inside space-y-2">
                   <li>
                     <strong>Analytics signals:</strong> Page views, links you
-                    click, engagement with rewards and placements, and other
-                    in-product actions. Traffic events record device type,
-                    browser, operating system, referrer, and coarse geolocation
-                    (country, region, and city) derived from request headers.
+                    click, engagement with placements, and other in-product
+                    actions. Traffic events record device type, browser,
+                    operating system, referrer, and coarse geolocation (country,
+                    region, and city) derived from request headers.
                   </li>
                   <li>
                     <strong>Network data:</strong> We hash IP addresses using a
@@ -139,7 +138,7 @@ export default function PrivacyPolicyPage() {
             <ul className="list-disc list-inside space-y-2">
               <li>Operate, maintain, and secure the {BRAND_NAME} platform.</li>
               <li>
-                Publish product listings and reward dashboards you create.
+                Publish product listings and dashboards you create.
               </li>
               <li>
                 Process transactions, deliver perks, and provide billing

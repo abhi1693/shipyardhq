@@ -7,13 +7,7 @@ import { dispatchEventAsync } from "@/lib/server/events"
 import "@/lib/server/badges" // register badge listeners
 import { deleteBlob, deleteBlobPrefix, isManagedBlobUrl } from "@/lib/blob"
 import "@/lib/server/plans" // register default-plan listeners
-import "@/lib/server/rewards/listeners"
-import {
-  FeatureEntitlementStatus,
-  Prisma,
-  PricingModel,
-  ProductType,
-} from "@/lib/vendor/prisma/client"
+import { Prisma, PricingModel, ProductType } from "@/lib/vendor/prisma/client"
 import { slugify } from "@/lib/utils"
 import { generateVerificationTxtFromWebsite } from "@/lib/products/verification"
 import {
@@ -123,17 +117,6 @@ export async function getProductById(id: string) {
         verification: true,
         ProductMedia: true,
         ProductBadge: true,
-        featureEntitlements: {
-          where: {
-            status: {
-              in: [
-                FeatureEntitlementStatus.active,
-                FeatureEntitlementStatus.pending,
-              ],
-            },
-          },
-          select: { featureKey: true, status: true },
-        },
         plan: {
           select: {
             id: true,

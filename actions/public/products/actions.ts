@@ -108,12 +108,6 @@ const publicProductSelect = {
       },
     },
   },
-  featureEntitlements: {
-    where: {
-      status: { in: ["active", "pending"] },
-    },
-    select: { featureKey: true },
-  },
 } satisfies Prisma.ProductSelect
 
 type PublicProduct = Prisma.ProductGetPayload<{
@@ -163,10 +157,6 @@ const publicProductMetaSelect = {
       },
     },
   },
-  featureEntitlements: {
-    where: { status: { in: ["active", "pending"] } },
-    select: { featureKey: true },
-  },
 } satisfies Prisma.ProductSelect
 
 async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
@@ -184,17 +174,9 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
       !badge.expiresAt || badge.expiresAt > new Date(),
   ).map((badge) => badge.badge)
 
-  const activeFeatureEntitlements = (fullProduct.featureEntitlements ?? []).map(
-    (ent) => ent.featureKey,
-  )
-
-  const { featureEntitlements: _featureEntitlements, ...rest } = fullProduct
-  void _featureEntitlements
-
   return {
-    ...rest,
+    ...fullProduct,
     badges: activeBadges,
-    activeFeatureEntitlements,
   }
 }
 

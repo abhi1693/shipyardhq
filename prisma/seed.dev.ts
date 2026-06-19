@@ -5,28 +5,21 @@ import {
   AnalyticsDataSource,
   AnalyticsIngestionJob,
   AnalyticsIngestionStatus,
-  FeatureEntitlementStatus,
-  FeatureSubjectType,
   LeaderboardRunStatus,
-  PlacementStatus,
   Platform,
   Prisma,
   ProductStatus,
   ProductType,
   PricingModel,
-  RedemptionStatus,
-  RewardTransactionType,
   UserStatus,
 } from "@/lib/vendor/prisma/client"
 import type { PrismaClient } from "@/lib/vendor/prisma/client"
-import { REWARD_FEATURE_KEY } from "@/lib/rewards/constants"
 import { generateVerificationTxtFromWebsite } from "@/lib/products/verification"
 
 import { seedAlternatives } from "./seed.alternatives"
 import { seedCategories } from "./seed.categories"
 import { seedPlanFeatures } from "./seed.plan-features"
 import { seedPlans } from "./seed.plans"
-import { seedRewards } from "./seed.rewards"
 import { seedUseCases } from "./seed.use-cases"
 
 const prismaPromise = import("@/lib/prisma").then(
@@ -34,8 +27,6 @@ const prismaPromise = import("@/lib/prisma").then(
 )
 
 const MS_PER_DAY = 86_400_000
-const DEV_SOURCE_TYPE = "dev-seed"
-
 const DEV_SEED_DEFAULTS = {
   adminClerkId: "dev_clerk_admin",
   adminEmail: "dev.admin@shipyard.local",
@@ -76,7 +67,6 @@ type DevProductSeed = {
   publishedDaysAgo?: number
   upvoteBase: number
   verified: boolean
-  backlinkVerified: boolean
 }
 
 type SeedContext = {
@@ -202,7 +192,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 0,
     upvoteBase: 78,
     verified: true,
-    backlinkVerified: true,
   },
   {
     slug: "dev-growth-radar",
@@ -228,7 +217,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 0,
     upvoteBase: 54,
     verified: true,
-    backlinkVerified: false,
   },
   {
     slug: "dev-support-tide",
@@ -254,7 +242,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 4,
     upvoteBase: 42,
     verified: false,
-    backlinkVerified: false,
   },
   {
     slug: "dev-checkout-beacon",
@@ -280,7 +267,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 1,
     upvoteBase: 35,
     verified: true,
-    backlinkVerified: true,
   },
   {
     slug: "dev-signal-deck",
@@ -305,7 +291,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 0,
     upvoteBase: 31,
     verified: true,
-    backlinkVerified: false,
   },
   {
     slug: "dev-launch-notes",
@@ -331,7 +316,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 1,
     upvoteBase: 29,
     verified: true,
-    backlinkVerified: true,
   },
   {
     slug: "dev-feedback-forge",
@@ -357,7 +341,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 1,
     upvoteBase: 27,
     verified: false,
-    backlinkVerified: false,
   },
   {
     slug: "dev-prism-capture",
@@ -382,7 +365,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 2,
     upvoteBase: 25,
     verified: true,
-    backlinkVerified: false,
   },
   {
     slug: "dev-api-compass",
@@ -408,7 +390,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 1,
     upvoteBase: 23,
     verified: true,
-    backlinkVerified: true,
   },
   {
     slug: "dev-pipeline-pulse",
@@ -434,7 +415,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 3,
     upvoteBase: 22,
     verified: false,
-    backlinkVerified: false,
   },
   {
     slug: "dev-docs-lantern",
@@ -459,7 +439,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 0,
     upvoteBase: 20,
     verified: true,
-    backlinkVerified: false,
   },
   {
     slug: "dev-cart-current",
@@ -485,7 +464,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 5,
     upvoteBase: 19,
     verified: true,
-    backlinkVerified: true,
   },
   {
     slug: "dev-roadmap-river",
@@ -511,7 +489,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 6,
     upvoteBase: 17,
     verified: false,
-    backlinkVerified: false,
   },
   {
     slug: "dev-uptime-buoy",
@@ -536,7 +513,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 2,
     upvoteBase: 16,
     verified: true,
-    backlinkVerified: false,
   },
   {
     slug: "dev-design-crane",
@@ -560,7 +536,6 @@ const baseDevProducts: DevProductSeed[] = [
     createdDaysAgo: 2,
     upvoteBase: 0,
     verified: false,
-    backlinkVerified: false,
   },
   {
     slug: "dev-api-harbor",
@@ -585,7 +560,6 @@ const baseDevProducts: DevProductSeed[] = [
     publishedDaysAgo: 3,
     upvoteBase: 26,
     verified: true,
-    backlinkVerified: false,
   },
 ]
 
@@ -725,7 +699,6 @@ function generatedDevProducts(): DevProductSeed[] {
       publishedDaysAgo,
       upvoteBase: 5 + ((index * 7) % 95),
       verified: index % 3 !== 0,
-      backlinkVerified: index % 5 === 0,
     }
   })
 }
@@ -740,7 +713,6 @@ async function seedReferenceData(prisma: PrismaClient) {
   await seedUseCases(prisma)
   await seedPlanFeatures(prisma)
   await seedPlans(prisma)
-  await seedRewards(prisma)
 }
 
 async function loadContext(prisma: PrismaClient): Promise<SeedContext> {
@@ -921,26 +893,11 @@ async function upsertDevProducts(
         verificationTxt: generateVerificationTxtFromWebsite(seed.websiteUrl),
         isVerified: seed.verified,
         verifiedAt: seed.verified ? daysAgo(today, 1) : null,
-        backlinkIsVerified: seed.backlinkVerified,
-        backlinkVerifiedAt: seed.backlinkVerified ? daysAgo(today, 1) : null,
-        backlinkLastCheckedAt: daysAgo(today, 1),
-        backlinkFoundUrl: seed.backlinkVerified
-          ? `${seed.websiteUrl}/shipyard`
-          : null,
       },
       update: {
         verificationTxt: generateVerificationTxtFromWebsite(seed.websiteUrl),
         isVerified: seed.verified,
         verifiedAt: seed.verified ? daysAgo(today, 1) : null,
-        backlinkIsVerified: seed.backlinkVerified,
-        backlinkVerifiedAt: seed.backlinkVerified ? daysAgo(today, 1) : null,
-        backlinkLastCheckedAt: daysAgo(today, 1),
-        backlinkFoundUrl: seed.backlinkVerified
-          ? `${seed.websiteUrl}/shipyard`
-          : null,
-        backlinkLastError: seed.backlinkVerified
-          ? null
-          : "Dev fixture: backlink not found",
       },
     })
 
@@ -1655,286 +1612,6 @@ async function seedTraffic(
   console.table([{ metric: "traffic_days", count: siteDaily.length }])
 }
 
-async function seedRewardsState(
-  prisma: PrismaClient,
-  ctx: SeedContext,
-  productIdBySlug: Map<string, string>,
-  today: Date,
-) {
-  const devUserIds = Array.from(ctx.usersByEmail.values()).map(
-    (user) => user.id,
-  )
-  const productIds = Array.from(productIdBySlug.values())
-
-  await prisma.placementSchedule.deleteMany({
-    where: { productId: { in: productIds } },
-  })
-  await prisma.featureEntitlement.deleteMany({
-    where: { userId: { in: devUserIds } },
-  })
-  await prisma.redemption.deleteMany({
-    where: { userId: { in: devUserIds } },
-  })
-  await prisma.rewardTransaction.deleteMany({
-    where: { userId: { in: devUserIds }, sourceType: DEV_SOURCE_TYPE },
-  })
-
-  const catalog = await prisma.rewardCatalogItem.findMany({
-    where: {
-      featureKey: {
-        in: [
-          REWARD_FEATURE_KEY.priorityPlacement,
-          REWARD_FEATURE_KEY.analyticsAdvanced,
-          REWARD_FEATURE_KEY.partnerSpotlight,
-        ],
-      },
-    },
-    select: { featureKey: true, baseCost: true },
-  })
-  const catalogByKey = new Map(catalog.map((item) => [item.featureKey, item]))
-
-  const admin = ctx.usersByEmail.get(
-    process.env.DEV_ADMIN_EMAIL?.trim() || DEV_SEED_DEFAULTS.adminEmail,
-  )
-  const member = ctx.usersByEmail.get(
-    process.env.DEV_MEMBER_EMAIL?.trim() || DEV_SEED_DEFAULTS.memberEmail,
-  )
-  const dockPilotId = productIdBySlug.get("dev-dockpilot")
-  const supportTideId = productIdBySlug.get("dev-support-tide")
-
-  if (!admin || !member || !dockPilotId || !supportTideId) return
-
-  const activeFeature = catalogByKey.get(REWARD_FEATURE_KEY.priorityPlacement)
-  const analyticsFeature = catalogByKey.get(
-    REWARD_FEATURE_KEY.analyticsAdvanced,
-  )
-  const partnerSpotlightFeature = catalogByKey.get(
-    REWARD_FEATURE_KEY.partnerSpotlight,
-  )
-  if (!activeFeature || !analyticsFeature || !partnerSpotlightFeature) return
-
-  const activeRedemption = await prisma.redemption.create({
-    data: {
-      userId: member.id,
-      featureKey: activeFeature.featureKey,
-      productId: supportTideId,
-      status: RedemptionStatus.active,
-      cost: activeFeature.baseCost,
-      originalCost: activeFeature.baseCost,
-      startsAt: daysAgo(today, 1),
-      activatedAt: daysAgo(today, 1),
-      expiresAt: addUtcDays(today, 1),
-      metadata: json({ seeded: true }),
-    },
-  })
-  const activeEntitlement = await prisma.featureEntitlement.create({
-    data: {
-      userId: member.id,
-      featureKey: activeFeature.featureKey,
-      redemptionId: activeRedemption.id,
-      productId: supportTideId,
-      subjectType: FeatureSubjectType.product,
-      subjectId: supportTideId,
-      status: FeatureEntitlementStatus.active,
-      startsAt: daysAgo(today, 1),
-      activatedAt: daysAgo(today, 1),
-      expiresAt: addUtcDays(today, 1),
-      metadata: json({ seeded: true }),
-    },
-  })
-  await prisma.placementSchedule.create({
-    data: {
-      entitlementId: activeEntitlement.id,
-      redemptionId: activeRedemption.id,
-      featureKey: activeFeature.featureKey,
-      productId: supportTideId,
-      slotKey: "priority:homepage",
-      status: PlacementStatus.active,
-      startsAt: daysAgo(today, 1),
-      endsAt: addUtcDays(today, 1),
-      inventoryToken: "dev-seed-priority-support-tide",
-      metadata: json({ seeded: true }),
-    },
-  })
-
-  const analyticsRedemption = await prisma.redemption.create({
-    data: {
-      userId: admin.id,
-      featureKey: analyticsFeature.featureKey,
-      productId: dockPilotId,
-      status: RedemptionStatus.active,
-      cost: analyticsFeature.baseCost,
-      originalCost: analyticsFeature.baseCost,
-      startsAt: daysAgo(today, 5),
-      activatedAt: daysAgo(today, 5),
-      expiresAt: addUtcDays(today, 25),
-      metadata: json({ seeded: true }),
-    },
-  })
-  await prisma.featureEntitlement.create({
-    data: {
-      userId: admin.id,
-      featureKey: analyticsFeature.featureKey,
-      redemptionId: analyticsRedemption.id,
-      productId: dockPilotId,
-      subjectType: FeatureSubjectType.product,
-      subjectId: dockPilotId,
-      status: FeatureEntitlementStatus.active,
-      startsAt: daysAgo(today, 5),
-      activatedAt: daysAgo(today, 5),
-      expiresAt: addUtcDays(today, 25),
-      metadata: json({ seeded: true }),
-    },
-  })
-
-  const pendingRedemption = await prisma.redemption.create({
-    data: {
-      userId: member.id,
-      featureKey: partnerSpotlightFeature.featureKey,
-      productId: supportTideId,
-      status: RedemptionStatus.pending,
-      cost: partnerSpotlightFeature.baseCost,
-      originalCost: partnerSpotlightFeature.baseCost,
-      startsAt: addUtcDays(today, 2),
-      expiresAt: addUtcDays(today, 4),
-      metadata: json({ seeded: true }),
-    },
-  })
-  const pendingEntitlement = await prisma.featureEntitlement.create({
-    data: {
-      userId: member.id,
-      featureKey: partnerSpotlightFeature.featureKey,
-      redemptionId: pendingRedemption.id,
-      productId: supportTideId,
-      subjectType: FeatureSubjectType.product,
-      subjectId: supportTideId,
-      status: FeatureEntitlementStatus.pending,
-      startsAt: addUtcDays(today, 2),
-      expiresAt: addUtcDays(today, 4),
-      metadata: json({ seeded: true }),
-    },
-  })
-  await prisma.placementSchedule.create({
-    data: {
-      entitlementId: pendingEntitlement.id,
-      redemptionId: pendingRedemption.id,
-      featureKey: partnerSpotlightFeature.featureKey,
-      productId: supportTideId,
-      slotKey: "partner-spotlight:global",
-      status: PlacementStatus.scheduled,
-      startsAt: addUtcDays(today, 2),
-      endsAt: addUtcDays(today, 4),
-      inventoryToken: "dev-seed-partner-spotlight-support-tide",
-      metadata: json({ seeded: true }),
-    },
-  })
-
-  const balances = [
-    {
-      userId: admin.id,
-      balance: 720,
-      lifetimeEarned: 980,
-      lifetimeSpent: analyticsFeature.baseCost,
-      currentStreakCount: 6,
-      longestStreakCount: 9,
-      currentStreakTier: "silver",
-    },
-    {
-      userId: member.id,
-      balance: 430,
-      lifetimeEarned: 780,
-      lifetimeSpent: activeFeature.baseCost + partnerSpotlightFeature.baseCost,
-      currentStreakCount: 4,
-      longestStreakCount: 4,
-      currentStreakTier: "bronze",
-    },
-  ]
-
-  for (const balance of balances) {
-    await prisma.rewardBalance.upsert({
-      where: { userId: balance.userId },
-      create: {
-        ...balance,
-        lifetimeAdjusted: 0,
-        lifetimeRefunded: 0,
-        streakActiveThrough: addUtcDays(today, 1),
-        lastEarnedAt: daysAgo(today, 0),
-        lastRedeemedAt: daysAgo(today, 1),
-        lastEvaluatedAt: daysAgo(today, 0),
-      },
-      update: {
-        ...balance,
-        lifetimeAdjusted: 0,
-        lifetimeRefunded: 0,
-        streakActiveThrough: addUtcDays(today, 1),
-        lastEarnedAt: daysAgo(today, 0),
-        lastRedeemedAt: daysAgo(today, 1),
-        lastEvaluatedAt: daysAgo(today, 0),
-      },
-    })
-  }
-
-  await prisma.rewardTransaction.createMany({
-    data: [
-      {
-        userId: admin.id,
-        type: RewardTransactionType.earn,
-        rewardAmount: 980,
-        balanceAfter: 980,
-        ruleKey: "rewards.product.create",
-        eventHash: "dev-seed:admin:earn",
-        sourceType: DEV_SOURCE_TYPE,
-        sourceId: "admin-earn",
-        notes: "Seeded admin rewards",
-        createdAt: daysAgo(today, 6),
-      },
-      {
-        userId: admin.id,
-        type: RewardTransactionType.spend,
-        rewardAmount: -analyticsFeature.baseCost,
-        balanceAfter: 720,
-        rewardKey: analyticsFeature.featureKey,
-        redemptionId: analyticsRedemption.id,
-        productId: dockPilotId,
-        eventHash: "dev-seed:admin:spend:analytics",
-        sourceType: DEV_SOURCE_TYPE,
-        sourceId: analyticsRedemption.id,
-        notes: "Seeded advanced analytics redemption",
-        createdAt: daysAgo(today, 5),
-      },
-      {
-        userId: member.id,
-        type: RewardTransactionType.spend,
-        rewardAmount: -activeFeature.baseCost,
-        balanceAfter: 630,
-        rewardKey: activeFeature.featureKey,
-        redemptionId: activeRedemption.id,
-        productId: supportTideId,
-        eventHash: "dev-seed:member:spend:priority",
-        sourceType: DEV_SOURCE_TYPE,
-        sourceId: activeRedemption.id,
-        notes: "Seeded priority placement redemption",
-        createdAt: daysAgo(today, 1),
-      },
-      {
-        userId: member.id,
-        type: RewardTransactionType.spend,
-        rewardAmount: -partnerSpotlightFeature.baseCost,
-        balanceAfter: 430,
-        rewardKey: partnerSpotlightFeature.featureKey,
-        redemptionId: pendingRedemption.id,
-        productId: supportTideId,
-        eventHash: "dev-seed:member:spend:partner-spotlight",
-        sourceType: DEV_SOURCE_TYPE,
-        sourceId: pendingRedemption.id,
-        notes: "Seeded partner spotlight redemption",
-        createdAt: daysAgo(today, 0),
-      },
-    ],
-    skipDuplicates: true,
-  })
-}
-
 async function seedLeaderboard(
   prisma: PrismaClient,
   productIdBySlug: Map<string, string>,
@@ -2036,7 +1713,6 @@ async function main() {
   await resetProductDecorations(prisma, productIdBySlug, today)
   await seedUpvotes(prisma, ctx, productIdBySlug, today)
   await seedTraffic(prisma, productIdBySlug, today)
-  await seedRewardsState(prisma, ctx, productIdBySlug, today)
   await seedLeaderboard(prisma, productIdBySlug, today)
 
   await seedAlternatives(prisma, {

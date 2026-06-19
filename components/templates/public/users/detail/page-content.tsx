@@ -1,7 +1,6 @@
-import Link from "next/link"
 import { notFound } from "next/navigation"
 import { format } from "date-fns"
-import { Award, BadgeCheck, BarChart3, ExternalLink, Star } from "lucide-react"
+import { Award, BadgeCheck, BarChart3, Star } from "lucide-react"
 
 import { Image } from "@/components/atoms/image"
 import { PartnerSpotlightStaticPlacement } from "@/components/organisms/PartnerSpotlightStaticPlacement"
@@ -11,7 +10,6 @@ import {
   UserProductGrid,
 } from "@/components/templates/public/users/detail/UserProductFeed"
 import { isOptimizedImageSrc } from "@/lib/images/sources"
-import { LEADERBOARD_REWARDS_PATH } from "@/lib/routes"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { getUserProfilePayload } from "@/lib/users/page-cache"
 
@@ -36,10 +34,9 @@ export async function UserProfilePageContent({ params }: PageProps) {
 
   const {
     profile,
-    leaderboardPosition,
     productsPage,
     totalProducts,
-    rewardPoints,
+    totalUpvotes,
     focusCategories,
     extraCategoryCount,
     badges,
@@ -88,9 +85,6 @@ export async function UserProfilePageContent({ params }: PageProps) {
 
   const initialFeedPage = productsPage.nextPage ?? productsPage.page + 1
   const badgeCount = badges.showcase.length + badges.overflow
-  const rankLabel = leaderboardPosition
-    ? `Rank #${leaderboardPosition.rank.toLocaleString("en-US")}`
-    : "Leaderboard ready"
 
   return (
     <main className="bg-[#f8f9ff] text-[#0b1c30]">
@@ -131,13 +125,11 @@ export async function UserProfilePageContent({ params }: PageProps) {
                     <Star className="h-3.5 w-3.5" aria-hidden />
                     {badgeCount ? "Top Maker" : "Maker"}
                   </span>
-                  <Link
-                    href={LEADERBOARD_REWARDS_PATH}
-                    className="inline-flex items-center gap-1 rounded-full bg-[#0051d5]/10 px-3 py-1 text-xs font-semibold text-[#0051d5] transition hover:bg-[#0051d5]/15"
-                  >
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#0051d5]/10 px-3 py-1 text-xs font-semibold text-[#0051d5]">
                     <Award className="h-3.5 w-3.5" aria-hidden />
-                    {rankLabel}
-                  </Link>
+                    {badgeCount.toLocaleString("en-US")} active badge
+                    {badgeCount === 1 ? "" : "s"}
+                  </span>
                 </div>
               </div>
 
@@ -153,7 +145,7 @@ export async function UserProfilePageContent({ params }: PageProps) {
             <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
               {[
                 ["Published products", totalProducts],
-                ["Reward balance", rewardPoints],
+                ["Total upvotes", totalUpvotes],
                 ["Verified launches", verifiedCount],
               ].map(([label, value]) => (
                 <div
@@ -227,13 +219,6 @@ export async function UserProfilePageContent({ params }: PageProps) {
                     {badgeCount.toLocaleString("en-US")}
                   </span>
                 </div>
-                <Link
-                  href={LEADERBOARD_REWARDS_PATH}
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-[#0051d5] hover:underline"
-                >
-                  View leaderboard
-                  <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                </Link>
               </div>
             </section>
           </aside>

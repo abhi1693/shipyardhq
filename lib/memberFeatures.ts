@@ -16,23 +16,11 @@ export async function memberHasFeature(key: PlanFeatureKey): Promise<boolean> {
     const ownedProductWithFeature = await prisma.product.findFirst({
       where: {
         userId: user.id,
-        OR: [
-          {
-            plan: {
-              assignments: {
-                some: { enabled: true, feature: { key } },
-              },
-            },
+        plan: {
+          assignments: {
+            some: { enabled: true, feature: { key } },
           },
-          {
-            featureEntitlements: {
-              some: {
-                featureKey: key,
-                status: { in: ["active", "pending"] },
-              },
-            },
-          },
-        ],
+        },
       },
       select: { id: true },
     })
@@ -53,17 +41,6 @@ export async function memberHasFeature(key: PlanFeatureKey): Promise<boolean> {
     })
 
     if (userPurchaseWithFeature) return true
-
-    const directEntitlement = await prisma.featureEntitlement.findFirst({
-      where: {
-        userId: user.id,
-        featureKey: key,
-        status: { in: ["active", "pending"] },
-      },
-      select: { id: true },
-    })
-
-    if (directEntitlement) return true
 
     return false
   } catch {

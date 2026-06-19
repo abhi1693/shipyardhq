@@ -168,7 +168,6 @@ Development seed overrides:
 - `npm run prisma:seed:plan-features` - seed plan features.
 - `npm run prisma:seed:plans` - seed plans.
 - `npm run prisma:seed:alternatives` - seed alternatives.
-- `npm run prisma:seed:rewards` - seed rewards.
 - `npm run prisma:seed:prod` - seed production taxonomy and plan-feature data.
 
 ## Data, Cache, and Background Work

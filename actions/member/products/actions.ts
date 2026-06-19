@@ -6,7 +6,6 @@ import { dodoClient } from "@/lib/dodo"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import { createPlanCheckout } from "@/lib/server/dodoCheckout"
 import { Prisma, ProductStatus } from "@/lib/vendor/prisma/client"
-import type { FeatureEntitlementStatus } from "@/lib/vendor/prisma/client"
 import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
 import {
   getActiveUserByClerkId,
@@ -17,7 +16,6 @@ import { memberProductPath } from "@/lib/routes"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
 import { createDodoCustomerPortalLinkByEmail } from "@/lib/dodoCustomerPortal"
 import { revalidateProduct } from "@/lib/cache/revalidate"
-import { verifyProductBacklinkNow } from "@/lib/server/rewards/backlinkVerification"
 import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
 import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
 
@@ -26,10 +24,6 @@ import { redirect } from "next/navigation"
 
 type ListParams = Record<string, string | string[] | undefined>
 
-const ACTIVE_ENTITLEMENT_STATUSES: FeatureEntitlementStatus[] = [
-  "active",
-  "pending",
-]
 const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active"])
 
 async function refreshHomepageFeedCacheAfterMemberProductChange(
@@ -87,12 +81,6 @@ type ProductListItem = Prisma.ProductGetPayload<{
     }
     verification: { select: { isVerified: true } }
     analytics: { select: { upvotes: true } }
-    featureEntitlements: {
-      where: {
-        status: { in: FeatureEntitlementStatus[] }
-      }
-      select: { featureKey: true; status: true }
-    }
   }
 }>
 
@@ -229,15 +217,6 @@ export async function getUserProducts(params?: ListParams) {
         },
         verification: { select: { isVerified: true } },
         analytics: { select: { upvotes: true } },
-        featureEntitlements: {
-          where: {
-            status: { in: ACTIVE_ENTITLEMENT_STATUSES },
-          },
-          select: {
-            featureKey: true,
-            status: true,
-          },
-        },
       },
     }),
     prisma.product.count({ where }),
@@ -249,22 +228,15 @@ export async function getUserProducts(params?: ListParams) {
     : null
 
   const productsWithPermissions = products.map((product: ProductListItem) => {
-    const entitlementFeatures = new Set(
-      (product.featureEntitlements ?? []).map((ent) => ent.featureKey),
-    )
-
     const planForAccess = product.plan ?? defaultPlan
 
     const hasAdvancedAnalytics =
-      hasPlanFeature(planForAccess ?? null, "analytics.advanced") ||
-      entitlementFeatures.has("analytics.advanced")
+      hasPlanFeature(planForAccess ?? null, "analytics.advanced")
     const canViewAnalytics =
       hasAdvancedAnalytics ||
-      hasPlanFeature(planForAccess ?? null, "analytics.basic") ||
-      entitlementFeatures.has("analytics.basic")
+      hasPlanFeature(planForAccess ?? null, "analytics.basic")
 
-    const { plan, featureEntitlements: _featureEntitlements, ...rest } = product
-    void _featureEntitlements
+    const { plan, ...rest } = product
     const planForDisplay = plan ?? defaultPlan
     const planSummary = planForDisplay
       ? {
@@ -614,10 +586,6 @@ export async function choosePlanAction(
 
   // Free plans (no price): attach immediately
   if ((plan.price || 0) === 0) {
-    const verification = await verifyProductBacklinkNow(ctx.productId)
-    if (!verification.verified) {
-      redirect(errorRedirect("badge_not_found"))
-    }
     await setProductPlanAction(ctx.productId, planId, null)
     redirect(`${ctx.redirectPath}?upgraded=1`)
   }

@@ -11,7 +11,6 @@ import {
   MEMBER_BASE_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
   PRICING_PATH,
-  REWARDS_PATH,
   USERS_PATH,
   WHY_SHIPYARD_PATH,
 } from "@/lib/routes"
@@ -32,7 +31,6 @@ const footerColumns = [
       { label: "Browse Products", href: BROWSE_PATH },
       { label: "Leaderboard", href: LEADERBOARD_PATH },
       { label: "Makers", href: USERS_PATH },
-      { label: "Rewards", href: REWARDS_PATH },
     ],
   },
   {

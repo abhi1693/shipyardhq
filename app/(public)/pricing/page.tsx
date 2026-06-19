@@ -32,7 +32,6 @@ import {
   HOME_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
   PRICING_PATH,
-  REWARDS_PATH,
 } from "@/lib/routes"
 import { siteGrowthMetrics } from "@/lib/siteConfig"
 
@@ -191,7 +190,7 @@ export default async function PricingPage() {
                 variant="outline"
                 className="h-auto w-full rounded-lg border-[#E2E8F0] bg-white px-8 py-3 text-lg font-semibold text-black shadow-none hover:bg-[#eff4ff] sm:w-auto"
               >
-                <Link href={REWARDS_PATH}>Explore rewards</Link>
+                <Link href="#plans">Compare plans</Link>
               </Button>
             </div>
 
@@ -222,7 +221,10 @@ export default async function PricingPage() {
           </div>
         </section>
 
-        <section className="bg-[#eff4ff] px-4 py-20 sm:px-6 md:py-24">
+        <section
+          id="plans"
+          className="bg-[#eff4ff] px-4 py-20 sm:px-6 md:py-24"
+        >
           <div className="mx-auto max-w-[1200px]">
             <div className="mb-12 text-center md:mb-16">
               <h2 className="text-3xl font-bold leading-10 text-black">

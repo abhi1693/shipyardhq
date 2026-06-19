@@ -4,7 +4,6 @@ import {
   getUserProductsPage,
   type UserProductsPageResult,
 } from "@/actions/public/users/actions"
-import { getRewardsLeaderboardPositionForUser } from "@/actions/public/rewards/actions"
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import {
@@ -28,13 +27,9 @@ type CategoryEntry = {
 
 export type UserProfilePayload = {
   profile: PublicUserProfile
-  leaderboardPosition: Awaited<
-    ReturnType<typeof getRewardsLeaderboardPositionForUser>
-  >
   productsPage: UserProductsPageResult
   totalProducts: number
   totalUpvotes: number
-  rewardPoints: number
   verifiedCount: number
   categories: CategoryEntry[]
   focusCategories: string[]
@@ -59,16 +54,13 @@ export const getUserProfilePayload = cached(
       })
 
     const [
-      leaderboardPosition,
       upvoteAggregate,
       verifiedCount,
       categoryCounts,
       activeBadges,
       earliestLaunchRow,
       productsPage,
-      rewardBalance,
     ] = await Promise.all([
-      getRewardsLeaderboardPositionForUser(profile.id),
       prisma.productAnalytics.aggregate({
         where: { product: { is: publishedProductWhere } },
         _sum: { upvotes: true },
@@ -112,10 +104,6 @@ export const getUserProfilePayload = cached(
           ${buildPublicDiscoverySqlFilter("p")}
       `,
       getUserProductsPage({ userId: profile.id }),
-      prisma.rewardBalance.findUnique({
-        where: { userId: profile.id },
-        select: { balance: true },
-      }),
     ])
 
     const totalUpvotes = upvoteAggregate._sum.upvotes ?? 0
@@ -170,11 +158,9 @@ export const getUserProfilePayload = cached(
 
     return {
       profile,
-      leaderboardPosition,
       productsPage,
       totalProducts,
       totalUpvotes,
-      rewardPoints: rewardBalance?.balance ?? 0,
       verifiedCount,
       categories: categoryEntries,
       focusCategories,

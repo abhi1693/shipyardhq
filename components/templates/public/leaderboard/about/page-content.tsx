@@ -92,7 +92,7 @@ export const LEADERBOARD_FAQ = [
     a: "Yes. Rankings update as the month progresses, so products can move down if their momentum slows or if another launch earns stronger community and traffic signals.",
   },
   {
-    q: "What are the rewards for ranking #1?",
+    q: "What do top-ranked products receive?",
     a: "Top products receive leaderboard recognition, permanent badges, and eligibility for featured Shipyard placements and community callouts.",
   },
 ]
@@ -160,7 +160,7 @@ export function LeaderboardGuidePageContent() {
           <p className="mb-10 text-[16px] leading-6 text-[#43474c]">
             {BRAND_NAME}&apos;s Leaderboard is the definitive engine for product
             discovery. We&apos;ve designed a high-performance system that
-            rewards quality, consistency, and genuine community engagement.
+            recognizes quality, consistency, and genuine community engagement.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button

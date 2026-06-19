@@ -39,7 +39,6 @@ export type BrowsePageFilters = {
   minPrice?: number
   maxPrice?: number
   badge?: string
-  backlinkVerified: boolean
 }
 
 type CategoryWithProductCount = {
@@ -159,7 +158,6 @@ const normalizeFilters = (filters: BrowsePageFilters): BrowsePageFilters => {
         ? maxPrice
         : undefined,
     badge: filters.badge || undefined,
-    backlinkVerified: Boolean(filters.backlinkVerified),
   }
 }
 
@@ -187,7 +185,6 @@ export const getBrowsePagePayload = async (
           ? filters.maxPrice * 100
           : undefined,
       badge: filters.badge,
-      backlinkVerified: filters.backlinkVerified,
     }),
     getProducts("featured"),
     getUseCasesWithCounts(),
@@ -230,7 +227,6 @@ export const getBrowsePagePayload = async (
     typeof filters.minPrice === "number" ||
     typeof filters.maxPrice === "number" ||
     filters.badge ||
-    filters.backlinkVerified ||
     (filters.query && filters.query.length > 0) ||
     filters.sort !== "new",
   )
@@ -246,10 +242,6 @@ export const getBrowsePagePayload = async (
 
   if (selectedCategoryLabel) {
     filterSummary.push(`Category: ${selectedCategoryLabel}`)
-  }
-
-  if (filters.backlinkVerified) {
-    filterSummary.push("Backlink verified")
   }
 
   const platformLabel = getPlatformMeta(filters.platform)?.label

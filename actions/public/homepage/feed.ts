@@ -2,7 +2,7 @@
 
 import { unstable_cache } from "next/cache"
 import prisma from "@/lib/prisma"
-import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
+import { Prisma } from "@/lib/vendor/prisma/client"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { HOMEPAGE_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 import type { HomepageFeedView } from "@/lib/homepage/feed-views"
@@ -23,10 +23,9 @@ import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 import { revalidateHomepage } from "@/lib/cache/revalidate"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
-const SPONSORED_PLACEMENT_FEATURE_KEY = "sponsoredProducts"
 const SPONSORED_PLAN_FEATURE_KEYS = [
   PRIORITY_FEATURE_KEY,
-  SPONSORED_PLACEMENT_FEATURE_KEY,
+  "sponsoredProducts",
 ] as const
 const SPONSORED_PLAN_FEATURE_KEY_SET = new Set<string>(
   SPONSORED_PLAN_FEATURE_KEYS,
@@ -74,16 +73,6 @@ const homepageFeedSelect = {
     select: {
       badge: true,
       expiresAt: true,
-    },
-  },
-  placementSchedules: {
-    where: {
-      featureKey: SPONSORED_PLACEMENT_FEATURE_KEY,
-      status: PlacementStatus.active,
-    },
-    select: {
-      startsAt: true,
-      endsAt: true,
     },
   },
   plan: {
@@ -243,16 +232,6 @@ function buildSponsoredPlacementWhere(now: Date): Prisma.ProductWhereInput {
           },
         },
       },
-      {
-        placementSchedules: {
-          some: {
-            featureKey: SPONSORED_PLACEMENT_FEATURE_KEY,
-            status: PlacementStatus.active,
-            startsAt: { lte: now },
-            endsAt: { gte: now },
-          },
-        },
-      },
     ],
   }
 }
@@ -322,15 +301,10 @@ function mapProductToFeedItem(
         typeof assignment.feature?.key === "string" &&
         SPONSORED_PLAN_FEATURE_KEY_SET.has(assignment.feature.key),
     ) ?? false
-  const hasActiveSponsoredSchedule =
-    product.placementSchedules?.some(
-      (schedule) => schedule.startsAt <= now && schedule.endsAt >= now,
-    ) ?? false
   const isEditorPick = hasEditorPickBadge(activeBadges)
-  const isSponsored =
-    isSponsoredPlan || hasActiveSponsoredSchedule || isEditorPick
+  const isSponsored = isSponsoredPlan || isEditorPick
   const variant: ProductCardVariant =
-    isSponsoredPlan || hasActiveSponsoredSchedule
+    isSponsoredPlan
       ? "sponsored"
       : isEditorPick
         ? "promoted"

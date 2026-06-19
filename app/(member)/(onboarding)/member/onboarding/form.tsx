@@ -28,7 +28,6 @@ import { BrandLogo } from "@/components/atoms/brand-logo"
 import { BRAND_NAME } from "@/lib/brand"
 import { cn } from "@/lib/utils"
 import {
-  MEMBER_BASE_PATH,
   MEMBER_ONBOARDING_PATH,
   MEMBER_OVERVIEW_PATH,
 } from "@/lib/routes"
@@ -117,11 +116,6 @@ export function OnboardingForm({
     !redirectTo.startsWith(MEMBER_ONBOARDING_PATH)
       ? redirectTo
       : undefined
-  const redirectTargetPathname = sanitizedRedirectTarget
-    ? sanitizedRedirectTarget.replace(/[?#].*$/, "")
-    : ""
-  const redirectRewardsToMember =
-    redirectTargetPathname.startsWith(MEMBER_BASE_PATH)
   const fromNavbar = redirectSource === "navbar"
 
   const onSubmit = async (values: OnboardingFormInput) => {
@@ -136,8 +130,8 @@ export function OnboardingForm({
       toast.success("Welcome aboard!")
       const shouldUseRedirectTarget =
         Boolean(sanitizedRedirectTarget) &&
-        (redirectRewardsToMember ||
-          (fromNavbar && values.roleIntent === "explore"))
+        fromNavbar &&
+        values.roleIntent === "explore"
       const destination = shouldUseRedirectTarget
         ? (sanitizedRedirectTarget ?? MEMBER_OVERVIEW_PATH)
         : MEMBER_OVERVIEW_PATH

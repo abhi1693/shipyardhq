@@ -89,6 +89,21 @@ const nextConfig: NextConfig = {
         destination: "/products/:slug",
         permanent: true,
       },
+      {
+        source: "/rewards/:path*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/leaderboard/rewards/:path*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/member/rewards/:path*",
+        destination: "/",
+        permanent: true,
+      },
       // Legacy monthly archive keys like /leaderboard/30-11-2025 -> /leaderboard/monthly/2025/11
       {
         source: "/leaderboard/:day-:month-:year",

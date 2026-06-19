@@ -32,17 +32,6 @@ export const productAnalyticsSelect = {
       },
     },
   },
-  featureEntitlements: {
-    where: {
-      status: {
-        in: ["active", "pending"],
-      },
-    },
-    select: {
-      featureKey: true,
-      status: true,
-    },
-  },
 } satisfies Prisma.ProductSelect
 
 export type ProductAnalyticsRecord = Prisma.ProductGetPayload<{
@@ -130,22 +119,18 @@ export function toProductAnalyticsViewProduct(product: ProductAnalyticsRecord) {
 }
 
 export function resolveProductAnalyticsAccess(
-  product: Pick<ProductAnalyticsRecord, "plan" | "featureEntitlements"> & {
+  product: Pick<ProductAnalyticsRecord, "plan"> & {
     plan?: ProductAnalyticsRecord["plan"] | null
   },
 ) {
-  const entitlementFeatures = new Set(
-    (product.featureEntitlements ?? []).map((ent) => ent.featureKey),
+  const hasAdvancedAnalytics = hasPlanFeature(
+    product.plan ?? null,
+    "analytics.advanced",
   )
-
-  const hasAdvancedAnalytics =
-    hasPlanFeature(product.plan ?? null, "analytics.advanced") ||
-    entitlementFeatures.has("analytics.advanced")
 
   const hasBasicAnalytics =
     hasAdvancedAnalytics ||
-    hasPlanFeature(product.plan ?? null, "analytics.basic") ||
-    entitlementFeatures.has("analytics.basic")
+    hasPlanFeature(product.plan ?? null, "analytics.basic")
 
   return { hasAdvancedAnalytics, hasBasicAnalytics }
 }

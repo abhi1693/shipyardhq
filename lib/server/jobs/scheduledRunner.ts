@@ -25,12 +25,6 @@ import {
   type PeriodCadence,
 } from "@/lib/server/leaderboard/winners"
 import { expireBoostedPlans } from "@/lib/server/planExpiration"
-import {
-  BACKLINK_CRON_LOG_PREFIX,
-  runBacklinkVerification,
-} from "@/lib/server/rewards/backlinkVerification"
-import { runPlacementScheduler } from "@/lib/server/rewards/placementScheduler"
-import { runStreakMaintenance } from "@/lib/server/rewards/streakMaintenance"
 import type { ScheduledJobName } from "@/lib/server/jobs/scheduled"
 
 type ScheduledJobHandler = () => Promise<unknown>
@@ -67,9 +61,6 @@ const SCHEDULED_JOB_HANDLERS = {
   "leaderboard-historical-cache": runLeaderboardHistoricalCacheJob,
   "leaderboard-refresh": runLeaderboardRefreshJob,
   "monthly-leaderboard": runMonthlyLeaderboardJob,
-  "rewards-backlinks": runRewardsBacklinksJob,
-  "rewards-placements": runRewardsPlacementsJob,
-  "rewards-streak": runRewardsStreakJob,
 } satisfies Record<ScheduledJobName, ScheduledJobHandler>
 
 export async function runScheduledJob(
@@ -185,48 +176,6 @@ async function runHomepageFeedRefreshJob() {
   )
   console.info("[scheduled.homepage-feed-refresh] run completed", result)
   return result
-}
-
-async function runRewardsPlacementsJob() {
-  console.info("[scheduled.rewards.placements] run started")
-  const result = await runPlacementScheduler()
-  const activatedCount = result.activatedProductIds.length
-  const expiredCount = result.expiredProductIds.length
-  console.info("[scheduled.rewards.placements] run completed", {
-    activated: result.activated,
-    expired: result.expired,
-    badgesActivated: result.badgesActivated,
-    badgesExpired: result.badgesExpired,
-    activatedProductIds: activatedCount
-      ? result.activatedProductIds
-      : undefined,
-    expiredProductIds: expiredCount ? result.expiredProductIds : undefined,
-  })
-  return { success: true, ...result }
-}
-
-async function runRewardsBacklinksJob() {
-  console.info(`${BACKLINK_CRON_LOG_PREFIX} starting verification run`)
-  const result = await runBacklinkVerification()
-  console.info(`${BACKLINK_CRON_LOG_PREFIX} verification completed`, result)
-  return { success: true, ...result }
-}
-
-async function runRewardsStreakJob() {
-  console.info("[scheduled.rewards.streak] run started")
-  const summary = await runStreakMaintenance()
-  console.info("[scheduled.rewards.streak] run completed", {
-    evaluatedDay: summary.evaluatedDay,
-    qualifyingUsers: summary.qualifyingUsers,
-    streaksExtended: summary.streaksExtended,
-    streaksReset: summary.streaksReset,
-    awardsCreated: summary.awardsCreated,
-    alreadyEvaluated: summary.alreadyEvaluated,
-    failureCount: summary.failures.length,
-    tiersAwarded: summary.tiersAwarded,
-    triggerRuleTotals: summary.triggerRuleTotals,
-  })
-  return { success: true, ...summary }
 }
 
 async function runBadgesTrendingJob() {

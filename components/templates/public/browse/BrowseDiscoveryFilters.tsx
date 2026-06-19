@@ -8,7 +8,6 @@ import {
   Clock3,
   ListFilter,
   Search,
-  ShieldCheck,
   Tags,
   TrendingUp,
   Trophy,
@@ -44,7 +43,6 @@ interface BrowseDiscoveryFiltersProps {
     minPrice?: number
     maxPrice?: number
     badge?: string
-    backlinkVerified: boolean
   }
   hasActiveFilters: boolean
 }
@@ -683,23 +681,6 @@ export function BrowseDiscoveryFilters({
                   </Link>
                 )
               })}
-              <Link
-                scroll={false}
-                rel="nofollow"
-                href={filterHref({
-                  backlinkVerified: current.backlinkVerified
-                    ? undefined
-                    : "true",
-                })}
-                className={
-                  current.backlinkVerified
-                    ? "flex items-center gap-3 rounded-md bg-[#eff6ff] p-2 text-sm font-bold text-[#0051d5]"
-                    : "flex items-center gap-3 rounded-md p-2 text-sm font-medium text-[#43474c] transition hover:bg-[#f8fafc] hover:text-[#061d31]"
-                }
-              >
-                <ShieldCheck className="h-4 w-4" aria-hidden />
-                Backlink verified
-              </Link>
             </div>
           </div>
 
