@@ -497,6 +497,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   const primaryUseCaseSlug =
     sidebarProduct.category?.useCases?.[0]?.useCase?.slug ?? null
+  const primaryCategorySlug = sidebarProduct.category?.slug ?? null
   const publishedSource = product.publishedAt || product.createdAt
   const publishedLabel = publishedSource
     ? new Intl.DateTimeFormat("en-US", {
@@ -980,9 +981,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 You may also like
               </h2>
-              {primaryUseCaseSlug ? (
+              {primaryUseCaseSlug || primaryCategorySlug ? (
                 <Suspense fallback={<SimilarProductsFallback />}>
                   <SimilarProductsServer
+                    categorySlug={primaryCategorySlug}
                     productId={product.id}
                     useCaseSlug={primaryUseCaseSlug}
                     variant="compact"
@@ -991,7 +993,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               ) : (
                 <p className="rounded-lg border border-border bg-white p-4 text-sm text-muted-foreground">
                   Related launches will appear as soon as this product has a
-                  matched use case.
+                  category or use case.
                 </p>
               )}
             </section>

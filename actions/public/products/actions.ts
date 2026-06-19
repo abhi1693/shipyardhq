@@ -393,6 +393,65 @@ export const getPublicProductsByUseCase = cached(
   },
 )
 
+export const getPublicProductsByCategory = cached(
+  async (
+    categorySlug: string,
+    excludeId: string,
+    limit = 6,
+  ): Promise<CompactProduct[]> => {
+    const effectiveLimit = Math.max(1, Math.min(limit, 12))
+
+    const randomProductIds = await prisma.$queryRaw<{ id: string }[]>`
+      SELECT id
+      FROM (
+        SELECT DISTINCT p.id
+        FROM "Product" AS p
+        LEFT JOIN "Category" AS primary_category
+          ON primary_category.id = p."categoryId"
+        LEFT JOIN "ProductCategory" AS pc
+          ON pc."productId" = p.id
+        LEFT JOIN "Category" AS assigned_category
+          ON assigned_category.id = pc."categoryId"
+        WHERE (
+            primary_category.slug = ${categorySlug}
+            OR assigned_category.slug = ${categorySlug}
+          )
+          AND p.status = 'published'
+          ${buildPublicDiscoverySqlFilter("p")}
+          AND p.id <> ${excludeId}
+      ) AS candidates
+      ORDER BY RANDOM()
+      LIMIT ${effectiveLimit}
+    `
+
+    if (!randomProductIds.length) {
+      return []
+    }
+
+    return prisma.product.findMany({
+      where: buildPublicDiscoveryProductWhere({
+        id: {
+          in: randomProductIds.map(({ id }: { id: string }) => id),
+        },
+      }),
+      include: compactProductInclude,
+    })
+  },
+  "products:public-by-category",
+  {
+    ttl: DEFAULT_TTL.medium,
+    tags: ([categorySlug]) => [
+      TAGS.products,
+      TAGS.category(String(categorySlug)),
+    ],
+    keyParts: ([categorySlug, excludeId, limit]) => [
+      `category:${categorySlug}`,
+      `exclude:${excludeId}`,
+      `limit:${limit ?? 6}`,
+    ],
+  },
+)
+
 export async function hasUserUpvoted(productId: string, clerkId: string) {
   const user = await getActiveUserByClerkId(clerkId)
   if (!user) return false

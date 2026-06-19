@@ -7,7 +7,10 @@ import { ProductCard } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { getPartnerSpotlightProducts } from "@/actions/public/products/featured"
-import { getPublicProductsByUseCase } from "@/actions/public/products/actions"
+import {
+  getPublicProductsByCategory,
+  getPublicProductsByUseCase,
+} from "@/actions/public/products/actions"
 
 export function ProductUpvoteBadgeServer({
   productSlug,
@@ -38,19 +41,26 @@ export function ProductUpvoteBadgeServer({
 
 export async function SimilarProductsServer({
   productId,
+  categorySlug,
   useCaseSlug,
   variant = "card",
 }: {
   productId: string
-  useCaseSlug: string
+  categorySlug?: string | null
+  useCaseSlug?: string | null
   variant?: "card" | "compact"
 }) {
-  if (!useCaseSlug) return null
-  const similarProducts = await getPublicProductsByUseCase(
-    useCaseSlug,
-    productId,
-    4,
-  )
+  if (!useCaseSlug && !categorySlug) return null
+
+  const useCaseProducts = useCaseSlug
+    ? await getPublicProductsByUseCase(useCaseSlug, productId, 4)
+    : []
+  const similarProducts = useCaseProducts.length
+    ? useCaseProducts
+    : categorySlug
+      ? await getPublicProductsByCategory(categorySlug, productId, 4)
+      : []
+
   if (!similarProducts.length) return null
 
   const interestMap = await getProductInterestSignalsMap({
