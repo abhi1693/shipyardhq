@@ -23,6 +23,22 @@ export type UseCasesPagePayload = {
   averagePerUseCase: number
 }
 
+const DEFAULT_USE_CASE_STATIC_PARAMS_LIMIT = 12
+const MAX_USE_CASE_STATIC_PARAMS_LIMIT = 500
+
+function normalizeUseCaseStaticParamsLimit() {
+  const raw = process.env.USE_CASE_PRERENDER_LIMIT
+  if (!raw) return DEFAULT_USE_CASE_STATIC_PARAMS_LIMIT
+
+  const parsed = Number(raw)
+  if (!Number.isFinite(parsed)) return DEFAULT_USE_CASE_STATIC_PARAMS_LIMIT
+
+  return Math.max(
+    0,
+    Math.min(Math.trunc(parsed), MAX_USE_CASE_STATIC_PARAMS_LIMIT),
+  )
+}
+
 export const getUseCasesPagePayload = cached(
   async (): Promise<UseCasesPagePayload> => {
     const useCases = await getPublicUseCasesWithCounts()
@@ -85,9 +101,19 @@ export const getUseCasePagePayload = cached(
 export const getUseCaseStaticParams = cached(
   async () =>
     safelyReadStaticParams("use case pages", async () => {
+      const limit = normalizeUseCaseStaticParamsLimit()
+      if (limit === 0) return []
+
       const useCases = await getPublicUseCasesWithCounts()
       return useCases
         .filter((useCase) => useCase.productCount > 0)
+        .sort((a, b) => {
+          if (b.productCount !== a.productCount) {
+            return b.productCount - a.productCount
+          }
+          return a.label.localeCompare(b.label)
+        })
+        .slice(0, limit)
         .map((useCase) => ({ slug: useCase.slug }))
     }),
   "usecases:static-params",

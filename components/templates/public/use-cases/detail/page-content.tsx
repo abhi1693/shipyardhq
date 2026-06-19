@@ -6,10 +6,9 @@ import { TaxonomyDetailPage } from "@/components/templates/public/common/Taxonom
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
 import {
   buildTaxonomyProductSections,
+  mapProductCardBaseToTaxonomyFeedItem,
   TaxonomyProductSections,
 } from "@/components/templates/public/common/TaxonomyProductRows"
-import { getHomepageFeedViewAll } from "@/actions/public/homepage/feed"
-import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { pluralize } from "@/lib/pluralize"
 import {
   BROWSE_PATH,
@@ -24,6 +23,8 @@ import { buildProductListItem } from "@/lib/seo/product-list"
 import { BRAND_NAME } from "@/lib/brand"
 import { getUseCasePagePayload } from "@/lib/useCases/page-cache"
 import { resolveSiteUrl } from "@/lib/siteConfig"
+import { getPublicUseCaseProductsPage } from "@/actions/public/use-cases/actions"
+import { mapProductCardRecordToBase } from "@/lib/products/selects"
 
 interface UseCasePageProps {
   params: Promise<{ slug: string }>
@@ -31,29 +32,22 @@ interface UseCasePageProps {
 
 export async function UseCasePageContent({ params }: UseCasePageProps) {
   const { slug } = await params
-  const [data, taxonomySponsors] = await Promise.all([
+  const [data, taxonomySponsors, productsPage] = await Promise.all([
     getUseCasePagePayload(slug),
     getTaxonomySponsorProducts(),
+    getPublicUseCaseProductsPage({ slug, pageSize: 24 }),
   ])
 
   if (!data) notFound()
 
   const { useCase, categories, productCount } = data
-  const homepageFeedItems = await getHomepageFeedViewAll({
-    view: DEFAULT_HOMEPAGE_FEED_VIEW,
-  })
   const referenceDateIso = new Date().toISOString()
-  const categorySlugs = new Set(categories.map((c) => c.slug.toLowerCase()))
-  const categoryNames = new Set(
-    categories.map((c) => c.name?.toLowerCase()).filter(Boolean) as string[],
+  const referenceDate = new Date(referenceDateIso)
+  const useCaseFeedItems = productsPage.products.map((product) =>
+    mapProductCardBaseToTaxonomyFeedItem(
+      mapProductCardRecordToBase(product, referenceDate),
+    ),
   )
-  const useCaseFeedItems = homepageFeedItems.filter((item) => {
-    const slugValue = item.categorySlug?.toLowerCase()
-    const nameValue = item.category?.toLowerCase()
-    if (slugValue && categorySlugs.has(slugValue)) return true
-    if (nameValue && categoryNames.has(nameValue)) return true
-    return false
-  })
 
   const baseUrl = resolveSiteUrl()
   const path = usecasePath(useCase.slug)

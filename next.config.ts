@@ -1,7 +1,72 @@
 import type { NextConfig } from "next"
 
+const isDev = process.env.NODE_ENV === "development"
+const googleAnalyticsHosts = [
+  "https://www.googletagmanager.com",
+  "https://*.googletagmanager.com",
+  "https://www.google-analytics.com",
+  "https://*.google-analytics.com",
+] as const
+const clerkScriptHosts = [
+  "https://*.clerk.accounts.dev",
+  "https://*.clerk.com",
+  "https://challenges.cloudflare.com",
+] as const
+const clerkConnectHosts = [
+  ...clerkScriptHosts,
+  "https://clerk-telemetry.com",
+  "https://*.clerk-telemetry.com",
+] as const
+
+function buildContentSecurityPolicy() {
+  const devConnectSources = isDev
+    ? ["ws:", "http://localhost:*", "http://127.0.0.1:*"]
+    : []
+  const directives = [
+    ["default-src", "'self'"],
+    [
+      "script-src",
+      "'self'",
+      "'unsafe-inline'",
+      ...(isDev ? ["'unsafe-eval'"] : []),
+      ...googleAnalyticsHosts,
+      ...clerkScriptHosts,
+    ],
+    [
+      "connect-src",
+      "'self'",
+      ...devConnectSources,
+      ...googleAnalyticsHosts,
+      ...clerkConnectHosts,
+    ],
+    ["style-src", "'self'", "'unsafe-inline'"],
+    ["img-src", "'self'", "blob:", "data:", "https:"],
+    ["font-src", "'self'", "data:"],
+    ["media-src", "'self'", "blob:", "data:", "https:"],
+    ["frame-src", "'self'", "https://challenges.cloudflare.com"],
+    ["worker-src", "'self'", "blob:"],
+    ["manifest-src", "'self'"],
+    ["object-src", "'none'"],
+    ["base-uri", "'self'"],
+    ["form-action", "'self'"],
+    ["frame-ancestors", "'none'"],
+    ...(isDev ? [] : [["upgrade-insecure-requests"]]),
+  ]
+
+  return directives
+    .map(([directive, ...sources]) => [directive, ...sources].join(" "))
+    .join("; ")
+}
+
+const contentSecurityPolicy = buildContentSecurityPolicy()
+
 const nextConfig: NextConfig = {
   output: "standalone",
+  experimental: {
+    sri: {
+      algorithm: "sha256",
+    },
+  },
   serverExternalPackages: [
     "@google-analytics/data",
     "bullmq",
@@ -49,6 +114,15 @@ const nextConfig: NextConfig = {
           {
             key: "X-Robots-Tag",
             value: "noindex, nofollow",
+          },
+        ],
+      },
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: contentSecurityPolicy,
           },
         ],
       },
