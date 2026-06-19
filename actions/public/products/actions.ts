@@ -225,7 +225,7 @@ export const getPublicProductMetaBySlug = cached(
   },
 )
 
-const DEFAULT_PRODUCT_STATIC_PARAMS_LIMIT = 250
+const DEFAULT_PRODUCT_STATIC_PARAMS_LIMIT = 50
 const MAX_PRODUCT_STATIC_PARAMS_LIMIT = 1000
 
 function normalizeProductStaticParamsLimit() {
