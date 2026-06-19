@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Product: 'Product',
+  ProductKeyword: 'ProductKeyword',
   ProductDraft: 'ProductDraft',
   AlternativeProduct: 'AlternativeProduct',
   LeaderboardRun: 'LeaderboardRun',
@@ -445,7 +446,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "productDraft" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "analyticsIngestionRun" | "productTrafficDaily" | "productTrafficReferrerDaily" | "productTrafficChannelDaily" | "productTrafficBrowserDaily" | "productTrafficOperatingSystemDaily" | "productTrafficDeviceDaily" | "productTrafficCountryDaily" | "productTrafficCityDaily" | "siteTrafficDaily" | "siteTrafficReferrerDaily" | "siteTrafficBrowserDaily" | "siteTrafficOperatingSystemDaily" | "siteTrafficDeviceDaily" | "siteTrafficCountryDaily" | "siteTrafficRegionDaily" | "siteTrafficCityDaily" | "productUpvote" | "user" | "category" | "productCategory" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "productKeyword" | "productDraft" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "analyticsIngestionRun" | "productTrafficDaily" | "productTrafficReferrerDaily" | "productTrafficChannelDaily" | "productTrafficBrowserDaily" | "productTrafficOperatingSystemDaily" | "productTrafficDeviceDaily" | "productTrafficCountryDaily" | "productTrafficCityDaily" | "siteTrafficDaily" | "siteTrafficReferrerDaily" | "siteTrafficBrowserDaily" | "siteTrafficOperatingSystemDaily" | "siteTrafficDeviceDaily" | "siteTrafficCountryDaily" | "siteTrafficRegionDaily" | "siteTrafficCityDaily" | "productUpvote" | "user" | "category" | "productCategory" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -520,6 +521,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductKeyword: {
+      payload: Prisma.$ProductKeywordPayload<ExtArgs>
+      fields: Prisma.ProductKeywordFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductKeywordFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductKeywordPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductKeywordFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductKeywordPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductKeywordFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductKeywordPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductKeywordFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductKeywordPayload>
+        }
+        findMany: {
+          args: Prisma.ProductKeywordFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductKeywordPayload>[]
+        }
+        create: {
+          args: Prisma.ProductKeywordCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductKeywordPayload>
+        }
+        createMany: {
+          args: Prisma.ProductKeywordCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductKeywordCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductKeywordPayload>[]
+        }
+        delete: {
+          args: Prisma.ProductKeywordDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductKeywordPayload>
+        }
+        update: {
+          args: Prisma.ProductKeywordUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductKeywordPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductKeywordDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductKeywordUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductKeywordUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductKeywordPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductKeywordUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductKeywordPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductKeywordAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductKeyword>
+        }
+        groupBy: {
+          args: Prisma.ProductKeywordGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductKeywordGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductKeywordCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductKeywordCountAggregateOutputType> | number
         }
       }
     }
@@ -3921,6 +3996,21 @@ export const ProductScalarFieldEnum = {
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
 
 
+export const ProductKeywordScalarFieldEnum = {
+  productId: 'productId',
+  keyword: 'keyword',
+  canonical: 'canonical',
+  hash: 'hash',
+  slug: 'slug',
+  productStatus: 'productStatus',
+  productUpdatedAt: 'productUpdatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductKeywordScalarFieldEnum = (typeof ProductKeywordScalarFieldEnum)[keyof typeof ProductKeywordScalarFieldEnum]
+
+
 export const ProductDraftScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
@@ -5164,6 +5254,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   product?: Prisma.ProductOmit
+  productKeyword?: Prisma.ProductKeywordOmit
   productDraft?: Prisma.ProductDraftOmit
   alternativeProduct?: Prisma.AlternativeProductOmit
   leaderboardRun?: Prisma.LeaderboardRunOmit

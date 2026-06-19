@@ -17,7 +17,6 @@ import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
-import { buildPublicDiscoverySqlFilter } from "@/lib/products/public-discovery"
 
 const TAG_LIST_LIMIT = 200
 export const TAG_PRODUCTS_PAGE_SIZE = 24
@@ -68,28 +67,14 @@ function mapTagRow(row: RawTagRow): KeywordTagSummary {
 
 async function fetchKeywordTagSummaries(limit: number): Promise<RawTagRow[]> {
   const rows = await prisma.$queryRaw<RawTagRow[]>(Prisma.sql`
-    WITH expanded AS (
-      SELECT
-        LOWER(TRIM(k)) AS keyword,
-        TRIM(k) AS raw_keyword,
-        SUBSTRING(md5(LOWER(TRIM(k))), 1, 6) AS hash,
-        p."id" AS "productId",
-        COALESCE(p."updatedAt", p."publishedAt", p."createdAt") AS "updatedAt"
-      FROM "Product" p
-      CROSS JOIN LATERAL UNNEST(p."keywords") AS k
-      WHERE
-        p."status" = 'published'
-        ${buildPublicDiscoverySqlFilter("p")}
-        AND k IS NOT NULL
-        AND TRIM(k) <> ''
-    )
     SELECT
       keyword,
-      MIN(raw_keyword) AS canonical,
+      MIN(canonical) AS canonical,
       hash,
       COUNT(DISTINCT "productId")::int AS "productCount",
-      MAX("updatedAt") AS "lastUpdated"
-    FROM expanded
+      MAX("productUpdatedAt") AS "lastUpdated"
+    FROM "ProductKeyword"
+    WHERE "productStatus" = 'published'
     GROUP BY keyword, hash
     ORDER BY "productCount" DESC, canonical ASC
     LIMIT ${limit}
@@ -105,28 +90,14 @@ async function fetchKeywordTagSummariesPage(
   const safeLimit = Math.max(1, Math.trunc(limit))
 
   const rows = await prisma.$queryRaw<RawTagRow[]>(Prisma.sql`
-    WITH expanded AS (
-      SELECT
-        LOWER(TRIM(k)) AS keyword,
-        TRIM(k) AS raw_keyword,
-        SUBSTRING(md5(LOWER(TRIM(k))), 1, 6) AS hash,
-        p."id" AS "productId",
-        COALESCE(p."updatedAt", p."publishedAt", p."createdAt") AS "updatedAt"
-      FROM "Product" p
-      CROSS JOIN LATERAL UNNEST(p."keywords") AS k
-      WHERE
-        p."status" = 'published'
-        ${buildPublicDiscoverySqlFilter("p")}
-        AND k IS NOT NULL
-        AND TRIM(k) <> ''
-    )
     SELECT
       keyword,
-      MIN(raw_keyword) AS canonical,
+      MIN(canonical) AS canonical,
       hash,
       COUNT(DISTINCT "productId")::int AS "productCount",
-      MAX("updatedAt") AS "lastUpdated"
-    FROM expanded
+      MAX("productUpdatedAt") AS "lastUpdated"
+    FROM "ProductKeyword"
+    WHERE "productStatus" = 'published'
     GROUP BY keyword, hash
     ORDER BY "productCount" DESC, canonical ASC
     OFFSET ${safeOffset}
@@ -212,29 +183,15 @@ export const getKeywordTagDirectoryPage = cached(
 
 async function fetchTagByHash(hash: string): Promise<RawTagRow[]> {
   const rows = await prisma.$queryRaw<RawTagRow[]>(Prisma.sql`
-    WITH expanded AS (
-      SELECT
-        LOWER(TRIM(k)) AS keyword,
-        TRIM(k) AS raw_keyword,
-        SUBSTRING(md5(LOWER(TRIM(k))), 1, 6) AS hash,
-        p."id" AS "productId",
-        COALESCE(p."updatedAt", p."publishedAt", p."createdAt") AS "updatedAt"
-      FROM "Product" p
-      CROSS JOIN LATERAL UNNEST(p."keywords") AS k
-      WHERE
-        p."status" = 'published'
-        ${buildPublicDiscoverySqlFilter("p")}
-        AND k IS NOT NULL
-        AND TRIM(k) <> ''
-    )
     SELECT
       keyword,
-      MIN(raw_keyword) AS canonical,
+      MIN(canonical) AS canonical,
       hash,
       COUNT(DISTINCT "productId")::int AS "productCount",
-      MAX("updatedAt") AS "lastUpdated"
-    FROM expanded
-    WHERE hash = ${hash}
+      MAX("productUpdatedAt") AS "lastUpdated"
+    FROM "ProductKeyword"
+    WHERE "productStatus" = 'published'
+      AND hash = ${hash}
     GROUP BY keyword, hash
   `)
   return rows
@@ -242,35 +199,15 @@ async function fetchTagByHash(hash: string): Promise<RawTagRow[]> {
 
 async function fetchTagByCleanSlug(slug: string): Promise<RawTagRow[]> {
   const rows = await prisma.$queryRaw<RawTagRow[]>(Prisma.sql`
-    WITH expanded AS (
-      SELECT
-        LOWER(TRIM(k)) AS keyword,
-        TRIM(k) AS raw_keyword,
-        SUBSTRING(md5(LOWER(TRIM(k))), 1, 6) AS hash,
-        REGEXP_REPLACE(
-          REGEXP_REPLACE(LOWER(TRIM(k)), '[^a-z0-9]+', '-', 'g'),
-          '(^-|-$)',
-          '',
-          'g'
-        ) AS slug,
-        p."id" AS "productId",
-        COALESCE(p."updatedAt", p."publishedAt", p."createdAt") AS "updatedAt"
-      FROM "Product" p
-      CROSS JOIN LATERAL UNNEST(p."keywords") AS k
-      WHERE
-        p."status" = 'published'
-        ${buildPublicDiscoverySqlFilter("p")}
-        AND k IS NOT NULL
-        AND TRIM(k) <> ''
-    )
     SELECT
       keyword,
-      MIN(raw_keyword) AS canonical,
+      MIN(canonical) AS canonical,
       hash,
       COUNT(DISTINCT "productId")::int AS "productCount",
-      MAX("updatedAt") AS "lastUpdated"
-    FROM expanded
-    WHERE slug = ${slug}
+      MAX("productUpdatedAt") AS "lastUpdated"
+    FROM "ProductKeyword"
+    WHERE "productStatus" = 'published'
+      AND slug = ${slug}
     GROUP BY keyword, hash
     ORDER BY COUNT(DISTINCT "productId") DESC, canonical ASC
   `)
@@ -329,17 +266,11 @@ async function fetchProductIdsByKeyword(
 ) {
   return prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
     SELECT
-      p."id" AS id
-    FROM "Product" p
-    WHERE
-      p."status" = 'published'
-      ${buildPublicDiscoverySqlFilter("p")}
-      AND EXISTS (
-        SELECT 1
-        FROM UNNEST(p."keywords") AS keyword
-        WHERE LOWER(TRIM(keyword)) = ${normalizedKeyword}
-      )
-    ORDER BY COALESCE(p."updatedAt", p."publishedAt", p."createdAt") DESC
+      "productId" AS id
+    FROM "ProductKeyword"
+    WHERE "productStatus" = 'published'
+      AND keyword = ${normalizedKeyword}
+    ORDER BY "productUpdatedAt" DESC
     OFFSET ${offset}
     LIMIT ${limit}
   `)
@@ -436,28 +367,14 @@ async function fetchKeywordTagChunk(
   limit: number,
 ): Promise<RawTagRow[]> {
   const rows = await prisma.$queryRaw<RawTagRow[]>(Prisma.sql`
-    WITH expanded AS (
-      SELECT
-        LOWER(TRIM(k)) AS keyword,
-        TRIM(k) AS raw_keyword,
-        SUBSTRING(md5(LOWER(TRIM(k))), 1, 6) AS hash,
-        p."id" AS "productId",
-        COALESCE(p."updatedAt", p."publishedAt", p."createdAt") AS "updatedAt"
-      FROM "Product" p
-      CROSS JOIN LATERAL UNNEST(p."keywords") AS k
-      WHERE
-        p."status" = 'published'
-        ${buildPublicDiscoverySqlFilter("p")}
-        AND k IS NOT NULL
-        AND TRIM(k) <> ''
-    )
     SELECT
       keyword,
-      MIN(raw_keyword) AS canonical,
+      MIN(canonical) AS canonical,
       hash,
       COUNT(DISTINCT "productId")::int AS "productCount",
-      MAX("updatedAt") AS "lastUpdated"
-    FROM expanded
+      MAX("productUpdatedAt") AS "lastUpdated"
+    FROM "ProductKeyword"
+    WHERE "productStatus" = 'published'
     GROUP BY keyword, hash
     ORDER BY canonical ASC
     OFFSET ${offset}
@@ -470,29 +387,11 @@ async function fetchKeywordTagStats() {
   const result = await prisma.$queryRaw<
     { total: bigint; lastUpdated: Date | null }[]
   >(Prisma.sql`
-    WITH expanded AS (
-      SELECT
-        LOWER(TRIM(k)) AS keyword,
-        COALESCE(p."updatedAt", p."publishedAt", p."createdAt") AS "updatedAt"
-      FROM "Product" p
-      CROSS JOIN LATERAL UNNEST(p."keywords") AS k
-      WHERE
-        p."status" = 'published'
-        ${buildPublicDiscoverySqlFilter("p")}
-        AND k IS NOT NULL
-        AND TRIM(k) <> ''
-    ),
-    grouped AS (
-      SELECT
-        keyword,
-        MAX("updatedAt") AS "lastUpdated"
-      FROM expanded
-      GROUP BY keyword
-    )
     SELECT
-      COUNT(*)::bigint AS total,
-      MAX("lastUpdated") AS "lastUpdated"
-    FROM grouped
+      COUNT(DISTINCT keyword)::bigint AS total,
+      MAX("productUpdatedAt") AS "lastUpdated"
+    FROM "ProductKeyword"
+    WHERE "productStatus" = 'published'
   `)
   return result[0] ?? { total: BigInt(0), lastUpdated: null }
 }

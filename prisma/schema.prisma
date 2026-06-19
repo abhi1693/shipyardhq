@@ -53,6 +53,7 @@ model Product {
   ProductUpvote           ProductUpvote[]
   placementSchedules      PlacementSchedule[]
   leaderboardScores       ProductLeaderboardScore[]
+  keywordIndex            ProductKeyword[]
   rewardTransactions      RewardTransaction[]
   redemptions             Redemption[]
   featureEntitlements     FeatureEntitlement[]
@@ -65,6 +66,25 @@ model Product {
   @@index([status, publishedAt])
   @@index([createdAt])
   @@index([updatedAt])
+}
+
+model ProductKeyword {
+  productId         String
+  keyword           String
+  canonical         String
+  hash              String
+  slug              String
+  productStatus     ProductStatus
+  productUpdatedAt  DateTime
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([productId, keyword], map: "ProductKeyword_pkey")
+  @@index([productStatus, slug], map: "ProductKeyword_productStatus_slug_idx")
+  @@index([productStatus, hash], map: "ProductKeyword_productStatus_hash_idx")
+  @@index([productStatus, keyword, productUpdatedAt(sort: Desc)], map: "ProductKeyword_productStatus_keyword_productUpdatedAt_idx")
 }
 
 model ProductDraft {
