@@ -5,10 +5,7 @@ import { Hash } from "lucide-react"
 export const dynamic = "force-dynamic"
 
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
-import {
-  getKeywordTagBySlug,
-  getKeywordTagProducts,
-} from "@/actions/public/tags/actions"
+import { getKeywordTagProducts } from "@/actions/public/tags/actions"
 import {
   getHomepageFeedViewAll,
   type HomepageFeedItem,
@@ -31,6 +28,7 @@ import { getTagDetailPayload } from "@/lib/tags/page-cache"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { hasEditorPickBadge } from "@/lib/products/badges"
+import { stripLegacyKeywordHash } from "@/lib/tags"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
 
 export async function generateMetadata({
@@ -39,15 +37,13 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const summary = await getKeywordTagBySlug(slug)
-  if (!summary) return {}
-
-  const label = formatTagLabel(summary.canonical || summary.keyword)
+  const canonicalSlug = stripLegacyKeywordHash(slug) || slug
+  const label = formatTagLabel(canonicalSlug)
   return buildPageMetadata({
     title: `${label} Tag`,
     description: `Discover Shipyard products tagged with “${label}”. Browse the latest launches and tools connected to this keyword.`,
     section: "Tags",
-    canonical: tagPath(summary.slug),
+    canonical: tagPath(canonicalSlug),
   })
 }
 

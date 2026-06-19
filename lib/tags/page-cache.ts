@@ -1,6 +1,5 @@
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
-  getKeywordTagSummaries,
   getKeywordTagProducts,
   getKeywordTagDirectoryPage,
   TAG_DIRECTORY_DEFAULT_PAGE_SIZE,
@@ -45,16 +44,11 @@ export const getTagsIndexPayload = cached(
 type TagDetailPayload = {
   summary: KeywordTagSummary
   products: KeywordTagProductsResult
-  summaries: KeywordTagSummary[]
 }
 
 export const getTagDetailPayload = cached(
   async (slug: string, page: number = 1): Promise<TagDetailPayload | null> => {
-    const [summaries, products] = await Promise.all([
-      getKeywordTagSummaries(),
-      getKeywordTagProducts(slug, page),
-    ])
-
+    const products = await getKeywordTagProducts(slug, page)
     if (!products) {
       return null
     }
@@ -62,7 +56,6 @@ export const getTagDetailPayload = cached(
     return {
       summary: products.summary,
       products,
-      summaries,
     }
   },
   "tags:detail:payload",
