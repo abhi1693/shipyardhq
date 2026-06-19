@@ -171,7 +171,9 @@ function formatPercent(value: number | null | undefined) {
   if (value === null || value === undefined || !Number.isFinite(value)) {
     return "n/a"
   }
-  return `${(value * 100).toFixed(1)}%`
+
+  const percent = Math.abs(value) <= 1 ? value * 100 : value
+  return `${percent.toFixed(1)}%`
 }
 
 function formatChange({ current, previous }: WindowTotals) {
@@ -830,7 +832,11 @@ async function getProductInsights(limit: number) {
   }
 }
 
-async function getTrafficInsights(currentStart: Date, previousStart: Date) {
+async function getTrafficInsights(
+  currentStart: Date,
+  previousStart: Date,
+  limit: number,
+) {
   const [siteCurrent, sitePrevious, productCurrent, topProducts, topReferrers] =
     await Promise.all([
       prisma.siteTrafficDaily.aggregate({
@@ -855,14 +861,14 @@ async function getTrafficInsights(currentStart: Date, previousStart: Date) {
         _sum: { pageViews: true, uniqueVisitors: true },
         by: ["productId"],
         orderBy: { _sum: { pageViews: "desc" } },
-        take: 8,
+        take: limit,
         where: { date: { gte: currentStart } },
       }),
       prisma.siteTrafficReferrerDaily.groupBy({
         _sum: { pageViews: true },
         by: ["referrer"],
         orderBy: { _sum: { pageViews: "desc" } },
-        take: 8,
+        take: limit,
         where: { date: { gte: currentStart } },
       }),
     ])
@@ -1205,7 +1211,11 @@ async function buildReport(options: CliOptions) {
   }
 
   if (sectionEnabled(options, "traffic")) {
-    report.traffic = await getTrafficInsights(currentStart, previousStart)
+    report.traffic = await getTrafficInsights(
+      currentStart,
+      previousStart,
+      options.limit,
+    )
   }
 
   if (sectionEnabled(options, "revenue")) {
