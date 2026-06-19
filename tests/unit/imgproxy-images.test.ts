@@ -10,6 +10,7 @@ import {
   buildRemoteImageOptimizerUrl,
   isManagedMediaImageSrc,
 } from "@/lib/images/managed-media"
+import { buildCachedTransformedImageKey } from "@/lib/server/images/cached-transform"
 import { isOptimizedImageSrc } from "@/lib/images/sources"
 
 describe("managed media image URLs", () => {
@@ -45,6 +46,29 @@ describe("managed media image URLs", () => {
         width: 64,
       }),
     ).toBe("https://example.com/logo.jpg")
+  })
+
+  it("treats the configured R2 public host as managed media", () => {
+    const previousPublicBaseUrl = process.env.R2_PUBLIC_BASE_URL
+    process.env.R2_PUBLIC_BASE_URL = "https://pub.example.r2.dev"
+
+    try {
+      expect(
+        buildManagedMediaImageOptimizerUrl({
+          src: "https://pub.example.r2.dev/products/logo.png",
+          width: 128,
+          quality: 80,
+        }),
+      ).toBe(
+        "/_next/image?url=https%3A%2F%2Fpub.example.r2.dev%2Fproducts%2Flogo.png&w=128&q=80",
+      )
+    } finally {
+      if (previousPublicBaseUrl === undefined) {
+        delete process.env.R2_PUBLIC_BASE_URL
+      } else {
+        process.env.R2_PUBLIC_BASE_URL = previousPublicBaseUrl
+      }
+    }
   })
 
   it("builds a first-party optimizer URL for transformable remote images", () => {
@@ -91,26 +115,24 @@ describe("managed media image URLs", () => {
     )
   })
 
-  it("uses first-party optimizer URLs for transformable remote images", () => {
+  it("does not route unmanaged transformable remote images through the global loader", () => {
     expect(
       shipyardImageLoader({
         src: "https://example.com/logo.jpg?version=1",
         width: 64,
         quality: 75,
       }),
-    ).toBe(
-      "/_next/image?url=https%3A%2F%2Fexample.com%2Flogo.jpg%3Fversion%3D1&w=64&q=75",
-    )
+    ).toBe("https://example.com/logo.jpg?version=1")
   })
 
-  it("falls back to size hints for unsupported remote images", () => {
+  it("leaves unsupported remote images untouched", () => {
     expect(
       shipyardImageLoader({
         src: "https://example.com/favicon.ico",
         width: 40,
         quality: 75,
       }),
-    ).toBe("https://example.com/favicon.ico?w=40&q=75")
+    ).toBe("https://example.com/favicon.ico")
   })
 
   it("signs managed media redirects for imgproxy", async () => {
@@ -232,6 +254,31 @@ describe("managed media image URLs", () => {
         },
       ),
     ).resolves.toBeNull()
+  })
+
+  it("builds stable R2 cache keys for transformed managed images", () => {
+    const params = {
+      src: "https://media.shipyardhq.dev/user_1/products/p1/logos/logo.jpg?etag=abc",
+      width: 64,
+      quality: 80,
+    }
+
+    const cacheKey = buildCachedTransformedImageKey(params)
+
+    expect(cacheKey).toMatch(
+      /^image-cache\/imgproxy\/[\da-f]{2}\/[\da-f]{64}\.webp$/,
+    )
+    expect(buildCachedTransformedImageKey(params)).toBe(cacheKey)
+    expect(buildCachedTransformedImageKey({ ...params, width: 128 })).not.toBe(
+      cacheKey,
+    )
+    expect(
+      buildCachedTransformedImageKey({
+        src: "https://example.com/logo.jpg",
+        width: 64,
+        quality: 80,
+      }),
+    ).toBeNull()
   })
 
   it("treats local and managed media as optimized image sources", () => {

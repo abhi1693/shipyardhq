@@ -11,12 +11,28 @@ type ManagedMediaImageLoaderParams = {
   quality?: number | string | null
 }
 
+function getManagedMediaHostnames() {
+  const hostnames = new Set([MEDIA_HOSTNAME])
+  const publicBaseUrl =
+    process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL ?? process.env.R2_PUBLIC_BASE_URL
+
+  if (publicBaseUrl) {
+    try {
+      hostnames.add(new URL(publicBaseUrl).hostname)
+    } catch {
+      // Keep the canonical media hostname when the optional public URL is invalid.
+    }
+  }
+
+  return hostnames
+}
+
 export function parseManagedMediaImageUrl(src: unknown): URL | null {
   const url = parseTransformableRemoteImageUrl(src)
   if (!url) return null
 
   if (
-    url.hostname !== MEDIA_HOSTNAME ||
+    !getManagedMediaHostnames().has(url.hostname) ||
     url.pathname.startsWith("/cdn-cgi/image/")
   ) {
     return null

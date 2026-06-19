@@ -1,5 +1,6 @@
 import {
   DeleteObjectCommand,
+  HeadObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
@@ -72,6 +73,22 @@ function toPublicUrl(key: string) {
   return `${config.publicBaseUrl}/${trimSlashes(key)}`
 }
 
+function isMissingObjectError(error: unknown) {
+  if (error instanceof Error) {
+    if (error.name === "NotFound" || error.name === "NoSuchKey") {
+      return true
+    }
+  }
+
+  if (typeof error === "object" && error !== null && "$metadata" in error) {
+    const metadata = (error as { $metadata?: { httpStatusCode?: number } })
+      .$metadata
+    return metadata?.httpStatusCode === 404
+  }
+
+  return false
+}
+
 function keyFromUrlOrPath(value: string) {
   const config = getR2Config()
   const normalized = value.trim()
@@ -121,6 +138,32 @@ export async function putBlob(
     size: body.byteLength,
     contentType: opts.contentType,
   }
+}
+
+export async function blobExists(key: string) {
+  const config = getR2Config()
+  const normalizedKey = trimSlashes(key)
+  if (!normalizedKey) return false
+
+  try {
+    await getS3Client().send(
+      new HeadObjectCommand({
+        Bucket: config.bucket,
+        Key: normalizedKey,
+      }),
+    )
+    return true
+  } catch (error) {
+    if (isMissingObjectError(error)) {
+      return false
+    }
+
+    throw error
+  }
+}
+
+export function getBlobPublicUrl(key: string) {
+  return toPublicUrl(key)
 }
 
 export async function deleteBlob(pathname: string) {

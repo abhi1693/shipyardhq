@@ -4,7 +4,7 @@ import {
   type NextFetchEvent,
   type NextRequest,
 } from "next/server"
-import { buildSignedImgproxyImageUrl } from "@/lib/images/imgproxy"
+import { parseManagedMediaImageUrl } from "@/lib/images/managed-media"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
 
 const isMemberRoute = createRouteMatcher([`${MEMBER_BASE_PATH}(.*)`])
@@ -33,16 +33,20 @@ async function redirectMediaImageOptimizationRequest(req: NextRequest) {
     }
   }
 
-  const transformedUrl = await buildSignedImgproxyImageUrl({
-    src: imageUrl,
-    width,
-    quality: url.searchParams.get("q") ?? undefined,
-  })
-  if (!transformedUrl) {
+  const sourceUrl = parseManagedMediaImageUrl(imageUrl)
+  if (!sourceUrl) {
     return null
   }
 
-  return NextResponse.redirect(transformedUrl, 308)
+  const cacheUrl = new URL("/api/images/cache", req.url)
+  cacheUrl.searchParams.set("url", sourceUrl.href)
+  cacheUrl.searchParams.set("w", String(width))
+  const quality = url.searchParams.get("q")
+  if (quality) {
+    cacheUrl.searchParams.set("q", quality)
+  }
+
+  return NextResponse.rewrite(cacheUrl)
 }
 
 function hasExplicitMarkdownAccept(req: NextRequest) {
