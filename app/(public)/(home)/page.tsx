@@ -28,6 +28,7 @@ import {
 import { BRAND_NAME } from "@/lib/brand"
 import { siteConfig, siteGrowthMetrics } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
+import { HOMEPAGE_INITIAL_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 
 export const revalidate = 60
 
@@ -261,12 +262,12 @@ async function HomepageDataSections() {
   const [feedPage, launchOfDay, homepageStats] = await Promise.all([
     getHomepageFeedPage({
       page: 1,
-      pageSize: 20,
+      pageSize: HOMEPAGE_INITIAL_FEED_PAGE_SIZE,
       launchWindow: "week",
     }).catch(() => ({
       items: [],
       page: 1,
-      pageSize: 20,
+      pageSize: HOMEPAGE_INITIAL_FEED_PAGE_SIZE,
       hasMore: false,
       nextPage: null,
     })),

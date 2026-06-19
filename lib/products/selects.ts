@@ -45,20 +45,7 @@ export type ProductCardRecord = Prisma.ProductGetPayload<{
   select: ProductCardSelect
 }>
 
-const isPriorityPlacement = (product: ProductCardRecord): boolean =>
-  product.planId ? false : isLegacyPriorityPlacement(product)
-
 type PriorityPlanIds = ReadonlySet<string> | readonly string[]
-
-type LegacyPriorityPlacementProduct = {
-  plan?: {
-    assignments?: Array<{
-      feature?: {
-        key?: string | null
-      } | null
-    }>
-  } | null
-}
 
 const priorityPlanIdsHas = (
   priorityPlanIds: PriorityPlanIds | undefined,
@@ -67,17 +54,6 @@ const priorityPlanIdsHas = (
   if (!priorityPlanIds || !planId) return false
   if ("has" in priorityPlanIds) return priorityPlanIds.has(planId)
   return priorityPlanIds.includes(planId)
-}
-
-const isLegacyPriorityPlacement = (product: ProductCardRecord): boolean => {
-  const legacyProduct = product as ProductCardRecord &
-    LegacyPriorityPlacementProduct
-  return (
-    legacyProduct.plan?.assignments?.some(
-      (assignment) =>
-        assignment.feature?.key === PRIORITY_PLACEMENT_FEATURE_KEY,
-    ) ?? false
-  )
 }
 
 const resolveBadges = (
@@ -119,9 +95,7 @@ export const mapProductCardRecordToBase = (
     analytics: product.analytics,
     category: product.category,
     badges: resolveBadges(product, now),
-    sponsored:
-      priorityPlanIdsHas(options?.priorityPlanIds, product.planId) ||
-      isPriorityPlacement(product),
+    sponsored: priorityPlanIdsHas(options?.priorityPlanIds, product.planId),
     isVerified: Boolean(product.verification?.isVerified),
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,

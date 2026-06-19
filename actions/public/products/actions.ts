@@ -4,10 +4,13 @@ import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { resolveVoteState } from "@/lib/server/productVotesStore"
 import { safelyReadStaticParams } from "@/lib/staticParams"
+import { getSponsoredPlacementPlanIds } from "@/lib/products/priority-plans"
+import { HOMEPAGE_INITIAL_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 import {
   buildPublicDiscoveryProductWhere,
   buildPublicDiscoverySqlFilter,
 } from "@/lib/products/public-discovery"
+import { getCurrentLeaderboardRun } from "@/lib/server/leaderboard/v2"
 
 const publicProductSelect = {
   id: true,
@@ -209,6 +212,7 @@ export const getPublicProductMetaBySlug = cached(
 
 const DEFAULT_PRODUCT_STATIC_PARAMS_LIMIT = 50
 const MAX_PRODUCT_STATIC_PARAMS_LIMIT = 1000
+const HOMEPAGE_PRODUCT_STATIC_PARAMS_SPONSORED_LIMIT = 12
 
 function normalizeProductStaticParamsLimit() {
   const raw = process.env.PRODUCT_PRERENDER_LIMIT
@@ -223,29 +227,282 @@ function normalizeProductStaticParamsLimit() {
   )
 }
 
+function startOfUtcDayDate(date: Date) {
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  )
+}
+
+function addUtcDaysDate(date: Date, days: number) {
+  const nextDate = new Date(date)
+  nextDate.setUTCDate(nextDate.getUTCDate() + days)
+  return nextDate
+}
+
+function buildReleaseWindowWhere({
+  gte,
+  lt,
+}: {
+  gte: Date
+  lt: Date
+}): Prisma.ProductWhereInput {
+  return {
+    OR: [
+      { publishedAt: { gte, lt } },
+      {
+        publishedAt: null,
+        createdAt: { gte, lt },
+      },
+    ],
+  }
+}
+
+function buildHomepageSponsoredWhere(
+  now: Date,
+  sponsoredPlanIds: readonly string[],
+): Prisma.ProductWhereInput {
+  const planWhere: Prisma.ProductWhereInput[] = sponsoredPlanIds.length
+    ? [{ planId: { in: [...sponsoredPlanIds] } }]
+    : []
+
+  return {
+    OR: [
+      ...planWhere,
+      {
+        ProductBadge: {
+          some: {
+            badge: "editor-pick",
+            OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+          },
+        },
+      },
+    ],
+  }
+}
+
+const homepageProductStaticParamsOrderBy = [
+  { publishedAt: { sort: "desc", nulls: "last" } },
+  { createdAt: "desc" },
+  { analytics: { upvotes: "desc" } },
+] satisfies Prisma.ProductOrderByWithRelationInput[]
+
+const launchProductStaticParamsOrderBy = [
+  { analytics: { upvotes: "desc" } },
+  { publishedAt: { sort: "desc", nulls: "last" } },
+  { createdAt: "desc" },
+] satisfies Prisma.ProductOrderByWithRelationInput[]
+
+function appendUniqueSlugs(
+  target: string[],
+  seen: Set<string>,
+  slugs: Iterable<string | null | undefined>,
+) {
+  for (const slug of slugs) {
+    if (!slug || seen.has(slug)) continue
+    seen.add(slug)
+    target.push(slug)
+  }
+}
+
+async function getHomepageOrganicStaticSlugs({
+  now,
+  sponsoredPlanIds,
+}: {
+  now: Date
+  sponsoredPlanIds: readonly string[]
+}) {
+  const startToday = startOfUtcDayDate(now)
+  const startTomorrow = addUtcDaysDate(startToday, 1)
+  const startYesterday = addUtcDaysDate(startToday, -1)
+  const startThisWeek = addUtcDaysDate(startToday, -7)
+  const sponsoredWhere = buildHomepageSponsoredWhere(now, sponsoredPlanIds)
+  const organicBaseWhere: Prisma.ProductWhereInput = {
+    AND: [buildPublicDiscoveryProductWhere(), { NOT: sponsoredWhere }],
+  }
+  const releaseWindows = [
+    { gte: startToday, lt: startTomorrow },
+    { gte: startYesterday, lt: startToday },
+    { gte: startThisWeek, lt: startYesterday },
+  ]
+  const slugs: string[] = []
+  const seen = new Set<string>()
+
+  for (const releaseWindow of releaseWindows) {
+    const remaining = HOMEPAGE_INITIAL_FEED_PAGE_SIZE - slugs.length
+    if (remaining <= 0) break
+
+    const products = await prisma.product.findMany({
+      where: {
+        AND: [organicBaseWhere, buildReleaseWindowWhere(releaseWindow)],
+      },
+      orderBy: homepageProductStaticParamsOrderBy,
+      take: remaining,
+      select: { slug: true },
+    })
+
+    appendUniqueSlugs(
+      slugs,
+      seen,
+      products.map((product) => product.slug),
+    )
+  }
+
+  return slugs
+}
+
+async function getHomepageSponsoredStaticSlugs({
+  now,
+  sponsoredPlanIds,
+}: {
+  now: Date
+  sponsoredPlanIds: readonly string[]
+}) {
+  const products = await prisma.product.findMany({
+    where: {
+      AND: [
+        buildPublicDiscoveryProductWhere(),
+        buildHomepageSponsoredWhere(now, sponsoredPlanIds),
+      ],
+    },
+    orderBy: homepageProductStaticParamsOrderBy,
+    take: HOMEPAGE_PRODUCT_STATIC_PARAMS_SPONSORED_LIMIT,
+    select: { slug: true },
+  })
+
+  return products.map((product) => product.slug)
+}
+
+async function getHomepageLaunchStaticSlugs(now: Date) {
+  const startToday = startOfUtcDayDate(now)
+  const startTomorrow = addUtcDaysDate(startToday, 1)
+  const launchedTodayWhere = buildReleaseWindowWhere({
+    gte: startToday,
+    lt: startTomorrow,
+  })
+  const baseWhere = buildPublicDiscoveryProductWhere()
+  const run = await getCurrentLeaderboardRun(now)
+  const slugs: string[] = []
+  const seen = new Set<string>()
+
+  const todayTopScore = run
+    ? await prisma.productLeaderboardScore.findFirst({
+        where: {
+          runId: run.id,
+          product: {
+            AND: [baseWhere, launchedTodayWhere],
+          },
+        },
+        orderBy: [
+          { score: "desc" },
+          { upvotes: "desc" },
+          { uniqueVisitors: "desc" },
+          { views: "desc" },
+        ],
+        select: {
+          product: { select: { slug: true } },
+        },
+      })
+    : null
+
+  const fallbackTopScore =
+    run && !todayTopScore
+      ? await prisma.productLeaderboardScore.findFirst({
+          where: {
+            runId: run.id,
+            product: baseWhere,
+          },
+          orderBy: [
+            { score: "desc" },
+            { upvotes: "desc" },
+            { uniqueVisitors: "desc" },
+            { views: "desc" },
+          ],
+          select: {
+            product: { select: { slug: true } },
+          },
+        })
+      : null
+
+  const todayFallbackProduct =
+    todayTopScore || fallbackTopScore
+      ? null
+      : await prisma.product.findFirst({
+          where: {
+            AND: [baseWhere, launchedTodayWhere],
+          },
+          orderBy: launchProductStaticParamsOrderBy,
+          select: { slug: true },
+        })
+
+  const fallbackProduct =
+    todayTopScore || fallbackTopScore || todayFallbackProduct
+      ? null
+      : await prisma.product.findFirst({
+          where: baseWhere,
+          orderBy: launchProductStaticParamsOrderBy,
+          select: { slug: true },
+        })
+
+  appendUniqueSlugs(slugs, seen, [
+    todayTopScore?.product.slug,
+    fallbackTopScore?.product.slug,
+    todayFallbackProduct?.slug,
+    fallbackProduct?.slug,
+  ])
+
+  return slugs
+}
+
+async function getHomepageProductStaticSlugs() {
+  const now = new Date()
+  const sponsoredPlanIds = await getSponsoredPlacementPlanIds()
+  const [launchSlugs, organicSlugs, sponsoredSlugs] = await Promise.all([
+    getHomepageLaunchStaticSlugs(now),
+    getHomepageOrganicStaticSlugs({ now, sponsoredPlanIds }),
+    getHomepageSponsoredStaticSlugs({ now, sponsoredPlanIds }),
+  ])
+
+  const slugs: string[] = []
+  const seen = new Set<string>()
+  appendUniqueSlugs(slugs, seen, launchSlugs)
+  appendUniqueSlugs(slugs, seen, organicSlugs)
+  appendUniqueSlugs(slugs, seen, sponsoredSlugs)
+
+  return slugs
+}
+
 export const getProductStaticParams = cached(
   async () =>
     safelyReadStaticParams("product pages", async () => {
       const limit = normalizeProductStaticParamsLimit()
       if (limit === 0) return []
 
+      const homepageSlugs = await getHomepageProductStaticSlugs()
+      const slugs: string[] = []
+      const seen = new Set<string>()
+      appendUniqueSlugs(slugs, seen, homepageSlugs)
+
       const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-      const trafficRows = await prisma.productTrafficDaily.groupBy({
-        by: ["productId"],
-        where: {
-          date: { gte: since },
-          product: buildPublicDiscoveryProductWhere(),
-        },
-        _sum: {
-          pageViews: true,
-          uniqueVisitors: true,
-        },
-        orderBy: [
-          { _sum: { pageViews: "desc" } },
-          { _sum: { uniqueVisitors: "desc" } },
-        ],
-        take: limit,
-      })
+      const trafficLimit = Math.max(0, limit - slugs.length)
+      const trafficRows =
+        trafficLimit > 0
+          ? await prisma.productTrafficDaily.groupBy({
+              by: ["productId"],
+              where: {
+                date: { gte: since },
+                product: buildPublicDiscoveryProductWhere(),
+              },
+              _sum: {
+                pageViews: true,
+                uniqueVisitors: true,
+              },
+              orderBy: [
+                { _sum: { pageViews: "desc" } },
+                { _sum: { uniqueVisitors: "desc" } },
+              ],
+              take: trafficLimit,
+            })
+          : []
 
       const trafficProductIds = trafficRows.map((row) => row.productId)
       const trafficProducts = trafficProductIds.length
@@ -261,9 +518,6 @@ export const getProductStaticParams = cached(
       const slugById = new Map(
         trafficProducts.map((product) => [product.id, product.slug]),
       )
-      const slugs: string[] = []
-      const seen = new Set<string>()
-
       for (const id of trafficProductIds) {
         const slug = slugById.get(id)
         if (!slug || seen.has(slug)) continue
@@ -271,7 +525,7 @@ export const getProductStaticParams = cached(
         slugs.push(slug)
       }
 
-      const remaining = limit - slugs.length
+      const remaining = Math.max(0, limit - slugs.length)
       if (remaining > 0) {
         const fallbackProducts = await prisma.product.findMany({
           where: buildPublicDiscoveryProductWhere({
@@ -295,7 +549,7 @@ export const getProductStaticParams = cached(
 
       return slugs.map((slug) => ({ slug }))
     }),
-  "products:static-params",
+  "products:static-params:v2",
   {
     ttl: DEFAULT_TTL.slowest,
     tags: () => [TAGS.products, TAGS.analytics],

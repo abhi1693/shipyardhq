@@ -35,7 +35,7 @@ describe("mapProductCardRecordToBase", () => {
     ).toBe(true)
   })
 
-  it("keeps legacy plan-assignment records sponsored during migrations", () => {
+  it("does not use legacy plan-assignment records as sponsored fallback", () => {
     const product = {
       ...baseProduct,
       plan: {
@@ -51,6 +51,6 @@ describe("mapProductCardRecordToBase", () => {
       plan: { assignments: Array<{ feature: { key: string } }> }
     }
 
-    expect(mapProductCardRecordToBase(product).sponsored).toBe(true)
+    expect(mapProductCardRecordToBase(product).sponsored).toBe(false)
   })
 })

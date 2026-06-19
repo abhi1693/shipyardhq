@@ -4,7 +4,10 @@ import { unstable_cache } from "next/cache"
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
-import { HOMEPAGE_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
+import {
+  HOMEPAGE_FEED_PAGE_SIZE,
+  HOMEPAGE_INITIAL_FEED_PAGE_SIZE,
+} from "@/lib/homepage/feed-constants"
 import type { HomepageFeedView } from "@/lib/homepage/feed-views"
 import type { ProductCardVariant } from "@/types/product-card"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
@@ -22,14 +25,8 @@ import {
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 import { revalidateHomepage } from "@/lib/cache/revalidate"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
-const PRIORITY_FEATURE_KEY = "priorityPlacement"
-const SPONSORED_PLAN_FEATURE_KEYS = [
-  PRIORITY_FEATURE_KEY,
-  "sponsoredProducts",
-] as const
-const SPONSORED_PLAN_FEATURE_KEY_SET = new Set<string>(
-  SPONSORED_PLAN_FEATURE_KEYS,
-)
+import { getSponsoredPlacementPlanIds } from "@/lib/products/priority-plans"
+
 const EDITOR_PICK_BADGE = "editor-pick"
 const HOMEPAGE_SPONSORED_LIMIT = 12
 const HOMEPAGE_SPONSORED_INTERVAL = 8
@@ -47,6 +44,7 @@ const homepageFeedSelect = {
   name: true,
   logo: true,
   tagline: true,
+  planId: true,
   pricingModel: true,
   startingPriceCents: true,
   currencyCode: true,
@@ -73,21 +71,6 @@ const homepageFeedSelect = {
     select: {
       badge: true,
       expiresAt: true,
-    },
-  },
-  plan: {
-    select: {
-      price: true,
-      assignments: {
-        where: { enabled: true },
-        select: {
-          feature: {
-            select: {
-              key: true,
-            },
-          },
-        },
-      },
     },
   },
 } satisfies Prisma.ProductSelect
@@ -207,23 +190,17 @@ function calculatePercentChange(current: number, previous: number) {
   return ((current - previous) / previous) * 100
 }
 
-function buildSponsoredPlacementWhere(now: Date): Prisma.ProductWhereInput {
+function buildSponsoredPlacementWhere(
+  now: Date,
+  sponsoredPlanIds: readonly string[],
+): Prisma.ProductWhereInput {
+  const planWhere: Prisma.ProductWhereInput[] = sponsoredPlanIds.length
+    ? [{ planId: { in: [...sponsoredPlanIds] } }]
+    : []
+
   return {
     OR: [
-      {
-        plan: {
-          is: {
-            assignments: {
-              some: {
-                enabled: true,
-                feature: {
-                  is: { key: { in: [...SPONSORED_PLAN_FEATURE_KEYS] } },
-                },
-              },
-            },
-          },
-        },
-      },
+      ...planWhere,
       {
         ProductBadge: {
           some: {
@@ -289,26 +266,23 @@ function mapProductToFeedItem(
   now: Date,
   scoreByProductId?: Map<string, number>,
   interestByProductId?: Map<string, ProductInterestSignals>,
+  sponsoredPlanIds: ReadonlySet<string> = new Set(),
 ): HomepageFeedItem {
   const activeBadges =
     product.ProductBadge?.filter(
       (badge) => !badge.expiresAt || badge.expiresAt > now,
     ).map((badge) => badge.badge) ?? []
 
-  const isSponsoredPlan =
-    product.plan?.assignments?.some(
-      (assignment) =>
-        typeof assignment.feature?.key === "string" &&
-        SPONSORED_PLAN_FEATURE_KEY_SET.has(assignment.feature.key),
-    ) ?? false
+  const isSponsoredPlan = Boolean(
+    product.planId && sponsoredPlanIds.has(product.planId),
+  )
   const isEditorPick = hasEditorPickBadge(activeBadges)
   const isSponsored = isSponsoredPlan || isEditorPick
-  const variant: ProductCardVariant =
-    isSponsoredPlan
-      ? "sponsored"
-      : isEditorPick
-        ? "promoted"
-        : "default"
+  const variant: ProductCardVariant = isSponsoredPlan
+    ? "sponsored"
+    : isEditorPick
+      ? "promoted"
+      : "default"
 
   const scoreCount = scoreByProductId?.get(product.id)
   const shuffleKey = now.toISOString().slice(0, 10)
@@ -380,6 +354,7 @@ export async function getHomepageViewerUpvotedProductIds({
 async function buildFeedItemsFromProducts(
   products: HomepageFeedProduct[],
   clerkUserId: string | null | undefined,
+  sponsoredPlanIds: ReadonlySet<string>,
 ): Promise<HomepageFeedItem[]> {
   if (products.length === 0) {
     return []
@@ -396,7 +371,14 @@ async function buildFeedItemsFromProducts(
     })),
   })
   return products.map((product) =>
-    mapProductToFeedItem(product, upvoted, now, scoreMap, interestMap),
+    mapProductToFeedItem(
+      product,
+      upvoted,
+      now,
+      scoreMap,
+      interestMap,
+      sponsoredPlanIds,
+    ),
   )
 }
 
@@ -423,6 +405,7 @@ interface GetOrderedHomepageFeedParams extends GetHomepageFeedPageParams {
   orderBy: Prisma.ProductOrderByWithRelationInput[]
   where?: Prisma.ProductWhereInput
   rotate?: boolean
+  sponsoredPlanIds: ReadonlySet<string>
 }
 
 function getShuffleDateKey(date = new Date()) {
@@ -480,7 +463,12 @@ async function getHomepageWeekFeedPoolsImpl(
   const startTomorrow = addUtcDaysDate(startToday, 1)
   const startYesterday = addUtcDaysDate(startToday, -1)
   const startThisWeek = addUtcDaysDate(startToday, -7)
-  const sponsoredPlacementWhere = buildSponsoredPlacementWhere(now)
+  const sponsoredPlanIds = await getSponsoredPlacementPlanIds()
+  const sponsoredPlanIdSet = new Set(sponsoredPlanIds)
+  const sponsoredPlacementWhere = buildSponsoredPlacementWhere(
+    now,
+    sponsoredPlanIds,
+  )
   const organicBaseWhere: Prisma.ProductWhereInput = {
     AND: [buildBaseWhere(), { NOT: sponsoredPlacementWhere }],
   }
@@ -545,10 +533,10 @@ async function getHomepageWeekFeedPoolsImpl(
   ])
 
   const [today, yesterday, thisWeek, sponsored] = await Promise.all([
-    buildFeedItemsFromProducts(todayProducts, null),
-    buildFeedItemsFromProducts(yesterdayProducts, null),
-    buildFeedItemsFromProducts(thisWeekProducts, null),
-    buildFeedItemsFromProducts(sponsoredProducts, null),
+    buildFeedItemsFromProducts(todayProducts, null, sponsoredPlanIdSet),
+    buildFeedItemsFromProducts(yesterdayProducts, null, sponsoredPlanIdSet),
+    buildFeedItemsFromProducts(thisWeekProducts, null, sponsoredPlanIdSet),
+    buildFeedItemsFromProducts(sponsoredProducts, null, sponsoredPlanIdSet),
   ])
 
   return {
@@ -679,6 +667,7 @@ async function getOrderedHomepageFeedPage({
   pageSize = HOMEPAGE_FEED_PAGE_SIZE,
   clerkUserId,
   rotate = false,
+  sponsoredPlanIds,
 }: GetOrderedHomepageFeedParams): Promise<HomepageFeedPageResult> {
   const safePage = normalizePage(page, 1)
   const safePageSize = normalizePageSize(pageSize, HOMEPAGE_FEED_PAGE_SIZE)
@@ -727,7 +716,11 @@ async function getOrderedHomepageFeedPage({
         select: homepageFeedSelect,
       })
 
-  const items = await buildFeedItemsFromProducts(products, clerkUserId)
+  const items = await buildFeedItemsFromProducts(
+    products,
+    clerkUserId,
+    sponsoredPlanIds,
+  )
   const hasMore = absoluteStart + items.length < total
 
   return {
@@ -784,7 +777,12 @@ export async function getHomepageNewFeedPage(
   const safePageSize = normalizePageSize(pageSize, HOMEPAGE_FEED_PAGE_SIZE)
   const organicStartIndex = (safePage - 1) * safePageSize
   const now = new Date()
-  const sponsoredPlacementWhere = buildSponsoredPlacementWhere(now)
+  const sponsoredPlanIds = await getSponsoredPlacementPlanIds()
+  const sponsoredPlanIdSet = new Set(sponsoredPlanIds)
+  const sponsoredPlacementWhere = buildSponsoredPlacementWhere(
+    now,
+    sponsoredPlanIds,
+  )
   const launchWindowWhere = buildLaunchWindowWhere(launchWindow, now)
   const organicWhereParts: Prisma.ProductWhereInput[] = [
     { NOT: sponsoredPlacementWhere },
@@ -800,6 +798,7 @@ export async function getHomepageNewFeedPage(
     clerkUserId,
     where: { AND: organicWhereParts },
     orderBy,
+    sponsoredPlanIds: sponsoredPlanIdSet,
   })
 
   if (organicPage.items.length === 0) {
@@ -817,6 +816,7 @@ export async function getHomepageNewFeedPage(
   const sponsoredItems = await buildFeedItemsFromProducts(
     sponsoredProducts,
     clerkUserId,
+    sponsoredPlanIdSet,
   )
 
   return {
@@ -919,7 +919,7 @@ export async function refreshHomepageFeedCache(
     await Promise.all([
       getHomepageFeedView({
         page: 1,
-        pageSize: 20,
+        pageSize: HOMEPAGE_INITIAL_FEED_PAGE_SIZE,
         view: "new",
         launchWindow: "week",
       }),
@@ -931,7 +931,7 @@ export async function refreshHomepageFeedCache(
       }),
       getHomepageFeedView({
         page: 1,
-        pageSize: 20,
+        pageSize: HOMEPAGE_INITIAL_FEED_PAGE_SIZE,
         view: "new",
         launchWindow: "all",
       }),
@@ -1045,7 +1045,10 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
     selectedScore?.product ?? todayFallbackProduct ?? fallbackProduct
   if (!product) return null
 
-  const item = (await buildFeedItemsFromProducts([product], null))[0]
+  const sponsoredPlanIds = new Set(await getSponsoredPlacementPlanIds())
+  const item = (
+    await buildFeedItemsFromProducts([product], null, sponsoredPlanIds)
+  )[0]
   if (!item) return null
 
   const currentStart = daysAgo(7)

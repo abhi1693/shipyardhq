@@ -1,1 +1,2 @@
 export const HOMEPAGE_FEED_PAGE_SIZE = 10
+export const HOMEPAGE_INITIAL_FEED_PAGE_SIZE = 20
