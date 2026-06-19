@@ -4,7 +4,7 @@ import { getRedisClient } from "@/lib/server/redis"
 // Restrict to the subset of the Redis client we rely on so the helpers stay reusable.
 type CacheClient = Pick<
   ReturnType<typeof createClient>,
-  "get" | "set" | "del" | "scanIterator"
+  "get" | "set" | "del" | "scan" | "scanIterator"
 > & {
   isOpen?: boolean
 }
@@ -20,6 +20,11 @@ type CacheScanIterator = (
   this: unknown,
   options: CacheScanOptions,
 ) => AsyncIterable<string | string[]>
+
+type CacheScan = (
+  cursor: string,
+  options: CacheScanOptions,
+) => Promise<{ cursor: string | number; keys: string[] }>
 
 const inProcessCache = new Map<string, InProcessCacheEntry>()
 const pendingLoads = new Map<string, Promise<unknown>>()
@@ -294,6 +299,44 @@ function clearInProcessCacheByPrefix(prefix: string) {
   return deleted
 }
 
+async function* scanKeysByPrefix(
+  client: CacheClient,
+  prefix: string,
+): AsyncIterable<string[]> {
+  const options = {
+    MATCH: `${prefix}*`,
+    COUNT: 100,
+  }
+
+  const scanIterator = client.scanIterator as unknown
+  if (typeof scanIterator === "function") {
+    for await (const keys of (scanIterator as CacheScanIterator).call(
+      client,
+      options,
+    )) {
+      const batch = Array.isArray(keys) ? keys : [keys]
+      if (batch.length) {
+        yield batch
+      }
+    }
+    return
+  }
+
+  const scan = client.scan as unknown
+  if (typeof scan !== "function") {
+    return
+  }
+
+  let cursor = "0"
+  do {
+    const reply = await (scan as CacheScan).call(client, cursor, options)
+    cursor = `${reply.cursor}`
+    if (reply.keys.length) {
+      yield reply.keys
+    }
+  } while (cursor !== "0")
+}
+
 export async function invalidateCacheByPrefix({
   keyPrefix,
   onError,
@@ -322,13 +365,7 @@ export async function invalidateCacheByPrefix({
   let redisKeysDeleted = 0
 
   try {
-    const scanIterator = client.scanIterator as unknown as CacheScanIterator
-    for await (const keys of scanIterator.call(client, {
-      MATCH: `${namespacedKey}*`,
-      COUNT: 100,
-    })) {
-      const batch = Array.isArray(keys) ? keys : [keys]
-      if (!batch.length) continue
+    for await (const batch of scanKeysByPrefix(client, namespacedKey)) {
       redisKeysDeleted += await client.del(batch)
     }
     logCacheEvent("invalidate prefix", namespacedKey, {
