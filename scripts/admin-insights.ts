@@ -639,8 +639,6 @@ async function getOverview(currentStart: Date) {
     drafts,
     categories,
     useCases,
-    activeConnectors,
-    connectorErrors,
     activePlacements,
     pendingRedemptions,
     siteTraffic,
@@ -656,10 +654,6 @@ async function getOverview(currentStart: Date) {
     prisma.productDraft.count(),
     prisma.category.count(),
     prisma.useCase.count(),
-    prisma.paymentConnector.count({ where: { status: "active" } }),
-    prisma.paymentConnector.count({
-      where: { OR: [{ status: "error" }, { lastSyncError: { not: null } }] },
-    }),
     prisma.placementSchedule.count({ where: { status: "active" } }),
     prisma.redemption.count({ where: { status: "pending" } }),
     prisma.siteTrafficDaily.aggregate({
@@ -699,11 +693,9 @@ async function getOverview(currentStart: Date) {
   const dbBytes = dbSizeRows[0]?.bytes ? Number(dbSizeRows[0].bytes) : 0
 
   return {
-    activeConnectors,
     activePlacements,
     activeUsers,
     categories,
-    connectorErrors,
     dbSizeMb: Math.round(dbBytes / 1024 / 1024),
     drafts,
     latestIngestion: latestIngestion
@@ -924,49 +916,7 @@ async function getTrafficInsights(
 }
 
 async function getRevenueInsights(currentStart: Date, limit: number) {
-  const [
-    connectorStatus,
-    connectorProviders,
-    revenueByCurrency,
-    staleConnectors,
-    errors,
-    purchases,
-    topPlans,
-  ] = await Promise.all([
-    prisma.paymentConnector.groupBy({
-      _count: { _all: true },
-      by: ["status"],
-      orderBy: { status: "asc" },
-    }),
-    prisma.paymentConnector.groupBy({
-      _count: { _all: true },
-      by: ["provider"],
-      orderBy: { _count: { provider: "desc" } },
-    }),
-    prisma.paymentConnector.groupBy({
-      _sum: { latestAllTimeRevenueCents: true },
-      by: ["latestCurrencyCode"],
-      orderBy: { _sum: { latestAllTimeRevenueCents: "desc" } },
-      where: { latestAllTimeRevenueCents: { not: null } },
-    }),
-    prisma.paymentConnector.count({
-      where: {
-        status: "active",
-        OR: [{ lastSyncedAt: null }, { lastSyncedAt: { lt: daysAgo(1) } }],
-      },
-    }),
-    prisma.paymentConnector.findMany({
-      orderBy: { updatedAt: "desc" },
-      select: {
-        lastSyncError: true,
-        product: { select: { name: true, slug: true } },
-        provider: true,
-        status: true,
-        updatedAt: true,
-      },
-      take: limit,
-      where: { OR: [{ status: "error" }, { lastSyncError: { not: null } }] },
-    }),
+  const [purchases, topPlans] = await Promise.all([
     prisma.userPlanPurchase.count({
       where: { createdAt: { gte: currentStart } },
     }),
@@ -984,30 +934,7 @@ async function getRevenueInsights(currentStart: Date, limit: number) {
   ])
 
   return {
-    connectorProviders: connectorProviders.map((row) => ({
-      count: row._count._all,
-      provider: row.provider,
-    })),
-    connectorStatus: connectorStatus.map((row) => ({
-      count: row._count._all,
-      status: row.status,
-    })),
-    errors: errors.map((connector) => ({
-      error: connector.lastSyncError?.slice(0, 120) ?? "status=error",
-      product: connector.product.name,
-      provider: connector.provider,
-      status: connector.status,
-      updatedAt: formatDate(connector.updatedAt),
-    })),
     purchases,
-    revenueByCurrency: revenueByCurrency.map((row) => ({
-      currency: row.latestCurrencyCode ?? "unknown",
-      revenue: formatCurrency(
-        row._sum.latestAllTimeRevenueCents ?? 0,
-        row.latestCurrencyCode ?? "USD",
-      ),
-    })),
-    staleConnectors,
     topPlans: topPlans.map((plan) => ({
       activeProducts: plan._count.products,
       purchases: plan._count.purchases,
@@ -1107,7 +1034,6 @@ async function getOperationsInsights(limit: number) {
     retryingEvents,
     activeJobs,
     staleDrafts,
-    connectorErrors,
   ] = await Promise.all([
     prisma.analyticsIngestionRun.groupBy({
       _count: { _all: true },
@@ -1143,14 +1069,10 @@ async function getOperationsInsights(limit: number) {
       where: { status: "processing" },
     }),
     prisma.productDraft.count({ where: { updatedAt: { lt: daysAgo(14) } } }),
-    prisma.paymentConnector.count({
-      where: { OR: [{ status: "error" }, { lastSyncError: { not: null } }] },
-    }),
   ])
 
   return {
     activeJobs,
-    connectorErrors,
     eventStatus: eventStatus.map((row) => ({
       count: row._count._all,
       status: row.status,
@@ -1267,12 +1189,6 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
         value: `${formatNumber(overview.productPageViews)} views`,
       },
       {
-        detail: `${formatNumber(overview.connectorErrors)} errors`,
-        label: "Connectors",
-        tone: overview.connectorErrors > 0 ? "bad" : "good",
-        value: `${formatNumber(overview.activeConnectors)} active`,
-      },
-      {
         detail: `${formatNumber(overview.rewardsEarned)} earned / ${formatNumber(
           overview.rewardsSpent,
         )} spent`,
@@ -1290,12 +1206,6 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
     ])
 
     renderHealthList("Immediate Attention", [
-      {
-        detail: "Payment syncs with errors or saved error messages",
-        label: "Connector errors",
-        tone: overview.connectorErrors > 0 ? "bad" : "good",
-        value: formatNumber(overview.connectorErrors),
-      },
       {
         detail: "Reward cash-outs waiting on an admin action",
         label: "Pending redemptions",
@@ -1526,17 +1436,7 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
 
   if (report.revenue) {
     const revenue = report.revenue
-    const connectorStatus = revenue.connectorStatus as Array<
-      Record<string, unknown>
-    >
-    const connectorProviders = revenue.connectorProviders as Array<
-      Record<string, unknown>
-    >
-    const revenueByCurrency = revenue.revenueByCurrency as Array<
-      Record<string, unknown>
-    >
     const topPlans = revenue.topPlans as Array<Record<string, unknown>>
-    const errors = revenue.errors as Array<Record<string, unknown>>
 
     renderMetricCards("Revenue Health", [
       {
@@ -1544,50 +1444,6 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
         label: "Purchases",
         value: formatNumber(revenue.purchases),
       },
-      {
-        detail: "Active connectors older than 24 hours",
-        label: "Stale Connectors",
-        tone: revenue.staleConnectors > 0 ? "warn" : "good",
-        value: formatNumber(revenue.staleConnectors),
-      },
-      {
-        detail: "Connectors in error or with sync errors",
-        label: "Connector Errors",
-        tone: errors.length > 0 ? "bad" : "good",
-        value: formatNumber(errors.length),
-      },
-    ])
-
-    const connectorStatusMax = maxByKey(connectorStatus, "count")
-    renderTable("Connector Status", rankRows(connectorStatus), [
-      { align: "right", key: "rank", label: "#", width: 3 },
-      { format: statusCell, key: "status", label: "Status", maxWidth: 20 },
-      { align: "right", key: "count", label: "Count" },
-      {
-        format: (value) => bar(value, connectorStatusMax),
-        key: "count",
-        label: "Share",
-        width: 16,
-      },
-    ])
-
-    const providerMax = maxByKey(connectorProviders, "count")
-    renderTable("Connector Providers", rankRows(connectorProviders), [
-      { align: "right", key: "rank", label: "#", width: 3 },
-      { key: "provider", label: "Provider", maxWidth: 26 },
-      { align: "right", key: "count", label: "Count" },
-      {
-        format: (value) => bar(value, providerMax),
-        key: "count",
-        label: "Share",
-        width: 16,
-      },
-    ])
-
-    renderTable("Revenue by Currency", rankRows(revenueByCurrency), [
-      { align: "right", key: "rank", label: "#", width: 3 },
-      { key: "currency", label: "Currency", maxWidth: 16 },
-      { align: "right", key: "revenue", label: "All-Time Revenue" },
     ])
 
     renderTable("Top Plans", rankRows(topPlans), [
@@ -1597,15 +1453,6 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
       { align: "right", key: "price", label: "Price" },
       { align: "right", key: "activeProducts", label: "Products" },
       { align: "right", key: "purchases", label: "Purchases" },
-    ])
-
-    renderTable("Connector Errors", rankRows(errors), [
-      { align: "right", key: "rank", label: "#", width: 3 },
-      { key: "product", label: "Product", maxWidth: 28 },
-      { key: "provider", label: "Provider", maxWidth: 16 },
-      { format: statusCell, key: "status", label: "Status", maxWidth: 14 },
-      { key: "error", label: "Error", maxWidth: 58 },
-      { key: "updatedAt", label: "Updated", maxWidth: 19 },
     ])
   }
 
@@ -1721,12 +1568,6 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
         value: formatNumber(operations.activeJobs),
       },
       {
-        detail: "Payment connectors needing attention",
-        label: "Connector Errors",
-        tone: operations.connectorErrors > 0 ? "bad" : "good",
-        value: formatNumber(operations.connectorErrors),
-      },
-      {
         detail: "Drafts untouched for more than 14 days",
         label: "Stale Drafts",
         tone: operations.staleDrafts > 0 ? "warn" : "good",
@@ -1744,11 +1585,6 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
         label: "Event backlog",
         tone: operations.retryingEvents > 0 ? "warn" : "good",
         value: formatNumber(operations.retryingEvents),
-      },
-      {
-        label: "Connector errors",
-        tone: operations.connectorErrors > 0 ? "bad" : "good",
-        value: formatNumber(operations.connectorErrors),
       },
     ])
 
