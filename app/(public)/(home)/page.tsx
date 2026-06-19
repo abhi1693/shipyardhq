@@ -58,31 +58,6 @@ type DisplayDrop = {
   createdAt?: string
 }
 
-const fallbackLaunch: DisplayDrop = {
-  slug: undefined,
-  name: "VectorFlow AI",
-  tagline:
-    "Autonomous pipeline automation for modern engineering teams. Ship 3x faster with predictive CI/CD logic.",
-  logo: null,
-  score: null,
-  rank: null,
-  upvoteGrowthPercent: null,
-  buildersClickedCount: null,
-}
-
-const fallbackDrops: DisplayDrop[] = [
-  {
-    name: "PrismLens",
-    tagline: "Turn raw footage into cinematic shorts with one click.",
-    category: "AI & Video",
-  },
-  {
-    name: "NodeFlow",
-    tagline: "Zero-latency API orchestration for edge computing.",
-    category: "Dev Tools",
-  },
-]
-
 type HomepageBuilderSummary = Awaited<
   ReturnType<typeof getHomepageBuilderSummary>
 >
@@ -305,7 +280,7 @@ async function HomepageDataSections() {
   ])
 
   const feedProducts = feedPage.items.map(toDisplayDrop)
-  const launch = launchOfDay
+  const launch: DisplayDrop | null = launchOfDay
     ? {
         ...toDisplayDrop(launchOfDay),
         rank: launchOfDay.rank,
@@ -313,27 +288,25 @@ async function HomepageDataSections() {
         upvoteGrowthPercent: launchOfDay.upvoteGrowthPercent,
         buildersClickedCount: launchOfDay.buildersClickedCount,
       }
-    : (feedProducts[0] ?? fallbackLaunch)
+    : (feedProducts[0] ?? null)
   const feedDrops = feedProducts.filter(
-    (product) => !launch.slug || product.slug !== launch.slug,
+    (product) => !launch?.slug || product.slug !== launch.slug,
   )
-  const usingFallbackDrops = feedPage.items.length === 0
-  const drops =
-    feedDrops.length > 0 ? feedDrops : usingFallbackDrops ? fallbackDrops : []
+  const drops = feedDrops
   const homepageVoteProductIds = Array.from(
     new Set(
-      [launch.id, ...drops.map((drop) => drop.id)].filter((id): id is string =>
+      [launch?.id, ...drops.map((drop) => drop.id)].filter((id): id is string =>
         Boolean(id),
       ),
     ),
   )
   const referenceDateIso = new Date().toISOString()
-  const launchGrowth = launch.upvoteGrowthPercent
-  const launchBuildersClickedCount = launch.buildersClickedCount ?? 0
+  const launchGrowth = launch?.upvoteGrowthPercent
+  const launchBuildersClickedCount = launch?.buildersClickedCount ?? 0
   const launchSignalLabel =
     typeof launchGrowth === "number"
       ? formatPercent(launchGrowth)
-      : launch.rank
+      : launch?.rank
         ? `#${launch.rank}`
         : "New"
   const launchSignalIsPositive =
@@ -347,80 +320,116 @@ async function HomepageDataSections() {
       >
         <div className="grid grid-cols-12 gap-6">
           <article className="relative col-span-12 flex h-full flex-col justify-between overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm lg:col-span-8">
-            <div className="mb-4 flex items-start justify-between gap-4">
-              <div className="flex min-w-0 items-start gap-4">
-                <ProductLogo product={launch} className="size-16" />
-                <div className="min-w-0">
-                  <div className="mb-1 flex flex-wrap items-center gap-2">
-                    <h2 className="text-2xl font-semibold leading-none">
-                      {launch.name}
-                    </h2>
-                    <span className="rounded-full bg-[#F97316]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#9A3412]">
-                      Launch of the Day
+            {launch ? (
+              <>
+                <div className="mb-4 flex items-start justify-between gap-4">
+                  <div className="flex min-w-0 items-start gap-4">
+                    <ProductLogo product={launch} className="size-16" />
+                    <div className="min-w-0">
+                      <div className="mb-1 flex flex-wrap items-center gap-2">
+                        <h2 className="text-2xl font-semibold leading-none">
+                          {launch.name}
+                        </h2>
+                        <span className="rounded-full bg-[#F97316]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#9A3412]">
+                          Launch of the Day
+                        </span>
+                      </div>
+                      <p className="max-w-lg text-sm leading-snug text-[#43474c]">
+                        {launch.tagline}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="hidden flex-col items-end sm:flex">
+                    <div
+                      className={cn(
+                        "flex items-center gap-1.5 rounded px-2 py-1",
+                        launchSignalIsPositive
+                          ? "bg-[#16a34a]/5"
+                          : "bg-[#ba1a1a]/5",
+                      )}
+                    >
+                      <TrendingUp
+                        className={cn(
+                          "size-[18px]",
+                          launchSignalIsPositive
+                            ? "text-[#166534]"
+                            : "text-[#ba1a1a]",
+                        )}
+                      />
+                      <span
+                        className={cn(
+                          "text-xs font-semibold uppercase tracking-[0.05em]",
+                          launchSignalIsPositive
+                            ? "text-[#166534]"
+                            : "text-[#ba1a1a]",
+                        )}
+                      >
+                        {launchSignalLabel}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-auto flex flex-wrap items-center gap-4 border-t border-[#E2E8F0]/50 pt-4">
+                  <HomepageUpvoteButton
+                    productId={launch.id}
+                    productSlug={launch.slug}
+                    initialCount={launch.score ?? 0}
+                    initialUpvoted={launch.isVoted}
+                    countIncrement={10}
+                    syncResponseCount={false}
+                    fullLabel
+                    className="px-6"
+                  />
+                  <Button
+                    asChild
+                    className="h-10 rounded-lg border border-[#c4c6cd] bg-white px-6 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC]"
+                  >
+                    <Link
+                      href={
+                        launch.slug ? productPath(launch.slug) : BROWSE_PATH
+                      }
+                    >
+                      View Product
+                    </Link>
+                  </Button>
+                  <div className="ml-auto flex items-center">
+                    <span className="text-[11px] font-medium leading-[14px] text-[#43474c]">
+                      {formatBuildersClickedLabel(launchBuildersClickedCount)}
                     </span>
                   </div>
-                  <p className="max-w-lg text-sm leading-snug text-[#43474c]">
-                    {launch.tagline}
-                  </p>
                 </div>
-              </div>
-              <div className="hidden flex-col items-end sm:flex">
-                <div
-                  className={cn(
-                    "flex items-center gap-1.5 rounded px-2 py-1",
-                    launchSignalIsPositive
-                      ? "bg-[#16a34a]/5"
-                      : "bg-[#ba1a1a]/5",
-                  )}
-                >
-                  <TrendingUp
-                    className={cn(
-                      "size-[18px]",
-                      launchSignalIsPositive
-                        ? "text-[#166534]"
-                        : "text-[#ba1a1a]",
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      "text-xs font-semibold uppercase tracking-[0.05em]",
-                      launchSignalIsPositive
-                        ? "text-[#166534]"
-                        : "text-[#ba1a1a]",
-                    )}
-                  >
-                    {launchSignalLabel}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="mt-auto flex flex-wrap items-center gap-4 border-t border-[#E2E8F0]/50 pt-4">
-              <HomepageUpvoteButton
-                productId={launch.id}
-                productSlug={launch.slug}
-                initialCount={launch.score ?? 0}
-                initialUpvoted={launch.isVoted}
-                countIncrement={10}
-                syncResponseCount={false}
-                fullLabel
-                className="px-6"
-              />
-              <Button
-                asChild
-                className="h-10 rounded-lg border border-[#c4c6cd] bg-white px-6 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC]"
-              >
-                <Link
-                  href={launch.slug ? productPath(launch.slug) : BROWSE_PATH}
-                >
-                  View Product
-                </Link>
-              </Button>
-              <div className="ml-auto flex items-center">
-                <span className="text-[11px] font-medium leading-[14px] text-[#43474c]">
-                  {formatBuildersClickedLabel(launchBuildersClickedCount)}
+              </>
+            ) : (
+              <div className="flex min-h-44 flex-col justify-center">
+                <span className="mb-3 w-fit rounded-full bg-[#F97316]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#9A3412]">
+                  Launch of the Day
                 </span>
+                <h2 className="text-2xl font-semibold leading-tight text-black">
+                  No launch is live yet.
+                </h2>
+                <p className="mt-2 max-w-lg text-sm leading-6 text-[#43474c]">
+                  Real products will appear here as soon as launches are
+                  published.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3 border-t border-[#E2E8F0]/50 pt-4">
+                  <Button
+                    asChild
+                    className="h-10 rounded-lg border-0 bg-black px-6 text-xs font-semibold uppercase tracking-[0.05em] text-white hover:bg-black/90"
+                  >
+                    <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
+                      Submit Product
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    className="h-10 rounded-lg border border-[#c4c6cd] bg-white px-6 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC]"
+                  >
+                    <Link href={BROWSE_PATH}>Browse Products</Link>
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
           </article>
 
           <div className="col-span-12 lg:col-span-4">
@@ -465,10 +474,10 @@ async function HomepageDataSections() {
 
           <HomepageDropsInfiniteList
             initialItems={drops}
-            initialHasMore={!usingFallbackDrops && feedPage.hasMore}
+            initialHasMore={feedPage.hasMore}
             initialNextPage={feedPage.nextPage}
             pageSize={feedPage.pageSize}
-            excludedSlug={launch.slug}
+            excludedSlug={launch?.slug}
             referenceDateIso={referenceDateIso}
           />
         </section>
