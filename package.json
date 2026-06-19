@@ -36,6 +36,8 @@
     "analyze": "next experimental-analyze --output",
     "build:ci": "npm run build && npm run prisma:seed",
     "start": "next start",
+    "admin:insights": "tsx scripts/admin-insights.ts",
+    "admin:prod": "scripts/admin-insights-prod.sh",
     "worker": "tsx bin/shipyard-worker.ts",
     "images:ingest-external": "tsx scripts/ingest-external-images-to-r2.ts",
     "images:ingest-external:apply": "tsx scripts/ingest-external-images-to-r2.ts --apply",
