@@ -262,7 +262,10 @@ export const getBrowseProducts = cached(
     const allProducts = [...priorityProducts, ...regularProducts]
     const scoreMap = await getCurrentScoreMap(allProducts.map((p) => p.id))
     const products = allProducts.map((product) =>
-      mapProductCardRecordToBase(product, now, { scoreByProductId: scoreMap }),
+      mapProductCardRecordToBase(product, now, {
+        scoreByProductId: scoreMap,
+        priorityPlanIds,
+      }),
     )
     const total = totalPriority + totalRegular
     const hasMore = skip + products.length < total

@@ -9,6 +9,7 @@ export const productCardSelect = {
   name: true,
   logo: true,
   tagline: true,
+  planId: true,
   pricingModel: true,
   startingPriceCents: true,
   currencyCode: true,
@@ -36,20 +37,6 @@ export const productCardSelect = {
       expiresAt: true,
     },
   },
-  plan: {
-    select: {
-      assignments: {
-        where: { enabled: true },
-        select: {
-          feature: {
-            select: {
-              key: true,
-            },
-          },
-        },
-      },
-    },
-  },
 } satisfies Prisma.ProductSelect
 
 export type ProductCardSelect = typeof productCardSelect
@@ -59,9 +46,39 @@ export type ProductCardRecord = Prisma.ProductGetPayload<{
 }>
 
 const isPriorityPlacement = (product: ProductCardRecord): boolean =>
-  product.plan?.assignments?.some(
-    (assignment) => assignment.feature?.key === PRIORITY_PLACEMENT_FEATURE_KEY,
-  ) ?? false
+  product.planId ? false : isLegacyPriorityPlacement(product)
+
+type PriorityPlanIds = ReadonlySet<string> | readonly string[]
+
+type LegacyPriorityPlacementProduct = {
+  plan?: {
+    assignments?: Array<{
+      feature?: {
+        key?: string | null
+      } | null
+    }>
+  } | null
+}
+
+const priorityPlanIdsHas = (
+  priorityPlanIds: PriorityPlanIds | undefined,
+  planId: string | null | undefined,
+) => {
+  if (!priorityPlanIds || !planId) return false
+  if ("has" in priorityPlanIds) return priorityPlanIds.has(planId)
+  return priorityPlanIds.includes(planId)
+}
+
+const isLegacyPriorityPlacement = (product: ProductCardRecord): boolean => {
+  const legacyProduct = product as ProductCardRecord &
+    LegacyPriorityPlacementProduct
+  return (
+    legacyProduct.plan?.assignments?.some(
+      (assignment) =>
+        assignment.feature?.key === PRIORITY_PLACEMENT_FEATURE_KEY,
+    ) ?? false
+  )
+}
 
 const resolveBadges = (
   product: ProductCardRecord,
@@ -77,7 +94,10 @@ const resolveBadges = (
 export const mapProductCardRecordToBase = (
   product: ProductCardRecord,
   now: Date = new Date(),
-  options?: { scoreByProductId?: Map<string, number> },
+  options?: {
+    scoreByProductId?: Map<string, number>
+    priorityPlanIds?: PriorityPlanIds
+  },
 ): ProductCardBase => {
   const scoreOverride = options?.scoreByProductId?.get(product.id)
   const scoreCount =
@@ -99,7 +119,9 @@ export const mapProductCardRecordToBase = (
     analytics: product.analytics,
     category: product.category,
     badges: resolveBadges(product, now),
-    sponsored: isPriorityPlacement(product),
+    sponsored:
+      priorityPlanIdsHas(options?.priorityPlanIds, product.planId) ||
+      isPriorityPlacement(product),
     isVerified: Boolean(product.verification?.isVerified),
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,

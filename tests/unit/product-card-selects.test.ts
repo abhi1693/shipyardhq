@@ -1,0 +1,56 @@
+import { describe, expect, it } from "vitest"
+
+import { mapProductCardRecordToBase } from "@/lib/products/selects"
+import type { ProductCardRecord } from "@/lib/products/selects"
+
+const baseProduct = {
+  id: "product-1",
+  slug: "product-one",
+  name: "Product One",
+  logo: "https://example.com/logo.png",
+  tagline: "A useful product",
+  planId: null,
+  pricingModel: "free",
+  startingPriceCents: null,
+  currencyCode: "USD",
+  createdAt: new Date("2026-01-01T00:00:00.000Z"),
+  updatedAt: new Date("2026-01-02T00:00:00.000Z"),
+  analytics: { upvotes: 0 },
+  verification: { isVerified: false },
+  category: { name: "Developer Tools", slug: "developer-tools" },
+  ProductBadge: [],
+} satisfies ProductCardRecord
+
+describe("mapProductCardRecordToBase", () => {
+  it("marks priority plan products as sponsored without loading plan relations", () => {
+    const product = {
+      ...baseProduct,
+      planId: "priority-plan",
+    } satisfies ProductCardRecord
+
+    expect(
+      mapProductCardRecordToBase(product, new Date(), {
+        priorityPlanIds: ["priority-plan"],
+      }).sponsored,
+    ).toBe(true)
+  })
+
+  it("keeps legacy plan-assignment records sponsored during migrations", () => {
+    const product = {
+      ...baseProduct,
+      plan: {
+        assignments: [
+          {
+            feature: {
+              key: "priorityPlacement",
+            },
+          },
+        ],
+      },
+    } as ProductCardRecord & {
+      plan: { assignments: Array<{ feature: { key: string } }> }
+    }
+
+    expect(mapProductCardRecordToBase(product).sponsored).toBe(true)
+  })
+})

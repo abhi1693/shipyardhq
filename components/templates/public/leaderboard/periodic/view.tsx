@@ -9,6 +9,7 @@ import { Button } from "@/components/atoms/button"
 import { Card, CardContent } from "@/components/atoms/card"
 import { Image } from "@/components/atoms/image"
 import { mapProductCardRecordToBase } from "@/lib/products/selects"
+import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
 import {
   ALTERNATIVES_PATH,
   BROWSE_PATH,
@@ -1096,9 +1097,12 @@ export async function PeriodicLeaderboardView({
   )
   const shouldFilterMonths = availableMonthKeys.size > 0
   const shouldFilterWeeks = availableWeekKeys.size > 0
+  const priorityPlanIds = await getPriorityPlacementPlanIds()
 
   const items = leaderboard.products.map((product) => {
-    const base = mapProductCardRecordToBase(product, now)
+    const base = mapProductCardRecordToBase(product, now, {
+      priorityPlanIds,
+    })
     const productRank = (product as unknown as { leaderboardRank?: unknown })
       .leaderboardRank
     const leaderboardRank =

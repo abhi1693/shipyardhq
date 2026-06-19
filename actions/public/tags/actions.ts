@@ -15,6 +15,7 @@ import {
 } from "@/lib/products/selects"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
+import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { buildPublicDiscoverySqlFilter } from "@/lib/products/public-discovery"
 
@@ -371,11 +372,14 @@ export const getKeywordTagProducts = cached(
       } satisfies KeywordTagProductsResult
     }
 
-    const products = await prisma.product.findMany({
-      where: { id: { in: productIds } },
-      select: productCardSelect,
-    })
-    const scoreMap = await getCurrentScoreMap(productIds)
+    const [products, scoreMap, priorityPlanIds] = await Promise.all([
+      prisma.product.findMany({
+        where: { id: { in: productIds } },
+        select: productCardSelect,
+      }),
+      getCurrentScoreMap(productIds),
+      getPriorityPlacementPlanIds(),
+    ])
 
     const productMap = new Map(
       products.map((product: ProductCardRecord) => [product.id, product]),
@@ -394,6 +398,7 @@ export const getKeywordTagProducts = cached(
       (product: ProductCardRecord) =>
         mapProductCardRecordToBase(product, new Date(), {
           scoreByProductId: scoreMap,
+          priorityPlanIds,
         }),
     )
 

@@ -13,6 +13,7 @@ import {
   productCardSelect,
   type ProductCardRecord,
 } from "@/lib/products/selects"
+import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
@@ -134,19 +135,22 @@ async function TrendingToolsInCategoryPageContent({
     .map((id) => recordMap.get(id))
     .filter((record): record is ProductCardRecord => Boolean(record))
 
-  const interestMap = ordered.length
-    ? await getProductInterestSignalsMap({
-        products: ordered.map((record) => ({
-          id: record.id,
-          slug: record.slug,
-        })),
-      })
-    : new Map()
+  const [interestMap, priorityPlanIds] = await Promise.all([
+    ordered.length
+      ? getProductInterestSignalsMap({
+          products: ordered.map((record) => ({
+            id: record.id,
+            slug: record.slug,
+          })),
+        })
+      : Promise.resolve(new Map()),
+    getPriorityPlacementPlanIds(),
+  ])
 
   const now = new Date()
   const items = ordered.map((record) =>
     toProductCardItem({
-      ...mapProductCardRecordToBase(record, now),
+      ...mapProductCardRecordToBase(record, now, { priorityPlanIds }),
       interest: interestMap.get(record.id) ?? null,
     }),
   )

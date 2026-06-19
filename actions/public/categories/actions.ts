@@ -11,6 +11,7 @@ import {
   type ProductCardRecord,
 } from "@/lib/products/selects"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
+import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { hasEditorPickBadge } from "@/lib/products/badges"
 import {
@@ -267,7 +268,7 @@ export const getCategoryWithProducts = cached(
       ],
     })
 
-    const [products, total] = await Promise.all([
+    const [products, total, priorityPlanIds] = await Promise.all([
       prisma.product.findMany({
         where,
         select: categoryProductSelect,
@@ -276,6 +277,7 @@ export const getCategoryWithProducts = cached(
         take: safePageSize,
       }),
       prisma.product.count({ where }),
+      getPriorityPlacementPlanIds(),
     ])
 
     const typedProducts = products as unknown as ProductCardRecord[]
@@ -290,6 +292,7 @@ export const getCategoryWithProducts = cached(
     const baseProducts = typedProducts.map((product: ProductCardRecord) =>
       mapProductCardRecordToBase(product, now, {
         scoreByProductId: scoreMap,
+        priorityPlanIds,
       }),
     )
 

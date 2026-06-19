@@ -12,6 +12,7 @@ import { getPlatformMeta } from "@/lib/platforms/config"
 import { productTypeValueFromSlug } from "@/lib/product-types/models"
 import { pricingModelValueFromSlug } from "@/lib/pricing/models"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
+import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 
 export type ProductFeedPageRequest =
@@ -166,12 +167,16 @@ export async function getProductFeedPage(
       }
 
       const now = new Date()
-      const scoreMap = await getCurrentScoreMap(records.map((r) => r.id))
+      const [scoreMap, priorityPlanIds] = await Promise.all([
+        getCurrentScoreMap(records.map((r) => r.id)),
+        getPriorityPlacementPlanIds(),
+      ])
       const pager = createStaticProductPager(records, {
         pageSize,
         mapItem: (record) =>
           mapProductCardRecordToBase(record, now, {
             scoreByProductId: scoreMap,
+            priorityPlanIds,
           }),
       })
 

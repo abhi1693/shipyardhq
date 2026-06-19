@@ -20,6 +20,7 @@ import { PromotedShips } from "@/components/templates/public/leaderboard/promote
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { DODO_AFFILIATE_URL } from "@/lib/marketing/affiliates"
 import { getLeaderboardPagePayload } from "@/lib/leaderboard/cache"
+import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
 import { buildProductInterestBadges } from "@/lib/products/interest"
 import { mapProductCardRecordToBase } from "@/lib/products/selects"
 import {
@@ -304,19 +305,23 @@ export async function LeaderboardPageContent({
     await getLeaderboardPagePayload(filters)
   const now = new Date()
   const monthlyArchivePath = currentMonthlyLeaderboardPath(now)
-  const [interestMap, partnerSpotlightProducts] = await Promise.all([
-    getProductInterestSignalsMap({
-      products: products.map((product) => ({
-        id: product.id,
-        slug: product.slug,
-      })),
-    }),
-    getPartnerSpotlightProducts(1),
-  ])
+  const [interestMap, partnerSpotlightProducts, priorityPlanIds] =
+    await Promise.all([
+      getProductInterestSignalsMap({
+        products: products.map((product) => ({
+          id: product.id,
+          slug: product.slug,
+        })),
+      }),
+      getPartnerSpotlightProducts(1),
+      getPriorityPlacementPlanIds(),
+    ])
 
   const leaderboardItems: LeaderboardListItem[] = products.map(
     (product, index) => {
-      const base = mapProductCardRecordToBase(product, now)
+      const base = mapProductCardRecordToBase(product, now, {
+        priorityPlanIds,
+      })
 
       return {
         ...base,

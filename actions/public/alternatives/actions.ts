@@ -291,7 +291,10 @@ export const getAlternativeProductsPage = cached(
     const allProducts = [...priorityProducts, ...regularProducts]
     const scoreMap = await getCurrentScoreMap(allProducts.map((p) => p.id))
     const baseItems = allProducts.map((product) =>
-      mapProductCardRecordToBase(product, now, { scoreByProductId: scoreMap }),
+      mapProductCardRecordToBase(product, now, {
+        scoreByProductId: scoreMap,
+        priorityPlanIds,
+      }),
     )
 
     const interestMap = await getProductInterestSignalsMap({

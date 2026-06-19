@@ -25,6 +25,7 @@ import { getUseCasePagePayload } from "@/lib/useCases/page-cache"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import { getPublicUseCaseProductsPage } from "@/actions/public/use-cases/actions"
 import { mapProductCardRecordToBase } from "@/lib/products/selects"
+import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
 
 interface UseCasePageProps {
   params: Promise<{ slug: string }>
@@ -32,11 +33,13 @@ interface UseCasePageProps {
 
 export async function UseCasePageContent({ params }: UseCasePageProps) {
   const { slug } = await params
-  const [data, taxonomySponsors, productsPage] = await Promise.all([
-    getUseCasePagePayload(slug),
-    getTaxonomySponsorProducts(),
-    getPublicUseCaseProductsPage({ slug, pageSize: 24 }),
-  ])
+  const [data, taxonomySponsors, productsPage, priorityPlanIds] =
+    await Promise.all([
+      getUseCasePagePayload(slug),
+      getTaxonomySponsorProducts(),
+      getPublicUseCaseProductsPage({ slug, pageSize: 24 }),
+      getPriorityPlacementPlanIds(),
+    ])
 
   if (!data) notFound()
 
@@ -45,7 +48,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
   const referenceDate = new Date(referenceDateIso)
   const useCaseFeedItems = productsPage.products.map((product) =>
     mapProductCardBaseToTaxonomyFeedItem(
-      mapProductCardRecordToBase(product, referenceDate),
+      mapProductCardRecordToBase(product, referenceDate, { priorityPlanIds }),
     ),
   )
 
