@@ -1,4 +1,4 @@
-import { getSponsoredProducts } from "@/actions/public/products/featured"
+import { getPartnerSpotlightProducts } from "@/actions/public/products/featured"
 import type { TaxonomySponsorProduct } from "@/components/templates/public/common/TaxonomyDetailPage"
 import { stableUnitInterval } from "@/lib/stable-random"
 
@@ -12,15 +12,12 @@ export async function getTaxonomySponsorProducts({
   limit = 24,
 }: GetTaxonomySponsorProductsOptions = {}): Promise<TaxonomySponsorProduct[]> {
   const excluded = new Set(excludeSlugs.map((slug) => slug.toLowerCase()))
-  const placements = await getSponsoredProducts(Math.max(12, limit))
+  const products = await getPartnerSpotlightProducts(Math.max(12, limit))
   const rotationBucket = Math.floor(Date.now() / 30_000)
   const sponsors: TaxonomySponsorProduct[] = []
   const seen = new Set<string>()
 
-  for (const placement of placements) {
-    const product = placement.product
-    if (!product) continue
-
+  for (const product of products) {
     const normalizedSlug = product.slug.toLowerCase()
     if (seen.has(normalizedSlug) || excluded.has(normalizedSlug)) continue
 

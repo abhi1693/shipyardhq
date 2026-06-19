@@ -8,7 +8,7 @@ import {
   WalletCards,
 } from "lucide-react"
 
-import { getSponsoredProducts } from "@/actions/public/products/featured"
+import { getPartnerSpotlightProducts } from "@/actions/public/products/featured"
 import {
   getPublicRewardsStats,
   getRewardsLeaderboardPage,
@@ -60,10 +60,10 @@ export async function RewardsLeaderboardPageContent({
 }: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const [stats, leaderboardPage, sponsoredPlacements] = await Promise.all([
+  const [stats, leaderboardPage, partnerSpotlightProducts] = await Promise.all([
     getPublicRewardsStats(),
     getRewardsLeaderboardPage({ page: 1 }),
-    getSponsoredProducts(1),
+    getPartnerSpotlightProducts(1),
   ])
 
   const {
@@ -186,7 +186,7 @@ export async function RewardsLeaderboardPageContent({
           </section>
 
           <aside className="space-y-6 lg:col-span-4">
-            <PromotedShips placements={sponsoredPlacements} />
+            <PromotedShips products={partnerSpotlightProducts} />
           </aside>
         </div>
       </div>

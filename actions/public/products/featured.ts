@@ -177,7 +177,7 @@ export const getFeaturedByCategorySlug = cached(
 
 const PARTNER_SPOTLIGHT_FEATURE_KEY = "partnerSpotlight" as const
 
-// Get products that have the partner spotlight plan feature enabled
+// Get published products whose assigned plan includes Partner Spotlight.
 type PartnerSpotlightProductResult = {
   id: string
   slug: string
@@ -219,6 +219,16 @@ export const getPartnerSpotlightProducts = cached(
             AND ps."startsAt" <= ${now}
             AND ps."endsAt" >= ${now}
             AND p.status = 'published'
+            AND p."planId" IS NOT NULL
+            AND EXISTS (
+              SELECT 1
+              FROM "PlanFeatureAssignment" AS a
+              INNER JOIN "PlanFeature" AS f
+                ON f.id = a."featureId"
+              WHERE a."planId" = p."planId"
+                AND a.enabled = true
+                AND f.key = ${PARTNER_SPOTLIGHT_FEATURE_KEY}
+            )
           GROUP BY p.id
         ) AS ids
         ORDER BY ids.starts_at ASC, ids.created_at ASC, ids.id ASC

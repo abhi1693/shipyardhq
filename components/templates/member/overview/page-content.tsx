@@ -4,8 +4,8 @@ import Image from "next/image"
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { formatDistanceToNow } from "date-fns"
 import {
-  ArrowRight,
   Award,
+  ExternalLink,
   Eye,
   Flame,
   Package,
@@ -18,9 +18,11 @@ import {
 
 import { Skeleton } from "@/components/atoms/skeleton"
 import { getMemberTrafficOverview } from "@/actions/member/overview/actions"
+import { getPartnerSpotlightProducts } from "@/actions/public/products/featured"
 import ProductDraftStartButton from "@/components/pages/products/ProductDraftStartButton"
 import { MemberAnalyticsCharts } from "@/components/templates/member/overview/analytics-charts"
 import prisma from "@/lib/prisma"
+import { isOptimizedImageSrc } from "@/lib/images/sources"
 import { cn } from "@/lib/utils"
 import {
   MEMBER_PRODUCTS_PATH,
@@ -178,7 +180,7 @@ async function MemberOverviewDashboard() {
 
         <aside className="col-span-12 space-y-6 lg:col-span-4">
           <RewardsSnapshot snapshot={snapshot} />
-          <PromotedPanel />
+          <PartnerSpotlightPanel />
         </aside>
       </div>
     </div>
@@ -484,28 +486,51 @@ function RewardsSnapshot({ snapshot }: { snapshot: MemberDashboardSnapshot }) {
   )
 }
 
-function PromotedPanel() {
+async function PartnerSpotlightPanel() {
+  const products = await getPartnerSpotlightProducts(1).catch(() => [])
+  const product = products[0]
+
+  if (!product) return null
+
+  const tagline = product.tagline?.trim()
+  const logoSrc = isOptimizedImageSrc(product.logo) ? product.logo : null
+  const logoFallback = product.name.slice(0, 1).toUpperCase()
+
   return (
-    <section className="group relative overflow-hidden rounded-xl bg-[#341100] p-6 text-white shadow-sm">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.18),_transparent_55%)] opacity-50" />
+    <section className="group relative overflow-hidden rounded-xl bg-[#213145] p-6 text-white shadow-sm">
+      <div className="absolute inset-x-0 top-0 h-1 bg-[#c0ff00]" />
       <div className="relative">
-        <span className="rounded bg-white/20 px-2 py-1 text-[10px] font-extrabold uppercase tracking-[0.2em]">
-          Sponsored
-        </span>
-        <h2 className="mt-3 text-lg font-semibold">
-          Scale with Shipyard Cloud
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-white/75">
-          Get launch credits for your next enterprise projects with priority
-          support.
-        </p>
-        <Link
-          href={MEMBER_REWARDS_PATH}
+        <div className="mb-4 flex items-center gap-3">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white p-1.5 text-sm font-semibold text-[#213145]">
+            {logoSrc ? (
+              <Image
+                src={logoSrc}
+                alt={`${product.name} logo`}
+                width={40}
+                height={40}
+                className="h-full w-full object-contain"
+              />
+            ) : (
+              logoFallback
+            )}
+          </span>
+          <span className="rounded bg-white/10 px-2 py-1 text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#c0ff00]">
+            Partner Spotlight
+          </span>
+        </div>
+        <h2 className="text-lg font-semibold">{product.name}</h2>
+        {tagline ? (
+          <p className="mt-2 text-sm leading-6 text-white/75">{tagline}</p>
+        ) : null}
+        <a
+          href={`/r/sponsored/${product.slug}`}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
           className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-lime-300 transition-all group-hover:gap-2"
         >
-          Upgrade now
-          <ArrowRight className="h-4 w-4" aria-hidden />
-        </Link>
+          View partner
+          <ExternalLink className="h-4 w-4" aria-hidden />
+        </a>
       </div>
     </section>
   )

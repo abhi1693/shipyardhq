@@ -6,7 +6,7 @@ import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
 import { ProductCard } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
-import { getSponsoredProducts } from "@/actions/public/products/featured"
+import { getPartnerSpotlightProducts } from "@/actions/public/products/featured"
 import { getPublicProductsByUseCase } from "@/actions/public/products/actions"
 
 export function ProductUpvoteBadgeServer({
@@ -138,21 +138,19 @@ export async function DetailSponsoredProductCard({
 }: {
   currentProductSlug: string
 }) {
-  const placements = await getSponsoredProducts(12)
-  const placement =
-    placements.find((item) => item.product.slug !== currentProductSlug) ??
-    placements[0] ??
+  const products = await getPartnerSpotlightProducts(12)
+  const product =
+    products.find((item) => item.slug !== currentProductSlug) ??
+    products[0] ??
     null
 
-  if (!placement) return null
-
-  const product = placement.product
+  if (!product) return null
   const tagline = product.tagline?.trim()
 
   return (
     <section className="relative overflow-hidden rounded-xl bg-[#061d31] p-6 text-white">
-      <div className="absolute right-2 top-2 rounded border border-white/20 bg-white/10 px-1.5 py-0.5 text-[9px] font-bold uppercase">
-        Sponsored
+      <div className="absolute right-2 top-2 rounded border border-white/20 bg-white/10 px-2 py-0.5 text-[9px] font-bold uppercase">
+        Partner Spotlight
       </div>
       <div className="relative z-10">
         <div className="mb-3 flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-white/10 text-[#c0ff00]">

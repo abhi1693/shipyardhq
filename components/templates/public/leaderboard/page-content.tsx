@@ -9,7 +9,7 @@ import {
   Zap,
 } from "lucide-react"
 
-import { getSponsoredProducts } from "@/actions/public/products/featured"
+import { getPartnerSpotlightProducts } from "@/actions/public/products/featured"
 import { Button } from "@/components/atoms/button"
 import { Card, CardContent } from "@/components/atoms/card"
 import { Image } from "@/components/atoms/image"
@@ -304,14 +304,14 @@ export async function LeaderboardPageContent({
     await getLeaderboardPagePayload(filters)
   const now = new Date()
   const monthlyArchivePath = currentMonthlyLeaderboardPath(now)
-  const [interestMap, sponsoredPlacements] = await Promise.all([
+  const [interestMap, partnerSpotlightProducts] = await Promise.all([
     getProductInterestSignalsMap({
       products: products.map((product) => ({
         id: product.id,
         slug: product.slug,
       })),
     }),
-    getSponsoredProducts(1),
+    getPartnerSpotlightProducts(1),
   ])
 
   const leaderboardItems: LeaderboardListItem[] = products.map(
@@ -357,7 +357,7 @@ export async function LeaderboardPageContent({
           </section>
           <aside className="space-y-6 lg:col-span-4">
             <LazyTrafficStatsPanel initialStats={stats} />
-            <PromotedShips placements={sponsoredPlacements} />
+            <PromotedShips products={partnerSpotlightProducts} />
             <DodoPaymentsCard />
           </aside>
         </div>

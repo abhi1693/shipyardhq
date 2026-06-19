@@ -81,12 +81,6 @@ const fallbackDrops: DisplayDrop[] = [
     tagline: "Zero-latency API orchestration for edge computing.",
     category: "Dev Tools",
   },
-  {
-    name: "ScaleForce DB",
-    tagline: "The only database designed for sub-millisecond global reads.",
-    category: "Enterprise",
-    isSponsored: true,
-  },
 ]
 
 type HomepageBuilderSummary = Awaited<
