@@ -549,10 +549,11 @@ export const getProductStaticParams = cached(
 
       return slugs.map((slug) => ({ slug }))
     }),
-  "products:static-params:v2",
+  "products:static-params:v3",
   {
     ttl: DEFAULT_TTL.slowest,
     tags: () => [TAGS.products, TAGS.analytics],
+    keyParts: () => `limit:${normalizeProductStaticParamsLimit()}`,
   },
 )
 
