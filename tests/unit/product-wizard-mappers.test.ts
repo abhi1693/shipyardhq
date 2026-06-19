@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 
+import { BRAND_NAME } from "@/lib/brand"
 import { getInitialValuesFromProduct } from "@/lib/productWizard/mappers"
 import type { ProductForEditWizard } from "@/types/product-wizard"
 
@@ -9,7 +10,7 @@ function makeProduct(
   return {
     id: "product_1",
     slug: "shipyardhq",
-    name: "Shipyard HQ",
+    name: BRAND_NAME,
     tagline: "Launch, grow, and showcase your SaaS.",
     description: "A curated hub for launches.",
     websiteUrl: "https://shipyardhq.dev",

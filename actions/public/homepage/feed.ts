@@ -21,6 +21,7 @@ import {
 } from "@/lib/server/cache"
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 import { revalidateHomepage } from "@/lib/cache/revalidate"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 const PRIORITY_FEATURE_KEY = "priorityPlacement"
 const SPONSORED_PLACEMENT_FEATURE_KEY = "sponsoredProducts"
 const SPONSORED_PLAN_FEATURE_KEYS = [
@@ -191,9 +192,7 @@ function normalizePageSize(value: unknown, fallback: number) {
 }
 
 function buildBaseWhere(): Prisma.ProductWhereInput {
-  return {
-    status: "published",
-  }
+  return buildPublicDiscoveryProductWhere()
 }
 
 function daysAgo(days: number) {

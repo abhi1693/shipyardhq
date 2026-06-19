@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma"
 import { BROWSE_PATH, productPath } from "@/lib/routes"
 import { cacheGetOrSet } from "@/lib/server/cache"
 import { buildSearchSuggestionsCacheKey } from "@/lib/server/search/suggestions-cache"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 
 const MIN_QUERY_LENGTH = 2
 const PRODUCT_LIMIT = 8
@@ -36,8 +37,7 @@ async function loadSuggestions(query: string): Promise<SearchSuggestion[]> {
   const tokensLower = tokens.map((token) => token.toLowerCase())
 
   const products = await prisma.product.findMany({
-    where: {
-      status: "published",
+    where: buildPublicDiscoveryProductWhere({
       OR: [
         { name: { contains: query, mode: "insensitive" } },
         { tagline: { contains: query, mode: "insensitive" } },
@@ -51,7 +51,7 @@ async function loadSuggestions(query: string): Promise<SearchSuggestion[]> {
         ...(tokensLower.length ? [{ keywords: { hasSome: tokensLower } }] : []),
         { keywords: { has: query } },
       ],
-    },
+    }),
     select: {
       id: true,
       name: true,

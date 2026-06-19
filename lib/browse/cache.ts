@@ -15,6 +15,7 @@ import {
   productTypeValueFromSlug,
 } from "@/lib/product-types/models"
 import { BADGE_OPTIONS } from "@/lib/constants"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 
 export const browseSortLabelMap: Record<BrowseSort, string> = {
   new: "Newest",
@@ -74,7 +75,7 @@ const CATEGORY_QUERY = {
   where: {
     productAssignments: {
       some: {
-        product: { status: "published" },
+        product: buildPublicDiscoveryProductWhere(),
       },
     },
   },
@@ -83,7 +84,7 @@ const CATEGORY_QUERY = {
       select: {
         productAssignments: {
           where: {
-            product: { status: "published" },
+            product: buildPublicDiscoveryProductWhere(),
           },
         },
       },

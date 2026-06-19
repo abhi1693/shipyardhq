@@ -87,7 +87,7 @@ export function ProductBadgeCelebrationDialog({
 
   const embedCode = useMemo(() => {
     if (!baseBadgeUrl) return ""
-    return `<a href="${productUrl}" target="_blank" rel="noopener">\n  <img src="${baseBadgeUrl}" alt="Shipyard badge" style="max-width: 500px; width: 100%; height: auto;" />\n</a>`
+    return `<a href="${productUrl}" target="_blank" rel="noopener">\n  <img src="${baseBadgeUrl}" alt="${siteConfig.name} badge" style="max-width: 500px; width: 100%; height: auto;" />\n</a>`
   }, [baseBadgeUrl, productUrl])
 
   const handleThemeSelect = useCallback((nextTheme: BadgeTheme) => {

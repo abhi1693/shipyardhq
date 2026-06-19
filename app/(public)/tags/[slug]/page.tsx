@@ -128,6 +128,10 @@ export default async function TagDetailPage({ params }: TagPageProps) {
   }
 
   const { summary, products } = payload
+  if (summary.slug !== slug) {
+    redirect(tagPath(summary.slug))
+  }
+
   const tagLabel = formatTagLabel(summary.canonical || summary.keyword)
   const totalTaggedProducts = summary.productCount
 
@@ -158,12 +162,9 @@ export default async function TagDetailPage({ params }: TagPageProps) {
   })
   const referenceDateIso = new Date().toISOString()
 
-  const filteredHomepageItems = homepageFeedItems.filter((item) => {
-    if (item.isSponsored) {
-      return true
-    }
-    return tagProductIdSet.has(item.id)
-  })
+  const filteredHomepageItems = homepageFeedItems.filter((item) =>
+    tagProductIdSet.has(item.id),
+  )
 
   const seenIds = new Set(filteredHomepageItems.map((item) => item.id))
 

@@ -5,6 +5,8 @@ import {
   IconUsersGroup,
 } from "@tabler/icons-react"
 
+import { BRAND_NAME } from "@/lib/brand"
+
 const features = [
   {
     icon: IconRocket,
@@ -49,9 +51,11 @@ export default function AuthMarketingPanel() {
 
           <div className="space-y-3">
             <h1 className="text-4xl font-bold tracking-tight text-slate-900">
-              ShipYardHQ
+              {BRAND_NAME}
             </h1>
-            <p className="text-sm text-slate-600">A launchpad for indie SaaS</p>
+            <p className="text-sm text-slate-600">
+              Launch intelligence for indie SaaS
+            </p>
           </div>
 
           <div className="space-y-4 text-slate-700">
@@ -59,9 +63,10 @@ export default function AuthMarketingPanel() {
               Launch smarter. Build boldly.
             </h2>
             <p className="text-sm leading-relaxed">
-              ShipYardHQ is where indie products accelerate momentum. Publish
-              your project, meet a supportive community, and find clear paths
-              toward your next milestone. No fluff—just practical growth.
+              {BRAND_NAME} helps indie products turn launch activity into
+              momentum. Publish your project, meet a supportive community, and
+              find clear paths toward your next milestone. No fluff—just
+              practical growth.
             </p>
           </div>
         </div>

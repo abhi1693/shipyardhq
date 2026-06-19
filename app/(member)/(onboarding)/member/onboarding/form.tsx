@@ -25,6 +25,7 @@ import {
 } from "@tabler/icons-react"
 
 import { BrandLogo } from "@/components/atoms/brand-logo"
+import { BRAND_NAME } from "@/lib/brand"
 import { cn } from "@/lib/utils"
 import {
   MEMBER_BASE_PATH,
@@ -165,7 +166,7 @@ export function OnboardingForm({
           <div className="mb-4 flex items-center gap-3">
             <BrandLogo width={32} height={32} sizes="32px" eager />
             <span className="text-lg font-semibold tracking-normal text-[#00162a]">
-              Shipyard HQ
+              {BRAND_NAME}
             </span>
           </div>
           <h1 className="text-2xl font-semibold tracking-normal text-[#0b1c30]">

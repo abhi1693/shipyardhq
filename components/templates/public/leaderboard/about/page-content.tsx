@@ -26,6 +26,7 @@ import {
   MEMBER_PRODUCTS_ADD_PATH,
   PRICING_PATH,
 } from "@/lib/routes"
+import { BRAND_NAME } from "@/lib/brand"
 
 const SCORE_INPUTS = [
   {
@@ -157,7 +158,7 @@ export function LeaderboardGuidePageContent() {
             The Leaderboard Playbook
           </h1>
           <p className="mb-10 text-[16px] leading-6 text-[#43474c]">
-            Shipyard HQ&apos;s Leaderboard is the definitive engine for product
+            {BRAND_NAME}&apos;s Leaderboard is the definitive engine for product
             discovery. We&apos;ve designed a high-performance system that
             rewards quality, consistency, and genuine community engagement.
           </p>

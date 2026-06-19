@@ -13,8 +13,13 @@ import {
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { hasEditorPickBadge } from "@/lib/products/badges"
+import {
+  buildPublicDiscoveryProductWhere,
+  buildPublicDiscoverySqlFilter,
+} from "@/lib/products/public-discovery"
 
 const categoryProductSelect = productCardSelect satisfies Prisma.ProductSelect
+const publicDiscoveryProductWhere = buildPublicDiscoveryProductWhere()
 
 const CATEGORY_PRODUCTS_PAGE_SIZE = 20
 const MAX_CATEGORY_PRODUCTS_PAGE_SIZE = 50
@@ -27,22 +32,6 @@ type CategoryProductsPageResult = {
   hasMore: boolean
   nextPage: number | null
 }
-
-type CategoryWithCount = Prisma.CategoryGetPayload<{
-  include: {
-    _count: {
-      select: {
-        productAssignments: {
-          where: {
-            product: {
-              status: "published"
-            }
-          }
-        }
-      }
-    }
-  }
-}>
 
 type CategoryProductsPage = {
   category: {
@@ -137,7 +126,7 @@ export const getCategoriesWithCounts = cached(
         productAssignments: {
           some: {
             product: {
-              status: "published",
+              ...publicDiscoveryProductWhere,
             },
           },
         },
@@ -149,7 +138,7 @@ export const getCategoriesWithCounts = cached(
             productAssignments: {
               where: {
                 product: {
-                  status: "published",
+                  ...publicDiscoveryProductWhere,
                 },
               },
             },
@@ -157,7 +146,7 @@ export const getCategoriesWithCounts = cached(
         },
       },
     })
-    return categories.map((cat: CategoryWithCount) => ({
+    return categories.map((cat) => ({
       id: cat.id,
       name: cat.name,
       slug: cat.slug,
@@ -191,6 +180,7 @@ export const getCategoryHighlights = cached(
       INNER JOIN "ProductCategory" pc ON pc."categoryId" = c."id"
       INNER JOIN "Product" p ON p."id" = pc."productId"
       WHERE p."status" = 'published'
+        ${buildPublicDiscoverySqlFilter("p")}
       GROUP BY c."id", c."name", c."slug"
       ORDER BY COUNT(DISTINCT p."id") DESC, c."name" ASC
       LIMIT ${safeLimit}
@@ -218,7 +208,7 @@ export const getCategoryMeta = cached(
             productAssignments: {
               where: {
                 product: {
-                  status: "published",
+                  ...publicDiscoveryProductWhere,
                 },
               },
             },
@@ -270,13 +260,12 @@ export const getCategoryWithProducts = cached(
 
     if (!category) return null
 
-    const where = {
-      status: "published" as const,
+    const where = buildPublicDiscoveryProductWhere({
       OR: [
         { categoryId: category.id },
         { categories: { some: { categoryId: category.id } } },
       ],
-    }
+    })
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({

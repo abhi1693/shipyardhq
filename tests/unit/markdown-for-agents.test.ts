@@ -5,6 +5,7 @@ import {
   estimateMarkdownTokens,
   hasExplicitMarkdownAccept,
 } from "@/lib/server/markdownForAgents"
+import { BRAND_NAME } from "@/lib/brand"
 import { buildProductMarkdownDocument } from "@/lib/server/productMarkdownDocument"
 
 describe("markdown for agents", () => {
@@ -20,7 +21,7 @@ describe("markdown for agents", () => {
 
   it("estimates a positive token count for non-empty markdown", () => {
     expect(
-      estimateMarkdownTokens("# ShipYard HQ\n\nLaunch data"),
+      estimateMarkdownTokens(`# ${BRAND_NAME}\n\nLaunch data`),
     ).toBeGreaterThan(0)
   })
 

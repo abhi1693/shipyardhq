@@ -4,6 +4,10 @@ import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { stableUnitInterval } from "@/lib/stable-random"
 import type { FeaturedProduct } from "@/types"
 import { featuredProductSelect } from "@/types"
+import {
+  buildPublicDiscoveryProductWhere,
+  buildPublicDiscoverySqlFilter,
+} from "@/lib/products/public-discovery"
 
 type SponsoredProduct = Prisma.ProductGetPayload<{
   select: {
@@ -36,6 +40,7 @@ export const getProducts = cached(
       where: {
         badge,
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+        product: buildPublicDiscoveryProductWhere(),
       },
       take: limit,
       select: featuredProductSelect,
@@ -74,7 +79,7 @@ export const getTrendingProducts = cached(
         },
       },
       where: {
-        product: {
+        product: buildPublicDiscoveryProductWhere({
           createdAt: { lte: new Date() },
           updatedAt: { gte: yesterday },
           analytics: {
@@ -82,7 +87,7 @@ export const getTrendingProducts = cached(
               gt: 0,
             },
           },
-        },
+        }),
       },
       select: featuredProductSelect,
     })
@@ -149,12 +154,12 @@ export const getFeaturedByCategorySlug = cached(
       where: {
         badge: "featured",
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-        product: {
+        product: buildPublicDiscoveryProductWhere({
           OR: [
             { category: { slug } },
             { categories: { some: { category: { slug } } } },
           ],
-        },
+        }),
       },
       select: featuredProductSelect,
       orderBy: { createdAt: "desc" },
@@ -219,6 +224,7 @@ export const getPartnerSpotlightProducts = cached(
             AND ps."startsAt" <= ${now}
             AND ps."endsAt" >= ${now}
             AND p.status = 'published'
+            ${buildPublicDiscoverySqlFilter("p")}
             AND p."planId" IS NOT NULL
             AND EXISTS (
               SELECT 1
@@ -257,6 +263,7 @@ export const getPartnerSpotlightProducts = cached(
                        p."createdAt" AS created_at
                 FROM "Product" AS p
                 WHERE p.status = 'published'
+                  ${buildPublicDiscoverySqlFilter("p")}
                   AND EXISTS (
                     SELECT 1
                     FROM "PlanFeatureAssignment" AS a
@@ -417,6 +424,7 @@ export const getSponsoredProducts = cached(
           AND ps."startsAt" <= ${now}
           AND ps."endsAt" >= ${now}
           AND p.status = 'published'
+          ${buildPublicDiscoverySqlFilter("p")}
         ORDER BY RANDOM()
         LIMIT ${effectiveLimit}
       `,
@@ -441,6 +449,7 @@ export const getSponsoredProducts = cached(
                 SELECT DISTINCT p.id
                 FROM "Product" AS p
                 WHERE p.status = 'published'
+                  ${buildPublicDiscoverySqlFilter("p")}
                   AND p."planId" IS NOT NULL
                   AND EXISTS (
                     SELECT 1
@@ -473,6 +482,7 @@ export const getSponsoredProducts = cached(
         id: {
           in: productIds,
         },
+        ...buildPublicDiscoveryProductWhere(),
       },
       select: {
         id: true,

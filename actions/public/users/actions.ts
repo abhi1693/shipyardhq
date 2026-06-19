@@ -14,10 +14,10 @@ import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { hasEditorPickBadge } from "@/lib/products/badges"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 
-const publishedProductWhere: Prisma.ProductWhereInput = {
-  status: "published",
-}
+const publishedProductWhere: Prisma.ProductWhereInput =
+  buildPublicDiscoveryProductWhere()
 
 const PROFILE_PRODUCTS_PAGE_SIZE = 60
 const USER_PRODUCTS_PAGE_SIZE = 20
@@ -137,10 +137,9 @@ const getUserProductsWithPaging = cached(
     const safePage = normalizePage(page, 1)
     const safePageSize = normalizePageSize(pageSize, USER_PRODUCTS_PAGE_SIZE)
     const skip = (safePage - 1) * safePageSize
-    const where: Prisma.ProductWhereInput = {
-      status: "published",
+    const where: Prisma.ProductWhereInput = buildPublicDiscoveryProductWhere({
       userId,
-    }
+    })
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({

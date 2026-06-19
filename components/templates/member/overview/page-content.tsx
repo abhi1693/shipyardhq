@@ -29,6 +29,7 @@ import {
   MEMBER_REWARDS_PATH,
   memberProductPath,
 } from "@/lib/routes"
+import { BRAND_NAME } from "@/lib/brand"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 
 const AGGREGATION_WINDOW_DAYS = 7
@@ -96,7 +97,7 @@ export async function MemberOverviewPageContent() {
             </span>
           </h1>
           <p className="mt-2 text-base text-slate-500">
-            Here&apos;s what&apos;s happening with your Shipyard HQ launches
+            Here&apos;s what&apos;s happening with your {BRAND_NAME} launches
             today.
           </p>
         </div>

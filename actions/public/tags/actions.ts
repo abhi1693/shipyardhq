@@ -1,7 +1,13 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
-import { extractKeywordHash, keywordToSlug, normalizeKeyword } from "@/lib/tags"
+import {
+  extractKeywordHash,
+  keywordToSlug,
+  legacyKeywordToSlug,
+  normalizeKeyword,
+  stripLegacyKeywordHash,
+} from "@/lib/tags"
 import {
   mapProductCardRecordToBase,
   productCardSelect,
@@ -10,6 +16,7 @@ import {
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
+import { buildPublicDiscoverySqlFilter } from "@/lib/products/public-discovery"
 
 const TAG_LIST_LIMIT = 200
 export const TAG_PRODUCTS_PAGE_SIZE = 24
@@ -70,6 +77,7 @@ async function fetchKeywordTagSummaries(limit: number): Promise<RawTagRow[]> {
       CROSS JOIN LATERAL UNNEST(p."keywords") AS k
       WHERE
         p."status" = 'published'
+        ${buildPublicDiscoverySqlFilter("p")}
         AND k IS NOT NULL
         AND TRIM(k) <> ''
     )
@@ -106,6 +114,7 @@ async function fetchKeywordTagSummariesPage(
       CROSS JOIN LATERAL UNNEST(p."keywords") AS k
       WHERE
         p."status" = 'published'
+        ${buildPublicDiscoverySqlFilter("p")}
         AND k IS NOT NULL
         AND TRIM(k) <> ''
     )
@@ -194,6 +203,7 @@ async function fetchTagByHash(hash: string): Promise<RawTagRow[]> {
       CROSS JOIN LATERAL UNNEST(p."keywords") AS k
       WHERE
         p."status" = 'published'
+        ${buildPublicDiscoverySqlFilter("p")}
         AND k IS NOT NULL
         AND TRIM(k) <> ''
     )
@@ -210,14 +220,65 @@ async function fetchTagByHash(hash: string): Promise<RawTagRow[]> {
   return rows
 }
 
+async function fetchTagByCleanSlug(slug: string): Promise<RawTagRow[]> {
+  const rows = await prisma.$queryRaw<RawTagRow[]>(Prisma.sql`
+    WITH expanded AS (
+      SELECT
+        LOWER(TRIM(k)) AS keyword,
+        TRIM(k) AS raw_keyword,
+        SUBSTRING(md5(LOWER(TRIM(k))), 1, 6) AS hash,
+        REGEXP_REPLACE(
+          REGEXP_REPLACE(LOWER(TRIM(k)), '[^a-z0-9]+', '-', 'g'),
+          '(^-|-$)',
+          '',
+          'g'
+        ) AS slug,
+        p."id" AS "productId",
+        COALESCE(p."updatedAt", p."publishedAt", p."createdAt") AS "updatedAt"
+      FROM "Product" p
+      CROSS JOIN LATERAL UNNEST(p."keywords") AS k
+      WHERE
+        p."status" = 'published'
+        ${buildPublicDiscoverySqlFilter("p")}
+        AND k IS NOT NULL
+        AND TRIM(k) <> ''
+    )
+    SELECT
+      keyword,
+      MIN(raw_keyword) AS canonical,
+      hash,
+      COUNT(DISTINCT "productId")::int AS "productCount",
+      MAX("updatedAt") AS "lastUpdated"
+    FROM expanded
+    WHERE slug = ${slug}
+    GROUP BY keyword, hash
+    ORDER BY COUNT(DISTINCT "productId") DESC, canonical ASC
+  `)
+  return rows
+}
+
 export const getKeywordTagBySlug = cached(
   async (slug: string) => {
     const hash = extractKeywordHash(slug)
-    if (!hash) return null
-    const rows = await fetchTagByHash(hash)
+    if (hash) {
+      const rows = await fetchTagByHash(hash)
+      for (const row of rows) {
+        const summary = mapTagRow(row)
+        if (
+          summary.slug === stripLegacyKeywordHash(slug) ||
+          legacyKeywordToSlug(summary.keyword) === slug
+        ) {
+          return summary
+        }
+      }
+      return null
+    }
+
+    const cleanSlug = stripLegacyKeywordHash(slug)
+    const rows = await fetchTagByCleanSlug(cleanSlug)
     for (const row of rows) {
       const summary = mapTagRow(row)
-      if (summary.slug === slug) {
+      if (summary.slug === cleanSlug) {
         return summary
       }
     }
@@ -252,6 +313,7 @@ async function fetchProductIdsByKeyword(
     FROM "Product" p
     WHERE
       p."status" = 'published'
+      ${buildPublicDiscoverySqlFilter("p")}
       AND EXISTS (
         SELECT 1
         FROM UNNEST(p."keywords") AS keyword
@@ -361,6 +423,7 @@ async function fetchKeywordTagChunk(
       CROSS JOIN LATERAL UNNEST(p."keywords") AS k
       WHERE
         p."status" = 'published'
+        ${buildPublicDiscoverySqlFilter("p")}
         AND k IS NOT NULL
         AND TRIM(k) <> ''
     )
@@ -391,6 +454,7 @@ async function fetchKeywordTagStats() {
       CROSS JOIN LATERAL UNNEST(p."keywords") AS k
       WHERE
         p."status" = 'published'
+        ${buildPublicDiscoverySqlFilter("p")}
         AND k IS NOT NULL
         AND TRIM(k) <> ''
     ),

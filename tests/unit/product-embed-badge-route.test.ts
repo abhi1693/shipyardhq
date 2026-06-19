@@ -14,6 +14,7 @@ vi.mock("@/lib/prisma", () => ({
 }))
 
 import { GET } from "@/app/api/embed/products/[slug]/route"
+import { BRAND_NAME } from "@/lib/brand"
 
 async function callBadgeRoute(url: string, slug = "openclaw-mission-control") {
   return GET(new NextRequest(url), {
@@ -39,7 +40,7 @@ describe("product embed badge route", () => {
     expect(response.headers.get("content-type")).toBe("image/svg+xml")
     expect(svg).toContain("<svg")
     expect(svg).toContain("FEATURED ON")
-    expect(svg).toContain("ShipYard HQ")
+    expect(svg).toContain(BRAND_NAME)
   })
 
   it("renders compact SVG badges without embedding PNG font payloads", async () => {
@@ -51,7 +52,7 @@ describe("product embed badge route", () => {
     expect(response.status).toBe(200)
     expect(response.headers.get("content-type")).toBe("image/svg+xml")
     expect(svg).toContain("FEATURED ON")
-    expect(svg).toContain("ShipYard HQ")
+    expect(svg).toContain(BRAND_NAME)
     expect(svg).toContain("textLength=")
     expect(svg).toContain("clip-path=")
     expect(svg).toContain('x="190" y="39"')

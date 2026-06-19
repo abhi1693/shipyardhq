@@ -14,13 +14,13 @@ import {
   LEADERBOARD_GUIDE_PATH,
   LEADERBOARD_PATH,
 } from "@/lib/routes"
+import { BRAND_NAME } from "@/lib/brand"
 
-const PAGE_TITLE = "Leaderboard Playbook | Shipyard HQ"
+const PAGE_TITLE = `Leaderboard Playbook | ${BRAND_NAME}`
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description:
-    "Understand Shipyard HQ leaderboard scoring, ranking cadence, performance signals, and visibility boosts for product launches.",
+  description: `Understand ${BRAND_NAME} leaderboard scoring, ranking cadence, performance signals, and visibility boosts for product launches.`,
 })
 
 export default function LeaderboardGuidePage() {

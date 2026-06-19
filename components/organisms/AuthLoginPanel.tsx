@@ -7,6 +7,7 @@ import type { FormEvent } from "react"
 import { useState } from "react"
 
 import { BrandLogo } from "@/components/atoms/brand-logo"
+import { BRAND_NAME } from "@/lib/brand"
 import { HOME_PATH, LEGAL_PATH, MEMBER_BASE_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
@@ -178,11 +179,11 @@ export default function AuthLoginPanel({ redirectUrl }: AuthLoginPanelProps) {
             <Link
               href={HOME_PATH}
               className="mb-6 inline-flex items-center justify-center gap-2 text-[#0b1c30] transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0051d5]/40 focus-visible:ring-offset-2"
-              aria-label="Shipyard HQ home"
+              aria-label={`${BRAND_NAME} home`}
             >
               <BrandLogo width={36} height={36} sizes="36px" eager />
               <span className="text-2xl font-semibold tracking-normal">
-                Shipyard HQ
+                {BRAND_NAME}
               </span>
             </Link>
             <p className="mt-1 text-sm text-[#43474c]">

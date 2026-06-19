@@ -17,11 +17,17 @@ function keywordHash(normalizedKeyword: string): string {
     .slice(0, KEYWORD_SLUG_HASH_LENGTH)
 }
 
-export function keywordToSlug(keyword: string): string {
+export function legacyKeywordToSlug(keyword: string): string {
   const normalized = normalizeKeyword(keyword).toLowerCase()
   const base = slugify(normalized)
   const hash = keywordHash(normalized)
   return base ? `${base}-${hash}` : hash
+}
+
+export function keywordToSlug(keyword: string): string {
+  const normalized = normalizeKeyword(keyword).toLowerCase()
+  const base = slugify(normalized)
+  return base || keywordHash(normalized)
 }
 
 export function extractKeywordHash(slug: string): string | null {
@@ -33,4 +39,12 @@ export function extractKeywordHash(slug: string): string | null {
     return null
   }
   return hash.toLowerCase()
+}
+
+export function stripLegacyKeywordHash(slug: string): string {
+  const hash = extractKeywordHash(slug)
+  if (!hash) return slug
+
+  const base = slug.slice(0, -(hash.length + 1))
+  return base || slug
 }

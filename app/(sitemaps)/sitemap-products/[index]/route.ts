@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server"
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { resolveSiteUrl } from "@/lib/siteConfig"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 import {
   isSitemapShardOutOfRange,
   parseSitemapShardIndex,
@@ -36,7 +37,7 @@ export async function GET(
   }
 
   const count = await prisma.product.count({
-    where: { status: "published" as any },
+    where: buildPublicDiscoveryProductWhere(),
   })
   if (isSitemapShardOutOfRange(page, count)) {
     return new Response("Sitemap shard not found", { status: 404 })
@@ -44,7 +45,7 @@ export async function GET(
 
   const skip = (page - 1) * SITEMAP_CHUNK_SIZE
   const products = await prisma.product.findMany({
-    where: { status: "published" as any },
+    where: buildPublicDiscoveryProductWhere(),
     select: { id: true, slug: true, updatedAt: true, publishedAt: true },
     orderBy: { updatedAt: "desc" },
     skip,

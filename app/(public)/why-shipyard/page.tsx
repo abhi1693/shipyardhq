@@ -34,9 +34,9 @@ type FeatureCard = {
 const HERO_FEATURES: FeatureCard[] = [
   {
     icon: IconChartArrows,
-    title: "Momentum is curated, not gamed",
+    title: "Momentum is filtered, not gamed",
     description:
-      "Our editorial team reviews every submission and elevates the launches that deliver value, not whoever spams the feed.",
+      "Discovery filters and quality checks keep default feeds focused on launches with clear value, not whoever spams the feed.",
   },
   {
     icon: IconChecklist,
@@ -57,13 +57,13 @@ const CORE_REASONS: FeatureCard[] = [
     icon: IconAnchor,
     title: "Signal-first discovery",
     description:
-      "Human curation plus contextual tagging keep your product in front of the right audience, not lost in a sea of noise.",
+      "Quality filters and contextual tagging keep your product in front of the right audience, not lost in a sea of noise.",
   },
   {
     icon: IconChartArrows,
     title: "Analytics you can act on",
     description:
-      "Pair real-time analytics with curated audience context so you know which message, channel, or offer to ship next.",
+      "Pair real-time analytics with audience context so you know which message, channel, or offer to ship next.",
   },
   {
     icon: IconUsersGroup,
@@ -118,7 +118,7 @@ const COMPARISON_POINTS = [
   {
     feature: "Discovery quality",
     shipyard:
-      "Editorial review, daily showcases, and audience segmentation surface launches buyers trust.",
+      "Quality filters, daily showcases, and audience segmentation surface launches buyers trust.",
     others:
       "Open-submission feeds, limited context, and high noise floors that bury emerging teams.",
   },
@@ -168,7 +168,7 @@ const PAGE_TITLE = "Why Shipyard"
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description:
-    "List your product where builders, investors, and operators gather. Shipyard pairs curated discovery with analytics and hands-on support so every launch hits with purpose.",
+    "List your product where builders, investors, and operators gather. Shipyard pairs focused discovery with analytics and hands-on support so every launch hits with purpose.",
 })
 
 export default function WhyShipyardPage() {
@@ -194,8 +194,8 @@ export default function WhyShipyardPage() {
             List where launches become lasting momentum.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-[#43474c] md:text-lg">
-            Shipyard is the only launch platform engineered for enduring growth:
-            curated discovery, guided preparation, and analytics that keep your
+            Shipyard is a launch intelligence network for enduring growth:
+            focused discovery, guided preparation, and analytics that keep your
             team focused on what moves the needle.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Globe2, Rss, Users } from "lucide-react"
 
+import { BRAND_NAME } from "@/lib/brand"
 import {
   ANALYTICS_PATH,
   BROWSE_PATH,
@@ -9,6 +10,7 @@ import {
   LEGAL_TERMS_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
   PRICING_PATH,
+  REWARDS_PATH,
   USERS_PATH,
   WHY_SHIPYARD_PATH,
 } from "@/lib/routes"
@@ -19,17 +21,17 @@ const footerColumns = [
     links: [
       { label: "Ship a Product", href: MEMBER_PRODUCTS_ADD_PATH },
       { label: "Pricing", href: PRICING_PATH },
-      { label: "Success Stories", href: WHY_SHIPYARD_PATH },
-      { label: "API Docs", href: "/markdown-for-agents" },
+      { label: "Why Shipyard", href: WHY_SHIPYARD_PATH },
+      { label: "Analytics", href: ANALYTICS_PATH },
     ],
   },
   {
     title: "Community",
     links: [
+      { label: "Browse Products", href: BROWSE_PATH },
       { label: "Leaderboard", href: LEADERBOARD_PATH },
-      { label: "Ambassadors", href: USERS_PATH },
-      { label: "Forum", href: BROWSE_PATH },
-      { label: "Events", href: ANALYTICS_PATH },
+      { label: "Makers", href: USERS_PATH },
+      { label: "Rewards", href: REWARDS_PATH },
     ],
   },
   {
@@ -52,11 +54,11 @@ export default function PublicFooter() {
         <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-4">
           <div>
             <Link href="/" className="mb-4 block text-lg font-black text-black">
-              Shipyard HQ
+              {BRAND_NAME}
             </Link>
             <p className="mb-6 text-sm leading-5 text-[#43474c]">
-              The definitive discovery engine for professional-grade digital
-              products and independent builders.
+              A focused discovery engine for launch-ready digital products and
+              independent builders.
             </p>
             <div className="flex gap-3 text-[#43474c]">
               <Link
@@ -106,7 +108,7 @@ export default function PublicFooter() {
 
         <div className="flex flex-col items-center justify-between gap-3 border-t border-[#E2E8F0] pt-8 md:flex-row">
           <p className="text-xs font-semibold uppercase tracking-[0.05em] text-[#43474c]">
-            © {year} Shipyard HQ. All rights reserved.
+            © {year} {BRAND_NAME}. All rights reserved.
           </p>
           <div className="flex items-center gap-2">
             <div className="size-2 rounded-full bg-[#16a34a]" />

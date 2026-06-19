@@ -19,6 +19,7 @@ import { productTypeValueFromSlug } from "@/lib/product-types/models"
 import { pricingModelValueFromSlug } from "@/lib/pricing/models"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 
 export type ProductFeedPageRequest =
   | {
@@ -212,8 +213,7 @@ export async function getProductFeedPage(
       const pageSize = Math.max(1, Math.floor(request.pageSize ?? 12))
       const skip = (page - 1) * pageSize
 
-      const where = {
-        status: "published",
+      const where = buildPublicDiscoveryProductWhere({
         plan: {
           is: {
             assignments: {
@@ -224,7 +224,7 @@ export async function getProductFeedPage(
             },
           },
         },
-      } as const
+      })
 
       const [records, total] = await Promise.all([
         prisma.product.findMany({

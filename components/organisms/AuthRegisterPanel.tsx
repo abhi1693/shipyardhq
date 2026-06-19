@@ -7,6 +7,7 @@ import type { FormEvent } from "react"
 import { useState } from "react"
 
 import { BrandLogo } from "@/components/atoms/brand-logo"
+import { BRAND_NAME } from "@/lib/brand"
 import { HOME_PATH, LEGAL_PATH, MEMBER_BASE_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
@@ -247,11 +248,11 @@ export default function AuthRegisterPanel({
           <Link
             href={HOME_PATH}
             className="inline-flex items-center justify-center gap-2 text-[#0b1c30] transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0051d5]/40 focus-visible:ring-offset-2"
-            aria-label="Shipyard HQ home"
+            aria-label={`${BRAND_NAME} home`}
           >
             <BrandLogo width={32} height={32} sizes="32px" eager />
             <span className="text-[32px] font-bold leading-10 tracking-normal">
-              Shipyard HQ
+              {BRAND_NAME}
             </span>
           </Link>
           <p className="mt-1 text-base leading-6 text-[#43474c]">
@@ -420,7 +421,7 @@ export default function AuthRegisterPanel({
         </div>
 
         <p className="mt-6 px-6 text-center text-[11px] font-medium leading-4 text-[#74777d]">
-          By continuing, you agree to Shipyard HQ&apos;s{" "}
+          By continuing, you agree to {BRAND_NAME}&apos;s{" "}
           <Link
             href={`${LEGAL_PATH}/terms`}
             className="underline underline-offset-2 hover:text-[#0b1c30]"

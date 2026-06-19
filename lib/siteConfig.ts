@@ -1,3 +1,4 @@
+import { BRAND_NAME } from "@/lib/brand"
 import { ensureUrlHasSchema } from "@/lib/utils"
 
 const DEFAULT_SITE_URL = "http://localhost:3000" as const
@@ -16,11 +17,14 @@ const ADMIN_EMAIL = "support@shipyardhq.dev"
 
 export const resolveSiteUrl = () => SITE_URL
 
+export const siteGrowthMetrics = {
+  builderCount: 1600,
+} as const
+
 export const siteConfig = {
-  name: "ShipYard HQ",
-  tagline: "The Product Hunt alternative where builders ship together.",
-  description:
-    "ShipYardHQ is the Product Hunt alternative for indie hackers and micro-SaaS teams to ship in public, share progress, and rally their first customers through ongoing launches.",
+  name: BRAND_NAME,
+  tagline: "The launch intelligence network for independent builders.",
+  description: `${BRAND_NAME} helps builders launch, measure, and compound momentum with focused discovery, credible analytics, and promotion tools.`,
   url: SITE_URL,
   ogImage: "/opengraph.png",
   logo: "/brand.png",

@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 
+import { BRAND_NAME } from "@/lib/brand"
+
 // Displays toast messages based on query params and then cleans the URL.
 export default function PurchasePlanToast() {
   const sp = useSearchParams()
@@ -38,7 +40,7 @@ export default function PurchasePlanToast() {
                     : error === "plan_type_locked"
                       ? "You can't switch between subscription and one-time while a paid plan is active."
                       : error === "badge_not_found"
-                        ? "We couldn't find the Shipyard badge on your product website. Add the generated badge embed, then publish again."
+                        ? `We couldn't find the ${BRAND_NAME} badge on your product website. Add the generated badge embed, then publish again.`
                         : error === "publish_failed"
                           ? "Unable to publish your listing. Please try again."
                           : error === "must_publish"

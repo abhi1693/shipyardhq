@@ -1,6 +1,6 @@
 # Shipyard HQ
 
-Shipyard HQ is a product discovery and launch platform for builders. Makers can submit products, publish launches, collect upvotes, track analytics, and buy placement plans. Public users can browse launches, leaderboards, categories, tags, use cases, platforms, pricing models, alternatives, and maker profiles.
+Shipyard HQ is a launch intelligence network for independent builders. Makers can submit products, publish launches, collect upvotes, track analytics, and buy placement plans. Public users can browse launches, leaderboards, categories, tags, use cases, platforms, pricing models, alternatives, and maker profiles.
 
 ## Stack
 

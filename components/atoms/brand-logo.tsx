@@ -1,6 +1,7 @@
 import type { ComponentProps } from "react"
 
 import { Image } from "@/components/atoms/image"
+import { BRAND_NAME } from "@/lib/brand"
 import clsx from "clsx"
 
 export type BrandLogoProps = Omit<
@@ -8,14 +9,14 @@ export type BrandLogoProps = Omit<
   "src" | "alt"
 > & {
   /**
-   * Optional alt text override. Defaults to the ShipYardHQ brand name.
+   * Optional alt text override. Defaults to the brand name.
    */
   alt?: string
 }
 
 export function BrandLogo({
   className,
-  alt = "ShipYardHQ",
+  alt = BRAND_NAME,
   eager = false,
   loading,
   fetchPriority,

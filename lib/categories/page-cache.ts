@@ -8,6 +8,7 @@ import {
 import { getFeaturedByCategorySlug } from "@/actions/public/products/featured"
 import { PRIORITY_FEATURE_KEY } from "@/lib/products/selects"
 import type { FeaturedProduct } from "@/types"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 
 type CategoryPageResult = NonNullable<
   Awaited<ReturnType<typeof getCategoryWithProducts>>
@@ -72,10 +73,9 @@ const buildCategoryMetrics = async (
     }
   }
 
-  const productCategoryWhere = {
-    status: "published" as const,
+  const productCategoryWhere = buildPublicDiscoveryProductWhere({
     OR: [{ categoryId }, { categories: { some: { categoryId } } }],
-  }
+  })
 
   const [priorityCount, upvotes] = await Promise.all([
     prisma.product.count({

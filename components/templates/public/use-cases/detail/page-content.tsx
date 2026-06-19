@@ -21,6 +21,7 @@ import {
   usecasePath,
 } from "@/lib/routes"
 import { buildProductListItem } from "@/lib/seo/product-list"
+import { BRAND_NAME } from "@/lib/brand"
 import { getUseCasePagePayload } from "@/lib/useCases/page-cache"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 
@@ -103,7 +104,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
     mentions: categoryMentions,
     isPartOf: {
       "@type": "WebSite",
-      name: "ShipYardHQ",
+      name: BRAND_NAME,
       url: baseUrl,
     },
   }

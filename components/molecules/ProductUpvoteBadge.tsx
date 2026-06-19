@@ -248,38 +248,34 @@ export function ProductUpvoteBadge({
       ? leaderboard.rank
       : null
   const leaderboardAvailable = Boolean(leaderboard?.available)
-  const leaderboardRow =
-    leaderboardPoints !== null ? (
-      <div>
-        <dl className="grid grid-cols-2 gap-4">
+  const hasLeaderboardMetrics = Boolean(
+    leaderboardAvailable &&
+    ((leaderboardPoints ?? 0) > 0 || leaderboardRank !== null),
+  )
+  const leaderboardRow = hasLeaderboardMetrics ? (
+    <div>
+      <dl className="grid grid-cols-2 gap-4">
+        {(leaderboardPoints ?? 0) > 0 ? (
           <div className="space-y-1">
             <dt className="text-xs text-muted-foreground">
               Points (this month)
             </dt>
             <dd className="text-lg font-semibold text-foreground">
-              {formatter.format(leaderboardPoints)}
+              {formatter.format(leaderboardPoints ?? 0)}
             </dd>
           </div>
+        ) : null}
+        {leaderboardRank !== null ? (
           <div className="space-y-1 text-right">
             <dt className="text-xs text-muted-foreground">Rank</dt>
             <dd className="text-lg font-semibold text-foreground">
-              {leaderboardRank !== null
-                ? `#${formatter.format(leaderboardRank)}`
-                : "—"}
+              #{formatter.format(leaderboardRank)}
             </dd>
           </div>
-        </dl>
-        {!leaderboardAvailable ? (
-          <p className="mt-2 text-xs text-muted-foreground">
-            Leaderboard points update once leaderboard runs are generated.
-          </p>
-        ) : leaderboardPoints === 0 ? (
-          <p className="mt-2 text-xs text-muted-foreground">
-            No points yet this month.
-          </p>
         ) : null}
-      </div>
-    ) : null
+      </dl>
+    </div>
+  ) : null
 
   const actionElement = state.viewerSignedIn ? (
     <button

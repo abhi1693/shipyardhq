@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 
 export async function getCategories(args: Prisma.CategoryFindManyArgs = {}) {
   try {
@@ -24,7 +25,7 @@ export async function getUseCasesWithCounts() {
           some: {
             category: {
               products: {
-                some: {},
+                some: buildPublicDiscoveryProductWhere(),
               },
             },
           },
@@ -35,7 +36,7 @@ export async function getUseCasesWithCounts() {
           where: {
             category: {
               products: {
-                some: {},
+                some: buildPublicDiscoveryProductWhere(),
               },
             },
           },
@@ -45,7 +46,7 @@ export async function getUseCasesWithCounts() {
                 id: true,
                 _count: {
                   select: {
-                    products: true,
+                    products: { where: buildPublicDiscoveryProductWhere() },
                   },
                 },
               },

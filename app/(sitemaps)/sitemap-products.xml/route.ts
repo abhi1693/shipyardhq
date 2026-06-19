@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma"
 import { resolveSiteUrl } from "@/lib/siteConfig"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 import {
   getSitemapShardCount,
   sitemapIndexXml,
@@ -13,9 +14,9 @@ export async function GET() {
   const base = resolveSiteUrl()
 
   const [count, latest] = await Promise.all([
-    prisma.product.count({ where: { status: "published" as any } }),
+    prisma.product.count({ where: buildPublicDiscoveryProductWhere() }),
     prisma.product.findFirst({
-      where: { status: "published" as any },
+      where: buildPublicDiscoveryProductWhere(),
       orderBy: { updatedAt: "desc" },
       select: { updatedAt: true },
     }),

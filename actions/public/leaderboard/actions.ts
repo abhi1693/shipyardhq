@@ -21,6 +21,7 @@ import {
   productCardSelect,
   type ProductCardRecord,
 } from "@/lib/products/selects"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -339,7 +340,7 @@ async function loadPeriodicArchiveRaw(): Promise<PeriodicLeaderboardArchive> {
   const upvotes = await prisma.productUpvote.findMany({
     where: {
       createdAt: { gte: earliestMonth, lt: now },
-      product: { status: "published" },
+      product: buildPublicDiscoveryProductWhere(),
     },
     select: { createdAt: true },
   })
@@ -464,20 +465,21 @@ export const getTopRankedProducts = cached(
       })
     }
 
-    const productWhere = categorySlug
-      ? {
-          status: "published" as const,
-          category: {
-            slug: categorySlug,
-          },
-        }
-      : undefined
+    const productWhere = buildPublicDiscoveryProductWhere(
+      categorySlug
+        ? {
+            category: {
+              slug: categorySlug,
+            },
+          }
+        : undefined,
+    )
 
     const scores = await prisma.productLeaderboardScore.findMany({
       take: limit,
       where: {
         runId: run.id,
-        product: productWhere ? { is: productWhere } : undefined,
+        product: { is: productWhere },
       },
       orderBy: [{ score: "desc" }, { upvotes: "desc" }, { productId: "asc" }],
       include: {
@@ -533,7 +535,11 @@ async function resolveProductOfThePeriod(
   if (period === "month") {
     const run = await getOrCreateActiveLeaderboardRun()
     const rows = await prisma.productLeaderboardScore.findMany({
-      where: { runId: run.id, score: { gt: 0 } },
+      where: {
+        runId: run.id,
+        score: { gt: 0 },
+        product: { is: buildPublicDiscoveryProductWhere() },
+      },
       orderBy: [{ score: "desc" }, { upvotes: "desc" }, { productId: "asc" }],
       include: {
         product: {
@@ -571,7 +577,7 @@ async function resolveProductOfThePeriod(
   }
 
   const products = await prisma.product.findMany({
-    where: { id: { in: productIds }, status: "published" },
+    where: buildPublicDiscoveryProductWhere({ id: { in: productIds } }),
     select: productCardSelect,
   })
   const productMap = new Map(
@@ -654,7 +660,7 @@ async function mapRowsToProducts(
   if (!productIds.length) return []
 
   const products = await prisma.product.findMany({
-    where: { id: { in: productIds }, status: "published" },
+    where: buildPublicDiscoveryProductWhere({ id: { in: productIds } }),
     select: productCardSelect,
   })
   const productMap = new Map(
@@ -696,20 +702,21 @@ async function mapRunRowsToProducts(params: {
       ? params.categorySlug.trim()
       : null
 
-  const productWhere = categorySlug
-    ? {
-        status: "published" as const,
-        category: {
-          slug: categorySlug,
-        },
-      }
-    : undefined
+  const productWhere = buildPublicDiscoveryProductWhere(
+    categorySlug
+      ? {
+          category: {
+            slug: categorySlug,
+          },
+        }
+      : undefined,
+  )
 
   const rows = await prisma.productLeaderboardScore.findMany({
     where: {
       runId: run.id,
       score: { gt: 0 },
-      ...(productWhere ? { product: { is: productWhere } } : {}),
+      product: { is: productWhere },
     },
     orderBy: [{ rank: "asc" }, { score: "desc" }, { upvotes: "desc" }],
     take: params.limit ?? undefined,
@@ -857,12 +864,11 @@ async function loadPeriodicLeaderboard(
   const filteredProductIds = categorySlug
     ? (
         await prisma.product.findMany({
-          where: {
-            status: "published" as const,
+          where: buildPublicDiscoveryProductWhere({
             category: {
               slug: categorySlug,
             },
-          },
+          }),
           select: { id: true },
         })
       ).map((row: { id: string }) => row.id)

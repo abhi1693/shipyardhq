@@ -18,6 +18,7 @@ import {
 } from "date-fns"
 
 import { generateVerificationTxtFromWebsite } from "@/lib/products/verification"
+import { BRAND_NAME } from "@/lib/brand"
 
 import { seedAlternatives } from "./seed.alternatives"
 import { seedCategories } from "./seed.categories"
@@ -379,7 +380,7 @@ async function main() {
   const baseProducts = [
     {
       slug: "shipyardhq",
-      name: "Shipyard HQ",
+      name: BRAND_NAME,
       websiteUrl: "https://shipyardhq.dev",
       userEmail: "desk.abhimanyu@gmail.com",
       categorySlug: "developer-tools",

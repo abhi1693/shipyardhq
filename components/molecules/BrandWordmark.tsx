@@ -3,6 +3,7 @@ import clsx from "clsx"
 import { forwardRef, type AnchorHTMLAttributes } from "react"
 
 import { BrandLogo } from "@/components/atoms/brand-logo"
+import { BRAND_NAME } from "@/lib/brand"
 import { HOME_PATH } from "@/lib/routes"
 
 type LinkBehaviourProps = Pick<
@@ -41,7 +42,7 @@ export const BrandWordmark = forwardRef<HTMLAnchorElement, BrandWordmarkProps>(
     const size = compact ? 28 : 32
     const sizeClasses = compact ? "h-7 w-7" : "h-8 w-8"
     const computedAriaLabel =
-      ariaLabel ?? (hideLabel ? "ShipYard HQ home" : undefined)
+      ariaLabel ?? (hideLabel ? `${BRAND_NAME} home` : undefined)
 
     return (
       <Link
@@ -73,7 +74,7 @@ export const BrandWordmark = forwardRef<HTMLAnchorElement, BrandWordmarkProps>(
               compact ? "text-[15px]" : null,
             )}
           >
-            {"ShipYard HQ"}
+            {BRAND_NAME}
           </span>
         )}
       </Link>

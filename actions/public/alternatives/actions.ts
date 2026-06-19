@@ -10,11 +10,14 @@ import {
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
+
+const publicDiscoveryProductWhere = buildPublicDiscoveryProductWhere()
 
 const ALTERNATIVE_CARD_INCLUDE = {
   _count: {
     select: {
-      products: true,
+      products: { where: publicDiscoveryProductWhere },
     },
   },
 } satisfies Prisma.AlternativeProductInclude
@@ -87,7 +90,7 @@ export const getFeaturedAlternatives = cached(
     const records = await prisma.alternativeProduct.findMany({
       where: {
         ...(excludeId ? { id: { not: excludeId } } : {}),
-        products: { some: {} },
+        products: { some: publicDiscoveryProductWhere },
       },
       orderBy: { name: "asc" },
       take: sanitizedTake,
@@ -112,7 +115,7 @@ export const getAlternativesWithCounts = cached(
   async (): Promise<AlternativeCatalogItem[]> => {
     const records = await prisma.alternativeProduct.findMany({
       where: {
-        products: { some: {} },
+        products: { some: publicDiscoveryProductWhere },
       },
       orderBy: { name: "asc" },
       include: ALTERNATIVE_CARD_INCLUDE,
@@ -132,8 +135,7 @@ export const getAlternativeMomentumCounts = cached(
     const records = await prisma.alternativeProduct.findMany({
       where: {
         products: {
-          some: {
-            status: "published",
+          some: buildPublicDiscoveryProductWhere({
             OR: [
               { publishedAt: { gte: windowStart } },
               {
@@ -141,7 +143,7 @@ export const getAlternativeMomentumCounts = cached(
                 createdAt: { gte: windowStart },
               },
             ],
-          },
+          }),
         },
       },
       select: {
@@ -149,8 +151,7 @@ export const getAlternativeMomentumCounts = cached(
         _count: {
           select: {
             products: {
-              where: {
-                status: "published",
+              where: buildPublicDiscoveryProductWhere({
                 OR: [
                   { publishedAt: { gte: windowStart } },
                   {
@@ -158,7 +159,7 @@ export const getAlternativeMomentumCounts = cached(
                     createdAt: { gte: windowStart },
                   },
                 ],
-              },
+              }),
             },
           },
         },
@@ -212,12 +213,12 @@ export const getAlternativeProductsPage = cached(
 
     const skip = (safePage - 1) * clampedPageSize
 
-    const baseWhere: Prisma.ProductWhereInput = {
-      status: "published",
-      alternatives: {
-        some: { id: alternativeId },
-      },
-    }
+    const baseWhere: Prisma.ProductWhereInput =
+      buildPublicDiscoveryProductWhere({
+        alternatives: {
+          some: { id: alternativeId },
+        },
+      })
 
     const planExclusionWhere: Prisma.ProductWhereInput = {
       OR: [
@@ -370,7 +371,7 @@ export const getAlternativeCatalogPage = cached(
 
     const trimmedQuery = query?.trim()
     const baseFilter: Prisma.AlternativeProductWhereInput = {
-      products: { some: {} },
+      products: { some: publicDiscoveryProductWhere },
     }
     const searchFilter: Prisma.AlternativeProductWhereInput | undefined =
       trimmedQuery && trimmedQuery.length
@@ -387,9 +388,9 @@ export const getAlternativeCatalogPage = cached(
               },
               {
                 products: {
-                  some: {
+                  some: buildPublicDiscoveryProductWhere({
                     name: { contains: trimmedQuery, mode: "insensitive" },
-                  },
+                  }),
                 },
               },
             ],

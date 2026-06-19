@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
+import { BRAND_NAME } from "@/lib/brand"
 import { buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH, LEGAL_PATH, LEGAL_TERMS_PATH } from "@/lib/routes"
 
@@ -7,7 +8,7 @@ const PAGE_TITLE = "Terms of Service"
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description: "Review the terms and conditions for using ShipYardHQ.",
+  description: `Review the terms and conditions for using ${BRAND_NAME}.`,
 })
 
 export default function TermsOfServicePage() {
@@ -28,14 +29,14 @@ export default function TermsOfServicePage() {
         <div className="mx-auto max-w-3xl px-4 md:px-8">
           <PageHeader
             title="Terms of Service"
-            subtitle="Review the terms and conditions for using ShipYardHQ."
+            subtitle={`Review the terms and conditions for using ${BRAND_NAME}.`}
           />
           <div className="mt-6 space-y-6">
             <p className="text-muted-foreground">Last updated: Oct 9, 2025</p>
 
             <p>
               These Terms of Service (the &quot;Terms&quot;) apply to your
-              access to and use of the ShipYardHQ website, applications, APIs,
+              access to and use of the {BRAND_NAME} website, applications, APIs,
               and related services (collectively, the &quot;Service&quot;). By
               creating an account or using the Service you agree to these Terms
               and our Privacy Policy. If you are using the Service on behalf of
@@ -68,11 +69,11 @@ export default function TermsOfServicePage() {
             </ul>
 
             <h2 className="text-2xl font-semibold mt-6">
-              2. The ShipYardHQ Service
+              2. The {BRAND_NAME} Service
             </h2>
             <ul className="list-disc list-inside space-y-2">
               <li>
-                ShipYardHQ provides a product discovery marketplace, maker
+                {BRAND_NAME} provides a product discovery marketplace, maker
                 dashboards, rewards economies, and related tools that help you
                 launch and promote products.
               </li>
@@ -115,7 +116,7 @@ export default function TermsOfServicePage() {
               </li>
               <li>
                 You are responsible for any taxes, duties, or levies associated
-                with your purchase, except for taxes on ShipYardHQ&apos;s
+                with your purchase, except for taxes on {BRAND_NAME}&apos;s
                 income.
               </li>
               <li>
@@ -129,9 +130,9 @@ export default function TermsOfServicePage() {
             </h2>
             <ul className="list-disc list-inside space-y-2">
               <li>
-                ShipYardHQ operates a rewards program that lets members earn and
-                redeem points for perks such as placements, feature unlocks, or
-                limited-time benefits.
+                {BRAND_NAME} operates a rewards program that lets members earn
+                and redeem points for perks such as placements, feature unlocks,
+                or limited-time benefits.
               </li>
               <li>
                 Rewards have no cash value, are not transferable, and may expire
@@ -154,7 +155,7 @@ export default function TermsOfServicePage() {
                 listings, media assets, reviews, feedback, and campaign data.
               </li>
               <li>
-                You grant ShipYardHQ a worldwide, non-exclusive, royalty-free,
+                You grant {BRAND_NAME} a worldwide, non-exclusive, royalty-free,
                 sublicensable, transferable license to host, reproduce, modify
                 for formatting, distribute, publicly display, and otherwise use
                 that content to operate and promote the Service.
@@ -225,7 +226,7 @@ export default function TermsOfServicePage() {
                 Terms.
               </li>
               <li>
-                You may not use ShipYardHQ&apos;s automation to violate
+                You may not use {BRAND_NAME}&apos;s automation to violate
                 third-party terms (for example, social platform rules or
                 anti-spam laws).
               </li>
@@ -236,7 +237,7 @@ export default function TermsOfServicePage() {
             </h2>
             <ul className="list-disc list-inside space-y-2">
               <li>
-                ShipYardHQ, our logos, trademarks, code, and original content
+                {BRAND_NAME}, our logos, trademarks, code, and original content
                 are owned by us or our licensors and are protected by
                 intellectual property laws. Except for the rights expressly
                 granted to you herein, we reserve all rights.
@@ -315,22 +316,22 @@ export default function TermsOfServicePage() {
               13. Limitation of Liability
             </h2>
             <p>
-              TO THE MAXIMUM EXTENT PERMITTED BY LAW, SHIPYARDHQ, ITS
-              AFFILIATES, AND THEIR RESPECTIVE DIRECTORS, OFFICERS, EMPLOYEES,
-              AND AGENTS WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL,
-              SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, INCLUDING
-              LOSS OF PROFITS, REVENUE, DATA, GOODWILL, OR BUSINESS
-              INTERRUPTION. OUR AGGREGATE LIABILITY FOR ALL CLAIMS RELATING TO
-              THE SERVICE WILL NOT EXCEED THE GREATER OF (A) THE AMOUNT YOU PAID
-              US FOR ACCESS TO THE SERVICE IN THE 12 MONTHS BEFORE THE EVENT
-              GIVING RISE TO LIABILITY OR (B) USD $100. SOME JURISDICTIONS DO
-              NOT ALLOW CERTAIN LIMITATIONS, SO SOME OF THE ABOVE MAY NOT APPLY
-              TO YOU.
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, {BRAND_NAME.toUpperCase()}
+              , ITS AFFILIATES, AND THEIR RESPECTIVE DIRECTORS, OFFICERS,
+              EMPLOYEES, AND AGENTS WILL NOT BE LIABLE FOR ANY INDIRECT,
+              INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE
+              DAMAGES, INCLUDING LOSS OF PROFITS, REVENUE, DATA, GOODWILL, OR
+              BUSINESS INTERRUPTION. OUR AGGREGATE LIABILITY FOR ALL CLAIMS
+              RELATING TO THE SERVICE WILL NOT EXCEED THE GREATER OF (A) THE
+              AMOUNT YOU PAID US FOR ACCESS TO THE SERVICE IN THE 12 MONTHS
+              BEFORE THE EVENT GIVING RISE TO LIABILITY OR (B) USD $100. SOME
+              JURISDICTIONS DO NOT ALLOW CERTAIN LIMITATIONS, SO SOME OF THE
+              ABOVE MAY NOT APPLY TO YOU.
             </p>
 
             <h2 className="text-2xl font-semibold mt-6">14. Indemnification</h2>
             <p>
-              You agree to indemnify, defend, and hold harmless ShipYardHQ and
+              You agree to indemnify, defend, and hold harmless {BRAND_NAME} and
               its affiliates, officers, directors, employees, and agents from
               and against any claims, liabilities, damages, losses, and
               expenses, including reasonable legal fees, arising from or

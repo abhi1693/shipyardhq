@@ -41,6 +41,7 @@ import {
   PRODUCT_TYPE_SLUGS,
   type ProductTypeSlug,
 } from "@/lib/product-types/models"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 
 type CategorySitemapEntry = Prisma.CategoryGetPayload<{
   select: { id: true; slug: true; updatedAt: true }
@@ -94,10 +95,9 @@ export async function GET() {
     Promise.all(
       PLATFORM_SLUGS.map(async (slug) => {
         const latest = await prisma.product.findFirst({
-          where: {
-            status: "published" as any,
+          where: buildPublicDiscoveryProductWhere({
             platforms: { has: platformValueFromSlug(slug) },
-          },
+          }),
           select: { updatedAt: true, publishedAt: true },
           orderBy: { updatedAt: "desc" },
         })
@@ -115,10 +115,9 @@ export async function GET() {
         if (!meta) return null
 
         const latest = await prisma.product.findFirst({
-          where: {
-            status: "published" as any,
+          where: buildPublicDiscoveryProductWhere({
             pricingModel: meta.value,
-          },
+          }),
           select: { updatedAt: true, publishedAt: true },
           orderBy: { updatedAt: "desc" },
         })
@@ -137,10 +136,9 @@ export async function GET() {
         if (!meta) return null
 
         const latest = await prisma.product.findFirst({
-          where: {
-            status: "published" as any,
+          where: buildPublicDiscoveryProductWhere({
             type: meta.value,
-          },
+          }),
           select: { updatedAt: true, publishedAt: true },
           orderBy: { updatedAt: "desc" },
         })
@@ -167,11 +165,10 @@ export async function GET() {
           PLATFORM_SLUGS.map(async (platformSlug) => {
             const platformValue = platformValueFromSlug(platformSlug)
             const latest = await prisma.product.findFirst({
-              where: {
-                status: "published" as any,
+              where: buildPublicDiscoveryProductWhere({
                 categoryId: category.id,
                 platforms: { has: platformValue },
-              },
+              }),
               select: { updatedAt: true, publishedAt: true },
               orderBy: { updatedAt: "desc" },
             })
@@ -209,11 +206,10 @@ export async function GET() {
             const meta = getPricingModelMeta(pricingModel)
             if (!meta) return null
             const latest = await prisma.product.findFirst({
-              where: {
-                status: "published" as any,
+              where: buildPublicDiscoveryProductWhere({
                 categoryId: category.id,
                 pricingModel: meta.value,
-              },
+              }),
               select: { updatedAt: true, publishedAt: true },
               orderBy: { updatedAt: "desc" },
             })

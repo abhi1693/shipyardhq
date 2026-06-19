@@ -16,6 +16,7 @@ import {
   tagPath,
   weeklyLeaderboardPath,
 } from "@/lib/routes"
+import { keywordToSlug, legacyKeywordToSlug } from "@/lib/tags"
 
 describe("toAbsoluteUrlFromSite", () => {
   it("returns undefined for empty input", () => {
@@ -215,5 +216,9 @@ describe("canonical route helpers", () => {
 
   it("builds clean canonical paths for tag detail pages", () => {
     expect(tagPath("ai-tools")).toBe("/tags/ai-tools")
+    expect(keywordToSlug("Coloring Pages")).toBe("coloring-pages")
+    expect(legacyKeywordToSlug("Coloring Pages")).toMatch(
+      /^coloring-pages-[a-f0-9]{6}$/,
+    )
   })
 })

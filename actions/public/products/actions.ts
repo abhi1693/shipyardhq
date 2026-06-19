@@ -4,6 +4,10 @@ import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { resolveVoteState } from "@/lib/server/productVotesStore"
 import { safelyReadStaticParams } from "@/lib/staticParams"
+import {
+  buildPublicDiscoveryProductWhere,
+  buildPublicDiscoverySqlFilter,
+} from "@/lib/products/public-discovery"
 
 const publicProductSelect = {
   id: true,
@@ -248,7 +252,7 @@ export const getProductStaticParams = cached(
         by: ["productId"],
         where: {
           date: { gte: since },
-          product: { status: "published" },
+          product: buildPublicDiscoveryProductWhere(),
         },
         _sum: {
           pageViews: true,
@@ -266,7 +270,7 @@ export const getProductStaticParams = cached(
         ? await prisma.product.findMany({
             where: {
               id: { in: trafficProductIds },
-              status: "published",
+              ...buildPublicDiscoveryProductWhere(),
             },
             select: { id: true, slug: true },
           })
@@ -288,10 +292,9 @@ export const getProductStaticParams = cached(
       const remaining = limit - slugs.length
       if (remaining > 0) {
         const fallbackProducts = await prisma.product.findMany({
-          where: {
-            status: "published",
+          where: buildPublicDiscoveryProductWhere({
             ...(seen.size ? { slug: { notIn: Array.from(seen) } } : {}),
-          },
+          }),
           orderBy: [
             { analytics: { upvotes: "desc" } },
             { publishedAt: { sort: "desc", nulls: "last" } },
@@ -356,6 +359,7 @@ export const getPublicProductsByUseCase = cached(
       INNER JOIN "UseCase" AS u ON u.id = uc."useCaseId"
       WHERE u.slug = ${useCaseSlug}
         AND p.status = 'published'
+        ${buildPublicDiscoverySqlFilter("p")}
         AND p.id <> ${excludeId}
       ORDER BY RANDOM()
       LIMIT ${effectiveLimit}
@@ -366,11 +370,11 @@ export const getPublicProductsByUseCase = cached(
     }
 
     return prisma.product.findMany({
-      where: {
+      where: buildPublicDiscoveryProductWhere({
         id: {
           in: randomProductIds.map(({ id }: { id: string }) => id),
         },
-      },
+      }),
       include: compactProductInclude,
     })
   },

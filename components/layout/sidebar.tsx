@@ -31,6 +31,7 @@ import { createBillingPortalAction } from "@/actions/member/billing/portal"
 import ProductDraftStartButton from "@/components/pages/products/ProductDraftStartButton"
 import { UserAvatarProfile } from "@/components/molecules/UserAvatarProfile"
 import { BrandLogo } from "@/components/atoms/brand-logo"
+import { BRAND_NAME } from "@/lib/brand"
 import { useUser } from "@clerk/nextjs"
 import { CreditCard, Rocket } from "lucide-react"
 import {
@@ -125,7 +126,7 @@ export default function AppSidebar(props: SidebarProps) {
         <Link
           href={brandHref}
           className="flex items-center gap-2 transition-opacity hover:opacity-80 group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:bg-white"
-          aria-label="Shipyard HQ dashboard"
+          aria-label={`${BRAND_NAME} dashboard`}
         >
           <BrandLogo
             width={28}
@@ -135,7 +136,7 @@ export default function AppSidebar(props: SidebarProps) {
             className="h-7 w-7 shrink-0"
           />
           <span className="text-lg font-semibold tracking-normal text-slate-950 group-data-[collapsible=icon]:hidden">
-            Shipyard HQ
+            {BRAND_NAME}
           </span>
         </Link>
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 group-data-[collapsible=icon]:hidden">

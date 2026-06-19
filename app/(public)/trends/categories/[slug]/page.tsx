@@ -35,6 +35,7 @@ import {
   TaxonomyProductRow,
 } from "@/components/templates/public/common/TaxonomyProductRows"
 import { pluralize } from "@/lib/pluralize"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 
 interface CategoryTrendsPageProps {
   params: Promise<{ slug: string }>
@@ -118,11 +119,10 @@ async function TrendingToolsInCategoryPageContent({
 
   const records: ProductCardRecord[] = ids.length
     ? ((await prisma.product.findMany({
-        where: {
+        where: buildPublicDiscoveryProductWhere({
           id: { in: ids },
-          status: "published",
           category: { is: { slug: category.slug } },
-        },
+        }),
         select: productCardSelect,
       })) as unknown as ProductCardRecord[])
     : []

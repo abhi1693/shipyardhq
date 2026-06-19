@@ -61,7 +61,7 @@ import {
   userPath,
 } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
-import { ensureUrlHasSchema } from "@/lib/utils"
+import { cn, ensureUrlHasSchema } from "@/lib/utils"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import { keywordToSlug } from "@/lib/tags"
@@ -580,6 +580,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     typeof leaderboardScore?.score === "number" ? leaderboardScore.score : 0
   const leaderboardRank =
     typeof leaderboardScore?.rank === "number" ? leaderboardScore.rank : null
+  const hasMeaningfulLeaderboardMetrics = Boolean(
+    leaderboardScore && (leaderboardPoints > 0 || leaderboardRank !== null),
+  )
   const leaderboardPayload = {
     points: leaderboardPoints,
     rank: leaderboardRank,
@@ -936,26 +939,35 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           </div>
 
           <aside className="flex min-w-0 flex-col gap-6 lg:col-span-4">
-            <section className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-border bg-white p-4 text-center shadow-sm">
-                <span className="mb-1 block text-[11px] font-medium uppercase text-muted-foreground">
-                  Global rank
-                </span>
-                <span className="text-lg font-semibold text-foreground">
-                  {leaderboardRank !== null
-                    ? `#${numberFormatter.format(leaderboardRank)}`
-                    : "—"}
-                </span>
-              </div>
-              <div className="rounded-xl border border-border bg-white p-4 text-center shadow-sm">
-                <span className="mb-1 block text-[11px] font-medium uppercase text-muted-foreground">
-                  Shipyard points
-                </span>
-                <span className="text-lg font-semibold text-emerald-700">
-                  {numberFormatter.format(leaderboardPoints)}
-                </span>
-              </div>
-            </section>
+            {hasMeaningfulLeaderboardMetrics ? (
+              <section
+                className={cn(
+                  "grid gap-3",
+                  leaderboardRank !== null ? "grid-cols-2" : "grid-cols-1",
+                )}
+              >
+                {leaderboardRank !== null ? (
+                  <div className="rounded-xl border border-border bg-white p-4 text-center shadow-sm">
+                    <span className="mb-1 block text-[11px] font-medium uppercase text-muted-foreground">
+                      Global rank
+                    </span>
+                    <span className="text-lg font-semibold text-foreground">
+                      #{numberFormatter.format(leaderboardRank)}
+                    </span>
+                  </div>
+                ) : null}
+                {leaderboardPoints > 0 ? (
+                  <div className="rounded-xl border border-border bg-white p-4 text-center shadow-sm">
+                    <span className="mb-1 block text-[11px] font-medium uppercase text-muted-foreground">
+                      Shipyard points
+                    </span>
+                    <span className="text-lg font-semibold text-emerald-700">
+                      {numberFormatter.format(leaderboardPoints)}
+                    </span>
+                  </div>
+                ) : null}
+              </section>
+            ) : null}
             {productDetailsCard}
             <Suspense
               fallback={

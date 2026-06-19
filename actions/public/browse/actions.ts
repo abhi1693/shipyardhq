@@ -13,6 +13,7 @@ import {
   type ProductCardRecord,
 } from "@/lib/products/selects"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 
 interface GetBrowseProductsOptions {
   useCaseSlug?: string
@@ -139,7 +140,7 @@ export const getBrowseProducts = cached(
       ...(categoryFilter ? [categoryFilter] : []),
     ]
 
-    const baseWhere: Prisma.ProductWhereInput = {
+    const productFilters: Prisma.ProductWhereInput = {
       ...(Object.keys(verificationFilter).length
         ? { verification: { is: verificationFilter } }
         : {}),
@@ -178,6 +179,7 @@ export const getBrowseProducts = cached(
           }
         : {}),
     }
+    const baseWhere = buildPublicDiscoveryProductWhere(productFilters)
 
     const orderBy: Prisma.ProductOrderByWithRelationInput =
       sort === "votes"
@@ -223,13 +225,9 @@ export const getBrowseProducts = cached(
       },
     }
 
-    const hasBaseFilters = Object.keys(baseWhere).length > 0
-
-    const regularWhere: Prisma.ProductWhereInput = hasBaseFilters
-      ? {
-          AND: [baseWhere, planExclusionWhere],
-        }
-      : planExclusionWhere
+    const regularWhere: Prisma.ProductWhereInput = {
+      AND: [baseWhere, planExclusionWhere],
+    }
 
     // Compute counts to perform correct merged pagination
     const [totalPriority, totalRegular] = await Promise.all([

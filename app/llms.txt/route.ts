@@ -47,7 +47,7 @@ export async function GET() {
     `- [Support email](mailto:${siteConfig.adminEmail})`,
     "",
     "## Optional",
-    `- [Why ShipYard](${url("/why-shipyard")}): Positioning and product overview`,
+    `- [Why Shipyard](${url("/why-shipyard")}): Positioning and product overview`,
     `- [Privacy policy](${url("/legal/privacy-policy")})`,
     `- [Terms](${url("/legal/terms")})`,
   ])

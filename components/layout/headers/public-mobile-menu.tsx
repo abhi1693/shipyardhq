@@ -32,6 +32,7 @@ import {
   MEMBER_BASE_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
 } from "@/lib/routes"
+import { BRAND_NAME } from "@/lib/brand"
 import { cn } from "@/lib/utils"
 import {
   isActivePublicHeaderPath,
@@ -78,7 +79,7 @@ export default function PublicMobileMenu() {
       >
         <SheetHeader className="border-b border-[#E2E8F0] px-5 py-4">
           <SheetTitle className="text-base font-semibold">
-            ShipYard HQ
+            {BRAND_NAME}
           </SheetTitle>
           <SheetDescription className="sr-only">
             Public navigation

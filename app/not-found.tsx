@@ -7,6 +7,7 @@ import {
   LEADERBOARD_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
 } from "@/lib/routes"
+import { BRAND_NAME } from "@/lib/brand"
 
 const destinations = [
   {
@@ -37,7 +38,7 @@ export default function NotFound() {
     <div className="not-found-page">
       <header className="not-found-header">
         <Link className="not-found-brand" href="/">
-          Shipyard HQ
+          {BRAND_NAME}
         </Link>
         <nav className="not-found-nav" aria-label="Primary">
           <Link href={BROWSE_PATH}>Browse</Link>

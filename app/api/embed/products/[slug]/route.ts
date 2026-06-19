@@ -135,7 +135,7 @@ function buildBaseSvg(options: {
   const contentY = logoY + (logoSize - blockHeight) / 2
 
   return `
-<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH + OUTER_PADDING * 2}" height="${HEIGHT + OUTER_PADDING * 2}" role="img" aria-label="Shipyard badge placeholder">
+<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH + OUTER_PADDING * 2}" height="${HEIGHT + OUTER_PADDING * 2}" role="img" aria-label="${siteConfig.name} badge placeholder">
   <defs>
     <clipPath id="${clipId}">
       <rect x="${logoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" rx="16" ry="16" />

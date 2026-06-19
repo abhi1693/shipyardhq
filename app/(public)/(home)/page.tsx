@@ -25,17 +25,17 @@ import {
   MEMBER_PRODUCTS_ADD_PATH,
   productPath,
 } from "@/lib/routes"
-import { siteConfig } from "@/lib/siteConfig"
+import { BRAND_NAME } from "@/lib/brand"
+import { siteConfig, siteGrowthMetrics } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
 
 export const revalidate = 60
 
-const HOMEPAGE_TITLE = "Shipyard HQ - Ship Better, Faster"
+const HOMEPAGE_TITLE = `${BRAND_NAME} - Launch, Measure, Grow`
 
 export const metadata = buildPageMetadata({
   title: HOMEPAGE_TITLE,
-  description:
-    "Shipyard HQ is the high-performance discovery dashboard for builders to find traction and launch products to an audience that cares.",
+  description: `${BRAND_NAME} is the launch intelligence network where independent builders publish products, read real traction signals, and compound momentum.`,
   canonical: HOME_PATH,
 })
 
@@ -88,7 +88,7 @@ type HomepageBuilderSummary = Awaited<
 >
 
 const fallbackBuilderSummary: HomepageBuilderSummary = {
-  builderCount: 1600,
+  builderCount: siteGrowthMetrics.builderCount,
   topFounder: null,
 }
 
@@ -191,7 +191,10 @@ function HomepageHero({
 }: {
   builderSummary: HomepageBuilderSummary
 }) {
-  const builderCount = builderSummary.builderCount
+  const builderCount = Math.max(
+    builderSummary.builderCount,
+    siteGrowthMetrics.builderCount,
+  )
   const builderCountLabel = formatBuilderCountBadge(builderCount)
   const builderNoun = pluralize(builderCount, "builder", "builders")
 
@@ -205,13 +208,12 @@ function HomepageHero({
           </span>
         </div>
         <h1 className="mx-auto mb-6 max-w-4xl text-[40px] font-bold leading-[1.1] tracking-tight text-black md:text-[64px]">
-          Ship the Next Big Thing. <br className="hidden md:block" />
-          <span className="text-[#0051d5]">Discover the Best New Tools.</span>
+          Launch with signal. <br className="hidden md:block" />
+          <span className="text-[#0051d5]">Grow with momentum.</span>
         </h1>
         <p className="mx-auto mb-10 max-w-2xl text-base leading-relaxed text-[#43474c]">
-          Stop hunting through noise. Shipyard HQ is the high-performance
-          discovery dashboard for builders to find traction and launch products
-          to an audience that cares.
+          {BRAND_NAME} brings focused discovery, community proof, and launch
+          analytics into one operating surface for independent builders.
         </p>
         <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Button

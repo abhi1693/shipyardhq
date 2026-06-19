@@ -34,6 +34,7 @@ import {
   PRICING_PATH,
   REWARDS_PATH,
 } from "@/lib/routes"
+import { siteGrowthMetrics } from "@/lib/siteConfig"
 
 const PAGE_TITLE = "Pricing"
 const PRICING_DASHBOARD_IMAGE_URL =
@@ -41,6 +42,17 @@ const PRICING_DASHBOARD_IMAGE_URL =
 const PRICING_DASHBOARD_IMAGE_SIZES =
   "(min-width: 1024px) 560px, calc(100vw - 32px)"
 const PRICING_DASHBOARD_IMAGE_WIDTHS = [320, 480, 512] as const
+const numberFormatter = new Intl.NumberFormat("en-US")
+
+function formatBuilderCountBadge(value: number) {
+  const safeValue = Math.max(0, value)
+  if (safeValue < 1000) {
+    return numberFormatter.format(safeValue)
+  }
+
+  const roundedValue = Math.floor(safeValue / 100) * 100
+  return `${numberFormatter.format(roundedValue)}+`
+}
 
 export const dynamic = "force-dynamic"
 
@@ -118,6 +130,9 @@ async function buildPricingDashboardImageSources() {
 
 export default async function PricingPage() {
   const pricingDashboardImage = await buildPricingDashboardImageSources()
+  const builderCountLabel = formatBuilderCountBadge(
+    siteGrowthMetrics.builderCount,
+  )
   const faqStructuredData = buildFaqStructuredData(
     PRICING_FAQS.map((faq) => ({ question: faq.question, answer: faq.answer })),
     { pageUrl: PRICING_PATH },
@@ -150,7 +165,7 @@ export default async function PricingPage() {
           <div className="relative z-10">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#0051d5]/10 bg-[#EFF6FF] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[#0051d5]">
               <Sparkles className="size-4" aria-hidden />
-              Join 50,000+ builders
+              Join {builderCountLabel} builders
             </div>
 
             <h1 className="mx-auto max-w-3xl text-3xl font-bold leading-10 text-black sm:text-5xl sm:leading-[1.1] md:text-[56px]">

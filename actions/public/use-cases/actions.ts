@@ -3,6 +3,10 @@ import { Prisma } from "@/lib/vendor/prisma/client"
 import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { PRIORITY_FEATURE_KEY, productCardSelect } from "@/lib/products/selects"
+import {
+  buildPublicDiscoveryProductWhere,
+  buildPublicDiscoverySqlFilter,
+} from "@/lib/products/public-discovery"
 
 const useCaseProductSelect = productCardSelect satisfies Prisma.ProductSelect
 
@@ -79,6 +83,7 @@ const getPublishedProductCountsByUseCase = async () => {
     JOIN "ProductCategory" pc ON pc."productId" = p."id"
     JOIN "UseCaseCategory" uc ON uc."categoryId" = pc."categoryId"
     WHERE p."status" = ${"published"}
+      ${buildPublicDiscoverySqlFilter("p")}
     GROUP BY uc."useCaseId"
   `)
 
@@ -143,6 +148,7 @@ export const getUseCaseHighlights = cached(
       INNER JOIN "ProductCategory" pc ON pc."categoryId" = ucc."categoryId"
       INNER JOIN "Product" p ON p."id" = pc."productId"
       WHERE p."status" = 'published'
+      ${buildPublicDiscoverySqlFilter("p")}
       GROUP BY uc."id", uc."label", uc."slug"
       ORDER BY COUNT(DISTINCT p."id") DESC, uc."label" ASC
       LIMIT ${safeLimit}
@@ -209,6 +215,7 @@ export const getPublicUseCaseCategoriesWithCounts = cached(
       INNER JOIN "Product" p ON p."id" = pc."productId"
       INNER JOIN "UseCaseCategory" uc ON uc."categoryId" = pc."categoryId"
       WHERE p."status" = 'published'
+        ${buildPublicDiscoverySqlFilter("p")}
         AND uc."useCaseId" = ${useCase.id}
       GROUP BY pc."categoryId"
     `)
@@ -315,13 +322,13 @@ export const getPublicUseCaseProductsPage = cached(
       return { products: [], hasMore: false, total: 0 }
     }
 
-    const baseWhere: Prisma.ProductWhereInput = {
-      status: "published",
-      OR: [
-        { categoryId: { in: categoryIds } },
-        { categories: { some: { categoryId: { in: categoryIds } } } },
-      ],
-    }
+    const baseWhere: Prisma.ProductWhereInput =
+      buildPublicDiscoveryProductWhere({
+        OR: [
+          { categoryId: { in: categoryIds } },
+          { categories: { some: { categoryId: { in: categoryIds } } } },
+        ],
+      })
 
     const orderBy: Prisma.ProductOrderByWithRelationInput =
       options.sort === "name"

@@ -185,7 +185,7 @@ function getMemberLabel(entry: RewardsLeaderboardDisplayEntry, rank: number) {
   if (rank === 1) return "Top Contributor"
   if (rank <= 3) return "Rewards Leader"
   if (entry.longestStreakCount >= 5) return "Streak Builder"
-  if (entry.launchCount > 0) return "Product Hunter"
+  if (entry.launchCount > 0) return "Launch Builder"
   return "Community Member"
 }
 

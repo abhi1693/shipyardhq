@@ -7,6 +7,10 @@ import {
 import { getRewardsLeaderboardPositionForUser } from "@/actions/public/rewards/actions"
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
+import {
+  buildPublicDiscoveryProductWhere,
+  buildPublicDiscoverySqlFilter,
+} from "@/lib/products/public-discovery"
 
 type PublicUserProfile = NonNullable<
   Awaited<ReturnType<typeof getPublicUserProfile>>
@@ -51,10 +55,10 @@ export const getUserProfilePayload = cached(
       return null
     }
 
-    const publishedProductWhere: Prisma.ProductWhereInput = {
-      userId: profile.id,
-      status: "published",
-    }
+    const publishedProductWhere: Prisma.ProductWhereInput =
+      buildPublicDiscoveryProductWhere({
+        userId: profile.id,
+      })
 
     const [
       leaderboardPosition,
@@ -103,9 +107,11 @@ export const getUserProfilePayload = cached(
         orderBy: { createdAt: "desc" },
       }),
       prisma.$queryRaw<{ earliest: Date | null }[]>`
-        SELECT MIN(COALESCE("publishedAt", "createdAt")) as "earliest"
-        FROM "Product"
-        WHERE "userId" = ${profile.id} AND "status" = 'published'
+        SELECT MIN(COALESCE(p."publishedAt", p."createdAt")) as "earliest"
+        FROM "Product" AS p
+        WHERE p."userId" = ${profile.id}
+          AND p."status" = 'published'
+          ${buildPublicDiscoverySqlFilter("p")}
       `,
       getUserProductsPage({ userId: profile.id }),
       prisma.rewardBalance.findUnique({
