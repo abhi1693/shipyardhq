@@ -219,6 +219,184 @@ const USE_CASES: UseCaseSeed[] = [
       "creator-economy",
     ],
   },
+  {
+    label: "Build AI Chatbots",
+    slug: "build-ai-chatbots",
+    categorySlugs: [
+      "ai-and-machine-learning",
+      "customer-support",
+      "automation-and-workflow",
+    ],
+  },
+  {
+    label: "Create AI Writing Tools",
+    slug: "create-ai-writing-tools",
+    categorySlugs: [
+      "ai-and-machine-learning",
+      "content-and-writing",
+      "marketing",
+    ],
+  },
+  {
+    label: "Build AI Productivity Apps",
+    slug: "build-ai-productivity-apps",
+    categorySlugs: [
+      "ai-and-machine-learning",
+      "productivity",
+      "automation-and-workflow",
+    ],
+  },
+  {
+    label: "Create Lead Generation Tools",
+    slug: "create-lead-generation-tools",
+    categorySlugs: ["marketing", "sales", "seo-growth"],
+  },
+  {
+    label: "Optimize SEO Workflows",
+    slug: "optimize-seo-workflows",
+    categorySlugs: ["seo-growth", "marketing", "analytics"],
+  },
+  {
+    label: "Automate Email Marketing",
+    slug: "automate-email-marketing",
+    categorySlugs: ["marketing", "sales", "automation-and-workflow"],
+  },
+  {
+    label: "Schedule Social Media Content",
+    slug: "schedule-social-media-content",
+    categorySlugs: ["social-media-tools", "marketing", "analytics"],
+  },
+  {
+    label: "Build Landing Page Tools",
+    slug: "build-landing-page-tools",
+    categorySlugs: ["marketing", "design-and-ui", "nocode-and-lowcode"],
+  },
+  {
+    label: "Create Forms & Surveys",
+    slug: "create-forms-and-surveys",
+    categorySlugs: [
+      "productivity",
+      "marketing",
+      "analytics",
+      "nocode-and-lowcode",
+    ],
+  },
+  {
+    label: "Run Customer Research",
+    slug: "run-customer-research",
+    categorySlugs: ["product-management", "analytics", "customer-support"],
+  },
+  {
+    label: "Collect Product Feedback",
+    slug: "collect-product-feedback",
+    categorySlugs: [
+      "product-management",
+      "customer-success",
+      "customer-support",
+    ],
+  },
+  {
+    label: "Manage Product Roadmaps",
+    slug: "manage-product-roadmaps",
+    categorySlugs: [
+      "product-management",
+      "collaboration-and-community",
+      "internal-tools",
+    ],
+  },
+  {
+    label: "Build Knowledge Bases",
+    slug: "build-knowledge-bases",
+    categorySlugs: [
+      "customer-support",
+      "content-and-writing",
+      "collaboration-and-community",
+    ],
+  },
+  {
+    label: "Create Documentation Portals",
+    slug: "create-documentation-portals",
+    categorySlugs: [
+      "developer-tools",
+      "content-and-writing",
+      "customer-support",
+    ],
+  },
+  {
+    label: "Manage Sales Pipelines",
+    slug: "manage-sales-pipelines",
+    categorySlugs: ["sales", "customer-success", "automation-and-workflow"],
+  },
+  {
+    label: "Manage Subscriptions & Billing",
+    slug: "manage-subscriptions-and-billing",
+    categorySlugs: ["ecommerce", "finance-and-accounting", "customer-success"],
+  },
+  {
+    label: "Schedule Bookings & Appointments",
+    slug: "schedule-bookings-and-appointments",
+    categorySlugs: [
+      "productivity",
+      "travel-and-tourism",
+      "food-and-beverage",
+      "field-operations-and-logistics",
+    ],
+  },
+  {
+    label: "Build Recruiting Workflows",
+    slug: "build-recruiting-workflows",
+    categorySlugs: ["hr-and-hiring", "ai-and-machine-learning", "productivity"],
+  },
+  {
+    label: "Manage Compliance Workflows",
+    slug: "manage-compliance-workflows",
+    categorySlugs: [
+      "legal-and-compliance",
+      "security-and-privacy",
+      "finance-and-accounting",
+    ],
+  },
+  {
+    label: "Build Real Estate Tools",
+    slug: "build-real-estate-tools",
+    categorySlugs: ["real-estate", "sales", "marketing"],
+  },
+  {
+    label: "Run Restaurant Operations",
+    slug: "run-restaurant-operations",
+    categorySlugs: [
+      "food-and-beverage",
+      "field-operations-and-logistics",
+      "finance-and-accounting",
+    ],
+  },
+  {
+    label: "Plan Trips & Itineraries",
+    slug: "plan-trips-and-itineraries",
+    categorySlugs: [
+      "travel-and-tourism",
+      "ai-and-machine-learning",
+      "productivity",
+    ],
+  },
+  {
+    label: "Create Fitness Coaching Apps",
+    slug: "create-fitness-coaching-apps",
+    categorySlugs: [
+      "health-and-wellness",
+      "ai-and-machine-learning",
+      "productivity",
+    ],
+  },
+  {
+    label: "Track Sustainability Metrics",
+    slug: "track-sustainability-metrics",
+    categorySlugs: [
+      "green-and-sustainability",
+      "analytics",
+      "iot-and-hardware",
+    ],
+  },
 ]
 
 export async function seedUseCases(prisma: PrismaClient) {
