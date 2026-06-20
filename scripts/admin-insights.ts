@@ -7,6 +7,7 @@ const SECTION_NAMES = [
   "overview",
   "growth",
   "products",
+  "drafts",
   "traffic",
   "revenue",
   "operations",
@@ -15,6 +16,7 @@ const SECTION_NAMES = [
 type SectionName = (typeof SECTION_NAMES)[number]
 
 type CliOptions = {
+  allDrafts: boolean
   days: number
   help: boolean
   json: boolean
@@ -78,6 +80,7 @@ function printUsage() {
 Options:
   --days <n>             Rolling window in days. Default: ${DEFAULT_DAYS}.
   --limit <n>            Rows per ranked table. Default: ${DEFAULT_LIMIT}.
+  --all-drafts           Show every product draft when --section drafts is used.
   --section <names>      Comma-separated sections: ${SECTION_NAMES.join(", ")}.
   --json                 Print machine-readable JSON.
   --help                 Show this help.
@@ -85,6 +88,7 @@ Options:
 Examples:
   npm run admin:insights
   npm run admin:insights -- --days 30 --limit 12
+  npm run admin:insights -- --section drafts --all-drafts
   npm run admin:insights -- --section traffic,operations
   npm run --silent admin:insights -- --json --days 14
 `)
@@ -123,6 +127,7 @@ function parseSections(raw: string | undefined): SectionName[] {
 
 function parseArgs(argv: string[]): CliOptions {
   const options: CliOptions = {
+    allDrafts: false,
     days: DEFAULT_DAYS,
     help: false,
     json: false,
@@ -138,6 +143,9 @@ function parseArgs(argv: string[]): CliOptions {
         break
       case "--limit":
         options.limit = readPositiveInteger(argv[++index], "--limit")
+        break
+      case "--all-drafts":
+        options.allDrafts = true
         break
       case "--section":
       case "--sections":
@@ -184,6 +192,31 @@ function formatChange({ current, previous }: WindowTotals) {
 
 function formatDate(value: Date | null | undefined) {
   return value ? value.toISOString().replace("T", " ").slice(0, 19) : "n/a"
+}
+
+function payloadRecord(payload: Prisma.JsonValue): Record<string, unknown> {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return {}
+  }
+
+  return payload as Record<string, unknown>
+}
+
+function payloadString(payload: Record<string, unknown>, key: string) {
+  const value = payload[key]
+  return typeof value === "string" ? value.trim() : ""
+}
+
+function payloadStringArray(payload: Record<string, unknown>, key: string) {
+  const value = payload[key]
+  if (!Array.isArray(value)) return []
+
+  return value.filter((item): item is string => typeof item === "string")
+}
+
+function formatAgeDays(value: Date) {
+  const days = Math.floor((Date.now() - value.getTime()) / MS_PER_DAY)
+  return `${formatNumber(Math.max(0, days))}d`
 }
 
 function formatDurationMs(value: number | null | undefined) {
@@ -773,6 +806,93 @@ async function getProductInsights(limit: number) {
   }
 }
 
+async function getDraftInsights(limit: number | null) {
+  const take = limit ?? undefined
+  const [total, staleDrafts, byStep, byMode, drafts] = await Promise.all([
+    prisma.productDraft.count(),
+    prisma.productDraft.count({ where: { updatedAt: { lt: daysAgo(14) } } }),
+    prisma.productDraft.groupBy({
+      _count: { _all: true },
+      by: ["currentStep"],
+      orderBy: { _count: { currentStep: "desc" } },
+    }),
+    prisma.productDraft.groupBy({
+      _count: { _all: true },
+      by: ["mode"],
+      orderBy: { _count: { mode: "desc" } },
+    }),
+    prisma.productDraft.findMany({
+      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+      select: {
+        createdAt: true,
+        currentStep: true,
+        id: true,
+        mode: true,
+        payload: true,
+        productId: true,
+        updatedAt: true,
+        user: {
+          select: {
+            email: true,
+            firstName: true,
+            id: true,
+            lastName: true,
+            status: true,
+          },
+        },
+        userId: true,
+      },
+      take,
+    }),
+  ])
+
+  return {
+    allShown: limit === null,
+    byMode: byMode.map((row) => ({
+      count: row._count._all,
+      mode: row.mode,
+    })),
+    byStep: byStep.map((row) => ({
+      count: row._count._all,
+      step: row.currentStep,
+    })),
+    drafts: drafts.map((draft) => {
+      const payload = payloadRecord(draft.payload)
+      const categoryCount =
+        payloadStringArray(payload, "categoryIds").length ||
+        (payloadString(payload, "categoryId") ? 1 : 0)
+      const ownerName = [draft.user.firstName, draft.user.lastName]
+        .filter(Boolean)
+        .join(" ")
+
+      return {
+        age: formatAgeDays(draft.updatedAt),
+        categories: categoryCount,
+        createdAt: formatDate(draft.createdAt),
+        draftId: draft.id,
+        galleryItems: payloadStringArray(payload, "galleryMedia").length,
+        hasBanner: Boolean(payloadString(payload, "bannerImage")),
+        hasLogo: Boolean(payloadString(payload, "logo")),
+        mode: draft.mode,
+        owner: draft.user.email,
+        ownerName,
+        ownerStatus: draft.user.status,
+        pricingModel: payloadString(payload, "pricingModel"),
+        productId: draft.productId,
+        productName: payloadString(payload, "name") || "(untitled)",
+        step: draft.currentStep,
+        type: payloadString(payload, "type"),
+        updatedAt: formatDate(draft.updatedAt),
+        userId: draft.userId,
+        websiteUrl: payloadString(payload, "websiteUrl"),
+      }
+    }),
+    showing: drafts.length,
+    staleDrafts,
+    total,
+  }
+}
+
 async function getTrafficInsights(
   currentStart: Date,
   previousStart: Date,
@@ -1001,6 +1121,12 @@ async function buildReport(options: CliOptions) {
     report.products = await getProductInsights(options.limit)
   }
 
+  if (sectionEnabled(options, "drafts")) {
+    report.drafts = await getDraftInsights(
+      options.allDrafts ? null : options.limit,
+    )
+  }
+
   if (sectionEnabled(options, "traffic")) {
     report.traffic = await getTrafficInsights(
       currentStart,
@@ -1207,6 +1333,77 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
         width: 16,
       },
       { format: statusCell, key: "status", label: "Status", maxWidth: 14 },
+    ])
+  }
+
+  if (report.drafts) {
+    const drafts = report.drafts
+    const byStep = drafts.byStep as Array<Record<string, unknown>>
+    const byMode = drafts.byMode as Array<Record<string, unknown>>
+    const draftRows = drafts.drafts as Array<Record<string, unknown>>
+
+    renderMetricCards("Drafts", [
+      {
+        detail: drafts.allShown
+          ? "All product drafts"
+          : `Limited to ${formatNumber(drafts.showing)} rows`,
+        label: "Total Drafts",
+        tone: drafts.total > 0 ? "warn" : "good",
+        value: formatNumber(drafts.total),
+      },
+      {
+        detail: "Untouched for more than 14 days",
+        label: "Stale Drafts",
+        tone: drafts.staleDrafts > 0 ? "warn" : "good",
+        value: formatNumber(drafts.staleDrafts),
+      },
+      {
+        detail: drafts.allShown
+          ? "No row limit applied"
+          : "Use --all-drafts to show every row",
+        label: "Rows Shown",
+        value: formatNumber(drafts.showing),
+      },
+    ])
+
+    const stepMax = maxByKey(byStep, "count")
+    renderTable("Drafts by Step", rankRows(byStep), [
+      { align: "right", key: "rank", label: "#", width: 3 },
+      { key: "step", label: "Step", maxWidth: 20 },
+      { align: "right", key: "count", label: "Count" },
+      {
+        format: (value) => bar(value, stepMax),
+        key: "count",
+        label: "Share",
+        width: 16,
+      },
+    ])
+
+    const modeMax = maxByKey(byMode, "count")
+    renderTable("Drafts by Mode", rankRows(byMode), [
+      { align: "right", key: "rank", label: "#", width: 3 },
+      { key: "mode", label: "Mode", maxWidth: 16 },
+      { align: "right", key: "count", label: "Count" },
+      {
+        format: (value) => bar(value, modeMax),
+        key: "count",
+        label: "Share",
+        width: 16,
+      },
+    ])
+
+    renderTable("Product Drafts", rankRows(draftRows), [
+      { align: "right", key: "rank", label: "#", width: 3 },
+      { key: "updatedAt", label: "Updated", maxWidth: 19 },
+      { align: "right", key: "age", label: "Age", maxWidth: 8 },
+      { key: "owner", label: "Owner", maxWidth: 28 },
+      { key: "productName", label: "Product", maxWidth: 28 },
+      { key: "websiteUrl", label: "Website", maxWidth: 34 },
+      { key: "step", label: "Step", maxWidth: 16 },
+      { key: "type", label: "Type", maxWidth: 18 },
+      { key: "pricingModel", label: "Pricing", maxWidth: 16 },
+      { align: "right", key: "categories", label: "Cats", width: 4 },
+      { key: "draftId", label: "Draft ID", maxWidth: 24 },
     ])
   }
 
