@@ -659,8 +659,8 @@ export function ProductUpgradeProvisioning({
                           Verify Shipyard Badge
                         </button>
                         <p className="text-sm leading-5 text-[#43474c]">
-                          Generate your product-specific badge embed and copy
-                          the verified code from the modal.
+                          Free listings include a Shipyard badge so attribution
+                          helps keep the platform free for makers.
                         </p>
                       </div>
                     ) : (

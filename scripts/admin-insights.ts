@@ -1338,59 +1338,7 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
 
   if (report.drafts) {
     const drafts = report.drafts
-    const byStep = drafts.byStep as Array<Record<string, unknown>>
-    const byMode = drafts.byMode as Array<Record<string, unknown>>
     const draftRows = drafts.drafts as Array<Record<string, unknown>>
-
-    renderMetricCards("Drafts", [
-      {
-        detail: drafts.allShown
-          ? "All product drafts"
-          : `Limited to ${formatNumber(drafts.showing)} rows`,
-        label: "Total Drafts",
-        tone: drafts.total > 0 ? "warn" : "good",
-        value: formatNumber(drafts.total),
-      },
-      {
-        detail: "Untouched for more than 14 days",
-        label: "Stale Drafts",
-        tone: drafts.staleDrafts > 0 ? "warn" : "good",
-        value: formatNumber(drafts.staleDrafts),
-      },
-      {
-        detail: drafts.allShown
-          ? "No row limit applied"
-          : "Use --all-drafts to show every row",
-        label: "Rows Shown",
-        value: formatNumber(drafts.showing),
-      },
-    ])
-
-    const stepMax = maxByKey(byStep, "count")
-    renderTable("Drafts by Step", rankRows(byStep), [
-      { align: "right", key: "rank", label: "#", width: 3 },
-      { key: "step", label: "Step", maxWidth: 20 },
-      { align: "right", key: "count", label: "Count" },
-      {
-        format: (value) => bar(value, stepMax),
-        key: "count",
-        label: "Share",
-        width: 16,
-      },
-    ])
-
-    const modeMax = maxByKey(byMode, "count")
-    renderTable("Drafts by Mode", rankRows(byMode), [
-      { align: "right", key: "rank", label: "#", width: 3 },
-      { key: "mode", label: "Mode", maxWidth: 16 },
-      { align: "right", key: "count", label: "Count" },
-      {
-        format: (value) => bar(value, modeMax),
-        key: "count",
-        label: "Share",
-        width: 16,
-      },
-    ])
 
     renderTable("Product Drafts", rankRows(draftRows), [
       { align: "right", key: "rank", label: "#", width: 3 },
