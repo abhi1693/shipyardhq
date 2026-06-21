@@ -43,9 +43,6 @@ interface CategoryTrendsPageProps {
   searchParams?: Promise<Record<string, string | undefined>>
 }
 
-export const revalidate = 300
-export const dynamicParams = true
-
 export async function generateStaticParams() {
   return getCategoryStaticParams()
 }

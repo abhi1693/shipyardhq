@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Suspense } from "react"
+import { connection } from "next/server"
 import { Rocket, TrendingUp } from "lucide-react"
 
 import {
@@ -29,8 +30,6 @@ import { BRAND_NAME } from "@/lib/brand"
 import { siteConfig, siteGrowthMetrics } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
 import { HOMEPAGE_INITIAL_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
-
-export const revalidate = 60
 
 const HOMEPAGE_TITLE = `${BRAND_NAME} - Launch Products Builders Discover`
 
@@ -214,6 +213,8 @@ function HomepageHero({
 }
 
 async function HomepageHeroWithBuilderSummary() {
+  await connection()
+
   const builderSummary = await getHomepageBuilderSummary().catch(
     () => fallbackBuilderSummary,
   )
@@ -260,6 +261,8 @@ export default function HomePage() {
 }
 
 async function HomepageDataSections() {
+  await connection()
+
   const [feedPage, launchOfDay, homepageStats] = await Promise.all([
     getHomepageFeedPage({
       page: 1,

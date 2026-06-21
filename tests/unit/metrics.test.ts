@@ -4,10 +4,7 @@ import {
   otelResourceAttributes,
   otlpMetricsEndpoint,
 } from "@/lib/server/metrics/otel"
-import {
-  pyroscopeConfig,
-  pyroscopeTags,
-} from "@/lib/server/metrics/profiling"
+import { pyroscopeConfig, pyroscopeTags } from "@/lib/server/metrics/profiling"
 import { normalizeMetricRoute } from "@/lib/server/metrics/registry"
 
 describe("metrics registry", () => {

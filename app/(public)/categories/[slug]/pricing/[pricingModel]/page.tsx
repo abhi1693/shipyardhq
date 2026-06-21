@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
@@ -84,9 +85,6 @@ const buildSearchParams = (params: CategoryPricingSearchParams) => {
   return search
 }
 
-export const revalidate = 300
-export const dynamicParams = true
-
 export async function generateStaticParams() {
   const categories = await getCategoryStaticParams()
 
@@ -136,7 +134,18 @@ export async function generateMetadata(props: {
   }
 }
 
-export default async function CategoryPricingPage({
+export default function CategoryPricingPage(props: {
+  params: Promise<CategoryPricingParams>
+  searchParams: Promise<CategoryPricingSearchParams>
+}) {
+  return (
+    <Suspense fallback={null}>
+      <CategoryPricingPageContent {...props} />
+    </Suspense>
+  )
+}
+
+async function CategoryPricingPageContent({
   params,
   searchParams,
 }: {

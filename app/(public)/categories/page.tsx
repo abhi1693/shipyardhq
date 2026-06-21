@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import {
   TaxonomyIndexPage,
@@ -9,8 +11,6 @@ import { getCategoriesPagePayload } from "@/lib/categories/cache"
 import { buildPageMetadata } from "@/lib/metadata"
 import { BRAND_NAME } from "@/lib/brand"
 
-export const revalidate = 300
-
 const PAGE_TITLE = "Categories"
 
 export const metadata = buildPageMetadata({
@@ -19,7 +19,15 @@ export const metadata = buildPageMetadata({
   canonical: CATEGORIES_PATH,
 })
 
-export default async function CategoriesPage() {
+export default function CategoriesPage() {
+  return (
+    <Suspense fallback={null}>
+      <CategoriesPageContent />
+    </Suspense>
+  )
+}
+
+async function CategoriesPageContent() {
   const {
     categories,
     highlightCategories,

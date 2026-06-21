@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 
 import { ProductTypePageContent } from "@/components/templates/public/product-types/product-type-page-content"
 import {
@@ -10,9 +11,6 @@ import { buildPageMetadata } from "@/lib/metadata"
 import { productTypePath } from "@/lib/routes"
 import { pluralize } from "@/lib/pluralize"
 import { BRAND_NAME } from "@/lib/brand"
-
-export const revalidate = 300
-export const dynamicParams = true
 
 export function generateStaticParams() {
   return getProductTypeStaticParams()
@@ -50,5 +48,9 @@ export async function generateMetadata(
 export default function ProductTypePage(
   props: Parameters<typeof ProductTypePageContent>[0],
 ) {
-  return <ProductTypePageContent {...props} />
+  return (
+    <Suspense fallback={null}>
+      <ProductTypePageContent {...props} />
+    </Suspense>
+  )
 }

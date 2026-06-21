@@ -152,7 +152,9 @@ function resolveRange(
 ): ResolvedRange {
   const end = startOfDay(subDays(new Date(), 1))
   const normalizedRaw = raw === "today" || raw === "24h" ? "yesterday" : raw
-  const selected = RANGE_OPTIONS.find((option) => option.value === normalizedRaw)
+  const selected = RANGE_OPTIONS.find(
+    (option) => option.value === normalizedRaw,
+  )
   const key = selected?.value ?? DEFAULT_RANGE
   const label = selected?.label ?? "Last 7 days"
 

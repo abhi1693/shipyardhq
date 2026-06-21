@@ -1,6 +1,6 @@
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { browseSortLabelMap, type BrowseSort } from "@/lib/browse/cache"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { pluralize } from "@/lib/pluralize"
 import {
   getProductTypeMeta,
@@ -51,76 +51,65 @@ const normalizeFilters = (
   }
 }
 
-export const getProductTypePagePayload = cached(
-  async (
-    productTypeSlug: ProductTypeSlug,
-    inputFilters: ProductTypePageFilters,
-  ): Promise<ProductTypePagePayload | null> => {
-    const productType = getProductTypeMeta(productTypeSlug)
-    if (!productType) return null
+export async function getProductTypePagePayload(
+  productTypeSlug: ProductTypeSlug,
+  inputFilters: ProductTypePageFilters,
+): Promise<ProductTypePagePayload | null> {
+  "use cache"
+  applyCache(["product-types:page", TAGS.products], DEFAULT_TTL.medium)
 
-    const filters = normalizeFilters(inputFilters)
-    const { products, hasMore, total } = await getBrowseProducts({
-      type: productType.value,
-      sort: filters.sort,
-      verified: filters.verified,
-      page: filters.page,
-      query: filters.query,
-    })
+  const productType = getProductTypeMeta(productTypeSlug)
+  if (!productType) return null
 
-    const totalResults =
-      typeof total === "number" && Number.isFinite(total) ? total : 0
-    const sortLabel =
-      browseSortLabelMap[filters.sort] ?? browseSortLabelMap["new"]
-    const hasActiveFilters = Boolean(
-      filters.verified ||
-      (filters.query && filters.query.length > 0) ||
-      filters.sort !== "new",
-    )
+  const filters = normalizeFilters(inputFilters)
+  const { products, hasMore, total } = await getBrowseProducts({
+    type: productType.value,
+    sort: filters.sort,
+    verified: filters.verified,
+    page: filters.page,
+    query: filters.query,
+  })
 
-    const resultCount =
-      totalResults > 0 ? totalResults : Math.max(products.length, 0)
+  const totalResults =
+    typeof total === "number" && Number.isFinite(total) ? total : 0
+  const sortLabel =
+    browseSortLabelMap[filters.sort] ?? browseSortLabelMap["new"]
+  const hasActiveFilters = Boolean(
+    filters.verified ||
+    (filters.query && filters.query.length > 0) ||
+    filters.sort !== "new",
+  )
 
-    const filterSummary: string[] = [
-      `Showing ${resultCount} ${pluralize(resultCount, "result")}`,
-      `Type: ${productType.label}`,
-      `Sorted by ${sortLabel}`,
-    ]
+  const resultCount =
+    totalResults > 0 ? totalResults : Math.max(products.length, 0)
 
-    if (filters.verified) {
-      filterSummary.push("Verified makers only")
-    }
+  const filterSummary: string[] = [
+    `Showing ${resultCount} ${pluralize(resultCount, "result")}`,
+    `Type: ${productType.label}`,
+    `Sorted by ${sortLabel}`,
+  ]
 
-    if (filters.query) {
-      filterSummary.push(`Search: “${filters.query}”`)
-    }
+  if (filters.verified) {
+    filterSummary.push("Verified makers only")
+  }
 
-    const headline = filters.query
-      ? `Searching ${productType.label} launches`
-      : `${productType.label} products`
+  if (filters.query) {
+    filterSummary.push(`Search: “${filters.query}”`)
+  }
 
-    return {
-      productType,
-      filters,
-      products,
-      hasMore,
-      total: resultCount,
-      sortLabel,
-      filterSummary,
-      headline,
-      hasActiveFilters,
-    }
-  },
-  "product-types:page",
-  {
-    ttl: DEFAULT_TTL.medium,
-    tags: () => [TAGS.products],
-    keyParts: ([slug, filters]) => [
-      slug,
-      filters.sort,
-      String(filters.page),
-      filters.verified ? "verified" : "all",
-      filters.query ?? "",
-    ],
-  },
-)
+  const headline = filters.query
+    ? `Searching ${productType.label} launches`
+    : `${productType.label} products`
+
+  return {
+    productType,
+    filters,
+    products,
+    hasMore,
+    total: resultCount,
+    sortLabel,
+    filterSummary,
+    headline,
+    hasActiveFilters,
+  }
+}

@@ -11,8 +11,6 @@ import { getTagsIndexPayload } from "@/lib/tags/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
 import { BRAND_NAME } from "@/lib/brand"
 
-export const revalidate = 300
-
 const PAGE_TITLE = "Browse Tags"
 
 export const metadata = buildPageMetadata({

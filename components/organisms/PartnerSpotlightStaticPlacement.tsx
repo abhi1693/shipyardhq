@@ -3,7 +3,7 @@ import { Handshake } from "lucide-react"
 import { getPartnerSpotlightProducts } from "@/actions/public/products/featured"
 import { SquareImage } from "@/components/molecules/SquareImage"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
-import { cached, TAGS } from "@/lib/cache"
+import { applyCache, TAGS } from "@/lib/cache"
 import { isOptimizedImageSrc } from "@/lib/images/sources"
 import { cn } from "@/lib/utils"
 
@@ -11,18 +11,20 @@ interface PartnerSpotlightStaticPlacementProps {
   className?: string
 }
 
-const getCachedPartnerSpotlightProduct = cached(
-  async () => getPartnerSpotlightProducts(1),
-  "partner-spotlight:static-product:v1",
-  {
-    ttl: 600,
-    tags: () => [
+async function getCachedPartnerSpotlightProduct() {
+  "use cache"
+  applyCache(
+    [
+      "partner-spotlight:static-product:v1",
       TAGS.products,
       TAGS.placement("partnerSpotlight"),
       TAGS.planFeature("partnerSpotlight"),
     ],
-  },
-)
+    600,
+  )
+
+  return getPartnerSpotlightProducts(1)
+}
 
 export async function PartnerSpotlightStaticPlacement({
   className,

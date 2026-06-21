@@ -1,5 +1,5 @@
 import { getPartnerSpotlightProducts } from "@/actions/public/products/featured"
-import { cached, TAGS } from "@/lib/cache"
+import { applyCache, TAGS } from "@/lib/cache"
 import { PartnerSpotlightRotator } from "@/components/organisms/PartnerSpotlightRotator"
 
 interface PartnerSpotlightPlacementProps {
@@ -7,19 +7,20 @@ interface PartnerSpotlightPlacementProps {
   className?: string
 }
 
-const getCachedPartnerSpotlightProducts = cached(
-  async (limit: number) => getPartnerSpotlightProducts(limit),
-  "partner-spotlight:product:v1",
-  {
-    ttl: 600,
-    tags: () => [
+async function getCachedPartnerSpotlightProducts(limit: number) {
+  "use cache"
+  applyCache(
+    [
+      "partner-spotlight:product:v1",
       TAGS.products,
       TAGS.placement("partnerSpotlight"),
       TAGS.planFeature("partnerSpotlight"),
     ],
-    keyParts: ([limit]) => [`limit:${limit ?? 100}`],
-  },
-)
+    600,
+  )
+
+  return getPartnerSpotlightProducts(limit)
+}
 
 export async function PartnerSpotlightPlacement({
   limit = 100,

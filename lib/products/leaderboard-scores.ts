@@ -1,27 +1,25 @@
 import prisma from "@/lib/prisma"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getCurrentLeaderboardWindow } from "@/lib/server/leaderboard/v2"
 
-const getCachedCurrentLeaderboardRunForScores = cached(
-  async (periodStartIso: string, periodEndIso: string) => {
-    const periodStart = new Date(periodStartIso)
-    const periodEnd = new Date(periodEndIso)
+async function getCachedCurrentLeaderboardRunForScores(
+  periodStartIso: string,
+  periodEndIso: string,
+) {
+  "use cache"
+  applyCache(
+    ["leaderboard:current-run:score-map", TAGS.leaderboard],
+    DEFAULT_TTL.fast,
+  )
 
-    return prisma.leaderboardRun.findUnique({
-      where: { periodStart_periodEnd: { periodStart, periodEnd } },
-      select: { id: true },
-    })
-  },
-  "leaderboard:current-run:score-map",
-  {
-    ttl: DEFAULT_TTL.fast,
-    tags: () => [TAGS.leaderboard],
-    keyParts: ([periodStartIso, periodEndIso]) => [
-      periodStartIso,
-      periodEndIso,
-    ],
-  },
-)
+  const periodStart = new Date(periodStartIso)
+  const periodEnd = new Date(periodEndIso)
+
+  return prisma.leaderboardRun.findUnique({
+    where: { periodStart_periodEnd: { periodStart, periodEnd } },
+    select: { id: true },
+  })
+}
 
 /**
  * Fetch a map of productId -> current leaderboard score for the active window.

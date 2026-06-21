@@ -6,7 +6,7 @@ import { getPartnerSpotlightProducts } from "@/actions/public/products/featured"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { SponsorPromo } from "@/components/molecules/SponsorPromo"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { isOptimizedImageSrc } from "@/lib/images/sources"
 
 const SPONSOR_SLOT_COUNT = 3
@@ -102,22 +102,22 @@ function SponsorCard({ item }: { item: SponsorListItem }) {
   )
 }
 
-const getCachedSponsorItems = cached(
-  async () => {
-    const products = await getPartnerSpotlightProducts(SPONSOR_SLOT_COUNT)
-    return mapProductsToSponsors(products)
-  },
-  "partner-spotlight:homepage-section:v1",
-  {
-    ttl: DEFAULT_TTL.medium,
-    tags: () => [
+async function getCachedSponsorItems() {
+  "use cache"
+  applyCache(
+    [
+      "partner-spotlight:homepage-section:v1",
       TAGS.products,
       TAGS.placement("partnerSpotlight"),
       TAGS.planFeature("partnerSpotlight"),
       TAGS.plans,
     ],
-  },
-)
+    DEFAULT_TTL.medium,
+  )
+
+  const products = await getPartnerSpotlightProducts(SPONSOR_SLOT_COUNT)
+  return mapProductsToSponsors(products)
+}
 
 export async function SponsoredProductsSection() {
   const sponsors = await getCachedSponsorItems()

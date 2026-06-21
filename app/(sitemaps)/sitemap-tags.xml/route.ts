@@ -6,8 +6,6 @@ import {
   sitemapResponse,
 } from "@/lib/sitemap"
 
-export const revalidate = 86400
-
 function coerceDate(value: Date | string | null | undefined): Date | null {
   if (!value) return null
   const date = value instanceof Date ? value : new Date(value)

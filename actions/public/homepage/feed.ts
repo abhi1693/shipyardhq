@@ -1,8 +1,8 @@
 "use server"
 
-import { unstable_cache } from "next/cache"
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
+import { applyCache } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import {
   HOMEPAGE_FEED_PAGE_SIZE,
@@ -19,7 +19,6 @@ import {
 import { hasEditorPickBadge } from "@/lib/products/badges"
 import { stableUnitInterval } from "@/lib/stable-random"
 import { getCurrentLeaderboardRun } from "@/lib/server/leaderboard/v2"
-import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import {
   buildCacheKey,
   cacheGetOrSet,
@@ -1143,7 +1142,6 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
     recommenderCount,
     currentUpvotes,
     previousUpvotes,
-    recentRecommenders,
     trafficBuildersClicked,
   ] = await Promise.all([
     prisma.productUpvote.count({
@@ -1161,18 +1159,6 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
         createdAt: { gte: previousStart, lt: currentStart },
       },
     }),
-    prisma.productUpvote.findMany({
-      where: { productId: product.id },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      select: {
-        user: {
-          select: {
-            clerkId: true,
-          },
-        },
-      },
-    }),
     cachedBuildersClicked == null
       ? prisma.productTrafficDaily.aggregate({
           where: {
@@ -1186,22 +1172,6 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
       : Promise.resolve(null),
   ])
 
-  const recommenderAvatarUrls = (
-    await Promise.all(
-      recentRecommenders.map(async (vote) => {
-        const clerkId = vote.user.clerkId
-        if (!clerkId) return null
-
-        try {
-          const clerkUser = await getClerkUserByIdCached(clerkId)
-          return clerkUser.imageUrl ?? null
-        } catch {
-          return null
-        }
-      }),
-    )
-  ).filter((url): url is string => Boolean(url))
-
   return {
     ...item,
     rank: selectedScore?.rank ?? null,
@@ -1213,16 +1183,14 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
     buildersClickedCount:
       cachedBuildersClicked ?? trafficBuildersClicked?._sum.uniqueVisitors ?? 0,
     recommenderCount,
-    recommenderAvatarUrls,
+    recommenderAvatarUrls: [],
   }
 }
 
-export const getHomepageLaunchOfDay = unstable_cache(
-  getLaunchOfDayImpl,
-  ["homepage-launch-of-day"],
-  {
-    revalidate: 60,
-    tags: [
+export async function getHomepageLaunchOfDay() {
+  "use cache"
+  applyCache(
+    [
       "homepage-feed",
       "homepage",
       "products",
@@ -1230,8 +1198,11 @@ export const getHomepageLaunchOfDay = unstable_cache(
       "analytics",
       "upvotes",
     ],
-  },
-)
+    60,
+  )
+
+  return getLaunchOfDayImpl()
+}
 
 export async function getHomepageFeedViewAll(
   params: GetHomepageFeedViewParams = {},

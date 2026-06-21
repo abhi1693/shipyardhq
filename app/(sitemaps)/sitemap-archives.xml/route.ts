@@ -6,8 +6,6 @@ import {
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import { sitemapResponse, urlsetXml, type SitemapUrlEntry } from "@/lib/sitemap"
 
-export const revalidate = 86400
-
 const toMonthDate = (monthKey: string, fallback: Date) => {
   const match = monthKey.match(/^(\d{2})-(\d{2})-(\d{4})$/)
   if (!match) {

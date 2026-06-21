@@ -1,7 +1,7 @@
 import { Prisma } from "@/lib/vendor/prisma/client"
 
 import prisma from "@/lib/prisma"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { productCardSelect } from "@/lib/products/selects"
 import {
   buildPublicDiscoveryProductWhere,
@@ -105,48 +105,46 @@ const getPublishedProductCountsByUseCase = async () => {
   )
 }
 
-export const getPublicUseCasesWithCounts = cached(
-  async (): Promise<UseCaseSummary[]> => {
-    const useCases = await prisma.useCase.findMany({
-      orderBy: { label: "asc" },
-      select: {
-        id: true,
-        label: true,
-        slug: true,
-        updatedAt: true,
-      },
-    })
+export async function getPublicUseCasesWithCounts(): Promise<UseCaseSummary[]> {
+  "use cache"
+  applyCache([TAGS.useCases], DEFAULT_TTL.slow)
 
-    if (useCases.length === 0) return []
+  const useCases = await prisma.useCase.findMany({
+    orderBy: { label: "asc" },
+    select: {
+      id: true,
+      label: true,
+      slug: true,
+      updatedAt: true,
+    },
+  })
 
-    const productCountsByUseCase = await getPublishedProductCountsByUseCase()
-    const results = useCases.map((useCase) => ({
-      id: useCase.id,
-      slug: useCase.slug,
-      label: useCase.label,
-      updatedAt: useCase.updatedAt,
-      productCount: productCountsByUseCase.get(useCase.id) ?? 0,
-    }))
+  if (useCases.length === 0) return []
 
-    return results
-  },
-  "use-cases:public-with-counts",
-  {
-    ttl: DEFAULT_TTL.slow,
-    tags: () => [TAGS.useCases],
-  },
-)
+  const productCountsByUseCase = await getPublishedProductCountsByUseCase()
+  const results = useCases.map((useCase) => ({
+    id: useCase.id,
+    slug: useCase.slug,
+    label: useCase.label,
+    updatedAt: useCase.updatedAt,
+    productCount: productCountsByUseCase.get(useCase.id) ?? 0,
+  }))
 
-export const getUseCaseHighlights = cached(
-  async (
-    limit: number = USE_CASE_HIGHLIGHTS_DEFAULT_LIMIT,
-  ): Promise<UseCaseHighlight[]> => {
-    const safeLimit = sanitizeUseCaseHighlightLimit(limit)
-    if (safeLimit === 0) {
-      return [] satisfies UseCaseHighlight[]
-    }
+  return results
+}
 
-    const rows = await prisma.$queryRaw<UseCaseHighlight[]>(Prisma.sql`
+export async function getUseCaseHighlights(
+  limit: number = USE_CASE_HIGHLIGHTS_DEFAULT_LIMIT,
+): Promise<UseCaseHighlight[]> {
+  "use cache"
+  applyCache([TAGS.useCases, TAGS.products, TAGS.categories], DEFAULT_TTL.slow)
+
+  const safeLimit = sanitizeUseCaseHighlightLimit(limit)
+  if (safeLimit === 0) {
+    return [] satisfies UseCaseHighlight[]
+  }
+
+  const rows = await prisma.$queryRaw<UseCaseHighlight[]>(Prisma.sql`
       SELECT uc."id", uc."label", uc."slug"
       FROM "UseCase" uc
       INNER JOIN "UseCaseCategory" ucc ON ucc."useCaseId" = uc."id"
@@ -159,61 +157,57 @@ export const getUseCaseHighlights = cached(
       LIMIT ${safeLimit}
     `)
 
-    return rows
-  },
-  "use-cases:highlights",
-  {
-    ttl: DEFAULT_TTL.slow,
-    tags: () => [TAGS.useCases, TAGS.products, TAGS.categories],
-    keyParts: ([limit]) => [String(sanitizeUseCaseHighlightLimit(limit))],
-  },
-)
+  return rows
+}
 
-export const getPublicUseCaseMeta = cached(
-  async (slug: string) => {
-    const useCase = await prisma.useCase.findUnique({
-      where: { slug },
-      select: {
-        id: true,
-        label: true,
-        slug: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    })
+export async function getPublicUseCaseMeta(slug: string) {
+  "use cache"
+  applyCache([TAGS.useCases, TAGS.usecase(String(slug))], DEFAULT_TTL.medium)
 
-    if (!useCase) return null
+  const useCase = await prisma.useCase.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      label: true,
+      slug: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  })
 
-    const productCountsByUseCase = await getPublishedProductCountsByUseCase()
-    const productCount = productCountsByUseCase.get(useCase.id) ?? 0
+  if (!useCase) return null
 
-    return { ...useCase, productCount }
-  },
-  "use-case:public-meta",
-  {
-    ttl: DEFAULT_TTL.medium,
-    tags: ([slug]) => [TAGS.useCases, TAGS.usecase(String(slug))],
-  },
-)
+  const productCountsByUseCase = await getPublishedProductCountsByUseCase()
+  const productCount = productCountsByUseCase.get(useCase.id) ?? 0
 
-export const getPublicUseCaseCategoriesWithCounts = cached(
-  async (slug: string): Promise<UseCaseCategoriesWithCounts | null> => {
-    const useCase = await prisma.useCase.findUnique({
-      where: { slug },
-      select: {
-        id: true,
-        label: true,
-        slug: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    })
+  return { ...useCase, productCount }
+}
 
-    if (!useCase) return null
+export async function getPublicUseCaseCategoriesWithCounts(
+  slug: string,
+): Promise<UseCaseCategoriesWithCounts | null> {
+  "use cache"
+  applyCache(
+    [TAGS.useCases, TAGS.usecase(String(slug)), TAGS.categories, TAGS.products],
+    DEFAULT_TTL.medium,
+  )
 
-    const grouped = await prisma.$queryRaw<
-      { categoryId: string; productCount: number }[]
-    >(Prisma.sql`
+  const useCase = await prisma.useCase.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      label: true,
+      slug: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  })
+
+  if (!useCase) return null
+
+  const grouped = await prisma.$queryRaw<
+    { categoryId: string; productCount: number }[]
+  >(Prisma.sql`
       SELECT pc."categoryId" AS "categoryId",
              COUNT(DISTINCT p."id")::int AS "productCount"
       FROM "ProductCategory" pc
@@ -225,70 +219,55 @@ export const getPublicUseCaseCategoriesWithCounts = cached(
       GROUP BY pc."categoryId"
     `)
 
-    if (!grouped.length) {
-      return {
-        useCase,
-        categories: [],
-        productCount: 0,
-      }
+  if (!grouped.length) {
+    return {
+      useCase,
+      categories: [],
+      productCount: 0,
     }
+  }
 
-    type GroupEntry = (typeof grouped)[number]
-    const categoryIds = grouped.map((entry: GroupEntry) => entry.categoryId)
-    const categoriesRaw = await prisma.category.findMany({
-      where: { id: { in: categoryIds } },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        icon: true,
-      },
+  type GroupEntry = (typeof grouped)[number]
+  const categoryIds = grouped.map((entry: GroupEntry) => entry.categoryId)
+  const categoriesRaw = await prisma.category.findMany({
+    where: { id: { in: categoryIds } },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      icon: true,
+    },
+  })
+
+  const countsByCategoryId = new Map(
+    grouped.map((entry: GroupEntry) => [entry.categoryId, entry.productCount]),
+  )
+
+  const categories: UseCaseCategory[] = categoriesRaw
+    .map((category: (typeof categoriesRaw)[number]) => ({
+      id: category.id,
+      name: category.name,
+      slug: category.slug,
+      description: category.description,
+      icon: category.icon,
+      productCount: countsByCategoryId.get(category.id) ?? 0,
+    }))
+    .filter((category: UseCaseCategory) => category.productCount > 0)
+    .sort((a: UseCaseCategory, b: UseCaseCategory) => {
+      if (b.productCount !== a.productCount) {
+        return b.productCount - a.productCount
+      }
+      return a.name.localeCompare(b.name)
     })
 
-    const countsByCategoryId = new Map(
-      grouped.map((entry: GroupEntry) => [
-        entry.categoryId,
-        entry.productCount,
-      ]),
-    )
+  const productCount = grouped.reduce(
+    (sum: number, entry: GroupEntry) => sum + (entry.productCount ?? 0),
+    0,
+  )
 
-    const categories: UseCaseCategory[] = categoriesRaw
-      .map((category: (typeof categoriesRaw)[number]) => ({
-        id: category.id,
-        name: category.name,
-        slug: category.slug,
-        description: category.description,
-        icon: category.icon,
-        productCount: countsByCategoryId.get(category.id) ?? 0,
-      }))
-      .filter((category: UseCaseCategory) => category.productCount > 0)
-      .sort((a: UseCaseCategory, b: UseCaseCategory) => {
-        if (b.productCount !== a.productCount) {
-          return b.productCount - a.productCount
-        }
-        return a.name.localeCompare(b.name)
-      })
-
-    const productCount = grouped.reduce(
-      (sum: number, entry: GroupEntry) => sum + (entry.productCount ?? 0),
-      0,
-    )
-
-    return { useCase, categories, productCount }
-  },
-  "use-case:categories-with-counts",
-  {
-    ttl: DEFAULT_TTL.medium,
-    keyParts: ([slug]) => [slug],
-    tags: ([slug]) => [
-      TAGS.useCases,
-      TAGS.usecase(String(slug)),
-      TAGS.categories,
-      TAGS.products,
-    ],
-  },
-)
+  return { useCase, categories, productCount }
+}
 
 type UseCaseProductsPageOptions = {
   slug: string
@@ -300,124 +279,118 @@ type UseCaseProductsPageOptions = {
 const clampPageSize = (value?: number) =>
   Math.max(1, Math.min(Math.floor(value ?? USE_CASE_PRODUCTS_PAGE_SIZE), 50))
 
-export const getPublicUseCaseProductsPage = cached(
-  async (options: UseCaseProductsPageOptions): Promise<UseCaseProductsPage> => {
-    const page = Math.max(1, Math.floor(options.page ?? 1))
-    const pageSize = clampPageSize(options.pageSize)
-    const skip = (page - 1) * pageSize
-
-    const useCase = await prisma.useCase.findUnique({
-      where: { slug: options.slug },
-      select: { id: true },
-    })
-
-    if (!useCase) {
-      return { products: [], hasMore: false, total: 0 }
-    }
-
-    const categoryRefs = await prisma.useCaseCategory.findMany({
-      where: { useCaseId: useCase.id },
-      select: { categoryId: true },
-    })
-
-    const categoryIds = categoryRefs.map(
-      (ref: (typeof categoryRefs)[number]) => ref.categoryId,
-    )
-    if (!categoryIds.length) {
-      return { products: [], hasMore: false, total: 0 }
-    }
-
-    const baseWhere: Prisma.ProductWhereInput =
-      buildPublicDiscoveryProductWhere({
-        OR: [
-          { categoryId: { in: categoryIds } },
-          { categories: { some: { categoryId: { in: categoryIds } } } },
-        ],
-      })
-
-    const orderBy: Prisma.ProductOrderByWithRelationInput =
-      options.sort === "name"
-        ? { name: "asc" }
-        : options.sort === "upvotes"
-          ? { analytics: { upvotes: "desc" } }
-          : { createdAt: "desc" }
-
-    const priorityPlanIds = await getPriorityPlacementPlanIds()
-
-    const priorityWhere: Prisma.ProductWhereInput = {
-      AND: [baseWhere, buildPriorityPlanFilter(priorityPlanIds)],
-    }
-
-    const regularWhere: Prisma.ProductWhereInput = {
-      AND: [baseWhere, buildRegularPlanFilter(priorityPlanIds)],
-    }
-
-    const [totalPriority, totalRegular] = priorityPlanIds.length
-      ? await Promise.all([
-          prisma.product.count({ where: priorityWhere }),
-          prisma.product.count({ where: regularWhere }),
-        ])
-      : [0, await prisma.product.count({ where: baseWhere })]
-
-    let prioritySkip = 0
-    let priorityTake = 0
-    let regularSkip = 0
-    let regularTake = 0
-
-    if (skip < totalPriority) {
-      prioritySkip = skip
-      priorityTake = Math.min(pageSize, totalPriority - prioritySkip)
-      regularSkip = 0
-      regularTake = Math.max(0, pageSize - priorityTake)
-    } else {
-      prioritySkip = totalPriority
-      priorityTake = 0
-      regularSkip = skip - totalPriority
-      regularTake = pageSize
-    }
-
-    const [priorityProducts, regularProducts] = await Promise.all([
-      priorityTake
-        ? prisma.product.findMany({
-            where: priorityWhere,
-            orderBy,
-            skip: prioritySkip,
-            take: priorityTake,
-            select: useCaseProductSelect,
-          })
-        : Promise.resolve([] as UseCaseProduct[]),
-      regularTake
-        ? prisma.product.findMany({
-            where: regularWhere,
-            orderBy,
-            skip: regularSkip,
-            take: regularTake,
-            select: useCaseProductSelect,
-          })
-        : Promise.resolve([] as UseCaseProduct[]),
-    ])
-
-    const products = [...priorityProducts, ...regularProducts]
-    const total = totalPriority + totalRegular
-    const hasMore = skip + products.length < total
-
-    return { products, hasMore, total }
-  },
-  "use-case:products-page",
-  {
-    ttl: DEFAULT_TTL.medium,
-    keyParts: ([options]) => [
-      options.slug,
-      `page:${options.page ?? 1}`,
-      `size:${options.pageSize ?? USE_CASE_PRODUCTS_PAGE_SIZE}`,
-      `sort:${options.sort ?? "newest"}`,
-    ],
-    tags: ([options]) => [
+export async function getPublicUseCaseProductsPage(
+  options: UseCaseProductsPageOptions,
+): Promise<UseCaseProductsPage> {
+  "use cache"
+  applyCache(
+    [
       TAGS.useCases,
       TAGS.usecase(String(options.slug)),
       TAGS.products,
       TAGS.categories,
       TAGS.planFeature("priorityPlacement"),
     ],
-  },
-)
+    DEFAULT_TTL.medium,
+  )
+
+  const page = Math.max(1, Math.floor(options.page ?? 1))
+  const pageSize = clampPageSize(options.pageSize)
+  const skip = (page - 1) * pageSize
+
+  const useCase = await prisma.useCase.findUnique({
+    where: { slug: options.slug },
+    select: { id: true },
+  })
+
+  if (!useCase) {
+    return { products: [], hasMore: false, total: 0 }
+  }
+
+  const categoryRefs = await prisma.useCaseCategory.findMany({
+    where: { useCaseId: useCase.id },
+    select: { categoryId: true },
+  })
+
+  const categoryIds = categoryRefs.map(
+    (ref: (typeof categoryRefs)[number]) => ref.categoryId,
+  )
+  if (!categoryIds.length) {
+    return { products: [], hasMore: false, total: 0 }
+  }
+
+  const baseWhere: Prisma.ProductWhereInput = buildPublicDiscoveryProductWhere({
+    OR: [
+      { categoryId: { in: categoryIds } },
+      { categories: { some: { categoryId: { in: categoryIds } } } },
+    ],
+  })
+
+  const orderBy: Prisma.ProductOrderByWithRelationInput =
+    options.sort === "name"
+      ? { name: "asc" }
+      : options.sort === "upvotes"
+        ? { analytics: { upvotes: "desc" } }
+        : { createdAt: "desc" }
+
+  const priorityPlanIds = await getPriorityPlacementPlanIds()
+
+  const priorityWhere: Prisma.ProductWhereInput = {
+    AND: [baseWhere, buildPriorityPlanFilter(priorityPlanIds)],
+  }
+
+  const regularWhere: Prisma.ProductWhereInput = {
+    AND: [baseWhere, buildRegularPlanFilter(priorityPlanIds)],
+  }
+
+  const [totalPriority, totalRegular] = priorityPlanIds.length
+    ? await Promise.all([
+        prisma.product.count({ where: priorityWhere }),
+        prisma.product.count({ where: regularWhere }),
+      ])
+    : [0, await prisma.product.count({ where: baseWhere })]
+
+  let prioritySkip = 0
+  let priorityTake = 0
+  let regularSkip = 0
+  let regularTake = 0
+
+  if (skip < totalPriority) {
+    prioritySkip = skip
+    priorityTake = Math.min(pageSize, totalPriority - prioritySkip)
+    regularSkip = 0
+    regularTake = Math.max(0, pageSize - priorityTake)
+  } else {
+    prioritySkip = totalPriority
+    priorityTake = 0
+    regularSkip = skip - totalPriority
+    regularTake = pageSize
+  }
+
+  const [priorityProducts, regularProducts] = await Promise.all([
+    priorityTake
+      ? prisma.product.findMany({
+          where: priorityWhere,
+          orderBy,
+          skip: prioritySkip,
+          take: priorityTake,
+          select: useCaseProductSelect,
+        })
+      : Promise.resolve([] as UseCaseProduct[]),
+    regularTake
+      ? prisma.product.findMany({
+          where: regularWhere,
+          orderBy,
+          skip: regularSkip,
+          take: regularTake,
+          select: useCaseProductSelect,
+        })
+      : Promise.resolve([] as UseCaseProduct[]),
+  ])
+
+  const products = [...priorityProducts, ...regularProducts]
+  const total = totalPriority + totalRegular
+  const hasMore = skip + products.length < total
+
+  return { products, hasMore, total }
+}

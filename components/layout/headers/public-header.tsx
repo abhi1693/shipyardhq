@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+
 import { BrandWordmark } from "@/components/molecules/BrandWordmark"
 import PublicHeaderAuth from "./public-header-auth"
 import PublicHeaderNav from "./public-header-nav"
@@ -12,7 +14,9 @@ export default function PublicHeader() {
           <LazyPublicHeaderSearch />
         </div>
 
-        <PublicHeaderNav />
+        <Suspense fallback={null}>
+          <PublicHeaderNav />
+        </Suspense>
 
         <PublicHeaderAuth />
       </div>

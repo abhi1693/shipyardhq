@@ -5,7 +5,7 @@ import {
   getAlternativesWithCounts,
   type AlternativeCatalogItem,
 } from "@/actions/public/alternatives/actions"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 
 type AlternativesIndexPayload = {
   initialItems: AlternativeCatalogItem[]
@@ -32,90 +32,86 @@ const getTrendingWindowStart = () => {
   return windowStart
 }
 
-export const getAlternativesIndexPayload = cached(
-  async (): Promise<AlternativesIndexPayload> => {
-    const result = await getAlternativeCatalogPage({
-      page: 1,
-      pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
-    })
+export async function getAlternativesIndexPayload(): Promise<AlternativesIndexPayload> {
+  "use cache"
+  applyCache(
+    ["alternative-products:index:payload", TAGS.alternativeProducts],
+    DEFAULT_TTL.slow,
+  )
 
-    return {
-      initialItems: result.items,
-      initialHasMore: result.hasMore,
-      pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
-    }
-  },
-  "alternative-products:index:payload",
-  {
-    ttl: DEFAULT_TTL.slow,
-    keyParts: () => [],
-    tags: () => [TAGS.alternativeProducts],
-  },
-)
+  const result = await getAlternativeCatalogPage({
+    page: 1,
+    pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
+  })
 
-export const getAlternativesPagePayload = cached(
-  async (): Promise<AlternativesPagePayload> => {
-    const windowStart = getTrendingWindowStart()
-    const [alternatives, momentumCounts] = await Promise.all([
-      getAlternativesWithCounts(),
-      getAlternativeMomentumCounts(windowStart),
-    ])
-    const recentProductCountById = new Map(
-      momentumCounts.map((item) => [item.id, item.recentProducts] as const),
-    )
-    const momentumByAlternativeId = Object.fromEntries(
-      alternatives.map((alternative) => {
-        const totalProducts = alternative._count.products
-        const recentProducts = recentProductCountById.get(alternative.id) ?? 0
-        const momentum = totalProducts
-          ? (recentProducts / totalProducts) * 100
-          : 0
+  return {
+    initialItems: result.items,
+    initialHasMore: result.hasMore,
+    pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
+  }
+}
 
-        return [alternative.id, momentum]
-      }),
-    )
-    const sortedByProducts = [...alternatives].sort(
-      (a, b) => b._count.products - a._count.products,
-    )
-    const sortedByMomentum = [...alternatives].sort((a, b) => {
-      const recentDelta =
-        (recentProductCountById.get(b.id) ?? 0) -
-        (recentProductCountById.get(a.id) ?? 0)
-      if (recentDelta) return recentDelta
+export async function getAlternativesPagePayload(): Promise<AlternativesPagePayload> {
+  "use cache"
+  applyCache(
+    ["alternative-products:page:payload:v2", TAGS.alternativeProducts],
+    DEFAULT_TTL.slow,
+  )
 
-      const momentumDelta =
-        momentumByAlternativeId[b.id] - momentumByAlternativeId[a.id]
-      if (momentumDelta) return momentumDelta
+  const windowStart = getTrendingWindowStart()
+  const [alternatives, momentumCounts] = await Promise.all([
+    getAlternativesWithCounts(),
+    getAlternativeMomentumCounts(windowStart),
+  ])
+  const recentProductCountById = new Map(
+    momentumCounts.map((item) => [item.id, item.recentProducts] as const),
+  )
+  const momentumByAlternativeId = Object.fromEntries(
+    alternatives.map((alternative) => {
+      const totalProducts = alternative._count.products
+      const recentProducts = recentProductCountById.get(alternative.id) ?? 0
+      const momentum = totalProducts
+        ? (recentProducts / totalProducts) * 100
+        : 0
 
-      const productDelta = b._count.products - a._count.products
-      if (productDelta) return productDelta
+      return [alternative.id, momentum]
+    }),
+  )
+  const sortedByProducts = [...alternatives].sort(
+    (a, b) => b._count.products - a._count.products,
+  )
+  const sortedByMomentum = [...alternatives].sort((a, b) => {
+    const recentDelta =
+      (recentProductCountById.get(b.id) ?? 0) -
+      (recentProductCountById.get(a.id) ?? 0)
+    if (recentDelta) return recentDelta
 
-      return a.name.localeCompare(b.name)
-    })
-    const totalProducts = alternatives.reduce(
-      (sum, alternative) => sum + alternative._count.products,
-      0,
-    )
-    const alternativeCount = alternatives.length
+    const momentumDelta =
+      momentumByAlternativeId[b.id] - momentumByAlternativeId[a.id]
+    if (momentumDelta) return momentumDelta
 
-    return {
-      alternatives,
-      highlightAlternatives: sortedByMomentum
-        .filter((alternative) => momentumByAlternativeId[alternative.id] > 0)
-        .slice(0, 6),
-      momentumByAlternativeId,
-      alternativeCount,
-      totalProducts,
-      averagePerAlternative: alternativeCount
-        ? Math.round(totalProducts / alternativeCount)
-        : 0,
-      busiestAlternative: sortedByProducts[0] ?? null,
-    }
-  },
-  "alternative-products:page:payload:v2",
-  {
-    ttl: DEFAULT_TTL.slow,
-    keyParts: () => [],
-    tags: () => [TAGS.alternativeProducts],
-  },
-)
+    const productDelta = b._count.products - a._count.products
+    if (productDelta) return productDelta
+
+    return a.name.localeCompare(b.name)
+  })
+  const totalProducts = alternatives.reduce(
+    (sum, alternative) => sum + alternative._count.products,
+    0,
+  )
+  const alternativeCount = alternatives.length
+
+  return {
+    alternatives,
+    highlightAlternatives: sortedByMomentum
+      .filter((alternative) => momentumByAlternativeId[alternative.id] > 0)
+      .slice(0, 6),
+    momentumByAlternativeId,
+    alternativeCount,
+    totalProducts,
+    averagePerAlternative: alternativeCount
+      ? Math.round(totalProducts / alternativeCount)
+      : 0,
+    busiestAlternative: sortedByProducts[0] ?? null,
+  }
+}

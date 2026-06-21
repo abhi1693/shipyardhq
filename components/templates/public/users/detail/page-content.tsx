@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import { connection } from "next/server"
 import { format } from "date-fns"
 import { Award, BadgeCheck, BarChart3, Star } from "lucide-react"
 
@@ -41,6 +42,7 @@ export async function UserProfilePageContent({ params }: PageProps) {
     earliestLaunch,
     verifiedCount,
   } = payload
+  await connection()
   const referenceDateIso = new Date().toISOString()
 
   const fullName =

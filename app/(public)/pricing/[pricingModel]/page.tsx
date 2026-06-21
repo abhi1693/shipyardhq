@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 
 import { PricingModelPageContent } from "@/components/templates/public/pricing/pricing-model-page-content"
 import {
@@ -9,9 +10,6 @@ import { getPricingModelMeta } from "@/lib/pricing/models"
 import { buildPageMetadata } from "@/lib/metadata"
 import { pricingModelPath } from "@/lib/routes"
 import { pluralize } from "@/lib/pluralize"
-
-export const revalidate = 300
-export const dynamicParams = true
 
 export function generateStaticParams() {
   return getPricingModelStaticParams()
@@ -49,5 +47,9 @@ export async function generateMetadata(
 export default function PricingModelPage(
   props: Parameters<typeof PricingModelPageContent>[0],
 ) {
-  return <PricingModelPageContent {...props} />
+  return (
+    <Suspense fallback={null}>
+      <PricingModelPageContent {...props} />
+    </Suspense>
+  )
 }

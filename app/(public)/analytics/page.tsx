@@ -1,5 +1,6 @@
 import Link from "next/link"
-import type { ReactNode } from "react"
+import { Suspense, type ReactNode } from "react"
+import { connection } from "next/server"
 import { format, subDays } from "date-fns"
 import {
   ArrowDown,
@@ -45,7 +46,6 @@ import { BRAND_NAME } from "@/lib/brand"
 import { cn } from "@/lib/utils"
 
 const PAGE_TITLE = "Analytics"
-export const revalidate = 300
 
 const ANALYTICS_PAGE_TOP_PRODUCT_LIMIT = 8
 const ANALYTICS_PAGE_CACHE_TTL_SECONDS = 60 * 60 * 24
@@ -716,7 +716,17 @@ async function getCachedAnalyticsPageData({
   })
 }
 
-export default async function AnalyticsPage() {
+export default function AnalyticsPage() {
+  return (
+    <Suspense fallback={null}>
+      <AnalyticsPageContent />
+    </Suspense>
+  )
+}
+
+async function AnalyticsPageContent() {
+  await connection()
+
   const rangeEnd = subDays(new Date(), 1)
   const rangeStart = subDays(rangeEnd, 29)
   const prevRangeEnd = subDays(rangeStart, 1)

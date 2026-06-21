@@ -125,9 +125,7 @@ export default function TermsOfServicePage() {
               </li>
             </ul>
 
-            <h2 className="text-2xl font-semibold mt-6">
-              4. Plans and Perks
-            </h2>
+            <h2 className="text-2xl font-semibold mt-6">4. Plans and Perks</h2>
             <ul className="list-disc list-inside space-y-2">
               <li>
                 {BRAND_NAME} may offer paid plans, promotional placements,

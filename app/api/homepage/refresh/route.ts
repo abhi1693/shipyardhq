@@ -2,8 +2,6 @@ import { NextResponse } from "next/server"
 
 import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
 
-export const dynamic = "force-dynamic"
-
 function getRefreshSecret() {
   return process.env.CRON_SECRET?.trim() || null
 }

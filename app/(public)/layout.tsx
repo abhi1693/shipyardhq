@@ -4,6 +4,7 @@ import PublicFooter from "@/components/layout/footers/public-footer"
 import { getPartnerSpotlightProduct } from "@/actions/public/products/featured"
 import { PartnerSpotlight } from "@/components/templates/public/common/PartnerSpotlight"
 import { buildSectionMetadata } from "@/lib/metadata"
+import { connection } from "next/server"
 
 export const metadata = buildSectionMetadata()
 
@@ -12,6 +13,8 @@ function getPartnerSpotlightRotationKey(date = new Date()) {
 }
 
 async function PartnerSpotlightSlot() {
+  await connection()
+
   const partnerSpotlight = await getPartnerSpotlightProduct(
     getPartnerSpotlightRotationKey(),
   ).catch(() => null)
@@ -19,7 +22,7 @@ async function PartnerSpotlightSlot() {
   return <PartnerSpotlight product={partnerSpotlight} />
 }
 
-export default function PublicLayout({
+export default async function PublicLayout({
   children,
 }: {
   children: React.ReactNode
@@ -28,7 +31,9 @@ export default function PublicLayout({
     <div className="flex min-h-screen flex-col bg-[#f5f7fb] pb-16">
       <PublicHeader />
       <main className="flex-1 pt-16">{children}</main>
-      <PublicFooter />
+      <Suspense fallback={null}>
+        <PublicFooter />
+      </Suspense>
       <Suspense fallback={null}>
         <PartnerSpotlightSlot />
       </Suspense>

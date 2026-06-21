@@ -8,8 +8,6 @@ import {
 
 const WEBHOOK_SECRET = process.env.DODO_WEBHOOK_SECRET?.trim()
 
-export const dynamic = "force-dynamic"
-
 export async function POST(req: Request) {
   if (!WEBHOOK_SECRET) {
     console.error("[dodo-webhook] missing DODO_WEBHOOK_SECRET")

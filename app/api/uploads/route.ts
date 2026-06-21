@@ -3,8 +3,6 @@ import { putBlob, deleteBlob, isManagedBlobUrl } from "@/lib/blob"
 import { toWebpIfPossible } from "@/lib/server/image"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
-export const dynamic = "force-dynamic"
-
 function sanitizeFilename(name: string) {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_")
 }

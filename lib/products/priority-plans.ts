@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { PRIORITY_FEATURE_KEY } from "@/lib/products/selects"
 
@@ -20,30 +20,33 @@ async function getEnabledPlanIdsForFeatureKeys(featureKeys: readonly string[]) {
   return Array.from(new Set(assignments.map((assignment) => assignment.planId)))
 }
 
-export const getPriorityPlacementPlanIds = cached(
-  async () => {
-    return getEnabledPlanIdsForFeatureKeys([PRIORITY_FEATURE_KEY])
-  },
-  "products:priority-placement-plan-ids",
-  {
-    ttl: DEFAULT_TTL.slow,
-    tags: () => [TAGS.plans, TAGS.planFeature(PRIORITY_FEATURE_KEY)],
-  },
-)
+export async function getPriorityPlacementPlanIds() {
+  "use cache"
+  applyCache(
+    [
+      "products:priority-placement-plan-ids",
+      TAGS.plans,
+      TAGS.planFeature(PRIORITY_FEATURE_KEY),
+    ],
+    DEFAULT_TTL.slow,
+  )
 
-export const getSponsoredPlacementPlanIds = cached(
-  async () => {
-    return getEnabledPlanIdsForFeatureKeys(SPONSORED_PLACEMENT_FEATURE_KEYS)
-  },
-  "products:sponsored-placement-plan-ids",
-  {
-    ttl: DEFAULT_TTL.slow,
-    tags: () => [
+  return getEnabledPlanIdsForFeatureKeys([PRIORITY_FEATURE_KEY])
+}
+
+export async function getSponsoredPlacementPlanIds() {
+  "use cache"
+  applyCache(
+    [
+      "products:sponsored-placement-plan-ids",
       TAGS.plans,
       ...SPONSORED_PLACEMENT_FEATURE_KEYS.map((key) => TAGS.planFeature(key)),
     ],
-  },
-)
+    DEFAULT_TTL.slow,
+  )
+
+  return getEnabledPlanIdsForFeatureKeys(SPONSORED_PLACEMENT_FEATURE_KEYS)
+}
 
 export function buildPriorityPlanFilter(
   priorityPlanIds: string[],

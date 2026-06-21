@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
-import { getUserProductsPage } from "@/actions/public/users/actions"
+import { getUserProductsPage } from "@/actions/public/users/server-actions"
 import { UserProductGrid } from "./UserProductFeed"
 
 interface UserFeedClientProps {

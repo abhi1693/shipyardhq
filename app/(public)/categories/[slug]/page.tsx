@@ -13,9 +13,6 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { CATEGORIES_PATH, HOME_PATH, categoryPath } from "@/lib/routes"
 import { pluralize } from "@/lib/pluralize"
 
-export const revalidate = 300
-export const dynamicParams = true
-
 export async function generateStaticParams() {
   return getCategoryStaticParams()
 }

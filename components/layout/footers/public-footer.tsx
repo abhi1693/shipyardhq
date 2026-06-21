@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Globe2, Rss, Users } from "lucide-react"
+import { connection } from "next/server"
 
 import { BRAND_NAME } from "@/lib/brand"
 import {
@@ -44,7 +45,8 @@ const footerColumns = [
   },
 ] as const
 
-export default function PublicFooter() {
+export default async function PublicFooter() {
+  await connection()
   const year = new Date().getFullYear()
 
   return (

@@ -1,4 +1,4 @@
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   getPublicProductBySlug,
   getPublicProductsByUseCase,
@@ -138,40 +138,40 @@ export function buildProductStructuredData(product: PublicProduct) {
   return structuredData
 }
 
-export const getProductPagePayload = cached(
-  async (slug: string): Promise<ProductPagePayload | null> => {
-    const product = await getPublicProductBySlug(slug)
-    if (!product) {
-      return null
-    }
+export async function getProductPagePayload(
+  slug: string,
+): Promise<ProductPagePayload | null> {
+  "use cache"
+  applyCache(
+    ["products:detail:payload", TAGS.products, TAGS.product(String(slug))],
+    DEFAULT_TTL.medium,
+  )
 
-    const useCaseSlug = product.category.useCases?.[0]?.useCase?.slug ?? null
+  const product = await getPublicProductBySlug(slug)
+  if (!product) {
+    return null
+  }
 
-    const similarProductsRaw = useCaseSlug
-      ? await getPublicProductsByUseCase(useCaseSlug, product.id)
-      : []
+  const useCaseSlug = product.category.useCases?.[0]?.useCase?.slug ?? null
 
-    const similarProducts = mapUseCaseProducts(similarProductsRaw)
-    const similarUseCase = product.category.useCases?.[0]?.useCase
-      ? {
-          slug: product.category.useCases[0].useCase.slug,
-          label: product.category.useCases[0].useCase.label,
-        }
-      : null
+  const similarProductsRaw = useCaseSlug
+    ? await getPublicProductsByUseCase(useCaseSlug, product.id)
+    : []
 
-    const structuredData = buildProductStructuredData(product)
+  const similarProducts = mapUseCaseProducts(similarProductsRaw)
+  const similarUseCase = product.category.useCases?.[0]?.useCase
+    ? {
+        slug: product.category.useCases[0].useCase.slug,
+        label: product.category.useCases[0].useCase.label,
+      }
+    : null
 
-    return {
-      product,
-      similarProducts,
-      similarUseCase,
-      structuredData,
-    }
-  },
-  "products:detail:payload",
-  {
-    ttl: DEFAULT_TTL.medium,
-    keyParts: ([slug]) => [slug],
-    tags: ([slug]) => [TAGS.products, TAGS.product(String(slug))],
-  },
-)
+  const structuredData = buildProductStructuredData(product)
+
+  return {
+    product,
+    similarProducts,
+    similarUseCase,
+    structuredData,
+  }
+}

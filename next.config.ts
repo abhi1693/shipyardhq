@@ -90,6 +90,7 @@ const contentSecurityPolicy = buildContentSecurityPolicy()
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  cacheComponents: true,
   experimental: {
     sri: {
       algorithm: "sha256",

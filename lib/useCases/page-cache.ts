@@ -1,4 +1,4 @@
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { safelyReadStaticParams } from "@/lib/staticParams"
 import {
   getPublicUseCaseCategoriesWithCounts,
@@ -39,86 +39,81 @@ function normalizeUseCaseStaticParamsLimit() {
   )
 }
 
-export const getUseCasesPagePayload = cached(
-  async (): Promise<UseCasesPagePayload> => {
-    const useCases = await getPublicUseCasesWithCounts()
-    const withProducts = useCases.filter((useCase) => useCase.productCount > 0)
-    const sortedByCount = [...withProducts].sort(
-      (a, b) => b.productCount - a.productCount,
-    )
+export async function getUseCasesPagePayload(): Promise<UseCasesPagePayload> {
+  "use cache"
+  applyCache(
+    ["usecases:page:payload", TAGS.useCases, TAGS.products],
+    DEFAULT_TTL.slow,
+  )
 
-    const totalProducts = withProducts.reduce(
-      (sum, useCase) => sum + (useCase.productCount ?? 0),
-      0,
-    )
-    const useCaseCount = withProducts.length
-    const averagePerUseCase =
-      useCaseCount > 0
-        ? Math.max(1, Math.round(totalProducts / useCaseCount))
-        : 0
+  const useCases = await getPublicUseCasesWithCounts()
+  const withProducts = useCases.filter((useCase) => useCase.productCount > 0)
+  const sortedByCount = [...withProducts].sort(
+    (a, b) => b.productCount - a.productCount,
+  )
 
-    return {
-      useCases: withProducts,
-      highlightUseCases: sortedByCount.slice(0, 8),
-      useCaseCount,
-      totalProducts,
-      averagePerUseCase,
-    }
-  },
-  "usecases:page:payload",
-  {
-    ttl: DEFAULT_TTL.slow,
-    tags: () => [TAGS.useCases, TAGS.products],
-  },
-)
+  const totalProducts = withProducts.reduce(
+    (sum, useCase) => sum + (useCase.productCount ?? 0),
+    0,
+  )
+  const useCaseCount = withProducts.length
+  const averagePerUseCase =
+    useCaseCount > 0 ? Math.max(1, Math.round(totalProducts / useCaseCount)) : 0
 
-export const getUseCasePagePayload = cached(
-  async (slug: string): Promise<UseCasePagePayload> => {
-    const categoriesResult = await getPublicUseCaseCategoriesWithCounts(slug)
+  return {
+    useCases: withProducts,
+    highlightUseCases: sortedByCount.slice(0, 8),
+    useCaseCount,
+    totalProducts,
+    averagePerUseCase,
+  }
+}
 
-    if (!categoriesResult || categoriesResult.productCount === 0) {
-      return null
-    }
-
-    return {
-      ...categoriesResult,
-      hasProducts: categoriesResult.productCount > 0,
-    }
-  },
-  "usecases:detail:payload",
-  {
-    ttl: DEFAULT_TTL.slow,
-    keyParts: ([slug]) => [slug],
-    tags: ([slug]) => [
+export async function getUseCasePagePayload(
+  slug: string,
+): Promise<UseCasePagePayload> {
+  "use cache"
+  applyCache(
+    [
+      "usecases:detail:payload",
       TAGS.useCases,
       TAGS.usecase(slug),
       TAGS.products,
       TAGS.categories,
     ],
-  },
-)
+    DEFAULT_TTL.slow,
+  )
 
-export const getUseCaseStaticParams = cached(
-  async () =>
-    safelyReadStaticParams("use case pages", async () => {
-      const limit = normalizeUseCaseStaticParamsLimit()
-      if (limit === 0) return []
+  const categoriesResult = await getPublicUseCaseCategoriesWithCounts(slug)
 
-      const useCases = await getPublicUseCasesWithCounts()
-      return useCases
-        .filter((useCase) => useCase.productCount > 0)
-        .sort((a, b) => {
-          if (b.productCount !== a.productCount) {
-            return b.productCount - a.productCount
-          }
-          return a.label.localeCompare(b.label)
-        })
-        .slice(0, limit)
-        .map((useCase) => ({ slug: useCase.slug }))
-    }),
-  "usecases:static-params",
-  {
-    ttl: DEFAULT_TTL.slowest,
-    tags: () => [TAGS.useCases],
-  },
-)
+  if (!categoriesResult || categoriesResult.productCount === 0) {
+    return null
+  }
+
+  return {
+    ...categoriesResult,
+    hasProducts: categoriesResult.productCount > 0,
+  }
+}
+
+export async function getUseCaseStaticParams() {
+  "use cache"
+  applyCache(["usecases:static-params", TAGS.useCases], DEFAULT_TTL.slowest)
+
+  return safelyReadStaticParams("use case pages", async () => {
+    const limit = normalizeUseCaseStaticParamsLimit()
+    if (limit === 0) return []
+
+    const useCases = await getPublicUseCasesWithCounts()
+    return useCases
+      .filter((useCase) => useCase.productCount > 0)
+      .sort((a, b) => {
+        if (b.productCount !== a.productCount) {
+          return b.productCount - a.productCount
+        }
+        return a.label.localeCompare(b.label)
+      })
+      .slice(0, limit)
+      .map((useCase) => ({ slug: useCase.slug }))
+  })
+}

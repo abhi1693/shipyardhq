@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { ProductSlicePage } from "@/components/templates/public/pseo/ProductSlicePage"
@@ -21,9 +22,6 @@ import {
 type VerifiedCategoryParams = {
   category: string
 }
-
-export const revalidate = 300
-export const dynamicParams = true
 
 export async function generateStaticParams() {
   const categories = await getCategoryStaticParams()
@@ -64,7 +62,18 @@ export async function generateMetadata({
   }
 }
 
-export default async function VerifiedCategoryPage({
+export default function VerifiedCategoryPage(props: {
+  params: Promise<VerifiedCategoryParams>
+  searchParams: Promise<PseoSearchParams>
+}) {
+  return (
+    <Suspense fallback={null}>
+      <VerifiedCategoryPageContent {...props} />
+    </Suspense>
+  )
+}
+
+async function VerifiedCategoryPageContent({
   params,
   searchParams,
 }: {

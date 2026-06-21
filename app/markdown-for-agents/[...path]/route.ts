@@ -2,9 +2,6 @@ import type { NextRequest } from "next/server"
 
 import { markdownResponse } from "@/lib/server/markdownForAgentsRoute"
 
-export const dynamic = "force-dynamic"
-export const runtime = "nodejs"
-
 type MarkdownPathContext = {
   params: Promise<{
     path?: string[]

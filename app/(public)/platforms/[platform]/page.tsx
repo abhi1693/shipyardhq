@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 
 import { PlatformPageContent } from "@/components/templates/public/platforms/page-content"
 import { getPlatformMeta } from "@/lib/platforms/config"
@@ -9,9 +10,6 @@ import {
 import { buildPageMetadata } from "@/lib/metadata"
 import { platformPath } from "@/lib/routes"
 import { BRAND_NAME } from "@/lib/brand"
-
-export const revalidate = 300
-export const dynamicParams = true
 
 export function generateStaticParams() {
   return getPlatformStaticParams()
@@ -48,5 +46,9 @@ export async function generateMetadata(
 export default function PlatformPage(
   props: Parameters<typeof PlatformPageContent>[0],
 ) {
-  return <PlatformPageContent {...props} />
+  return (
+    <Suspense fallback={null}>
+      <PlatformPageContent {...props} />
+    </Suspense>
+  )
 }

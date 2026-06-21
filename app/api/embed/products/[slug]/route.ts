@@ -6,9 +6,6 @@ import path from "node:path"
 import prisma from "@/lib/prisma"
 import { siteConfig } from "@/lib/siteConfig"
 
-export const runtime = "nodejs"
-export const dynamic = "force-dynamic"
-
 type Theme = "light" | "dark"
 type BadgeType = "featured"
 

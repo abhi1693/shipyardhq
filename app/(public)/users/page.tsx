@@ -7,8 +7,6 @@ import type { Metadata } from "next"
 import { buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH, USERS_PATH } from "@/lib/routes"
 
-export const revalidate = 120
-
 const PAGE_TITLE = "Makers — Shipyard"
 
 const baseMetadata = buildPageMetadata({

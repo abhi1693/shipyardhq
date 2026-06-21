@@ -1,4 +1,4 @@
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   getLeaderboardStats,
   getTopRankedProducts,
@@ -46,58 +46,53 @@ const normalizeFilters = (filters: LeaderboardFilters): LeaderboardFilters => {
   }
 }
 
-export const getLeaderboardPagePayload = cached(
-  async (input: LeaderboardFilters): Promise<LeaderboardPagePayload> => {
-    const filters = normalizeFilters(input)
-
-    const [stats, categories, products] = await Promise.all([
-      getLeaderboardStats(),
-      getCategoriesWithCounts(),
-      getTopRankedProducts({
-        limit: filters.limit,
-        categorySlug: filters.categorySlug,
-      }),
-    ])
-
-    const topThree = products.slice(0, 3)
-    const firstPlacement = topThree[0] ?? null
-    const runnerUps = topThree.slice(1)
-    const rest = products.slice(3)
-    const categoryName = filters.categorySlug
-      ? categories.find(
-          (category: (typeof categories)[number]) =>
-            category.slug === filters.categorySlug,
-        )?.name
-      : undefined
-
-    return {
-      filters,
-      stats,
-      categories,
-      products,
-      rankLabels: ["Top rank", "Second place", "Third place"],
-      firstPlacement,
-      runnerUps,
-      rest,
-      categoryName,
-    }
-  },
-  "leaderboard:page:payload",
-  {
-    ttl: DEFAULT_TTL.fast,
-    keyParts: ([filters]) => {
-      const parts = [
-        filters.categorySlug ? `category:${filters.categorySlug}` : null,
-        `limit:${filters.limit}`,
-      ].filter((value): value is string => Boolean(value))
-      return parts
-    },
-    tags: () => [
+export async function getLeaderboardPagePayload(
+  input: LeaderboardFilters,
+): Promise<LeaderboardPagePayload> {
+  "use cache"
+  applyCache(
+    [
+      "leaderboard:page:payload",
       TAGS.leaderboardPage,
       TAGS.leaderboard,
       TAGS.categories,
       TAGS.products,
       TAGS.analytics,
     ],
-  },
-)
+    DEFAULT_TTL.fast,
+  )
+
+  const filters = normalizeFilters(input)
+
+  const [stats, categories, products] = await Promise.all([
+    getLeaderboardStats(),
+    getCategoriesWithCounts(),
+    getTopRankedProducts({
+      limit: filters.limit,
+      categorySlug: filters.categorySlug,
+    }),
+  ])
+
+  const topThree = products.slice(0, 3)
+  const firstPlacement = topThree[0] ?? null
+  const runnerUps = topThree.slice(1)
+  const rest = products.slice(3)
+  const categoryName = filters.categorySlug
+    ? categories.find(
+        (category: (typeof categories)[number]) =>
+          category.slug === filters.categorySlug,
+      )?.name
+    : undefined
+
+  return {
+    filters,
+    stats,
+    categories,
+    products,
+    rankLabels: ["Top rank", "Second place", "Third place"],
+    firstPlacement,
+    runnerUps,
+    rest,
+    categoryName,
+  }
+}

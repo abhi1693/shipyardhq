@@ -1,4 +1,4 @@
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   getMonthlyLeaderboardMonths,
   getMonthlyTopRankedProducts,
@@ -17,26 +17,27 @@ export type MonthlyLeaderboardPagePayload = {
   months: MonthlyLeaderboardMonths
 }
 
-export const getMonthlyLeaderboardPagePayload = cached(
-  async (month?: string): Promise<MonthlyLeaderboardPagePayload> => {
-    const [months, leaderboard] = await Promise.all([
-      getMonthlyLeaderboardMonths(),
-      getMonthlyTopRankedProducts({ month }),
-    ])
-
-    return {
-      leaderboard,
-      months,
-    }
-  },
-  "leaderboard:monthly:page",
-  {
-    ttl: DEFAULT_TTL.slowest,
-    keyParts: ([month]) => [month ?? "latest"],
-    tags: ([month]) => [
+export async function getMonthlyLeaderboardPagePayload(
+  month?: string,
+): Promise<MonthlyLeaderboardPagePayload> {
+  "use cache"
+  applyCache(
+    [
+      "leaderboard:monthly:page",
       TAGS.monthlyLeaderboard,
       TAGS.monthlyLeaderboardMonth(month ?? "resolved"),
       TAGS.leaderboardPage,
     ],
-  },
-)
+    DEFAULT_TTL.slowest,
+  )
+
+  const [months, leaderboard] = await Promise.all([
+    getMonthlyLeaderboardMonths(),
+    getMonthlyTopRankedProducts({ month }),
+  ])
+
+  return {
+    leaderboard,
+    months,
+  }
+}

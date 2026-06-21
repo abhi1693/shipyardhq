@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { ProductSlicePage } from "@/components/templates/public/pseo/ProductSlicePage"
@@ -23,9 +24,6 @@ type EditorPickCategoryParams = {
 }
 
 const EDITOR_PICK_BADGE = "editor-pick"
-
-export const revalidate = 300
-export const dynamicParams = true
 
 export async function generateStaticParams() {
   const categories = await getCategoryStaticParams()
@@ -66,7 +64,18 @@ export async function generateMetadata({
   }
 }
 
-export default async function EditorPickCategoryPage({
+export default function EditorPickCategoryPage(props: {
+  params: Promise<EditorPickCategoryParams>
+  searchParams: Promise<PseoSearchParams>
+}) {
+  return (
+    <Suspense fallback={null}>
+      <EditorPickCategoryPageContent {...props} />
+    </Suspense>
+  )
+}
+
+async function EditorPickCategoryPageContent({
   params,
   searchParams,
 }: {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import {
   getPublicUseCaseCategoriesWithCounts,
@@ -27,9 +28,6 @@ type UseCaseCategoryParams = {
   category: string
 }
 
-export const revalidate = 300
-export const dynamicParams = true
-
 export async function generateStaticParams() {
   const useCases = await getPublicUseCasesWithCounts()
   const mapped = await Promise.all(
@@ -55,7 +53,9 @@ export async function generateMetadata({
   const { slug, category: categorySlug } = await params
   const payload = await getPublicUseCaseCategoriesWithCounts(slug)
   const useCase = payload?.useCase
-  const category = payload?.categories.find((item) => item.slug === categorySlug)
+  const category = payload?.categories.find(
+    (item) => item.slug === categorySlug,
+  )
   if (!useCase || !category) return {}
 
   const total = await getProductSlicePayload({
@@ -83,7 +83,18 @@ export async function generateMetadata({
   }
 }
 
-export default async function UseCaseCategoryPage({
+export default function UseCaseCategoryPage(props: {
+  params: Promise<UseCaseCategoryParams>
+  searchParams: Promise<PseoSearchParams>
+}) {
+  return (
+    <Suspense fallback={null}>
+      <UseCaseCategoryPageContent {...props} />
+    </Suspense>
+  )
+}
+
+async function UseCaseCategoryPageContent({
   params,
   searchParams,
 }: {
@@ -93,7 +104,9 @@ export default async function UseCaseCategoryPage({
   const { slug, category: categorySlug } = await params
   const payload = await getPublicUseCaseCategoriesWithCounts(slug)
   const useCase = payload?.useCase
-  const category = payload?.categories.find((item) => item.slug === categorySlug)
+  const category = payload?.categories.find(
+    (item) => item.slug === categorySlug,
+  )
   if (!useCase || !category) return notFound()
 
   const rawSearchParams = await searchParams

@@ -2,7 +2,7 @@ import { pluralize } from "@/lib/pluralize"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { getProducts } from "@/actions/public/products/featured"
 import { getUseCasesWithCounts, getCategories } from "@/actions/catalog/actions"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
@@ -93,31 +93,35 @@ const CATEGORY_QUERY = {
   orderBy: [{ productAssignments: { _count: "desc" } }, { name: "asc" }],
 } satisfies Prisma.CategoryFindManyArgs
 
-const getBrowseCategories = cached(
-  async (): Promise<CategoryWithProductCount[]> => {
-    const categoriesRaw = (await getCategories(
-      CATEGORY_QUERY,
-    )) as CategoryWithAssignmentCount[]
+async function getBrowseCategories(): Promise<CategoryWithProductCount[]> {
+  "use cache"
+  applyCache(
+    [
+      "browse:filter-categories",
+      TAGS.categoryDirectory,
+      TAGS.categories,
+      TAGS.products,
+    ],
+    DEFAULT_TTL.slow,
+  )
 
-    return categoriesRaw.map((category) => ({
-      id: category.id,
-      name: category.name,
-      slug: category.slug,
-      icon: category.icon,
-      description: category.description,
-      createdAt: category.createdAt,
-      updatedAt: category.updatedAt,
-      _count: {
-        products: category._count.productAssignments,
-      },
-    }))
-  },
-  "browse:filter-categories",
-  {
-    ttl: DEFAULT_TTL.slow,
-    tags: () => [TAGS.categoryDirectory, TAGS.categories, TAGS.products],
-  },
-)
+  const categoriesRaw = (await getCategories(
+    CATEGORY_QUERY,
+  )) as CategoryWithAssignmentCount[]
+
+  return categoriesRaw.map((category) => ({
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    icon: category.icon,
+    description: category.description,
+    createdAt: category.createdAt,
+    updatedAt: category.updatedAt,
+    _count: {
+      products: category._count.productAssignments,
+    },
+  }))
+}
 
 const normalizePriceBound = (value: number | undefined) => {
   if (typeof value !== "number" || !Number.isFinite(value)) return undefined

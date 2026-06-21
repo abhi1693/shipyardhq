@@ -202,7 +202,9 @@ export default function EditProductWizard(props: EditProductWizardProps) {
       form.clearErrors()
       const fullValidation = schema.safeParse(values)
       if (!fullValidation.success) {
-        const firstInvalidStep = setValidationErrors(fullValidation.error.issues)
+        const firstInvalidStep = setValidationErrors(
+          fullValidation.error.issues,
+        )
         if (firstInvalidStep && firstInvalidStep !== props.step) {
           const invalidStep = firstInvalidStep as ProductDraftStep
           toast.error(

@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { resolveVoteState } from "@/lib/server/productVotesStore"
 import { safelyReadStaticParams } from "@/lib/staticParams"
@@ -183,32 +183,26 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
   }
 }
 
-export const getPublicProductBySlug = cached(
-  async (slug: string) => fetchPublicProduct({ slug }),
-  "product:public-by-slug",
-  {
-    ttl: DEFAULT_TTL.medium,
-    tags: ([slug]) => [TAGS.products, TAGS.product(String(slug))],
-  },
-)
+export async function getPublicProductBySlug(slug: string) {
+  "use cache"
+  applyCache([TAGS.products, TAGS.product(String(slug))], DEFAULT_TTL.medium)
 
-export const getPublicProductMetaBySlug = cached(
-  async (slug: string) => {
-    const product = await prisma.product.findUnique({
-      where: { slug },
-      select: publicProductMetaSelect,
-    })
+  return fetchPublicProduct({ slug })
+}
 
-    if (!product || product.status !== "published") return null
+export async function getPublicProductMetaBySlug(slug: string) {
+  "use cache"
+  applyCache([TAGS.products, TAGS.product(String(slug))], 600)
 
-    return product
-  },
-  "product:meta-by-slug",
-  {
-    ttl: 600,
-    tags: ([slug]) => [TAGS.products, TAGS.product(String(slug))],
-  },
-)
+  const product = await prisma.product.findUnique({
+    where: { slug },
+    select: publicProductMetaSelect,
+  })
+
+  if (!product || product.status !== "published") return null
+
+  return product
+}
 
 const DEFAULT_PRODUCT_STATIC_PARAMS_LIMIT = 50
 const MAX_PRODUCT_STATIC_PARAMS_LIMIT = 1000
@@ -471,91 +465,87 @@ async function getHomepageProductStaticSlugs() {
   return slugs
 }
 
-export const getProductStaticParams = cached(
-  async () =>
-    safelyReadStaticParams("product pages", async () => {
-      const limit = normalizeProductStaticParamsLimit()
-      if (limit === 0) return []
+export async function getProductStaticParams() {
+  "use cache"
+  applyCache([TAGS.products, TAGS.analytics], DEFAULT_TTL.slowest)
 
-      const homepageSlugs = await getHomepageProductStaticSlugs()
-      const slugs: string[] = []
-      const seen = new Set<string>()
-      appendUniqueSlugs(slugs, seen, homepageSlugs)
+  return safelyReadStaticParams("product pages", async () => {
+    const limit = normalizeProductStaticParamsLimit()
+    if (limit === 0) return []
 
-      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-      const trafficLimit = Math.max(0, limit - slugs.length)
-      const trafficRows =
-        trafficLimit > 0
-          ? await prisma.productTrafficDaily.groupBy({
-              by: ["productId"],
-              where: {
-                date: { gte: since },
-                product: buildPublicDiscoveryProductWhere(),
-              },
-              _sum: {
-                pageViews: true,
-                uniqueVisitors: true,
-              },
-              orderBy: [
-                { _sum: { pageViews: "desc" } },
-                { _sum: { uniqueVisitors: "desc" } },
-              ],
-              take: trafficLimit,
-            })
-          : []
+    const homepageSlugs = await getHomepageProductStaticSlugs()
+    const slugs: string[] = []
+    const seen = new Set<string>()
+    appendUniqueSlugs(slugs, seen, homepageSlugs)
 
-      const trafficProductIds = trafficRows.map((row) => row.productId)
-      const trafficProducts = trafficProductIds.length
-        ? await prisma.product.findMany({
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    const trafficLimit = Math.max(0, limit - slugs.length)
+    const trafficRows =
+      trafficLimit > 0
+        ? await prisma.productTrafficDaily.groupBy({
+            by: ["productId"],
             where: {
-              id: { in: trafficProductIds },
-              ...buildPublicDiscoveryProductWhere(),
+              date: { gte: since },
+              product: buildPublicDiscoveryProductWhere(),
             },
-            select: { id: true, slug: true },
+            _sum: {
+              pageViews: true,
+              uniqueVisitors: true,
+            },
+            orderBy: [
+              { _sum: { pageViews: "desc" } },
+              { _sum: { uniqueVisitors: "desc" } },
+            ],
+            take: trafficLimit,
           })
         : []
 
-      const slugById = new Map(
-        trafficProducts.map((product) => [product.id, product.slug]),
-      )
-      for (const id of trafficProductIds) {
-        const slug = slugById.get(id)
-        if (!slug || seen.has(slug)) continue
-        seen.add(slug)
-        slugs.push(slug)
-      }
-
-      const remaining = Math.max(0, limit - slugs.length)
-      if (remaining > 0) {
-        const fallbackProducts = await prisma.product.findMany({
-          where: buildPublicDiscoveryProductWhere({
-            ...(seen.size ? { slug: { notIn: Array.from(seen) } } : {}),
-          }),
-          orderBy: [
-            { analytics: { upvotes: "desc" } },
-            { publishedAt: { sort: "desc", nulls: "last" } },
-            { createdAt: "desc" },
-          ],
-          take: remaining,
-          select: { slug: true },
+    const trafficProductIds = trafficRows.map((row) => row.productId)
+    const trafficProducts = trafficProductIds.length
+      ? await prisma.product.findMany({
+          where: {
+            id: { in: trafficProductIds },
+            ...buildPublicDiscoveryProductWhere(),
+          },
+          select: { id: true, slug: true },
         })
+      : []
 
-        for (const product of fallbackProducts) {
-          if (seen.has(product.slug)) continue
-          seen.add(product.slug)
-          slugs.push(product.slug)
-        }
+    const slugById = new Map(
+      trafficProducts.map((product) => [product.id, product.slug]),
+    )
+    for (const id of trafficProductIds) {
+      const slug = slugById.get(id)
+      if (!slug || seen.has(slug)) continue
+      seen.add(slug)
+      slugs.push(slug)
+    }
+
+    const remaining = Math.max(0, limit - slugs.length)
+    if (remaining > 0) {
+      const fallbackProducts = await prisma.product.findMany({
+        where: buildPublicDiscoveryProductWhere({
+          ...(seen.size ? { slug: { notIn: Array.from(seen) } } : {}),
+        }),
+        orderBy: [
+          { analytics: { upvotes: "desc" } },
+          { publishedAt: { sort: "desc", nulls: "last" } },
+          { createdAt: "desc" },
+        ],
+        take: remaining,
+        select: { slug: true },
+      })
+
+      for (const product of fallbackProducts) {
+        if (seen.has(product.slug)) continue
+        seen.add(product.slug)
+        slugs.push(product.slug)
       }
+    }
 
-      return slugs.map((slug) => ({ slug }))
-    }),
-  "products:static-params:v3",
-  {
-    ttl: DEFAULT_TTL.slowest,
-    tags: () => [TAGS.products, TAGS.analytics],
-    keyParts: () => `limit:${normalizeProductStaticParamsLimit()}`,
-  },
-)
+    return slugs.map((slug) => ({ slug }))
+  })
+}
 
 const compactProductInclude = {
   analytics: {
@@ -580,15 +570,20 @@ type CompactProduct = Prisma.ProductGetPayload<{
   include: typeof compactProductInclude
 }>
 
-export const getPublicProductsByUseCase = cached(
-  async (
-    useCaseSlug: string,
-    excludeId: string,
-    limit = 6,
-  ): Promise<CompactProduct[]> => {
-    const effectiveLimit = Math.max(1, Math.min(limit, 12))
+export async function getPublicProductsByUseCase(
+  useCaseSlug: string,
+  excludeId: string,
+  limit = 6,
+): Promise<CompactProduct[]> {
+  "use cache"
+  applyCache(
+    [TAGS.products, TAGS.category(String(useCaseSlug))],
+    DEFAULT_TTL.medium,
+  )
 
-    const randomProductIds = await prisma.$queryRaw<{ id: string }[]>`
+  const effectiveLimit = Math.max(1, Math.min(limit, 12))
+
+  const randomProductIds = await prisma.$queryRaw<{ id: string }[]>`
       SELECT p.id
       FROM "Product" AS p
       INNER JOIN "ProductCategory" AS pc ON pc."productId" = p.id
@@ -602,43 +597,34 @@ export const getPublicProductsByUseCase = cached(
       LIMIT ${effectiveLimit}
     `
 
-    if (!randomProductIds.length) {
-      return []
-    }
+  if (!randomProductIds.length) {
+    return []
+  }
 
-    return prisma.product.findMany({
-      where: buildPublicDiscoveryProductWhere({
-        id: {
-          in: randomProductIds.map(({ id }: { id: string }) => id),
-        },
-      }),
-      include: compactProductInclude,
-    })
-  },
-  "products:public-by-usecase",
-  {
-    ttl: DEFAULT_TTL.medium,
-    tags: ([useCaseSlug]) => [
-      TAGS.products,
-      TAGS.category(String(useCaseSlug)),
-    ],
-    keyParts: ([useCaseSlug, excludeId, limit]) => [
-      `useCase:${useCaseSlug}`,
-      `exclude:${excludeId}`,
-      `limit:${limit ?? 6}`,
-    ],
-  },
-)
+  return prisma.product.findMany({
+    where: buildPublicDiscoveryProductWhere({
+      id: {
+        in: randomProductIds.map(({ id }: { id: string }) => id),
+      },
+    }),
+    include: compactProductInclude,
+  })
+}
 
-export const getPublicProductsByCategory = cached(
-  async (
-    categorySlug: string,
-    excludeId: string,
-    limit = 6,
-  ): Promise<CompactProduct[]> => {
-    const effectiveLimit = Math.max(1, Math.min(limit, 12))
+export async function getPublicProductsByCategory(
+  categorySlug: string,
+  excludeId: string,
+  limit = 6,
+): Promise<CompactProduct[]> {
+  "use cache"
+  applyCache(
+    [TAGS.products, TAGS.category(String(categorySlug))],
+    DEFAULT_TTL.medium,
+  )
 
-    const randomProductIds = await prisma.$queryRaw<{ id: string }[]>`
+  const effectiveLimit = Math.max(1, Math.min(limit, 12))
+
+  const randomProductIds = await prisma.$queryRaw<{ id: string }[]>`
       SELECT id
       FROM (
         SELECT DISTINCT p.id
@@ -661,33 +647,19 @@ export const getPublicProductsByCategory = cached(
       LIMIT ${effectiveLimit}
     `
 
-    if (!randomProductIds.length) {
-      return []
-    }
+  if (!randomProductIds.length) {
+    return []
+  }
 
-    return prisma.product.findMany({
-      where: buildPublicDiscoveryProductWhere({
-        id: {
-          in: randomProductIds.map(({ id }: { id: string }) => id),
-        },
-      }),
-      include: compactProductInclude,
-    })
-  },
-  "products:public-by-category",
-  {
-    ttl: DEFAULT_TTL.medium,
-    tags: ([categorySlug]) => [
-      TAGS.products,
-      TAGS.category(String(categorySlug)),
-    ],
-    keyParts: ([categorySlug, excludeId, limit]) => [
-      `category:${categorySlug}`,
-      `exclude:${excludeId}`,
-      `limit:${limit ?? 6}`,
-    ],
-  },
-)
+  return prisma.product.findMany({
+    where: buildPublicDiscoveryProductWhere({
+      id: {
+        in: randomProductIds.map(({ id }: { id: string }) => id),
+      },
+    }),
+    include: compactProductInclude,
+  })
+}
 
 export async function hasUserUpvoted(productId: string, clerkId: string) {
   const user = await getActiveUserByClerkId(clerkId)

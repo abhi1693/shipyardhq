@@ -9,9 +9,6 @@ import { pluralize } from "@/lib/pluralize"
 import { getUseCaseStaticParams } from "@/lib/useCases/page-cache"
 import { usecasePath } from "@/lib/routes"
 
-export const revalidate = 300
-export const dynamicParams = true
-
 export async function generateStaticParams() {
   return getUseCaseStaticParams()
 }

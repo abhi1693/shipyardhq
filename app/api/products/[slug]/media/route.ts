@@ -6,8 +6,6 @@ import { putBlob } from "@/lib/blob"
 import { toWebpIfPossible } from "@/lib/server/image"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
-export const dynamic = "force-dynamic"
-
 type RouteContext = {
   params: Promise<{ slug: string }>
 }

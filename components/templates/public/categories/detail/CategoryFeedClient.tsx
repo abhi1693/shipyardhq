@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
-import { getCategoryProductsPage } from "@/actions/public/categories/actions"
+import { getCategoryProductsPage } from "@/actions/public/categories/server-actions"
 import {
   buildTaxonomyProductSections,
   TaxonomyProductSections,

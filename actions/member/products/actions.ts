@@ -230,8 +230,10 @@ export async function getUserProducts(params?: ListParams) {
   const productsWithPermissions = products.map((product: ProductListItem) => {
     const planForAccess = product.plan ?? defaultPlan
 
-    const hasAdvancedAnalytics =
-      hasPlanFeature(planForAccess ?? null, "analytics.advanced")
+    const hasAdvancedAnalytics = hasPlanFeature(
+      planForAccess ?? null,
+      "analytics.advanced",
+    )
     const canViewAnalytics =
       hasAdvancedAnalytics ||
       hasPlanFeature(planForAccess ?? null, "analytics.basic")

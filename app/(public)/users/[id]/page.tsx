@@ -14,9 +14,6 @@ import { buildProfilePageJsonLd } from "@/lib/seo/profile-page"
 import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH, USERS_PATH, userPath } from "@/lib/routes"
 
-export const revalidate = 120
-export const dynamicParams = true
-
 export async function generateStaticParams() {
   const users = await getPublicUsersWithCounts()
 

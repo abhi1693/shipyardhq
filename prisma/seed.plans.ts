@@ -40,10 +40,7 @@ const PLANS: PlanSeed[] = [
     price: 0,
     isDefault: true,
     boostForDays: 1,
-    features: [
-      { key: "analytics.basic" },
-      { key: "product.sitemap" },
-    ],
+    features: [{ key: "analytics.basic" }, { key: "product.sitemap" }],
   },
   {
     name: "Featured",

@@ -50,8 +50,6 @@ function formatBuilderCountBadge(value: number) {
   return `${numberFormatter.format(roundedValue)}+`
 }
 
-export const revalidate = 300
-
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description: `Transparent pricing to list, launch, promote, and measure your product on ${BRAND_NAME}.`,

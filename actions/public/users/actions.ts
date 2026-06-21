@@ -1,7 +1,6 @@
-"use server"
-
 import prisma from "@/lib/prisma"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { connection } from "next/server"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import type { ProductInterestSignals } from "@/types/product-interest"
@@ -129,84 +128,77 @@ const publicUserProfileSelect: PublicUserProfileSelect = {
   products: publicUserProductsSelect,
 }
 
-const getUserProductsWithPaging = cached(
-  async (
-    userId: string,
-    page: number = 1,
-    pageSize: number = USER_PRODUCTS_PAGE_SIZE,
-  ): Promise<UserProductsPageResult> => {
-    const safePage = normalizePage(page, 1)
-    const safePageSize = normalizePageSize(pageSize, USER_PRODUCTS_PAGE_SIZE)
-    const skip = (safePage - 1) * safePageSize
-    const where: Prisma.ProductWhereInput = buildPublicDiscoveryProductWhere({
-      userId,
-    })
+async function getUserProductsWithPaging(
+  userId: string,
+  page: number = 1,
+  pageSize: number = USER_PRODUCTS_PAGE_SIZE,
+): Promise<UserProductsPageResult> {
+  "use cache"
+  applyCache([TAGS.users, TAGS.products, TAGS.user(userId)], DEFAULT_TTL.medium)
 
-    const [products, total, priorityPlanIds] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        select: productCardSelect,
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: safePageSize,
-      }),
-      prisma.product.count({ where }),
-      getPriorityPlacementPlanIds(),
-    ])
+  const safePage = normalizePage(page, 1)
+  const safePageSize = normalizePageSize(pageSize, USER_PRODUCTS_PAGE_SIZE)
+  const skip = (safePage - 1) * safePageSize
+  const where: Prisma.ProductWhereInput = buildPublicDiscoveryProductWhere({
+    userId,
+  })
 
-    const typedProducts = products as ProductCardRecord[]
-    const productIds = typedProducts.map((product) => product.id)
-    const scoreMap = productIds.length
-      ? await getCurrentScoreMap(productIds)
-      : new Map<string, number>()
+  const [products, total, priorityPlanIds] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      select: productCardSelect,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: safePageSize,
+    }),
+    prisma.product.count({ where }),
+    getPriorityPlacementPlanIds(),
+  ])
 
-    const now = new Date()
-    const baseProducts = typedProducts.map((product) =>
-      mapProductCardRecordToBase(product, now, {
-        scoreByProductId: scoreMap,
-        priorityPlanIds,
-      }),
-    )
+  const typedProducts = products as ProductCardRecord[]
+  const productIds = typedProducts.map((product) => product.id)
+  const scoreMap = productIds.length
+    ? await getCurrentScoreMap(productIds)
+    : new Map<string, number>()
 
-    const interestMap = await getProductInterestSignalsMap({
-      products: baseProducts.map((product) => ({
-        id: product.id,
-        slug: product.slug,
-      })),
-    })
+  const now = new Date()
+  const baseProducts = typedProducts.map((product) =>
+    mapProductCardRecordToBase(product, now, {
+      scoreByProductId: scoreMap,
+      priorityPlanIds,
+    }),
+  )
 
-    const items = baseProducts.map((product) =>
-      mapUserProductToFeedItem(product, interestMap),
-    )
+  const interestMap = await getProductInterestSignalsMap({
+    products: baseProducts.map((product) => ({
+      id: product.id,
+      slug: product.slug,
+    })),
+  })
 
-    const hasMore = skip + items.length < total
+  const items = baseProducts.map((product) =>
+    mapUserProductToFeedItem(product, interestMap),
+  )
 
-    return {
-      items,
-      total,
-      page: safePage,
-      pageSize: safePageSize,
-      hasMore,
-      nextPage: hasMore ? safePage + 1 : null,
-    }
-  },
-  "user:products:page",
-  {
-    ttl: DEFAULT_TTL.medium,
-    keyParts: ([userId, page, pageSize]) => [
-      userId,
-      `page:${normalizePage(page, 1)}`,
-      `pageSize:${normalizePageSize(pageSize, USER_PRODUCTS_PAGE_SIZE)}`,
-    ],
-    tags: ([userId]) => [TAGS.users, TAGS.products, TAGS.user(userId)],
-  },
-)
+  const hasMore = skip + items.length < total
+
+  return {
+    items,
+    total,
+    page: safePage,
+    pageSize: safePageSize,
+    hasMore,
+    nextPage: hasMore ? safePage + 1 : null,
+  }
+}
 
 export async function getUserProductsPage(params: {
   userId: string
   page?: number
   pageSize?: number
 }): Promise<UserProductsPageResult> {
+  "use server"
+
   const safePage = normalizePage(params.page, 1)
   const safePageSize = normalizePageSize(
     params.pageSize,
@@ -216,64 +208,56 @@ export async function getUserProductsPage(params: {
   return getUserProductsWithPaging(params.userId, safePage, safePageSize)
 }
 
-const getPublicUsersPageCached = cached(
-  async (
-    page: number = 1,
-    pageSize: number = USERS_PAGE_SIZE,
-  ): Promise<PublicUsersPageResult> => {
-    const safePage = normalizePage(page, 1)
-    const safePageSize = normalizePageSize(pageSize, USERS_PAGE_SIZE)
-    const skip = (safePage - 1) * safePageSize
+async function getPublicUsersPageCached(
+  page: number = 1,
+  pageSize: number = USERS_PAGE_SIZE,
+): Promise<PublicUsersPageResult> {
+  "use cache"
+  applyCache([TAGS.users, TAGS.products], DEFAULT_TTL.slow)
 
-    const where: Prisma.UserWhereInput = {
-      products: { some: publishedProductWhere },
-    }
+  const safePage = normalizePage(page, 1)
+  const safePageSize = normalizePageSize(pageSize, USERS_PAGE_SIZE)
+  const skip = (safePage - 1) * safePageSize
 
-    const [users, total] = await Promise.all([
-      prisma.user.findMany({
-        where,
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          clerkId: true,
-          _count: {
-            select: {
-              products: { where: publishedProductWhere },
-            },
+  const where: Prisma.UserWhereInput = {
+    products: { some: publishedProductWhere },
+  }
+
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        clerkId: true,
+        _count: {
+          select: {
+            products: { where: publishedProductWhere },
           },
         },
-        orderBy: { products: { _count: "desc" } },
-        skip,
-        take: safePageSize,
-      }),
-      prisma.user.count({ where }),
-    ])
+      },
+      orderBy: { products: { _count: "desc" } },
+      skip,
+      take: safePageSize,
+    }),
+    prisma.user.count({ where }),
+  ])
 
-    const items = await Promise.all(
-      users.map((user) => mapUserSummaryToListItem(user)),
-    )
-    const hasMore = skip + items.length < total
+  const items = await Promise.all(
+    users.map((user) => mapUserSummaryToListItem(user)),
+  )
+  const hasMore = skip + items.length < total
 
-    return {
-      items,
-      total,
-      page: safePage,
-      pageSize: safePageSize,
-      hasMore,
-      nextPage: hasMore ? safePage + 1 : null,
-    }
-  },
-  "users:public:page",
-  {
-    ttl: DEFAULT_TTL.slow,
-    keyParts: ([page, pageSize]) => [
-      `page:${normalizePage(page, 1)}`,
-      `pageSize:${normalizePageSize(pageSize, USERS_PAGE_SIZE)}`,
-    ],
-    tags: () => [TAGS.users, TAGS.products],
-  },
-)
+  return {
+    items,
+    total,
+    page: safePage,
+    pageSize: safePageSize,
+    hasMore,
+    nextPage: hasMore ? safePage + 1 : null,
+  }
+}
 
 export async function getPublicUsersPage(
   params: {
@@ -281,98 +265,117 @@ export async function getPublicUsersPage(
     pageSize?: number
   } = {},
 ): Promise<PublicUsersPageResult> {
+  "use server"
+
   const safePage = normalizePage(params.page, 1)
   const safePageSize = normalizePageSize(params.pageSize, USERS_PAGE_SIZE)
 
-  return getPublicUsersPageCached(safePage, safePageSize)
+  const page = await getPublicUsersPageCached(safePage, safePageSize)
+  await connection()
+  return withUserAvatarUrls(page)
 }
 
-export const getHomepageBuilderSummary = cached(
-  async (): Promise<HomepageBuilderSummary> => {
-    const where: Prisma.UserWhereInput = {
-      status: "active",
-      products: { some: publishedProductWhere },
-    }
+type HomepageBuilderSummaryRecord = Omit<
+  HomepageBuilderSummary,
+  "topFounder"
+> & {
+  topFounder:
+    | (NonNullable<HomepageBuilderSummary["topFounder"]> & {
+        clerkId: string | null
+      })
+    | null
+}
 
-    const [builderCount, topFounder] = await Promise.all([
-      prisma.user.count({ where }),
-      prisma.user.findFirst({
-        where,
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          clerkId: true,
-          _count: {
-            select: {
-              products: { where: publishedProductWhere },
-            },
-          },
-          products: {
-            where: publishedProductWhere,
-            select: {
-              name: true,
-              slug: true,
-              analytics: {
-                select: {
-                  upvotes: true,
-                },
-              },
-              createdAt: true,
-            },
-            orderBy: [
-              { analytics: { upvotes: "desc" } },
-              { createdAt: "desc" },
-            ],
-            take: 1,
+async function getHomepageBuilderSummaryRecord(): Promise<HomepageBuilderSummaryRecord> {
+  "use cache"
+  applyCache([TAGS.homepage, TAGS.users, TAGS.products], DEFAULT_TTL.slow)
+
+  const where: Prisma.UserWhereInput = {
+    status: "active",
+    products: { some: publishedProductWhere },
+  }
+
+  const [builderCount, topFounder] = await Promise.all([
+    prisma.user.count({ where }),
+    prisma.user.findFirst({
+      where,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        clerkId: true,
+        _count: {
+          select: {
+            products: { where: publishedProductWhere },
           },
         },
-        orderBy: [{ products: { _count: "desc" } }, { createdAt: "asc" }],
-      }),
-    ])
+        products: {
+          where: publishedProductWhere,
+          select: {
+            name: true,
+            slug: true,
+            analytics: {
+              select: {
+                upvotes: true,
+              },
+            },
+            createdAt: true,
+          },
+          orderBy: [{ analytics: { upvotes: "desc" } }, { createdAt: "desc" }],
+          take: 1,
+        },
+      },
+      orderBy: [{ products: { _count: "desc" } }, { createdAt: "asc" }],
+    }),
+  ])
 
-    if (!topFounder) {
-      return {
-        builderCount,
-        topFounder: null,
-      }
-    }
-
-    let avatarUrl: string | null = null
-    if (topFounder.clerkId) {
-      try {
-        const clerkUser = await getClerkUserByIdCached(topFounder.clerkId)
-        avatarUrl = clerkUser.imageUrl ?? null
-      } catch {
-        avatarUrl = null
-      }
-    }
-
-    const name = [topFounder.firstName, topFounder.lastName]
-      .map((segment) => segment?.trim())
-      .filter(Boolean)
-      .join(" ")
-
-    const topProduct = topFounder.products[0] ?? null
-
+  if (!topFounder) {
     return {
       builderCount,
+      topFounder: null,
+    }
+  }
+
+  const name = [topFounder.firstName, topFounder.lastName]
+    .map((segment) => segment?.trim())
+    .filter(Boolean)
+    .join(" ")
+
+  const topProduct = topFounder.products[0] ?? null
+
+  return {
+    builderCount,
+    topFounder: {
+      id: topFounder.id,
+      clerkId: topFounder.clerkId,
+      name: name || "Shipyard maker",
+      avatarUrl: null,
+      productCount: topFounder._count.products,
+      topProductName: topProduct?.name ?? null,
+      topProductSlug: topProduct?.slug ?? null,
+    },
+  }
+}
+
+export async function getHomepageBuilderSummary(): Promise<HomepageBuilderSummary> {
+  const summary = await getHomepageBuilderSummaryRecord()
+  if (!summary.topFounder?.clerkId) {
+    return summary
+  }
+
+  try {
+    const clerkUser = await getClerkUserByIdCached(summary.topFounder.clerkId)
+    return {
+      ...summary,
       topFounder: {
-        id: topFounder.id,
-        name: name || "Shipyard maker",
-        avatarUrl,
-        productCount: topFounder._count.products,
-        topProductName: topProduct?.name ?? null,
-        topProductSlug: topProduct?.slug ?? null,
+        ...summary.topFounder,
+        avatarUrl: clerkUser.imageUrl ?? null,
       },
     }
-  },
-  "homepage:builder-summary",
-  {
-    ttl: DEFAULT_TTL.slow,
-    tags: () => [TAGS.homepage, TAGS.users, TAGS.products],
-  },
-)
+  } catch {
+    return summary
+  }
+}
 
 const mapUserProductToFeedItem = (
   product: ReturnType<typeof mapProductCardRecordToBase>,
@@ -431,22 +434,41 @@ const mapUserSummaryToListItem = async (user: {
   clerkId: string | null
   _count: { products: number }
 }): Promise<PublicUserListItem> => {
-  let avatarUrl: string | null = null
-  if (user.clerkId) {
-    try {
-      const clerkUser = await getClerkUserByIdCached(user.clerkId)
-      avatarUrl = clerkUser.imageUrl ?? null
-    } catch {
-      avatarUrl = null
-    }
-  }
-
   return {
     ...user,
-    avatarUrl,
+    avatarUrl: null,
   }
 }
 
+async function withUserAvatarUrls(
+  page: PublicUsersPageResult,
+): Promise<PublicUsersPageResult> {
+  const items = await Promise.all(
+    page.items.map(async (user) => {
+      if (!user.clerkId) {
+        return user
+      }
+
+      let avatarUrl: string | null = null
+      try {
+        const clerkUser = await getClerkUserByIdCached(user.clerkId)
+        avatarUrl = clerkUser.imageUrl ?? null
+      } catch {
+        avatarUrl = null
+      }
+
+      return {
+        ...user,
+        avatarUrl,
+      }
+    }),
+  )
+
+  return {
+    ...page,
+    items,
+  }
+}
 export type UserProductsPageResult = {
   items: HomepageFeedItem[]
   total: number
@@ -465,96 +487,87 @@ export type PublicUsersPageResult = {
   nextPage: number | null
 }
 
-export const getPublicUsersWithCounts = cached(
-  async (limit = 48) =>
-    prisma.user.findMany({
-      where: { products: { some: publishedProductWhere } },
-      select: {
-        id: true,
-        clerkId: true,
-        firstName: true,
-        lastName: true,
-        _count: {
-          select: {
-            products: {
-              where: publishedProductWhere,
-            },
-          },
-        },
-      },
-      orderBy: { products: { _count: "desc" } },
-      take: limit,
-    }),
-  "users:with-product-counts",
-  { ttl: DEFAULT_TTL.slow, tags: () => [TAGS.users, TAGS.products] },
-)
+export async function getPublicUsersWithCounts(limit = 48) {
+  "use cache"
+  applyCache([TAGS.users, TAGS.products], DEFAULT_TTL.slow)
 
-export const getPublicUserMeta = cached(
-  async (id: string) =>
-    prisma.user.findUnique({
-      where: { id },
-      select: {
-        firstName: true,
-        lastName: true,
-        _count: {
-          select: {
-            products: {
-              where: publishedProductWhere,
-            },
-          },
-        },
-      },
-    }),
-  "user:public-meta",
-  {
-    ttl: DEFAULT_TTL.medium,
-    tags: ([id]) => [TAGS.users, TAGS.user(String(id))],
-  },
-)
-
-export const getPublicUserProfile = cached(
-  async (
-    id: string,
-    options: { page?: number; pageSize?: number } = {},
-  ): Promise<PublicUserProfile | null> => {
-    const pageSize = Math.max(
-      1,
-      Math.min(options.pageSize ?? PROFILE_PRODUCTS_PAGE_SIZE, 200),
-    )
-    const page = Math.max(options.page ?? 1, 1)
-    const skip = (page - 1) * pageSize
-
-    const select: Prisma.UserSelect = {
-      ...publicUserProfileSelect,
-      products: {
-        ...publicUserProductsSelect,
-        skip,
-        take: pageSize,
+  return prisma.user.findMany({
+    where: { products: { some: publishedProductWhere } },
+    select: {
+      id: true,
+      clerkId: true,
+      firstName: true,
+      lastName: true,
+      _count: {
         select: {
-          ...publicUserProductSelectFields,
-          ProductBadge: {
-            ...publicUserProductSelectFields.ProductBadge,
-            where: {
-              OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-            },
+          products: {
+            where: publishedProductWhere,
           },
         },
       },
-    }
+    },
+    orderBy: { products: { _count: "desc" } },
+    take: limit,
+  })
+}
 
-    return prisma.user.findUnique({
-      where: { id },
-      select,
-    }) as Promise<PublicUserProfile | null>
-  },
-  "user:public-profile",
-  {
-    ttl: DEFAULT_TTL.medium,
-    keyParts: ([id, options]) => [
-      String(id),
-      `page:${options?.page ?? 1}`,
-      `pageSize:${options?.pageSize ?? PROFILE_PRODUCTS_PAGE_SIZE}`,
-    ],
-    tags: ([id]) => [TAGS.users, TAGS.products, TAGS.user(String(id))],
-  },
-)
+export async function getPublicUserMeta(id: string) {
+  "use cache"
+  applyCache([TAGS.users, TAGS.user(String(id))], DEFAULT_TTL.medium)
+
+  return prisma.user.findUnique({
+    where: { id },
+    select: {
+      firstName: true,
+      lastName: true,
+      _count: {
+        select: {
+          products: {
+            where: publishedProductWhere,
+          },
+        },
+      },
+    },
+  })
+}
+
+export async function getPublicUserProfile(
+  id: string,
+  options: { page?: number; pageSize?: number } = {},
+): Promise<PublicUserProfile | null> {
+  "use cache"
+  applyCache(
+    [TAGS.users, TAGS.products, TAGS.user(String(id))],
+    DEFAULT_TTL.medium,
+  )
+
+  const pageSize = Math.max(
+    1,
+    Math.min(options.pageSize ?? PROFILE_PRODUCTS_PAGE_SIZE, 200),
+  )
+  const page = Math.max(options.page ?? 1, 1)
+  const skip = (page - 1) * pageSize
+
+  const select: Prisma.UserSelect = {
+    ...publicUserProfileSelect,
+    products: {
+      ...publicUserProductsSelect,
+      skip,
+      take: pageSize,
+      select: {
+        ...publicUserProductSelectFields,
+        ProductBadge: {
+          ...publicUserProductSelectFields.ProductBadge,
+          where: {
+            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+          },
+        },
+      },
+    },
+  }
+
+  return prisma.user.findUnique({
+    where: { id },
+    select,
+  }) as Promise<PublicUserProfile | null>
+}

@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
+import { connection } from "next/server"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import { getAlternativeDetail } from "@/actions/public/alternatives/actions"
 import { getCategoryMeta } from "@/actions/public/categories/actions"
@@ -26,9 +28,6 @@ type AlternativeCategoryParams = {
   slug: string
   category: string
 }
-
-export const revalidate = 300
-export const dynamicParams = true
 
 export async function generateStaticParams() {
   const alternatives = await prisma.alternativeProduct.findMany({
@@ -71,6 +70,7 @@ export async function generateMetadata({
     parsed: { sort: "new", page: 1, verified: false },
     pageSize: 1,
   }).then((payload) => payload.total)
+  await connection()
   const currentYear = new Date().getFullYear()
   const title = `${category.name} alternatives to ${alternative.name}`
   const description = `Compare ${total} ${category.name.toLowerCase()} ${total === 1 ? "product" : "products"} positioned as ${alternative.name} alternatives and competitors in ${currentYear}.`
@@ -94,7 +94,18 @@ export async function generateMetadata({
   }
 }
 
-export default async function AlternativeCategoryPage({
+export default function AlternativeCategoryPage(props: {
+  params: Promise<AlternativeCategoryParams>
+  searchParams: Promise<PseoSearchParams>
+}) {
+  return (
+    <Suspense fallback={null}>
+      <AlternativeCategoryPageContent {...props} />
+    </Suspense>
+  )
+}
+
+async function AlternativeCategoryPageContent({
   params,
   searchParams,
 }: {

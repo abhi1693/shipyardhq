@@ -8,8 +8,6 @@ import {
 import { PeriodicLeaderboardView } from "@/components/templates/public/leaderboard/periodic/view"
 import { dailyLeaderboardPath } from "@/lib/routes"
 
-export const revalidate = 60
-
 type PageParams = {
   year: string
   month: string

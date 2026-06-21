@@ -2,7 +2,12 @@ import type { Metadata } from "next"
 
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
-import type { Platform, PricingModel, ProductType } from "@/lib/vendor/prisma/client"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import type {
+  Platform,
+  PricingModel,
+  ProductType,
+} from "@/lib/vendor/prisma/client"
 import { getPlatformMeta } from "@/lib/platforms/config"
 import { pricingModelValueFromSlug } from "@/lib/pricing/models"
 import { productTypeValueFromSlug } from "@/lib/product-types/models"
@@ -106,6 +111,18 @@ export async function getProductSlicePayload({
   parsed: ParsedPseoSearchParams
   pageSize?: number
 }): Promise<ProductSlicePayload> {
+  "use cache"
+  applyCache(
+    [
+      TAGS.products,
+      TAGS.categories,
+      TAGS.useCases,
+      TAGS.alternativeProducts,
+      TAGS.planFeature("priorityPlacement"),
+    ],
+    DEFAULT_TTL.medium,
+  )
+
   const result = await getBrowseProducts({
     useCaseSlug: filters.useCaseSlug,
     categorySlug: filters.categorySlug,

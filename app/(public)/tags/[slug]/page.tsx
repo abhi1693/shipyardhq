@@ -1,8 +1,7 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
+import { Suspense } from "react"
 import { Hash } from "lucide-react"
-
-export const revalidate = 300
 
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
 import {
@@ -123,7 +122,15 @@ function mapProductCardItemToFeedItem(
 
 const MAX_TAG_PAGES = 50
 
-export default async function TagDetailPage({ params }: TagPageProps) {
+export default function TagDetailPage(props: TagPageProps) {
+  return (
+    <Suspense fallback={null}>
+      <TagDetailPageContent {...props} />
+    </Suspense>
+  )
+}
+
+async function TagDetailPageContent({ params }: TagPageProps) {
   const { slug } = await params
 
   const [payload, taxonomySponsors] = await Promise.all([

@@ -23,8 +23,6 @@ import { HOME_PATH, PLATFORMS_PATH, platformPath } from "@/lib/routes"
 import { buildPageMetadata } from "@/lib/metadata"
 import { BRAND_NAME } from "@/lib/brand"
 
-export const revalidate = 300
-
 const PAGE_TITLE = "Platforms"
 
 export const metadata = buildPageMetadata({

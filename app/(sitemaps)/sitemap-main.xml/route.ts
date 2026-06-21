@@ -53,8 +53,6 @@ type CategorySitemapEntry = Prisma.CategoryGetPayload<{
   select: { id: true; slug: true; updatedAt: true }
 }>
 
-export const revalidate = 86400
-
 function xml(parts: TemplateStringsArray, ...subs: any[]) {
   return parts.map((p, i) => p + (subs[i] ?? "")).join("")
 }
@@ -374,7 +372,9 @@ export async function GET() {
   const useCasePricingSlices = (
     await Promise.all(
       useCasesWithCategories.map(async (useCase) => {
-        const categoryIds = useCase.categories.map(({ category }) => category.id)
+        const categoryIds = useCase.categories.map(
+          ({ category }) => category.id,
+        )
         if (!categoryIds.length) return []
 
         const perPricing = await Promise.all(
@@ -424,7 +424,9 @@ export async function GET() {
   const useCasePlatformSlices = (
     await Promise.all(
       useCasesWithCategories.map(async (useCase) => {
-        const categoryIds = useCase.categories.map(({ category }) => category.id)
+        const categoryIds = useCase.categories.map(
+          ({ category }) => category.id,
+        )
         if (!categoryIds.length) return []
 
         const perPlatform = await Promise.all(

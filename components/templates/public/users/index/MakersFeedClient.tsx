@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Star, UserPlus } from "lucide-react"
 
 import type { PublicUsersPageResult } from "@/actions/public/users/actions"
-import { getPublicUsersPage } from "@/actions/public/users/actions"
+import { getPublicUsersPage } from "@/actions/public/users/server-actions"
 import { SquareImage } from "@/components/molecules/SquareImage"
 import { userPath } from "@/lib/routes"
 

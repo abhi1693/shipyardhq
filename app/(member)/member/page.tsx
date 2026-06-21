@@ -1,6 +1,7 @@
 import type { User as ClerkUser } from "@clerk/backend"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
+import { connection } from "next/server"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import {
@@ -20,6 +21,8 @@ export default async function MemberIndexPage({
 }: {
   searchParams?: Promise<MemberIndexPageSearchParams | undefined>
 }) {
+  await connection()
+
   const resolvedSearchParams = await searchParams
 
   const { userId } = await auth()

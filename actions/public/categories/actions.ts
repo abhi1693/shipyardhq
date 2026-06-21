@@ -1,7 +1,5 @@
-"use server"
-
 import prisma from "@/lib/prisma"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import type { ProductInterestSignals } from "@/types/product-interest"
@@ -120,45 +118,44 @@ const mapProductToFeedItem = (
   }
 }
 
-export const getCategoriesWithCounts = cached(
-  async () => {
-    const categories = await prisma.category.findMany({
-      where: {
-        productAssignments: {
-          some: {
-            product: {
-              ...publicDiscoveryProductWhere,
-            },
+export async function getCategoriesWithCounts() {
+  "use cache"
+  applyCache([TAGS.categories], DEFAULT_TTL.slow)
+
+  const categories = await prisma.category.findMany({
+    where: {
+      productAssignments: {
+        some: {
+          product: {
+            ...publicDiscoveryProductWhere,
           },
         },
       },
-      orderBy: { name: "asc" },
-      include: {
-        _count: {
-          select: {
-            productAssignments: {
-              where: {
-                product: {
-                  ...publicDiscoveryProductWhere,
-                },
+    },
+    orderBy: { name: "asc" },
+    include: {
+      _count: {
+        select: {
+          productAssignments: {
+            where: {
+              product: {
+                ...publicDiscoveryProductWhere,
               },
             },
           },
         },
       },
-    })
-    return categories.map((cat) => ({
-      id: cat.id,
-      name: cat.name,
-      slug: cat.slug,
-      description: cat.description,
-      icon: cat.icon,
-      count: cat._count.productAssignments,
-    }))
-  },
-  "categories:with-counts",
-  { ttl: DEFAULT_TTL.slow, tags: () => [TAGS.categories] },
-)
+    },
+  })
+  return categories.map((cat) => ({
+    id: cat.id,
+    name: cat.name,
+    slug: cat.slug,
+    description: cat.description,
+    icon: cat.icon,
+    count: cat._count.productAssignments,
+  }))
+}
 
 export type CategoryHighlight = {
   id: string
@@ -166,16 +163,18 @@ export type CategoryHighlight = {
   slug: string
 }
 
-export const getCategoryHighlights = cached(
-  async (
-    limit: number = CATEGORY_HIGHLIGHTS_DEFAULT_LIMIT,
-  ): Promise<CategoryHighlight[]> => {
-    const safeLimit = sanitizeCategoryHighlightLimit(limit)
-    if (safeLimit === 0) {
-      return [] satisfies CategoryHighlight[]
-    }
+export async function getCategoryHighlights(
+  limit: number = CATEGORY_HIGHLIGHTS_DEFAULT_LIMIT,
+): Promise<CategoryHighlight[]> {
+  "use cache"
+  applyCache([TAGS.categories, TAGS.products], DEFAULT_TTL.slow)
 
-    const rows = await prisma.$queryRaw<CategoryHighlight[]>(Prisma.sql`
+  const safeLimit = sanitizeCategoryHighlightLimit(limit)
+  if (safeLimit === 0) {
+    return [] satisfies CategoryHighlight[]
+  }
+
+  const rows = await prisma.$queryRaw<CategoryHighlight[]>(Prisma.sql`
       SELECT c."id", c."name", c."slug"
       FROM "Category" c
       INNER JOIN "ProductCategory" pc ON pc."categoryId" = c."id"
@@ -187,159 +186,137 @@ export const getCategoryHighlights = cached(
       LIMIT ${safeLimit}
     `)
 
-    return rows
-  },
-  "categories:highlights",
-  {
-    ttl: DEFAULT_TTL.slow,
-    tags: () => [TAGS.categories, TAGS.products],
-    keyParts: ([limit]) => [String(sanitizeCategoryHighlightLimit(limit))],
-  },
-)
+  return rows
+}
 
-export const getCategoryMeta = cached(
-  async (slug: string) => {
-    const category = await prisma.category.findUnique({
-      where: { slug },
-      select: {
-        name: true,
-        description: true,
-        _count: {
-          select: {
-            productAssignments: {
-              where: {
-                product: {
-                  ...publicDiscoveryProductWhere,
-                },
+export async function getCategoryMeta(slug: string) {
+  "use cache"
+  applyCache([TAGS.categories, TAGS.category(String(slug))], DEFAULT_TTL.medium)
+
+  const category = await prisma.category.findUnique({
+    where: { slug },
+    select: {
+      name: true,
+      description: true,
+      _count: {
+        select: {
+          productAssignments: {
+            where: {
+              product: {
+                ...publicDiscoveryProductWhere,
               },
             },
           },
         },
       },
-    })
+    },
+  })
 
-    if (!category) return null
+  if (!category) return null
 
-    return {
-      name: category.name,
-      description: category.description,
-      _count: {
-        products: category._count.productAssignments,
-      },
-    }
-  },
-  "category:meta",
-  {
-    ttl: DEFAULT_TTL.medium,
-    tags: ([slug]) => [TAGS.categories, TAGS.category(String(slug))],
-  },
-)
+  return {
+    name: category.name,
+    description: category.description,
+    _count: {
+      products: category._count.productAssignments,
+    },
+  }
+}
 
-export const getCategoryWithProducts = cached(
-  async (
-    slug: string,
-    page: number = 1,
-    pageSize: number = CATEGORY_PRODUCTS_PAGE_SIZE,
-  ): Promise<CategoryProductsPage | null> => {
-    const safePage = normalizePage(page, 1)
-    const safePageSize = normalizePageSize(
-      pageSize,
-      CATEGORY_PRODUCTS_PAGE_SIZE,
-    )
-    const skip = (safePage - 1) * safePageSize
+export async function getCategoryWithProducts(
+  slug: string,
+  page: number = 1,
+  pageSize: number = CATEGORY_PRODUCTS_PAGE_SIZE,
+): Promise<CategoryProductsPage | null> {
+  "use cache"
+  applyCache(
+    [TAGS.categories, TAGS.products, TAGS.category(String(slug))],
+    DEFAULT_TTL.medium,
+  )
 
-    const category = await prisma.category.findUnique({
-      where: { slug },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        icon: true,
-      },
-    })
+  const safePage = normalizePage(page, 1)
+  const safePageSize = normalizePageSize(pageSize, CATEGORY_PRODUCTS_PAGE_SIZE)
+  const skip = (safePage - 1) * safePageSize
 
-    if (!category) return null
+  const category = await prisma.category.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      icon: true,
+    },
+  })
 
-    const where = buildPublicDiscoveryProductWhere({
-      OR: [
-        { categoryId: category.id },
-        { categories: { some: { categoryId: category.id } } },
-      ],
-    })
+  if (!category) return null
 
-    const [products, total, priorityPlanIds] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        select: categoryProductSelect,
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: safePageSize,
-      }),
-      prisma.product.count({ where }),
-      getPriorityPlacementPlanIds(),
-    ])
-
-    const typedProducts = products as unknown as ProductCardRecord[]
-    const productIds = typedProducts.map(
-      (product: ProductCardRecord) => product.id,
-    )
-    const scoreMap = productIds.length
-      ? await getCurrentScoreMap(productIds)
-      : new Map<string, number>()
-
-    const now = new Date()
-    const baseProducts = typedProducts.map((product: ProductCardRecord) =>
-      mapProductCardRecordToBase(product, now, {
-        scoreByProductId: scoreMap,
-        priorityPlanIds,
-      }),
-    )
-
-    const interestMap = await getProductInterestSignalsMap({
-      products: baseProducts.map((product) => ({
-        id: product.id,
-        slug: product.slug,
-      })),
-    })
-
-    const feedItems = baseProducts.map((product) =>
-      mapProductToFeedItem(product, interestMap),
-    )
-
-    const hasMore = skip + feedItems.length < total
-
-    return {
-      category,
-      products: feedItems,
-      total,
-      page: safePage,
-      pageSize: safePageSize,
-      hasMore,
-      nextPage: hasMore ? safePage + 1 : null,
-    }
-  },
-  "category:with-products",
-  {
-    ttl: DEFAULT_TTL.medium,
-    keyParts: ([slug, page, pageSize]) => [
-      slug,
-      `page:${normalizePage(page, 1)}`,
-      `pageSize:${normalizePageSize(pageSize, CATEGORY_PRODUCTS_PAGE_SIZE)}`,
+  const where = buildPublicDiscoveryProductWhere({
+    OR: [
+      { categoryId: category.id },
+      { categories: { some: { categoryId: category.id } } },
     ],
-    tags: ([slug]) => [
-      TAGS.categories,
-      TAGS.products,
-      TAGS.category(String(slug)),
-    ],
-  },
-)
+  })
+
+  const [products, total, priorityPlanIds] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      select: categoryProductSelect,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: safePageSize,
+    }),
+    prisma.product.count({ where }),
+    getPriorityPlacementPlanIds(),
+  ])
+
+  const typedProducts = products as unknown as ProductCardRecord[]
+  const productIds = typedProducts.map(
+    (product: ProductCardRecord) => product.id,
+  )
+  const scoreMap = productIds.length
+    ? await getCurrentScoreMap(productIds)
+    : new Map<string, number>()
+
+  const now = new Date()
+  const baseProducts = typedProducts.map((product: ProductCardRecord) =>
+    mapProductCardRecordToBase(product, now, {
+      scoreByProductId: scoreMap,
+      priorityPlanIds,
+    }),
+  )
+
+  const interestMap = await getProductInterestSignalsMap({
+    products: baseProducts.map((product) => ({
+      id: product.id,
+      slug: product.slug,
+    })),
+  })
+
+  const feedItems = baseProducts.map((product) =>
+    mapProductToFeedItem(product, interestMap),
+  )
+
+  const hasMore = skip + feedItems.length < total
+
+  return {
+    category,
+    products: feedItems,
+    total,
+    page: safePage,
+    pageSize: safePageSize,
+    hasMore,
+    nextPage: hasMore ? safePage + 1 : null,
+  }
+}
 
 export async function getCategoryProductsPage(params: {
   slug: string
   page?: number
   pageSize?: number
 }): Promise<CategoryProductsPageResult> {
+  "use server"
+
   const safePage = normalizePage(params.page, 1)
   const safePageSize = normalizePageSize(
     params.pageSize,

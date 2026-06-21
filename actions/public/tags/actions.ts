@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   extractKeywordHash,
   keywordToSlug,
@@ -106,19 +106,14 @@ async function fetchKeywordTagSummariesPage(
   return rows
 }
 
-export const getKeywordTagSummaries = cached(
-  async (limit: number = TAG_LIST_LIMIT) => {
-    const safeLimit = sanitizeTagListLimit(limit)
-    const rows = await fetchKeywordTagSummaries(safeLimit)
-    return rows.map(mapTagRow)
-  },
-  "tags:summaries",
-  {
-    ttl: TAG_CACHE_TTL,
-    tags: () => [TAGS.keywords],
-    keyParts: ([limit]) => [String(sanitizeTagListLimit(limit))],
-  },
-)
+export async function getKeywordTagSummaries(limit: number = TAG_LIST_LIMIT) {
+  "use cache"
+  applyCache([TAGS.keywords], TAG_CACHE_TTL)
+
+  const safeLimit = sanitizeTagListLimit(limit)
+  const rows = await fetchKeywordTagSummaries(safeLimit)
+  return rows.map(mapTagRow)
+}
 
 export interface TagDirectoryPageParams {
   page?: number
@@ -163,23 +158,14 @@ async function getKeywordTagDirectoryPageImpl({
   }
 }
 
-export const getKeywordTagDirectoryPage = cached(
-  getKeywordTagDirectoryPageImpl,
-  "tags:directory-page",
-  {
-    ttl: TAG_CACHE_TTL,
-    tags: () => [TAGS.tagsPage, TAGS.keywords],
-    keyParts: ([params]) => {
-      const safePage = sanitizePageNumber(params?.page)
-      const safePageSize = sanitizeTagListLimit(params?.pageSize)
-      return [
-        `page:${safePage}`,
-        `size:${safePageSize}`,
-        params?.includeTotal ? "with-total" : "without-total",
-      ]
-    },
-  },
-)
+export async function getKeywordTagDirectoryPage(
+  params: TagDirectoryPageParams = {},
+) {
+  "use cache"
+  applyCache([TAGS.tagsPage, TAGS.keywords], TAG_CACHE_TTL)
+
+  return getKeywordTagDirectoryPageImpl(params)
+}
 
 async function fetchTagByHash(hash: string): Promise<RawTagRow[]> {
   const rows = await prisma.$queryRaw<RawTagRow[]>(Prisma.sql`
@@ -214,43 +200,38 @@ async function fetchTagByCleanSlug(slug: string): Promise<RawTagRow[]> {
   return rows
 }
 
-export const getKeywordTagBySlug = cached(
-  async (slug: string) => {
-    const hash = extractKeywordHash(slug)
-    if (hash) {
-      const rows = await fetchTagByHash(hash)
-      for (const row of rows) {
-        const summary = mapTagRow(row)
-        if (
-          summary.slug === stripLegacyKeywordHash(slug) ||
-          legacyKeywordToSlug(summary.keyword) === slug
-        ) {
-          return summary
-        }
-      }
-      return null
-    }
+export async function getKeywordTagBySlug(slug: string) {
+  "use cache"
+  applyCache(
+    [TAGS.keywords, slug ? TAGS.keyword(slug) : TAGS.keywords],
+    TAG_CACHE_TTL,
+  )
 
-    const cleanSlug = stripLegacyKeywordHash(slug)
-    const rows = await fetchTagByCleanSlug(cleanSlug)
+  const hash = extractKeywordHash(slug)
+  if (hash) {
+    const rows = await fetchTagByHash(hash)
     for (const row of rows) {
       const summary = mapTagRow(row)
-      if (summary.slug === cleanSlug) {
+      if (
+        summary.slug === stripLegacyKeywordHash(slug) ||
+        legacyKeywordToSlug(summary.keyword) === slug
+      ) {
         return summary
       }
     }
     return null
-  },
-  "tags:by-slug",
-  {
-    ttl: TAG_CACHE_TTL,
-    tags: ([slug]) => [
-      TAGS.keywords,
-      slug ? TAGS.keyword(slug) : TAGS.keywords,
-    ],
-    keyParts: ([slug]) => [slug],
-  },
-)
+  }
+
+  const cleanSlug = stripLegacyKeywordHash(slug)
+  const rows = await fetchTagByCleanSlug(cleanSlug)
+  for (const row of rows) {
+    const summary = mapTagRow(row)
+    if (summary.slug === cleanSlug) {
+      return summary
+    }
+  }
+  return null
+}
 
 export interface KeywordTagProductsResult {
   summary: KeywordTagSummary
@@ -276,91 +257,84 @@ async function fetchProductIdsByKeyword(
   `)
 }
 
-export const getKeywordTagProducts = cached(
-  async (slug: string, page: number = 1) => {
-    const summary = await getKeywordTagBySlug(slug)
-    if (!summary) {
-      return null
-    }
+export async function getKeywordTagProducts(slug: string, page: number = 1) {
+  "use cache"
+  applyCache(
+    [TAGS.products, TAGS.keywords, slug ? TAGS.keyword(slug) : TAGS.keywords],
+    TAG_CACHE_TTL,
+  )
 
-    const normalized = normalizeKeyword(summary.keyword).toLowerCase()
-    const offset = (Math.max(page, 1) - 1) * TAG_PRODUCTS_PAGE_SIZE
+  const summary = await getKeywordTagBySlug(slug)
+  if (!summary) {
+    return null
+  }
 
-    const ids = await fetchProductIdsByKeyword(
-      normalized,
-      offset,
-      TAG_PRODUCTS_PAGE_SIZE,
-    )
-    const total = summary.productCount
+  const normalized = normalizeKeyword(summary.keyword).toLowerCase()
+  const offset = (Math.max(page, 1) - 1) * TAG_PRODUCTS_PAGE_SIZE
 
-    const productIds = ids.map((row: { id: string }) => row.id)
-    if (productIds.length === 0) {
-      return {
-        summary,
-        products: [],
-        total,
-        hasMore: false,
-      } satisfies KeywordTagProductsResult
-    }
+  const ids = await fetchProductIdsByKeyword(
+    normalized,
+    offset,
+    TAG_PRODUCTS_PAGE_SIZE,
+  )
+  const total = summary.productCount
 
-    const [products, scoreMap, priorityPlanIds] = await Promise.all([
-      prisma.product.findMany({
-        where: { id: { in: productIds } },
-        select: productCardSelect,
-      }),
-      getCurrentScoreMap(productIds),
-      getPriorityPlacementPlanIds(),
-    ])
-
-    const productMap = new Map(
-      products.map((product: ProductCardRecord) => [product.id, product]),
-    )
-    const orderedProducts = productIds
-      .map((id: string) => productMap.get(id))
-      .filter(
-        (
-          product: ProductCardRecord | undefined,
-        ): product is ProductCardRecord => Boolean(product),
-      )
-
-    const hasMore = offset + productIds.length < total
-
-    const baseProducts: ProductCardBase[] = orderedProducts.map(
-      (product: ProductCardRecord) =>
-        mapProductCardRecordToBase(product, new Date(), {
-          scoreByProductId: scoreMap,
-          priorityPlanIds,
-        }),
-    )
-
-    const interestMap = await getProductInterestSignalsMap({
-      products: baseProducts.map((product) => ({
-        id: product.id,
-        slug: product.slug,
-      })),
-    })
-
+  const productIds = ids.map((row: { id: string }) => row.id)
+  if (productIds.length === 0) {
     return {
       summary,
-      products: baseProducts.map((product) => ({
-        ...product,
-        interest: interestMap.get(product.id) ?? null,
-      })),
+      products: [],
       total,
-      hasMore,
-    }
-  },
-  "tags:products-by-slug",
-  {
-    ttl: TAG_CACHE_TTL,
-    tags: ([slug]) => [
-      TAGS.products,
-      TAGS.keywords,
-      slug ? TAGS.keyword(slug) : TAGS.keywords,
-    ],
-    keyParts: ([slug, page]) => [slug, String(page ?? 1)],
-  },
-)
+      hasMore: false,
+    } satisfies KeywordTagProductsResult
+  }
+
+  const [products, scoreMap, priorityPlanIds] = await Promise.all([
+    prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: productCardSelect,
+    }),
+    getCurrentScoreMap(productIds),
+    getPriorityPlacementPlanIds(),
+  ])
+
+  const productMap = new Map(
+    products.map((product: ProductCardRecord) => [product.id, product]),
+  )
+  const orderedProducts = productIds
+    .map((id: string) => productMap.get(id))
+    .filter(
+      (product: ProductCardRecord | undefined): product is ProductCardRecord =>
+        Boolean(product),
+    )
+
+  const hasMore = offset + productIds.length < total
+
+  const baseProducts: ProductCardBase[] = orderedProducts.map(
+    (product: ProductCardRecord) =>
+      mapProductCardRecordToBase(product, new Date(), {
+        scoreByProductId: scoreMap,
+        priorityPlanIds,
+      }),
+  )
+
+  const interestMap = await getProductInterestSignalsMap({
+    products: baseProducts.map((product) => ({
+      id: product.id,
+      slug: product.slug,
+    })),
+  })
+
+  return {
+    summary,
+    products: baseProducts.map((product) => ({
+      ...product,
+      interest: interestMap.get(product.id) ?? null,
+    })),
+    total,
+    hasMore,
+  }
+}
 
 async function fetchKeywordTagChunk(
   offset: number,
@@ -396,38 +370,26 @@ async function fetchKeywordTagStats() {
   return result[0] ?? { total: BigInt(0), lastUpdated: null }
 }
 
-export const getKeywordTagSitemapStats = cached(
-  async (): Promise<{
-    total: number
-    lastUpdated: Date | null
-  }> => {
-    const stats = await fetchKeywordTagStats()
-    return {
-      total: Number(stats.total ?? 0),
-      lastUpdated: stats.lastUpdated ? new Date(stats.lastUpdated) : null,
-    }
-  },
-  "tags:sitemap-stats",
-  {
-    ttl: TAG_CACHE_TTL,
-    tags: () => [TAGS.tagsPage, TAGS.keywords],
-  },
-)
+export async function getKeywordTagSitemapStats(): Promise<{
+  total: number
+  lastUpdated: Date | null
+}> {
+  "use cache"
+  applyCache([TAGS.tagsPage, TAGS.keywords], TAG_CACHE_TTL)
 
-export const getKeywordTagSitemapChunk = cached(
-  async (offset: number, limit: number) => {
-    const safeOffset = Math.max(0, Math.trunc(offset))
-    const safeLimit = Math.max(1, Math.trunc(limit))
-    const rows = await fetchKeywordTagChunk(safeOffset, safeLimit)
-    return rows.map(mapTagRow)
-  },
-  "tags:sitemap-chunk",
-  {
-    ttl: TAG_CACHE_TTL,
-    tags: () => [TAGS.tagsPage, TAGS.keywords],
-    keyParts: ([offset, limit]) => [
-      `offset:${Math.max(0, Math.trunc(offset))}`,
-      `limit:${Math.max(1, Math.trunc(limit))}`,
-    ],
-  },
-)
+  const stats = await fetchKeywordTagStats()
+  return {
+    total: Number(stats.total ?? 0),
+    lastUpdated: stats.lastUpdated ? new Date(stats.lastUpdated) : null,
+  }
+}
+
+export async function getKeywordTagSitemapChunk(offset: number, limit: number) {
+  "use cache"
+  applyCache([TAGS.tagsPage, TAGS.keywords], TAG_CACHE_TTL)
+
+  const safeOffset = Math.max(0, Math.trunc(offset))
+  const safeLimit = Math.max(1, Math.trunc(limit))
+  const rows = await fetchKeywordTagChunk(safeOffset, safeLimit)
+  return rows.map(mapTagRow)
+}

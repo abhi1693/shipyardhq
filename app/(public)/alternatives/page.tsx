@@ -9,8 +9,6 @@ import { buildPageMetadata } from "@/lib/metadata"
 import { ALTERNATIVES_PATH, HOME_PATH, alternativePath } from "@/lib/routes"
 import { BRAND_NAME } from "@/lib/brand"
 
-export const revalidate = 300
-
 const PAGE_TITLE = "Browse SaaS Alternatives"
 
 export const metadata = buildPageMetadata({

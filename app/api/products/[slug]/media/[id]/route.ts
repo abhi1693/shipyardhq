@@ -5,8 +5,6 @@ import prisma from "@/lib/prisma"
 import { deleteBlob, isManagedBlobUrl } from "@/lib/blob"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
-export const dynamic = "force-dynamic"
-
 type RouteContext = {
   params: Promise<{ slug: string; id: string }>
 }

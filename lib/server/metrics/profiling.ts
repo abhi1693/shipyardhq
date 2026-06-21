@@ -3,7 +3,7 @@ import type { PyroscopeConfig } from "@pyroscope/nodejs"
 const PROFILING_STATE_KEY = Symbol.for("shipyard.metrics.profiling.state")
 
 type ProfilingEnv = Record<string, string | undefined>
-type PyroscopeApi = typeof import("@pyroscope/nodejs")["default"]
+type PyroscopeApi = (typeof import("@pyroscope/nodejs"))["default"]
 
 type ProfilingState = {
   heapStarted?: boolean
@@ -89,7 +89,9 @@ function serviceVersion(
 }
 
 export function pyroscopeTags(env: ProfilingEnv = process.env) {
-  const resourceAttributes = parseResourceAttributes(env.OTEL_RESOURCE_ATTRIBUTES)
+  const resourceAttributes = parseResourceAttributes(
+    env.OTEL_RESOURCE_ATTRIBUTES,
+  )
   const tags: Record<string, string> = {}
 
   addTag(tags, "service_namespace", resourceAttributes["service.namespace"])
@@ -100,11 +102,7 @@ export function pyroscopeTags(env: ProfilingEnv = process.env) {
       resourceAttributes["deployment.environment"] ||
       env.NODE_ENV,
   )
-  addTag(
-    tags,
-    "service_version",
-    serviceVersion(env, resourceAttributes),
-  )
+  addTag(tags, "service_version", serviceVersion(env, resourceAttributes))
   addTag(
     tags,
     "process_role",
@@ -135,10 +133,7 @@ export function pyroscopeConfig(
     serverAddress,
     tags: pyroscopeTags(env),
     wall: {
-      collectCpuTime: parseBoolean(
-        env.PYROSCOPE_WALL_COLLECT_CPU_TIME,
-        false,
-      ),
+      collectCpuTime: parseBoolean(env.PYROSCOPE_WALL_COLLECT_CPU_TIME, false),
       samplingDurationMs: parsePositiveInteger(
         env.PYROSCOPE_WALL_SAMPLING_DURATION_MS,
         60_000,

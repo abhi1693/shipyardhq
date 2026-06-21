@@ -137,9 +137,7 @@ export default function PrivacyPolicyPage() {
             </h2>
             <ul className="list-disc list-inside space-y-2">
               <li>Operate, maintain, and secure the {BRAND_NAME} platform.</li>
-              <li>
-                Publish product listings and dashboards you create.
-              </li>
+              <li>Publish product listings and dashboards you create.</li>
               <li>
                 Process transactions, deliver perks, and provide billing
                 support.

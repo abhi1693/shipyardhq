@@ -1,4 +1,5 @@
 import { headers } from "next/headers"
+import { Suspense } from "react"
 import { SidebarInset, SidebarProvider } from "@/components/atoms/sidebar"
 import Providers from "@/components/layout/providers"
 import PrivateHeader from "@/components/layout/headers/private-header"
@@ -21,11 +22,10 @@ import {
   MEMBER_PRODUCTS_PATH,
 } from "@/lib/routes"
 import { redirect } from "next/navigation"
+import { connection } from "next/server"
 import "./member.css"
 
 export const metadata = buildSectionMetadata({ section: "Member" })
-
-export const dynamic = "force-dynamic"
 
 const navItems: NavItem[] = [
   {
@@ -46,11 +46,21 @@ const navItems: NavItem[] = [
   },
 ]
 
-export default async function MemberLayout({
+export default function MemberLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  return (
+    <Suspense fallback={null}>
+      <MemberGate>{children}</MemberGate>
+    </Suspense>
+  )
+}
+
+async function MemberGate({ children }: { children: React.ReactNode }) {
+  await connection()
+
   const { userId } = await auth()
   const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? HOME_PATH
 

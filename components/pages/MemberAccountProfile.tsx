@@ -497,7 +497,9 @@ export default function MemberAccountProfile({
     if (redirectUrl) router.push(redirectUrl.href)
   }
 
-  async function handleDeleteAccountSubmit(event: SubmitEvent<HTMLFormElement>) {
+  async function handleDeleteAccountSubmit(
+    event: SubmitEvent<HTMLFormElement>,
+  ) {
     event.preventDefault()
 
     if (!deleteConfirmationMatches) {
@@ -802,8 +804,8 @@ export default function MemberAccountProfile({
                 </p>
                 <p className="mt-1 text-sm text-slate-500">
                   This deletes all account-related data, including products,
-                  purchases, product media, and login access. This
-                  cannot be reversed.
+                  purchases, product media, and login access. This cannot be
+                  reversed.
                 </p>
               </div>
               <ActionButton

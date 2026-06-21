@@ -15,8 +15,6 @@ import { BROWSE_PATH, HOME_PATH, usecasePath } from "@/lib/routes"
 
 const PAGE_TITLE = "App Directory"
 
-export const dynamic = "force-dynamic"
-
 const baseMetadata = buildPageMetadata({
   title: PAGE_TITLE,
   description:

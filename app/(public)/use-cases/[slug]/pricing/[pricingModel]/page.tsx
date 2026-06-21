@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import {
   getPublicUseCaseMeta,
@@ -28,9 +29,6 @@ type UseCasePricingParams = {
   slug: string
   pricingModel: string
 }
-
-export const revalidate = 300
-export const dynamicParams = true
 
 export async function generateStaticParams() {
   const useCases = await getPublicUseCasesWithCounts()
@@ -80,7 +78,18 @@ export async function generateMetadata({
   }
 }
 
-export default async function UseCasePricingPage({
+export default function UseCasePricingPage(props: {
+  params: Promise<UseCasePricingParams>
+  searchParams: Promise<PseoSearchParams>
+}) {
+  return (
+    <Suspense fallback={null}>
+      <UseCasePricingPageContent {...props} />
+    </Suspense>
+  )
+}
+
+async function UseCasePricingPageContent({
   params,
   searchParams,
 }: {

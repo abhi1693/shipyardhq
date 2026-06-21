@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { ProductSlicePage } from "@/components/templates/public/pseo/ProductSlicePage"
@@ -27,9 +28,6 @@ type CategoryProductTypeParams = {
   slug: string
   productType: string
 }
-
-export const revalidate = 300
-export const dynamicParams = true
 
 export async function generateStaticParams() {
   const categories = await getCategoryStaticParams()
@@ -82,7 +80,18 @@ export async function generateMetadata({
   }
 }
 
-export default async function CategoryProductTypePage({
+export default function CategoryProductTypePage(props: {
+  params: Promise<CategoryProductTypeParams>
+  searchParams: Promise<PseoSearchParams>
+}) {
+  return (
+    <Suspense fallback={null}>
+      <CategoryProductTypePageContent {...props} />
+    </Suspense>
+  )
+}
+
+async function CategoryProductTypePageContent({
   params,
   searchParams,
 }: {

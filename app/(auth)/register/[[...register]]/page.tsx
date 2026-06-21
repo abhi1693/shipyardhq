@@ -1,6 +1,8 @@
 import { headers } from "next/headers"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
+import { connection } from "next/server"
+import { Suspense } from "react"
 import Providers from "@/components/layout/providers"
 import AuthRegisterPanel from "@/components/organisms/AuthRegisterPanel"
 import {
@@ -15,11 +17,25 @@ export const metadata = buildPageMetadata({
   description: "Create an account to list or discover micro-SaaS projects.",
 })
 
-export default async function RegisterViewPage({
+export default function RegisterViewPage({
   searchParams,
 }: {
   searchParams?: Promise<AuthRedirectSearchParams>
 }) {
+  return (
+    <Suspense fallback={null}>
+      <RegisterView searchParams={searchParams} />
+    </Suspense>
+  )
+}
+
+async function RegisterView({
+  searchParams,
+}: {
+  searchParams?: Promise<AuthRedirectSearchParams>
+}) {
+  await connection()
+
   const resolvedSearchParams = searchParams ? await searchParams : {}
   const headerList = await headers()
   const requestHost = headerList.get("host")

@@ -1,3 +1,5 @@
+import { connection } from "next/server"
+
 import { getPartnerSpotlightProducts } from "@/actions/public/products/featured"
 import type { TaxonomySponsorProduct } from "@/components/templates/public/common/TaxonomyDetailPage"
 import { stableUnitInterval } from "@/lib/stable-random"
@@ -13,6 +15,7 @@ export async function getTaxonomySponsorProducts({
 }: GetTaxonomySponsorProductsOptions = {}): Promise<TaxonomySponsorProduct[]> {
   const excluded = new Set(excludeSlugs.map((slug) => slug.toLowerCase()))
   const products = await getPartnerSpotlightProducts(Math.max(12, limit))
+  await connection()
   const rotationBucket = Math.floor(Date.now() / 30_000)
   const sponsors: TaxonomySponsorProduct[] = []
   const seen = new Set<string>()

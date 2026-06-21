@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { safelyReadStaticParams } from "@/lib/staticParams"
 import {
   getCategoriesWithCounts,
@@ -109,67 +109,65 @@ const buildCategoryMetrics = async (
   }
 }
 
-export const getCategoryDetailPayload = cached(
-  async (slug: string): Promise<CategoryDetailPayload | null> => {
-    const [categoryData, featured] = await Promise.all([
-      getCategoryWithProducts(slug),
-      getFeaturedByCategorySlug(slug, 7),
-    ])
-
-    if (!categoryData) {
-      return null
-    }
-
-    const metrics = await buildCategoryMetrics(
-      categoryData.category.id,
-      categoryData,
-      featured.length,
-    )
-
-    return {
-      category: categoryData.category,
-      productsPage: {
-        products: categoryData.products,
-        total: categoryData.total,
-        page: categoryData.page,
-        pageSize: categoryData.pageSize,
-        hasMore: categoryData.hasMore,
-        nextPage: categoryData.nextPage,
-      },
-      featured,
-      metrics,
-    }
-  },
-  "category:detail:payload",
-  {
-    ttl: DEFAULT_TTL.medium,
-    keyParts: ([slug]) => [slug],
-    tags: ([slug]) => [
+export async function getCategoryDetailPayload(
+  slug: string,
+): Promise<CategoryDetailPayload | null> {
+  "use cache"
+  applyCache(
+    [
+      "category:detail:payload",
       TAGS.categoryDirectory,
       TAGS.categories,
       TAGS.category(slug),
       TAGS.products,
       TAGS.featured,
     ],
-  },
-)
+    DEFAULT_TTL.medium,
+  )
 
-export const getCategoryStaticParams = cached(
-  async () =>
-    safelyReadStaticParams("category pages", async () => {
-      const categories = await getCategoriesWithCounts()
-      return categories
-        .filter(
-          (category: (typeof categories)[number]) =>
-            category.slug && category.count > 0,
-        )
-        .map((category: (typeof categories)[number]) => ({
-          slug: category.slug,
-        }))
-    }),
-  "categories:static-params",
-  {
-    ttl: DEFAULT_TTL.slowest,
-    tags: () => [TAGS.categories],
-  },
-)
+  const [categoryData, featured] = await Promise.all([
+    getCategoryWithProducts(slug),
+    getFeaturedByCategorySlug(slug, 7),
+  ])
+
+  if (!categoryData) {
+    return null
+  }
+
+  const metrics = await buildCategoryMetrics(
+    categoryData.category.id,
+    categoryData,
+    featured.length,
+  )
+
+  return {
+    category: categoryData.category,
+    productsPage: {
+      products: categoryData.products,
+      total: categoryData.total,
+      page: categoryData.page,
+      pageSize: categoryData.pageSize,
+      hasMore: categoryData.hasMore,
+      nextPage: categoryData.nextPage,
+    },
+    featured,
+    metrics,
+  }
+}
+
+export async function getCategoryStaticParams() {
+  "use cache"
+  applyCache(["categories:static-params", TAGS.categories], DEFAULT_TTL.slowest)
+
+  return safelyReadStaticParams("category pages", async () => {
+    const categories = await getCategoriesWithCounts()
+    return categories
+      .filter(
+        (category: (typeof categories)[number]) =>
+          category.slug && category.count > 0,
+      )
+      .map((category: (typeof categories)[number]) => ({
+        slug: category.slug,
+      }))
+  })
+}

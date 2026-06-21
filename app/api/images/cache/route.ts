@@ -3,9 +3,6 @@ import { NextResponse } from "next/server"
 import { parseManagedMediaImageUrl } from "@/lib/images/managed-media"
 import { getOrCreateCachedTransformedImage } from "@/lib/server/images/cached-transform"
 
-export const dynamic = "force-dynamic"
-export const runtime = "nodejs"
-
 const REDIRECT_CACHE_CONTROL = "public, max-age=31536000, immutable"
 const FALLBACK_CACHE_CONTROL = "no-store"
 

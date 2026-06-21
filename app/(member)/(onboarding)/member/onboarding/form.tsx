@@ -27,10 +27,7 @@ import {
 import { BrandLogo } from "@/components/atoms/brand-logo"
 import { BRAND_NAME } from "@/lib/brand"
 import { cn } from "@/lib/utils"
-import {
-  MEMBER_ONBOARDING_PATH,
-  MEMBER_OVERVIEW_PATH,
-} from "@/lib/routes"
+import { MEMBER_ONBOARDING_PATH, MEMBER_OVERVIEW_PATH } from "@/lib/routes"
 
 const roleIntentOptions = [
   {

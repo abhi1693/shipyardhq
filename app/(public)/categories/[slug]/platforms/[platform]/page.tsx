@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
@@ -84,9 +85,6 @@ const buildSearchParams = (params: CategoryPlatformSearchParams) => {
   return search
 }
 
-export const revalidate = 300
-export const dynamicParams = true
-
 export async function generateStaticParams() {
   const categories = await getCategoryStaticParams()
 
@@ -136,7 +134,18 @@ export async function generateMetadata(props: {
   }
 }
 
-export default async function CategoryPlatformPage({
+export default function CategoryPlatformPage(props: {
+  params: Promise<CategoryPlatformParams>
+  searchParams: Promise<CategoryPlatformSearchParams>
+}) {
+  return (
+    <Suspense fallback={null}>
+      <CategoryPlatformPageContent {...props} />
+    </Suspense>
+  )
+}
+
+async function CategoryPlatformPageContent({
   params,
   searchParams,
 }: {

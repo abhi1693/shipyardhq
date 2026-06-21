@@ -9,9 +9,6 @@ import {
   TAGS_PATH,
 } from "@/lib/routes"
 
-export const dynamic = "force-static"
-export const revalidate = 86400
-
 const toText = (lines: string[]) => `${lines.join("\n").trim()}\n`
 
 export async function GET() {

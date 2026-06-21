@@ -24,8 +24,7 @@ export const EVENT_QUEUE_DEFINITIONS: Record<
     id: "default",
     label: "Default priority",
     intervalMinutes: 15,
-    description:
-      "Standard worker cadence for most business logic flows.",
+    description: "Standard worker cadence for most business logic flows.",
   },
   low: {
     id: "low",

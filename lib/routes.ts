@@ -113,12 +113,12 @@ export const categoryProductTypePath = (
   productType: string,
 ) => `${categoryPath(categorySlug)}/product-types/${productType}`
 export const usecasePath = (slug: string) => `${USE_CASES_PATH}/${slug}`
-export const usecaseCategoryPath = (useCaseSlug: string, categorySlug: string) =>
-  `${usecasePath(useCaseSlug)}/categories/${categorySlug}`
-export const usecasePricingPath = (
+export const usecaseCategoryPath = (
   useCaseSlug: string,
-  pricingModel: string,
-) => `${usecasePath(useCaseSlug)}/pricing/${pricingModel}`
+  categorySlug: string,
+) => `${usecasePath(useCaseSlug)}/categories/${categorySlug}`
+export const usecasePricingPath = (useCaseSlug: string, pricingModel: string) =>
+  `${usecasePath(useCaseSlug)}/pricing/${pricingModel}`
 export const usecasePlatformPath = (useCaseSlug: string, platform: string) =>
   `${usecasePath(useCaseSlug)}/platforms/${platform}`
 export const tagPath = (slug: string) => `${TAGS_PATH}/${slug}`

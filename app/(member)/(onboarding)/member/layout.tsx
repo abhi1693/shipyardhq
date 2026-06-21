@@ -1,5 +1,6 @@
-import type { ReactNode } from "react"
+import { Suspense, type ReactNode } from "react"
 import { headers } from "next/headers"
+import { connection } from "next/server"
 import { redirect } from "next/navigation"
 import { auth } from "@clerk/nextjs/server"
 
@@ -14,8 +15,6 @@ import {
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import "../../member/member.css"
-
-export const dynamic = "force-dynamic"
 
 function resolvePostOnboardingDestination(nextUrl: string) {
   if (!nextUrl) {
@@ -45,11 +44,21 @@ function resolvePostOnboardingDestination(nextUrl: string) {
   return candidate
 }
 
-export default async function MemberOnboardingLayout({
+export default function MemberOnboardingLayout({
   children,
 }: {
   children: ReactNode
 }) {
+  return (
+    <Suspense fallback={null}>
+      <MemberOnboardingGate>{children}</MemberOnboardingGate>
+    </Suspense>
+  )
+}
+
+async function MemberOnboardingGate({ children }: { children: ReactNode }) {
+  await connection()
+
   const { userId } = await auth()
   const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? HOME_PATH
 

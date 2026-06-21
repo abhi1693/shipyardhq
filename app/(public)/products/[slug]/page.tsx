@@ -7,6 +7,7 @@ import {
 } from "react"
 import { preload } from "react-dom"
 import { notFound } from "next/navigation"
+import { connection } from "next/server"
 import { JsonLdScript } from "next-seo"
 import { IconBrandChrome as ChromeIcon } from "@tabler/icons-react"
 import {
@@ -88,9 +89,6 @@ import {
 interface ProductPageProps {
   params: Promise<{ slug: string }>
 }
-
-export const revalidate = 300
-export const dynamicParams = true
 
 export async function generateStaticParams() {
   const params = await getProductStaticParams()
@@ -380,6 +378,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return notFound()
 
+  await connection()
   const [sidebarProduct, leaderboardScore] = await Promise.all([
     getPublicProductBySlug(slug),
     getProductScoreForCurrentWindow(product.id).catch(() => null),

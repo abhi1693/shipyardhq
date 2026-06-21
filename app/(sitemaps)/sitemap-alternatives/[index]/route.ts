@@ -12,8 +12,6 @@ import {
   urlsetXml,
 } from "@/lib/sitemap"
 
-export const revalidate = 86400
-
 export function generateStaticParams(): Array<{ index: string }> {
   return []
 }

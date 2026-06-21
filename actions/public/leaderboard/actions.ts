@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { cacheGetOrSet, cacheHit, cacheMiss } from "@/lib/server/cache"
 import {
   normalizeMonth,
@@ -353,56 +353,53 @@ async function loadPeriodicArchiveRaw(): Promise<PeriodicLeaderboardArchive> {
   }
 }
 
-const getPeriodicArchive = cached(
-  loadPeriodicArchiveRaw,
-  "leaderboard:periodic:archive",
-  {
-    ttl: DEFAULT_TTL.slow,
-    tags: () => [TAGS.leaderboard],
-  },
-)
+async function getPeriodicArchive() {
+  "use cache"
+  applyCache([TAGS.leaderboard], DEFAULT_TTL.slow)
 
-export const getLeaderboardStats = cached(
-  async () => {
-    const analyticsProvider = getAnalyticsProvider("cache")
-    const [
-      totalProducts,
-      totalCreators,
-      upvoteAgg,
-      topProduct,
-      homepageTraffic,
-      realtimeVisitors,
-    ] = await Promise.all([
-      prisma.product.count({}),
-      prisma.user.count({}),
-      prisma.productAnalytics.aggregate({
-        _sum: { upvotes: true },
-      }),
-      prisma.productAnalytics.findFirst({
-        orderBy: { upvotes: "desc" },
-        select: { upvotes: true },
-      }),
-      analyticsProvider.getHomepageTraffic(),
-      analyticsProvider.getRealtimeVisitors(),
-    ])
+  return loadPeriodicArchiveRaw()
+}
 
-    return {
-      totalProducts,
-      totalCreators,
-      totalUpvotes: upvoteAgg._sum.upvotes ?? 0,
-      topScore: topProduct?.upvotes ?? 0,
-      pageViews30: homepageTraffic.pageViews30,
-      visitors30: homepageTraffic.visitors30,
-      trafficSeries: homepageTraffic.trafficSeries,
-      realtimeVisitors,
-    }
-  },
-  "leaderboard:stats",
-  {
-    ttl: DEFAULT_TTL.fast,
-    tags: () => [TAGS.leaderboard, TAGS.analytics, TAGS.products],
-  },
-)
+export async function getLeaderboardStats() {
+  "use cache"
+  applyCache(
+    [TAGS.leaderboard, TAGS.analytics, TAGS.products],
+    DEFAULT_TTL.fast,
+  )
+
+  const analyticsProvider = getAnalyticsProvider("cache")
+  const [
+    totalProducts,
+    totalCreators,
+    upvoteAgg,
+    topProduct,
+    homepageTraffic,
+    realtimeVisitors,
+  ] = await Promise.all([
+    prisma.product.count({}),
+    prisma.user.count({}),
+    prisma.productAnalytics.aggregate({
+      _sum: { upvotes: true },
+    }),
+    prisma.productAnalytics.findFirst({
+      orderBy: { upvotes: "desc" },
+      select: { upvotes: true },
+    }),
+    analyticsProvider.getHomepageTraffic(),
+    analyticsProvider.getRealtimeVisitors(),
+  ])
+
+  return {
+    totalProducts,
+    totalCreators,
+    totalUpvotes: upvoteAgg._sum.upvotes ?? 0,
+    topScore: topProduct?.upvotes ?? 0,
+    pageViews30: homepageTraffic.pageViews30,
+    visitors30: homepageTraffic.visitors30,
+    trafficSeries: homepageTraffic.trafficSeries,
+    realtimeVisitors,
+  }
+}
 
 async function getOrCreateActiveLeaderboardRun() {
   const { periodStart, periodEnd } = getCurrentLeaderboardWindow()
@@ -446,75 +443,69 @@ async function getOrCreateActiveLeaderboardRun() {
   return created ?? { id: runId, periodStart, periodEnd }
 }
 
-export const getTopRankedProducts = cached(
-  async (args?: { limit?: number; categorySlug?: string }) => {
-    const limit = args?.limit ?? 50
-    const categorySlug = args?.categorySlug
-
-    // Ensure the run exists and is populated before reading scores.
-    const run = await getOrCreateActiveLeaderboardRun()
-    const scoreExists = await prisma.productLeaderboardScore.findFirst({
-      where: { runId: run.id },
-      select: { id: true },
-    })
-    if (!scoreExists) {
-      await generateLeaderboardRun({
-        periodStart: run.periodStart,
-        periodEnd: run.periodEnd,
-        asOf: new Date(),
-      })
-    }
-
-    const productWhere = buildPublicDiscoveryProductWhere(
-      categorySlug
-        ? {
-            category: {
-              slug: categorySlug,
-            },
-          }
-        : undefined,
-    )
-
-    const scores = await prisma.productLeaderboardScore.findMany({
-      take: limit,
-      where: {
-        runId: run.id,
-        product: { is: productWhere },
-      },
-      orderBy: [{ score: "desc" }, { upvotes: "desc" }, { productId: "asc" }],
-      include: {
-        product: {
-          select: productCardSelect,
-        },
-      },
-    })
-
-    return scores.map((entry: (typeof scores)[number]) => ({
-      ...entry.product,
-      scoreCount: entry.score,
-      leaderboardRank: entry.rank ?? undefined,
-    })) as unknown as ProductCardRecord[]
-  },
-  "leaderboard:top-products",
-  {
-    ttl: DEFAULT_TTL.fast,
-    keyParts: ([args]) => {
-      const limit = args?.limit ?? 50
-      const parts = [
-        `limit:${limit}`,
-        args?.categorySlug ? `category:${args.categorySlug}` : null,
-      ].filter((value): value is string => Boolean(value))
-      return parts
-    },
-    tags: ([args]) => [
+export async function getTopRankedProducts(args?: {
+  limit?: number
+  categorySlug?: string
+}) {
+  "use cache"
+  applyCache(
+    [
       TAGS.leaderboard,
       TAGS.products,
       TAGS.analytics,
       TAGS.categories,
       TAGS.category(String(args?.categorySlug ?? "all")),
     ],
-  },
-)
+    DEFAULT_TTL.fast,
+  )
+
+  const limit = args?.limit ?? 50
+  const categorySlug = args?.categorySlug
+
+  // Ensure the run exists and is populated before reading scores.
+  const run = await getOrCreateActiveLeaderboardRun()
+  const scoreExists = await prisma.productLeaderboardScore.findFirst({
+    where: { runId: run.id },
+    select: { id: true },
+  })
+  if (!scoreExists) {
+    await generateLeaderboardRun({
+      periodStart: run.periodStart,
+      periodEnd: run.periodEnd,
+      asOf: new Date(),
+    })
+  }
+
+  const productWhere = buildPublicDiscoveryProductWhere(
+    categorySlug
+      ? {
+          category: {
+            slug: categorySlug,
+          },
+        }
+      : undefined,
+  )
+
+  const scores = await prisma.productLeaderboardScore.findMany({
+    take: limit,
+    where: {
+      runId: run.id,
+      product: { is: productWhere },
+    },
+    orderBy: [{ score: "desc" }, { upvotes: "desc" }, { productId: "asc" }],
+    include: {
+      product: {
+        select: productCardSelect,
+      },
+    },
+  })
+
+  return scores.map((entry: (typeof scores)[number]) => ({
+    ...entry.product,
+    scoreCount: entry.score,
+    leaderboardRank: entry.rank ?? undefined,
+  })) as unknown as ProductCardRecord[]
+}
 
 export type ProductOfThePeriodResult = {
   period: LeaderboardHighlightPeriod
@@ -606,44 +597,36 @@ async function resolveProductOfThePeriod(
   return { period, label, periodStart, periodEnd, products: results }
 }
 
-export const getProductOfThePeriod = cached(
-  async (args?: { period?: LeaderboardHighlightPeriod; limit?: number }) => {
-    const period = args?.period ?? "day"
-    const limit = args?.limit ?? 3
-    return resolveProductOfThePeriod(period, limit)
-  },
-  "leaderboard:product-of-period",
-  {
-    ttl: DEFAULT_TTL.fast,
-    keyParts: ([args]) =>
-      [
-        args?.period ?? "day",
-        typeof args?.limit === "number" ? `limit:${args.limit}` : null,
-      ].filter((part): part is string => Boolean(part)),
-    tags: () => [TAGS.leaderboard, TAGS.analytics, TAGS.products],
-  },
-)
+export async function getProductOfThePeriod(args?: {
+  period?: LeaderboardHighlightPeriod
+  limit?: number
+}) {
+  "use cache"
+  applyCache(
+    [TAGS.leaderboard, TAGS.analytics, TAGS.products],
+    DEFAULT_TTL.fast,
+  )
 
-export const getProductOfTheMoments = cached(
-  async (args?: { limit?: number }) => {
-    const limit = args?.limit ?? 3
-    const [day, week, month] = await Promise.all([
-      resolveProductOfThePeriod("day", limit),
-      resolveProductOfThePeriod("week", limit),
-      resolveProductOfThePeriod("month", limit),
-    ])
-    return { day, week, month }
-  },
-  "leaderboard:product-highlights",
-  {
-    ttl: DEFAULT_TTL.fast,
-    keyParts: ([args]) =>
-      [typeof args?.limit === "number" ? `limit:${args.limit}` : null].filter(
-        (part): part is string => Boolean(part),
-      ),
-    tags: () => [TAGS.leaderboard, TAGS.analytics, TAGS.products],
-  },
-)
+  const period = args?.period ?? "day"
+  const limit = args?.limit ?? 3
+  return resolveProductOfThePeriod(period, limit)
+}
+
+export async function getProductOfTheMoments(args?: { limit?: number }) {
+  "use cache"
+  applyCache(
+    [TAGS.leaderboard, TAGS.analytics, TAGS.products],
+    DEFAULT_TTL.fast,
+  )
+
+  const limit = args?.limit ?? 3
+  const [day, week, month] = await Promise.all([
+    resolveProductOfThePeriod("day", limit),
+    resolveProductOfThePeriod("week", limit),
+    resolveProductOfThePeriod("month", limit),
+  ])
+  return { day, week, month }
+}
 
 export type MonthlyLeaderboardMonth = {
   month: string
@@ -908,22 +891,15 @@ async function loadPeriodicLeaderboard(
   }
 }
 
-const getActivePeriodicLeaderboard = cached(
-  loadPeriodicLeaderboard,
-  "leaderboard:periodic",
-  {
-    ttl: DEFAULT_TTL.slow,
-    keyParts: ([args]) =>
-      [
-        args.period,
-        args.periodStart.toISOString(),
-        args.periodEnd.toISOString(),
-        typeof args.limit === "number" ? `limit:${args.limit}` : null,
-        args.categorySlug ? `category:${args.categorySlug}` : null,
-      ].filter((part): part is string => Boolean(part)),
-    tags: () => [TAGS.leaderboard, TAGS.analytics, TAGS.products],
-  },
-)
+async function getActivePeriodicLeaderboard(args: PeriodicLeaderboardArgs) {
+  "use cache"
+  applyCache(
+    [TAGS.leaderboard, TAGS.analytics, TAGS.products],
+    DEFAULT_TTL.slow,
+  )
+
+  return loadPeriodicLeaderboard(args)
+}
 
 async function getHistoricalPeriodicLeaderboard(
   args: PeriodicLeaderboardArgs,
@@ -1051,33 +1027,29 @@ export async function getPeriodicLeaderboardByParams(args: {
   })
 }
 
-export const getMonthlyLeaderboardMonths = cached(
-  async () => {
-    const runs: Array<{ periodStart: Date }> =
-      await prisma.leaderboardRun.findMany({
-        distinct: ["periodStart"],
-        orderBy: { periodStart: "desc" },
-        select: { periodStart: true },
-      })
+export async function getMonthlyLeaderboardMonths() {
+  "use cache"
+  applyCache([TAGS.monthlyLeaderboard], DEFAULT_TTL.slow)
 
-    return runs
-      .map(({ periodStart }) => ({
-        month: toMonthKey(periodStart),
-        label: monthLabelFormatter.format(periodStart),
-        date: periodStart,
-      }))
-      .sort((a, b) => b.date.getTime() - a.date.getTime())
-      .map(({ month, label }) => ({
-        month,
-        label,
-      })) satisfies MonthlyLeaderboardMonth[]
-  },
-  "leaderboard:monthly:months",
-  {
-    ttl: DEFAULT_TTL.slow,
-    tags: () => [TAGS.monthlyLeaderboard],
-  },
-)
+  const runs: Array<{ periodStart: Date }> =
+    await prisma.leaderboardRun.findMany({
+      distinct: ["periodStart"],
+      orderBy: { periodStart: "desc" },
+      select: { periodStart: true },
+    })
+
+  return runs
+    .map(({ periodStart }) => ({
+      month: toMonthKey(periodStart),
+      label: monthLabelFormatter.format(periodStart),
+      date: periodStart,
+    }))
+    .sort((a, b) => b.date.getTime() - a.date.getTime())
+    .map(({ month, label }) => ({
+      month,
+      label,
+    })) satisfies MonthlyLeaderboardMonth[]
+}
 
 const resolveTargetMonth = async (month?: string) => {
   const input = parseMonthKey(month)
@@ -1088,66 +1060,68 @@ const resolveTargetMonth = async (month?: string) => {
   return normalizeMonth(periodStart)
 }
 
-export const getMonthlyTopRankedProducts = cached(
-  async (args?: { month?: string; limit?: number }) => {
-    const limit = args?.limit ?? 10
-    const targetMonth = await resolveTargetMonth(args?.month)
-    const monthKey = toMonthKey(targetMonth)
-
-    const periodStart = targetMonth
-    const periodEnd = new Date(
-      Date.UTC(targetMonth.getUTCFullYear(), targetMonth.getUTCMonth() + 1, 1),
-    )
-
-    const run =
-      (await prisma.leaderboardRun.findUnique({
-        where: {
-          periodStart_periodEnd: {
-            periodStart,
-            periodEnd,
-          },
-        },
-      })) ??
-      (await generateLeaderboardRun({
-        periodStart,
-        periodEnd,
-        asOf: new Date(),
-      }).then(async ({ runId }) =>
-        prisma.leaderboardRun.findUnique({ where: { id: runId } }),
-      ))
-
-    const rankings = run
-      ? await prisma.productLeaderboardScore.findMany({
-          take: limit,
-          where: { runId: run.id },
-          orderBy: [{ rank: "asc" }, { score: "desc" }, { upvotes: "desc" }],
-          include: {
-            product: {
-              include: {
-                category: true,
-                analytics: true,
-                ProductBadge: true,
-                user: true,
-              },
-            },
-          },
-        })
-      : []
-
-    return {
-      month: monthKey,
-      label: monthLabelFormatter.format(targetMonth),
-      rankings,
-    }
-  },
-  "leaderboard:monthly:top-products",
-  {
-    ttl: DEFAULT_TTL.slow,
-    tags: ([args]) => [
+export async function getMonthlyTopRankedProducts(args?: {
+  month?: string
+  limit?: number
+}) {
+  "use cache"
+  applyCache(
+    [
       TAGS.monthlyLeaderboard,
       TAGS.monthlyLeaderboardMonth(
         args?.month && parseMonthKey(args.month) ? args.month : "resolved",
       ),
     ],
-  },
-)
+    DEFAULT_TTL.slow,
+  )
+
+  const limit = args?.limit ?? 10
+  const targetMonth = await resolveTargetMonth(args?.month)
+  const monthKey = toMonthKey(targetMonth)
+
+  const periodStart = targetMonth
+  const periodEnd = new Date(
+    Date.UTC(targetMonth.getUTCFullYear(), targetMonth.getUTCMonth() + 1, 1),
+  )
+
+  const run =
+    (await prisma.leaderboardRun.findUnique({
+      where: {
+        periodStart_periodEnd: {
+          periodStart,
+          periodEnd,
+        },
+      },
+    })) ??
+    (await generateLeaderboardRun({
+      periodStart,
+      periodEnd,
+      asOf: new Date(),
+    }).then(async ({ runId }) =>
+      prisma.leaderboardRun.findUnique({ where: { id: runId } }),
+    ))
+
+  const rankings = run
+    ? await prisma.productLeaderboardScore.findMany({
+        take: limit,
+        where: { runId: run.id },
+        orderBy: [{ rank: "asc" }, { score: "desc" }, { upvotes: "desc" }],
+        include: {
+          product: {
+            include: {
+              category: true,
+              analytics: true,
+              ProductBadge: true,
+              user: true,
+            },
+          },
+        },
+      })
+    : []
+
+  return {
+    month: monthKey,
+    label: monthLabelFormatter.format(targetMonth),
+    rankings,
+  }
+}

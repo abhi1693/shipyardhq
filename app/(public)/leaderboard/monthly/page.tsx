@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation"
+import { Suspense } from "react"
 
 import { getCurrentLeaderboardWindow } from "@/lib/server/leaderboard/v2"
 import { parseMonthKey } from "@/lib/server/leaderboard/months"
@@ -7,7 +8,17 @@ import {
   monthlyLeaderboardPath,
 } from "@/lib/routes"
 
-export default async function MonthlyLeaderboardPage({
+export default function MonthlyLeaderboardPage(props: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
+}) {
+  return (
+    <Suspense fallback={null}>
+      <MonthlyLeaderboardRedirect {...props} />
+    </Suspense>
+  )
+}
+
+async function MonthlyLeaderboardRedirect({
   searchParams,
 }: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>
@@ -29,4 +40,5 @@ export default async function MonthlyLeaderboardPage({
 
   // Redirect to the new monthly path; keep old month key redirect for compatibility.
   redirect(currentMonthlyLeaderboardPath(periodStart))
+  return null
 }

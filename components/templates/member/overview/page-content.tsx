@@ -22,10 +22,7 @@ import { MemberAnalyticsCharts } from "@/components/templates/member/overview/an
 import prisma from "@/lib/prisma"
 import { isOptimizedImageSrc } from "@/lib/images/sources"
 import { cn } from "@/lib/utils"
-import {
-  MEMBER_PRODUCTS_PATH,
-  memberProductPath,
-} from "@/lib/routes"
+import { MEMBER_PRODUCTS_PATH, memberProductPath } from "@/lib/routes"
 import { BRAND_NAME } from "@/lib/brand"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 

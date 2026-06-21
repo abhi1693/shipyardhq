@@ -7,8 +7,6 @@ import {
   trackSignupInGa,
 } from "@/lib/server/analytics/loginTracking"
 
-export const dynamic = "force-dynamic"
-
 export async function POST(req: Request) {
   let event: WebhookEvent
   try {

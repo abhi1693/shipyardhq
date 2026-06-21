@@ -24,8 +24,6 @@ import { HOME_PATH, PRODUCT_TYPES_PATH, productTypePath } from "@/lib/routes"
 import { buildPageMetadata } from "@/lib/metadata"
 import { BRAND_NAME } from "@/lib/brand"
 
-export const revalidate = 300
-
 const PAGE_TITLE = "Product Types"
 
 export const metadata = buildPageMetadata({

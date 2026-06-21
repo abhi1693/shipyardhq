@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
+import { connection } from "next/server"
 
 import {
   ALTERNATIVE_DETAIL_PAGE_SIZE,
@@ -24,9 +25,6 @@ import {
 } from "@/lib/routes"
 import { buildProductListItem } from "@/lib/seo/product-list"
 import { siteConfig } from "@/lib/siteConfig"
-
-export const revalidate = 300
-export const dynamicParams = true
 
 interface AlternativeDetailPageProps {
   params: Promise<{ slug: string }>
@@ -57,6 +55,7 @@ export async function generateMetadata({
   })
 
   const linkedCount = productsSummary.total
+  await connection()
   const currentYear = new Date().getFullYear()
   const title =
     linkedCount > 0
