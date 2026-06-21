@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "plugins": []
+  },
+  "include": [
+    "next-env.d.ts",
+    "bin/**/*.ts",
+    "prisma/**/*.ts",
+    "scripts/**/*.ts",
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "types/**/*.d.ts",
+    "vitest.config.ts"
+  ],
+  "exclude": ["node_modules", ".next", "coverage", "dist", "tmp"]
+}
