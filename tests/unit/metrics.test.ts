@@ -1,0 +1,61 @@
+import { describe, expect, it } from "vitest"
+
+import {
+  otelResourceAttributes,
+  otlpMetricsEndpoint,
+} from "@/lib/server/metrics/otel"
+import { normalizeMetricRoute } from "@/lib/server/metrics/registry"
+
+describe("metrics registry", () => {
+  it("normalizes high-cardinality paths into stable route labels", () => {
+    expect(
+      normalizeMetricRoute("https://shipyardhq.dev/products/openclaw"),
+    ).toBe("/products/:slug")
+    expect(
+      normalizeMetricRoute(
+        "https://shipyardhq.dev/api/products/openclaw/upvote",
+      ),
+    ).toBe("/api/products/:slug/upvote")
+    expect(
+      normalizeMetricRoute(
+        "https://shipyardhq.dev/member/products/add/c123/configuration",
+      ),
+    ).toBe("/member/products/add/:draftId/:step")
+  })
+})
+
+describe("OTel metrics configuration", () => {
+  it("uses the explicit OTLP metrics endpoint when configured", () => {
+    expect(
+      otlpMetricsEndpoint({
+        OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: "http://collector:4318/v1/metrics",
+        OTEL_EXPORTER_OTLP_ENDPOINT: "http://ignored:4318",
+      }),
+    ).toBe("http://collector:4318/v1/metrics")
+  })
+
+  it("derives the metrics endpoint from the generic OTLP endpoint", () => {
+    expect(
+      otlpMetricsEndpoint({
+        OTEL_EXPORTER_OTLP_ENDPOINT: "http://collector:4318/",
+      }),
+    ).toBe("http://collector:4318/v1/metrics")
+  })
+
+  it("uses standard resource attributes for dashboard label promotion", () => {
+    expect(
+      otelResourceAttributes({
+        NODE_ENV: "production",
+        OTEL_RESOURCE_ATTRIBUTES:
+          "service.namespace=shipyard,deployment.environment.name=production",
+        OTEL_SERVICE_NAME: "shipyardhq",
+        npm_package_version: "1.2.3",
+      }),
+    ).toMatchObject({
+      "deployment.environment.name": "production",
+      "service.name": "shipyardhq",
+      "service.namespace": "shipyard",
+      "service.version": "1.2.3",
+    })
+  })
+})
