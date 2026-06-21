@@ -1,6 +1,5 @@
 import Link from "next/link"
 import { Suspense } from "react"
-import { preload } from "react-dom"
 import { JsonLdScript } from "next-seo"
 import {
   BarChart3,
@@ -27,7 +26,6 @@ import { Image } from "@/components/atoms/image"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildFaqStructuredData } from "@/lib/seo/faq"
 import { buildPageMetadata } from "@/lib/metadata"
-import { buildSignedImgproxyResponsiveImage } from "@/lib/images/imgproxy"
 import { HOME_PATH, MEMBER_PRODUCTS_ADD_PATH, PRICING_PATH } from "@/lib/routes"
 import { siteGrowthMetrics } from "@/lib/siteConfig"
 import { BRAND_NAME } from "@/lib/brand"
@@ -37,7 +35,6 @@ const PRICING_DASHBOARD_IMAGE_URL =
   "https://media.shipyardhq.dev/global/pricing/dashboard-preview.webp"
 const PRICING_DASHBOARD_IMAGE_SIZES =
   "(min-width: 1024px) 560px, calc(100vw - 32px)"
-const PRICING_DASHBOARD_IMAGE_WIDTHS = [320, 480, 512] as const
 const numberFormatter = new Intl.NumberFormat("en-US")
 
 function formatBuilderCountBadge(value: number) {
@@ -91,39 +88,7 @@ const PLACEMENT_POINTS = [
   },
 ] as const
 
-async function buildPricingDashboardImageSources() {
-  const [avif, webp] = await Promise.all([
-    buildSignedImgproxyResponsiveImage({
-      src: PRICING_DASHBOARD_IMAGE_URL,
-      widths: [...PRICING_DASHBOARD_IMAGE_WIDTHS],
-      defaultWidth: 512,
-      format: "avif",
-      quality: 48,
-    }),
-    buildSignedImgproxyResponsiveImage({
-      src: PRICING_DASHBOARD_IMAGE_URL,
-      widths: [...PRICING_DASHBOARD_IMAGE_WIDTHS],
-      defaultWidth: 512,
-      format: "webp",
-      quality: 72,
-    }),
-  ])
-
-  if (!avif || !webp) return null
-
-  preload(avif.src, {
-    as: "image",
-    fetchPriority: "high",
-    imageSizes: PRICING_DASHBOARD_IMAGE_SIZES,
-    imageSrcSet: avif.srcSet,
-    type: "image/avif",
-  })
-
-  return { avif, webp }
-}
-
-export default async function PricingPage() {
-  const pricingDashboardImage = await buildPricingDashboardImageSources()
+export default function PricingPage() {
   const builderCountLabel = formatBuilderCountBadge(
     siteGrowthMetrics.builderCount,
   )
@@ -279,43 +244,14 @@ export default async function PricingPage() {
             </div>
 
             <div className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-2xl">
-              {pricingDashboardImage ? (
-                <picture>
-                  <source
-                    type="image/avif"
-                    srcSet={pricingDashboardImage.avif.srcSet}
-                    sizes={PRICING_DASHBOARD_IMAGE_SIZES}
-                  />
-                  <source
-                    type="image/webp"
-                    srcSet={pricingDashboardImage.webp.srcSet}
-                    sizes={PRICING_DASHBOARD_IMAGE_SIZES}
-                  />
-                  <img
-                    src={pricingDashboardImage.webp.src}
-                    srcSet={pricingDashboardImage.webp.srcSet}
-                    sizes={PRICING_DASHBOARD_IMAGE_SIZES}
-                    alt="Product analytics dashboard preview with line charts and launch growth metrics."
-                    width={900}
-                    height={650}
-                    className="h-full min-h-[320px] w-full object-cover"
-                    loading="eager"
-                    fetchPriority="high"
-                    decoding="async"
-                  />
-                </picture>
-              ) : (
-                <Image
-                  src={PRICING_DASHBOARD_IMAGE_URL}
-                  alt="Product analytics dashboard preview with line charts and launch growth metrics."
-                  width={900}
-                  height={650}
-                  sizes={PRICING_DASHBOARD_IMAGE_SIZES}
-                  className="h-full min-h-[320px] w-full object-cover"
-                  eager
-                  preload
-                />
-              )}
+              <Image
+                src={PRICING_DASHBOARD_IMAGE_URL}
+                alt="Product analytics dashboard preview with line charts and launch growth metrics."
+                width={900}
+                height={650}
+                sizes={PRICING_DASHBOARD_IMAGE_SIZES}
+                className="h-full min-h-[320px] w-full object-cover"
+              />
             </div>
           </div>
         </section>
