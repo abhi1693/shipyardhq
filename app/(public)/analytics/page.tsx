@@ -44,7 +44,6 @@ import { siteConfig } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
 
 const PAGE_TITLE = "Analytics"
-export const dynamic = "force-dynamic"
 export const revalidate = 300
 
 const ANALYTICS_PAGE_TOP_PRODUCT_LIMIT = 8

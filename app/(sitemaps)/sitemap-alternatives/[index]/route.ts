@@ -12,7 +12,6 @@ import {
   urlsetXml,
 } from "@/lib/sitemap"
 
-export const dynamic = "force-dynamic"
 export const revalidate = 86400
 
 export function generateStaticParams(): Array<{ index: string }> {

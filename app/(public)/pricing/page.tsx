@@ -53,7 +53,7 @@ function formatBuilderCountBadge(value: number) {
   return `${numberFormatter.format(roundedValue)}+`
 }
 
-export const dynamic = "force-dynamic"
+export const revalidate = 300
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,

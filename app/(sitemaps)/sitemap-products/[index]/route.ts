@@ -18,7 +18,6 @@ type ProductSitemapEntry = Prisma.ProductGetPayload<{
   select: { id: true; slug: true; updatedAt: true; publishedAt: true }
 }>
 
-export const dynamic = "force-dynamic"
 export const revalidate = 86400
 
 export function generateStaticParams(): Array<{ index: string }> {

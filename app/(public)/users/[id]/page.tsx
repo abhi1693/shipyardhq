@@ -4,15 +4,26 @@ import { JsonLdScript } from "next-seo"
 
 import { UserProfilePageContent } from "@/components/templates/public/users/detail/page-content"
 import { UserProfileSkeleton } from "@/components/templates/public/users/detail/skeleton"
-import { getPublicUserMeta } from "@/actions/public/users/actions"
+import {
+  getPublicUserMeta,
+  getPublicUsersWithCounts,
+} from "@/actions/public/users/actions"
 import { getUserProfilePayload } from "@/lib/users/page-cache"
-import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildProfilePageJsonLd } from "@/lib/seo/profile-page"
 import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH, USERS_PATH, userPath } from "@/lib/routes"
 
 export const revalidate = 120
+export const dynamicParams = true
+
+export async function generateStaticParams() {
+  const users = await getPublicUsersWithCounts()
+
+  return users.map((user) => ({
+    id: user.id,
+  }))
+}
 
 export async function generateMetadata(
   props: Parameters<typeof UserProfilePageContent>[0],
@@ -78,16 +89,6 @@ async function ProfileStructuredData({
     `${payload.profile.firstName ?? ""} ${payload.profile.lastName ?? ""}`.trim() ||
     "Shipyard maker"
 
-  let avatarUrl: string | null = null
-  if (payload.profile.clerkId) {
-    try {
-      const clerkUser = await getClerkUserByIdCached(payload.profile.clerkId)
-      avatarUrl = clerkUser.imageUrl ?? null
-    } catch {
-      avatarUrl = null
-    }
-  }
-
   const profilePath = userPath(id)
   const baseBreadcrumbs = [
     { name: "Home", path: HOME_PATH },
@@ -98,7 +99,7 @@ async function ProfileStructuredData({
     profileId: id,
     fullName,
     profilePath,
-    avatarUrl,
+    avatarUrl: null,
     products: payload.productsPage.items.map((product) => ({
       slug: product.slug,
     })),

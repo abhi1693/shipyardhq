@@ -1,5 +1,7 @@
-import "dotenv/config"
+import { loadEnvConfig } from "@next/env"
 import { defineConfig } from "prisma/config"
+
+loadEnvConfig(process.cwd())
 
 const datasourceUrl =
   process.env.DIRECT_DATABASE_URL ?? process.env.DATABASE_URL

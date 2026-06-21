@@ -6,7 +6,6 @@ import {
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import { sitemapResponse, urlsetXml, type SitemapUrlEntry } from "@/lib/sitemap"
 
-export const dynamic = "force-dynamic"
 export const revalidate = 86400
 
 const toMonthDate = (monthKey: string, fallback: Date) => {

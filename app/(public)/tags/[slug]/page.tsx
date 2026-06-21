@@ -5,7 +5,10 @@ import { Hash } from "lucide-react"
 export const revalidate = 300
 
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
-import { getKeywordTagProducts } from "@/actions/public/tags/actions"
+import {
+  getKeywordTagProducts,
+  getKeywordTagSummaries,
+} from "@/actions/public/tags/actions"
 import {
   getHomepageFeedViewAll,
   type HomepageFeedItem,
@@ -30,6 +33,14 @@ import { toProductCardItem } from "@/lib/products/card-item"
 import { hasEditorPickBadge } from "@/lib/products/badges"
 import { stripLegacyKeywordHash } from "@/lib/tags"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
+
+export async function generateStaticParams() {
+  const tags = await getKeywordTagSummaries()
+
+  return tags.map((tag) => ({
+    slug: tag.slug,
+  }))
+}
 
 export async function generateMetadata({
   params,

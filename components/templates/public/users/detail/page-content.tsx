@@ -9,8 +9,6 @@ import {
   EmptyUserProductFeed,
   UserProductGrid,
 } from "@/components/templates/public/users/detail/UserProductFeed"
-import { isOptimizedImageSrc } from "@/lib/images/sources"
-import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { getUserProfilePayload } from "@/lib/users/page-cache"
 
 interface PageProps {
@@ -48,18 +46,7 @@ export async function UserProfilePageContent({ params }: PageProps) {
   const fullName =
     `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim() ||
     "Shipyard maker"
-
-  let avatarUrl: string | null = null
-  if (profile.clerkId) {
-    try {
-      const clerkUser = await getClerkUserByIdCached(profile.clerkId)
-      avatarUrl = isOptimizedImageSrc(clerkUser.imageUrl)
-        ? clerkUser.imageUrl
-        : null
-    } catch {
-      avatarUrl = null
-    }
-  }
+  const avatarUrl: string | null = null
 
   const earliestLaunchDate = earliestLaunch ? new Date(earliestLaunch) : null
   const memberSince = earliestLaunchDate

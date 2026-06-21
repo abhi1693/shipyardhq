@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic"
-
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
@@ -15,7 +13,8 @@ import {
   categoryPricingPath,
 } from "@/lib/routes"
 import { buildQuery, type StrOrArr } from "@/lib/urlParams"
-import { getPricingModelMeta } from "@/lib/pricing/models"
+import { getCategoryStaticParams } from "@/lib/categories/page-cache"
+import { getPricingModelMeta, PRICING_MODEL_SLUGS } from "@/lib/pricing/models"
 import { buildProductListItem } from "@/lib/seo/product-list"
 import { pluralize } from "@/lib/pluralize"
 import { cn } from "@/lib/utils"
@@ -79,6 +78,20 @@ const buildSearchParams = (params: CategoryPricingSearchParams) => {
     }
   }
   return search
+}
+
+export const revalidate = 300
+export const dynamicParams = true
+
+export async function generateStaticParams() {
+  const categories = await getCategoryStaticParams()
+
+  return categories.flatMap((category) =>
+    PRICING_MODEL_SLUGS.map((pricingModel) => ({
+      slug: category.slug,
+      pricingModel,
+    })),
+  )
 }
 
 export async function generateMetadata(props: {

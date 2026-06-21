@@ -8,7 +8,6 @@ import { getAlternativesPagePayload } from "@/lib/alternatives/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
 import { ALTERNATIVES_PATH, HOME_PATH, alternativePath } from "@/lib/routes"
 
-export const dynamic = "force-dynamic"
 export const revalidate = 300
 
 const PAGE_TITLE = "Browse SaaS Alternatives"

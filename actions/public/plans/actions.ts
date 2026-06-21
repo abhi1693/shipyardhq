@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { PlanType } from "@/lib/vendor/prisma/client"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 
@@ -43,67 +44,80 @@ const planFeatureSelect = {
 type PlanFeatureRecord = Prisma.PlanFeatureGetPayload<{
   select: typeof planFeatureSelect
 }>
-export async function getPublicPlans(opts?: { type?: PlanType }) {
-  const planRecordsRaw = await prisma.plan.findMany({
-    where: opts?.type ? { type: opts.type } : undefined,
-    orderBy: [{ price: "asc" }],
-    select: planSelect,
-  })
 
-  const allFeaturesRaw = await prisma.planFeature.findMany({
-    select: planFeatureSelect,
-    orderBy: { name: "asc" },
-  })
-
-  const planRecords = planRecordsRaw as unknown as PlanWithAssignments[]
-  const allFeatures = allFeaturesRaw as unknown as PlanFeatureRecord[]
-
-  return planRecords.map((p) => {
-    const assigned = new Map(
-      p.assignments.map((a) => [
-        a.featureId,
-        { enabled: a.enabled, isExperimental: a.isExperimental },
-      ]),
-    )
-
-    const features = allFeatures.map((f) => {
-      const a = assigned.get(f.id)
-      return {
-        id: f.id,
-        name: f.name,
-        key: f.key,
-        description: f.description,
-        enabled: a ? a.enabled : false,
-        isExperimental: a ? a.isExperimental : false,
-      }
+const getPublicPlansCached = cached(
+  async (type?: PlanType) => {
+    const planRecordsRaw = await prisma.plan.findMany({
+      where: type ? { type } : undefined,
+      orderBy: [{ price: "asc" }],
+      select: planSelect,
     })
 
-    return {
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      description: p.description,
-      type: p.type,
-      price: p.price,
-      discount: p.discount,
-      boostForDays: p.boostForDays ?? 1,
-      isDefault: p.isDefault,
-      externalId: p.externalId,
-      paymentFrequencyCount: p.paymentFrequencyCount ?? undefined,
-      paymentFrequencyInterval: p.paymentFrequencyInterval ?? undefined,
-      subscriptionPeriodCount: p.subscriptionPeriodCount ?? undefined,
-      subscriptionPeriodInterval: p.subscriptionPeriodInterval ?? undefined,
-      priceSuffix:
-        p.type === "recurring_price" && p.paymentFrequencyInterval
-          ? (() => {
-              const c = p.paymentFrequencyCount ?? 1
-              const i = String(p.paymentFrequencyInterval)
-              const human = c === 1 ? i : `${c} ${i}s`
-              return `per ${human}`
-            })()
-          : undefined,
-      productCount: p._count.products,
-      features,
-    }
-  })
+    const allFeaturesRaw = await prisma.planFeature.findMany({
+      select: planFeatureSelect,
+      orderBy: { name: "asc" },
+    })
+
+    const planRecords = planRecordsRaw as unknown as PlanWithAssignments[]
+    const allFeatures = allFeaturesRaw as unknown as PlanFeatureRecord[]
+
+    return planRecords.map((p) => {
+      const assigned = new Map(
+        p.assignments.map((a) => [
+          a.featureId,
+          { enabled: a.enabled, isExperimental: a.isExperimental },
+        ]),
+      )
+
+      const features = allFeatures.map((f) => {
+        const a = assigned.get(f.id)
+        return {
+          id: f.id,
+          name: f.name,
+          key: f.key,
+          description: f.description,
+          enabled: a ? a.enabled : false,
+          isExperimental: a ? a.isExperimental : false,
+        }
+      })
+
+      return {
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        description: p.description,
+        type: p.type,
+        price: p.price,
+        discount: p.discount,
+        boostForDays: p.boostForDays ?? 1,
+        isDefault: p.isDefault,
+        externalId: p.externalId,
+        paymentFrequencyCount: p.paymentFrequencyCount ?? undefined,
+        paymentFrequencyInterval: p.paymentFrequencyInterval ?? undefined,
+        subscriptionPeriodCount: p.subscriptionPeriodCount ?? undefined,
+        subscriptionPeriodInterval: p.subscriptionPeriodInterval ?? undefined,
+        priceSuffix:
+          p.type === "recurring_price" && p.paymentFrequencyInterval
+            ? (() => {
+                const c = p.paymentFrequencyCount ?? 1
+                const i = String(p.paymentFrequencyInterval)
+                const human = c === 1 ? i : `${c} ${i}s`
+                return `per ${human}`
+              })()
+            : undefined,
+        productCount: p._count.products,
+        features,
+      }
+    })
+  },
+  "plans:public",
+  {
+    ttl: DEFAULT_TTL.slow,
+    keyParts: ([type]) => (type ? [`type:${type}`] : []),
+    tags: () => [TAGS.plans],
+  },
+)
+
+export async function getPublicPlans(opts?: { type?: PlanType }) {
+  return getPublicPlansCached(opts?.type)
 }

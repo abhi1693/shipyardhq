@@ -45,7 +45,6 @@ type CategorySitemapEntry = Prisma.CategoryGetPayload<{
   select: { id: true; slug: true; updatedAt: true }
 }>
 
-export const dynamic = "force-dynamic"
 export const revalidate = 86400
 
 function xml(parts: TemplateStringsArray, ...subs: any[]) {

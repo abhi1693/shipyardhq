@@ -6,6 +6,7 @@ import {
   ALTERNATIVE_DETAIL_PAGE_SIZE,
   getAlternativeDetail,
   getAlternativeProductsPage,
+  getAlternativesWithCounts,
   getFeaturedAlternatives,
 } from "@/actions/public/alternatives/actions"
 import AlternativeProductsClient from "@/app/(public)/alternatives/[slug]/AlternativeProductsClient"
@@ -24,10 +25,19 @@ import {
 import { buildProductListItem } from "@/lib/seo/product-list"
 import { siteConfig } from "@/lib/siteConfig"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 300
+export const dynamicParams = true
 
 interface AlternativeDetailPageProps {
   params: Promise<{ slug: string }>
+}
+
+export async function generateStaticParams() {
+  const alternatives = await getAlternativesWithCounts()
+
+  return alternatives.map((alternative) => ({
+    slug: alternative.slug,
+  }))
 }
 
 export async function generateMetadata({

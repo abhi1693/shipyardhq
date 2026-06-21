@@ -15,8 +15,13 @@ import {
   urlsetXml,
 } from "@/lib/sitemap"
 
-export const dynamic = "force-dynamic"
 export const revalidate = 86400
+
+function coerceDate(value: Date | string | null | undefined): Date | null {
+  if (!value) return null
+  const date = value instanceof Date ? value : new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date
+}
 
 export function generateStaticParams(): Array<{ index: string }> {
   return []
@@ -42,7 +47,7 @@ export async function GET(
   const tags = await getKeywordTagSitemapChunk(offset, SITEMAP_CHUNK_SIZE)
 
   const entries: SitemapUrlEntry[] = tags.map((tag): SitemapUrlEntry => {
-    const last = tag.lastUpdated ?? new Date()
+    const last = coerceDate(tag.lastUpdated) ?? new Date()
     const days = Math.floor((Date.now() - last.getTime()) / 86400000)
     const priority = days <= 7 ? "0.9" : days <= 180 ? "0.8" : "0.7"
 
