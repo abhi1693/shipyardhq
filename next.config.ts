@@ -7,16 +7,44 @@ const googleAnalyticsHosts = [
   "https://www.google-analytics.com",
   "https://*.google-analytics.com",
 ] as const
+
+function normalizeCspOrigin(value: string | undefined) {
+  const trimmed = value?.trim()
+  if (!trimmed) return null
+
+  try {
+    const url = new URL(
+      /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`,
+    )
+    return url.origin
+  } catch {
+    return null
+  }
+}
+
+const configuredClerkFrontendOrigins = [
+  normalizeCspOrigin(process.env.NEXT_PUBLIC_CLERK_DOMAIN),
+  normalizeCspOrigin(process.env.CLERK_DOMAIN),
+  "https://clerk.shipyardhq.dev",
+].filter((source, index, sources): source is string => {
+  return Boolean(source) && sources.indexOf(source) === index
+})
+
 const clerkScriptHosts = [
   "https://*.clerk.accounts.dev",
   "https://*.clerk.com",
+  ...configuredClerkFrontendOrigins,
   "https://challenges.cloudflare.com",
-] as const
+] as string[]
 const clerkConnectHosts = [
   ...clerkScriptHosts,
   "https://clerk-telemetry.com",
   "https://*.clerk-telemetry.com",
-] as const
+] as string[]
+const clerkFrameHosts = [
+  "https://challenges.cloudflare.com",
+  ...configuredClerkFrontendOrigins,
+] as string[]
 
 function buildContentSecurityPolicy() {
   const devConnectSources = isDev
@@ -43,7 +71,7 @@ function buildContentSecurityPolicy() {
     ["img-src", "'self'", "blob:", "data:", "https:"],
     ["font-src", "'self'", "data:"],
     ["media-src", "'self'", "blob:", "data:", "https:"],
-    ["frame-src", "'self'", "https://challenges.cloudflare.com"],
+    ["frame-src", "'self'", ...clerkFrameHosts],
     ["worker-src", "'self'", "blob:"],
     ["manifest-src", "'self'"],
     ["object-src", "'none'"],

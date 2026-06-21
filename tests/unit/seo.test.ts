@@ -155,6 +155,19 @@ describe("crawler directives", () => {
     )
   })
 
+  it("allows the production Clerk frontend domain in the content security policy", async () => {
+    const headers = await nextConfig.headers?.()
+    const globalHeaders = headers?.find((entry) => entry.source === "/(.*)")
+    const csp = globalHeaders?.headers.find(
+      (header) => header.key === "Content-Security-Policy",
+    )?.value
+
+    expect(csp).toContain("script-src")
+    expect(csp).toContain("connect-src")
+    expect(csp).toContain("frame-src")
+    expect(csp).toContain("https://clerk.shipyardhq.dev")
+  })
+
   it("keeps canonical browse indexable and marks filtered browse states noindex", () => {
     expect(hasBrowseSearchParams({})).toBe(false)
     expect(isPlainUseCaseBrowseState({ useCase: "launch-marketplace" })).toBe(
