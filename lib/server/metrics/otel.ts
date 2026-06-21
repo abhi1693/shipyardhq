@@ -23,6 +23,7 @@ const OTEL_STATE_KEY = Symbol.for("shipyard.metrics.otel.state")
 type OTelEnv = Record<string, string | undefined>
 
 type OTelState = {
+  shutdownPromise?: Promise<void>
   sdk?: NodeSDK
   started?: boolean
 }
@@ -171,13 +172,28 @@ export function registerOpenTelemetry() {
   sdk.start()
   currentState.sdk = sdk
   currentState.started = true
+  currentState.shutdownPromise = undefined
   registerHttpRedMetrics()
 
-  const shutdown = () => {
-    sdk.shutdown().catch((error) => {
-      console.error("[metrics] failed to shut down OpenTelemetry", error)
-    })
-  }
+  const shutdown = () => void shutdownOpenTelemetry()
   process.once("SIGTERM", shutdown)
   process.once("SIGINT", shutdown)
+}
+
+export async function shutdownOpenTelemetry() {
+  const currentState = state()
+  if (!currentState.sdk) return
+
+  currentState.shutdownPromise ??= currentState.sdk
+    .shutdown()
+    .catch((error) => {
+      console.error("[metrics] failed to shut down OpenTelemetry", error)
+    })
+    .finally(() => {
+      currentState.sdk = undefined
+      currentState.started = false
+      currentState.shutdownPromise = undefined
+    })
+
+  await currentState.shutdownPromise
 }

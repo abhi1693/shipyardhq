@@ -3,6 +3,10 @@
 async function main() {
   process.env.SHIPYARD_DISABLE_STARTUP_JOBS ||= "1"
 
+  const { registerOpenTelemetry, shutdownOpenTelemetry } =
+    await import("@/lib/server/metrics/otel")
+  registerOpenTelemetry()
+
   const { startShipyardWorker } = await import("@/lib/server/jobs/worker")
   const worker = await startShipyardWorker()
   let closing = false
@@ -14,6 +18,7 @@ async function main() {
 
     try {
       await worker.close()
+      await shutdownOpenTelemetry()
       console.info("[worker] shutdown complete")
       process.exit(0)
     } catch (error) {
