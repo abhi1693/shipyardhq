@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useClerk, useSignIn } from "@clerk/nextjs"
 import type { OAuthStrategy } from "@clerk/nextjs/types"
+import { IconBrandGithub, IconBrandX } from "@tabler/icons-react"
 import type { SubmitEvent } from "react"
 import { useState } from "react"
 
@@ -85,6 +86,14 @@ function ProviderLogo({ strategy }: { strategy: OAuthStrategy }) {
 
   if (provider === "google") {
     return <GoogleLogo />
+  }
+
+  if (provider === "github") {
+    return <IconBrandGithub className="h-[18px] w-[18px]" aria-hidden />
+  }
+
+  if (provider === "x" || provider === "twitter") {
+    return <IconBrandX className="h-[18px] w-[18px]" aria-hidden />
   }
 
   return (
