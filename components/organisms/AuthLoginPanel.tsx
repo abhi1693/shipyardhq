@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useClerk, useSignIn } from "@clerk/nextjs"
 import type { OAuthStrategy } from "@clerk/nextjs/types"
-import type { FormEvent } from "react"
+import type { SubmitEvent } from "react"
 import { useState } from "react"
 
 import { BrandLogo } from "@/components/atoms/brand-logo"
@@ -127,7 +127,7 @@ export default function AuthLoginPanel({ redirectUrl }: AuthLoginPanelProps) {
     }
   }
 
-  async function handleEmailSignIn(event: FormEvent<HTMLFormElement>) {
+  async function handleEmailSignIn(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
     setPendingStrategy("password")

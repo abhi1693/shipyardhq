@@ -114,14 +114,14 @@ export const productDraftStepSchemas: Record<ProductDraftStep, z.ZodTypeAny> = {
       if (val.startingPriceCents == null) {
         ctx.addIssue({
           path: ["startingPriceCents"],
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: "Price required for this model",
         })
       }
       if (!val.currencyCode) {
         ctx.addIssue({
           path: ["currencyCode"],
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: "Currency required",
         })
       }

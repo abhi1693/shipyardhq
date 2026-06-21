@@ -99,14 +99,14 @@ function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
         if (!hasPrice) {
           ctx.addIssue({
             path: ["startingPriceCents"],
-            code: z.ZodIssueCode.custom,
+            code: "custom",
             message: "Price required for this model",
           })
         }
         if (!hasCurrency) {
           ctx.addIssue({
             path: ["currencyCode"],
-            code: z.ZodIssueCode.custom,
+            code: "custom",
             message: "Currency required",
           })
         }
@@ -115,14 +115,14 @@ function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       if (!uniqueCategoryIds.length) {
         ctx.addIssue({
           path: ["categoryIds"],
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: "Select at least 1 category.",
         })
       }
       if (uniqueCategoryIds.length > 3) {
         ctx.addIssue({
           path: ["categoryIds"],
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: "You can select up to 3 categories.",
         })
       }

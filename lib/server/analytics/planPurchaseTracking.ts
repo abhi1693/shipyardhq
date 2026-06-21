@@ -168,7 +168,8 @@ async function buildFromPayment(input: TrackInput) {
   const coupon =
     payment.metadata?.discount_code ||
     payment.metadata?.coupon ||
-    payment.discount_id ||
+    payment.discounts?.[0]?.code ||
+    payment.discounts?.[0]?.discount_id ||
     undefined
 
   const lineItems = await dodoClient.payments

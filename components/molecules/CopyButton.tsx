@@ -63,24 +63,7 @@ export default function CopyButton({
           return false
         }
 
-        function fallbackCopy(v: string) {
-          try {
-            const el = document.createElement("textarea")
-            el.value = v
-            el.style.position = "fixed"
-            el.style.opacity = "0"
-            document.body.appendChild(el)
-            el.focus()
-            el.select()
-            const ok = document.execCommand("copy")
-            document.body.removeChild(el)
-            return ok
-          } catch {
-            return false
-          }
-        }
-
-        const ok = (await modernCopy(toCopy)) || fallbackCopy(toCopy)
+        const ok = await modernCopy(toCopy)
         if (ok) {
           setCopied(true)
           toast.success("Copied to clipboard")

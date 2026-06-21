@@ -16,7 +16,7 @@ import {
 } from "@/lib/productWizard/constants"
 
 const RequestSchema = z.object({
-  url: z.string().url(),
+  url: z.url(),
   categories: z.array(z.string()).max(64).optional(),
   descriptionGuidance: z.string().max(600).optional(),
   alternatives: z
@@ -25,7 +25,7 @@ const RequestSchema = z.object({
         id: z.string(),
         name: z.string(),
         slug: z.string().optional().nullable(),
-        websiteUrl: z.string().url().optional().nullable(),
+        websiteUrl: z.url().optional().nullable(),
       }),
     )
     .max(64)
@@ -401,7 +401,7 @@ export async function POST(request: Request) {
   const parsed = RequestSchema.safeParse(body)
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "Invalid request", details: parsed.error.flatten() },
+      { error: "Invalid request", details: z.flattenError(parsed.error) },
       { status: 400 },
     )
   }

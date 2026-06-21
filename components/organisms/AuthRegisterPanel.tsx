@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useClerk, useSignUp } from "@clerk/nextjs"
 import type { OAuthStrategy } from "@clerk/nextjs/types"
-import type { FormEvent } from "react"
+import type { SubmitEvent } from "react"
 import { useState } from "react"
 
 import { BrandLogo } from "@/components/atoms/brand-logo"
@@ -145,7 +145,7 @@ export default function AuthRegisterPanel({
     }
   }
 
-  async function handleRegisterSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleRegisterSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
     setPendingStrategy("register")
@@ -188,7 +188,7 @@ export default function AuthRegisterPanel({
     }
   }
 
-  async function handleVerificationSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleVerificationSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
     setPendingStrategy("verify")

@@ -23,7 +23,7 @@ import {
   X,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import type { ChangeEvent, FormEvent } from "react"
+import type { ChangeEvent, SubmitEvent } from "react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -332,7 +332,7 @@ export default function MemberAccountProfile({
     setProfileDialogOpen(true)
   }
 
-  async function handleProfileSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleProfileSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setBusyAction("profile")
 
@@ -372,7 +372,7 @@ export default function MemberAccountProfile({
     }
   }
 
-  async function handleAddEmailSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleAddEmailSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     const email = newEmail.trim()
     if (!email) return
@@ -392,7 +392,7 @@ export default function MemberAccountProfile({
     }
   }
 
-  async function handleVerifyEmailSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleVerifyEmailSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!emailToVerify || !verificationCode.trim()) return
 
@@ -497,7 +497,7 @@ export default function MemberAccountProfile({
     if (redirectUrl) router.push(redirectUrl.href)
   }
 
-  async function handleDeleteAccountSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleDeleteAccountSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
     if (!deleteConfirmationMatches) {
