@@ -8,6 +8,7 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { HOME_PATH, USE_CASES_PATH, usecasePath } from "@/lib/routes"
 import { getUseCasesPagePayload } from "@/lib/useCases/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
+import { BRAND_NAME } from "@/lib/brand"
 
 export const revalidate = 300
 
@@ -15,8 +16,7 @@ const PAGE_TITLE = "Use Cases"
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description:
-    "Browse Shipyard by use case and discover the products built for your workflow.",
+  description: `Browse ${BRAND_NAME} product launches by use case and discover apps, SaaS tools, APIs, and startup products built for your workflow.`,
   canonical: USE_CASES_PATH,
 })
 

@@ -7,6 +7,7 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { getAlternativesPagePayload } from "@/lib/alternatives/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
 import { ALTERNATIVES_PATH, HOME_PATH, alternativePath } from "@/lib/routes"
+import { BRAND_NAME } from "@/lib/brand"
 
 export const revalidate = 300
 
@@ -14,7 +15,7 @@ const PAGE_TITLE = "Browse SaaS Alternatives"
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description: "Explore the best alternatives to popular SaaS tools.",
+  description: `Explore SaaS and app alternatives in the ${BRAND_NAME} launch directory, compare products, and discover tools founders are building now.`,
   canonical: ALTERNATIVES_PATH,
 })
 

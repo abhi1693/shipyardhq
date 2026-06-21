@@ -22,6 +22,7 @@ import {
 import { getProductTypePagePayload } from "@/lib/product-types/page-cache"
 import { HOME_PATH, PRODUCT_TYPES_PATH, productTypePath } from "@/lib/routes"
 import { buildPageMetadata } from "@/lib/metadata"
+import { BRAND_NAME } from "@/lib/brand"
 
 export const revalidate = 300
 
@@ -29,8 +30,7 @@ const PAGE_TITLE = "Product Types"
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description:
-    "Browse Shipyard products by product type, including SaaS, APIs, mobile apps, desktop apps, browser extensions, and open-source tools.",
+  description: `Browse ${BRAND_NAME} launches by product type, including SaaS, APIs, mobile apps, desktop apps, browser extensions, and open-source tools.`,
   canonical: PRODUCT_TYPES_PATH,
 })
 

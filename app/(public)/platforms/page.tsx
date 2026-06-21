@@ -21,6 +21,7 @@ import {
 import { getPlatformPagePayload } from "@/lib/platforms/page-cache"
 import { HOME_PATH, PLATFORMS_PATH, platformPath } from "@/lib/routes"
 import { buildPageMetadata } from "@/lib/metadata"
+import { BRAND_NAME } from "@/lib/brand"
 
 export const revalidate = 300
 
@@ -28,8 +29,7 @@ const PAGE_TITLE = "Platforms"
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description:
-    "Browse Shipyard products by platform, from web apps to mobile apps, desktop software, and browser extensions.",
+  description: `Browse ${BRAND_NAME} product launches by platform, from web apps and mobile apps to desktop software, browser extensions, and APIs.`,
   canonical: PLATFORMS_PATH,
 })
 

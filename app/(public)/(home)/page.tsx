@@ -32,11 +32,11 @@ import { HOMEPAGE_INITIAL_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 
 export const revalidate = 60
 
-const HOMEPAGE_TITLE = `${BRAND_NAME} - Launch, Measure, Grow`
+const HOMEPAGE_TITLE = `${BRAND_NAME} - Launch Products Builders Discover`
 
 export const metadata = buildPageMetadata({
   title: HOMEPAGE_TITLE,
-  description: `${BRAND_NAME} is the launch intelligence network where independent builders publish products, read real traction signals, and compound momentum.`,
+  description: `${BRAND_NAME} helps founders launch apps, SaaS tools, APIs, and startup projects with focused discovery, rankings, promotion, and analytics.`,
   canonical: HOME_PATH,
 })
 
@@ -184,12 +184,13 @@ function HomepageHero({
           </span>
         </div>
         <h1 className="mx-auto mb-6 max-w-4xl text-[40px] font-bold leading-[1.1] tracking-tight text-black md:text-[64px]">
-          Launch with signal. <br className="hidden md:block" />
-          <span className="text-[#0051d5]">Grow with momentum.</span>
+          Launch where builders discover. <br className="hidden md:block" />
+          <span className="text-[#0051d5]">Grow with real traction.</span>
         </h1>
         <p className="mx-auto mb-10 max-w-2xl text-base leading-relaxed text-[#43474c]">
-          {BRAND_NAME} brings focused discovery, community proof, and launch
-          analytics into one operating surface for independent builders.
+          {BRAND_NAME} helps founders and independent builders submit apps, SaaS
+          tools, APIs, and startup products to a focused discovery network with
+          proof, rankings, and analytics built in.
         </p>
         <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Button

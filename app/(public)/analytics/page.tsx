@@ -41,6 +41,7 @@ import {
 import { cacheGetOrSet } from "@/lib/server/cache"
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import { siteConfig } from "@/lib/siteConfig"
+import { BRAND_NAME } from "@/lib/brand"
 import { cn } from "@/lib/utils"
 
 const PAGE_TITLE = "Analytics"
@@ -632,8 +633,7 @@ function NewVsReturningCard({
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description:
-    "Live Shipyard performance for the past 30 days with top products, referrers, and engagement signals.",
+  description: `Track launch performance on ${BRAND_NAME} with product views, referrers, traffic sources, top apps, and engagement signals.`,
 })
 
 async function getCachedAnalyticsPageData({

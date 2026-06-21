@@ -7,6 +7,8 @@ export type WebPageStructuredData = {
   "@id": string
   url: string
   name: string
+  description?: string
+  keywords?: string
 }
 
 export type BuildWebPageStructuredDataOptions = {
@@ -30,6 +32,8 @@ export type BuildWebPageStructuredDataOptions = {
    * Human-readable page name. Defaults to the site tagline or brand name.
    */
   name?: string
+  description?: string
+  keywords?: string[]
 }
 
 const normalizePath = (value: string) => {
@@ -57,6 +61,14 @@ export function buildWebPageStructuredData(
 
   const name =
     options.name?.trim() || siteConfig.tagline || siteConfig.name || "WebPage"
+  const description = options.description?.trim() || siteConfig.description
+  const keywordList = options.keywords?.length
+    ? options.keywords
+    : siteConfig.keywords
+  const keywords = keywordList
+    .map((keyword) => keyword.trim())
+    .filter(Boolean)
+    .join(", ")
 
   return {
     "@context": "https://schema.org",
@@ -64,6 +76,8 @@ export function buildWebPageStructuredData(
     "@id": id,
     url,
     name,
+    description,
+    keywords: keywords || undefined,
   }
 }
 

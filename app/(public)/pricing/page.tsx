@@ -28,12 +28,9 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildFaqStructuredData } from "@/lib/seo/faq"
 import { buildPageMetadata } from "@/lib/metadata"
 import { buildSignedImgproxyResponsiveImage } from "@/lib/images/imgproxy"
-import {
-  HOME_PATH,
-  MEMBER_PRODUCTS_ADD_PATH,
-  PRICING_PATH,
-} from "@/lib/routes"
+import { HOME_PATH, MEMBER_PRODUCTS_ADD_PATH, PRICING_PATH } from "@/lib/routes"
 import { siteGrowthMetrics } from "@/lib/siteConfig"
+import { BRAND_NAME } from "@/lib/brand"
 
 const PAGE_TITLE = "Pricing"
 const PRICING_DASHBOARD_IMAGE_URL =
@@ -57,7 +54,7 @@ export const revalidate = 300
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description: "Transparent pricing for every stage.",
+  description: `Transparent pricing to list, launch, promote, and measure your product on ${BRAND_NAME}.`,
 })
 
 const HERO_POINTS = [

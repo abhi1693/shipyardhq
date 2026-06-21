@@ -9,6 +9,7 @@ const baseMetadata = {
     template: siteSeo.titleTemplate,
   },
   description: siteSeo.description,
+  keywords: siteSeo.keywords,
   openGraph: siteSeo.openGraph,
   twitter: siteSeo.twitter,
 } satisfies Metadata

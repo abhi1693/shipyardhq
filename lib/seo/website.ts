@@ -9,6 +9,7 @@ export type WebSiteStructuredData = {
   url: string
   name: string
   description?: string
+  keywords?: string
   potentialAction?: {
     "@type": "SearchAction"
     target: string
@@ -25,6 +26,7 @@ export type BuildWebSiteStructuredDataOptions = {
   id?: string
   name?: string
   description?: string
+  keywords?: string[]
   search?: {
     enabled?: boolean
     /**
@@ -96,6 +98,13 @@ export function buildWebSiteStructuredData(
     options.name?.trim() || siteConfig.name || siteConfig.tagline || "Website"
 
   const description = options.description?.trim() || siteConfig.description
+  const keywordList = options.keywords?.length
+    ? options.keywords
+    : siteConfig.keywords
+  const keywords = keywordList
+    .map((keyword) => keyword.trim())
+    .filter(Boolean)
+    .join(", ")
 
   const potentialAction = buildSearchAction(siteUrl, options.search)
 
@@ -106,6 +115,7 @@ export function buildWebSiteStructuredData(
     url,
     name,
     description,
+    keywords: keywords || undefined,
     potentialAction,
   }
 }

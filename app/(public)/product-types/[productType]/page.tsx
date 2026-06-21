@@ -9,6 +9,7 @@ import { getProductTypeMeta } from "@/lib/product-types/models"
 import { buildPageMetadata } from "@/lib/metadata"
 import { productTypePath } from "@/lib/routes"
 import { pluralize } from "@/lib/pluralize"
+import { BRAND_NAME } from "@/lib/brand"
 
 export const revalidate = 300
 export const dynamicParams = true
@@ -31,11 +32,11 @@ export async function generateMetadata(
   })
 
   const description = payload?.total
-    ? `${payload.total} ${meta.label.toLowerCase()} ${pluralize(payload.total, "product")} to explore. ${meta.description}`
-    : meta.description
+    ? `Explore ${payload.total} ${meta.label.toLowerCase()} ${pluralize(payload.total, "product")} launching on ${BRAND_NAME}. ${meta.description}`
+    : `Explore ${meta.label.toLowerCase()} product launches on ${BRAND_NAME}. ${meta.description}`
 
   const metadata = buildPageMetadata({
-    title: `${meta.label} products`,
+    title: `${meta.label} products and launches`,
     description,
     section: "Products",
   })

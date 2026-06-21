@@ -22,6 +22,7 @@ import {
   WHY_SHIPYARD_PATH,
 } from "@/lib/routes"
 import { cn } from "@/lib/utils"
+import { BRAND_NAME } from "@/lib/brand"
 
 type IconComponent = ComponentType<{ className?: string; size?: number }>
 
@@ -167,8 +168,7 @@ const PAGE_TITLE = "Why Shipyard"
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description:
-    "List your product where builders, investors, and operators gather. Shipyard pairs focused discovery with analytics and hands-on support so every launch hits with purpose.",
+  description: `Launch your app, SaaS tool, API, or startup product on ${BRAND_NAME} with focused discovery, rankings, analytics, and promotion tools.`,
 })
 
 export default function WhyShipyardPage() {
@@ -194,9 +194,9 @@ export default function WhyShipyardPage() {
             List where launches become lasting momentum.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-[#43474c] md:text-lg">
-            Shipyard is a launch intelligence network for enduring growth:
-            focused discovery, guided preparation, and analytics that keep your
-            team focused on what moves the needle.
+            Shipyard is a launch platform for enduring growth: focused
+            discovery, guided preparation, and analytics that keep your team
+            focused on what moves the needle.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg" className="rounded-lg px-8">

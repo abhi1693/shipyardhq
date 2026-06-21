@@ -7,6 +7,7 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { CATEGORIES_PATH, HOME_PATH, categoryPath } from "@/lib/routes"
 import { getCategoriesPagePayload } from "@/lib/categories/cache"
 import { buildPageMetadata } from "@/lib/metadata"
+import { BRAND_NAME } from "@/lib/brand"
 
 export const revalidate = 300
 
@@ -14,7 +15,7 @@ const PAGE_TITLE = "Categories"
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description: "Browse Shipyard by category and discover innovative products.",
+  description: `Browse app launch categories on ${BRAND_NAME} and discover SaaS tools, AI products, mobile apps, APIs, and startup projects.`,
   canonical: CATEGORIES_PATH,
 })
 

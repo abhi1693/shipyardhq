@@ -13,13 +13,14 @@ import {
 } from "@/lib/browse/seo"
 import { BROWSE_PATH, HOME_PATH, usecasePath } from "@/lib/routes"
 
-const PAGE_TITLE = "Browse Products"
+const PAGE_TITLE = "App Directory"
 
 export const dynamic = "force-dynamic"
 
 const baseMetadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description: "Explore tools, startups, and products by use case or category.",
+  description:
+    "Browse product launches, SaaS tools, mobile apps, APIs, AI products, and startup projects by use case or category.",
 })
 
 const resolveSingle = (value: string | string[] | undefined) =>

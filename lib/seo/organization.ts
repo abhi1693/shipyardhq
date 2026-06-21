@@ -1,4 +1,8 @@
-import { SHIPYARD_TWITTER_URL } from "@/lib/routes"
+import {
+  SHIPYARD_LINKEDIN_URL,
+  SHIPYARD_REDDIT_URL,
+  SHIPYARD_TWITTER_URL,
+} from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
 import { resolveSiteUrl, toAbsoluteUrlFromSite } from "@/lib/seo/base"
 
@@ -23,7 +27,7 @@ export function buildOrganizationStructuredData(): OrganizationStructuredData {
 
   const sameAs = Array.from(
     new Set(
-      [SHIPYARD_TWITTER_URL]
+      [SHIPYARD_TWITTER_URL, SHIPYARD_LINKEDIN_URL, SHIPYARD_REDDIT_URL]
         .map((entry) => entry?.trim())
         .filter((entry): entry is string => Boolean(entry?.length)),
     ),

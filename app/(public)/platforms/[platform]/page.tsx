@@ -8,6 +8,7 @@ import {
 } from "@/lib/platforms/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
 import { platformPath } from "@/lib/routes"
+import { BRAND_NAME } from "@/lib/brand"
 
 export const revalidate = 300
 export const dynamicParams = true
@@ -30,11 +31,11 @@ export async function generateMetadata(
   })
 
   const metadata = buildPageMetadata({
-    title: `${platformMeta.label} products`,
+    title: `${platformMeta.label} products and launches`,
     description:
       payload && payload.total > 0
-        ? `${payload.total} ${platformMeta.label} ${payload.total === 1 ? "product" : "products"} to discover. ${platformMeta.description}`
-        : platformMeta.description,
+        ? `Discover ${payload.total} ${platformMeta.label} ${payload.total === 1 ? "product" : "products"} launching on ${BRAND_NAME}. ${platformMeta.description}`
+        : `Discover ${platformMeta.label} product launches on ${BRAND_NAME}. ${platformMeta.description}`,
     section: "Platforms",
   })
 

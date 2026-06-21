@@ -9,6 +9,7 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { HOME_PATH, TAGS_PATH, tagPath } from "@/lib/routes"
 import { getTagsIndexPayload } from "@/lib/tags/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
+import { BRAND_NAME } from "@/lib/brand"
 
 export const revalidate = 300
 
@@ -16,8 +17,7 @@ const PAGE_TITLE = "Browse Tags"
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description:
-    "Explore Shipyard products by their top keywords and discover new tools aligned with your interests.",
+  description: `Explore ${BRAND_NAME} products by keyword, technology, and niche to find apps, SaaS tools, APIs, and startup launches faster.`,
   canonical: TAGS_PATH,
 })
 

@@ -7,6 +7,7 @@ import {
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH, LEADERBOARD_PATH } from "@/lib/routes"
+import { BRAND_NAME } from "@/lib/brand"
 
 const PAGE_TITLE = "Shipyard Leaderboard"
 
@@ -14,8 +15,7 @@ export const revalidate = 60
 
 export const metadata = buildPageMetadata({
   title: `${PAGE_TITLE} — Ranked by real builder interest`,
-  description:
-    "Shipyard products ranked by real builder interest, traffic, and community support.",
+  description: `See the top product launches on ${BRAND_NAME}, ranked by builder interest, traffic, community support, and launch momentum.`,
   canonical: LEADERBOARD_PATH,
 })
 

@@ -21,10 +21,28 @@ export const siteGrowthMetrics = {
   builderCount: 1600,
 } as const
 
+export const siteSeoKeywords = [
+  "app directory",
+  "product launch directory",
+  "launch your product",
+  "submit your app",
+  "submit your startup",
+  "startup directory",
+  "SaaS directory",
+  "AI tools directory",
+  "product discovery",
+  "Product Hunt alternative",
+  "indie maker products",
+  "launch marketplace",
+  "software directory",
+  "app launch platform",
+] as const
+
 export const siteConfig = {
   name: BRAND_NAME,
-  tagline: "The launch intelligence network for independent builders.",
-  description: `${BRAND_NAME} helps builders launch, measure, and compound momentum with focused discovery, credible analytics, and promotion tools.`,
+  tagline: "Launch products builders can discover, rank, and trust.",
+  description: `${BRAND_NAME} helps founders launch apps, SaaS tools, APIs, and startup projects with focused discovery, rankings, promotion, and traction analytics.`,
+  keywords: [...siteSeoKeywords],
   url: SITE_URL,
   ogImage: "/opengraph.png",
   logo: "/brand.png",
@@ -44,7 +62,10 @@ export const buildSiteSeo = () => {
     defaultTitle,
     titleTemplate: `%s | ${siteConfig.name}`,
     description: siteConfig.description,
+    keywords: siteConfig.keywords,
     openGraph: {
+      type: "website" as const,
+      locale: "en_US",
       title: defaultTitle,
       description: siteConfig.description,
       url: siteConfig.url,

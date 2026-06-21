@@ -16,6 +16,11 @@ export const metadata: Metadata = {
     template: siteSeo.titleTemplate,
   },
   description: siteSeo.description,
+  keywords: siteSeo.keywords,
+  applicationName: siteConfig.name,
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
+  category: "technology",
   icons: {
     icon: siteConfig.icon,
     shortcut: siteConfig.icon,
