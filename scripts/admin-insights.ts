@@ -806,8 +806,77 @@ async function getProductInsights(limit: number) {
   }
 }
 
+type DraftWithOwner = Prisma.ProductDraftGetPayload<{
+  select: {
+    createdAt: true
+    currentStep: true
+    id: true
+    mode: true
+    payload: true
+    productId: true
+    updatedAt: true
+    user: {
+      select: {
+        email: true
+        firstName: true
+        id: true
+        lastName: true
+        status: true
+      }
+    }
+    userId: true
+  }
+}>
+
+const draftWithOwnerSelect = {
+  createdAt: true,
+  currentStep: true,
+  id: true,
+  mode: true,
+  payload: true,
+  productId: true,
+  updatedAt: true,
+  user: {
+    select: {
+      email: true,
+      firstName: true,
+      id: true,
+      lastName: true,
+      status: true,
+    },
+  },
+  userId: true,
+} satisfies Prisma.ProductDraftSelect
+
+async function findDraftsWithWebsiteUrl(limit: number | null) {
+  const drafts: DraftWithOwner[] = []
+  const batchSize = limit === null ? 200 : Math.max(50, limit * 4)
+  let skip = 0
+
+  while (limit === null || drafts.length < limit) {
+    const batch = await prisma.productDraft.findMany({
+      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+      select: draftWithOwnerSelect,
+      skip,
+      take: batchSize,
+    })
+
+    if (!batch.length) break
+
+    drafts.push(
+      ...batch.filter((draft) =>
+        Boolean(payloadString(payloadRecord(draft.payload), "websiteUrl")),
+      ),
+    )
+
+    if (batch.length < batchSize) break
+    skip += batchSize
+  }
+
+  return limit === null ? drafts : drafts.slice(0, limit)
+}
+
 async function getDraftInsights(limit: number | null) {
-  const take = limit ?? undefined
   const [total, staleDrafts, byStep, byMode, drafts] = await Promise.all([
     prisma.productDraft.count(),
     prisma.productDraft.count({ where: { updatedAt: { lt: daysAgo(14) } } }),
@@ -821,29 +890,7 @@ async function getDraftInsights(limit: number | null) {
       by: ["mode"],
       orderBy: { _count: { mode: "desc" } },
     }),
-    prisma.productDraft.findMany({
-      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
-      select: {
-        createdAt: true,
-        currentStep: true,
-        id: true,
-        mode: true,
-        payload: true,
-        productId: true,
-        updatedAt: true,
-        user: {
-          select: {
-            email: true,
-            firstName: true,
-            id: true,
-            lastName: true,
-            status: true,
-          },
-        },
-        userId: true,
-      },
-      take,
-    }),
+    findDraftsWithWebsiteUrl(limit),
   ])
 
   return {
