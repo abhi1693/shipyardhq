@@ -4,6 +4,10 @@ import {
   otelResourceAttributes,
   otlpMetricsEndpoint,
 } from "@/lib/server/metrics/otel"
+import {
+  pyroscopeConfig,
+  pyroscopeTags,
+} from "@/lib/server/metrics/profiling"
 import { normalizeMetricRoute } from "@/lib/server/metrics/registry"
 
 describe("metrics registry", () => {
@@ -56,6 +60,50 @@ describe("OTel metrics configuration", () => {
       "service.name": "shipyardhq",
       "service.namespace": "shipyard",
       "service.version": "1.2.3",
+    })
+  })
+})
+
+describe("Pyroscope profiling configuration", () => {
+  it("stays disabled until a Pyroscope endpoint is configured", () => {
+    expect(pyroscopeConfig({ OTEL_SERVICE_NAME: "shipyardhq" })).toBeUndefined()
+  })
+
+  it("builds low-cardinality tags from OTel resource attributes", () => {
+    expect(
+      pyroscopeTags({
+        NODE_ENV: "production",
+        OTEL_RESOURCE_ATTRIBUTES:
+          "service.namespace=shipyard,deployment.environment.name=production,service.version=1.2.3,k8s.container.name=worker",
+      }),
+    ).toEqual({
+      deployment_environment: "production",
+      process_role: "worker",
+      service_namespace: "shipyard",
+      service_version: "1.2.3",
+    })
+  })
+
+  it("uses conservative profiler defaults for production", () => {
+    expect(
+      pyroscopeConfig({
+        OTEL_SERVICE_NAME: "shipyardhq",
+        PYROSCOPE_SERVER_ADDRESS: "http://pyroscope:4040",
+        PYROSCOPE_TAG_PROCESS_ROLE: "web",
+      }),
+    ).toMatchObject({
+      appName: "shipyardhq",
+      flushIntervalMs: 60_000,
+      heapEnabled: false,
+      serverAddress: "http://pyroscope:4040",
+      tags: {
+        process_role: "web",
+      },
+      wall: {
+        collectCpuTime: false,
+        samplingDurationMs: 60_000,
+        samplingIntervalMicros: 10_000,
+      },
     })
   })
 })

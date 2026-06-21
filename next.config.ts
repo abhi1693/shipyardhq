@@ -80,6 +80,8 @@ const nextConfig: NextConfig = {
     "@opentelemetry/sdk-metrics",
     "@opentelemetry/sdk-node",
     "@opentelemetry/semantic-conventions",
+    "@datadog/pprof",
+    "@pyroscope/nodejs",
     "redis",
     "turndown",
     "turndown-plugin-gfm",
