@@ -74,6 +74,15 @@ function parseResourceAttributes(value: string | undefined) {
   return attributes
 }
 
+function serviceVersion(env: OTelEnv, envAttributes: Record<string, string>) {
+  const version =
+    envAttributes[ATTR_SERVICE_VERSION] ||
+    trimmed(env.APP_VERSION) ||
+    trimmed(env.npm_package_version)
+
+  return version?.replace(/^v(?=\d)/, "")
+}
+
 export function otlpMetricsEndpoint(env: OTelEnv = process.env) {
   const metricsEndpoint = trimmed(env.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT)
   if (metricsEndpoint) return metricsEndpoint
@@ -97,10 +106,7 @@ export function otelResourceAttributes(env: OTelEnv = process.env) {
       envAttributes[ATTR_DEPLOYMENT_ENVIRONMENT_NAME] ||
       trimmed(env.NODE_ENV) ||
       "unknown",
-    [ATTR_SERVICE_VERSION]:
-      envAttributes[ATTR_SERVICE_VERSION] ||
-      trimmed(env.npm_package_version) ||
-      "0.0.0",
+    [ATTR_SERVICE_VERSION]: serviceVersion(env, envAttributes) || "0.0.0",
   }
 }
 

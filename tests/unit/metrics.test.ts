@@ -50,15 +50,27 @@ describe("OTel metrics configuration", () => {
     expect(
       otelResourceAttributes({
         NODE_ENV: "production",
+        APP_VERSION: "v1.4.49",
         OTEL_RESOURCE_ATTRIBUTES:
           "service.namespace=shipyard,deployment.environment.name=production",
         OTEL_SERVICE_NAME: "shipyardhq",
-        npm_package_version: "1.2.3",
+        npm_package_version: "0.0.0",
       }),
     ).toMatchObject({
       "deployment.environment.name": "production",
       "service.name": "shipyardhq",
       "service.namespace": "shipyard",
+      "service.version": "1.4.49",
+    })
+  })
+
+  it("keeps an explicit service version resource attribute", () => {
+    expect(
+      otelResourceAttributes({
+        APP_VERSION: "v1.4.49",
+        OTEL_RESOURCE_ATTRIBUTES: "service.version=1.2.3",
+      }),
+    ).toMatchObject({
       "service.version": "1.2.3",
     })
   })
@@ -73,14 +85,15 @@ describe("Pyroscope profiling configuration", () => {
     expect(
       pyroscopeTags({
         NODE_ENV: "production",
+        APP_VERSION: "v1.4.49",
         OTEL_RESOURCE_ATTRIBUTES:
-          "service.namespace=shipyard,deployment.environment.name=production,service.version=1.2.3,k8s.container.name=worker",
+          "service.namespace=shipyard,deployment.environment.name=production,k8s.container.name=worker",
       }),
     ).toEqual({
       deployment_environment: "production",
       process_role: "worker",
       service_namespace: "shipyard",
-      service_version: "1.2.3",
+      service_version: "1.4.49",
     })
   })
 

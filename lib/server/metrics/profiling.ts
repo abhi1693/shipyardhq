@@ -76,6 +76,18 @@ function addTag(
   if (next) tags[key] = next
 }
 
+function serviceVersion(
+  env: ProfilingEnv,
+  resourceAttributes: Record<string, string>,
+) {
+  const version =
+    resourceAttributes["service.version"] ||
+    trimmed(env.APP_VERSION) ||
+    trimmed(env.npm_package_version)
+
+  return version?.replace(/^v(?=\d)/, "")
+}
+
 export function pyroscopeTags(env: ProfilingEnv = process.env) {
   const resourceAttributes = parseResourceAttributes(env.OTEL_RESOURCE_ATTRIBUTES)
   const tags: Record<string, string> = {}
@@ -91,7 +103,7 @@ export function pyroscopeTags(env: ProfilingEnv = process.env) {
   addTag(
     tags,
     "service_version",
-    resourceAttributes["service.version"] || env.npm_package_version,
+    serviceVersion(env, resourceAttributes),
   )
   addTag(
     tags,
