@@ -80,13 +80,14 @@ export type SiteAnalyticsSnapshot = {
 }
 
 const CACHE_KEY = buildCacheKey("analytics:homepage:traffic:v2")
-const CACHE_TTL_SECONDS = 900
+const DAILY_TRAFFIC_CACHE_TTL_SECONDS = 60 * 60 * 24
+const CACHE_TTL_SECONDS = DAILY_TRAFFIC_CACHE_TTL_SECONDS
 const REALTIME_CACHE_KEY = buildCacheKey("analytics:homepage:realtime:v1")
 const REALTIME_CACHE_TTL_SECONDS = 120
 const SITE_SNAPSHOT_CACHE_PREFIX = "analytics:site:snapshot:v3"
-const SITE_SNAPSHOT_CACHE_TTL_SECONDS = 900
+const SITE_SNAPSHOT_CACHE_TTL_SECONDS = DAILY_TRAFFIC_CACHE_TTL_SECONDS
 const PRODUCT_TRAFFIC_CACHE_PREFIX = "analytics:product:traffic:v2"
-const PRODUCT_TRAFFIC_CACHE_TTL_SECONDS = 300
+const PRODUCT_TRAFFIC_CACHE_TTL_SECONDS = DAILY_TRAFFIC_CACHE_TTL_SECONDS
 const PRODUCT_TRAFFIC_IN_PROCESS_TTL_MS = 60_000
 const DEFAULT_GA_REPORT_TIMEOUT_MS = 10_000
 const DEFAULT_GA_REALTIME_REPORT_TIMEOUT_MS = 4_000
@@ -940,7 +941,7 @@ export async function getProductTrafficMapFromGa(args: {
 }
 
 function defaultSiteDateRange(): GaDateRange {
-  const end = subDays(new Date(), 0)
+  const end = subDays(new Date(), 1)
   const start = subDays(end, 29)
   return {
     startDate: format(start, "yyyy-MM-dd"),
@@ -1463,9 +1464,17 @@ async function fetchHomepageTrafficFromGa(): Promise<HomepageTraffic> {
     throw new Error("GA_PROPERTY_ID is missing")
   }
 
+  const end = subDays(new Date(), 1)
+  const start = subDays(end, 29)
+
   const response = await runReportWithQuota(client, {
     property,
-    dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+    dateRanges: [
+      {
+        startDate: format(start, "yyyy-MM-dd"),
+        endDate: format(end, "yyyy-MM-dd"),
+      },
+    ],
     dimensions: [{ name: "date" }],
     metrics: [{ name: "screenPageViews" }, { name: "activeUsers" }],
     orderBys: [{ dimension: { dimensionName: "date" } }],

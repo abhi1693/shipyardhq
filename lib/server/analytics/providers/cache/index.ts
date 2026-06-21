@@ -26,15 +26,16 @@ import {
 const REALTIME_VISITORS_CACHE_KEY = buildCacheKey(
   "analytics:realtime:visitors:v1",
 )
+const DAILY_TRAFFIC_TTL_SECONDS = 60 * 60 * 24
 const REALTIME_VISITORS_TTL_SECONDS = 120
 const REALTIME_VISITORS_IN_PROCESS_TTL_MS = 30_000
-const PRODUCT_TRAFFIC_TTL_SECONDS = 300
+const PRODUCT_TRAFFIC_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
 const PRODUCT_TRAFFIC_IN_PROCESS_TTL_MS = 60_000
-const PRODUCT_TRAFFIC_MAP_TTL_SECONDS = 300
+const PRODUCT_TRAFFIC_MAP_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
 const PRODUCT_TRAFFIC_MAP_IN_PROCESS_TTL_MS = 60_000
-const SITE_SNAPSHOT_TTL_SECONDS = 900
+const SITE_SNAPSHOT_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
 const SITE_SNAPSHOT_IN_PROCESS_TTL_MS = 60_000
-const HOMEPAGE_TRAFFIC_TTL_SECONDS = 900
+const HOMEPAGE_TRAFFIC_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
 const HOMEPAGE_TRAFFIC_IN_PROCESS_TTL_MS = 60_000
 
 function normalizeRealtimeVisitors(value: number) {
@@ -84,7 +85,7 @@ function cacheKeyForProductTrafficMap(args: {
 }
 
 function defaultSiteDateRange(): AnalyticsDateRange {
-  const end = subDays(new Date(), 0)
+  const end = subDays(new Date(), 1)
   const start = subDays(end, 29)
   return {
     startDate: format(start, "yyyy-MM-dd"),

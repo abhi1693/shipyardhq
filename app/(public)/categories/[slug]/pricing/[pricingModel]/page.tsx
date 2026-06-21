@@ -18,6 +18,10 @@ import { getPricingModelMeta, PRICING_MODEL_SLUGS } from "@/lib/pricing/models"
 import { buildProductListItem } from "@/lib/seo/product-list"
 import { pluralize } from "@/lib/pluralize"
 import { cn } from "@/lib/utils"
+import {
+  buildDirectoryFaq,
+  pseoRobotsForTotal,
+} from "@/lib/pseo/product-slices"
 
 type CategoryPricingParams = {
   slug: string
@@ -102,10 +106,15 @@ export async function generateMetadata(props: {
   const pricingModelMeta = getPricingModelMeta(pricingModel)
   if (!category || !pricingModelMeta) return {}
 
+  const total = await getBrowseProducts({
+    categorySlug: slug,
+    pricingModel: pricingModelMeta.value,
+    pageSize: 1,
+  }).then((payload) => payload.total ?? payload.products.length)
   const title = `${pricingModelMeta.label} ${category.name} tools`
   const description = category.description
-    ? `${category.description} Browse ${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} products curated on Shipyard.`
-    : `Discover ${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} software from indie makers.`
+    ? `${category.description} Browse ${total} ${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} products curated on Shipyard.`
+    : `Discover ${total} ${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} software products from indie makers.`
 
   const metadata = buildPageMetadata({
     title,
@@ -118,6 +127,7 @@ export async function generateMetadata(props: {
 
   return {
     ...metadata,
+    robots: pseoRobotsForTotal(total),
     keywords: [
       `${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} tools`,
       `${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} software`,
@@ -164,6 +174,11 @@ export default async function CategoryPricingPage({
       page: "1",
     })
 
+  const resultCount =
+    typeof payload.total === "number" && Number.isFinite(payload.total)
+      ? payload.total
+      : payload.products.length
+
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -182,11 +197,12 @@ export default async function CategoryPricingPage({
       }),
     ),
   }
-
-  const resultCount =
-    typeof payload.total === "number" && Number.isFinite(payload.total)
-      ? payload.total
-      : payload.products.length
+  const faq = buildDirectoryFaq({
+    title: `${pricingModelMeta.label} ${category.name} products`,
+    count: resultCount,
+    qualifier: `${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} tools`,
+    pageUrl: pagePath,
+  })
 
   return (
     <main className="relative isolate bg-[#f5f7fb]">
@@ -208,6 +224,11 @@ export default async function CategoryPricingPage({
         type="application/ld+json"
         suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }}
+      />
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faq) }}
       />
 
       <div className="mx-auto max-w-[110rem] px-4 pb-24 pt-12 md:px-8">

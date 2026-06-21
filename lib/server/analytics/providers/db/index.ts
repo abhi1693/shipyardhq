@@ -145,7 +145,7 @@ async function hasIngestionCoverage(
 }
 
 function defaultSiteDateRange(): AnalyticsDateRange {
-  const end = subDays(new Date(), 0)
+  const end = subDays(new Date(), 1)
   const start = subDays(end, 29)
   return {
     startDate: format(start, "yyyy-MM-dd"),

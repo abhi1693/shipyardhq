@@ -22,7 +22,7 @@ type ProductInterestCacheValue = {
   previousRange: GaDateRange
 }
 
-const CACHE_TTL_SECONDS = 60 * 60 * 3
+const CACHE_TTL_SECONDS = 60 * 60 * 24
 const UNCATEGORIZED_KEY = "uncategorized"
 
 const INTEREST_KEY_PREFIX = ["analytics", "product-interest", "v2"] as const
@@ -63,7 +63,7 @@ function alsoClickedIndexKey(productId: string, days: number) {
 
 function resolveRangeForLastNDays(days: number): GaDateRange {
   const safeDays = Math.max(1, Math.floor(days))
-  const end = subDays(new Date(), 0)
+  const end = subDays(new Date(), 1)
   const start = subDays(end, safeDays - 1)
   return {
     startDate: format(start, "yyyy-MM-dd"),

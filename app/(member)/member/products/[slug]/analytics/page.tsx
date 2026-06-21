@@ -57,8 +57,7 @@ import { Link2 } from "lucide-react"
 import { Button } from "@/components/atoms/button"
 
 type RangeKey =
-  | "today"
-  | "24h"
+  | "yesterday"
   | "this-week"
   | "7d"
   | "this-month"
@@ -83,8 +82,7 @@ type ResolvedRange = {
 const DEFAULT_RANGE: RangeKey = "7d"
 
 const RANGE_OPTIONS: RangeOption[] = [
-  { value: "today", label: "Today" },
-  { value: "24h", label: "Last 24 hours" },
+  { value: "yesterday", label: "Yesterday" },
   { value: "this-week", label: "This week" },
   { value: "7d", label: "Last 7 days" },
   { value: "this-month", label: "This month" },
@@ -152,56 +150,53 @@ function resolveRange(
   raw: string | null | undefined,
   productCreatedAt: Date,
 ): ResolvedRange {
-  const now = startOfDay(new Date())
-  const selected = RANGE_OPTIONS.find((option) => option.value === raw)
+  const end = startOfDay(subDays(new Date(), 1))
+  const normalizedRaw = raw === "today" || raw === "24h" ? "yesterday" : raw
+  const selected = RANGE_OPTIONS.find((option) => option.value === normalizedRaw)
   const key = selected?.value ?? DEFAULT_RANGE
   const label = selected?.label ?? "Last 7 days"
 
   const buildRange = (): GaDateRange => {
     switch (key) {
-      case "today": {
-        return { startDate: formatGaDate(now), endDate: formatGaDate(now) }
-      }
-      case "24h": {
-        const start = startOfDay(subDays(now, 1))
-        return { startDate: formatGaDate(start), endDate: formatGaDate(now) }
+      case "yesterday": {
+        return { startDate: formatGaDate(end), endDate: formatGaDate(end) }
       }
       case "this-week": {
-        const start = startOfWeek(now)
-        return { startDate: formatGaDate(start), endDate: formatGaDate(now) }
+        const start = startOfWeek(end)
+        return { startDate: formatGaDate(start), endDate: formatGaDate(end) }
       }
       case "7d": {
-        const start = startOfDay(subDays(now, 6))
-        return { startDate: formatGaDate(start), endDate: formatGaDate(now) }
+        const start = startOfDay(subDays(end, 6))
+        return { startDate: formatGaDate(start), endDate: formatGaDate(end) }
       }
       case "this-month": {
-        const start = startOfMonth(now)
-        return { startDate: formatGaDate(start), endDate: formatGaDate(now) }
+        const start = startOfMonth(end)
+        return { startDate: formatGaDate(start), endDate: formatGaDate(end) }
       }
       case "30d": {
-        const start = startOfDay(subDays(now, 29))
-        return { startDate: formatGaDate(start), endDate: formatGaDate(now) }
+        const start = startOfDay(subDays(end, 29))
+        return { startDate: formatGaDate(start), endDate: formatGaDate(end) }
       }
       case "90d": {
-        const start = startOfDay(subDays(now, 89))
-        return { startDate: formatGaDate(start), endDate: formatGaDate(now) }
+        const start = startOfDay(subDays(end, 89))
+        return { startDate: formatGaDate(start), endDate: formatGaDate(end) }
       }
       case "this-year": {
-        const start = startOfYear(now)
-        return { startDate: formatGaDate(start), endDate: formatGaDate(now) }
+        const start = startOfYear(end)
+        return { startDate: formatGaDate(start), endDate: formatGaDate(end) }
       }
       case "6m": {
-        const start = startOfMonth(subMonths(now, 5))
-        return { startDate: formatGaDate(start), endDate: formatGaDate(now) }
+        const start = startOfMonth(subMonths(end, 5))
+        return { startDate: formatGaDate(start), endDate: formatGaDate(end) }
       }
       case "12m": {
-        const start = startOfMonth(subMonths(now, 11))
-        return { startDate: formatGaDate(start), endDate: formatGaDate(now) }
+        const start = startOfMonth(subMonths(end, 11))
+        return { startDate: formatGaDate(start), endDate: formatGaDate(end) }
       }
       case "all-time":
       default: {
         const start = startOfDay(productCreatedAt)
-        return { startDate: formatGaDate(start), endDate: formatGaDate(now) }
+        return { startDate: formatGaDate(start), endDate: formatGaDate(end) }
       }
     }
   }

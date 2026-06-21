@@ -48,7 +48,7 @@ const PAGE_TITLE = "Analytics"
 export const revalidate = 300
 
 const ANALYTICS_PAGE_TOP_PRODUCT_LIMIT = 8
-const ANALYTICS_PAGE_CACHE_TTL_SECONDS = 900
+const ANALYTICS_PAGE_CACHE_TTL_SECONDS = 60 * 60 * 24
 const ANALYTICS_PAGE_IN_PROCESS_TTL_MS = 60_000
 const numberFormatter = new Intl.NumberFormat("en-US")
 
@@ -717,7 +717,7 @@ async function getCachedAnalyticsPageData({
 }
 
 export default async function AnalyticsPage() {
-  const rangeEnd = subDays(new Date(), 0)
+  const rangeEnd = subDays(new Date(), 1)
   const rangeStart = subDays(rangeEnd, 29)
   const prevRangeEnd = subDays(rangeStart, 1)
   const prevRangeStart = subDays(prevRangeEnd, 29)

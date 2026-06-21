@@ -33,6 +33,7 @@ interface GetBrowseProductsOptions {
   minPriceCents?: number
   maxPriceCents?: number
   badge?: string
+  alternativeSlug?: string
 }
 
 type UseCaseCategoryRef = Prisma.UseCaseCategoryGetPayload<{
@@ -67,6 +68,7 @@ export const getBrowseProducts = cached(
     minPriceCents,
     maxPriceCents,
     badge,
+    alternativeSlug,
   }: GetBrowseProductsOptions) => {
     const skip = (page - 1) * pageSize
 
@@ -154,6 +156,15 @@ export const getBrowseProducts = cached(
               some: {
                 badge,
                 OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+              },
+            },
+          }
+        : {}),
+      ...(alternativeSlug
+        ? {
+            alternatives: {
+              some: {
+                slug: alternativeSlug,
               },
             },
           }
@@ -299,6 +310,7 @@ export const getBrowseProducts = cached(
           ? `maxPrice:${options.maxPriceCents}`
           : "",
         options.badge ? `badge:${options.badge}` : "",
+        options.alternativeSlug ? `alternative:${options.alternativeSlug}` : "",
       ]
 
       return parts.filter((part) => Boolean(part))

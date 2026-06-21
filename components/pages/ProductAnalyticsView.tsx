@@ -109,11 +109,11 @@ function SummaryCards({
         "Estimated unique visitors for this period. Useful for gauging reach beyond total views.",
     },
     {
-      title: "Views today",
+      title: "Views yesterday",
       value: formatter.format(summary.viewsToday),
       helper: `${formatter.format(summary.viewsSevenDays)} in the past 7 days`,
       tooltip:
-        "How many views landed today alongside the trailing seven-day total for momentum checks.",
+        "How many views landed yesterday alongside the trailing seven-day total for momentum checks.",
     },
     {
       title: "Avg. per day",

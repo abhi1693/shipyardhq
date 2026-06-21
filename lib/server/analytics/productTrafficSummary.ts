@@ -22,11 +22,11 @@ type SummaryOptions = {
 type GaSummary = ProviderProductTrafficSummary
 
 function buildDateRange(rangeDays: number): GaDateRange {
-  const now = startOfDay(new Date())
-  const start = subDays(now, Math.max(rangeDays - 1, 0))
+  const end = startOfDay(subDays(new Date(), 1))
+  const start = subDays(end, Math.max(rangeDays - 1, 0))
   return {
     startDate: format(start, "yyyy-MM-dd"),
-    endDate: format(now, "yyyy-MM-dd"),
+    endDate: format(end, "yyyy-MM-dd"),
   }
 }
 
@@ -145,7 +145,7 @@ function buildSummary({
     upvotes: 0,
   }))
 
-  const viewsToday =
+  const viewsPreviousDay =
     viewsOverTime.length > 0 ? viewsOverTime[viewsOverTime.length - 1].views : 0
   const viewsSevenDays = viewsOverTime
     .slice(-7)
@@ -180,7 +180,7 @@ function buildSummary({
     uniqueVisitorsChange: calcChange(uniqueVisitors, previousUniqueVisitors),
     averageViewsPerDay:
       rangeDays > 0 ? Math.round((totalViews / rangeDays) * 10) / 10 : 0,
-    viewsToday,
+    viewsToday: viewsPreviousDay,
     viewsSevenDays,
     upvotesInRange,
     previousUpvotes,

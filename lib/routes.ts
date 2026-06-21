@@ -108,15 +108,36 @@ export const categoryPricingPath = (
 ) => `${categoryPath(categorySlug)}/pricing/${pricingModel}`
 export const categoryPlatformPath = (categorySlug: string, platform: string) =>
   `${categoryPath(categorySlug)}/platforms/${platform}`
+export const categoryProductTypePath = (
+  categorySlug: string,
+  productType: string,
+) => `${categoryPath(categorySlug)}/product-types/${productType}`
 export const usecasePath = (slug: string) => `${USE_CASES_PATH}/${slug}`
+export const usecaseCategoryPath = (useCaseSlug: string, categorySlug: string) =>
+  `${usecasePath(useCaseSlug)}/categories/${categorySlug}`
+export const usecasePricingPath = (
+  useCaseSlug: string,
+  pricingModel: string,
+) => `${usecasePath(useCaseSlug)}/pricing/${pricingModel}`
+export const usecasePlatformPath = (useCaseSlug: string, platform: string) =>
+  `${usecasePath(useCaseSlug)}/platforms/${platform}`
 export const tagPath = (slug: string) => `${TAGS_PATH}/${slug}`
 export const productPath = (slug: string) => `/products/${slug}`
 export const userPath = (id: string) => `${USERS_PATH}/${id}`
+
+export const verifiedCategoryPath = (categorySlug: string) =>
+  `/verified/${categorySlug}`
+export const editorPickCategoryPath = (categorySlug: string) =>
+  `/editor-picks/${categorySlug}`
 
 export const memberProductsStatusPath = (status: string) =>
   `${MEMBER_PRODUCTS_PATH}?status=${status}`
 
 export const platformPath = (slug: string) => `${PLATFORMS_PATH}/${slug}`
+export const alternativeCategoryPath = (
+  alternativeSlug: string,
+  categorySlug: string,
+) => `${alternativePath(alternativeSlug)}/categories/${categorySlug}`
 export const memberProductPath = (slug: string) =>
   `${MEMBER_PRODUCTS_PATH}/${slug}`
 

@@ -18,6 +18,10 @@ import { getPlatformMeta, PLATFORM_SLUGS } from "@/lib/platforms/config"
 import { buildProductListItem } from "@/lib/seo/product-list"
 import { pluralize } from "@/lib/pluralize"
 import { cn } from "@/lib/utils"
+import {
+  buildDirectoryFaq,
+  pseoRobotsForTotal,
+} from "@/lib/pseo/product-slices"
 
 type CategoryPlatformParams = {
   slug: string
@@ -102,10 +106,15 @@ export async function generateMetadata(props: {
   const platformMeta = getPlatformMeta(platform)
   if (!category || !platformMeta) return {}
 
+  const total = await getBrowseProducts({
+    categorySlug: slug,
+    platform: platformMeta.value,
+    pageSize: 1,
+  }).then((payload) => payload.total ?? payload.products.length)
   const title = `${category.name} tools for ${platformMeta.label}`
   const description = category.description
-    ? `${category.description} Browse ${category.name.toLowerCase()} products built for ${platformMeta.label}.`
-    : `Discover ${category.name.toLowerCase()} software made for ${platformMeta.label} users.`
+    ? `${category.description} Browse ${total} ${category.name.toLowerCase()} products built for ${platformMeta.label}.`
+    : `Discover ${total} ${category.name.toLowerCase()} software products made for ${platformMeta.label} users.`
 
   const metadata = buildPageMetadata({
     title,
@@ -118,6 +127,7 @@ export async function generateMetadata(props: {
 
   return {
     ...metadata,
+    robots: pseoRobotsForTotal(total),
     keywords: [
       `${category.name.toLowerCase()} tools for ${platformMeta.label.toLowerCase()}`,
       `${category.name.toLowerCase()} ${platformMeta.label.toLowerCase()} apps`,
@@ -162,6 +172,11 @@ export default async function CategoryPlatformPage({
       page: "1",
     })
 
+  const resultCount =
+    typeof payload.total === "number" && Number.isFinite(payload.total)
+      ? payload.total
+      : payload.products.length
+
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -180,11 +195,12 @@ export default async function CategoryPlatformPage({
       }),
     ),
   }
-
-  const resultCount =
-    typeof payload.total === "number" && Number.isFinite(payload.total)
-      ? payload.total
-      : payload.products.length
+  const faq = buildDirectoryFaq({
+    title: `${category.name} products for ${platformMeta.label}`,
+    count: resultCount,
+    qualifier: `${category.name.toLowerCase()} tools for ${platformMeta.label}`,
+    pageUrl: pagePath,
+  })
 
   return (
     <main className="relative isolate bg-[#f5f7fb]">
@@ -206,6 +222,11 @@ export default async function CategoryPlatformPage({
         type="application/ld+json"
         suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }}
+      />
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faq) }}
       />
 
       <div className="mx-auto max-w-[110rem] px-4 pb-24 pt-12 md:px-8">

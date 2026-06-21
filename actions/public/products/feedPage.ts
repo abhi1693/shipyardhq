@@ -26,9 +26,11 @@ export type ProductFeedPageRequest =
       platform?: string
       pricingModel?: string
       productType?: string
+      verified?: boolean
       minPrice?: number
       maxPrice?: number
       badge?: string
+      alternative?: string
     }
   | {
       kind: "tag"
@@ -74,6 +76,7 @@ export async function getProductFeedPage(
         page: request.page,
         useCaseSlug: request.useCase,
         categorySlug: request.category,
+        verified: request.verified,
         sort: isValidBrowseSort(request.sort) ? request.sort : undefined,
         query: request.q,
         platform: platformEnum,
@@ -88,6 +91,7 @@ export async function getProductFeedPage(
             ? request.maxPrice * 100
             : undefined,
         badge: request.badge,
+        alternativeSlug: request.alternative,
       })
 
       const interestMap = await getProductInterestSignalsMap({
