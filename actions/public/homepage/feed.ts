@@ -12,7 +12,10 @@ import type { HomepageFeedView } from "@/lib/homepage/feed-views"
 import type { ProductCardVariant } from "@/types/product-card"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import type { ProductInterestSignals } from "@/types/product-interest"
-import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
+import {
+  getProductInterestSignalsMap,
+  type ProductRef,
+} from "@/lib/server/analytics/productInterest"
 import { hasEditorPickBadge } from "@/lib/products/badges"
 import { stableUnitInterval } from "@/lib/stable-random"
 import { getCurrentLeaderboardRun } from "@/lib/server/leaderboard/v2"
@@ -117,6 +120,14 @@ type HomepageLaunchWindow = "all" | "week"
 type RefreshHomepageFeedCacheOptions = {
   revalidateNextCache?: boolean
   useNextLaunchCache?: boolean
+}
+
+type FeedItemBuildContext = {
+  interestByProductId?: Map<string, ProductInterestSignals>
+  now: Date
+  scoreByProductId?: Map<string, number>
+  sponsoredPlanIds: ReadonlySet<string>
+  upvoted: Set<string>
 }
 
 interface HomepageWeekFeedPools {
@@ -355,50 +366,121 @@ async function buildFeedItemsFromProducts(
   products: HomepageFeedProduct[],
   clerkUserId: string | null | undefined,
   sponsoredPlanIds: ReadonlySet<string>,
+  now = new Date(),
 ): Promise<HomepageFeedItem[]> {
   if (products.length === 0) {
     return []
   }
 
-  const productIds = products.map((product) => product.id)
-  const upvoted = await resolveUpvotedProductIds(clerkUserId, productIds)
-  const now = new Date()
-  const scoreMap = await getCurrentScoreMap(productIds)
-  const interestMap = await getProductInterestSignalsMap({
-    products: products.map((product) => ({
-      id: product.id,
-      slug: product.slug,
-    })),
-  })
+  const context = await resolveFeedItemBuildContext(
+    products,
+    clerkUserId,
+    sponsoredPlanIds,
+    now,
+  )
+
+  return buildFeedItemsFromProductsWithContext(products, context)
+}
+
+async function resolveFeedItemBuildContext(
+  products: HomepageFeedProduct[],
+  clerkUserId: string | null | undefined,
+  sponsoredPlanIds: ReadonlySet<string>,
+  now = new Date(),
+): Promise<FeedItemBuildContext> {
+  const uniqueProducts = Array.from(
+    products
+      .reduce((map, product) => {
+        map.set(product.id, {
+          id: product.id,
+          slug: product.slug,
+        })
+        return map
+      }, new Map<string, ProductRef>())
+      .values(),
+  )
+  const uniqueProductIds = uniqueProducts.map((product) => product.id)
+  const [upvoted, scoreMap, interestMap] = await Promise.all([
+    resolveUpvotedProductIds(clerkUserId, uniqueProductIds),
+    getCurrentScoreMap(uniqueProductIds),
+    getProductInterestSignalsMap({
+      products: uniqueProducts,
+    }),
+  ])
+
+  return {
+    interestByProductId: interestMap,
+    now,
+    scoreByProductId: scoreMap,
+    sponsoredPlanIds,
+    upvoted,
+  }
+}
+
+function buildFeedItemsFromProductsWithContext(
+  products: HomepageFeedProduct[],
+  context: FeedItemBuildContext,
+): HomepageFeedItem[] {
   return products.map((product) =>
     mapProductToFeedItem(
       product,
-      upvoted,
-      now,
-      scoreMap,
-      interestMap,
-      sponsoredPlanIds,
+      context.upvoted,
+      context.now,
+      context.scoreByProductId,
+      context.interestByProductId,
+      context.sponsoredPlanIds,
     ),
   )
 }
 
-async function applyViewerVoteState(
-  items: HomepageFeedItem[],
+async function buildFeedItemsFromProductGroups(
+  productGroups: HomepageFeedProduct[][],
   clerkUserId: string | null | undefined,
-) {
-  if (!items.length || !clerkUserId) {
-    return items
+  sponsoredPlanIds: ReadonlySet<string>,
+  now = new Date(),
+): Promise<HomepageFeedItem[][]> {
+  const products = productGroups.flat()
+  if (products.length === 0) {
+    return productGroups.map(() => [])
   }
 
-  const upvoted = await resolveUpvotedProductIds(
+  const context = await resolveFeedItemBuildContext(
+    products,
     clerkUserId,
-    items.map((item) => item.id),
+    sponsoredPlanIds,
+    now,
   )
 
-  return items.map((item) => ({
-    ...item,
-    isVoted: upvoted.has(item.id),
-  }))
+  return productGroups.map((group) =>
+    buildFeedItemsFromProductsWithContext(group, context),
+  )
+}
+
+async function applyViewerVoteStateToGroups(
+  itemGroups: HomepageFeedItem[][],
+  clerkUserId: string | null | undefined,
+): Promise<HomepageFeedItem[][]> {
+  if (!clerkUserId) return itemGroups
+
+  const productIds: string[] = []
+  const seen = new Set<string>()
+  for (const group of itemGroups) {
+    for (const item of group) {
+      if (seen.has(item.id)) continue
+      seen.add(item.id)
+      productIds.push(item.id)
+    }
+  }
+
+  if (!productIds.length) return itemGroups
+
+  const upvoted = await resolveUpvotedProductIds(clerkUserId, productIds)
+  return itemGroups.map((group) =>
+    group.map((item) => ({
+      ...item,
+      isVoted: upvoted.has(item.id),
+    })),
+  )
 }
 
 interface GetOrderedHomepageFeedParams extends GetHomepageFeedPageParams {
@@ -532,12 +614,13 @@ async function getHomepageWeekFeedPoolsImpl(
     }),
   ])
 
-  const [today, yesterday, thisWeek, sponsored] = await Promise.all([
-    buildFeedItemsFromProducts(todayProducts, null, sponsoredPlanIdSet),
-    buildFeedItemsFromProducts(yesterdayProducts, null, sponsoredPlanIdSet),
-    buildFeedItemsFromProducts(thisWeekProducts, null, sponsoredPlanIdSet),
-    buildFeedItemsFromProducts(sponsoredProducts, null, sponsoredPlanIdSet),
-  ])
+  const [today, yesterday, thisWeek, sponsored] =
+    await buildFeedItemsFromProductGroups(
+      [todayProducts, yesterdayProducts, thisWeekProducts, sponsoredProducts],
+      null,
+      sponsoredPlanIdSet,
+      now,
+    )
 
   return {
     generatedAt: now.toISOString(),
@@ -602,10 +685,11 @@ async function getHomepageWeekFeedPageFromPools({
   const sponsoredItems = pools.sponsored.filter(
     (item) => !organicIds.has(item.id),
   )
-  const [viewerOrganicItems, viewerSponsoredItems] = await Promise.all([
-    applyViewerVoteState(organicPageItems, clerkUserId),
-    applyViewerVoteState(sponsoredItems, clerkUserId),
-  ])
+  const [viewerOrganicItems, viewerSponsoredItems] =
+    await applyViewerVoteStateToGroups(
+      [organicPageItems, sponsoredItems],
+      clerkUserId,
+    )
   const hasMore =
     organicStartIndex + organicPageItems.length < organicItems.length
 
