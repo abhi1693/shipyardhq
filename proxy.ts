@@ -1,9 +1,11 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
+import { createDualmarkMiddleware } from "@dualmark/nextjs"
 import {
   NextResponse,
   type NextFetchEvent,
   type NextRequest,
 } from "next/server"
+import { dualmarkConfig, DUALMARK_INTERNAL_NAMESPACE } from "@/lib/dualmark"
 import { parseManagedMediaImageUrl } from "@/lib/images/managed-media"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
 import {
@@ -21,6 +23,7 @@ const PUBLIC_NOT_FOUND_CACHE_CONTROL =
   "public, s-maxage=60, stale-while-revalidate=300"
 const PRIVATE_DOCUMENT_CACHE_CONTROL =
   "private, no-cache, no-store, max-age=0, must-revalidate"
+const handleDualmarkMiddleware = createDualmarkMiddleware(dualmarkConfig)
 
 async function redirectMediaImageOptimizationRequest(req: NextRequest) {
   const url = new URL(req.url)
@@ -61,53 +64,6 @@ async function redirectMediaImageOptimizationRequest(req: NextRequest) {
   return NextResponse.rewrite(cacheUrl)
 }
 
-function hasExplicitMarkdownAccept(req: NextRequest) {
-  const acceptHeader = req.headers.get("accept")
-  if (!acceptHeader) {
-    return false
-  }
-
-  return acceptHeader.split(",").some((entry) => {
-    const [mediaType, ...params] = entry
-      .split(";")
-      .map((part) => part.trim().toLowerCase())
-    const qParam = params.find((param) => param.startsWith("q="))
-    const q = qParam ? Number(qParam.slice(2)) : 1
-
-    return mediaType === "text/markdown" && Number.isFinite(q) && q > 0
-  })
-}
-
-function rewriteMarkdownRequest(req: NextRequest) {
-  if (
-    (req.method !== "GET" && req.method !== "HEAD") ||
-    !hasExplicitMarkdownAccept(req)
-  ) {
-    return null
-  }
-
-  const url = new URL(req.url)
-  if (
-    url.pathname === "/markdown-for-agents" ||
-    url.pathname.startsWith("/api/") ||
-    url.pathname.startsWith("/admin") ||
-    url.pathname.startsWith(MEMBER_BASE_PATH) ||
-    url.pathname.startsWith("/.well-known/") ||
-    PUBLIC_FILE_EXTENSION.test(url.pathname)
-  ) {
-    return null
-  }
-
-  const markdownUrl = new URL(req.url)
-  markdownUrl.pathname =
-    url.pathname === "/"
-      ? "/markdown-for-agents"
-      : `/markdown-for-agents${url.pathname}`
-  markdownUrl.search = url.search
-
-  return NextResponse.rewrite(markdownUrl)
-}
-
 function rewriteSitemapChunkRequest(req: NextRequest) {
   const url = new URL(req.url)
   const rewritePath = resolveSitemapChunkRewritePath(url.pathname)
@@ -129,6 +85,10 @@ function getProductPageSlug(req: NextRequest) {
   }
 
   const url = new URL(req.url)
+  if (url.pathname.endsWith(".md")) {
+    return null
+  }
+
   const match = url.pathname.match(PRODUCT_PAGE_PATH_PATTERN)
   if (!match?.[1]) {
     return null
@@ -153,7 +113,7 @@ async function rewriteMissingProductRequest(req: NextRequest) {
   }
 
   const markdownUrl = new URL(
-    `/markdown-for-agents/products/${encodeURIComponent(slug)}`,
+    `/${DUALMARK_INTERNAL_NAMESPACE}/products/${encodeURIComponent(slug)}`,
     req.url,
   )
 
@@ -188,7 +148,8 @@ function isPublicDocumentRequest(req: NextRequest) {
   const url = new URL(req.url)
   return (
     url.pathname !== "/_next/image" &&
-    url.pathname !== "/markdown-for-agents" &&
+    url.pathname !== `/${DUALMARK_INTERNAL_NAMESPACE}` &&
+    !url.pathname.startsWith(`/${DUALMARK_INTERNAL_NAMESPACE}/`) &&
     !shouldRunClerkMiddleware(url.pathname) &&
     !url.pathname.startsWith("/api/") &&
     !url.pathname.startsWith("/admin") &&
@@ -221,8 +182,6 @@ function addAgentDiscoveryHeaders(req: NextRequest, response: NextResponse) {
     return response
   }
 
-  const url = new URL(req.url)
-  const markdownPath = `${url.pathname}${url.search}`
   response.headers.set("Cache-Control", PUBLIC_DOCUMENT_CACHE_CONTROL)
   appendVary(response, "Accept")
   appendHeaderValue(
@@ -231,7 +190,6 @@ function addAgentDiscoveryHeaders(req: NextRequest, response: NextResponse) {
     [
       '</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"; profile="https://www.rfc-editor.org/info/rfc9727"',
       '</llms.txt>; rel="service-doc"; type="text/plain"',
-      `<${markdownPath}>; rel="alternate"; type="text/markdown"`,
     ].join(", "),
   )
 
@@ -253,11 +211,6 @@ export default async function proxy(req: NextRequest, event: NextFetchEvent) {
     return mediaImageRedirect
   }
 
-  const markdownRewrite = rewriteMarkdownRequest(req)
-  if (markdownRewrite) {
-    return markdownRewrite
-  }
-
   const sitemapRewrite = rewriteSitemapChunkRequest(req)
   if (sitemapRewrite) {
     return sitemapRewrite
@@ -269,8 +222,16 @@ export default async function proxy(req: NextRequest, event: NextFetchEvent) {
   }
 
   const url = new URL(req.url)
+  const dualmarkResponse = await handleDualmarkMiddleware(req)
+  if (
+    dualmarkResponse.status !== 200 ||
+    dualmarkResponse.headers.has("x-middleware-rewrite")
+  ) {
+    return dualmarkResponse
+  }
+
   if (!shouldRunClerkMiddleware(url.pathname)) {
-    return addAgentDiscoveryHeaders(req, NextResponse.next())
+    return addAgentDiscoveryHeaders(req, dualmarkResponse as NextResponse)
   }
 
   const response = await handleClerkMiddleware(req, event)

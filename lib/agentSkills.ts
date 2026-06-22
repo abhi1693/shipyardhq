@@ -49,7 +49,7 @@ export function buildShipyardDiscoverySkill() {
       "Accept: text/markdown",
       "```",
       "",
-      "The markdown response keeps browser HTML unchanged and returns `Content-Type: text/markdown; charset=utf-8` plus an `x-markdown-tokens` estimate when available.",
+      "The markdown response keeps browser HTML unchanged and returns `Content-Type: text/markdown; charset=utf-8` plus Dualmark AEO headers such as `X-Markdown-Tokens` and `X-AEO-Version`.",
       "",
       "## Citation Guidance",
       "",

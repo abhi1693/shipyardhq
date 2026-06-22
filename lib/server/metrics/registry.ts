@@ -11,9 +11,9 @@ export function normalizeMetricRoute(url: string | undefined) {
   if (pathname === "/") return "/"
   if (pathname === "/metrics") return "/metrics"
   if (pathname === "/_next/image") return "/_next/image"
-  if (pathname === "/markdown-for-agents") return "/markdown-for-agents"
-  if (pathname.startsWith("/markdown-for-agents/")) {
-    return "/markdown-for-agents/:path"
+  if (pathname === "/md") return "/md"
+  if (pathname.startsWith("/md/")) {
+    return "/md/:path"
   }
   if (pathname.startsWith("/api/embed/products/")) {
     return "/api/embed/products/:slug"

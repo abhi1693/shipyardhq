@@ -1,6 +1,11 @@
+import { withDualmark } from "@dualmark/nextjs"
 import type { NextConfig } from "next"
 
 const isDev = process.env.NODE_ENV === "development"
+const stripTrailingSlash = (value: string) => value.replace(/\/+$/, "")
+const dualmarkSiteUrl = stripTrailingSlash(
+  process.env.NEXT_PUBLIC_APP_URL?.trim() || "http://localhost:3000",
+)
 const googleAnalyticsHosts = [
   "https://www.googletagmanager.com",
   "https://*.googletagmanager.com",
@@ -116,8 +121,6 @@ const nextConfig: NextConfig = {
     "@datadog/pprof",
     "@pyroscope/nodejs",
     "redis",
-    "turndown",
-    "turndown-plugin-gfm",
   ],
   async redirects() {
     return [
@@ -217,4 +220,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
 }
 
-export default nextConfig
+export default withDualmark(nextConfig, {
+  siteUrl: dualmarkSiteUrl,
+  internalNamespace: "md",
+})

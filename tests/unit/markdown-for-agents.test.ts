@@ -1,58 +1,25 @@
 import { describe, expect, it } from "vitest"
+import { estimateTokens, negotiateFormat, toMarkdownPath } from "@dualmark/core"
 
-import {
-  convertHtmlToMarkdown,
-  estimateMarkdownTokens,
-  hasExplicitMarkdownAccept,
-} from "@/lib/server/markdownForAgents"
 import { BRAND_NAME } from "@/lib/brand"
 import { buildProductMarkdownDocument } from "@/lib/server/productMarkdownDocument"
 
 describe("markdown for agents", () => {
-  it("detects explicit text/markdown negotiation", () => {
-    expect(hasExplicitMarkdownAccept("text/markdown")).toBe(true)
-    expect(hasExplicitMarkdownAccept("text/html, text/markdown; q=0.8")).toBe(
-      true,
-    )
-    expect(hasExplicitMarkdownAccept("text/markdown; q=0")).toBe(false)
-    expect(hasExplicitMarkdownAccept("text/html, */*")).toBe(false)
-    expect(hasExplicitMarkdownAccept(null)).toBe(false)
+  it("negotiates markdown with Dualmark", () => {
+    expect(negotiateFormat("text/markdown")).toBe("markdown")
+    expect(negotiateFormat("text/html, text/markdown; q=0.8")).toBe("html")
+    expect(negotiateFormat("text/markdown; q=0")).toBeNull()
+    expect(negotiateFormat("application/json")).toBeNull()
   })
 
   it("estimates a positive token count for non-empty markdown", () => {
-    expect(
-      estimateMarkdownTokens(`# ${BRAND_NAME}\n\nLaunch data`),
-    ).toBeGreaterThan(0)
+    expect(estimateTokens(`# ${BRAND_NAME}\n\nLaunch data`)).toBeGreaterThan(0)
   })
 
-  it("converts rendered HTML into markdown without script content", () => {
-    const markdown = convertHtmlToMarkdown(
-      `
-        <html>
-          <body>
-            <main>
-              <h1>Shipyard</h1>
-              <a href="/cdn-cgi/content"></a>
-              <p>Launch data for <a href="/products/example">Example</a>.</p>
-              <table>
-                <thead><tr><th>Feature</th><th>Shipyard</th></tr></thead>
-                <tbody><tr><td>Discovery</td><td>Curated</td></tr></tbody>
-              </table>
-              <script>window.__NEXT_DATA__ = "ignore me"</script>
-            </main>
-          </body>
-        </html>
-      `,
-      new URL("https://shipyardhq.dev/"),
-    )
-
-    expect(markdown).toContain("# Shipyard")
-    expect(markdown).toContain(
-      "[Example](https://shipyardhq.dev/products/example)",
-    )
-    expect(markdown).toContain("| Feature | Shipyard |")
-    expect(markdown).not.toContain("/cdn-cgi/content")
-    expect(markdown).not.toContain("__NEXT_DATA__")
+  it("maps public paths to visible markdown twin paths", () => {
+    expect(toMarkdownPath("/")).toBe("/index.md")
+    expect(toMarkdownPath("/products/example")).toBe("/products/example.md")
+    expect(toMarkdownPath("/products/example.md")).toBe("/products/example.md")
   })
 
   it("renders product markdown from product data without page chrome", () => {
