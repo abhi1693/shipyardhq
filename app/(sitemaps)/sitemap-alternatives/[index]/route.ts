@@ -12,10 +12,6 @@ import {
   urlsetXml,
 } from "@/lib/sitemap"
 
-export function generateStaticParams(): Array<{ index: string }> {
-  return []
-}
-
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ index: string }> },

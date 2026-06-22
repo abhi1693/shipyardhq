@@ -18,10 +18,6 @@ type ProductSitemapEntry = Prisma.ProductGetPayload<{
   select: { id: true; slug: true; updatedAt: true; publishedAt: true }
 }>
 
-export function generateStaticParams(): Array<{ index: string }> {
-  return []
-}
-
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ index: string }> },
