@@ -41,6 +41,7 @@ import {
 } from "@/lib/routes"
 import { cacheGetOrSet } from "@/lib/server/cache"
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 import { siteConfig } from "@/lib/siteConfig"
 import { BRAND_NAME } from "@/lib/brand"
 import { cn } from "@/lib/utils"
@@ -649,7 +650,7 @@ async function getCachedAnalyticsPageData({
 }) {
   return cacheGetOrSet({
     key: [
-      "analytics:page:traffic-snapshot:v1",
+      "analytics:page:traffic-snapshot:v2",
       rangeStartDate,
       rangeEndDate,
       prevRangeStartDate,
@@ -687,7 +688,9 @@ async function getCachedAnalyticsPageData({
       const products =
         productSlugs.length > 0
           ? await prisma.product.findMany({
-              where: { slug: { in: productSlugs } },
+              where: buildPublicDiscoveryProductWhere({
+                slug: { in: productSlugs },
+              }),
               select: {
                 slug: true,
                 name: true,
@@ -702,12 +705,15 @@ async function getCachedAnalyticsPageData({
         ]),
       )
 
-      const topProducts = snapshot.topProductPages.map((page) => {
+      const topProducts = snapshot.topProductPages.flatMap((page) => {
         const slug = page.slug?.toLowerCase()
         const product = slug ? productMap.get(slug) : null
+        if (!slug || !product) return []
+
         return {
           ...page,
-          name: product?.name ?? slug ?? page.path,
+          slug: product.slug,
+          name: product.name,
         }
       })
 
