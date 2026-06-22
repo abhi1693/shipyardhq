@@ -7,6 +7,7 @@ import { getTaxonomySponsorProducts } from "@/components/templates/public/common
 import {
   buildTaxonomyProductSections,
   mapProductCardBaseToTaxonomyFeedItem,
+  resolveTaxonomyReferenceDateIso,
   TaxonomyProductSections,
 } from "@/components/templates/public/common/TaxonomyProductRows"
 import { pluralize } from "@/lib/pluralize"
@@ -44,11 +45,19 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
   if (!data) notFound()
 
   const { useCase, categories, productCount } = data
-  const referenceDateIso = new Date().toISOString()
-  const referenceDate = new Date(referenceDateIso)
+  const referenceDateIso = resolveTaxonomyReferenceDateIso(
+    productsPage.products,
+  )
+  const referenceDate = referenceDateIso ? new Date(referenceDateIso) : null
   const useCaseFeedItems = productsPage.products.map((product) =>
     mapProductCardBaseToTaxonomyFeedItem(
-      mapProductCardRecordToBase(product, referenceDate, { priorityPlanIds }),
+      mapProductCardRecordToBase(
+        product,
+        referenceDate ?? product.updatedAt ?? product.createdAt,
+        {
+          priorityPlanIds,
+        },
+      ),
     ),
   )
 
@@ -72,10 +81,9 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
       categoryName: product.category,
     }),
   )
-  const feedSections = buildTaxonomyProductSections(
-    useCaseFeedItems,
-    referenceDateIso,
-  )
+  const feedSections = referenceDateIso
+    ? buildTaxonomyProductSections(useCaseFeedItems, referenceDateIso)
+    : []
   const categoryMentions = categories.map((category) => ({
     "@type": "Thing",
     name: category.name,

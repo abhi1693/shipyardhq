@@ -7,6 +7,7 @@ import type { AlternativeDetailProduct } from "@/actions/public/alternatives/act
 import { getProductFeedPage } from "@/actions/public/products/feedPage"
 import {
   buildTaxonomyProductSections,
+  resolveTaxonomyReferenceDateIso,
   TaxonomyProductSections,
 } from "@/components/templates/public/common/TaxonomyProductRows"
 
@@ -16,7 +17,7 @@ interface AlternativeProductsClientProps {
   initialHasMore: boolean
   initialPage: number
   pageSize?: number
-  referenceDateIso: string
+  referenceDateIso?: string | null
 }
 
 const FALLBACK_TAGLINE =
@@ -86,10 +87,13 @@ export function AlternativeProductsClient({
     [alternativeId, initialItems, normalizedInitialPage, normalizedPageSize],
   )
 
-  const sections = useMemo(
-    () => buildTaxonomyProductSections(products, referenceDateIso),
-    [products, referenceDateIso],
-  )
+  const sections = useMemo(() => {
+    const resolvedReferenceDateIso =
+      referenceDateIso ?? resolveTaxonomyReferenceDateIso(products)
+    return resolvedReferenceDateIso
+      ? buildTaxonomyProductSections(products, resolvedReferenceDateIso)
+      : []
+  }, [products, referenceDateIso])
 
   useEffect(() => {
     setProducts(initialItems.map((item) => toFeedItem(item)))

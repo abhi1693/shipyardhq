@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Globe2, Rss, Users } from "lucide-react"
-import { connection } from "next/server"
 
+import { CurrentYear } from "@/components/layout/footers/current-year"
 import { BRAND_NAME } from "@/lib/brand"
 import {
   ANALYTICS_PATH,
@@ -45,10 +45,7 @@ const footerColumns = [
   },
 ] as const
 
-export default async function PublicFooter() {
-  await connection()
-  const year = new Date().getFullYear()
-
+export default function PublicFooter() {
   return (
     <footer className="border-t border-[#E2E8F0] bg-[#F8FAFC] px-4 py-16 text-[#0b1c30] sm:px-6">
       <div className="mx-auto max-w-[1200px]">
@@ -114,7 +111,7 @@ export default async function PublicFooter() {
 
         <div className="flex flex-col items-center justify-between gap-3 border-t border-[#E2E8F0] pt-8 md:flex-row">
           <p className="text-xs font-semibold uppercase tracking-[0.05em] text-[#43474c]">
-            © {year} {BRAND_NAME}. All rights reserved.
+            © <CurrentYear /> {BRAND_NAME}. All rights reserved.
           </p>
           <div className="flex items-center gap-2">
             <div className="size-2 rounded-full bg-[#16a34a]" />

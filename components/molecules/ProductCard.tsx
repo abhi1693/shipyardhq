@@ -4,6 +4,7 @@ import ProductFeedCard from "@/components/molecules/ProductFeedCard"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import type { ProductCardVariant } from "@/types/product-card"
 import type { ProductInterestSignals } from "@/types/product-interest"
+import { stableUnitInterval } from "@/lib/stable-random"
 export type { ProductCardVariant } from "@/types/product-card"
 
 export type ProductCardBase = {
@@ -69,7 +70,9 @@ function toFeedItem(product: ProductCardItem): HomepageFeedItem {
     variant,
     isVerified: Boolean(product.isVerified),
     interest: product.interest ?? null,
-    shuffleRank: Math.random(),
+    shuffleRank: stableUnitInterval(
+      `product-card:${product.id}:${product.slug}`,
+    ),
   }
 }
 

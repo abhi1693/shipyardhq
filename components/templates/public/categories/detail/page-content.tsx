@@ -6,6 +6,7 @@ import { CategoryFeedClient } from "@/components/templates/public/categories/det
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
 import { TaxonomyTrafficStatsSidebar } from "@/components/templates/public/common/TaxonomyTrafficStatsSidebar"
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
+import { resolveTaxonomyReferenceDateIso } from "@/components/templates/public/common/TaxonomyProductRows"
 import { MEMBER_PRODUCTS_ADD_PATH, PRICING_PATH } from "@/lib/routes"
 
 interface CategoryPageProps {
@@ -32,7 +33,9 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
   const { category, productsPage, metrics } = data
   const initialPage = productsPage.nextPage ?? productsPage.page + 1
   const categorySlug = category.slug ?? slug
-  const referenceDateIso = new Date().toISOString()
+  const referenceDateIso = resolveTaxonomyReferenceDateIso(
+    productsPage.products,
+  )
 
   return (
     <TaxonomyDetailPage

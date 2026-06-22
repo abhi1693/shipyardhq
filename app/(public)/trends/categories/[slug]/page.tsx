@@ -33,6 +33,7 @@ import { TaxonomyTrafficStatsSidebar } from "@/components/templates/public/commo
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
 import {
   mapProductCardBaseToTaxonomyFeedItem,
+  resolveTaxonomyReferenceDateIso,
   TaxonomyProductRow,
 } from "@/components/templates/public/common/TaxonomyProductRows"
 import { pluralize } from "@/lib/pluralize"
@@ -144,10 +145,15 @@ async function TrendingToolsInCategoryPageContent({
     getPriorityPlacementPlanIds(),
   ])
 
-  const now = new Date()
+  const referenceDateIso = resolveTaxonomyReferenceDateIso(ordered)
+  const badgeReferenceDate = referenceDateIso
+    ? new Date(referenceDateIso)
+    : (ordered[0]?.updatedAt ?? ordered[0]?.createdAt)
   const items = ordered.map((record) =>
     toProductCardItem({
-      ...mapProductCardRecordToBase(record, now, { priorityPlanIds }),
+      ...mapProductCardRecordToBase(record, badgeReferenceDate, {
+        priorityPlanIds,
+      }),
       interest: interestMap.get(record.id) ?? null,
     }),
   )

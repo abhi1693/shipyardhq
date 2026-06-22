@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowUp, ImageIcon, Sparkles, TrendingUp } from "lucide-react"
-import { format, isToday, isYesterday, startOfWeek } from "date-fns"
+import { format, isSameDay, startOfWeek, subDays } from "date-fns"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
@@ -13,6 +13,32 @@ export type TaxonomyProductSection = {
   title: string
   dateLabel: string
   products: HomepageFeedItem[]
+}
+
+type TaxonomyReferenceDateItem = {
+  publishedAt?: string | Date | null
+  createdAt?: string | Date | null
+  updatedAt?: string | Date | null
+}
+
+function coerceValidDate(value?: string | Date | null): Date | null {
+  if (!value) return null
+  const date = value instanceof Date ? value : new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+export function resolveTaxonomyReferenceDateIso(
+  items: TaxonomyReferenceDateItem[],
+): string | null {
+  for (const item of items) {
+    const date =
+      coerceValidDate(item.publishedAt) ??
+      coerceValidDate(item.createdAt) ??
+      coerceValidDate(item.updatedAt)
+    if (date) return date.toISOString()
+  }
+
+  return null
 }
 
 function productDate(product: HomepageFeedItem) {
@@ -65,9 +91,10 @@ export function buildTaxonomyProductSections(
   referenceDateIso: string,
 ): TaxonomyProductSection[] {
   const referenceDate = new Date(referenceDateIso)
-  const weekStart = startOfWeek(
-    Number.isNaN(referenceDate.getTime()) ? new Date() : referenceDate,
-  )
+  if (Number.isNaN(referenceDate.getTime())) return []
+
+  const previousDate = subDays(referenceDate, 1)
+  const weekStart = startOfWeek(referenceDate)
 
   const sections = new Map<string, TaxonomyProductSection>()
 
@@ -76,12 +103,12 @@ export function buildTaxonomyProductSections(
     let key = "earlier"
     let title = "Recent launches"
 
-    if (isToday(date)) {
-      key = "today"
-      title = "Published Today"
-    } else if (isYesterday(date)) {
-      key = "yesterday"
-      title = "Published Yesterday"
+    if (isSameDay(date, referenceDate)) {
+      key = "latest"
+      title = "Latest launches"
+    } else if (isSameDay(date, previousDate)) {
+      key = "previous"
+      title = "Previous launches"
     } else if (date >= weekStart) {
       key = "week"
       title = "Published This Week"
@@ -104,7 +131,7 @@ export function buildTaxonomyProductSections(
     }
   }
 
-  return ["today", "yesterday", "week", "earlier"]
+  return ["latest", "previous", "week", "earlier"]
     .map((key) => sections.get(key))
     .filter((section): section is TaxonomyProductSection => Boolean(section))
 }

@@ -6,6 +6,7 @@ import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { getCategoryProductsPage } from "@/actions/public/categories/server-actions"
 import {
   buildTaxonomyProductSections,
+  resolveTaxonomyReferenceDateIso,
   TaxonomyProductSections,
 } from "@/components/templates/public/common/TaxonomyProductRows"
 
@@ -14,7 +15,7 @@ interface CategoryFeedClientProps {
   initialProducts: HomepageFeedItem[]
   initialPage: number
   pageSize: number
-  referenceDateIso: string
+  referenceDateIso?: string | null
   initialHasMore: boolean
 }
 
@@ -48,10 +49,13 @@ export function CategoryFeedClient({
     [initialProducts, normalizedInitialPage, normalizedPageSize, slug],
   )
 
-  const sections = useMemo(
-    () => buildTaxonomyProductSections(products, referenceDateIso),
-    [products, referenceDateIso],
-  )
+  const sections = useMemo(() => {
+    const resolvedReferenceDateIso =
+      referenceDateIso ?? resolveTaxonomyReferenceDateIso(products)
+    return resolvedReferenceDateIso
+      ? buildTaxonomyProductSections(products, resolvedReferenceDateIso)
+      : []
+  }, [products, referenceDateIso])
 
   useEffect(() => {
     setProducts(initialProducts)

@@ -6,6 +6,7 @@ import { TaxonomyDetailPage } from "@/components/templates/public/common/Taxonom
 import { TaxonomyTrafficStatsSidebar } from "@/components/templates/public/common/TaxonomyTrafficStatsSidebar"
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
 import { TaxonomyProductGridFeed } from "@/components/templates/public/common/TaxonomyProductGridFeed"
+import { resolveTaxonomyReferenceDateIso } from "@/components/templates/public/common/TaxonomyProductRows"
 import { getPlatformMeta } from "@/lib/platforms/config"
 import { getPlatformPagePayload } from "@/lib/platforms/page-cache"
 import {
@@ -44,7 +45,7 @@ export async function PlatformPageContent({
   ).replace(/\/$/, "")
   const pagePath = platformPath(platformMeta.slug)
   const resultCount = payload.total
-  const referenceDateIso = new Date().toISOString()
+  const referenceDateIso = resolveTaxonomyReferenceDateIso(payload.products)
 
   const itemList = {
     "@context": "https://schema.org",

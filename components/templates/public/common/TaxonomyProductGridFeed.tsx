@@ -5,6 +5,7 @@ import { TaxonomyProductRowsClient } from "@/components/templates/public/common/
 import {
   buildTaxonomyProductSections,
   mapProductCardBaseToTaxonomyFeedItem,
+  resolveTaxonomyReferenceDateIso,
   TaxonomyProductSections,
 } from "@/components/templates/public/common/TaxonomyProductRows"
 import { BROWSE_PATH } from "@/lib/routes"
@@ -24,7 +25,7 @@ interface TaxonomyProductGridFeedProps {
   products: ProductCardBase[]
   hasMore: boolean
   initialPage: number
-  referenceDateIso: string
+  referenceDateIso?: string | null
   searchParams: ProductGridSearchParams
   emptyTitle: string
   emptyDescription?: string
@@ -39,10 +40,16 @@ export function TaxonomyProductGridFeed({
   emptyTitle,
   emptyDescription = "Check back soon or explore everything in browse.",
 }: TaxonomyProductGridFeedProps) {
-  const initialSections = buildTaxonomyProductSections(
-    products.map((product) => mapProductCardBaseToTaxonomyFeedItem(product)),
-    referenceDateIso,
-  )
+  const resolvedReferenceDateIso =
+    referenceDateIso ?? resolveTaxonomyReferenceDateIso(products)
+  const initialSections = resolvedReferenceDateIso
+    ? buildTaxonomyProductSections(
+        products.map((product) =>
+          mapProductCardBaseToTaxonomyFeedItem(product),
+        ),
+        resolvedReferenceDateIso,
+      )
+    : []
 
   return (
     <>
@@ -69,7 +76,7 @@ export function TaxonomyProductGridFeed({
               initialProducts={[]}
               initialHasMore={hasMore}
               initialPage={initialPage}
-              referenceDateIso={referenceDateIso}
+              referenceDateIso={resolvedReferenceDateIso}
               searchParams={searchParams}
               initialContentRendered
             />

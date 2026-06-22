@@ -8,10 +8,7 @@ import {
   getKeywordTagProducts,
   getKeywordTagSummaries,
 } from "@/actions/public/tags/actions"
-import {
-  getHomepageFeedViewAll,
-  type HomepageFeedItem,
-} from "@/actions/public/homepage/feed"
+import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
 import { TaxonomyTrafficStatsSidebar } from "@/components/templates/public/common/TaxonomyTrafficStatsSidebar"
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
@@ -27,11 +24,11 @@ import {
 } from "@/lib/routes"
 import { buildPageMetadata } from "@/lib/metadata"
 import { getTagDetailPayload } from "@/lib/tags/page-cache"
-import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { hasEditorPickBadge } from "@/lib/products/badges"
 import { stripLegacyKeywordHash } from "@/lib/tags"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
+import { stableUnitInterval } from "@/lib/stable-random"
 
 export async function generateStaticParams() {
   const tags = await getKeywordTagSummaries()
@@ -116,11 +113,25 @@ function mapProductCardItemToFeedItem(
     isVoted: Boolean(product.isVoted),
     isVerified: Boolean(product.isVerified),
     variant,
-    shuffleRank: Math.random(),
+    shuffleRank: stableUnitInterval(`tag-feed:${product.id}:${product.slug}`),
   }
 }
 
 const MAX_TAG_PAGES = 50
+
+function resolveReferenceDateIso(
+  items: HomepageFeedItem[],
+  fallback?: Date | null,
+) {
+  for (const item of items) {
+    const parsed = new Date(item.publishedAt ?? item.createdAt ?? "")
+    if (!Number.isNaN(parsed.getTime())) return parsed.toISOString()
+  }
+
+  return fallback && !Number.isNaN(fallback.getTime())
+    ? fallback.toISOString()
+    : null
+}
 
 export default function TagDetailPage(props: TagPageProps) {
   return (
@@ -171,19 +182,7 @@ async function TagDetailPageContent({ params }: TagPageProps) {
   )
   const tagProductIdSet = new Set(tagProductItems.map((item) => item.id))
 
-  const homepageFeedItems = await getHomepageFeedViewAll({
-    view: DEFAULT_HOMEPAGE_FEED_VIEW,
-  })
-  const referenceDateIso = new Date().toISOString()
-
-  const filteredHomepageItems = homepageFeedItems.filter((item) =>
-    tagProductIdSet.has(item.id),
-  )
-
-  const seenIds = new Set(filteredHomepageItems.map((item) => item.id))
-
-  const fallbackFeedItems = tagProductItems
-    .filter((item) => !seenIds.has(item.id))
+  const combinedFeedItems = tagProductItems
     .map((item) => mapProductCardItemToFeedItem(item))
     .sort((a, b) => {
       const aTime = new Date(a.createdAt ?? "").getTime()
@@ -193,27 +192,15 @@ async function TagDetailPageContent({ params }: TagPageProps) {
       if (Number.isNaN(bTime)) return -1
       return bTime - aTime
     })
-
-  const combinedFeedItems: HomepageFeedItem[] = []
-  const combinedSeen = new Set<string>()
-
-  for (const item of filteredHomepageItems) {
-    if (combinedSeen.has(item.id)) continue
-    combinedSeen.add(item.id)
-    combinedFeedItems.push(item)
-  }
-
-  for (const item of fallbackFeedItems) {
-    if (combinedSeen.has(item.id)) continue
-    combinedSeen.add(item.id)
-    combinedFeedItems.push(item)
-  }
+  const referenceDateIso = resolveReferenceDateIso(
+    combinedFeedItems,
+    summary.lastUpdated,
+  )
 
   const taggedCount = tagProductIdSet.size
-  const feedSections = buildTaxonomyProductSections(
-    combinedFeedItems,
-    referenceDateIso,
-  )
+  const feedSections = referenceDateIso
+    ? buildTaxonomyProductSections(combinedFeedItems, referenceDateIso)
+    : []
 
   return (
     <TaxonomyDetailPage

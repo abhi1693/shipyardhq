@@ -1,4 +1,4 @@
-import type { NextRequest } from "next/server"
+import { connection, type NextRequest } from "next/server"
 
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
@@ -22,6 +22,8 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ index: string }> },
 ) {
+  await connection()
+
   const base = resolveSiteUrl()
   const { index } = await params
   const page = parseSitemapShardIndex(index)

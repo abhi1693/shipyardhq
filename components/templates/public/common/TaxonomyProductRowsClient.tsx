@@ -8,6 +8,7 @@ import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skel
 import {
   buildTaxonomyProductSections,
   mapProductCardBaseToTaxonomyFeedItem,
+  resolveTaxonomyReferenceDateIso,
   TaxonomyProductSections,
 } from "@/components/templates/public/common/TaxonomyProductRows"
 
@@ -26,7 +27,7 @@ interface TaxonomyProductRowsClientProps {
   initialProducts: ProductCardBase[]
   initialHasMore: boolean
   initialPage: number
-  referenceDateIso: string
+  referenceDateIso?: string | null
   searchParams: TaxonomyRowsSearchParams
   initialContentRendered?: boolean
 }
@@ -137,10 +138,14 @@ export function TaxonomyProductRowsClient({
     }
   }, [hasMore, loadMore, resetKey])
 
-  const sections = buildTaxonomyProductSections(
-    items.map((item) => mapProductCardBaseToTaxonomyFeedItem(item)),
-    referenceDateIso,
-  )
+  const resolvedReferenceDateIso =
+    referenceDateIso ?? resolveTaxonomyReferenceDateIso(items)
+  const sections = resolvedReferenceDateIso
+    ? buildTaxonomyProductSections(
+        items.map((item) => mapProductCardBaseToTaxonomyFeedItem(item)),
+        resolvedReferenceDateIso,
+      )
+    : []
   const shouldRenderEmptyState = !initialContentRendered && !items.length
 
   return (

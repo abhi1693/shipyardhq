@@ -4,19 +4,12 @@ import PublicFooter from "@/components/layout/footers/public-footer"
 import { getPartnerSpotlightProduct } from "@/actions/public/products/featured"
 import { PartnerSpotlight } from "@/components/templates/public/common/PartnerSpotlight"
 import { buildSectionMetadata } from "@/lib/metadata"
-import { connection } from "next/server"
 
 export const metadata = buildSectionMetadata()
 
-function getPartnerSpotlightRotationKey(date = new Date()) {
-  return date.toISOString().slice(0, 13)
-}
-
 async function PartnerSpotlightSlot() {
-  await connection()
-
   const partnerSpotlight = await getPartnerSpotlightProduct(
-    getPartnerSpotlightRotationKey(),
+    "public-layout",
   ).catch(() => null)
 
   return <PartnerSpotlight product={partnerSpotlight} />

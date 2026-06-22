@@ -1,4 +1,4 @@
-import type { NextRequest } from "next/server"
+import { connection, type NextRequest } from "next/server"
 
 import prisma from "@/lib/prisma"
 import { resolveSiteUrl } from "@/lib/siteConfig"
@@ -16,6 +16,8 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ index: string }> },
 ) {
+  await connection()
+
   const base = resolveSiteUrl()
 
   const { index } = await params

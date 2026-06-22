@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
-import { connection } from "next/server"
 
 import {
   ALTERNATIVE_DETAIL_PAGE_SIZE,
@@ -16,6 +15,7 @@ import { TaxonomyDetailSkeleton } from "@/components/templates/public/common/Tax
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
 import { TaxonomyTrafficStatsSidebar } from "@/components/templates/public/common/TaxonomyTrafficStatsSidebar"
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
+import { resolveTaxonomyReferenceDateIso } from "@/components/templates/public/common/TaxonomyProductRows"
 import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import {
   ALTERNATIVES_PATH,
@@ -55,21 +55,19 @@ export async function generateMetadata({
   })
 
   const linkedCount = productsSummary.total
-  await connection()
-  const currentYear = new Date().getFullYear()
   const title =
     linkedCount > 0
-      ? `Top ${linkedCount} ${alternative.name} Alternatives & Competitors in ${currentYear}`
-      : `Best ${alternative.name} Alternatives & Competitors in ${currentYear}`
+      ? `Top ${linkedCount} ${alternative.name} Alternatives & Competitors`
+      : `Best ${alternative.name} Alternatives & Competitors`
 
   const fallbackDescription =
     linkedCount > 0
-      ? `Discover the top ${linkedCount} ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders in ${currentYear}.`
-      : `Discover the best ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders in ${currentYear}.`
+      ? `Discover the top ${linkedCount} ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders.`
+      : `Discover the best ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders.`
   const generatedDescription =
     linkedCount > 0
-      ? `Compare ${linkedCount} ${alternative.name} alternatives, competitors, and replacement products curated for founders on Shipyard in ${currentYear}.`
-      : `Compare ${alternative.name} alternatives, competitors, and replacement products curated for founders on Shipyard in ${currentYear}.`
+      ? `Compare ${linkedCount} ${alternative.name} alternatives, competitors, and replacement products curated for founders on Shipyard.`
+      : `Compare ${alternative.name} alternatives, competitors, and replacement products curated for founders on Shipyard.`
   const description =
     buildMetaDescription(
       alternative.description,
@@ -84,7 +82,7 @@ export async function generateMetadata({
     `top tools like ${alternative.name}`,
     `${alternative.name} replacement software`,
     `${alternative.name} alternative platforms`,
-    `${alternative.name} competitor comparison ${currentYear}`,
+    `${alternative.name} competitor comparison`,
   ]
 
   const metadata = buildPageMetadata({
@@ -143,8 +141,7 @@ async function AlternativeDetailPageContent({
       getTaxonomySponsorProducts(),
     ])
 
-  const currentYear = new Date().getFullYear()
-  const referenceDateIso = new Date().toISOString()
+  const referenceDateIso = resolveTaxonomyReferenceDateIso(productsPage.items)
   const curatedCount =
     productsPage.total > 0 ? Math.min(productsPage.total, 8) : 0
   const description = alternative.description?.trim().length
@@ -173,13 +170,13 @@ async function AlternativeDetailPageContent({
     `tools like ${alternative.name}`,
     `${alternative.name} replacement software`,
     `${alternative.name} alternative platforms`,
-    `${alternative.name} similar products ${currentYear}`,
+    `${alternative.name} similar products`,
   ]
 
   const structuredDescription =
     productsPage.total > 0
-      ? `Compare the top ${productsPage.total} ${alternative.name} alternatives, competitors, and similar tools Shipyard makers rely on in ${currentYear}.`
-      : `Explore curated ${alternative.name} competitors, similar tools, and replacement platforms updated for ${currentYear}.`
+      ? `Compare the top ${productsPage.total} ${alternative.name} alternatives, competitors, and similar tools Shipyard makers rely on.`
+      : `Explore curated ${alternative.name} competitors, similar tools, and replacement platforms.`
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -213,7 +210,7 @@ async function AlternativeDetailPageContent({
       url: siteConfig.url,
     },
     mainEntityOfPage: alternativeUrl,
-    dateModified: new Date().toISOString(),
+    ...(referenceDateIso ? { dateModified: referenceDateIso } : {}),
     mainEntity: {
       "@type": "ItemList",
       name: `Products like ${alternative.name}`,
@@ -271,7 +268,7 @@ async function AlternativeDetailPageContent({
       stats={[
         { label: "Mapped Products", value: productsPage.total },
         { label: "Featured", value: featuredAlternatives.length },
-        { label: "Updated", value: currentYear },
+        { label: "Alternatives", value: curatedCount },
       ]}
       feed={
         <AlternativeProductsClient
